@@ -587,6 +587,9 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_IEEE_802_11_AIROPEEK */
 	{ "IEEE 802.11 plus AiroPeek radio header", "ieee-802-11-airopeek" },
 
+	/* WTAP_ENCAP_SDH */
+	{ "SDH", "sdh" },
+
 	/* WTAP_ENCAP_DBUS */
 	{ "D-Bus", "dbus" }
 };
