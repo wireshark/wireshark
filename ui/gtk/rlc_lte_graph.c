@@ -498,6 +498,7 @@ static void create_drawing_area(struct graph *g)
         }
         gdk_gc_set_foreground(xor_gc, &color);
     }
+#endif
 
     /* puts("exiting create_drawing_area()"); */
 }
@@ -959,7 +960,6 @@ static void graph_title_pixmap_create(struct graph *g)
 
 static void graph_title_pixmap_draw(struct graph *g)
 {
-    int i;
     gint w, h;
     PangoLayout *layout;
     cairo_t *cr;
@@ -975,7 +975,7 @@ static void graph_title_pixmap_draw(struct graph *g)
 
     layout = gtk_widget_create_pango_layout(g->drawing_area, "");
     pango_layout_get_pixel_size(layout, &w, &h);
-    cairo_move_to(cr, g->wp.width/2 - w/2, 20 + i*(h+3));
+    cairo_move_to(cr, g->wp.width/2 - w/2, 20);
     pango_cairo_show_layout(cr, layout);
     g_object_unref(G_OBJECT(layout));
 
