@@ -807,6 +807,16 @@ static const value_string homeplug_av_key_type_vals[] = {
    { 0, NULL }
 };
 
+#define HOMEPLUG_AV_DEV_ID_MASK		0x03
+
+static const value_string homeplug_av_dev_id_vals[] = {
+   { 0x00, "Uknown" },
+   { 0x01, "INT6000" },
+   { 0x02, "INT6300" },
+   { 0x03, "INT6400" },
+   { 0, NULL }
+};
+
 #define HOMEPLUG_AV_REQ_TYPE_MASK	0x01
 
 static const value_string homeplug_av_req_type_vals[] = {
@@ -3268,7 +3278,7 @@ proto_register_homeplug_av(void)
       },
       { &hf_homeplug_av_get_sw_cnf_dev_id,
         { "Device ID", "homeplug_av.get_sw_cnf.dev_id",
-	  FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+	  FT_UINT8, BASE_HEX, VALS(homeplug_av_dev_id_vals), HOMEPLUG_AV_DEV_ID_MASK, NULL, HFILL }
       },
       { &hf_homeplug_av_get_sw_cnf_ver_len,
         { "Version length", "homeplug_av.get_sw_cnf.ver_len",
