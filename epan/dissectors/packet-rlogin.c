@@ -266,6 +266,8 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		/* First frame of conversation, assume user info... */
 
 		info_len = tvb_length_remaining(tvb, offset);
+		if (info_len <= 0)
+			return;
 
 		/* User info tree */
 		user_info_item = proto_tree_add_string_format(rlogin_tree, hf_user_info, tvb,
