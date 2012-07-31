@@ -74,7 +74,8 @@ main_titlebar_update(void)
         title = create_user_window_title(window_name);
 
         /* Optionally append the version */
-        if (prefs.gui_version_in_start_page) {
+        if ((prefs.gui_version_placement == version_title_only) ||
+            (prefs.gui_version_placement == version_both)) {
             gchar *old_title = title;
             title = g_strdup_printf("%s   [Wireshark %s %s]", title, VERSION, wireshark_svnversion);
             g_free(old_title);

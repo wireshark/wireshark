@@ -328,7 +328,8 @@ welcome_header_set_message(gchar *msg) {
             g_string_append(message, prefs.gui_start_title);
         }
 
-        if (prefs.gui_version_in_start_page) {
+        if ((prefs.gui_version_placement == version_welcome_only) ||
+            (prefs.gui_version_placement == version_both)) {
             g_string_append_printf(message, "</span>\n<span size=\"large\" foreground=\"white\">Version " VERSION "%s",
                                    wireshark_svnversion);
         }

@@ -98,6 +98,9 @@ static const gchar    *gui_hex_dump_highlight_style_text[] =
 static const gchar    *gui_console_open_text[] =
     { "NEVER", "AUTOMATIC", "ALWAYS", NULL };
 
+static const gchar    *gui_version_placement_text[] =
+    { "WELCOME", "TITLE", "BOTH", "NEITHER", NULL };
+
 static const gchar    *gui_fileopen_style_text[] =
     { "LAST_OPENED", "SPECIFIED", NULL };
 
@@ -1519,7 +1522,7 @@ init_prefs(void)
   prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
   prefs.gui_window_title           = g_strdup("");
   prefs.gui_start_title            = g_strdup("The World's Most Popular Network Protocol Analyzer");
-  prefs.gui_version_in_start_page  = TRUE;
+  prefs.gui_version_placement      = version_both;
   prefs.gui_auto_scroll_on_expand  = FALSE;
   prefs.gui_auto_scroll_percentage = 0;
   prefs.gui_layout_type            = layout_type_5;
@@ -2206,7 +2209,7 @@ prefs_capture_device_monitor_mode(const char *name)
 #define PRS_GUI_WEBBROWSER               "gui.webbrowser"
 #define PRS_GUI_WINDOW_TITLE             "gui.window_title"
 #define PRS_GUI_START_TITLE              "gui.start_title"
-#define PRS_GUI_VERSION_IN_START_PAGE    "gui.version_in_start_page"
+#define PRS_GUI_VERSION_PLACEMENT        "gui.version_placement"
 #define PRS_GUI_AUTO_SCROLL              "gui.auto_scroll_on_expand"
 #define PRS_GUI_AUTO_SCROLL_PERCENTAGE   "gui.auto_scroll_percentage"
 #define PRS_GUI_LAYOUT_TYPE              "gui.layout_type"
@@ -2628,11 +2631,12 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
   } else if (strcmp(pref_name, PRS_GUI_START_TITLE) == 0) {
     g_free(prefs.gui_start_title);
     prefs.gui_start_title = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_GUI_VERSION_IN_START_PAGE) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_version_in_start_page = TRUE;
-    } else {
-      prefs.gui_version_in_start_page = FALSE;
+  } else if (strcmp(pref_name, PRS_GUI_VERSION_PLACEMENT) == 0) {
+    prefs.gui_version_placement = strtoul(value, NULL, 10);
+    if (prefs.gui_version_placement > version_neither) {
+      /* XXX - report an error?  It's not a syntax error - we'd need to
+         add a way of reporting a *semantic* error. */
+      prefs.gui_version_placement = version_welcome_only;
     }
   } else if (strcmp(pref_name, PRS_GUI_AUTO_SCROLL) == 0) {
     if (g_ascii_strcasecmp(value, "true") == 0) {
@@ -3475,12 +3479,13 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_START_TITLE ": %s\n",
           prefs.gui_start_title);
 
-  fprintf(pf, "\n# Show version in the start page and main screen's title bar.\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_version_in_start_page == default_prefs.gui_version_in_start_page)
+
+  fprintf(pf, "\n# Show version in the start page and/or main screen's title bar.\n");
+  fprintf(pf, "# One of: WELCOME, TITLE, BOTH, NEITHER\n");
+  if (prefs.gui_version_placement == default_prefs.gui_version_placement)
     fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_VERSION_IN_START_PAGE ": %s\n",
-          prefs.gui_version_in_start_page == TRUE ? "TRUE" : "FALSE");
+  fprintf(pf, PRS_GUI_VERSION_PLACEMENT ": %s\n",
+          gui_version_placement_text[prefs.gui_version_placement]);
 
   fprintf(pf, "\n# Automatically scroll the recently expanded item.\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
@@ -3848,7 +3853,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_webbrowser = g_strdup(src->gui_webbrowser);
   dest->gui_window_title = g_strdup(src->gui_window_title);
   dest->gui_start_title = g_strdup(src->gui_start_title);
-  dest->gui_version_in_start_page = src->gui_version_in_start_page;
+  dest->gui_version_placement = src->gui_version_placement;
   dest->console_log_level = src->console_log_level;
 /*  values for the capture dialog box */
   dest->capture_device = g_strdup(src->capture_device);

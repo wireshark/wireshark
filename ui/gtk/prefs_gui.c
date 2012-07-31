@@ -131,6 +131,14 @@ static const enum_val_t gui_console_open_vals[] = {
 };
 #endif
 
+static const enum_val_t gui_version_placement_vals[] = {
+	{ "WELCOME",  "Welcome only",               version_welcome_only },
+	{ "TITLE",    "Title only",                 version_title_only },
+	{ "BOTH",     "Both",                       version_both },
+	{ "NEITHER",  "Neither",                    version_neither },
+	{ NULL,        NULL,                         0 }
+};
+
 static const enum_val_t gui_fileopen_vals[] = {
 	{ "LAST_OPENED", "Remember last directory", FO_STYLE_LAST_OPENED },
 	{ "SPECIFIED",   "Always start in:",        FO_STYLE_SPECIFIED },
@@ -175,7 +183,7 @@ gui_prefs_show(void)
 	GtkWidget *fileopen_rb, *fileopen_dir_te, *fileopen_preview_te;
 	GtkWidget *recent_files_count_max_te, *recent_df_entries_max_te, *ask_unsaved_cb, *find_wrap_cb;
 	GtkWidget *use_pref_save_cb;
-	GtkWidget *show_version_cb;
+	GtkWidget *show_version_om;
 	GtkWidget *auto_scroll_cb, *scroll_percent_te;
 	GtkWidget *webbrowser_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
@@ -328,12 +336,12 @@ gui_prefs_show(void)
 	    prefs.gui_use_pref_save);
 	g_object_set_data(G_OBJECT(main_vb), GUI_USE_PREF_SAVE_KEY, use_pref_save_cb);
 
-	/* Show version in welcome screen */
-	show_version_cb = create_preference_check_button(main_tb, pos++,
-	    "Welcome screen and title bar shows version:",
-	    "Whether version should be shown in the start page and main screen's title bar.",
-	    prefs.gui_version_in_start_page );
-	g_object_set_data(G_OBJECT(main_vb), GUI_SHOW_VERSION_KEY, show_version_cb);
+	/* Show version in welcome and/or title screen */
+	show_version_om = create_preference_option_menu(main_tb, pos++,
+	    "Welcome screen and title bar shows version",
+	    "Whether version should be shown in the start page and/or main screen's title bar.",
+	    gui_version_placement_vals, prefs.gui_version_placement);
+	g_object_set_data(G_OBJECT(main_vb), GUI_SHOW_VERSION_KEY, show_version_om);
 
 	/* Whether to auto scroll when expanding items */
 	auto_scroll_cb = create_preference_check_button(main_tb, pos++,
@@ -471,8 +479,8 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_use_pref_save =
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_USE_PREF_SAVE_KEY));
 
-	prefs.gui_version_in_start_page  =
-		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_SHOW_VERSION_KEY));
+	prefs.gui_version_placement =
+        fetch_enum_value(g_object_get_data(G_OBJECT(w), GUI_SHOW_VERSION_KEY), gui_version_placement_vals);
 
 	prefs.gui_auto_scroll_on_expand = 
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_AUTO_SCROLL_KEY));

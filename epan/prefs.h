@@ -103,6 +103,16 @@ typedef enum {
     console_open_always
 } console_open_e;
 
+/*
+ * Places version information will show up
+ */
+typedef enum {
+    version_welcome_only,
+    version_title_only,
+    version_both,
+    version_neither
+} version_info_e;
+
 
 typedef struct _e_prefs {
   gint     pr_format;
@@ -146,7 +156,7 @@ typedef struct _e_prefs {
   gchar   *gui_webbrowser;
   gchar   *gui_window_title;
   gchar   *gui_start_title;
-  gboolean gui_version_in_start_page;
+  version_info_e gui_version_placement;
   gboolean gui_auto_scroll_on_expand;
   guint    gui_auto_scroll_percentage;
   layout_type_e gui_layout_type;
