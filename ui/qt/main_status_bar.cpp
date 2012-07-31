@@ -131,29 +131,30 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     QString readyMsg(DEF_READY_MESSAGE);
     QWidget *infoProgress = new QWidget(this);
     QHBoxLayout *infoProgressHB = new QHBoxLayout(infoProgress);
-    int pbMargin = infoProgressHB->contentsMargins().left();
 
     infoProgressHB->setMargin(0);
     infoProgressHB->setContentsMargins(0, 0, 0, 0);
     m_progressBar.setStyleSheet(QString(
                                 "ProgressBar {"
-//                                "  margin-left: %1px;"
                                 "  max-width: 8em;"
-                                "}")
-//                                .arg(pbMargin)
-                                );
+                                "  min-height: 0.8em;"
+                                "  max-height: 1em;"
+                                "}"));
     // XXX - Add the expert level icon
 
     m_infoStatus.setTemporaryContext(STATUS_CTX_TEMPORARY);
+
     infoProgressHB->addWidget(&m_infoStatus);
     infoProgressHB->addWidget(&m_progressBar);
+    infoProgressHB->addStretch(10);
+
     splitter->addWidget(infoProgress);
     splitter->addWidget(&m_packetStatus);
     splitter->addWidget(&m_profileStatus);
 
     splitter->setStretchFactor(0, 3);
     splitter->setStretchFactor(1, 3);
-    splitter->setStretchFactor(2, 0);
+    splitter->setStretchFactor(2, 1);
 
     addWidget(splitter, 1);
 
