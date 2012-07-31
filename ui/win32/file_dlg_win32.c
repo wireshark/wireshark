@@ -1402,6 +1402,12 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
         cur_ctrl = GetDlgItem(of_hwnd, i);
         if (cur_ctrl) {
             EnableWindow(cur_ctrl, FALSE);
+        }
+    }
+
+    for (i = EWFD_PTX_FORMAT; i <= EWFD_PTX_ELAPSED; i++) {
+        cur_ctrl = GetDlgItem(of_hwnd, i);
+        if (cur_ctrl) {
             SetWindowText(cur_ctrl, _T("-"));
         }
     }
