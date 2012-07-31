@@ -8023,6 +8023,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
                                  "Message type: %s (%u)",
                                  val_to_str_ext_const(message_type, &israeli_isup_message_type_value_ext, "reserved"),
                                  message_type);
+      break;
   case ISUP_RUSSIAN_VARIANT:
       proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
                                  "Message type: %s (%u)",
