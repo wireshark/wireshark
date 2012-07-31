@@ -85,7 +85,7 @@
  * RFC 6550: RPL: IPv6 Routing Protocol for Low power and Lossy Networks
  * RFC 6554: An IPv6 Routing Header for Source Routes with RPL
  * draft-irtf-rrg-ilnp-icmpv6-06: ICMP Locator Update message for ILNPv6
- * draft-ietf-6lowpan-nd-18: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
+ * draft-ietf-6lowpan-nd-19: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
  * http://www.iana.org/assignments/icmpv6-parameters (last updated 2012-07-18)
  */
 
@@ -233,7 +233,9 @@ static int hf_icmpv6_opt_6co_flag_cid = -1;
 static int hf_icmpv6_opt_6co_flag_reserved = -1;
 static int hf_icmpv6_opt_6co_valid_lifetime = -1;
 static int hf_icmpv6_opt_6co_context_prefix  = -1;
-static int hf_icmpv6_opt_abro_version = -1;
+static int hf_icmpv6_opt_abro_version_low = -1;
+static int hf_icmpv6_opt_abro_version_high = -1;
+static int hf_icmpv6_opt_abro_valid_lifetime = -1;
 static int hf_icmpv6_opt_abro_6lbr_address = -1;
 
 /* RFC 2710: Multicast Listener Discovery for IPv6 */
@@ -580,8 +582,8 @@ static const value_string icmpv6_type_val[] = {
     { ICMP6_FMIPV6_MESSAGES,       "FMIPv6" },                                          /* [RFC5568] */
     { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* [RFC6550] */
     { ICMP6_ILNPV6,                "Locator Update"},                                   /* draft-irtf-rrg-ilnp-icmpv6-06.txt Pending IANA */
-    { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* draft-ietf-6lowpan-nd-18.txt Pending IANA */
-    { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* draft-ietf-6lowpan-nd-18.txt Pending IANA */
+    { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* draft-ietf-6lowpan-nd-19.txt Pending IANA */
+    { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* draft-ietf-6lowpan-nd-19.txt Pending IANA */
     { 200,                         "Private experimentation" },                         /* [RFC4443] */
     { 201,                         "Private experimentation" },                         /* [RFC4443] */
     { 255,                         "Reserved for expansion of ICMPv6 informational messages" }, /* [RFC4443] */
@@ -841,9 +843,9 @@ static const value_string option_vals[] = {
 /* 30 */   { ND_OPT_MOBILE_NODE_ID,            "Mobile Node Identifier Option" },          /* [RFC5271] */
 /* 31 */   { ND_OPT_DNS_SEARCH_LIST,           "DNS Search List Option" },                 /* [RFC6106] */
 /* 32 */   { ND_OPT_PROXY_SIGNATURE,           "Proxy Signature (PS)" },                   /* [RFC6496] */
-/* 31 */   { ND_OPT_ADDR_REGISTRATION,         "Address Registration Option" },            /* [draft-ietf-6lowpan-nd-18.txt] */
-/* 32 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [draft-ietf-6lowpan-nd-18.txt] */
-/* 33 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authoritative Border Router" },              /* [draft-ietf-6lowpan-nd-18.txt] */
+/* 31 */   { ND_OPT_ADDR_REGISTRATION,         "Address Registration Option" },            /* [draft-ietf-6lowpan-nd-19.txt] */
+/* 32 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [draft-ietf-6lowpan-nd-19.txt] */
+/* 33 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authoritative Border Router" },              /* [draft-ietf-6lowpan-nd-19.txt] */
 /* 34-137  Unassigned */
    { 138,                              "CARD Request" },                           /* [RFC4065] */
    { 139,                              "CARD Reply" },                             /* [RFC4065] */
@@ -2104,20 +2106,26 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             break;
             case ND_OPT_AUTH_BORDER_ROUTER: /* Authoritative Border Router (33) */
             {
-                guint16 version;
+                guint16 version_low, version_high, valid_lifetime;
 
-                /* Version */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_version, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
-                version = tvb_get_ntohs(tvb, opt_offset);
+                /* Version low*/
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_version_low, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                version_low = tvb_get_ntohs(tvb, opt_offset);
                 opt_offset += 2;
 
-                /* Reserved */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_NA);
-                opt_offset += 4;
+                /* Version high */
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_version_high, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                version_high = tvb_get_ntohs(tvb, opt_offset);
+                opt_offset += 2;
+
+                /* Valid lifetime */
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_valid_lifetime, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                valid_lifetime = tvb_get_ntohs(tvb, opt_offset);
+                opt_offset += 2;
 
                 /* 6LBR Address */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_6lbr_address, tvb, opt_offset, 16, ENC_NA);
-                proto_item_append_text(ti, " : Version %d, 6LBR : %s", version, tvb_ip6_to_str(tvb, opt_offset));
+                proto_item_append_text(ti, " : Version %d.%d, Valid Lifetime : %d,6LBR : %s", version_high, version_low, valid_lifetime, tvb_ip6_to_str(tvb, opt_offset));
                 opt_offset += 16;
 
             }
@@ -4170,9 +4178,15 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_6co_context_prefix,
           { "Context Prefix", "icmpv6.opt.6co.context_prefix", FT_IPv6, BASE_NONE, NULL, 0x00,
             "The IPv6 prefix or address corresponding to the Context ID (CID) field", HFILL }},
-        { &hf_icmpv6_opt_abro_version,
-          { "Version", "icmpv6.opt.abro.version", FT_UINT16, BASE_DEC, NULL, 0x00,
-            "The version number corresponding to this set of information contained in the RA message", HFILL }},
+        { &hf_icmpv6_opt_abro_version_low,
+          { "Version Low", "icmpv6.opt.abro.version_low", FT_UINT16, BASE_DEC, NULL, 0x00,
+            "The version number low (the least significant 16 bits) corresponding to this set of information contained in the RA message", HFILL }},
+        { &hf_icmpv6_opt_abro_version_high,
+          { "Version", "icmpv6.opt.abro.version_high", FT_UINT16, BASE_DEC, NULL, 0x00,
+            "The version number high (most significant 16 bits) corresponding to this set of information contained in the RA message", HFILL }},
+        { &hf_icmpv6_opt_abro_valid_lifetime,
+          { "Valid Lifetime", "icmpv6.opt.abro.valid_lifetime", FT_UINT16, BASE_DEC, NULL, 0x00,
+            "The length of time in a unit of 60 seconds (relative to the time the packet is received) that this set of border router information is valid.", HFILL }},
         { &hf_icmpv6_opt_abro_6lbr_address,
           { "6LBR Address", "icmpv6.opt.abro.6lbr_address", FT_IPv6, BASE_NONE, NULL, 0x00,
             "IPv6 address of the 6LBR that is the origin of the included version number", HFILL }},
