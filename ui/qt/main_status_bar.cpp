@@ -140,7 +140,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 //                                "  margin-left: %1px;"
                                 "  max-width: 8em;"
                                 "}")
-                                .arg(pbMargin)
+//                                .arg(pbMargin)
                                 );
     // XXX - Add the expert level icon
 

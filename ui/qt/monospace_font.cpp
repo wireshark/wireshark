@@ -23,7 +23,16 @@
 
 #include "monospace_font.h"
 
+#include "wireshark_application.h"
+
 #include <QFontMetrics>
+#include <QString>
+#include <QStringList>
+#include <QDebug>
+
+//
+// XXX We should probably move this to wsApp.
+//
 
 //MonospaceFont::MonospaceFont(QObject *parent) :
 //    QFont(parent)
@@ -36,24 +45,41 @@ QFont m_r_font, m_b_font;
 //    emit(monospaceFontChanged(self));
 //}
 
+// http://en.wikipedia.org/wiki/Category:Monospaced_typefaces
+#define WIN_DEF_FONT "Consolas"
+#define WIN_ALT_FONTS "Lucida Console"
+#define OSX_DEF_FONT "Menlo"
+#define OSX_ALT_FONTS "Monaco"
+#define X11_DEF_FONT "Bitstream Vera Sans Mono"
+#define X11_ALT_FONTS "Liberation Mono" << "DejaVu Sans Mono"
+#define FALLBACK_FONTS "Lucida Sans Typewriter" << "Inconsolata" << "Droid Sans Mono" << "Andale Mono" << "Courier New" << "monospace"
+
 void
 font_init(void) {
-    m_r_font.setFamily("Lucida Console");
-//    m_r_font.setPointSize(10);
-#if QT_VERSION >= 0x040700
-    m_r_font.setStyleHint(QFont::Monospace);
+    QStringList substitutes;
+
+    // Try to pick the latest, shiniest fixed-width font for our OS.
+#if defined(Q_WS_WIN)
+#define DEF_FONT WIN_DEF_FONT
+    substitutes = QStringList() << WIN_ALT_FONTS << OSX_DEF_FONT << OSX_ALT_FONTS << X11_DEF_FONT << X11_ALT_FONTS << FALLBACK_FONTS;
+#elif defined(Q_WS_MAC)
+#define DEF_FONT OSX_DEF_FONT
+    substitutes = QStringList() << OSX_ALT_FONTS << WIN_DEF_FONT << WIN_ALT_FONTS << X11_DEF_FONT << X11_ALT_FONTS << FALLBACK_FONTS;
 #else
-    m_r_font.setStyleHint(QFont::TypeWriter);
+#define DEF_FONT X11_DEF_FONT
+    substitutes = QStringList() << X11_ALT_FONTS << WIN_DEF_FONT << WIN_ALT_FONTS << OSX_DEF_FONT << OSX_ALT_FONTS << FALLBACK_FONTS;
 #endif
 
-    m_b_font.setFamily("Lucida Console");
-//    m_b_font.setPointSize(10);
+    m_r_font.setFamily(DEF_FONT);
+    m_r_font.insertSubstitutions(DEF_FONT, substitutes);
+    m_r_font.setPointSize(wsApp->font().pointSize());
+    m_r_font.setFixedPitch(true);
+
+    m_b_font.setFamily(DEF_FONT);
+    m_b_font.insertSubstitutions(DEF_FONT, substitutes);
+    m_b_font.setPointSize(wsApp->font().pointSize());
+    m_b_font.setFixedPitch(true);
     m_b_font.setWeight(QFont::Bold);
-#if QT_VERSION >= 0x040700
-    m_b_font.setStyleHint(QFont::Monospace);
-#else
-    m_b_font.setStyleHint(QFont::TypeWriter);
-#endif
 }
 
 fa_ret_t
