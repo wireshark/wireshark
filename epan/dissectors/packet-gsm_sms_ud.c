@@ -455,63 +455,63 @@ proto_register_gsm_sms_ud(void)
          * User Data Header
          */
         {   &hf_gsm_sms_udh_iei,
-            {   "IE Id", "gsm-sms-ud.udh.iei",
+            {   "IE Id", "gsm_sms_ud.udh.iei",
                 FT_UINT8, BASE_HEX, VALS(vals_udh_iei), 0x00,
                 "Name of the User Data Header Information Element.",
                 HFILL
             }
         },
         {   &hf_gsm_sms_udh_length,
-            {   "UDH Length", "gsm-sms-ud.udh.len",
+            {   "UDH Length", "gsm_sms_ud.udh.len",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
                 "Length of the User Data Header (bytes)",
                 HFILL
             }
         },
         {   &hf_gsm_sms_udh_multiple_messages,
-            {   "Multiple messages UDH", "gsm-sms-ud.udh.mm",
+            {   "Multiple messages UDH", "gsm_sms_ud.udh.mm",
                 FT_NONE, BASE_NONE, NULL, 0x00,
                 "Multiple messages User Data Header",
                 HFILL
             }
         },
         {   &hf_gsm_sms_udh_multiple_messages_msg_id,
-            {   "Message identifier", "gsm-sms-ud.udh.mm.msg_id",
+            {   "Message identifier", "gsm_sms_ud.udh.mm.msg_id",
                 FT_UINT16, BASE_DEC, NULL, 0x00,
                 "Identification of the message",
                 HFILL
             }
         },
         {   &hf_gsm_sms_udh_multiple_messages_msg_parts,
-            {   "Message parts", "gsm-sms-ud.udh.mm.msg_parts",
+            {   "Message parts", "gsm_sms_ud.udh.mm.msg_parts",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
                 "Total number of message parts (fragments)",
                 HFILL
             }
         },
         {   &hf_gsm_sms_udh_multiple_messages_msg_part,
-            {   "Message part number", "gsm-sms-ud.udh.mm.msg_part",
+            {   "Message part number", "gsm_sms_ud.udh.mm.msg_part",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
                 "Message part (fragment) sequence number",
                 HFILL
             }
         },
         {   &hf_gsm_sms_udh_ports,
-            {   "Port number UDH", "gsm-sms-ud.udh.ports",
+            {   "Port number UDH", "gsm_sms_ud.udh.ports",
                 FT_NONE, BASE_NONE, NULL, 0x00,
                 "Port number User Data Header",
                 HFILL
             }
         },
         {   &hf_gsm_sms_udh_ports_src,
-            {   "Source port", "gsm-sms-ud.udh.ports.src",
+            {   "Source port", "gsm_sms_ud.udh.ports.src",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
                 NULL,
                 HFILL
             }
         },
         {   &hf_gsm_sms_udh_ports_dst,
-            {   "Destination port", "gsm-sms-ud.udh.ports.dst",
+            {   "Destination port", "gsm_sms_ud.udh.ports.dst",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
                 NULL,
                 HFILL
@@ -521,21 +521,21 @@ proto_register_gsm_sms_ud(void)
          * Short Message fragment reassembly
          */
         {   &hf_gsm_sms_ud_fragments,
-            {   "Short Message fragments", "gsm-sms-ud.fragments",
+            {   "Short Message fragments", "gsm_sms_ud.fragments",
                 FT_NONE, BASE_NONE, NULL, 0x00,
                 "GSM Short Message fragments",
                 HFILL
             }
         },
         {   &hf_gsm_sms_ud_fragment,
-            {   "Short Message fragment", "gsm-sms-ud.fragment",
+            {   "Short Message fragment", "gsm_sms_ud.fragment",
                 FT_FRAMENUM, BASE_NONE, NULL, 0x00,
                 "GSM Short Message fragment",
                 HFILL
             }
         },
         {   &hf_gsm_sms_ud_fragment_overlap,
-            {   "Short Message fragment overlap", "gsm-sms-ud.fragment.overlap",
+            {   "Short Message fragment overlap", "gsm_sms_ud.fragment.overlap",
                 FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 "GSM Short Message fragment overlaps with other fragment(s)",
                 HFILL
@@ -543,7 +543,7 @@ proto_register_gsm_sms_ud(void)
         },
         {   &hf_gsm_sms_ud_fragment_overlap_conflicts,
             {   "Short Message fragment overlapping with conflicting data",
-                "gsm-sms-ud.fragment.overlap.conflicts",
+                "gsm_sms_ud.fragment.overlap.conflicts",
                 FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 "GSM Short Message fragment overlaps with conflicting data",
                 HFILL
@@ -551,7 +551,7 @@ proto_register_gsm_sms_ud(void)
         },
         {   &hf_gsm_sms_ud_fragment_multiple_tails,
             {   "Short Message has multiple tail fragments",
-                "gsm-sms-ud.fragment.multiple_tails",
+                "gsm_sms_ud.fragment.multiple_tails",
                 FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 "GSM Short Message fragment has multiple tail fragments",
                 HFILL
@@ -559,21 +559,21 @@ proto_register_gsm_sms_ud(void)
         },
         {   &hf_gsm_sms_ud_fragment_too_long_fragment,
             {   "Short Message fragment too long",
-                "gsm-sms-ud.fragment.too_long_fragment",
+                "gsm_sms_ud.fragment.too_long_fragment",
                 FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 "GSM Short Message fragment data goes beyond the packet end",
                 HFILL
             }
         },
         {   &hf_gsm_sms_ud_fragment_error,
-            {   "Short Message defragmentation error", "gsm-sms-ud.fragment.error",
+            {   "Short Message defragmentation error", "gsm_sms_ud.fragment.error",
                 FT_FRAMENUM, BASE_NONE, NULL, 0x00,
                 "GSM Short Message defragmentation error due to illegal fragments",
                 HFILL
             }
         },
         {   &hf_gsm_sms_ud_fragment_count,
-            {   "Short Message fragment count", "gsm-sms-ud.fragment.count",
+            {   "Short Message fragment count", "gsm_sms_ud.fragment.count",
                 FT_UINT32, BASE_DEC, NULL, 0x00,
                 NULL,
                 HFILL
@@ -581,7 +581,7 @@ proto_register_gsm_sms_ud(void)
         },
         {   &hf_gsm_sms_ud_reassembled_in,
             {   "Reassembled in",
-                "gsm-sms-ud.reassembled.in",
+                "gsm_sms_ud.reassembled.in",
                 FT_FRAMENUM, BASE_NONE, NULL, 0x00,
                 "GSM Short Message has been reassembled in this packet.",
                 HFILL
@@ -589,7 +589,7 @@ proto_register_gsm_sms_ud(void)
         },
         {   &hf_gsm_sms_ud_reassembled_length,
             {   "Reassembled Short Message length",
-                "gsm-sms-ud.reassembled.length",
+                "gsm_sms_ud.reassembled.length",
                 FT_UINT32, BASE_DEC, NULL, 0x00,
                 "The total length of the reassembled payload",
                 HFILL
@@ -608,14 +608,14 @@ proto_register_gsm_sms_ud(void)
     proto_gsm_sms_ud = proto_register_protocol(
         "GSM Short Message Service User Data",  /* Name */
         "GSM SMS UD",           /* Short name */
-        "gsm-sms-ud");          /* Filter name */
+        "gsm_sms_ud");          /* Filter name */
 
     /* Required function calls to register header fields and subtrees used */
     proto_register_field_array(proto_gsm_sms_ud, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Subdissector code */
-    gsm_sms_dissector_table = register_dissector_table("gsm-sms-ud.udh.port",
+    gsm_sms_dissector_table = register_dissector_table("gsm_sms_ud.udh.port",
         "GSM SMS port IE in UDH", FT_UINT16, BASE_DEC);
 
     /* Preferences for GSM SMS UD */
@@ -640,7 +640,7 @@ proto_register_gsm_sms_ud(void)
         "own. Eg. Prevent WSP dissector overwriting SMPP information.",
         &prevent_subdissectors_changing_columns);
 
-    register_dissector("gsm-sms-ud", dissect_gsm_sms_ud, proto_gsm_sms_ud);
+    register_dissector("gsm_sms_ud", dissect_gsm_sms_ud, proto_gsm_sms_ud);
 
     /* GSM SMS UD dissector initialization routines */
     register_init_routine(gsm_sms_ud_defragment_init);

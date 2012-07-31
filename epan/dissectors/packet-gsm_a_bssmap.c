@@ -6958,7 +6958,7 @@ proto_register_gsm_a_bssmap(void)
     static hf_register_info hf[] =
     {
     { &hf_gsm_a_bssmap_msg_type,
-        { "BSSMAP Message Type",    "gsm_a.bssmap_msgtype",
+        { "BSSMAP Message Type",    "gsm_a_bssmap.msgtype",
         FT_UINT8, BASE_HEX|BASE_EXT_STRING, &gsm_a_bssmap_msg_strings_ext, 0x0,
         NULL, HFILL }
     },
@@ -7103,7 +7103,7 @@ proto_register_gsm_a_bssmap(void)
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_cur_ch_mode,
-    { "Channel Mode", "fe_cur_chan_type2.chan_mode",
+    { "Channel Mode", "gsm_a_bssmap.fe_cur_chan_type2.chan_mode",
         FT_UINT8, BASE_HEX, VALS(chan_mode_vals), 0xf0,
         NULL, HFILL }
     },
@@ -7520,102 +7520,102 @@ proto_register_gsm_a_bssmap(void)
     },
 
     { &hf_fe_extra_info_prec,
-        { "Pre-emption Recommendation", "fe_extra_info.prec",
+        { "Pre-emption Recommendation", "gsm_a_bssmap.fe_extra_info.prec",
             FT_UINT8, BASE_DEC, VALS(fe_extra_info_prec_vals), 0x01,
             NULL, HFILL }
     },
     { &hf_fe_extra_info_lcs,
-        { "LCS Information", "fe_extra_info.lcs",
+        { "LCS Information", "gsm_a_bssmap.fe_extra_info.lcs",
             FT_UINT8, BASE_DEC, VALS(fe_extra_info_lcs_vals), 0x02,
             NULL, HFILL }
     },
     { &hf_fe_extra_info_ue_prob,
-        { "UE support of UMTS", "fe_extra_info.ue_prob",
+        { "UE support of UMTS", "gsm_a_bssmap.fe_extra_info.ue_prob",
             FT_UINT8, BASE_DEC, VALS(fe_extra_info_ue_prob_vals), 0x04,
             NULL, HFILL }
     },
     { &hf_fe_extra_info_spare,
-        { "Extra Information Spare bits", "fe_extra_info.spare",
+        { "Extra Information Spare bits", "gsm_a_bssmap.fe_extra_info.spare",
             FT_UINT8, BASE_HEX, NULL, 0xf8,
             NULL, HFILL }
     },
     { &hf_fe_cur_chan_type2_chan_mode,
-        { "Channel Mode", "fe_cur_chan_type2.chan_mode",
+        { "Channel Mode", "gsm_a_bssmap.fe_cur_chan_type2.chan_mode",
              FT_UINT8, BASE_HEX, VALS(chan_mode_vals), 0x0f,
              NULL, HFILL }
     },
     { &hf_fe_cur_chan_type2_chan_mode_spare,
-        { "Channel Mode Spare bits", "fe_cur_chan_type2_chan_mode.spare",
+        { "Channel Mode Spare bits", "gsm_a_bssmap.fe_cur_chan_type2_chan_mode.spare",
             FT_UINT8, BASE_HEX, NULL, 0xf0,
             NULL, HFILL }
     },
     { &hf_fe_cur_chan_type2_chan_field,
-        { "Channel Field", "fe_cur_chan_type2.chan_field",
+        { "Channel Field", "gsm_a_bssmap.fe_cur_chan_type2.chan_field",
             FT_UINT8, BASE_HEX, VALS(fe_cur_chan_type2_chan_field_vals),0x0f,
             NULL, HFILL }
     },
     { &hf_fe_cur_chan_type2_chan_field_spare,
-        { "Channel field Spare bits", "fe_cur_chan_type2_chan_field.spare",
+        { "Channel field Spare bits", "gsm_a_bssmap.fe_cur_chan_type2_chan_field.spare",
             FT_UINT8, BASE_HEX, NULL, 0xf0,
             NULL, HFILL }
     },
     { &hf_fe_target_radio_cell_info_rxlev_ncell,
-        { "RXLEV-NCELL", "fe_target_radio_cell_info.rxlev_ncell",
+        { "RXLEV-NCELL", "gsm_a_bssmap.fe_target_radio_cell_info.rxlev_ncell",
             FT_UINT8, BASE_HEX|BASE_EXT_STRING, &gsm_a_rr_rxlev_vals_ext, 0x3f,
             NULL, HFILL }
     },
     { &hf_fe_target_radio_cell_info_rxlev_ncell_spare,
-        { "RXLEV-NCELL Spare bits", "fe_target_radio_cell_info.rxlev_ncell_spare",
+        { "RXLEV-NCELL Spare bits", "gsm_a_bssmap.fe_target_radio_cell_info.rxlev_ncell_spare",
             FT_UINT8, BASE_HEX, NULL, 0xc0,
             NULL, HFILL }
     },
     { &hf_fe_dtm_info_dtm_ind,
-        { "DTM indicator", "fe_dtm_info.dtm_ind",
+        { "DTM indicator", "gsm_a_bssmap.fe_dtm_info.dtm_ind",
             FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_dtm_info_dtm_ind_vals), 0x01,
             NULL, HFILL }
     },
     { &hf_fe_dtm_info_sto_ind,
-        { "Time Slot Operation indicator", "fe_dtm_info.sto_ind",
+        { "Time Slot Operation indicator", "gsm_a_bssmap.fe_dtm_info.sto_ind",
             FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_dtm_info_sto_ind_vals), 0x02,
             NULL, HFILL }
     },
     { &hf_fe_dtm_info_egprs_ind,
-        { "EGPRS indicator", "fe_dtm_info.egprs_ind",
+        { "EGPRS indicator", "gsm_a_bssmap.fe_dtm_info.egprs_ind",
             FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_dtm_info_egprs_ind_vals), 0x04,
             NULL, HFILL }
     },
     { &hf_fe_dtm_info_spare_bits,
-        { "DTM Info Spare bits", "fe_dtm_info.spare_bits",
+        { "DTM Info Spare bits", "gsm_a_bssmap.fe_dtm_info.spare_bits",
             FT_UINT8, BASE_HEX, NULL, 0xf8,
             NULL, HFILL }
     },
     { &hf_fe_cell_load_info_cell_capacity_class,
-        { "Cell capacity class", "fe_cell_load_info.cell_capacity_class",
+        { "Cell capacity class", "gsm_a_bssmap.fe_cell_load_info.cell_capacity_class",
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
     },
     { &hf_fe_cell_load_info_load_value,
-        { "Load value", "fe_cell_load_info.load_info",
+        { "Load value", "gsm_a_bssmap.fe_cell_load_info.load_info",
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
     },
     { &hf_fe_cell_load_info_rt_load_value,
-        { "Realtime load value", "fe_cell_load_info.rt_load_value",
+        { "Realtime load value", "gsm_a_bssmap.fe_cell_load_info.rt_load_value",
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
     },
     { &hf_fe_cell_load_info_nrt_load_information_value,
-        { "Non-Realtime load information value", "fe_cell_load_info.nrt_load_info_value",
+        { "Non-Realtime load information value", "gsm_a_bssmap.fe_cell_load_info.nrt_load_info_value",
             FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_cell_load_nrt_vals), 0,
             NULL, HFILL }
     },
     { &hf_fe_ps_indication,
-        { "PS Indication", "fe_ps_indication.value",
+        { "PS Indication", "gsm_a_bssmap.fe_ps_indication.value",
             FT_UINT8, BASE_HEX, NULL, 0,
             NULL, HFILL }
     },
     { &hf_fe_dtm_ho_command_ind_spare,
-        { "Spare octet", "fe_dtm_ho_command_ind.spare",
+        { "Spare octet", "gsm_a_bssmap.fe_dtm_ho_command_ind.spare",
             FT_UINT8, BASE_HEX, NULL, 0,
             NULL, HFILL }
     },

@@ -435,22 +435,22 @@ proto_register_gsm_cbch(void)
     static hf_register_info hf_smscb[] =
         {
             { &hf_gsm_cbch_spare_bit,
-              { "GSM CBCH spare bit",  "gsm_cbch_block_type.spare",
+              { "GSM CBCH spare bit",  "gsm_cbch.block_type.spare",
                 FT_UINT8, BASE_HEX, NULL, 0x80,
                 NULL, HFILL}
             },
             { &hf_gsm_cbch_lpd,
-              { "GSM CBCH Link Protocol Discriminator",  "gsm_cbch_block_type.lpd",
+              { "GSM CBCH Link Protocol Discriminator",  "gsm_cbch.block_type.lpd",
                 FT_UINT8, BASE_DEC, VALS(block_type_lpd_strings), 0x60,
                 NULL, HFILL}
             },
             { &hf_gsm_cbch_lb,
-              { "GSM CBCH Last Block", "gsm_cbch_block_type.lb",
+              { "GSM CBCH Last Block", "gsm_cbch.block_type.lb",
                 FT_UINT8, BASE_DEC, NULL, 0x10,
                 NULL, HFILL}
             },
             { &hf_gsm_cbch_seq_num,
-              { "GSM CBCH Sequence Number",  "gsm_cbch_block_type.seq_num",
+              { "GSM CBCH Sequence Number",  "gsm_cbch.block_type.seq_num",
                 FT_UINT8, BASE_DEC, VALS(block_type_seq_num_values), 0x0F,
                 NULL, HFILL}
             },

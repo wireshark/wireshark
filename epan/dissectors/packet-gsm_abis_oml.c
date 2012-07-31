@@ -1873,62 +1873,62 @@ proto_register_abis_oml(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_oml_msg_disc,
-			{ "Message Discriminator", "oml.msg_dsc",
+			{ "Message Discriminator", "gsm_a_oml.msg_dsc",
 			  FT_UINT8, BASE_HEX, VALS(oml_msg_disc_vals), 0,
 			  "GSM 12.21 Message Discriminator", HFILL }
 		},
 		{ &hf_oml_placement,
-			{ "Placement Indicator", "oml.placement",
+			{ "Placement Indicator", "gsm_a_oml.placement",
 			  FT_UINT8, BASE_HEX, VALS(oml_placement_vals), 0,
 			  "GSM 12.21 Placement Indicator", HFILL }
 		},
 		{ &hf_oml_sequence,
-			{ "Sequence Number", "oml.sequence",
+			{ "Sequence Number", "gsm_a_oml.sequence",
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  "Sequence Number (if multi-part msg)", HFILL }
 		},
 		{ &hf_oml_length,
-			{ "Length Indicator", "oml.length",
+			{ "Length Indicator", "gsm_a_oml.length",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  "Total length of payload", HFILL }
 		},
 		{ &hf_oml_fom_msgtype,
-			{ "FOM Message Type", "oml.fom.msg_type",
+			{ "FOM Message Type", "gsm_a_oml.fom.msg_type",
 			  FT_UINT8, BASE_CUSTOM, &format_custom_msgtype, 0,
 			  NULL, HFILL }
 		},
 		{ &hf_oml_fom_objclass,
-			{ "FOM Object Class", "oml.fom.obj_class",
+			{ "FOM Object Class", "gsm_a_oml.fom.obj_class",
 			  FT_UINT8, BASE_HEX, VALS(oml_fom_objclass_vals), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_oml_fom_inst_bts,
-			{ "FOM Object Instance BTS", "oml.fom.obj_inst.bts",
+			{ "FOM Object Instance BTS", "gsm_a_oml.fom.obj_inst.bts",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  NULL, HFILL }
 		},
 		{ &hf_oml_fom_inst_trx,
-			{ "FOM Object Instance TRX", "oml.fom.obj_inst.trx",
+			{ "FOM Object Instance TRX", "gsm_a_oml.fom.obj_inst.trx",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  NULL, HFILL }
 		},
 		{ &hf_oml_fom_inst_ts,
-			{ "FOM Object Instance TS", "oml.fom.obj_inst.ts",
+			{ "FOM Object Instance TS", "gsm_a_oml.fom.obj_inst.ts",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  NULL, HFILL }
 		},
 		{ &hf_oml_fom_attr_tag,
-			{ "FOM Attribute ID", "oml.fom.attr_id",
+			{ "FOM Attribute ID", "gsm_a_oml.fom.attr_id",
 			  FT_UINT8, BASE_CUSTOM, &format_custom_attr, 0,
 			  NULL, HFILL }
 		},
 		{ &hf_oml_fom_attr_len,
-			{ "FOM Attribute Length", "oml.fom.attr_len",
+			{ "FOM Attribute Length", "gsm_a_oml.fom.attr_len",
 			  FT_UINT16, BASE_DEC, NULL, 0,
 			  NULL, HFILL }
 		},
 		{ &hf_oml_fom_attr_val,
-			{ "FOM Attribute Value", "oml.fom.attr_val",
+			{ "FOM Attribute Value", "gsm_a_oml.fom.attr_val",
 			  FT_BYTES, BASE_NONE, NULL, 0,
 			  NULL, HFILL }
 		},
@@ -1937,91 +1937,91 @@ proto_register_abis_oml(void)
 
 		/* OML Attributes */
 		{ &hf_attr_adm_state,
-			{ "Administrative State", "oml.fom.attr.adm_state",
+			{ "Administrative State", "gsm_a_oml.fom.attr.adm_state",
 			  FT_UINT8, BASE_HEX, VALS(oml_adm_state_vals), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_arfcn,
-			{ "ARFCN", "oml.fom.attr.arfcn",
+			{ "ARFCN", "gsm_a_oml.fom.attr.arfcn",
 			  FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_oper_state,
-			{ "Operational State", "oml.fom.attr.oper_state",
+			{ "Operational State", "gsm_a_oml.fom.attr.oper_state",
 			  FT_UINT8, BASE_HEX, VALS(oml_oper_state_vals), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_avail_state,
-			{ "Availability Status", "oml.fom.attr.avail_state",
+			{ "Availability Status", "gsm_a_oml.fom.attr.avail_state",
 			  FT_UINT8, BASE_HEX, VALS(oml_avail_state_vals), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_event_type,
-			{ "Event Type", "oml.fom.attr.event_type",
+			{ "Event Type", "gsm_a_oml.fom.attr.event_type",
 			  FT_UINT8, BASE_HEX, VALS(oml_event_type_vals), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_severity,
-			{ "Severity", "oml.fom.attr.severity",
+			{ "Severity", "gsm_a_oml.fom.attr.severity",
 			  FT_UINT8, BASE_HEX, VALS(oml_severity_vals), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_bcch_arfcn,
-			{ "BCCH ARFCN", "oml.fom.attr.bcch_arfcn",
+			{ "BCCH ARFCN", "gsm_a_oml.fom.attr.bcch_arfcn",
 			  FT_UINT16, BASE_DEC, NULL, 0,
 			  "ARFCN of the BCCH", HFILL }
 		},
 		{ &hf_attr_bsic,
-			{ "BSIC", "oml.fom.attr.bsic",
+			{ "BSIC", "gsm_a_oml.fom.attr.bsic",
 			  FT_UINT16, BASE_HEX, NULL, 0,
 			  "Base Station Identity Cdoe", HFILL }
 		},
 		{ &hf_attr_test_no,
-			{ "Test Number", "oml.fom.attr.test_no",
+			{ "Test Number", "gsm_a_oml.fom.attr.test_no",
 			  FT_UINT8, BASE_HEX, VALS(oml_test_no_vals), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_tsc,
-			{ "TSC", "oml.fom.attr.tsc",
+			{ "TSC", "gsm_a_oml.fom.attr.tsc",
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  "Training Sequence Code", HFILL }
 		},
 		{ &hf_attr_tei,
-			{ "TEI", "oml.fom.attr.tei",
+			{ "TEI", "gsm_a_oml.fom.attr.tei",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_ach_btsp,
-			{ "BTS E1 Port", "oml.fom.attr.abis_ch.bts_port",
+			{ "BTS E1 Port", "gsm_a_oml.fom.attr.abis_ch.bts_port",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_ach_tslot,
-			{ "E1 Timeslot", "oml.fom.attr.abis_ch.timeslot",
+			{ "E1 Timeslot", "gsm_a_oml.fom.attr.abis_ch.timeslot",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_ach_sslot,
-			{ "E1 Subslot", "oml.fom.attr.abis_ch.subslot",
+			{ "E1 Subslot", "gsm_a_oml.fom.attr.abis_ch.subslot",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_gsm_time,
-			{ "GSM Time", "oml.fom.attr.gsm_time",
+			{ "GSM Time", "gsm_a_oml.fom.attr.gsm_time",
 			  FT_UINT16, BASE_DEC, NULL, 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_chan_comb,
-			{ "Channel Combination", "oml.fom.attr.chan_comb",
+			{ "Channel Combination", "gsm_a_oml.fom.attr.chan_comb",
 			  FT_UINT8, BASE_HEX, VALS(oml_chan_comb_vals), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_hsn,
-			{ "HSN", "oml.fom.attr.hsn",
+			{ "HSN", "gsm_a_oml.fom.attr.hsn",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  "Hopping Sequence Number", HFILL }
 		},
 		{ &hf_attr_maio,
-			{ "MAIO", "oml.fom.attr.maio",
+			{ "MAIO", "gsm_a_oml.fom.attr.maio",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  "Mobile Allocation Index Offset", HFILL }
 		},
@@ -2029,156 +2029,156 @@ proto_register_abis_oml(void)
 		/* IP Access */
 		{ &hf_oml_ipa_tres_attr_tag,
 			{ "IPA Test Result Embedded IE",
-						"oml.fom.testrep.ipa_tag",
+						"gsm_a_oml.fom.testrep.ipa_tag",
 			  FT_UINT8, BASE_HEX, VALS(ipacc_testres_ie_vals), 0,
 			  "Information Element embedded into the Test Result "
 			  "of ip.access BTS", HFILL },
 		},
 		{ &hf_oml_ipa_tres_attr_len,
 			{ "IPA Test Result Embedded IE Length",
-						"oml.fom.testrep.ipa_len",
+						"gsm_a_oml.fom.testrep.ipa_len",
 			  FT_UINT16, BASE_DEC, NULL, 0,
 			  "Length of ip.access Test Result Embedded IE", HFILL }
 		},
 		{ &hf_attr_ipa_test_res,
-			{ "IPA Test Result", "oml.fom.testrep.result",
+			{ "IPA Test Result", "gsm_a_oml.fom.testrep.result",
 			  FT_UINT8, BASE_DEC, VALS(ipacc_test_res_vals), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_rxlev,
-			{ "Rx Level", "oml.fom.testrep.ipa_rxlev",
+			{ "Rx Level", "gsm_a_oml.fom.testrep.ipa_rxlev",
 			  FT_UINT16, BASE_DEC, NULL, 0xfc00, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_b_rxlev,
-			{ "Rx Level", "oml.fom.testrep.ipa_rxlev_b",
+			{ "Rx Level", "gsm_a_oml.fom.testrep.ipa_rxlev_b",
 			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_arfcn,
-			{ "ARFCN", "oml.fom.testrep.ipa_arfcn",
+			{ "ARFCN", "gsm_a_oml.fom.testrep.ipa_arfcn",
 			  FT_UINT16, BASE_DEC, NULL, 0x03ff, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_f_qual,
-			{ "Frequency Quality", "oml.fom.testrep.ipa.freq_qual",
+			{ "Frequency Quality", "gsm_a_oml.fom.testrep.ipa.freq_qual",
 			  FT_UINT8, BASE_DEC, NULL, 0xfc, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_f_err,
-			{ "Frequency Error", "oml.fom.testrep.ipa.freq_err",
+			{ "Frequency Error", "gsm_a_oml.fom.testrep.ipa.freq_err",
 			  FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_rxqual,
-			{ "Rx Quality", "oml.fom.testrep.ipa.rx_qual",
+			{ "Rx Quality", "gsm_a_oml.fom.testrep.ipa.rx_qual",
 			  FT_UINT8, BASE_DEC, NULL, 0x7, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_frame_offs,
-			{ "Frame Offset", "oml.fom.testrep.ipa.frame_offset",
+			{ "Frame Offset", "gsm_a_oml.fom.testrep.ipa.frame_offset",
 			  FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_framenr_offs,
 			{ "Frame Number Offset",
-					"oml.fom.testrep.ipa.framenr_offset",
+					"gsm_a_oml.fom.testrep.ipa.framenr_offset",
 			  FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_bsic,
-			{ "BSIC", "oml.fom.testrep.ipa.bsic",
+			{ "BSIC", "gsm_a_oml.fom.testrep.ipa.bsic",
 			  FT_UINT8, BASE_DEC, NULL, 0x3f,
 			  "Base Station Identity Code", HFILL }
 		},
 		{ &hf_attr_ipa_tr_cell_id,
-			{ "Cell ID", "oml.fom.testrep.ipa.cell_id",
+			{ "Cell ID", "gsm_a_oml.fom.testrep.ipa.cell_id",
 			  FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_rsl_ip,
-			{ "BSC RSL IP Address", "oml.fom.attr.ipa.rsl_ip",
+			{ "BSC RSL IP Address", "gsm_a_oml.fom.attr.ipa.rsl_ip",
 			  FT_IPv4, BASE_NONE, NULL, 0,
 			  "IP Address to which the BTS establishes "
 			  "the RSL link", HFILL }
 		},
 		{ &hf_attr_ipa_rsl_port,
-			{ "BSC RSL TCP Port", "oml.fom.attr.ipa.rsl_port",
+			{ "BSC RSL TCP Port", "gsm_a_oml.fom.attr.ipa.rsl_port",
 			  FT_UINT16, BASE_DEC, NULL, 0,
 			  "Port number to which the BST establishes "
 			  "the RSL link", HFILL }
 		},
 		{ &hf_attr_ipa_prim_oml_ip,
 			{ "Primary OML IP Address",
-					"oml.fom.attr.ipa.prim_oml_ip",
+					"gsm_a_oml.fom.attr.ipa.prim_oml_ip",
 			  FT_IPv4, BASE_NONE, NULL, 0,
 			  "IP Address of the BSC for the primary OML link",
 			  HFILL }
 		},
 		{ &hf_attr_ipa_prim_oml_port,
 			{ "Primary OML TCP Port",
-					"oml.fom.attr.ipa.prim_oml_port",
+					"gsm_a_oml.fom.attr.ipa.prim_oml_port",
 			  FT_UINT16, BASE_DEC, NULL, 0,
 			  "TCP Port of the BSC for the primarly OML link",
 			  HFILL }
 		},
 		{ &hf_attr_ipa_location_name,
-			{ "Location Name", "oml.fom.attr.ipa.loc_name",
+			{ "Location Name", "gsm_a_oml.fom.attr.ipa.loc_name",
 			  FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_unit_name,
-			{ "Unit Name", "oml.fom.attr.ipa.unit_name",
+			{ "Unit Name", "gsm_a_oml.fom.attr.ipa.unit_name",
 			  FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_unit_id,
-			{ "Unit ID", "oml.fom.attr.ipa.unit_id",
+			{ "Unit ID", "gsm_a_oml.fom.attr.ipa.unit_id",
 			  FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_nv_flags,
-			{ "NVRAM Config Flags", "oml.fom.attr.ipa.nv_flags",
+			{ "NVRAM Config Flags", "gsm_a_oml.fom.attr.ipa.nv_flags",
 			  FT_UINT16, BASE_HEX, NULL, 0xffff, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_nv_mask,
-			{ "NVRAM Config Mask", "oml.fom.attr.ipa.nv_mask",
+			{ "NVRAM Config Mask", "gsm_a_oml.fom.attr.ipa.nv_mask",
 			  FT_UINT16, BASE_HEX, NULL, 0xffff, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_si2,
-			{ "System Information 2", "oml.fom.attr.ipa.si2",
+			{ "System Information 2", "gsm_a_oml.fom.attr.ipa.si2",
 			  FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_si2bis,
-			{ "System Information 2bis", "oml.fom.attr.ipa.si2bis",
+			{ "System Information 2bis", "gsm_a_oml.fom.attr.ipa.si2bis",
 			  FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_si2ter,
-			{ "System Information 2ter", "oml.fom.attr.ipa.si2ter",
+			{ "System Information 2ter", "gsm_a_oml.fom.attr.ipa.si2ter",
 			  FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_tr_chan_desc,
 			{ "Cell Channel Description",
-						"oml.fom.attr.ipa.chan_desc",
+						"gsm_a_oml.fom.attr.ipa.chan_desc",
 			  FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_nsl_sport,
 			{ "NS Link IP Source Port",
-						"oml.fom.attr.ipa.nsl_sport",
+						"gsm_a_oml.fom.attr.ipa.nsl_sport",
 			  FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_nsl_daddr,
 			{ "NS Link IP Destination Addr",
-						"oml.fom.attr.ipa.nsl_daddr",
+						"gsm_a_oml.fom.attr.ipa.nsl_daddr",
 			  FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_nsl_dport,
 			{ "NS Link IP Destination Port",
-						"oml.fom.attr.ipa.nsl_dport",
+						"gsm_a_oml.fom.attr.ipa.nsl_dport",
 			  FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_nsei,
-			{ "NSEI", "oml.fom.attr.ipa.nsei",
+			{ "NSEI", "gsm_a_oml.fom.attr.ipa.nsei",
 			  FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_nsvci,
-			{ "NSVCI", "oml.fom.attr.ipa.nsvci",
+			{ "NSVCI", "gsm_a_oml.fom.attr.ipa.nsvci",
 			  FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_bvci,
-			{ "BVCI", "oml.fom.attr.ipa.bvci",
+			{ "BVCI", "gsm_a_oml.fom.attr.ipa.bvci",
 			  FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_attr_ipa_rac,
-			{ "RAC", "oml.fom.attr.ipa.rac",
+			{ "RAC", "gsm_a_oml.fom.attr.ipa.rac",
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  "Routing Area Code", HFILL }
 		},
@@ -2355,13 +2355,13 @@ proto_register_abis_oml(void)
 
 	/* assign our custom match functions */
 	proto_abis_oml = proto_register_protocol("GSM A-bis OML", "A-bis OML",
-						 "gsm_abis_oml");
+						 "gsm_a_oml");
 
 	proto_register_field_array(proto_abis_oml, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("gsm_abis_oml", dissect_abis_oml, proto_abis_oml);
+	new_register_dissector("gsm_a_oml", dissect_abis_oml, proto_abis_oml);
 
 	oml_module = prefs_register_protocol(proto_abis_oml, NULL);
 	prefs_register_enum_preference(oml_module, "oml_dialect",
@@ -2382,5 +2382,5 @@ proto_reg_handoff_abis_oml(void)
 	dissector_add_uint("lapd.gsm.sapi", LAPD_GSM_SAPI_OM_PROC,
 			   abis_oml_handle);
 
-	sub_om2000 = find_dissector("gsm_abis_om2000");
+	sub_om2000 = find_dissector("gsm_a_om2000");
 }

@@ -1018,17 +1018,17 @@ proto_register_gsm_bssmap_le(void)
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_gsm_bssmap_le_msg_type,
-		  { "BSSMAP LE Message Type",	"bssmap_le.msgtype",
+		  { "BSSMAP LE Message Type",	"gsm_bssmap_le.msgtype",
 		    FT_UINT8, BASE_HEX, VALS(gsm_bssmap_le_msg_strings), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_elem_id,
-		  { "Element ID",	"bssmap_le.elem_id",
+		  { "Element ID",	"gsm_bssmap_le.elem_id",
 		    FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_apdu_protocol_id,
-		  { "Protocol ID", "bssmap_le.apdu_protocol_id",
+		  { "Protocol ID", "gsm_bssmap_le.apdu_protocol_id",
 		    FT_UINT8, BASE_DEC, VALS(gsm_apdu_protocol_id_strings), 0x0,
 		    "APDU embedded protocol id", HFILL }
 		},

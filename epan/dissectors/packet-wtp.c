@@ -1113,6 +1113,6 @@ proto_reg_handoff_wtp(void)
 
     wtp_fromudp_handle = find_dissector("wtp-udp");
     dissector_add_uint("udp.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
-    dissector_add_uint("gsm-sms-ud.udh.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
-	dissector_add_uint("gsm-sms.udh.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
+    dissector_add_uint("gsm_sms_ud.udh.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
+	dissector_add_uint("gsm_sms.udh.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);
 }

@@ -380,28 +380,28 @@ void proto_register_ipa(void)
 
 	static hf_register_info hf[] = {
 		{&hf_ipa_data_len,
-		 {"DataLen", "ipa.data_len",
+		 {"DataLen", "gsm_ipa.data_len",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "The length of the data (in bytes)", HFILL}
 		 },
 		{&hf_ipa_protocol,
-		 {"Protocol", "ipa.protocol",
+		 {"Protocol", "gsm_ipa.protocol",
 		  FT_UINT8, BASE_HEX, VALS(ipa_protocol_vals), 0x0,
 		  "The IPA Sub-Protocol", HFILL}
 		 },
 		{&hf_ipa_hsl_debug,
-		 {"Debug Message", "ipa.hsl_debug",
+		 {"Debug Message", "gsm_ipa.hsl_debug",
 		  FT_STRING, BASE_NONE, NULL, 0,
 		  "Hay Systems Limited debug message", HFILL}
 		},
 		{&hf_ipa_osmo_proto,
-		 {"Osmo ext protocol", "ipa.osmo.protocol",
+		 {"Osmo ext protocol", "gsm_ipa.osmo.protocol",
 		  FT_UINT8, BASE_HEX, VALS(ipa_osmo_proto_vals), 0x0,
 		  "The osmo extension protocol", HFILL}
 		},
 
 		{&hf_ipa_osmo_ctrl_data,
-		 {"CTRL data", "ipa.ctrl.data",
+		 {"CTRL data", "gsm_ipa.ctrl.data",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
 		  "Control interface data", HFILL}
 		},
@@ -502,8 +502,8 @@ void proto_reg_handoff_gsm_ipa(void)
 	static range_t *ipa_tcp_ports, *ipa_udp_ports;
 
 	if (!ipa_initialized) {
-		sub_handles[SUB_RSL] = find_dissector("gsm_abis_rsl");
-		sub_handles[SUB_OML] = find_dissector("gsm_abis_oml");
+		sub_handles[SUB_RSL] = find_dissector("gsm_a_rsl");
+		sub_handles[SUB_OML] = find_dissector("gsm_a_oml");
 		sub_handles[SUB_SCCP] = find_dissector("sccp");
 		sub_handles[SUB_MGCP] = find_dissector("mgcp");
 		sub_handles[SUB_DATA] = find_dissector("data");

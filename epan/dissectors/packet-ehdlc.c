@@ -319,7 +319,7 @@ proto_register_ehdlc(void)
 void
 proto_reg_handoff_ehdlc(void)
 {
-	sub_handles[SUB_RSL]  = find_dissector("gsm_abis_rsl");
-	sub_handles[SUB_OML]  = find_dissector("gsm_abis_oml");
+	sub_handles[SUB_RSL]  = find_dissector("gsm_a_rsl");
+	sub_handles[SUB_OML]  = find_dissector("gsm_a_oml");
 	sub_handles[SUB_DATA] = find_dissector("data");
 }

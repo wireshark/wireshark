@@ -3606,17 +3606,17 @@ proto_register_gsm_sms(void)
                 "The total length of the reassembled payload", HFILL }
             },
             { &hf_gsm_sms_ud_multiple_messages_msg_id,
-              { "Message identifier", "gsm-sms.udh.mm.msg_id",
+              { "Message identifier", "gsm_sms.udh.mm.msg_id",
                 FT_UINT16, BASE_DEC, NULL, 0x00,
                 "Identification of the message", HFILL }
             },
             { &hf_gsm_sms_ud_multiple_messages_msg_parts,
-              { "Message parts", "gsm-sms.udh.mm.msg_parts",
+              { "Message parts", "gsm_sms.udh.mm.msg_parts",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
                 "Total number of message parts (fragments)", HFILL }
             },
             { &hf_gsm_sms_ud_multiple_messages_msg_part,
-              { "Message part number", "gsm-sms.udh.mm.msg_part",
+              { "Message part number", "gsm_sms.udh.mm.msg_part",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
                 "Message part (fragment) sequence number", HFILL }
             },
@@ -3759,7 +3759,7 @@ proto_register_gsm_sms(void)
 
     proto_register_subtree_array(ett, array_length(ett));
 
-    gsm_sms_dissector_tbl = register_dissector_table("gsm-sms.udh.port",
+    gsm_sms_dissector_tbl = register_dissector_table("gsm_sms.udh.port",
         "GSM SMS port IE in UDH", FT_UINT16, BASE_DEC);
 
     gsm_sms_module = prefs_register_protocol (proto_gsm_sms, NULL);
@@ -3771,7 +3771,7 @@ proto_register_gsm_sms(void)
                                     "Whether the dissector should reassemble SMS spanning multiple packets",
                                     &reassemble_sms);
 
-    /* register_dissector("gsm-sms", dissect_gsm_sms, proto_gsm_sms); */
+    /* register_dissector("gsm_sms", dissect_gsm_sms, proto_gsm_sms); */
 
     /* GSM SMS UD dissector initialization routines */
     register_init_routine (gsm_sms_defragment_init);

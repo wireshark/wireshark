@@ -3807,8 +3807,8 @@ proto_reg_handoff_smpp(void)
     heur_dissector_add("x.25", dissect_smpp_heur, proto_smpp);
 
     /* Required for call_dissector() */
-    DebugLog(("Finding gsm-sms-ud subdissector\n"));
-    gsm_sms_handle = find_dissector("gsm-sms-ud");
+    DebugLog(("Finding gsm_sms_ud subdissector\n"));
+    gsm_sms_handle = find_dissector("gsm_sms_ud");
     DISSECTOR_ASSERT(gsm_sms_handle);
 
     /* Tapping setup */
