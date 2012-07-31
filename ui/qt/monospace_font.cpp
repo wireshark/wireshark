@@ -61,24 +61,35 @@ font_init(void) {
     // Try to pick the latest, shiniest fixed-width font for our OS.
 #if defined(Q_WS_WIN)
 #define DEF_FONT WIN_DEF_FONT
+#define FONT_SIZE_ADJUST 2
     substitutes = QStringList() << WIN_ALT_FONTS << OSX_DEF_FONT << OSX_ALT_FONTS << X11_DEF_FONT << X11_ALT_FONTS << FALLBACK_FONTS;
 #elif defined(Q_WS_MAC)
 #define DEF_FONT OSX_DEF_FONT
+#define FONT_SIZE_ADJUST 0
     substitutes = QStringList() << OSX_ALT_FONTS << WIN_DEF_FONT << WIN_ALT_FONTS << X11_DEF_FONT << X11_ALT_FONTS << FALLBACK_FONTS;
 #else
 #define DEF_FONT X11_DEF_FONT
+#define FONT_SIZE_ADJUST 0
     substitutes = QStringList() << X11_ALT_FONTS << WIN_DEF_FONT << WIN_ALT_FONTS << OSX_DEF_FONT << OSX_ALT_FONTS << FALLBACK_FONTS;
 #endif
 
     m_r_font.setFamily(DEF_FONT);
     m_r_font.insertSubstitutions(DEF_FONT, substitutes);
-    m_r_font.setPointSize(wsApp->font().pointSize());
-    m_r_font.setFixedPitch(true);
+    m_r_font.setPointSize(wsApp->font().pointSize() + FONT_SIZE_ADJUST);
+#if QT_VERSION >= 0x040700
+     m_b_font.setStyleHint(QFont::Monospace);
+ #else
+     m_b_font.setStyleHint(QFont::TypeWriter);
+ #endif
 
     m_b_font.setFamily(DEF_FONT);
     m_b_font.insertSubstitutions(DEF_FONT, substitutes);
-    m_b_font.setPointSize(wsApp->font().pointSize());
-    m_b_font.setFixedPitch(true);
+    m_b_font.setPointSize(wsApp->font().pointSize() + FONT_SIZE_ADJUST);
+#if QT_VERSION >= 0x040700
+     m_b_font.setStyleHint(QFont::Monospace);
+ #else
+     m_b_font.setStyleHint(QFont::TypeWriter);
+ #endif
     m_b_font.setWeight(QFont::Bold);
 }
 
