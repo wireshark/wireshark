@@ -28,18 +28,24 @@
 #include "progress_bar.h"
 
 #include <QStatusBar>
+#include <QLabel>
 
 class MainStatusBar : public QStatusBar
 {
     Q_OBJECT
 public:
     explicit MainStatusBar(QWidget *parent = 0);
+    void showExpert();
+    void hideExpert();
 
 private:
+    QLabel m_expertStatus;
     LabelStack m_infoStatus;
     ProgressBar m_progressBar;
     LabelStack m_packetStatus;
     LabelStack m_profileStatus;
+
+    void expertUpdate();
 
 signals:
 

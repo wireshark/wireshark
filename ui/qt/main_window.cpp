@@ -186,8 +186,8 @@ void MainWindow::captureFileReadFinished(const capture_file *cf) {
 void MainWindow::captureFileClosing(const capture_file *cf) {
     if (cf != capFile) return;
 
-    /* reset expert info indicator */
-//    status_expert_hide();
+    // Reset expert info indicator
+    ui->statusBar->hideExpert();
 //    gtk_widget_show(expert_info_none);
 }
 
@@ -225,6 +225,9 @@ void MainWindow::on_actionHelpSampleCaptures_triggered() {
 void MainWindow::captureFileClosed(const capture_file *cf) {
     if (cf != capFile) return;
     packets_bar_update();
+
+    // Reset expert info indicator
+    ui->statusBar->hideExpert();
 
     ui->statusBar->popFileStatus();
     capFile = NULL;
@@ -307,6 +310,8 @@ void MainWindow::openCaptureFile(QString &cfPath)
     // get_dirname overwrites its path. Hopefully this isn't a problem.
     set_last_open_dir(get_dirname(cfPath.toUtf8().data()));
     dfComboBox->setEditText(displayFilter);
+
+    ui->statusBar->showExpert();
 }
 
 void MainWindow::recentActionTriggered() {

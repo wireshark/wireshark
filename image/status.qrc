@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/expert">
+        <file>expert_chat.png</file>
+        <file>expert_error.png</file>
+        <file>expert_none.png</file>
+        <file>expert_note.png</file>
+        <file>expert_warn.png</file>
+    </qresource>
+</RCC>

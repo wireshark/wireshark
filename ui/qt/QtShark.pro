@@ -299,9 +299,10 @@ win32 {
 }
 
 RESOURCES += \
-    toolbar.qrc \
+    ../../image/display_filter.qrc \
+    ../../image/status.qrc \
+    ../../image/toolbar.qrc \
     welcome.qrc \
-    display_filter.qrc \
     i18n.qrc
 
 TRANSLATIONS = \
@@ -311,6 +312,3 @@ TRANSLATIONS = \
 ICON = ../../packaging/macosx/Resources/Wireshark.icns
 
 win32: QMAKE_CLEAN += *.pdb
-
-
-

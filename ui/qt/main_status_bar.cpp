@@ -33,6 +33,8 @@
 
 #include "globals.h"
 
+#include "epan/expert.h"
+
 #include "ui/main_statusbar.h"
 
 #include <QSplitter>
@@ -132,7 +134,13 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     QWidget *infoProgress = new QWidget(this);
     QHBoxLayout *infoProgressHB = new QHBoxLayout(infoProgress);
 
+    m_expertStatus.setTextFormat(Qt::RichText);
+    m_expertStatus.hide();
+
+    // XXX Add the comment icon
+
     infoProgressHB->setMargin(0);
+    infoProgressHB->setSpacing(0);
     infoProgressHB->setContentsMargins(0, 0, 0, 0);
     m_progressBar.setStyleSheet(QString(
                                 "ProgressBar {"
@@ -140,10 +148,10 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
                                 "  min-height: 0.8em;"
                                 "  max-height: 1em;"
                                 "}"));
-    // XXX - Add the expert level icon
 
     m_infoStatus.setTemporaryContext(STATUS_CTX_TEMPORARY);
 
+    infoProgressHB->addWidget(&m_expertStatus);
     infoProgressHB->addWidget(&m_infoStatus);
     infoProgressHB->addWidget(&m_progressBar);
     infoProgressHB->addStretch(10);
@@ -164,6 +172,50 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     packets_bar_update();
 }
 
+void MainStatusBar::showExpert() {
+    expertUpdate();
+}
+
+void MainStatusBar::hideExpert() {
+    m_expertStatus.hide();
+}
+
+void MainStatusBar::expertUpdate() {
+    QString imgText = "<img src=\":/expert/expert_";
+    QString ttText = " is the highest expert info level";
+
+    switch(expert_get_highest_severity()) {
+    case(PI_ERROR):
+        imgText.append("error");
+        ttText.prepend("ERROR");
+        break;
+    case(PI_WARN):
+        imgText.append("warn");
+        ttText.prepend("WARNING");
+        break;
+    case(PI_NOTE):
+        imgText.append("note");
+        ttText.prepend("NOTE");
+        break;
+    case(PI_CHAT):
+        imgText.append("chat");
+        ttText.prepend("CHAT");
+        break;
+//    case(PI_COMMENT):
+//        m_expertStatus.setText("<img src=\":/expert/expert_comment.png\"></img>");
+//        break;
+    default:
+        imgText.append("none");
+        ttText = "No expert info";
+        break;
+    }
+
+    imgText.append(".png\"></img>");
+    m_expertStatus.setText(imgText);
+    m_expertStatus.setToolTip(ttText);
+    m_expertStatus.show();
+}
+
 void MainStatusBar::pushTemporaryStatus(QString &message) {
     m_infoStatus.pushText(message, STATUS_CTX_TEMPORARY);
 }
@@ -174,6 +226,7 @@ void MainStatusBar::popTemporaryStatus() {
 
 void MainStatusBar::pushFileStatus(QString &message) {
     m_infoStatus.pushText(message, STATUS_CTX_FILE);
+    expertUpdate();
 }
 
 void MainStatusBar::popFileStatus() {
@@ -190,6 +243,7 @@ void MainStatusBar::popFieldStatus() {
 
 void MainStatusBar::pushFilterStatus(QString &message) {
     m_infoStatus.pushText(message, STATUS_CTX_FILTER);
+    expertUpdate();
 }
 
 void MainStatusBar::popFilterStatus() {
