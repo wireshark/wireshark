@@ -311,4 +311,6 @@ TRANSLATIONS = \
 
 ICON = ../../packaging/macosx/Resources/Wireshark.icns
 
+RC_FILE = qstshark.rc
+
 win32: QMAKE_CLEAN += *.pdb
