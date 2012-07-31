@@ -88,7 +88,7 @@ static int ett_ranap_TransportLayerAddress_nsap = -1;
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
-
+static gboolean glbl_dissect_container = FALSE;
 /* Some IE:s identities uses the same value for different IE:s
  * depending on PDU type:
  * InitiatingMessage

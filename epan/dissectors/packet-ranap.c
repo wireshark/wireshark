@@ -115,6 +115,7 @@ typedef enum _ProcedureCode_enum {
   id_SRNS_ContextTransfer =   5,
   id_SecurityModeControl =   6,
   id_DataVolumeReport =   7,
+  id_Not_Used_8 =   8,
   id_Reset     =   9,
   id_RAB_ReleaseRequest =  10,
   id_Iu_ReleaseRequest =  11,
@@ -157,6 +158,8 @@ typedef enum _ProcedureCode_enum {
 
 typedef enum _ProtocolIE_ID_enum {
   id_AreaIdentity =   0,
+  id_Not_Used_1 =   1,
+  id_Not_Used_2 =   2,
   id_CN_DomainIndicator =   3,
   id_Cause     =   4,
   id_ChosenEncryptionAlgorithm =   5,
@@ -227,6 +230,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_UL_GTP_PDU_SequenceNumber =  70,
   id_RAB_FailedtoReportItem =  71,
   id_RAB_FailedtoReportList =  72,
+  id_Not_Used_73 =  73,
+  id_Not_Used_74 =  74,
   id_KeyStatus =  75,
   id_DRX_CycleLengthCoefficient =  76,
   id_IuSigConIdList =  77,
@@ -253,6 +258,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_SRB_TrCH_Mapping =  98,
   id_InterSystemInformation_TransparentContainer =  99,
   id_NewBSS_To_OldBSS_Information = 100,
+  id_Not_Used_101 = 101,
+  id_Not_Used_102 = 102,
   id_SourceRNC_PDCP_context_info = 103,
   id_InformationTransferID = 104,
   id_SNA_Access_Information = 105,
@@ -382,6 +389,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_CSG_Id_List = 229,
   id_PSRABtobeReplaced = 230,
   id_E_UTRAN_Service_Handover = 231,
+  id_Not_Used_232 = 232,
   id_UE_AggregateMaximumBitRate = 233,
   id_CSG_Membership_Status = 234,
   id_Cell_Access_Mode = 235,
@@ -395,6 +403,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_IRAT_Measurement_Configuration = 243,
   id_MDT_Configuration = 244,
   id_Priority_Class_Indicator = 245,
+  id_Not_Used_246 = 246,
   id_RNSAPRelocationParameters = 247,
   id_RABParametersList = 248,
   id_Management_Based_MDT_Allowed = 249,
@@ -1482,7 +1491,7 @@ static gint ett_ranap_Outcome = -1;
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
-
+static gboolean glbl_dissect_container = FALSE;
 /* Some IE:s identities uses the same value for different IE:s
  * depending on PDU type:
  * InitiatingMessage
@@ -1607,6 +1616,7 @@ static const value_string ranap_ProcedureCode_vals[] = {
   { id_SRNS_ContextTransfer, "id-SRNS-ContextTransfer" },
   { id_SecurityModeControl, "id-SecurityModeControl" },
   { id_DataVolumeReport, "id-DataVolumeReport" },
+  { id_Not_Used_8, "id-Not-Used-8" },
   { id_Reset, "id-Reset" },
   { id_RAB_ReleaseRequest, "id-RAB-ReleaseRequest" },
   { id_Iu_ReleaseRequest, "id-Iu-ReleaseRequest" },
@@ -1677,6 +1687,8 @@ dissect_ranap_ProtocolExtensionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_AreaIdentity, "id-AreaIdentity" },
+  { id_Not_Used_1, "id-Not-Used-1" },
+  { id_Not_Used_2, "id-Not-Used-2" },
   { id_CN_DomainIndicator, "id-CN-DomainIndicator" },
   { id_Cause, "id-Cause" },
   { id_ChosenEncryptionAlgorithm, "id-ChosenEncryptionAlgorithm" },
@@ -1747,6 +1759,8 @@ static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_UL_GTP_PDU_SequenceNumber, "id-UL-GTP-PDU-SequenceNumber" },
   { id_RAB_FailedtoReportItem, "id-RAB-FailedtoReportItem" },
   { id_RAB_FailedtoReportList, "id-RAB-FailedtoReportList" },
+  { id_Not_Used_73, "id-Not-Used-73" },
+  { id_Not_Used_74, "id-Not-Used-74" },
   { id_KeyStatus, "id-KeyStatus" },
   { id_DRX_CycleLengthCoefficient, "id-DRX-CycleLengthCoefficient" },
   { id_IuSigConIdList, "id-IuSigConIdList" },
@@ -1773,6 +1787,8 @@ static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_SRB_TrCH_Mapping, "id-SRB-TrCH-Mapping" },
   { id_InterSystemInformation_TransparentContainer, "id-InterSystemInformation-TransparentContainer" },
   { id_NewBSS_To_OldBSS_Information, "id-NewBSS-To-OldBSS-Information" },
+  { id_Not_Used_101, "id-Not-Used-101" },
+  { id_Not_Used_102, "id-Not-Used-102" },
   { id_SourceRNC_PDCP_context_info, "id-SourceRNC-PDCP-context-info" },
   { id_InformationTransferID, "id-InformationTransferID" },
   { id_SNA_Access_Information, "id-SNA-Access-Information" },
@@ -1902,6 +1918,7 @@ static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_CSG_Id_List, "id-CSG-Id-List" },
   { id_PSRABtobeReplaced, "id-PSRABtobeReplaced" },
   { id_E_UTRAN_Service_Handover, "id-E-UTRAN-Service-Handover" },
+  { id_Not_Used_232, "id-Not-Used-232" },
   { id_UE_AggregateMaximumBitRate, "id-UE-AggregateMaximumBitRate" },
   { id_CSG_Membership_Status, "id-CSG-Membership-Status" },
   { id_Cell_Access_Mode, "id-Cell-Access-Mode" },
@@ -1915,6 +1932,7 @@ static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_IRAT_Measurement_Configuration, "id-IRAT-Measurement-Configuration" },
   { id_MDT_Configuration, "id-MDT-Configuration" },
   { id_Priority_Class_Indicator, "id-Priority-Class-Indicator" },
+  { id_Not_Used_246, "id-Not-Used-246" },
   { id_RNSAPRelocationParameters, "id-RNSAPRelocationParameters" },
   { id_RABParametersList, "id-RABParametersList" },
   { id_Management_Based_MDT_Allowed, "id-Management-Based-MDT-Allowed" },
@@ -7315,7 +7333,7 @@ dissect_ranap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                        NO_BOUND, NO_BOUND, FALSE, &rrc_message_tvb);
 
 
-	if ((rrc_message_tvb)&&(tvb_length(rrc_message_tvb)!=0)){
+	if ((rrc_message_tvb)&&(tvb_length(rrc_message_tvb)!=0)&&(glbl_dissect_container)){
 		switch(ProtocolIE_ID){
 			case id_Source_ToTarget_TransparentContainer: /* INTEGER ::= 61 */
 				/* 9.2.1.30a Source to Target Transparent Container
