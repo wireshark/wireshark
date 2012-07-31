@@ -40,11 +40,13 @@
 #define MAC_UEID_TYPE_URNTI     0x0
 #define MAC_UEID_TYPE_CRNTI     0x1
 
-#define MAC_CONTENT_UNKNOWN 0
-#define MAC_CONTENT_DCCH    1
-#define MAC_CONTENT_PS_DTCH 2
-#define MAC_CONTENT_CS_DTCH 3
-#define MAC_CONTENT_CCCH    4
+enum mac_content_type {
+    MAC_CONTENT_UNKNOWN,
+    MAC_CONTENT_DCCH,
+    MAC_CONTENT_PS_DTCH,
+    MAC_CONTENT_CS_DTCH,
+    MAC_CONTENT_CCCH
+};
 
 /* Used for mapping id to string names*/
 #define MAC_PCCH    0

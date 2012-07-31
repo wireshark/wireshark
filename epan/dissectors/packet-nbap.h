@@ -34,30 +34,12 @@
 
 /*
  * Ericsson specific mapping for various dissector settings.
- * Must be altered for other equipment. 
+ * Must be altered for other equipment.
  */
- 
+
 /*Array are indexed on logical channel id, meaning they need to be defined for 1-15*/
 /* Mapping from logical channel id to MAC content type ie. DCCH or DTCH*/
-static const guint8 lchId_type_table[]= {
-	MAC_CONTENT_UNKNOWN,	/*Should't happen*/
-	MAC_CONTENT_DCCH,		/* 1 to 4 SRB => DCCH*/ 
-	MAC_CONTENT_DCCH,
-	MAC_CONTENT_DCCH,
-	MAC_CONTENT_DCCH,
-	MAC_CONTENT_CS_DTCH,	/* 5 to 7 Conv CS speech => ?*/
-	MAC_CONTENT_CS_DTCH,
-	MAC_CONTENT_CS_DTCH,
-	MAC_CONTENT_DCCH,		/* 8 SRB => DCCH*/
-	MAC_CONTENT_PS_DTCH,	/* 9 maps to DTCH*/
-	MAC_CONTENT_UNKNOWN,	/* 10 Conv CS unknown*/
-	MAC_CONTENT_PS_DTCH,	/* 11 Interactive PS => DTCH*/
-	MAC_CONTENT_PS_DTCH,	/* 12 Streaming PS => DTCH*/
-	MAC_CONTENT_CS_DTCH,	/* 13 Streaming CS*/
-	MAC_CONTENT_PS_DTCH,	/* 14 Interatictive PS => DTCH*/
-	MAC_CONTENT_CCCH		/* This is CCCH? */
-	
-};
+extern guint8 lchId_type_table[];
 
 /* Mapping logicalchannel id to RLC_MODE */
 static const guint8 lchId_rlc_map[] = {
@@ -78,7 +60,7 @@ static const guint8 lchId_rlc_map[] = {
 	RLC_AM,
 	RLC_AM,	/* This is CCCH which is UM?, probably not */
 	};
-	
+
 /* 1 to 8*/
 static const guint8 hsdsch_macdflow_id_rlc_map[] = {
 	RLC_UM,	           /*1 SRB */
@@ -89,7 +71,7 @@ static const guint8 hsdsch_macdflow_id_rlc_map[] = {
 	RLC_UNKNOWN_MODE,
 	RLC_UNKNOWN_MODE
 	};
-	
+
 /* Mapping hsdsch MACd-FlowId to MAC_CONTENT, basically flowid = 1 (0) => SRB*/
 /* 1 to 8*/
 static const guint8 hsdsch_macdflow_id_mac_content_map[] = {
@@ -100,14 +82,14 @@ static const guint8 hsdsch_macdflow_id_mac_content_map[] = {
 	MAC_CONTENT_PS_DTCH,	/*5 Streaming PS*/
 	RLC_UNKNOWN_MODE,
 	RLC_UNKNOWN_MODE,
-	RLC_UNKNOWN_MODE 
+	RLC_UNKNOWN_MODE
 	};
-	
+
 /* Make fake logical channel id's based on MACdFlow-ID's*/
 static const guint8 fake_lchid_macd_flow[] = {1,9,14,11,0,12};
 
 static const value_string lchid_name_resolve[] = {
-	{1,"DCCH"},	/* 1 to 4 SRB => DCCH*/ 
+	{1,"DCCH"},	/* 1 to 4 SRB => DCCH*/
 	{2,"DCCH"},
 	{3,"DCCH"},
 	{4,"DCCH"},
