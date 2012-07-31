@@ -1102,7 +1102,7 @@ io_stat_draw(io_stat_t *io)
 			mavg_in_average_count++;
 			for(warmup_interval += io->interval;
 			    ((warmup_interval < (first_interval + (io->filter_order/2) * (guint64)io->interval)) &&
-			    (warmup_interval <= (io->num_items * io->interval)));
+			    (warmup_interval <= (io->num_items * (guint64)io->interval)));
 			    warmup_interval += io->interval) {
 
 				mavg_cumulated += get_it_value(io, i, (int)warmup_interval / io->interval);
