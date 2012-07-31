@@ -126,7 +126,6 @@ remote_icons.h:
 #	Makefile.nmake
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
-	$(QRC_IMAGES)			\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
 	main.cpp			\

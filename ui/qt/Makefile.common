@@ -105,23 +105,6 @@ MOC_SRC = $(MOC_HDRS:.h=.moc.cpp)
 # .qrc files.
 #
 # Should QRC_FILES or QRC_SRC depend on QRC_IMAGES?
-QRC_IMAGES = \
-	capture_start_24.png		\
-	capture_start_active_24.png	\
-	capture_stop_24.png		\
-	dfilter_apply_hover.png		\
-	dfilter_apply_normal.png	\
-	dfilter_apply_pressed.png	\
-	dfilter_bookmark_hover.png	\
-	dfilter_bookmark_normal.png	\
-	dfilter_bookmark_pressed.png	\
-	dfilter_dropdown.png		\
-	dfilter_erase_active.png	\
-	dfilter_erase_normal.png	\
-	dfilter_erase_selected.png	\
-	dfilter_refresh_active.png	\
-	dfilter_refresh_normal.png
-
 QRC_FILES = \
 	display_filter.qrc \
 	i18n.qrc \

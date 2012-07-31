@@ -664,8 +664,24 @@ EXTRA_DIST = \
 	image/capture_comment_add.png	\
 	image/capture_comment_disabled.png	\
 	image/capture_comment_update.png	\
-	image/clist_ascend.xpm	\
-	image/clist_descend.xpm	\
+	image/capture_start_24.png		\
+	image/capture_start_active_24.png	\
+	image/capture_stop_24.png		\
+	image/clist_ascend.xpm			\
+	image/clist_descend.xpm			\
+	image/dfilter_apply_hover.png		\
+	image/dfilter_apply_normal.png		\
+	image/dfilter_apply_pressed.png		\
+	image/dfilter_bookmark_hover.png	\
+	image/dfilter_bookmark_normal.png	\
+	image/dfilter_bookmark_pressed.png	\
+	image/dfilter_dropdown.png		\
+	image/dfilter_erase_active.png		\
+	image/dfilter_erase_normal.png		\
+	image/dfilter_erase_selected.png	\
+	image/dfilter_refresh_active.png	\
+	image/dfilter_refresh_normal.png	\
+	image/display_filter.qrc		\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
 	image/expert_chat.png	\
@@ -685,45 +701,47 @@ EXTRA_DIST = \
 	image/icon_layout_5.xpm \
 	image/icon_layout_6.xpm \
 	image/libwireshark.rc.in	\
-	image/libwsutil.rc.in	\
+	image/libwsutil.rc.in		\
 	image/lo16-app-wireshark.png	\
 	image/lo32-app-wireshark.png	\
 	image/lo48-app-wireshark.png	\
-	image/make-icons	\
-	image/Makefile.nmake	\
-	image/mergecap.rc.in	\
-	image/nsis-checked.bmp	\
-	image/nsis-unchecked.bmp	\
-	image/rawshark.rc.in	\
-	image/README.image	\
-	image/stock_dialog_error_48.xpm	\
-	image/stock_dialog_info_48.xpm	\
+	image/make-icons			\
+	image/Makefile.nmake			\
+	image/mergecap.rc.in			\
+	image/nsis-checked.bmp			\
+	image/nsis-unchecked.bmp		\
+	image/rawshark.rc.in			\
+	image/README.image			\
+	image/status.qrc			\
+	image/stock_dialog_error_48.xpm		\
+	image/stock_dialog_info_48.xpm		\
 	image/stock_dialog_question_48.xpm	\
-	image/stock_dialog_stop_48.xpm	\
+	image/stock_dialog_stop_48.xpm		\
 	image/stock_dialog_warning_48.xpm	\
-	image/text2pcap.rc.in	\
-	image/toolbar/analyze_24.xpm \
+	image/text2pcap.rc.in			\
+	image/toolbar.qrc			\
+	image/toolbar/analyze_24.xpm 		\
 	image/toolbar/audio_player_24.xpm	\
-	image/toolbar/autoscroll_24.xpm	\
-	image/toolbar/capture_airpcap_16.xpm \
-	image/toolbar/capture_capture_16.xpm \
-	image/toolbar/capture_details_16.xpm \
-	image/toolbar/capture_details_24.xpm \
-	image/toolbar/capture_ethernet_16.xpm  \
+	image/toolbar/autoscroll_24.xpm		\
+	image/toolbar/capture_airpcap_16.xpm	\
+	image/toolbar/capture_capture_16.xpm	\
+	image/toolbar/capture_details_16.xpm	\
+	image/toolbar/capture_details_24.xpm	\
+	image/toolbar/capture_ethernet_16.xpm	\
 	image/toolbar/capture_filter_24.xpm	\
 	image/toolbar/capture_interfaces_24.xpm	\
 	image/toolbar/capture_options_24.xpm	\
-	image/toolbar/capture_prepare_16.xpm \
+	image/toolbar/capture_prepare_16.xpm	\
 	image/toolbar/capture_restart_24.xpm	\
 	image/toolbar/capture_start_24.xpm	\
 	image/toolbar/capture_stop_24.xpm	\
-	image/toolbar/checkbox_16.xpm	\
-	image/toolbar/colorize_24.xpm	\
+	image/toolbar/checkbox_16.xpm		\
+	image/toolbar/colorize_24.xpm		\
 	image/toolbar/conversations_16.xpm	\
-	image/toolbar/decode_24.xpm	\
-	image/toolbar/decode_as_16.xpm	\
+	image/toolbar/decode_24.xpm		\
+	image/toolbar/decode_as_16.xpm		\
 	image/toolbar/display_filter_24.xpm	\
-	image/toolbar/endpoints_16.xpm	\
+	image/toolbar/endpoints_16.xpm		\
 	image/toolbar/expert_info_16.xpm	\
 	image/toolbar/file_set_list_16.xpm	\
 	image/toolbar/file_set_next_16.xpm	\
