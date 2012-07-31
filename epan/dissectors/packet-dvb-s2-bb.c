@@ -1,7 +1,7 @@
 /* packet-dvb-s2-bb.c
  * Routines for DVB Dynamic Mode Adaption dissection
  *  refer to http://satlabs.org/pdf/sl_561_Mode_Adaptation_Input_and_Output_Interfaces_for_DVB-S2_Equipment_v1.3.pdf
- * 
+ *
  * Standards:
  *  ETSI EN 302 307 - Digital Video Broadcasting (DVB) - Framing Structure
  *  ETSI TS 102 606 - Digital Video Broadcasting (DVB) - Generic Stream Encapsulation (GSE) Protocol
@@ -41,7 +41,7 @@
 #define BIT_IS_SET(var, bit) ((var) & (1 << (bit)))
 #define BIT_IS_CLEAR(var, bit) !BIT_IS_SET(var, bit)
 
-#define DVB_S2_MODEADAPT_MINSIZE 	2
+#define DVB_S2_MODEADAPT_MINSIZE	2
 #define DVB_S2_MODEADAPT_INSIZE		2
 #define DVB_S2_MODEADAPT_OUTSIZE	4
 
@@ -127,7 +127,7 @@ static gint ett_dvb_s2_gse_hdr = -1;
 /* *** DVB-S2 Modeadaption Header *** */
 
 /* first byte */
-#define DVB_S2_MODEADAPT_OFFS_SYNCBYTE	   	0
+#define DVB_S2_MODEADAPT_OFFS_SYNCBYTE		0
 #define DVB_S2_MODEADAPT_SYNCBYTE		0xB8
 
 /* second byte */
@@ -576,7 +576,7 @@ static int dissect_dvb_s2_gse(tvbuff_t * tvb, int cur_off, proto_tree * tree, pa
         /* get header and determine length */
         gse_hdr = tvb_get_ntohs(tvb, cur_off + DVB_S2_GSE_OFFS_HDR);
         new_off += 2;
-        frag_len = (gse_hdr & DVB_S2_GSE_HDR_LENGTH_MASK)+2; 
+        frag_len = (gse_hdr & DVB_S2_GSE_HDR_LENGTH_MASK)+2;
 
         ti = proto_tree_add_item(tree, proto_dvb_s2_gse, tvb, cur_off, frag_len, ENC_NA);
         dvb_s2_gse_tree = proto_item_add_subtree(ti, ett_dvb_s2_gse);
@@ -619,7 +619,7 @@ static int dissect_dvb_s2_gse(tvbuff_t * tvb, int cur_off, proto_tree * tree, pa
 
                 if (BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_LABELTYPE_POS1) && BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_LABELTYPE_POS2)) {
                     /* 6 byte label */
-                    if(BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS)) 
+                    if(BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS))
                         col_append_str(pinfo->cinfo, COL_INFO, "6 ");
 
                     proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_label6, tvb, cur_off + new_off, 6, ENC_NA);
@@ -628,7 +628,7 @@ static int dissect_dvb_s2_gse(tvbuff_t * tvb, int cur_off, proto_tree * tree, pa
                 } else if (BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_LABELTYPE_POS1) &&
                            BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_LABELTYPE_POS2)) {
                     /* 3 byte label */
-                    if(BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS)) 
+                    if(BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS))
                         col_append_str(pinfo->cinfo, COL_INFO, "3 ");
 
                     proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_label3, tvb, cur_off + new_off, 3, ENC_NA);
@@ -636,7 +636,7 @@ static int dissect_dvb_s2_gse(tvbuff_t * tvb, int cur_off, proto_tree * tree, pa
                     new_off += 3;
                 } else {
                     /* 0 byte label */
-                    if(BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS)) 
+                    if(BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS))
                         col_append_str(pinfo->cinfo, COL_INFO, "0 ");
                 }
                 if (gse_proto < 0x0600) {
@@ -1094,7 +1094,7 @@ void proto_register_dvb_s2_modeadapt(void)
     prefs_register_bool_preference(dvb_s2_modeadapt_module, "full_decode",
 	"Enable dissection of GSE data",
 	"Check this to enable full protocol dissection of data above GSE Layer",
-	&dvb_s2_full_dissection);	
+	&dvb_s2_full_dissection);
 }
 
 void proto_reg_handoff_dvb_s2_modeadapt(void)
