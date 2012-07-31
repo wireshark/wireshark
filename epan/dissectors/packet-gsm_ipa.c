@@ -502,8 +502,8 @@ void proto_reg_handoff_gsm_ipa(void)
 	static range_t *ipa_tcp_ports, *ipa_udp_ports;
 
 	if (!ipa_initialized) {
-		sub_handles[SUB_RSL] = find_dissector("gsm_a_rsl");
-		sub_handles[SUB_OML] = find_dissector("gsm_a_oml");
+		sub_handles[SUB_RSL] = find_dissector("gsm_abis_rsl");
+		sub_handles[SUB_OML] = find_dissector("gsm_abis_oml");
 		sub_handles[SUB_SCCP] = find_dissector("sccp");
 		sub_handles[SUB_MGCP] = find_dissector("mgcp");
 		sub_handles[SUB_DATA] = find_dissector("data");

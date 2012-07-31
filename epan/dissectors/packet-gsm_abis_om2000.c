@@ -1044,354 +1044,354 @@ proto_register_abis_om2000(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_om2k_msg_code,
-		  { "Message Code", "gsm_a_om2000.msg_code",
+		  { "Message Code", "gsm_abis_om2000.msg_code",
 		    FT_UINT16, BASE_HEX|BASE_EXT_STRING, &om2k_msgcode_vals_ext, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_mo_if,
-		  { "MO Interface", "gsm_a_om2000.mo_if",
+		  { "MO Interface", "gsm_abis_om2000.mo_if",
 		    FT_BYTES, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_mo_class,
-		  { "MO IF Class", "gsm_a_om2000.mo_if.class",
+		  { "MO IF Class", "gsm_abis_om2000.mo_if.class",
 		    FT_UINT8, BASE_HEX, VALS(om2k_mo_class_vals), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_mo_instance,
-		  { "MO IF Instance", "gsm_a_om2000.mo_if.instance",
+		  { "MO IF Instance", "gsm_abis_om2000.mo_if.instance",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_oip,
-		  { "OIP (Operational Info)", "gsm_a_om2000.oip",
+		  { "OIP (Operational Info)", "gsm_abis_om2000.oip",
 		    FT_UINT8, BASE_HEX, VALS(om2k_oip_vals), 0,
 		    "Operational Information Parameter", HFILL }
 		},
 		{ &hf_om2k_aip,
-		  { "AIP (Accordance Info)", "gsm_a_om2000.aip",
+		  { "AIP (Accordance Info)", "gsm_abis_om2000.aip",
 		    FT_UINT8, BASE_HEX, VALS(om2k_aip_vals), 0,
 		    "Accordance Information Parameter", HFILL }
 		},
 		{ &hf_om2k_comb,
-		  { "Channel Combination", "gsm_a_om2000.chan_comb",
+		  { "Channel Combination", "gsm_abis_om2000.chan_comb",
 		    FT_UINT8, BASE_DEC, VALS(om2k_comb_vals), 0,
 		    "Logical Channel Combination", HFILL }
 		},
 		{ &hf_om2k_ts,
-		  { "Timeslot Number", "gsm_a_om2000.ts",
+		  { "Timeslot Number", "gsm_abis_om2000.ts",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_hsn,
-		  { "HSN", "gsm_a_om2000.hsn",
+		  { "HSN", "gsm_abis_om2000.hsn",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    "Hopping Sequence Number", HFILL }
 		},
 		{ &hf_om2k_maio,
-		  { "MAIO", "gsm_a_om2000.maio",
+		  { "MAIO", "gsm_abis_om2000.maio",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    "Mobile Allication Index Offset", HFILL }
 		},
 		{ &hf_om2k_bsic,
-		  { "BSIC", "gsm_a_om2000.bsic",
+		  { "BSIC", "gsm_abis_om2000.bsic",
 		    FT_UINT8, BASE_HEX, NULL, 0,
 		    "Base Station Identity Code", HFILL }
 		},
 		{ &hf_om2k_diversity,
-		  { "Receiver Diversity", "gsm_a_om2000.diversity",
+		  { "Receiver Diversity", "gsm_abis_om2000.diversity",
 		    FT_UINT8, BASE_HEX, VALS(om2k_diversity_vals), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_fn_offs,
-		  { "FN Offset", "gsm_a_om2000.fn_offset",
+		  { "FN Offset", "gsm_abis_om2000.fn_offset",
 		    FT_UINT16, BASE_DEC, NULL, 0,
 		    "GSM Frame Number Offset", HFILL }
 		},
 		{ &hf_om2k_ext_range,
-		  { "Extended Range", "gsm_a_om2000.ext_range",
+		  { "Extended Range", "gsm_abis_om2000.ext_range",
 		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_irc,
-		  { "Interference Rejection Combining", "gsm_a_om2000.irc",
+		  { "Interference Rejection Combining", "gsm_abis_om2000.irc",
 		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bs_pa_mfrms,
-		  { "BS_PA_MFRMS", "gsm_a_om2000.bs_pa_mfrms",
+		  { "BS_PA_MFRMS", "gsm_abis_om2000.bs_pa_mfrms",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bs_ag_blks_res,
-		  { "BS_AG_BLKS_RES", "gsm_a_om2000.bs_ag_blks_res",
+		  { "BS_AG_BLKS_RES", "gsm_abis_om2000.bs_ag_blks_res",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_drx_dev_max,
-		  { "DRX_DEV_MAX", "gsm_a_om2000.drx_dev_max",
+		  { "DRX_DEV_MAX", "gsm_abis_om2000.drx_dev_max",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_cr,
-		  { "CCCH Repeat", "gsm_a_om2000.ccch_repeat",
+		  { "CCCH Repeat", "gsm_abis_om2000.ccch_repeat",
 		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_ipt3,
-		  { "Inhibit Paging Request Type 3", "gsm_a_om2000.ipt3",
+		  { "Inhibit Paging Request Type 3", "gsm_abis_om2000.ipt3",
 		    FT_BOOLEAN, 2, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x02,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_aop,
-		  { "Age Of Paging", "gsm_a_om2000.aop",
+		  { "Age Of Paging", "gsm_abis_om2000.aop",
 		    FT_UINT8, BASE_DEC, NULL, 0x3C,  /* XXX: Verify bitmask */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_t3105,
-		  { "T3105 (in 10ms)", "gsm_a_om2000.t3105",
+		  { "T3105 (in 10ms)", "gsm_abis_om2000.t3105",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_ny1,
-		  { "Ny1", "gsm_a_om2000.ny1",
+		  { "Ny1", "gsm_abis_om2000.ny1",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_cbi,
-		  { "CBCH Indicator", "gsm_a_om2000.ny1",
+		  { "CBCH Indicator", "gsm_abis_om2000.ny1",
 		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_tsc,
-		  { "Training Sequence Code", "gsm_a_om2000.tsc",
+		  { "Training Sequence Code", "gsm_abis_om2000.tsc",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_icm,
-		  { "Idle Channel Measurement", "gsm_a_om2000.icm",
+		  { "Idle Channel Measurement", "gsm_abis_om2000.icm",
 		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_tta,
-		  { "Timer for Time Alignment", "gsm_a_om2000.tta",
+		  { "Timer for Time Alignment", "gsm_abis_om2000.tta",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_icm_cr,
-		  { "ICM Channel Rate", "gsm_a_om2000.icm_cr",
+		  { "ICM Channel Rate", "gsm_abis_om2000.icm_cr",
 		    FT_UINT8, BASE_DEC, VALS(om2k_icmcr_vals), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_lsc_fm,
-		  { "LSC Dummy Frequency Measurement", "gsm_a_om2000.lsc.fm",
+		  { "LSC Dummy Frequency Measurement", "gsm_abis_om2000.lsc.fm",
 		    FT_BOOLEAN, 8, NULL, 0x80,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_lsc_lsi,
-		  { "LSC Idle Channels", "gsm_a_om2000.ls.lsi",
+		  { "LSC Idle Channels", "gsm_abis_om2000.ls.lsi",
 		    FT_BOOLEAN, 8, NULL, 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_lsc_lsa,
-		  { "LSC Active Channels", "gsm_a_om2000.ls.lsa",
+		  { "LSC Active Channels", "gsm_abis_om2000.ls.lsa",
 		    FT_BOOLEAN, 8, NULL, 0x02,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_ls_ft,
-		  { "Link Supervision Filtering Time (100ms)", "gsm_a_om2000.ls_ft",
+		  { "Link Supervision Filtering Time (100ms)", "gsm_abis_om2000.ls_ft",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_cst,
-		  { "Call Supervision Time (480ms)", "gsm_a_om2000.cst",
+		  { "Call Supervision Time (480ms)", "gsm_abis_om2000.cst",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_ea,
-		  { "Encryption Algorithm", "gsm_a_om2000.ea",
+		  { "Encryption Algorithm", "gsm_abis_om2000.ea",
 		    FT_UINT8, BASE_DEC, VALS(om2k_ea_vals), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_nom_pwr,
-		  { "Nominal Power (dBm)", "gsm_a_om2000.pwr",
+		  { "Nominal Power (dBm)", "gsm_abis_om2000.pwr",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_fill_mark,
-		  { "Filling Marker", "gsm_a_om2000.filling",
+		  { "Filling Marker", "gsm_abis_om2000.filling",
 		    FT_UINT8, BASE_DEC, VALS(om2k_fill_vals), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bcc,
-		  { "BCC", "gsm_a_om2000.bcc",
+		  { "BCC", "gsm_abis_om2000.bcc",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    "Base Station Color Code", HFILL }
 		},
 		{ &hf_om2k_mo_state,
-		  { "MO State", "gsm_a_om2000.mo_state",
+		  { "MO State", "gsm_abis_om2000.mo_state",
 		    FT_UINT8, BASE_DEC, VALS(om2k_mo_state_vals), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_la_state,
-		  { "Local Access State", "gsm_a_om2000.la_state",
+		  { "Local Access State", "gsm_abis_om2000.la_state",
 		    FT_UINT8, BASE_DEC, VALS(om2k_la_state_vals), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_tsn_state,
-		  { "Time Slot N MO State", "gsm_a_om2000.tsn_mo_state",
+		  { "Time Slot N MO State", "gsm_abis_om2000.tsn_mo_state",
 		    FT_UINT8, BASE_DEC, VALS(om2k_mo_state_vals), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bts_manuf,
-		  { "BTS Manufacturer ID", "gsm_a_om2000.bts_ver.manuf",
+		  { "BTS Manufacturer ID", "gsm_abis_om2000.bts_ver.manuf",
 		    FT_STRING, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bts_gen,
-		  { "BTS Generation", "gsm_a_om2000.bts_ver.gen",
+		  { "BTS Generation", "gsm_abis_om2000.bts_ver.gen",
 		    FT_STRING, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bts_rev,
-		  { "BTS Revision", "gsm_a_om2000.bts_ver.rev",
+		  { "BTS Revision", "gsm_abis_om2000.bts_ver.rev",
 		    FT_STRING, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bts_var,
-		  { "BTS Variant", "gsm_a_om2000.bts_ver.variant",
+		  { "BTS Variant", "gsm_abis_om2000.bts_ver.variant",
 		    FT_STRING, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_brr,
-		  { "BTS Requested Restart", "gsm_a_om2000.brr",
+		  { "BTS Requested Restart", "gsm_abis_om2000.brr",
 		    FT_BOOLEAN, 0x01, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x??,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bfr,
-		  { "BTS Requested File Relation", "gsm_a_om2000.bfr",
+		  { "BTS Requested File Relation", "gsm_abis_om2000.bfr",
 		    FT_BOOLEAN, 0x01, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x??,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_hwinfo_sig,
-		  { "HW Info Signature", "gsm_a_om2000.hwinfo_sig",
+		  { "HW Info Signature", "gsm_abis_om2000.hwinfo_sig",
 		    FT_UINT16, BASE_HEX, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_capa_sig,
-		  { "Capabilities Signature", "gsm_a_om2000.capa_sig",
+		  { "Capabilities Signature", "gsm_abis_om2000.capa_sig",
 		    FT_UINT16, BASE_HEX, NULL, 0,
 		    NULL, HFILL }
 		},
 
 		{ &hf_om2k_unknown_tag,
-		  { "Unknown Tag", "gsm_a_om2000.unknown.tag",
+		  { "Unknown Tag", "gsm_abis_om2000.unknown.tag",
 		    FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_unknown_val,
-		  { "Unknown Value", "gsm_a_om2000.unknown.val",
+		  { "Unknown Value", "gsm_abis_om2000.unknown.val",
 		    FT_BYTES, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
 
 		{ &hf_om2k_file_rev,
-		  { "File Revision", "gsm_a_om2000.file_rev",
+		  { "File Revision", "gsm_abis_om2000.file_rev",
 		    FT_STRING, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_filerel_ilr,
-		  { "Immediate Load Requested", "gsm_a_om2000.filerel.ilr",
+		  { "Immediate Load Requested", "gsm_abis_om2000.filerel.ilr",
 		    FT_BOOLEAN, 8, NULL, 0x08,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_filerel_cur,
-		  { "Current State", "gsm_a_om2000.filerel.cur",
+		  { "Current State", "gsm_abis_om2000.filerel.cur",
 		    FT_UINT8, BASE_HEX, VALS(filerel_state_vals), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_filerel_other,
-		  { "Other State", "gsm_a_om2000.filerel.other",
+		  { "Other State", "gsm_abis_om2000.filerel.other",
 		    FT_UINT8, BASE_HEX, VALS(filerel_state_vals), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_cal_time,
-		  { "Calendar Time", "gsm_a_om2000.cal_time",
+		  { "Calendar Time", "gsm_abis_om2000.cal_time",
 		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_list_nr,
-		  { "List Number", "gsm_a_om2000.list_nr",
+		  { "List Number", "gsm_abis_om2000.list_nr",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_list_nr_end,
-		  { "End List Number", "gsm_a_om2000.list_nr_end",
+		  { "End List Number", "gsm_abis_om2000.list_nr_end",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_isl,
-		  { "IS Connection List", "gsm_a_om2000.is_list",
+		  { "IS Connection List", "gsm_abis_om2000.is_list",
 		    FT_BYTES, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_isl_icp1,
-		  { "ICP1", "gsm_a_om2000.is_list.icp1",
+		  { "ICP1", "gsm_abis_om2000.is_list.icp1",
 		    FT_UINT16, BASE_DEC, NULL, 0x7ff,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_isl_icp2,
-		  { "ICP2", "gsm_a_om2000.is_list.icp2",
+		  { "ICP2", "gsm_abis_om2000.is_list.icp2",
 		    FT_UINT16, BASE_DEC, NULL, 0x7ff,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_isl_ci,
-		  { "Contiguity Index", "gsm_a_om2000.is_list.ci",
+		  { "Contiguity Index", "gsm_abis_om2000.is_list.ci",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_conl,
-		  { "Connection List", "gsm_a_om2000.con_list",
+		  { "Connection List", "gsm_abis_om2000.con_list",
 		    FT_BYTES, BASE_NONE, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_conl_nr_cgs,
-		  { "Number of CGs", "gsm_a_om2000.con_list.nr_cgs",
+		  { "Number of CGs", "gsm_abis_om2000.con_list.nr_cgs",
 		    FT_UINT8, BASE_DEC, NULL, 0x1f,
 		    "Number of Concentration Groups in the DE", HFILL }
 		},
 		{ &hf_om2k_conl_nr_cps_cg,
-		  { "Number of CPS in CG", "gsm_a_om2000.con_list.nr_cps_cg",
+		  { "Number of CPS in CG", "gsm_abis_om2000.con_list.nr_cps_cg",
 		    FT_UINT8, BASE_DEC, NULL, 0x1f,
 		    "Number of CPS in Concentration Group", HFILL }
 		},
 		{ &hf_om2k_conl_ccp,
-		  { "CON Connection Point", "gsm_a_om2000.con_list.cpp",
+		  { "CON Connection Point", "gsm_abis_om2000.con_list.cpp",
 		    FT_UINT16, BASE_DEC, NULL, 0x3ff,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_conl_ci,
-		  { "Contiguity Index", "gsm_a_om2000.con_list.ci",
+		  { "Contiguity Index", "gsm_abis_om2000.con_list.ci",
 		    FT_UINT8, BASE_DEC, NULL, 0x7,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_conl_tag,
-		  { "Tag", "gsm_a_om2000.con_list.tag",
+		  { "Tag", "gsm_abis_om2000.con_list.tag",
 		    FT_UINT8, BASE_DEC, NULL, 0x1f,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_conl_tei,
-		  { "TEI", "gsm_a_om2000.con_list.tei",
+		  { "TEI", "gsm_abis_om2000.con_list.tei",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_tf_mode,
-		  { "TF Mode", "gsm_a_om2000.tf_mode",
+		  { "TF Mode", "gsm_abis_om2000.tf_mode",
 		    FT_UINT8, BASE_HEX, VALS(om2k_tf_mode_vals), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_tf_fs_offset,
-		  { "TF FS Offset", "gsm_a_om2000.tf_fs_offset",
+		  { "TF FS Offset", "gsm_abis_om2000.tf_fs_offset",
 		    FT_UINT64, BASE_DEC, NULL, 0,
 		    NULL, HFILL }
 		},
@@ -1405,13 +1405,13 @@ proto_register_abis_om2000(void)
 
 	proto_abis_om2000 = proto_register_protocol("Ericsson A-bis OML",
 						    "Ericsson OML",
-						    "gsm_a_om2000");
+						    "gsm_abis_om2000");
 
 	proto_register_field_array(proto_abis_om2000, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("gsm_a_om2000", dissect_abis_om2000,
+	register_dissector("gsm_abis_om2000", dissect_abis_om2000,
 			   proto_abis_om2000);
 }
 
