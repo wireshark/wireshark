@@ -185,7 +185,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="toolbar.qrc">
+    <iconset resource="../../image/toolbar.qrc">
      <normaloff>:/toolbar/main/capture_start_24.png</normaloff>
      <normalon>:/toolbar/main/capture_start_active_24.png</normalon>:/toolbar/main/capture_start_24.png</iconset>
    </property>
@@ -201,7 +201,7 @@
   </action>
   <action name="actionStopCapture">
    <property name="icon">
-    <iconset resource="toolbar.qrc">
+    <iconset resource="../../image/toolbar.qrc">
      <normaloff>:/toolbar/main/capture_stop_24.png</normaloff>:/toolbar/main/capture_stop_24.png</iconset>
    </property>
    <property name="text">
@@ -228,8 +228,18 @@
    </property>
   </action>
   <action name="actionHelpContents">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/trolltech/styles/commonstyle/images/standardbutton-help-32.png</normaloff>:/trolltech/styles/commonstyle/images/standardbutton-help-32.png</iconset>
+   </property>
    <property name="text">
-    <string>Contents</string>
+    <string>&amp;Contents</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionHelpMPWireshark">
@@ -288,8 +298,15 @@
    </property>
   </action>
   <action name="actionHelpWiki">
+   <property name="icon">
+    <iconset resource="../../image/toolbar.qrc">
+     <normaloff>:/menu/help/wiki_24.xpm</normaloff>:/menu/help/wiki_24.xpm</iconset>
+   </property>
    <property name="text">
     <string>Wiki</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionHelpSampleCaptures">
@@ -298,8 +315,15 @@
    </property>
   </action>
   <action name="actionHelpAbout">
+   <property name="icon">
+    <iconset resource="../../image/toolbar.qrc">
+     <normaloff>:/menu/help/wsicon16.xpm</normaloff>:/menu/help/wsicon16.xpm</iconset>
+   </property>
    <property name="text">
-    <string>About Wireshark</string>
+    <string>&amp;About Wireshark</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionHelpAsk">
@@ -317,7 +341,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="toolbar.qrc"/>
+  <include location="../../image/toolbar.qrc"/>
  </resources>
  <connections>
   <connection>
