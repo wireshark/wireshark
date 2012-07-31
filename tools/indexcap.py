@@ -2,6 +2,8 @@
 #
 # Tool to index protocols that appears in the given capture files
 #
+# The script list_protos_in_cap.sh does the same thing.
+#
 # Copyright 2009, Kovarththanan Rajaratnam <kovarththanan.rajaratnam@gmail.com>
 #
 # $Id$
@@ -189,19 +191,19 @@ def main():
     parser = OptionParser(usage="usage: %prog [options] index_file [file_1|dir_1 [.. file_n|dir_n]]")
     parser.add_option("-d", "--dissect-files", dest="dissect_files", default=False, action="store_true",
                       help="Dissect all matching files")
-    parser.add_option("-m", "--max-files", dest="max_files", default=sys.maxint, type="int", 
+    parser.add_option("-m", "--max-files", dest="max_files", default=sys.maxint, type="int",
                       help="Max number of files to process")
     parser.add_option("-b", "--binary-dir", dest="bin_dir", default=os.getcwd(),
                       help="Directory containing tshark executable")
     parser.add_option("-c", "--compare-dir", dest="compare_dir", default=None,
                       help="Directory containing tshark executable which is used for comparison")
-    parser.add_option("-j", dest="num_procs", default=multiprocessing.cpu_count(), type=int, 
+    parser.add_option("-j", dest="num_procs", default=multiprocessing.cpu_count(), type=int,
                       help="Max number of processes to spawn")
     parser.add_option("-r", "--randomize", default=False, action="store_true",
                       help="Randomize the file list order")
-    parser.add_option("", "--list-all-proto", dest="list_all_proto", default=False, action="store_true", 
+    parser.add_option("", "--list-all-proto", dest="list_all_proto", default=False, action="store_true",
                       help="List all protocols in index file")
-    parser.add_option("", "--list-all-files", dest="list_all_files", default=False, action="store_true", 
+    parser.add_option("", "--list-all-files", dest="list_all_files", default=False, action="store_true",
                       help="List all files in index file")
     parser.add_option("", "--list-all-proto-files", dest="list_all_proto_files", default=False,
                       metavar="PROTO_1[, .. PROTO_N]",

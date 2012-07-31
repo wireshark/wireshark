@@ -2,6 +2,8 @@
 
 # List the protocols (dissectors) used in capture file(s)
 #
+# The Python script indexcap.py does the same thing.
+#
 # This script extracts the protocol names contained in a given capture file.
 # This is useful for generating a "database" (flat file :-)) of in what file
 # a given protocol can be found.
