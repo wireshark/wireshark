@@ -752,8 +752,8 @@ extern const value_string gsm_a_qos_ber_vals[];
 extern const value_string gsm_a_qos_sdu_err_rat_vals[];
 extern const value_string gsm_a_qos_traff_hdl_pri_vals[];
 
-extern const value_string gsm_a_type_of_number_values[];
-extern const value_string gsm_a_numbering_plan_id_values[];
+extern const value_string gsm_a_dtap_type_of_number_values[];
+extern const value_string gsm_a_dtap_numbering_plan_id_values[];
 extern const value_string gsm_a_sms_vals[];
 extern const value_string tighter_cap_level_vals[];
 extern value_string_ext gsm_a_rr_rxlev_vals_ext;

@@ -408,14 +408,14 @@ static int hf_gsm_a_dtap_msg_sms_type = -1;
 static int hf_gsm_a_dtap_msg_ss_type = -1;
 static int hf_gsm_a_dtap_msg_tp_type = -1;
 int hf_gsm_a_dtap_elem_id = -1;
-static int hf_gsm_a_cld_party_bcd_num = -1;
-static int hf_gsm_a_clg_party_bcd_num = -1;
-static int hf_gsm_a_conn_num	= -1;
-static int hf_gsm_a_red_party_bcd_num = -1;
-static int hf_gsm_a_present_ind = -1;
-static int hf_gsm_a_screening_ind = -1;
-static int hf_gsm_a_type_of_sub_addr	= -1;
-static int hf_gsm_a_odd_even_ind	= -1;
+static int hf_gsm_a_dtap_cld_party_bcd_num = -1;
+static int hf_gsm_a_dtap_clg_party_bcd_num = -1;
+static int hf_gsm_a_dtap_conn_num	= -1;
+static int hf_gsm_a_dtap_red_party_bcd_num = -1;
+static int hf_gsm_a_dtap_present_ind = -1;
+static int hf_gsm_a_dtap_screening_ind = -1;
+static int hf_gsm_a_dtap_type_of_sub_addr	= -1;
+static int hf_gsm_a_dtap_odd_even_ind	= -1;
 
 static int hf_gsm_a_dtap_cause = -1;
 static int hf_gsm_a_dtap_cause_ss_diagnostics	= -1;
@@ -423,14 +423,14 @@ static int hf_gsm_a_dtap_emergency_bcd_num	= -1;
 static int hf_gsm_a_dtap_emerg_num_info_length = -1;
 
 int hf_gsm_a_extension = -1;
-static int hf_gsm_a_type_of_number = -1;
-static int hf_gsm_a_numbering_plan_id = -1;
+static int hf_gsm_a_dtap_type_of_number = -1;
+static int hf_gsm_a_dtap_numbering_plan_id = -1;
 
-static int hf_gsm_a_lsa_id = -1;
-static int hf_gsm_a_speech_vers_ind = -1;
-static int hf_gsm_a_itc = -1;
-static int hf_gsm_a_sysid = -1;
-static int hf_gsm_a_bitmap_length = -1;
+static int hf_gsm_a_dtap_lsa_id = -1;
+static int hf_gsm_a_dtap_speech_vers_ind = -1;
+static int hf_gsm_a_dtap_itc = -1;
+static int hf_gsm_a_dtap_sysid = -1;
+static int hf_gsm_a_dtap_bitmap_length = -1;
 static int hf_gsm_a_dtap_serv_cat_b7 = -1;
 static int hf_gsm_a_dtap_serv_cat_b6 = -1;
 static int hf_gsm_a_dtap_serv_cat_b5 = -1;
@@ -449,22 +449,22 @@ static int hf_gsm_a_dtap_mcs = -1;
 static int hf_gsm_a_dtap_cause_of_no_cli = -1;
 static int hf_gsm_a_dtap_signal_value = -1;
 
-static int hf_gsm_a_codec_tdma_efr = -1;
-static int hf_gsm_a_codec_umts_amr_2 = -1;
-static int hf_gsm_a_codec_umts_amr = -1;
-static int hf_gsm_a_codec_hr_amr = -1;
-static int hf_gsm_a_codec_fr_amr = -1;
-static int hf_gsm_a_codec_gsm_efr = -1;
-static int hf_gsm_a_codec_gsm_hr = -1;
-static int hf_gsm_a_codec_gsm_fr = -1;
-static int hf_gsm_a_codec_ohr_amr_wb = -1;
-static int hf_gsm_a_codec_ofr_amr_wb = -1;
-static int hf_gsm_a_codec_ohr_amr = -1;
-static int hf_gsm_a_codec_umts_amr_wb = -1;
-static int hf_gsm_a_codec_fr_amr_wb = -1;
-static int hf_gsm_a_codec_pdc_efr = -1;
+static int hf_gsm_a_dtap_codec_tdma_efr = -1;
+static int hf_gsm_a_dtap_codec_umts_amr_2 = -1;
+static int hf_gsm_a_dtap_codec_umts_amr = -1;
+static int hf_gsm_a_dtap_codec_hr_amr = -1;
+static int hf_gsm_a_dtap_codec_fr_amr = -1;
+static int hf_gsm_a_dtap_codec_gsm_efr = -1;
+static int hf_gsm_a_dtap_codec_gsm_hr = -1;
+static int hf_gsm_a_dtap_codec_gsm_fr = -1;
+static int hf_gsm_a_dtap_codec_ohr_amr_wb = -1;
+static int hf_gsm_a_dtap_codec_ofr_amr_wb = -1;
+static int hf_gsm_a_dtap_codec_ohr_amr = -1;
+static int hf_gsm_a_dtap_codec_umts_amr_wb = -1;
+static int hf_gsm_a_dtap_codec_fr_amr_wb = -1;
+static int hf_gsm_a_dtap_codec_pdc_efr = -1;
 
-static int hf_gsm_a_notification_description = -1;
+static int hf_gsm_a_dtap_notification_description = -1;
 static int hf_gsm_a_dtap_recall_type	= -1;
 static int hf_gsm_a_dtap_coding_standard	= -1;
 static int hf_gsm_a_dtap_call_state	= -1;
@@ -952,7 +952,7 @@ de_lsa_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
 	if (len == 0){
 		proto_tree_add_text(tree,tvb, curr_offset, len,"LSA ID not included");
 	}else{
-		proto_tree_add_item(tree, hf_gsm_a_lsa_id, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_a_dtap_lsa_id, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
 	}
 
 	curr_offset += len;
@@ -1221,7 +1221,7 @@ de_aux_states(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
  */
 /* Speech version indication (octet(s) 3a etc.) Bits 4 3 2 1 */
 
-static const value_string gsm_a_speech_vers_ind_values[] = {
+static const value_string gsm_a_dtap_speech_vers_ind_values[] = {
 	{ 0x0,	"GSM full rate speech version 1(GSM FR)" },
 	{ 0x1,	"GSM half rate speech version 1(GSM HR)" },
 	{ 0x2,	"GSM full rate speech version 2(GSM EFR)" },
@@ -1246,7 +1246,7 @@ static const value_string gsm_a_speech_vers_ind_values[] = {
 /*
  * Information transfer capability (octet 3) Bits 3 2 1
  */
-static const value_string gsm_a_itc_values[] = {
+static const value_string gsm_a_dtap_itc_values[] = {
 	{ 0x0,	"Speech" },
 	{ 0x1,	"Unrestricted digital information" },
 	{ 0x2,	"3.1 kHz audio, ex PLMN" },
@@ -1375,7 +1375,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 		a_bigbuf,
 		(oct & 0x08) ? "packet" : "circuit");
 
-	proto_tree_add_item(subtree, hf_gsm_a_itc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_gsm_a_dtap_itc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	if (add_string)
 		g_snprintf(add_string, string_len, " - (%s)", str);
@@ -1416,7 +1416,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
 			proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+2, 2, ENC_BIG_ENDIAN);
 
-			proto_tree_add_item(subtree, hf_gsm_a_speech_vers_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_a_dtap_speech_vers_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset++;
 		}
 		while (extended &&
@@ -2424,7 +2424,7 @@ static const true_false_string gsm_a_extension_value = {
 /*
  * Helper function for BCD address decoding
  */
-const value_string gsm_a_type_of_number_values[] = {
+const value_string gsm_a_dtap_type_of_number_values[] = {
 	{ 0x00,	"unknown" },
 	{ 0x01,	"International Number" },
 	{ 0x02,	"National number" },
@@ -2436,7 +2436,7 @@ const value_string gsm_a_type_of_number_values[] = {
 	{ 0, NULL }
 };
 
-const value_string gsm_a_numbering_plan_id_values[] = {
+const value_string gsm_a_dtap_numbering_plan_id_values[] = {
 	{ 0x00,	"unknown" },
 	{ 0x01,	"ISDN/Telephony Numbering (Rec ITU-T E.164)" },
 	{ 0x02,	"spare" },
@@ -2449,7 +2449,7 @@ const value_string gsm_a_numbering_plan_id_values[] = {
 	{ 0, NULL }
 };
 
-const value_string gsm_a_present_ind_values[] = {
+const value_string gsm_a_dtap_present_ind_values[] = {
 	{ 0x00,	"Presentation allowed" },
 	{ 0x01,	"Presentation restricted" },
 	{ 0x02,	"Number not available due to interworking" },
@@ -2457,7 +2457,7 @@ const value_string gsm_a_present_ind_values[] = {
 	{ 0, NULL }
 };
 
-const value_string gsm_a_screening_ind_values[] = {
+const value_string gsm_a_dtap_screening_ind_values[] = {
 	{ 0x00,	"User-provided, not screened" },
 	{ 0x01,	"User-provided, verified and passed" },
 	{ 0x02,	"User-provided, verified and failed" },
@@ -2479,16 +2479,16 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
 	extension = tvb_get_guint8(tvb, curr_offset) & 0x80;
 	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_type_of_number, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_numbering_plan_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_type_of_number, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_numbering_plan_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	if (!extension)
 	{
 		proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_gsm_a_present_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_a_dtap_present_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+3, 3, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_gsm_a_screening_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_a_dtap_screening_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		curr_offset++;
 	}
 
@@ -2531,13 +2531,13 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 /*
  * Helper function for sub address decoding
  */
-const value_string gsm_a_type_of_sub_addr_values[] = {
+const value_string gsm_a_dtap_type_of_sub_addr_values[] = {
 	{ 0x00,	"NSAP (X.213/ISO 8348 AD2)" },
 	{ 0x02,	"User specified" },
 	{ 0, NULL }
 };
 
-const value_string gsm_a_odd_even_ind_values[] = {
+const value_string gsm_a_dtap_odd_even_ind_values[] = {
 	{ 0x00,	"even number of address signals" },
 	{ 0x01,	"odd number of address signals" },
 	{ 0, NULL }
@@ -2557,8 +2557,8 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 
 	*address_extracted = FALSE;
 	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_type_of_sub_addr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_type_of_sub_addr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+5, 3, ENC_BIG_ENDIAN);
 	type_of_sub_addr = (tvb_get_guint8(tvb, curr_offset) & 0x70) >> 4;
 	curr_offset++;
@@ -2619,7 +2619,7 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 {
 	gboolean	addr_extr;
 
-	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_cld_party_bcd_num, &addr_extr);
+	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_cld_party_bcd_num, &addr_extr);
 
 	if(addr_extr) {
 		if (sccp_assoc && ! sccp_assoc->called_party) {
@@ -2657,7 +2657,7 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 {
 	gboolean	addr_extr;
 
-	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_clg_party_bcd_num, &addr_extr);
+	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_clg_party_bcd_num, &addr_extr);
 
 	if (addr_extr && add_string)
 		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
@@ -2907,7 +2907,7 @@ de_conn_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 {
 	gboolean	addr_extr;
 
-	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_conn_num, &addr_extr);
+	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_conn_num, &addr_extr);
 
 	if (addr_extr && add_string)
 		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
@@ -3066,7 +3066,7 @@ static guint16
 de_notif_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_notification_description, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_notification_description, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	return 1;
 }
@@ -3167,7 +3167,7 @@ de_red_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 {
 	gboolean	addr_extr;
 
-	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_red_party_bcd_num, &addr_extr);
+	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_red_party_bcd_num, &addr_extr);
 
 	if (addr_extr && add_string)
 		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
@@ -3527,7 +3527,7 @@ de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * SysID for UMTS: 0x0000.0100 (bit 8 .. bit 1)
  * These values are selected in accordance with [7] (3GPP TS 28.062).
  */
-static const value_string gsm_a_sysid_values[] = {
+static const value_string gsm_a_dtap_sysid_values[] = {
 	{ 0x0,	"GSM" },
 	{ 0x4,	"UMTS" },
 	{ 0, NULL }
@@ -3551,10 +3551,10 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 	sysid_counter = 0;
 	while (len>(curr_offset-offset)){
 		sysid_counter++;
-		proto_tree_add_item(tree, hf_gsm_a_sysid, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_a_dtap_sysid, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		curr_offset++;
 		/* 	Length Of Bitmap for SysID */
-		proto_tree_add_item(tree, hf_gsm_a_bitmap_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_a_dtap_bitmap_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		length = tvb_get_guint8(tvb,curr_offset);
 		curr_offset++;
         if (length > 0)
@@ -3581,14 +3581,14 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 			 *
 			 * Right now we are sure that at least the first octet of the bitmap is present
 			 */
-			proto_tree_add_item(subtree, hf_gsm_a_codec_tdma_efr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_umts_amr_2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_umts_amr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_hr_amr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_fr_amr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_gsm_efr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_gsm_hr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_gsm_fr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_tdma_efr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_umts_amr_2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_umts_amr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_hr_amr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_fr_amr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_gsm_efr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_gsm_hr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_gsm_fr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset++;
 			length--;
 
@@ -3598,12 +3598,12 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 				 * We can proceed with the second octet of the bitmap
 				 */
 				proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(subtree, hf_gsm_a_codec_ohr_amr_wb, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(subtree, hf_gsm_a_codec_ofr_amr_wb, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(subtree, hf_gsm_a_codec_ohr_amr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(subtree, hf_gsm_a_codec_umts_amr_wb, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(subtree, hf_gsm_a_codec_fr_amr_wb, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(subtree, hf_gsm_a_codec_pdc_efr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_ohr_amr_wb, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_ofr_amr_wb, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_ohr_amr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_umts_amr_wb, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_fr_amr_wb, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtree, hf_gsm_a_dtap_codec_pdc_efr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 				curr_offset++;
 				length--;
 			}
@@ -6582,23 +6582,23 @@ proto_register_gsm_a_dtap(void)
 		FT_UINT8, BASE_HEX, NULL, 0,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_cld_party_bcd_num,
-		{ "Called Party BCD Number", "gsm_a.cld_party_bcd_num",
+	{ &hf_gsm_a_dtap_cld_party_bcd_num,
+		{ "Called Party BCD Number", "gsm_a_dtap.cld_party_bcd_num",
 		FT_STRING, BASE_NONE, 0, 0,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_clg_party_bcd_num,
-		{ "Calling Party BCD Number", "gsm_a.clg_party_bcd_num",
+	{ &hf_gsm_a_dtap_clg_party_bcd_num,
+		{ "Calling Party BCD Number", "gsm_a_dtap.clg_party_bcd_num",
 		FT_STRING, BASE_NONE, 0, 0,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_conn_num,
-		{ "Connected Number", "gsm_a.conn_num",
+	{ &hf_gsm_a_dtap_conn_num,
+		{ "Connected Number", "gsm_a_dtap.conn_num",
 		FT_STRING, BASE_NONE, 0, 0,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_red_party_bcd_num,
-		{ "Redirecting Party BCD Number", "gsm_a.red_party_bcd_num",
+	{ &hf_gsm_a_dtap_red_party_bcd_num,
+		{ "Redirecting Party BCD Number", "gsm_a_dtap.red_party_bcd_num",
 		FT_STRING, BASE_NONE, 0, 0,
 		NULL, HFILL }
 	},
@@ -6612,58 +6612,58 @@ proto_register_gsm_a_dtap(void)
 		FT_BOOLEAN, 8, TFS(&gsm_a_extension_value), 0x80,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_type_of_number,
-		{ "Type of number", "gsm_a.type_of_number",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_type_of_number_values), 0x70,
+	{ &hf_gsm_a_dtap_type_of_number,
+		{ "Type of number", "gsm_a_dtap.type_of_number",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_type_of_number_values), 0x70,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_numbering_plan_id,
-		{ "Numbering plan identification", "gsm_a.numbering_plan_id",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_numbering_plan_id_values), 0x0f,
+	{ &hf_gsm_a_dtap_numbering_plan_id,
+		{ "Numbering plan identification", "gsm_a_dtap.numbering_plan_id",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_numbering_plan_id_values), 0x0f,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_present_ind,
-		{ "Presentation indicator", "gsm_a.present_ind",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_present_ind_values), 0x60,
+	{ &hf_gsm_a_dtap_present_ind,
+		{ "Presentation indicator", "gsm_a_dtap.present_ind",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_present_ind_values), 0x60,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_screening_ind,
-		{ "Screening indicator", "gsm_a.screening_ind",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_screening_ind_values), 0x03,
+	{ &hf_gsm_a_dtap_screening_ind,
+		{ "Screening indicator", "gsm_a_dtap.screening_ind",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_screening_ind_values), 0x03,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_type_of_sub_addr,
-		{ "Type of subaddress", "gsm_a.type_of_sub_addr",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_type_of_sub_addr_values), 0x70,
+	{ &hf_gsm_a_dtap_type_of_sub_addr,
+		{ "Type of subaddress", "gsm_a_dtap.type_of_sub_addr",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_type_of_sub_addr_values), 0x70,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_odd_even_ind,
-		{ "Odd/even indicator", "gsm_a.odd_even_ind",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_odd_even_ind_values), 0x08,
+	{ &hf_gsm_a_dtap_odd_even_ind,
+		{ "Odd/even indicator", "gsm_a_dtap.odd_even_ind",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_odd_even_ind_values), 0x08,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_lsa_id,
-		{ "LSA Identifier", "gsm_a.lsa_id",
+	{ &hf_gsm_a_dtap_lsa_id,
+		{ "LSA Identifier", "gsm_a_dtap.lsa_id",
 		FT_UINT24, BASE_HEX, NULL, 0x0,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_speech_vers_ind,
-		{ "Speech version indication", "gsm_a.speech_vers_ind",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_speech_vers_ind_values), 0x0f,
+	{ &hf_gsm_a_dtap_speech_vers_ind,
+		{ "Speech version indication", "gsm_a_dtap.speech_vers_ind",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_speech_vers_ind_values), 0x0f,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_itc,
-		{ "Information transfer capability", "gsm_a.itc",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_itc_values), 0x07,
+	{ &hf_gsm_a_dtap_itc,
+		{ "Information transfer capability", "gsm_a_dtap.itc",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_itc_values), 0x07,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_sysid,
-		{ "System Identification (SysID)", "gsm_a.sysid",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_sysid_values), 0x0,
+	{ &hf_gsm_a_dtap_sysid,
+		{ "System Identification (SysID)", "gsm_a_dtap.sysid",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_sysid_values), 0x0,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_bitmap_length,
-		{ "Bitmap Length", "gsm_a.bitmap_length",
+	{ &hf_gsm_a_dtap_bitmap_length,
+		{ "Bitmap Length", "gsm_a_dtap.bitmap_length",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
@@ -6752,78 +6752,78 @@ proto_register_gsm_a_dtap(void)
 		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_cause_ss_diagnostics_vals), 0x7f,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_tdma_efr,
-		{ "TDMA EFR", "gsm_a.codec.tdma_efr",
+	{ &hf_gsm_a_dtap_codec_tdma_efr,
+		{ "TDMA EFR", "gsm_a_dtap.codec.tdma_efr",
 		FT_BOOLEAN, 8, NULL, 0x80,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_umts_amr_2,
-		{ "UMTS AMR 2", "gsm_a.codec.umts_amr_2",
+	{ &hf_gsm_a_dtap_codec_umts_amr_2,
+		{ "UMTS AMR 2", "gsm_a_dtap.codec.umts_amr_2",
 		FT_BOOLEAN, 8, NULL, 0x40,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_umts_amr,
-		{ "UMTS AMR", "gsm_a.codec.umts_amr",
+	{ &hf_gsm_a_dtap_codec_umts_amr,
+		{ "UMTS AMR", "gsm_a_dtap.codec.umts_amr",
 		FT_BOOLEAN, 8, NULL, 0x20,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_hr_amr,
-		{ "HR AMR", "gsm_a.codec.hr_amr",
+	{ &hf_gsm_a_dtap_codec_hr_amr,
+		{ "HR AMR", "gsm_a_dtap.codec.hr_amr",
 		FT_BOOLEAN, 8, NULL, 0x10,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_fr_amr,
-		{ "FR AMR", "gsm_a.codec.fr_amr",
+	{ &hf_gsm_a_dtap_codec_fr_amr,
+		{ "FR AMR", "gsm_a_dtap.codec.fr_amr",
 		FT_BOOLEAN, 8, NULL, 0x08,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_gsm_efr,
-		{ "GSM EFR", "gsm_a.codec.gsm_efr",
+	{ &hf_gsm_a_dtap_codec_gsm_efr,
+		{ "GSM EFR", "gsm_a_dtap.codec.gsm_efr",
 		FT_BOOLEAN, 8, NULL, 0x04,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_gsm_hr,
-		{ "GSM HR", "gsm_a.codec.gsm_hr",
+	{ &hf_gsm_a_dtap_codec_gsm_hr,
+		{ "GSM HR", "gsm_a_dtap.codec.gsm_hr",
 		FT_BOOLEAN, 8, NULL, 0x02,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_gsm_fr,
-		{ "GSM FR", "gsm_a.codec.gsm_fr",
+	{ &hf_gsm_a_dtap_codec_gsm_fr,
+		{ "GSM FR", "gsm_a_dtap.codec.gsm_fr",
 		FT_BOOLEAN, 8, NULL, 0x01,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_ohr_amr_wb,
-		{ "OHR AMR-WB", "gsm_a.codec.ohr_amr_wb",
+	{ &hf_gsm_a_dtap_codec_ohr_amr_wb,
+		{ "OHR AMR-WB", "gsm_a_dtap.codec.ohr_amr_wb",
 		FT_BOOLEAN, 8, NULL, 0x20,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_ofr_amr_wb,
-		{ "OFR AMR-WB", "gsm_a.codec.ofr_amr_wb",
+	{ &hf_gsm_a_dtap_codec_ofr_amr_wb,
+		{ "OFR AMR-WB", "gsm_a_dtap.codec.ofr_amr_wb",
 		FT_BOOLEAN, 8, NULL, 0x10,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_ohr_amr,
-		{ "OHR AMR", "gsm_a.codec.ohr_amr",
+	{ &hf_gsm_a_dtap_codec_ohr_amr,
+		{ "OHR AMR", "gsm_a_dtap.codec.ohr_amr",
 		FT_BOOLEAN, 8, NULL, 0x08,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_umts_amr_wb,
-		{ "UMTS AMR-WB", "gsm_a.codec.umts_amr_wb",
+	{ &hf_gsm_a_dtap_codec_umts_amr_wb,
+		{ "UMTS AMR-WB", "gsm_a_dtap.codec.umts_amr_wb",
 		FT_BOOLEAN, 8, NULL, 0x04,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_fr_amr_wb,
-		{ "FR AMR-WB", "gsm_a.codec.fr_amr_wb",
+	{ &hf_gsm_a_dtap_codec_fr_amr_wb,
+		{ "FR AMR-WB", "gsm_a_dtap.codec.fr_amr_wb",
 		FT_BOOLEAN, 8, NULL, 0x02,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_codec_pdc_efr,
-		{ "PDC EFR", "gsm_a.codec.pdc_efr",
+	{ &hf_gsm_a_dtap_codec_pdc_efr,
+		{ "PDC EFR", "gsm_a_dtap.codec.pdc_efr",
 		FT_BOOLEAN, 8, NULL, 0x01,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_notification_description,
-		{ "Notification description", "gsm_a.notif_descr",
+	{ &hf_gsm_a_dtap_notification_description,
+		{ "Notification description", "gsm_a_dtap.notif_descr",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_dtap_notification_description_vals), 0x7f,
 		NULL, HFILL }
 	},
