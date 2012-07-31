@@ -84,8 +84,9 @@
  * RFC 6496: Secure Proxy ND Support for SEND
  * RFC 6550: RPL: IPv6 Routing Protocol for Low power and Lossy Networks
  * RFC 6554: An IPv6 Routing Header for Source Routes with RPL
+ * draft-irtf-rrg-ilnp-icmpv6-06: ICMP Locator Update message for ILNPv6
  * draft-ietf-6lowpan-nd-18: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
- * http://www.iana.org/assignments/icmpv6-parameters (last updated 2012-03-28)
+ * http://www.iana.org/assignments/icmpv6-parameters (last updated 2012-07-18)
  */
 
 static int proto_icmpv6 = -1;
@@ -537,7 +538,8 @@ static dissector_handle_t data_handle;
 #define ICMP6_MCAST_ROUTER_TERM         153
 #define ICMP6_FMIPV6_MESSAGES           154
 #define ICMP6_RPL_CONTROL               155
-#define ICMP6_6LOWPANND_DAR             156 /* Pending IANA assignment */
+#define ICMP6_ILNPV6                    156 /* Pending IANA assignment */
+#define ICMP6_6LOWPANND_DAR             158 /* Pending IANA assignment */
 #define ICMP6_6LOWPANND_DAC             157 /* Pending IANA assignment */
 
 
@@ -577,6 +579,7 @@ static const value_string icmpv6_type_val[] = {
     { ICMP6_MCAST_ROUTER_TERM,     "Multicast Router Termination" },                    /* [RFC4286] */
     { ICMP6_FMIPV6_MESSAGES,       "FMIPv6" },                                          /* [RFC5568] */
     { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* [RFC6550] */
+    { ICMP6_ILNPV6,                "Locator Update"},                                   /* draft-irtf-rrg-ilnp-icmpv6-06.txt Pending IANA */
     { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* draft-ietf-6lowpan-nd-18.txt Pending IANA */
     { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* draft-ietf-6lowpan-nd-18.txt Pending IANA */
     { 200,                         "Private experimentation" },                         /* [RFC4443] */
@@ -3692,7 +3695,11 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset = dissect_rpl_control(tvb, offset, pinfo, icmp6_tree, icmp6_type, icmp6_code);
                 break;
             }
-
+            case ICMP6_ILNPV6: /* Locator Update (156 Pending IANA) */
+            {
+                /*TODO Add support of Locator Update : draft-irtf-rrg-ilnp-icmpv6-06 */
+                break;
+            }
             case ICMP6_6LOWPANND_DAR:
             case ICMP6_6LOWPANND_DAC:
             {
