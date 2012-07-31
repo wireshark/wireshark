@@ -191,6 +191,10 @@ static gint     handle_v2_as = V2_AS_ALL;
 static guint tipc_alternate_tcp_port = 0;
 static gboolean tipc_tcp_desegment = TRUE;
 
+dissector_handle_t tipc_handle;
+#define DEFAULT_TIPC_PORT_RANGE   "0"
+static range_t *global_tipc_udp_port_range;
+
 /* this is used to find encapsulated protocols */
 static dissector_table_t tipc_user_dissector;
 static dissector_table_t tipc_type_dissector;
@@ -2284,6 +2288,17 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} /*if (hdr_size <= 5) */
 }
 
+static void
+udp_range_delete_callback(guint32 port)
+{
+  dissector_delete_uint("udp.port", port, tipc_handle);
+}
+
+static void
+udp_range_add_callback(guint32 port)
+{
+  dissector_add_uint("udp.port", port, tipc_handle);
+}
 
 /* Register TIPC with Wireshark */
 void
@@ -2906,6 +2921,14 @@ proto_register_tipc(void)
 	/* Register configuration options */
 	tipc_module = prefs_register_protocol(proto_tipc, proto_reg_handoff_tipc);
 
+	/* Set default ports */
+	range_convert_str(&global_tipc_udp_port_range, DEFAULT_TIPC_PORT_RANGE, MAX_TCP_PORT);
+
+	prefs_register_range_preference(tipc_module, "udp.ports", "TIPC UDP ports",
+								  "UDP ports to be decoded as TIPC (default: "
+								  DEFAULT_TIPC_PORT_RANGE ")",
+								  &global_tipc_udp_port_range, MAX_UDP_PORT);
+
 	prefs_register_bool_preference(tipc_module, "defragment",
 			"Reassemble TIPCv1 SEGMENTATION_MANAGER datagrams",
 			"Whether TIPCv1 SEGMENTATION_MANAGER datagrams should be reassembled",
@@ -2945,9 +2968,9 @@ proto_reg_handoff_tipc(void)
 	static gboolean inited = FALSE;
 	static dissector_handle_t tipc_tcp_handle;
 	static guint tipc_alternate_tcp_port_prev = 0;
+	static range_t *tipc_udp_port_range;
 
 	if (!inited) {
-		dissector_handle_t tipc_handle;
 		tipc_handle = create_dissector_handle(dissect_tipc, proto_tipc);
 		tipc_tcp_handle = new_create_dissector_handle(dissect_tipc_tcp, proto_tipc);
 		ip_handle = find_dissector("ip");
@@ -2965,5 +2988,10 @@ proto_reg_handoff_tipc(void)
 				dissector_add_uint("tcp.port", tipc_alternate_tcp_port, tipc_tcp_handle);
 			tipc_alternate_tcp_port_prev = tipc_alternate_tcp_port;
 		}
+		range_foreach(tipc_udp_port_range, udp_range_delete_callback);
+		g_free(tipc_udp_port_range);
 	}
+
+	tipc_udp_port_range = range_copy(global_tipc_udp_port_range);
+	range_foreach(tipc_udp_port_range, udp_range_add_callback);
 }
