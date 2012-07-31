@@ -134,6 +134,17 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     QWidget *infoProgress = new QWidget(this);
     QHBoxLayout *infoProgressHB = new QHBoxLayout(infoProgress);
 
+#ifdef Q_WS_WIN
+    // Handles are the same color as widgets, at least on Windows 7.
+    splitter->setHandleWidth(3);
+    splitter->setStyleSheet(QString(
+                                "QSplitter::handle {"
+                                "  border-left: 1px solid palette(mid);"
+                                "  border-right: 1px solid palette(mid);"
+                                "}"
+                                ));
+#endif
+
     m_expertStatus.setTextFormat(Qt::RichText);
     m_expertStatus.hide();
 
