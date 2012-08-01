@@ -51,6 +51,7 @@
 #include "ui/gtk/decode_as_ber.h"
 #include "ui/gtk/help_dlg.h"
 #include "utf8_entities.h"
+#include "ui/gtk/old-gtk-compat.h"
 
 #undef DEBUG
 

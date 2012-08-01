@@ -53,6 +53,7 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/gtkglobals.h"
+#include "ui/gtk/old-gtk-compat.h"
 
 /* Capture callback data keys */
 #define E_MCAST_ENTRY_1     "burst_interval"

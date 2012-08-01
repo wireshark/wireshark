@@ -50,7 +50,7 @@
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/main.h"
-
+#include "ui/gtk/old-gtk-compat.h"
 
 
 #define TYPE_OF_PACKETS_DISPLAYED 0

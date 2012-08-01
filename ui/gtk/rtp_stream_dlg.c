@@ -54,6 +54,7 @@
 #include "ui/gtk/rtp_stream.h"
 #include "ui/gtk/rtp_analysis.h"
 #include "ui/gtk/stock_icons.h"
+#include "ui/gtk/old-gtk-compat.h"
 
 static const gchar FWD_LABEL_TEXT[] = "Select a forward stream with left mouse button, and then";
 static const gchar FWD_ONLY_LABEL_TEXT[] = "Select a forward stream with Ctrl + left mouse button";

@@ -64,6 +64,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/gtkglobals.h"
+#include "ui/gtk/old-gtk-compat.h"
 
 
 struct _funnel_text_window_t {
