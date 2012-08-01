@@ -83,9 +83,9 @@
     <property name="title">
      <string>Help</string>
     </property>
-    <widget class="QMenu" name="menuHelpManuelPages">
+    <widget class="QMenu" name="menuHelpManualPages">
      <property name="title">
-      <string>ManuelPages</string>
+      <string>Manual pages</string>
      </property>
      <addaction name="actionHelpMPWireshark"/>
      <addaction name="actionHelpMPWireshark_Filter"/>
@@ -98,7 +98,7 @@
      <addaction name="actionHelpMPText2cap"/>
     </widget>
     <addaction name="actionHelpContents"/>
-    <addaction name="menuHelpManuelPages"/>
+    <addaction name="menuHelpManualPages"/>
     <addaction name="separator"/>
     <addaction name="actionHelpWebsite"/>
     <addaction name="actionHelpFAQ"/>
