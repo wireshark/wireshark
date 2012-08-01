@@ -1060,7 +1060,7 @@ l2_done:
 			add_l3_info = (octet & 0x0F) << 4;
 			if (octet & Q931_IE_VL_EXTENSION)
 				goto l3_done;
-			if (len == 0)
+			if (len < 2)
 				return;
 			octet = tvb_get_guint8(tvb, offset + 1);
 			add_l3_info |= (octet & 0x0F);
