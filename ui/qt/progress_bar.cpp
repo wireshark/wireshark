@@ -117,6 +117,18 @@ ProgressBar::ProgressBar(QWidget *parent) :
 {
     m_dlg.progressBar = this;
     m_dlg.topLevelWindow = window();
+
+//#ifdef Q_WS_MAC
+//    setAttribute(Qt::WA_MacSmallSize, true);
+//#endif
+    setStyleSheet(QString(
+            "ProgressBar {"
+            "  max-width: 20em;"
+            "  min-height: 0.8em;"
+            "  max-height: 1em;"
+            "  border-bottom: 0;"
+            "}"));
+
     hide();
 }
 

@@ -134,7 +134,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     QWidget *infoProgress = new QWidget(this);
     QHBoxLayout *infoProgressHB = new QHBoxLayout(infoProgress);
 
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN)
     // Handles are the same color as widgets, at least on Windows 7.
     splitter->setHandleWidth(3);
     splitter->setStyleSheet(QString(
@@ -143,6 +143,8 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
                                 "  border-right: 1px solid palette(mid);"
                                 "}"
                                 ));
+#elif defined(Q_WS_MAC)
+    m_expertStatus.setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
     m_expertStatus.setTextFormat(Qt::RichText);
@@ -151,14 +153,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     // XXX Add the comment icon
 
     infoProgressHB->setMargin(0);
-    infoProgressHB->setSpacing(0);
     infoProgressHB->setContentsMargins(0, 0, 0, 0);
-    m_progressBar.setStyleSheet(QString(
-                                "ProgressBar {"
-                                "  max-width: 8em;"
-                                "  min-height: 0.8em;"
-                                "  max-height: 1em;"
-                                "}"));
 
     m_infoStatus.setTemporaryContext(STATUS_CTX_TEMPORARY);
 

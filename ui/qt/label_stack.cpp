@@ -33,6 +33,9 @@
 LabelStack::LabelStack(QWidget *parent) :
     QLabel(parent)
 {
+#ifdef Q_WS_MAC
+    setAttribute(Qt::WA_MacSmallSize, true);
+#endif
     m_temporaryCtx = -1;
     fillLabel();
 }
