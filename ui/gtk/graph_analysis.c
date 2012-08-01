@@ -1825,11 +1825,7 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	gtk_container_add(GTK_CONTAINER(viewport), user_data->dlg.draw_area);
 	gtk_container_add(GTK_CONTAINER(user_data->dlg.scroll_window), viewport);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
-#if GTK_CHECK_VERSION(2,18,0)
 	gtk_widget_set_can_focus(user_data->dlg.draw_area, TRUE);
-#else
-	GTK_WIDGET_SET_FLAGS(user_data->dlg.draw_area, GTK_CAN_FOCUS);
-#endif
 	gtk_widget_grab_focus(user_data->dlg.draw_area);
 
 	/* signals needed to handle backing pixmap */
@@ -1959,11 +1955,7 @@ static void dialog_graph_create_window(graph_analysis_data_t *user_data)
 
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(hbuttonbox), bt_close, TRUE, TRUE, 0);
-#if GTK_CHECK_VERSION(2,18,0)
 	gtk_widget_set_can_default(bt_close, TRUE);
-#else
-	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
-#endif
 	gtk_widget_show(bt_close);
 	gtk_widget_set_tooltip_text(bt_close, "Close this dialog");
 	window_set_cancel_button(user_data->dlg.window, bt_close, window_cancel_button_cb);

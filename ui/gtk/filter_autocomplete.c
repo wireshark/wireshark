@@ -322,11 +322,7 @@ autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget
 #else
     gtk_widget_size_request(list, &requisition);
 #endif
-#if GTK_CHECK_VERSION(2,18,0)
     gtk_widget_get_allocation(popup_win, &popup_win_alloc);
-#else
-    popup_win_alloc = popup_win->allocation;
-#endif
 
     gtk_widget_set_size_request(popup_win, popup_win_alloc.width,
                                 (requisition.height<200? requisition.height+8:200));
@@ -766,11 +762,7 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name,
 #else
   gtk_widget_size_request(treeview, &requisition);
 #endif
-#if GTK_CHECK_VERSION(2,18,0)
   gtk_widget_get_allocation(filter_te, &filter_te_alloc);
-#else
-  filter_te_alloc = filter_te->allocation;
-#endif
 
   gtk_widget_set_size_request(popup_win, filter_te_alloc.width,
                               (requisition.height<200? requisition.height+8:200));
@@ -847,11 +839,7 @@ filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkW
   gtk_widget_size_request(list, &requisition);
 #endif
 
-#if GTK_CHECK_VERSION(2,18,0)
   gtk_widget_get_allocation(popup_win, &popup_win_alloc);
-#else
-  popup_win_alloc = popup_win->allocation;
-#endif
 
   /* XXX use gtk_window_set_default_size()? */
   gtk_widget_set_size_request(popup_win, popup_win_alloc.width,

@@ -1788,11 +1788,7 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 	gtk_container_add(GTK_CONTAINER(rci->scroll_window), viewport);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
 	gtk_widget_add_events (rci->draw_area, GDK_BUTTON_PRESS_MASK);
-#if GTK_CHECK_VERSION(2,18,0)
 	gtk_widget_set_can_focus(rci->draw_area, TRUE);
-#else
-	GTK_WIDGET_SET_FLAGS(rci->draw_area, GTK_CAN_FOCUS);
-#endif
 	gtk_widget_grab_focus(rci->draw_area);
 
 	gtk_box_pack_start(GTK_BOX (channels_vb), rci->scroll_window, FALSE, FALSE, 0);
@@ -2407,11 +2403,7 @@ rtp_player_dlg_create(void)
 
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
-#if GTK_CHECK_VERSION(2,18,0)
 	gtk_widget_set_can_default(bt_close, TRUE);
-#else
-	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
-#endif
 	gtk_widget_set_tooltip_text (bt_close, "Close this dialog");
 	window_set_cancel_button(rtp_player_dlg_w, bt_close, window_cancel_button_cb);
 

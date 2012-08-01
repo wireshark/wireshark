@@ -3548,11 +3548,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 
 	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add(GTK_CONTAINER(box4), close_bt);
-#if GTK_CHECK_VERSION(2,18,0)
 	gtk_widget_set_can_default(close_bt, TRUE);
-#else
-	GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
-#endif
 	gtk_widget_show(close_bt);
 	window_set_cancel_button(window, close_bt, window_cancel_button_cb);
 
