@@ -71,7 +71,6 @@ set(WIRESHARK_GTK_SRC
 	gui_utils.c
 	help_dlg.c
 	hostlist_table.c
-	iface_lists.c
 	macros_dlg.c
 	main.c
 	main_80211_toolbar.c

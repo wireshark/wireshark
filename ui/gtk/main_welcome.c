@@ -41,6 +41,7 @@
 
 #include <wsutil/file_util.h>
 
+#include "ui/iface_lists.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
@@ -48,7 +49,6 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/color_utils.h"
 #include "ui/gtk/gtkglobals.h"
-#include "ui/gtk/iface_lists.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/main_welcome.h"
@@ -1267,7 +1267,7 @@ welcome_new(void)
     g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_VIEW, topic_capture_to_fill);
 
 #ifdef HAVE_LIBPCAP
-    fill_in_local_interfaces(&global_capture_opts);
+    fill_in_local_interfaces();
     fill_capture_box();
 
     /* capture help topic */

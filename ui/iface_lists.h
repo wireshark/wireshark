@@ -37,22 +37,14 @@ extern gint if_list_comparator_alph(const void *first_arg, const void *second_ar
  * Get the global interface list.  Generate it if we haven't
  * done so already.
  */
-extern void fill_in_local_interfaces(capture_options* capture_opts);
+extern void fill_in_local_interfaces(void);
 
 /*
- * Refresh everything visible that shows an interface list that
- * includes local interfaces.
+ * Update the global interface list.
  */
-extern void refresh_local_interface_lists(void);
-
-/*
- * Refresh everything visible that shows an interface list that
- * includes non-local interfaces.
- */
-extern void refresh_non_local_interface_lists(void);
+extern void scan_local_interfaces(void);
 
 extern void hide_interface(gchar* new_hide);
 #endif /* HAVE_LIBPCAP */
 
 #endif /* __IFACE_LISTS_H__ */
-

@@ -46,12 +46,12 @@
 #include "../capture_ui_utils.h"
 #include "../ringbuffer.h"
 
+#include "ui/iface_lists.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
-#include "ui/gtk/iface_lists.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/filter_dlg.h"
@@ -66,6 +66,7 @@
 #include "ui/gtk/capture_if_dlg.h"
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/network_icons.h"
+#include "ui/gtk/main_80211_toolbar.h"
 
 #include "ui/gtk/keys.h"
 
@@ -4182,7 +4183,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_M_RESOLVE_KEY,  m_resolv_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_N_RESOLVE_KEY,  n_resolv_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_T_RESOLVE_KEY,  t_resolv_cb);
-  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_E_RESOLVE_KEY,  e_resolv_cb);  
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_E_RESOLVE_KEY,  e_resolv_cb);
 
   /* Set the sensitivity of various widgets as per the settings of other
      widgets. */
@@ -4949,6 +4950,48 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 gboolean capture_dlg_window_present(void)
 {
   return (cap_open_w?TRUE:FALSE);
+}
+
+/*
+ * Refresh everything visible that shows an interface list that
+ * includes local interfaces.
+ */
+void
+refresh_local_interface_lists(void)
+{
+  /* Reload the local interface list. */
+  scan_local_interfaces();
+
+  /* If there's an interfaces dialog up, refresh it. */
+  if (interfaces_dialog_window_present())
+    refresh_if_window();
+
+  /* If there's a capture options dialog up, refresh it. */
+  if (capture_dlg_window_present())
+    capture_dlg_refresh_if();
+
+  /* If the welcome screen is up, refresh its interface list. */
+  if (get_welcome_window() != NULL)
+    welcome_if_panel_reload();
+
+  /* Refresh the 802.11 toolbar. */
+  tb80211_refresh_interfaces();
+}
+
+/*
+ * Refresh everything visible that shows an interface list that
+ * includes non-local interfaces.
+ */
+void
+refresh_non_local_interface_lists(void)
+{
+  /* If there's a capture options dialog up, refresh it. */
+  if (capture_dlg_window_present())
+    capture_dlg_refresh_if();
+
+  /* If the welcome screen is up, refresh its interface list. */
+  if (get_welcome_window() != NULL)
+    welcome_if_panel_reload();
 }
 
 #endif /* HAVE_LIBPCAP */

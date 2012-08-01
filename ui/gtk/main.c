@@ -111,6 +111,10 @@
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
 
+#ifdef HAVE_LIBPCAP
+#include "ui/iface_lists.h"
+#endif
+
 #include <wsutil/file_util.h>
 
 #ifdef HAVE_LIBPCAP
@@ -172,10 +176,6 @@
 #include "ui/gtk/proto_help.h"
 #include "ui/gtk/new_packet_list.h"
 #include "ui/gtk/filter_expression_save_dlg.h"
-
-#ifdef HAVE_LIBPCAP
-#include "ui/gtk/iface_lists.h"
-#endif
 
 #include "ui/gtk/old-gtk-compat.h"
 
@@ -2588,7 +2588,7 @@ main(int argc, char *argv[])
   prefs_to_capture_opts();
 
 /*#ifdef HAVE_LIBPCAP
-  fill_in_local_interfaces(&global_capture_opts);
+  fill_in_local_interfaces();
 #endif*/
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -2831,9 +2831,9 @@ main(int argc, char *argv[])
     print_usage(FALSE);
     exit(1);
   }
-  
+
 #ifdef HAVE_LIBPCAP
-  fill_in_local_interfaces(&global_capture_opts);
+  fill_in_local_interfaces();
   if (start_capture && list_link_layer_types) {
     /* Specifying *both* is bogus. */
     cmdarg_err("You can't specify both -L and a live capture.");

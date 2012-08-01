@@ -36,8 +36,10 @@
 
 #include "capture_opts.h"
 
-#include "ui/gtk/iface_lists.h"
+#include "ui/iface_lists.h"
+
 #include "ui/gtk/capture_globals.h"
+#include "ui/gtk/capture_dlg.h"
 
 GIOChannel *iface_mon_channel;
 

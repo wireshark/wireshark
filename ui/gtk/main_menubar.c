@@ -54,10 +54,11 @@
 #include "../stat_menu.h"
 #include "../u3.h"
 
-#include "ui/ui_util.h"
+#include "ui/iface_lists.h"
+#include "ui/main_statusbar.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
-#include "ui/main_statusbar.h"
+#include "ui/ui_util.h"
 #include "ui/utf8_entities.h"
 
 #include "ui/gtk/about_dlg.h"
@@ -97,7 +98,6 @@
 #include "epan/dissectors/packet-ssl-utils.h"
 #include "ui/gtk/export_sslkeys.h"
 #include "ui/gtk/gui_stat_menu.h"
-#include "ui/gtk/iface_lists.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/main_menubar_private.h"
