@@ -279,6 +279,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 
     Q_INIT_RESOURCE(display_filter);
     Q_INIT_RESOURCE(i18n);
+    Q_INIT_RESOURCE(status);
     Q_INIT_RESOURCE(toolbar);
     Q_INIT_RESOURCE(welcome);
 

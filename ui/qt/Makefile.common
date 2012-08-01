@@ -106,9 +106,10 @@ MOC_SRC = $(MOC_HDRS:.h=.moc.cpp)
 #
 # Should QRC_FILES or QRC_SRC depend on QRC_IMAGES?
 QRC_FILES = \
-	display_filter.qrc \
+	../../image/display_filter.qrc \
+	../../image/status.qrc \
+	../../image/toolbar.qrc \
 	i18n.qrc \
-	toolbar.qrc \
 	welcome.qrc
 
 #

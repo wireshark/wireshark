@@ -91,9 +91,10 @@ set(QTSHARK_UI
 )
 
 set(QTSHARK_QRC
-	display_filter.qrc
+	../../image/display_filter.qrc
+	../../image/status.qrc
+	../../image/toolbar.qrc
 	i18n.qrc
-	toolbar.qrc
 	welcome.qrc
 )
 
