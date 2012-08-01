@@ -8093,7 +8093,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_ms_class3_unpacked_ms_positioningmethod,
-      { "MS_PositioningMethod",        "gsm_rlcmac.ul.ms_class3_unpacked_.ms_positioningmethod",
+      { "MS_PositioningMethod",        "gsm_rlcmac.ul.ms_class3_unpacked_ms_positioningmethod",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }

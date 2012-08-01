@@ -2428,7 +2428,7 @@ proto_register_mip6(void)
     { &hf_pmip6_bri_status,     { "Status", "mip6.bri_status",
                     FT_UINT8, BASE_DEC, VALS(pmip6_bri_status), 0x0, NULL, HFILL }},
 
-    { &hf_pmip6_bri_seqnr,      { "Sequence Number", "mip6._bri_seqnr",
+    { &hf_pmip6_bri_seqnr,      { "Sequence Number", "mip6.bri_seqnr",
                     FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_pmip6_bri_ip_flag,    { "Proxy Binding (P) Flag", "mip6.bri_ip",

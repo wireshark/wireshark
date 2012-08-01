@@ -2722,7 +2722,7 @@ proto_register_usb(void)
             "ISO data length in bytes", HFILL }},
 
         { &hf_usb_iso_pad,                        /* host endian byte order */
-          { "Padding", "usb.iso._pad", FT_UINT32, BASE_HEX, NULL, 0x0,
+          { "Padding", "usb.iso.pad", FT_UINT32, BASE_HEX, NULL, 0x0,
             "Padding field of ISO descriptor structure", HFILL }},
 
         { &hf_usb_iso_data,

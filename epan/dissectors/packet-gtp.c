@@ -8341,7 +8341,7 @@ proto_register_gtp(void)
            "Reserved (shall be sent as '111' )", HFILL}
         },
         {&hf_gtp_flags_hdr_length,
-         { "Header length", "gtp.flags._hdr_length",
+         { "Header length", "gtp.flags.hdr_length",
            FT_BOOLEAN, 8,  TFS(&gtp_hdr_length_vals), 0x01,
            NULL, HFILL}
         },

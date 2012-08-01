@@ -2522,7 +2522,7 @@ proto_register_per(void)
 		{ "Bit String Length", "per.bit_string_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bits in the Bit String", HFILL }},
 	{ &hf_per_const_int_len,
-		{ "Constrained Integer Length", "per._const_int_len", FT_UINT32, BASE_DEC,
+		{ "Constrained Integer Length", "per.const_int_len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes in the Constrained Integer", HFILL }},
     { &hf_per_direct_reference,
       { "direct-reference", "per.direct_reference",

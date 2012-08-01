@@ -3444,7 +3444,7 @@ proto_register_megaco(void)
           { "ds/dscp", "megaco.ds_dscp", FT_STRING, BASE_NONE, NULL, 0x0,
             "ds/dscp Differentiated Services Code Point", HFILL }},
         { &hf_megaco_h324_h223capr,
-          { "h324/h223capr", "megaco._h324_h223capr", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "h324/h223capr", "megaco.h324_h223capr", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_megaco_reserve_value,
           { "Reserve Value", "megaco.reservevalue", FT_STRING, BASE_NONE, NULL, 0x0,

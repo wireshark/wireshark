@@ -12055,7 +12055,7 @@ proto_register_gsm_a_rr(void)
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_3g_control_param_desc_meas_ctrl_utran,
-              { "PCID_pattern_sense", "gsm_a_ccch._meas_ctrl_utran",
+              { "PCID_pattern_sense", "gsm_a_ccch.meas_ctrl_utran",
                 FT_BOOLEAN, BASE_NONE, TFS(&measurement_control_utran), 0x00,
                 NULL, HFILL }
             },

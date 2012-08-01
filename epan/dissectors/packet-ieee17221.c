@@ -4474,7 +4474,7 @@ proto_register_17221(void)
             FT_UINT16, BASE_HEX, VALS(aem_descriptor_type_vals), 0x00, NULL, HFILL }
       },
       { &hf_aecp_descriptor_id,
-         {"Descriptor ID", "ieee17221._descriptor_id",
+         {"Descriptor ID", "ieee17221.descriptor_id",
             FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
 
@@ -4491,7 +4491,7 @@ proto_register_17221(void)
 
       /* READ_DESCRIPTOR */
       { &hf_aecp_configuration,
-         { "Configuration", "ieee17221._configuration",
+         { "Configuration", "ieee17221.configuration",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
 
@@ -4855,7 +4855,7 @@ proto_register_17221(void)
             FT_BOOLEAN, 32, NULL, AECP_COUNTERS_VALID_MEDIA_UNLOCKED, NULL, HFILL }
       },
       { &hf_aecp_media_locked_valid,
-         {"Media Locked Valid", "ieee17221.flags._valid",
+         {"Media Locked Valid", "ieee17221.flags.valid",
             FT_BOOLEAN, 32, NULL, AECP_COUNTERS_VALID_MEDIA_LOCKED, NULL, HFILL }
       },
       { &hf_aecp_stream_reset_valid,

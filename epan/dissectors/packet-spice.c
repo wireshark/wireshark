@@ -3810,7 +3810,7 @@ proto_register_spice(void)
             NULL, HFILL }
         },
         { &hf_cursor_unique,
-          { "Cursor unique ID", "spice._cursor_unique",
+          { "Cursor unique ID", "spice.cursor_unique",
             FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
