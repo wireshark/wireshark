@@ -990,7 +990,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
     int len_remain = len;
 
     /* first bit: engine id conformance */
-    if (len_remain<4) return offset;
+    if (len_remain<1) return offset;
     conformance = ((tvb_get_guint8(tvb, offset)>>7) & 0x01);
     proto_tree_add_item(tree, hf_snmp_engineid_conform, tvb, offset, 1, ENC_BIG_ENDIAN);
 
