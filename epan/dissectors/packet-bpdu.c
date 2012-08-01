@@ -274,7 +274,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dstaddr = pinfo->dl_dst.data;
     if(dstaddr[0] == 0x01 && dstaddr[1] == 0x80 &&
        dstaddr[2] == 0xC2 && dstaddr[3] == 0x00 &&
-       dstaddr[4] == 0x00 && ((dstaddr[5] & 0xF0) == 0x20)) {
+       dstaddr[4] == 0x00 && ((dstaddr[5] == 0x0D) || ((dstaddr[5] & 0xF0) == 0x20))) {
 
       switch (dstaddr[5]) {
 
@@ -284,6 +284,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
 
       case 0x21:
+      case 0x0D:
         /* for GVRP */
         call_dissector(gvrp_handle, tvb, pinfo, tree);
         return;
