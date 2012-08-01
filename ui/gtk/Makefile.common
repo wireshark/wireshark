@@ -350,7 +350,6 @@ noinst_HEADERS = \
 	text_import_scanner.h	\
 	text_page_utils.h	\
 	uat_gui.h \
-	utf8_entities.h \
 	voip_calls.h	\
 	voip_calls_dlg.h \
 	webbrowser.h	\

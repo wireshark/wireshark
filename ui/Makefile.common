@@ -53,4 +53,5 @@ noinst_HEADERS = \
 	recent_utils.h		\
 	simple_dialog.h		\
 	ui_util.h		\
+	utf8_entities.h		\
 	util.h

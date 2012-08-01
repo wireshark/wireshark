@@ -38,13 +38,13 @@
 #include <epan/tap.h>
 
 #include <ui/simple_dialog.h>
+#include <ui/utf8_entities.h>
 
 #include "gtkglobals.h"
 #include "ui/gtk/follow_stream.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/follow_udp.h"
-#include "ui/gtk/utf8_entities.h"
 
 static int
 udp_queue_packet_data(void *tapdata, packet_info *pinfo,

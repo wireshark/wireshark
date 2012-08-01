@@ -71,6 +71,7 @@
 #include "ui/last_open_dir.h"
 #include "ui/progress_dlg.h"
 #include "ui/simple_dialog.h"
+#include "ui/utf8_entities.h"
 
 #include <wsutil/file_util.h>
 
@@ -85,7 +86,6 @@
 #include "ui/gtk/rtp_stream.h"
 #include "ui/gtk/rtp_stream_dlg.h"
 #include "ui/gtk/stock_icons.h"
-#include "ui/gtk/utf8_entities.h"
 
 #ifdef HAVE_LIBPORTAUDIO
 #include "ui/gtk/graph_analysis.h"

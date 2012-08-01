@@ -36,6 +36,7 @@
 #include "epan/expert.h"
 
 #include "ui/main_statusbar.h"
+#include "ui/utf8_entities.h"
 
 #include <QSplitter>
 #include <QHBoxLayout>
@@ -96,20 +97,21 @@ packets_bar_update(void)
 
     /* Do we have any packets? */
     if (cfile.count) {
-        packetsStr.append(QString(QObject::tr("Packets: %1 Displayed: %2 Marked: %3"))
+        packetsStr.append(QString("Packets: %1 " UTF8_MIDDLE_DOT " Displayed: %2 " UTF8_MIDDLE_DOT " Marked: %3")
+//        packetsStr.append(QString(QObject::tr("Packets: %1 Displayed: %2 Marked: %3"))
                           .arg(cfile.count)
                           .arg(cfile.displayed_count)
                           .arg(cfile.marked_count));
         if(cfile.drops_known) {
-            packetsStr.append(QString(QObject::tr(" Dropped: %1")).arg(cfile.drops));
+            packetsStr.append(QString(" " UTF8_MIDDLE_DOT " Dropped: %1")).arg(cfile.drops);
         }
         if(cfile.ignored_count > 0) {
-            packetsStr.append(QString(QObject::tr(" Ignored: %1")).arg(cfile.ignored_count));
+            packetsStr.append(QString(" " UTF8_MIDDLE_DOT " Ignored: %1").arg(cfile.ignored_count));
         }
         if(!cfile.is_tempfile) {
             /* Loading an existing file */
             gulong computed_elapsed = cf_get_computed_elapsed();
-            packetsStr.append(QString(QObject::tr(" Load time: %1:%2.%3"))
+            packetsStr.append(QString(" " UTF8_MIDDLE_DOT " Load time: %1:%2.%3")
                                         .arg(computed_elapsed/60000)
                                         .arg(computed_elapsed%60000/1000)
                                         .arg(computed_elapsed%1000));

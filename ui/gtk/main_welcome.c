@@ -43,6 +43,7 @@
 
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
+#include "ui/utf8_entities.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/color_utils.h"
@@ -54,7 +55,6 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/stock_icons.h"
-#include "ui/gtk/utf8_entities.h"
 #ifdef HAVE_LIBPCAP
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/capture_if_dlg.h"

@@ -48,6 +48,7 @@
 
 #include <ui/alert_box.h>
 #include <ui/simple_dialog.h>
+#include <ui/utf8_entities.h>
 #include <ui/util.h>
 
 #include "gtkglobals.h"
@@ -60,7 +61,6 @@
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/follow_ssl.h"
 #include "ui/gtk/follow_stream.h"
-#include "ui/gtk/utf8_entities.h"
 
 #ifdef SSL_PLUGIN
 #include "packet-ssl-utils.h"

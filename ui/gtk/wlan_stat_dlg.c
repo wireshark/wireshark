@@ -39,6 +39,7 @@
 
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
+#include "ui/utf8_entities.h"
 
 #include "../stat_menu.h"
 
@@ -49,7 +50,6 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/utf8_entities.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 

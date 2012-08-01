@@ -31,7 +31,7 @@
 
 #include "display_filter_edit.h"
 
-#include "ui/gtk/utf8_entities.h"
+#include "ui/utf8_entities.h"
 
 // platform
 //   osx

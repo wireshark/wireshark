@@ -33,6 +33,7 @@
 
 #include "../proto_hier_stats.h"
 #include "ui/simple_dialog.h"
+#include "ui/utf8_entities.h"
 
 #include "ui/gtk/proto_hier_stats_dlg.h"
 #include "ui/gtk/dlg_utils.h"
@@ -40,7 +41,6 @@
 #include "ui/gtk/filter_utils.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/help_dlg.h"
-#include "ui/gtk/utf8_entities.h"
 
 
 enum {
@@ -112,7 +112,7 @@ proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, g
     }
 
     apply_selected_filter (callback_action, str);
-    
+
     gtk_tree_path_free(path);
     g_free (str);
 }

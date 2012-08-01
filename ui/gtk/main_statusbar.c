@@ -48,6 +48,7 @@
 
 #include "ui/main_statusbar.h"
 #include "ui/recent.h"
+#include "ui/utf8_entities.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/main_statusbar_private.h"
@@ -492,18 +493,18 @@ packets_bar_update(void)
 
         /* Do we have any packets? */
         if(cfile.count) {
-            g_string_printf(packets_str, " Packets: %u Displayed: %u Marked: %u",
+            g_string_printf(packets_str, " Packets: %u " UTF8_MIDDLE_DOT " Displayed: %u " UTF8_MIDDLE_DOT " Marked: %u",
                             cfile.count, cfile.displayed_count, cfile.marked_count);
             if(cfile.drops_known) {
-                g_string_append_printf(packets_str, " Dropped: %u", cfile.drops);
+                g_string_append_printf(packets_str, " " UTF8_MIDDLE_DOT " Dropped: %u", cfile.drops);
             }
             if(cfile.ignored_count > 0) {
-                g_string_append_printf(packets_str, " Ignored: %u", cfile.ignored_count);
+                g_string_append_printf(packets_str, " " UTF8_MIDDLE_DOT " Ignored: %u", cfile.ignored_count);
             }
             if(!cfile.is_tempfile){
                 /* Loading an existing file */
                 gulong computed_elapsed = cf_get_computed_elapsed();
-                g_string_append_printf(packets_str, " Load time: %lu:%02lu.%03lu",
+                g_string_append_printf(packets_str, " " UTF8_MIDDLE_DOT " Load time: %lu:%02lu.%03lu",
                                        computed_elapsed/60000,
                                        computed_elapsed%60000/1000,
                                        computed_elapsed%1000);

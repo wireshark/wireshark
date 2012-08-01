@@ -42,6 +42,7 @@
 #include <wsutil/file_util.h>
 
 #include "ui/simple_dialog.h"
+#include "ui/utf8_entities.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/decode_as_dlg.h"
@@ -50,7 +51,6 @@
 #include "ui/gtk/decode_as_dcerpc.h"
 #include "ui/gtk/decode_as_ber.h"
 #include "ui/gtk/help_dlg.h"
-#include "utf8_entities.h"
 #include "ui/gtk/old-gtk-compat.h"
 
 #undef DEBUG

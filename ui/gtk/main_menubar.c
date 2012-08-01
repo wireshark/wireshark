@@ -58,6 +58,7 @@
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/main_statusbar.h"
+#include "ui/utf8_entities.h"
 
 #include "ui/gtk/about_dlg.h"
 #include "ui/gtk/capture_dlg.h"
@@ -107,7 +108,6 @@
 #include "ui/gtk/manual_addr_resolv.h"
 #include "ui/gtk/proto_help.h"
 #include "ui/gtk/dissector_tables_dlg.h"
-#include "ui/gtk/utf8_entities.h"
 #include "ui/gtk/expert_comp_dlg.h"
 #include "ui/gtk/time_shift_dlg.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
@@ -3487,7 +3487,7 @@ menus_init(void) {
         merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
         add_recent_items (merge_id, ui_manager_main_menubar);
 
-        /* Add statistics tap plug-in to the menu 
+        /* Add statistics tap plug-in to the menu
          */
         merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
         add_tap_plugins (merge_id, ui_manager_main_menubar);
@@ -4164,7 +4164,7 @@ add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
     GList *cfg_list;
     GList *iter;
     gchar *action_name;
-    
+
     action_group = gtk_action_group_new ("tap-plugins-group");
 
     submenu_statistics = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_STATISTICS_PATH);
@@ -5004,7 +5004,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/PrepareaFilter",
                          frame_selected);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
-                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
+                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
                                             gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowTCPStream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
@@ -5015,7 +5015,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/DecodeAs",
                          frame_selected && decode_as_ok());
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
-                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
+                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
                                             gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
                          frame_selected);

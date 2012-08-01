@@ -34,11 +34,11 @@
 #include "epan/packet_info.h"
 
 #include "ui/simple_dialog.h"
+#include "ui/utf8_entities.h"
 
 #include "ui/gtk/service_response_time_table.h"
 #include "ui/gtk/filter_utils.h"
 #include "ui/gtk/gui_utils.h"
-#include "ui/gtk/utf8_entities.h"
 
 #define NANOSECS_PER_SEC 1000000000
 

@@ -42,6 +42,7 @@
 #include <epan/expert.h>
 
 #include "ui/simple_dialog.h"
+#include "ui/utf8_entities.h"
 
 #include "ui/gtk/expert_comp_table.h"
 #include "ui/gtk/filter_utils.h"
@@ -52,7 +53,6 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/stock_icons.h"
-#include "ui/gtk/utf8_entities.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 

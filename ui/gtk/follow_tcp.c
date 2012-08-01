@@ -51,6 +51,7 @@
 #include "../file.h"
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
+#include "ui/utf8_entities.h"
 #include "../tempfile.h"
 #include <wsutil/file_util.h>
 
@@ -66,7 +67,6 @@
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/follow_stream.h"
-#include "ui/gtk/utf8_entities.h"
 
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
 WS_VAR_IMPORT FILE *data_out_file;

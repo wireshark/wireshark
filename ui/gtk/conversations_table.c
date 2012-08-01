@@ -42,6 +42,7 @@
 #include "../globals.h"
 
 #include "ui/simple_dialog.h"
+#include "ui/utf8_entities.h"
 
 #include "ui/gtk/sat.h"
 #include "ui/gtk/conversations_table.h"
@@ -55,7 +56,6 @@
 #include "ui/gtk/follow_tcp.h"
 #include "ui/gtk/follow_udp.h"
 #include "ui/gtk/keys.h"
-#include "ui/gtk/utf8_entities.h"
 
 #include "old-gtk-compat.h"
 

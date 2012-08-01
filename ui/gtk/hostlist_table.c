@@ -51,6 +51,7 @@
 
 #include "ui/simple_dialog.h"
 #include "ui/alert_box.h"
+#include "ui/utf8_entities.h"
 #include "../tempfile.h"
 
 #include "ui/gtk/hostlist_table.h"
@@ -61,7 +62,6 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/utf8_entities.h"
 #ifdef HAVE_GEOIP
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/stock_icons.h"
