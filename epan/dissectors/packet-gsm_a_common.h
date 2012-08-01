@@ -745,12 +745,11 @@ WS_VAR_IMPORT const value_string gsm_a_dtap_msg_tp_strings[];
 WS_VAR_IMPORT const value_string gsm_a_rr_short_pd_msg_strings[];
 WS_VAR_IMPORT const gchar *gsm_a_pd_str[];
 
-extern const value_string gsm_a_qos_del_of_err_sdu_vals[];
-extern const value_string gsm_a_qos_del_order_vals[];
-extern const value_string gsm_a_qos_traffic_cls_vals[];
-extern const value_string gsm_a_qos_ber_vals[];
-extern const value_string gsm_a_qos_sdu_err_rat_vals[];
-extern const value_string gsm_a_qos_traff_hdl_pri_vals[];
+extern const value_string gsm_a_sm_qos_del_of_err_sdu_vals[];
+extern const value_string gsm_a_sm_qos_traffic_cls_vals[];
+extern const value_string gsm_a_sm_qos_ber_vals[];
+extern const value_string gsm_a_sm_qos_sdu_err_rat_vals[];
+extern const value_string gsm_a_sm_qos_traff_hdl_pri_vals[];
 
 extern const value_string gsm_a_dtap_type_of_number_values[];
 extern const value_string gsm_a_dtap_numbering_plan_id_values[];

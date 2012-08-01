@@ -223,40 +223,40 @@ static int proto_a_gm = -1;
 static int hf_gsm_a_dtap_msg_gmm_type = -1;
 static int hf_gsm_a_dtap_msg_sm_type = -1;
 int hf_gsm_a_gm_elem_id = -1;
-static int hf_gsm_a_qos_delay_cls	= -1;
-static int hf_gsm_a_qos_reliability_cls = -1;
-static int hf_gsm_a_qos_traffic_cls = -1;
-static int hf_gsm_a_qos_del_order = -1;
-static int hf_gsm_a_qos_del_of_err_sdu = -1;
-static int hf_gsm_a_qos_ber = -1;
-static int hf_gsm_a_qos_sdu_err_rat = -1;
-static int hf_gsm_a_qos_traff_hdl_pri = -1;
+static int hf_gsm_a_sm_qos_delay_cls	= -1;
+static int hf_gsm_a_sm_qos_reliability_cls = -1;
+static int hf_gsm_a_sm_qos_traffic_cls = -1;
+static int hf_gsm_a_sm_qos_del_order = -1;
+static int hf_gsm_a_sm_qos_del_of_err_sdu = -1;
+static int hf_gsm_a_sm_qos_ber = -1;
+static int hf_gsm_a_sm_qos_sdu_err_rat = -1;
+static int hf_gsm_a_sm_qos_traff_hdl_pri = -1;
 
 static int hf_gsm_a_gmm_split_on_ccch = -1;
 static int hf_gsm_a_gmm_non_drx_timer = -1;
 static int hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef = -1;
 
-static int hf_gsm_a_ptmsi_sig =-1;
-static int hf_gsm_a_ptmsi_sig2 =-1;
+static int hf_gsm_a_gmm_ptmsi_sig =-1;
+static int hf_gsm_a_gmm_ptmsi_sig2 =-1;
 
-static int hf_gsm_a_tft_op_code = -1;
-static int hf_gsm_a_tft_e_bit = -1;
-static int hf_gsm_a_tft_pkt_flt = -1;
-static int hf_gsm_a_tft_pkt_flt_id = -1;
-static int hf_gsm_a_tft_pkt_flt_dir = -1;
+static int hf_gsm_a_sm_tft_op_code = -1;
+static int hf_gsm_a_sm_tft_e_bit = -1;
+static int hf_gsm_a_sm_tft_pkt_flt = -1;
+static int hf_gsm_a_sm_tft_pkt_flt_id = -1;
+static int hf_gsm_a_sm_tft_pkt_flt_dir = -1;
 static int hf_gsm_a_sm_ip4_address = -1;
 static int hf_gsm_a_sm_ip4_mask = -1;
 static int hf_gsm_a_sm_ip6_address = -1;
 static int hf_gsm_a_sm_ip6_mask = -1;
-static int hf_gsm_a_tft_protocol_header = -1;
-static int hf_gsm_a_tft_port = -1;
-static int hf_gsm_a_tft_port_low = -1;
-static int hf_gsm_a_tft_port_high = -1;
-static int hf_gsm_a_tft_security = -1;
-static int hf_gsm_a_tft_traffic_class = -1;
-static int hf_gsm_a_tft_traffic_mask = -1;
-static int hf_gsm_a_tft_flow_label_type = -1;
-static int hf_gsm_a_tft_param_id = -1;
+static int hf_gsm_a_sm_tft_protocol_header = -1;
+static int hf_gsm_a_sm_tft_port = -1;
+static int hf_gsm_a_sm_tft_port_low = -1;
+static int hf_gsm_a_sm_tft_port_high = -1;
+static int hf_gsm_a_sm_tft_security = -1;
+static int hf_gsm_a_sm_tft_traffic_class = -1;
+static int hf_gsm_a_sm_tft_traffic_mask = -1;
+static int hf_gsm_a_sm_tft_flow_label_type = -1;
+static int hf_gsm_a_sm_tft_param_id = -1;
 static int hf_gsm_a_gm_acc_tech_type = -1;
 static int hf_gsm_a_gm_acc_cap_struct_len = -1;
 static int hf_gsm_a_gm_sms_value = -1;
@@ -315,20 +315,20 @@ static int hf_gsm_a_gm_ue_usage_setting = -1;
 static int hf_gsm_a_gm_voice_domain_pref_for_eutran = -1;
 static int hf_gsm_a_gm_ptmsi_type = -1;
 static int hf_gsm_a_sm_pdp_type_org = -1;
-static int hf_gsm_a_qos_mean_thr = -1;
-static int hf_gsm_a_qos_peak_thr = -1;
-static int hf_gsm_a_qos_prec_class = -1;
-static int hf_gsm_a_qos_trans_delay = -1;
-static int hf_gsm_a_qos_signalling_ind = -1;
-static int hf_gsm_a_qos_source_stat_desc = -1;
-static int hf_gsm_a_qos_max_bitrate_upl = -1;
-static int hf_gsm_a_qos_max_bitrate_downl = -1;
-static int hf_gsm_a_qos_guar_bitrate_upl = -1;
-static int hf_gsm_a_qos_guar_bitrate_downl = -1;
-static int hf_gsm_a_qos_max_bitrate_upl_ext = -1;
-static int hf_gsm_a_qos_max_bitrate_downl_ext = -1;
-static int hf_gsm_a_qos_guar_bitrate_upl_ext = -1;
-static int hf_gsm_a_qos_guar_bitrate_downl_ext = -1;
+static int hf_gsm_a_sm_qos_mean_thr = -1;
+static int hf_gsm_a_sm_qos_peak_thr = -1;
+static int hf_gsm_a_sm_qos_prec_class = -1;
+static int hf_gsm_a_sm_qos_trans_delay = -1;
+static int hf_gsm_a_sm_qos_signalling_ind = -1;
+static int hf_gsm_a_sm_qos_source_stat_desc = -1;
+static int hf_gsm_a_sm_qos_max_bitrate_upl = -1;
+static int hf_gsm_a_sm_qos_max_bitrate_downl = -1;
+static int hf_gsm_a_sm_qos_guar_bitrate_upl = -1;
+static int hf_gsm_a_sm_qos_guar_bitrate_downl = -1;
+static int hf_gsm_a_sm_qos_max_bitrate_upl_ext = -1;
+static int hf_gsm_a_sm_qos_max_bitrate_downl_ext = -1;
+static int hf_gsm_a_sm_qos_guar_bitrate_upl_ext = -1;
+static int hf_gsm_a_sm_qos_guar_bitrate_downl_ext = -1;
 static int hf_gsm_a_sm_cause = -1;
 static int hf_gsm_a_sm_cause_2 = -1;
 static int hf_gsm_a_sm_llc_sapi = -1;
@@ -788,7 +788,7 @@ de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
 	curr_offset = offset;
 
-	curr_item= proto_tree_add_item(tree, hf_gsm_a_ptmsi_sig, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+	curr_item= proto_tree_add_item(tree, hf_gsm_a_gmm_ptmsi_sig, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
 	proto_item_append_text(curr_item, "%s", add_string ? add_string : "");
 
 	curr_offset += 3;
@@ -809,7 +809,7 @@ de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 
 	curr_offset = offset;
 
-	curr_item= proto_tree_add_item(tree, hf_gsm_a_ptmsi_sig2, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+	curr_item= proto_tree_add_item(tree, hf_gsm_a_gmm_ptmsi_sig2, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
 	proto_item_append_text(curr_item, "%s", add_string ? add_string : "");
 	curr_offset += 3;
 
@@ -4106,7 +4106,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 /*
  * [9] 10.5.6.5 Quality of service
  */
-static const value_string gsm_a_qos_delay_cls_vals[] = {
+static const value_string gsm_a_sm_qos_delay_cls_vals[] = {
 	{ 0x00, "Subscribed delay class (in MS to network direction)" },
 	{ 0x01, "Delay class 1" },
 	{ 0x02, "Delay class 2" },
@@ -4116,7 +4116,7 @@ static const value_string gsm_a_qos_delay_cls_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string gsm_a_qos_reliability_vals[] = {
+static const value_string gsm_a_sm_qos_reliability_vals[] = {
 	{ 0x00, "Subscribed reliability class (in MS to network direction)" },
 	{ 0x01, "Acknowledged GTP, LLC, and RLC; Protected data" },
 	{ 0x02, "Unacknowledged GTP, Ack LLC/RLC, Protected data" },
@@ -4127,7 +4127,7 @@ static const value_string gsm_a_qos_reliability_vals[] = {
 	{ 0, NULL }
 };
  /* Delivery of erroneous SDUs, octet 6 (see 3GPP TS 23.107) Bits 3 2 1 */
-const value_string gsm_a_qos_del_of_err_sdu_vals[] = {
+const value_string gsm_a_sm_qos_del_of_err_sdu_vals[] = {
 	{ 0, "Subscribed delivery of erroneous SDUs/Reserved" },
 	{ 1, "No detect('-')" },
 	{ 2, "Erroneous SDUs are delivered('yes')" },
@@ -4137,7 +4137,7 @@ const value_string gsm_a_qos_del_of_err_sdu_vals[] = {
 };
 
  /* Delivery order, octet 6 (see 3GPP TS 23.107) Bits 5 4 */
-const value_string gsm_a_qos_del_order_vals[] = {
+const value_string gsm_a_sm_qos_del_order_vals[] = {
 	{ 0, "Subscribed delivery order/Reserved" },
 	{ 1, "With delivery order ('yes')" },
 	{ 2, "Without delivery order ('no')" },
@@ -4145,7 +4145,7 @@ const value_string gsm_a_qos_del_order_vals[] = {
 	{ 0, NULL }
 };
 /* Traffic class, octet 6 (see 3GPP TS 23.107) Bits 8 7 6 */
-const value_string gsm_a_qos_traffic_cls_vals[] = {
+const value_string gsm_a_sm_qos_traffic_cls_vals[] = {
 	{ 0, "Subscribed traffic class/Reserved" },
 	{ 1, "Conversational class" },
 	{ 2, "Streaming class" },
@@ -4156,7 +4156,7 @@ const value_string gsm_a_qos_traffic_cls_vals[] = {
 };
 
 /* Residual Bit Error Rate (BER), octet 10 (see 3GPP TS 23.107) Bits 8 7 6 5 */
-const value_string gsm_a_qos_ber_vals[] = {
+const value_string gsm_a_sm_qos_ber_vals[] = {
 	{ 0, "Subscribed residual BER/Reserved" },
 	{ 1, "5*10-2" },
 	{ 2, "1*10-2" },
@@ -4172,7 +4172,7 @@ const value_string gsm_a_qos_ber_vals[] = {
 };
 
 /* SDU error ratio, octet 10 (see 3GPP TS 23.107) Bits 4 3 2 1 */
-const value_string gsm_a_qos_sdu_err_rat_vals[] = {
+const value_string gsm_a_sm_qos_sdu_err_rat_vals[] = {
 	{ 0, "Subscribed SDU error ratio/Reserved" },
 	{ 1, "1*10-2" },
 	{ 2, "7*10-3" },
@@ -4186,7 +4186,7 @@ const value_string gsm_a_qos_sdu_err_rat_vals[] = {
 };
 
 /* Traffic handling priority, octet 11 (see 3GPP TS 23.107) Bits 2 1 */
-const value_string gsm_a_qos_traff_hdl_pri_vals[] = {
+const value_string gsm_a_sm_qos_traff_hdl_pri_vals[] = {
 	{ 0, "Subscribed traffic handling priority/Reserved" },
 	{ 1, "Priority level 1" },
 	{ 2, "Priority level 2" },
@@ -4194,7 +4194,7 @@ const value_string gsm_a_qos_traff_hdl_pri_vals[] = {
 	{ 0, NULL }
 };
 
-const range_string gsm_a_qos_peak_thr_vals[] = {
+const range_string gsm_a_sm_qos_peak_thr_vals[] = {
 	{ 0x00, 0x00, "Subscribed peak throughput/reserved" },
 	{ 0x01, 0x01, "Up to 1 000 octet/s" },
 	{ 0x02, 0x02, "Up to 2 000 octet/s" },
@@ -4210,7 +4210,7 @@ const range_string gsm_a_qos_peak_thr_vals[] = {
 	{ 0, 0, NULL }
 };
 
-const range_string gsm_a_qos_mean_thr_vals[] = {
+const range_string gsm_a_sm_qos_mean_thr_vals[] = {
 	{ 0x00, 0x00, "Subscribed peak throughput/reserved" },
 	{ 0x01, 0x01, "100 octet/h" },
 	{ 0x02, 0x02, "200 octet/h" },
@@ -4236,7 +4236,7 @@ const range_string gsm_a_qos_mean_thr_vals[] = {
 	{ 0, 0, NULL }
 };
 
-const range_string gsm_a_qos_prec_class_vals[] = {
+const range_string gsm_a_sm_qos_prec_class_vals[] = {
 	{ 0x00, 0x00, "Subscribed precedence/reserved" },
 	{ 0x01, 0x01, "High priority" },
 	{ 0x02, 0x02, "Normal priority" },
@@ -4246,7 +4246,7 @@ const range_string gsm_a_qos_prec_class_vals[] = {
 	{ 0, 0, NULL }
 };
 
-const true_false_string gsm_a_qos_signalling_ind_value = {
+const true_false_string gsm_a_sm_qos_signalling_ind_value = {
 	"Optimised for signalling traffic",
 	"Not optimised for signalling traffic"
 };
@@ -4287,27 +4287,27 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 	/* Octet 3 */
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_qos_delay_cls, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_qos_reliability_cls, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_qos_delay_cls, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_qos_reliability_cls, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset += 1;
 
 	/* Octet 4 */
-	proto_tree_add_item(tree, hf_gsm_a_qos_peak_thr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_qos_peak_thr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3) + 4, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_qos_prec_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_qos_prec_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset += 1;
 
 	/* Octet 5 */
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 3, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_qos_mean_thr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_qos_mean_thr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset += 1;
 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 6 */
-	proto_tree_add_item(tree, hf_gsm_a_qos_traffic_cls, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_qos_del_order, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_qos_del_of_err_sdu, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_qos_traffic_cls, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_qos_del_order, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_qos_del_of_err_sdu, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset += 1;
 
 	NO_MORE_DATA_CHECK(len);
@@ -4348,7 +4348,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		default:   str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_upl, tvb,
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_upl, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 	curr_offset += 1;
 
@@ -4364,15 +4364,15 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		default:   str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl, tvb,
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_downl, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 	curr_offset += 1;
 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 10 */
-	proto_tree_add_item(tree, hf_gsm_a_qos_ber, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_qos_sdu_err_rat, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_qos_ber, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_qos_sdu_err_rat, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset += 1;
 	NO_MORE_DATA_CHECK(len);
@@ -4395,10 +4395,10 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			str = ep_strdup_printf("%u ms", temp32);
 	}
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_trans_delay, tvb,
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_trans_delay, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, tmp_oct);
 
-	proto_tree_add_item(tree, hf_gsm_a_qos_traff_hdl_pri, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_qos_traff_hdl_pri, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset += 1;
 	NO_MORE_DATA_CHECK(len);
@@ -4413,7 +4413,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		default:   str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_upl, tvb,
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_guar_bitrate_upl, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset += 1;
@@ -4429,7 +4429,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		default:   str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_downl, tvb,
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_guar_bitrate_downl, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset += 1;
@@ -4438,7 +4438,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	/* Ocet 14 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 3, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_qos_signalling_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_qos_signalling_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	tmp_oct = oct & 7;
 	if (tmp_oct == 0x01)
@@ -4446,7 +4446,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	else
 		str = "unknown";
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_source_stat_desc, tvb,
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_source_stat_desc, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, tmp_oct);
 
 	curr_offset += 1;
@@ -4465,7 +4465,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		else
 			str = ep_strdup_printf("%u kbps", temp32);
 	}
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl_ext, tvb,
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_downl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset += 1;
@@ -4484,7 +4484,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		else
 			str = ep_strdup_printf("%u kbps", temp32);
 	}
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_downl_ext, tvb,
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_guar_bitrate_downl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset += 1;
@@ -4503,7 +4503,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		else
 			str = ep_strdup_printf("%u kbps", temp32);
 	}
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_upl_ext, tvb,
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_upl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset += 1;
@@ -4522,7 +4522,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		else
 			str = ep_strdup_printf("%u kbps", temp32);
 	}
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_upl_ext, tvb,
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_guar_bitrate_upl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset += 1;
@@ -4756,7 +4756,7 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
  * [7] 10.5.6.12     TFT - Traffic Flow Template
  */
 /* TFT operation code (octet 3) */
-static const value_string gsm_a_tft_op_code_vals[] = {
+static const value_string gsm_a_sm_tft_op_code_vals[] = {
 	{ 0,		"Spare"},
 	{ 1,		"Create new TFT"},
 	{ 2,		"Delete existing TFT"},
@@ -4768,12 +4768,12 @@ static const value_string gsm_a_tft_op_code_vals[] = {
 	{ 0,	NULL }
 };
 
-static const true_false_string gsm_a_tft_e_bit  = {
+static const true_false_string gsm_a_sm_tft_e_bit  = {
 	"Parameters list is included",
 	"Parameters list is not included"
 };
 
-static const value_string gsm_a_tft_pkt_flt_dir_vals[] = {
+static const value_string gsm_a_sm_tft_pkt_flt_dir_vals[] = {
 	{ 0,	"Pre Rel-7 TFT filter"},
 	{ 1,	"Downlink only"},
 	{ 2,	"Uplink only"},
@@ -4781,7 +4781,7 @@ static const value_string gsm_a_tft_pkt_flt_dir_vals[] = {
 	{ 0,	NULL }
 };
 
-static const value_string gsm_a_tft_param_id_vals[] = {
+static const value_string gsm_a_sm_tft_param_id_vals[] = {
 	{ 1,	"Authorization Token"},
 	{ 2,	"Flow Identifier"},
 	{ 3,	"Packet Filter Identifier"},
@@ -4816,9 +4816,9 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 	pkt_fil_count = oct&0x0f;
 	e_bit = (oct>>4)&1;
 
-	proto_tree_add_item(tree, hf_gsm_a_tft_op_code, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_tft_e_bit,   tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_gsm_a_tft_pkt_flt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_tft_op_code, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_tft_e_bit,   tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_tft_pkt_flt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 	curr_len--;
@@ -4845,7 +4845,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 				return (len);
 			}
 			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_pkt_flt_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset++;
 			curr_len--;
 			count++;
@@ -4858,8 +4858,8 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 				return (len);
 			}
 			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 2, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_dir, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_pkt_flt_dir, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_pkt_flt_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset++;
 			curr_len--;
 
@@ -4929,7 +4929,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x30:
 					str = "Protocol identifier/Next header type";
-					proto_tree_add_item(comp_tree, hf_gsm_a_tft_protocol_header, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_tft_protocol_header, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 					curr_offset += 1;
 					curr_len    -= 1;
 					pf_length   -= 1;
@@ -4937,7 +4937,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x40:
 					str = "Single local port type";
-					proto_tree_add_item(comp_tree, hf_gsm_a_tft_port, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_tft_port, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 					curr_offset += 2;
 					curr_len    -= 2;
 					pf_length   -= 2;
@@ -4945,9 +4945,9 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x41:
 					str = "Local port range type";
-					proto_tree_add_item(comp_tree, hf_gsm_a_tft_port_low, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_tft_port_low, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 					curr_offset += 2;
-					proto_tree_add_item(comp_tree, hf_gsm_a_tft_port_high, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_tft_port_high, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 					curr_offset += 2;
 					curr_len    -= 4;
 					pf_length   -= 4;
@@ -4955,7 +4955,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x50:
 					str = "Single remote port type";
-					proto_tree_add_item(comp_tree, hf_gsm_a_tft_port, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_tft_port, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 					curr_offset += 2;
 					curr_len    -= 2;
 					pf_length   -= 2;
@@ -4963,9 +4963,9 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x51:
 					str = "Remote port range type";
-					proto_tree_add_item(comp_tree, hf_gsm_a_tft_port_low, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_tft_port_low, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 					curr_offset += 2;
-					proto_tree_add_item(comp_tree, hf_gsm_a_tft_port_high, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_tft_port_high, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 					curr_offset += 2;
 					curr_len    -= 4;
 					pf_length   -= 4;
@@ -4973,7 +4973,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x60:
 					str = "Security parameter index type";
-					proto_tree_add_item(comp_tree, hf_gsm_a_tft_security, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_tft_security, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
 					curr_offset += 4;
 					curr_len    -= 4;
 					pf_length   -= 4;
@@ -4982,9 +4982,9 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x70:
 					str = "Type of service/Traffic class type";
-					proto_tree_add_item(comp_tree, hf_gsm_a_tft_traffic_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_tft_traffic_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 					curr_offset++;
-					proto_tree_add_item(comp_tree, hf_gsm_a_tft_traffic_mask, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_tft_traffic_mask, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 					curr_offset++;
 					curr_len-=2;
 					pf_length-=2;
@@ -4993,7 +4993,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 				case 0x80:
 					str = "Flow label type";
 					proto_tree_add_bits_item(comp_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(comp_tree, hf_gsm_a_tft_flow_label_type, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_tft_flow_label_type, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
 					curr_offset += 3;
 					curr_len    -= 3;
 					pf_length   -= 3;
@@ -5024,7 +5024,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 			tf        = proto_tree_add_text(tree, tvb, curr_offset, pf_length+2, "Parameter %d", count);
 			tf_tree   = proto_item_add_subtree(tf, ett_sm_tft);
 			param     = tvb_get_guint8(tvb, curr_offset);
-			proto_tree_add_item(tf_tree, hf_gsm_a_tft_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset += 2;
 			curr_len    -= 2;
 			switch (param) {
@@ -5105,7 +5105,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 		default:   str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl, tvb,
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_downl, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 	curr_offset += 1;
 
@@ -5123,7 +5123,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 		else
 			str = ep_strdup_printf("%u kbps", temp32);
 	}
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl_ext, tvb,
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_downl_ext, tvb,
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset += 1;
@@ -6917,178 +6917,178 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_delay_cls,
-		  { "Quality of Service Delay class", "gsm_a.qos.delay_cls",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_qos_delay_cls_vals), 0x38,
+		{ &hf_gsm_a_sm_qos_delay_cls,
+		  { "Quality of Service Delay class", "gsm_a_gm.sm.qos.delay_cls",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_qos_delay_cls_vals), 0x38,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_reliability_cls,
-		  { "Reliability class", "gsm_a.qos.delay_cls",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_qos_delay_cls_vals), 0x07,
+		{ &hf_gsm_a_sm_qos_reliability_cls,
+		  { "Reliability class", "gsm_a_gm.sm.qos.reliability_cls",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_qos_reliability_vals), 0x07,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_traffic_cls,
-		  { "Traffic class", "gsm_a.qos.traffic_cls",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0xe0,
+		{ &hf_gsm_a_sm_qos_traffic_cls,
+		  { "Traffic class", "gsm_a_gm.sm.qos.traffic_cls",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_qos_traffic_cls_vals), 0xe0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_del_order,
-		  { "Delivery order", "gsm_a.qos.del_order",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_qos_del_order_vals), 0x18,
+		{ &hf_gsm_a_sm_qos_del_order,
+		  { "Delivery order", "gsm_a_gm.sm.qos.del_order",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_qos_del_order_vals), 0x18,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_del_of_err_sdu,
-		  { "Delivery of erroneous SDUs", "gsm_a.qos.del_of_err_sdu",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_qos_del_of_err_sdu_vals), 0x07,
+		{ &hf_gsm_a_sm_qos_del_of_err_sdu,
+		  { "Delivery of erroneous SDUs", "gsm_a_gm.sm.qos.del_of_err_sdu",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_qos_del_of_err_sdu_vals), 0x07,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_ber,
-		  { "Residual Bit Error Rate (BER)", "gsm_a.qos.ber",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_qos_ber_vals), 0xf0,
+		{ &hf_gsm_a_sm_qos_ber,
+		  { "Residual Bit Error Rate (BER)", "gsm_a_gm.sm.qos.ber",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_qos_ber_vals), 0xf0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_sdu_err_rat,
-		  { "SDU error ratio", "gsm_a.qos.sdu_err_rat",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_qos_sdu_err_rat_vals), 0x0f,
+		{ &hf_gsm_a_sm_qos_sdu_err_rat,
+		  { "SDU error ratio", "gsm_a_gm.sm.qos.sdu_err_rat",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_qos_sdu_err_rat_vals), 0x0f,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_traff_hdl_pri,
-		  { "Traffic handling priority", "gsm_a.qos.traff_hdl_pri",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traff_hdl_pri_vals), 0x03,
+		{ &hf_gsm_a_sm_qos_traff_hdl_pri,
+		  { "Traffic handling priority", "gsm_a_gm.sm.qos.traff_hdl_pri",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_qos_traff_hdl_pri_vals), 0x03,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_split_on_ccch,
-		  { "SPLIT on CCCH", "gsm_a.gmm.split_on_ccch",
+		  { "SPLIT on CCCH", "gsm_a_gm.gmm.split_on_ccch",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_split_on_ccch_value), 0x08,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_non_drx_timer,
-		  { "Non-DRX timer", "gsm_a.gmm.non_drx_timer",
+		  { "Non-DRX timer", "gsm_a_gm.gmm.non_drx_timer",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gmm_non_drx_timer_strings), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef,
-		  { "CN Specific DRX cycle length coefficient", "gsm_a.gmm.cn_spec_drs_cycle_len_coef",
+		  { "CN Specific DRX cycle length coefficient", "gsm_a_gm.gmm.cn_spec_drs_cycle_len_coef",
 		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings), 0xf0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_op_code,
-		  { "TFT operation code", "gsm_a.tft.op_code",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_tft_op_code_vals), 0xe0,
+		{ &hf_gsm_a_sm_tft_op_code,
+		  { "TFT operation code", "gsm_a_gm.sm.tft.op_code",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_tft_op_code_vals), 0xe0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_e_bit,
-		  { "E bit", "gsm_a.tft.e_bit",
-		    FT_BOOLEAN, 8, TFS(&gsm_a_tft_e_bit), 0x10,
+		{ &hf_gsm_a_sm_tft_e_bit,
+		  { "E bit", "gsm_a_gm.sm.tft.e_bit",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_sm_tft_e_bit), 0x10,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_pkt_flt,
-		  { "Number of packet filters", "gsm_a.tft.pkt_flt",
+		{ &hf_gsm_a_sm_tft_pkt_flt,
+		  { "Number of packet filters", "gsm_a_gm.sm.tft.pkt_flt",
 		    FT_UINT8, BASE_DEC, NULL, 0x0f,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_pkt_flt_dir,
-		  { "Packet filter direction", "gsm_a.tft.pkt_flt_dir",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_tft_pkt_flt_dir_vals), 0x30,
+		{ &hf_gsm_a_sm_tft_pkt_flt_dir,
+		  { "Packet filter direction", "gsm_a_gm.sm.tft.pkt_flt_dir",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_tft_pkt_flt_dir_vals), 0x30,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_pkt_flt_id,
-		  { "Packet filter identifier", "gsm_a.tft.pkt_flt_id",
+		{ &hf_gsm_a_sm_tft_pkt_flt_id,
+		  { "Packet filter identifier", "gsm_a_gm.sm.tft.pkt_flt_id",
 		    FT_UINT8, BASE_DEC, NULL, 0x0f,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_ip4_address,
-		  { "IPv4 address", "gsm_a.sm.ip4_address",
+		  { "IPv4 address", "gsm_a_gm.sm.ip4_address",
 		    FT_IPv4, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_ip4_mask,
-		  { "IPv4 address mask", "gsm_a.sm.ip4_mask",
+		  { "IPv4 address mask", "gsm_a_gm.sm.ip4_mask",
 		    FT_IPv4, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_ip6_address,
-		  { "IPv6 address", "gsm_a.sm.ip6_address",
+		  { "IPv6 address", "gsm_a_gm.sm.ip6_address",
 		    FT_IPv6, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_ip6_mask,
-		  { "IPv6 address mask", "gsm_a.sm.ip6_mask",
+		  { "IPv6 address mask", "gsm_a_gm.sm.ip6_mask",
 		    FT_IPv6, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_protocol_header,
-		  { "Protocol/header", "gsm_a.tft.protocol_header",
+		{ &hf_gsm_a_sm_tft_protocol_header,
+		  { "Protocol/header", "gsm_a_gm.sm.tft.protocol_header",
 		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, (&ipproto_val_ext), 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_port,
-		  { "Port", "gsm_a.tft.port",
+		{ &hf_gsm_a_sm_tft_port,
+		  { "Port", "gsm_a_gm.sm.tft.port",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_port_low,
-		  { "Low limit port", "gsm_a.tft.port_low",
+		{ &hf_gsm_a_sm_tft_port_low,
+		  { "Low limit port", "gsm_a_gm.sm.tft.port_low",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_port_high,
-		  { "High limit port", "gsm_a.tft.port_high",
+		{ &hf_gsm_a_sm_tft_port_high,
+		  { "High limit port", "gsm_a_gm.sm.tft.port_high",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_security,
-		  { "IPSec security parameter index", "gsm_a.tft.security",
+		{ &hf_gsm_a_sm_tft_security,
+		  { "IPSec security parameter index", "gsm_a_gm.sm.tft.security",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_traffic_class,
-		  { "Type of service/Traffic class field", "gsm_a.tft.traffic_class",
+		{ &hf_gsm_a_sm_tft_traffic_class,
+		  { "Type of service/Traffic class field", "gsm_a_gm.sm.tft.traffic_class",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_traffic_mask,
-		  { "Mask field", "gsm_a.tft.traffic_mask",
+		{ &hf_gsm_a_sm_tft_traffic_mask,
+		  { "Mask field", "gsm_a_gm.sm.tft.traffic_mask",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_flow_label_type,
-		  { "Flow Label Type", "gsm_a.tft.flow_label_type",
+		{ &hf_gsm_a_sm_tft_flow_label_type,
+		  { "Flow Label Type", "gsm_a_gm.sm.tft.flow_label_type",
 		    FT_UINT24, BASE_HEX, NULL, 0x0FFFFF,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_tft_param_id,
-		  { "Parameter identifier", "gsm_a.tft.param_id",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_tft_param_id_vals), 0x0,
+		{ &hf_gsm_a_sm_tft_param_id,
+		  { "Parameter identifier", "gsm_a_gm.sm.tft.param_id",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_tft_param_id_vals), 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_ptmsi_sig,
-		  { "P-TMSI Signature", "gsm_a.ptmsi_sig",
+		{ &hf_gsm_a_gmm_ptmsi_sig,
+		  { "P-TMSI Signature", "gsm_a_gm.gmm.ptmsi_sig",
 		    FT_UINT24, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_ptmsi_sig2,
-		  { "P-TMSI Signature 2", "gsm_a.ptmsi_sig2",
+		{ &hf_gsm_a_gmm_ptmsi_sig2,
+		  { "P-TMSI Signature 2", "gsm_a_gm.gmm.ptmsi_sig2",
 		    FT_UINT24, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_acc_tech_type,
-		  { "Access Technology Type", "gsm_a_gm.acc_tech_type",
+		  { "Access Technology Type", "gsm_a_gm.gmm.acc_tech_type",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_acc_tech_type_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_acc_cap_struct_len,
-		  { "Length in bits", "gsm_a_gm.acc_cap_struct_len",
+		  { "Length in bits", "gsm_a_gm.gmm.acc_cap_struct_len",
 		    FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_sms_value,
-		  { "SMS_VALUE (Switch-Measure-Switch)", "gsm_a_gm.sms",
+		  { "SMS_VALUE (Switch-Measure-Switch)", "gsm_a_gm.gmm.sms",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_sm_value,
-		  { "(SM_VALUE) Switch-Measure", "gsm_a_gm.sm",
+		  { "(SM_VALUE) Switch-Measure", "gsm_a_gm.gmm.sm",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,
 		    NULL, HFILL }
 		},
@@ -7098,792 +7098,792 @@ proto_register_gsm_a_gm(void)
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_link_dir,
-		  { "Link direction", "gsm_a_gm.link_dir",
+		  { "Link direction", "gsm_a_gm.sm.link_dir",
 		    FT_INT32, BASE_DEC, VALS(gsm_a_gm_link_dir_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_cause,
-		  { "gmm Cause", "gsm_a_gm.cause",
+		  { "GMM Cause", "gsm_a_gm.gmm.cause",
 		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmm_cause_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_fop,
-		  { "Follow-on proceed", "gsm_a_gm.fop",
+		  { "Follow-on proceed", "gsm_a_gm.gmm.fop",
 		    FT_BOOLEAN, 8, NULL, 0x08,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_res_of_attach,
-		  { "Result of attach", "gsm_a_gm.res_of_attach",
+		  { "Result of attach", "gsm_a_gm.gmm.res_of_attach",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_res_of_attach_vals), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_type_of_ciph_alg,
-		  { "Type of ciphering algorithm", "gsm_a_gm.type_of_ciph_alg",
+		  { "Type of ciphering algorithm", "gsm_a_gm.gmm.type_of_ciph_alg",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_ciph_alg_vals), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_imeisv_req,
-		  { "IMEISV request", "gsm_a_gm.imeisv_req",
+		  { "IMEISV request", "gsm_a_gm.gmm.imeisv_req",
 		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_gm_imeisv_req_vals), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_ac_ref_nr,
-		  { "A&C reference number", "gsm_a_gm.ac_ref_nr",
+		  { "A&C reference number", "gsm_a_gm.gmm.ac_ref_nr",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_force_to_standby,
-		  { "Force to standby", "gsm_a_gm.force_to_standby",
+		  { "Force to standby", "gsm_a_gm.gmm.force_to_standby",
 		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_gm_force_to_standby_vals), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_ciph_key_seq_num,
-		  { "Ciphering key sequence number", "gsm_a_gm.ciph_key_seq_num",
+		  { "Ciphering key sequence number", "gsm_a_gm.gmm.ciph_key_seq_num",
 		    FT_UINT8, BASE_DEC, NULL, 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_serv_type,
-		  { "Service type", "gsm_a_gm.serv_type",
+		  { "Service type", "gsm_a_gm.gmm.serv_type",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_serv_type_vals), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_for,
-		  { "Follow-on request pending", "gsm_a_gm.for",
+		  { "Follow-on request pending", "gsm_a_gm.gmm.for",
 		    FT_BOOLEAN, 8, NULL, 0x08,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_type_of_attach,
-		  { "Type of attach", "gsm_a_gm.type_of_attach",
+		  { "Type of attach", "gsm_a_gm.gmm.type_of_attach",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_attach_vals), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_tmsi_flag,
-		  { "TMSI flag", "gsm_a_gm.tmsi_flag",
+		  { "TMSI flag", "gsm_a_gm.gmm.tmsi_flag",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_tmsi_flag_value), 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_update_type,
-		  { "Update type", "gsm_a_gm.update_type",
+		  { "Update type", "gsm_a_gm.gmm.update_type",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_update_type_vals), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_gprs_timer_unit,
-		  { "Unit", "gsm_a_gm.gprs_timer_unit",
+		  { "Unit", "gsm_a_gm.gmm.gprs_timer_unit",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_gprs_timer_unit_vals), 0xe0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_gprs_timer_value,
-		  { "Timer value", "gsm_a_gm.gprs_timer_value",
+		  { "Timer value", "gsm_a_gm.gmm.gprs_timer_value",
 		    FT_UINT8, BASE_DEC, NULL, 0x1f,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_gprs_timer2_unit,
-		  { "Unit", "gsm_a_gm.gprs_timer2_unit",
+		  { "Unit", "gsm_a_gm.gmm.gprs_timer2_unit",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_gprs_timer_unit_vals), 0xe0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_gprs_timer2_value,
-		  { "Timer value", "gsm_a_gm.gprs_timer2_value",
+		  { "Timer value", "gsm_a_gm.gmm.gprs_timer2_value",
 		    FT_UINT8, BASE_DEC, NULL, 0x1f,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_gprs_timer3_unit,
-		  { "Unit", "gsm_a_gm.gprs_timer3_unit",
+		  { "Unit", "gsm_a_gm.gmm.gprs_timer3_unit",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_gprs_timer3_unit_vals), 0xe0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_gprs_timer3_value,
-		  { "Timer value", "gsm_a_gm.gprs_timer3_value",
+		  { "Timer value", "gsm_a_gm.gmm.gprs_timer3_value",
 		    FT_UINT8, BASE_DEC, NULL, 0x1f,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_nsapi_5_ul_stat,
-		  { "NSAPI(5) uplink status", "gsm_a_gm.nsapi_5_ul_stat",
+		  { "NSAPI(5) uplink status", "gsm_a_gm.gmm.nsapi_5_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_nsapi_6_ul_stat,
-		  { "NSAPI(6) uplink status", "gsm_a_gm.nsapi_6_ul_stat",
+		  { "NSAPI(6) uplink status", "gsm_a_gm.gmm.nsapi_6_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_nsapi_7_ul_stat,
-		  { "NSAPI(7) uplink status", "gsm_a_gm.nsapi_7_ul_stat",
+		  { "NSAPI(7) uplink status", "gsm_a_gm.gmm.nsapi_7_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_nsapi_8_ul_stat,
-		  { "NSAPI(8) uplink status", "gsm_a_gm.nsapi_8_ul_stat",
+		  { "NSAPI(8) uplink status", "gsm_a_gm.gmm.nsapi_8_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_nsapi_9_ul_stat,
-		  { "NSAPI(9) uplink status", "gsm_a_gm.nsapi_9_ul_stat",
+		  { "NSAPI(9) uplink status", "gsm_a_gm.gmm.nsapi_9_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_nsapi_10_ul_stat,
-		  { "NSAPI(10) uplink status", "gsm_a_gm.nsapi_10_ul_stat",
+		  { "NSAPI(10) uplink status", "gsm_a_gm.gmm.nsapi_10_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_nsapi_11_ul_stat,
-		  { "NSAPI(11) uplink status", "gsm_a_gm.nsapi_11_ul_stat",
+		  { "NSAPI(11) uplink status", "gsm_a_gm.gmm.nsapi_11_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_nsapi_12_ul_stat,
-		  { "NSAPI(12) uplink status", "gsm_a_gm.nsapi_12_ul_stat",
+		  { "NSAPI(12) uplink status", "gsm_a_gm.gmm.nsapi_12_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_nsapi_13_ul_stat,
-		  { "NSAPI(13) uplink status", "gsm_a_gm.nsapi_13_ul_stat",
+		  { "NSAPI(13) uplink status", "gsm_a_gm.gmm.nsapi_13_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_nsapi_14_ul_stat,
-		  { "NSAPI(14) uplink status", "gsm_a_gm.nsapi_14_ul_stat",
+		  { "NSAPI(14) uplink status", "gsm_a_gm.gmm.nsapi_14_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_nsapi_15_ul_stat,
-		  { "NSAPI(15) uplink status", "gsm_a_gm.nsapi_15_ul_stat",
+		  { "NSAPI(15) uplink status", "gsm_a_gm.gmm.nsapi_15_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_device_prop_low_prio,
-		  { "Low priority", "gsm_a_gm.device_prop_low_prio",
+		  { "Low priority", "gsm_a_gm.gmm.device_prop_low_prio",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_device_prop_low_prio_value), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_pco_pid,
-		  { "Protocol or Container ID", "gsm_a_gm.pco_pid",
+		  { "Protocol or Container ID", "gsm_a_gm.sm.pco_pid",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_pco_app_spec_info,
-		  { "Application specific information", "gsm_a_gm.app_spec_info",
+		  { "Application specific information", "gsm_a_gm.sm.app_spec_info",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_type_of_identity,
-		  { "Type of identity", "gsm_a_gm.type_of_identity",
+		  { "Type of identity", "gsm_a_gm.gmm.type_of_identity",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_identity_vals), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac,
-		  { "Routing Area Code (RAC)", "gsm_a_gm.rac",
+		  { "Routing Area Code (RAC)", "gsm_a_gm.gmm.rac",
 		    FT_UINT8, BASE_HEX_DEC, NULL, 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_apc,
-		  { "APC", "gsm_a_gm.apc",
+		  { "APC", "gsm_a_gm.gmm.apc",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_apc_vals), 0x20,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_otd_a,
-		  { "OTD-A", "gsm_a_gm.otd_a",
+		  { "OTD-A", "gsm_a_gm.gmm.otd_a",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_otd_a_vals), 0x10,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_otd_b,
-		  { "OTD-B", "gsm_a_gm.otd_b",
+		  { "OTD-B", "gsm_a_gm.gmm.otd_b",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_otd_b_vals), 0x08,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_gps_a,
-		  { "GPS-A", "gsm_a_gm.gps_a",
+		  { "GPS-A", "gsm_a_gm.gmm.gps_a",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_gps_a_vals), 0x04,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_gps_b,
-		  { "GPS-B", "gsm_a_gm.gps_b",
+		  { "GPS-B", "gsm_a_gm.gmm.gps_b",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_gps_b_vals), 0x02,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_gps_c,
-		  { "GPS-C", "gsm_a_gm.gps_c",
+		  { "GPS-C", "gsm_a_gm.gmm.gps_c",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_gps_c_vals), 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_lcs_molr,
-		  { "LCS-MOLR", "gsm_a_gm.lcs_molr",
+		  { "LCS-MOLR", "gsm_a_gm.gmm.lcs_molr",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_lcs_molr_value), 0x08,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_mbms,
-		  { "MBMS", "gsm_a_gm.mbms",
+		  { "MBMS", "gsm_a_gm.gmm.mbms",
 		    FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_ims_vops,
-		  { "IMS VoPS", "gsm_a_gm.ims_vops",
+		  { "IMS VoPS", "gsm_a_gm.gmm.ims_vops",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_ims_vops_value), 0x02,
 		    "IMS voice over PS session indicator", HFILL }
 		},
 		{ &hf_gsm_a_gm_emc_bs,
-		  { "EMC BS", "gsm_a_gm.emc_bs",
+		  { "EMC BS", "gsm_a_gm.gmm.emc_bs",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_emc_bs_value), 0x01,
 		    "Emergency bearer services indicator", HFILL }
 		},
 		{ &hf_gsm_a_gm_req_ms_info_irat,
-		  { "I-RAT", "gsm_a_gm.req_ms_info_irat",
+		  { "I-RAT", "gsm_a_gm.gmm.req_ms_info_irat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_req_ms_info_irat_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_req_ms_info_irat2,
-		  { "I-RAT2", "gsm_a_gm.req_ms_info_irat2",
+		  { "I-RAT2", "gsm_a_gm.gmm.req_ms_info_irat2",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_req_ms_info_irat2_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_ue_usage_setting,
-		  { "UE's usage setting", "gsm_a_gm.ue_usage_setting",
+		  { "UE's usage setting", "gsm_a_gm.gmm.ue_usage_setting",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_ue_usage_setting_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_voice_domain_pref_for_eutran,
-		  { "Voice domain preference for E-UTRAN", "gsm_a_gm.voice_domain_pref_for_eutran",
+		  { "Voice domain preference for E-UTRAN", "gsm_a_gm.gmm.voice_domain_pref_for_eutran",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_voice_domain_pref_for_eutran_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_ptmsi_type,
-		  { "P-TMSI type", "gsm_a_gm.ptmsi_type",
+		  { "P-TMSI type", "gsm_a_gm.gmm.ptmsi_type",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_ptmsi_type_value), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_pdp_type_org,
-		  { "PDP type organization", "gsm_a.sm.pdp_type_org",
+		  { "PDP type organization", "gsm_a_gm.sm.pdp_type_org",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_pdp_type_org_vals), 0x0f,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_mean_thr,
-		  { "Mean throughput", "gsm_a.qos.mean_throughput",
-		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_qos_mean_thr_vals), 0x1f,
+		{ &hf_gsm_a_sm_qos_mean_thr,
+		  { "Mean throughput", "gsm_a_gm.sm.qos.mean_throughput",
+		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_sm_qos_mean_thr_vals), 0x1f,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_peak_thr,
-		  { "Peak throughput", "gsm_a.qos.peak_throughput",
-		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_qos_peak_thr_vals), 0xf0,
+		{ &hf_gsm_a_sm_qos_peak_thr,
+		  { "Peak throughput", "gsm_a_gm.sm.qos.peak_throughput",
+		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_sm_qos_peak_thr_vals), 0xf0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_prec_class,
-		  { "Precedence class", "gsm_a.qos.prec_class",
-		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_qos_prec_class_vals), 0x07,
+		{ &hf_gsm_a_sm_qos_prec_class,
+		  { "Precedence class", "gsm_a_gm.sm.qos.prec_class",
+		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_sm_qos_prec_class_vals), 0x07,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_trans_delay,
-		  { "Transfer delay", "gsm_a.qos.trans_delay",
+		{ &hf_gsm_a_sm_qos_trans_delay,
+		  { "Transfer delay", "gsm_a_gm.sm.qos.trans_delay",
 		    FT_UINT8, BASE_DEC, NULL, 0xfc,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_signalling_ind,
-		  { "Signalling indication", "gsm_a.qos.signalling_ind",
-		    FT_BOOLEAN, 8, TFS(&gsm_a_qos_signalling_ind_value), 0x10,
+		{ &hf_gsm_a_sm_qos_signalling_ind,
+		  { "Signalling indication", "gsm_a_gm.sm.qos.signalling_ind",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_sm_qos_signalling_ind_value), 0x10,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_source_stat_desc,
-		  { "Source statistics description", "gsm_a.qos.source_stat_desc",
+		{ &hf_gsm_a_sm_qos_source_stat_desc,
+		  { "Source statistics description", "gsm_a_gm.sm.qos.source_stat_desc",
 		    FT_UINT8, BASE_DEC, NULL, 0x0f,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_max_bitrate_upl,
-		  { "Maximum bitrate for uplink", "gsm_a.qos.max_bitrate_upl",
+		{ &hf_gsm_a_sm_qos_max_bitrate_upl,
+		  { "Maximum bitrate for uplink", "gsm_a_gm.sm.qos.max_bitrate_upl",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_max_bitrate_downl,
-		  { "Maximum bitrate for downlink", "gsm_a.qos.max_bitrate_downl",
+		{ &hf_gsm_a_sm_qos_max_bitrate_downl,
+		  { "Maximum bitrate for downlink", "gsm_a_gm.sm.qos.max_bitrate_downl",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_guar_bitrate_upl,
-		  { "Guaranteed bitrate for uplink", "gsm_a.qos.guar_bitrate_upl",
+		{ &hf_gsm_a_sm_qos_guar_bitrate_upl,
+		  { "Guaranteed bitrate for uplink", "gsm_a_gm.sm.qos.guar_bitrate_upl",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_guar_bitrate_downl,
-		  { "Guaranteed bitrate for downlink", "gsm_a.qos.guar_bitrate_downl",
+		{ &hf_gsm_a_sm_qos_guar_bitrate_downl,
+		  { "Guaranteed bitrate for downlink", "gsm_a_gm.sm.qos.guar_bitrate_downl",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_max_bitrate_upl_ext,
-		  { "Maximum bitrate for uplink (extended)", "gsm_a.qos.max_bitrate_upl_ext",
+		{ &hf_gsm_a_sm_qos_max_bitrate_upl_ext,
+		  { "Maximum bitrate for uplink (extended)", "gsm_a_gm.sm.qos.max_bitrate_upl_ext",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_max_bitrate_downl_ext,
-		  { "Maximum bitrate for downlink (extended)", "gsm_a.qos.max_bitrate_downl_ext",
+		{ &hf_gsm_a_sm_qos_max_bitrate_downl_ext,
+		  { "Maximum bitrate for downlink (extended)", "gsm_a_gm.sm.qos.max_bitrate_downl_ext",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_guar_bitrate_upl_ext,
-		  { "Guaranteed bitrate for uplink (extended)", "gsm_a.qos.guar_bitrate_upl_ext",
+		{ &hf_gsm_a_sm_qos_guar_bitrate_upl_ext,
+		  { "Guaranteed bitrate for uplink (extended)", "gsm_a_gm.sm.qos.guar_bitrate_upl_ext",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_qos_guar_bitrate_downl_ext,
-		  { "Guaranteed bitrate for downlink (extended)", "gsm_a.qos.guar_bitrate_downl_ext",
+		{ &hf_gsm_a_sm_qos_guar_bitrate_downl_ext,
+		  { "Guaranteed bitrate for downlink (extended)", "gsm_a_gm.sm.qos.guar_bitrate_downl_ext",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_cause,
-		  { "SM Cause", "gsm_a.sm.cause",
+		  { "SM Cause", "gsm_a_gm.sm.cause",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_cause_2,
-		  { "SM Cause 2", "gsm_a.sm.cause_2",
+		  { "SM Cause 2", "gsm_a_gm.sm.cause_2",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_llc_sapi,
-		  { "LLC SAPI", "gsm_a.sm.llc_sapi",
+		  { "LLC SAPI", "gsm_a_gm.sm.llc_sapi",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_llc_sapi_vals), 0x0f,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_tdi,
-		  { "Tear Down Indicator (TDI)", "gsm_a.sm.tdi",
+		  { "Tear Down Indicator (TDI)", "gsm_a_gm.sm.tdi",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_sm_tdi_value), 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_packet_flow_id,
-		  { "Packet Flow Identifier (PFI)", "gsm_a.sm.packet_flow_id",
+		  { "Packet Flow Identifier (PFI)", "gsm_a_gm.sm.packet_flow_id",
 		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_sm_packet_flow_id_vals), 0x7f,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_gea1,
-		  { "GEA/1", "gsm_a.gmm.net_cap.gea1",
+		  { "GEA/1", "gsm_a_gm.gmm.net_cap.gea1",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x80,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_smdch,
-		  { "SM capabilities via dedicated channels", "gsm_a.gmm.net_cap.smdch",
+		  { "SM capabilities via dedicated channels", "gsm_a_gm.gmm.net_cap.smdch",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_smdch_vals), 0x40,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_smgprs,
-		  { "SM capabilities via GPRS channels", "gsm_a.gmm.net_cap.smgprs",
+		  { "SM capabilities via GPRS channels", "gsm_a_gm.gmm.net_cap.smgprs",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_smgprs_vals), 0x20,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_ucs2,
-		  { "UCS2 support", "gsm_a.gmm.net_cap.ucs2",
+		  { "UCS2 support", "gsm_a_gm.gmm.net_cap.ucs2",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_smgprs_vals), 0x10,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_ss_scr_ind,
-		  { "SS Screening Indicator", "gsm_a.gmm.net_cap.ss_scr_ind",
+		  { "SS Screening Indicator", "gsm_a_gm.gmm.net_cap.ss_scr_ind",
 		    FT_UINT8, BASE_HEX, VALS(gsm_a_gmm_net_cap_ss_scr_ind_vals), 0x0c,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_solsa,
-		  { "SoLSA Capability", "gsm_a.gmm.net_cap.solsa",
+		  { "SoLSA Capability", "gsm_a_gm.gmm.net_cap.solsa",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_solsa_vals), 0x02,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_rev,
-		  { "Revision level indicator", "gsm_a.gmm.net_cap.rev",
+		  { "Revision level indicator", "gsm_a_gm.gmm.net_cap.rev",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_rev_vals), 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_pfc,
-		  { "PFC feature mode", "gsm_a.gmm.net_cap.pfc",
+		  { "PFC feature mode", "gsm_a_gm.gmm.net_cap.pfc",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_pfc_vals), 0x80,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_ext_gea_bits,
-		  { "Extended GEA bits", "gsm_a.gmm.net_cap.ext_gea_bits",
+		  { "Extended GEA bits", "gsm_a_gm.gmm.net_cap.ext_gea_bits",
 		    FT_UINT8, BASE_HEX, NULL, 0x7e,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_gea2,
-		  { "GEA/2", "gsm_a.gmm.net_cap.gea2",
+		  { "GEA/2", "gsm_a_gm.gmm.net_cap.gea2",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x40,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_gea3,
-		  { "GEA/3", "gsm_a.gmm.net_cap.gea3",
+		  { "GEA/3", "gsm_a_gm.gmm.net_cap.gea3",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x20,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_gea4,
-		  { "GEA/4", "gsm_a.gmm.net_cap.gea4",
+		  { "GEA/4", "gsm_a_gm.gmm.net_cap.gea4",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x10,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_gea5,
-		  { "GEA/5", "gsm_a.gmm.net_cap.gea5",
+		  { "GEA/5", "gsm_a_gm.gmm.net_cap.gea5",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x08,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_gea6,
-		  { "GEA/6", "gsm_a.gmm.net_cap.gea6",
+		  { "GEA/6", "gsm_a_gm.gmm.net_cap.gea6",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x04,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_gea7,
-		  { "GEA/7", "gsm_a.gmm.net_cap.gea7",
+		  { "GEA/7", "gsm_a_gm.gmm.net_cap.gea7",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x02,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_lcs,
-		  { "LCS VA capability", "gsm_a.gmm.net_cap.lcs",
+		  { "LCS VA capability", "gsm_a_gm.gmm.net_cap.lcs",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_lcs_vals), 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_ps_irat_iu,
-		  { "PS inter-RAT HO from GERAN to UTRAN Iu mode capability", "gsm_a.gmm.net_cap.ps_irat_iu",
+		  { "PS inter-RAT HO from GERAN to UTRAN Iu mode capability", "gsm_a_gm.gmm.net_cap.ps_irat_iu",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_ps_irat_iu_vals), 0x80,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_ps_irat_s1,
-		  { "PS inter-RAT HO from GERAN to E-UTRAN S1 mode capability", "gsm_a.gmm.net_cap.ps_irat_s1",
+		  { "PS inter-RAT HO from GERAN to E-UTRAN S1 mode capability", "gsm_a_gm.gmm.net_cap.ps_irat_s1",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_ps_irat_s1_vals), 0x40,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_comb_proc,
-		  { "EMM Combined procedures capability", "gsm_a.gmm.net_cap.comb_proc",
+		  { "EMM Combined procedures capability", "gsm_a_gm.gmm.net_cap.comb_proc",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_comb_proc_vals), 0x20,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_isr,
-		  { "ISR support", "gsm_a.gmm.net_cap.isr",
+		  { "ISR support", "gsm_a_gm.gmm.net_cap.isr",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_isr_vals), 0x10,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_srvcc_to_geran,
-		  { "SRVCC to GERAN/UTRAN capability", "gsm_a.gmm.net_cap.srvcc_to_geran",
+		  { "SRVCC to GERAN/UTRAN capability", "gsm_a_gm.gmm.net_cap.srvcc_to_geran",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_srvcc_to_geran_vals), 0x08,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_epc,
-		  { "EPC Capability", "gsm_a.gmm.net_cap.epc",
+		  { "EPC Capability", "gsm_a_gm.gmm.net_cap.epc",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_epc_vals), 0x04,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_nf,
-		  { "NF Capability", "gsm_a.gmm.net_cap.nf",
+		  { "NF Capability", "gsm_a_gm.gmm.net_cap.nf",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_nf_vals), 0x02,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_tmgi,
-		  { "Temporary Mobile Group Identity (TMGI)", "gsm_a.sm.tmgi",
+		  { "Temporary Mobile Group Identity (TMGI)", "gsm_a_gm.sm.tmgi",
 		    FT_UINT24, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_enh_nsapi,
-		  { "Enhanced NSAPI", "gsm_a.sm.enh_nsapi",
+		  { "Enhanced NSAPI", "gsm_a_gm.sm.enh_nsapi",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_req_type,
-		  { "Request type", "gsm_a.sm.req_type",
+		  { "Request type", "gsm_a_gm.sm.req_type",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_req_type_vals), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_notif_ind,
-		  { "Notification indicator value", "gsm_a.sm.notif_ind",
+		  { "Notification indicator value", "gsm_a_gm.sm.notif_ind",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_notif_ind_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_connectivity_type,
-		  { "Connectivity type value", "gsm_a.sm.connectivity_type",
+		  { "Connectivity type value", "gsm_a_gm.sm.connectivity_type",
 		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_sm_connectivity_type_vals), 0x0F,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_ctrled_early_cm_sending,
-		  { "Controlled early Classmark Sending", "gsm_a_gm.rac.ctrled_early_cm_sending",
+		  { "Controlled early Classmark Sending", "gsm_a_gm.gmm.rac.ctrled_early_cm_sending",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_implemented_not_implemented), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_pseudo_sync,
-		  { "Pseudo Synchronisation", "gsm_a_gm.rac.pseudo_sync",
+		  { "Pseudo Synchronisation", "gsm_a_gm.gmm.rac.pseudo_sync",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_vgcs,
-		  { "Voice Group Call Service", "gsm_a_gm.rac.vgcs",
+		  { "Voice Group Call Service", "gsm_a_gm.gmm.rac.vgcs",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_vgcs), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_vbs,
-		  { "Voice Broadcast Service", "gsm_a_gm.rac.vbs",
+		  { "Voice Broadcast Service", "gsm_a_gm.gmm.rac.vbs",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_vbs), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_multislot_capability,
-		  { "Multislot capability struct", "gsm_a_gm.rac.multislot_capability",
+		  { "Multislot capability struct", "gsm_a_gm.gmm.rac.multislot_capability",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_hscsd_multi_slot_class,
-		  { "HSCSD multislot class", "gsm_a_gm.rac.hscsd_multi_slot_class",
+		  { "HSCSD multislot class", "gsm_a_gm.gmm.rac.hscsd_multi_slot_class",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_multi_slot_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_gprs_multi_slot_class,
-		  { "GPRS multislot class", "gsm_a_gm.rac.gprs_multi_slot_class",
+		  { "GPRS multislot class", "gsm_a_gm.gmm.rac.gprs_multi_slot_class",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_multi_slot_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_gprs_ext_dyn_alloc_cap,
-		  { "GPRS Extended Dynamic Allocation Capability", "gsm_a_gm.rac.gprs_ext_dyn_alloc_cap",
+		  { "GPRS Extended Dynamic Allocation Capability", "gsm_a_gm.gmm.rac.gprs_ext_dyn_alloc_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_implemented_not_implemented), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_ecsd_multi_slot_class,
-		  { "ECSD multislot class", "gsm_a_gm.rac.ecsd_multi_slot_class",
+		  { "ECSD multislot class", "gsm_a_gm.gmm.rac.ecsd_multi_slot_class",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_multi_slot_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_egprs_multi_slot_class,
-		  { "EGPRS multislot class", "gsm_a_gm.rac.egprs_multi_slot_class",
+		  { "EGPRS multislot class", "gsm_a_gm.gmm.rac.egprs_multi_slot_class",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_multi_slot_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_egprs_ext_dyn_alloc_cap,
-		  { "EGPRS Extended Dynamic Allocation Capability", "gsm_a_gm.rac.egprs_ext_dyn_alloc_cap",
+		  { "EGPRS Extended Dynamic Allocation Capability", "gsm_a_gm.gmm.rac.egprs_ext_dyn_alloc_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_implemented_not_implemented), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_dtm_gprs_multi_slot_class,
-		  { "DTM GPRS Multi Slot Class", "gsm_a_gm.rac.dtm_gprs_multi_slot_class",
+		  { "DTM GPRS Multi Slot Class", "gsm_a_gm.gmm.rac.dtm_gprs_multi_slot_class",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dtm_gprs_multi_slot_class_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_single_slt_dtm,
-		  { "Single Slot DTM", "gsm_a_gm.rac.single_slt_dtm",
+		  { "Single Slot DTM", "gsm_a_gm.gmm.rac.single_slt_dtm",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_dtm_egprs_multi_slot_cls_pres,
-		  { "DTM EGPRS Multi Slot Class", "gsm_a_gm.rac.dtm_egprs_multi_slot_cls_pres",
+		  { "DTM EGPRS Multi Slot Class", "gsm_a_gm.gmm.rac.dtm_egprs_multi_slot_cls_pres",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_dtm_egprs_multi_slot_class,
-		  { "DTM EGPRS Multi Slot Class", "gsm_a_gm.rac.dtm_egprs_multi_slot_class",
+		  { "DTM EGPRS Multi Slot Class", "gsm_a_gm.gmm.rac.dtm_egprs_multi_slot_class",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dtm_gprs_multi_slot_class_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_8psk_pow_cap_pres,
-		  { "8PSK Power Capability Bits", "gsm_a_gm.rac.8psk_pow_cap_pres",
+		  { "8PSK Power Capability Bits", "gsm_a_gm.gmm.rac.8psk_pow_cap_pres",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_comp_int_meas_cap,
-		  { "COMPACT Interference Measurement Capability", "gsm_a_gm.rac.comp_int_meas_cap",
+		  { "COMPACT Interference Measurement Capability", "gsm_a_gm.gmm.rac.comp_int_meas_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_implemented_not_implemented), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rel_lev_ind,
-		  { "Revision Level Indicator", "gsm_a_gm.rel_lev_ind",
+		  { "Revision Level Indicator", "gsm_a_gm.gmm.rel_lev_ind",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_revision_level_indicator), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_umts_fdd_cap,
-		  { "UMTS FDD Radio Access Technology Capability", "gsm_a_gm.rac.umts_fdd_cap",
+		  { "UMTS FDD Radio Access Technology Capability", "gsm_a_gm.gmm.rac.umts_fdd_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_umts_384_tdd_ra_cap,
-		  { "UMTS 3.84 Mcps TDD Radio Access Technology Capability", "gsm_a_gm.rac.umts_384_tdd_ra_cap",
+		  { "UMTS 3.84 Mcps TDD Radio Access Technology Capability", "gsm_a_gm.gmm.rac.umts_384_tdd_ra_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_cdma2000_cap,
-		  { "CDMA 2000 Radio Access Technology Capability", "gsm_a_gm.rac.cdma2000_cap",
+		  { "CDMA 2000 Radio Access Technology Capability", "gsm_a_gm.gmm.rac.cdma2000_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_umts_128_tdd_ra_cap,
-		  { "UMTS 1.28 Mcps TDD Radio Access Technology Capability", "gsm_a_gm.rac.umts_128_tdd_ra_cap",
+		  { "UMTS 1.28 Mcps TDD Radio Access Technology Capability", "gsm_a_gm.gmm.rac.umts_128_tdd_ra_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_geran_feat_pkg,
-		  { "GERAN Feature Package 1", "gsm_a_gm.rac.geran_feat_pkg",
+		  { "GERAN Feature Package 1", "gsm_a_gm.gmm.rac.geran_feat_pkg",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_mod_based_multi_slot_class_support,
-		  { "Modulation based multislot class support", "gsm_a_gm.rac.mod_based_multi_slot_class_support",
+		  { "Modulation based multislot class support", "gsm_a_gm.gmm.rac.mod_based_multi_slot_class_support",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_geran_iu_mode_cap,
-		  { "GERAN Iu mode", "gsm_a_gm.rac.geran_iu_mode_cap",
+		  { "GERAN Iu mode", "gsm_a_gm.gmm.rac.geran_iu_mode_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_flo_iu_cap,
-		  { "FLO Iu Capability", "gsm_a_gm.rac.flo_iu_cap",
+		  { "FLO Iu Capability", "gsm_a_gm.gmm.rac.flo_iu_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_mult_tbf_cap,
-		  { "Multiple TBF Capability", "gsm_a_gm.rac.mult_tbf_cap",
+		  { "Multiple TBF Capability", "gsm_a_gm.gmm.rac.mult_tbf_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_down_adv_rec_perf,
-		  { "Downlink Advanced Receiver Performance", "gsm_a_gm.rac.down_adv_rec_perf",
+		  { "Downlink Advanced Receiver Performance", "gsm_a_gm.gmm.rac.down_adv_rec_perf",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_down_adv_rec_perf_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_ext_rlc_mac_ctrl_msg_seg_cap,
-		  { "Extended RLC/MAC Control Message Segmentation Capability", "gsm_a_gm.rac.ext_rlc_mac_ctrl_msg_seg_cap",
+		  { "Extended RLC/MAC Control Message Segmentation Capability", "gsm_a_gm.gmm.rac.ext_rlc_mac_ctrl_msg_seg_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_dtm_enh_cap,
-		  { "DTM Enhancements Capability", "gsm_a_gm.rac.dtm_enh_cap",
+		  { "DTM Enhancements Capability", "gsm_a_gm.gmm.rac.dtm_enh_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_dtm_enh_cap), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_dtm_gprs_high_multi_slot_class,
-		  { "DTM GPRS High Multi Slot Class", "gsm_a_gm.rac.dtm_gprs_high_multi_slot_class",
+		  { "DTM GPRS High Multi Slot Class", "gsm_a_gm.gmm.rac.dtm_gprs_high_multi_slot_class",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dtm_gprs_high_multi_slot_class_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_dtm_egprs_high_multi_slot_class,
-		  { "DTM EGPRS High Multi Slot Class", "gsm_a_gm.rac.dtm_egprs_high_multi_slot_class",
+		  { "DTM EGPRS High Multi Slot Class", "gsm_a_gm.gmm.rac.dtm_egprs_high_multi_slot_class",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dtm_gprs_high_multi_slot_class_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_ps_ho_cap,
-		  { "PS Handover Capability", "gsm_a_gm.rac.ps_ho_cap",
+		  { "PS Handover Capability", "gsm_a_gm.gmm.rac.ps_ho_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_dtm_ho_cap,
-		  { "DTM Handover Capability", "gsm_a_gm.rac.dtm_ho_cap",
+		  { "DTM Handover Capability", "gsm_a_gm.gmm.rac.dtm_ho_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_multi_slot_cap_red_down_dual_carrier,
-		  { "Multislot Capability Reduction for Downlink Dual Carrier", "gsm_a_gm.rac.multi_slot_cap_red_down_dual_carrier",
+		  { "Multislot Capability Reduction for Downlink Dual Carrier", "gsm_a_gm.gmm.rac.multi_slot_cap_red_down_dual_carrier",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_multi_slot_cap_red_down_dual_carrier_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_down_dual_carrier_dtm_cap,
-		  { "Downlink Dual Carrier for DTM Capability", "gsm_a_gm.rac.down_dual_carrier_dtm_cap",
+		  { "Downlink Dual Carrier for DTM Capability", "gsm_a_gm.gmm.rac.down_dual_carrier_dtm_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_flex_ts_assign,
-		  { "Flexible Timeslot Assignment", "gsm_a_gm.rac.flex_ts_assign",
+		  { "Flexible Timeslot Assignment", "gsm_a_gm.gmm.rac.flex_ts_assign",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_gan_ps_ho_cap,
-		  { "GAN PS Handover Capability", "gsm_a_gm.rac.gan_ps_ho_cap",
+		  { "GAN PS Handover Capability", "gsm_a_gm.gmm.rac.gan_ps_ho_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_rlc_non_pers_mode,
-		  { "RLC Non-persistent Mode", "gsm_a_gm.rac.rlc_non_pers_mode",
+		  { "RLC Non-persistent Mode", "gsm_a_gm.gmm.rac.rlc_non_pers_mode",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_reduced_lat_cap,
-		  { "Reduced Latency Capability", "gsm_a_gm.rac.reduced_lat_cap",
+		  { "Reduced Latency Capability", "gsm_a_gm.gmm.rac.reduced_lat_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_ul_egprs2,
-		  { "Uplink EGPRS2", "gsm_a_gm.rac.ul_egprs2",
+		  { "Uplink EGPRS2", "gsm_a_gm.gmm.rac.ul_egprs2",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_ul_egprs2_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_dl_egprs2,
-		  { "Downlink EGPRS2", "gsm_a_gm.rac.dl_egprs2",
+		  { "Downlink EGPRS2", "gsm_a_gm.gmm.rac.dl_egprs2",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dl_egprs2_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_eutra_fdd_support,
-		  { "E-UTRA FDD support", "gsm_a_gm.rac.eutra_fdd_support",
+		  { "E-UTRA FDD support", "gsm_a_gm.gmm.rac.eutra_fdd_support",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_eutra_tdd_support,
-		  { "E-UTRA TDD support", "gsm_a_gm.rac.eutra_tdd_support",
+		  { "E-UTRA TDD support", "gsm_a_gm.gmm.rac.eutra_tdd_support",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_geran_to_eutra_support_in_geran_ptm,
-		  { "GERAN to E-UTRA support in GERAN packet transfer mode", "gsm_a_gm.rac.geran_to_eutra_support_in_geran_ptm",
+		  { "GERAN to E-UTRA support in GERAN packet transfer mode", "gsm_a_gm.gmm.rac.geran_to_eutra_support_in_geran_ptm",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_geran_to_eutra_support_in_geran_ptm_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_prio_based_resel_support,
-		  { "Priority-based reselection support", "gsm_a_gm.rac.prio_based_resel_support",
+		  { "Priority-based reselection support", "gsm_a_gm.gmm.rac.prio_based_resel_support",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_alt_efta_multi_slot_class,
-		  { "Alternative EFTA Multislot Class", "gsm_a_gm.rac.alt_efta_multi_slot_class",
+		  { "Alternative EFTA Multislot Class", "gsm_a_gm.gmm.rac.alt_efta_multi_slot_class",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_alt_efta_multi_slot_class_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_efta_multi_slot_cap_red_down_dual_carrier,
-		  { "EFTA Multislot Capability Reduction for Downlink Dual Carrier", "gsm_a_gm.rac.efta_multi_slot_cap_red_down_dual_carrier",
+		  { "EFTA Multislot Capability Reduction for Downlink Dual Carrier", "gsm_a_gm.gmm.rac.efta_multi_slot_cap_red_down_dual_carrier",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_multi_slot_cap_red_down_dual_carrier_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_ind_up_layer_pdu_start_cap_for_rlc_um,
-		  { "Indication of Upper Layer PDU Start Capability for RLC UM", "gsm_a_gm.rac.ind_up_layer_pdu_start_cap_for_rlc_um",
+		  { "Indication of Upper Layer PDU Start Capability for RLC UM", "gsm_a_gm.gmm.rac.ind_up_layer_pdu_start_cap_for_rlc_um",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_emst_cap,
-		  { "Enhanced Multiplexing for Single TBF Capability", "gsm_a_gm.rac.emst_cap",
+		  { "Enhanced Multiplexing for Single TBF Capability", "gsm_a_gm.gmm.rac.emst_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_mtti_cap,
-		  { "Multiple TTI Capability", "gsm_a_gm.rac.mtti_cap",
+		  { "Multiple TTI Capability", "gsm_a_gm.gmm.rac.mtti_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_utra_csg_cell_report,
-		  { "Reporting of UTRAN CSG cells in packet transfer mode", "gsm_a_gm.rac.utra_csg_cell_report",
+		  { "Reporting of UTRAN CSG cells in packet transfer mode", "gsm_a_gm.gmm.rac.utra_csg_cell_report",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_eutra_csg_cell_report,
-		  { "Reporting of E-UTRAN CSG cells in packet transfer mode", "gsm_a_gm.rac.eutra_csg_cell_report",
+		  { "Reporting of E-UTRAN CSG cells in packet transfer mode", "gsm_a_gm.gmm.rac.eutra_csg_cell_report",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_dtr_cap,
-		  { "Dynamic Timeslot Reduction Capability", "gsm_a_gm.rac.dtr_cap",
+		  { "Dynamic Timeslot Reduction Capability", "gsm_a_gm.gmm.rac.dtr_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_emsr_cap,
-		  { "Enhanced Multiplexing for Single RLC Entity Capability", "gsm_a_gm.rac.emsr_cap",
+		  { "Enhanced Multiplexing for Single RLC Entity Capability", "gsm_a_gm.gmm.rac.emsr_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_fast_down_freq_switch_cap,
-		  { "Fast Downlink Frequency Switching Capability", "gsm_a_gm.rac.fast_down_freq_switch_cap",
+		  { "Fast Downlink Frequency Switching Capability", "gsm_a_gm.gmm.rac.fast_down_freq_switch_cap",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_tighter_cap,
-		  { "TIGHTER Capability", "gsm_a_gm.rac.tighter_cap",
+		  { "TIGHTER Capability", "gsm_a_gm.gmm.rac.tighter_cap",
 		    FT_UINT8, BASE_DEC, VALS(tighter_cap_level_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_ti_flag,
-		  { "TI Flag", "gsm_a.sm.ti_flag",
+		  { "TI Flag", "gsm_a_gm.sm.ti_flag",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_sm_ti_flag_vals), 0x80,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_ext,
-		  { "Extension", "gsm_a.sm.ext",
+		  { "Extension", "gsm_a_gm.sm.ext",
 		    FT_BOOLEAN, 8, NULL, 0x80,
 		    NULL, HFILL }
 		},
