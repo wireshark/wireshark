@@ -86,7 +86,6 @@ extern const value_string gsm_bssmap_elem_strings[];
 extern gint ett_gsm_bssmap_elem[];
 extern elem_fcn bssmap_elem_fcn[];
 extern int hf_gsm_a_bssmap_elem_id;
-extern int hf_gsm_a_bssmap_cell_ci;
 
 extern const value_string gsm_dtap_elem_strings[];
 extern gint ett_gsm_dtap_elem[];
@@ -172,7 +171,6 @@ guint16 dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_
 
 
 /* common field values */
-extern int hf_gsm_a_length;
 extern int hf_gsm_a_extension;
 extern int hf_gsm_a_tmsi;
 extern int hf_gsm_a_L3_protocol_discriminator;

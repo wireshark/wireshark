@@ -68,6 +68,12 @@ const value_string gsm_common_elem_strings[] = {
     { 0, NULL }
 };
 
+static const true_false_string gsm_a_extension_value = {
+    "No Extension",
+    "Extended"
+};
+
+
 /* Mobile Station Classmark Value strings
  */
 
@@ -555,11 +561,14 @@ static int hf_gsm_a_tmgi_mcc_mnc_ind = -1;
 static int hf_gsm_a_mbs_ses_id_ind = -1;
 static int hf_gsm_a_mbs_service_id = -1;
 static int hf_gsm_a_mbs_session_id = -1;
+static int hf_gsm_a_length = -1;
+int hf_gsm_a_extension = -1;
 int hf_gsm_a_L3_protocol_discriminator = -1;
 int hf_gsm_a_call_prio = -1;
 int hf_gsm_a_skip_ind = -1;
 int hf_gsm_a_spare_bits = -1;
 int hf_gsm_a_lac = -1;
+
 static int hf_gsm_a_spare_nibble = -1;
 static int hf_gsm_a_type_of_ciph_alg = -1;
 static int hf_gsm_a_att = -1;
@@ -3645,6 +3654,16 @@ proto_register_gsm_a_common(void)
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_gsm_a_length,
+        { "Length",     "gsm_a.len",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_gsm_a_extension,
+        { "Extension", "gsm_a.extension",
+        FT_BOOLEAN, 8, TFS(&gsm_a_extension_value), 0x80,
+        NULL, HFILL }
+    },
     { &hf_gsm_a_L3_protocol_discriminator,
         { "Protocol discriminator", "gsm_a.L3_protocol_discriminator",
         FT_UINT8, BASE_HEX, VALS(protocol_discriminator_vals), 0x0f,
@@ -4328,7 +4347,7 @@ proto_register_gsm_a_common(void)
     /* Register the protocol name and description */
 
     proto_a_common =
-    proto_register_protocol("GSM A-I/F COMMON", "GSM COMMON", "gsm_a_common");
+    proto_register_protocol("GSM A-I/F COMMON", "GSM COMMON", "gsm_a");
 
     proto_register_field_array(proto_a_common, hf, array_length(hf));
 

@@ -1620,7 +1620,7 @@ proto_register_gsm_sim(void)
 		},
 
 		{ &hf_cat_ber_tag,
-			{ "BER-TLV Tag", "cat.ber_tlv_tag",
+			{ "BER-TLV Tag", "gsm_sim.cat.ber_tlv_tag",
 			  FT_UINT8, BASE_HEX, VALS(ber_tlv_cat_tag_vals), 0,
 			  "Card Application Toolkit BER-TLV tag", HFILL },
 		},

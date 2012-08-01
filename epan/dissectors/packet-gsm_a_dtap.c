@@ -422,7 +422,6 @@ static int hf_gsm_a_dtap_cause_ss_diagnostics	= -1;
 static int hf_gsm_a_dtap_emergency_bcd_num	= -1;
 static int hf_gsm_a_dtap_emerg_num_info_length = -1;
 
-int hf_gsm_a_extension = -1;
 static int hf_gsm_a_dtap_type_of_number = -1;
 static int hf_gsm_a_dtap_numbering_plan_id = -1;
 
@@ -2415,11 +2414,6 @@ de_call_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
 	return(1);
 }
-
-static const true_false_string gsm_a_extension_value = {
-	"No Extension",
-	"Extended"
-};
 
 /*
  * Helper function for BCD address decoding
@@ -6605,11 +6599,6 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_cause,
 		{ "DTAP Cause", "gsm_a_dtap.cause",
 		FT_UINT8, BASE_HEX, 0, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_gsm_a_extension,
-		{ "Extension", "gsm_a.extension",
-		FT_BOOLEAN, 8, TFS(&gsm_a_extension_value), 0x80,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_dtap_type_of_number,

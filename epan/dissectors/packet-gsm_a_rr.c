@@ -633,6 +633,7 @@ static int hf_gsm_a_rr_si2quater_position = -1;
 static int hf_gsm_a_rr_si13alt_position = -1;
 static int hf_gsm_a_rr_prio_thr = -1;
 static int hf_gsm_a_rr_lsa_offset = -1;
+static int hf_gsm_a_rr_cell_id = -1;
 static int hf_gsm_a_rr_paging_channel_restructuring = -1;
 static int hf_gsm_a_rr_nln_sacch = -1;
 static int hf_gsm_a_rr_nln_status_sacch = -1;
@@ -6834,7 +6835,6 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
     proto_item  *item2, *item3;
     guint32      curr_offset;
     gint         bit_offset, bit_offset_sav;
-    guint        value;
     guint8       tvb_len = tvb_length(tvb);
     guint16      bit_len = tvb_len << 3;
 
@@ -6884,8 +6884,7 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
 
         if (gsm_rr_csn_HL_flag(tvb, subtree2, bit_len, bit_offset++, "Cell Identity", "Present", "Not present"))
         { /* Cell Identity */
-            value = tvb_get_bits16(tvb, bit_offset, 16, ENC_BIG_ENDIAN);
-            proto_tree_add_uint(subtree2, hf_gsm_a_bssmap_cell_ci, tvb, bit_offset>>3, 2, value);
+            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_cell_id, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
             bit_offset += 16;
         }
 
@@ -11464,6 +11463,11 @@ proto_register_gsm_a_rr(void)
               { "LSA Offset", "gsm_a_rr.lsa_offset",
                 FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lsa_offset_vals), 0x0,
                 "Offset to be used for LSA cell re selection between cells with the same LSA priorities (LSA Offset)", HFILL }
+            },
+            { &hf_gsm_a_rr_cell_id,
+              { "Cell Identity", "gsm_a_rr.cell_id",
+                FT_UINT16, BASE_HEX_DEC, 0, 0x0,
+                NULL, HFILL }
             },
             { &hf_gsm_a_rr_paging_channel_restructuring,
               { "Paging Channel Restructuring", "gsm_a_rr.paging_channel_restructuring",

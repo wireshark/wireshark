@@ -1053,57 +1053,57 @@ proto_register_gsm_bssmap_le(void)
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_acq_ass,
-          { "Acquisition Assistance", "bssap.acq_ass",
+          { "Acquisition Assistance", "gsm_bssmap_le.acq_ass",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x80,
             NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_ref_time,
-          { "Reference Time", "bssap.ref_time",
+          { "Reference Time", "gsm_bssmap_le.ref_time",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x40,
             NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_ref_loc,
-          { "Reference Location", "bssap.ref_loc",
+          { "Reference Location", "gsm_bssmap_le.ref_loc",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x20,
             NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_dgps_corr,
-          { "DGPS Corrections", "bssap.gps_corr",
+          { "DGPS Corrections", "gsm_bssmap_le.gps_corr",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x08,
             NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_nav_mod,
-          { "Navigation Model", "bssap.nav_mod",
+          { "Navigation Model", "gsm_bssmap_le.nav_mod",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x10,
             NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_iono_mod,
-          { "Ionospheric Model", "bssap.iono_mod",
+          { "Ionospheric Model", "gsm_bssmap_le.iono_mod",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x04,
             NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_utc_mod,
-          { "UTC Model", "bssap.utc_mod",
+          { "UTC Model", "gsm_bssmap_le.utc_mod",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
             NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_almanac,
-          { "Almanac", "bssap.almanac",
+          { "Almanac", "gsm_bssmap_le.almanac",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
             NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_ephemeris_ext_chk,
-          { "Ephemeris Extension Check", "bssap.ephemeris_ext_chk",
+          { "Ephemeris Extension Check", "gsm_bssmap_le.ephemeris_ext_chk",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x04,
             NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_ephemeris_ext,
-          { "Ephemeris Extension", "bssap.ephemeris_ext",
+          { "Ephemeris Extension", "gsm_bssmap_le.ephemeris_ext",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
             NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_real_time_int,
-          { "Real-Time Integrity", "bssap.real_time_int",
+          { "Real-Time Integrity", "gsm_bssmap_le.real_time_int",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
             NULL, HFILL }
 		},

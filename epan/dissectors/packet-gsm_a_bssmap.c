@@ -464,10 +464,9 @@ static const value_string fe_cur_chan_type2_chan_field_vals[] = {
 static int proto_a_bssmap = -1;
 
 static int hf_gsm_a_bssmap_msg_type = -1;
-int hf_gsm_a_length = -1;
 int hf_gsm_a_bssmap_elem_id = -1;
 static int hf_gsm_a_bssmap_field_elem_id = -1;
-int hf_gsm_a_bssmap_cell_ci = -1;
+static int hf_gsm_a_bssmap_cell_ci = -1;
 static int hf_gsm_a_bssmap_cell_lac = -1;
 static int hf_gsm_a_bssmap_sac = -1;
 static int hf_gsm_a_bssmap_dlci_cc = -1;
@@ -6972,23 +6971,18 @@ proto_register_gsm_a_bssmap(void)
         FT_UINT8, BASE_HEX, VALS(bssmap_field_element_ids), 0,
         NULL, HFILL }
     },
-    { &hf_gsm_a_length,
-        { "Length",     "gsm_a.len",
-        FT_UINT16, BASE_DEC, NULL, 0,
-        NULL, HFILL }
-    },
     { &hf_gsm_a_bssmap_cell_ci,
-        { "Cell CI",    "gsm_a.cell_ci",
+        { "Cell CI",    "gsm_a_bssmap.cell_ci",
         FT_UINT16, BASE_HEX_DEC, 0, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_cell_lac,
-        { "Cell LAC",   "gsm_a.cell_lac",
+        { "Cell LAC",   "gsm_a_bssmap.cell_lac",
         FT_UINT16, BASE_HEX_DEC, 0, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_sac,
-        { "SAC",    "gsm_a.sac",
+        { "SAC",    "gsm_a_bssmap.sac",
         FT_UINT16, BASE_HEX, 0, 0x0,
         NULL, HFILL }
     },
@@ -7013,7 +7007,7 @@ proto_register_gsm_a_bssmap(void)
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_be_cell_id_disc,
-        { "Cell identification discriminator","gsm_a.be.cell_id_disc",
+        { "Cell identification discriminator","gsm_a_bssmap.be.cell_id_disc",
         FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &gsm_a_be_cell_id_disc_vals_ext, 0x0f,
         NULL, HFILL }
     },
@@ -7148,12 +7142,12 @@ proto_register_gsm_a_bssmap(void)
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_be_rnc_id,
-        { "RNC-ID","gsm_a.be.rnc_id",
+        { "RNC-ID","gsm_a_bssmap.be.rnc_id",
         FT_UINT16,BASE_DEC,  NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_apdu_protocol_id,
-        { "Protocol ID", "gsm_a.apdu_protocol_id",
+        { "Protocol ID", "gsm_a_bssmap.apdu_protocol_id",
         FT_UINT8, BASE_DEC, VALS(gsm_a_apdu_protocol_id_strings), 0x0,
         "APDU embedded protocol id", HFILL }
     },
