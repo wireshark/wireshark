@@ -2259,11 +2259,6 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
             offset += raw_octet-5;
 
         }
-        else if (info_type==OAMPDU_INFO_TYPE_ENDMARKER)
-        {
-            /* A TLV of zero indicate an End of TLV marker */
-            break;
-        }
         else
         {
             /* If it's a unknown type jump over */
