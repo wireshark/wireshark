@@ -714,37 +714,37 @@ proto_register_dsmcc(void)
 	static hf_register_info hf[] = {
 		/* table 2-1 dsmccMessageHeader - start */
 		{ &hf_dsmcc_protocol_discriminator, {
-			"Protocol Discriminator", "dsmcc.protocol",
+			"Protocol Discriminator", "mpeg_dsmcc.protocol",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_type, {
-			"Type", "dsmcc.type",
+			"Type", "mpeg_dsmcc.type",
 			FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(dsmcc_header_type_vals), 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_message_id, {
-			"Message ID", "dsmcc.message_id",
+			"Message ID", "mpeg_dsmcc.message_id",
 			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_transaction_id, {
-			"Transaction ID", "dsmcc.transaction_id",
+			"Transaction ID", "mpeg_dsmcc.transaction_id",
 			FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_header_reserved, {
-			"Reserved", "dsmcc.header_reserved",
+			"Reserved", "mpeg_dsmcc.header_reserved",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_adaptation_length, {
-			"Adaptation Length", "dsmcc.adaptation_length",
+			"Adaptation Length", "mpeg_dsmcc.adaptation_length",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_message_length, {
-			"Message Length", "dsmcc.message_length",
+			"Message Length", "mpeg_dsmcc.message_length",
 			FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 		/* table 2-1 dsmccMessageHeader - end */
@@ -752,7 +752,7 @@ proto_register_dsmcc(void)
 
 		/* table 2-4 dsmccAdaptationHeader - start */
 		{ &hf_dsmcc_adaptation_type, {
-			"Adaptation Type", "dsmcc.adaptation_header.type",
+			"Adaptation Type", "mpeg_dsmcc.adaptation_header.type",
 			FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(dsmcc_adaptation_header_vals), 0, NULL, HFILL
 		} },
 		/* table 2-4 dsmccAdaptationHeader - end */
@@ -760,17 +760,17 @@ proto_register_dsmcc(void)
 
 		/* table 2-6 dsmccConditionalAccess - start */
 		{ &hf_dsmcc_adaptation_ca_reserved, {
-			"Reserved", "dsmcc.adaptation_header.ca.reserved",
+			"Reserved", "mpeg_dsmcc.adaptation_header.ca.reserved",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_adaptation_ca_system_id, {
-			"System ID", "dsmcc.adaptation_header.ca.system_id",
+			"System ID", "mpeg_dsmcc.adaptation_header.ca.system_id",
 			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_adaptation_ca_length, {
-			"System ID", "dsmcc.adaptation_header.ca.length",
+			"System ID", "mpeg_dsmcc.adaptation_header.ca.length",
 			FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 		/* table 2-6 dsmccConditionalAccess - end */
@@ -778,7 +778,7 @@ proto_register_dsmcc(void)
 
 		/* table 2-7 dsmccUserId - start */
 		{ &hf_dsmcc_adaptation_user_id_reserved, {
-			"Reserved", "dsmcc.adaptation_header.uid.reserved",
+			"Reserved", "mpeg_dsmcc.adaptation_header.uid.reserved",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 		/* table 2-7 dsmccUserId - start */
@@ -786,57 +786,57 @@ proto_register_dsmcc(void)
 
 		/* table 6-1 compatabilityDescriptor - start */
 		{ &hf_compat_desc_length, {
-			"Compatibility Descriptor Length", "dsmcc.dii.compat_desc_len",
+			"Compatibility Descriptor Length", "mpeg_dsmcc.dii.compat_desc_len",
 			FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_compat_desc_count, {
-			"Descriptor Length", "dsmcc.dii.compat_desc_count",
+			"Descriptor Length", "mpeg_dsmcc.dii.compat_desc_count",
 			FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_desc_type, {
-			"Descriptor Type", "dsmcc.dii.compat.type",
+			"Descriptor Type", "mpeg_dsmcc.dii.compat.type",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_desc_length, {
-			"Descriptor Length", "dsmcc.dii.compat.length",
+			"Descriptor Length", "mpeg_dsmcc.dii.compat.length",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_desc_spec_type, {
-			"Specifier Type", "dsmcc.dii.compat.spec_type",
+			"Specifier Type", "mpeg_dsmcc.dii.compat.spec_type",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_desc_spec_data, {
-			"Specifier Data", "dsmcc.dii.compat.spec_data",
+			"Specifier Data", "mpeg_dsmcc.dii.compat.spec_data",
 			FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_desc_model, {
-			"Model", "dsmcc.dii.compat.model",
+			"Model", "mpeg_dsmcc.dii.compat.model",
 			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_desc_version, {
-			"Version", "dsmcc.dii.compat.version",
+			"Version", "mpeg_dsmcc.dii.compat.version",
 			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_desc_sub_desc_count, {
-			"Version", "dsmcc.dii.compat.sub_count",
+			"Version", "mpeg_dsmcc.dii.compat.sub_count",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_desc_sub_desc_type, {
-			"Type", "dsmcc.dii.compat.sub_type",
+			"Type", "mpeg_dsmcc.dii.compat.sub_type",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_desc_sub_desc_len, {
-			"Length", "dsmcc.dii.compat.sub_len",
+			"Length", "mpeg_dsmcc.dii.compat.sub_len",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 		/* table 6-1 compatabilityDescriptor - end */
@@ -844,12 +844,12 @@ proto_register_dsmcc(void)
 
 		/* table 7-3 dsmccDownloadDataHeader - start */
 		{ &hf_dsmcc_dd_download_id, {
-			"Download ID", "dsmcc.download_id",
+			"Download ID", "mpeg_dsmcc.download_id",
 			FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_dd_message_id, {
-			"Message ID", "dsmcc.message_id",
+			"Message ID", "mpeg_dsmcc.message_id",
 			FT_UINT16, BASE_HEX, VALS(dsmcc_dd_message_id_vals), 0, NULL, HFILL
 		} },
 		/* table 7-3 dsmccDownloadDataHeader - end */
@@ -857,62 +857,62 @@ proto_register_dsmcc(void)
 
 		/* table 7-6 downloadInfoIndication - start */
 		{ &hf_dsmcc_dii_download_id, {
-			"Download ID", "dsmcc.dii.download_id",
+			"Download ID", "mpeg_dsmcc.dii.download_id",
 			FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_dii_block_size, {
-			"Block Size", "dsmcc.dii.block_size",
+			"Block Size", "mpeg_dsmcc.dii.block_size",
 			FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_dii_window_size, {
-			"Window Size", "dsmcc.dii.window_size",
+			"Window Size", "mpeg_dsmcc.dii.window_size",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_dii_ack_period, {
-			"ACK Period", "dsmcc.dii.ack_period",
+			"ACK Period", "mpeg_dsmcc.dii.ack_period",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_dii_t_c_download_window, {
-			"Carousel Download Window", "dsmcc.dii.carousel_download_window",
+			"Carousel Download Window", "mpeg_dsmcc.dii.carousel_download_window",
 			FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_dii_t_c_download_scenario, {
-			"Carousel Download Scenario", "dsmcc.dii.carousel_download_scenario",
+			"Carousel Download Scenario", "mpeg_dsmcc.dii.carousel_download_scenario",
 			FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_dii_number_of_modules, {
-			"Number of Modules", "dsmcc.dii.module_count",
+			"Number of Modules", "mpeg_dsmcc.dii.module_count",
 			FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_dii_module_id, {
-			"Module ID", "dsmcc.dii.module_id",
+			"Module ID", "mpeg_dsmcc.dii.module_id",
 			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_dii_module_size, {
-			"Module Size", "dsmcc.dii.module_size",
+			"Module Size", "mpeg_dsmcc.dii.module_size",
 			FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_dii_module_version, {
-			"Module Version", "dsmcc.dii.module_version",
+			"Module Version", "mpeg_dsmcc.dii.module_version",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_dii_module_info_length, {
-			"Module Info Length", "dsmcc.dii.module_info_length",
+			"Module Info Length", "mpeg_dsmcc.dii.module_info_length",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_dii_private_data_length, {
-			"Private Data Length", "dsmcc.dii.private_data_length",
+			"Private Data Length", "mpeg_dsmcc.dii.private_data_length",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 		/* table 7-6 downloadInfoIndication - end */
@@ -920,22 +920,22 @@ proto_register_dsmcc(void)
 
 		/* table 7-7 dsmccDownloadDataBlock - start */
 		{ &hf_dsmcc_ddb_module_id, {
-			"Module ID", "dsmcc.ddb.module_id",
+			"Module ID", "mpeg_dsmcc.ddb.module_id",
 			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_ddb_version, {
-			"Version", "dsmcc.ddb.version",
+			"Version", "mpeg_dsmcc.ddb.version",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_ddb_reserved, {
-			"Reserved", "dsmcc.ddb.reserved",
+			"Reserved", "mpeg_dsmcc.ddb.reserved",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_ddb_block_number, {
-			"Block Number", "dsmcc.ddb.block_num",
+			"Block Number", "mpeg_dsmcc.ddb.block_num",
 			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 		/* table 7-7 dsmccDownloadDataBlock - end */
@@ -953,7 +953,7 @@ proto_register_dsmcc(void)
 		} },
 
 		{ &hf_dsmcc_private_indicator, {
-			"Private Indicator", "dsmcc.private_indicator",
+			"Private Indicator", "mpeg_dsmcc.private_indicator",
 			FT_UINT16, BASE_DEC, NULL, DSMCC_PRIVATE_MASK, NULL, HFILL
 		} },
 
@@ -968,32 +968,32 @@ proto_register_dsmcc(void)
 		} },
 
 		{ &hf_dsmcc_table_id_extension, {
-			"Table ID Extension", "dsmcc.table_id_extension",
+			"Table ID Extension", "mpeg_dsmcc.table_id_extension",
 			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_reserved2, {
-			"Reserved", "dsmcc.reserved2",
+			"Reserved", "mpeg_dsmcc.reserved2",
 			FT_UINT8, BASE_HEX, NULL, DSMCC_RESERVED2_MASK, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_version_number, {
-			"Version Number", "dsmcc.version_number",
+			"Version Number", "mpeg_dsmcc.version_number",
 			FT_UINT8, BASE_DEC, NULL, DSMCC_VERSION_NUMBER_MASK, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_current_next_indicator, {
-			"Current Next Indicator", "dsmcc.current_next_indicator",
+			"Current Next Indicator", "mpeg_dsmcc.current_next_indicator",
 			FT_UINT8, BASE_DEC, NULL, DSMCC_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_section_number, {
-			"Section Number", "dsmcc.section_number",
+			"Section Number", "mpeg_dsmcc.section_number",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_dsmcc_last_section_number, {
-			"Last Section Number", "dsmcc.last_section_number",
+			"Last Section Number", "mpeg_dsmcc.last_section_number",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
@@ -1003,7 +1003,7 @@ proto_register_dsmcc(void)
 		} },
 
 		{ &hf_dsmcc_checksum, {
-			"Checksum", "dsmcc.checksum",
+			"Checksum", "mpeg_dsmcc.checksum",
 			FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 		/* table 9-2 - end */
@@ -1031,7 +1031,7 @@ proto_register_dsmcc(void)
 	};
 	module_t *dsmcc_module;
 
-	proto_dsmcc = proto_register_protocol("MPEG DSM-CC", "MPEG DSM-CC", "mpeg-dsmcc");
+	proto_dsmcc = proto_register_protocol("MPEG DSM-CC", "MPEG DSM-CC", "mpeg_dsmcc");
 
 	proto_register_field_array(proto_dsmcc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

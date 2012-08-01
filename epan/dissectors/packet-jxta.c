@@ -2056,15 +2056,15 @@ void proto_register_jxta(void)
     /** our header fields */
     static hf_register_info hf[] = {
         {&hf_uri_addr,
-         {"Address", "uri.addr", FT_STRING, BASE_NONE, NULL, 0x0,
+         {"Address", "jxta.uri.addr", FT_STRING, BASE_NONE, NULL, 0x0,
           "URI Address (source or destination)", HFILL}
          },
         {&hf_uri_src,
-         {"Source", "uri.src", FT_STRING, BASE_NONE, NULL, 0x0,
+         {"Source", "jxta.uri.src", FT_STRING, BASE_NONE, NULL, 0x0,
           "URI Source", HFILL}
          },
         {&hf_uri_dst,
-         {"Destination", "uri.dst", FT_STRING, BASE_NONE, NULL, 0x0,
+         {"Destination", "jxta.uri.dst", FT_STRING, BASE_NONE, NULL, 0x0,
           "URI Destination", HFILL}
          },
         {&hf_jxta_udp,

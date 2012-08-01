@@ -92,23 +92,23 @@ proto_register_retix_bpdu(void)
 {
   static hf_register_info hf[] = {
     { &hf_retix_bpdu_root_mac,
-    { "Root MAC",  "rstp.root.hw", FT_ETHER, BASE_NONE, NULL, 0x0,
+    { "Root MAC",  "r-stp.root.hw", FT_ETHER, BASE_NONE, NULL, 0x0,
     NULL, HFILL}},
 
     { &hf_retix_bpdu_bridge_mac,
-    { "Bridge MAC", "rstp.bridge.hw", FT_ETHER, BASE_NONE, NULL, 0x0,
+    { "Bridge MAC", "r-stp.bridge.hw", FT_ETHER, BASE_NONE, NULL, 0x0,
     NULL, HFILL}},
 
     { &hf_retix_bpdu_max_age,
-    { "Max Age", "rstp.maxage", FT_UINT16, BASE_DEC, NULL, 0x0,
+    { "Max Age", "r-stp.maxage", FT_UINT16, BASE_DEC, NULL, 0x0,
     NULL, HFILL}},
 
     { &hf_retix_bpdu_hello_time,
-    { "Hello Time", "rstp.hello", FT_UINT16, BASE_DEC, NULL, 0x0,
+    { "Hello Time", "r-stp.hello", FT_UINT16, BASE_DEC, NULL, 0x0,
     NULL, HFILL}},
 
     { &hf_retix_bpdu_forward_delay,
-    { "Forward Delay", "rstp.forward", FT_UINT16, BASE_DEC, NULL, 0x0,
+    { "Forward Delay", "r-stp.forward", FT_UINT16, BASE_DEC, NULL, 0x0,
     NULL, HFILL}},
   };
 

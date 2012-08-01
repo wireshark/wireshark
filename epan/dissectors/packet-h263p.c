@@ -236,7 +236,7 @@ proto_register_h263P(void)
 			&hf_h263P_payload,
 			{
 				"H.263 RFC4629 payload",
-				"h263P.payload",
+				"h263p.payload",
 				FT_NONE,
 				BASE_NONE,
 				NULL,
@@ -248,7 +248,7 @@ proto_register_h263P(void)
 			&hf_h263P_rr,
 			{
 				"Reserved",
-				"h263P.rr",
+				"h263p.rr",
 				FT_UINT16,
 				BASE_DEC,
 				NULL,
@@ -260,7 +260,7 @@ proto_register_h263P(void)
 			&hf_h263P_pbit,
 			{
 				"P",
-				"h263P.p",
+				"h263p.p",
 				FT_BOOLEAN,
 				16,
 				NULL,
@@ -272,7 +272,7 @@ proto_register_h263P(void)
 			&hf_h263P_vbit,
 			{
 				"V",
-				"h263P.v",
+				"h263p.v",
 				FT_BOOLEAN,
 				16,
 				NULL,
@@ -284,7 +284,7 @@ proto_register_h263P(void)
 			&hf_h263P_plen,
 			{
 				"PLEN",
-				"h263P.plen",
+				"h263p.plen",
 				FT_UINT16,
 				BASE_DEC,
 				NULL,
@@ -296,7 +296,7 @@ proto_register_h263P(void)
 			&hf_h263P_pebit,
 			{
 				"PEBIT",
-				"h263P.pebit",
+				"h263p.pebit",
 				FT_UINT16,
 				BASE_DEC,
 				NULL,
@@ -310,7 +310,7 @@ proto_register_h263P(void)
 			&hf_h263P_tid,
 			{
 				"Thread ID",
-				"h263P.tid",
+				"h263p.tid",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -322,7 +322,7 @@ proto_register_h263P(void)
 			&hf_h263P_trun,
 			{
 				"Trun",
-				"h263P.trun",
+				"h263p.trun",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -334,7 +334,7 @@ proto_register_h263P(void)
 			&hf_h263P_s,
 			{
 				"S",
-				"h263P.s",
+				"h263p.s",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -346,7 +346,7 @@ proto_register_h263P(void)
 			&hf_h263P_extra_hdr,
 			{
 				"Extra picture header",
-				"h263P.extra_hdr",
+				"h263p.extra_hdr",
 				FT_BYTES,
 				BASE_NONE,
 				NULL,
@@ -358,7 +358,7 @@ proto_register_h263P(void)
 			&hf_h263P_PSC,
 			{
 				"H.263 PSC",
-				"h263P.PSC",
+				"h263p.PSC",
 				FT_UINT16,
 				BASE_HEX,
 				NULL,
@@ -370,7 +370,7 @@ proto_register_h263P(void)
 			&hf_h263P_TR,
 			{
 				"H.263 Temporal Reference",
-				"h263P.tr",
+				"h263p.tr",
 				FT_UINT16,
 				BASE_HEX,
 				NULL,

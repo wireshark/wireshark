@@ -336,146 +336,146 @@ proto_register_ib_sdp(void)
     module_t *ib_sdp_module;
     static hf_register_info hf[] = {
         { &hf_ib_sdp, {
-            "SDP", "infiniband.sdp",
+            "SDP", "infiniband_sdp",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* SDP BSDH Header */
         { &hf_ib_sdp_bsdh, {
-            "BSDH", "infiniband.sdp.bsdh",
+            "BSDH", "infiniband_sdp.bsdh",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_ib_sdp_mid, {
-            "MID", "infiniband.sdp.bsdh.mid",
+            "MID", "infiniband_sdp.bsdh.mid",
             FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(mid_meanings), 0x0, NULL, HFILL}
         },
         {&hf_ib_sdp_flags, {
-            "Flags", "infiniband.sdp.bsdh.flags",
+            "Flags", "infiniband_sdp.bsdh.flags",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         {&hf_ib_sdp_flags_oobpres, {
-            "OOB_PRES", "infiniband.sdp.bsdh.oobpres",
+            "OOB_PRES", "infiniband_sdp.bsdh.oobpres",
             FT_UINT8, BASE_HEX, NULL, 0x1, "Out-Of-Band Data is present", HFILL}
         },
         {&hf_ib_sdp_flags_oob_pend, {
-            "OOB_PEND", "infiniband.sdp.bsdh.oobpend",
+            "OOB_PEND", "infiniband_sdp.bsdh.oobpend",
             FT_UINT8, BASE_HEX, NULL, 0x2, "Out-Of-Band Data is pending", HFILL}
         },
         {&hf_ib_sdp_flags_reqpipe, {
-            "REQ_PIPE", "infiniband.sdp.bsdh.reqpipe",
+            "REQ_PIPE", "infiniband_sdp.bsdh.reqpipe",
             FT_UINT8, BASE_HEX, NULL, 0x4, "Request change to Pipelined Mode", HFILL}
         },
         {&hf_ib_sdp_bufs, {
-            "Buffers", "infiniband.sdp.bsdh.bufs",
+            "Buffers", "infiniband_sdp.bsdh.bufs",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_ib_sdp_len, {
-            "Length", "infiniband.sdp.bsdh.len",
+            "Length", "infiniband_sdp.bsdh.len",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_ib_sdp_mseq, {
-            "MSeq", "infiniband.sdp.bsdh.mseq",
+            "MSeq", "infiniband_sdp.bsdh.mseq",
             FT_UINT32, BASE_HEX, NULL, 0x0, "Message Sequence Number", HFILL}
         },
         {&hf_ib_sdp_mseqack, {
-            "MSeqAck", "infiniband.sdp.bsdh.mseqack",
+            "MSeqAck", "infiniband_sdp.bsdh.mseqack",
             FT_UINT32, BASE_HEX, NULL, 0x0, "Message Sequence Number Acknowledgement", HFILL}
         },
         /* SDP Hello Header */
         {&hf_ib_sdp_hh, {
-            "Hello Header", "infiniband.sdp.hh",
+            "Hello Header", "infiniband_sdp.hh",
             FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL}
         },
         {&hf_ib_sdp_majv, {
-            "Major Protocol Version Number", "infiniband.sdp.hh.majv",
+            "Major Protocol Version Number", "infiniband_sdp.hh.majv",
             FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
         },
         {&hf_ib_sdp_minv, {
-            "Minor Protocol Version Number", "infiniband.sdp.hh.minv",
+            "Minor Protocol Version Number", "infiniband_sdp.hh.minv",
             FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL}
         },
         {&hf_ib_sdp_ipv,
-            {"IP version", "infiniband.sdp.hh.ipv",
+            {"IP version", "infiniband_sdp.hh.ipv",
             FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
         },
         {&hf_ib_sdp_cap, {
-            "Capabilities", "infiniband.sdp.hh.cap",
+            "Capabilities", "infiniband_sdp.hh.cap",
             FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL}
         },
         {&hf_ib_sdp_cap_invalidate, {
-            "INVALIDATE_CAP", "infiniband.sdp.hh.cap_invalidate",
+            "INVALIDATE_CAP", "infiniband_sdp.hh.cap_invalidate",
             FT_UINT8, BASE_HEX, NULL, 0x1, "Supports incoming Send w/Invalidate opcode", HFILL}
         },
         {&hf_ib_sdp_cap_extmaxadverts, {
-            "EXTENDED_MAXADVERTS", "infiniband.sdp.hh.cap_extmaxadverts",
+            "EXTENDED_MAXADVERTS", "infiniband_sdp.hh.cap_extmaxadverts",
             FT_UINT8, BASE_HEX, NULL, 0x2, "Extended MaxAdverts is used", HFILL}
         },
         {&hf_ib_sdp_maxadverts, {
-            "Maximum Advertisements", "infiniband.sdp.hh.maxadverts",
+            "Maximum Advertisements", "infiniband_sdp.hh.maxadverts",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         {&hf_ib_sdp_desremrcvsz, {
-            "DesRemRcvSz", "infiniband.sdp.hh.desremrcvsz",
+            "DesRemRcvSz", "infiniband_sdp.hh.desremrcvsz",
             FT_UINT32, BASE_DEC, NULL, 0x0, "Desired Remote Receive Size", HFILL}
         },
         {&hf_ib_sdp_localrcvsz,
-            {"LocalRcvSz", "infiniband.sdp.hh.localrcvsz",
+            {"LocalRcvSz", "infiniband_sdp.hh.localrcvsz",
                 FT_UINT32, BASE_DEC, NULL, 0x0, "Local Receive Size", HFILL}
         },
         {&hf_ib_sdp_localport, {
-            "Local Port", "infiniband.sdp.hh.localport",
+            "Local Port", "infiniband_sdp.hh.localport",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_ib_sdp_src_ip, {
-            "Source IP", "infiniband.sdp.hh.src_ip",
+            "Source IP", "infiniband_sdp.hh.src_ip",
             FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         {&hf_ib_sdp_dst_ip, {
-            "Destination IP", "infiniband.sdp.hh.dst_ip",
+            "Destination IP", "infiniband_sdp.hh.dst_ip",
             FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         {&hf_ib_sdp_extmaxadverts, {
-            "Extended MaxAdverts", "infiniband.sdp.hh.extmaxadverts",
+            "Extended MaxAdverts", "infiniband_sdp.hh.extmaxadverts",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         /* Rest of Headers */
         {&hf_ib_sdp_hah, {
-            "HelloAck Header", "infiniband.sdp.hah",
+            "HelloAck Header", "infiniband_sdp.hah",
             FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL}
         },
         {&hf_ib_sdp_rwch, {
-            "RdmaWrCompl Header", "infiniband.sdp.rwch",
+            "RdmaWrCompl Header", "infiniband_sdp.rwch",
             FT_NONE, BASE_NONE, NULL, 0x00, "RDMA Write Complete", HFILL}
         },
         {&hf_ib_sdp_rrch, {
-            "RdmaRdCompl Header", "infiniband.sdp.rrch",
+            "RdmaRdCompl Header", "infiniband_sdp.rrch",
             FT_NONE, BASE_NONE, NULL, 0x00, "RDMA Read Complete", HFILL}
         },
         {&hf_ib_sdp_mch, {
-            "ModeChange Header", "infiniband.sdp.mch",
+            "ModeChange Header", "infiniband_sdp.mch",
             FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL}
         },
         {&hf_ib_sdp_crbh, {
-            "ChRcvBuf Header", "infiniband.sdp.crbh",
+            "ChRcvBuf Header", "infiniband_sdp.crbh",
             FT_NONE, BASE_NONE, NULL, 0x00, "Change Receive private Buffer size", HFILL}
         },
         {&hf_ib_sdp_crbah, {
-            "ChRcvBufAck Header", "infiniband.sdp.crbah",
+            "ChRcvBufAck Header", "infiniband_sdp.crbah",
             FT_NONE, BASE_NONE, NULL, 0x00, "Change Receive private Buffer size Acknowledgement", HFILL}
         },
         {&hf_ib_sdp_suspch, {
-            "SuspComm Header", "infiniband.sdp.suspch",
+            "SuspComm Header", "infiniband_sdp.suspch",
             FT_NONE, BASE_NONE, NULL, 0x00, "Suspend Communication", HFILL}
         },
         {&hf_ib_sdp_sinkah, {
-            "SinkAvail Header", "infiniband.sdp.sinkah",
+            "SinkAvail Header", "infiniband_sdp.sinkah",
             FT_NONE, BASE_NONE, NULL, 0x00, "Data Sink Available", HFILL}
         },
         {&hf_ib_sdp_srcah, {
-            "SrcAvail Header", "infiniband.sdp.srcah",
+            "SrcAvail Header", "infiniband_sdp.srcah",
             FT_NONE, BASE_NONE, NULL, 0x00, "Data Source Available", HFILL}
         },
         {&hf_ib_sdp_data, {
-            "Data", "infiniband.sdp.Data",
+            "Data", "infiniband_sdp.Data",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
         }
     };
@@ -487,9 +487,9 @@ proto_register_ib_sdp(void)
         &ett_ib_sdp_hh,
     };
 
-    proto_ib_sdp = proto_register_protocol("Infiniband Sockets Direct Protocol", "Infiniband SDP", "ib_sdp");
+    proto_ib_sdp = proto_register_protocol("Infiniband Sockets Direct Protocol", "Infiniband SDP", "infiniband_sdp");
 
-    new_register_dissector("infiniband.sdp", dissect_ib_sdp, proto_ib_sdp);
+    new_register_dissector("infiniband_sdp", dissect_ib_sdp, proto_ib_sdp);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ib_sdp, hf, array_length(hf));

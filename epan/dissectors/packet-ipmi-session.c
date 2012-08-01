@@ -269,40 +269,40 @@ proto_register_ipmi_session(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_ipmi_session_authtype, {
-			"Authentication Type", "ipmi.session.authtype",
+			"Authentication Type", "ipmi_session.authtype",
 			FT_UINT8, BASE_HEX, VALS(ipmi_authtype_vals), 0, NULL, HFILL }},
 		{ &hf_ipmi_session_payloadtype,{
-			"Payload Type", "ipmi.session.payloadtype",
+			"Payload Type", "ipmi_session.payloadtype",
 			FT_UINT8, BASE_HEX, VALS(ipmi_payload_vals), 0x3f, NULL, HFILL }},
 		{ &hf_ipmi_session_payloadtype_auth,{
-			"Authenticated","ipmi.session.payloadtype.auth",
+			"Authenticated","ipmi_session.payloadtype.auth",
 			FT_BOOLEAN,8,  TFS(&ipmi_payload_aut_val), 0x40, NULL, HFILL }},
 		{ &hf_ipmi_session_payloadtype_enc,{
-			"Encryption","ipmi.session.payloadtype.enc",
+			"Encryption","ipmi_session.payloadtype.enc",
 			FT_BOOLEAN,8,  TFS(&ipmi_payload_enc_val), 0x80, NULL, HFILL }},
 		{ &hf_ipmi_session_oem_iana, {
-			"OEM IANA", "ipmi.session.oem.iana",
+			"OEM IANA", "ipmi_session.oem.iana",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_session_oem_payload_id, {
-			"OEM Payload ID", "ipmi.session.oem.payloadid",
+			"OEM Payload ID", "ipmi_session.oem.payloadid",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_session_sequence, {
-			"Session Sequence Number", "ipmi.session.sequence",
+			"Session Sequence Number", "ipmi_session.sequence",
 			FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_session_id, {
-			"Session ID", "ipmi.session.id",
+			"Session ID", "ipmi_session.id",
 			FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_session_authcode, {
-			"Authentication Code", "ipmi.session.authcode",
+			"Authentication Code", "ipmi_session.authcode",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_session_msg_len_1b, {
-			"Message Length", "ipmi.msg.len",
+			"Message Length", "ipmi_session.msg.len",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_session_msg_len_2b, {
-			"Message Length", "ipmi.msg.len",
+			"Message Length", "ipmi_session.msg.len",
 			FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_session_trailer, {
-			"IPMI Session Wrapper (trailer)", "ipmi.sess.trailer",
+			"IPMI Session Wrapper (trailer)", "ipmi_session.trailer",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	};
 
@@ -310,7 +310,7 @@ proto_register_ipmi_session(void)
 
 	proto_ipmi_session = proto_register_protocol(
 			"Intelligent Platform Management Interface (Session Wrapper)", "IPMI Session",
-			"ipmi-session");
+			"ipmi_session");
 	proto_register_field_array(proto_ipmi_session, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -3418,83 +3418,83 @@ proto_register_mpeg_descriptor(void)
 
 		/* 0x5A Terrestrial Delivery System Descriptor */
 		{ &hf_mpeg_descr_terrestrial_delivery_centre_frequency, {
-			"Centre Frequency", "mpeg_descr_terr_delivery.centre_freq",
+			"Centre Frequency", "mpeg_descr.terr_delivery.centre_freq",
 			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_bandwidth, {
-			"Bandwidth", "mpeg_descr_terr_delivery.bandwidth",
+			"Bandwidth", "mpeg_descr.terr_delivery.bandwidth",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_bandwidth_vals),
 			MPEG_DESCR_TERRESTRIAL_DELIVERY_BANDWIDTH_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_priority, {
-			"Priority", "mpeg_descr_terr_delivery.priority",
+			"Priority", "mpeg_descr.terr_delivery.priority",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_priority_vals),
 			MPEG_DESCR_TERRESTRIAL_DELIVERY_PRIORITY_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_time_slicing_indicator, {
-			"Time Slicing Indicator", "mpeg_descr_terr_delivery.time_slicing_ind",
+			"Time Slicing Indicator", "mpeg_descr.terr_delivery.time_slicing_ind",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_time_slicing_indicator_vals),
 			MPEG_DESCR_TERRESTRIAL_DELIVERY_TIME_SLICING_INDICATOR_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_mpe_fec_indicator, {
-			"MPE-FEC Indicator", "mpeg_descr_terr_delivery.mpe_fec_ind",
+			"MPE-FEC Indicator", "mpeg_descr.terr_delivery.mpe_fec_ind",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_mpe_fec_indicator_vals),
 			MPEG_DESCR_TERRESTRIAL_DELIVERY_MPE_FEC_INDICATOR_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_reserved1, {
-			"Reserved", "mpeg_descr_terr_delivery.reserved1",
+			"Reserved", "mpeg_descr.terr_delivery.reserved1",
 			FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_TERRESTRIAL_DELIVERY_RESERVED1_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_constellation, {
-			"Constellation", "mpeg_descr_terr_delivery.constellation",
+			"Constellation", "mpeg_descr.terr_delivery.constellation",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_constellation_vals),
 			MPEG_DESCR_TERRESTRIAL_DELIVERY_CONSTELLATION_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_hierarchy_information, {
-			"Hierarchy Information", "mpeg_descr_terr_delivery.hierarchy_information",
+			"Hierarchy Information", "mpeg_descr.terr_delivery.hierarchy_information",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_hierarchy_information_vals),
 			MPEG_DESCR_TERRESTRIAL_DELIVERY_HIERARCHY_INFORMATION_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_code_rate_hp_stream, {
-			"Code Rate High Priority Stream", "mpeg_descr_terr_delivery.code_rate_hp_stream",
+			"Code Rate High Priority Stream", "mpeg_descr.terr_delivery.code_rate_hp_stream",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_code_rate_vals),
 			MPEG_DESCR_TERRESTRIAL_DELIVERY_CODE_RATE_HP_STREAM_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_code_rate_lp_stream, {
-			"Code Rate Low Priority Stream", "mpeg_descr_terr_delivery.code_rate_lp_stream",
+			"Code Rate Low Priority Stream", "mpeg_descr.terr_delivery.code_rate_lp_stream",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_code_rate_vals),
 			MPEG_DESCR_TERRESTRIAL_DELIVERY_CODE_RATE_LP_STREAM_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_guard_interval, {
-			"Guard Interval", "mpeg_descr_terr_delivery.guard_interval",
+			"Guard Interval", "mpeg_descr.terr_delivery.guard_interval",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_guard_interval_vals),
 			MPEG_DESCR_TERRESTRIAL_DELIVERY_GUARD_INTERVAL_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_transmission_mode, {
-			"Transmission Mode", "mpeg_descr_terr_delivery.transmission_mode",
+			"Transmission Mode", "mpeg_descr.terr_delivery.transmission_mode",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_transmission_mode_vals),
 			MPEG_DESCR_TERRESTRIAL_DELIVERY_TRANSMISSION_MODE_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_other_frequency_flag, {
-			"Other Frequency Flag", "mpeg_descr_terr_delivery.other_freq_flag",
+			"Other Frequency Flag", "mpeg_descr.terr_delivery.other_freq_flag",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_other_frequency_flag_vals),
 			MPEG_DESCR_TERRESTRIAL_DELIVERY_OTHER_FREQUENCY_FLAG_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_reserved2, {
-			"Reserved", "mpeg_descr_terr_delivery.reserved2",
+			"Reserved", "mpeg_descr.terr_delivery.reserved2",
 			FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
