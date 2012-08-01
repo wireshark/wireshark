@@ -2377,8 +2377,6 @@ proto_register_gmr1_rr(void)
 	/* Register the protocol name and field description */
 	proto_gmr1_ccch = proto_register_protocol("GEO-Mobile Radio (1) CCCH", "GMR-1 CCCH", "gmr1_ccch");
 
-	proto_register_field_array(proto_gmr1_ccch, hf, array_length(hf));
-
 	/* Register dissector */
 	register_dissector("gmr1_ccch", dissect_gmr1_ccch, proto_gmr1_ccch);
 }

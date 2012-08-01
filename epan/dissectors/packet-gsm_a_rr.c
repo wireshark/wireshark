@@ -10524,7 +10524,7 @@ proto_register_gsm_a_rr(void)
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_L2_pseudo_len,
-              { "L2 Pseudo Length value","gsm_a_rr.rr_2_pseudo_len",
+              { "L2 Pseudo Length value","gsm_a_rr.l2_pseudo_len",
                 FT_UINT8, BASE_DEC, NULL, 0xfc,
                 NULL, HFILL }
             },
@@ -12292,8 +12292,6 @@ proto_register_gsm_a_rr(void)
     /* Register the protocol name and description */
     proto_a_ccch =
         proto_register_protocol("GSM CCCH", "GSM CCCH", "gsm_a_ccch");
-
-    proto_register_field_array(proto_a_ccch, hf, array_length(hf));
 
     /* subdissector code */
     register_dissector("gsm_a_ccch", dissect_ccch, proto_a_ccch);
