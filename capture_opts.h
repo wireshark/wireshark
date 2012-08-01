@@ -268,18 +268,6 @@ capture_opts_trim_iface(capture_options *capture_opts, const char *capture_devic
 extern void
 collect_ifaces(capture_options *capture_opts);
 
-typedef struct {
-    gboolean monitor_mode;
-    int linktype;
-} cap_settings_t;
-
-/** Get capture settings for interface
- *
- * @param if_name interface name
- */
-cap_settings_t
-capture_get_cap_settings (gchar *if_name);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

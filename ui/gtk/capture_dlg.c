@@ -208,7 +208,6 @@ static gboolean   cap_open_complete;  /* valid only if cap_open_w != NULL */
 static const gchar *pipe_name;
 static const gchar *selected_name;
 
-static GHashTable *cap_settings_history=NULL;
 static gint marked_interface;
 static gint marked_row;
 
@@ -291,27 +290,6 @@ capture_restart_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
 
   capture_restart(&global_capture_opts);
-}
-
-cap_settings_t
-capture_get_cap_settings (gchar *if_name)
-{
-  cap_settings_t cap_settings, *cap_settings_p;
-
-  if (cap_settings_history) {
-    cap_settings_p = (cap_settings_t *)g_hash_table_lookup(cap_settings_history, if_name);
-  } else {
-    cap_settings_p = NULL;
-  }
-
-  if (cap_settings_p) {
-    cap_settings = *cap_settings_p;
-  } else {
-    cap_settings.monitor_mode = prefs_capture_device_monitor_mode(if_name);
-    cap_settings.linktype = capture_dev_user_linktype_find(if_name);
-  }
-
-  return cap_settings;
 }
 
 enum cfc_state_t {
@@ -863,7 +841,7 @@ insert_new_rows(GList *list)
   gchar *descr;
   if_capabilities_t *caps;
   gint linktype_count;
-  cap_settings_t cap_settings;
+  gboolean monitor_mode;
   GSList *curr_addr;
   int ips = 0;
   guint i;
@@ -930,8 +908,8 @@ insert_new_rows(GList *list)
     device.has_snaplen = global_capture_opts.default_options.has_snaplen;
     device.snaplen = global_capture_opts.default_options.snaplen;
     device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
-    cap_settings = capture_get_cap_settings(if_string);
-    caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode, NULL);
+    monitor_mode = prefs_capture_device_monitor_mode(if_name);
+    caps = capture_get_if_capabilities(if_string, monitor_mode, NULL);
     gtk_list_store_append (GTK_LIST_STORE(model), &iter);
     for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
       if (ips != 0) {
@@ -955,7 +933,7 @@ insert_new_rows(GList *list)
     device.links = NULL;
     if (caps != NULL) {
 #ifdef HAVE_PCAP_CREATE
-      device.monitor_mode_enabled = cap_settings.monitor_mode;
+      device.monitor_mode_enabled = monitor_mode;
       device.monitor_mode_supported = caps->can_set_rfmon;
 #endif
       for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
@@ -977,7 +955,6 @@ insert_new_rows(GList *list)
         linktype_count++;
       } /* for link_types */
     } else {
-      cap_settings.monitor_mode = FALSE;
 #if defined(HAVE_PCAP_CREATE)
       device.monitor_mode_enabled = FALSE;
       device.monitor_mode_supported = FALSE;
@@ -2079,9 +2056,6 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   /* Datalink menu index is not reset; it will be restored with last used value */
 
   g_object_set_data(G_OBJECT(linktype_combo_box), E_CAP_IFACE_IP_KEY, if_ip_lb);
-  if (cap_settings_history == NULL) {
-    cap_settings_history = g_hash_table_new(g_str_hash, g_str_equal);
-  }
   /*
    * XXX - in some cases, this is "multiple link-layer header types", e.g.
    * some 802.11 interfaces on FreeBSD 5.2 and later, where you can request
@@ -4719,7 +4693,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
 {
   GList *lt_entry;
   gchar *if_string="";
-  cap_settings_t cap_settings;
+  gboolean monitor_mode;
   if_capabilities_t *caps=NULL;
   gint linktype_count = 0, i;
   data_link_info_t *data_link_info;
@@ -4733,9 +4707,8 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
 
 
   if_string = g_strdup(device.name);
-  cap_settings = capture_get_cap_settings(if_string);
-  cap_settings.monitor_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor));
-  caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode, NULL);
+  monitor_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor));
+  caps = capture_get_if_capabilities(if_string, monitor_mode, NULL);
 
   if (caps != NULL) {
     g_signal_handlers_disconnect_by_func(linktype_combo_box, G_CALLBACK(select_link_type_cb), NULL );
@@ -4748,7 +4721,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
     device.active_dlt = -1;
     linktype_count = 0;
     device.monitor_mode_supported = caps->can_set_rfmon;
-    device.monitor_mode_enabled = cap_settings.monitor_mode;
+    device.monitor_mode_enabled = monitor_mode;
     for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
       link = (link_row *)g_malloc(sizeof(link_row));
       data_link_info = (data_link_info_t *)lt_entry->data;
@@ -4781,7 +4754,6 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
   } else {
     /* We don't know whether this supports monitor mode or not;
     don't ask for monitor mode. */
-    cap_settings.monitor_mode = FALSE;
     device.monitor_mode_enabled = FALSE;
     device.monitor_mode_supported = FALSE;
   }

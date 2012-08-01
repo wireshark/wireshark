@@ -26,6 +26,10 @@
 #ifndef __IFACE_LISTS_H__
 #define __IFACE_LISTS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #ifdef HAVE_LIBPCAP
 /*
  * Used when sorting an interface list into alphabetical order by
@@ -46,5 +50,9 @@ extern void scan_local_interfaces(void);
 
 extern void hide_interface(gchar* new_hide);
 #endif /* HAVE_LIBPCAP */
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __IFACE_LISTS_H__ */

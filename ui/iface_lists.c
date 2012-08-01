@@ -38,14 +38,6 @@
 
 #include "../capture_ui_utils.h"
 
-/*
-#include "ui/gtk/capture_dlg.h"
-#include "ui/gtk/capture_if_dlg.h"
-#include "ui/gtk/capture_globals.h"
-#include "ui/gtk/main_welcome.h"
-#include "ui/gtk/main_80211_toolbar.h"
-*/
-
 #include "ui/iface_lists.h"
 
 capture_options global_capture_opts;
@@ -81,7 +73,7 @@ scan_local_interfaces(void)
     gchar             *descr;
     if_capabilities_t *caps=NULL;
     gint              linktype_count;
-    cap_settings_t    cap_settings;
+    gboolean          monitor_mode;
     GSList            *curr_addr;
     int               ips = 0, i, err;
     guint             count = 0, j;
@@ -149,8 +141,8 @@ scan_local_interfaces(void)
             device.hidden = TRUE;
         }
         device.type = get_interface_type(if_info->name, if_info->description);
-        cap_settings = capture_get_cap_settings(if_info->name);
-        caps = capture_get_if_capabilities(if_info->name, cap_settings.monitor_mode, NULL);
+        monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
+        caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL);
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
             temp_addr = g_malloc0(sizeof(if_addr_t));
             if (ips != 0) {
@@ -200,7 +192,7 @@ scan_local_interfaces(void)
         device.links = NULL;
         if (caps != NULL) {
 #if defined(HAVE_PCAP_CREATE)
-            device.monitor_mode_enabled = cap_settings.monitor_mode;
+            device.monitor_mode_enabled = monitor_mode;
             device.monitor_mode_supported = caps->can_set_rfmon;
 #endif
             for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
@@ -220,7 +212,6 @@ scan_local_interfaces(void)
                 linktype_count++;
             }
         } else {
-            cap_settings.monitor_mode = FALSE;
 #if defined(HAVE_PCAP_CREATE)
             device.monitor_mode_enabled = FALSE;
             device.monitor_mode_supported = FALSE;
