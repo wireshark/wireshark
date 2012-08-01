@@ -119,14 +119,17 @@ ProgressBar::ProgressBar(QWidget *parent) :
     m_dlg.topLevelWindow = window();
 
 //#ifdef Q_WS_MAC
+//    // https://bugreports.qt-project.org/browse/QTBUG-11569
 //    setAttribute(Qt::WA_MacSmallSize, true);
 //#endif
+    setTextVisible(false);
     setStyleSheet(QString(
             "ProgressBar {"
             "  max-width: 20em;"
             "  min-height: 0.8em;"
             "  max-height: 1em;"
             "  border-bottom: 0;"
+            "  background: transparent;"
             "}"));
 
     hide();
@@ -139,6 +142,7 @@ progdlg_t * ProgressBar::show(bool animate, bool terminate_is_stop, gboolean *st
 
     setValue(value);
 
+#ifndef Q_WS_MAC
     if (animate) {
         QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
         this->setGraphicsEffect(effect);
@@ -150,7 +154,10 @@ progdlg_t * ProgressBar::show(bool animate, bool terminate_is_stop, gboolean *st
         animation->setEndValue(1.0);
         animation->start();
     }
-    QProgressBar::show();
+#else
+    Q_UNUSED(animate);
+#endif
 
+    QProgressBar::show();
     return &m_dlg;
 }

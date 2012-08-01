@@ -147,6 +147,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     m_expertStatus.setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
+//    infoProgress->setStyleSheet("QWidget { border: 0.5px dotted red; }"); // Debug layout
     m_expertStatus.setTextFormat(Qt::RichText);
     m_expertStatus.hide();
 
