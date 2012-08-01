@@ -10137,7 +10137,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     len = tvb_length(tvb);
 
-    if (len < 2){
+    if (len < 3){
         /*
          * too short to be CCCH
          */
