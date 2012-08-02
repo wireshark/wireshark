@@ -477,6 +477,30 @@ tvb_fcwwn_to_str(tvbuff_t *tvb, const gint offset)
 	return fcwwn_to_str (tvb_get_ptr(tvb, offset, 8));
 }
 
+/* XXX FIXME
+remove this one later when every call has been converted to address_to_str()
+*/
+gchar *
+ax25_to_str(const guint8 *ad)
+{
+	return bytestring_to_str(ad, 7, ':');
+}
+
+/* XXX FIXME
+remove this one later when every call has been converted to address_to_str()
+*/
+gchar *
+get_ax25_name(const guint8 *ad)
+{
+	address addr;
+
+	addr.type = AT_AX25;
+	addr.len  = 7;
+	addr.data = ad;
+
+	return address_to_str( &addr );
+}
+
 /*XXX FIXME the code below may be called very very frequently in the future.
   optimize it for speed and get rid of the slow sprintfs */
 /* XXX - perhaps we should have individual address types register
