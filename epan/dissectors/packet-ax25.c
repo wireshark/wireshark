@@ -60,7 +60,6 @@
 
 #include "packet-ax25.h"
 #include "packet-netrom.h"
-#include "packet-flexnet.h"
 
 #define STRLEN	80
 
@@ -571,44 +570,33 @@ capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld)
 	guint8 pid;
 	int l_offset;
 
-if ( ! BYTES_ARE_IN_FRAME( offset, len, AX25_HEADER_SIZE ) )
-	{
-	ld->other++;
-	return;
-	}
-
-l_offset = offset;
-l_offset += AX25_ADDR_LEN; /* step over dst addr point at src addr */
-l_offset += AX25_ADDR_LEN; /* step over src addr point at either 1st via addr or control byte */
-while ( ( pd[ l_offset - 1 ] & 0x01 ) == 0 )
-	l_offset += AX25_ADDR_LEN; /* step over a via addr */
-
-control = pd[ l_offset ];
-
-/* decode the pid field (if appropriate) */
-if ( I_FRAME( control ) || UI_FRAME( control ) )
-	{
-	l_offset += 1; /* step over control byte point at pid */
-	pid = pd[ l_offset ];
-
-	l_offset += 1; /* step over the pid and point to the first byte of the payload */
-	switch ( pid & 0x0ff )
+	if ( ! BYTES_ARE_IN_FRAME( offset, len, AX25_HEADER_SIZE ) )
 		{
-		case AX25_P_ROSE	: break;
-		case AX25_P_RFC1144C	: break;
-		case AX25_P_RFC1144	: break;
-		case AX25_P_SEGMENT	: break;
-		case AX25_P_TEXNET	: break;
-		case AX25_P_LCP		: break;
-		case AX25_P_ATALK	: break;
-		case AX25_P_ATALKARP	: break;
-		case AX25_P_IP		: capture_ip( pd, l_offset, len, ld ); break;
-		case AX25_P_ARP		: break;
-		case AX25_P_FLEXNET	: capture_flexnet( pd, l_offset, len, ld ); break;
-		case AX25_P_NETROM	: capture_netrom( pd, l_offset, len, ld );  break;
-		case AX25_P_NO_L3	: break;
-		case AX25_P_L3_ESC	: break;
-		default			: break;
+		ld->other++;
+		return;
 		}
-	}
+
+	l_offset = offset;
+	l_offset += AX25_ADDR_LEN; /* step over dst addr point at src addr */
+	l_offset += AX25_ADDR_LEN; /* step over src addr point at either 1st via addr or control byte */
+	while ( ( pd[ l_offset - 1 ] & 0x01 ) == 0 )
+		l_offset += AX25_ADDR_LEN; /* step over a via addr */
+
+	control = pd[ l_offset ];
+
+	/* decode the pid field (if appropriate) */
+	if ( I_FRAME( control ) || UI_FRAME( control ) )
+		{
+		l_offset += 1; /* step over control byte point at pid */
+		pid = pd[ l_offset ];
+
+		l_offset += 1; /* step over the pid and point to the first byte of the payload */
+		switch ( pid & 0x0ff )
+			{
+			case AX25_P_NETROM	: capture_netrom( pd, l_offset, len, ld ); break;
+			case AX25_P_IP		: capture_ip( pd, l_offset, len, ld ); break;
+			case AX25_P_ARP		: ld->arp++; break;
+			default			: ld->other++; break;
+			}
+		}
 }

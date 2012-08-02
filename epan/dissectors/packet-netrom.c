@@ -686,4 +686,6 @@ capture_netrom( const guchar *pd _U_, int offset, int len, packet_counts *ld)
 		ld->other++;
 		return;
 		}
+	/* XXX - check fr IP-over-NetROM here! */
+	ld->other++;
 }

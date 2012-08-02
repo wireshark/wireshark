@@ -52,8 +52,6 @@
 #include <epan/xdlc.h>
 #include <packet-ip.h>
 
-#include "packet-flexnet.h"
-
 #define FLEXNET_ADRLEN  15
 #define FLEXNET_CTLLEN  15
 #define FLEXNET_HDRLEN  (FLEXNET_ADRLEN + FLEXNET_ADRLEN + FLEXNET_CTLLEN)
@@ -170,18 +168,4 @@ proto_reg_handoff_flexnet(void)
 
 		inited = TRUE;
 	}
-}
-
-void
-capture_flexnet( const guchar *pd, int offset, int len, packet_counts *ld)
-{
-	const guchar *l_pd;
-
-	if ( ! BYTES_ARE_IN_FRAME( offset, len, FLEXNET_HDRLEN ) )
-		{
-		ld->other++;
-		return;
-		}
-	l_pd = pd;
-
 }
