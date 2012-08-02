@@ -80,6 +80,9 @@ static int hf_atmarp_dst_atm_num_e164 = -1;
 static int hf_atmarp_dst_atm_num_nsap = -1;
 static int hf_atmarp_dst_atm_subaddr = -1;
 
+static int hf_arp_dst_hw_ax25 = -1;
+static int hf_arp_src_hw_ax25 = -1;
+
 static gint ett_arp = -1;
 static gint ett_atmarp_nsap = -1;
 static gint ett_atmarp_tl = -1;
@@ -87,6 +90,7 @@ static gint ett_arp_duplicate_address = -1;
 
 static dissector_handle_t atmarp_handle;
 
+static dissector_handle_t ax25arp_handle;
 
 /* Used for determining if frequency of ARP requests constitute a storm */
 #define STORM    1
@@ -335,12 +339,21 @@ static const value_string atmop_vals[] = {
    && (ar_hln) == 6)
 
 /*
+* Given the hardware address type and length, check whether an address
+* is an AX.25 address - the address must be of type "AX.25" and the
+* length must be 7 bytes.
+*/
+#define ARP_HW_IS_AX25(ar_hrd, ar_hln) \
+  ((ar_hrd) == ARPHRD_AX25 && (ar_hln) == 7)
+#define AX25_P_IP       0xCC    /* ARPA Internet Protocol on AX.25 */
+
+/*
  * Given the protocol address type and length, check whether an address
  * is an IPv4 address - the address must be of type "IP", and the length
  * must be 4 bytes.
  */
 #define ARP_PRO_IS_IPv4(ar_pro, ar_pln)         \
-  ((ar_pro) == ETHERTYPE_IP && (ar_pln) == 4)
+  (((ar_pro) == ETHERTYPE_IP || (ar_pro) == AX25_P_IP) && (ar_pln) == 4)
 
 const gchar *
 tvb_arphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
@@ -363,6 +376,11 @@ arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
   if (ARP_PRO_IS_IPv4(type, ad_len)) {
     /* IPv4 address.  */
     return ip_to_str(ad);
+  }
+  if (ARP_HW_IS_AX25(type, ad_len)) {
+    /* AX.25 address */
+    return get_ax25_name(ad);
+    /*return ax25_to_str(ad);*/
   }
   return bytes_to_str(ad, ad_len);
 }
@@ -1200,6 +1218,197 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+/*
+ * AX.25 ARP - it's just like ARP, except where it isn't.
+ */
+static void
+dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+#define ARP_AX25	204
+
+  guint16     ar_hrd;
+  guint16     ar_pro;
+  guint8      ar_hln;
+  guint8      ar_pln;
+  guint16     ar_op;
+  int         tot_len;
+  proto_tree  *arp_tree = NULL;
+  proto_item  *ti;
+  const gchar *op_str;
+  int         sha_offset, spa_offset, tha_offset, tpa_offset;
+  const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
+  gboolean    is_gratuitous;
+
+  /* Hardware Address Type */
+  ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
+  /* Protocol Address Type */
+  ar_pro = tvb_get_ntohs(tvb, AR_PRO);
+  /* Hardware Address Size */
+  ar_hln = tvb_get_guint8(tvb, AR_HLN);
+  /* Protocol Address Size */
+  ar_pln = tvb_get_guint8(tvb, AR_PLN);
+  /* Operation */
+  ar_op  = tvb_get_ntohs(tvb, AR_OP);
+
+  tot_len = MIN_ARP_HEADER_SIZE + ar_hln*2 + ar_pln*2;
+
+  /* Adjust the length of this tvbuff to include only the ARP datagram.
+     Our caller may use that to determine how much of its packet
+     was padding. */
+  tvb_set_reported_length(tvb, tot_len);
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+    switch (ar_op) {
+
+    case ARPOP_REQUEST:
+      if (global_arp_detect_request_storm)
+      {
+        request_seen(pinfo);
+      }
+    case ARPOP_REPLY:
+    default:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
+      break;
+
+    case ARPOP_RREQUEST:
+    case ARPOP_RREPLY:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "RARP");
+      break;
+
+    case ARPOP_IREQUEST:
+    case ARPOP_IREPLY:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ARP");
+      break;
+    }
+  }
+
+  /* Get the offsets of the addresses. */
+  /* Source Hardware Address */
+  sha_offset = MIN_ARP_HEADER_SIZE;
+  /* Source Protocol Address */
+  spa_offset = sha_offset + ar_hln;
+  /* Target Hardware Address */
+  tha_offset = spa_offset + ar_pln;
+  /* Target Protocol Address */
+  tpa_offset = tha_offset + ar_hln;
+
+  if (!tree && !check_col(pinfo->cinfo, COL_INFO)) {
+    /* We're not building a protocol tree and we're not setting the Info
+       column, so we don't have any more work to do. */
+    return;
+  }
+
+  sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln);
+  spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
+  tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln);
+  tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
+
+  /* ARP requests/replies with the same sender and target protocol
+     address are flagged as "gratuitous ARPs", i.e. ARPs sent out as,
+     in effect, an announcement that the machine has MAC address
+     XX:XX:XX:XX:XX:XX and IPv4 address YY.YY.YY.YY. Requests are to 
+     provoke complaints if some other machine has the same IPv4 address,
+     replies are used to announce relocation of network address, like 
+     in failover solutions. */
+  if (((ar_op == ARPOP_REQUEST) || (ar_op == ARPOP_REPLY)) && (memcmp(spa_val, tpa_val, ar_pln) == 0))
+    is_gratuitous = TRUE;
+  else
+    is_gratuitous = FALSE;
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    switch (ar_op) {
+      case ARPOP_REQUEST:
+	if (is_gratuitous)
+          col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
+                       arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
+	else
+          col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
+                       arpproaddr_to_str(tpa_val, ar_pln, ar_pro),
+                       arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+        break;
+      case ARPOP_REPLY:
+        if (is_gratuitous)
+          col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Reply)",
+                       arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+        else
+          col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+                       arpproaddr_to_str(spa_val, ar_pln, ar_pro),
+/*                     arphrdaddr_to_str(sha_val, ar_hln, ar_hrd)); */
+                       tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
+        break;
+      case ARPOP_RREQUEST:
+      case ARPOP_IREQUEST:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s",
+/*                   arphrdaddr_to_str(tha_val, ar_hln, ar_hrd), */
+                     tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
+/*                   arphrdaddr_to_str(sha_val, ar_hln, ar_hrd)); */
+                     tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
+        break;
+      case ARPOP_RREPLY:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+/*                   arphrdaddr_to_str(tha_val, ar_hln, ar_hrd), */
+                     tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
+                     arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
+        break;
+      case ARPOP_IREPLY:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+/*                   arphrdaddr_to_str(sha_val, ar_hln, ar_hrd), */
+                     tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
+                     arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+        break;
+      default:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
+        break;
+    }
+  }
+
+  if (tree) {
+    if ((op_str = match_strval(ar_op, op_vals)))  {
+      if (is_gratuitous && (ar_op == ARPOP_REQUEST))
+        op_str = "request/gratuitous ARP";
+      if (is_gratuitous && (ar_op == ARPOP_REPLY))
+        op_str = "reply/gratuitous ARP";
+      ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
+					"Address Resolution Protocol (%s)", op_str);
+    } else
+      ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
+				      "Address Resolution Protocol (opcode 0x%04x)", ar_op);
+    arp_tree = proto_item_add_subtree(ti, ett_arp);
+    proto_tree_add_uint(arp_tree, hf_arp_hard_type, tvb, AR_HRD, 2, ar_hrd);
+    proto_tree_add_uint(arp_tree, hf_arp_proto_type, tvb, AR_PRO, 2, ar_pro);
+    proto_tree_add_uint(arp_tree, hf_arp_hard_size, tvb, AR_HLN, 1, ar_hln);
+    proto_tree_add_uint(arp_tree, hf_arp_proto_size, tvb, AR_PLN, 1, ar_pln);
+    proto_tree_add_uint(arp_tree, hf_arp_opcode, tvb, AR_OP,  2, ar_op);
+    if (ar_hln != 0) {
+      proto_tree_add_item(arp_tree,
+	ARP_HW_IS_AX25(ar_hrd, ar_hln) ? hf_arp_src_hw_ax25 : hf_arp_src_hw,
+	tvb, sha_offset, ar_hln, FALSE);
+    }
+    if (ar_pln != 0) {
+      proto_tree_add_item(arp_tree,
+	ARP_PRO_IS_IPv4(ar_pro, ar_pln) ? hf_arp_src_proto_ipv4
+					: hf_arp_src_proto,
+	tvb, spa_offset, ar_pln, FALSE);
+    }
+    if (ar_hln != 0) {
+      proto_tree_add_item(arp_tree,
+	ARP_HW_IS_AX25(ar_hrd, ar_hln) ? hf_arp_dst_hw_ax25 : hf_arp_dst_hw,
+	tvb, tha_offset, ar_hln, FALSE);
+    }
+    if (ar_pln != 0) {
+      proto_tree_add_item(arp_tree,
+	ARP_PRO_IS_IPv4(ar_pro, ar_pln) ? hf_arp_dst_proto_ipv4
+					: hf_arp_dst_proto,
+	tvb, tpa_offset, ar_pln, FALSE);
+    }
+  }
+
+  if (global_arp_detect_request_storm)
+  {
+    check_for_storm_count(tvb, pinfo, arp_tree);
+  }
+}
+
 static const guint8 mac_allzero[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 static void
@@ -1233,6 +1442,10 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
   if (ar_hrd == ARPHRD_ATM2225) {
     call_dissector(atmarp_handle, tvb, pinfo, tree);
+    return;
+  }
+  if (ar_hrd == ARPHRD_AX25) {
+    call_dissector(ax25arp_handle, tvb, pinfo, tree);
     return;
   }
   /* Protocol Address Type */
@@ -1682,6 +1895,11 @@ proto_register_arp(void)
         FT_ETHER,       BASE_NONE,      NULL,   0x0,
         NULL, HFILL }},
 
+    { &hf_arp_src_hw_ax25,
+      { "Sender AX.25 address",		"arp.src.hw_ax25",
+	FT_AX25,	BASE_NONE,	NULL,	0x0,
+      	"", HFILL }},
+
     { &hf_atmarp_src_atm_num_e164,
       { "Sender ATM number (E.164)",    "arp.src.atm_num_e164",
         FT_STRING,      BASE_NONE,      NULL,   0x0,
@@ -1716,6 +1934,11 @@ proto_register_arp(void)
       { "Target MAC address",           "arp.dst.hw_mac",
         FT_ETHER,       BASE_NONE,      NULL,   0x0,
         NULL, HFILL }},
+
+    { &hf_arp_dst_hw_ax25,
+      { "Target AX.25 address",		"arp.dst.hw_ax25",
+	FT_AX25,	BASE_NONE,	NULL,	0x0,
+      	"", HFILL }},
 
     { &hf_atmarp_dst_atm_num_e164,
       { "Target ATM number (E.164)",    "arp.dst.atm_num_e164",
@@ -1784,6 +2007,7 @@ proto_register_arp(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   atmarp_handle = create_dissector_handle(dissect_atmarp, proto_arp);
+  ax25arp_handle = create_dissector_handle(dissect_ax25arp, proto_arp);
 
   register_dissector( "arp" , dissect_arp, proto_arp );
 
