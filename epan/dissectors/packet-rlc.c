@@ -113,7 +113,6 @@ static int ett_rlc_sdu = -1;
 static int ett_rlc_sufi = -1;
 static int ett_rlc_bitmap = -1;
 static int ett_rlc_rlist = -1;
-static int ett_rlc_channel = -1;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t rrc_handle;
@@ -1831,10 +1830,8 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
 static void add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * fpinf, rlc_info * rlcinf)
 {
 	proto_item * item;
-	proto_tree * channel_tree;
 
 	item = proto_tree_add_item(tree, hf_rlc_channel, NULL, 0, 0, ENC_NA);
-	channel_tree = proto_item_add_subtree(item, ett_rlc_channel);
 	proto_item_append_text(item, " (lchid: %u, dir: %u, uid: %u)", rlcinf->rbid[fpinf->cur_tb], pinfo->p2p_dir, rlcinf->urnti[fpinf->cur_tb]);
 	PROTO_ITEM_SET_GENERATED(item);
 }
@@ -2470,7 +2467,6 @@ proto_register_rlc(void)
 		&ett_rlc_sufi,
 		&ett_rlc_bitmap,
 		&ett_rlc_rlist,
-		&ett_rlc_channel
 	};
 	proto_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");
 	register_dissector("rlc.pcch",        dissect_rlc_pcch,        proto_rlc);
