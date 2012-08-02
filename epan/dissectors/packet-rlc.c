@@ -1433,6 +1433,17 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return num_li;
 }
 
+static void add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * fpinf, rlc_info * rlcinf)
+{
+	proto_item * item;
+
+	if (pinfo->p2p_dir != LINK_DIR_UNKNOWN) {
+		item = proto_tree_add_item(tree, hf_rlc_channel, NULL, 0, 0, ENC_NA);
+		proto_item_append_text(item, " (rbid: %u, dir: %u, uid: %u)", rlcinf->rbid[fpinf->cur_tb], pinfo->p2p_dir, rlcinf->urnti[fpinf->cur_tb]);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+}
+
 static void
 dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	       proto_tree *top_level, proto_tree *tree)
@@ -1464,9 +1475,13 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 			"Cannot dissect RLC frame because per-frame info is missing");
 		return;
 	}
+
+	/* Add "channel" information, very useful for debugging. */
+	add_channel_info(pinfo, tree, fpinf, rlcinf);
+
 	pos = fpinf->cur_tb;
 
-	if (global_rlc_ciphered) {
+	if ((rlcinf->ciphered[pos] == TRUE && rlcinf->deciphered[pos] == FALSE) || global_rlc_ciphered) {
 		proto_tree_add_text(tree, tvb, 0, -1,
 			"Cannot dissect RLC frame because it is ciphered");
 		col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
@@ -1827,15 +1842,6 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
 			             seq, poll_set ? "(P)" : "");
 }
 
-static void add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * fpinf, rlc_info * rlcinf)
-{
-	proto_item * item;
-
-	item = proto_tree_add_item(tree, hf_rlc_channel, NULL, 0, 0, ENC_NA);
-	proto_item_append_text(item, " (lchid: %u, dir: %u, uid: %u)", rlcinf->rbid[fpinf->cur_tb], pinfo->p2p_dir, rlcinf->urnti[fpinf->cur_tb]);
-	PROTO_ITEM_SET_GENERATED(item);
-}
-
 static void
 dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	       proto_tree *top_level, proto_tree *tree)
@@ -1897,7 +1903,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 
 	pos = fpinf->cur_tb;
 
-	if (global_rlc_ciphered) {
+	if ((rlcinf->ciphered[pos] == TRUE && rlcinf->deciphered[pos] == FALSE) || global_rlc_ciphered) {
 		proto_tree_add_text(tree, tvb, 0, -1,
 		"Cannot dissect RLC frame because it is ciphered");
 		col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
