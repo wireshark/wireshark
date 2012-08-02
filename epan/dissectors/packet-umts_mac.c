@@ -633,7 +633,7 @@ static void mac_is_copy(mac_is_sdu * sdu, mac_is_fragment * frag, guint total_le
         memcpy(sdu->data+sdu->length, frag->data, frag->length);
     }
     sdu->length += frag->length;
-    //g_free(frag->data);
+    /* g_free(frag->data); */
 }
 
 /*
