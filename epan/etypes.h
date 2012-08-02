@@ -84,6 +84,10 @@
 #define ETHERTYPE_WMX_M2M		0x08F0
 #endif
 
+#ifndef ETHERTYPE_BPQ
+#define ETHERTYPE_BPQ			0x08ff	/* AX.25 over ethernet (not officially registered) */
+#endif
+
 #ifndef ETHERTYPE_VINES_IP
 #define ETHERTYPE_VINES_IP		0x0BAD
 #endif

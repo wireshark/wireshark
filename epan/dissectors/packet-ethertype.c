@@ -32,6 +32,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include "packet-bpq.h"
 #include "packet-eth.h"
 #include "packet-frame.h"
 #include "packet-ip.h"
@@ -172,6 +173,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_TDMOE,                "Digium TDM over Ethernet Protocol" },
 	{ ETHERTYPE_WAI,                  "WAI Authentication Protocol" },
 	{ ETHERTYPE_HSR,                  "High-availability Seamless Redundancy (IEC62439 Part 3)" },
+	{ ETHERTYPE_BPQ,                  "AX.25"},
 	{ 0, NULL }
 };
 
@@ -206,6 +208,9 @@ capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
 	case ETHERTYPE_VINES_IP:
 	case ETHERTYPE_VINES_ECHO:
 		capture_vines(ld);
+		break;
+	case ETHERTYPE_BPQ:
+		capture_bpq(pd, offset, len, ld);
 		break;
 	default:
 		ld->other++;

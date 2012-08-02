@@ -303,6 +303,7 @@ DISSECTOR_SRC = \
 	packet-bootp.c		\
 	packet-bootparams.c	\
 	packet-bpdu.c		\
+	packet-bpq.c		\
 	packet-brdwlk.c		\
 	packet-brp.c		\
 	packet-bssap.c		\
@@ -1204,6 +1205,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bacapp.h	\
 	packet-ber.h	\
 	packet-bfd.h	\
+	packet-bpq.h	\
 	packet-bssap.h	\
 	packet-bssgp.h	\
 	packet-bthci_acl.h	\

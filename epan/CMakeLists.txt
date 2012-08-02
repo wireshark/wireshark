@@ -383,6 +383,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bootp.c
 	dissectors/packet-bootparams.c
 	dissectors/packet-bpdu.c
+	dissectors/packet-bpq.c
 	dissectors/packet-brdwlk.c
 	dissectors/packet-brp.c
 	dissectors/packet-bssap.c
