@@ -66,8 +66,8 @@ static int hf_mac_edch_type2_tsn = -1;
 static int hf_mac_edch_type2_ss = -1;
 static int hf_mac_edch_type2_sdu = -1;
 static int hf_mac_edch_type2_sdu_data = -1;
-static int hf_mac_is_2head_link = -1;
-static int hf_mac_is_2tail_link = -1;
+static int hf_mac_is_fraglink = -1;
+static int hf_mac_is_reasmin = -1;
 
 /* subtrees */
 static int ett_mac = -1;
@@ -88,30 +88,57 @@ static dissector_handle_t rlc_ps_dtch_handle;
 static dissector_handle_t rrc_handle;
 
 /* MAC-is reassembly */
-typedef struct {
+enum mac_is_fragment_type {
+    MAC_IS_HEAD,
+    MAC_IS_MIDDLE,
+    MAC_IS_TAIL
+};
+typedef struct _mac_is_fragment {
+    guint8 * data;
+    guint32 length;
     guint32 frame_num;
     guint16 tsn;
+    guint8 type;
+    struct _mac_is_fragment * next;
+} mac_is_fragment;
+typedef struct {
+    guint32 frame_num; /* Where reassembly was done (depends on order of arrival). */
+    guint16 tsn; /* TSN for the tail fragment. */
     guint8 * data;
     guint32 length;
-    tvbuff_t * tvb;
-    guint counterpart;
+    mac_is_fragment * fragments;
 } mac_is_sdu;
 typedef struct {
-    guint8 * data;
-    guint32 length;
-    guint32 frame_num;
-} mac_is_fragment;
-static GHashTable * mac_is_sdus = NULL;
-static GHashTable * mac_is_fragments = NULL;
-static gboolean mac_is_sdu_equal(gconstpointer a, gconstpointer b)
+    mac_is_fragment * head;
+    mac_is_fragment * middle;
+    mac_is_fragment * tail;
+} body_parts;
+typedef struct {
+    guint8 lchid; /* Logical Channel Identifier. */
+    guint ueid; /* User Equipment Identifier. */
+} mac_is_channel;
+static GHashTable * mac_is_sdus = NULL; /* channel -> (frag -> sdu) */
+static GHashTable * mac_is_fragments = NULL; /* channel -> body_parts[] */
+static gboolean mac_is_channel_equal(gconstpointer a, gconstpointer b)
 {
-	const mac_is_sdu *x = a, *y = b;
-	return x->frame_num == y->frame_num && x->tsn == y->tsn;
+	const mac_is_channel *x = a, *y = b;
+	return x->lchid == y->lchid && x->ueid == y->ueid;
 }
-static guint mac_is_sdu_hash(gconstpointer key)
+static guint mac_is_channel_hash(gconstpointer key)
 {
-	const mac_is_sdu *sdu = key;
-	return (sdu->frame_num << 6) | sdu->tsn; /* Not so good for TSN 14 bits */
+    const mac_is_channel * ch = key;
+    return (ch->ueid << 4)  | ch->lchid;
+}
+
+static gboolean mac_is_fragment_equal(gconstpointer a, gconstpointer b)
+{
+    const mac_is_fragment *x = a, *y = b;
+    return x->frame_num == y->frame_num && x->tsn == y->tsn && x->type == y->type;
+}
+static guint mac_is_fragment_hash(gconstpointer key)
+{
+    const mac_is_fragment *frag = key;
+    return (frag->frame_num << 2) | frag->type;
 }
 
 static const value_string rach_fdd_tctf_vals[] = {
@@ -187,7 +214,7 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
     proto_tree *tree, guint16 bitoffs, fp_info *fpinf, umts_mac_info *macinf, rlc_info  *rlcinf)
 {
     guint8 ueid_type;
-	
+
     ueid_type = tvb_get_bits8(tvb, bitoffs, 2);
     proto_tree_add_bits_item(tree, hf_mac_ueid_type, tvb, bitoffs, 2, ENC_BIG_ENDIAN);
     bitoffs += 2;
@@ -202,11 +229,14 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
     }
 
     if (macinf->ctmux[fpinf->cur_tb]) {
+        proto_item * temp;
         if(rlcinf){
             rlcinf->rbid[fpinf->cur_tb] = tvb_get_bits8(tvb, bitoffs, 4)+1;
         }
         proto_tree_add_bits_item(tree, hf_mac_ct, tvb, bitoffs, 4, ENC_BIG_ENDIAN);
         bitoffs += 4;
+        temp = proto_tree_add_uint(tree, hf_mac_lch_id, tvb, 0, 0, rlcinf->rbid[fpinf->cur_tb]);
+        PROTO_ITEM_SET_GENERATED(temp);
     }
     return bitoffs;
 }
@@ -568,130 +598,241 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 }
 
-static void init_frag(tvbuff_t * tvb, mac_is_fragment ** mifref, guint length, guint32 frame_num, guint offset)
+static void init_frag(tvbuff_t * tvb, body_parts * bp, guint length, guint offset, guint32 frame_num, guint16 tsn, guint8 type)
 {
-    *mifref = g_new(mac_is_fragment, 1);
-    (*mifref)->length = length;
-    (*mifref)->data = g_malloc(length);
-    (*mifref)->frame_num = frame_num;
-    tvb_memcpy(tvb, (*mifref)->data, offset, length);
+    mac_is_fragment * frag = se_new(mac_is_fragment);
+    frag->type = type;
+    frag->length = length;
+    frag->data = g_malloc(length);
+    frag->frame_num = frame_num;
+    frag->tsn = tsn;
+    frag->next = NULL;
+    switch (type) {
+        case MAC_IS_HEAD:
+            DISSECTOR_ASSERT(bp->head == NULL);
+            bp->head = frag;
+            break;
+        case MAC_IS_MIDDLE:
+            DISSECTOR_ASSERT(bp->middle == NULL);
+            bp->middle = frag;
+            break;
+        case MAC_IS_TAIL:
+            DISSECTOR_ASSERT(bp->tail == NULL);
+            bp->tail = frag;
+            break;
+    }
+    tvb_memcpy(tvb, frag->data, offset, length);
 }
 
-static tvbuff_t * reassemble(tvbuff_t * tvb, mac_is_fragment ** mifref, guint frame_num, guint16 tsn, guint maclength, guint offset, gboolean reverse)
+static void mac_is_copy(mac_is_sdu * sdu, mac_is_fragment * frag, guint total_length, gboolean reverse)
 {
-    mac_is_sdu * head_sdu, * tail_sdu;
-    mac_is_fragment * mif = *mifref;
-
-    head_sdu = se_new(mac_is_sdu); /* SDU with head TSN and frame number. */
-    tail_sdu = se_new(mac_is_sdu); /* SDU with tail TSN and frame number. */
-
-    /* If reverse then we are sending in a head TSN and frame number. */
+    DISSECTOR_ASSERT(sdu->length+frag->length <= total_length);
     if (reverse) {
-        mac_is_sdu * temp = head_sdu;
-        /* A tail comes in the TSN after a head. */
-        head_sdu->tsn = tail_sdu->tsn = (tsn+1)%64;
-        /* Swap. Head is tail, ehehehe. */
-        head_sdu = tail_sdu;
-        tail_sdu = temp;
-    } else { /* Else we are sending in a tail TSN and frame number. */
-        head_sdu->tsn = tail_sdu->tsn = tsn;
-    }
-
-    tail_sdu->frame_num = head_sdu->counterpart = frame_num;
-    head_sdu->frame_num = tail_sdu->counterpart = mif->frame_num;
-    tail_sdu->length = mif->length + maclength;
-    tail_sdu->data = se_alloc(tail_sdu->length);
-    head_sdu->length = 0;
-    head_sdu->data = NULL;
-    head_sdu->tvb = NULL;
-
-    if (reverse == FALSE) {
-        memcpy(tail_sdu->data, mif->data, mif->length);
-        tvb_memcpy(tvb, tail_sdu->data+mif->length, offset, maclength);
+        memcpy(sdu->data+total_length-frag->length-sdu->length, frag->data, frag->length);
     } else {
-        tvb_memcpy(tvb, tail_sdu->data, offset, maclength);
-        memcpy(tail_sdu->data+maclength, mif->data, mif->length);
+        memcpy(sdu->data+sdu->length, frag->data, frag->length);
     }
-    g_free(mif->data);
-    g_free(mif);
-    tail_sdu->tvb = tvb_new_child_real_data(tvb, tail_sdu->data, tail_sdu->length, tail_sdu->length);
-    g_hash_table_insert(mac_is_sdus, head_sdu, NULL);
-    g_hash_table_insert(mac_is_sdus, tail_sdu, NULL);
-    *mifref = NULL; /* Reset the pointer. */
-    return tail_sdu->tvb;
+    sdu->length += frag->length;
+    //g_free(frag->data);
 }
 
-static mac_is_sdu * get_sdu(tvbuff_t * tvb, packet_info * pinfo, guint16 tsn)
+/*
+ * @param length Length of whole SDU, it will be verified.
+ */
+static tvbuff_t * reassemble(tvbuff_t * tvb, body_parts ** body_parts_array, guint16 head_tsn, guint length, mac_is_channel * ch, guint frame_num)
 {
-    gpointer orig_key = NULL;
-    mac_is_sdu sdu_lookup_key;
-    sdu_lookup_key.frame_num = pinfo->fd->num;
-    sdu_lookup_key.tsn = tsn;
+    mac_is_sdu * sdu;
+    mac_is_fragment * f;
+    guint16 i;
+    GHashTable * sdus;
 
-    if (g_hash_table_lookup_extended(mac_is_sdus, &sdu_lookup_key, &orig_key, NULL)) {
-        mac_is_sdu * sdu = orig_key;
-        if (sdu->length > 0) {
-            sdu->tvb = tvb_new_child_real_data(tvb, sdu->data, sdu->length, sdu->length);
-            add_new_data_source(pinfo, sdu->tvb, "Reassembled MAC-is SDU");
-        }
+    /* Find frag->sdu hash table for this channel. */
+    sdus = g_hash_table_lookup(mac_is_sdus, ch);
+    /* If this is the first time we see this channel. */
+    if (sdus == NULL) {
+        mac_is_channel * channel;
+        sdus = g_hash_table_new(mac_is_fragment_hash, mac_is_fragment_equal);
+        channel = se_new(mac_is_channel);
+        *channel = *ch;
+        g_hash_table_insert(mac_is_sdus, channel, sdus);
+    }
+
+    sdu = se_new(mac_is_sdu);
+    sdu->length = 0;
+    sdu->data = se_alloc(length);
+
+    f = body_parts_array[head_tsn]->head; /* Start from head. */
+    g_hash_table_insert(sdus, f, sdu); /* Insert head->sdu mapping. */
+    body_parts_array[head_tsn]->head = NULL; /* Reset head. */
+    mac_is_copy(sdu, f, length, FALSE); /* Copy head data into SDU. */
+    sdu->fragments = f; /* Set up fragments list to point at head. */
+    sdu->frame_num = frame_num; /* Frame number where reassembly is being done. */
+
+    for (i = (head_tsn+1)%64; body_parts_array[i]->middle != NULL; i = (i+1)%64)
+    {
+        f = f->next = body_parts_array[i]->middle; /* Iterate through. */
+        g_hash_table_insert(sdus, f, sdu); /* Insert middle->sdu mapping. */
+        body_parts_array[i]->middle = NULL; /* Reset. */
+        mac_is_copy(sdu, f, length, FALSE); /* Copy middle data into SDU. */
+    }
+    DISSECTOR_ASSERT(body_parts_array[i]->tail != NULL);
+
+    f->next = body_parts_array[i]->tail;
+    g_hash_table_insert(sdus, f->next, sdu); /* Insert tail->sdu mapping. */
+    body_parts_array[i]->tail = NULL; /* Reset tail. */
+    sdu->tsn = i; /* Use TSN of tail as key for the SDU. */
+    mac_is_copy(sdu, f->next, length, FALSE); /* Copy tail data into SDU. */
+
+    return tvb_new_child_real_data(tvb, sdu->data, sdu->length, sdu->length);
+}
+
+static mac_is_sdu * get_sdu(guint frame_num, guint16 tsn, guint8 type, mac_is_channel * ch)
+{
+    mac_is_sdu * sdu = NULL;
+    GHashTable * sdus = NULL;
+    mac_is_fragment frag_lookup_key;
+
+    sdus = g_hash_table_lookup(mac_is_sdus, ch);
+    if (sdus) {
+        frag_lookup_key.frame_num = frame_num;
+        frag_lookup_key.tsn = tsn;
+        frag_lookup_key.type = type;
+        sdu = g_hash_table_lookup(sdus, &frag_lookup_key);
         return sdu;
     }
     return NULL;
 }
 
-static tvbuff_t * add_to_tree(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int id, guint16 tsn, guint offset, guint16 maclength)
+static tvbuff_t * add_to_tree(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, mac_is_sdu * sdu, guint offset, guint16 maclength, guint8 type)
 {
-    mac_is_sdu * sdu = get_sdu(tvb, pinfo, tsn);
     tvbuff_t * new_tvb = NULL;
 
-    DISSECTOR_ASSERT(sdu != NULL);
-    if (sdu->length > 0) {
-        new_tvb = sdu->tvb;
+    if (sdu->frame_num == pinfo->fd->num) {
+        mac_is_fragment * f = sdu->fragments;
+        guint counter = 0;
+        new_tvb = tvb_new_child_real_data(tvb, sdu->data, sdu->length, sdu->length);
+        add_new_data_source(pinfo, new_tvb, "Reassembled MAC-is SDU");
         proto_tree_add_text(tree, new_tvb, 0, -1, "[Reassembled MAC-is SDU]");
-        proto_tree_add_uint_format(tree, id, tvb, 0, 0, sdu->counterpart, "Reassembled with fragment in frame: %u", sdu->counterpart);
-        proto_tree_add_item(tree, hf_mac_edch_type2_sdu_data, new_tvb, 0, -1, ENC_NA);
+
+        while (f) {
+            proto_tree_add_uint_format(tree, hf_mac_is_fraglink, new_tvb,
+                    counter, f->length, f->frame_num,
+                    "Frame: %u, payload: %u-%u (%u bytes) (TSN: %u)",
+                    f->frame_num, counter, counter+f->length-1, f->length,
+                    f->tsn);
+            counter += f->length;
+            f = f->next;
+        }
         return new_tvb;
     } else {
         new_tvb = tvb_new_subset(tvb, offset, maclength, -1);
-        proto_tree_add_text(tree, new_tvb, 0, -1, "[This MAC-is SDU is the last segment of a MAC-d PDU or MAC-c PDU.]");
-        proto_tree_add_item(tree, hf_mac_edch_type2_sdu_data, new_tvb, 0, -1, ENC_NA);
-        proto_tree_add_uint(tree, id, tvb, 0, 0, sdu->counterpart);
+        switch (type) {
+            case MAC_IS_HEAD:
+                proto_tree_add_text(tree, new_tvb, 0, -1, "[This MAC-is SDU is the first segment of a MAC-d PDU or MAC-c PDU.]");
+                break;
+            case MAC_IS_MIDDLE:
+                proto_tree_add_text(tree, new_tvb, 0, -1, "[This MAC-is SDU is a middle segment of a MAC-d PDU or MAC-c PDU.]");
+                break;
+            case MAC_IS_TAIL:
+                proto_tree_add_text(tree, new_tvb, 0, -1, "[This MAC-is SDU is the last segment of a MAC-d PDU or MAC-c PDU.]");
+                break;
+        }
+        proto_tree_add_uint(tree, hf_mac_is_reasmin, new_tvb, 0, 0, sdu->frame_num);
         return NULL; /* No data here. */
     }
 }
 
-tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, guint8 lchid, int offset, guint8 ss, guint16 tsn, int sdu_no, guint8 no_sdus, guint16 maclength)
+/*
+ * If return value > 0 then tsn is changed to be tsn of head.
+ * @return return length of sequence tsn-1 to head.
+ */
+static guint find_head(body_parts ** body_parts_array, guint16 * tsn)
 {
-    /* Get fragment table for this logical channel. */
-    mac_is_fragment ** fragments = g_hash_table_lookup(mac_is_fragments, GINT_TO_POINTER((gint)lchid));
-    /* If this is the first time we see this channel. */
-    if (fragments == NULL) {
-        /* Create new table */
-        fragments = se_alloc_array(mac_is_fragment*, 64);
-        memset(fragments, 0, sizeof(mac_is_fragment*)*64);
-        g_hash_table_insert(mac_is_fragments, GINT_TO_POINTER((gint)lchid), fragments);
+    guint length = 0;
+    for (*tsn = (*tsn==0)?63:(*tsn)-1; body_parts_array[*tsn]->middle != NULL; *tsn = (*tsn==0)?63:(*tsn)-1)
+        length += body_parts_array[*tsn]->middle->length;
+    if (body_parts_array[*tsn]->head != NULL)
+        return length+body_parts_array[*tsn]->head->length;
+    return 0;
+}
+
+/*
+ * @return return length of sequence tsn+1 to tail.
+ */
+static guint find_tail(body_parts ** body_parts_array, guint16 tsn)
+{
+    guint length = 0;
+    for (tsn = (tsn+1)%64; body_parts_array[tsn]->middle != NULL; tsn = (tsn+1)%64)
+        length += body_parts_array[tsn]->middle->length;
+    if (body_parts_array[tsn]->tail != NULL)
+        return length+body_parts_array[tsn]->tail->length;
+    return 0;
+}
+
+/*
+ * @param ch Channel for which body parts are to be fetched.
+ * @return Array of body_part* for channel 'ch'.
+ */
+static body_parts ** get_body_parts(mac_is_channel * ch)
+{
+    body_parts ** bpa = g_hash_table_lookup(mac_is_fragments, ch);
+    /* If there was no body_part* array for this channel, create one. */
+    if (bpa == NULL) {
+        mac_is_channel * channel;
+        int i;
+        bpa = se_alloc_array(body_parts*, 64); /* Create new body_parts-pointer array */
+        for (i = 0; i < 64; i++) {
+            bpa[i] = se_new0(body_parts); /* Fill it with body_parts. */
+        }
+        channel = se_new(mac_is_channel); /* Alloc new channel for use in hash table. */
+        *channel = *ch;
+        g_hash_table_insert(mac_is_fragments, channel, bpa);
     }
+    return bpa;
+}
+
+tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, proto_tree * tree _U_, guint8 lchid, guint ueid, int offset, guint8 ss, guint16 tsn, int sdu_no, guint8 no_sdus, guint16 maclength)
+{
+    mac_is_channel ch; /* Channel for looking up in hash tables. */
+    ch.lchid = lchid;
+    ch.ueid = ueid;
 
     /* If in first scan-through. */
     if (pinfo->fd->flags.visited == FALSE) {
+        /* Get body parts array for this channel. */
+        body_parts ** body_parts_array = get_body_parts(&ch);
+        /* Middle segment */
+        if (no_sdus == 1 && ss == 3) {
+            guint head_length, tail_length;
+            init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->fd->num, tsn, MAC_IS_MIDDLE);
+            tail_length = find_tail(body_parts_array, tsn);
+            if (tail_length > 0) {
+                head_length = find_head(body_parts_array, &tsn);
+                if (head_length > 0) {
+                    /* tsn is now TSN of head */
+                    return reassemble(tvb, body_parts_array, tsn, tail_length+head_length+maclength, &ch, pinfo->fd->num);
+                }
+            }
+            /* XXX: haven't confirmed if case when middle segment comes last
+             * actually works or not. */
+        }
         /* If first SDU is last segment of previous. A tail. */
-        if (sdu_no == 0 && (ss & 1) == 1) {
-            /* If no one has inserted the head for our tail yet. */
-            if (fragments[tsn] == NULL) {
-                init_frag(tvb, &fragments[tsn], maclength, pinfo->fd->num, offset);
-            /* If there is a head, attach a tail to it and return. */
-            } else {
-                return reassemble(tvb, &(fragments[tsn]), pinfo->fd->num, tsn, maclength, offset, FALSE);
+        else if (sdu_no == 0 && (ss & 1) == 1) {
+            guint length = maclength;
+            init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->fd->num, tsn, MAC_IS_TAIL);
+            length += find_head(body_parts_array, &tsn);
+            if (length > maclength) {
+                /* tsn is now TSN of head */
+                return reassemble(tvb, body_parts_array, tsn, length, &ch, pinfo->fd->num);
             }
         }
         /* If last SDU is first segment of next. A head. */
         else if (sdu_no == no_sdus-1 && (ss & 2) == 2) {
-            /* If there is no tail yet, store away a head for a future tail. */
-            if (fragments[(tsn+1) % 64] == NULL) {
-                init_frag(tvb, &(fragments[(tsn+1)%64]), maclength, pinfo->fd->num, offset);
-            /* If there already is a tail for our head here, attach it. */
-            } else {
-                return reassemble(tvb, &fragments[(tsn+1)%64], pinfo->fd->num, tsn, maclength, offset, TRUE);
+            guint length = maclength;
+            init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->fd->num, tsn, MAC_IS_HEAD);
+            length += find_tail(body_parts_array, tsn);
+            if (length > maclength) {
+                return reassemble(tvb, body_parts_array, tsn, length, &ch, pinfo->fd->num);
             }
         /* If our SDU is not fragmented. */
         } else {
@@ -700,32 +841,29 @@ tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb, packet_info *pinfo, proto_tree * 
         }
     /* If clicking on a packet. */
     } else if (tree) {
+        tvbuff_t * new_tvb = NULL;
+        /* Middle segment */
+        if (no_sdus == 1 && ss == 3) {
+            mac_is_sdu * sdu = get_sdu(pinfo->fd->num, tsn, MAC_IS_MIDDLE, &ch);
+            if (sdu) {
+                return add_to_tree(tvb, pinfo, tree, sdu, offset, maclength, MAC_IS_MIDDLE);
+            }
+        }
         /* If first SDU is last segment of previous. A tail. */
-        if (sdu_no == 0 && (ss & 1) == 1) {
-            return add_to_tree(tvb, pinfo, tree, hf_mac_is_2head_link, tsn, offset, maclength);
+        else if (sdu_no == 0 && (ss & 1) == 1) {
+            mac_is_sdu * sdu = get_sdu(pinfo->fd->num, tsn, MAC_IS_TAIL, &ch);
+            if (sdu) {
+                return add_to_tree(tvb, pinfo, tree, sdu, offset, maclength, MAC_IS_TAIL);
+            }
+        }
         /* If last SDU is first segment of next. A head. */
-        } else if (sdu_no == no_sdus-1 && (ss & 2) == 2) {
-            /* tsn+1 because reassembly is done in the tail which comes in the
-             * TSN after the head. */
-            mac_is_sdu * sdu = get_sdu(tvb, pinfo, (tsn+1)%64);
-            tvbuff_t * new_tvb = NULL;
-
-            DISSECTOR_ASSERT(sdu != NULL);
-            if (sdu->length > 0) {
-                new_tvb = sdu->tvb;
-                proto_tree_add_text(tree, new_tvb, 0, -1, "[Reassembled MAC-is SDU]");
-                proto_tree_add_uint_format(tree, hf_mac_is_2tail_link, tvb, 0, 0, sdu->counterpart, "Reassembled with fragment in frame: %u", sdu->counterpart);
-                proto_tree_add_item(tree, hf_mac_edch_type2_sdu_data, new_tvb, 0, -1, ENC_NA);
-                return new_tvb;
-            } else {
-                new_tvb = tvb_new_subset(tvb, offset, maclength, -1);
-                proto_tree_add_text(tree, new_tvb, 0, -1, "[This MAC-is SDU is the first segment of a MAC-d PDU or MAC-c PDU.]");
-                proto_tree_add_item(tree, hf_mac_edch_type2_sdu_data, new_tvb, 0, -1, ENC_NA);
-                proto_tree_add_uint(tree, hf_mac_is_2tail_link, tvb, 0, 0, sdu->counterpart);
-                return NULL; /* No data here. */
+        else if (sdu_no == no_sdus-1 && (ss & 2) == 2) {
+            mac_is_sdu * sdu = get_sdu(pinfo->fd->num, tsn, MAC_IS_HEAD, &ch);
+            if (sdu) {
+                return add_to_tree(tvb, pinfo, tree, sdu, offset, maclength, MAC_IS_HEAD);
             }
         } else {
-            tvbuff_t * new_tvb = tvb_new_subset(tvb, offset, maclength, -1);
+            new_tvb = tvb_new_subset(tvb, offset, maclength, -1);
             proto_tree_add_text(tree, new_tvb, 0, -1, "[This MAC-is SDU is a complete MAC-d PDU or MAC-c PDU]");
             proto_tree_add_item(tree, hf_mac_edch_type2_sdu_data, new_tvb, 0, -1, ENC_NA);
             return new_tvb;
@@ -798,13 +936,13 @@ static void dissect_mac_fdd_edch_type2(tvbuff_t *tvb, packet_info *pinfo, proto_
     guint sdu_no, subframe_bytes = 0, offset = 0;
     guint8 ss;
     guint16 tsn;
-    proto_item *pi;
+    proto_item *pi, *temp;
     proto_tree *macis_pdu_tree, *macis_sdu_tree;
     umts_mac_is_info * mac_is_info = (umts_mac_is_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
     rlc_info * rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    struct fp_info *p_fp_info = (struct fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
 
-    DISSECTOR_ASSERT(mac_is_info != NULL);
-    DISSECTOR_ASSERT(rlcinf != NULL);
+    DISSECTOR_ASSERT(mac_is_info != NULL && rlcinf != NULL && p_fp_info != NULL);
 
     pi = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
     macis_pdu_tree = proto_item_add_subtree(pi, ett_mac_edch_type2);
@@ -831,15 +969,17 @@ static void dissect_mac_fdd_edch_type2(tvbuff_t *tvb, packet_info *pinfo, proto_
         ti = proto_tree_add_item(tree, hf_mac_edch_type2_sdu, tvb, offset, sdulength, ENC_NA);
         macis_sdu_tree = proto_item_add_subtree(ti, ett_mac_edch_type2_sdu);
         proto_item_append_text(ti, " (Logical channel=%u, Len=%u)", lchid, sdulength);
+        temp = proto_tree_add_uint(ti, hf_mac_lch_id, tvb, 0, 0, lchid);
+        PROTO_ITEM_SET_GENERATED(temp);
         /*Set up information needed for MAC and lower layers*/
         rlcinf->mode[sdu_no] = lchId_rlc_map[lchid]; /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
-        rlcinf->urnti[sdu_no] = 1; /* TODO set proper value here */
+        rlcinf->urnti[sdu_no] = p_fp_info->com_context_id;
         rlcinf->rbid[sdu_no] = lchid;
         rlcinf->li_size[sdu_no] = RLC_LI_7BITS;
         rlcinf->ciphered[sdu_no] = FALSE;
         rlcinf->deciphered[sdu_no] = FALSE;
 
-        asm_tvb = mac_is_add_fragment(tvb, pinfo, macis_sdu_tree, lchid, offset, ss, tsn, sdu_no, mac_is_info->number_of_mac_is_sdus, sdulength);
+        asm_tvb = mac_is_add_fragment(tvb, pinfo, macis_sdu_tree, lchid, p_fp_info->com_context_id, offset, ss, tsn, sdu_no, mac_is_info->number_of_mac_is_sdus, sdulength);
         if (asm_tvb != NULL) {
             call_rlc(asm_tvb, pinfo, tree, ti, lchid);
         }
@@ -1140,6 +1280,11 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 }
 
+static void mac_is_sdus_hash_destroy(gpointer data)
+{
+    g_hash_table_destroy((GHashTable *)data);
+}
+
 static void mac_init(void)
 {
     if (mac_is_sdus != NULL) {
@@ -1148,8 +1293,8 @@ static void mac_init(void)
     if (mac_is_fragments != NULL) {
         g_hash_table_destroy(mac_is_fragments);
     }
-    mac_is_sdus = g_hash_table_new(mac_is_sdu_hash, mac_is_sdu_equal);
-    mac_is_fragments = g_hash_table_new(g_direct_hash, g_direct_equal);
+    mac_is_sdus = g_hash_table_new_full(mac_is_channel_hash, mac_is_channel_equal, NULL, mac_is_sdus_hash_destroy);
+    mac_is_fragments = g_hash_table_new_full(mac_is_channel_hash, mac_is_channel_equal, NULL, NULL);
 }
 
 void
@@ -1241,7 +1386,7 @@ proto_register_umts_mac(void)
         { &hf_mac_edch_type2_ss,
           { "SS",
             /* TODO: VALS */
-            "mac.edch.type2.tsn", FT_UINT8, BASE_HEX, NULL, 0xc0,
+            "mac.edch.type2.ss", FT_UINT8, BASE_HEX, NULL, 0xc0,
             "Segmentation Status", HFILL
           }
         },
@@ -1269,12 +1414,12 @@ proto_register_umts_mac(void)
             "EDCH Subframe header", HFILL
           }
         },
-        { &hf_mac_is_2tail_link,
-          { "Reassembled in frame", "mac.is.taillink",
+        { &hf_mac_is_reasmin,
+          { "Reassembled in frame", "mac.is.reasmin",
             FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }
         },
-        { &hf_mac_is_2head_link,
-          { "Reassembled in frame", "mac.is.headlink",
+        { &hf_mac_is_fraglink,
+          { "Frame", "mac.is.fraglink",
             FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }
         }
     };

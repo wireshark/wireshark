@@ -2658,7 +2658,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         macinf->content[macd_idx] = lchId_type_table[lchid];     /*Set the proper Content type for the mac layer.*/
                         macinf->lchid[macd_idx] = lchid;
                         rlcinf->mode[macd_idx] = lchId_rlc_map[lchid]; /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
-                        
+
                         /* Set U-RNTI to ComuncationContext signaled from nbap*/
                         rlcinf->urnti[macd_idx] = p_fp_info->com_context_id;
                         rlcinf->rbid[macd_idx] = lchid; /*subframes[n].ddi[i];*/    /*Save the DDI value for RLC*/
@@ -2734,7 +2734,7 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
     guint64  total_macis_sdus;
     guint16  macis_sdus_found = 0;
     guint16  macis_pdus       = 0;
-    guint32  total_bytes      = 0;
+    /*guint32  total_bytes      = 0;*/
     gboolean F                = TRUE; /* We want to continue loop if get E-RNTI indication... */
     gint     bit_offset;
     proto_item *subframe_macis_descriptors_ti = NULL;
@@ -2907,8 +2907,8 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
     }
 
     /* Add data summary to info column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (%u bytes in %u SDUs in %u MAC-is PDUs in %u subframes)",
-                    total_bytes, macis_sdus_found, macis_pdus, number_of_subframes);
+    /*col_append_fstr(pinfo->cinfo, COL_INFO, " (%u bytes in %u SDUs in %u MAC-is PDUs in %u subframes)",
+                    total_bytes, macis_sdus_found, macis_pdus, number_of_subframes);*/
 
     /* Spare extension and payload CRC (optional) */
     dissect_spare_extension_and_crc(tvb, pinfo, tree,
@@ -3632,7 +3632,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
     fpi->srcport = pinfo->srcport;
     fpi->destport = pinfo->destport;
     fpi->com_context_id = p_conv_data->com_context_id;
-    
+
     if (pinfo->link_dir==P2P_DIR_UL) {
         fpi->is_uplink = TRUE;
     } else {
@@ -3891,7 +3891,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
                     rlcinf->urnti[chan] = fpi->com_context_id;    /*Note that MAC probably will change this*/
             }
 
-            
+
 
             p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
             p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);

@@ -54776,10 +54776,10 @@ static gint nbap_key_cmp(gconstpointer a_ptr, gconstpointer b_ptr, gpointer igno
 	}
 	return GPOINTER_TO_INT(a_ptr) < GPOINTER_TO_INT(b_ptr);
 }
-static void nbap_free_key(gpointer key ){
+/*static void nbap_free_key(gpointer key ){
 			g_free(key);
 
-	}
+	}*/
 static void nbap_free_value(gpointer value ){
 			g_free(value);
 	}
@@ -54793,7 +54793,7 @@ static void nbap_init(void){
 	/*Initialize*/
 	com_context_map = g_tree_new_full(nbap_key_cmp,
                        NULL,      /* data pointer, optional */
-                       nbap_free_key,
+                       NULL,
                        nbap_free_value);
     for (i = 0; i < 15; i++) {
 		lchId_type_table[i+1] = *lch_contents[i];

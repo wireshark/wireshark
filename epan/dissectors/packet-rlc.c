@@ -68,8 +68,6 @@ static gboolean global_rlc_ciphered = FALSE;
 /* Stop trying to do reassembly if this is true. */
 static gboolean fail = FALSE;
 
-
-
 /* fields */
 static int hf_rlc_seq = -1;
 static int hf_rlc_ext = -1;
@@ -105,6 +103,7 @@ static int hf_rlc_sufi_sn_ack = -1;
 static int hf_rlc_sufi_sn_mrw = -1;
 static int hf_rlc_sufi_poll_sn = -1;
 static int hf_rlc_header_only = -1;
+static int hf_rlc_channel = -1;
 
 /* subtrees */
 static int ett_rlc = -1;
@@ -114,6 +113,7 @@ static int ett_rlc_sdu = -1;
 static int ett_rlc_sufi = -1;
 static int ett_rlc_bitmap = -1;
 static int ett_rlc_rlist = -1;
+static int ett_rlc_channel = -1;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t rrc_handle;
@@ -1828,6 +1828,17 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
 			             seq, poll_set ? "(P)" : "");
 }
 
+static void add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * fpinf, rlc_info * rlcinf)
+{
+	proto_item * item;
+	proto_tree * channel_tree;
+
+	item = proto_tree_add_item(tree, hf_rlc_channel, NULL, 0, 0, ENC_NA);
+	channel_tree = proto_item_add_subtree(item, ett_rlc_channel);
+	proto_item_append_text(item, " (lchid: %u, dir: %u, uid: %u)", rlcinf->rbid[fpinf->cur_tb], pinfo->p2p_dir, rlcinf->urnti[fpinf->cur_tb]);
+	PROTO_ITEM_SET_GENERATED(item);
+}
+
 static void
 dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	       proto_tree *top_level, proto_tree *tree)
@@ -1883,10 +1894,12 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 			"Cannot dissect RLC frame because per-frame info is missing");
 		return;
 	}
-	
+
+	/* Add "channel" information, very useful for debugging. */
+	add_channel_info(pinfo, tree, fpinf, rlcinf);
+
 	pos = fpinf->cur_tb;
-	
-	
+
 	if (global_rlc_ciphered) {
 		proto_tree_add_text(tree, tvb, 0, -1,
 		"Cannot dissect RLC frame because it is ciphered");
@@ -2444,6 +2457,10 @@ proto_register_rlc(void)
 		  { "RLC PDU header only", "rlc.header_only",
 		    FT_BOOLEAN, BASE_NONE, TFS(&rlc_header_only_val), 0 ,NULL, HFILL }
 		},
+		{ &hf_rlc_channel,
+		  { "Channel", "rlc.channel",
+		    FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
+		}
  	};
 	static gint *ett[] = {
 		&ett_rlc,
@@ -2452,7 +2469,8 @@ proto_register_rlc(void)
 		&ett_rlc_sdu,
 		&ett_rlc_sufi,
 		&ett_rlc_bitmap,
-		&ett_rlc_rlist
+		&ett_rlc_rlist,
+		&ett_rlc_channel
 	};
 	proto_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");
 	register_dissector("rlc.pcch",        dissect_rlc_pcch,        proto_rlc);
