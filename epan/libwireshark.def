@@ -49,6 +49,7 @@ camelSRTtype_naming             DATA
 capture_ap1394
 capture_arcnet
 capture_atm
+capture_ax25_kiss
 capture_chdlc
 capture_clip
 capture_enc

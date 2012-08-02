@@ -339,6 +339,8 @@ static const struct {
 	{ 199,		WTAP_ENCAP_IPMB },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
 	{ 201, 		WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR },
+	/* AX.25 packet with a 1-byte KISS header */
+	{ 202,          WTAP_ENCAP_AX25_KISS },
 	/* LAPD frame */
 	{ 203, 		WTAP_ENCAP_LAPD },
 	/* PPP with pseudoheader */

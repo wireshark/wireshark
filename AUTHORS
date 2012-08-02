@@ -3459,6 +3459,10 @@ Rishie Sharma	<rishie[at]kth.se> {
 	UMTS FP/MAC/RLC dissection enhancement based on NBAP signaling
 }
 
+Richard Stearn	<richard@rns-stearn.demon.co.uk> {
+	AX.25 support
+}
+
 and by:
 
 Pavel Roskin		<proski[AT]gnu.org>

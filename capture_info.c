@@ -58,6 +58,7 @@
 #include <epan/dissectors/packet-arcnet.h>
 #include <epan/dissectors/packet-enc.h>
 #include <epan/dissectors/packet-i2c.h>
+#include <epan/dissectors/packet-ax25-kiss.h>
 
 static void capture_info_packet(
 packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header);
@@ -350,6 +351,9 @@ capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd,
         break;
     case WTAP_ENCAP_I2C:
         capture_i2c(pseudo_header, counts);
+        break;
+    case WTAP_ENCAP_AX25_KISS:
+        capture_ax25_kiss(pd, 0, caplen, counts);
         break;
         /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
            pseudo-header to DLT_ATM_RFC1483, with LLC header following;

@@ -591,7 +591,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "SDH", "sdh" },
 
 	/* WTAP_ENCAP_DBUS */
-	{ "D-Bus", "dbus" }
+	{ "D-Bus", "dbus" },
+
+	/* WTAP_ENCAP_AX25_KISS */
+	{ "AX.25 with KISS header", "ax25-kiss" },
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
