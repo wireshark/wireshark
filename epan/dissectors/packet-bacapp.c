@@ -49,15 +49,15 @@ static int bacapp_tap = -1;
 #endif
 
 /* BACnet PDU Types */
-#define BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST	0
-#define BACAPP_TYPE_UNCONFIRMED_SERVICE_REQUEST 1
-#define BACAPP_TYPE_SIMPLE_ACK					2
-#define BACAPP_TYPE_COMPLEX_ACK					3
-#define BACAPP_TYPE_SEGMENT_ACK					4
-#define BACAPP_TYPE_ERROR						5
-#define BACAPP_TYPE_REJECT						6
-#define BACAPP_TYPE_ABORT						7
-#define MAX_BACAPP_TYPE							8
+#define BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST                   0
+#define BACAPP_TYPE_UNCONFIRMED_SERVICE_REQUEST                 1
+#define BACAPP_TYPE_SIMPLE_ACK                                  2
+#define BACAPP_TYPE_COMPLEX_ACK                                 3
+#define BACAPP_TYPE_SEGMENT_ACK                                 4
+#define BACAPP_TYPE_ERROR                                       5
+#define BACAPP_TYPE_REJECT                                      6
+#define BACAPP_TYPE_ABORT                                       7
+#define MAX_BACAPP_TYPE                                         8
 
 #define BACAPP_SEGMENTED_REQUEST 0x08
 #define BACAPP_MORE_SEGMENTS 0x04
@@ -7161,7 +7161,7 @@ fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
     const gchar* label = NULL;
 
     fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
-	label = ep_strdup_printf( "%s: ", val_to_str_const( tag_no, VALS(BACnetPropertyStates), "Unknown State" ));
+    label = ep_strdup_printf( "%s: ", val_to_str_const( tag_no, VALS(BACnetPropertyStates), "Unknown State" ));
 
     switch (tag_no) {
     case 0:
@@ -8373,7 +8373,8 @@ fGetEnrollmentSummaryAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         offset = fApplicationTypesEnumerated (tvb, pinfo, tree, offset,
             "event State: ", BACnetEventState);
         offset = fApplicationTypes (tvb, pinfo, tree, offset, "Priority: ");
-        offset = fApplicationTypes (tvb, pinfo, tree, offset, "Notification Class: ");
+        if (tvb_reported_length_remaining(tvb, offset) > 0 && fTagNo(tvb, offset) == 2)  /* Notification Class - OPTIONAL */
+            offset = fUnsignedTag (tvb, pinfo, tree, offset, "Notification Class: ");
         if (offset == lastoffset) break;     /* nothing happened, exit loop */
     }
 
