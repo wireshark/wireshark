@@ -1833,8 +1833,8 @@ static void do_zoom_common(struct graph *g, GdkEventButton *event)
     }
     else {
         /* Mouse - just read it from event */
-        pointer_x = event->x;
-        pointer_y = event->y;
+        pointer_x = (int)event->x;
+        pointer_y = (int)event->y;
     }
 
 
