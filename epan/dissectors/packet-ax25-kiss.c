@@ -292,42 +292,42 @@ proto_register_ax25_kiss(void)
 		{ &hf_ax25_kiss_cmd,
 			{ "Cmd",			"ax25_kiss.cmd",
 			FT_UINT8, BASE_DEC, NULL, KISS_CMD_MASK,
-			"Cmd", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_kiss_port,
 			{ "Port",			"ax25_kiss.port",
 			FT_UINT8, BASE_DEC, NULL, KISS_PORT_MASK,
-			"Port", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_kiss_txdelay,
 			{ "Tx delay",			"ax25_kiss.txdelay",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Tx delay", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_kiss_persistence,
 			{ "Persistence",		"ax25_kiss.persistence",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Persistence", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_kiss_slottime,
 			{ "Slot time",			"ax25_kiss.slottime",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Slot time", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_kiss_txtail,
 			{ "Tx tail",			"ax25_kiss.txtail",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Tx tail", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_kiss_fullduplex,
 			{ "Full duplex",		"ax25_kiss.fullduplex",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Full duplex", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_kiss_sethardware,
 			{ "Set hardware",		"ax25_kiss.sethardware",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Set hardware", HFILL }
+			NULL, HFILL }
 		},
 	};
 
@@ -368,7 +368,7 @@ proto_reg_handoff_ax25_kiss(void)
 		dissector_handle_t kiss_handle;
 
 		kiss_handle = create_dissector_handle( dissect_ax25_kiss, proto_ax25_kiss );
-		dissector_add( "wtap_encap", WTAP_ENCAP_AX25_KISS, kiss_handle );
+		dissector_add_uint( "wtap_encap", WTAP_ENCAP_AX25_KISS, kiss_handle );
 
 		inited = TRUE;
 	}
