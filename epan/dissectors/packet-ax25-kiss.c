@@ -285,7 +285,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 void
 proto_register_ax25_kiss(void)
 {
-	module_t *ax25_kiss_module;
+	/* module_t *ax25_kiss_module; */
 
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
@@ -347,7 +347,7 @@ proto_register_ax25_kiss(void)
 	proto_register_subtree_array( ett, array_length( ett ) );
 
 	/* Register preferences module */
-        ax25_kiss_module = prefs_register_protocol( proto_ax25_kiss, proto_reg_handoff_ax25_kiss );
+        /* ax25_kiss_module = prefs_register_protocol( proto_ax25_kiss, proto_reg_handoff_ax25_kiss ); */
 
 	/* Register any preference */
 /*
