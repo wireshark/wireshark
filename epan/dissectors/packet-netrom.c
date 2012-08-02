@@ -563,37 +563,37 @@ proto_register_netrom(void)
 		{ &hf_netrom_ttl,
 			{ "TTL",			"netrom.ttl",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"TTL", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_netrom_my_cct_index,
-			{ "My Cct index",		"netrom.my.cct.index",
+			{ "My circuit index",		"netrom.my.cct.index",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"My circuit index", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_netrom_my_cct_id,
-			{ "My Cct ID",			"netrom.my.cct.id",
+			{ "My circuit ID",		"netrom.my.cct.id",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"My circuit identifier", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_netrom_your_cct_index,
-			{ "Your Cct index",		"netrom.your.cct.index",
+			{ "Your circuit index",		"netrom.your.cct.index",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"Your circuit index", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_netrom_your_cct_id,
-			{ "Your Cct ID",		"netrom.your.cct.id",
+			{ "Your circuit ID",		"netrom.your.cct.id",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"Your circuit identifier", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_netrom_n_r,
 			{ "N(r)",			"netrom.n_r",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"N(r)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_netrom_n_s,
 			{ "N(s)",			"netrom.n_s",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"N(s)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_netrom_type,
 			{ "Type",			"netrom.type",
@@ -643,7 +643,7 @@ proto_register_netrom(void)
 		{ &hf_netrom_mnemonic,
 			{ "Node name",			"netrom.name",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Node name", HFILL }
+			NULL, HFILL }
 		},
 	};
 
