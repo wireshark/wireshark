@@ -34,6 +34,8 @@
  * Information on the "protocols" recognised by this dissector are drawn from:
  *  DX cluster:
  *    A network capture kindly donated by Luca Melette.
+ *  APRS:
+ *    http://www.aprs.org/
  *
  * Inspiration on how to build the dissector drawn from
  *   packet-sdlc.c
@@ -67,6 +69,7 @@
 void proto_reg_handoff_ax25_nol3(void);
 
 /* Dissector handles - all the possibles are listed */
+static dissector_handle_t aprs_handle;
 static dissector_handle_t default_handle;
 
 /* Initialize the protocol and registered fields */
@@ -78,6 +81,7 @@ static int hf_dx_report			= -1;
 static int hf_text			= -1;
 
 /* Global preferences */
+static gboolean gPREF_APRS     = FALSE;
 static gboolean gPREF_DX       = FALSE;
 
 /* Initialize the subtree pointers */
@@ -117,6 +121,45 @@ dissect_dx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 }
 
+static gboolean
+isaprs( guint8 dti )
+{
+	gboolean b = FALSE;
+
+	switch ( dti )
+		{
+		case '<'	:
+		case '>'	:
+		case '?'	:
+		case '$'	:
+		case '%'	:
+		case 'T'	:
+		case '['	:
+		case ')'	:
+		case '_'	:
+		case ','	:
+		case '{'	:
+		case '}'	:
+		case ':'	:
+		case ';'	:
+		case 0x1c	:
+		case 0x1d	:
+		case '\''	:
+		case '`'	:
+		case '#'	:
+		case '*'	:
+		case '&'	:
+		case '+'	:
+		case '.'	:
+		case '='	:
+		case '!'	:
+		case '@'	:
+		case '/'	: b = TRUE; break;
+		default		: break;
+		}
+	return b;
+}
+
 static void
 dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 {
@@ -126,6 +169,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	int offset;
 	void *saved_private_data;
 	tvbuff_t *next_tvb = NULL;
+	guint8 dti = 0;
 	gboolean dissected;
 
 	info_buffer = ep_alloc( STRLEN );
@@ -138,6 +182,12 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	offset = 0;
 	g_snprintf( info_buffer, STRLEN, "Text" );
 
+	if ( gPREF_APRS )
+		{
+		dti = tvb_get_guint8( tvb, offset );
+		if ( isaprs( dti ) )
+			g_snprintf( info_buffer, STRLEN, "APRS" );
+		}
 	if ( gPREF_DX )
 		{
 		if ( tvb_get_guint8( tvb, offset ) == 'D' && tvb_get_guint8( tvb, offset + 1 ) == 'X' )
@@ -163,6 +213,14 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 		dissected = FALSE;
+		if ( gPREF_APRS )
+			{
+			if ( isaprs( dti ) )
+				{
+				dissected = TRUE;
+				call_dissector( aprs_handle , next_tvb, pinfo, ax25_nol3_tree );
+				}
+			}
 		if ( gPREF_DX )
 			{
 			if ( tvb_get_guint8( tvb, offset ) == 'D' && tvb_get_guint8( tvb, offset + 1 ) == 'X' )
@@ -186,7 +244,7 @@ proto_register_ax25_nol3(void)
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_text,
-			{ "Text",			"ax25.nol3.text",
+			{ "Text",			"ax25_nol3.text",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
@@ -194,7 +252,7 @@ proto_register_ax25_nol3(void)
 
 	static hf_register_info hf_dx[] = {
 		{ &hf_dx_report,
-			{ "DX",				"ax25.nol3.dx",
+			{ "DX",				"ax25_nol3.dx",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			"DX cluster", HFILL }
 		},
@@ -220,6 +278,11 @@ proto_register_ax25_nol3(void)
         ax25_nol3_module = prefs_register_protocol( proto_ax25_nol3, proto_reg_handoff_ax25_nol3);
 
 	/* Register any preference */
+        prefs_register_bool_preference(ax25_nol3_module, "showaprs",
+             "Decode the APRS info field",
+	     "Enable decoding of the payload as APRS.",
+	     &gPREF_APRS );
+
         prefs_register_bool_preference(ax25_nol3_module, "showcluster",
              "Decode DX cluster info field",
 	     "Enable decoding of the payload as DX cluster info.",
@@ -247,6 +310,7 @@ proto_reg_handoff_ax25_nol3(void)
 
 		/*
 		*/
+		aprs_handle     = find_dissector( "aprs" );
 		default_handle  = find_dissector( "data" );
 
 	        inited = TRUE;
