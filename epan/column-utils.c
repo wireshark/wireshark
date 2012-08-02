@@ -1388,6 +1388,14 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
 
   switch (addr->type) {
 
+  case AT_AX25:
+    if (is_src)
+      pinfo->cinfo->col_expr.col_expr[col] = "ax25.src";
+    else
+      pinfo->cinfo->col_expr.col_expr[col] = "ax25.dst";
+    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], ax25_to_str(addr->data), COL_MAX_LEN);
+    break;
+
   case AT_ETHER:
     if (is_src)
       pinfo->cinfo->col_expr.col_expr[col] = "eth.src";

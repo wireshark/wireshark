@@ -1024,6 +1024,30 @@ decode_numeric_bitfield(const guint32 val, const guint32 mask, const int width,
   return buf;
 }
 
+/* XXX FIXME
+remove this one later when every call has been converted to address_to_str()
+*/
+gchar *
+ax25_to_str(const guint8 *ad)
+{
+	return bytestring_to_str(ad, 7, ':');
+}
+
+/* XXX FIXME
+remove this one later when every call has been converted to address_to_str()
+*/
+gchar *
+get_ax25_name(const guint8 *ad)
+{
+	address addr;
+
+	addr.type = AT_AX25;
+	addr.len  = 7;
+	addr.data = ad;
+
+	return address_to_str( &addr );
+}
+
 /*
  This function is very fast and this function is called a lot.
  XXX update the ep_address_to_str stuff to use this function.

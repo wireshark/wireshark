@@ -586,6 +586,13 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
   case AT_IB:
     ib_addr_to_str_buf(addr, buf, buf_len);
     break;
+  case AT_AX25:
+    addrdata = addr->data;
+    g_snprintf(buf, buf_len, "%c%c%c%c%c%c-%02d",
+        (addrdata[0] >> 1) & 0x7f, (addrdata[1] >> 1) & 0x7f, (addrdata[2] >> 1) & 0x7f,
+        (addrdata[3] >> 1) & 0x7f, (addrdata[4] >> 1) & 0x7f, (addrdata[5] >> 1) & 0x7f,
+        (addrdata[6] >> 1) & 0x0f );
+    break;
   default:
     g_assert_not_reached();
   }

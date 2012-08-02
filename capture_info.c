@@ -41,6 +41,7 @@
 #include <epan/dissectors/packet-ap1394.h>
 #include <epan/dissectors/packet-atalk.h>
 #include <epan/dissectors/packet-atm.h>
+#include <epan/dissectors/packet-ax25.h>
 #include <epan/dissectors/packet-clip.h>
 #include <epan/dissectors/packet-eth.h>
 #include <epan/dissectors/packet-fddi.h>
@@ -354,6 +355,9 @@ capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd,
         break;
     case WTAP_ENCAP_AX25_KISS:
         capture_ax25_kiss(pd, 0, caplen, counts);
+        break;
+    case WTAP_ENCAP_AX25:
+        capture_ax25(pd, 0, caplen, counts);
         break;
         /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
            pseudo-header to DLT_ATM_RFC1483, with LLC header following;

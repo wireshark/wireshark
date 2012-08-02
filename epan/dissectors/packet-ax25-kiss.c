@@ -118,6 +118,7 @@
 #include <epan/etypes.h>
 
 #include "packet-ax25-kiss.h"
+#include "packet-ax25.h"
 
 #define STRLEN	80
 
@@ -140,6 +141,8 @@
 void proto_reg_handoff_ax25_kiss(void);
 
 /* Dissector handles - all the possibles are listed */
+static dissector_handle_t ax25_handle;
+
 
 /* Initialize the protocol and registered fields */
 static int proto_ax25_kiss           = -1;
@@ -174,17 +177,14 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	int kiss_param_len;
 	char *frame_type_text;
 	char *info_buffer;
-#if 0
 	void *saved_private_data;
 	tvbuff_t *next_tvb = NULL;
-#endif
 
 
 	info_buffer = ep_alloc( STRLEN );
 	info_buffer[0]='\0';
 
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "KISS" );
+	col_set_str( pinfo->cinfo, COL_PROTOCOL, "AX.25 KISS" );
 
 	col_clear( pinfo->cinfo, COL_INFO );
 
@@ -280,6 +280,13 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	}
 	/* Call sub-dissectors here */
 
+	if ( kiss_type == KISS_DATA_FRAME )
+		{
+		saved_private_data = pinfo->private_data;
+		next_tvb = tvb_new_subset( tvb, offset, -1, -1 );
+		call_dissector( ax25_handle, next_tvb, pinfo, parent_tree );
+		pinfo->private_data = saved_private_data;
+		}
 }
 
 void
@@ -370,6 +377,9 @@ proto_reg_handoff_ax25_kiss(void)
 		kiss_handle = create_dissector_handle( dissect_ax25_kiss, proto_ax25_kiss );
 		dissector_add_uint( "wtap_encap", WTAP_ENCAP_AX25_KISS, kiss_handle );
 
+		/* only currently implemented for AX.25 */
+		ax25_handle = find_dissector( "ax25" );
+
 		inited = TRUE;
 	}
 }
@@ -390,7 +400,7 @@ capture_ax25_kiss( const guchar *pd, int offset, int len, packet_counts *ld)
 	l_offset += KISS_HEADER_SIZE; /* step over kiss header */
 	switch ( kiss_cmd & KISS_CMD_MASK )
 		{
-		case KISS_DATA_FRAME	: break;
+		case KISS_DATA_FRAME	: capture_ax25( pd, l_offset, len, ld ); break;
 		case KISS_TXDELAY	: l_offset += 1; break;
 		case KISS_PERSISTENCE	: l_offset += 1; break;
 		case KISS_SLOT_TIME	: l_offset += 1; break;

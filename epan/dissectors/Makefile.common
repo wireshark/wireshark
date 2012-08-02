@@ -278,6 +278,7 @@ DISSECTOR_SRC = \
 	packet-atm.c		\
 	packet-atmtcp.c		\
 	packet-auto_rp.c	\
+	packet-ax25.c		\
 	packet-ax25-kiss.c	\
 	packet-ax4000.c		\
 	packet-ayiya.c		\
@@ -1194,6 +1195,7 @@ DISSECTOR_INCLUDES =	\
 	packet-arp.h	\
 	packet-atalk.h	\
 	packet-atm.h	\
+	packet-ax25.h	\
 	packet-ax25-kiss.h	\
 	packet-bacapp.h	\
 	packet-ber.h	\

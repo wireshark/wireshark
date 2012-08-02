@@ -53,6 +53,8 @@ extern void     address_to_str_buf(const address *addr, gchar *buf, int buf_len)
 extern gchar*   bytestring_to_str(const guint8 *, const guint32, const char);
 extern gchar*	ether_to_str(const guint8 *);
 extern gchar*	tvb_ether_to_str(tvbuff_t *tvb, const gint offset);
+extern gchar*   ax25_to_str(const guint8 *);
+extern gchar*   get_ax25_name(const guint8 *);
 extern const gchar*	ip_to_str(const guint8 *);
 extern const gchar*	tvb_ip_to_str(tvbuff_t *tvb, const gint offset);
 extern void	ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);

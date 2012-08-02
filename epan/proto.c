@@ -198,6 +198,10 @@ proto_tree_set_string(field_info *fi, const char* value);
 static void
 proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length, gint encoding);
 static void
+proto_tree_set_ax25(field_info *fi, const guint8* value);
+static void
+proto_tree_set_ax25_tvb(field_info *fi, tvbuff_t *tvb, gint start);
+static void
 proto_tree_set_ether(field_info *fi, const guint8* value);
 static void
 proto_tree_set_ether_tvb(field_info *fi, tvbuff_t *tvb, gint start);
@@ -1340,6 +1344,11 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		case FT_IPv6:
 			DISSECTOR_ASSERT(length >= 0 && length <= FT_IPv6_LEN);
 			proto_tree_set_ipv6_tvb(new_fi, tvb, start, length);
+			break;
+
+		case FT_AX25:
+			DISSECTOR_ASSERT(length == 7);
+			proto_tree_set_ax25_tvb(new_fi, tvb, start);
 			break;
 
 		case FT_ETHER:
@@ -2608,6 +2617,44 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 	string = tvb_get_ephemeral_string_enc(tvb, start, length, encoding);
 	proto_tree_set_string(fi, string);
 }
+
+
+/* Add a FT_AX25 to a proto_tree */
+proto_item *
+proto_tree_add_ax25(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
+		const guint8* value)
+{
+	proto_item		*pi;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
+
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+	DISSECTOR_ASSERT(hfinfo->type == FT_AX25);
+
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
+	proto_tree_set_ax25(new_fi, value);
+
+	return pi;
+}
+
+/* Set the FT_AX25 value */
+static void
+proto_tree_set_ax25(field_info *fi, const guint8* value)
+{
+	fvalue_set(&fi->value, (gpointer) value, FALSE);
+}
+
+static void
+proto_tree_set_ax25_tvb(field_info *fi, tvbuff_t *tvb, gint start)
+{
+	proto_tree_set_ax25(fi, tvb_get_ptr(tvb, start, 7));
+}
+
 
 /* Add a FT_ETHER to a proto_tree */
 proto_item *
@@ -5328,6 +5375,13 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s (0x%08X)", hfinfo->name,
 				   get_ipxnet_name(integer), integer);
+			break;
+
+		case FT_AX25:
+			bytes = fvalue_get(&fi->value);
+			label_fill_descr(label_str, hfinfo,
+				   get_ax25_name(bytes),
+				   ax25_to_str(bytes));
 			break;
 
 		case FT_ETHER:

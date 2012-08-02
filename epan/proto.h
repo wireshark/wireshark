@@ -1039,6 +1039,18 @@ extern proto_item *
 proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
+/** Add a FT_AX25 to a proto_tree.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_ax25(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const guint8* value);
+
 /** Add a FT_ETHER to a proto_tree.
  @param tree the tree to append this item to
  @param hfindex field index

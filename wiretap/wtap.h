@@ -238,6 +238,7 @@ extern "C" {
 #define WTAP_ENCAP_SDH                          146
 #define WTAP_ENCAP_DBUS                         147
 #define WTAP_ENCAP_AX25_KISS                    148
+#define WTAP_ENCAP_AX25                         149
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 

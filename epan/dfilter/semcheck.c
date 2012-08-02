@@ -83,8 +83,9 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_UINT_BYTES:
 		case FT_GUID:
 		case FT_OID:
+		case FT_AX25:
 
-			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES || b == FT_GUID || b == FT_OID);
+			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES || b == FT_GUID || b == FT_OID || b == FT_AX25);
 
 		case FT_BOOLEAN:
 		case FT_FRAMENUM:
@@ -165,6 +166,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		case FT_IPv4:
 		case FT_IPv6:
 		case FT_IPXNET:
+		case FT_AX25:
 		case FT_ETHER:
 		case FT_BYTES:
 		case FT_UINT_BYTES:
@@ -262,6 +264,7 @@ static gboolean
 is_bytes_type(enum ftenum type)
 {
 	switch(type) {
+		case FT_AX25:
 		case FT_ETHER:
 		case FT_BYTES:
 		case FT_UINT_BYTES:

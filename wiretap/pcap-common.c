@@ -87,6 +87,7 @@ static const struct {
 	 */
 	{ 0,		WTAP_ENCAP_NULL },	/* null encapsulation */
 	{ 1,		WTAP_ENCAP_ETHERNET },
+	{ 3,		WTAP_ENCAP_AX25 },
 	{ 6,		WTAP_ENCAP_TOKEN_RING },	/* IEEE 802 Networks - assume token ring */
 	{ 7,		WTAP_ENCAP_ARCNET },
 	{ 8,		WTAP_ENCAP_SLIP },
