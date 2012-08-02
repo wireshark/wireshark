@@ -611,6 +611,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ff.c
 	dissectors/packet-fip.c
 	dissectors/packet-fix.c
+	dissectors/packet-flexnet.c
 	dissectors/packet-flip.c
 	dissectors/packet-fmp.c
 	dissectors/packet-fmp_notify.c

@@ -113,7 +113,6 @@
 
 #include <epan/strutil.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/etypes.h>
 
@@ -154,11 +153,6 @@ static int hf_ax25_kiss_slottime	= -1;
 static int hf_ax25_kiss_txtail	= -1;
 static int hf_ax25_kiss_fullduplex	= -1;
 static int hf_ax25_kiss_sethardware	= -1;
-
-/* Global preference ("controls" display of numbers) */
-/*
-static gboolean gPREF_HEX = FALSE;
-*/
 
 /* Initialize the subtree pointers */
 static gint ett_ax25_kiss = -1;
@@ -292,8 +286,6 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 void
 proto_register_ax25_kiss(void)
 {
-	/* module_t *ax25_kiss_module; */
-
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_ax25_kiss_cmd,
@@ -352,17 +344,6 @@ proto_register_ax25_kiss(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25_kiss, hf, array_length( hf ) );
 	proto_register_subtree_array( ett, array_length( ett ) );
-
-	/* Register preferences module */
-        /* ax25_kiss_module = prefs_register_protocol( proto_ax25_kiss, proto_reg_handoff_ax25_kiss ); */
-
-	/* Register any preference */
-/*
-        prefs_register_bool_preference( ax25_kiss_module, "showhex",
-             "Display numbers in Hex",
-	     "Enable to display numerical values in hexadecimal.",
-	     &gPREF_HEX );
-*/
 }
 
 void

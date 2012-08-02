@@ -531,6 +531,7 @@ DISSECTOR_SRC = \
 	packet-ff.c		\
 	packet-fip.c		\
 	packet-fix.c		\
+	packet-flexnet.c	\
 	packet-flip.c		\
 	packet-fmp.c		\
 	packet-fmp_notify.c	\
@@ -1283,6 +1284,7 @@ DISSECTOR_INCLUDES =	\
 	packet-fddi.h	\
 	packet-ff.h	\
 	packet-fix.h	\
+	packet-flexnet.h	\
 	packet-fmp.h	\
 	packet-fr.h	\
 	packet-frame.h	\

@@ -52,7 +52,6 @@
 
 #include <epan/strutil.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/xdlc.h>
 #include <epan/etypes.h>
@@ -61,6 +60,7 @@
 
 #include "packet-ax25.h"
 #include "packet-netrom.h"
+#include "packet-flexnet.h"
 
 #define STRLEN	80
 
@@ -141,11 +141,6 @@ static const xdlc_cf_items ax25_cf_items = {
 	&hf_ax25_ftype_i,
 	&hf_ax25_ftype_su
 };
-
-/* Global preference ("controls" display of numbers) */
-/*
-static gboolean gPREF_HEX = FALSE;
-*/
 
 /* Initialize the subtree pointers */
 static gint ett_ax25 = -1;
@@ -396,7 +391,6 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 void
 proto_register_ax25(void)
 {
-	/* module_t *ax25_module; */
 	static const true_false_string flags_set_truth =
 		{
 		"Set",
@@ -528,17 +522,6 @@ proto_register_ax25(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25, hf, array_length(hf ) );
 	proto_register_subtree_array(ett, array_length(ett ) );
-
-	/* Register preferences module */
-        /* ax25_module = prefs_register_protocol( proto_ax25, proto_reg_handoff_ax25); */
-
-	/* Register any preference */
-/*
-        prefs_register_bool_preference(ax25_module, "showhex",
-             "Display numbers in Hex",
-	     "Enable to display numerical values in hexadecimal.",
-	     &gPREF_HEX );
-*/
 }
 
 void
@@ -571,7 +554,7 @@ proto_reg_handoff_ax25(void)
 	atalkarp_handle = find_dissector( "data" /* "atalkarp"  */ );
 	ip_handle       = find_dissector( "ip" );
 	arp_handle      = find_dissector( "arp" );
-	flexnet_handle  = find_dissector( "data" /* "flexnet"   */ );
+	flexnet_handle  = find_dissector( "flexnet" );
 	netrom_handle   = find_dissector( "netrom" );
 	no_l3_handle    = find_dissector( "data" /* "ax25_nol3" */ );
 	l3_esc_handle   = find_dissector( "data" /* "l3_esc"    */ );
@@ -621,7 +604,7 @@ if ( I_FRAME( control ) || UI_FRAME( control ) )
 		case AX25_P_ATALKARP	: break;
 		case AX25_P_IP		: capture_ip( pd, l_offset, len, ld ); break;
 		case AX25_P_ARP		: break;
-		case AX25_P_FLEXNET	: break;
+		case AX25_P_FLEXNET	: capture_flexnet( pd, l_offset, len, ld ); break;
 		case AX25_P_NETROM	: capture_netrom( pd, l_offset, len, ld );  break;
 		case AX25_P_NO_L3	: break;
 		case AX25_P_L3_ESC	: break;

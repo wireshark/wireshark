@@ -48,7 +48,6 @@
 
 #include <epan/strutil.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/xdlc.h>
 #include <packet-ip.h>
@@ -137,11 +136,6 @@ const value_string op_copde_vals[] = {
 	{ 0			, NULL }
 };
 
-/* Global preference ("controls" display of numbers) */
-/*
-static gboolean gPREF_HEX = FALSE;
-*/
-
 /* Initialize the subtree pointers */
 static gint ett_netrom = -1;
 static gint ett_netrom_type = -1;
@@ -180,8 +174,7 @@ dissect_netrom_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 						( type & NETROM_NAK_FLAG   ) ? ", NAK"   : "",
 						( type & NETROM_CHOKE_FLAG ) ? ", Choke" : "",
 						type );
-	if ( check_col( pinfo->cinfo, COL_INFO ) )
-		col_add_str( pinfo->cinfo, COL_INFO, info_buffer );
+	col_add_str( pinfo->cinfo, COL_INFO, info_buffer );
 
 	if ( tree )
 		{
@@ -209,7 +202,6 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *netrom_tree;
 	int offset;
-	char *info_buffer;
 	char *op_text_ptr;
 	const guint8 *src_addr;
 	const guint8 *dst_addr;
@@ -223,13 +215,9 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	void *saved_private_data;
 	tvbuff_t *next_tvb = NULL;
 
-	info_buffer = ep_alloc( STRLEN );
+	col_set_str( pinfo->cinfo, COL_PROTOCOL, "NetROM" );
 
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "NetROM" );
-
-	if ( check_col( pinfo->cinfo, COL_INFO ) )
-		col_clear( pinfo->cinfo, COL_INFO );
+	col_clear( pinfo->cinfo, COL_INFO );
 
 	offset = 0;
 
@@ -270,10 +258,8 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case NETROM_INFOACK	: op_text_ptr = "Information acknowledge"	; break;
 		default			: op_text_ptr = "Unknown"			; break;
 		}
-	g_snprintf( info_buffer, STRLEN, "%s", op_text_ptr );
 
-	if ( check_col( pinfo->cinfo, COL_INFO ) )
-		col_add_str( pinfo->cinfo, COL_INFO, info_buffer );
+	col_add_fstr( pinfo->cinfo, COL_INFO, "%s", op_text_ptr );
 
 	if ( tree )
 		{
@@ -546,16 +532,15 @@ dissect_netrom_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_netrom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-if ( tvb_get_guint8( tvb, 0 ) == 0xff )
-	dissect_netrom_routing( tvb, pinfo, tree );
-else
-	dissect_netrom_proto( tvb, pinfo, tree );
+	if ( tvb_get_guint8( tvb, 0 ) == 0xff )
+		dissect_netrom_routing( tvb, pinfo, tree );
+	else
+		dissect_netrom_proto( tvb, pinfo, tree );
 }
 
 void
 proto_register_netrom(void)
 {
-	module_t *netrom_module;
 	static const true_false_string flags_set_truth =
 		{
 		"Set",
@@ -677,17 +662,6 @@ proto_register_netrom(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_netrom, hf, array_length(hf ) );
 	proto_register_subtree_array( ett, array_length( ett ) );
-
-	/* Register preferences module */
-	netrom_module = prefs_register_protocol( proto_netrom, proto_reg_handoff_netrom);
-
-	/* Register any preference */
-/*
-        prefs_register_bool_preference(netrom_module, "showhex",
-             "Display numbers in Hex",
-	     "Enable to display numerical values in hexadecimal.",
-	     &gPREF_HEX );
-*/
 }
 
 void
