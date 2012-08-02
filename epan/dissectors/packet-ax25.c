@@ -551,8 +551,8 @@ proto_reg_handoff_ax25(void)
 	dissector_handle_t ax25_handle;
 
 	ax25_handle = create_dissector_handle( dissect_ax25, proto_ax25 );
-	dissector_add( "wtap_encap", WTAP_ENCAP_AX25, ax25_handle );
-	dissector_add("ip.proto", IP_PROTO_AX25, ax25_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_AX25, ax25_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_AX25, ax25_handle);
 
 	/*
 	  I have added the "data" dissector for all the currently known PID's
