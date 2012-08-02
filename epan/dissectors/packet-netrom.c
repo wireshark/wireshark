@@ -207,8 +207,8 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guint8 *dst_addr;
 	const guint8 *user_addr;
 	const guint8 *node_addr;
-	guint8 src_ssid;
-	guint8 dst_ssid;
+	/* guint8 src_ssid;
+	guint8 dst_ssid; */
 	guint8 op_code;
 	guint8 cct_index;
 	guint8 cct_id;
@@ -225,14 +225,14 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	src_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
 	SET_ADDRESS(&pinfo->dl_src,	AT_AX25, AX25_ADDR_LEN, src_addr);
 	SET_ADDRESS(&pinfo->src,	AT_AX25, AX25_ADDR_LEN, src_addr);
-	src_ssid = *(src_addr + 6);
+	/* src_ssid = *(src_addr + 6); */
 	offset += AX25_ADDR_LEN; /* step over src addr */
 
 	/* destination */
 	dst_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
 	SET_ADDRESS(&pinfo->dl_dst,	AT_AX25, AX25_ADDR_LEN, dst_addr);
 	SET_ADDRESS(&pinfo->dst,	AT_AX25, AX25_ADDR_LEN, dst_addr);
-	dst_ssid = *(dst_addr + 6);
+	/* dst_ssid = *(dst_addr + 6); */
 	offset += AX25_ADDR_LEN; /* step over dst addr */
 
 	offset += 1; /* step over ttl */
@@ -679,15 +679,11 @@ proto_reg_handoff_netrom(void)
 }
 
 void
-capture_netrom( const guchar *pd, int offset, int len, packet_counts *ld)
+capture_netrom( const guchar *pd _U_, int offset, int len, packet_counts *ld)
 {
-	const guchar *l_pd;
-
 	if ( ! BYTES_ARE_IN_FRAME( offset, len, NETROM_MIN_SIZE ) )
 		{
 		ld->other++;
 		return;
 		}
-	l_pd = pd;
-
 }
