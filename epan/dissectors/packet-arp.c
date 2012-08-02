@@ -1236,7 +1236,7 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item  *ti;
   const gchar *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
-  const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
+  const guint8      /* *sha_val, */ *spa_val, /* *tha_val, */ *tpa_val;
   gboolean    is_gratuitous;
 
   /* Hardware Address Type */
@@ -1298,9 +1298,9 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return;
   }
 
-  sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln);
+  /* sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln); */
   spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
-  tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln);
+  /* tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln); */
   tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
 
   /* ARP requests/replies with the same sender and target protocol
