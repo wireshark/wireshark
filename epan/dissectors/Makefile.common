@@ -828,6 +828,7 @@ DISSECTOR_SRC = \
 	packet-netdump.c	\
 	packet-netflow.c	\
 	packet-netperfmeter.c	\
+	packet-netrom.c		\
 	packet-netsync.c	\
 	packet-nettl.c		\
 	packet-newmail.c	\
@@ -1379,6 +1380,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ndmp.h	\
 	packet-ndps.h	\
 	packet-netbios.h	\
+	packet-netrom.h	\
 	packet-nfs.h	\
 	packet-nhrp.h	\
 	packet-nisplus.h	\

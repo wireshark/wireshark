@@ -358,6 +358,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-atm.c
 	dissectors/packet-atmtcp.c
 	dissectors/packet-auto_rp.c
+	dissectors/packet-ax25.c
 	dissectors/packet-ax25-kiss.c 
 	dissectors/packet-ax4000.c
 	dissectors/packet-ayiya.c
@@ -906,6 +907,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-netdump.c
 	dissectors/packet-netflow.c
 	dissectors/packet-netperfmeter.c
+	dissectors/packet-netrom.c
 	dissectors/packet-netsync.c
 	dissectors/packet-nettl.c
 	dissectors/packet-newmail.c

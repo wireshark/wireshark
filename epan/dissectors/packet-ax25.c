@@ -60,6 +60,7 @@
 #include <packet-ip.h>
 
 #include "packet-ax25.h"
+#include "packet-netrom.h"
 
 #define STRLEN	80
 
@@ -571,7 +572,7 @@ proto_reg_handoff_ax25(void)
 	ip_handle       = find_dissector( "ip" );
 	arp_handle      = find_dissector( "arp" );
 	flexnet_handle  = find_dissector( "data" /* "flexnet"   */ );
-	netrom_handle   = find_dissector( "data" /* "netrom"    */ );
+	netrom_handle   = find_dissector( "netrom" );
 	no_l3_handle    = find_dissector( "data" /* "ax25_nol3" */ );
 	l3_esc_handle   = find_dissector( "data" /* "l3_esc"    */ );
 	default_handle  = find_dissector( "data" );
@@ -621,7 +622,7 @@ if ( I_FRAME( control ) || UI_FRAME( control ) )
 		case AX25_P_IP		: capture_ip( pd, l_offset, len, ld ); break;
 		case AX25_P_ARP		: break;
 		case AX25_P_FLEXNET	: break;
-		case AX25_P_NETROM	: break;
+		case AX25_P_NETROM	: capture_netrom( pd, l_offset, len, ld );  break;
 		case AX25_P_NO_L3	: break;
 		case AX25_P_L3_ESC	: break;
 		default			: break;
