@@ -908,7 +908,7 @@ insert_new_rows(GList *list)
     device.has_snaplen = global_capture_opts.default_options.has_snaplen;
     device.snaplen = global_capture_opts.default_options.snaplen;
     device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
-    monitor_mode = prefs_capture_device_monitor_mode(if_name);
+    monitor_mode = prefs_capture_device_monitor_mode(if_string);
     caps = capture_get_if_capabilities(if_string, monitor_mode, NULL);
     gtk_list_store_append (GTK_LIST_STORE(model), &iter);
     for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
