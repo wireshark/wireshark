@@ -342,6 +342,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ap1394.c
 	dissectors/packet-app-pkix-cert.c
 	dissectors/packet-applemidi.c
+	dissectors/packet-aprs.c
 	dissectors/packet-arcnet.c
 	dissectors/packet-armagetronad.c
 	dissectors/packet-arp.c

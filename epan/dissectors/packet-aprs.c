@@ -622,10 +622,10 @@ dissect_aprs_compressed_msg(	tvbuff_t *tvb,
 }
 
 
-static mic_e_dst_code_table_s *
+static const mic_e_dst_code_table_s *
 dst_code_lookup( guint8 ch )
 {
-	int index;
+	guint index;
 
 	index = 0;
 	while ( index < ( sizeof( dst_code ) / sizeof( mic_e_dst_code_table_s ) )
@@ -685,7 +685,7 @@ dissect_mic_e(	tvbuff_t *tvb,
 	int cse;
 	int spd;
 	guint8 ssid;
-	mic_e_dst_code_table_s *dst_code_entry;
+	const mic_e_dst_code_table_s *dst_code_entry;
 
 	/*data_len = 8;*/
 	data_len = tvb_length_remaining( tvb, offset );
@@ -1352,7 +1352,7 @@ dissect_aprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if ( parent_tree )
 		{
 		/* create display subtree for the protocol */
-		ti = proto_tree_add_protocol_format( parent_tree , proto_aprs, tvb, 0, tvb_length_remaining( tvb, offset ), info_buffer );
+		ti = proto_tree_add_protocol_format( parent_tree , proto_aprs, tvb, 0, tvb_length_remaining( tvb, offset ), "%s", info_buffer );
 		aprs_tree = proto_item_add_subtree( ti, ett_aprs );
 
 		offset = 0;
