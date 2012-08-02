@@ -555,7 +555,7 @@ proto_reg_handoff_ax25(void)
 	arp_handle      = find_dissector( "arp" );
 	flexnet_handle  = find_dissector( "flexnet" );
 	netrom_handle   = find_dissector( "netrom" );
-	no_l3_handle    = find_dissector( "data" /* "ax25_nol3" */ );
+	no_l3_handle    = find_dissector( "ax25_nol3" );
 	l3_esc_handle   = find_dissector( "data" /* "l3_esc"    */ );
 	default_handle  = find_dissector( "data" );
 
