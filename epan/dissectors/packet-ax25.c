@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -27,7 +27,7 @@
 /*
  * This dissector is for:
  * AX.25 Amateur Packet-Radio Link-Layer Protocol, Version 2.0, October 1984
- * 
+ *
  * At the time of writing the specification could be found here:
  *   http://www.tapr.org/pub_ax25.html
  *
@@ -161,7 +161,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	int hdr_len;
 	int via_index;
 	char *info_buffer;
-	char v2cmdresp;
+	/* char v2cmdresp; */
 	char *ax25_version;
 	int is_response;
 	char *text_ptr;
@@ -181,7 +181,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	info_buffer[0]='\0';
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "AX.25" );
-    
+
 	col_clear( pinfo->cinfo, COL_INFO );
 
 	/* protocol offset for an AX.25 packet */
@@ -205,22 +205,22 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 		offset += AX25_ADDR_LEN; /* step over a via addr */
 
 	/* decode the cmd/resp field */
-	v2cmdresp = '.';
+	/* v2cmdresp = '.'; */
 	switch ( ( (dst_ssid >> 6) & 0x02) | ( (src_ssid >> 7) & 0x01 ) )
 		{
 		case 1 : /* V2.0 Response */
 			ax25_version = "V2.0+";
-			v2cmdresp = 'R';
+			/* v2cmdresp = 'R'; */
 			is_response = TRUE;
 			break;
 		case 2 : /* V2.0 Command */
 			ax25_version = "V2.0+";
-			v2cmdresp = 'C';
+			/* v2cmdresp = 'C'; */
 			is_response = FALSE;
 			break;
 		default :
 			ax25_version = "V?.?";
-			v2cmdresp = '?';
+			/* v2cmdresp = '?'; */
 			is_response = FALSE;
 			break;
 		}
@@ -394,8 +394,8 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 void
 proto_register_ax25(void)
-{                 
-	module_t *ax25_module;
+{
+	/* module_t *ax25_module; */
 	static const true_false_string flags_set_truth =
 		{
 		"Set",
@@ -407,107 +407,107 @@ proto_register_ax25(void)
 	static hf_register_info hf[] = {
 		{ &hf_ax25_dst,
 			{ "Destination",		"ax25.dst",
-			FT_AX25, BASE_NONE, NULL, 0x0,          
+			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Destination callsign", HFILL }
 		},
 		{ &hf_ax25_src,
 			{ "Source",			"ax25.src",
-			FT_AX25, BASE_NONE, NULL, 0x0,          
+			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Source callsign", HFILL }
 		},
 		{ &(hf_ax25_via[ 0 ]),
 			{ "Via 1",			"ax25.via1",
-			FT_AX25, BASE_NONE, NULL, 0x0,          
+			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 1", HFILL }
 		},
 		{ &(hf_ax25_via[ 1 ]),
 			{ "Via 2",			"ax25.via2",
-			FT_AX25, BASE_NONE, NULL, 0x0,          
+			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 2", HFILL }
 		},
 		{ &(hf_ax25_via[ 2 ]),
 			{ "Via 3",			"ax25.via3",
-			FT_AX25, BASE_NONE, NULL, 0x0,          
+			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 3", HFILL }
 		},
 		{ &(hf_ax25_via[ 3 ]),
 			{ "Via 4",			"ax25.via4",
-			FT_AX25, BASE_NONE, NULL, 0x0,          
+			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 4", HFILL }
 		},
 		{ &(hf_ax25_via[ 4 ]),
 			{ "Via 5",			"ax25.via5",
-			FT_AX25, BASE_NONE, NULL, 0x0,          
+			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 5", HFILL }
 		},
 		{ &(hf_ax25_via[ 5 ]),
 			{ "Via 6",			"ax25.via6",
-			FT_AX25, BASE_NONE, NULL, 0x0,          
+			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 6", HFILL }
 		},
 		{ &(hf_ax25_via[ 6 ]),
 			{ "Via 7",			"ax25.via7",
-			FT_AX25, BASE_NONE, NULL, 0x0,          
+			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 7", HFILL }
 		},
 		{ &(hf_ax25_via[ 7 ]),
 			{ "Via 8",			"ax25.via8",
-			FT_AX25, BASE_NONE, NULL, 0x0,          
+			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 8", HFILL }
 		},
 		{ &hf_ax25_ctl,
 			{ "Control",			"ax25.ctl",
-			FT_UINT8, BASE_HEX, NULL, 0x0,          
+			FT_UINT8, BASE_HEX, NULL, 0x0,
 			"Control field", HFILL }
 		},
 		{ &hf_ax25_n_r,
 			{ "n(r)",			"ax25.ctl.n_r",
-			FT_UINT8, BASE_DEC, NULL, XDLC_N_R_MASK,          
+			FT_UINT8, BASE_DEC, NULL, XDLC_N_R_MASK,
 			"", HFILL }
 		},
 		{ &hf_ax25_n_s,
 			{ "n(s)",			"ax25.ctl.n_s",
-			FT_UINT8, BASE_DEC, NULL, XDLC_N_S_MASK,          
+			FT_UINT8, BASE_DEC, NULL, XDLC_N_S_MASK,
 			"", HFILL }
 		},
 		{ &hf_ax25_p,
 			{ "Poll",			"ax25.ctl.p",
-			FT_BOOLEAN, 8, TFS(&flags_set_truth), XDLC_P_F,          
+			FT_BOOLEAN, 8, TFS(&flags_set_truth), XDLC_P_F,
 			"", HFILL }
 		},
 		{ &hf_ax25_f,
 			{ "Final",			"ax25.ctl.f",
-			FT_BOOLEAN, 8, TFS(&flags_set_truth), XDLC_P_F,          
+			FT_BOOLEAN, 8, TFS(&flags_set_truth), XDLC_P_F,
 			"", HFILL }
 		},
 		{ &hf_ax25_ftype_s,
 			{ "Frame type",			"ax25.ctl.ftype_s",
-			FT_UINT8, BASE_HEX, VALS(stype_vals), XDLC_S_FTYPE_MASK,          
+			FT_UINT8, BASE_HEX, VALS(stype_vals), XDLC_S_FTYPE_MASK,
 			"", HFILL }
 		},
 		{ &hf_ax25_ftype_i,
 			{ "Frame type",			"ax25.ctl.ftype_i",
-			FT_UINT8, BASE_HEX, VALS(ftype_vals), XDLC_I_MASK,          
+			FT_UINT8, BASE_HEX, VALS(ftype_vals), XDLC_I_MASK,
 			"", HFILL }
 		},
 		{ &hf_ax25_ftype_su,
 			{ "Frame type",			"ax25.ctl.ftype_su",
-			FT_UINT8, BASE_HEX, VALS(ftype_vals), XDLC_S_U_MASK,          
+			FT_UINT8, BASE_HEX, VALS(ftype_vals), XDLC_S_U_MASK,
 			"", HFILL }
 		},
 		{ &hf_ax25_u_cmd,
 			{ "Frame type",			"ax25.ctl.u_cmd",
-			FT_UINT8, BASE_HEX, VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK,          
+			FT_UINT8, BASE_HEX, VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK,
 			"", HFILL }
 		},
 		{ &hf_ax25_u_resp,
 			{ "Frame type",			"ax25.ctl.u_resp",
-			FT_UINT8, BASE_HEX, VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK,          
+			FT_UINT8, BASE_HEX, VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK,
 			"", HFILL }
 		},
 		{ &hf_ax25_pid,
 			{ "Packet ID",			"ax25.pid",
-			FT_STRING, BASE_NONE, NULL, 0x0,          
+			FT_STRING, BASE_NONE, NULL, 0x0,
 			"Packet identifier", HFILL }
 		},
 	};
@@ -527,16 +527,16 @@ proto_register_ax25(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25, hf, array_length(hf ) );
 	proto_register_subtree_array(ett, array_length(ett ) );
-        
-	/* Register preferences module */       
-        ax25_module = prefs_register_protocol( proto_ax25, proto_reg_handoff_ax25);
-     
-	/* Register any preference */        
+
+	/* Register preferences module */
+        /* ax25_module = prefs_register_protocol( proto_ax25, proto_reg_handoff_ax25); */
+
+	/* Register any preference */
 /*
-        prefs_register_bool_preference(ax25_module, "showhex", 
+        prefs_register_bool_preference(ax25_module, "showhex",
              "Display numbers in Hex",
 	     "Enable to display numerical values in hexadecimal.",
-	     &gPREF_HEX );        
+	     &gPREF_HEX );
 */
 }
 
@@ -544,7 +544,7 @@ void
 proto_reg_handoff_ax25(void)
 {
         static gboolean inited = FALSE;
-        
+
         if( !inited ) {
 
 	dissector_handle_t ax25_handle;
