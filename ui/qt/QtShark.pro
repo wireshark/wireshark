@@ -21,6 +21,10 @@ unix {
     PKGCONFIG += \
         glib-2.0
 
+    packagesExist(portaudio-2.0) {
+        PKGCONFIG += portaudio-2.0
+    }
+
     # Some versions of Ubuntu don't ship with zlib.pc
     eval(PKGCONFIG += zlib) {
         PKGCONFIG += zlib
@@ -233,7 +237,7 @@ macx:QMAKE_LFLAGS += \
     -framework ApplicationServices -framework CoreFoundation -framework CoreServices
 
 unix:LIBS += -L../../lib -Wl,-rpath ../../lib -lwireshark -lwiretap -lwsutil \
-    -lpcap -lportaudio
+    -lpcap
 macx:LIBS += -Wl,-macosx_version_min,10.5 -liconv
 
 # http://stackoverflow.com/questions/3984104/qmake-how-to-copy-a-file-to-the-output
