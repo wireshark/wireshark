@@ -449,9 +449,9 @@ DISSECTOR_SRC = \
 	packet-dlsw.c		\
 	packet-dmp.c		\
 	packet-dmx-chan.c	\
+	packet-dmx-sip.c	\
 	packet-dmx-test.c	\
 	packet-dmx-text.c	\
-	packet-dmx-sip.c	\
 	packet-dmx.c		\
 	packet-dnp.c		\
 	packet-dns.c		\
@@ -814,10 +814,10 @@ DISSECTOR_SRC = \
 	packet-nbd.c		\
 	packet-nbipx.c		\
 	packet-nbns.c		\
-	packet-ncp2222.c	\
-	packet-ncp.c		\
 	packet-ncp-nmas.c	\
 	packet-ncp-sss.c	\
+	packet-ncp2222.c	\
+	packet-ncp.c		\
 	packet-ncs.c		\
 	packet-ndmp.c		\
 	packet-ndp.c		\
