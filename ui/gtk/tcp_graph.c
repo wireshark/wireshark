@@ -2307,16 +2307,6 @@ static void draw_element_line (struct graph *g, struct element *e, cairo_t *cr,
 	xx2 = (int )rint (e->p.line.dim.x2 + g->geom.x - g->wp.x);
 	yy1 = (int )rint ((g->geom.height-1-e->p.line.dim.y1) + g->geom.y-g->wp.y);
 	yy2 = (int )rint ((g->geom.height-1-e->p.line.dim.y2) + g->geom.y-g->wp.y);
-	if (xx1 > xx2) {
-		int tmp=xx2;
-		xx2=xx1;
-		xx1=tmp;
-	}
-	if (yy1 > yy2) {
-		int tmp=yy2;
-		yy2=yy1;
-		yy1=tmp;
-	}
 
 	/* If line completely out of the area, we won't show it  */
 	if ((xx1<0 && xx2<0) || (xx1>=g->wp.width &&  xx2>=g->wp.width) ||
