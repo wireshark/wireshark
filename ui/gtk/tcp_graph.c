@@ -1551,8 +1551,8 @@ static void callback_cross_on_off (GtkWidget *toggle, gpointer data)
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle))) {
 		int x, y;
 		g->cross.draw = TRUE;
-		/*gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &x, &y, 0);
-		cross_draw (g, x, y);*/
+		gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &x, &y, 0);
+		cross_draw (g, x, y);
 	} else {
 		g->cross.draw = FALSE;
 		cross_erase (g);
@@ -2218,7 +2218,7 @@ static void graph_pixmap_display (struct graph *g)
 #if USE_CROSSHAIR_CURSOR
 #else
     if (g->cross.erase_needed) {
-       cross_xor(g, g->cross.x, g->cross.y);
+       cross_erase(g);
     }
 #endif
 }
@@ -3460,7 +3460,16 @@ static void do_key_motion (struct graph *g)
 #else
 	if (g->cross.draw) {
 		int pointer_x, pointer_y;
+#if GTK_CHECK_VERSION(3,0,0)
+		gdk_window_get_device_position (gtk_widget_get_window(g->drawing_area),
+									  gdk_device_manager_get_client_pointer (
+										gdk_display_get_device_manager (
+										  gtk_widget_get_display (GTK_WIDGET (g->drawing_area)))),
+									  &pointer_x, &pointer_y, NULL);
+
+#else
 		gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
+#endif
 		cross_draw (g, pointer_x, pointer_y);
 	}
 #endif /* USE_CROSSHAIR_CURSOR */
