@@ -1810,11 +1810,33 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer 
 }
 #endif
 
-/* TODO: merge this and do_zoom_keyboard()? */
-static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
+/* Zoom because of keyboard or mouse press */
+static void do_zoom_common(struct graph *g, GdkEventButton *event)
 {
     int cur_width = g->geom.width, cur_height = g->geom.height;
     struct { double x, y; } factor;
+    int pointer_x, pointer_y;
+
+    /* Get mouse position */
+    if (event == NULL) {
+        /* Keyboard - query it */
+#if GTK_CHECK_VERSION(3,0,0)
+        gdk_window_get_device_position(gtk_widget_get_window(g->drawing_area),
+                                       gdk_device_manager_get_client_pointer(
+                                           gdk_display_get_device_manager(
+                                               gtk_widget_get_display(GTK_WIDGET(g->drawing_area)))),
+                                       &pointer_x, &pointer_y, NULL);
+
+#else
+        gdk_window_get_pointer(gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
+#endif
+    }
+    else {
+        /* Mouse - just read it from event */
+        pointer_x = event->x;
+        pointer_y = event->y;
+    }
+
 
     if (g->zoom.flags & ZOOM_OUT) {
         /* Zoom out */
@@ -1842,14 +1864,18 @@ static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
         g->geom.width = g->wp.width;
     if (g->geom.height < g->wp.height)
         g->geom.height = g->wp.height;
+
+    /* Work out new zoom */
     g->zoom.x = (g->geom.width - 1) / g->bounds.width;
     g->zoom.y = (g->geom.height- 1) / g->bounds.height;
 
+    /* Move origin to keep mouse position at centre of view */
     g->geom.x -= (int )rint((g->geom.width - cur_width) *
-            ((event->x-g->geom.x)/(double )cur_width));
+            ((pointer_x - g->geom.x)/(double)cur_width));
     g->geom.y -= (int )rint((g->geom.height - cur_height) *
-            ((event->y-g->geom.y)/(double )cur_height));
+            ((pointer_y - g->geom.y)/(double)cur_height));
 
+    /* Make sure we haven't moved outside the whole graph */
     if (g->geom.x > g->wp.x)
         g->geom.x = g->wp.x;
     if (g->geom.y > g->wp.y)
@@ -1859,8 +1885,9 @@ static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
     if (g->wp.y + g->wp.height > g->geom.y + g->geom.height)
         g->geom.y = g->wp.height + g->wp.y - g->geom.height;
 #if 0
-    printf("button press: graph: (%d,%d), (%d,%d); viewport: (%d,%d), "
+    printf("%s press: graph: (%d,%d), (%d,%d); viewport: (%d,%d), "
             "(%d,%d); zooms: (%f,%f)\n", g->geom.x, g->geom.y,
+            (event != NULL) ? "mouse" : "key",
             g->geom.width, g->geom.height, g->wp.x, g->wp.y, g->wp.width,
             g->wp.height, g->zoom.x, g->zoom.y);
 #endif
@@ -1871,82 +1898,15 @@ static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
     axis_display(g->x_axis);
 }
 
+
 static void do_zoom_keyboard(struct graph *g)
 {
-    int cur_width = g->geom.width, cur_height = g->geom.height;
-    struct { double x, y; } factor;
-    int pointer_x, pointer_y;
+    do_zoom_common(g, NULL);
+}
 
-#if GTK_CHECK_VERSION(3,0,0)
-    gdk_window_get_device_position(gtk_widget_get_window(g->drawing_area),
-                                   gdk_device_manager_get_client_pointer(
-                                       gdk_display_get_device_manager(
-                                           gtk_widget_get_display(GTK_WIDGET(g->drawing_area)))),
-                                   &pointer_x, &pointer_y, NULL);
-
-#else
-    gdk_window_get_pointer(gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
-#endif
-
-    /* Work out what x and y zoom factors should be */
-    if (g->zoom.flags & ZOOM_OUT) {
-
-        /**********************/
-        /* Zooming OUT        */
-        factor.x = 1 / g->zoom.step_x;
-        factor.y = 1 / g->zoom.step_y;
-    } else {
-
-        /**********************/
-        /* Zooming IN         */
-        factor.x = g->zoom.step_x;
-
-        /* Don't zoom in too far vertically */
-        if (g->geom.height >= (g->bounds.height * MAX_PIXELS_PER_SN)) {
-            factor.y = 1.0;
-        }
-        else {
-            /* Not locked, so factor y is step_y */
-            factor.y = g->zoom.step_y;
-        }
-    }
-
-    /* Multiply by x and y factors */
-    g->geom.width = (int )rint(g->geom.width * factor.x);
-    g->geom.height = (int )rint(g->geom.height * factor.y);
-
-    /* Clip to space if necessary */
-    if (g->geom.width < g->wp.width)
-        g->geom.width = g->wp.width;
-    if (g->geom.height < g->wp.height)
-        g->geom.height = g->wp.height;
-    g->zoom.x = (g->geom.width - 1) / g->bounds.width;
-    g->zoom.y = (g->geom.height- 1) / g->bounds.height;
-
-    g->geom.x -= (int )rint((g->geom.width - cur_width) *
-            ((pointer_x - g->geom.x)/(double )cur_width));
-    g->geom.y -= (int )rint((g->geom.height - cur_height) *
-            ((pointer_y - g->geom.y)/(double )cur_height));
-
-    if (g->geom.x > g->wp.x)
-        g->geom.x = g->wp.x;
-    if (g->geom.y > g->wp.y)
-        g->geom.y = g->wp.y;
-    if (g->wp.x + g->wp.width > g->geom.x + g->geom.width)
-        g->geom.x = g->wp.width + g->wp.x - g->geom.width;
-    if (g->wp.y + g->wp.height > g->geom.y + g->geom.height)
-        g->geom.y = g->wp.height + g->wp.y - g->geom.height;
-#if 0
-    printf("key press: graph: (%d,%d), (%d,%d); viewport: (%d,%d), "
-            "(%d,%d); zooms: (%f,%f)\n", g->geom.x, g->geom.y,
-            g->geom.width, g->geom.height, g->wp.x, g->wp.y, g->wp.width,
-            g->wp.height, g->zoom.x, g->zoom.y);
-#endif
-
-    graph_element_lists_make(g);
-    graph_display(g);
-    axis_display(g->y_axis);
-    axis_display(g->x_axis);
+static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
+{
+    do_zoom_common(g, event);
 }
 
 static void do_zoom_in_keyboard(struct graph *g)
