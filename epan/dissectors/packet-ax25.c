@@ -90,7 +90,7 @@
 void proto_reg_handoff_ax25(void);
 
 /* Dissector handles - all the possibles are listed */
-static dissector_handle_t rose_handle;
+static dissector_handle_t x25_handle;
 static dissector_handle_t rfc1144c_handle;
 static dissector_handle_t rfc1144_handle;
 static dissector_handle_t segment_handle;
@@ -367,7 +367,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 		switch ( pid )
 			{
-			case AX25_P_ROSE	: call_dissector( rose_handle    , next_tvb, pinfo, parent_tree ); break;
+			case AX25_P_ROSE	: call_dissector( x25_handle    , next_tvb, pinfo, parent_tree ); break;
 			case AX25_P_RFC1144C	: call_dissector( rfc1144c_handle, next_tvb, pinfo, parent_tree ); break;
 			case AX25_P_RFC1144	: call_dissector( rfc1144_handle , next_tvb, pinfo, parent_tree ); break;
 			case AX25_P_SEGMENT	: call_dissector( segment_handle , next_tvb, pinfo, parent_tree ); break;
@@ -543,7 +543,7 @@ proto_reg_handoff_ax25(void)
 	  When a new dissector is available all that needs to be done is to
 	  replace the current dissector name "data" with the new dissector name.
 	*/
-	rose_handle     = find_dissector( "data" /* "x.25"      */ );
+	x25_handle      = find_dissector( "x.25" );
 	rfc1144c_handle = find_dissector( "data" /* "rfc1144c"  */ );
 	rfc1144_handle  = find_dissector( "data" /* "rfc1144"   */ );
 	segment_handle  = find_dissector( "data" /* "segment"   */ );
