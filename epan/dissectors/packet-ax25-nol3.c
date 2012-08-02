@@ -27,7 +27,7 @@
 /*
  * This dissector is for the "No Layer 3 protocol" PID of the AX.25 Amateur
  * Packet-Radio Link-Layer Protocol, Version 2.0, October 1984
- * 
+ *
  * At the time of writing the specification could be found here:
  *   http://www.tapr.org/pub_ax25.html
  *
@@ -188,7 +188,7 @@ proto_register_ax25_nol3(void)
 		{ &hf_text,
 			{ "Text",			"ax25.nol3.text",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Text", HFILL }
+			NULL, HFILL }
 		},
 	};
 
