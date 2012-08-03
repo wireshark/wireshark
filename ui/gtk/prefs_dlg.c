@@ -425,7 +425,8 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   GtkTreeViewColumn *column;
   gint              col_offset;
   prefs_tree_iter   gui_iter, layout_iter, columns_iter, capture_iter;
-  gint              layout_page, columns_page, capture_page;
+  gint              layout_page, columns_page
+  gint              capture_page = 0;
 
 
   if (prefs_w != NULL) {
@@ -621,8 +622,10 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
     gtk_notebook_set_current_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), columns_page);
     break;
   case PREFS_PAGE_CAPTURE:
-    gtk_tree_selection_select_iter(selection, &capture_iter);
-    gtk_notebook_set_current_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), capture_page);
+    if (capture_page) {
+      gtk_tree_selection_select_iter(selection, &capture_iter);
+      gtk_notebook_set_current_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), capture_page);
+    }
     break;
   default:
     /* Not implemented yet */
