@@ -1,6 +1,7 @@
 /* packet-netrom.c
  *
  * Routines for Amateur Packet Radio protocol dissection
+ * NET/ROM inter-node frames.
  * Copyright 2005,2006,2007,2008,2009,2010,2012 R.W. Stearn <richard@rns-stearn.demon.co.uk>
  *
  * $Id$
@@ -26,6 +27,12 @@
 
 /*
  * Information on the protocol drawn from:
+ *
+ * Protocol specification is at:
+ *
+ *    ftp://ftp.ucsd.edu/hamradio/packet/tcpip/docs/netrom.ps.gz
+ *
+ * (yes, it's PostScript, and, yes, it's an FTP URL).
  *
  * Inspiration on how to build the dissector drawn from
  *   packet-sdlc.c
@@ -214,7 +221,7 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	void *saved_private_data;
 	tvbuff_t *next_tvb = NULL;
 
-	col_set_str( pinfo->cinfo, COL_PROTOCOL, "NetROM" );
+	col_set_str( pinfo->cinfo, COL_PROTOCOL, "NET/ROM" );
 
 	col_clear( pinfo->cinfo, COL_INFO );
 
@@ -265,7 +272,7 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* create display subtree for the protocol */
 
 		ti = proto_tree_add_protocol_format( tree, proto_netrom, tvb, 0, NETROM_HEADER_SIZE,
-			"Net/ROM, Src: %s (%s), Dst: %s (%s)",
+			"NET/ROM, Src: %s (%s), Dst: %s (%s)",
 			get_ax25_name( src_addr ),
 			ax25_to_str( src_addr ),
 			get_ax25_name( dst_addr ),
@@ -494,19 +501,14 @@ dissect_netrom_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	void *saved_private_data;
 	tvbuff_t *next_tvb = NULL;
 
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "NetROM");
+	col_set_str( pinfo->cinfo, COL_PROTOCOL, "NET/ROM");
 
-	if ( check_col( pinfo->cinfo, COL_INFO ) )
-		col_clear( pinfo->cinfo, COL_INFO );
-
-	if ( check_col( pinfo->cinfo, COL_INFO ) )
-		col_set_str( pinfo->cinfo, COL_INFO, "routing table frame");
+	col_set_str( pinfo->cinfo, COL_INFO, "routing table frame");
 
 	if (tree)
 		{
 		ti = proto_tree_add_protocol_format( tree, proto_netrom, tvb, 0, -1,
-			"Net/ROM, routing table frame, Node: %.6s",
+			"NET/ROM, routing table frame, Node: %.6s",
 			tvb_get_ptr( tvb,  1, 6 )
 			 );
 
@@ -653,7 +655,7 @@ proto_register_netrom(void)
 	};
 
 	/* Register the protocol name and description */
-	proto_netrom = proto_register_protocol( "Amateur Radio Net/ROM", "Net/ROM", "netrom" );
+	proto_netrom = proto_register_protocol( "Amateur Radio NET/ROM", "NET/ROM", "netrom" );
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_netrom, hf, array_length(hf ) );
