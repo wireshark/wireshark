@@ -425,7 +425,7 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   GtkTreeViewColumn *column;
   gint              col_offset;
   prefs_tree_iter   gui_iter, layout_iter, columns_iter, capture_iter;
-  gint              layout_page, columns_page
+  gint              layout_page, columns_page;
   gint              capture_page = 0;
 
 
