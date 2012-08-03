@@ -77,7 +77,7 @@ static const value_string dvb_nit_cur_next_vals[] = {
 };
 
 
-static void
+static int
 dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -86,18 +86,17 @@ dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint16     tsid;
 
-	proto_item *ti;
-	proto_tree *dvb_nit_tree;
+	proto_item *ti = NULL;
+	proto_tree *dvb_nit_tree = NULL;
 	proto_item *tsi;
 	proto_tree *dvb_nit_ts_tree;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Network Information Table (NIT)");
 
-	if (!tree)
-		return;
-
-	ti = proto_tree_add_item(tree, proto_dvb_nit, tvb, offset, -1, ENC_NA);
-	dvb_nit_tree = proto_item_add_subtree(ti, ett_dvb_nit);
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_dvb_nit, tvb, offset, -1, ENC_NA);
+		dvb_nit_tree = proto_item_add_subtree(ti, ett_dvb_nit);
+	}
 
 	offset += packet_mpeg_sect_header(tvb, offset, dvb_nit_tree, NULL, NULL);
 
@@ -151,7 +150,10 @@ dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	}
 
-	packet_mpeg_sect_crc(tvb, pinfo, dvb_nit_tree, 0, offset);
+	offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_nit_tree, 0, offset);
+
+	proto_item_set_len(ti, offset);
+	return offset;
 }
 
 
@@ -243,6 +245,7 @@ proto_register_dvb_nit(void)
 	proto_register_field_array(proto_dvb_nit, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	new_register_dissector("dvb_nit", dissect_dvb_nit, proto_dvb_nit);
 }
 
 
@@ -250,7 +253,7 @@ void proto_reg_handoff_dvb_nit(void)
 {
 	dissector_handle_t dvb_nit_handle;
 
-	dvb_nit_handle = create_dissector_handle(dissect_dvb_nit, proto_dvb_nit);
+	dvb_nit_handle = new_create_dissector_handle(dissect_dvb_nit, proto_dvb_nit);
 
 	dissector_add_uint("mpeg_sect.tid", DVB_NIT_TID, dvb_nit_handle);
 	dissector_add_uint("mpeg_sect.tid", DVB_NIT_TID_OTHER, dvb_nit_handle);
