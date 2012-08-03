@@ -332,11 +332,17 @@ enum
 static void
 colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 {
-	GtkWidget	  *colopts_edit_dlg, *main_hb, *main_tb,
-			  *ed_opts_fr, *main_vb,
-			  *bbox, *ok_bt, *cancel_bt, *help_bt, *column_lb,
-			  *col_interface_lb, *col_link_lb, *col_monitor_lb,
-			  *col_buf_lb, *col_filter_lb, *col_pmode_lb,
+	GtkWidget	*colopts_edit_dlg, *main_hb, *main_tb,
+						*ed_opts_fr, *main_vb,
+						*bbox, *ok_bt, *cancel_bt, *help_bt, *column_lb,
+						*col_interface_lb, *col_link_lb,
+#ifdef HAVE_PCAP_CREATE
+						*col_monitor_lb,
+#endif
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+						*col_buf_lb,
+#endif
+						*col_filter_lb, *col_pmode_lb,
 			  *col_snap_lb;
 
 	int row = 0;
