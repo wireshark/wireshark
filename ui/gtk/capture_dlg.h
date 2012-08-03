@@ -114,6 +114,12 @@ options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *co
 void
 capture_dlg_refresh_if(void);
 
+void
+update_visible_columns_menu (void);
+
+void
+update_visible_tree_view_columns(void);
+
 /*
  * Refresh everything visible that shows an interface list that
  * includes local interfaces.

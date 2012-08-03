@@ -30,13 +30,15 @@
  */
 #define E_DFILTER_CM_KEY				"display_filter_combo"
 
-#define E_DFILTER_TE_KEY				"display_filter_entry"
-#define E_RFILTER_TE_KEY				"read_filter_te"
-#define E_MPACKET_LIST_KEY				"menu_packet_list"
-#define E_MPACKET_LIST_ROW_KEY			"menu_packet_list_row"
-#define E_MPACKET_LIST_COL_KEY			"menu_packet_list_col"
-#define E_MPACKET_LIST_COLUMN_KEY	       		"menu_packet_list_column"
-#define E_MPACKET_LIST_PREV_COLUMN_KEY	       		"menu_packet_list_prev_column"
+#define E_DFILTER_TE_KEY								"display_filter_entry"
+#define E_RFILTER_TE_KEY								"read_filter_te"
+#define E_MPACKET_LIST_KEY							"menu_packet_list"
+#define E_MPACKET_LIST_ROW_KEY					"menu_packet_list_row"
+#define E_MPACKET_LIST_COL_KEY					"menu_packet_list_col"
+#define E_MPACKET_LIST_COLUMN_KEY				"menu_packet_list_column"
+#define E_MPACKET_LIST_PREV_COLUMN_KEY	"menu_packet_list_prev_column"
+#define E_MCAPTURE_COLUMNS_COL_KEY			"menu_capture_columns_col"
+#define E_MCAPTURE_COLUMNS_COLUMN_KEY		"menu_capture_columns_column"
 
 #define PRINT_CMD_LB_KEY				"printer_command_label"
 #define PRINT_CMD_TE_KEY				"printer_command_entry"
@@ -51,6 +53,7 @@
 #define PM_TREE_VIEW_KEY				"popup_menu_tree_view"
 #define PM_BYTES_VIEW_KEY				"popup_menu_bytes_view"
 #define PM_STATUSBAR_PROFILES_KEY		       	"popup_menu_statusbar_profiles"
+#define PM_COLUMNS_KEY          "popup_menu_capture_options"
 
 #define E_TB_MAIN_KEY					"toolbar_main"
 #define E_TB_FILTER_KEY					"toolbar_filter"

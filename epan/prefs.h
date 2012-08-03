@@ -174,6 +174,7 @@ typedef struct _e_prefs {
   gboolean capture_real_time;
   gboolean capture_auto_scroll;
   gboolean capture_show_info;
+  GList   *capture_columns;
   guint    rtp_player_max_visible;
   guint    tap_update_interval;
   gboolean display_hidden_proto_items;
@@ -495,6 +496,8 @@ extern gboolean prefs_is_capture_device_hidden(const char *name);
  * Returns TRUE if the given device should capture in monitor mode by default
  */
 extern gboolean prefs_capture_device_monitor_mode(const char *name);
+
+extern gboolean prefs_capture_options_dialog_column_is_visible(const gchar *column);
 
 #ifdef __cplusplus
 }

@@ -424,8 +424,8 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   GtkCellRenderer   *renderer;
   GtkTreeViewColumn *column;
   gint              col_offset;
-  prefs_tree_iter   gui_iter, layout_iter, columns_iter;
-  gint              layout_page, columns_page;
+  prefs_tree_iter   gui_iter, layout_iter, columns_iter, capture_iter;
+  gint              layout_page, columns_page, capture_page;
 
 
   if (prefs_w != NULL) {
@@ -556,8 +556,8 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   /* capture prefs */
   g_strlcpy(label_str, "Capture", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, capture_prefs_show(), E_CAPTURE_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, NULL);
-  cts.page++;
+  capture_iter = prefs_tree_page_add(label_str, cts.page, store, NULL);
+  capture_page = cts.page++;
 #ifdef _WIN32
   }
 #endif /* _WIN32 */
@@ -619,6 +619,10 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   case PREFS_PAGE_COLUMNS:
     gtk_tree_selection_select_iter(selection, &columns_iter);
     gtk_notebook_set_current_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), columns_page);
+    break;
+  case PREFS_PAGE_CAPTURE:
+    gtk_tree_selection_select_iter(selection, &capture_iter);
+    gtk_notebook_set_current_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), capture_page);
     break;
   default:
     /* Not implemented yet */
@@ -1827,6 +1831,7 @@ prefs_tree_select_cb(GtkTreeSelection *sel, gpointer dummy _U_)
       gtk_notebook_set_current_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), page);
   }
 }
+
 
 
 /*

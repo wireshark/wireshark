@@ -66,7 +66,8 @@
 typedef enum {
   PREFS_PAGE_USER_INTERFACE,
   PREFS_PAGE_LAYOUT,
-  PREFS_PAGE_COLUMNS
+  PREFS_PAGE_COLUMNS,
+  PREFS_PAGE_CAPTURE
 } PREFS_PAGE_E;
 
 /** Show the preferences dialog.

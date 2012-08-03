@@ -1382,11 +1382,40 @@ init_prefs(void)
 {
   int         i;
   fmt_data    *cfmt;
+  gchar       *col_name;
   static const gchar *col_fmt[DEF_NUM_COLS*2] = {
                             "No.",      "%m", "Time",        "%t",
                             "Source",   "%s", "Destination", "%d",
                             "Protocol", "%p", "Length",      "%L",
                             "Info",     "%i"};
+#if defined(HAVE_PCAP_CREATE)
+  static gint num_capture_cols = 7;
+  static const gchar *capture_cols[7] = {
+                                "INTERFACE",
+                                "LINK",
+                                "PMODE",
+                                "SNAPLEN",
+                                "MONITOR",
+                                "BUFFER", 
+                                "FILTER"};
+#elif defined(_WIN32) && !defined (HAVE_PCAP_CREATE)
+  static gint num_capture_cols = 6;
+  static const gchar *capture_cols[6] = {
+                                "INTERFACE",
+                                "LINK",
+                                "PMODE",
+                                "SNAPLEN",
+                                "BUFFER", 
+                                "FILTER"};
+#else
+  static gint num_capture_cols = 5;
+  static const gchar *capture_cols[5] = {
+                                "INTERFACE",
+                                "LINK",
+                                "PMODE",
+                                "SNAPLEN",
+                                "FILTER"};
+#endif
 
   if (prefs_initialized)
     return;
@@ -1547,6 +1576,12 @@ init_prefs(void)
   prefs.capture_real_time             = TRUE;
   prefs.capture_auto_scroll           = TRUE;
   prefs.capture_show_info             = FALSE;
+  prefs.capture_columns               = NULL;
+  for (i = 0; i < num_capture_cols; i++) {
+    col_name = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+    col_name = g_strdup(capture_cols[i]);
+    prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
+  }
 
 /* set the default values for the tap/statistics dialog box */
   prefs.tap_update_interval    = TAP_UPDATE_DEFAULT_INTERVAL;
@@ -1659,6 +1694,7 @@ prefs_reset(void)
   g_free(prefs.capture_devices_descr);
   g_free(prefs.capture_devices_hide);
   g_free(prefs.capture_devices_monitor_mode);
+  g_list_free(prefs.capture_columns);
 
   /*
    * Unload all UAT preferences.
@@ -2162,6 +2198,25 @@ prefs_capture_device_monitor_mode(const char *name)
     return FALSE;
 }
 
+/*
+ * Returns TRUE if the user has marked this column as visible
+ */
+gboolean
+prefs_capture_options_dialog_column_is_visible(const gchar *column)
+{
+    GList *curr;
+    gchar *col;
+
+    for (curr = g_list_first(prefs.capture_columns); curr; curr = g_list_next(curr)) {
+        col = (gchar *)curr->data;
+        if (col && (g_ascii_strcasecmp(col, column) == 0)) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+
 #define PRS_COL_HIDDEN                   "column.hidden"
 #define PRS_COL_FMT                      "column.format"
 #define PRS_STREAM_CL_FG                 "stream.client.fg"
@@ -2240,6 +2295,7 @@ prefs_capture_device_monitor_mode(const char *name)
 #define PRS_CAP_REAL_TIME            "capture.real_time_update"
 #define PRS_CAP_AUTO_SCROLL          "capture.auto_scroll"
 #define PRS_CAP_SHOW_INFO            "capture.show_info"
+#define PRS_CAP_COLUMNS              "capture.columns"
 
 /* obsolete preference */
 #define PRS_CAP_SYNTAX_CHECK_FILTER  "capture.syntax_check_filter"
@@ -2699,6 +2755,24 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     prefs.capture_auto_scroll = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_CAP_SHOW_INFO) == 0) {
     prefs.capture_show_info = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
+  } else if (strcmp(pref_name, PRS_CAP_COLUMNS) == 0) {
+    gchar *col_name;
+
+    col_l = prefs_get_string_list(value);
+    if (col_l == NULL)
+      return PREFS_SET_SYNTAX_ERR;
+    /* They're all valid; process them. */
+    g_list_free(prefs.capture_columns);
+    prefs.capture_columns = NULL;
+    col_l_elt = g_list_first(col_l);
+    col_name = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+    col_name = (gchar *)col_l_elt->data;
+    while(col_l_elt) {
+      prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
+      col_l_elt      = col_l_elt->next;
+      col_name = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+      col_name = (gchar *)col_l_elt->data;
+    }
   } else if (strcmp(pref_name, PRS_CAP_SYNTAX_CHECK_FILTER) == 0) {
     /* Obsolete preference. */
     ;
@@ -3263,6 +3337,7 @@ write_prefs(char **pf_path_return)
   GList       *clp, *col_l;
   fmt_data    *cfmt;
   GString     *cols_hidden = g_string_new ("");
+  gchar       *col;
 
   /* Needed for "-G defaultprefs" */
   init_prefs();
@@ -3739,6 +3814,21 @@ write_prefs(char **pf_path_return)
     fprintf(pf, "#");
   fprintf(pf, PRS_CAP_SHOW_INFO ": %s\n",
           prefs.capture_show_info == TRUE ? "TRUE" : "FALSE");
+  clp = prefs.capture_columns;
+  col_l = NULL;
+  while (clp) {
+    col = (gchar *) clp->data;
+    col_l = g_list_append(col_l, g_strdup(col));
+    clp = clp->next;
+  }
+   
+  fprintf(pf, "\n# Capture options dialog column list.\n");
+  fprintf(pf, "# List of columns to be displayed.\n");
+  fprintf(pf, "# Possible values: INTERFACE,LINK,PMODE,SNAPLEN,MONITOR,BUFFER,FILTER\n");
+  fprintf (pf, "%s: %s\n", PRS_CAP_COLUMNS, put_string_list(col_l));
+  /* This frees the list of strings, but not the strings to which it
+     refers; they are free'ed in put_string_list(). */
+  g_list_free(col_l);
 
   /*
    * XXX - The following members are intentionally not written here because 

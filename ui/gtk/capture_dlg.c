@@ -66,6 +66,8 @@
 #include "ui/gtk/capture_if_dlg.h"
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/network_icons.h"
+#include "ui/gtk/menus.h"
+#include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/main_80211_toolbar.h"
 
 #include "ui/gtk/keys.h"
@@ -207,6 +209,9 @@ static GtkWidget *cap_open_w = NULL, *opt_edit_w = NULL, *ok_bt, *new_interfaces
 static gboolean   cap_open_complete;  /* valid only if cap_open_w != NULL */
 static const gchar *pipe_name;
 static const gchar *selected_name;
+static GtkWidget *columns_menu_object;
+static GtkUIManager *ui_manager_columns = NULL;
+static GSList *popup_menu_list = NULL;
 
 static gint marked_interface;
 static gint marked_row;
@@ -254,6 +259,9 @@ capture_dlg_prep(gpointer parent_w);
 static GtkTreeModel*
 create_and_fill_model(GtkTreeView *view);
 
+void
+update_visible_columns_menu (void);
+
 static gboolean
 query_tooltip_tree_view_cb (GtkWidget  *widget,
                             gint        x,
@@ -262,11 +270,241 @@ query_tooltip_tree_view_cb (GtkWidget  *widget,
                             GtkTooltip *tooltip,
                             gpointer    data);
 
+static
+gchar *col_index_to_name(gint index)
+{
+  gchar *col_name;
+
+  switch (index)
+  {
+    case INTERFACE: col_name = g_strdup("INTERFACE");
+      break;
+    case LINK: col_name = g_strdup("LINK");
+      break;
+    case PMODE: col_name = g_strdup("PMODE");
+      break;
+    case SNAPLEN: col_name = g_strdup("SNAPLEN");
+      break;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+    case BUFFER: col_name = g_strdup("BUFFER");
+      break;
+#endif
+#if defined (HAVE_PCAP_CREATE)
+    case MONITOR: col_name = g_strdup("MONITOR");
+      break;
+#endif
+    case FILTER: col_name = g_strdup("FILTER");
+      break;
+    default: return NULL;
+    }
+    return col_name;
+}
+
+static void
+set_capture_column_visible(gchar *col, gboolean visible _U_)
+{
+  GList *curr;
+  gchar *col_name;
+
+  if (visible && !prefs_capture_options_dialog_column_is_visible(col)) {
+    prefs.capture_columns = g_list_append(prefs.capture_columns, col);
+  } else if (!visible && prefs_capture_options_dialog_column_is_visible(col)) {
+    for (curr = g_list_first(prefs.capture_columns); curr; curr = g_list_next(curr)) {
+      col_name = (gchar *)curr->data;
+      if (col_name && (g_ascii_strcasecmp(col_name, col) == 0)) {
+        prefs.capture_columns = g_list_remove(prefs.capture_columns, curr->data);
+        break;
+      }
+    }
+  }
+}
+
+static void
+toggle_visible_column_cb (GtkWidget *w _U_, gpointer data)
+{
+  GtkTreeView *view;
+  GtkTreeViewColumn *col;
+  gchar *col_name;
+  gint col_id;
+
+  col_id = GPOINTER_TO_INT(data);
+  view = (GtkTreeView *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  col = gtk_tree_view_get_column(GTK_TREE_VIEW(view), col_id);
+  col_name = col_index_to_name(col_id);
+  gtk_tree_view_column_set_visible(col, prefs_capture_options_dialog_column_is_visible(col_name)?FALSE:TRUE);
+  set_capture_column_visible(col_name, prefs_capture_options_dialog_column_is_visible(col_name)?FALSE:TRUE);
+}
+
+
+static void
+set_all_columns_visible (void)
+{
+  GtkTreeViewColumn *col;
+  int col_id;
+  GtkTreeView *view;
+  gchar *name;
+
+  view = (GtkTreeView *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  for (col_id = 2; col_id < NUM_COLUMNS; col_id++) {
+    col = gtk_tree_view_get_column(GTK_TREE_VIEW(view), col_id);
+    gtk_tree_view_column_set_visible(col, TRUE);
+    if ((name = col_index_to_name(col_id)) != NULL) {
+      set_capture_column_visible(name, TRUE);
+    }
+  }
+
+  if (!prefs.gui_use_pref_save) {
+    prefs_main_write();
+  }
+
+  update_visible_columns_menu ();
+}
+
+static void
+columns_activate_all_columns_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+  set_all_columns_visible ();
+}
+
+void
+update_visible_tree_view_columns(void)
+{
+  GtkTreeView       *view;
+  gint              col_id;
+  GtkTreeViewColumn *col;
+
+  view = (GtkTreeView *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  for (col_id = 2; col_id < NUM_COLUMNS; col_id++) {
+    col = gtk_tree_view_get_column(GTK_TREE_VIEW(view), col_id);
+    gtk_tree_view_column_set_visible(col, prefs_capture_options_dialog_column_is_visible(col_index_to_name(col_id))?TRUE:FALSE);
+  }
+}
+
+
+void
+update_visible_columns_menu (void)
+{
+  GtkWidget *menu_columns, *menu_item;
+  GtkTreeViewColumn *col;
+  GtkWidget *sub_menu;
+  gchar     *title;
+  GtkTreeView *view;
+  gint       col_id;
+
+  menu_columns = gtk_ui_manager_get_widget(ui_manager_columns, "/ColumnsPopup/DisplayedColumns");
+  /* Debug */
+  if(! menu_columns){
+    fprintf (stderr, "Warning: couldn't find menu_columns path=/ColumnsPopup/DisplayedColumns");
+  }
+
+  sub_menu = gtk_menu_new();
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_columns), sub_menu);
+
+  view = (GtkTreeView *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  for (col_id = 2; col_id < NUM_COLUMNS; col_id++) {
+    col = gtk_tree_view_get_column(GTK_TREE_VIEW(view), col_id);
+    title = col_index_to_name(col_id);
+    menu_item = gtk_check_menu_item_new_with_label(title);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), prefs_capture_options_dialog_column_is_visible(title));
+    g_signal_connect(G_OBJECT(menu_item), "activate", G_CALLBACK(toggle_visible_column_cb), GINT_TO_POINTER(col_id));
+    gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+    gtk_widget_show (menu_item);
+  }
+    menu_item = gtk_menu_item_new();
+    gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+    gtk_widget_show (menu_item);
+
+    menu_item = gtk_menu_item_new_with_label ("Display All");
+    gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+    g_signal_connect(menu_item, "activate", G_CALLBACK(columns_activate_all_columns_cb), NULL);
+    gtk_widget_show (menu_item);
+}
+
+static void
+columns_pref_cb(GtkAction *action _U_, gpointer user_data)
+{
+    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_columns, "/ColumnsPopup/ColumnPreferences");
+    prefs_page_cb( widget , user_data, PREFS_PAGE_CAPTURE);
+}
+
+static void
+columns_hide_col_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+  GtkTreeView *view;
+  GtkTreeViewColumn *col;
+  gint num;
+  gchar *name;
+
+  view = (GtkTreeView *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  col = (GtkTreeViewColumn *)g_object_get_data(G_OBJECT(view), E_MCAPTURE_COLUMNS_COLUMN_KEY);
+  gtk_tree_view_column_set_visible(col, FALSE);
+  num = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MCAPTURE_COLUMNS_COL_KEY));
+  if ((name = col_index_to_name(num)) != NULL) {
+    set_capture_column_visible(name, FALSE);
+    if (!prefs.gui_use_pref_save) {
+      prefs_main_write();
+    }
+    update_visible_columns_menu ();
+  }
+}
+
+static const char *ui_desc_columns_menu_popup =
+"<ui>\n"
+"  <popup name='ColumnsPopup' action='PopupAction'>\n"
+"     <menuitem name='ColumnPreferences' action='/Column Preferences'/>\n"
+"     <menu name='DisplayedColumns' action='/Displayed Columns'>\n"
+"       <menuitem name='Display All' action='/Displayed Columns/Display All'/>\n"
+"     </menu>\n"
+"     <menuitem name='HideColumn' action='/Hide Column'/>\n"
+"  </popup>\n"
+"</ui>\n";
+
+static const GtkActionEntry columns_menu_popup_action_entries[] = {
+  { "/Column Preferences",              GTK_STOCK_PREFERENCES,              "Column Preferences...",    NULL,   NULL,   G_CALLBACK(columns_pref_cb) },
+  { "/Displayed Columns",               NULL,                               "Displayed Columns",        NULL,   NULL,   NULL },
+  { "/Displayed Columns/Display All",               NULL,                   "Display All",              NULL,   NULL,   G_CALLBACK(columns_activate_all_columns_cb) },
+  { "/Hide Column",                     NULL,                               "Hide Column",              NULL,   NULL,   G_CALLBACK(columns_hide_col_cb) },
+};
+
 #ifdef HAVE_PCAP_CREATE
 static void
 activate_monitor(GtkTreeViewColumn *tree_column, GtkCellRenderer *renderer,
                  GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data);
 #endif
+
+void
+init_columns_menu(void)
+{
+  GtkActionGroup *columns_action_group; 
+  GError *error = NULL;
+
+  columns_menu_object = gtk_menu_new();
+  /* columns pop-up menu */
+  columns_action_group = gtk_action_group_new ("ColumnsPopUpMenuActionGroup");
+
+  gtk_action_group_add_actions (columns_action_group,            /* the action group */
+      (gpointer)columns_menu_popup_action_entries,               /* an array of action descriptions */
+      G_N_ELEMENTS(columns_menu_popup_action_entries),           /* the number of entries */
+      columns_menu_object);                                      /* data to pass to the action callbacks */
+
+  ui_manager_columns = gtk_ui_manager_new ();
+  gtk_ui_manager_insert_action_group (ui_manager_columns,
+      columns_action_group,
+      0); /* the position at which the group will be inserted.  */
+
+  gtk_ui_manager_add_ui_from_string (ui_manager_columns, ui_desc_columns_menu_popup, -1, &error);
+  if (error != NULL)
+  {
+    fprintf (stderr, "Warning: building Packet List Heading Pop-Up failed: %s\n", error->message);
+    g_error_free (error);
+    error = NULL;
+  }
+
+  g_object_set_data(G_OBJECT(columns_menu_object), PM_COLUMNS_KEY,
+      gtk_ui_manager_get_widget(ui_manager_columns, "/ColumnsPopup"));
+
+  popup_menu_list = g_slist_append((GSList *)popup_menu_list, ui_manager_columns);
+}
 
 /* stop the currently running capture */
 void
@@ -3561,6 +3799,41 @@ show_add_interfaces_dialog(void)
         ? Other ??
 */
 
+static gboolean
+columns_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+  GtkWidget *menu = (GtkWidget *)data;
+  GdkEventButton *event_button = NULL;
+
+  /* context menu handler */
+  if(event->type == GDK_BUTTON_PRESS) {
+    event_button = (GdkEventButton *) event;
+
+    /* To quote the "Gdk Event Structures" doc:
+     * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
+    if(event_button->button == 3) {
+      gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, widget,
+                     event_button->button,
+                     event_button->time);
+      g_signal_stop_emission_by_name(widget, "button_press_event");
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+static gboolean
+column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+  GtkWidget *col = (GtkWidget *) data;
+  GtkTreeView *view;
+  GtkWidget *menu = g_object_get_data(G_OBJECT(columns_menu_object), PM_COLUMNS_KEY);
+  view = (GtkTreeView *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  g_object_set_data(G_OBJECT(view), E_MCAPTURE_COLUMNS_COLUMN_KEY, col);
+  return columns_menu_handler (widget, event, menu);
+}
+
+
 void
 capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 {
@@ -3615,6 +3888,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     reactivate_window(cap_open_w);
     return;
   }
+  init_columns_menu();
 
   /* use user-defined title if preference is set */
 
@@ -3689,29 +3963,74 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_tree_view_column_set_min_width(column, 200);
   gtk_tree_view_column_set_resizable(column, TRUE );
   gtk_tree_view_column_set_alignment(column, 0.5);
+  g_object_set_data(G_OBJECT(column), E_MCAPTURE_COLUMNS_COL_KEY, GINT_TO_POINTER(INTERFACE));
+  gtk_tree_view_column_set_clickable(column, TRUE);
+  gtk_tree_view_column_set_reorderable(column, TRUE);
+  g_signal_connect(gtk_tree_view_column_get_button(column), "button_press_event",
+                   G_CALLBACK(column_button_pressed_cb), column);
+  if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("INTERFACE"))
+    gtk_tree_view_column_set_visible(column, TRUE);
+  else
+    gtk_tree_view_column_set_visible(column, FALSE);
   g_object_set(G_OBJECT(renderer), "ellipsize", PANGO_ELLIPSIZE_END, NULL);
 
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes ("Link-layer header", renderer, "text", LINK, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
+  gtk_tree_view_column_set_clickable(column, TRUE);
+  gtk_tree_view_column_set_reorderable(column, TRUE);
   gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW (view),LINK), TRUE );
+  g_object_set_data(G_OBJECT(column), E_MCAPTURE_COLUMNS_COL_KEY, GINT_TO_POINTER(LINK));
+  g_signal_connect(gtk_tree_view_column_get_button(column), "button_press_event",
+                   G_CALLBACK(column_button_pressed_cb), column);
+  if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("LINK"))
+    gtk_tree_view_column_set_visible(column, TRUE);
+  else
+    gtk_tree_view_column_set_visible(column, FALSE);
   gtk_tree_view_column_set_alignment(column, 0.5);
 
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes("Prom. Mode", renderer, "text", PMODE, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   g_object_set(renderer, "xalign", 0.5, NULL);
+  gtk_tree_view_column_set_clickable(column, TRUE);
+  gtk_tree_view_column_set_reorderable(column, TRUE);
+  g_object_set_data(G_OBJECT(column), E_MCAPTURE_COLUMNS_COL_KEY, GINT_TO_POINTER(PMODE));
+  g_signal_connect(gtk_tree_view_column_get_button(column), "button_press_event",
+                   G_CALLBACK(column_button_pressed_cb), column);
+  if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("PMODE"))
+    gtk_tree_view_column_set_visible(column, TRUE);
+  else
+    gtk_tree_view_column_set_visible(column, FALSE);
   gtk_tree_view_column_set_alignment(column, 0.5);
 
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes("Snaplen [B]", renderer, "text", SNAPLEN, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
+  gtk_tree_view_column_set_clickable(column, TRUE);
+  gtk_tree_view_column_set_reorderable(column, TRUE);
+  g_object_set_data(G_OBJECT(column), E_MCAPTURE_COLUMNS_COL_KEY, GINT_TO_POINTER(SNAPLEN));
+  g_signal_connect(gtk_tree_view_column_get_button(column), "button_press_event",
+                   G_CALLBACK(column_button_pressed_cb), column);
+  if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("SNAPLEN"))
+    gtk_tree_view_column_set_visible(column, TRUE);
+  else
+    gtk_tree_view_column_set_visible(column, FALSE);
   g_object_set(renderer, "xalign", 0.5, NULL);
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes("Buffer [MB]", renderer, "text", BUFFER, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
+  gtk_tree_view_column_set_reorderable(column, TRUE);
+  g_object_set_data(G_OBJECT(column), E_MCAPTURE_COLUMNS_COL_KEY, GINT_TO_POINTER(BUFFER));
+  gtk_tree_view_column_set_clickable(column, TRUE);
+  g_signal_connect(gtk_tree_view_column_get_button(column), "button_press_event",
+                   G_CALLBACK(column_button_pressed_cb), column);
+  if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("BUFFER"))
+    gtk_tree_view_column_set_visible(column, TRUE);
+  else
+    gtk_tree_view_column_set_visible(column, FALSE);
   g_object_set(renderer, "xalign", 0.5, NULL);
 #endif
 
@@ -3720,6 +4039,15 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   column = gtk_tree_view_column_new_with_attributes ("Mon. Mode", renderer, "text", MONITOR, NULL);
   gtk_tree_view_column_set_cell_data_func(column, renderer, activate_monitor, NULL, FALSE);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
+  gtk_tree_view_column_set_reorderable(column, TRUE);
+  g_object_set_data(G_OBJECT(column), E_MCAPTURE_COLUMNS_COL_KEY, GINT_TO_POINTER(MONITOR));
+  gtk_tree_view_column_set_clickable(column, TRUE);
+  g_signal_connect(gtk_tree_view_column_get_button(column), "button_press_event",
+                   G_CALLBACK(column_button_pressed_cb), column);
+  if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("MONITOR"))
+    gtk_tree_view_column_set_visible(column, TRUE);
+  else
+    gtk_tree_view_column_set_visible(column, FALSE);
   g_object_set(renderer, "xalign", 0.5, NULL);
 #endif
 
@@ -3730,6 +4058,15 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   create_and_fill_model(GTK_TREE_VIEW(view));
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
   gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+  gtk_tree_view_column_set_clickable(column, TRUE);
+  gtk_tree_view_column_set_reorderable(column, TRUE);
+  g_object_set_data(G_OBJECT(column), E_MCAPTURE_COLUMNS_COL_KEY, GINT_TO_POINTER(FILTER));
+  g_signal_connect(gtk_tree_view_column_get_button(column), "button_press_event",
+                   G_CALLBACK(column_button_pressed_cb), column);
+  if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("FILTER"))
+    gtk_tree_view_column_set_visible(column, TRUE);
+  else
+    gtk_tree_view_column_set_visible(column, FALSE);
   gtk_container_add (GTK_CONTAINER (swindow), view);
   gtk_box_pack_start(GTK_BOX(capture_vb), swindow, TRUE, TRUE, 0);
 
@@ -4162,6 +4499,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Set the sensitivity of various widgets as per the settings of other
      widgets. */
   capture_prep_adjust_sensitivity(NULL, cap_open_w);
+
+  update_visible_columns_menu ();
 
   /* Catch the "activate" signal on the text
      entries, so that if the user types Return there, we act as if the

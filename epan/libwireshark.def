@@ -722,6 +722,7 @@ prefs                           DATA
 prefs_apply
 prefs_apply_all
 prefs_capture_device_monitor_mode
+prefs_capture_options_dialog_column_is_visible
 prefs_clear_string_list
 prefs_is_capture_device_hidden
 prefs_find_module
