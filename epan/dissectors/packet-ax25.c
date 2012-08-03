@@ -31,6 +31,9 @@
  * At the time of writing the specification could be found here:
  *   http://www.tapr.org/pub_ax25.html
  *
+ * A newer version, Version 2.2, July 1998, can be found at
+ *   http://www.ax25.net/AX25.2.2-Jul%2098-2.pdf
+ *
  * Inspiration on how to build the dissector drawn from
  *   packet-sdlc.c
  *   packet-x25.c
