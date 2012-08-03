@@ -39,6 +39,7 @@
 #include "packet-arp.h"
 #include <epan/etypes.h>
 #include <epan/arcnet_pids.h>
+#include <epan/ax25_pids.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
@@ -345,7 +346,6 @@ static const value_string atmop_vals[] = {
 */
 #define ARP_HW_IS_AX25(ar_hrd, ar_hln) \
   ((ar_hrd) == ARPHRD_AX25 && (ar_hln) == 7)
-#define AX25_P_IP       0xCC    /* ARPA Internet Protocol on AX.25 */
 
 /*
  * Given the protocol address type and length, check whether an address
@@ -2051,4 +2051,5 @@ proto_reg_handoff_arp(void)
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_ARP_1051, arp_handle);
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_ARP_1201, arp_handle);
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_RARP_1201, arp_handle);
+  dissector_add_uint("ax25.pid", AX25_P_ARP, arp_handle);
 }

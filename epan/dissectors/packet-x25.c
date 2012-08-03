@@ -32,6 +32,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/ax25_pids.h>
 #include <epan/llcsaps.h>
 #include <epan/circuit.h>
 #include <epan/reassemble.h>
@@ -2770,4 +2771,5 @@ proto_reg_handoff_x25(void)
     x25_handle = find_dissector("x.25");
     dissector_add_uint("llc.dsap", SAP_X25, x25_handle);
     dissector_add_uint("lapd.sapi", LAPD_SAPI_X25, x25_handle);
+    dissector_add_uint("ax25.pid", AX25_P_ROSE, x25_handle);
 }

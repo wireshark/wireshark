@@ -62,6 +62,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/ax25_pids.h>
 
 #define STRLEN	80
 
@@ -265,10 +266,7 @@ proto_register_ax25_nol3(void)
 	};
 
 	/* Register the protocol name and description */
-	proto_ax25_nol3 = proto_register_protocol("AX25 no Layer 3", "AX25 no L3", "ax25_nol3");
-
-	/* Register the dissector */
-	register_dissector( "ax25_nol3", dissect_ax25_nol3, proto_ax25_nol3 );
+	proto_ax25_nol3 = proto_register_protocol("AX.25 no Layer 3", "AX.25 no L3", "ax25_nol3");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25_nol3, hf, array_length(hf ) );
@@ -307,6 +305,7 @@ proto_reg_handoff_ax25_nol3(void)
         static gboolean inited = FALSE;
 
         if( !inited ) {
+		dissector_add_uint( "ax25.pid", AX25_P_NO_L3, create_dissector_handle( dissect_ax25_nol3, proto_ax25_nol3 ) );
 
 		/*
 		*/

@@ -49,8 +49,7 @@
 #include <epan/strutil.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
-#include <epan/xdlc.h>
-#include <packet-ip.h>
+#include <epan/ax25_pids.h>
 
 #include "packet-netrom.h"
 
@@ -656,9 +655,6 @@ proto_register_netrom(void)
 	/* Register the protocol name and description */
 	proto_netrom = proto_register_protocol( "Amateur Radio Net/ROM", "Net/ROM", "netrom" );
 
-	/* Register the dissector */
-	register_dissector( "netrom", dissect_netrom, proto_netrom );
-
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_netrom, hf, array_length(hf ) );
 	proto_register_subtree_array( ett, array_length( ett ) );
@@ -670,6 +666,7 @@ proto_reg_handoff_netrom(void)
 	static gboolean inited = FALSE;
 
 	if( !inited ) {
+		dissector_add_uint( "ax25.pid", AX25_P_NETROM, create_dissector_handle( dissect_netrom, proto_netrom ) );
 
 		ip_handle  = find_dissector( "ip" );
 		default_handle  = find_dissector( "data" );

@@ -54,7 +54,7 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/xdlc.h>
-#include <epan/etypes.h>
+#include <epan/ax25_pids.h>
 #include <epan/ipproto.h>
 #include <packet-ip.h>
 
@@ -67,44 +67,16 @@
 #define AX25_HEADER_SIZE	15 /* length of src_addr + dst_addr + cntl */
 #define AX25_MAX_DIGIS		8
 
-/* Layer 3 Protocol ID's (pid) */
-#define AX25_P_ROSE	0x01	/* ISO 8208 / CCITT X.25 PLP */
-#define AX25_P_RFC1144C	0x06	/* Compressed TCP/IP packet. Van Jacobson RFC1144 */
-#define AX25_P_RFC1144	0x07	/* Uncompressed TCP/IP packet. Van Jacobson RFC1144 */
-#define AX25_P_SEGMENT	0x08	/* segmentation fragment */
-#define AX25_P_TEXNET	0xC3	/* TEXNET datagram */
-#define AX25_P_LCP	0xC4	/* Link Quality Protocol */
-#define AX25_P_ATALK	0xCA	/* AppleTalk */
-#define AX25_P_ATALKARP	0xCB	/* AppleTalk ARP */
-#define AX25_P_IP	0xCC	/* ARPA Internet Protocol */
-#define AX25_P_ARP	0xCD	/* ARPA Address Resolution Protocol */
-#define AX25_P_FLEXNET 	0xCE	/* FlexNet */
-#define AX25_P_NETROM 	0xCF	/* NET/ROM */
-#define AX25_P_NO_L3 	0xF0	/* No layer 3 protocol */
-#define AX25_P_L3_ESC 	0xFF	/* Escape character. Next octet contains more layer 3 protocol info */
-
 #define I_FRAME( control )  ( ( control & 0x01) == 0 )
 #define UI_FRAME( control ) ( ( ( control & 0x03) == 3 ) && ( ( ( ( ( control >> 5 ) & 0x07) << 2) | ( ( control >> 2 ) & 0x03) ) == 0 ) )
 
 /* Forward declaration we need below */
 void proto_reg_handoff_ax25(void);
 
-/* Dissector handles - all the possibles are listed */
-static dissector_handle_t x25_handle;
-static dissector_handle_t rfc1144c_handle;
-static dissector_handle_t rfc1144_handle;
-static dissector_handle_t segment_handle;
-static dissector_handle_t texnet_handle;
-static dissector_handle_t lcp_handle;
-static dissector_handle_t atalk_handle;
-static dissector_handle_t atalkarp_handle;
-static dissector_handle_t ip_handle;
-static dissector_handle_t arp_handle;
-static dissector_handle_t flexnet_handle;
-static dissector_handle_t netrom_handle;
-static dissector_handle_t no_l3_handle;
-static dissector_handle_t l3_esc_handle;
-static dissector_handle_t default_handle;
+/* Dissector table */
+static dissector_table_t ax25_dissector_table;
+
+static dissector_handle_t data_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_ax25		= -1;
@@ -311,24 +283,11 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
-		switch ( pid )
+		if (!dissector_try_uint(ax25_dissector_table, pid, next_tvb, pinfo, parent_tree))
 			{
-			case AX25_P_ROSE	: call_dissector( x25_handle    , next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_RFC1144C	: call_dissector( rfc1144c_handle, next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_RFC1144	: call_dissector( rfc1144_handle , next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_SEGMENT	: call_dissector( segment_handle , next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_TEXNET	: call_dissector( texnet_handle  , next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_LCP		: call_dissector( lcp_handle     , next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_ATALK	: call_dissector( atalk_handle   , next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_ATALKARP	: call_dissector( atalkarp_handle, next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_IP		: call_dissector( ip_handle      , next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_ARP		: call_dissector( arp_handle     , next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_FLEXNET	: call_dissector( flexnet_handle , next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_NETROM	: call_dissector( netrom_handle  , next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_NO_L3	: call_dissector( no_l3_handle   , next_tvb, pinfo, parent_tree ); break;
-			case AX25_P_L3_ESC	: call_dissector( l3_esc_handle  , next_tvb, pinfo, parent_tree ); break;
-			default			: call_dissector( default_handle , next_tvb, pinfo, parent_tree ); break;
+			call_dissector(data_handle, next_tvb, pinfo, parent_tree);
 			}
+
 		pinfo->private_data = saved_private_data;
 		}
 }
@@ -459,7 +418,7 @@ proto_register_ax25(void)
 	};
 
 	/* Register the protocol name and description */
-	proto_ax25 = proto_register_protocol("Amateur Radio AX.25", "AX25", "ax25");
+	proto_ax25 = proto_register_protocol("Amateur Radio AX.25", "AX.25", "ax25");
 
 	/* Register the dissector */
 	register_dissector( "ax25", dissect_ax25, proto_ax25 );
@@ -467,6 +426,9 @@ proto_register_ax25(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25, hf, array_length(hf ) );
 	proto_register_subtree_array(ett, array_length(ett ) );
+
+	/* Register dissector table for protocol IDs */
+	ax25_dissector_table = register_dissector_table("ax25.pid", "AX.25 protocol ID", FT_UINT8, BASE_HEX);
 }
 
 void
@@ -476,36 +438,15 @@ proto_reg_handoff_ax25(void)
 
         if( !inited ) {
 
-	dissector_handle_t ax25_handle;
+		dissector_handle_t ax25_handle;
 
-	ax25_handle = create_dissector_handle( dissect_ax25, proto_ax25 );
-	dissector_add_uint("wtap_encap", WTAP_ENCAP_AX25, ax25_handle);
-	dissector_add_uint("ip.proto", IP_PROTO_AX25, ax25_handle);
+		ax25_handle = create_dissector_handle( dissect_ax25, proto_ax25 );
+		dissector_add_uint("wtap_encap", WTAP_ENCAP_AX25, ax25_handle);
+		dissector_add_uint("ip.proto", IP_PROTO_AX25, ax25_handle);
 
-	/*
-	  I have added the "data" dissector for all the currently known PID's
-	  This is so at least we have an entry in the tree that allows the
-	  payload to be hightlighted.
-	  When a new dissector is available all that needs to be done is to
-	  replace the current dissector name "data" with the new dissector name.
-	*/
-	x25_handle      = find_dissector( "x.25" );
-	rfc1144c_handle = find_dissector( "data" /* "rfc1144c"  */ );
-	rfc1144_handle  = find_dissector( "data" /* "rfc1144"   */ );
-	segment_handle  = find_dissector( "data" /* "segment"   */ );
-	texnet_handle   = find_dissector( "data" /* "texnet"    */ );
-	lcp_handle      = find_dissector( "data" /* "lcp"       */ );
-	atalk_handle    = find_dissector( "data" /* "atalk"     */ );
-	atalkarp_handle = find_dissector( "data" /* "atalkarp"  */ );
-	ip_handle       = find_dissector( "ip" );
-	arp_handle      = find_dissector( "arp" );
-	flexnet_handle  = find_dissector( "flexnet" );
-	netrom_handle   = find_dissector( "netrom" );
-	no_l3_handle    = find_dissector( "ax25_nol3" );
-	l3_esc_handle   = find_dissector( "data" /* "l3_esc"    */ );
-	default_handle  = find_dissector( "data" );
+		data_handle  = find_dissector( "data" );
 
-        inited = TRUE;
+	        inited = TRUE;
         }
 }
 

@@ -48,6 +48,7 @@
 #include <epan/arcnet_pids.h>
 #include <epan/in_cksum.h>
 #include <epan/nlpid.h>
+#include <epan/ax25_pids.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
@@ -2929,6 +2930,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("x.25.spi", NLPID_IP, ip_handle);
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IP_1051, ip_handle);
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IP_1201, ip_handle);
+  dissector_add_uint("ax25.pid", AX25_P_IP, ip_handle);
   dissector_add_handle("udp.port", ip_handle);
 }
 

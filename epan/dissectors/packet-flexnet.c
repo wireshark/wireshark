@@ -49,8 +49,7 @@
 #include <epan/strutil.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
-#include <epan/xdlc.h>
-#include <packet-ip.h>
+#include <epan/ax25_pids.h>
 
 #define FLEXNET_ADRLEN  15
 #define FLEXNET_CTLLEN  15
@@ -147,9 +146,6 @@ proto_register_flexnet(void)
 	/* Register the protocol name and description */
 	proto_flexnet = proto_register_protocol("FlexNet", "FLEXNET", "flexnet");
 
-	/* Register the dissector */
-	register_dissector( "flexnet", dissect_flexnet, proto_flexnet );
-
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_flexnet, hf, array_length( hf ) );
 	proto_register_subtree_array( ett, array_length( ett ) );
@@ -161,6 +157,7 @@ proto_reg_handoff_flexnet(void)
 	static gboolean inited = FALSE;
 
 	if( !inited ) {
+		dissector_add_uint( "ax25.pid", AX25_P_FLEXNET, create_dissector_handle( dissect_flexnet, proto_flexnet ) );
 
 		/*
 		*/
