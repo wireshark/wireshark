@@ -387,7 +387,6 @@ update_visible_columns_menu (void)
   GtkWidget *menu_columns, *menu_item;
   GtkWidget *sub_menu;
   gchar     *title;
-  GtkTreeView *view;
   gint       col_id;
 
   menu_columns = gtk_ui_manager_get_widget(ui_manager_columns, "/ColumnsPopup/DisplayedColumns");
@@ -399,7 +398,6 @@ update_visible_columns_menu (void)
   sub_menu = gtk_menu_new();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_columns), sub_menu);
 
-  view = (GtkTreeView *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   for (col_id = 2; col_id < NUM_COLUMNS; col_id++) {
     title = col_index_to_name(col_id);
     menu_item = gtk_check_menu_item_new_with_label(title);
