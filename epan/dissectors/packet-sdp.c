@@ -572,10 +572,12 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* add SPRT conversation */
     if ((!pinfo->fd->flags.visited) && is_sprt && (is_ipv4_addr || is_ipv6_addr)) {
       if (sprt_handle) {
+        guint32 *port2;
+
         src_addr.data=(guint8*)&ipaddr;
-        if (port == 0) {
-          sprt_add_address(pinfo, &src_addr,
-                           *(guint32*)p_get_proto_data(pinfo->fd, proto_sprt),
+        port2 = p_get_proto_data(pinfo->fd, proto_sprt);
+        if (port == 0 && port2) {
+          sprt_add_address(pinfo, &src_addr, *port2,
                            0, "SDP", pinfo->fd->num); /* will use same port as RTP */
         } else {
           sprt_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
