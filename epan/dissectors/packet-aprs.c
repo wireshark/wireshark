@@ -1510,73 +1510,73 @@ proto_register_aprs(void)
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_aprs_dti,
-			{ "DTI         ",		"aprs.dti",
+			{ "DTI",		"aprs.dti",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			"Data type indicator", HFILL }
 		},
 		{ &hf_aprs_sym_code,
-			{ "Symbol code ",		"aprs.sym_code",
+			{ "Symbol code",		"aprs.sym_code",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Symbol Code", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_sym_id,
-			{ "Sym table id",		"aprs.sym_id",
+			{ "Symbol table ID",		"aprs.sym_id",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Symbol table ID", HFILL }
+			NULL, HFILL }
 		},
 
 /* Position */
 		{ &hf_aprs_position,
-			{ "Position    ",		"aprs.position",
+			{ "Position",		"aprs.position",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Position", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_lat,
-			{ "Latitude    ",		"aprs.position.lat",
+			{ "Latitude",		"aprs.position.lat",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Latitude", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_long,
-			{ "Longitude   ",		"aprs.position.long",
+			{ "Longitude",		"aprs.position.long",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Longitude", HFILL }
+			NULL, HFILL }
 		},
 
 /* APRS Messages */
 		{ &hf_aprs_comment,
 			{ "Comment",			"aprs.comment",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Comment", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ultimeter_2000,
 			{ "Ultimeter 2000",		"aprs.ultimeter_2000",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Ultimeter 2000", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_status,
 			{ "Status",			"aprs.status",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Status", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_object,
 			{ "Object",			"aprs.object",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Object", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_item,
 			{ "Item",			"aprs.item",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Item", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_query,
 			{ "Query",			"aprs.query",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Query", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_telemetry,
 			{ "Telemetry",			"aprs.telemetry",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Telemetry", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_raw,
 			{ "Raw",			"aprs.raw",
@@ -1591,7 +1591,7 @@ proto_register_aprs(void)
 		{ &hf_aprs_message,
 			{ "Message",			"aprs.message",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Message", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_agrelo,
 			{ "Agrelo",			"aprs.agrelo",
@@ -1646,27 +1646,27 @@ proto_register_aprs(void)
 		{ &hf_aprs_storm,
 			{ "Storm",			"aprs.storm",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Storm", HFILL }
+			NULL, HFILL }
 		},
 
 /* Time stamp */
 		{ &hf_aprs_dhm,
-			{ "DHM         ",		"aprs.dhm",
+			{ "DHM",		"aprs.dhm",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			"Day/Hour/Minute", HFILL }
 		},
 		{ &hf_aprs_hms,
-			{ "HMS         ",		"aprs.hms",
+			{ "HMS",		"aprs.hms",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			"Hour/Minute/Second", HFILL }
 		},
 		{ &hf_aprs_mdhm,
-			{ "MDHM        ",		"aprs.mdhm",
+			{ "MDHM",		"aprs.mdhm",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			"Month/Day/Hour/Minute", HFILL }
 		},
 		{ &hf_aprs_tz,
-			{ "TZ          ",		"aprs.tz",
+			{ "TZ",		"aprs.tz",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			"Time zone", HFILL }
 		},
@@ -1675,29 +1675,29 @@ proto_register_aprs(void)
 		{ &hf_aprs_compression_type,
 			{ "Compression type",		"aprs.ct",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"Compression type", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_ct_gps_fix,
 			{ "GPS fix type",		"aprs.ct.gps_fix",
 			FT_UINT8, BASE_HEX, VALS(gps_vals), 0x20,
-			"GPS fix", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_ct_nmea_src,
 			{ "NMEA source",		"aprs.ct.nmea_src",
 			FT_UINT8, BASE_HEX, VALS(nmea_vals), 0x18,
-			"NMEA source", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_ct_origin,
 			{ "Compression origin",		"aprs.ct.origin",
 			FT_UINT8, BASE_HEX, VALS(ctype_vals), 0x07,
-			"Compression origin", HFILL }
+			NULL, HFILL }
 		},
 
 /* Ext Msg */
 		{ &hf_aprs_msg,
-			{ "Ext Msg",			"aprs.msg",
+			{ "Extended message",			"aprs.msg",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"APRS extended message", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_rng,
 			{ "Range",			"aprs.msg.rng",
@@ -1707,172 +1707,172 @@ proto_register_aprs(void)
 		{ &hf_aprs_msg_cse,
 			{ "Course",			"aprs.msg.cse",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Course", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_spd,
-			{ "Speed ",			"aprs.msg.spd",
+			{ "Speed",			"aprs.msg.spd",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Speed", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_dir,
-			{ "Dir   ",			"aprs.msg.dir",
+			{ "Wind direction",		"aprs.msg.dir",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Wind direction", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_brg,
 			{ "Bearing",			"aprs.msg.brg",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Bearing", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_nrq,
-			{ "NRQ    ",			"aprs.msg.nrq",
+			{ "NRQ",			"aprs.msg.nrq",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			"Number/Range/Quality", HFILL }
 		},
 
 /* Msg PHGD */
 		{ &hf_aprs_msg_phg_p,
-			{ "Power      ",		"aprs.msg.phg.p",
+			{ "Power",		"aprs.msg.phg.p",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_phg_h,
-			{ "Height     ",		"aprs.msg.phg.h",
+			{ "Height",		"aprs.msg.phg.h",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_phg_g,
-			{ "Gain       ",		"aprs.msg.phg.g",
+			{ "Gain",		"aprs.msg.phg.g",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_phg_d,
 			{ "Directivity",		"aprs.msg.phg.d",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 /* Msg DFS */
 		{ &hf_aprs_msg_dfs_s,
 			{ "Strength",			"aprs.msg.dfs.s",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_dfs_h,
 			{ "Height",			"aprs.msg.dfs.h",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_dfs_g,
 			{ "Gain",			"aprs.msg.dfs.g",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_dfs_d,
 			{ "Directivity",		"aprs.msg.dfs.d",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 /* Msg AOD */
 		{ &hf_aprs_msg_aod_t,
 			{ "Type",			"aprs.msg.aod.t",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_msg_aod_c,
 			{ "Colour",			"aprs.msg.aod.c",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }
+			NULL, HFILL }
 		},
 
 /* Weather */
 		{ &hf_aprs_weather,
-			{ "Weather ",			"aprs.weather",
+			{ "Weather",			"aprs.weather",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			"Weather report", HFILL }
 		},
 		{ &hf_aprs_weather_dir,
-			{ "Direction ",			"aprs.weather.dir",
+			{ "Wind direction",		"aprs.weather.dir",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Wind direction", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_spd,
-			{ "Speed     ",			"aprs.weather.speed",
+			{ "Wind speed",			"aprs.weather.speed",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			"Wind speed (1 minute)", HFILL }
 		},
 		{ &hf_aprs_weather_peak,
-			{ "Peak      ",			"aprs.weather.peak",
+			{ "Peak wind speed",		"aprs.weather.peak",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Wind spead (peak)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_temp,
-			{ "Temp      ",			"aprs.weather.temp",
+			{ "Temperature (F)",		"aprs.weather.temp",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Temerature (F)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_rain_1,
-			{ "1 hour    ",			"aprs.weather.1_hour",
+			{ "Rain (last 1 hour)",			"aprs.weather.1_hour",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Rain in last 1 hour", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_rain_24,
-			{ "24 hours  ",			"aprs.weather.24_hour",
+			{ "Rain (last 24 hours)",		"aprs.weather.24_hour",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Rain in last 24 hours", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_rain,
-			{ "Rain      ",			"aprs.weather.rain",
+			{ "Rain",			"aprs.weather.rain",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Rain", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_humidty,
-			{ "Humidity  ",			"aprs.weather.humidity",
+			{ "Humidity",			"aprs.weather.humidity",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Humidity", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_press,
-			{ "Pressure  ",			"aprs.weather.pressure",
+			{ "Pressure",			"aprs.weather.pressure",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Pressure", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_luminosity,
 			{ "Luminosity",			"aprs.weather.luminosity",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Luminosity", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_snow,
-			{ "Snow      ",			"aprs.weather.snow",
+			{ "Snow",			"aprs.weather.snow",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Snow", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_raw_rain,
-			{ "Raw rain  ",			"aprs.weather.raw_rain",
+			{ "Raw rain",			"aprs.weather.raw_rain",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Raw rain", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_software,
-			{ "Software  ",			"aprs.weather.software",
+			{ "Software",			"aprs.weather.software",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Software", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_weather_unit,
-			{ "Unit      ",			"aprs.weather.unit",
+			{ "Unit",			"aprs.weather.unit",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Unit", HFILL }
+			NULL, HFILL }
 		},
 
 /* MIC-E */
 		{ &hf_aprs_mic_e_0_current,
 			{ "Current Mic-E (Rev 0)",	"aprs.mic_e_0_current",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Current Mic-E Data (Rev 0 beta)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_0_old,
 			{ "Old Mic-E (Rev 0)",		"aprs.mic_e_0_old",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Old Mic-E Data (Rev 0 beta)", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_old,
 			{ "Old Mic-E",			"aprs.mic_e_old",
@@ -1885,27 +1885,27 @@ proto_register_aprs(void)
 			"Current Mic-E Data (not used in TM-D700)", HFILL }
 		},
 		{ &hf_aprs_mic_e_dst,
-			{ "Dst Addr decode ",		"aprs.mic_e.dst",
+			{ "Destination Address",		"aprs.mic_e.dst",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"AX.25 Destination address decode", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_long_d,
-			{ "Longitude d     ",		"aprs.mic_e.long_d",
+			{ "Longitude degrees",		"aprs.mic_e.long_d",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"Longitude degress", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_long_m  ,
-			{ "Longitude m     ",		"aprs.mic_e.long_m",
+			{ "Longitude minutes",		"aprs.mic_e.long_m",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"Longitude mimutes", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_long_h,
-			{ "Longitude h     ",		"aprs.mic_e.long_h",
+			{ "Longitude hundreths of minutes",	"aprs.mic_e.long_h",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"Longitude hundreths of minutes", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_aprs_mic_e_spd_sp,
-			{ "Speed (H & T)   ",		"aprs.mic_e.speed_sp",
+			{ "Speed (H & T)",		"aprs.mic_e.speed_sp",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			"Speed (hundreds & tens)", HFILL }
 		},
@@ -1915,19 +1915,19 @@ proto_register_aprs(void)
 			"Speed (tens), Course (hundreds)", HFILL }
 		},
 		{ &hf_aprs_mic_e_spd_se,
-			{ "Course (T & U)  ",	"aprs.mic_e.speed_se",
+			{ "Course (T & U)",	"aprs.mic_e.speed_se",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			"Course (tens & units)", HFILL }
 		},
 		{ &hf_aprs_mic_e_telemetry,
-			{ "Telmetry        ",	"aprs.mic_e.telemetry",
+			{ "Telmetry",	"aprs.mic_e.telemetry",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
 			"Telemetry", HFILL }
 		},
 		{ &hf_aprs_mic_e_status,
-			{ "Status          ",	"aprs.mic_e.status",
+			{ "Status",	"aprs.mic_e.status",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-			"Status", HFILL }
+			NULL, HFILL }
 		},
 	};
 
