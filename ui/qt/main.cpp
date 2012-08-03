@@ -83,6 +83,7 @@
 #include <wsutil/file_util.h>
 
 #include "ui/alert_box.h"
+#include "ui/iface_lists.h"
 #include "ui/main_statusbar.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
@@ -146,7 +147,7 @@ static void console_log_handler(const char *log_domain,
 void create_console(void);
 
 #ifdef HAVE_LIBPCAP
-capture_options global_capture_opts;
+extern capture_options global_capture_opts;
 #endif
 
 // Copied from ui/gtk/gui_utils.c
@@ -953,7 +954,143 @@ int main(int argc, char *argv[])
 
 /////////
 
+#ifdef HAVE_LIBPCAP
+    fill_in_local_interfaces();
+//  if (start_capture && list_link_layer_types) {
+//    /* Specifying *both* is bogus. */
+//    cmdarg_err("You can't specify both -L and a live capture.");
+//    exit(1);
+//  }
+
+//  if (list_link_layer_types) {
+//    /* We're supposed to list the link-layer types for an interface;
+//       did the user also specify a capture file to be read? */
+//    if (cf_name) {
+//      /* Yes - that's bogus. */
+//      cmdarg_err("You can't specify -L and a capture file to be read.");
+//      exit(1);
+//    }
+//    /* No - did they specify a ring buffer option? */
+//    if (global_capture_opts.multi_files_on) {
+//      cmdarg_err("Ring buffer requested, but a capture isn't being done.");
+//      exit(1);
+//    }
+//  } else {
+//    /* We're supposed to do a live capture; did the user also specify
+//       a capture file to be read? */
+//    if (start_capture && cf_name) {
+//      /* Yes - that's bogus. */
+//      cmdarg_err("You can't specify both a live capture and a capture file to be read.");
+//      exit(1);
+//    }
+
+//    /* No - was the ring buffer option specified and, if so, does it make
+//       sense? */
+//    if (global_capture_opts.multi_files_on) {
+//      /* Ring buffer works only under certain conditions:
+//      a) ring buffer does not work with temporary files;
+//      b) real_time_mode and multi_files_on are mutually exclusive -
+//         real_time_mode takes precedence;
+//      c) it makes no sense to enable the ring buffer if the maximum
+//         file size is set to "infinite". */
+//      if (global_capture_opts.save_file == NULL) {
+//        cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
+//        global_capture_opts.multi_files_on = FALSE;
+//      }
+//      if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
+//        cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
+//        /* XXX - this must be redesigned as the conditions changed */
+//      }
+//    }
+//  }
+
+//  if (start_capture || list_link_layer_types) {
+//    /* Did the user specify an interface to use? */
+//    if (!capture_opts_trim_iface(&global_capture_opts,
+//        (prefs_p->capture_device) ? get_if_name(prefs_p->capture_device) : NULL)) {
+//        exit(2);
+//    }
+//  }
+
+//  if (list_link_layer_types) {
+//    /* Get the list of link-layer types for the capture devices. */
+//    if_capabilities_t *caps;
+//    guint i;
+//    interface_t device;
+//    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+
+//      device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+//      if (device.selected) {
+//#if defined(HAVE_PCAP_CREATE)
+//        caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, &err_str);
+//#else
+//        caps = capture_get_if_capabilities(device.name, FALSE, &err_str);
+//#endif
+//        if (caps == NULL) {
+//          cmdarg_err("%s", err_str);
+//          g_free(err_str);
+//          exit(2);
+//        }
+//        if (caps->data_link_types == NULL) {
+//          cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
+//          exit(2);
+//        }
+//#if defined(HAVE_PCAP_CREATE)
+//        capture_opts_print_if_capabilities(caps, device.name, device.monitor_mode_supported);
+//#else
+//        capture_opts_print_if_capabilities(caps, device.name, FALSE);
+//#endif
+//        free_if_capabilities(caps);
+//      }
+//    }
+//    exit(0);
+//  }
+
+    capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
+    capture_opts_trim_ring_num_files(&global_capture_opts);
+#endif /* HAVE_LIBPCAP */
+
+  /* Notify all registered modules that have had any of their preferences
+     changed either from one of the preferences file or from the command
+     line that their preferences have changed. */
+    prefs_apply_all();
+
+#ifdef HAVE_LIBPCAP
+    if ((global_capture_opts.num_selected == 0) &&
+            (prefs.capture_device != NULL)) {
+        guint i;
+        interface_t device;
+        for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (!device.hidden && strcmp(device.display_name, prefs.capture_device) == 0) {
+                device.selected = TRUE;
+                global_capture_opts.num_selected++;
+                global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+                g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+                break;
+            }
+        }
+    }
+#endif
+
+    /* disabled protocols as per configuration file */
+    if (gdp_path == NULL && dp_path == NULL) {
+        set_disabled_protos_list();
+    }
+
     build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);
+
+//    /* read in rc file from global and personal configuration paths. */
+//    rc_file = get_datafile_path(RC_FILE);
+//  #if GTK_CHECK_VERSION(3,0,0)
+//    /* XXX resolve later */
+//  #else
+//    gtk_rc_parse(rc_file);
+//    g_free(rc_file);
+//    rc_file = get_persconffile_path(RC_FILE, FALSE, FALSE);
+//    gtk_rc_parse(rc_file);
+//  #endif
+//    g_free(rc_file);
 
     font_init();
 

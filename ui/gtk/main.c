@@ -112,22 +112,23 @@
 #include "ui/ui_util.h"
 
 #ifdef HAVE_LIBPCAP
+#include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 #endif
 
 #include <wsutil/file_util.h>
 
 #ifdef HAVE_LIBPCAP
-#include "../capture_ui_utils.h"
-#include "../capture-pcap-util.h"
-#include "../capture_ifinfo.h"
-#include "../capture.h"
-#include "../capture_sync.h"
+#include "capture_ui_utils.h"
+#include "capture-pcap-util.h"
+#include "capture_ifinfo.h"
+#include "capture.h"
+#include "capture_sync.h"
 #endif
 
 #ifdef _WIN32
-#include "../capture-wpcap.h"
-#include "../capture_wpcap_packet.h"
+#include "capture-wpcap.h"
+#include "capture_wpcap_packet.h"
 #include <tchar.h> /* Needed for Unicode */
 #include <wsutil/unicode-utils.h>
 #include <commctrl.h>
@@ -169,7 +170,6 @@
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/capture_if_dlg.h"
-#include "ui/gtk/capture_globals.h"
 #include "ui/gtk/tap_param_dlg.h"
 #include "ui/gtk/prefs_column.h"
 #include "ui/gtk/prefs_dlg.h"

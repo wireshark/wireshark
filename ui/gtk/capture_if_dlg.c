@@ -41,6 +41,7 @@
 #include "wsutil/file_util.h"
 #include <wiretap/wtap.h>
 
+#include "ui/capture_globals.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 
@@ -59,7 +60,6 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/webbrowser.h"
-#include "ui/gtk/capture_globals.h"
 #include "ui/gtk/network_icons.h"
 #include "ui/gtk/pipe_icon.h"
 #include "ui/gtk/main_welcome.h"

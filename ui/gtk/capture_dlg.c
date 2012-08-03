@@ -46,6 +46,7 @@
 #include "../capture_ui_utils.h"
 #include "../ringbuffer.h"
 
+#include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
@@ -61,7 +62,6 @@
 #include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/gtkglobals.h"
-#include "ui/gtk/capture_globals.h"
 #include "ui/gtk/cfilter_combo_utils.h"
 #include "ui/gtk/capture_if_dlg.h"
 #include "ui/gtk/main_welcome.h"

@@ -9,6 +9,9 @@ QT += core gui
 TARGET = qtshark
 TEMPLATE = app
 
+# XXX - Need to autogenerate Info.plist from Info.plist.in
+# QMAKE_INFO_PLIST = ../../packaging/macosx/Info.plist
+
 xxx {
     message( )
     message(CONFIG:)
@@ -89,6 +92,9 @@ win32:INCLUDEPATH += \
 # We have to manually trigger relinking each time one of these is modified.
 # Is there any way to do this automatically?
 SOURCES_WS_C = \
+    ../alert_box.c  \
+    ../iface_lists.c \
+    ../util.c  \
     ../../airpcap_loader.c \
     ../../capture-pcap-util.c     \
     ../../capture.c       \
@@ -119,8 +125,6 @@ SOURCES_WS_C = \
     ../../tempfile.c      \
     ../../timestats.c     \
     ../../u3.c \
-    ../../ui/alert_box.c  \
-    ../../ui/util.c  \
     ../../version_info.c
 
 unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
@@ -318,3 +322,9 @@ ICON = ../../packaging/macosx/Resources/Wireshark.icns
 RC_FILE = qtshark.rc
 
 win32: QMAKE_CLEAN += *.pdb
+
+HEADERS += \
+    sparkline_delegate.h
+
+SOURCES += \
+    sparkline_delegate.cpp

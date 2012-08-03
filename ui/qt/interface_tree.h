@@ -24,7 +24,16 @@
 #ifndef INTERFACE_TREE_H
 #define INTERFACE_TREE_H
 
+#include "config.h"
+
 #include <glib.h>
+
+#ifdef HAVE_LIBPCAP
+#include "capture.h"
+#include "capture-pcap-util.h"
+#include "capture_opts.h"
+#include "capture_ui_utils.h"
+#endif
 
 #include <QTreeWidget>
 
@@ -33,11 +42,22 @@ class InterfaceTree : public QTreeWidget
     Q_OBJECT
 public:
     explicit InterfaceTree(QWidget *parent = 0);
+    ~InterfaceTree();
+
+protected:
+    void hideEvent(QHideEvent *evt);
+    void showEvent(QShowEvent *evt);
+
+private:
+    if_stat_cache_t *m_statCache;
+    QTimer *m_statTimer;
 
 signals:
 
 public slots:
 
+private slots:
+    void updateStatistics(void);
 };
 
 #endif // INTERFACE_TREE_H

@@ -39,6 +39,9 @@
 #include "../capture.h"
 #endif
 
+#ifdef HAVE_LIBPCAP
+#include "ui/capture_globals.h"
+#endif
 #include "ui/recent_utils.h"
 #include "ui/simple_dialog.h"
 
@@ -46,9 +49,6 @@
 #include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/drag_and_drop.h"
 #include "ui/gtk/main.h"
-#ifdef HAVE_LIBPCAP
-#include "ui/gtk/capture_globals.h"
-#endif
 
 #include "ui/gtk/old-gtk-compat.h"
 

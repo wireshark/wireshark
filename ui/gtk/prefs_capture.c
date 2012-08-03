@@ -33,16 +33,17 @@
 
 #include <epan/prefs.h>
 
+#include "capture_opts.h"
+#include "capture_ifinfo.h"
+#include "capture_ui_utils.h"
+#include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 #include "ui/simple_dialog.h"
-#include "../capture_ifinfo.h"
-#include "../capture_ui_utils.h"
 
 #include "ui/gtk/prefs_capture.h"
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
-#include "ui/gtk/capture_globals.h"
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/stock_icons.h"

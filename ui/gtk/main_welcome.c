@@ -41,7 +41,10 @@
 
 #include <wsutil/file_util.h>
 
+#ifdef HAVE_LIBPCAP
 #include "ui/iface_lists.h"
+#include "ui/capture_globals.h"
+#endif
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
@@ -58,7 +61,6 @@
 #ifdef HAVE_LIBPCAP
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/capture_if_dlg.h"
-#include "ui/gtk/capture_globals.h"
 #if GTK_CHECK_VERSION(2,18,0)
 #include "ui/gtk/webbrowser.h"
 #endif

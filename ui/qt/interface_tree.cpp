@@ -23,17 +23,18 @@
 
 #include "interface_tree.h"
 
-#include "config.h"
+#include "ui/capture_globals.h"
+#include "ui/iface_lists.h"
 
-#ifdef HAVE_LIBPCAP
-#include "capture.h"
-#include "capture-pcap-util.h"
-#include "capture_opts.h"
-#include "capture_ui_utils.h"
-#endif
+#include "epan/prefs.h"
+
+#include "sparkline_delegate.h"
 
 #include <QLabel>
 #include <QHeaderView>
+#include <QTimer>
+
+#include <QDebug>
 
 InterfaceTree::InterfaceTree(QWidget *parent) :
     QTreeWidget(parent)
@@ -46,10 +47,12 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     header()->setVisible(false);
     setRootIsDecorated(false);
     setUniformRowHeights(true);
+    setColumnCount(2);
 #ifdef Q_WS_MAC
     setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
     setAccessibleName(tr("Welcome screen list"));
+    setColumnWidth(1, 10);
 
     setStyleSheet(
             "QTreeWidget {"
@@ -57,9 +60,14 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
             "}"
             );
 
+    m_statCache = NULL;
+    m_statTimer = new QTimer(this);
+    connect(m_statTimer, SIGNAL(timeout()), this, SLOT(updateStatistics()));
+
+    setItemDelegateForColumn(1, new SparkLineDelegate());
+
     if_list = capture_interface_list(&err, &err_str);
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: move if_list_comparator_alph out of ui/gtk/");
-//    if_list = g_list_sort(if_list, if_list_comparator_alph);
+    if_list = g_list_sort(if_list, if_list_comparator_alph);
 
     if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
         ti = new QTreeWidgetItem();
@@ -81,16 +89,100 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
         setDisabled(false);
 
         for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
+            QList<int> *points;
+            QVariant v;
+
             if_info = (if_info_t *) curr->data;
             /* Continue if capture device is hidden */
-//            if (prefs_is_capture_device_hidden(if_info->name)) {
-//                continue;
-//            }
+            if (prefs_is_capture_device_hidden(if_info->name)) {
+                continue;
+            }
 
             ti = new QTreeWidgetItem();
             ti->setText(0, QString().fromUtf8(if_info->description ? if_info->description : if_info->name));
+            points = new QList<int>();
+            v.setValue(points);
+            ti->setData(1, Qt::UserRole, v);
             addTopLevelItem(ti);
+
         }
     }
     free_interface_list(if_list);
+}
+
+InterfaceTree::~InterfaceTree() {
+    QTreeWidgetItemIterator iter(this);
+
+    if (m_statCache) {
+      capture_stat_stop(m_statCache);
+      m_statCache = NULL;
+    }
+
+    while (*iter) {
+        QList<int> *points;
+        QVariant v;
+
+        v = (*iter)->data(1, Qt::UserRole);
+        points = v.value<QList<int> *>();
+        delete(points);
+    }
+}
+
+void InterfaceTree::hideEvent(QHideEvent *evt) {
+    Q_UNUSED(evt);
+
+    m_statTimer->stop();
+    if (m_statCache) {
+        capture_stat_stop(m_statCache);
+        m_statCache = NULL;
+    }
+}
+
+void InterfaceTree::showEvent(QShowEvent *evt) {
+    Q_UNUSED(evt);
+
+    m_statTimer->start(1000);
+}
+
+void InterfaceTree::updateStatistics(void) {
+    interface_t device;
+    guint diff, if_idx;
+    struct pcap_stat stats;
+
+    if (!m_statCache) {
+        // Start gathering statistics using dumpcap
+        // We crash (on OS X at least) if we try to do this from ::showEvent.
+        m_statCache = capture_stat_start(&global_capture_opts);
+    }
+    if (!m_statCache) return;
+
+    QTreeWidgetItemIterator iter(this);
+    while (*iter) {
+        QList<int> *points;
+        QVariant v;
+
+        for (if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
+            device = g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
+
+            if ((*iter)->text(0).compare(QString().fromUtf8(device.name)) || device.hidden || device.type == IF_PIPE)
+                continue;
+
+            diff = 0;
+            if (capture_stats(m_statCache, device.name, &stats)) {
+                if ((int)(stats.ps_recv - device.last_packets) >= 0) {
+                    diff = stats.ps_recv - device.last_packets;
+                }
+                device.last_packets = stats.ps_recv;
+            }
+
+            v = (*iter)->data(1, Qt::UserRole);
+            points = v.value<QList<int> *>();
+            points->append(diff);
+            update(indexFromItem((*iter), 1));
+            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, if_idx);
+            g_array_insert_val(global_capture_opts.all_ifaces, if_idx, device);
+
+        }
+        iter++;
+    }
 }

@@ -116,7 +116,7 @@
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
-#include "ui/gtk/capture_globals.h"
+#include "ui/capture_globals.h"
 #endif
 #ifdef HAVE_IGE_MAC_INTEGRATION
 #include <ige-mac-menu.h>
