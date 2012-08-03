@@ -141,6 +141,24 @@ static const xdlc_cf_items ax25_cf_items = {
 	&hf_ax25_ftype_su
 };
 
+static const value_string pid_vals[] = {
+	{ AX25_P_ROSE, "Rose" },
+	{ AX25_P_RFC1144C, "RFC1144 (compressed)" },
+	{ AX25_P_RFC1144, "RFC1144 (uncompressed)" },
+	{ AX25_P_SEGMENT, "Segment" },
+	{ AX25_P_TEXNET, "Texnet" },
+	{ AX25_P_LCP, "Link Quality protocol" },
+	{ AX25_P_ATALK, "AppleTalk" },
+	{ AX25_P_ATALKARP, "AppleTalk ARP" },
+	{ AX25_P_IP, "IP" },
+	{ AX25_P_ARP, "ARP" },
+	{ AX25_P_FLEXNET, "FlexNet" },
+	{ AX25_P_NETROM, "NetRom" },
+	{ AX25_P_NO_L3, "No L3" },
+	{ AX25_P_L3_ESC, "L3 esc" },
+	{ 0, NULL }
+};
+
 /* Initialize the subtree pointers */
 static gint ett_ax25 = -1;
 static gint ett_ax25_ctl = -1;
@@ -159,13 +177,11 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	/* char v2cmdresp; */
 	char *ax25_version;
 	int is_response;
-	char *text_ptr;
 	const guint8 *src_addr;
 	const guint8 *dst_addr;
 	const guint8 *via_addr;
 	guint8 control;
 	guint8 pid = AX25_P_NO_L3;
-	char *pid_text = NULL;
 	guint8 src_ssid;
 	guint8 dst_ssid;
 	void *saved_private_data;
@@ -224,141 +240,71 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	control_offset = offset;
 	control  = tvb_get_guint8( tvb, control_offset );
 
-	text_ptr = "????";
-	switch ( control & 0x03 )
-		{
-		case 1 :
-			switch ( ( control >> 2 ) & 0x03 )
-				{
-				case 0 : text_ptr = "RR"; break;
-				case 1 : text_ptr = "RNR"; break;
-				case 2 : text_ptr = "REJ"; break;
-				case 3 : text_ptr = "SREJ"; break;
-				}
-			break;
-		case 3 :
-			switch ( ( ( ( control >> 5 ) & 0x07) << 2) | ( ( control >> 2 ) & 0x03) )
-				{
-				case 0  :  text_ptr = "UI"; break;
-				case 3  :  text_ptr = "DM"; break;
-				case 7  :  text_ptr = "SABM"; break;
-				case 8  :  text_ptr = "DISC"; break;
-				case 12 :  text_ptr = "UA"; break;
-				case 15 :  text_ptr = "SABME"; break;
-				case 17 :  text_ptr = "FRMR"; break;
-				case 23 :  text_ptr = "XID"; break;
-				case 28 :  text_ptr = "TEST"; break;
-				default :  text_ptr = "????"; break;
-				}
-			break;
-		default :
-			text_ptr = "I";
-			break;
-		}
-	g_snprintf( info_buffer, STRLEN, "%s", text_ptr );
+	/* start at the dst addr */
+	offset = 0;
+	/* create display subtree for the protocol */
+	hdr_len = AX25_HEADER_SIZE;
+	if ( I_FRAME( control ) || UI_FRAME( control ) )
+		hdr_len += 1;
 
-	/* decode the pid field (if appropriate) */
+	ti = proto_tree_add_protocol_format( parent_tree, proto_ax25, tvb, offset, hdr_len,
+		"AX.25, Src: %s (%s), Dst: %s (%s), Ver: %s",
+		get_ax25_name( src_addr ),
+		ax25_to_str( src_addr ),
+		get_ax25_name( dst_addr ),
+		ax25_to_str( dst_addr ),
+		ax25_version
+		);
+
+	ax25_tree = proto_item_add_subtree( ti, ett_ax25 );
+
+	proto_tree_add_ax25( ax25_tree, hf_ax25_dst, tvb, offset, AX25_ADDR_LEN, dst_addr );
+
+	/* step over dst addr point at src addr */
+	offset += AX25_ADDR_LEN;
+	proto_tree_add_ax25( ax25_tree, hf_ax25_src, tvb, offset, AX25_ADDR_LEN, src_addr );
+
+	/* step over src addr point at either 1st via addr or control byte */
+	offset += AX25_ADDR_LEN;
+
+	/* handle the vias, if any */
+	via_index = 0;
+	while ( ( tvb_get_guint8( tvb, offset - 1 ) & 0x01 ) == 0 )
+		{
+		if ( via_index < AX25_MAX_DIGIS )
+			{
+			via_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
+			proto_tree_add_ax25( ax25_tree, hf_ax25_via[ via_index ], tvb, offset, AX25_ADDR_LEN, via_addr );
+			via_index++;
+			}
+		/* step over a via addr */
+		offset += AX25_ADDR_LEN;
+		}
+
+	dissect_xdlc_control(	tvb,
+				control_offset,
+				pinfo,
+				ax25_tree,
+				hf_ax25_ctl,
+				ett_ax25_ctl,
+				&ax25_cf_items,
+				NULL,
+				NULL,
+				NULL,
+				is_response,
+				FALSE,
+				FALSE );
+
 	if ( I_FRAME( control ) || UI_FRAME( control ) )
 		{
 		offset += 1; /* step over control byte point at pid */
+
 		pid      = tvb_get_guint8( tvb, offset );
-		switch ( pid )
-			{
-			case AX25_P_ROSE	: pid_text = "Rose"			; break;
-			case AX25_P_RFC1144C	: pid_text = "RFC1144 (compressed)"	; break;
-			case AX25_P_RFC1144	: pid_text = "RFC1144 (uncompressed)"	; break;
-			case AX25_P_SEGMENT	: pid_text = "Segment"			; break;
-			case AX25_P_TEXNET	: pid_text = "Texnet"			; break;
-			case AX25_P_LCP		: pid_text = "Link Quality protocol"	; break;
-			case AX25_P_ATALK	: pid_text = "AppleTalk"		; break;
-			case AX25_P_ATALKARP	: pid_text = "AppleTalk ARP"		; break;
-			case AX25_P_IP		: pid_text = "IP"			; break;
-			case AX25_P_ARP		: pid_text = "ARP"			; break;
-			case AX25_P_FLEXNET	: pid_text = "FlexNet"			; break;
-			case AX25_P_NETROM	: pid_text = "NetRom"			; break;
-			case AX25_P_NO_L3	: pid_text = "No L3"			; break;
-			case AX25_P_L3_ESC	: pid_text = "L3 esc"			; break;
-			default			: pid_text = "Unknown"			; break;
-			}
-		g_snprintf( info_buffer, STRLEN, "%s (%s)", info_buffer, pid_text );
-		}
+		col_append_fstr( pinfo->cinfo, COL_INFO, ", %s", val_to_str(pid, pid_vals, "Unknown (0x%02x)") );
+		proto_tree_add_uint( ax25_tree, hf_ax25_pid, tvb, offset, 1, pid );
 
-	col_add_str( pinfo->cinfo, COL_INFO, info_buffer );
+		/* Call sub-dissectors here */
 
-	if ( parent_tree )
-		{
-		/* start at the dst addr */
-		offset = 0;
-
-		/* create display subtree for the protocol */
-		hdr_len = AX25_HEADER_SIZE;
-		if ( I_FRAME( control ) || UI_FRAME( control ) )
-			hdr_len += 1;
-
-		ti = proto_tree_add_protocol_format( parent_tree, proto_ax25, tvb, offset, hdr_len,
-			"AX.25, Src: %s (%s), Dst: %s (%s), Ver: %s",
-			get_ax25_name( src_addr ),
-			ax25_to_str( src_addr ),
-			get_ax25_name( dst_addr ),
-			ax25_to_str( dst_addr ),
-			ax25_version
-			);
-
-		ax25_tree = proto_item_add_subtree( ti, ett_ax25 );
-
-		proto_tree_add_ax25( ax25_tree, hf_ax25_dst, tvb, offset, AX25_ADDR_LEN, dst_addr );
-
-		/* step over dst addr point at src addr */
-		offset += AX25_ADDR_LEN;
-		proto_tree_add_ax25( ax25_tree, hf_ax25_src, tvb, offset, AX25_ADDR_LEN, src_addr );
-
-		/* step over src addr point at either 1st via addr or control byte */
-		offset += AX25_ADDR_LEN;
-
-		/* handle the vias, if any */
-		via_index = 0;
-		while ( ( tvb_get_guint8( tvb, offset - 1 ) & 0x01 ) == 0 )
-			{
-			if ( via_index < AX25_MAX_DIGIS )
-				{
-				via_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
-				proto_tree_add_ax25( ax25_tree, hf_ax25_via[ via_index ], tvb, offset, AX25_ADDR_LEN, via_addr );
-				via_index++;
-				}
-			/* step over a via addr */
-			offset += AX25_ADDR_LEN;
-			}
-
-		dissect_xdlc_control(	tvb,
-					control_offset,
-					pinfo,
-					ax25_tree,
-					hf_ax25_ctl,
-					ett_ax25_ctl,
-					&ax25_cf_items,
-					NULL,
-					NULL,
-					NULL,
-					is_response,
-					FALSE,
-					FALSE );
-
-		if ( I_FRAME( control ) || UI_FRAME( control ) )
-			{
-			char *s;
-
-			offset += 1; /* step over control byte point at pid */
-
-			s = ep_alloc( STRLEN );
-			g_snprintf( s, STRLEN, "%s (0x%0x)", pid_text, pid );
-			proto_tree_add_string( ax25_tree, hf_ax25_pid, tvb, offset, 1, s );
-			}
-		}
-
-	/* Call sub-dissectors here */
-
-	if ( I_FRAME( control ) || UI_FRAME( control ) )
-		{
 		offset += 1; /* step over pid to the 1st byte of the payload */
 
 		saved_private_data = pinfo->private_data;
@@ -501,7 +447,7 @@ proto_register_ax25(void)
 		},
 		{ &hf_ax25_pid,
 			{ "Packet ID",			"ax25.pid",
-			FT_STRING, BASE_NONE, NULL, 0x0,
+			FT_UINT8, BASE_HEX, VALS(pid_vals), 0x0,
 			"Packet identifier", HFILL }
 		},
 	};
