@@ -157,6 +157,18 @@ static int hf_ax25_kiss_sethardware	= -1;
 /* Initialize the subtree pointers */
 static gint ett_ax25_kiss = -1;
 
+static const value_string kiss_frame_types[] = {
+	{ KISS_DATA_FRAME, "Data frame" },
+	{ KISS_TXDELAY, "Tx Delay" },
+	{ KISS_PERSISTENCE, "Persistence" },
+	{ KISS_SLOT_TIME, "Slot time" },
+	{ KISS_TXTAIL, "Tx tail" },
+	{ KISS_FULLDUPLEX, "Full duplex" },
+	{ KISS_SETHARDWARE, "Set hardware" },
+	{ KISS_RETURN, "Return" },
+	{ 0, NULL }
+};
+
 /* Code to actually dissect the packets */
 static void
 dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
@@ -169,7 +181,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	int kiss_port;
 	int kiss_param;
 	int kiss_param_len;
-	char *frame_type_text;
+	const char *frame_type_text;
 	char *info_buffer;
 	void *saved_private_data;
 	tvbuff_t *next_tvb = NULL;
@@ -190,21 +202,19 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	kiss_port = (kiss_cmd & KISS_PORT_MASK) >> 4;
 	offset += KISS_HEADER_SIZE;
 
-	frame_type_text = "????";
 	kiss_param = 0;
 	kiss_param_len = 0;
 	switch ( kiss_type )
 		{
-		case KISS_DATA_FRAME	: frame_type_text = "Data frame"; break;
-		case KISS_TXDELAY	: frame_type_text = "Tx Delay";     kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
-		case KISS_PERSISTENCE	: frame_type_text = "Persistence";  kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
-		case KISS_SLOT_TIME	: frame_type_text = "Slot time";    kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
-		case KISS_TXTAIL	: frame_type_text = "Tx tail";      kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
-		case KISS_FULLDUPLEX	: frame_type_text = "Full duplex";  kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
-		case KISS_SETHARDWARE	: frame_type_text = "Set hardware"; kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
-		case KISS_RETURN	: frame_type_text = "Return"; break;
+		case KISS_TXDELAY	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
+		case KISS_PERSISTENCE	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
+		case KISS_SLOT_TIME	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
+		case KISS_TXTAIL	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
+		case KISS_FULLDUPLEX	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
+		case KISS_SETHARDWARE	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
 		default			: break;
 		}
+	frame_type_text = val_to_str(kiss_type, kiss_frame_types, "Unknown (%u)");
 	g_snprintf( info_buffer, STRLEN, "%s, Port %u", frame_type_text, kiss_port );
 	if ( kiss_param_len > 0 )
 		g_snprintf( info_buffer, STRLEN, "%s %u, Port %u", frame_type_text, kiss_param,
@@ -290,7 +300,7 @@ proto_register_ax25_kiss(void)
 	static hf_register_info hf[] = {
 		{ &hf_ax25_kiss_cmd,
 			{ "Cmd",			"ax25_kiss.cmd",
-			FT_UINT8, BASE_DEC, NULL, KISS_CMD_MASK,
+			FT_UINT8, BASE_DEC, VALS(kiss_frame_types), KISS_CMD_MASK,
 			NULL, HFILL }
 		},
 		{ &hf_ax25_kiss_port,
