@@ -385,7 +385,6 @@ void
 update_visible_columns_menu (void)
 {
   GtkWidget *menu_columns, *menu_item;
-  GtkTreeViewColumn *col;
   GtkWidget *sub_menu;
   gchar     *title;
   GtkTreeView *view;
@@ -402,7 +401,6 @@ update_visible_columns_menu (void)
 
   view = (GtkTreeView *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   for (col_id = 2; col_id < NUM_COLUMNS; col_id++) {
-    col = gtk_tree_view_get_column(GTK_TREE_VIEW(view), col_id);
     title = col_index_to_name(col_id);
     menu_item = gtk_check_menu_item_new_with_label(title);
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), prefs_capture_options_dialog_column_is_visible(title));
@@ -475,7 +473,7 @@ activate_monitor(GtkTreeViewColumn *tree_column, GtkCellRenderer *renderer,
 void
 init_columns_menu(void)
 {
-  GtkActionGroup *columns_action_group; 
+  GtkActionGroup *columns_action_group;
   GError *error = NULL;
 
   columns_menu_object = gtk_menu_new();
