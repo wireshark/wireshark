@@ -1112,7 +1112,7 @@ aprs_item( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 	ch_ptr = strchr( info_buffer, '!' );
 	if ( ch_ptr != NULL )
 		{
-		data_len = ch_ptr - info_buffer + 1;
+		data_len = (int)(ch_ptr - info_buffer + 1);
 		*ch_ptr = '\0';
 		}
 	else
@@ -1120,7 +1120,7 @@ aprs_item( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 		ch_ptr = strchr( info_buffer, '!' );
 		if ( ch_ptr != NULL )
 			{
-			data_len = ch_ptr - info_buffer + 1;
+			data_len = (int)(ch_ptr - info_buffer + 1);
 			*ch_ptr = '\0';
 			}
 		}
