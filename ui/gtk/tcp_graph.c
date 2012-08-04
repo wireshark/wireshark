@@ -1067,7 +1067,7 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 static void get_mouse_position(GtkWidget *widget, int *pointer_x, int *pointer_y, GdkModifierType *mask)
 {
 #if GTK_CHECK_VERSION(3,0,0)
-	gdk_window_get_device_position (get_widget_get_window(widget),
+	gdk_window_get_device_position (gtk_widget_get_window(widget),
 	                                gdk_device_manager_get_client_pointer(
 	                                  gdk_display_get_device_manager(
 	                                    gtk_widget_get_display(GTK_WIDGET(widget)))),
