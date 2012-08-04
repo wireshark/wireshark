@@ -764,6 +764,8 @@ static const gchar *dvbci_sek = NULL;
 static const gchar *dvbci_siv = NULL;
 static gboolean dvbci_dissect_lsc_msg = FALSE;
 
+static dissector_handle_t data_handle;
+static dissector_handle_t dvb_nit_handle;
 static dissector_table_t mpeg_sect_tid_dissector_table;
 static dissector_table_t tcp_dissector_table;
 static dissector_table_t udp_dissector_table;
@@ -3416,7 +3418,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
                 col_set_fence(pinfo->cinfo, COL_PROTOCOL);
             }
             else {
-                msg_handle = find_dissector("data");
+                msg_handle = data_handle;
             }
             if (msg_handle)
                 call_dissector(msg_handle, msg_tvb, pinfo, tree);
@@ -3432,14 +3434,15 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint16            nit_loop_len;
-    guint8             table_id;
-    tvbuff_t          *nit_tvb = NULL;
-    guint8             cap_loop_len;
-    gboolean           info_valid;
-    guint8             char_tbl;
-    guint8             sig_strength, sig_qual;
-    proto_item        *pi;
+    guint16     nit_loop_len, nit_loop_offset;
+    tvbuff_t   *nit_loop_tvb, *nit_loop_partial_tvb;
+    guint       dvb_nit_bytes;
+    guint8      table_id;
+    guint8      cap_loop_len;
+    gboolean    info_valid;
+    guint8      char_tbl;
+    guint8      sig_strength, sig_qual;
+    proto_item *pi;
 
     switch(tag) {
         case T_OPERATOR_STATUS:
@@ -3450,22 +3453,35 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
           nit_loop_len = tvb_get_ntohs(tvb, offset);
           proto_tree_add_item(tree, hf_dvbci_nit_loop_len,
                   tvb, offset, 2, ENC_BIG_ENDIAN);
+          if (nit_loop_len==0)
+              break;
           offset += 2;
-          table_id = tvb_get_guint8(tvb, offset);
-          if (table_id != TABLE_ID_CICAM_NIT) {
-              pi = proto_tree_add_text(tree, tvb, offset, 1,
-                      "Invalid table id for the CICAM NIT");
-              expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                      "CICAM NIT must have table id 0x40 (NIT actual)");
+          nit_loop_tvb = tvb_new_subset(
+                  tvb, offset, nit_loop_len, nit_loop_len);
+          nit_loop_offset = 0;
+          if (!dvb_nit_handle) {
+              call_dissector(data_handle, nit_loop_tvb, pinfo, tree);
+              break;
           }
-          nit_tvb = tvb_new_subset(tvb, offset, nit_loop_len, nit_loop_len); 
-          if (mpeg_sect_tid_dissector_table && nit_tvb) {
-              col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
-              /* prevent nit dissector from clearing col_info */
-              col_set_fence(pinfo->cinfo, COL_INFO);
-              dissector_try_uint(mpeg_sect_tid_dissector_table,
-                      (const guint32)table_id, nit_tvb, pinfo, tree);
-          }
+          /* prevent dvb_nit dissector from clearing the dvb-ci infos */
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+          col_set_fence(pinfo->cinfo, COL_INFO);
+          do {
+              table_id = tvb_get_guint8(nit_loop_tvb, nit_loop_offset);
+              if (table_id != TABLE_ID_CICAM_NIT) {
+                  pi = proto_tree_add_text(tree,
+                          nit_loop_tvb, nit_loop_offset, 1,
+                          "Invalid table id for the CICAM NIT");
+                  expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
+                          "CICAM NIT must have table id 0x40 (NIT actual)");
+              }
+              nit_loop_partial_tvb =
+                  tvb_new_subset_remaining(nit_loop_tvb, nit_loop_offset);
+              dvb_nit_bytes = call_dissector(
+                      dvb_nit_handle, nit_loop_partial_tvb, pinfo, tree);
+              nit_loop_offset += dvb_nit_bytes;
+              /* offsets go from 0 to nit_loop_len-1 */
+          } while (dvb_nit_bytes>0 && nit_loop_offset<nit_loop_len-1);
           break;
         case T_OPERATOR_INFO:
           info_valid = ((tvb_get_guint8(tvb, offset) & 0x08) == 0x08);
@@ -3642,9 +3658,8 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
             offset += 2;
             msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
             msg_handle = (circuit && circuit->dissector_handle) ?
-                circuit->dissector_handle : find_dissector("data");
-            if (msg_handle)
-                call_dissector(msg_handle, msg_tvb, pinfo, tree);
+                circuit->dissector_handle : data_handle;
+            call_dissector(msg_handle, msg_tvb, pinfo, tree);
             break;
         default:
           break;
@@ -5327,6 +5342,8 @@ proto_reg_handoff_dvbci(void)
     dvbci_handle = new_create_dissector_handle(dissect_dvbci, proto_dvbci);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_DVBCI, dvbci_handle);
 
+    data_handle = find_dissector("data");
+    dvb_nit_handle = find_dissector("dvb_nit");
     mpeg_sect_tid_dissector_table = find_dissector_table("mpeg_sect.tid");
     tcp_dissector_table = find_dissector_table("tcp.port");
     udp_dissector_table = find_dissector_table("udp.port");
