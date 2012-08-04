@@ -1578,7 +1578,6 @@ init_prefs(void)
   prefs.capture_show_info             = FALSE;
   prefs.capture_columns               = NULL;
   for (i = 0; i < num_capture_cols; i++) {
-    col_name = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
     col_name = g_strdup(capture_cols[i]);
     prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
   }
