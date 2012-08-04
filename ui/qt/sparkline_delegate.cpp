@@ -46,7 +46,6 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     // XXX Handle disabled
     if (option.state & QStyle::State_Selected) {
         painter->setPen(option.palette.color(QPalette::HighlightedText));
-        qDebug() << "sel";
     } else {
         painter->setPen(option.palette.color(QPalette::WindowText));
     }
