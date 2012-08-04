@@ -48,7 +48,7 @@
  * Use a define for now so the functionality can be restored if need be
  * but redisign is probably needed to get it to work with cairo
  */
-#define USE_CROSSHAIR_CURSOR 1
+#define USE_CROSSHAIR_CURSOR 0
 
 #include <epan/packet.h>
 #include <epan/ipproto.h>
@@ -1555,7 +1555,9 @@ static void callback_cross_on_off (GtkWidget *toggle, gpointer data)
 		cross_draw (g, x, y);
 	} else {
 		g->cross.draw = FALSE;
-		cross_erase (g);
+		if (g->cross.erase_needed) {
+			cross_erase (g);
+		}
 	}
 }
 #endif /* USE_CROSSHAIR_CURSOR */
@@ -2914,6 +2916,11 @@ static void cross_xor (struct graph *g, int x, int y)
 
 static void cross_draw (struct graph *g, int x, int y)
 {
+	/* Shouldn't draw twice onto the same position if haven't erased in the
+	   meantime! */
+	if (g->cross.erase_needed && (g->cross.x == x) && (g->cross.y == y)) {
+		return;
+	}
 	cross_xor (g, x, y);
 	g->cross.x = x;
 	g->cross.y = y;
@@ -3575,8 +3582,9 @@ static gboolean motion_notify_event (GtkWidget *widget _U_, GdkEventMotion *even
 			graph_display (g);
 			axis_display (g->y_axis);
 			axis_display (g->x_axis);
-			if (g->cross.draw)
+			if (g->cross.draw) {
 				cross_draw (g, x, y);
+			}
 		} else if (g->magnify.active)
 			magnify_move (g, x, y);
 	} else if (state & GDK_BUTTON1_MASK) {
@@ -3588,8 +3596,9 @@ static gboolean motion_notify_event (GtkWidget *widget _U_, GdkEventMotion *even
 	} else {
 		if (g->cross.erase_needed)
 			cross_erase (g);
-		if (g->cross.draw)
+		if (g->cross.draw) {
 			cross_draw (g, x, y);
+		}
 	}
 
 	return TRUE;
@@ -3716,9 +3725,9 @@ static gboolean leave_notify_event (GtkWidget *widget _U_, GdkEventCrossing *eve
 
 static gboolean enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_, gpointer user_data)
 {
-    struct graph *g = user_data;
+	struct graph *g = user_data;
 
-	 graph_pixmap_display (g);
+	graph_pixmap_display (g);
 	if (g->cross.draw) {
 		int x, y;
 		gdk_window_get_pointer (gtk_widget_get_window(widget), &x, &y, 0);
