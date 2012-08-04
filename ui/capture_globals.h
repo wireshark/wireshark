@@ -25,6 +25,14 @@
 #ifndef __CAPTURE_GLOBALS_H__
 #define __CAPTURE_GLOBALS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 extern capture_options global_capture_opts;
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __CAPTURE_GLOBALS_H__ */

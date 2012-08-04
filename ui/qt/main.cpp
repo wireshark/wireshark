@@ -83,6 +83,7 @@
 #include <wsutil/file_util.h>
 
 #include "ui/alert_box.h"
+#include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 #include "ui/main_statusbar.h"
 #include "ui/recent.h"

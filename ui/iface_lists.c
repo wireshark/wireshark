@@ -38,6 +38,7 @@
 
 #include "../capture_ui_utils.h"
 
+#include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 
 capture_options global_capture_opts;
