@@ -20,6 +20,8 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     qreal idx = 0.0;
     QVector<QPointF> fpoints;
 
+    QStyledItemDelegate::paint(painter, option, index);
+
     if (!points || points->isEmpty() || content_w <= 0 || content_h <= 0) {
         return;
     }
@@ -41,8 +43,13 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->translate(option.rect.x() + SL_MARGIN, option.rect.y() + SL_MARGIN);
 
-    painter->setPen(Qt::ForegroundRole);
-    painter->setBrush(option.palette.foreground());
+    // XXX Handle disabled
+    if (option.state & QStyle::State_Selected) {
+        painter->setPen(option.palette.color(QPalette::HighlightedText));
+        qDebug() << "sel";
+    } else {
+        painter->setPen(option.palette.color(QPalette::WindowText));
+    }
     painter->drawPolyline(QPolygonF(fpoints));
 
 //    painter->setPen(Qt::NoPen);
