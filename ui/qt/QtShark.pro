@@ -146,6 +146,7 @@ SOURCES_QT_CPP = \
     display_filter_edit.cpp \
     fileset_dialog.cpp \
     interface_tree.cpp \
+    label_stack.cpp \
     main.cpp \
     main_status_bar.cpp \
     main_welcome.cpp \
@@ -159,8 +160,8 @@ SOURCES_QT_CPP = \
     qt_ui_utils.cpp \
     recent_file_status.cpp \
     simple_dialog_qt.cpp \
-    wireshark_application.cpp \
-    label_stack.cpp
+    sparkline_delegate.cpp \
+    wireshark_application.cpp
 
 
 HEADERS_WS_C  = \
@@ -178,6 +179,7 @@ HEADERS_QT_CPP = \
     display_filter_edit.h \
     fileset_dialog.h \
     interface_tree.h \
+    label_stack.h \
     main_status_bar.h \
     main_welcome.h \
     main_window.h \
@@ -191,8 +193,8 @@ HEADERS_QT_CPP = \
     qt_ui_utils.h \
     recent_file_status.h \
     simple_dialog_qt.h \
-    wireshark_application.h \
-    label_stack.h
+    sparkline_delegate.h \
+    wireshark_application.h
 
 FORMS += main_window.ui
 
@@ -322,9 +324,3 @@ ICON = ../../packaging/macosx/Resources/Wireshark.icns
 RC_FILE = qtshark.rc
 
 win32: QMAKE_CLEAN += *.pdb
-
-HEADERS += \
-    sparkline_delegate.h
-
-SOURCES += \
-    sparkline_delegate.cpp
