@@ -47,6 +47,7 @@ WIRESHARK_UI_SRC = \
 
 noinst_HEADERS = \
 	alert_box.h		\
+	capture_globals.h	\
 	last_open_dir.h		\
 	iface_lists.h		\
 	main_statusbar.h	\
