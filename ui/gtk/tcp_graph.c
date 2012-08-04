@@ -419,7 +419,7 @@ static void callback_mag_flags (GtkWidget * , gpointer );
 static void callback_graph_type (GtkWidget * , gpointer );
 static void callback_graph_init_on_typechg (GtkWidget * , gpointer );
 static void callback_create_help (GtkWidget * , gpointer );
-static void get_mouse_position (GdkWindow *, int *pointer_x, int *pointer_y, GdkModifierType *mask);
+static void get_mouse_position (GtkWidget *, int *pointer_x, int *pointer_y, GdkModifierType *mask);
 static void update_zoom_spins (struct graph * );
 static struct tcpheader *select_tcpip_session (capture_file *, struct segment * );
 static int compare_headers (address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, address *saddr2, address *daddr2, guint16 sport2, guint16 dport2, int dir);
@@ -1064,17 +1064,17 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 	window_present(toplevel);
 }
 
-static void get_mouse_position(GdkWindow *window, int *pointer_x, int *pointer_y, GdkModifierType *mask)
+static void get_mouse_position(GtkWidget *widget, int *pointer_x, int *pointer_y, GdkModifierType *mask)
 {
 #if GTK_CHECK_VERSION(3,0,0)
-	gdk_window_get_device_position (window,
+	gdk_window_get_device_position (get_widget_get_window(widget),
 	                                gdk_device_manager_get_client_pointer(
 	                                  gdk_display_get_device_manager(
 	                                    gtk_widget_get_display(GTK_WIDGET(widget)))),
-	                                pointer_x, pointer_y, mask);
+	                                  pointer_x, pointer_y, mask);
 
 #else
-	gdk_window_get_pointer (window, pointer_x, pointer_y, mask);
+	gdk_window_get_pointer (gtk_widget_get_window(widget), pointer_x, pointer_y, mask);
 #endif
 
 }
@@ -1564,7 +1564,7 @@ static void callback_cross_on_off (GtkWidget *toggle, gpointer data)
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle))) {
 		int x, y;
 		g->cross.draw = TRUE;
-		get_mouse_position(gtk_widget_get_window(g->drawing_area), &x, &y, 0);
+		get_mouse_position(g->drawing_area, &x, &y, 0);
 		cross_draw (g, x, y);
 	} else {
 		g->cross.draw = FALSE;
@@ -2950,7 +2950,7 @@ static void magnify_move (struct graph *g, int x, int y)
 {
 	struct ipoint pos, offsetpos;
 
-	get_mouse_position(gtk_widget_get_window(g->toplevel), &pos.x, &pos.y, NULL);
+	get_mouse_position(g->toplevel, &pos.x, &pos.y, NULL);
 	g->magnify.x = pos.x + x - g->magnify.width/2;
 	g->magnify.y = pos.y + y - g->magnify.height/2;
 	offsetpos.x = g->magnify.x + g->magnify.offset.x;
@@ -3002,7 +3002,7 @@ static void magnify_create (struct graph *g, int x, int y)
 	}
 	graph_element_lists_make (mg);
 
-	get_mouse_position(gtk_widget_get_window(g->toplevel), &pos.x, &pos.y, NULL);
+	get_mouse_position(g->toplevel, &pos.x, &pos.y, NULL);
 	g->magnify.x = pos.x + x - g->magnify.width/2;
 	g->magnify.y = pos.y + y - g->magnify.height/2;
 	offsetpos.x = g->magnify.x + g->magnify.offset.x;
@@ -3073,7 +3073,7 @@ static void magnify_get_geom (struct graph *g, int x, int y)
 {
 	int posx, posy;
 
-	get_mouse_position(gtk_widget_get_window(g->toplevel), &posx, &posy, NULL);
+	get_mouse_position(g->toplevel, &posx, &posy, NULL);
 
 	g->magnify.g->geom.x = g->geom.x;
 	g->magnify.g->geom.y = g->geom.y;
@@ -3317,7 +3317,7 @@ static void do_zoom_keyboard (struct graph *g)
 	struct { double x, y; } factor;
 	int pointer_x, pointer_y;
 
-	get_mouse_position(gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, NULL);
+	get_mouse_position(g->drawing_area, &pointer_x, &pointer_y, NULL);
 
 	if (g->zoom.flags & ZOOM_OUT) {
 		if (g->zoom.flags & ZOOM_HLOCK)
@@ -3398,7 +3398,7 @@ static void do_select_segment (struct graph *g)
 {
 	int pointer_x, pointer_y;
 
-	get_mouse_position(gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, NULL);
+	get_mouse_position(g->drawing_area, &pointer_x, &pointer_y, NULL);
 	graph_select_segment (g, pointer_x, pointer_y);
 }
 
@@ -3431,7 +3431,7 @@ static void do_magnify_create (struct graph *g)
 {
 	int pointer_x, pointer_y;
 
-	get_mouse_position(gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, NULL);
+	get_mouse_position(g->drawing_area, &pointer_x, &pointer_y, NULL);
 	magnify_create (g, (int )rint (pointer_x), (int )rint (pointer_y));
 }
 
@@ -3454,7 +3454,7 @@ static void do_key_motion (struct graph *g)
 	if (g->cross.draw) {
 		int pointer_x, pointer_y;
 
-		get_mouse_position(gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, NULL);
+		get_mouse_position(g->drawing_area, &pointer_x, &pointer_y, NULL);
 		cross_draw (g, pointer_x, pointer_y);
 	}
 #endif /* USE_CROSSHAIR_CURSOR */
@@ -3532,7 +3532,7 @@ static gboolean motion_notify_event (GtkWidget *widget _U_, GdkEventMotion *even
 	/* debug(DBS_FENTRY) puts ("motion_notify_event()"); */
 
 	if (event->is_hint)
-		get_mouse_position(event->window, &x, &y, &state);
+		get_mouse_position(g->drawing_area, &x, &y, &state);
 	else {
 		x = (int) event->x;
 		y = (int) event->y;
@@ -3708,7 +3708,7 @@ static gboolean enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _
 	graph_pixmap_display (g);
 	if (g->cross.draw) {
 		int x, y;
-		get_mouse_position(gtk_widget_get_window(widget), &x, &y, NULL);
+		get_mouse_position(widget, &x, &y, NULL);
 		cross_draw (g, x, y);
 	}
 	return TRUE;
@@ -3721,7 +3721,7 @@ static void toggle_crosshairs (struct graph *g)
 #else
 	if (g->cross.draw) {
 		int x, y;
-		get_mouse_position(gtk_widget_get_window(g->drawing_area), &x, &y, NULL);
+		get_mouse_position(g->drawing_area, &x, &y, NULL);
 		cross_draw (g, x, y);
 	} else if (g->cross.erase_needed) {
 		cross_erase (g);
