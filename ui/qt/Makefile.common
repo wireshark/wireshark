@@ -91,6 +91,7 @@ MOC_HDRS = \
 	proto_tree.h \
 	recent_file_status.h \
 	simple_dialog_qt.h \
+	sparkline_delegate.h \
 	wireshark_application.h
 
 #
@@ -145,6 +146,7 @@ WIRESHARK_QT_SRC = \
 	qt_ui_utils.cpp \
 	recent_file_status.cpp \
 	simple_dialog_qt.cpp \
+	sparkline_delegate.cpp \
 	wireshark_application.cpp
 
 noinst_HEADERS = \

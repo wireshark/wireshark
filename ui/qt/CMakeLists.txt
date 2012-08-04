@@ -79,6 +79,7 @@ set(QTSHARK_CPP_SRC
 	qt_ui_utils.cpp
 	recent_file_status.cpp
 	simple_dialog_qt.cpp
+	sparkline_delegate.cpp
 	wireshark_application.cpp
 )
 
