@@ -48,7 +48,7 @@
  * Use a define for now so the functionality can be restored if need be
  * but redisign is probably needed to get it to work with cairo
  */
-#define USE_CROSSHAIR_CURSOR 0
+#define USE_CROSSHAIR_CURSOR 1
 
 #include <epan/packet.h>
 #include <epan/ipproto.h>
