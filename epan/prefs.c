@@ -2765,7 +2765,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     prefs.capture_columns = NULL;
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
-      col_name = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
       col_name = (gchar *)col_l_elt->data;
       prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
       col_l_elt      = col_l_elt->next;
