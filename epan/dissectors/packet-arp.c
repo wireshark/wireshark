@@ -1262,9 +1262,8 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case ARPOP_REQUEST:
       if (global_arp_detect_request_storm)
-      {
         request_seen(pinfo);
-      }
+      /* fall-through */
     case ARPOP_REPLY:
     default:
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
