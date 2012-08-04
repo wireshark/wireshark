@@ -31,12 +31,10 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     foreach (val, *points) {
         if (val > max) max = val;
     }
+
     foreach (val, *points) {
         fpoints.append(QPointF(idx, (qreal) content_h - (val * content_h / max) ));
         idx = idx + 1;
-    }
-
-    if (fpoints.count() > 0) {
     }
 
     painter->save();

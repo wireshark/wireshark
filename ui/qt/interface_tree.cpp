@@ -99,7 +99,10 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
             }
 
             ti = new QTreeWidgetItem();
-            ti->setText(0, QString().fromUtf8(if_info->description ? if_info->description : if_info->name));
+            // XXX Using if_info->name is amazingly ugly under Windows but it's needed for
+            // statistics updates
+//            ti->setText(0, QString().fromUtf8(if_info->description ? if_info->description : if_info->name));
+            ti->setText(0, QString().fromUtf8(if_info->name));
             points = new QList<int>();
             v.setValue(points);
             ti->setData(1, Qt::UserRole, v);
