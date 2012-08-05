@@ -55,13 +55,6 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
-/* TODO:
-   - bring back crosshairs (always on?).  If they really don't work well with
-     Cairo, maybe add a label (or use title) giving continuous coordinates
-     of mouse cursor?
-*/
-
-/* initialize_axis() */
 #define AXIS_HORIZONTAL		0
 #define AXIS_VERTICAL		1
 
@@ -107,7 +100,7 @@ struct irect {
 
 typedef enum {
     ELMT_NONE=0,
-    ELMT_LINE=1,
+    ELMT_LINE=1
 } ElementType;
 
 struct line_params {
@@ -167,6 +160,12 @@ struct style_rlc_lte {
 #define TIME_ORIGIN_CAP		0x10
 #define TIME_ORIGIN_CONN	0x00
 
+struct cross {
+    int x, y;
+    int draw;			/* indicates whether we should draw cross at all */
+    int erase_needed;   /* indicates whether currently drawn at recorded position */
+};
+
 struct bounds {
     double x0, y0, width, height;
 };
@@ -217,6 +216,7 @@ struct graph {
      * pixels, we have to scale the graph down by factor of 0.002109. This
      * number would be zoom.y. Obviously, both directions have separate zooms.*/
     struct zooms zoom;
+    struct cross cross;
     struct axis *x_axis, *y_axis;
 
     /* List of segments to show */
@@ -255,6 +255,7 @@ static void create_gui(struct graph * );
 static void create_drawing_area(struct graph * );
 static void callback_toplevel_destroy(GtkWidget * , gpointer );
 static void callback_create_help(GtkWidget * , gpointer );
+static void get_mouse_position(GtkWidget *, int *pointer_x, int *pointer_y, GdkModifierType *mask);
 static rlc_lte_tap_info *select_rlc_lte_session(capture_file *, struct segment * );
 static int compare_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
                            guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
@@ -293,6 +294,13 @@ static void axis_ticks_up(int * , int * );
 static void axis_ticks_down(int * , int * );
 static void axis_destroy(struct axis * );
 static int get_label_dim(struct axis * , int , double );
+
+static void toggle_crosshairs(struct graph *);
+static void cross_xor(struct graph * , int x, int y);
+static void cross_draw(struct graph * , int x, int y);
+static void cross_erase(struct graph * );
+static gboolean motion_notify_event(GtkWidget * , GdkEventMotion * , gpointer );
+
 static void toggle_time_origin(struct graph * );
 static void restore_initial_graph_view(struct graph *g);
 static gboolean configure_event(GtkWidget * , GdkEventConfigure * , gpointer );
@@ -326,6 +334,7 @@ static char helptext[] =
     "   Middle Mouse Button           zooms in (towards area under cursor)\n"
     "   <Shift>-Middle Mouse Button	  zooms out\n"
     "\n"
+	"   <Space bar>	toggles crosshairs on/off\n"
     "\n"
     "   'i' or '+'       zoom in (towards area under mouse pointer)\n"
     "   'o' or '-'       zoom out\n"
@@ -442,10 +451,13 @@ static void create_drawing_area(struct graph *g)
     g_signal_connect(g->drawing_area, "expose_event", G_CALLBACK(expose_event), g);
 #endif
     g_signal_connect(g->drawing_area, "button_press_event",
-                       G_CALLBACK(button_press_event), g);
+                     G_CALLBACK(button_press_event), g);
     g_signal_connect(g->drawing_area, "button_release_event",
-                       G_CALLBACK(button_release_event), g);
+                     G_CALLBACK(button_release_event), g);
     g_signal_connect(g->toplevel, "destroy", G_CALLBACK(callback_toplevel_destroy), g);
+    g_signal_connect(g->drawing_area, "motion_notify_event",
+                     G_CALLBACK(motion_notify_event), g);
+
     /* why doesn't drawing area send key_press_signals? */
     g_signal_connect(g->toplevel, "key_press_event", G_CALLBACK(key_press_event), g);
     gtk_widget_set_events(g->toplevel,
@@ -545,6 +557,20 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 
     gtk_widget_show_all(toplevel);
     window_present(toplevel);
+}
+
+static void get_mouse_position(GtkWidget *widget, int *pointer_x, int *pointer_y, GdkModifierType *mask)
+{
+#if GTK_CHECK_VERSION(3,0,0)
+	gdk_window_get_device_position (gtk_widget_get_window(widget),
+	                                gdk_device_manager_get_client_pointer(
+	                                  gdk_display_get_device_manager(
+	                                    gtk_widget_get_display(GTK_WIDGET(widget)))),
+	                                pointer_x, pointer_y, mask);
+
+#else
+	gdk_window_get_pointer (gtk_widget_get_window(widget), pointer_x, pointer_y, mask);
+#endif
 }
 
 static struct graph *graph_new(void)
@@ -1820,16 +1846,7 @@ static void do_zoom_common(struct graph *g, GdkEventButton *event)
     /* Get mouse position */
     if (event == NULL) {
         /* Keyboard - query it */
-#if GTK_CHECK_VERSION(3,0,0)
-        gdk_window_get_device_position(gtk_widget_get_window(g->drawing_area),
-                                       gdk_device_manager_get_client_pointer(
-                                           gdk_display_get_device_manager(
-                                               gtk_widget_get_display(GTK_WIDGET(g->drawing_area)))),
-                                       &pointer_x, &pointer_y, NULL);
-
-#else
-        gdk_window_get_pointer(gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
-#endif
+        get_mouse_position(g->drawing_area, &pointer_x, &pointer_y, NULL);
     }
     else {
         /* Mouse - just read it from event */
@@ -1896,6 +1913,11 @@ static void do_zoom_common(struct graph *g, GdkEventButton *event)
     graph_display(g);
     axis_display(g->y_axis);
     axis_display(g->x_axis);
+
+    if (g->cross.draw) {
+        g->cross.erase_needed = FALSE;
+        cross_draw(g, pointer_x, pointer_y);
+    }
 }
 
 
@@ -1939,6 +1961,13 @@ static void do_key_motion(struct graph *g)
     graph_display(g);
     axis_display(g->y_axis);
     axis_display(g->x_axis);
+
+    if (g->cross.draw) {
+        int pointer_x, pointer_y;
+        get_mouse_position(g->drawing_area, &pointer_x, &pointer_y, NULL);
+        g->cross.erase_needed = FALSE;
+        cross_draw (g, pointer_x, pointer_y);
+    }
 }
 
 static void do_key_motion_up(struct graph *g, int step)
@@ -1989,6 +2018,32 @@ static gboolean button_release_event(GtkWidget *widget _U_, GdkEventButton *even
     return TRUE;
 }
 
+static gboolean motion_notify_event (GtkWidget *widget _U_, GdkEventMotion *event, gpointer user_data)
+{
+    struct graph *g = user_data;
+    int x, y;
+    GdkModifierType state;
+
+    /* debug(DBS_FENTRY) puts ("motion_notify_event()"); */
+
+    if (event->is_hint)
+        get_mouse_position(g->drawing_area, &x, &y, &state);
+    else {
+        x = (int) event->x;
+        y = (int) event->y;
+        state = event->state;
+    }
+
+    /* Update the cross if its being shown */
+    if (g->cross.erase_needed)
+        cross_erase (g);
+    if (g->cross.draw) {
+        cross_draw (g, x, y);
+    }
+
+    return TRUE;
+}
+
 static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpointer user_data)
 {
     struct graph *g = user_data;
@@ -2011,6 +2066,9 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
     }
 
     switch (event->keyval) {
+        case ' ':
+            toggle_crosshairs(g);
+            break;
         case 't':
             /* Toggle betwee showing the time starting at 0, or time in capture */
             toggle_time_origin(g);
@@ -2051,6 +2109,73 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
     return TRUE;
 }
 
+static void toggle_crosshairs(struct graph *g)
+{
+    /* Toggle state */
+    g->cross.draw ^= 1;
+
+    /* Draw or erase as needed */
+    if (g->cross.draw) {
+        int x, y;
+        get_mouse_position(g->drawing_area, &x, &y, NULL);
+        cross_draw(g, x, y);
+    } else if (g->cross.erase_needed) {
+        cross_erase(g);
+    }
+}
+
+static void cross_xor (struct graph *g, int x, int y)
+{
+#if GTK_CHECK_VERSION(2,22,0)
+    GdkColor color_gray15 = {0x0, 0xffff, 0xffff, 0xffff};
+    cairo_t *cr;
+
+    if (x > g->wp.x && x < g->wp.x+g->wp.width &&
+                y >= g->wp.y && y < g->wp.y+g->wp.height) {
+        /* Draw horizontal line */
+        cr = gdk_cairo_create(gtk_widget_get_window(g->drawing_area));
+        cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
+        gdk_cairo_set_source_color (cr, &color_gray15);
+        cairo_set_line_width (cr, 1.0);
+        cairo_move_to(cr,  g->wp.x+0.5, y+0.5);
+        cairo_line_to(cr,  g->wp.x + g->wp.width+0.5, y+0.5);
+        /* Draw vertical line */
+        cairo_move_to(cr,  x+0.5, g->wp.y+0.5);
+        cairo_line_to(cr,  x+0.5, g->wp.y + g->wp.height+0.5);
+        cairo_stroke(cr);
+        cairo_destroy(cr);
+    }
+#else
+    if (x > g->wp.x && x < g->wp.x+g->wp.width &&
+        y >= g->wp.y && y < g->wp.y+g->wp.height) {
+        gdk_draw_line(gtk_widget_get_window(g->drawing_area), xor_gc, g->wp.x,
+                      y, g->wp.x + g->wp.width, y);
+        gdk_draw_line(gtk_widget_get_window(g->drawing_area), xor_gc, x,
+                      g->wp.y, x, g->wp.y + g->wp.height);
+    }
+#endif /* GTK_CHECK_VERSION(2,22,0) */
+}
+
+static void cross_draw(struct graph *g, int x, int y)
+{
+    /* Shouldn't draw twice onto the same position if haven't erased in the
+       meantime! */
+    if (g->cross.erase_needed && (g->cross.x == x) && (g->cross.y == y)) {
+        return;
+    }
+    cross_xor(g, x, y);
+    g->cross.x = x;
+    g->cross.y = y;
+    g->cross.erase_needed = TRUE;
+}
+
+static void cross_erase(struct graph *g)
+{
+    cross_xor (g, g->cross.x, g->cross.y);
+    g->cross.erase_needed = 0;
+}
+
+
 /* Toggle between showing the time starting at 0, or time in capture */
 static void toggle_time_origin(struct graph *g)
 {
@@ -2077,6 +2202,10 @@ static void restore_initial_graph_view(struct graph *g)
 
     /* Set flags so that mouse zoom will zoom in (zooming out is not possible!) */
     g->zoom.flags &= ~ZOOM_OUT;
+
+    if (g->cross.draw) {
+        g->cross.erase_needed = FALSE;
+    }
 }
 
 /* Walk the segment list, totalling up data PDUs, status ACKs and NACKs */
