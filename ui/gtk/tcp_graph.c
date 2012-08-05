@@ -3783,6 +3783,10 @@ static void restore_initial_graph_view (struct graph *g)
 	g->geom.x = g->wp.x;
 	g->geom.y = g->wp.y;
 	graph_init_sequence (g);
+
+	if (g->cross.draw) {
+		g->cross.erase_needed = FALSE;
+	}
 }
 
 static int get_num_dsegs (struct graph *g)
