@@ -1071,7 +1071,7 @@ static void get_mouse_position(GtkWidget *widget, int *pointer_x, int *pointer_y
 	                                gdk_device_manager_get_client_pointer(
 	                                  gdk_display_get_device_manager(
 	                                    gtk_widget_get_display(GTK_WIDGET(widget)))),
-	                                  pointer_x, pointer_y, mask);
+	                                pointer_x, pointer_y, mask);
 
 #else
 	gdk_window_get_pointer (gtk_widget_get_window(widget), pointer_x, pointer_y, mask);
@@ -3307,6 +3307,7 @@ static void do_zoom_mouse (struct graph *g, GdkEventButton *event)
 #if USE_CROSSHAIR_CURSOR
 #else
 	if (g->cross.draw)
+		g->cross.erase_needed = FALSE;
 		cross_draw (g, (int) event->x, (int) event->y);
 #endif /* USE_CROSSHAIR_CURSOR */
 }
@@ -3377,6 +3378,7 @@ static void do_zoom_keyboard (struct graph *g)
 #if USE_CROSSHAIR_CURSOR
 #else
 	if (g->cross.draw)
+		g->cross.erase_needed = FALSE;
 		cross_draw (g, pointer_x, pointer_y);
 #endif /* USE_CROSSHAIR_CURSOR */
 }
@@ -3455,6 +3457,7 @@ static void do_key_motion (struct graph *g)
 		int pointer_x, pointer_y;
 
 		get_mouse_position(g->drawing_area, &pointer_x, &pointer_y, NULL);
+		g->cross.erase_needed = FALSE;
 		cross_draw (g, pointer_x, pointer_y);
 	}
 #endif /* USE_CROSSHAIR_CURSOR */
