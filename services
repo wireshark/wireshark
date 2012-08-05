@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-07-26
+# 2012-08-02
 # 
 # Experts
 # 
@@ -618,8 +618,8 @@ bgp	179/udp	# Border Gateway Protocol      [Kirk_Lougheed]                      
 bgp	179/sctp	# BGP                          [Randall_Stewart]                                  [Randall_Stewart]                                                                   [RFC4960]
 ris	180/tcp	# Intergraph                   [Dave_Buehmann]                                    [Dave_Buehmann]
 ris	180/udp	# Intergraph                   [Dave_Buehmann]                                    [Dave_Buehmann]
-unify	181/tcp	# Unify                        [Mark_Ainsley]                                     [Mark_Ainsley]
-unify	181/udp	# Unify                        [Mark_Ainsley]                                     [Mark_Ainsley]
+unify	181/tcp	# Unify                        [Daegis_Inc]                                       [Chris_Anderson]                                                       2012-07-31
+unify	181/udp	# Unify                        [Daegis_Inc]                                       [Chris_Anderson]                                                       2012-07-31
 audit	182/tcp	# Unisys Audit SITP            [Gil_Greenbaum]                                    [Gil_Greenbaum]
 audit	182/udp	# Unisys Audit SITP            [Gil_Greenbaum]                                    [Gil_Greenbaum]
 ocbinder	183/tcp	# OCBinder
@@ -834,7 +834,12 @@ manet	269/udp	# MANET Protocols                                                 
 # 270        tcp    Reserved
 gist	270/udp	# Q-mode encapsulation for                                                                                                                                            [RFC5971]
 # GIST messages
-# 271-279             Unassigned
+# IETF Network Endpoint
+pt-tls	271/tcp	# Assessment (NEA) Posture     [IESG]                                             [IETF_Chair]                                              2012-07-31                [draft-ietf-nea-pt-tls-06]                                     1 year TEMPORARY Assignment
+# Transport Protocol over TLS
+# (PT-TLS)
+# 271        udp    Reserved
+# 272-279             Unassigned
 http-mgmt	280/tcp	# http-mgmt                    [Adrian_Pell]                                      [Adrian_Pell]
 http-mgmt	280/udp	# http-mgmt                    [Adrian_Pell]                                      [Adrian_Pell]
 personal-link	281/tcp	# Personal Link                [Dan_Cummings]                                     [Dan_Cummings]
@@ -2122,7 +2127,8 @@ blackjack	1025/tcp	# network blackjack
 blackjack	1025/udp	# network blackjack
 cap	1026/tcp	# Calendar Access Protocol     [Doug_Royer]                                       [Doug_Royer]                                              2010-12-09
 cap	1026/udp	# Calendar Access Protocol     [Doug_Royer]                                       [Doug_Royer]                                              2010-12-09
-# 1027               Unassigned                                                                                                                                             2005-09-16
+6a44	1027/udp	# IPv6 Behind NAT44 CPEs       [IESG]                                             [IETF_Chair]                                              2012-08-02                [draft-despres-6a44-02]
+# 1027        tcp    Reserved
 # 1028               Deprecated                                                                                                                                             2004-02
 solid-mux	1029/tcp	# Solid Mux Server             [Anders_Borg]                                      [Anders_Borg]                                             2004-11
 solid-mux	1029/udp	# Solid Mux Server             [Anders_Borg]                                      [Anders_Borg]                                             2004-11
@@ -4250,8 +4256,8 @@ filex-lport	1887/tcp	# FileX Listening Port         [Megan_Woods]               
 filex-lport	1887/udp	# FileX Listening Port         [Megan_Woods]                                      [Megan_Woods]
 ncconfig	1888/tcp	# NC Config Port               [Simon_Parker]                                     [Simon_Parker]
 ncconfig	1888/udp	# NC Config Port               [Simon_Parker]                                     [Simon_Parker]
-unify-adapter	1889/tcp	# Unify Web Adapter Service    [Duane_Gibson]                                     [Duane_Gibson]
-unify-adapter	1889/udp	# Unify Web Adapter Service    [Duane_Gibson]                                     [Duane_Gibson]
+unify-adapter	1889/tcp	# Unify Web Adapter Service    [Daegis_Inc]                                       [Chris_Anderson]                                                       2012-07-31
+unify-adapter	1889/udp	# Unify Web Adapter Service    [Daegis_Inc]                                       [Chris_Anderson]                                                       2012-07-31
 wilkenlistener	1890/tcp	# wilkenListener               [Wilken_GmbH]                                      [Wilken_GmbH]
 wilkenlistener	1890/udp	# wilkenListener               [Wilken_GmbH]                                      [Wilken_GmbH]
 childkey-notif	1891/tcp	# ChildKey Notification
@@ -6197,8 +6203,8 @@ pwrsevent	2694/tcp	# pwrsevent                    [Yoshinobu_Nakamura]          
 pwrsevent	2694/udp	# pwrsevent                    [Yoshinobu_Nakamura]                               [Yoshinobu_Nakamura]
 vspread	2695/tcp	# VSPREAD                      [Sumitake_kobayashi]                               [Sumitake_kobayashi]
 vspread	2695/udp	# VSPREAD                      [Sumitake_kobayashi]                               [Sumitake_kobayashi]
-unifyadmin	2696/tcp	# Unify Admin                  [Duane_Gibson]                                     [Duane_Gibson]
-unifyadmin	2696/udp	# Unify Admin                  [Duane_Gibson]                                     [Duane_Gibson]
+unifyadmin	2696/tcp	# Unify Admin                  [Daegis_Inc]                                       [Chris_Anderson]                                                       2012-07-31
+unifyadmin	2696/udp	# Unify Admin                  [Daegis_Inc]                                       [Chris_Anderson]                                                       2012-07-31
 oce-snmp-trap	2697/tcp	# Oce SNMP Trap Port           [Peter_Teeuwen]                                    [Peter_Teeuwen]
 oce-snmp-trap	2697/udp	# Oce SNMP Trap Port           [Peter_Teeuwen]                                    [Peter_Teeuwen]
 mck-ivpip	2698/tcp	# MCK-IVPIP                    [Robert_Vincent]                                   [Robert_Vincent]
@@ -7720,10 +7726,10 @@ appman-server	3312/tcp	# Application Management
 # Server
 appman-server	3312/udp	# Application Management
 # Server
-uorb	3313/tcp	# Unify Object Broker
-uorb	3313/udp	# Unify Object Broker
-uohost	3314/tcp	# Unify Object Host            [Duane_Gibson]                                     [Duane_Gibson]
-uohost	3314/udp	# Unify Object Host            [Duane_Gibson]                                     [Duane_Gibson]
+uorb	3313/tcp	# Unify Object Broker          [Daegis_Inc]                                       [Chris_Anderson]                                                       2012-07-31
+uorb	3313/udp	# Unify Object Broker          [Daegis_Inc]                                       [Chris_Anderson]                                                       2012-07-31
+uohost	3314/tcp	# Unify Object Host            [Daegis_Inc]                                       [Chris_Anderson]                                                       2012-07-31
+uohost	3314/udp	# Unify Object Host            [Daegis_Inc]                                       [Chris_Anderson]                                                       2012-07-31
 cdid	3315/tcp	# CDID                         [Andrew_Borisov]                                   [Andrew_Borisov]
 cdid	3315/udp	# CDID                         [Andrew_Borisov]                                   [Andrew_Borisov]
 aicc-cmi	3316/tcp	# AICC/CMI                     [William_McDonald]                                 [William_McDonald]
@@ -10573,8 +10579,8 @@ sun-as-nodeagt	4850/udp	# Sun App Server - NA          [Kedar_Mhaswade]         
 derby-repli	4851/tcp	# Apache Derby Replication     [Jorgen_Loland]                                    [Jorgen_Loland]                                           2008-02-27
 derby-repli	4851/udp	# Apache Derby Replication     [Jorgen_Loland]                                    [Jorgen_Loland]                                           2008-02-27
 # 4852-4866            Unassigned
-unify-debug	4867/tcp	# Unify Debugger               [Ron_Kuris]                                        [Ron_Kuris]                                               2006-05
-unify-debug	4867/udp	# Unify Debugger               [Ron_Kuris]                                        [Ron_Kuris]                                               2006-05
+unify-debug	4867/tcp	# Unify Debugger               [Daegis_Inc]                                       [Chris_Anderson]                                          2006-05      2012-07-31
+unify-debug	4867/udp	# Unify Debugger               [Daegis_Inc]                                       [Chris_Anderson]                                          2006-05      2012-07-31
 phrelay	4868/tcp	# Photon Relay
 phrelay	4868/udp	# Photon Relay
 phrelaydbg	4869/tcp	# Photon Relay Debug           [Michael_Hunter]                                   [Michael_Hunter]
@@ -17521,7 +17527,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Chirag_Desai]                                            Chirag Desai                                    mailto:Chirag_Desai&symantec.com                              2006-02
 # [Chris_Adamson]                                           Chris Adamson                                   mailto:invalidname&gmail.com
 # [Chris_Adkins]                                            Chris Adkins                                    mailto:cadkins&filenet.com                                    2006-10
-# [Chris_Anderson]                                          Chris Anderson            Daegis, Inc.          mailto:ianaportmaster&daegis.com                              2012-07-12
+# [Chris_Anderson]                                          Chris Anderson            Daegis, Inc.          mailto:ianaportmaster&daegis.com                              2012-07-31
 # [Chris_Bertin]                                            Chris Bertin                                    mailto:chris.bertin&hp.com                                    2009-05-19
 # [Chris_Brown]                                             Chris Brown                                     mailto:chrisb&chancery.com
 # [Chris_Chiotasso]                                         Chris Chiotasso                                 mailto:cchiotasso&infolibria.com
@@ -17715,7 +17721,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [d_b_audiotechnik]                                                                  d&b audiotechnik      mailto:software.support&dbaudio.com                           2011-10-06
 # [D_J_Bernstein]                                           D. J. Bernstein                                 mailto:djb&silverton.berkeley.edu
 # [D_J_Bernstein_2]                                         D. J. Bernstein                                 mailto:djb&koobera.math.uic.edu
-# [Daegis_Inc]                                                                        Daegis, Inc.          mailto:ianaportmaster&daegis.com                              2012-07-12
+# [Daegis_Inc]                                                                        Daegis, Inc.          mailto:ianaportmaster&daegis.com                              2012-07-31
 # [Dagfinn_Saether]                                         Dagfinn Saether                                 mailto:Dagfinn&admins.com
 # [Daisuke_Shinomiya]                                       Daisuke Shinomiya                               mailto:shinomiya.daisu&jp.fujitsu.com                         2005-08
 # [Daivd_P_Chassin]                                         Daivd P. Chassin                                mailto:david.chassin&pnl.gov                                  2002-06
