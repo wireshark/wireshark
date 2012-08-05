@@ -119,7 +119,7 @@ static const value_string mpeg_pmt_stream_type_vals[] = {
 };
 static value_string_ext mpeg_pmt_stream_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_pmt_stream_type_vals);
 
-static void
+static int
 dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -127,8 +127,8 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint   descriptor_end, prog_info_len, es_info_len;
 	guint16 pid;
 
-	proto_item *ti;
-	proto_tree *mpeg_pmt_tree;
+	proto_item *ti = NULL;
+	proto_tree *mpeg_pmt_tree = NULL;
 	proto_item *si;
 	proto_tree *mpeg_pmt_stream_tree;
 
@@ -136,11 +136,10 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Program Map Table (PMT)");
 
-	if (!tree)
-		return;
-
-	ti = proto_tree_add_item(tree, proto_mpeg_pmt, tvb, offset, -1, ENC_NA);
-	mpeg_pmt_tree = proto_item_add_subtree(ti, ett_mpeg_pmt);
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_mpeg_pmt, tvb, offset, -1, ENC_NA);
+		mpeg_pmt_tree = proto_item_add_subtree(ti, ett_mpeg_pmt);
+	}
 
 	offset += packet_mpeg_sect_header(tvb, offset, mpeg_pmt_tree, &length, NULL);
 	length -= 4;
@@ -197,7 +196,10 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	}
 
-	packet_mpeg_sect_crc(tvb, pinfo, mpeg_pmt_tree, 0, offset);
+	offset += packet_mpeg_sect_crc(tvb, pinfo, mpeg_pmt_tree, 0, offset);
+
+	proto_item_set_len(ti, offset);
+	return offset;
 }
 
 
@@ -295,6 +297,7 @@ proto_register_mpeg_pmt(void)
 	proto_register_field_array(proto_mpeg_pmt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	new_register_dissector("mpeg_pmt", dissect_mpeg_pmt, proto_mpeg_pmt);
 }
 
 
@@ -303,6 +306,6 @@ proto_reg_handoff_mpeg_pmt(void)
 {
 	dissector_handle_t mpeg_pmt_handle;
 
-	mpeg_pmt_handle = create_dissector_handle(dissect_mpeg_pmt, proto_mpeg_pmt);
+	mpeg_pmt_handle = new_create_dissector_handle(dissect_mpeg_pmt, proto_mpeg_pmt);
 	dissector_add_uint("mpeg_sect.tid", MPEG_PMT_TID, mpeg_pmt_handle);
 }
