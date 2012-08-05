@@ -182,6 +182,11 @@ struct zooms {
     int flags;
 };
 
+struct grab {
+    int grabbed;
+    int x, y;
+};
+
 
 struct graph {
 #define GRAPH_DESTROYED             (1 << 0)
@@ -212,6 +217,7 @@ struct graph {
     /* viewport (=graph window area which is reserved for graph itself), its
      * size and position relative to origin of the graph window */
     struct irect wp;
+    struct grab grab;
     /* If we need to display 237019 sequence numbers (=bytes) onto say 500
      * pixels, we have to scale the graph down by factor of 0.002109. This
      * number would be zoom.y. Obviously, both directions have separate zooms.*/
@@ -332,7 +338,7 @@ static char helptext[] =
     "\n"
     "   Left Mouse Button             selects segment under cursor in Wireshark's packet list\n"
     "   Middle Mouse Button           zooms in (towards area under cursor)\n"
-    "   <Shift>-Middle Mouse Button	  zooms out\n"
+    "   Right Mouse Button            moves the graph (if zoomed in)\n"
     "\n"
 	"   <Space bar>	toggles crosshairs on/off\n"
     "\n"
@@ -615,6 +621,9 @@ static void graph_initialize_values(struct graph *g)
     /* Zooming in step - set same for both dimensions */
     g->zoom.step_x = g->zoom.step_y = 1.1;
     g->zoom.flags = 0;
+
+    g->cross.draw = g->cross.erase_needed = 0;
+    g->grab.grabbed = 0;
 }
 
 static void graph_init_sequence(struct graph *g)
@@ -2001,7 +2010,10 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
     debug(DBS_FENTRY) puts("button_press_event()");
 
     if (event->button == MOUSE_BUTTON_RIGHT) {
-        /* Doing nothing... */
+        /* Turn on grab.  N.B. using (maybe) approx mouse position from event... */
+        g->grab.x = (int )rint (event->x) - g->geom.x;
+        g->grab.y = (int )rint (event->y) - g->geom.y;
+        g->grab.grabbed = TRUE;
     } else if (event->button == MOUSE_BUTTON_MIDDLE) {
         do_zoom_mouse(g, event);
     } else if (event->button == MOUSE_BUTTON_LEFT) {
@@ -2012,9 +2024,15 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
     return TRUE;
 }
 
-static gboolean button_release_event(GtkWidget *widget _U_, GdkEventButton *event _U_, gpointer user_data _U_)
+static gboolean button_release_event(GtkWidget *widget _U_, GdkEventButton *event _U_, gpointer user_data)
 {
-    /* TODO: function needed later? */
+    struct graph *g = user_data;
+
+    /* Turn off grab if right button released */
+    if (event->button == MOUSE_BUTTON_RIGHT) {
+        g->grab.grabbed = FALSE;
+    }
+
     return TRUE;
 }
 
@@ -2026,6 +2044,7 @@ static gboolean motion_notify_event (GtkWidget *widget _U_, GdkEventMotion *even
 
     /* debug(DBS_FENTRY) puts ("motion_notify_event()"); */
 
+    /* Make sure we have accurate mouse position */
     if (event->is_hint)
         get_mouse_position(g->drawing_area, &x, &y, &state);
     else {
@@ -2034,11 +2053,39 @@ static gboolean motion_notify_event (GtkWidget *widget _U_, GdkEventMotion *even
         state = event->state;
     }
 
-    /* Update the cross if its being shown */
-    if (g->cross.erase_needed)
-        cross_erase (g);
-    if (g->cross.draw) {
-        cross_draw (g, x, y);
+    if (state & GDK_BUTTON3_MASK) {
+        if (g->grab.grabbed) {
+            /* Move view by difference between where we grabbed and where we are now */
+            g->geom.x = x-g->grab.x;
+            g->geom.y = y-g->grab.y;
+
+            /* Limit to outer bounds of graph */
+            if (g->geom.x > g->wp.x)
+                g->geom.x = g->wp.x;
+            if (g->geom.y > g->wp.y)
+                g->geom.y = g->wp.y;
+            if (g->wp.x + g->wp.width > g->geom.x + g->geom.width)
+                g->geom.x = g->wp.width + g->wp.x - g->geom.width;
+            if (g->wp.y + g->wp.height > g->geom.y + g->geom.height)
+                g->geom.y = g->wp.height + g->wp.y - g->geom.height;
+
+            /* Redraw everything */
+            g->cross.erase_needed = 0;
+            graph_display(g);
+            axis_display(g->y_axis);
+            axis_display(g->x_axis);
+            if (g->cross.draw) {
+                cross_draw(g, x, y);
+            }
+        }
+    }
+    else {
+        /* Update the cross if its being shown */
+        if (g->cross.erase_needed)
+            cross_erase(g);
+        if (g->cross.draw) {
+            cross_draw(g, x, y);
+        }
     }
 
     return TRUE;
