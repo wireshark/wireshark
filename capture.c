@@ -430,7 +430,10 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
   }
 
   /* update the main window so we get events (e.g. from the stop toolbar button) */
+  /* This causes a hang on Windows (see bug 7305). Do we need this on any platform? */
+#ifndef _WIN32
   main_window_update();
+#endif
 
   if(capture_opts->show_info)
     capture_info_new_packets(to_read);
