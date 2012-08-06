@@ -41,9 +41,9 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing, true);
-    painter->translate(option.rect.x() + SL_MARGIN, option.rect.y() + SL_MARGIN);
+    painter->translate(option.rect.x() + SL_MARGIN + 0.5, option.rect.y() + SL_MARGIN + 0.5);
 
-    // XXX Handle disabled
+    // XXX Handle disabled and Windows
     if (option.state & QStyle::State_Selected) {
         painter->setPen(option.palette.color(QPalette::HighlightedText));
     } else {
