@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="fr_FR">
 <!--
-  $Id: main.cpp 44254 2012-08-04 00:01:59Z gerald $
+  $Id$
  
   Wireshark - Network traffic analyzer
   By Gerald Combs <gerald@wireshark.org>

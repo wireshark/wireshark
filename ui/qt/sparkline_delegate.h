@@ -1,6 +1,6 @@
 /* sparkline_delegate.h
  *
- * $Id: main.cpp 44254 2012-08-04 00:01:59Z gerald $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
