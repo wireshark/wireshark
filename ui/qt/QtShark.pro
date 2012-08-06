@@ -20,6 +20,25 @@ xxx {
 }
 
 unix {
+
+    #Check if Qt < 4.8.x (packagesExist is present in Qt >= 4.8)
+    contains(QT_VERSION, ^4\\.[0-7]\\..*) {
+        #Copy from mkspecs/features/qt_functions.prf (Qt 4.8)
+        defineTest(packagesExist) {
+            # this can't be done in global scope here because qt_functions is loaded
+            # before the .pro is parsed, so if the .pro set PKG_CONFIG, we wouldn't know it
+            # yet. oops.
+            isEmpty(PKG_CONFIG):PKG_CONFIG = pkg-config # keep consistent with link_pkgconfig.prf! too
+
+            for(package, ARGS) {
+            !system($$PKG_CONFIG --exists $$package):return(false)
+            }
+
+        return(true)
+        }
+    }
+
+
     CONFIG += link_pkgconfig
     PKGCONFIG += \
         glib-2.0
