@@ -402,6 +402,32 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 success:
 	wth->frame_buffer = (struct Buffer *)g_malloc(sizeof(struct Buffer));
 	buffer_init(wth->frame_buffer, 1500);
+
+	if(wth->file_type == WTAP_FILE_PCAP){
+
+		wtapng_if_descr_t descr;
+
+		descr.wtap_encap = wth->file_encap;
+		descr.time_units_per_second = 1000000; /* default microsecond resolution */
+		descr.link_type = wtap_wtap_encap_to_pcap_encap(wth->file_encap);
+		descr.snap_len = wth->snapshot_length;
+		descr.opt_comment = NULL;
+		descr.if_name = NULL;
+		descr.if_description = NULL;
+		descr.if_speed = 0;
+		descr.if_tsresol = 6;
+		descr.if_filter_str= NULL;
+		descr.bpf_filter_len= 0;
+		descr.if_filter_bpf_bytes= NULL;
+		descr.if_os = NULL;
+		descr.if_fcslen = -1;
+		descr.num_stat_entries = 0;          /* Number of ISB:s */
+		descr.interface_statistics = NULL;
+		wth->number_of_interfaces= 1;
+		wth->interface_data= g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+		g_array_append_val(wth->interface_data, descr);
+
+	}
 	return wth;
 }
 
@@ -1135,7 +1161,7 @@ wtap_dump_init_dumper(int filetype, int encap, int snaplen, gboolean compressed,
 		descr.link_type = wtap_wtap_encap_to_pcap_encap(encap);
 		descr.snap_len = snaplen;
 		descr.opt_comment = NULL;
-		descr.if_name = NULL;
+		descr.if_name = g_strdup("Unknown/not available in original file format(libpcap)");
 		descr.if_description = NULL;
 		descr.if_speed = 0;
 		descr.if_tsresol = 6;
