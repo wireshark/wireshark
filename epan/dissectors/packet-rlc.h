@@ -38,7 +38,8 @@ enum rlc_mode {
 enum rlc_li_size {
 	RLC_LI_VARIABLE,
 	RLC_LI_7BITS,
-	RLC_LI_15BITS
+	RLC_LI_15BITS,
+	RLC_LI_UPPERLAYER /* Let upper layers decide LI-size rather than preference. */
 };
 
 #define MAX_RLC_CHANS 64

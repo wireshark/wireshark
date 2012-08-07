@@ -47,7 +47,7 @@
  *
  * TODO:
  *  - IUR interface-specific formats
- *  - verify header & payload CRCs
+ *  - verify header CRCs
  *  - do CRC verification before further parsing
  *    - Set the logical channel properly for non multiplexed, channels
  *     for channels that doesn't have the C/T flag! This should be based
@@ -149,6 +149,7 @@ static int hf_fp_hsdsch_new_ie_flags = -1;
 static int hf_fp_hsdsch_new_ie_flag[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
 static int hf_fp_hsdsch_drt = -1;
 static int hf_fp_hsdsch_entity = -1;
+static int hf_fp_hsdsch_physical_layer_category = -1;
 static int hf_fp_timing_advance = -1;
 static int hf_fp_num_of_pdu = -1;
 static int hf_fp_mac_d_pdu_len = -1;
@@ -209,6 +210,7 @@ static int ett_fp_hsdsch_new_ie_flags = -1;
 static int ett_fp_rach_new_ie_flags = -1;
 static int ett_fp_hsdsch_pdu_block_header = -1;
 
+static dissector_handle_t rlc_bcch_handle;
 static dissector_handle_t mac_fdd_dch_handle;
 static dissector_handle_t mac_fdd_rach_handle;
 static dissector_handle_t mac_fdd_fach_handle;
@@ -2902,7 +2904,13 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
             }
             p_add_proto_data(pinfo->fd, proto_umts_mac, mac_is_info);
             call_dissector(mac_fdd_edch_type2_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, top_level_tree);
-            offset += length + 1; /* XXX TODO this is wrong if TSN is 14 bits (then it is +2) */
+
+            /* get_mac_tsn_size in packet-umts_mac.h, gets the global_mac_tsn_size preference in umts_mac.c */
+            if (get_mac_tsn_size() == MAC_TSN_14BITS) {
+                offset += length + 2; /* Plus 2 bytes for TSN 14 bits and SS 2 bit. */
+            } else {
+                offset += length + 1; /* Plus 1 byte for TSN 6 bits and SS 2 bit. */
+            }
         }
     }
 
@@ -3019,7 +3027,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             rlcinf->urnti[i] = p_fp_info->channel;
             rlcinf->li_size[i] = RLC_LI_7BITS;
             rlcinf->deciphered[i] = FALSE;
-            rlcinf->rbid[i] = 16;
+            rlcinf->rbid[i] = macinf->lchid[i];
         }
 
 
@@ -3300,7 +3308,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 *
 * This will dissect hsdsch common channels of type 2, so this is
 * very similar to regular type two (ehs) the diffrence being how
-* the configuration is done.
+* the configuration is done. NOTE: VERY EXPERIMENTAL.
 *
 * @param tvb
 * @param pinfo packet info.
@@ -3339,6 +3347,9 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         guint64 lchid[MAX_PDU_BLOCKS];
         guint64 pdu_length[MAX_PDU_BLOCKS];
         guint64 no_of_pdus[MAX_PDU_BLOCKS];
+        guint header_length = 0;
+        guint8 newieflags = 0;
+        guint8 hsdsch_physical_layer_category = 0;
 
         umts_mac_info *macinf;
         rlc_info *rlcinf;
@@ -3459,7 +3470,9 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
             }
         }
 
-
+        if (header_length == 0) {
+            header_length = offset;
+        }
         /**********************************************/
         /* Optional fields indicated by earlier flags */
         if (drt_present) {
@@ -3481,43 +3494,55 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         /********************************************************************/
         /* Now read the MAC-d/c PDUs for each block using info from headers */
         for (n=0; n < number_of_pdu_blocks; n++) {
+            tvbuff_t * next_tvb;
             for(j=0;j<no_of_pdus[n];j++){
-
-                    if(lchid[n] == 0xF){    /*If all bits are set, then this is BCCH or PCCH according to: 25.435 paragraph: 6.2.7.31*/
-                        /*BCCH, then we have a MAC-ehs header*/
-                        /*PCCH then we don't have any MAC-c header */
-                        macinf->content[j] = MAC_BCCH;
-                        macinf->lchid[j] = MAC_N_A;
-                        continue;
-                    }
-                /*Configure (signal to lower layers) the PDU!*/
-                    macinf->content[j] = lchId_type_table[lchid[n]+1];/*hsdsch_macdflow_id_mac_content_map[p_fp_info->hsdsch_macflowd_id];*/ /*MAC_CONTENT_PS_DTCH;*/
-                    macinf->lchid[j] = (guint8)lchid[n]+1;    /*Add 1 since C/T is zero indexed? ie C/T =0 => L-CHID = 1*/
-
+                /* If all bits are set, then this is BCCH or PCCH according to: 25.435 paragraph: 6.2.7.31 */
+                if(lchid[n] == 0xF) {
+                    /* In the very few test cases I've seen, this seems to be
+                     * BCCH with transparent MAC layer. Therefore skip right to
+                     * rlc_bcch and hope for the best. */
+                    next_tvb = tvb_new_subset(tvb, offset, (gint)pdu_length[n], (gint)pdu_length[n]);
+                    call_dissector(rlc_bcch_handle, next_tvb, pinfo, top_level_tree);
+                    offset += (gint)pdu_length[n];
+                } else { /* Else go for CCCH UM, this seems to work. */
+                    p_fp_info->hsdsch_entity = ehs; /* HSDSCH type 2 */
+                    /* TODO: use cur_tb or subnum everywhere. */
+                    p_fp_info->cur_tb = j; /* set cur_tb for MAC */
+                    pinfo->fd->subnum = j; /* set subframe number for RRC */
+                    macinf->content[j] = MAC_CONTENT_CCCH;
+                    macinf->lchid[j] = (guint8)lchid[n]+1; /*Add 1 since it is zero indexed? */
                     macinf->macdflow_id[j] = p_fp_info->hsdsch_macflowd_id;
-
-                    /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then its SRB0 == UM else AM*/
-
-                    rlcinf->mode[j] = RLC_TM;/*lchId_rlc_map[lchid[n]+1];*//*hsdsch_macdflow_id_rlc_map[p_fp_info->hsdsch_macflowd_id];*/
-
-                    macinf->ctmux[n] = TRUE;    /*This is handled already in FP*/
+                    macinf->ctmux[j] = FALSE;
                     rlcinf->li_size[j] = RLC_LI_7BITS;
                     /*rlcinf->ciphered[j] = FALSE;*/
                     rlcinf->deciphered[j] = FALSE;
                     rlcinf->rbid[j] = (guint8)lchid[n]+1;
-                    rlcinf->urnti[j] = p_fp_info->channel;    /*We need to fake urnti*/
+                    rlcinf->urnti[j] = p_fp_info->channel; /*We need to fake urnti*/
 
+                    next_tvb = tvb_new_subset(tvb, offset, (gint)pdu_length[n], (gint)pdu_length[n]);
+                    call_dissector(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree);
+
+                    offset += (gint)pdu_length[n];
+                }
             }
-            /* Add PDU block header subtree */
-            offset = dissect_macd_pdu_data_type_2(tvb, pinfo, tree, offset,
-                                                  (guint16)pdu_length[n],
-                                                  (guint16)no_of_pdus[n],p_fp_info);
+        }
 
-
+        /* New IE Flags */
+        newieflags = tvb_get_guint8(tvb, offset);
+        /* If newieflags == 0000 0010 then this indicates that there is a
+         * HS-DSCH physical layer category and no other New IE flags. */
+        if (newieflags == 2) {
+            /* HS-DSCH physical layer category presence bit. */
+            proto_tree_add_uint(tree, hf_fp_hsdsch_new_ie_flag[6], tvb, offset, 1, newieflags);
+            offset++;
+            /* HS-DSCH physical layer category. */
+            hsdsch_physical_layer_category = tvb_get_bits8(tvb, offset*8, 6);
+            proto_tree_add_bits_item(tree, hf_fp_hsdsch_physical_layer_category, tvb, offset*8, 6, ENC_BIG_ENDIAN);
+            offset++;
         }
 
         /* Spare Extension and Payload CRC */
-        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset,0);
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset, header_length);
     }
 
 }
@@ -3574,26 +3599,25 @@ heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_fp(tvb, pinfo, tree);
     return TRUE;
 }
-static guint8 fakes =5; /*[] ={1,5,8};*/
-static guint8 fake_map[31];
 
+static guint8 fakes = 5; /*[] ={1,5,8};*/
+static guint8 fake_map[31];
 /*
- * TODO:
- * This need to be fixed!
- * Basically you would want the actual RRC messages, that sooner or later maps transport channel id's to logical id's
- * to set the proper logical channel, but for now we make syntethic ones.
+ * TODO: This need to be fixed!
+ * Basically you would want the actual RRC messages, that sooner or later maps
+ * transport channel id's to logical id's or RAB IDs
+ * to set the proper logical channel/RAB ID, but for now we make syntethic ones.
  * */
 static guint8
-make_fake_lchid(packet_info *pinfo _U_, gint trchld){
-
-        if( fake_map[trchld] == 0){
-            fake_map[trchld] = fakes;
-            fakes++;
-        }
-
-        return fake_map[trchld];
-
+make_fake_lchid(packet_info *pinfo _U_, gint trchld)
+{
+    if( fake_map[trchld] == 0){
+        fake_map[trchld] = fakes;
+        fakes++;
     }
+    return fake_map[trchld];
+}
+
 /*
  * july 2012:
  * Alot of configuration has been move into the actual dissecting functions
@@ -3809,6 +3833,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
                                 rlcinf->mode[j+chan] = lchId_rlc_map[c_t+1];    /*Based RLC mode on logical channel id*/
                             }
                         }else{
+                            fake_lchid = make_fake_lchid(pinfo,p_conv_data->dchs_in_flow_list[chan]);
                             macinf->ctmux[j+chan] = FALSE;/*Set TRUE if this channel is multiplexed (ie. C/T flag exists)*/
                             /*macinf->content[j+chan] = MAC_CONTENT_CS_DTCH;*/
                             macinf->content[j+chan] = lchId_type_table[fake_lchid];
@@ -4156,12 +4181,9 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             break;
         case CHANNEL_HSDSCH_COMMON:
-
-            if(FALSE)
-            dissect_hsdsch_common_channel_info(tvb,pinfo, tree,offset, p_fp_info);
-
-            expert_add_info_format(pinfo, NULL, PI_DEBUG, PI_ERROR, "HSDSCH COMMON - Not implemented!");
-
+            expert_add_info_format(pinfo, NULL, PI_DEBUG, PI_WARN, "HSDSCH COMMON - Experimental support!");
+            /*if(FALSE)*/
+            dissect_hsdsch_common_channel_info(tvb,pinfo, fp_tree, offset, p_fp_info);
             break;
         case CHANNEL_HSDSCH_COMMON_T3:
          expert_add_info_format(pinfo, NULL, PI_DEBUG, PI_ERROR, "HSDSCH COMMON T3 - Not implemeneted!");
@@ -4781,7 +4803,7 @@ void proto_register_fp(void)
               }
             },
             { &hf_fp_hsdsch_new_ie_flag[6],
-              { "New IE present",
+              { "HS-DSCH physical layer category present",
                 "fp.hsdsch.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x02,
                 NULL, HFILL
               }
@@ -5106,7 +5128,12 @@ void proto_register_fp(void)
                 NULL, HFILL
               }
             },
-
+            { &hf_fp_hsdsch_physical_layer_category,
+              { "HS-DSCH physical layer category",
+                "fp.hsdsch.physical_layer_category", FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            }
         };
 
 
@@ -5161,6 +5188,7 @@ void proto_register_fp(void)
 
 void proto_reg_handoff_fp(void)
 {
+    rlc_bcch_handle = find_dissector("rlc.bcch");
     mac_fdd_rach_handle   = find_dissector("mac.fdd.rach");
     mac_fdd_fach_handle   = find_dissector("mac.fdd.fach");
     mac_fdd_pch_handle    = find_dissector("mac.fdd.pch");

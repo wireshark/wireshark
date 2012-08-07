@@ -30,6 +30,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 
 #include "packet-rrc.h"
 #include "packet-umts_fp.h"
@@ -88,6 +89,14 @@ static dissector_handle_t rlc_ps_dtch_handle;
 static dissector_handle_t rrc_handle;
 
 /* MAC-is reassembly */
+static guint MAX_TSN = 64;
+static guint16 mac_tsn_size = 6;
+static gint global_mac_tsn_size = MAC_TSN_6BITS;
+gint get_mac_tsn_size(void) { return global_mac_tsn_size; }
+static const enum_val_t tsn_size_enumvals[] = {
+	{"6 bits", "6 bits", MAC_TSN_6BITS},
+	{"14 bits", "14 bits", MAC_TSN_14BITS},
+	{NULL, NULL, -1}};
 enum mac_is_fragment_type {
     MAC_IS_HEAD,
     MAC_IS_MIDDLE,
@@ -144,8 +153,7 @@ static guint mac_is_fragment_hash(gconstpointer key)
 static const value_string rach_fdd_tctf_vals[] = {
     { TCTF_CCCH_RACH_FDD      , "CCCH over RACH (FDD)" },
     { TCTF_DCCH_DTCH_RACH_FDD , "DCCH/DTCH over RACH (FDD)" },
-    { 0, NULL }
-};
+    { 0, NULL }};
 
 static const value_string fach_fdd_tctf_vals[] = {
     { TCTF_BCCH_FACH_FDD      , "BCCH over FACH (FDD)" },
@@ -155,14 +163,12 @@ static const value_string fach_fdd_tctf_vals[] = {
     { TCTF_MCCH_FACH_FDD      , "MCCH over FACH (FDD)" },
     { TCTF_MSCH_FACH_FDD      , "MSCH over FACH (FDD)" },
     { TCTF_CTCH_FACH_FDD      , "CTCH over FACH (FDD)" },
-    { 0, NULL }
-};
+    { 0, NULL }};
 
 static const value_string ueid_type_vals[] = {
     { MAC_UEID_TYPE_URNTI,  "U-RNTI" },
     { MAC_UEID_TYPE_CRNTI,  "C-RNTI" },
-    { 0, NULL }
-};
+    { 0, NULL }};
 
 static const value_string mac_logical_channel_vals[] = {
     { MAC_PCCH, "PCCH" },
@@ -175,8 +181,7 @@ static const value_string mac_logical_channel_vals[] = {
     { MAC_MSCH, "MSCH" },
     { MAC_MTCH, "MTCH" },
     { MAC_N_A, "N/A" },
-    { 0, NULL }
-};
+    { 0, NULL }};
 
 static guint8 fach_fdd_tctf(guint8 hdr, guint16 *bit_offs)
 {
@@ -635,7 +640,7 @@ static void mac_is_copy(mac_is_sdu * sdu, mac_is_fragment * frag, guint total_le
         memcpy(sdu->data+sdu->length, frag->data, frag->length);
     }
     sdu->length += frag->length;
-    /* g_free(frag->data); */
+    g_free(frag->data);
 }
 
 /*
@@ -670,7 +675,7 @@ static tvbuff_t * reassemble(tvbuff_t * tvb, body_parts ** body_parts_array, gui
     sdu->fragments = f; /* Set up fragments list to point at head. */
     sdu->frame_num = frame_num; /* Frame number where reassembly is being done. */
 
-    for (i = (head_tsn+1)%64; body_parts_array[i]->middle != NULL; i = (i+1)%64)
+    for (i = (head_tsn+1)%MAX_TSN; body_parts_array[i]->middle != NULL; i = (i+1)%MAX_TSN)
     {
         f = f->next = body_parts_array[i]->middle; /* Iterate through. */
         g_hash_table_insert(sdus, f, sdu); /* Insert middle->sdu mapping. */
@@ -751,7 +756,8 @@ static tvbuff_t * add_to_tree(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
 static guint find_head(body_parts ** body_parts_array, guint16 * tsn)
 {
     guint length = 0;
-    for (*tsn = (*tsn==0)?63:(*tsn)-1; body_parts_array[*tsn]->middle != NULL; *tsn = (*tsn==0)?63:(*tsn)-1)
+    *tsn = (*tsn==0)? (guint16)(MAX_TSN-1) : (*tsn)-1;
+    for (; body_parts_array[*tsn]->middle != NULL; *tsn = (*tsn==0)?(guint16)(MAX_TSN-1):(*tsn)-1)
         length += body_parts_array[*tsn]->middle->length;
     if (body_parts_array[*tsn]->head != NULL)
         return length+body_parts_array[*tsn]->head->length;
@@ -764,7 +770,7 @@ static guint find_head(body_parts ** body_parts_array, guint16 * tsn)
 static guint find_tail(body_parts ** body_parts_array, guint16 tsn)
 {
     guint length = 0;
-    for (tsn = (tsn+1)%64; body_parts_array[tsn]->middle != NULL; tsn = (tsn+1)%64)
+    for (tsn = (tsn+1)%MAX_TSN; body_parts_array[tsn]->middle != NULL; tsn = (tsn+1)%MAX_TSN)
         length += body_parts_array[tsn]->middle->length;
     if (body_parts_array[tsn]->tail != NULL)
         return length+body_parts_array[tsn]->tail->length;
@@ -781,9 +787,9 @@ static body_parts ** get_body_parts(mac_is_channel * ch)
     /* If there was no body_part* array for this channel, create one. */
     if (bpa == NULL) {
         mac_is_channel * channel;
-        int i;
-        bpa = se_alloc_array(body_parts*, 64); /* Create new body_parts-pointer array */
-        for (i = 0; i < 64; i++) {
+        guint16 i;
+        bpa = se_alloc_array(body_parts*, MAX_TSN); /* Create new body_parts-pointer array */
+        for (i = 0; i < MAX_TSN; i++) {
             bpa[i] = se_new0(body_parts); /* Fill it with body_parts. */
         }
         channel = se_new(mac_is_channel); /* Alloc new channel for use in hash table. */
@@ -956,10 +962,10 @@ static void dissect_mac_fdd_edch_type2(tvbuff_t *tvb, packet_info *pinfo, proto_
     ss_interpretation(tvb, macis_pdu_tree, ss, mac_is_info->number_of_mac_is_sdus, offset);
 
     /* TSN */
-    tsn = tvb_get_bits8(tvb, offset*8+2, 6);
-    proto_tree_add_item(macis_pdu_tree, hf_mac_edch_type2_tsn, tvb, offset, 1, ENC_BIG_ENDIAN);
+    tsn = tvb_get_bits8(tvb, offset*8+2, mac_tsn_size);
+    proto_tree_add_bits_item(macis_pdu_tree, hf_mac_edch_type2_tsn, tvb, offset*8+2, mac_tsn_size, ENC_BIG_ENDIAN);
 
-    offset++;
+    offset += (2+mac_tsn_size)/8;
 
     /* MAC-is SDUs (i.e. MACd PDUs) */
     for (sdu_no=0; sdu_no < mac_is_info->number_of_mac_is_sdus; sdu_no++) {
@@ -1152,40 +1158,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
     macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
 
-
     pos = fpinf->cur_tb;
-#if 0
-    if(pinfo->fd->num == 48 /*|| pinfo->fd->num == 594*/){
-
-            rrcinf = p_get_proto_data(pinfo->fd, proto_rrc);
-            if (!rrcinf) {
-                rrcinf = se_alloc0(sizeof(struct rrc_info));
-                p_add_proto_data(pinfo->fd, proto_rrc, rrcinf);
-            }
-            rrcinf->msgtype[fpinf->cur_tb] = RRC_MESSAGE_TYPE_BCCH_FACH;
-
-
-	               next_tvb = tvb_new_subset(tvb, 0, tvb_length_remaining(tvb, 1), -1);
-            call_dissector(rrc_handle, next_tvb, pinfo, tree);
-            return;
-	}
-	    if(FALSE /*pinfo->fd->num == 594 || pinfo->fd->num == 594*/){
-
-                              proto_item_append_text(ti, " (DCCH)");
-                    channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_channel, tvb, 0, 0, MAC_DCCH);
-                    PROTO_ITEM_SET_GENERATED(channel_type);
-                     next_tvb = tvb_new_subset(tvb, 0, tvb_length_remaining(tvb, 0), tvb_length_remaining(tvb, 0));
-                    add_new_data_source(pinfo, next_tvb, "Octet-Aligned DCCH Data");
-                    call_dissector(rlc_dcch_handle, next_tvb, pinfo, tree);
-
-
-
-            if(FALSE){
-				 dissect_mac_fdd_hsdsch_common(tvb, pinfo, tree);
-			}
-            return;
-	}
-#endif
     bitoffs = fpinf->hsdsch_entity == ehs ? 0 : 4;	/*No MAC-d header for type 2*/
 
     if (!macinf) {
@@ -1208,7 +1181,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         bitoffs += 4;
     }
 
-   if ((bitoffs % 8) == 0) {
+    if ((bitoffs % 8) == 0) {
         next_tvb = tvb_new_subset_remaining(tvb, bitoffs/8);
     } else {
         next_tvb = tvb_new_octet_aligned(tvb, bitoffs, macinf->pdu_len);    /*Get rid of possible padding in at the end?*/
@@ -1216,6 +1189,29 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 
     switch (macinf->content[pos]) {
+        case MAC_CONTENT_CCCH:
+            proto_item_append_text(ti, " (CCCH)");
+            /*Set the logical channel id if it exists */
+            if(macinf->lchid[pos] != 255){
+                channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
+                PROTO_ITEM_SET_GENERATED(channel_type);
+                if(macinf->fake_chid[pos]){
+                    channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "This is a faked logical channel id!");
+                    PROTO_ITEM_SET_GENERATED(channel_type);
+                }
+            }else{
+                channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "Frame is missing logical channel");
+                PROTO_ITEM_SET_GENERATED(channel_type);
+            }
+            /*Set the type of channel*/
+            channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_channel, tvb, 0, 0, MAC_DCCH);
+            PROTO_ITEM_SET_GENERATED(channel_type);
+
+            /*Set the MACd-Flow ID*/
+            channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_macdflowd_id, tvb, 0, 0, macinf->macdflow_id[pos]);
+            PROTO_ITEM_SET_GENERATED(channel_type);
+            call_dissector(rlc_ccch_handle, next_tvb, pinfo, tree);
+            break;
         case MAC_CONTENT_DCCH:
             proto_item_append_text(ti, " (DCCH)");
           /*  channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_channel_hsdsch, tvb, 0, 0, MAC_DCCH);
@@ -1297,11 +1293,20 @@ static void mac_init(void)
     }
     mac_is_sdus = g_hash_table_new_full(mac_is_channel_hash, mac_is_channel_equal, NULL, mac_is_sdus_hash_destroy);
     mac_is_fragments = g_hash_table_new_full(mac_is_channel_hash, mac_is_channel_equal, NULL, NULL);
+
+    if (global_mac_tsn_size == MAC_TSN_6BITS) {
+        MAX_TSN = 64;
+        mac_tsn_size = 6;
+    } else {
+        MAX_TSN = 16384;
+        mac_tsn_size = 14;
+    }
 }
 
 void
 proto_register_umts_mac(void)
 {
+    module_t *mac_module;
     static gint *ett[] = {
         &ett_mac,
         &ett_mac_fach,
@@ -1394,7 +1399,7 @@ proto_register_umts_mac(void)
         },
         { &hf_mac_edch_type2_tsn,
           { "TSN",
-            "mac.edch.type2.tsn", FT_UINT8, BASE_DEC, NULL, 0x3f,
+            "mac.edch.type2.tsn", FT_UINT16, BASE_DEC, NULL, 0,
             "Transmission Sequence Number", HFILL
           }
         },
@@ -1439,6 +1444,12 @@ proto_register_umts_mac(void)
     register_dissector("mac.fdd.hsdsch", dissect_mac_fdd_hsdsch, proto_umts_mac);
 
     register_init_routine(mac_init);
+
+    /* Preferences */
+    mac_module = prefs_register_protocol(proto_umts_mac, NULL);
+    prefs_register_enum_preference(mac_module, "tsn_size", "TSN size",
+            "TSN size in bits, either 6 or 14 bit",
+            &global_mac_tsn_size, tsn_size_enumvals, FALSE);
 }
 
 void

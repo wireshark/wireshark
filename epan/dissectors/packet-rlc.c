@@ -68,6 +68,14 @@ static gboolean global_rlc_ciphered = FALSE;
 /* Stop trying to do reassembly if this is true. */
 static gboolean fail = FALSE;
 
+/* LI size preference */
+static gint global_rlc_li_size = RLC_LI_UPPERLAYER;
+static const enum_val_t li_size_enumvals[] = {
+	{"7 bits", "7 bits", RLC_LI_7BITS},
+	{"15 bits", "15 bits", RLC_LI_15BITS},
+	{"Let upper layers decide", "Let upper layers decide", RLC_LI_UPPERLAYER},
+	{NULL, NULL, -1}};
+
 /* fields */
 static int hf_rlc_seq = -1;
 static int hf_rlc_ext = -1;
@@ -104,6 +112,9 @@ static int hf_rlc_sufi_sn_mrw = -1;
 static int hf_rlc_sufi_poll_sn = -1;
 static int hf_rlc_header_only = -1;
 static int hf_rlc_channel = -1;
+static int hf_rlc_channel_rbid = -1;
+static int hf_rlc_channel_dir = -1;
+static int hf_rlc_channel_ueid = -1;
 
 /* subtrees */
 static int ett_rlc = -1;
@@ -113,6 +124,7 @@ static int ett_rlc_sdu = -1;
 static int ett_rlc_sufi = -1;
 static int ett_rlc_bitmap = -1;
 static int ett_rlc_rlist = -1;
+static int ett_rlc_channel = -1;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t rrc_handle;
@@ -120,6 +132,7 @@ static dissector_handle_t bmc_handle;
 
 enum rlc_channel_type {
 	RLC_PCCH,
+	RLC_BCCH,
 	RLC_UL_CCCH,
 	RLC_DL_CCCH,
 	RLC_UL_DCCH,
@@ -874,7 +887,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 	}
 	rlc_frag_assign(&frag_lookup, mode, pinfo, seq, num_li);
 	#if RLC_ADD_FRAGMENT_DEBUG_PRINT
-		g_print("packet: %d, channel (%d %d %d %d %d %d %d %d %d) seq: %u, num_li: %u, offset: %u, \n", pinfo->fd->num, ch_lookup.cid, ch_lookup.dir, ch_lookup.li_size, ch_lookup.link, ch_lookup.mode, ch_lookup.rbid, ch_lookup.urnti, ch_lookup.vci, ch_lookup.vpi, seq, num_li, offset);
+		g_print("packet: %d, channel (%d %d %d) seq: %u, num_li: %u, offset: %u, \n", pinfo->fd->num, ch_lookup.dir, ch_lookup.rbid, ch_lookup.urnti, seq, num_li, offset);
 	#endif
 	/* look for an already assembled SDU */
 	if (g_hash_table_lookup_extended(reassembled_table, &frag_lookup, &orig_key, &value)) {
@@ -922,13 +935,18 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 					expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because of previous unfinished sequence.");
 				}
 			} else if (endlist->list) {
-				gint16 end = GPOINTER_TO_INT(endlist->list->data);
-				if (end >= 0 && end < 4096 && frags[end]) {
-					proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence, found lingering endpoint (%d [packet %d]).", end, frags[end]->frame_num);
+				if (fail) {
+					proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because fail flag was set previously.");
+					expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because fail flag was set previously.");
 				} else {
-					proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence, found lingering endpoint (%d [could not determine packet]).", end);
+					gint16 end = GPOINTER_TO_INT(endlist->list->data);
+					if (end >= 0 && end < 4096 && frags[end]) {
+						proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence, found lingering endpoint (%d [packet %d]).", end, frags[end]->frame_num);
+					} else {
+						proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence, found lingering endpoint (%d [could not determine packet]).", end);
+					}
+					expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Lingering endpoint.");
 				}
-				expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Lingering endpoint.");
 			} else {
 				expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Unknown error.");
 			}
@@ -1003,7 +1021,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 			if (frags[start] != NULL) {
 				endlist->list->data = GINT_TO_POINTER(start-1);
 			}
-			/* NOTE: frags[start] is se_alloced and will remain until file closes, we would want to free it here. */
+			/* NOTE: frags[start] is se_alloced and will remain until file closes, we would want to free it here maybe. */
 			return NULL;
 		}
 
@@ -1172,6 +1190,9 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
 		case RLC_PCCH:
 			msgtype = RRC_MESSAGE_TYPE_PCCH;
 			break;
+		case RLC_BCCH:
+			msgtype = RRC_MESSAGE_TYPE_BCCH_FACH;
+			break;
 		case RLC_PS_DTCH:
 			msgtype = RRC_MESSAGE_TYPE_INVALID;
 			/* assume transparent PDCP for now */
@@ -1240,7 +1261,7 @@ rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tr
 				}
 				if (global_rlc_perform_reassemby) {
 					add_fragment(RLC_UM, tvb, pinfo, li[i].tree, offs, seq, i, length, TRUE);
-					next_tvb = get_reassembled_data(RLC_UM, tvb, pinfo, li[i].tree, seq, i);
+					next_tvb = get_reassembled_data(RLC_UM, tvb, pinfo, tree, seq, i);
 				}
 				offs += length;
 			}
@@ -1254,7 +1275,7 @@ rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tr
 			}
 			if (global_rlc_perform_reassemby) {
 				add_fragment(RLC_UM, tvb, pinfo, li[i].tree, offs, seq, i, li[i].len, TRUE);
-				next_tvb = get_reassembled_data(RLC_UM, tvb, pinfo, li[i].tree, seq, i);
+				next_tvb = get_reassembled_data(RLC_UM, tvb, pinfo, tree, seq, i);
 			}
 		}
 		if (next_tvb) {
@@ -1436,12 +1457,18 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static void add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * fpinf, rlc_info * rlcinf)
 {
 	proto_item * item;
+	proto_tree * channel_tree;
 
-	if (pinfo->p2p_dir != LINK_DIR_UNKNOWN) {
-		item = proto_tree_add_item(tree, hf_rlc_channel, NULL, 0, 0, ENC_NA);
-		proto_item_append_text(item, " (rbid: %u, dir: %u, uid: %u)", rlcinf->rbid[fpinf->cur_tb], pinfo->p2p_dir, rlcinf->urnti[fpinf->cur_tb]);
-		PROTO_ITEM_SET_GENERATED(item);
-	}
+	item = proto_tree_add_item(tree, hf_rlc_channel, NULL, 0, 0, ENC_NA);
+	channel_tree = proto_item_add_subtree(item, ett_rlc_channel);
+	proto_item_append_text(item, " (rbid: %u, dir: %u, uid: %u)", rlcinf->rbid[fpinf->cur_tb], pinfo->p2p_dir, rlcinf->urnti[fpinf->cur_tb]);
+	PROTO_ITEM_SET_GENERATED(item);
+	item = proto_tree_add_uint(channel_tree, hf_rlc_channel_rbid, NULL, 0, 0, rlcinf->rbid[fpinf->cur_tb]);
+	PROTO_ITEM_SET_GENERATED(item);
+	item = proto_tree_add_uint(channel_tree, hf_rlc_channel_dir, NULL, 0, 0, pinfo->p2p_dir);
+	PROTO_ITEM_SET_GENERATED(item);
+	item = proto_tree_add_uint(channel_tree, hf_rlc_channel_ueid, NULL, 0, 0, rlcinf->urnti[fpinf->cur_tb]);
+	PROTO_ITEM_SET_GENERATED(item);
 }
 
 static void
@@ -1488,10 +1515,14 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 		return;
 	}
 
-	if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
-		li_is_on_2_bytes = (tvb_length(tvb) > 125) ? TRUE : FALSE;
-	} else {
-		li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
+	if (global_rlc_li_size == RLC_LI_UPPERLAYER) {
+		if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
+			li_is_on_2_bytes = (tvb_length(tvb) > 126) ? TRUE : FALSE;
+		} else {
+			li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
+		}
+	} else { /* Overrid rlcinf configuration with preference. */
+		li_is_on_2_bytes = (global_rlc_li_size == RLC_LI_15BITS) ? TRUE : FALSE;
 	}
 
 	num_li = rlc_decode_li(RLC_UM, tvb, pinfo, tree, li, MAX_LI, li_is_on_2_bytes);
@@ -1790,8 +1821,14 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
 			piggyback = TRUE;
 		} else if ((!li_is_on_2_bytes && (li[i].li == 0x7f)) || (li[i].li == 0x7fff)) {
 			/* padding, must be last LI */
-			if (tree && tvb_length_remaining(tvb, offs) > 0) {
-				proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, -1, ENC_NA);
+			if (tvb_length_remaining(tvb, offs) > 0) {
+				if (tree) {
+					proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, -1, ENC_NA);
+				}
+				if (i == 0) {
+					/* Insert empty RLC frag so RLC doesn't miss this seq number. */
+					add_fragment(RLC_AM, tvb, pinfo, li[i].tree, offs, seq, i, 0, TRUE);
+				}
 			}
 			offs += tvb_length_remaining(tvb, offs);
 		} else {
@@ -1909,10 +1946,15 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 		col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
 		return;
 	}
-	if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
-		li_is_on_2_bytes = (tvb_length(tvb) > 126) ? TRUE : FALSE;
-	} else {
-		li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
+
+	if (global_rlc_li_size == RLC_LI_UPPERLAYER) {
+		if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
+			li_is_on_2_bytes = (tvb_length(tvb) > 126) ? TRUE : FALSE;
+		} else {
+			li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
+		}
+	} else { /* Overrid rlcinf configuration with preference. */
+		li_is_on_2_bytes = (global_rlc_li_size == RLC_LI_15BITS) ? TRUE : FALSE;
 	}
 
 	num_li = rlc_decode_li(RLC_AM, tvb, pinfo, tree, li, MAX_LI, li_is_on_2_bytes);
@@ -1969,6 +2011,27 @@ dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_append_text(ti, " TM (PCCH)");
 	}
 	dissect_rlc_tm(RLC_PCCH, tvb, pinfo, tree, subtree);
+}
+
+static void
+dissect_rlc_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	fp_info    *fpi;
+	proto_item *ti      = NULL;
+	proto_tree *subtree = NULL;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	fpi = p_get_proto_data(pinfo->fd, proto_fp);
+	if (!fpi) return; /* dissection failure */
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
+		subtree = proto_item_add_subtree(ti, ett_rlc);
+	}
+	proto_item_append_text(ti, " TM (BCCH)");
+	dissect_rlc_tm(RLC_BCCH, tvb, pinfo, tree, subtree);
 }
 
 static void
@@ -2463,6 +2526,18 @@ proto_register_rlc(void)
 		{ &hf_rlc_channel,
 		  { "Channel", "rlc.channel",
 		    FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_rlc_channel_rbid,
+		  { "Radio Bearer ID", "rlc.channel.rbid",
+		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_rlc_channel_dir,
+		  { "Direction", "rlc.channel.dir",
+		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_rlc_channel_ueid,
+		  { "User Equipment ID", "rlc.channel.ueid",
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
 		}
  	};
 	static gint *ett[] = {
@@ -2473,8 +2548,10 @@ proto_register_rlc(void)
 		&ett_rlc_sufi,
 		&ett_rlc_bitmap,
 		&ett_rlc_rlist,
+		&ett_rlc_channel
 	};
 	proto_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");
+	register_dissector("rlc.bcch",        dissect_rlc_bcch,        proto_rlc);
 	register_dissector("rlc.pcch",        dissect_rlc_pcch,        proto_rlc);
 	register_dissector("rlc.ccch",        dissect_rlc_ccch,        proto_rlc);
 	register_dissector("rlc.ctch",        dissect_rlc_ctch,        proto_rlc);
@@ -2510,6 +2587,11 @@ proto_register_rlc(void)
 		"Ciphered data",
 		"When enabled, rlc will assume all data is ciphered and won't process it ",
 		&global_rlc_ciphered);
+
+	prefs_register_enum_preference(rlc_module, "li_size",
+		"LI size",
+		"LI size in bits, either 7 or 15 bit",
+		&global_rlc_li_size, li_size_enumvals, FALSE);
 
 	register_init_routine(fragment_table_init);
 }

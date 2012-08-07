@@ -80,4 +80,10 @@ typedef struct
 	gint sdulength[MAX_MAC_FRAMES];
 } umts_mac_is_info;
 
+enum enum_mac_tsn_size {
+    MAC_TSN_6BITS,
+    MAC_TSN_14BITS
+};
+gint get_mac_tsn_size();
+
 #endif
