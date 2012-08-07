@@ -2189,8 +2189,8 @@ static void cross_draw(struct graph *g, int x, int y)
     }
 
     /* Draw the cross */
-    if (x > g->wp.x && x < g->wp.x+g->wp.width &&
-        y >= g->wp.y && y < g->wp.y+g->wp.height) {
+    if (x >  g->wp.x && x < g->wp.x+g->wp.width &&
+        y >  g->wp.y && y < g->wp.y+g->wp.height) {
 
         cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(g->drawing_area));
         gdk_cairo_set_source_color(cr, &g->style.seq_color);
