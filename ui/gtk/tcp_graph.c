@@ -462,7 +462,6 @@ static void toggle_seq_origin (struct graph * );
 static void restore_initial_graph_view (struct graph *g);
 #if USE_CROSSHAIR_CURSOR
 #else
-static void cross_xor (struct graph * , int , int );
 static void cross_draw (struct graph * , int , int );
 static void cross_erase (struct graph * );
 static void magnify_move (struct graph * , int , int );
@@ -2886,43 +2885,9 @@ static int ellipse_detect_collision (struct element *e, int x, int y)
 	else
 		return FALSE;
 }
+
 #if USE_CROSSHAIR_CURSOR
 #else
-static void cross_xor (struct graph *g, int x, int y)
-{
-#if GTK_CHECK_VERSION(2,22,0)
-	GdkColor color_gray15 = {0x0, 0x2626, 0x2626, 0x2626};
-	cairo_t *cr;
-
-	/* XXX Fix me: lines do not disappear */
-	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
-				y >= g->wp.y && y < g->wp.y+g->wp.height) {
-		/* Draw horizontal line */
-		cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
-		cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
-		gdk_cairo_set_source_color (cr, &color_gray15);
-		cairo_set_line_width (cr, 1.0);
-		cairo_move_to(cr,  g->wp.x+0.5, y+0.5);
-		cairo_line_to(cr,  g->wp.x + g->wp.width+0.5, y+0.5);
-		/* Draw vertical line */
-		cairo_move_to(cr,  x+0.5, g->wp.y+0.5);
-		cairo_line_to(cr,  x+0.5, g->wp.y + g->wp.height+0.5);
-		cairo_stroke(cr);
-		cairo_destroy(cr);
-	}
-
-#else
-
-	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
-				y >= g->wp.y && y < g->wp.y+g->wp.height) {
-		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, g->wp.x,
-						y, g->wp.x + g->wp.width, y);
-		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, x,
-						g->wp.y, x, g->wp.y + g->wp.height);
-	}
-#endif /* GTK_CHECK_VERSION(2,22,0) */
-}
-
 static void cross_draw (struct graph *g, int x, int y)
 {
 	/* Shouldn't draw twice onto the same position if haven't erased in the
@@ -2930,7 +2895,26 @@ static void cross_draw (struct graph *g, int x, int y)
 	if (g->cross.erase_needed && (g->cross.x == x) && (g->cross.y == y)) {
 		return;
 	}
-	cross_xor (g, x, y);
+
+	/* Draw the cross */
+	if (x >  g->wp.x+0.5 && x < g->wp.x+g->wp.width &&
+	    y >  g->wp.y     && y < g->wp.y+g->wp.height) {
+
+		cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(g->drawing_area));
+		gdk_cairo_set_source_color(cr, &g->s.tseq_tcptrace.seq_color);
+		cairo_set_line_width(cr, 1.0);
+
+		/* Horizonal line */
+		cairo_move_to(cr, g->wp.x, y);
+		cairo_line_to(cr, g->wp.x + g->wp.width, y);
+
+		/* Vertical line */
+		cairo_move_to(cr, x, g->wp.y);
+		cairo_line_to(cr, x, g->wp.y + g->wp.height);
+		cairo_stroke(cr);
+		cairo_destroy(cr);
+	}
+
 	g->cross.x = x;
 	g->cross.y = y;
 	g->cross.erase_needed = 1;
@@ -2938,8 +2922,17 @@ static void cross_draw (struct graph *g, int x, int y)
 
 static void cross_erase (struct graph *g)
 {
-	cross_xor (g, g->cross.x, g->cross.y);
+	int x = g->cross.x;
+	int y = g->cross.y;
+
 	g->cross.erase_needed = 0;
+
+	if (x >  g->wp.x && x < g->wp.x+g->wp.width &&
+	    y >= g->wp.y && y < g->wp.y+g->wp.height) {
+
+		/* Just redraw what is in the pixmap buffer */
+		graph_pixmap_display(g);
+	}
 }
 
 static void magnify_move (struct graph *g, int x, int y)
