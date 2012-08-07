@@ -682,7 +682,7 @@ static void
 capture_all_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
   GtkWidget *filter_cm, *filter_te;
-  gchar *filter_text;
+  gchar *filter_text = NULL;
   gboolean new_filter = FALSE;
   guint i;
 
