@@ -39,13 +39,14 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-13.html">wnpa-sec-2012-13</ulink>
           </para>
           <para>
-            .
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.8: r????? -->
+	    The DCP ETSI dissector could trigger a zero division. Reported by
+	    Laurent Butti.
+            <!-- Fixed in trunk: r44247 -->
+            <!-- Fixed in trunk-1.8: r44309 -->
             <!-- Fixed in trunk-1.6: r????? -->
             <!-- Fixed in trunk-1.4: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7436">Bug
-            7436</ulink>)
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7566">Bug
+            7566</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
           <!-- <para>
@@ -72,6 +73,12 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
+
+        <listitem><para>
+          Wireshark crashes on opening very short NFS pcap file.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7498">Bug
+          7498</ulink>)
+        </para></listitem>
 
       </itemizedlist>
 
