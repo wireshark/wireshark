@@ -4013,7 +4013,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *e_resolv_cb,
                 *bbox, *close_bt,
                 *all_filter_cm, *all_filter_te, *all_filter_bt, *all_filter_hb,
-                *all_compile_bt, *all_vb,
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+                *all_compile_bt,
+#endif
+                *all_vb,
                 *help_bt;
 #ifdef HAVE_AIRPCAP
   GtkWidget     *decryption_cb;
