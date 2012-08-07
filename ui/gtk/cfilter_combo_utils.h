@@ -31,5 +31,7 @@
 
 #define E_CFILTER_CM_KEY          "capture_filter_combo"
 #define E_CFILTER_FL_KEY          "capture_filter_list"
+#define E_ALL_CFILTER_CM_KEY      "capture_all_filter_combo"
+#define E_ALL_CFILTER_FL_KEY      "capture_all_filter_list"
 
 #endif /* __CFILTER_COMBO_UTILS_H__ */

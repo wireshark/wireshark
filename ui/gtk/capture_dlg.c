@@ -262,6 +262,9 @@ create_and_fill_model(GtkTreeView *view);
 void
 update_visible_columns_menu (void);
 
+static void
+update_options_table(gint index);
+
 static gboolean
 query_tooltip_tree_view_cb (GtkWidget  *widget,
                             gint        x,
@@ -653,6 +656,88 @@ void capture_filter_init(void) {
 #endif
 
   g_timeout_add(200, update_capture_filter_te, NULL);
+}
+
+static void
+update_filter_string(gchar *name, gchar *text)
+{
+  GtkTreeIter  iter;
+  GtkTreeView  *if_cb;
+  GtkTreeModel *model;
+  gchar *name_str;
+
+  if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  model = gtk_tree_view_get_model(if_cb);
+  gtk_tree_model_get_iter_first(model, &iter);
+  do {
+    gtk_tree_model_get(model, &iter, IFACE_HIDDEN_NAME, &name_str, -1);
+    if (strcmp(name, name_str) == 0) {
+      gtk_list_store_set (GTK_LIST_STORE(model), &iter, FILTER, g_strdup(text), -1);
+      break;
+    }
+  } while (gtk_tree_model_iter_next(model, &iter));
+}
+
+static void
+capture_all_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
+{
+  GtkWidget *filter_cm, *filter_te;
+  gchar *filter_text;
+  gboolean new_filter = FALSE;
+  guint i;
+
+  filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY);
+
+  if (!filter_cm)
+    return;
+
+  filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
+
+  if (!filter_te)
+    return;
+
+  if (global_capture_opts.all_ifaces->len > 0) {
+    interface_t device;
+
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+      device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+      if (!device.selected) {
+        continue;
+      }
+      if (device.active_dlt == -1) {
+        colorize_filter_te_as_empty(filter_te);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The link type of interface %s was not specified.", device.name);
+        continue;  /* Programming error: somehow managed to select an "unsupported" entry */
+      }
+      filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
+      if (strlen(filter_text) == 0) {
+        colorize_filter_te_as_empty(filter_te);
+        g_array_remove_index(global_capture_opts.all_ifaces, i);
+        device.cfilter = g_strdup(filter_text);
+        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+        update_filter_string(device.name, filter_text);
+        g_free(filter_text);
+        continue;
+      }
+      g_assert(filter_text != NULL);
+      g_array_remove_index(global_capture_opts.all_ifaces, i);
+      device.cfilter = g_strdup(filter_text);
+      g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+      new_filter = TRUE;
+      update_filter_string(device.name, filter_text);
+    }
+    if (new_filter) {
+      g_mutex_lock(cfc_data_mtx);
+      /* Ruthlessly clobber the current state. */
+      g_free(cfc_data.filter_text);
+      cfc_data.filter_text = filter_text;
+      cfc_data.filter_te = filter_te;
+      cfc_data.state = CFC_PENDING;
+      DEBUG_SYNTAX_CHECK("?", "pending");
+      g_cond_signal(cfc_data_cond);
+      g_mutex_unlock(cfc_data_mtx);
+    }
+  }
 }
 
 static void
@@ -1872,6 +1957,75 @@ capture_remote_combo_add_recent(gchar *s)
 
 #if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
 static void
+capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
+{
+  pcap_t *pd;
+  struct bpf_program fcode;
+
+  GtkWidget *filter_cm;
+  gchar     *filter_text;
+  guint     i;
+  gchar *bpf_code_str;
+  gchar *bpf_code_markup;
+  GString *bpf_code_dump = g_string_new("");
+
+  filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY);
+
+  if (!filter_cm)
+    return;
+
+  if (global_capture_opts.all_ifaces->len > 0) {
+    interface_t device;
+
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+      device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+      if (!device.selected) {
+        continue;
+      }
+      if (device.active_dlt == -1) {
+        g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
+      }
+      pd = pcap_open_dead(device.active_dlt, DUMMY_SNAPLENGTH);
+
+      filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
+      g_mutex_lock(pcap_compile_mtx);
+#ifdef PCAP_NETMASK_UNKNOWN
+      if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN) < 0) {
+#else
+      if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, 0) < 0) {
+#endif
+        g_mutex_unlock(pcap_compile_mtx);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", pcap_geterr(pd));
+      } else {
+        struct bpf_insn *insn = fcode.bf_insns;
+        int i, n = fcode.bf_len;
+        gchar str[100];
+
+        g_mutex_unlock(pcap_compile_mtx);
+        sprintf(str, "\nInterface %s:\n", device.name);
+        g_string_append(bpf_code_dump, str);
+
+        for (i = 0; i < n; ++insn, ++i) {
+            g_string_append(bpf_code_dump, bpf_image(insn, i));
+            g_string_append(bpf_code_dump, "\n");
+        }
+      }
+      g_free(filter_text);
+      pcap_close(pd);
+    }
+  }
+  bpf_code_str = g_string_free(bpf_code_dump, FALSE);
+  bpf_code_markup = g_markup_escape_text(bpf_code_str, -1);
+  simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "<markup><tt>%s</tt></markup>", bpf_code_markup);
+
+  g_free(bpf_code_str);
+  g_free(bpf_code_markup);
+}
+#endif /* HAVE_PCAP_OPEN_DEAD && HAVE_BPF_IMAGE */
+
+
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+static void
 capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
   pcap_t *pd;
@@ -2563,7 +2717,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   GtkTreeModel *model;
   GtkTreePath *path = gtk_tree_path_new_from_string (path_str);
   gboolean enabled;
-  GtkWidget *pcap_ng_cb;
+  GtkWidget *pcap_ng_cb, *filter_cm;
   interface_t device;
   gchar *name;
   gint index = -1;
@@ -2622,6 +2776,10 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, index);
   g_array_insert_val(global_capture_opts.all_ifaces, index, device);
   gtk_tree_path_free (path);
+  filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY);
+  if (strcmp(gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm)),"") != 0) {
+    capture_all_filter_check_syntax_cb(NULL, NULL);
+  }
 }
 
 void enable_selected_interface(gchar *name, gboolean selected)
@@ -3854,6 +4012,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *resolv_fr, *resolv_vb,
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *e_resolv_cb,
                 *bbox, *close_bt,
+                *all_filter_cm, *all_filter_te, *all_filter_bt, *all_filter_hb,
+                *all_compile_bt, *all_vb,
                 *help_bt;
 #ifdef HAVE_AIRPCAP
   GtkWidget     *decryption_cb;
@@ -3875,6 +4035,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkTreeSelection  *selection;
   GtkTreeViewColumn *column;
   gboolean          if_present = TRUE;
+  GList             *all_cfilter_list, *cf_entry;
 
   if (interfaces_dialog_window_present()) {
     destroy_if_window();
@@ -4071,9 +4232,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_hb), 3);
   gtk_box_pack_start(GTK_BOX(capture_vb), main_hb, FALSE, FALSE, 0);
+  all_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+  gtk_container_set_border_width(GTK_CONTAINER(all_vb), 0);
+  gtk_box_pack_start(GTK_BOX(main_hb), all_vb, TRUE, TRUE, 0);
+
   all_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(all_hb), 0);
-  gtk_box_pack_start(GTK_BOX(main_hb), all_hb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(all_vb), all_hb, TRUE, TRUE, 0);
 
   left_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(left_vb), 0);
@@ -4128,6 +4293,58 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   right_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(right_vb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), right_vb, FALSE, FALSE, 0);
+
+  /* Filter row */
+  all_filter_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
+  gtk_box_pack_start(GTK_BOX(all_vb), all_filter_hb, FALSE, FALSE, 0);
+
+  all_filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY);
+  g_signal_connect(all_filter_bt, "clicked", G_CALLBACK(capture_filter_construct_cb), NULL);
+  g_signal_connect(all_filter_bt, "destroy", G_CALLBACK(filter_button_destroy_cb), NULL);
+  gtk_widget_set_tooltip_text(all_filter_bt,
+    "Select a capture filter for all selected interfaces to reduce the amount of packets to be captured. "
+    "See \"Capture Filters\" in the online help for further information how to use it."
+    );
+  gtk_box_pack_start(GTK_BOX(all_filter_hb), all_filter_bt, FALSE, FALSE, 3);
+
+  /* Create the capture filter combo box*/
+  all_filter_cm = gtk_combo_box_text_new_with_entry();
+  all_cfilter_list = (GList *)g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_FL_KEY);
+  g_object_set_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_FL_KEY, all_cfilter_list);
+  g_object_set_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY, all_filter_cm);
+  all_filter_te = gtk_bin_get_child(GTK_BIN(all_filter_cm));
+  colorize_filter_te_as_empty(all_filter_te);
+  g_signal_connect(all_filter_te, "changed", G_CALLBACK(capture_all_filter_check_syntax_cb), NULL);
+  g_signal_connect(all_filter_te, "destroy", G_CALLBACK(capture_filter_destroy_cb), NULL);
+
+  for (cf_entry = all_cfilter_list; cf_entry != NULL; cf_entry = g_list_next(cf_entry)) {
+    if (cf_entry->data && (strlen((const char *)cf_entry->data) > 0)) {
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(all_filter_cm), (const gchar *)cf_entry->data);
+    }
+  }
+  if (global_capture_opts.default_options.cfilter && (strlen(global_capture_opts.default_options.cfilter) > 0)) {
+    gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(all_filter_cm), global_capture_opts.default_options.cfilter);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(all_filter_cm), 0);
+  }
+
+  gtk_widget_set_tooltip_text(all_filter_cm,
+    "Enter a capture filter for all interfaces to reduce the amount of packets to be captured. "
+    "See \"Capture Filters\" in the online help for further information how to use it. "
+    "Syntax checking can be disabled in Preferences -> Capture -> Syntax check capture filter."
+    );
+  gtk_box_pack_start(GTK_BOX(all_filter_hb), all_filter_cm, TRUE, TRUE, 3);
+
+  /* let an eventually capture filters dialog know the text entry to fill in */
+  g_object_set_data(G_OBJECT(all_filter_bt), E_FILT_TE_PTR_KEY, all_filter_te);
+
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+  all_compile_bt = gtk_button_new_with_label("Compile selected BPFs");
+  g_signal_connect(all_compile_bt, "clicked", G_CALLBACK(capture_all_filter_compile_cb), NULL);
+  gtk_widget_set_tooltip_text(all_compile_bt,
+   "Compile the capture filter expression and show the BPF (Berkeley Packet Filter) code.");
+  /* We can't compile without any supported link-types, so disable the button in that case */
+  gtk_box_pack_start(GTK_BOX(all_filter_hb), all_compile_bt, FALSE, FALSE, 3);
+#endif
 
   /* Capture file-related options frame */
   file_fr = gtk_frame_new("Capture File(s)");
