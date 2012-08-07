@@ -3540,25 +3540,32 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
    num_services = tvb_get_letohs( tvb, offset);
    proto_tree_add_item(tree, hf_cip_sc_mult_serv_pack_num_services, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-   /* Add services */
-   cip_req_info = (cip_req_info_t*)p_get_proto_data( pinfo->fd, proto_cip );
-   if ( cip_req_info )
+   /* Ensure a rough sanity check */
+   if (num_services*2 > tvb_reported_length_remaining(tvb, offset+2))
    {
-      if ( cip_req_info->pData == NULL )
-      {
-         mr_mult_req_info = se_alloc(sizeof(mr_mult_req_info_t));
-         mr_mult_req_info->service = SC_MULT_SERV_PACK;
-         mr_mult_req_info->num_services = num_services;
-         mr_mult_req_info->requests = se_alloc(sizeof(cip_req_info_t)*num_services);
-         memset(mr_mult_req_info->requests, 0, sizeof(cip_req_info_t)*num_services);
-         cip_req_info->pData = mr_mult_req_info;
-      }
-      else
-      {
-         mr_mult_req_info = (mr_mult_req_info_t*)cip_req_info->pData;
-         if ( mr_mult_req_info && mr_mult_req_info->num_services != num_services )
-            mr_mult_req_info = NULL;
-      }
+        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Multiple Service Packet too many services for packet");
+   }
+   else
+   {
+       /* Add services */
+       cip_req_info = (cip_req_info_t*)p_get_proto_data( pinfo->fd, proto_cip );
+       if ( cip_req_info )
+       {
+          if ( cip_req_info->pData == NULL )
+          {
+             mr_mult_req_info = se_alloc(sizeof(mr_mult_req_info_t));
+             mr_mult_req_info->service = SC_MULT_SERV_PACK;
+             mr_mult_req_info->num_services = num_services;
+             mr_mult_req_info->requests = se_alloc0(sizeof(cip_req_info_t)*num_services);
+             cip_req_info->pData = mr_mult_req_info;
+          }
+          else
+          {
+             mr_mult_req_info = (mr_mult_req_info_t*)cip_req_info->pData;
+             if ( mr_mult_req_info && mr_mult_req_info->num_services != num_services )
+                mr_mult_req_info = NULL;
+          }
+       }
    }
 
    for( i=0; i < num_services; i++ )
