@@ -37,23 +37,22 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-12.html">wnpa-sec-2012-12</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-13.html">wnpa-sec-2012-13</ulink>
           </para>
           <para>
-            .
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.8: r????? -->
-            <!-- Fixed in trunk-1.6: r????? -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
+	    The DCP ETSI dissector could trigger a zero division. Reported by
+	    Laurent Butti.
+            <!-- Fixed in trunk: r44247 -->
+            <!-- Fixed in trunk-1.8: r44309 -->
+            <!-- Fixed in trunk-1.6: r44310 -->
+            <!-- Fixed in trunk-1.4: r44311 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7566">Bug
+            7566</ulink>)
           </para>
-          <para>Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.</para>
-<!--
-          <para>
+          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
+          <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para>
--->
+          </para> -->
         </listitem>
 
       </itemizedlist>
