@@ -62,13 +62,14 @@ static gboolean global_rlc_headers_expected = FALSE;
 /* Heuristic dissection */
 static gboolean global_rlc_heur = FALSE;
 
-/* Preferences to expect ciphered data*/
+/* Preferences to expect ciphered data */
 static gboolean global_rlc_ciphered = FALSE;
 
 /* Stop trying to do reassembly if this is true. */
 static gboolean fail = FALSE;
 
 /* LI size preference */
+#define RLC_LI_UPPERLAYER 255 /* LI-size comes from rlc_info struct rather than preference */
 static gint global_rlc_li_size = RLC_LI_UPPERLAYER;
 static const enum_val_t li_size_enumvals[] = {
 	{"7 bits", "7 bits", RLC_LI_7BITS},
@@ -140,6 +141,12 @@ enum rlc_channel_type {
 	RLC_PS_DTCH,
 	RLC_DL_CTCH,
 	RLC_UNKNOWN_CH
+};
+
+static const value_string rlc_dir_vals[] = {
+	{ P2P_DIR_UL, "Uplink" },
+	{ P2P_DIR_DL, "Downlink" },
+	{ 0, NULL }
 };
 
 static const true_false_string rlc_header_only_val = {
@@ -1461,7 +1468,8 @@ static void add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * f
 
 	item = proto_tree_add_item(tree, hf_rlc_channel, NULL, 0, 0, ENC_NA);
 	channel_tree = proto_item_add_subtree(item, ett_rlc_channel);
-	proto_item_append_text(item, " (rbid: %u, dir: %u, uid: %u)", rlcinf->rbid[fpinf->cur_tb], pinfo->p2p_dir, rlcinf->urnti[fpinf->cur_tb]);
+	proto_item_append_text(item, " (rbid: %u, dir: %s, uid: %u)", rlcinf->rbid[fpinf->cur_tb], 
+	                       val_to_str_const(pinfo->p2p_dir, rlc_dir_vals, "Unknown"), rlcinf->urnti[fpinf->cur_tb]);
 	PROTO_ITEM_SET_GENERATED(item);
 	item = proto_tree_add_uint(channel_tree, hf_rlc_channel_rbid, NULL, 0, 0, rlcinf->rbid[fpinf->cur_tb]);
 	PROTO_ITEM_SET_GENERATED(item);
@@ -1517,11 +1525,11 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 
 	if (global_rlc_li_size == RLC_LI_UPPERLAYER) {
 		if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
-			li_is_on_2_bytes = (tvb_length(tvb) > 126) ? TRUE : FALSE;
+			li_is_on_2_bytes = (tvb_length(tvb) > 125) ? TRUE : FALSE;
 		} else {
 			li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
 		}
-	} else { /* Overrid rlcinf configuration with preference. */
+	} else { /* Override rlcinf configuration with preference. */
 		li_is_on_2_bytes = (global_rlc_li_size == RLC_LI_15BITS) ? TRUE : FALSE;
 	}
 
@@ -1953,7 +1961,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 		} else {
 			li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
 		}
-	} else { /* Overrid rlcinf configuration with preference. */
+	} else { /* Override rlcinf configuration with preference. */
 		li_is_on_2_bytes = (global_rlc_li_size == RLC_LI_15BITS) ? TRUE : FALSE;
 	}
 
@@ -2282,7 +2290,13 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				rlcModePresent = TRUE;
 				break;
 			case RLC_DIRECTION_TAG:
-				fpi->is_uplink = (tvb_get_guint8(tvb, offset) == DIRECTION_UPLINK) ? TRUE : FALSE;
+				if (tvb_get_guint8(tvb, offset) == DIRECTION_UPLINK) {
+					fpi->is_uplink = TRUE;
+					pinfo->p2p_dir = P2P_DIR_UL;
+				} else {
+					fpi->is_uplink = FALSE;
+					pinfo->p2p_dir = P2P_DIR_DL;
+				}
 				offset++;
 				break;
 			case RLC_URNTI_TAG:
@@ -2360,6 +2374,9 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case UMTS_CHANNEL_TYPE_CTCH:
 			dissect_rlc_ctch(rlc_tvb, pinfo, tree);
+			break;
+		case UMTS_CHANNEL_TYPE_BCCH:
+			dissect_rlc_bcch(rlc_tvb, pinfo, tree);
 			break;
 
 		default:
@@ -2533,7 +2550,7 @@ proto_register_rlc(void)
 		},
 		{ &hf_rlc_channel_dir,
 		  { "Direction", "rlc.channel.dir",
-		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		    FT_UINT8, BASE_DEC, VALS(rlc_dir_vals), 0, NULL, HFILL }
 		},
 		{ &hf_rlc_channel_ueid,
 		  { "User Equipment ID", "rlc.channel.ueid",

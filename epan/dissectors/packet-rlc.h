@@ -38,8 +38,7 @@ enum rlc_mode {
 enum rlc_li_size {
 	RLC_LI_VARIABLE,
 	RLC_LI_7BITS,
-	RLC_LI_15BITS,
-	RLC_LI_UPPERLAYER /* Let upper layers decide LI-size rather than preference. */
+	RLC_LI_15BITS
 };
 
 #define MAX_RLC_CHANS 64
@@ -86,6 +85,7 @@ typedef struct rlc_info
 #define UMTS_CHANNEL_TYPE_DCCH 3
 #define UMTS_CHANNEL_TYPE_PS_DTCH 4
 #define UMTS_CHANNEL_TYPE_CTCH 5
+#define UMTS_CHANNEL_TYPE_BCCH 6
 
 #define RLC_CHANNEL_TYPE_TAG    0x02
 /* 1 byte */
