@@ -35,6 +35,8 @@
 #include "capture_opts.h"
 #include <gtk/gtk.h>
 
+#define CR_MAIN_NB "compile_results_main_notebook"
+
 /** Initialize background capture filter syntax checking
  */
 void capture_filter_init(void);

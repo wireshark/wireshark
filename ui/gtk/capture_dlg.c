@@ -206,6 +206,7 @@ enum
  *       if it exists and if its creation is complete.
  */
 static GtkWidget *cap_open_w = NULL, *opt_edit_w = NULL, *ok_bt, *new_interfaces_w = NULL;
+static GtkWidget *compile_bpf_w = NULL;
 static gboolean   cap_open_complete;  /* valid only if cap_open_w != NULL */
 static const gchar *pipe_name;
 static const gchar *selected_name;
@@ -1956,6 +1957,75 @@ capture_remote_combo_add_recent(gchar *s)
 #endif /* HAVE_PCAP_REMOTE */
 
 #if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+
+static void
+compile_bpf_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
+{
+  /* Note that we no longer have an "About Wireshark" dialog box. */
+  compile_bpf_w = NULL;
+}
+
+static void
+add_page(gchar *name, gchar *text)
+{
+  GtkWidget *page, *msg_label, *page_lb;
+
+  page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
+  gtk_container_set_border_width(GTK_CONTAINER(page), 12);
+  g_object_set(gtk_widget_get_settings(page),
+    "gtk-label-select-on-focus", FALSE, NULL);
+  msg_label = gtk_label_new(text);
+  gtk_label_set_markup(GTK_LABEL(msg_label), text);
+  gtk_box_pack_start(GTK_BOX(page), msg_label, TRUE, TRUE, 0);
+  page_lb = gtk_label_new(name);
+  gtk_label_set_markup(GTK_LABEL(page_lb), name);
+  gtk_notebook_append_page(GTK_NOTEBOOK(g_object_get_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB)), page, page_lb);
+  gtk_widget_show_all(compile_bpf_w);
+}
+
+static void
+compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
+{
+  GtkWidget   *main_box, *main_nb, *bbox, *ok_btn;
+
+  if (compile_bpf_w != NULL) {
+    /* There's already an "About Wireshark" dialog box; reactivate it. */
+    reactivate_window(compile_bpf_w);
+    return;
+  }
+
+  compile_bpf_w = dlg_window_new("Compile selected BPFs");
+  /* set the initial position (must be done, before show is called!) */
+  /* default position is not appropriate for the about dialog */
+  gtk_window_set_position(GTK_WINDOW(compile_bpf_w), GTK_WIN_POS_CENTER_ON_PARENT);
+  gtk_window_set_default_size(GTK_WINDOW(compile_bpf_w), 600, 400);
+  gtk_container_set_border_width(GTK_CONTAINER(compile_bpf_w), 6);
+
+  main_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
+  gtk_container_set_border_width(GTK_CONTAINER(main_box), 6);
+  gtk_container_add(GTK_CONTAINER(compile_bpf_w), main_box);
+
+  main_nb = gtk_notebook_new();
+  gtk_box_pack_start(GTK_BOX(main_box), main_nb, TRUE, TRUE, 0);
+  g_object_set_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB, main_nb);
+
+  /* Button row */
+  bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+  gtk_box_pack_start(GTK_BOX(main_box), bbox, FALSE, FALSE, 0);
+
+  ok_btn = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  gtk_widget_grab_focus(ok_btn);
+  gtk_widget_grab_default(ok_btn);
+  window_set_cancel_button(compile_bpf_w, ok_btn, window_cancel_button_cb);
+
+  g_signal_connect(compile_bpf_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  g_signal_connect(compile_bpf_w, "destroy", G_CALLBACK(compile_bpf_destroy_cb), NULL);
+
+  gtk_widget_show_all(compile_bpf_w);
+  window_present(compile_bpf_w);
+}
+
+
 static void
 capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
@@ -1965,9 +2035,8 @@ capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   GtkWidget *filter_cm;
   gchar     *filter_text;
   guint     i;
-  gchar *bpf_code_str;
-  gchar *bpf_code_markup;
-  GString *bpf_code_dump = g_string_new("");
+  gboolean  set = FALSE;
+  char      *str;
 
   filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY);
 
@@ -1979,11 +2048,15 @@ capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
 
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
       device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-      if (!device.selected) {
+      if (!device.selected || device.hidden) {
         continue;
       }
       if (device.active_dlt == -1) {
         g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
+      }
+      if (!set) {
+        set = TRUE;
+        compile_results_prep(NULL, NULL);
       }
       pd = pcap_open_dead(device.active_dlt, DUMMY_SNAPLENGTH);
 
@@ -1995,31 +2068,28 @@ capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
       if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, 0) < 0) {
 #endif
         g_mutex_unlock(pcap_compile_mtx);
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", pcap_geterr(pd));
+        str = g_markup_printf_escaped("<span background='red'><b>%s</b></span>", device.name);
+        add_page(str, g_markup_escape_text(pcap_geterr(pd), -1)); 
       } else {
+        GString *bpf_code_dump = g_string_new("");
         struct bpf_insn *insn = fcode.bf_insns;
         int i, n = fcode.bf_len;
-
-        g_mutex_unlock(pcap_compile_mtx);
-        g_string_append(bpf_code_dump, "\nInterface ");
-        g_string_append(bpf_code_dump, device.name);
-        g_string_append(bpf_code_dump, ":\n");
+        gchar *bpf_code_str;
 
         for (i = 0; i < n; ++insn, ++i) {
             g_string_append(bpf_code_dump, bpf_image(insn, i));
             g_string_append(bpf_code_dump, "\n");
         }
+        bpf_code_str = g_string_free(bpf_code_dump, FALSE);
+        g_mutex_unlock(pcap_compile_mtx);
+        str = g_markup_printf_escaped("<span background='green'><b>%s</b></span>", device.name);
+        add_page(str, g_markup_escape_text(bpf_code_str, -1)); 
+        g_free(bpf_code_str);
       }
       g_free(filter_text);
       pcap_close(pd);
     }
   }
-  bpf_code_str = g_string_free(bpf_code_dump, FALSE);
-  bpf_code_markup = g_markup_escape_text(bpf_code_str, -1);
-  simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "<markup><tt>%s</tt></markup>", bpf_code_markup);
-
-  g_free(bpf_code_str);
-  g_free(bpf_code_markup);
 }
 #endif /* HAVE_PCAP_OPEN_DEAD && HAVE_BPF_IMAGE */
 
