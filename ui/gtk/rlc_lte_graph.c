@@ -125,11 +125,13 @@ struct element_list {
 struct axis {
     struct graph *g;			/* which graph we belong to */
     GtkWidget *drawing_area;
+    /* Double-buffering to avoid flicker */
 #if GTK_CHECK_VERSION(2,22,0)
     cairo_surface_t *surface[2];
 #else
     GdkPixmap *pixmap[2];
 #endif
+    /* Which of the 2 buffers we are currently showing */
     int displayed;
 #define AXIS_ORIENTATION	1 << 0
     int flags;
@@ -194,6 +196,8 @@ struct graph {
     GtkWidget *toplevel;	/* keypress handler needs this */
     GtkWidget *drawing_area;
     PangoFontDescription *font;	/* font used for annotations etc. */
+
+    /* Double-buffering */
 #if GTK_CHECK_VERSION(2,22,0)
     cairo_surface_t *title_surface;
     cairo_surface_t *surface[2];
@@ -302,7 +306,6 @@ static void axis_destroy(struct axis * );
 static int get_label_dim(struct axis * , int , double );
 
 static void toggle_crosshairs(struct graph *);
-static void cross_xor(struct graph * , int x, int y);
 static void cross_draw(struct graph * , int x, int y);
 static void cross_erase(struct graph * );
 static gboolean motion_notify_event(GtkWidget * , GdkEventMotion * , gpointer );
@@ -1125,14 +1128,13 @@ static void graph_pixmap_draw(struct graph *g)
     cairo_rectangle(cr, 0, 0, g->wp.width, g->wp.height);
     cairo_fill(cr);
     cairo_destroy(cr);
-    cr = NULL;
 
     /* Create one cairo_t for use with all of the lines, rather than continually
        creating and destroying one for each line */
 #if GTK_CHECK_VERSION(2,22,0)
-    cr_lines = cairo_create(g->surface[1^g->displayed]);
+    cr_lines = cairo_create(g->surface[not_disp]);
 #else
-    cr_lines = gdk_cairo_create(g->pixmap[1^g->displayed]);
+    cr_lines = gdk_cairo_create(g->pixmap[not_disp]);
 #endif
 
     /* Line width is always 1 pixel */
@@ -1187,10 +1189,10 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
     }
 
     /* Map point into graph area, and round to nearest int */
-    xx1 = (int )rint(e->p.line.dim.x1 + g->geom.x - g->wp.x);
-    xx2 = (int )rint(e->p.line.dim.x2 + g->geom.x - g->wp.x);
-    yy1 = (int )rint((g->geom.height-1-e->p.line.dim.y1) + g->geom.y-g->wp.y);
-    yy2 = (int )rint((g->geom.height-1-e->p.line.dim.y2) + g->geom.y-g->wp.y);
+    xx1 = (int)rint(e->p.line.dim.x1 + g->geom.x - g->wp.x);
+    xx2 = (int)rint(e->p.line.dim.x2 + g->geom.x - g->wp.x);
+    yy1 = (int)rint((g->geom.height-1-e->p.line.dim.y1) + g->geom.y-g->wp.y);
+    yy2 = (int)rint((g->geom.height-1-e->p.line.dim.y2) + g->geom.y-g->wp.y);
 
     /* If line completely out of the area, we won't show it  */
     if ((xx1<0 && xx2<0) || (xx1>=g->wp.width  && xx2>=g->wp.width) ||
@@ -1682,7 +1684,7 @@ static void graph_select_segment(struct graph *g, int x, int y)
 
     set_busy_cursor(gtk_widget_get_window(g->drawing_area));
 
-    for (list=g->elists; list; list=list->next)
+    for (list=g->elists; list; list=list->next) {
         for (e=list->elements; e->type != ELMT_NONE; e++) {
             switch (e->type) {
                 case ELMT_LINE:
@@ -1695,6 +1697,7 @@ static void graph_select_segment(struct graph *g, int x, int y)
                     break;
             }
         }
+    }
 
 
     if (num) {
@@ -1706,27 +1709,33 @@ static int line_detect_collision(struct element *e, int x, int y)
 {
     int xx1, yy1, xx2, yy2;
 
+    /* Get sorted x, y co-ordinates for line */
     if (e->p.line.dim.x1 < e->p.line.dim.x2) {
-        xx1 = (int )rint(e->p.line.dim.x1);
-        xx2 = (int )rint(e->p.line.dim.x2);
+        xx1 = (int)rint(e->p.line.dim.x1);
+        xx2 = (int)rint(e->p.line.dim.x2);
     } else {
-        xx1 = (int )rint(e->p.line.dim.x2);
-        xx2 = (int )rint(e->p.line.dim.x1);
+        xx1 = (int)rint(e->p.line.dim.x2);
+        xx2 = (int)rint(e->p.line.dim.x1);
     }
     if (e->p.line.dim.y1 < e->p.line.dim.y2) {
-        yy1 = (int )rint(e->p.line.dim.y1);
-        yy2 = (int )rint(e->p.line.dim.y2);
+        yy1 = (int)rint(e->p.line.dim.y1);
+        yy2 = (int)rint(e->p.line.dim.y2);
     } else {
-        yy1 = (int )rint(e->p.line.dim.y2);
-        yy2 = (int )rint(e->p.line.dim.y1);
+        yy1 = (int)rint(e->p.line.dim.y2);
+        yy2 = (int)rint(e->p.line.dim.y1);
     }
     /*
     printf("line: (%d,%d)->(%d,%d), clicked: (%d,%d)\n", xx1, yy1, xx2, yy2, x, y);
      */
-    if ((xx1==x && xx2==x && yy1<=y && y<=yy2)||(yy1==y && yy2==y && xx1<=x && x<=xx2))
+
+    /* N.B. won't match with diagonal lines... */
+    if ((xx1==x && xx2==x && yy1<=y && y<=yy2)|   /* lies along vertical line */
+        (yy1==y && yy2==y && xx1<=x && x<=xx2)) { /* lies along horizontal line */
         return TRUE;
-    else
+    }
+    else {
         return FALSE;
+    }
 }
 
 
@@ -2017,7 +2026,7 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
     } else if (event->button == MOUSE_BUTTON_MIDDLE) {
         do_zoom_mouse(g, event);
     } else if (event->button == MOUSE_BUTTON_LEFT) {
-        graph_select_segment(g, (int )event->x, (int )event->y);
+        graph_select_segment(g, (int)event->x, (int)event->y);
     }
 
     unset_busy_cursor(gtk_widget_get_window(g->drawing_area));
@@ -2036,7 +2045,7 @@ static gboolean button_release_event(GtkWidget *widget _U_, GdkEventButton *even
     return TRUE;
 }
 
-static gboolean motion_notify_event (GtkWidget *widget _U_, GdkEventMotion *event, gpointer user_data)
+static gboolean motion_notify_event(GtkWidget *widget _U_, GdkEventMotion *event, gpointer user_data)
 {
     struct graph *g = user_data;
     int x, y;
@@ -2171,38 +2180,6 @@ static void toggle_crosshairs(struct graph *g)
     }
 }
 
-static void cross_xor (struct graph *g, int x, int y)
-{
-#if GTK_CHECK_VERSION(2,22,0)
-    GdkColor color_gray15 = {0x0, 0xffff, 0xffff, 0xffff};
-    cairo_t *cr;
-
-    if (x > g->wp.x && x < g->wp.x+g->wp.width &&
-                y >= g->wp.y && y < g->wp.y+g->wp.height) {
-        /* Draw horizontal line */
-        cr = gdk_cairo_create(gtk_widget_get_window(g->drawing_area));
-        cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
-        gdk_cairo_set_source_color (cr, &color_gray15);
-        cairo_set_line_width (cr, 1.0);
-        cairo_move_to(cr,  g->wp.x+0.5, y+0.5);
-        cairo_line_to(cr,  g->wp.x + g->wp.width+0.5, y+0.5);
-        /* Draw vertical line */
-        cairo_move_to(cr,  x+0.5, g->wp.y+0.5);
-        cairo_line_to(cr,  x+0.5, g->wp.y + g->wp.height+0.5);
-        cairo_stroke(cr);
-        cairo_destroy(cr);
-    }
-#else
-    if (x > g->wp.x && x < g->wp.x+g->wp.width &&
-        y >= g->wp.y && y < g->wp.y+g->wp.height) {
-        gdk_draw_line(gtk_widget_get_window(g->drawing_area), xor_gc, g->wp.x,
-                      y, g->wp.x + g->wp.width, y);
-        gdk_draw_line(gtk_widget_get_window(g->drawing_area), xor_gc, x,
-                      g->wp.y, x, g->wp.y + g->wp.height);
-    }
-#endif /* GTK_CHECK_VERSION(2,22,0) */
-}
-
 static void cross_draw(struct graph *g, int x, int y)
 {
     /* Shouldn't draw twice onto the same position if haven't erased in the
@@ -2210,7 +2187,27 @@ static void cross_draw(struct graph *g, int x, int y)
     if (g->cross.erase_needed && (g->cross.x == x) && (g->cross.y == y)) {
         return;
     }
-    cross_xor(g, x, y);
+
+    /* Draw the cross */
+    if (x > g->wp.x && x < g->wp.x+g->wp.width &&
+        y >= g->wp.y && y < g->wp.y+g->wp.height) {
+
+        cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(g->drawing_area));
+        gdk_cairo_set_source_color(cr, &g->style.seq_color);
+        cairo_set_line_width(cr, 1.0);
+
+        /* Horizonal line */
+        cairo_move_to(cr, g->wp.x+0.5, y+0.5);
+        cairo_line_to(cr, g->wp.x + g->wp.width+0.5, y+0.5);
+
+        /* Vertical line */
+        cairo_move_to(cr, x+0.5, g->wp.y+0.5);
+        cairo_line_to(cr, x+0.5, g->wp.y + g->wp.height+0.5);
+        cairo_stroke(cr);
+        cairo_destroy(cr);
+    }
+
+    /* Update state */
     g->cross.x = x;
     g->cross.y = y;
     g->cross.erase_needed = TRUE;
@@ -2218,8 +2215,17 @@ static void cross_draw(struct graph *g, int x, int y)
 
 static void cross_erase(struct graph *g)
 {
-    cross_xor (g, g->cross.x, g->cross.y);
-    g->cross.erase_needed = 0;
+    int x = g->cross.x;
+    int y = g->cross.y;
+
+    if (x >  g->wp.x && x < g->wp.x+g->wp.width &&
+        y >= g->wp.y && y < g->wp.y+g->wp.height) {
+
+        /* Just redraw what is in the pixmap buffer */
+        graph_pixmap_display(g);
+    }
+
+    g->cross.erase_needed = FALSE;
 }
 
 
