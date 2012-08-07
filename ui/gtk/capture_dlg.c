@@ -727,18 +727,17 @@ capture_all_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
       device.cfilter = g_strdup(filter_text);
       g_array_insert_val(global_capture_opts.all_ifaces, i, device);
       new_filter = TRUE;
-      update_filter_string(device.name, filter_text);
-    }
-    if (new_filter) {
       g_mutex_lock(cfc_data_mtx);
       /* Ruthlessly clobber the current state. */
       g_free(cfc_data.filter_text);
+      cfc_data.dlt = device.active_dlt;
       cfc_data.filter_text = filter_text;
       cfc_data.filter_te = filter_te;
       cfc_data.state = CFC_PENDING;
       DEBUG_SYNTAX_CHECK("?", "pending");
       g_cond_signal(cfc_data_cond);
       g_mutex_unlock(cfc_data_mtx);
+      update_filter_string(device.name, filter_text);
     }
   }
 }
@@ -1992,7 +1991,7 @@ compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
 
   if (compile_bpf_w != NULL) {
     /* There's already an "About Wireshark" dialog box; reactivate it. */
-    reactivate_window(compile_bpf_w);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The requested dialog is already open. Please close it first.");
     return;
   }
 
@@ -2001,6 +2000,8 @@ compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
   /* default position is not appropriate for the about dialog */
   gtk_window_set_position(GTK_WINDOW(compile_bpf_w), GTK_WIN_POS_CENTER_ON_PARENT);
   gtk_window_set_default_size(GTK_WINDOW(compile_bpf_w), 600, 400);
+  gtk_window_set_modal(GTK_WINDOW(compile_bpf_w), TRUE);
+  gtk_window_set_transient_for(GTK_WINDOW(compile_bpf_w), GTK_WINDOW(cap_open_w));
   gtk_container_set_border_width(GTK_CONTAINER(compile_bpf_w), 6);
 
   main_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
