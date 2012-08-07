@@ -3349,7 +3349,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         guint64 no_of_pdus[MAX_PDU_BLOCKS];
         guint header_length = 0;
         guint8 newieflags = 0;
-        guint8 hsdsch_physical_layer_category = 0;
+        /*guint8 hsdsch_physical_layer_category = 0;*/
 
         umts_mac_info *macinf;
         rlc_info *rlcinf;
