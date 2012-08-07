@@ -861,7 +861,7 @@ help_menu_wireshark_flt_cb(GtkAction *action _U_, gpointer user_data _U_)
 }
 
 static void
-help_menu_Tshark_cb(GtkAction *action _U_, gpointer user_data _U_)
+help_menu_TShark_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TSHARK));
 }
@@ -1733,7 +1733,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Help/ManualPages",           NULL,                           "ManualPages",          NULL,                           NULL,               NULL },
    { "/Help/ManualPages/Wireshark", NULL,                           "Wireshark",            NULL,                           NULL,               G_CALLBACK(help_menu_wireshark_cb) },
    { "/Help/ManualPages/WiresharkFilter", NULL,                     "Wireshark Filter",     NULL,                           NULL,               G_CALLBACK(help_menu_wireshark_flt_cb) },
-   { "/Help/ManualPages/TShark",    NULL,                           "Tshark",            NULL,                           NULL,               G_CALLBACK(help_menu_Tshark_cb) },
+   { "/Help/ManualPages/TShark",    NULL,                           "TShark",            NULL,                           NULL,               G_CALLBACK(help_menu_TShark_cb) },
    { "/Help/ManualPages/RawShark",  NULL,                           "RawShark",             NULL,                           NULL,               G_CALLBACK(help_menu_RawShark_cb) },
    { "/Help/ManualPages/Dumpcap",   NULL,                           "Dumpcap",              NULL,                           NULL,               G_CALLBACK(help_menu_Dumpcap_cb) },
    { "/Help/ManualPages/Mergecap",  NULL,                           "Mergecap",             NULL,                           NULL,               G_CALLBACK(help_menu_Mergecap_cb) },
