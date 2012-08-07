@@ -32,10 +32,6 @@
 #include <math.h>
 #include <string.h>
 
-#if defined(GDK_DISABLE_DEPRECATED)
-# undef GDK_DISABLE_DEPRECATED
-#endif
-
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #if GTK_CHECK_VERSION(3,0,0)
