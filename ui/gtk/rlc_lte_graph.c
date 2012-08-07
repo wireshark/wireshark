@@ -2197,12 +2197,12 @@ static void cross_draw(struct graph *g, int x, int y)
         cairo_set_line_width(cr, 1.0);
 
         /* Horizonal line */
-        cairo_move_to(cr, g->wp.x+0.5, y+0.5);
-        cairo_line_to(cr, g->wp.x + g->wp.width+0.5, y+0.5);
+        cairo_move_to(cr, g->wp.x, y);
+        cairo_line_to(cr, g->wp.x + g->wp.width, y);
 
         /* Vertical line */
-        cairo_move_to(cr, x+0.5, g->wp.y+0.5);
-        cairo_line_to(cr, x+0.5, g->wp.y + g->wp.height+0.5);
+        cairo_move_to(cr, x, g->wp.y);
+        cairo_line_to(cr, x, g->wp.y + g->wp.height);
         cairo_stroke(cr);
         cairo_destroy(cr);
     }
