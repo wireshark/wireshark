@@ -1,27 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="de_DE">
-<!--
-  $Id$
- 
-  Wireshark - Network traffic analyzer
-  By Gerald Combs <gerald@wireshark.org>
-  Copyright 1998 Gerald Combs
- 
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
- 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
- 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
--->
 <context>
     <name>ByteViewTab</name>
     <message>
@@ -40,23 +19,47 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enable &amp;MAC name resolution</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enable &amp;transport name resolution</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enable &amp;network name resolution</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use &amp;external name resolver</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>All Files (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;MAC name resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Transport name resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Network name resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;External name resolver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>unknown file format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>error opening file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>unknown</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -112,16 +115,16 @@
         <translation></translation>
     </message>
     <message>
-        <source>&lt;h1&gt;Files&lt;/h1&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>&lt;h1&gt;Online&lt;/h1&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <source>not found)</source>
-        <translation></translation>
+        <source>&lt;h1&gt;Recent Files&lt;/h1&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not found</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -219,14 +222,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>ManuelPages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Contents</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Wireshark Filter</source>
         <translation type="unfinished"></translation>
     </message>
@@ -271,11 +266,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>About Wireshark</source>
+        <source>Ask (Q&amp;&amp;A)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Ask (Q&amp;&amp;A)</source>
+        <source>Manual pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;About Wireshark</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -302,22 +309,6 @@
     </message>
     <message>
         <source> Ready to load file</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Packets: %1 Displayed: %2 Marked: %3</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source> Dropped: %1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source> Ignored: %1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source> Load time: %1:%2.%3</source>
         <translation></translation>
     </message>
     <message>
