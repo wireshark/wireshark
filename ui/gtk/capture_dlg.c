@@ -1999,11 +1999,11 @@ capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
       } else {
         struct bpf_insn *insn = fcode.bf_insns;
         int i, n = fcode.bf_len;
-        gchar str[100];
 
         g_mutex_unlock(pcap_compile_mtx);
-        sprintf(str, "\nInterface %s:\n", device.name);
-        g_string_append(bpf_code_dump, str);
+        g_string_append(bpf_code_dump, "\nInterface ");
+        g_string_append(bpf_code_dump, device.name);
+        g_string_append(bpf_code_dump, ":\n");
 
         for (i = 0; i < n; ++insn, ++i) {
             g_string_append(bpf_code_dump, bpf_image(insn, i));
