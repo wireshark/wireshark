@@ -686,7 +686,6 @@ capture_all_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
   GtkWidget *filter_cm, *filter_te;
   gchar *filter_text = NULL;
-  gboolean new_filter = FALSE;
   guint i;
 
   filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY);
@@ -726,7 +725,6 @@ capture_all_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
       g_array_remove_index(global_capture_opts.all_ifaces, i);
       device.cfilter = g_strdup(filter_text);
       g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-      new_filter = TRUE;
       g_mutex_lock(cfc_data_mtx);
       /* Ruthlessly clobber the current state. */
       g_free(cfc_data.filter_text);
