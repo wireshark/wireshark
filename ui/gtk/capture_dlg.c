@@ -206,7 +206,9 @@ enum
  *       if it exists and if its creation is complete.
  */
 static GtkWidget *cap_open_w = NULL, *opt_edit_w = NULL, *ok_bt, *new_interfaces_w = NULL;
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
 static GtkWidget *compile_bpf_w = NULL;
+#endif
 static gboolean   cap_open_complete;  /* valid only if cap_open_w != NULL */
 static const gchar *pipe_name;
 static const gchar *selected_name;
