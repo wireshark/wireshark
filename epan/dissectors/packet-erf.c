@@ -43,8 +43,6 @@
 #define EXT_HDR_TYPE_CHANNELISED    12
 #define EXT_HDR_TYPE_SIGNATURE      14
 
-#define DECHAN_MAX_AUG_INDEX 4
-
 struct erf_mc_hdlc_hdrx {
   guint16 byte01;
   guint8 byte2;
@@ -92,16 +90,19 @@ struct erf_eth_hdrx {
   guint8 byte1;
 };
 
+#define DECHAN_MAX_AUG_INDEX 4
+
 typedef struct sdh_g707_format_s
 {
   guint8 m_sdh_line_rate;
   guint8 m_vc_size ;
-    gint8 m_vc_index_array[DECHAN_MAX_AUG_INDEX];
+  gint8 m_vc_index_array[DECHAN_MAX_AUG_INDEX];
+  	/* XXX - this array is only of size 4, not 5... */
         /* i = 4 --> ITU-T letter #E - index of AUG-64
          * i = 3 --> ITU-T letter #D - index of AUG-16
          * i = 2 --> ITU-T letter #C - index of AUG-4,
-         * i = 1 --> ITU-T letter #B  -index of AUG-1
-         * i = 0 --> ITU-T letter #A  - index of AU3*/
+         * i = 1 --> ITU-T letter #B - index of AUG-1
+         * i = 0 --> ITU-T letter #A - index of AU3*/
 } sdh_g707_format_t;
 
 /* Initialize the protocol and registered fields */
@@ -684,8 +685,8 @@ channelised_fill_sdh_g707_format(sdh_g707_format_t* in_fmt, guint16 bit_flds, gu
   int i = 0; /* i = 4 --> ITU-T letter #E - index of AUG-64
               * i = 3 --> ITU-T letter #D - index of AUG-16
               * i = 2 --> ITU-T letter #C - index of AUG-4,
-              * i = 1 --> ITU-T letter #B  -index of AUG-1
-              * i = 0 --> ITU-T letter #A  - index of AU3*/
+              * i = 1 --> ITU-T letter #B - index of AUG-1
+              * i = 0 --> ITU-T letter #A - index of AU3*/
 
   if (0 == vc_size)
   {
@@ -693,6 +694,14 @@ channelised_fill_sdh_g707_format(sdh_g707_format_t* in_fmt, guint16 bit_flds, gu
     return -1;
   }
   in_fmt->m_vc_size = vc_size;
+
+  /* Sanity check to avoid crashes.  The speed is added as an item in
+   * dissect_channelised_ex_header(); presumably that is enough notification
+   * to the user of this bogusness?
+   */
+  if (speed > DECHAN_MAX_AUG_INDEX)
+    speed = DECHAN_MAX_AUG_INDEX;
+
   in_fmt->m_sdh_line_rate = speed;
   memset(&(in_fmt->m_vc_index_array[0]), 0xff, DECHAN_MAX_AUG_INDEX);
 
@@ -734,8 +743,8 @@ channelised_fill_vc_id_string(emem_strbuf_t* out_string, sdh_g707_format_t* in_f
     "VC4-256c", /*0x6*/};
 
   ep_strbuf_printf(out_string, "%s(",
-                           (in_fmt->m_vc_size < array_length(g_vc_size_strings)) ?
-                           g_vc_size_strings[in_fmt->m_vc_size] : g_vc_size_strings[0] );
+                   (in_fmt->m_vc_size < array_length(g_vc_size_strings)) ?
+                   g_vc_size_strings[in_fmt->m_vc_size] : g_vc_size_strings[0] );
 
   if (in_fmt->m_sdh_line_rate <= 0 )
   {
@@ -745,8 +754,8 @@ channelised_fill_vc_id_string(emem_strbuf_t* out_string, sdh_g707_format_t* in_f
       if ((in_fmt->m_vc_index_array[i] > 0) || (is_printed) )
       {
         ep_strbuf_append_printf(out_string, "%s%d",
-                                  ((is_printed)?", ":""),
-                                  in_fmt->m_vc_index_array[i]);
+                                ((is_printed)?", ":""),
+                                in_fmt->m_vc_index_array[i]);
         is_printed = TRUE;
       }
     }
@@ -1945,6 +1954,6 @@ proto_reg_handoff_erf(void)
   /* Get handles for Ethernet dissectors */
   ethwithfcs_handle    = find_dissector("eth_withfcs");
   ethwithoutfcs_handle = find_dissector("eth_withoutfcs");
-  
+
   sdh_handle = find_dissector("sdh");
 }
