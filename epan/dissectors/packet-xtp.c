@@ -32,6 +32,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 
@@ -727,6 +728,7 @@ dissect_xtp_first(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	return;
 }
 
+#define XTP_MAX_NSPANS 10000 /* Arbitrary. (Documentation link is dead.) */
 static void
 dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		guint32 offset) {
@@ -735,8 +737,7 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item *top_ti;
 	proto_tree *xtp_subtree;
 	struct xtp_ecntl ecntl[1];
-	guint64	*spans, *p;
-	guint32 spans_len;
+	guint spans_len;
 	guint i;
 
 	top_ti = proto_tree_add_text(tree, tvb, offset, len,
@@ -769,21 +770,15 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
 	len = len + XTP_HEADER_LEN - offset;
 	spans_len = 16 * ecntl->nspan;
+
 	if (len != spans_len) {
-		proto_item_append_text(top_ti,
-				", bogus spans field length (%u, must be %u)",
-				len, spans_len);
-		return;
+		expert_add_info_format(pinfo, top_ti, PI_MALFORMED, PI_ERROR, "Number of spans (%u) incorrect. Should be %u.", ecntl->nspan, len);
+		THROW(ReportedBoundsError);
 	}
-	/* spans(16n) */
-	spans = ep_alloc0(spans_len);
-	p = spans;
-	for (i = 0; i < ecntl->nspan*2; i++) {
-		guint64 span = tvb_get_ntohl(tvb, offset);
-		span <<= 32;
-		span += tvb_get_ntohl(tvb, offset+4);
-		*p++ = span;
-		offset += 8;
+
+	if (ecntl->nspan > XTP_MAX_NSPANS) {
+		expert_add_info_format(pinfo, top_ti, PI_MALFORMED, PI_ERROR, "Too many spans: %u", ecntl->nspan);
+		THROW(ReportedBoundsError);
 	}
 
 	/** add summary **/
@@ -815,15 +810,12 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				tvb, offset, 4, ecntl->nspan);
 	offset += 4;
 	/* spans(16n) */
-	p = spans;
 	for (i = 0; i < ecntl->nspan; i++) {
-		proto_tree_add_uint64(xtp_subtree, hf_xtp_ecntl_span_left,
-				tvb, offset, 8, *p);
-		p++;
+		proto_tree_add_item(xtp_subtree, hf_xtp_ecntl_span_left,
+				tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
-		proto_tree_add_uint64(xtp_subtree, hf_xtp_ecntl_span_right,
-				tvb, offset, 8, *p);
-		p++;
+		proto_tree_add_item(xtp_subtree, hf_xtp_ecntl_span_right,
+				tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 	}
 
