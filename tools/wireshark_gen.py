@@ -1641,7 +1641,7 @@ void proto_register_giop_@dissector_name@(void) {
 
    static hf_register_info hf[] = {
         /* field that indicates the currently ongoing request/reply exchange */
-		{&hf_operationrequest, {"Request_Operation","@protocol_name@.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+		{&hf_operationrequest, {"Request_Operation","giop-@dissector_name@.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
 
       /* no fields yet */
 

@@ -1563,7 +1563,7 @@ void proto_register_giop_cosnaming(void) {
 
    static hf_register_info hf[] = {
         /* field that indicates the currently ongoing request/reply exchange */
-		{&hf_operationrequest, {"Request_Operation","COSNAMING.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+		{&hf_operationrequest, {"Request_Operation","giop-cosnaming.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
 
       /* no fields yet */
 

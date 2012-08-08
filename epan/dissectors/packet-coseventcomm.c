@@ -745,7 +745,7 @@ void proto_register_giop_coseventcomm(void) {
 
    static hf_register_info hf[] = {
         /* field that indicates the currently ongoing request/reply exchange */
-		{&hf_operationrequest, {"Request_Operation","COSEVENTCOMM.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+		{&hf_operationrequest, {"Request_Operation","giop-coseventcomm.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
 
       /* no fields yet */
 

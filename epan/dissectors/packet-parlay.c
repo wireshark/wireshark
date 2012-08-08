@@ -100840,7 +100840,7 @@ void proto_register_giop_parlay(void) {
 
    static hf_register_info hf[] = {
         /* field that indicates the currently ongoing request/reply exchange */
-		{&hf_operationrequest, {"Request_Operation","PARLAY.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+		{&hf_operationrequest, {"Request_Operation","giop-parlay.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
 
       /* no fields yet */
 
