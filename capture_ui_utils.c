@@ -55,7 +55,8 @@ capture_dev_user_descr_find(const gchar *if_name)
 	int	lp = 0;
 	int	ct = 0;
 
-	if (prefs.capture_devices_descr == NULL) {
+	if ((prefs.capture_devices_descr == NULL) ||
+        (*prefs.capture_devices_descr == '\0')) {
 		/* There are no descriptions. */
 		return NULL;
 	}
@@ -108,7 +109,8 @@ capture_dev_user_linktype_find(const gchar *if_name)
 	gchar *p, *next;
 	long linktype;
 
-	if (prefs.capture_devices_linktypes == NULL) {
+	if ((prefs.capture_devices_linktypes == NULL) ||
+        (*prefs.capture_devices_linktypes == '\0')) {
 		/* There are no link-layer header types */
 		return -1;
 	}

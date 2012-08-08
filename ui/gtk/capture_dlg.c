@@ -3484,7 +3484,7 @@ static void local_hide_cb(GtkCellRendererToggle *cell _U_,
   gtk_tree_model_get (model, &iter, 0, &name, 1, &hide, -1);
 
   /* See if this is the currently selected capturing device */
-  if (prefs.capture_device != NULL) {
+  if ((prefs.capture_device != NULL) && (*prefs.capture_device != '\0')) {
      guint i;
      interface_t device;
      for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
@@ -3541,16 +3541,8 @@ apply_local_cb(GtkWidget *win _U_, gpointer *data _U_)
       g_free(name);
     }
     /* write new "hidden" string to preferences */
-    if (strlen(new_hide) > 0) {
-      g_free(prefs.capture_devices_hide);
-      prefs.capture_devices_hide = new_hide;
-    }
-    /* no "hidden" interfaces */
-    else {
-      g_free(prefs.capture_devices_hide);
-      g_free(new_hide);
-      prefs.capture_devices_hide = NULL;
-    }
+    g_free(prefs.capture_devices_hide);
+    prefs.capture_devices_hide = new_hide;
     hide_interface(g_strdup(new_hide));
 
     /* Refresh all places that are displaying an interface list
@@ -4916,7 +4908,8 @@ capture_start_confirmed(void)
   guint i;
 
   /* did the user ever select a capture interface before? */
-  if(global_capture_opts.num_selected == 0 && prefs.capture_device == NULL) {
+  if(global_capture_opts.num_selected == 0 && 
+      ((prefs.capture_device == NULL) || (*prefs.capture_device != '\0'))) {
     simple_dialog(ESD_TYPE_CONFIRMATION,
                   ESD_BTN_OK,
                   "%sNo capture interface selected!%s\n\n"

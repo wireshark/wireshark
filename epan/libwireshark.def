@@ -112,7 +112,6 @@ convert_string_case
 convert_string_to_hex
 copy_file_binary_mode
 copy_persconffile_profile
-copy_prefs
 crc16_ccitt_tvb
 crc16_plain_tvb_offset
 crc16_ccitt_tvb_offset
@@ -490,7 +489,6 @@ frame_data_compare
 frame_data_init
 frame_data_set_before_dissect
 frame_data_set_after_dissect
-free_prefs
 ftype_can_contains
 ftype_can_eq
 ftype_can_ge

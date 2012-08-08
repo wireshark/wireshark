@@ -1791,7 +1791,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
     /* trim the interface name and exit if that failed */
     if (!capture_opts_trim_iface(&global_capture_opts,
-        (prefs_p->capture_device) ? get_if_name(prefs_p->capture_device) : NULL)) {
+        ((prefs_p->capture_device) && (*prefs_p->capture_device != '\0')) ? get_if_name(prefs_p->capture_device) : NULL)) {
         return 2;
     }
 

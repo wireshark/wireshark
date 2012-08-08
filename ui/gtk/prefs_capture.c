@@ -269,6 +269,10 @@ capture_prefs_fetch(GtkWidget *w)
 		g_free(if_text);
 		if_text = NULL;
 	}
+
+    /* Ensure capture device is not NULL */
+    if (if_text == NULL)
+        if_text = g_strdup("");
 	prefs.capture_device = if_text;
 
 	prefs.capture_prom_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb));
@@ -1085,7 +1089,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	gtk_entry_set_text(GTK_ENTRY(if_descr_te), comment);
 
 	/* See if this is the currently selected capturing device */
-	if (prefs.capture_device != NULL) {
+	if ((prefs.capture_device != NULL) && (*prefs.capture_device != '\0')) {
 		guint i;
 		interface_t device;
 		for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
@@ -1392,7 +1396,8 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 		text[2] = g_strdup("");
 
 	/* add interface descriptions */
-	if (prefs.capture_devices_descr != NULL) {
+	if ((prefs.capture_devices_descr != NULL) &&
+        (*prefs.capture_devices_descr != '\0')) {
 		/* create working copy of device descriptions */
 		pr_descr = g_strdup(prefs.capture_devices_descr);
 
@@ -1553,16 +1558,8 @@ ifopts_write_new_monitor_mode(void)
 		}
 
 		/* write new "hidden" string to preferences */
-		if (strlen(new_monitor_mode) > 0) {
-			g_free(prefs.capture_devices_monitor_mode);
-			prefs.capture_devices_monitor_mode = new_monitor_mode;
-		}
-		/* no "hidden" interfaces */
-		else {
-			g_free(prefs.capture_devices_monitor_mode);
-			g_free(new_monitor_mode);
-			prefs.capture_devices_monitor_mode = NULL;
-		}
+		g_free(prefs.capture_devices_monitor_mode);
+		prefs.capture_devices_monitor_mode = new_monitor_mode;
 	}
 }
 #endif
@@ -1620,16 +1617,8 @@ ifopts_write_new_linklayer(void)
 		}
 
 		/* write new link-layer string to preferences */
-		if (strlen(new_linklayer) > 0) {
-			g_free(prefs.capture_devices_linktypes);
-			prefs.capture_devices_linktypes = new_linklayer;
-		}
-		/* no link-layers */
-		else {
-			g_free(prefs.capture_devices_linktypes);
-			g_free(new_linklayer);
-			prefs.capture_devices_linktypes = NULL;
-		}
+		g_free(prefs.capture_devices_linktypes);
+		prefs.capture_devices_linktypes = new_linklayer;
 	}
 }
 
@@ -1686,16 +1675,8 @@ ifopts_write_new_descr(void)
 		}
 
 		/* write new description string to preferences */
-		if (strlen(new_descr) > 0) {
-			g_free(prefs.capture_devices_descr);
-			prefs.capture_devices_descr = new_descr;
-		}
-		/* no descriptions */
-		else {
-			g_free(prefs.capture_devices_descr);
-			g_free(new_descr);
-			prefs.capture_devices_descr = NULL;
-		}
+		g_free(prefs.capture_devices_descr);
+		prefs.capture_devices_descr = new_descr;
 	}
 }
 
@@ -1747,16 +1728,8 @@ ifopts_write_new_hide(void)
 		}
 
 		/* write new "hidden" string to preferences */
-		if (strlen(new_hide) > 0) {
-			g_free(prefs.capture_devices_hide);
-			prefs.capture_devices_hide = new_hide;
-		}
-		/* no "hidden" interfaces */
-		else {
-			g_free(prefs.capture_devices_hide);
-			g_free(new_hide);
-			prefs.capture_devices_hide = NULL;
-		}
+		g_free(prefs.capture_devices_hide);
+		prefs.capture_devices_hide = new_hide;
 		hide_interface(g_strdup(new_hide));
 	}
 }

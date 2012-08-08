@@ -64,13 +64,19 @@ static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void), gboolean use_gui);
 static prefs_set_pref_e set_pref(gchar*, gchar*, void *, gboolean);
-static gchar *put_string_list(GList *);
-static void   free_col_info(e_prefs *);
+static gchar *put_string_list(GList *, gboolean is_default);
+static void free_col_info(GList *);
+static void pre_init_prefs(void);
+static gboolean prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt);
+static gboolean parse_column_format(fmt_data *cfmt, const char *fmt);
+static void try_convert_to_custom_column(gpointer *el_data);
+
 
 #define PF_NAME		"preferences"
 #define OLD_GPF_NAME	"wireshark.conf"	/* old name for global preferences file */
 
 static gboolean prefs_initialized = FALSE;
+static gboolean prefs_pre_initialized = FALSE;
 static gchar *gpf_path = NULL;
 static gchar *cols_hidden_list = NULL;
 
@@ -84,33 +90,66 @@ static int mgcp_tcp_port_count;
 static int mgcp_udp_port_count;
 
 e_prefs prefs;
-static e_prefs default_prefs;
 
-static const gchar    *gui_ptree_line_style_text[] =
-    { "NONE", "SOLID", "DOTTED", "TABBED", NULL };
+static enum_val_t gui_ptree_line_style[] = {
+		{"NONE", "NONE", 0},
+		{"SOLID", "SOLID", 1},
+		{"DOTTED", "DOTTED", 2},
+		{"TABBED", "TABBED", 3},
+		{NULL, NULL, -1}
+	};
 
-static const gchar    *gui_ptree_expander_style_text[] =
-    { "NONE", "SQUARE", "TRIANGLE", "CIRCULAR", NULL };
+static enum_val_t gui_ptree_expander_style[] = {
+		{"NONE", "NONE", 0},
+		{"SQUARE", "SQUARE", 1},
+		{"TRIANGLE", "TRIANGLE", 2},
+		{"CIRCULAR", "CIRCULAR", 3},
+		{NULL, NULL, -1}
+	};
 
-static const gchar    *gui_hex_dump_highlight_style_text[] =
-    { "BOLD", "INVERSE", NULL };
+static enum_val_t gui_hex_dump_highlight_style[] = {
+		{"BOLD", "BOLD", 0},
+		{"INVERSE", "INVERSE", 1},
+		{NULL, NULL, -1}
+	};
 
-static const gchar    *gui_console_open_text[] =
-    { "NEVER", "AUTOMATIC", "ALWAYS", NULL };
+static enum_val_t gui_console_open_type[] = {
+		{"NEVER", "NEVER", console_open_never},
+		{"AUTOMATIC", "AUTOMATIC", console_open_auto},
+		{"ALWAYS", "ALWAYS", console_open_always},
+		{NULL, NULL, -1}
+	};
 
-static const gchar    *gui_version_placement_text[] =
-    { "WELCOME", "TITLE", "BOTH", "NEITHER", NULL };
+static enum_val_t gui_version_placement_type[] = {
+		{"WELCOME", "WELCOME", version_welcome_only},
+		{"TITLE", "TITLE", version_title_only},
+		{"BOTH", "BOTH", version_both},
+		{"NEITHER", "NEITHER", version_neither},
+		{NULL, NULL, -1}
+	};
 
-static const gchar    *gui_fileopen_style_text[] =
-    { "LAST_OPENED", "SPECIFIED", NULL };
+static enum_val_t gui_fileopen_style[] = {
+		{"LAST_OPENED", "LAST_OPENED", 0},
+		{"SPECIFIED", "SPECIFIED", 1},
+		{NULL, NULL, -1}
+	};
 
 /* GTK knows of two ways representing "both", vertical and horizontal aligned.
  * as this may not work on other guis, we use only "both" in general here */
-static const gchar    *gui_toolbar_style_text[] =
-    { "ICONS", "TEXT", "BOTH", NULL };
+static enum_val_t gui_toolbar_style[] = {
+		{"ICONS", "ICONS", 0},
+		{"TEXT", "TEXT", 1},
+		{"BOTH", "BOTH", 2},
+		{NULL, NULL, -1}
+	};
 
-static const gchar    *gui_layout_content_text[] =
-    { "NONE", "PLIST", "PDETAILS", "PBYTES", NULL };
+static enum_val_t gui_layout_content[] = {
+		{"NONE", "NONE", 0},
+		{"PLIST", "PLIST", 1},
+		{"PDETAILS", "PDETAILS", 2},
+		{"PBYTES", "PBYTES", 3},
+		{NULL, NULL, -1}
+	};
 
 /*
  * List of all modules with preference settings.
@@ -186,7 +225,6 @@ prefs_cleanup(void)
      *  do what clean up we can.
      */
     prefs_modules_foreach(free_module_prefs, NULL);
-    free_prefs(&prefs);
 }
 
 /*
@@ -1078,18 +1116,925 @@ static void stats_callback(void)
 
 }
 
+static void gui_callback(void)
+{
+    /* Ensure there is at least one file count */
+    if (prefs.gui_recent_files_count_max == 0)
+      prefs.gui_recent_files_count_max = 10;
+
+    /* Ensure there is at least one display filter entry */
+    if (prefs.gui_recent_df_entries_max == 0)
+      prefs.gui_recent_df_entries_max = 10;
+}
+
+static void gui_layout_callback(void)
+{
+    if (prefs.gui_layout_type == layout_unused ||
+        prefs.gui_layout_type >= layout_type_max) {
+      /* XXX - report an error?  It's not a syntax error - we'd need to
+         add a way of reporting a *semantic* error. */
+      prefs.gui_layout_type = layout_type_5;
+    }
+}
+
+/******************************************************
+ * All custom preference function callbacks
+ ******************************************************/
+static void custom_pref_no_init_cb(pref_t* pref _U_, void** value _U_) {}
+static void custom_pref_no_cb(pref_t* pref _U_) {}
+
+
+/*
+ * Console log level custom preference functions
+ */
+static void console_log_level_init_cb(pref_t* pref, void** value)
+{
+    gint** ppint = (gint**)value;
+    gint* pint = *ppint;
+
+    pref->varp.uint = pint;
+    pref->default_val.uint = *pint;
+}
+
+static void console_log_level_reset_cb(pref_t* pref)
+{
+    *pref->varp.uint = pref->default_val.uint;
+}
+
+static prefs_set_pref_e console_log_level_set_cb(pref_t* pref, gchar* value, gboolean* changed)
+{
+    guint    uval;
+
+    uval = strtoul(value, NULL, 10);
+
+    if (*pref->varp.uint != uval) {
+        *changed = TRUE;
+        *pref->varp.uint = uval;
+    }
+
+    if (*pref->varp.uint & (G_LOG_LEVEL_INFO|G_LOG_LEVEL_DEBUG)) {
+      /*
+       * GLib >= 2.32 drops INFO and DEBUG messages by default. Tell
+       * it not to do that.
+       */
+       g_setenv("G_MESSAGES_DEBUG", "all", TRUE);
+    }
+
+    return PREFS_SET_OK;
+}
+
+static void console_log_level_write_cb(pref_t* pref, write_pref_arg_t* arg)
+{
+    const char *prefix = (arg->module->name != NULL) ? arg->module->name : arg->module->parent->name;
+
+    fprintf(arg->pf, "# (debugging only, not in the Preferences dialog)\n");
+    fprintf(arg->pf, "# A bitmask of glib log levels:\n"
+          "# G_LOG_LEVEL_ERROR    = 4\n"
+          "# G_LOG_LEVEL_CRITICAL = 8\n"
+          "# G_LOG_LEVEL_WARNING  = 16\n"
+          "# G_LOG_LEVEL_MESSAGE  = 32\n"
+          "# G_LOG_LEVEL_INFO     = 64\n"
+          "# G_LOG_LEVEL_DEBUG    = 128\n");
+
+    if (*pref->varp.uint == pref->default_val.uint)
+        fprintf(arg->pf, "#");
+    fprintf(arg->pf, "%s.%s: %u\n", prefix,
+                pref->name, *pref->varp.uint);
+}
+
+/*
+ * Column hidden custom preference functions
+ */
+#define PRS_COL_HIDDEN                   "column.hidden"
+#define PRS_COL_FMT                      "column.format"
+#define PRS_COL_NUM                      "column.number"
+static module_t *gui_column_module = NULL;
+
+static void column_hidden_init_cb(pref_t* pref, void** value)
+{
+    char **var = (char**)value,
+         *varcopy;
+
+    /* Treat it like a string */
+    if (*var == NULL) {
+        *var = g_strdup("");
+        varcopy = g_strdup("");
+    } else {
+        *var = g_strdup(*var);
+        varcopy = g_strdup(*var);
+    }
+    pref->varp.string = var;
+    pref->default_val.string = varcopy;
+}
+
+static void column_hidden_free_cb(pref_t* pref)
+{
+    g_free((char *)*pref->varp.string);
+    *pref->varp.string = NULL;
+    g_free(pref->default_val.string);
+}
+
+static void column_hidden_reset_cb(pref_t* pref)
+{
+    g_free((void *)*pref->varp.string);
+    *pref->varp.string = g_strdup(pref->default_val.string);
+}
+
+static prefs_set_pref_e column_hidden_set_cb(pref_t* pref, gchar* value, gboolean* changed)
+{
+    GList       *clp;
+    fmt_data    *cfmt;
+    pref_t  *format_pref;
+
+    if (strcmp(*pref->varp.string, value) != 0) {
+        *changed = TRUE;
+        g_free((void *)*pref->varp.string);
+        *pref->varp.string = g_strdup(value);
+    }
+
+    /*
+     * Set the "visible" flag for the existing columns; we need to
+     * do this if we set PRS_COL_HIDDEN but don't set PRS_COL_FMT
+     * after setting it (which might be the case if, for example, we
+     * set PRS_COL_HIDDEN on the command line).
+     */
+    format_pref = prefs_find_preference(gui_column_module, PRS_COL_FMT);
+    for (clp = *((GList**)format_pref->varp.custom); clp != NULL; clp = clp->next) {
+      cfmt = (fmt_data *)clp->data;
+      cfmt->visible = prefs_is_column_visible(*pref->varp.string, cfmt);
+    }
+
+    return PREFS_SET_OK;
+}
+
+static void column_hidden_write_cb(pref_t* pref, write_pref_arg_t* arg)
+{
+  GString     *cols_hidden = g_string_new ("");
+  GList       *clp, *col_l;
+  fmt_data    *cfmt;
+  const char *prefix = (arg->module->name != NULL) ? arg->module->name : arg->module->parent->name;
+  pref_t  *format_pref;
+
+  format_pref = prefs_find_preference(gui_column_module, PRS_COL_FMT);
+  clp = *((GList**)format_pref->varp.custom);
+  col_l = NULL;
+  while (clp) {
+    gchar *prefs_fmt;
+    cfmt = (fmt_data *) clp->data;
+    col_l = g_list_append(col_l, g_strdup(cfmt->title));
+    if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_field)) {
+      prefs_fmt = g_strdup_printf("%s:%s:%d:%c",
+                                  col_format_to_string(cfmt->fmt),
+                                  cfmt->custom_field,
+                                  cfmt->custom_occurrence,
+                                  cfmt->resolved ? 'R' : 'U');
+    } else {
+      prefs_fmt = g_strdup(col_format_to_string(cfmt->fmt));
+    }
+    col_l = g_list_append(col_l, prefs_fmt);
+    if (!cfmt->visible) {
+      if (cols_hidden->len) {
+	     g_string_append (cols_hidden, ",");
+      }
+      g_string_append (cols_hidden, prefs_fmt);
+    }
+    clp = clp->next;
+  }
+  fprintf (arg->pf, "\n# Packet list hidden columns.\n");
+  fprintf (arg->pf, "# List all columns to hide in the packet list.\n");
+  if (strcmp(cols_hidden->str, pref->default_val.string) == 0)
+    fprintf(arg->pf, "#");
+  fprintf (arg->pf, "%s.%s: %s\n", prefix, pref->name, cols_hidden->str);
+  /* This frees the list of strings, but not the strings to which it
+     refers; they are free'ed in put_string_list(). */
+  g_string_free (cols_hidden, TRUE);
+  g_list_free(col_l);
+}
+
+/* Number of columns "preference".  This is only used internally and is not written to the 
+ * preference file 
+ */
+static void column_num_init_cb(pref_t* pref, void** value)
+{
+    gint** ppint = (gint**)value;
+    gint* pint = *ppint;
+
+    pref->varp.uint = pint;
+    pref->default_val.uint = *pint;
+}
+
+static void column_num_reset_cb(pref_t* pref)
+{
+    *pref->varp.uint = pref->default_val.uint;
+}
+
+static prefs_set_pref_e column_num_set_cb(pref_t* pref, gchar* value, gboolean* changed)
+{
+    /* Don't write this to the preferences file */
+    return PREFS_SET_OK;
+}
+
+static void column_num_write_cb(pref_t* pref, write_pref_arg_t* arg) {}
+
+/*
+ * Column format custom preference functions
+ */
+static void column_format_init_cb(pref_t* pref, void** value)
+{
+    fmt_data *src_cfmt, *dest_cfmt;
+    GList *entry, *src_col_list, *dest_col_list;
+
+    pref->varp.custom = value;
+    src_col_list = *((GList**)value);
+
+    dest_col_list = NULL;
+    for (entry = src_col_list; entry != NULL; entry = g_list_next(entry)) {
+        src_cfmt = entry->data;
+        dest_cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+        dest_cfmt->title = g_strdup(src_cfmt->title);
+        dest_cfmt->fmt = src_cfmt->fmt;
+        if (src_cfmt->custom_field) {
+            dest_cfmt->custom_field = g_strdup(src_cfmt->custom_field);
+            dest_cfmt->custom_occurrence = src_cfmt->custom_occurrence;
+        } else {
+            dest_cfmt->custom_field = NULL;
+            dest_cfmt->custom_occurrence = 0;
+        }
+        dest_cfmt->visible = src_cfmt->visible;
+        dest_cfmt->resolved = src_cfmt->resolved;
+        dest_col_list = g_list_append(dest_col_list, dest_cfmt);
+    }
+
+    pref->default_val.custom = dest_col_list;
+}
+
+static void column_format_free_cb(pref_t* pref)
+{
+    GList* list = *((GList**)pref->varp.custom);
+    free_col_info(list);
+    list = (GList*)pref->default_val.custom;
+    free_col_info(list);
+}
+
+static void column_format_reset_cb(pref_t* pref)
+{
+    fmt_data *src_cfmt, *dest_cfmt;
+    GList *entry, 
+          *src_col_list = (GList*)pref->default_val.custom, 
+          *dest_col_list = *((GList**)pref->varp.custom);
+    pref_t  *col_num_pref;
+
+    free_col_info(dest_col_list);
+    dest_col_list = NULL;
+
+    for (entry = src_col_list; entry != NULL; entry = g_list_next(entry)) {
+        src_cfmt = entry->data;
+        dest_cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+        dest_cfmt->title = g_strdup(src_cfmt->title);
+        dest_cfmt->fmt = src_cfmt->fmt;
+        if (src_cfmt->custom_field) {
+            dest_cfmt->custom_field = g_strdup(src_cfmt->custom_field);
+            dest_cfmt->custom_occurrence = src_cfmt->custom_occurrence;
+        } else {
+            dest_cfmt->custom_field = NULL;
+            dest_cfmt->custom_occurrence = 0;
+        }
+        dest_cfmt->visible = src_cfmt->visible;
+        dest_cfmt->resolved = src_cfmt->resolved;
+        dest_col_list = g_list_append(dest_col_list, dest_cfmt);
+    }
+
+    col_num_pref = prefs_find_preference(gui_column_module, PRS_COL_NUM);
+    column_num_reset_cb(col_num_pref);
+}
+
+static prefs_set_pref_e column_format_set_cb(pref_t* pref, gchar* value, gboolean* changed)
+{
+    GList    *col_l, *col_l_elt, *pref_list;
+    fmt_data *cfmt;
+    gint     llen;
+    pref_t   *hidden_pref, *col_num_pref;
+
+    col_l = prefs_get_string_list(value);
+    if (col_l == NULL)
+      return PREFS_SET_SYNTAX_ERR;
+    if ((g_list_length(col_l) % 2) != 0) {
+      /* A title didn't have a matching format.  */
+      prefs_clear_string_list(col_l);
+      return PREFS_SET_SYNTAX_ERR;
+    }
+    /* Check to make sure all column formats are valid.  */
+    col_l_elt = g_list_first(col_l);
+    while(col_l_elt) {
+      fmt_data cfmt_check;
+
+      /* Go past the title.  */
+      col_l_elt = col_l_elt->next;
+
+      /* Parse the format to see if it's valid.  */
+      if (!parse_column_format(&cfmt_check, col_l_elt->data)) {
+        /* It's not a valid column format.  */
+        prefs_clear_string_list(col_l);
+        return PREFS_SET_SYNTAX_ERR;
+      }
+      if (cfmt_check.fmt != COL_CUSTOM) {
+        /* Some predefined columns have been migrated to use custom colums.
+         * We'll convert these silently here */
+        try_convert_to_custom_column(&col_l_elt->data);
+      } else {
+        /* We don't need the custom column field on this pass. */
+        g_free(cfmt_check.custom_field);
+      }
+
+      /* Go past the format.  */
+      col_l_elt = col_l_elt->next;
+    }
+
+    /* They're all valid; process them. */
+    pref_list = *((GList**)pref->varp.custom);
+    free_col_info(pref_list);
+    pref_list = NULL;
+    hidden_pref = prefs_find_preference(gui_column_module, PRS_COL_HIDDEN);
+    col_num_pref = prefs_find_preference(gui_column_module, PRS_COL_NUM);
+    llen             = g_list_length(col_l);
+    *col_num_pref->varp.uint = llen / 2;
+    col_l_elt = g_list_first(col_l);
+    while(col_l_elt) {
+      cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+      cfmt->title    = g_strdup(col_l_elt->data);
+      col_l_elt      = col_l_elt->next;
+      parse_column_format(cfmt, col_l_elt->data);
+      cfmt->visible   = prefs_is_column_visible((gchar*)(*hidden_pref->varp.string), cfmt);
+      col_l_elt      = col_l_elt->next;
+      pref_list = g_list_append(pref_list, cfmt);
+    }
+    *((GList**)pref->varp.custom) = pref_list;
+
+    prefs_clear_string_list(col_l);
+    column_hidden_free_cb(hidden_pref);
+    return PREFS_SET_OK;
+}
+
+static void column_format_write_cb(pref_t* pref, write_pref_arg_t* arg)
+{
+  GList       *clp = *((GList**)pref->varp.custom), *col_l,  
+              *pref_col = g_list_first(clp), 
+              *def_col = g_list_first((GList*)pref->default_val.custom);
+  fmt_data    *cfmt, *def_cfmt;
+  gchar       *prefs_fmt;
+  gboolean    is_default = TRUE;
+  pref_t      *col_num_pref;
+  const char *prefix = (arg->module->name != NULL) ? arg->module->name : arg->module->parent->name;
+
+  /* See if the column data has changed from the default */
+  col_num_pref = prefs_find_preference(gui_column_module, PRS_COL_NUM);
+  if (*col_num_pref->varp.uint != col_num_pref->default_val.uint) {
+     is_default = FALSE;
+  } else {
+      while (pref_col && def_col) {
+          cfmt = (fmt_data *) pref_col->data;
+          def_cfmt = (fmt_data *) def_col->data;
+          if ((strcmp(cfmt->title, def_cfmt->title) != 0) ||
+              (cfmt->fmt != def_cfmt->fmt) ||
+              (((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_field)) &&
+                 ((strcmp(cfmt->custom_field, def_cfmt->custom_field) != 0) ||
+                 (cfmt->resolved != def_cfmt->resolved)))) {
+             is_default = FALSE;
+             break;
+          }
+
+          pref_col = pref_col->next;
+          def_col = def_col->next;
+      }
+  }
+
+  /* Now write the current columns */
+  col_l = NULL;
+  while (clp) {
+    cfmt = (fmt_data *) clp->data;
+    col_l = g_list_append(col_l, g_strdup(cfmt->title));
+    if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_field)) {
+      prefs_fmt = g_strdup_printf("%s:%s:%d:%c",
+                                  col_format_to_string(cfmt->fmt),
+                                  cfmt->custom_field,
+                                  cfmt->custom_occurrence,
+                                  cfmt->resolved ? 'R' : 'U');
+    } else {
+      prefs_fmt = g_strdup(col_format_to_string(cfmt->fmt));
+    }
+    col_l = g_list_append(col_l, prefs_fmt);
+    clp = clp->next;
+  }
+
+  fprintf (arg->pf, "\n# Packet list column format.\n");
+  fprintf (arg->pf, "# Each pair of strings consists of a column title and its format.\n");
+  if (is_default)
+     fprintf(arg->pf, "#");
+  fprintf (arg->pf, "%s.%s: %s\n", prefix, pref->name, put_string_list(col_l, is_default));
+  /* This frees the list of strings, but not the strings to which it
+     refers; they are free'ed in put_string_list(). */
+  g_list_free(col_l);
+}
+
+/*
+ * Capture column custom preference functions
+ */
+static void capture_column_init_cb(pref_t* pref, void** value)
+{
+    GList   *list = *((GList**)value),
+            *list_copy = NULL;
+    gchar   *col;
+
+    pref->varp.custom = value;
+    /* Copy the current list */
+    while (list) {
+        col = (gchar *)list->data;
+        list_copy = g_list_append(list_copy, g_strdup(col));
+        list = list->next;
+    }
+
+    pref->default_val.custom = list_copy;
+}
+
+static void capture_column_free_cb(pref_t* pref)
+{
+    GList   *list = *((GList**)pref->varp.custom);
+    gchar    *col_name;
+
+    while (list != NULL) {
+        col_name = list->data;
+
+        g_free(col_name);
+        list = g_list_remove_link(list, list);
+    }
+    g_list_free(list);
+
+    list = (GList*)pref->default_val.custom;
+    while (list != NULL) {
+        col_name = list->data;
+
+        g_free(col_name);
+        list = g_list_remove_link(list, list);
+    }
+    g_list_free(list);
+}
+
+static void capture_column_reset_cb(pref_t* pref)
+{
+    GList   *list_copy = *((GList**)pref->varp.custom),
+            *list = (GList*)pref->default_val.custom;
+    gchar    *col_name;
+
+    /* Clear the list before it's copied */
+    while (list_copy != NULL) {
+        col_name = list_copy->data;
+
+        g_free(col_name);
+        list_copy = g_list_remove_link(list_copy, list_copy);
+    }
+
+    while (list) {
+        col_name = (gchar *)list->data;
+        list_copy = g_list_append(list_copy, g_strdup(col_name));
+        list = list->next;
+    }
+}
+
+static prefs_set_pref_e capture_column_set_cb(pref_t* pref, gchar* value, gboolean* changed)
+{
+    GList    *col_l, *col_l_elt, 
+             *list = *((GList**)pref->varp.custom);
+    gchar    *col_name;
+
+    col_l = prefs_get_string_list(value);
+    if (col_l == NULL)
+      return PREFS_SET_SYNTAX_ERR;
+
+    /* They're all valid; process them. */
+    while (list != NULL) {
+        col_name = list->data;
+
+        g_free(col_name);
+        list = g_list_remove_link(list, list);
+    }
+    g_list_free(list);
+
+    col_l_elt = g_list_first(col_l);
+    while(col_l_elt) {
+      col_name = (gchar *)col_l_elt->data;
+      list = g_list_append(list, col_name);
+      col_l_elt = col_l_elt->next;
+    }
+
+    prefs_clear_string_list(col_l);
+    return PREFS_SET_OK;
+}
+
+static void capture_column_write_cb(pref_t* pref, write_pref_arg_t* arg)
+{
+  GList       *clp = *((GList**)pref->varp.custom), 
+              *col_l = NULL,
+              *pref_col = g_list_first(clp), 
+              *def_col = g_list_first((GList*)pref->default_val.custom);
+  gchar *col, *def_col_str;
+  gboolean is_default = TRUE;
+  const char *prefix = (arg->module->name != NULL) ? arg->module->name : arg->module->parent->name;
+
+  /* See if the column data has changed from the default */
+  while (pref_col && def_col) {
+      col = (gchar *)pref_col->data;
+      def_col_str = (gchar *) def_col->data;
+      if (strcmp(col, def_col_str) != 0) {
+         is_default = FALSE;
+         break;
+      }
+
+      pref_col = pref_col->next;
+      def_col = def_col->next;
+  }
+
+  /* Ensure the same column count */
+  if (((pref_col == NULL) && (def_col != NULL)) ||
+      ((pref_col != NULL) && (def_col == NULL)))
+     is_default = FALSE;
+
+  while (clp) {
+    col = (gchar *) clp->data;
+    col_l = g_list_append(col_l, g_strdup(col));
+    clp = clp->next;
+  }
+   
+  fprintf(arg->pf, "\n# Capture options dialog column list.\n");
+  fprintf(arg->pf, "# List of columns to be displayed.\n");
+  fprintf(arg->pf, "# Possible values: INTERFACE,LINK,PMODE,SNAPLEN,MONITOR,BUFFER,FILTER\n");
+  if (is_default)
+     fprintf(arg->pf, "#");
+  fprintf (arg->pf, "%s.%s: %s\n", prefix, pref->name, put_string_list(col_l, is_default));
+  /* This frees the list of strings, but not the strings to which it
+     refers; they are free'ed in put_string_list(). */
+  g_list_free(col_l);
+
+}
+
 /*
  * Register all non-dissector modules' preferences.
  */
+static module_t *gui_module = NULL;
+static module_t *gui_color_module = NULL;
+static module_t *nameres_module = NULL;
+
 void
 prefs_register_modules(void)
 {
-    module_t *printing, *nameres_module;
+    module_t *printing, *capture_module, *console_module, 
+        *gui_layout_module, *gui_font_module;
+    gint* temp_p;
+    struct pref_custom_cbs custom_cbs;
 
     if (protocols_module != NULL) {
         /* Already setup preferences */
         return;
-    }
+    } 
+
+    /* Ensure the "global" preferences have been initialized so the 
+     * preference API has the proper default values to work from 
+     */
+    pre_init_prefs();
+
+    /* GUI
+     * These are "simple" GUI preferences that can be read/written using the 
+     * preference module API.  These preferences still use their own
+     * configuration screens for access, but this cuts down on the 
+     * preference "string compare list" in set_pref()
+     */
+    gui_module = prefs_register_module(NULL, "gui", "User Interface",
+        "User Interface", &gui_callback, FALSE);
+
+    prefs_register_bool_preference(gui_module, "scrollbar_on_right",
+                                   "Vertical scrollbars on right side",
+                                   "Vertical scrollbars should be on right side?",
+                                   &prefs.gui_scrollbar_on_right);
+
+    prefs_register_bool_preference(gui_module, "packet_list_sel_browse",
+                                   "Packet-list selection bar browse",
+                                   "Packet-list selection bar can be used to browse w/o selecting?",
+                                   &prefs.gui_plist_sel_browse);
+
+    prefs_register_bool_preference(gui_module, "protocol_tree_sel_browse",
+                                   "Protocol-tree selection bar browse",
+                                   "Protocol-tree selection bar can be used to browse w/o selecting?",
+                                   &prefs.gui_ptree_sel_browse);
+
+    prefs_register_bool_preference(gui_module, "tree_view_altern_colors",
+                                   "Alternating colors in TreeViews",
+                                   "Alternating colors in TreeViews?",
+                                   &prefs.gui_altern_colors);
+
+    prefs_register_bool_preference(gui_module, "expert_composite_eyecandy",
+                                   "Display LEDs on Expert Composite Dialog Tabs",
+                                   "Display LEDs on Expert Composite Dialog Tabs?",
+                                   &prefs.gui_expert_composite_eyecandy);
+
+    prefs_register_bool_preference(gui_module, "filter_toolbar_show_in_statusbar",
+                                   "Place filter toolbar inside the statusbar",
+                                   "Place filter toolbar inside the statusbar?",
+                                   &prefs.filter_toolbar_show_in_statusbar);
+
+    prefs_register_enum_preference(gui_module, "protocol_tree_line_style",
+                       "Protocol-tree line style",
+                       "Protocol-tree line style",
+                       &prefs.gui_ptree_line_style, gui_ptree_line_style, FALSE);
+
+    prefs_register_enum_preference(gui_module, "protocol_tree_expander_style",
+                       "Protocol-tree expander style",
+                       "Protocol-tree expander style",
+                       &prefs.gui_ptree_expander_style, gui_ptree_expander_style, FALSE);
+
+    prefs_register_enum_preference(gui_module, "hex_dump_highlight_style",
+                       "Hex dump highlight style",
+                       "Hex dump highlight style",
+                       &prefs.gui_hex_dump_highlight_style, gui_hex_dump_highlight_style, FALSE);
+
+    gui_column_module = prefs_register_subtree(gui_module, "Columns", "Columns", NULL);
+
+    custom_cbs.init_cb = column_hidden_init_cb;
+    custom_cbs.free_cb = column_hidden_free_cb;
+    custom_cbs.reset_cb = column_hidden_reset_cb;
+    custom_cbs.set_cb = column_hidden_set_cb;
+    custom_cbs.write_cb = column_hidden_write_cb;
+    prefs_register_custom_preference(gui_column_module, PRS_COL_HIDDEN, "Packet list hidden columns", 
+        "List all columns to hide in the packet list", &custom_cbs, &cols_hidden_list);
+
+    custom_cbs.init_cb = column_format_init_cb;
+    custom_cbs.free_cb = column_format_free_cb;
+    custom_cbs.reset_cb = column_format_reset_cb;
+    custom_cbs.set_cb = column_format_set_cb;
+    custom_cbs.write_cb = column_format_write_cb;
+    prefs_register_custom_preference(gui_column_module, PRS_COL_FMT, "Packet list column format", 
+        "Each pair of strings consists of a column title and its format", &custom_cbs, &prefs.col_list);
+
+    /* Number of columns.  This is only used internally and is not written to the 
+     * preference file 
+     */
+    custom_cbs.init_cb = column_num_init_cb;
+    custom_cbs.free_cb = custom_pref_no_cb;
+    custom_cbs.reset_cb = column_num_reset_cb;
+    custom_cbs.set_cb = column_num_set_cb;
+    custom_cbs.write_cb = column_num_write_cb;
+    temp_p = &prefs.console_log_level;
+    prefs_register_custom_preference(gui_column_module, PRS_COL_NUM, "Number of columns", 
+        "Number of columns in col_list", &custom_cbs, &temp_p);
+
+    /* User Interface : Font */
+    gui_font_module = prefs_register_subtree(gui_module, "Font", "Font", NULL);
+
+    prefs_register_obsolete_preference(gui_font_module, "font_name");
+
+    prefs_register_string_preference(gui_font_module, "gtk2.font_name", "Font name", 
+        "Font name for packet list, protocol tree, and hex dump panes.", (const char**)(&prefs.gui_font_name));
+
+    /* User Interface : Colors */
+    gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
+
+    prefs_register_color_preference(gui_color_module, "marked_frame.fg", "Color preferences for a marked frame", 
+        "Color preferences for a marked frame", &prefs.gui_marked_fg);
+
+    prefs_register_color_preference(gui_color_module, "marked_frame.bg", "Color preferences for a marked frame", 
+        "Color preferences for a marked frame", &prefs.gui_marked_bg);
+
+    prefs_register_color_preference(gui_color_module, "ignored_frame.fg", "Color preferences for a ignored frame", 
+        "Color preferences for a ignored frame", &prefs.gui_ignored_fg);
+
+    prefs_register_color_preference(gui_color_module, "ignored_frame.bg", "Color preferences for a ignored frame", 
+        "Color preferences for a ignored frame", &prefs.gui_ignored_bg);
+
+    prefs_register_color_preference(gui_color_module, "stream.client.fg", "TCP stream window color preference", 
+        "TCP stream window color preference", &prefs.st_client_fg);
+
+    prefs_register_color_preference(gui_color_module, "stream.client.bg", "TCP stream window color preference", 
+        "TCP stream window color preference", &prefs.st_client_bg);
+
+    prefs_register_color_preference(gui_color_module, "stream.server.fg", "TCP stream window color preference", 
+        "TCP stream window color preference", &prefs.st_server_fg);
+
+    prefs_register_color_preference(gui_color_module, "stream.server.bg", "TCP stream window color preference", 
+        "TCP stream window color preference", &prefs.st_server_bg);
+
+    /* XXX - placeholders for gui.colorized_frame.fg and gui.colorized_frame.fg */
+   /* Don't write the colors of the 10 easy-access-colorfilters to the preferences
+    * file until the colors can be changed in the GUI. Currently this is not really
+    * possible since the STOCK-icons for these colors are hardcoded.
+    *
+    * XXX Find a way to change the colors of the STOCK-icons on the fly and then
+    *     add these 10 colors to the list of colors that can be changed through
+    *     the preferences.
+    *
+#define PRS_GUI_COLORIZED_FG             "gui.colorized_frame.fg"
+#define PRS_GUI_COLORIZED_BG             "gui.colorized_frame.bg"
+    */
+
+    prefs_register_enum_preference(gui_module, "console_open",
+                       "Open a console window",
+                       "Open a console window (WIN32 only)",
+                       (gint*)(&prefs.gui_console_open), gui_console_open_type, FALSE);
+
+    prefs_register_enum_preference(gui_module, "fileopen.style",
+                       "Where to start the File Open dialog box",
+                       "Where to start the File Open dialog box",
+                       &prefs.gui_fileopen_style, gui_fileopen_style, FALSE);
+
+    prefs_register_uint_preference(gui_module, "recent_files_count.max",
+                                   "The max. number of items in the open recent files list",
+                                   "The max. number of items in the open recent files list",
+                                   10,
+                                   &prefs.gui_recent_files_count_max);
+
+    prefs_register_uint_preference(gui_module, "recent_display_filter_entries.max",
+                                   "The max. number of entries in the display filter list",
+                                   "The max. number of entries in the display filter list",
+                                   10,
+                                   &prefs.gui_recent_df_entries_max);
+
+    prefs_register_string_preference(gui_module, "fileopen.dir", "Start Directory", 
+        "Directory to start in when opening File Open dialog.", (const char**)(&prefs.gui_fileopen_dir));
+
+    prefs_register_obsolete_preference(gui_module, "fileopen.remembered_dir");
+
+    prefs_register_uint_preference(gui_module, "fileopen.preview",
+                                   "The preview timeout in the File Open dialog",
+                                   "The preview timeout in the File Open dialog",
+                                   10,
+                                   &prefs.gui_fileopen_preview);
+
+    prefs_register_bool_preference(gui_module, "ask_unsaved",
+                                   "Ask to save unsaved capture files",
+                                   "Ask to save unsaved capture files?",
+                                   &prefs.filter_toolbar_show_in_statusbar);
+
+    prefs_register_bool_preference(gui_module, "find_wrap",
+                                   "Wrap to beginning/end of file during search",
+                                   "Wrap to beginning/end of file during search?",
+                                   &prefs.gui_find_wrap);
+
+    prefs_register_bool_preference(gui_module, "use_pref_save",
+                                   "Settings dialogs use a save button",
+                                   "Settings dialogs use a save button?",
+                                   &prefs.gui_find_wrap);
+
+    prefs_register_bool_preference(gui_module, "geometry.save.position",
+                                   "Save window position at exit",
+                                   "Save window position at exit?",
+                                   &prefs.gui_geometry_save_position);
+
+    prefs_register_bool_preference(gui_module, "geometry.save.size",
+                                   "Save window size at exit",
+                                   "Save window size at exit?",
+                                   &prefs.gui_geometry_save_size);
+
+    prefs_register_bool_preference(gui_module, "geometry.save.maximized",
+                                   "Save window maximized state at exit",
+                                   "Save window maximized state at exit?",
+                                   &prefs.gui_geometry_save_maximized);
+
+    prefs_register_bool_preference(gui_module, "macosx_style",
+                                   "Use Mac OS X style",
+                                   "Use Mac OS X style (Mac OS X with native GTK only)?",
+                                   &prefs.gui_macosx_style);
+
+    prefs_register_obsolete_preference(gui_module, "geometry.main.x");
+    prefs_register_obsolete_preference(gui_module, "geometry.main.y");
+    prefs_register_obsolete_preference(gui_module, "geometry.main.width");
+    prefs_register_obsolete_preference(gui_module, "geometry.main.height");
+    prefs_register_obsolete_preference(gui_module, "toolbar_main_show");
+
+    prefs_register_enum_preference(gui_module, "toolbar_main_style",
+                       "Main Toolbar style",
+                       "Main Toolbar style",
+                       &prefs.gui_toolbar_main_style, gui_toolbar_style, FALSE);
+
+    prefs_register_enum_preference(gui_module, "toolbar_filter_style",
+                       "Filter Toolbar style",
+                       "Filter Toolbar style",
+                       &prefs.gui_toolbar_filter_style, gui_toolbar_style, FALSE);
+
+    prefs_register_string_preference(gui_module, "webbrowser", "The path to the webbrowser", 
+        "The path to the webbrowser (Ex: mozilla)", (const char**)(&prefs.gui_webbrowser));
+
+    prefs_register_string_preference(gui_module, "window_title", "Custom window title", 
+        "Custom window title. (Appended to existing titles.)", (const char**)(&prefs.gui_window_title));
+
+    prefs_register_string_preference(gui_module, "start_title", "Custom start page title", 
+        "Custom start page title", (const char**)(&prefs.gui_start_title));
+
+    prefs_register_enum_preference(gui_module, "version_placement",
+                       "Show version in the start page and/or main screen's title bar",
+                       "Show version in the start page and/or main screen's title bar",
+                       (gint*)(&prefs.gui_version_placement), gui_version_placement_type, FALSE);
+
+    prefs_register_bool_preference(gui_module, "auto_scroll_on_expand",
+                                   "Automatically scroll the recently expanded item",
+                                   "Automatically scroll the recently expanded item",
+                                   &prefs.gui_auto_scroll_on_expand);
+
+    prefs_register_uint_preference(gui_module, "auto_scroll_percentage",
+                                   "The percentage down the view the recently expanded item should be scrolled",
+                                   "The percentage down the view the recently expanded item should be scrolled",
+                                   10,
+                                   &prefs.gui_auto_scroll_percentage);
+
+    /* User Interface : Layout */
+    gui_layout_module = prefs_register_subtree(gui_module, "Layout", "Layout", gui_layout_callback);
+
+    prefs_register_uint_preference(gui_layout_module, "layout_type",
+                                   "Layout type",
+                                   "Layout type (1-6)",
+                                   10,
+                                   (guint*)(&prefs.gui_layout_type));
+
+    prefs_register_enum_preference(gui_layout_module, "layout_content_1",
+                       "Layout content of the pane 1",
+                       "Layout content of the pane 1",
+                       (gint*)(&prefs.gui_layout_content_1), gui_layout_content, FALSE);
+
+    prefs_register_enum_preference(gui_layout_module, "layout_content_2",
+                       "Layout content of the pane 2",
+                       "Layout content of the pane 2",
+                       (gint*)(&prefs.gui_layout_content_2), gui_layout_content, FALSE);
+
+    prefs_register_enum_preference(gui_layout_module, "layout_content_3",
+                       "Layout content of the pane 3",
+                       "Layout content of the pane 3",
+                       (gint*)(&prefs.gui_layout_content_3), gui_layout_content, FALSE);
+
+    /* Console
+     * These are preferences that can be read/written using the 
+     * preference module API.  These preferences still use their own
+     * configuration screens for access, but this cuts down on the 
+     * preference "string compare list" in set_pref()
+     */
+    console_module = prefs_register_module(NULL, "console", "Console",
+        "CONSULE", NULL, FALSE);
+
+    custom_cbs.init_cb = console_log_level_init_cb;
+    custom_cbs.free_cb = custom_pref_no_cb;
+    custom_cbs.reset_cb = console_log_level_reset_cb;
+    custom_cbs.set_cb = console_log_level_set_cb;
+    custom_cbs.write_cb = console_log_level_write_cb;
+    temp_p = &prefs.console_log_level;
+    prefs_register_custom_preference(console_module, "log.level", "logging level", 
+        "A bitmask of glib log levels", &custom_cbs, &temp_p);
+
+    /* Capture
+     * These are preferences that can be read/written using the 
+     * preference module API.  These preferences still use their own
+     * configuration screens for access, but this cuts down on the 
+     * preference "string compare list" in set_pref()
+     */
+    capture_module = prefs_register_module(NULL, "capture", "Capture",
+        "CAPTURE", NULL, FALSE);
+
+    prefs_register_string_preference(capture_module, "device", "Default capture device", 
+        "Default capture device", (const char**)(&prefs.capture_device));
+
+    prefs_register_string_preference(capture_module, "devices_linktypes", "Interface link-layer header type", 
+        "Interface link-layer header types (Ex: en0(1),en1(143),...)",
+        (const char**)(&prefs.capture_devices_linktypes));
+
+    prefs_register_string_preference(capture_module, "devices_descr", "Interface descriptions", 
+        "Interface descriptions (Ex: eth0(eth0 descr),eth1(eth1 descr),...)",
+        (const char**)(&prefs.capture_devices_descr));
+
+    prefs_register_string_preference(capture_module, "devices_hide", "Hide interface", 
+        "Hide interface? (Ex: eth0,eth3,...)", (const char**)(&prefs.capture_devices_hide));
+
+    prefs_register_string_preference(capture_module, "devices_monitor_mode", "Capture in monitor mode", 
+        "By default, capture in monitor mode on interface? (Ex: eth0,eth3,...)", 
+        (const char**)(&prefs.capture_devices_monitor_mode));
+
+    prefs_register_bool_preference(capture_module, "prom_mode", "Capture in promiscuous mode", 
+        "Capture in promiscuous mode?", &prefs.capture_prom_mode);
+
+    prefs_register_bool_preference(capture_module, "pcap_ng", "Capture in Pcap-NG format", 
+        "Capture in Pcap-NG format?", &prefs.capture_real_time);
+
+    prefs_register_bool_preference(capture_module, "real_time_update", "Update packet list in real time during capture",
+        "Update packet list in real time during capture?", &prefs.capture_prom_mode);
+
+    prefs_register_bool_preference(capture_module, "auto_scroll", "Scroll packet list during capture",
+        "Scroll packet list during capture?", &prefs.capture_auto_scroll);
+
+    prefs_register_bool_preference(capture_module, "show_info", "Show capture info dialog while capturing",
+        "Show capture info dialog while capturing?", &prefs.capture_show_info);
+
+    prefs_register_obsolete_preference(capture_module, "syntax_check_filter");
+
+    custom_cbs.init_cb = capture_column_init_cb;
+    custom_cbs.free_cb = capture_column_free_cb;
+    custom_cbs.reset_cb = capture_column_reset_cb;
+    custom_cbs.set_cb = capture_column_set_cb;
+    custom_cbs.write_cb = capture_column_write_cb;
+    prefs_register_custom_preference(capture_module, "columns", "Capture options dialog column list", 
+        "List of columns to be displayed", &custom_cbs, &prefs.capture_columns);
 
     /* Name Resolution */
     nameres_module = prefs_register_module(NULL, "nameres", "Name Resolution",
@@ -1148,6 +2093,19 @@ prefs_register_modules(void)
                                    "Display hidden protocol items",
                                    "Display all hidden protocol items in the packet list.",
                                    &prefs.display_hidden_proto_items);
+
+    /* Obsolete preferences
+     * These "modules" were reorganized/renamed to correspond to their GUI 
+     * configuration screen within the preferences dialog
+     */
+
+    /* taps is now part of the stats module */
+    prefs_register_module(NULL, "taps", "TAPS", "TAPS", NULL, FALSE);
+    /* packet_list is now part of the protocol (parent) module */
+    prefs_register_module(NULL, "packet_list", "PACKET_LIST", "PACKET_LIST", NULL, FALSE);
+    /* stream is now part of the gui module */
+    prefs_register_module(NULL, "stream", "STREAM", "STREAM", NULL, FALSE);
+
 }
 
 /* Parse through a list of comma-separated, possibly quoted strings.
@@ -1245,7 +2203,7 @@ prefs_get_string_list(gchar *str)
 #define MAX_FMT_PREF_LEN      1024
 #define MAX_FMT_PREF_LINE_LEN   60
 static gchar *
-put_string_list(GList *sl)
+put_string_list(GList *sl, gboolean is_default)
 {
   static gchar  pref_str[MAX_FMT_PREF_LEN] = "";
   GList        *clp = g_list_first(sl);
@@ -1284,6 +2242,8 @@ put_string_list(GList *sl)
         /* Wrap the line.  */
         if (cur_len > 0) cur_len--;
         pref_str[cur_len] = '\n'; cur_len++;
+        if (is_default)
+          pref_str[cur_len] = '#'; cur_len++;
         pref_str[cur_len] = '\t'; cur_len++;
       }
       g_snprintf(&pref_str[cur_len], MAX_FMT_PREF_LEN - (gulong) cur_len, "\"%s\", ", quoted_str);
@@ -1453,9 +2413,27 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
 static void
 init_prefs(void)
 {
+  if (prefs_initialized)
+    return;
+
+  uat_load_all();
+
+  pre_init_prefs();
+
+  filter_expression_init(TRUE);
+
+  prefs_initialized = TRUE;
+}
+
+/* Initialize non-dissector preferences used by the "register preference" API
+ * to default values so the default values can be used when registered
+ */
+static void
+pre_init_prefs(void)
+{
   int         i;
-  fmt_data    *cfmt;
   gchar       *col_name;
+  fmt_data    *cfmt;
   static const gchar *col_fmt[DEF_NUM_COLS*2] = {
                             "No.",      "%m", "Time",        "%t",
                             "Source",   "%s", "Destination", "%d",
@@ -1490,43 +2468,14 @@ init_prefs(void)
                                 "FILTER"};
 #endif
 
-  if (prefs_initialized)
-    return;
-
-  uat_load_all();
+  if (prefs_pre_initialized)
+     return;
 
   prefs.pr_format  = PR_FMT_TEXT;
   prefs.pr_dest    = PR_DEST_CMD;
   prefs.pr_file    = g_strdup("wireshark.out");
   prefs.pr_cmd     = g_strdup("lpr");
-  prefs.col_list = NULL;
-  for (i = 0; i < DEF_NUM_COLS; i++) {
-    cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
-    cfmt->title = g_strdup(col_fmt[i * 2]);
-    parse_column_format(cfmt, col_fmt[(i * 2) + 1]);
-    cfmt->visible = TRUE;
-    cfmt->resolved = TRUE;
-    cfmt->custom_field = NULL;
-    cfmt->custom_occurrence = 0;
-    prefs.col_list = g_list_append(prefs.col_list, cfmt);
-  }
-  prefs.num_cols  = DEF_NUM_COLS;
-  prefs.st_client_fg.pixel =     0;
-  prefs.st_client_fg.red   = 32767;
-  prefs.st_client_fg.green =     0;
-  prefs.st_client_fg.blue  =     0;
-  prefs.st_client_bg.pixel =     0;
-  prefs.st_client_bg.red   = 64507;
-  prefs.st_client_bg.green = 60909;
-  prefs.st_client_bg.blue  = 60909;
-  prefs.st_server_fg.pixel =     0;
-  prefs.st_server_fg.red   =     0;
-  prefs.st_server_fg.green =     0;
-  prefs.st_server_fg.blue  = 32767;
-  prefs.st_server_bg.pixel =     0;
-  prefs.st_server_bg.red   = 60909;
-  prefs.st_server_bg.green = 60909;
-  prefs.st_server_bg.blue  = 64507;
+
   prefs.gui_scrollbar_on_right = TRUE;
   prefs.gui_plist_sel_browse = FALSE;
   prefs.gui_ptree_sel_browse = FALSE;
@@ -1608,9 +2557,25 @@ init_prefs(void)
   prefs.gui_ignored_bg.blue        =     65535;
   prefs.gui_colorized_fg           = g_strdup("000000,000000,000000,000000,000000,000000,000000,000000,000000,000000");
   prefs.gui_colorized_bg           = g_strdup("ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0");
-  prefs.gui_geometry_save_position =         FALSE;
-  prefs.gui_geometry_save_size     =         TRUE;
-  prefs.gui_geometry_save_maximized=         TRUE;
+  prefs.st_client_fg.pixel         =     0;
+  prefs.st_client_fg.red           = 32767;
+  prefs.st_client_fg.green         =     0;
+  prefs.st_client_fg.blue          =     0;
+  prefs.st_client_bg.pixel         =     0;
+  prefs.st_client_bg.red           = 64507;
+  prefs.st_client_bg.green         = 60909;
+  prefs.st_client_bg.blue          = 60909;
+  prefs.st_server_fg.pixel         =     0;
+  prefs.st_server_fg.red           =     0;
+  prefs.st_server_fg.green         =     0;
+  prefs.st_server_fg.blue          = 32767;
+  prefs.st_server_bg.pixel         =     0;
+  prefs.st_server_bg.red           = 60909;
+  prefs.st_server_bg.green         = 60909;
+  prefs.st_server_bg.blue          = 64507;
+  prefs.gui_geometry_save_position = FALSE;
+  prefs.gui_geometry_save_size     = TRUE;
+  prefs.gui_geometry_save_maximized= TRUE;
   prefs.gui_macosx_style           = TRUE;
   prefs.gui_console_open           = console_open_never;
   prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
@@ -1631,15 +2596,21 @@ init_prefs(void)
   prefs.gui_layout_content_1       = layout_pane_content_plist;
   prefs.gui_layout_content_2       = layout_pane_content_pdetails;
   prefs.gui_layout_content_3       = layout_pane_content_pbytes;
-  prefs.console_log_level          =
-      G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR;
+
+  prefs.col_list = NULL;
+  for (i = 0; i < DEF_NUM_COLS; i++) {
+    cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+    cfmt->title = g_strdup(col_fmt[i * 2]);
+    parse_column_format(cfmt, col_fmt[(i * 2) + 1]);
+    cfmt->visible = TRUE;
+    cfmt->resolved = TRUE;
+    cfmt->custom_field = NULL;
+    cfmt->custom_occurrence = 0;
+    prefs.col_list = g_list_append(prefs.col_list, cfmt);
+  }
+  prefs.num_cols  = DEF_NUM_COLS;
 
 /* set the default values for the capture dialog box */
-  prefs.capture_device                = NULL;
-  prefs.capture_devices_linktypes     = NULL;
-  prefs.capture_devices_descr         = NULL;
-  prefs.capture_devices_hide          = NULL;
-  prefs.capture_devices_monitor_mode  = NULL;
   prefs.capture_prom_mode             = TRUE;
 #ifdef PCAP_NG_DEFAULT
   prefs.capture_pcap_ng               = TRUE;
@@ -1649,23 +2620,23 @@ init_prefs(void)
   prefs.capture_real_time             = TRUE;
   prefs.capture_auto_scroll           = TRUE;
   prefs.capture_show_info             = FALSE;
+
   prefs.capture_columns               = NULL;
   for (i = 0; i < num_capture_cols; i++) {
     col_name = g_strdup(capture_cols[i]);
     prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
   }
 
+  prefs.console_log_level          =
+      G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR;
+
 /* set the default values for the tap/statistics dialog box */
   prefs.tap_update_interval    = TAP_UPDATE_DEFAULT_INTERVAL;
   prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
 
   prefs.display_hidden_proto_items = FALSE;
-  filter_expression_init(TRUE);
 
-  prefs_initialized = TRUE;
-
-  /* Keep a copy of the default preferences established here */
-  copy_prefs(&default_prefs, &prefs);
+  prefs_pre_initialized = TRUE;
 }
 
 /*
@@ -1759,22 +2730,8 @@ prefs_reset(void)
    * Free information associated with the current values of non-dissector
    * preferences.
    */
-  g_free(prefs.pr_file);
-  g_free(prefs.pr_cmd);
-  free_col_info(&prefs);
-  g_free(prefs.gui_font_name);
   g_free(prefs.gui_colorized_fg);
   g_free(prefs.gui_colorized_bg);
-  g_free(prefs.gui_fileopen_dir);
-  g_free(prefs.gui_webbrowser);
-  g_free(prefs.gui_window_title);
-  g_free(prefs.gui_start_title);
-  g_free(prefs.capture_device);
-  g_free(prefs.capture_devices_linktypes);
-  g_free(prefs.capture_devices_descr);
-  g_free(prefs.capture_devices_hide);
-  g_free(prefs.capture_devices_monitor_mode);
-  g_list_free(prefs.capture_columns);
 
   /*
    * Unload all UAT preferences.
@@ -2296,89 +3253,11 @@ prefs_capture_options_dialog_column_is_visible(const gchar *column)
     return FALSE;
 }
 
-
-#define PRS_COL_HIDDEN                   "column.hidden"
-#define PRS_COL_FMT                      "column.format"
-#define PRS_STREAM_CL_FG                 "stream.client.fg"
-#define PRS_STREAM_CL_BG                 "stream.client.bg"
-#define PRS_STREAM_SR_FG                 "stream.server.fg"
-#define PRS_STREAM_SR_BG                 "stream.server.bg"
-#define PRS_GUI_SCROLLBAR_ON_RIGHT       "gui.scrollbar_on_right"
-#define PRS_GUI_PLIST_SEL_BROWSE         "gui.packet_list_sel_browse"
-#define PRS_GUI_PTREE_SEL_BROWSE         "gui.protocol_tree_sel_browse"
-#define PRS_GUI_ALTERN_COLORS            "gui.tree_view_altern_colors"
-#define PRS_GUI_EXPERT_COMPOSITE_EYECANDY "gui.expert_composite_eyecandy"
-#define PRS_GUI_FILTER_TOOLBAR_IN_STATUSBAR "gui.filter_toolbar_show_in_statusbar"
-#define PRS_GUI_PTREE_LINE_STYLE         "gui.protocol_tree_line_style"
-#define PRS_GUI_PTREE_EXPANDER_STYLE     "gui.protocol_tree_expander_style"
-#define PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE "gui.hex_dump_highlight_style"
-#define PRS_GUI_FONT_NAME_1              "gui.font_name"
-#define PRS_GUI_FONT_NAME_2              "gui.gtk2.font_name"
-#define PRS_GUI_MARKED_FG                "gui.marked_frame.fg"
-#define PRS_GUI_MARKED_BG                "gui.marked_frame.bg"
-#define PRS_GUI_IGNORED_FG               "gui.ignored_frame.fg"
-#define PRS_GUI_IGNORED_BG               "gui.ignored_frame.bg"
 #define PRS_GUI_COLORIZED_FG             "gui.colorized_frame.fg"
 #define PRS_GUI_COLORIZED_BG             "gui.colorized_frame.bg"
-#define PRS_GUI_CONSOLE_OPEN             "gui.console_open"
-#define PRS_GUI_FILEOPEN_STYLE           "gui.fileopen.style"
-#define PRS_GUI_RECENT_COUNT_MAX         "gui.recent_files_count.max"
-#define PRS_GUI_RECENT_DF_ENTRIES_MAX    "gui.recent_display_filter_entries.max"
-#define PRS_GUI_FILEOPEN_DIR             "gui.fileopen.dir"
-#define PRS_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen.remembered_dir"
-#define PRS_GUI_FILEOPEN_PREVIEW         "gui.fileopen.preview"
-#define PRS_GUI_ASK_UNSAVED              "gui.ask_unsaved"
-#define PRS_GUI_FIND_WRAP                "gui.find_wrap"
-#define PRS_GUI_USE_PREF_SAVE            "gui.use_pref_save"
-#define PRS_GUI_GEOMETRY_SAVE_POSITION   "gui.geometry.save.position"
-#define PRS_GUI_GEOMETRY_SAVE_SIZE       "gui.geometry.save.size"
-#define PRS_GUI_GEOMETRY_SAVE_MAXIMIZED  "gui.geometry.save.maximized"
-#define PRS_GUI_MACOSX_STYLE             "gui.macosx_style"
-#define PRS_GUI_GEOMETRY_MAIN_X          "gui.geometry.main.x"
-#define PRS_GUI_GEOMETRY_MAIN_Y          "gui.geometry.main.y"
-#define PRS_GUI_GEOMETRY_MAIN_WIDTH      "gui.geometry.main.width"
-#define PRS_GUI_GEOMETRY_MAIN_HEIGHT     "gui.geometry.main.height"
-#define PRS_GUI_TOOLBAR_MAIN_SHOW        "gui.toolbar_main_show"
-#define PRS_GUI_TOOLBAR_MAIN_STYLE       "gui.toolbar_main_style"
-#define PRS_GUI_TOOLBAR_FILTER_STYLE     "gui.toolbar_filter_style"
-#define PRS_GUI_WEBBROWSER               "gui.webbrowser"
-#define PRS_GUI_WINDOW_TITLE             "gui.window_title"
-#define PRS_GUI_START_TITLE              "gui.start_title"
-#define PRS_GUI_VERSION_PLACEMENT        "gui.version_placement"
-#define PRS_GUI_AUTO_SCROLL              "gui.auto_scroll_on_expand"
-#define PRS_GUI_AUTO_SCROLL_PERCENTAGE   "gui.auto_scroll_percentage"
-#define PRS_GUI_LAYOUT_TYPE              "gui.layout_type"
-#define PRS_GUI_LAYOUT_CONTENT_1         "gui.layout_content_1"
-#define PRS_GUI_LAYOUT_CONTENT_2         "gui.layout_content_2"
-#define PRS_GUI_LAYOUT_CONTENT_3         "gui.layout_content_3"
-#define PRS_CONSOLE_LOG_LEVEL            "console.log.level"
 #define PRS_GUI_FILTER_LABEL             "gui.filter_expressions.label"
 #define PRS_GUI_FILTER_EXPR              "gui.filter_expressions.expr"
 #define PRS_GUI_FILTER_ENABLED           "gui.filter_expressions.enabled"
-
-/*
- * This applies to more than just captures, so it's not "capture.name_resolve";
- * "capture.name_resolve" is supported on input for backwards compatibility.
- *
- * It's not a preference for a particular part of Wireshark, it's used all
- * over the place, so its name doesn't have two components.
- */
-
-/*  values for the capture dialog box */
-#define PRS_CAP_DEVICE               "capture.device"
-#define PRS_CAP_DEVICES_LINKTYPES    "capture.devices_linktypes"
-#define PRS_CAP_DEVICES_DESCR        "capture.devices_descr"
-#define PRS_CAP_DEVICES_HIDE         "capture.devices_hide"
-#define PRS_CAP_DEVICES_MONITOR_MODE "capture.devices_monitor_mode"
-#define PRS_CAP_PROM_MODE            "capture.prom_mode"
-#define PRS_CAP_PCAP_NG              "capture.pcap_ng"
-#define PRS_CAP_REAL_TIME            "capture.real_time_update"
-#define PRS_CAP_AUTO_SCROLL          "capture.auto_scroll"
-#define PRS_CAP_SHOW_INFO            "capture.show_info"
-#define PRS_CAP_COLUMNS              "capture.columns"
-
-/* obsolete preference */
-#define PRS_CAP_SYNTAX_CHECK_FILTER  "capture.syntax_check_filter"
 
 #define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
 #define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))
@@ -2465,9 +3344,6 @@ static prefs_set_pref_e
 set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
          gboolean return_range_errors)
 {
-  GList    *clp, *col_l, *col_l_elt;
-  gint      llen;
-  fmt_data *cfmt;
   unsigned long int cval;
   guint    uval;
   gboolean bval;
@@ -2481,20 +3357,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
   pref_t   *pref;
   gboolean had_a_dot;
 
-  if (strcmp(pref_name, PRS_COL_HIDDEN) == 0) {
-    g_free(cols_hidden_list);
-    cols_hidden_list = g_strdup(value);
-    /*
-     * Set the "visible" flag for the existing columns; we need to
-     * do this if we set PRS_COL_HIDDEN but don't set PRS_COL_FMT
-     * after setting it (which might be the case if, for example, we
-     * set PRS_COL_HIDDEN on the command line).
-     */
-    for (clp = prefs.col_list; clp != NULL; clp = clp->next) {
-      cfmt = (fmt_data *)clp->data;
-      cfmt->visible = prefs_is_column_visible(cols_hidden_list, cfmt);
-    }
-  } else if (strcmp(pref_name, PRS_GUI_FILTER_LABEL) == 0) {
+  if (strcmp(pref_name, PRS_GUI_FILTER_LABEL) == 0) {
     filter_label = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_FILTER_ENABLED) == 0) {
     filter_enabled = (strcmp(value, "TRUE") == 0) ? TRUE : FALSE;
@@ -2503,362 +3366,64 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     filter_expression_new(filter_label, filter_expr, filter_enabled);
     g_free(filter_label);
     g_free(filter_expr);
-  } else if (strcmp(pref_name, PRS_COL_FMT) == 0) {
-    col_l = prefs_get_string_list(value);
-    if (col_l == NULL)
-      return PREFS_SET_SYNTAX_ERR;
-    if ((g_list_length(col_l) % 2) != 0) {
-      /* A title didn't have a matching format.  */
-      prefs_clear_string_list(col_l);
-      return PREFS_SET_SYNTAX_ERR;
-    }
-    /* Check to make sure all column formats are valid.  */
-    col_l_elt = g_list_first(col_l);
-    while(col_l_elt) {
-      fmt_data cfmt_check;
-
-      /* Go past the title.  */
-      col_l_elt = col_l_elt->next;
-
-      /* Parse the format to see if it's valid.  */
-      if (!parse_column_format(&cfmt_check, col_l_elt->data)) {
-        /* It's not a valid column format.  */
-        prefs_clear_string_list(col_l);
-        return PREFS_SET_SYNTAX_ERR;
-      }
-      if (cfmt_check.fmt != COL_CUSTOM) {
-        /* Some predefined columns have been migrated to use custom colums.
-         * We'll convert these silently here */
-        try_convert_to_custom_column(&col_l_elt->data);
-      } else {
-        /* We don't need the custom column field on this pass. */
-        g_free(cfmt_check.custom_field);
-      }
-
-      /* Go past the format.  */
-      col_l_elt = col_l_elt->next;
-    }
-
-    /* They're all valid; process them. */
-    free_col_info(&prefs);
-    prefs.col_list = NULL;
-    llen             = g_list_length(col_l);
-    prefs.num_cols   = llen / 2;
-    col_l_elt = g_list_first(col_l);
-    while(col_l_elt) {
-      cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
-      cfmt->title    = g_strdup(col_l_elt->data);
-      col_l_elt      = col_l_elt->next;
-      parse_column_format(cfmt, col_l_elt->data);
-      cfmt->visible   = prefs_is_column_visible(cols_hidden_list, cfmt);
-      col_l_elt      = col_l_elt->next;
-      prefs.col_list = g_list_append(prefs.col_list, cfmt);
-    }
-    prefs_clear_string_list(col_l);
-    g_free (cols_hidden_list);
-    cols_hidden_list = NULL;
-  } else if (strcmp(pref_name, PRS_STREAM_CL_FG) == 0) {
-    cval = strtoul(value, NULL, 16);
-    prefs.st_client_fg.pixel = 0;
-    prefs.st_client_fg.red   = RED_COMPONENT(cval);
-    prefs.st_client_fg.green = GREEN_COMPONENT(cval);
-    prefs.st_client_fg.blue  = BLUE_COMPONENT(cval);
-  } else if (strcmp(pref_name, PRS_STREAM_CL_BG) == 0) {
-    cval = strtoul(value, NULL, 16);
-    prefs.st_client_bg.pixel = 0;
-    prefs.st_client_bg.red   = RED_COMPONENT(cval);
-    prefs.st_client_bg.green = GREEN_COMPONENT(cval);
-    prefs.st_client_bg.blue  = BLUE_COMPONENT(cval);
-  } else if (strcmp(pref_name, PRS_STREAM_SR_FG) == 0) {
-    cval = strtoul(value, NULL, 16);
-    prefs.st_server_fg.pixel = 0;
-    prefs.st_server_fg.red   = RED_COMPONENT(cval);
-    prefs.st_server_fg.green = GREEN_COMPONENT(cval);
-    prefs.st_server_fg.blue  = BLUE_COMPONENT(cval);
-  } else if (strcmp(pref_name, PRS_STREAM_SR_BG) == 0) {
-    cval = strtoul(value, NULL, 16);
-    prefs.st_server_bg.pixel = 0;
-    prefs.st_server_bg.red   = RED_COMPONENT(cval);
-    prefs.st_server_bg.green = GREEN_COMPONENT(cval);
-    prefs.st_server_bg.blue  = BLUE_COMPONENT(cval);
-  } else if (strcmp(pref_name, PRS_GUI_SCROLLBAR_ON_RIGHT) == 0) {
+  } else if (strcmp(pref_name, "gui.version_in_start_page") == 0) {
+    /* Convert deprecated value to closest current equivalent */
     if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_scrollbar_on_right = TRUE;
+	    prefs.gui_version_placement = version_both;
+    } else {
+	    prefs.gui_version_placement = version_neither;
     }
-    else {
-      prefs.gui_scrollbar_on_right = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_PLIST_SEL_BROWSE) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_plist_sel_browse = TRUE;
-    }
-    else {
-      prefs.gui_plist_sel_browse = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_PTREE_SEL_BROWSE) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_ptree_sel_browse = TRUE;
-    }
-    else {
-      prefs.gui_ptree_sel_browse = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_ALTERN_COLORS) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_altern_colors = TRUE;
-    }
-    else {
-      prefs.gui_altern_colors = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_EXPERT_COMPOSITE_EYECANDY) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_expert_composite_eyecandy = TRUE;
-    }
-    else {
-      prefs.gui_expert_composite_eyecandy = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_PTREE_LINE_STYLE) == 0) {
-    prefs.gui_ptree_line_style =
-	find_index_from_string_array(value, gui_ptree_line_style_text, 0);
-  } else if (strcmp(pref_name, PRS_GUI_PTREE_EXPANDER_STYLE) == 0) {
-    prefs.gui_ptree_expander_style =
-	find_index_from_string_array(value, gui_ptree_expander_style_text, 1);
-  } else if (strcmp(pref_name, PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE) == 0) {
-    prefs.gui_hex_dump_highlight_style =
-	find_index_from_string_array(value, gui_hex_dump_highlight_style_text, 1);
-  } else if (strcmp(pref_name, PRS_GUI_FILTER_TOOLBAR_IN_STATUSBAR) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.filter_toolbar_show_in_statusbar = TRUE;
-    }
-    else {
-      prefs.filter_toolbar_show_in_statusbar = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_TOOLBAR_MAIN_SHOW) == 0) {
-    /* obsoleted by recent setting */
-  } else if (strcmp(pref_name, PRS_GUI_TOOLBAR_MAIN_STYLE) == 0) {
-    /* see main_toolbar.c for details, "icons only" is default */
-    prefs.gui_toolbar_main_style =
-        find_index_from_string_array(value, gui_toolbar_style_text,
-				     TB_STYLE_ICONS);
-  } else if (strcmp(pref_name, PRS_GUI_TOOLBAR_FILTER_STYLE) == 0) {
-    /* see main_filter_toolbar.c for details, "name only" is default */
-    prefs.gui_toolbar_filter_style =
-        find_index_from_string_array(value, gui_toolbar_style_text,
-				     TB_STYLE_TEXT);
-  } else if (strcmp(pref_name, PRS_GUI_FONT_NAME_1) == 0) {
-    /* GTK1 font name obsolete */
-  } else if (strcmp(pref_name, PRS_GUI_FONT_NAME_2) == 0) {
-    g_free(prefs.gui_font_name);
-    prefs.gui_font_name = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_GUI_MARKED_FG) == 0) {
-    cval = strtoul(value, NULL, 16);
-    prefs.gui_marked_fg.pixel = 0;
-    prefs.gui_marked_fg.red   = RED_COMPONENT(cval);
-    prefs.gui_marked_fg.green = GREEN_COMPONENT(cval);
-    prefs.gui_marked_fg.blue  = BLUE_COMPONENT(cval);
-  } else if (strcmp(pref_name, PRS_GUI_MARKED_BG) == 0) {
-    cval = strtoul(value, NULL, 16);
-    prefs.gui_marked_bg.pixel = 0;
-    prefs.gui_marked_bg.red   = RED_COMPONENT(cval);
-    prefs.gui_marked_bg.green = GREEN_COMPONENT(cval);
-    prefs.gui_marked_bg.blue  = BLUE_COMPONENT(cval);
-  } else if (strcmp(pref_name, PRS_GUI_IGNORED_FG) == 0) {
-    cval = strtoul(value, NULL, 16);
-    prefs.gui_ignored_fg.pixel = 0;
-    prefs.gui_ignored_fg.red   = RED_COMPONENT(cval);
-    prefs.gui_ignored_fg.green = GREEN_COMPONENT(cval);
-    prefs.gui_ignored_fg.blue  = BLUE_COMPONENT(cval);
-  } else if (strcmp(pref_name, PRS_GUI_IGNORED_BG) == 0) {
-    cval = strtoul(value, NULL, 16);
-    prefs.gui_ignored_bg.pixel = 0;
-    prefs.gui_ignored_bg.red   = RED_COMPONENT(cval);
-    prefs.gui_ignored_bg.green = GREEN_COMPONENT(cval);
-    prefs.gui_ignored_bg.blue  = BLUE_COMPONENT(cval);
   } else if (strcmp(pref_name, PRS_GUI_COLORIZED_FG) == 0) {
     g_free(prefs.gui_colorized_fg);
     prefs.gui_colorized_fg = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_COLORIZED_BG) == 0) {
     g_free(prefs.gui_colorized_bg);
     prefs.gui_colorized_bg = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_SAVE_POSITION) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_geometry_save_position = TRUE;
-    }
-    else {
-      prefs.gui_geometry_save_position = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_SAVE_SIZE) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_geometry_save_size = TRUE;
-    }
-    else {
-      prefs.gui_geometry_save_size = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_geometry_save_maximized = TRUE;
-    }
-    else {
-      prefs.gui_geometry_save_maximized = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_MACOSX_STYLE) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_macosx_style = TRUE;
-    }
-    else {
-      prefs.gui_macosx_style = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_X) == 0) {         /* deprecated */
-  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_Y) == 0) {         /* deprecated */
-  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_WIDTH) == 0) {     /* deprecated */
-  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {    /* deprecated */
-  } else if (strcmp(pref_name, PRS_GUI_CONSOLE_OPEN) == 0) {
-    prefs.gui_console_open =
-        find_index_from_string_array(value, gui_console_open_text,
-				     console_open_never);
-  } else if (strcmp(pref_name, PRS_GUI_RECENT_COUNT_MAX) == 0) {
-    prefs.gui_recent_files_count_max = strtoul(value, NULL, 10);
-    if (prefs.gui_recent_files_count_max == 0) {
-      /* We really should put up a dialog box here ... */
-      prefs.gui_recent_files_count_max = 10;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_RECENT_DF_ENTRIES_MAX) == 0) {
-    prefs.gui_recent_df_entries_max = strtoul(value, NULL, 10);
-    if (prefs.gui_recent_df_entries_max == 0) {
-      /* We really should put up a dialog box here ... */
-      prefs.gui_recent_df_entries_max = 10;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_STYLE) == 0) {
-    prefs.gui_fileopen_style =
-        find_index_from_string_array(value, gui_fileopen_style_text,
-                                     FO_STYLE_LAST_OPENED);
-  } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_DIR) == 0) {
-    g_free(prefs.gui_fileopen_dir);
-    prefs.gui_fileopen_dir = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_REMEMBERED_DIR) == 0) { /* deprecated */
-  } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_PREVIEW) == 0) {
-    prefs.gui_fileopen_preview = strtoul(value, NULL, 10);
-  } else if (strcmp(pref_name, PRS_GUI_ASK_UNSAVED) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_ask_unsaved = TRUE;
-    }
-    else {
-      prefs.gui_ask_unsaved = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_FIND_WRAP) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_find_wrap = TRUE;
-    }
-    else {
-      prefs.gui_find_wrap = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_USE_PREF_SAVE) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_use_pref_save = TRUE;
-    }
-    else {
-      prefs.gui_use_pref_save = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_WEBBROWSER) == 0) {
-    g_free(prefs.gui_webbrowser);
-    prefs.gui_webbrowser = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_GUI_WINDOW_TITLE) == 0) {
-    g_free(prefs.gui_window_title);
-    prefs.gui_window_title = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_GUI_START_TITLE) == 0) {
-    g_free(prefs.gui_start_title);
-    prefs.gui_start_title = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_GUI_VERSION_PLACEMENT) == 0) {
-    prefs.gui_version_placement = strtoul(value, NULL, 10);
-    if (prefs.gui_version_placement > version_neither) {
-      /* XXX - report an error?  It's not a syntax error - we'd need to
-         add a way of reporting a *semantic* error. */
-      prefs.gui_version_placement = version_welcome_only;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_AUTO_SCROLL) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-      prefs.gui_auto_scroll_on_expand = TRUE;
-    } else {
-      prefs.gui_auto_scroll_on_expand = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_AUTO_SCROLL_PERCENTAGE) == 0) {
-    prefs.gui_auto_scroll_percentage = strtoul(value, NULL, 10);
-  } else if (strcmp(pref_name, PRS_GUI_LAYOUT_TYPE) == 0) {
-    prefs.gui_layout_type = strtoul(value, NULL, 10);
-    if (prefs.gui_layout_type == layout_unused ||
-        prefs.gui_layout_type >= layout_type_max) {
-      /* XXX - report an error?  It's not a syntax error - we'd need to
-         add a way of reporting a *semantic* error. */
-      prefs.gui_layout_type = layout_type_5;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_LAYOUT_CONTENT_1) == 0) {
-    prefs.gui_layout_content_1 =
-        find_index_from_string_array(value, gui_layout_content_text, 0);
-  } else if (strcmp(pref_name, PRS_GUI_LAYOUT_CONTENT_2) == 0) {
-    prefs.gui_layout_content_2 =
-        find_index_from_string_array(value, gui_layout_content_text, 0);
-  } else if (strcmp(pref_name, PRS_GUI_LAYOUT_CONTENT_3) == 0) {
-    prefs.gui_layout_content_3 =
-        find_index_from_string_array(value, gui_layout_content_text, 0);
-  } else if (strcmp(pref_name, PRS_CONSOLE_LOG_LEVEL) == 0) {
-    prefs.console_log_level = strtoul(value, NULL, 10);
-    if (prefs.console_log_level & (G_LOG_LEVEL_INFO|G_LOG_LEVEL_DEBUG)) {
-      /*
-       * GLib >= 2.32 drops INFO and DEBUG messages by default. Tell
-       * it not to do that.
-       */
-      g_setenv("G_MESSAGES_DEBUG", "all", TRUE);
-    }
-
-/* handle the capture options */
-  } else if (strcmp(pref_name, PRS_CAP_DEVICE) == 0) {
-    g_free(prefs.capture_device);
-    prefs.capture_device = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_CAP_DEVICES_LINKTYPES) == 0) {
-    g_free(prefs.capture_devices_linktypes);
-    prefs.capture_devices_linktypes = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_CAP_DEVICES_DESCR) == 0) {
-    g_free(prefs.capture_devices_descr);
-    prefs.capture_devices_descr = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_CAP_DEVICES_HIDE) == 0) {
-    g_free(prefs.capture_devices_hide);
-    prefs.capture_devices_hide = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_CAP_DEVICES_MONITOR_MODE) == 0) {
-    g_free(prefs.capture_devices_monitor_mode);
-    prefs.capture_devices_monitor_mode = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_CAP_PROM_MODE) == 0) {
-    prefs.capture_prom_mode = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
-  } else if (strcmp(pref_name, PRS_CAP_PCAP_NG) == 0) {
-    prefs.capture_pcap_ng = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
-  } else if (strcmp(pref_name, PRS_CAP_REAL_TIME) == 0) {
-    prefs.capture_real_time = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
-  } else if (strcmp(pref_name, PRS_CAP_AUTO_SCROLL) == 0) {
-    prefs.capture_auto_scroll = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
-  } else if (strcmp(pref_name, PRS_CAP_SHOW_INFO) == 0) {
-    prefs.capture_show_info = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
-  } else if (strcmp(pref_name, PRS_CAP_COLUMNS) == 0) {
-    gchar *col_name;
-
-    col_l = prefs_get_string_list(value);
-    if (col_l == NULL)
-      return PREFS_SET_SYNTAX_ERR;
-    /* They're all valid; process them. */
-    g_list_free(prefs.capture_columns);
-    prefs.capture_columns = NULL;
-    col_l_elt = g_list_first(col_l);
-    while(col_l_elt) {
-      col_name = (gchar *)col_l_elt->data;
-      prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
-      col_l_elt      = col_l_elt->next;
-    }
-  } else if (strcmp(pref_name, PRS_CAP_SYNTAX_CHECK_FILTER) == 0) {
-    /* Obsolete preference. */
-    ;
+/* handle the deprecated name resolution options */
+  } else if (strcmp(pref_name, "name_resolve") == 0 ||
+	     strcmp(pref_name, "capture.name_resolve") == 0) {
+    /*
+     * "TRUE" and "FALSE", for backwards compatibility, are synonyms for
+     * RESOLV_ALL and RESOLV_NONE.
+     *
+     * Otherwise, we treat it as a list of name types we want to resolve.
+     */
+     if (g_ascii_strcasecmp(value, "true") == 0) {
+        gbl_resolv_flags.mac_name = TRUE;
+        gbl_resolv_flags.network_name = TRUE;
+        gbl_resolv_flags.transport_name = TRUE;
+        gbl_resolv_flags.concurrent_dns = TRUE;
+     }
+     else if (g_ascii_strcasecmp(value, "false") == 0) {
+        gbl_resolv_flags.mac_name = FALSE;
+        gbl_resolv_flags.network_name = FALSE;
+        gbl_resolv_flags.transport_name = FALSE;
+        gbl_resolv_flags.concurrent_dns = FALSE;
+     }
+     else {
+        /* start out with none set */
+        gbl_resolv_flags.mac_name = FALSE;
+        gbl_resolv_flags.network_name = FALSE;
+        gbl_resolv_flags.transport_name = FALSE;
+        gbl_resolv_flags.concurrent_dns = FALSE;
+        if (string_to_name_resolve(value, &gbl_resolv_flags) != '\0')
+           return PREFS_SET_SYNTAX_ERR;
+     }
   } else {
-    /* To which module does this preference belong? */
-    module = NULL;
-    last_dotp = pref_name;
-    had_a_dot = FALSE;
-    while (!module) {
+    /* Handle deprecated "global" options that don't have a module 
+     * associated with them
+     */
+    if ((strcmp(pref_name, "name_resolve_concurrency") == 0) ||
+        (strcmp(pref_name, "name_resolve_load_smi_modules") == 0)  ||
+        (strcmp(pref_name, "name_resolve_suppress_smi_errors") == 0)) {
+        module = nameres_module;
+        dotp = pref_name;
+    } else {
+      /* To which module does this preference belong? */
+      module = NULL;
+      last_dotp = pref_name;
+      had_a_dot = FALSE;
+      while (!module) {
         dotp = strchr(last_dotp, '.');
         if (dotp == NULL) {
             if (had_a_dot) {
@@ -2899,7 +3464,9 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
          *
          */
         if (module == NULL) {
-          if (strcmp(pref_name, "Diameter") == 0)
+          if (strcmp(pref_name, "column") == 0)
+            module = gui_column_module;
+          else if (strcmp(pref_name, "Diameter") == 0)
             module = prefs_find_module("diameter");
           else if (strcmp(pref_name, "bxxp") == 0)
             module = prefs_find_module("beep");
@@ -2926,12 +3493,20 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
         *dotp = '.';                /* put the preference string back */
         dotp++;                        /* skip past separator to preference name */
         last_dotp = dotp;
+      }
     }
 
     pref = prefs_find_preference(module, dotp);
 
     if (pref == NULL) {
-      if (strcmp(module->name, "mgcp") == 0) {
+      /* "gui" prefix was added to column preferences for better organization
+       * within the preferences file
+       */
+      if ((strcmp(pref_name, PRS_COL_HIDDEN) == 0) ||
+          (strcmp(pref_name, PRS_COL_FMT) == 0)) {
+         pref = prefs_find_preference(module, pref_name);
+      }
+      else if (strcmp(module->name, "mgcp") == 0) {
         /*
          * XXX - "mgcp.display raw text toggle" and "mgcp.display dissect tree"
          * rather than "mgcp.display_raw_text" and "mgcp.display_dissect_tree"
@@ -3156,6 +3731,27 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
             module = new_module;
           }
         }
+      } else if (strcmp(module->name, "taps") == 0) {
+          /* taps preferences moved to stats module */
+          if (strcmp(dotp, "update_interval") == 0 || strcmp(value, "rtp_player_max_visible") == 0)
+            pref = prefs_find_preference(stats_module, dotp);
+      } else if (strcmp(module->name, "packet_list") == 0) {
+          /* packet_list preferences moved to protocol module */
+          if (strcmp(dotp, "display_hidden_proto_items") == 0)
+            pref = prefs_find_preference(protocols_module, dotp);
+      } else if (strcmp(module->name, "stream") == 0) {
+          /* stream preferences moved to gui color module */
+          if ((strcmp(dotp, "stream.client.fg") == 0) || (strcmp(value, "stream.client.bg") == 0) ||
+              (strcmp(dotp, "stream.server.fg") == 0) || (strcmp(value, "stream.server.bg") == 0))
+            pref = prefs_find_preference(gui_color_module, pref_name);
+      } else if (strcmp(module->name, "nameres") == 0) {
+          if (strcmp(pref_name, "name_resolve_concurrency") == 0) {
+            pref = prefs_find_preference(nameres_module, pref_name);
+          } else if (strcmp(pref_name, "name_resolve_load_smi_modules") == 0) {
+            pref = prefs_find_preference(nameres_module, "load_smi_modules");
+          } else if (strcmp(pref_name, "name_resolve_suppress_smi_errors") == 0) {
+            pref = prefs_find_preference(nameres_module, "suppress_smi_errors");
+          }
       }
     }
     if (pref == NULL)
@@ -3254,6 +3850,11 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
 
   return PREFS_SET_OK;
 }
+
+typedef struct {
+    FILE     *pf;
+    gboolean is_gui_module;
+} write_gui_pref_arg_t;
 
 /*
  * Write out a single dissector preference.
@@ -3429,13 +4030,35 @@ write_pref(gpointer data, gpointer user_data)
  * Write out all preferences for a module.
  */
 static gboolean
-write_module_prefs(void *value, void *data)
+write_module_prefs(module_t *module, gpointer user_data)
 {
+    write_gui_pref_arg_t *gui_pref_arg = (write_gui_pref_arg_t*)user_data;
     write_pref_arg_t arg;
 
-    arg.module = value;
-    arg.pf = data;
+    /* The GUI module needs to be explicitly called out so it
+       can be written out of order */
+    if ((module == gui_module) && (gui_pref_arg->is_gui_module != TRUE))
+        return FALSE;
+
+    /* Write a header for the main modules and GUI sub-modules */
+    if (((module->parent == NULL) || (module->parent == gui_module)) &&
+        ((prefs_module_has_submodules(module)) ||
+         (module->numprefs > 0) ||
+         (module->name == NULL))) {
+         if ((module->name == NULL) && (module->parent != NULL)) {
+            fprintf(gui_pref_arg->pf, "\n####### %s: %s ########\n", module->parent->title, module->title);
+         } else {
+            fprintf(gui_pref_arg->pf, "\n####### %s ########\n", module->title);
+         }
+    }
+
+    arg.module = module;
+    arg.pf = gui_pref_arg->pf;
     g_list_foreach(arg.module->prefs, write_pref, &arg);
+
+    if(prefs_module_has_submodules(module))
+        return prefs_modules_foreach_submodules(module, write_module_prefs, user_data);
+
     return FALSE;
 }
 
@@ -3450,10 +4073,8 @@ write_prefs(char **pf_path_return)
 {
   char        *pf_path;
   FILE        *pf;
-  GList       *clp, *col_l;
-  fmt_data    *cfmt;
   GString     *cols_hidden = g_string_new ("");
-  gchar       *col;
+  write_gui_pref_arg_t write_gui_pref_info;
 
   /* Needed for "-G defaultprefs" */
   init_prefs();
@@ -3481,487 +4102,23 @@ write_prefs(char **pf_path_return)
         "# Preferences that have been commented out have not been\n"
         "# changed from their default value.\n", pf);
 
-  fprintf (pf, "\n######## User Interface ########\n");
-
-  fprintf(pf, "\n# Vertical scrollbars should be on right side?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_scrollbar_on_right == default_prefs.gui_scrollbar_on_right)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_SCROLLBAR_ON_RIGHT ": %s\n",
-          prefs.gui_scrollbar_on_right == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Packet-list selection bar can be used to browse w/o selecting?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_plist_sel_browse == default_prefs.gui_plist_sel_browse)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_PLIST_SEL_BROWSE ": %s\n",
-          prefs.gui_plist_sel_browse == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Protocol-tree selection bar can be used to browse w/o selecting?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_ptree_sel_browse == default_prefs.gui_ptree_sel_browse)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_PTREE_SEL_BROWSE ": %s\n",
-          prefs.gui_ptree_sel_browse == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Alternating colors in TreeViews?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_altern_colors == default_prefs.gui_altern_colors)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_ALTERN_COLORS ": %s\n",
-          prefs.gui_altern_colors == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Display LEDs on Expert Composite Dialog Tabs?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_expert_composite_eyecandy == default_prefs.gui_expert_composite_eyecandy)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_EXPERT_COMPOSITE_EYECANDY ": %s\n",
-          prefs.gui_expert_composite_eyecandy == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Place filter toolbar inside the statusbar?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.filter_toolbar_show_in_statusbar == default_prefs.filter_toolbar_show_in_statusbar)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_FILTER_TOOLBAR_IN_STATUSBAR ": %s\n",
-         prefs.filter_toolbar_show_in_statusbar == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Protocol-tree line style.\n");
-  fprintf(pf, "# One of: NONE, SOLID, DOTTED, TABBED\n");
-  if (prefs.gui_ptree_line_style == default_prefs.gui_ptree_line_style)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_PTREE_LINE_STYLE ": %s\n",
-          gui_ptree_line_style_text[prefs.gui_ptree_line_style]);
-
-  fprintf(pf, "\n# Protocol-tree expander style.\n");
-  fprintf(pf, "# One of: NONE, SQUARE, TRIANGLE, CIRCULAR\n");
-  if (prefs.gui_ptree_expander_style == default_prefs.gui_ptree_expander_style)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_PTREE_EXPANDER_STYLE ": %s\n",
-          gui_ptree_expander_style_text[prefs.gui_ptree_expander_style]);
-
-  fprintf(pf, "\n# Hex dump highlight style.\n");
-  fprintf(pf, "# One of: BOLD, INVERSE\n");
-  if (prefs.gui_hex_dump_highlight_style == default_prefs.gui_hex_dump_highlight_style)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE ": %s\n",
-          gui_hex_dump_highlight_style_text[prefs.gui_hex_dump_highlight_style]);
-
-  fprintf(pf, "\n# Main Toolbar style.\n");
-  fprintf(pf, "# One of: ICONS, TEXT, BOTH\n");
-  if (prefs.gui_toolbar_main_style == default_prefs.gui_toolbar_main_style)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_TOOLBAR_MAIN_STYLE ": %s\n",
-          gui_toolbar_style_text[prefs.gui_toolbar_main_style]);
-
-  fprintf(pf, "\n# Filter Toolbar style.\n");
-  fprintf(pf, "# One of: ICONS, TEXT, BOTH\n");
-  if (prefs.gui_toolbar_filter_style == default_prefs.gui_toolbar_filter_style)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_TOOLBAR_FILTER_STYLE ": %s\n",
-          gui_toolbar_style_text[prefs.gui_toolbar_filter_style]);
-
-  fprintf(pf, "\n# Save window position at exit?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_geometry_save_position == default_prefs.gui_geometry_save_position)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_GEOMETRY_SAVE_POSITION ": %s\n",
-          prefs.gui_geometry_save_position == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Save window size at exit?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_geometry_save_size == default_prefs.gui_geometry_save_size)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_GEOMETRY_SAVE_SIZE ": %s\n",
-          prefs.gui_geometry_save_size == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Save window maximized state at exit?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_geometry_save_maximized == default_prefs.gui_geometry_save_maximized)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED ": %s\n",
-          prefs.gui_geometry_save_maximized == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Use Mac OS X style (Mac OS X with native GTK only)?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_macosx_style == default_prefs.gui_macosx_style)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_MACOSX_STYLE ": %s\n",
-          prefs.gui_macosx_style == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Open a console window (WIN32 only)?\n");
-  fprintf(pf, "# One of: NEVER, AUTOMATIC, ALWAYS\n");
-  if (prefs.gui_console_open == default_prefs.gui_console_open)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_CONSOLE_OPEN ": %s\n",
-          gui_console_open_text[prefs.gui_console_open]);
-
-  fprintf(pf, "\n# The max. number of entries in the display filter list.\n");
-  fprintf(pf, "# A decimal number.\n");
-  if (prefs.gui_recent_df_entries_max == default_prefs.gui_recent_df_entries_max)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_RECENT_DF_ENTRIES_MAX ": %d\n",
-          prefs.gui_recent_df_entries_max);
-
-  fprintf(pf, "\n# The max. number of items in the open recent files list.\n");
-  fprintf(pf, "# A decimal number.\n");
-  if (prefs.gui_recent_files_count_max == default_prefs.gui_recent_files_count_max)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_RECENT_COUNT_MAX ": %d\n",
-          prefs.gui_recent_files_count_max);
-
-  fprintf(pf, "\n# Where to start the File Open dialog box.\n");
-  fprintf(pf, "# One of: LAST_OPENED, SPECIFIED\n");
-  if (prefs.gui_fileopen_style == default_prefs.gui_fileopen_style)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_FILEOPEN_STYLE ": %s\n",
-          gui_fileopen_style_text[prefs.gui_fileopen_style]);
-
-  if (prefs.gui_fileopen_dir != NULL) {
-    fprintf(pf, "\n# Directory to start in when opening File Open dialog.\n");
-    if (strcmp(prefs.gui_fileopen_dir, default_prefs.gui_fileopen_dir) == 0)
-      fprintf(pf, "#");
-    fprintf(pf, PRS_GUI_FILEOPEN_DIR ": %s\n",
-            prefs.gui_fileopen_dir);
-  }
-
-  fprintf(pf, "\n# The preview timeout in the File Open dialog.\n");
-  fprintf(pf, "# A decimal number (in seconds).\n");
-  if (prefs.gui_fileopen_preview == default_prefs.gui_fileopen_preview)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_FILEOPEN_PREVIEW ": %d\n",
-          prefs.gui_fileopen_preview);
-
-  fprintf(pf, "\n# Ask to save unsaved capture files?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_ask_unsaved == default_prefs.gui_ask_unsaved)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_ASK_UNSAVED ": %s\n",
-          prefs.gui_ask_unsaved == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Wrap to beginning/end of file during search?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_find_wrap == default_prefs.gui_find_wrap)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_FIND_WRAP ": %s\n",
-          prefs.gui_find_wrap == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Settings dialogs use a save button?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_use_pref_save == default_prefs.gui_use_pref_save)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_USE_PREF_SAVE ": %s\n",
-          prefs.gui_use_pref_save == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# The path to the webbrowser.\n");
-  fprintf(pf, "# Ex: mozilla %%s\n");
-  if (strcmp(prefs.gui_webbrowser, default_prefs.gui_webbrowser) == 0)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_WEBBROWSER ": %s\n", prefs.gui_webbrowser);
-
-  fprintf(pf, "\n# Custom window title. (Appended to existing titles.)\n");
-  if (strcmp(prefs.gui_window_title, default_prefs.gui_window_title) == 0)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_WINDOW_TITLE ": %s\n",
-          prefs.gui_window_title);
-
-  fprintf(pf, "\n# Custom start page title.\n");
-  if (strcmp(prefs.gui_start_title, default_prefs.gui_start_title) == 0)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_START_TITLE ": %s\n",
-          prefs.gui_start_title);
-
-
-  fprintf(pf, "\n# Show version in the start page and/or main screen's title bar.\n");
-  fprintf(pf, "# One of: WELCOME, TITLE, BOTH, NEITHER\n");
-  if (prefs.gui_version_placement == default_prefs.gui_version_placement)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_VERSION_PLACEMENT ": %s\n",
-          gui_version_placement_text[prefs.gui_version_placement]);
-
-  fprintf(pf, "\n# Automatically scroll the recently expanded item.\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.gui_auto_scroll_on_expand == default_prefs.gui_auto_scroll_on_expand)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_AUTO_SCROLL ": %s\n",
-          prefs.gui_auto_scroll_on_expand == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# The percentage down the view the recently expanded item should be scrolled.\n");
-  fprintf(pf, "# A decimal number (a percentage).\n");
-  if (prefs.gui_auto_scroll_percentage == default_prefs.gui_auto_scroll_percentage)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_AUTO_SCROLL_PERCENTAGE ": %d\n",
-          prefs.gui_auto_scroll_percentage);
-
-  fprintf (pf, "\n######## User Interface: Layout ########\n");
-
-  fprintf(pf, "\n# Layout type (1-6).\n");
-  if (prefs.gui_layout_type == default_prefs.gui_layout_type)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_LAYOUT_TYPE ": %d\n",
-          prefs.gui_layout_type);
-
-  fprintf(pf, "\n# Layout content of the panes (1-3).\n");
-  fprintf(pf, "# One of: NONE, PLIST, PDETAILS, PBYTES\n");
-  if (prefs.gui_layout_content_1 == default_prefs.gui_layout_content_1)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_LAYOUT_CONTENT_1 ": %s\n",
-          gui_layout_content_text[prefs.gui_layout_content_1]);
-  if (prefs.gui_layout_content_2 == default_prefs.gui_layout_content_2)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_LAYOUT_CONTENT_2 ": %s\n",
-          gui_layout_content_text[prefs.gui_layout_content_2]);
-  if (prefs.gui_layout_content_3 == default_prefs.gui_layout_content_3)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_LAYOUT_CONTENT_3 ": %s\n",
-          gui_layout_content_text[prefs.gui_layout_content_3]);
-
-  fprintf (pf, "\n######## User Interface: Columns ########\n");
-
-  clp = prefs.col_list;
-  col_l = NULL;
-  while (clp) {
-    gchar *prefs_fmt;
-    cfmt = (fmt_data *) clp->data;
-    col_l = g_list_append(col_l, g_strdup(cfmt->title));
-    if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_field)) {
-      prefs_fmt = g_strdup_printf("%s:%s:%d:%c",
-                                  col_format_to_string(cfmt->fmt),
-                                  cfmt->custom_field,
-                                  cfmt->custom_occurrence,
-                                  cfmt->resolved ? 'R' : 'U');
-    } else {
-      prefs_fmt = g_strdup(col_format_to_string(cfmt->fmt));
-    }
-    col_l = g_list_append(col_l, prefs_fmt);
-    if (!cfmt->visible) {
-      if (cols_hidden->len) {
-        g_string_append (cols_hidden, ",");
-      }
-      g_string_append (cols_hidden, prefs_fmt);
-    }
-    clp = clp->next;
-  }
-  fprintf (pf, "\n# Packet list hidden columns.\n");
-  fprintf (pf, "# List all columns to hide in the packet list.\n");
-  fprintf (pf, "%s: %s\n", PRS_COL_HIDDEN, cols_hidden->str);
-  /* This frees the list of strings, but not the strings to which it
-     refers; they are free'ed in put_string_list(). */
-  g_string_free (cols_hidden, TRUE);
-
-  fprintf (pf, "\n# Packet list column format.\n");
-  fprintf (pf, "# Each pair of strings consists of a column title and its format.\n");
-  fprintf (pf, "%s: %s\n", PRS_COL_FMT, put_string_list(col_l));
-  /* This frees the list of strings, but not the strings to which it
-     refers; they are free'ed in put_string_list(). */
-  g_list_free(col_l);
-
-  fprintf (pf, "\n######## User Interface: Font ########\n");
-
-  fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes.\n");
-  if (strcmp(prefs.gui_font_name, default_prefs.gui_font_name) == 0)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_GUI_FONT_NAME_2 ": %s\n", prefs.gui_font_name);
-
-  fprintf (pf, "\n######## User Interface: Colors ########\n");
-
-  fprintf (pf, "\n# Color preferences for a marked frame.\n");
-  fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
-  if (prefs.gui_marked_fg.red == default_prefs.gui_marked_fg.red &&
-      prefs.gui_marked_fg.green == default_prefs.gui_marked_fg.green &&
-      prefs.gui_marked_fg.blue == default_prefs.gui_marked_fg.blue)
-    fprintf(pf, "#");
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_FG,
-           (prefs.gui_marked_fg.red * 255 / 65535),
-           (prefs.gui_marked_fg.green * 255 / 65535),
-           (prefs.gui_marked_fg.blue * 255 / 65535));
-  if (prefs.gui_marked_bg.red == default_prefs.gui_marked_bg.red &&
-      prefs.gui_marked_bg.green == default_prefs.gui_marked_bg.green &&
-      prefs.gui_marked_bg.blue == default_prefs.gui_marked_bg.blue)
-    fprintf(pf, "#");
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_BG,
-           (prefs.gui_marked_bg.red * 255 / 65535),
-           (prefs.gui_marked_bg.green * 255 / 65535),
-           (prefs.gui_marked_bg.blue * 255 / 65535));
-
-  fprintf (pf, "\n# Color preferences for a ignored frame.\n");
-  fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
-  if (prefs.gui_ignored_fg.red == default_prefs.gui_ignored_fg.red &&
-      prefs.gui_ignored_fg.green == default_prefs.gui_ignored_fg.green &&
-      prefs.gui_ignored_fg.blue == default_prefs.gui_ignored_fg.blue)
-    fprintf(pf, "#");
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_IGNORED_FG,
-           (prefs.gui_ignored_fg.red * 255 / 65535),
-           (prefs.gui_ignored_fg.green * 255 / 65535),
-           (prefs.gui_ignored_fg.blue * 255 / 65535));
-  if (prefs.gui_ignored_bg.red == default_prefs.gui_ignored_bg.red &&
-      prefs.gui_ignored_bg.green == default_prefs.gui_ignored_bg.green &&
-      prefs.gui_ignored_bg.blue == default_prefs.gui_ignored_bg.blue)
-    fprintf(pf, "#");
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_IGNORED_BG,
-           (prefs.gui_ignored_bg.red * 255 / 65535),
-           (prefs.gui_ignored_bg.green * 255 / 65535),
-           (prefs.gui_ignored_bg.blue * 255 / 65535));
-
-  /* Don't write the colors of the 10 easy-access-colorfilters to the preferences
-   * file until the colors can be changed in the GUI. Currently this is not really
-   * possible since the STOCK-icons for these colors are hardcoded.
-   *
-   * XXX Find a way to change the colors of the STOCK-icons on the fly and then
-   *     add these 10 colors to the list of colors that can be changed through
-   *     the preferences.
-   *
-  fprintf (pf, "%s: %s\n", PRS_GUI_COLORIZED_FG, prefs.gui_colorized_fg);
-  fprintf (pf, "%s: %s\n", PRS_GUI_COLORIZED_BG, prefs.gui_colorized_bg);
-  */
-
-  fprintf (pf, "\n# TCP stream window color preferences.\n");
-  fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
-  if (prefs.st_client_fg.red == default_prefs.st_client_fg.red &&
-      prefs.st_client_fg.green == default_prefs.st_client_fg.green &&
-      prefs.st_client_fg.blue == default_prefs.st_client_fg.blue)
-    fprintf(pf, "#");
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_FG,
-           (prefs.st_client_fg.red * 255 / 65535),
-           (prefs.st_client_fg.green * 255 / 65535),
-           (prefs.st_client_fg.blue * 255 / 65535));
-  if (prefs.st_client_bg.red == default_prefs.st_client_bg.red &&
-      prefs.st_client_bg.green == default_prefs.st_client_bg.green &&
-      prefs.st_client_bg.blue == default_prefs.st_client_bg.blue)
-    fprintf(pf, "#");
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_BG,
-           (prefs.st_client_bg.red * 255 / 65535),
-           (prefs.st_client_bg.green * 255 / 65535),
-           (prefs.st_client_bg.blue * 255 / 65535));
-  if (prefs.st_server_fg.red == default_prefs.st_server_fg.red &&
-      prefs.st_server_fg.green == default_prefs.st_server_fg.green &&
-      prefs.st_server_fg.blue == default_prefs.st_server_fg.blue)
-    fprintf(pf, "#");
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_SR_FG,
-           (prefs.st_server_fg.red * 255 / 65535),
-           (prefs.st_server_fg.green * 255 / 65535),
-           (prefs.st_server_fg.blue * 255 / 65535));
-  if (prefs.st_server_bg.red == default_prefs.st_server_bg.red &&
-      prefs.st_server_bg.green == default_prefs.st_server_bg.green &&
-      prefs.st_server_bg.blue == default_prefs.st_server_bg.blue)
-    fprintf(pf, "#");
-  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_SR_BG,
-           (prefs.st_server_bg.red * 255 / 65535),
-           (prefs.st_server_bg.green * 255 / 65535),
-           (prefs.st_server_bg.blue * 255 / 65535));
-
-  fprintf(pf, "\n######## Console: logging level ########\n");
-  fprintf(pf, "# (debugging only, not in the Preferences dialog)\n");
-  fprintf(pf, "# A bitmask of glib log levels:\n"
-          "# G_LOG_LEVEL_ERROR    = 4\n"
-          "# G_LOG_LEVEL_CRITICAL = 8\n"
-          "# G_LOG_LEVEL_WARNING  = 16\n"
-          "# G_LOG_LEVEL_MESSAGE  = 32\n"
-          "# G_LOG_LEVEL_INFO     = 64\n"
-          "# G_LOG_LEVEL_DEBUG    = 128\n");
-
-  if (prefs.console_log_level == default_prefs.console_log_level)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_CONSOLE_LOG_LEVEL ": %u\n",
-          prefs.console_log_level);
-
-  fprintf(pf, "\n####### Capture ########\n");
-
-  if (prefs.capture_device != NULL) {
-    fprintf(pf, "\n# Default capture device\n");
-    fprintf(pf, PRS_CAP_DEVICE ": %s\n", prefs.capture_device);
-  }
-
-  if (prefs.capture_devices_linktypes != NULL) {
-    fprintf(pf, "\n# Interface link-layer header types.\n");
-    fprintf(pf, "# A decimal number for the DLT.\n");
-    fprintf(pf, "# Ex: en0(1),en1(143),...\n");
-    fprintf(pf, PRS_CAP_DEVICES_LINKTYPES ": %s\n", prefs.capture_devices_linktypes);
-  }
-
-  if (prefs.capture_devices_descr != NULL) {
-    fprintf(pf, "\n# Interface descriptions.\n");
-    fprintf(pf, "# Ex: eth0(eth0 descr),eth1(eth1 descr),...\n");
-    fprintf(pf, PRS_CAP_DEVICES_DESCR ": %s\n", prefs.capture_devices_descr);
-  }
-
-  if (prefs.capture_devices_hide != NULL) {
-    fprintf(pf, "\n# Hide interface?\n");
-    fprintf(pf, "# Ex: eth0,eth3,...\n");
-    fprintf(pf, PRS_CAP_DEVICES_HIDE ": %s\n", prefs.capture_devices_hide);
-  }
-
-  if (prefs.capture_devices_monitor_mode != NULL) {
-    fprintf(pf, "\n# By default, capture in monitor mode on interface?\n");
-    fprintf(pf, "# Ex: eth0,eth3,...\n");
-    fprintf(pf, PRS_CAP_DEVICES_MONITOR_MODE ": %s\n", prefs.capture_devices_monitor_mode);
-  }
-
-  fprintf(pf, "\n# Capture in promiscuous mode?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.capture_prom_mode == default_prefs.capture_prom_mode)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_CAP_PROM_MODE ": %s\n",
-          prefs.capture_prom_mode == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Capture in Pcap-NG format?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.capture_pcap_ng == default_prefs.capture_pcap_ng)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_CAP_PCAP_NG ": %s\n",
-          prefs.capture_pcap_ng == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Update packet list in real time during capture?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.capture_real_time == default_prefs.capture_real_time)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_CAP_REAL_TIME ": %s\n",
-          prefs.capture_real_time == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Scroll packet list during capture?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.capture_auto_scroll == default_prefs.capture_auto_scroll)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_CAP_AUTO_SCROLL ": %s\n",
-          prefs.capture_auto_scroll == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Show capture info dialog while capturing?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.capture_show_info == default_prefs.capture_show_info)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_CAP_SHOW_INFO ": %s\n",
-          prefs.capture_show_info == TRUE ? "TRUE" : "FALSE");
-  clp = prefs.capture_columns;
-  col_l = NULL;
-  while (clp) {
-    col = (gchar *) clp->data;
-    col_l = g_list_append(col_l, g_strdup(col));
-    clp = clp->next;
-  }
-   
-  fprintf(pf, "\n# Capture options dialog column list.\n");
-  fprintf(pf, "# List of columns to be displayed.\n");
-  fprintf(pf, "# Possible values: INTERFACE,LINK,PMODE,SNAPLEN,MONITOR,BUFFER,FILTER\n");
-  fprintf (pf, "%s: %s\n", PRS_CAP_COLUMNS, put_string_list(col_l));
-  /* This frees the list of strings, but not the strings to which it
-     refers; they are free'ed in put_string_list(). */
-  g_list_free(col_l);
-
-  /*
-   * XXX - The following members are intentionally not written here because 
-   * they are handled within the 'generic' preference handling:
-   * pr_format
-   * pr_dest
-   * pr_file
-   * pr_cmd
-   * tap_update_interval
-   * rtp_player_max_visible
+  /* 
+   * For "backwards compatibility" the GUI module is written first as its
+   * at the top of the file.  This is followed by all modules that can't
+   * fit into the preferences read/write API.  Finally the remaining modules
+   * are written in alphabetical order (including of course the protocol preferences)
    */
+  write_gui_pref_info.pf = pf;
+  write_gui_pref_info.is_gui_module = TRUE;
 
-  fprintf(pf, "\n####### Filter Expressions ########\n");
+  write_module_prefs(gui_module, &write_gui_pref_info);
+
   {
-    struct filter_expression *fe;
+    struct filter_expression *fe = *(struct filter_expression **)prefs.filter_expressions;
+    
+    if (fe != NULL)
+      fprintf(pf, "\n####### Filter Expressions ########\n");
 
-    fe = *(struct filter_expression **)prefs.filter_expressions;
     while (fe != NULL) {
       if (fe->deleted == FALSE) {
         fprintf(pf, "%s: %s\n", PRS_GUI_FILTER_LABEL, fe->label);
@@ -3973,15 +4130,8 @@ write_prefs(char **pf_path_return)
     }
   }
 
-  fprintf(pf, "\n####### Protocols ########\n");
-
-  /*
-   * XXX - The following members are intentionally not written here because 
-   * they are handled within the 'generic' preference handling:
-   * display_hidden_proto_items
-   */
-
-  pe_tree_foreach(prefs_modules, write_module_prefs, pf);
+  write_gui_pref_info.is_gui_module = FALSE;
+  prefs_modules_foreach_submodules(NULL, write_module_prefs, &write_gui_pref_info);
 
   fclose(pf);
 
@@ -3992,164 +4142,23 @@ write_prefs(char **pf_path_return)
   return 0;
 }
 
-/* Copy a set of preferences. */
-void
-copy_prefs(e_prefs *dest, e_prefs *src)
-{
-  fmt_data *src_cfmt, *dest_cfmt;
-  GList *entry;
-
-  dest->pr_file = g_strdup(src->pr_file);
-  dest->pr_cmd = g_strdup(src->pr_cmd);
-  dest->col_list = NULL;
-  for (entry = src->col_list; entry != NULL; entry = g_list_next(entry)) {
-    src_cfmt = entry->data;
-    dest_cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
-    dest_cfmt->title = g_strdup(src_cfmt->title);
-    dest_cfmt->fmt = src_cfmt->fmt;
-    if (src_cfmt->custom_field) {
-      dest_cfmt->custom_field = g_strdup(src_cfmt->custom_field);
-      dest_cfmt->custom_occurrence = src_cfmt->custom_occurrence;
-    } else {
-      dest_cfmt->custom_field = NULL;
-      dest_cfmt->custom_occurrence = 0;
-    }
-    dest_cfmt->visible = src_cfmt->visible;
-    dest_cfmt->resolved = src_cfmt->resolved;
-    dest->col_list = g_list_append(dest->col_list, dest_cfmt);
-  }
-  dest->num_cols = src->num_cols;
-  dest->st_client_fg = src->st_client_fg;
-  dest->st_client_bg = src->st_client_bg;
-  dest->st_server_fg = src->st_server_fg;
-  dest->st_server_bg = src->st_server_bg;
-  dest->gui_scrollbar_on_right = src->gui_scrollbar_on_right;
-  dest->gui_plist_sel_browse = src->gui_plist_sel_browse;
-  dest->gui_ptree_sel_browse = src->gui_ptree_sel_browse;
-  dest->gui_altern_colors = src->gui_altern_colors;
-  dest->gui_expert_composite_eyecandy = src->gui_expert_composite_eyecandy;
-  dest->filter_toolbar_show_in_statusbar = src->filter_toolbar_show_in_statusbar;
-  dest->gui_ptree_line_style = src->gui_ptree_line_style;
-  dest->gui_ptree_expander_style = src->gui_ptree_expander_style;
-  dest->gui_hex_dump_highlight_style = src->gui_hex_dump_highlight_style;
-  dest->gui_toolbar_main_style = src->gui_toolbar_main_style;
-  dest->gui_toolbar_filter_style = src->gui_toolbar_filter_style;
-  dest->gui_fileopen_dir = g_strdup(src->gui_fileopen_dir);
-  dest->gui_console_open = src->gui_console_open;
-  dest->gui_fileopen_style = src->gui_fileopen_style;
-  dest->gui_recent_df_entries_max = src->gui_recent_df_entries_max;
-  dest->gui_recent_files_count_max = src->gui_recent_files_count_max;
-  dest->gui_fileopen_preview = src->gui_fileopen_preview;
-  dest->gui_ask_unsaved = src->gui_ask_unsaved;
-  dest->gui_find_wrap = src->gui_find_wrap;
-  dest->gui_use_pref_save = src->gui_use_pref_save;
-  dest->gui_layout_type = src->gui_layout_type;
-  dest->gui_layout_content_1 = src->gui_layout_content_1;
-  dest->gui_layout_content_2 = src->gui_layout_content_2;
-  dest->gui_layout_content_3 = src->gui_layout_content_3;
-  dest->gui_font_name = g_strdup(src->gui_font_name);
-  dest->gui_marked_fg = src->gui_marked_fg;
-  dest->gui_marked_bg = src->gui_marked_bg;
-  dest->gui_ignored_fg = src->gui_ignored_fg;
-  dest->gui_ignored_bg = src->gui_ignored_bg;
-  dest->gui_geometry_save_position = src->gui_geometry_save_position;
-  dest->gui_geometry_save_size = src->gui_geometry_save_size;
-  dest->gui_geometry_save_maximized = src->gui_geometry_save_maximized;
-  dest->gui_macosx_style = src->gui_macosx_style;
-  dest->gui_webbrowser = g_strdup(src->gui_webbrowser);
-  dest->gui_window_title = g_strdup(src->gui_window_title);
-  dest->gui_start_title = g_strdup(src->gui_start_title);
-  dest->gui_version_placement = src->gui_version_placement;
-  dest->console_log_level = src->console_log_level;
-/*  values for the capture dialog box */
-  dest->capture_device = g_strdup(src->capture_device);
-  dest->capture_devices_linktypes = g_strdup(src->capture_devices_linktypes);
-  dest->capture_devices_descr = g_strdup(src->capture_devices_descr);
-  dest->capture_devices_hide = g_strdup(src->capture_devices_hide);
-  dest->capture_devices_monitor_mode = g_strdup(src->capture_devices_monitor_mode);
-  dest->capture_prom_mode = src->capture_prom_mode;
-  dest->capture_pcap_ng = src->capture_pcap_ng;
-  dest->capture_real_time = src->capture_real_time;
-  dest->capture_auto_scroll = src->capture_auto_scroll;
-  dest->capture_show_info = src->capture_show_info;
-
-  /*
-   * XXX - The following members are intentionally not copied because they
-   * are handled within the 'generic' preference handling:
-   * pr_format
-   * pr_dest
-   * tap_update_interval
-   * rtp_player_max_visible
-   * display_hidden_proto_items
-   */
-}
-
-/* Free a set of preferences. */
-void
-free_prefs(e_prefs *pr)
-{
-  if (pr->pr_file != NULL) {
-    g_free(pr->pr_file);
-    pr->pr_file = NULL;
-  }
-  if (pr->pr_cmd != NULL) {
-    g_free(pr->pr_cmd);
-    pr->pr_cmd = NULL;
-  }
-  free_col_info(pr);
-  if (pr->gui_font_name != NULL) {
-    g_free(pr->gui_font_name);
-    pr->gui_font_name = NULL;
-  }
-  if (pr->gui_fileopen_dir != NULL) {
-    g_free(pr->gui_fileopen_dir);
-    pr->gui_fileopen_dir = NULL;
-  }
-  g_free(pr->gui_webbrowser);
-  pr->gui_webbrowser = NULL;
-  if (pr->gui_window_title != NULL) {
-    g_free(pr->gui_window_title);
-    pr->gui_window_title = NULL;
-  }
-  if (pr->gui_start_title != NULL) {
-    g_free(pr->gui_start_title);
-    pr->gui_start_title = NULL;
-  }
-  if (pr->capture_device != NULL) {
-    g_free(pr->capture_device);
-    pr->capture_device = NULL;
-  }
-  if (pr->capture_devices_linktypes != NULL) {
-    g_free(pr->capture_devices_linktypes);
-    pr->capture_devices_linktypes = NULL;
-  }
-  if (pr->capture_devices_descr != NULL) {
-    g_free(pr->capture_devices_descr);
-    pr->capture_devices_descr = NULL;
-  }
-  if (pr->capture_devices_hide != NULL) {
-    g_free(pr->capture_devices_hide);
-    pr->capture_devices_hide = NULL;
-  }
-  if (pr->capture_devices_monitor_mode != NULL) {
-    g_free(pr->capture_devices_monitor_mode);
-    pr->capture_devices_monitor_mode = NULL;
-  }
-}
-
+/** The col_list is only partly managed by the custom preference API 
+ * because its data is shared between multiple preferences, so
+ * it's freed here 
+ */
 static void
-free_col_info(e_prefs *pr)
+free_col_info(GList * list)
 {
   fmt_data *cfmt;
 
-  while (pr->col_list != NULL) {
-    cfmt = pr->col_list->data;
+  while (list != NULL) {
+    cfmt = list->data;
 
     g_free(cfmt->title);
     g_free(cfmt->custom_field);
     g_free(cfmt);
-    pr->col_list = g_list_remove_link(pr->col_list, pr->col_list);
+    list = g_list_remove_link(list, list);
   }
-  g_list_free(pr->col_list);
-  pr->col_list = NULL;
+  g_list_free(list);
+  list = NULL;
 }

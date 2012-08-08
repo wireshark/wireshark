@@ -104,13 +104,6 @@ static GtkWidget *create_preference_filename_entry(GtkWidget *, int,
  */
 static GtkWidget *prefs_w;
 
-/*
- * Save the value of the preferences as of when the preferences dialog
- * box was first popped up, so we can revert to those values if the
- * user selects "Cancel".
- */
-static e_prefs saved_prefs;
-
 struct ct_struct {
   GtkWidget    *main_vb;
   GtkWidget    *notebook;
@@ -445,10 +438,6 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
     reactivate_window(prefs_w);
     return;
   }
-
-  /* Save the current preferences, so we can revert to those values
-     if the user presses "Cancel". */
-  copy_prefs(&saved_prefs, &prefs);
 
   prefs_w = dlg_conf_window_new("Wireshark: Preferences");
 
@@ -1404,7 +1393,6 @@ prefs_main_destroy_all(GtkWidget *dlg)
 
   /* Free up the saved preferences (both for "prefs" and for registered
      preferences). */
-  free_prefs(&saved_prefs);
   prefs_modules_foreach(module_prefs_clean, NULL);
 }
 
@@ -1468,8 +1456,6 @@ module_prefs_copy(module_t *module, gpointer user_data _U_)
 /* Copy prefs to saved values so we can revert to these values */
 /*  if the user selects Cancel.                                */
 static void prefs_copy(void) {
-  free_prefs(&saved_prefs);
-  copy_prefs(&saved_prefs, &prefs);
   prefs_modules_foreach(module_prefs_copy, NULL);
 }
 
@@ -1699,8 +1685,6 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
 
   /* Free up the current preferences and copy the saved preferences to the
      current preferences. */
-  free_prefs(&prefs);
-  copy_prefs(&prefs, &saved_prefs);
   cfile.cinfo.columns_changed = FALSE; /* [XXX: "columns_changed" should treally be stored in prefs struct ??] */
 
   /* Now revert the registered preferences. */

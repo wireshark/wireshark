@@ -1584,7 +1584,7 @@ airpcap_get_default_if(GList* airpcap_if_list)
 {
     airpcap_if_info_t* if_info = NULL;
 
-    if(prefs.capture_device != NULL)
+    if ((prefs.capture_device != NULL) && (*prefs.capture_device != '\0'))
     {
         if_info = get_airpcap_if_from_name(airpcap_if_list,
                                            get_if_name(prefs.capture_device));

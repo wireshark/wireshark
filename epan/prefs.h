@@ -477,12 +477,6 @@ extern e_prefs *read_prefs(int *, int *, char **, int *, int *, char **);
    into "*pf_path_return", and return the errno. */
 extern int write_prefs(char **);
 
-/* Copy a set of preferences. */
-extern void copy_prefs(e_prefs *dest, e_prefs *src);
-
-/* Free a set of preferences. */
-extern void free_prefs(e_prefs *pr);
-
 /*
  * Given a string of the form "<pref name>:<pref value>", as might appear
  * as an argument to a "-o" option, parse it and set the preference in
