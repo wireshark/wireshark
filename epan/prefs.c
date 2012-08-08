@@ -1992,7 +1992,7 @@ prefs_register_modules(void)
     custom_cbs.reset_cb = console_log_level_reset_cb;
     custom_cbs.set_cb = console_log_level_set_cb;
     custom_cbs.write_cb = console_log_level_write_cb;
-    prefs_register_uint_custom_preference(gui_column_module, "log.level", "logging level", 
+    prefs_register_uint_custom_preference(console_module, "log.level", "logging level", 
         "A bitmask of glib log levels", &custom_cbs, &prefs.console_log_level);
 
     /* Capture
@@ -2320,27 +2320,6 @@ find_val_for_string(const char *needle, const enum_val_t *haystack,
     }
     return default_value;
 }
-
-#if 0
-/* Takes an string and a pointer to an array of strings, and a default int value.
- * The array must be terminated by a NULL string. If the string is found in the array
- * of strings, the index of that string in the array is returned. Otherwise, the
- * default value that was passed as the third argument is returned.
- */
-static int
-find_index_from_string_array(char *needle, const char **haystack, int default_value)
-{
-    int i = 0;
-
-    while (haystack[i] != NULL) {
-        if (strcmp(needle, haystack[i]) == 0) {
-            return i;
-        }
-        i++;
-    }
-    return default_value;
-}
-#endif
 
 /* Preferences file format:
  * - Configuration directives start at the beginning of the line, and
