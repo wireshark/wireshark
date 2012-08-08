@@ -43,12 +43,32 @@ Wireshark Info
 	    Laurent Butti.
             <!-- Fixed in trunk: r44247 -->
             <!-- Fixed in trunk-1.8: r44309 -->
-            <!-- Fixed in trunk-1.6: r????? -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.6: r44310 -->
+            <!-- Fixed in trunk-1.4: r44311 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7566">Bug
             7566</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
+          <!-- <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
+          </para> -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-14.html">wnpa-sec-2012-14</ulink>
+          </para>
+          <para>
+	    The MongoDB dissector could go into a large loop. Reported by Ben
+	    Schmidt.
+            <!-- Fixed in trunk: r44288 -->
+            <!-- Fixed in trunk-1.8: r44342 -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7572">Bug
+            7572</ulink>)
+          </para>
+          <para>Versions affected: 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
           <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
           </para> -->

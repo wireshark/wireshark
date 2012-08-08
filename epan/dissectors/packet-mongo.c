@@ -239,8 +239,12 @@ dissect_fullcollectionname(tvbuff_t *tvb, guint offset, proto_tree *tree)
   return fcn_length;
 }
 
+/* http://docs.mongodb.org/manual/reference/limits/ */
+/* http://www.mongodb.org/display/DOCS/Documents */
+#define BSON_MAX_NESTING 100
+#define BSON_MAX_DOC_SIZE (16 * 1000 * 1000)
 static int
-dissect_bson_document(tvbuff_t *tvb, guint offset, proto_tree *tree, int hf_mongo_doc)
+dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int hf_mongo_doc, int nest_level)
 {
   gint32 document_length;
   guint final_offset;
@@ -248,17 +252,33 @@ dissect_bson_document(tvbuff_t *tvb, guint offset, proto_tree *tree, int hf_mong
   proto_tree *doc_tree, *elements_tree, *element_sub_tree, *objectid_sub_tree, *js_code_sub_tree, *js_scope_sub_tree;
 
   document_length = tvb_get_letohl(tvb, offset);
+
+  ti = proto_tree_add_item(tree, hf_mongo_doc, tvb, offset, document_length, ENC_NA);
+  doc_tree = proto_item_add_subtree(ti, ett_mongo_doc);
+
+  proto_tree_add_item(doc_tree, hf_mongo_document_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  if (nest_level > BSON_MAX_NESTING) {
+      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "BSON document recursion exceeds %u", BSON_MAX_NESTING);
+      THROW(ReportedBoundsError);
+  }
+
+  if (document_length < 5) {
+      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "BSON document length too short: %u", document_length);
+      THROW(ReportedBoundsError);
+  }
+
+  if (document_length > BSON_MAX_DOC_SIZE) {
+      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "BSON document length too long: %u", document_length);
+      THROW(ReportedBoundsError);
+  }
+
   if (document_length == 5) {
     /* document with length 5 is an empty document */
     /* don't display the element subtree */
     proto_tree_add_item(tree, hf_mongo_document_empty, tvb, offset, document_length, ENC_NA);
     return document_length;
   }
-
-  ti = proto_tree_add_item(tree, hf_mongo_doc, tvb, offset, document_length, ENC_NA);
-  doc_tree = proto_item_add_subtree(ti, ett_mongo_doc);
-
-  proto_tree_add_item(doc_tree, hf_mongo_document_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   final_offset = offset + document_length;
   offset += 4;
@@ -297,7 +317,7 @@ dissect_bson_document(tvbuff_t *tvb, guint offset, proto_tree *tree, int hf_mong
         break;
       case BSON_ELEMENT_TYPE_DOC:
       case BSON_ELEMENT_TYPE_ARRAY:
-        offset += dissect_bson_document(tvb, offset, element_sub_tree, hf_mongo_document);
+        offset += dissect_bson_document(tvb, pinfo, offset, element_sub_tree, hf_mongo_document, nest_level+1);
         break;
       case BSON_ELEMENT_TYPE_BINARY:
         e_len = tvb_get_letohl(tvb, offset);
@@ -358,7 +378,7 @@ dissect_bson_document(tvbuff_t *tvb, guint offset, proto_tree *tree, int hf_mong
         doc_len = e_len - (str_len + 8);
         js_scope = proto_tree_add_item(element_sub_tree, hf_mongo_element_value_js_scope, tvb, offset, doc_len, ENC_NA);
         js_scope_sub_tree = proto_item_add_subtree(js_scope, ett_mongo_code);
-        offset += dissect_bson_document(tvb, offset, js_scope_sub_tree, hf_mongo_document);
+        offset += dissect_bson_document(tvb, pinfo, offset, js_scope_sub_tree, hf_mongo_document, nest_level+1);
         break;
       case BSON_ELEMENT_TYPE_INT32:
         proto_tree_add_item(element_sub_tree, hf_mongo_element_value_int32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -380,7 +400,7 @@ dissect_bson_document(tvbuff_t *tvb, guint offset, proto_tree *tree, int hf_mong
   return document_length;
 }
 static int
-dissect_mongo_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_mongo_reply(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *flags_tree;
@@ -406,7 +426,7 @@ dissect_mongo_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
   for (i=1; i <= number_returned; i++)
   {
-    offset += dissect_bson_document(tvb, offset, tree, hf_mongo_document);
+    offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_document, 1);
   }
   return offset;
 }
@@ -423,7 +443,7 @@ dissect_mongo_msg(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-dissect_mongo_update(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_mongo_update(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *flags_tree;
@@ -439,15 +459,15 @@ dissect_mongo_update(tvbuff_t *tvb, guint offset, proto_tree *tree)
   proto_tree_add_item(flags_tree, hf_mongo_update_flags_multiupdate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  offset += dissect_bson_document(tvb, offset, tree, hf_mongo_selector);
+  offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_selector, 1);
 
-  offset += dissect_bson_document(tvb, offset, tree, hf_mongo_update);
+  offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_update, 1);
 
   return offset;
 }
 
 static int
-dissect_mongo_insert(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_mongo_insert(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *flags_tree;
@@ -460,14 +480,14 @@ dissect_mongo_insert(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += dissect_fullcollectionname(tvb, offset, tree);
 
   while(offset < tvb_reported_length(tvb)) {
-    offset += dissect_bson_document(tvb, offset, tree, hf_mongo_document);
+    offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_document, 1);
   }
 
   return offset;
 }
 
 static int
-dissect_mongo_query(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_mongo_query(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *flags_tree;
@@ -491,10 +511,10 @@ dissect_mongo_query(tvbuff_t *tvb, guint offset, proto_tree *tree)
   proto_tree_add_item(tree, hf_mongo_number_to_return, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset +=4;
 
-  offset += dissect_bson_document(tvb, offset, tree, hf_mongo_query);
+  offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_query, 1);
 
   while(offset < tvb_reported_length(tvb)) {
-    offset += dissect_bson_document(tvb, offset, tree, hf_mongo_return_field_selector);
+    offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_return_field_selector, 1);
   }
   return offset;
 }
@@ -518,7 +538,7 @@ dissect_mongo_getmore(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-dissect_mongo_delete(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_mongo_delete(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *flags_tree;
@@ -533,7 +553,7 @@ dissect_mongo_delete(tvbuff_t *tvb, guint offset, proto_tree *tree)
   proto_tree_add_item(flags_tree, hf_mongo_delete_flags_singleremove, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  offset += dissect_bson_document(tvb, offset, tree, hf_mongo_selector);
+  offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_selector, 1);
 
   return offset;
 }
@@ -596,25 +616,25 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch(opcode){
     case OP_REPLY:
-      offset = dissect_mongo_reply(tvb, offset, mongo_tree);
+      offset = dissect_mongo_reply(tvb, pinfo, offset, mongo_tree);
       break;
     case OP_MSG:
       offset = dissect_mongo_msg(tvb, offset, mongo_tree);
       break;
     case OP_UPDATE:
-      offset = dissect_mongo_update(tvb, offset, mongo_tree);
+      offset = dissect_mongo_update(tvb, pinfo, offset, mongo_tree);
       break;
     case OP_INSERT:
-      offset = dissect_mongo_insert(tvb, offset, mongo_tree);
+      offset = dissect_mongo_insert(tvb, pinfo, offset, mongo_tree);
       break;
     case OP_QUERY:
-      offset = dissect_mongo_query(tvb, offset, mongo_tree);
+      offset = dissect_mongo_query(tvb, pinfo, offset, mongo_tree);
       break;
     case OP_GET_MORE:
       offset = dissect_mongo_getmore(tvb, offset, mongo_tree);
       break;
     case OP_DELETE:
-      offset = dissect_mongo_delete(tvb, offset, mongo_tree);
+      offset = dissect_mongo_delete(tvb, pinfo, offset, mongo_tree);
       break;
     case OP_KILL_CURSORS:
       offset = dissect_mongo_kill_cursors(tvb, offset, mongo_tree);
@@ -626,7 +646,7 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(offset < tvb_reported_length(tvb))
     {
       ti = proto_tree_add_item(mongo_tree, hf_mongo_unknown, tvb, offset, -1, ENC_NA);
-      expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, " Unknown Data (not interpreted)");
+      expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)");
     }
   }
 
