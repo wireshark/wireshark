@@ -112,6 +112,25 @@ Wireshark Info
           </para> -->
         </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-20.html">wnpa-sec-2012-20</ulink>
+          </para>
+          <para>
+	    The CIP dissector could exhaust system memory. Reported by Ben Schmidt.
+            <!-- Fixed in trunk: r44312 -->
+            <!-- Fixed in trunk-1.8: r44360 -->
+            <!-- Fixed in trunk-1.6: r44361 -->
+            <!-- Fixed in trunk-1.4: r44362 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7570">Bug
+            7570</ulink>)
+          </para>
+          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
+          <!-- <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
+          </para> -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
