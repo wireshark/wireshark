@@ -4517,13 +4517,6 @@ typedef struct
   PMO_AdditionsR98_t AdditionsR98;
 } Packet_Measurement_Order_t;
 
-typedef struct
-{
-  guint8 MESSAGE_TYPE;
-  guint8 PAGE_MODE;
-  PacketDownlinkID_t ID;
-} Packet_Measurement_Order_Reduced_t;
-
 /* Enhanced measurement report */
 
 typedef struct
@@ -4891,8 +4884,9 @@ typedef struct
     guint8                                MESSAGE_TYPE;
     Packet_Access_Reject_t                Packet_Access_Reject;
     Packet_Cell_Change_Order_t            Packet_Cell_Change_Order;
+    Packet_Cell_Change_Continue_t         Packet_Cell_Change_Continue;
     Packet_Downlink_Assignment_t          Packet_Downlink_Assignment;
-    Packet_Measurement_Order_Reduced_t    Packet_Measurement_Order;
+    Packet_Measurement_Order_t            Packet_Measurement_Order;
     Packet_Neighbour_Cell_Data_t          Packet_Neighbour_Cell_Data;
     Packet_Serving_Cell_Data_t            Packet_Serving_Cell_Data;
     Packet_Paging_Request_t               Packet_Paging_Request;
@@ -4905,18 +4899,14 @@ typedef struct
     Packet_TBF_Release_t                  Packet_TBF_Release;
     Packet_Uplink_Ack_Nack_t              Packet_Uplink_Ack_Nack;
     Packet_Uplink_Assignment_t            Packet_Uplink_Assignment;
-    Packet_Cell_Change_Continue_t         Packet_Cell_Change_Continue;
     Packet_Handover_Command_t             Packet_Handover_Command;
     Packet_PhysicalInformation_t          Packet_PhysicalInformation;
     Packet_Downlink_Dummy_Control_Block_t Packet_Downlink_Dummy_Control_Block;
-
     PSI1_t                                PSI1;
     PSI2_t                                PSI2;
     PSI3_t                                PSI3;
-    PSI3_BIS_t                            PSI3_BIS;
-    PSI4_t                                PSI4;
-    PSI13_t                               PSI13;
     PSI5_t                                PSI5;
+    PSI13_t                               PSI13;
   } u;
 
   /* NrOfBits is placed after union to avoid unnecessary code changes when addressing the union members
@@ -4938,17 +4928,17 @@ typedef struct
     Packet_Cell_Change_Failure_t          Packet_Cell_Change_Failure;
     Packet_Control_Acknowledgement_t      Packet_Control_Acknowledgement;
     Packet_Downlink_Ack_Nack_t            Packet_Downlink_Ack_Nack;
-    EGPRS_PD_AckNack_t                    Egprs_Packet_Downlink_Ack_Nack;
     Packet_Uplink_Dummy_Control_Block_t   Packet_Uplink_Dummy_Control_Block;
     Packet_Measurement_Report_t           Packet_Measurement_Report;
     Packet_Resource_Request_t             Packet_Resource_Request;
     Packet_Mobile_TBF_Status_t            Packet_Mobile_TBF_Status;
     Packet_PSI_Status_t                   Packet_PSI_Status;
+    EGPRS_PD_AckNack_t                    Egprs_Packet_Downlink_Ack_Nack;
+    Packet_Pause_t                        Packet_Pause;
     Packet_Enh_Measurement_Report_t       Packet_Enh_Measurement_Report;
+    Additional_MS_Rad_Access_Cap_t        Additional_MS_Rad_Access_Cap;
     Packet_Cell_Change_Notification_t     Packet_Cell_Change_Notification;
     Packet_SI_Status_t                    Packet_SI_Status;
-    Additional_MS_Rad_Access_Cap_t        Additional_MS_Rad_Access_Cap;
-    Packet_Pause_t                        Packet_Pause;
   } u;
   gint16 NrOfBits;
 } RlcMacUplink_t;
