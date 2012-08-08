@@ -1059,7 +1059,7 @@ void prefs_register_list_custom_preference(module_t *module, const char *name,
  */
 void prefs_register_custom_preference(module_t *module, const char *name,
     const char *title, const char *description, struct pref_custom_cbs* custom_cbs,
-    void** custom_data)
+    void** custom_data _U_)
 {
     pref_t* preference = register_preference(module, name, title, description, PREF_CUSTOM);
 
@@ -1777,7 +1777,7 @@ prefs_register_modules(void)
     custom_cbs.set_cb = column_hidden_set_cb;
     custom_cbs.write_cb = column_hidden_write_cb;
     prefs_register_string_custom_preference(gui_column_module, PRS_COL_HIDDEN, "Packet list hidden columns", 
-        "List all columns to hide in the packet list", &custom_cbs, &cols_hidden_list);
+        "List all columns to hide in the packet list", &custom_cbs, (const char **)&cols_hidden_list);
 
     custom_cbs.free_cb = column_format_free_cb;
     custom_cbs.reset_cb = column_format_reset_cb;
@@ -2321,6 +2321,7 @@ find_val_for_string(const char *needle, const enum_val_t *haystack,
     return default_value;
 }
 
+#if 0
 /* Takes an string and a pointer to an array of strings, and a default int value.
  * The array must be terminated by a NULL string. If the string is found in the array
  * of strings, the index of that string in the array is returned. Otherwise, the
@@ -2339,6 +2340,7 @@ find_index_from_string_array(char *needle, const char **haystack, int default_va
     }
     return default_value;
 }
+#endif
 
 /* Preferences file format:
  * - Configuration directives start at the beginning of the line, and
