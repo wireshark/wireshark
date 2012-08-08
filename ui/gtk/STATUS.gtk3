@@ -19,7 +19,7 @@ To build Wireshark with GTK3 instead of GTK2, use:
 Except in one place we are building on GTK2 using the compat flags
   -DGTK_DISABLE_SINGLE_INCLUDES
   -DGSEAL_ENABLE
-  -DGDK_DISABLE_DEPRECATED [works everywhere except rlc_lte_graph.c]
+  -DGDK_DISABLE_DEPRECATED
   -DGTK_DISABLE_DEPRECATED
 
 Summary: The only known files that cause some sort of problems (or lost
@@ -28,5 +28,4 @@ Summary: The only known files that cause some sort of problems (or lost
   - proto_help.c (not ported to UI-MANAGER)
   - tcp-graph: the crosshairs are not right
   - audiograph doesn't work
-  - rlc_lte_graph.c (does not compile with GTK2 and GDK_DISABLE_DEPRECATED)
 
