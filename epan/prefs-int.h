@@ -65,7 +65,6 @@ typedef struct {
  */
 WS_VAR_IMPORT module_t *protocols_module;
 
-typedef void (*pref_custom_init_cb) (pref_t* pref, void** value);
 typedef void (*pref_custom_free_cb) (pref_t* pref);
 typedef void (*pref_custom_reset_cb) (pref_t* pref);
 typedef prefs_set_pref_e (*pref_custom_set_cb) (pref_t* pref, gchar* value, gboolean* changed);
@@ -73,7 +72,6 @@ typedef void (*pref_custom_write_cb) (pref_t* pref, write_pref_arg_t* arg);
 
 /** Structure to hold callbacks for PREF_CUSTOM type */
 struct pref_custom_cbs {
-    pref_custom_init_cb init_cb;
     pref_custom_free_cb free_cb;
     pref_custom_reset_cb reset_cb;
     pref_custom_set_cb set_cb;
@@ -113,7 +111,7 @@ struct preference {
         range_t **range;
         void* uat;
         color_t *color;
-        void** custom;
+        GList** list;
     } varp;                          /**< pointer to variable storing the value */
     union {
         guint uint;
@@ -122,7 +120,7 @@ struct preference {
         char *string;
         range_t *range;
         color_t color;
-        void* custom;
+        GList* list;
     } saved_val;                     /**< original value, when editing from the GUI */
     union {
         guint uint;
@@ -131,7 +129,7 @@ struct preference {
         char *string;
         range_t *range;
         color_t color;
-        void* custom;
+        GList* list;
     } default_val;                   /**< the default value of the preference */
     union {
       guint base;                    /**< input/output base, for PREF_UINT */

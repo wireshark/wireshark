@@ -835,6 +835,26 @@ prefs_register_uint_preference(module_t *module, const char *name,
 }
 
 /*
+ * Register a "custom" preference with a unsigned integral value.
+ * XXX - This should be temporary until we can find a better way
+ * to do "custom" preferences
+ */
+static void 
+prefs_register_uint_custom_preference(module_t *module, const char *name,
+                               const char *title, const char *description,
+                               struct pref_custom_cbs* custom_cbs, guint *var)
+{
+    pref_t *preference;
+
+    preference = register_preference(module, name, title, description,
+                                     PREF_CUSTOM);
+
+    preference->custom_cbs = *custom_cbs;
+    preference->varp.uint = var;
+    preference->default_val.uint = *var;
+}
+
+/*
  * Register a preference with an Boolean value.
  */
 void
@@ -869,7 +889,7 @@ prefs_register_enum_preference(module_t *module, const char *name,
     preference->info.enum_info.radio_buttons = radio_buttons;
 }
 
-static void
+static pref_t*
 register_string_like_preference(module_t *module, const char *name,
                                 const char *title, const char *description,
                                 const char **var, pref_type_t type)
@@ -899,6 +919,8 @@ register_string_like_preference(module_t *module, const char *name,
     preference->varp.string = var;
     preference->default_val.string = varcopy;
     preference->saved_val.string = NULL;
+
+    return preference;
 }
 
 /*
@@ -912,6 +934,25 @@ prefs_register_string_preference(module_t *module, const char *name,
     register_string_like_preference(module, name, title, description, var,
                                     PREF_STRING);
 }
+
+/*
+ * Register a "custom" preference with a character-string value.
+ * XXX - This should be temporary until we can find a better way
+ * to do "custom" preferences
+ */
+static 
+void prefs_register_string_custom_preference(module_t *module, const char *name,
+                                 const char *title, const char *description,
+                                 struct pref_custom_cbs* custom_cbs, const char **var)
+{
+    pref_t *preference;
+
+    preference = register_string_like_preference(module, name, title, description, var,
+                                    PREF_CUSTOM);
+
+    preference->custom_cbs = *custom_cbs;
+}
+
 
 /*
  * Register a preference with a file name (string) value.
@@ -996,6 +1037,24 @@ void prefs_register_color_preference(module_t *module, const char *name,
 }
 
 /*
+ * Register a "custom" preference with a list.
+ * XXX - This should be temporary until we can find a better way
+ * to do "custom" preferences
+ */
+typedef void (*pref_custom_list_init_cb) (pref_t* pref, GList** value);
+
+static 
+void prefs_register_list_custom_preference(module_t *module, const char *name,
+    const char *title, const char *description, struct pref_custom_cbs* custom_cbs,
+    pref_custom_list_init_cb init_cb, GList** list)
+{
+    pref_t* preference = register_preference(module, name, title, description, PREF_CUSTOM);
+
+    preference->custom_cbs = *custom_cbs;
+    init_cb(preference, list);
+}
+
+/*
  * Register a custom preference.
  */
 void prefs_register_custom_preference(module_t *module, const char *name,
@@ -1005,7 +1064,9 @@ void prefs_register_custom_preference(module_t *module, const char *name,
     pref_t* preference = register_preference(module, name, title, description, PREF_CUSTOM);
 
     preference->custom_cbs = *custom_cbs;
+    /* XXX - wait until we can handle void** pointers
     preference->custom_cbs.init_cb(preference, custom_data);
+    */
 }
 
 /*
@@ -1140,22 +1201,12 @@ static void gui_layout_callback(void)
 /******************************************************
  * All custom preference function callbacks
  ******************************************************/
-static void custom_pref_no_init_cb(pref_t* pref _U_, void** value _U_) {}
 static void custom_pref_no_cb(pref_t* pref _U_) {}
 
 
 /*
  * Console log level custom preference functions
  */
-static void console_log_level_init_cb(pref_t* pref, void** value)
-{
-    gint** ppint = (gint**)value;
-    gint* pint = *ppint;
-
-    pref->varp.uint = pint;
-    pref->default_val.uint = *pint;
-}
-
 static void console_log_level_reset_cb(pref_t* pref)
 {
     *pref->varp.uint = pref->default_val.uint;
@@ -1210,23 +1261,6 @@ static void console_log_level_write_cb(pref_t* pref, write_pref_arg_t* arg)
 #define PRS_COL_NUM                      "column.number"
 static module_t *gui_column_module = NULL;
 
-static void column_hidden_init_cb(pref_t* pref, void** value)
-{
-    char **var = (char**)value,
-         *varcopy;
-
-    /* Treat it like a string */
-    if (*var == NULL) {
-        *var = g_strdup("");
-        varcopy = g_strdup("");
-    } else {
-        *var = g_strdup(*var);
-        varcopy = g_strdup(*var);
-    }
-    pref->varp.string = var;
-    pref->default_val.string = varcopy;
-}
-
 static void column_hidden_free_cb(pref_t* pref)
 {
     g_free((char *)*pref->varp.string);
@@ -1259,7 +1293,7 @@ static prefs_set_pref_e column_hidden_set_cb(pref_t* pref, gchar* value, gboolea
      * set PRS_COL_HIDDEN on the command line).
      */
     format_pref = prefs_find_preference(gui_column_module, PRS_COL_FMT);
-    for (clp = *((GList**)format_pref->varp.custom); clp != NULL; clp = clp->next) {
+    for (clp = *format_pref->varp.list; clp != NULL; clp = clp->next) {
       cfmt = (fmt_data *)clp->data;
       cfmt->visible = prefs_is_column_visible(*pref->varp.string, cfmt);
     }
@@ -1276,7 +1310,7 @@ static void column_hidden_write_cb(pref_t* pref, write_pref_arg_t* arg)
   pref_t  *format_pref;
 
   format_pref = prefs_find_preference(gui_column_module, PRS_COL_FMT);
-  clp = *((GList**)format_pref->varp.custom);
+  clp = *format_pref->varp.list;
   col_l = NULL;
   while (clp) {
     gchar *prefs_fmt;
@@ -1314,41 +1348,31 @@ static void column_hidden_write_cb(pref_t* pref, write_pref_arg_t* arg)
 /* Number of columns "preference".  This is only used internally and is not written to the 
  * preference file 
  */
-static void column_num_init_cb(pref_t* pref, void** value)
-{
-    gint** ppint = (gint**)value;
-    gint* pint = *ppint;
-
-    pref->varp.uint = pint;
-    pref->default_val.uint = *pint;
-}
-
 static void column_num_reset_cb(pref_t* pref)
 {
     *pref->varp.uint = pref->default_val.uint;
 }
 
-static prefs_set_pref_e column_num_set_cb(pref_t* pref, gchar* value, gboolean* changed)
+static prefs_set_pref_e column_num_set_cb(pref_t* pref _U_, gchar* value _U_, gboolean* changed _U_)
 {
     /* Don't write this to the preferences file */
     return PREFS_SET_OK;
 }
 
-static void column_num_write_cb(pref_t* pref, write_pref_arg_t* arg) {}
+static void column_num_write_cb(pref_t* pref _U_, write_pref_arg_t* arg _U_) {}
 
 /*
  * Column format custom preference functions
  */
-static void column_format_init_cb(pref_t* pref, void** value)
+static void column_format_init_cb(pref_t* pref, GList** value)
 {
     fmt_data *src_cfmt, *dest_cfmt;
-    GList *entry, *src_col_list, *dest_col_list;
+    GList *entry;
 
-    pref->varp.custom = value;
-    src_col_list = *((GList**)value);
+    pref->varp.list = value;
 
-    dest_col_list = NULL;
-    for (entry = src_col_list; entry != NULL; entry = g_list_next(entry)) {
+    pref->default_val.list = NULL;
+    for (entry = *pref->varp.list; entry != NULL; entry = g_list_next(entry)) {
         src_cfmt = entry->data;
         dest_cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
         dest_cfmt->title = g_strdup(src_cfmt->title);
@@ -1362,32 +1386,26 @@ static void column_format_init_cb(pref_t* pref, void** value)
         }
         dest_cfmt->visible = src_cfmt->visible;
         dest_cfmt->resolved = src_cfmt->resolved;
-        dest_col_list = g_list_append(dest_col_list, dest_cfmt);
+        pref->default_val.list = g_list_append(pref->default_val.list, dest_cfmt);
     }
-
-    pref->default_val.custom = dest_col_list;
 }
 
 static void column_format_free_cb(pref_t* pref)
 {
-    GList* list = *((GList**)pref->varp.custom);
-    free_col_info(list);
-    list = (GList*)pref->default_val.custom;
-    free_col_info(list);
+    free_col_info(*pref->varp.list);
+    free_col_info(pref->default_val.list);
 }
 
 static void column_format_reset_cb(pref_t* pref)
 {
     fmt_data *src_cfmt, *dest_cfmt;
-    GList *entry, 
-          *src_col_list = (GList*)pref->default_val.custom, 
-          *dest_col_list = *((GList**)pref->varp.custom);
+    GList *entry;
     pref_t  *col_num_pref;
 
-    free_col_info(dest_col_list);
-    dest_col_list = NULL;
+    free_col_info(*pref->varp.list);
+    *pref->varp.list = NULL;
 
-    for (entry = src_col_list; entry != NULL; entry = g_list_next(entry)) {
+    for (entry = pref->default_val.list; entry != NULL; entry = g_list_next(entry)) {
         src_cfmt = entry->data;
         dest_cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
         dest_cfmt->title = g_strdup(src_cfmt->title);
@@ -1401,16 +1419,16 @@ static void column_format_reset_cb(pref_t* pref)
         }
         dest_cfmt->visible = src_cfmt->visible;
         dest_cfmt->resolved = src_cfmt->resolved;
-        dest_col_list = g_list_append(dest_col_list, dest_cfmt);
+        *pref->varp.list = g_list_append(*pref->varp.list, dest_cfmt);
     }
 
     col_num_pref = prefs_find_preference(gui_column_module, PRS_COL_NUM);
     column_num_reset_cb(col_num_pref);
 }
 
-static prefs_set_pref_e column_format_set_cb(pref_t* pref, gchar* value, gboolean* changed)
+static prefs_set_pref_e column_format_set_cb(pref_t* pref, gchar* value, gboolean* changed _U_)
 {
-    GList    *col_l, *col_l_elt, *pref_list;
+    GList    *col_l, *col_l_elt;
     fmt_data *cfmt;
     gint     llen;
     pref_t   *hidden_pref, *col_num_pref;
@@ -1451,9 +1469,8 @@ static prefs_set_pref_e column_format_set_cb(pref_t* pref, gchar* value, gboolea
     }
 
     /* They're all valid; process them. */
-    pref_list = *((GList**)pref->varp.custom);
-    free_col_info(pref_list);
-    pref_list = NULL;
+    free_col_info(*pref->varp.list);
+    *pref->varp.list = NULL;
     hidden_pref = prefs_find_preference(gui_column_module, PRS_COL_HIDDEN);
     col_num_pref = prefs_find_preference(gui_column_module, PRS_COL_NUM);
     llen             = g_list_length(col_l);
@@ -1466,9 +1483,8 @@ static prefs_set_pref_e column_format_set_cb(pref_t* pref, gchar* value, gboolea
       parse_column_format(cfmt, col_l_elt->data);
       cfmt->visible   = prefs_is_column_visible((gchar*)(*hidden_pref->varp.string), cfmt);
       col_l_elt      = col_l_elt->next;
-      pref_list = g_list_append(pref_list, cfmt);
+      *pref->varp.list = g_list_append(*pref->varp.list, cfmt);
     }
-    *((GList**)pref->varp.custom) = pref_list;
 
     prefs_clear_string_list(col_l);
     column_hidden_free_cb(hidden_pref);
@@ -1477,9 +1493,9 @@ static prefs_set_pref_e column_format_set_cb(pref_t* pref, gchar* value, gboolea
 
 static void column_format_write_cb(pref_t* pref, write_pref_arg_t* arg)
 {
-  GList       *clp = *((GList**)pref->varp.custom), *col_l,  
+  GList       *clp = *pref->varp.list, *col_l,  
               *pref_col = g_list_first(clp), 
-              *def_col = g_list_first((GList*)pref->default_val.custom);
+              *def_col = g_list_first(pref->default_val.list);
   fmt_data    *cfmt, *def_cfmt;
   gchar       *prefs_fmt;
   gboolean    is_default = TRUE;
@@ -1539,13 +1555,13 @@ static void column_format_write_cb(pref_t* pref, write_pref_arg_t* arg)
 /*
  * Capture column custom preference functions
  */
-static void capture_column_init_cb(pref_t* pref, void** value)
+static void capture_column_init_cb(pref_t* pref, GList** value)
 {
-    GList   *list = *((GList**)value),
+    GList   *list = *value,
             *list_copy = NULL;
     gchar   *col;
 
-    pref->varp.custom = value;
+    pref->varp.list = value;
     /* Copy the current list */
     while (list) {
         col = (gchar *)list->data;
@@ -1553,12 +1569,12 @@ static void capture_column_init_cb(pref_t* pref, void** value)
         list = list->next;
     }
 
-    pref->default_val.custom = list_copy;
+    pref->default_val.list = list_copy;
 }
 
 static void capture_column_free_cb(pref_t* pref)
 {
-    GList   *list = *((GList**)pref->varp.custom);
+    GList   *list = *pref->varp.list;
     gchar    *col_name;
 
     while (list != NULL) {
@@ -1569,7 +1585,7 @@ static void capture_column_free_cb(pref_t* pref)
     }
     g_list_free(list);
 
-    list = (GList*)pref->default_val.custom;
+    list = pref->default_val.list;
     while (list != NULL) {
         col_name = list->data;
 
@@ -1581,8 +1597,8 @@ static void capture_column_free_cb(pref_t* pref)
 
 static void capture_column_reset_cb(pref_t* pref)
 {
-    GList   *list_copy = *((GList**)pref->varp.custom),
-            *list = (GList*)pref->default_val.custom;
+    GList   *list_copy = *pref->varp.list,
+            *list = pref->default_val.list;
     gchar    *col_name;
 
     /* Clear the list before it's copied */
@@ -1600,10 +1616,10 @@ static void capture_column_reset_cb(pref_t* pref)
     }
 }
 
-static prefs_set_pref_e capture_column_set_cb(pref_t* pref, gchar* value, gboolean* changed)
+static prefs_set_pref_e capture_column_set_cb(pref_t* pref, gchar* value, gboolean* changed _U_)
 {
     GList    *col_l, *col_l_elt, 
-             *list = *((GList**)pref->varp.custom);
+             *list = *pref->varp.list;
     gchar    *col_name;
 
     col_l = prefs_get_string_list(value);
@@ -1632,10 +1648,10 @@ static prefs_set_pref_e capture_column_set_cb(pref_t* pref, gchar* value, gboole
 
 static void capture_column_write_cb(pref_t* pref, write_pref_arg_t* arg)
 {
-  GList       *clp = *((GList**)pref->varp.custom), 
+  GList       *clp = *pref->varp.list, 
               *col_l = NULL,
               *pref_col = g_list_first(clp), 
-              *def_col = g_list_first((GList*)pref->default_val.custom);
+              *def_col = g_list_first(pref->default_val.list);
   gchar *col, *def_col_str;
   gboolean is_default = TRUE;
   const char *prefix = (arg->module->name != NULL) ? arg->module->name : arg->module->parent->name;
@@ -1688,7 +1704,6 @@ prefs_register_modules(void)
 {
     module_t *printing, *capture_module, *console_module, 
         *gui_layout_module, *gui_font_module;
-    gint* temp_p;
     struct pref_custom_cbs custom_cbs;
 
     if (protocols_module != NULL) {
@@ -1757,33 +1772,31 @@ prefs_register_modules(void)
 
     gui_column_module = prefs_register_subtree(gui_module, "Columns", "Columns", NULL);
 
-    custom_cbs.init_cb = column_hidden_init_cb;
     custom_cbs.free_cb = column_hidden_free_cb;
     custom_cbs.reset_cb = column_hidden_reset_cb;
     custom_cbs.set_cb = column_hidden_set_cb;
     custom_cbs.write_cb = column_hidden_write_cb;
-    prefs_register_custom_preference(gui_column_module, PRS_COL_HIDDEN, "Packet list hidden columns", 
+    prefs_register_string_custom_preference(gui_column_module, PRS_COL_HIDDEN, "Packet list hidden columns", 
         "List all columns to hide in the packet list", &custom_cbs, &cols_hidden_list);
 
-    custom_cbs.init_cb = column_format_init_cb;
     custom_cbs.free_cb = column_format_free_cb;
     custom_cbs.reset_cb = column_format_reset_cb;
     custom_cbs.set_cb = column_format_set_cb;
     custom_cbs.write_cb = column_format_write_cb;
-    prefs_register_custom_preference(gui_column_module, PRS_COL_FMT, "Packet list column format", 
-        "Each pair of strings consists of a column title and its format", &custom_cbs, &prefs.col_list);
+
+    prefs_register_list_custom_preference(gui_column_module, PRS_COL_FMT, "Packet list column format", 
+        "Each pair of strings consists of a column title and its format", &custom_cbs, 
+        column_format_init_cb, &prefs.col_list);
 
     /* Number of columns.  This is only used internally and is not written to the 
      * preference file 
      */
-    custom_cbs.init_cb = column_num_init_cb;
     custom_cbs.free_cb = custom_pref_no_cb;
     custom_cbs.reset_cb = column_num_reset_cb;
     custom_cbs.set_cb = column_num_set_cb;
     custom_cbs.write_cb = column_num_write_cb;
-    temp_p = &prefs.console_log_level;
-    prefs_register_custom_preference(gui_column_module, PRS_COL_NUM, "Number of columns", 
-        "Number of columns in col_list", &custom_cbs, &temp_p);
+    prefs_register_uint_custom_preference(gui_column_module, PRS_COL_NUM, "Number of columns", 
+        "Number of columns in col_list", &custom_cbs, &prefs.num_cols);
 
     /* User Interface : Font */
     gui_font_module = prefs_register_subtree(gui_module, "Font", "Font", NULL);
@@ -1973,16 +1986,14 @@ prefs_register_modules(void)
      * preference "string compare list" in set_pref()
      */
     console_module = prefs_register_module(NULL, "console", "Console",
-        "CONSULE", NULL, FALSE);
+        "CONSOLE", NULL, FALSE);
 
-    custom_cbs.init_cb = console_log_level_init_cb;
     custom_cbs.free_cb = custom_pref_no_cb;
     custom_cbs.reset_cb = console_log_level_reset_cb;
     custom_cbs.set_cb = console_log_level_set_cb;
     custom_cbs.write_cb = console_log_level_write_cb;
-    temp_p = &prefs.console_log_level;
-    prefs_register_custom_preference(console_module, "log.level", "logging level", 
-        "A bitmask of glib log levels", &custom_cbs, &temp_p);
+    prefs_register_uint_custom_preference(gui_column_module, "log.level", "logging level", 
+        "A bitmask of glib log levels", &custom_cbs, &prefs.console_log_level);
 
     /* Capture
      * These are preferences that can be read/written using the 
@@ -2028,13 +2039,12 @@ prefs_register_modules(void)
 
     prefs_register_obsolete_preference(capture_module, "syntax_check_filter");
 
-    custom_cbs.init_cb = capture_column_init_cb;
     custom_cbs.free_cb = capture_column_free_cb;
     custom_cbs.reset_cb = capture_column_reset_cb;
     custom_cbs.set_cb = capture_column_set_cb;
     custom_cbs.write_cb = capture_column_write_cb;
-    prefs_register_custom_preference(capture_module, "columns", "Capture options dialog column list", 
-        "List of columns to be displayed", &custom_cbs, &prefs.capture_columns);
+    prefs_register_list_custom_preference(capture_module, "columns", "Capture options dialog column list", 
+        "List of columns to be displayed", &custom_cbs, capture_column_init_cb, &prefs.capture_columns);
 
     /* Name Resolution */
     nameres_module = prefs_register_module(NULL, "nameres", "Name Resolution",
@@ -4029,7 +4039,7 @@ write_pref(gpointer data, gpointer user_data)
 /*
  * Write out all preferences for a module.
  */
-static gboolean
+static guint
 write_module_prefs(module_t *module, gpointer user_data)
 {
     write_gui_pref_arg_t *gui_pref_arg = (write_gui_pref_arg_t*)user_data;
@@ -4038,7 +4048,7 @@ write_module_prefs(module_t *module, gpointer user_data)
     /* The GUI module needs to be explicitly called out so it
        can be written out of order */
     if ((module == gui_module) && (gui_pref_arg->is_gui_module != TRUE))
-        return FALSE;
+        return 0;
 
     /* Write a header for the main modules and GUI sub-modules */
     if (((module->parent == NULL) || (module->parent == gui_module)) &&
@@ -4059,7 +4069,7 @@ write_module_prefs(module_t *module, gpointer user_data)
     if(prefs_module_has_submodules(module))
         return prefs_modules_foreach_submodules(module, write_module_prefs, user_data);
 
-    return FALSE;
+    return 0;
 }
 
 /* Write out "prefs" to the user's preferences file, and return 0.
@@ -4073,7 +4083,6 @@ write_prefs(char **pf_path_return)
 {
   char        *pf_path;
   FILE        *pf;
-  GString     *cols_hidden = g_string_new ("");
   write_gui_pref_arg_t write_gui_pref_info;
 
   /* Needed for "-G defaultprefs" */
