@@ -46,6 +46,7 @@ static int hf_operationrequest = -1;/* Request_Operation field */
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/dissectors/packet-giop.h>
+#include <epan/expert.h>
 
 #ifdef _MSC_VER
 /* disable warning: "unreference local variable" */
@@ -307,10 +308,13 @@ decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -320,10 +324,13 @@ decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -389,10 +396,13 @@ decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -402,10 +412,13 @@ decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -471,10 +484,13 @@ decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packet_info *pinf
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -484,10 +500,13 @@ decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packet_info *pinf
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -553,10 +572,13 @@ decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, packet_info *pi
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -566,10 +588,13 @@ decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, packet_info *pi
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -633,10 +658,13 @@ decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_info *pinfo _U_
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -646,10 +674,13 @@ decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_info *pinfo _U_
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -712,10 +743,13 @@ decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -725,10 +759,13 @@ decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -773,10 +810,13 @@ decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet_info *pinfo
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -786,10 +826,13 @@ decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet_info *pinfo
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -853,10 +896,13 @@ decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, packet_info *
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -866,10 +912,13 @@ decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, packet_info *
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -913,10 +962,13 @@ decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -926,10 +978,13 @@ decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -999,10 +1054,13 @@ decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1012,10 +1070,13 @@ decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1069,10 +1130,13 @@ decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_info *pinfo 
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1082,10 +1146,13 @@ decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_info *pinfo 
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1154,10 +1221,13 @@ decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_info *pinfo _U
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1167,10 +1237,13 @@ decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_info *pinfo _U
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1214,10 +1287,13 @@ decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1227,10 +1303,13 @@ decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 

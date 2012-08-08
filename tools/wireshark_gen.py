@@ -1688,10 +1688,13 @@ switch(header->message_type) {
 """
     template_helper_switch_msgtype_default_start = """\
 default:
+    {
+	proto_item *pi;
 
-    /* Unknown GIOP Exception */
-
-    g_warning("Unknown GIOP Message");
+	/* Unknown GIOP Message */
+	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+    }
 """
     template_helper_switch_msgtype_default_end = """\
 break;
@@ -1722,10 +1725,13 @@ break;
 """
     template_helper_switch_msgtype_reply_default_start = """\
 default:
+    {
+	proto_item *pi;
 
-    /* Unknown Exception */
-
-    g_warning("Unknown Exception ");
+	/* Unknown Exception */
+	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+    }
 """
     template_helper_switch_msgtype_reply_default_end = """\
     break;
@@ -1735,10 +1741,13 @@ break;
 """
     template_helper_switch_msgtype_default_start = """\
 default:
+    {
+	proto_item *pi;
 
-    /* Unknown GIOP Message */
-
-    g_warning("Unknown GIOP Message");
+	/* Unknown GIOP Message */
+	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+    }
 """
     template_helper_switch_msgtype_default_end = """\
     break;
@@ -1748,10 +1757,14 @@ switch(header->rep_status) {
 """
     template_helper_switch_rep_status_default_start = """\
 default:
+    {
+	proto_item *pi;
 
-    /* Unknown Reply Status */
+	/* Unknown Reply Status */
+	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown reply status %d", header->rep_status);
+	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown reply status %d", header->rep_status);
+    }
 
-    g_warning("Unknown Reply Status");
 """
     template_helper_switch_rep_status_default_end = """\
     break;
@@ -2001,6 +2014,7 @@ static int hf_operationrequest = -1;/* Request_Operation field */
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/dissectors/packet-giop.h>
+#include <epan/expert.h>
 
 #ifdef _MSC_VER
 /* disable warning: "unreference local variable" */

@@ -46,6 +46,7 @@ static int hf_operationrequest = -1;/* Request_Operation field */
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/dissectors/packet-giop.h>
+#include <epan/expert.h>
 
 #ifdef _MSC_VER
 /* disable warning: "unreference local variable" */
@@ -522,10 +523,13 @@ decode_Tango_Device_command_inout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -535,10 +539,13 @@ decode_Tango_Device_command_inout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -612,10 +619,13 @@ decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -625,10 +635,13 @@ decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -691,10 +704,13 @@ decode_Tango_Device_set_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -704,10 +720,13 @@ decode_Tango_Device_set_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -781,10 +800,13 @@ decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -794,10 +816,13 @@ decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -860,10 +885,13 @@ decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -873,10 +901,13 @@ decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -920,10 +951,13 @@ decode_Tango_Device_ping(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -933,10 +967,13 @@ decode_Tango_Device_ping(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -995,10 +1032,13 @@ decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1008,10 +1048,13 @@ decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1061,10 +1104,13 @@ decode_Tango_Device_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1074,10 +1120,13 @@ decode_Tango_Device_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1138,10 +1187,13 @@ decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1151,10 +1203,13 @@ decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1206,10 +1261,13 @@ decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1219,10 +1277,13 @@ decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1277,10 +1338,13 @@ decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1290,10 +1354,13 @@ decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1374,10 +1441,13 @@ decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_info *pinfo _U
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1387,10 +1457,13 @@ decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_info *pinfo _U
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1464,10 +1537,13 @@ decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, packet_info *pin
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1477,10 +1553,13 @@ decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, packet_info *pin
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1541,10 +1620,13 @@ decode_Tango_Device_2_command_list_query_2(tvbuff_t *tvb _U_, packet_info *pinfo
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1554,10 +1636,13 @@ decode_Tango_Device_2_command_list_query_2(tvbuff_t *tvb _U_, packet_info *pinfo
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1609,10 +1694,13 @@ decode_Tango_Device_2_command_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1622,10 +1710,13 @@ decode_Tango_Device_2_command_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1692,10 +1783,13 @@ decode_Tango_Device_2_command_inout_history_2(tvbuff_t *tvb _U_, packet_info *pi
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1705,10 +1799,13 @@ decode_Tango_Device_2_command_inout_history_2(tvbuff_t *tvb _U_, packet_info *pi
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1775,10 +1872,13 @@ decode_Tango_Device_2_read_attribute_history_2(tvbuff_t *tvb _U_, packet_info *p
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1788,10 +1888,13 @@ decode_Tango_Device_2_read_attribute_history_2(tvbuff_t *tvb _U_, packet_info *p
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1872,10 +1975,13 @@ decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1885,10 +1991,13 @@ decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -1951,10 +2060,13 @@ decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -1964,10 +2076,13 @@ decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -2034,10 +2149,13 @@ decode_Tango_Device_3_read_attribute_history_3(tvbuff_t *tvb _U_, packet_info *p
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -2047,10 +2165,13 @@ decode_Tango_Device_3_read_attribute_history_3(tvbuff_t *tvb _U_, packet_info *p
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -2100,10 +2221,13 @@ decode_Tango_Device_3_info_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -2113,10 +2237,13 @@ decode_Tango_Device_3_info_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -2190,10 +2317,13 @@ decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pin
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -2203,10 +2333,13 @@ decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pin
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
@@ -2269,10 +2402,13 @@ decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pin
             break;
 
         default:
+            {
+        	proto_item *pi;
 
-            /* Unknown Exception */
-
-            g_warning("Unknown Exception ");
+        	/* Unknown Exception */
+        	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
+        	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            }
 
             break;
 
@@ -2282,10 +2418,13 @@ decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pin
         break;
 
     default:
+        {
+    	proto_item *pi;
 
-        /* Unknown GIOP Message */
-
-        g_warning("Unknown GIOP Message");
+    	/* Unknown GIOP Message */
+    	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
+    	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        }
 
         break;
 
