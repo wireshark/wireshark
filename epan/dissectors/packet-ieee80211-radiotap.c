@@ -553,6 +553,15 @@ static int hf_radiotap_mcs_gi = -1;
 static int hf_radiotap_mcs_format = -1;
 static int hf_radiotap_mcs_fec = -1;
 static int hf_radiotap_mcs_stbc = -1;
+static int hf_radiotap_ampdu = -1;
+static int hf_radiotap_ampdu_ref = -1;
+static int hf_radiotap_ampdu_flags = -1;
+static int hf_radiotap_ampdu_flags_report_zerolen = -1;
+static int hf_radiotap_ampdu_flags_is_zerolen = -1;
+static int hf_radiotap_ampdu_flags_last_known = -1;
+static int hf_radiotap_ampdu_flags_is_last = -1;
+static int hf_radiotap_ampdu_flags_delim_crc_error = -1;
+static int hf_radiotap_ampdu_delim_crc = -1;
 
 /* "Present" flags */
 static int hf_radiotap_present_tsft = -1;
@@ -601,6 +610,8 @@ static gint ett_radiotap_xchannel_flags = -1;
 static gint ett_radiotap_vendor = -1;
 static gint ett_radiotap_mcs = -1;
 static gint ett_radiotap_mcs_known = -1;
+static gint ett_radiotap_ampdu = -1;
+static gint ett_radiotap_ampdu_flags = -1;
 
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_datapad_handle;
@@ -1256,10 +1267,43 @@ void proto_register_radiotap(void)
 		 {"STBC", "radiotap.mcs.stbc",
 		  FT_BOOLEAN, 8, TFS(&tfs_on_off), IEEE80211_RADIOTAP_MCS_STBC,
 		  "Space Time Block Code", HFILL}},
-
 		{&hf_radiotap_mcs_index,
 		 {"MCS index", "radiotap.mcs.index",
 		  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+		{&hf_radiotap_ampdu,
+		 {"A-MPDU status", "radiotap.ampdu",
+		  FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+		{&hf_radiotap_ampdu_ref,
+		 {"A-MPDU reference number", "radiotap.ampdu.reference",
+		  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+		{&hf_radiotap_ampdu_flags,
+		 {"A-MPDU flags", "radiotap.ampdu.flags",
+		  FT_UINT16, BASE_HEX, NULL, 0x0,
+		  "A-MPDU status flags", HFILL}},
+		{&hf_radiotap_ampdu_flags_report_zerolen,
+		 {"Driver reports 0-length subframes in this A-MPDU", "radiotap.ampdu.flags.report_zerolen",
+		  FT_BOOLEAN, 16, NULL,
+		  IEEE80211_RADIOTAP_AMPDU_REPORT_ZEROLEN, NULL, HFILL}},
+		{&hf_radiotap_ampdu_flags_is_zerolen,
+		 {"This is a 0-length subframe", "radiotap.ampdu.flags.is_zerolen",
+		  FT_BOOLEAN, 16, NULL,
+		  IEEE80211_RADIOTAP_AMPDU_IS_ZEROLEN, NULL, HFILL}},
+		{&hf_radiotap_ampdu_flags_last_known,
+		 {"Last subframe of this A-MPDU is known", "radiotap.ampdu.flags.lastknown",
+		  FT_BOOLEAN, 16, NULL,
+		  IEEE80211_RADIOTAP_AMPDU_LAST_KNOWN, NULL, HFILL}},
+		{&hf_radiotap_ampdu_flags_is_last,
+		 {"This is the last subframe of this A-MPDU", "radiotap.ampdu.flags.last",
+		  FT_BOOLEAN, 16, NULL,
+		  IEEE80211_RADIOTAP_AMPDU_IS_LAST, NULL, HFILL}},
+		{&hf_radiotap_ampdu_flags_delim_crc_error,
+		 {"Delimiter CRC error on this subframe", "radiotap.ampdu.flags.delim_crc_error",
+		  FT_BOOLEAN, 16, NULL,
+		  IEEE80211_RADIOTAP_AMPDU_DELIM_CRC_ERR, NULL, HFILL}},
+		{&hf_radiotap_ampdu_delim_crc,
+		 {"A-MPDU subframe delimiter CRC", "radiotap.ampdu.delim_crc",
+		  FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 		{&hf_radiotap_vendor_ns,
 		 {"Vendor namespace", "radiotap.vendor_namespace",
@@ -1304,6 +1348,8 @@ void proto_register_radiotap(void)
 		&ett_radiotap_vendor,
 		&ett_radiotap_mcs,
 		&ett_radiotap_mcs_known,
+		&ett_radiotap_ampdu,
+		&ett_radiotap_ampdu_flags,
 	};
 	module_t *radiotap_module;
 
@@ -2042,6 +2088,42 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					    ieee80211_float_htrates[mcs][bandwidth][gi_length]);
 					PROTO_ITEM_SET_GENERATED(rate_ti);
 				}
+			}
+			break;
+		}
+		case IEEE80211_RADIOTAP_AMPDU_STATUS: {
+			proto_item *it;
+			proto_tree *ampdu_tree = NULL, *ampdu_flags_tree;
+			guint16 flags;
+
+			flags = tvb_get_letohs(tvb, offset + 4);
+
+			if (tree) {
+				it = proto_tree_add_item(radiotap_tree, hf_radiotap_ampdu,
+							 tvb, offset, 8, ENC_NA);
+				ampdu_tree = proto_item_add_subtree(it, ett_radiotap_ampdu);
+
+				proto_tree_add_item(ampdu_tree, hf_radiotap_ampdu_ref,
+						    tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+				it = proto_tree_add_item(ampdu_tree, hf_radiotap_ampdu_flags,
+							 tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+				ampdu_flags_tree = proto_item_add_subtree(it, ett_radiotap_ampdu_flags);
+				proto_tree_add_item(ampdu_flags_tree, hf_radiotap_ampdu_flags_report_zerolen,
+						    tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ampdu_flags_tree, hf_radiotap_ampdu_flags_is_zerolen,
+						    tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ampdu_flags_tree, hf_radiotap_ampdu_flags_last_known,
+						    tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ampdu_flags_tree, hf_radiotap_ampdu_flags_is_last,
+						    tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ampdu_flags_tree, hf_radiotap_ampdu_flags_delim_crc_error,
+						    tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+			}
+			if (flags & IEEE80211_RADIOTAP_AMPDU_DELIM_CRC_KNOWN) {
+				if (ampdu_tree)
+					proto_tree_add_item(ampdu_tree, hf_radiotap_ampdu_delim_crc,
+							    tvb, offset + 6, 1, ENC_NA);
 			}
 			break;
 		}

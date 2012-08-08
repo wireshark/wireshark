@@ -50,7 +50,8 @@ static const struct radiotap_align_size rtap_namespace_sizes[] = {
 	/* [IEEE80211_RADIOTAP_RTS_RETRIES] = 16 */		{ 1, 1 },
 	/* [IEEE80211_RADIOTAP_DATA_RETRIES] = 17 */		{ 1, 1 },
 	/* [IEEE80211_RADIOTAP_XCHANNEL] = 18 */		{ 0, 0 }, /* Unofficial, used by FreeBSD */
-	/* [IEEE80211_RADIOTAP_MCS] = 19 */			{ 1, 3 }
+	/* [IEEE80211_RADIOTAP_MCS] = 19 */			{ 1, 3 },
+	/* [IEEE80211_RADIOTAP_AMPDU_STATUS] = 20 */		{ 4, 8 }
 	/*
 	 * add more here as they are defined in
 	 * include/net/ieee80211_radiotap.h
