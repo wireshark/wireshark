@@ -3234,80 +3234,22 @@ static gboolean expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer
 }
 #endif
 
-static void do_zoom_mouse (struct graph *g, GdkEventButton *event)
-{
-	int cur_width = g->geom.width, cur_height = g->geom.height;
-	struct { double x, y; } factor;
-
-	if (g->zoom.flags & ZOOM_OUT) {
-		if (g->zoom.flags & ZOOM_HLOCK)
-			factor.x = 1.0;
-		else
-			factor.x = 1 / g->zoom.step_x;
-		if (g->zoom.flags & ZOOM_VLOCK)
-			factor.y = 1.0;
-		else
-			factor.y = 1 / g->zoom.step_y;
-	} else {
-		if (g->zoom.flags & ZOOM_HLOCK)
-			factor.x = 1.0;
-		else
-			factor.x = g->zoom.step_x;
-		if (g->zoom.flags & ZOOM_VLOCK)
-			factor.y = 1.0;
-		else
-			factor.y = g->zoom.step_y;
-	}
-
-	g->geom.width = (int )rint (g->geom.width * factor.x);
-	g->geom.height = (int )rint (g->geom.height * factor.y);
-	if (g->geom.width < g->wp.width)
-		g->geom.width = g->wp.width;
-	if (g->geom.height < g->wp.height)
-		g->geom.height = g->wp.height;
-	g->zoom.x = (g->geom.width - 1) / g->bounds.width;
-	g->zoom.y = (g->geom.height- 1) / g->bounds.height;
-
-	g->geom.x -= (int )rint ((g->geom.width - cur_width) *
-			((event->x-g->geom.x)/(double )cur_width));
-	g->geom.y -= (int )rint ((g->geom.height - cur_height) *
-			((event->y-g->geom.y)/(double )cur_height));
-
-	if (g->geom.x > g->wp.x)
-		g->geom.x = g->wp.x;
-	if (g->geom.y > g->wp.y)
-		g->geom.y = g->wp.y;
-	if (g->wp.x + g->wp.width > g->geom.x + g->geom.width)
-		g->geom.x = g->wp.width + g->wp.x - g->geom.width;
-	if (g->wp.y + g->wp.height > g->geom.y + g->geom.height)
-		g->geom.y = g->wp.height + g->wp.y - g->geom.height;
-#if 0
-	printf ("button press: graph: (%d,%d), (%d,%d); viewport: (%d,%d), "
-			"(%d,%d); zooms: (%f,%f)\n", g->geom.x, g->geom.y,
-			g->geom.width, g->geom.height, g->wp.x, g->wp.y, g->wp.width,
-			g->wp.height, g->zoom.x, g->zoom.y);
-#endif
-	graph_element_lists_make (g);
-	g->cross.erase_needed = 0;
-	graph_display (g);
-	axis_display (g->y_axis);
-	axis_display (g->x_axis);
-	update_zoom_spins (g);
-#if USE_CROSSHAIR_CURSOR
-#else
-	if (g->cross.draw)
-		g->cross.erase_needed = FALSE;
-		cross_draw (g, (int) event->x, (int) event->y);
-#endif /* USE_CROSSHAIR_CURSOR */
-}
-
-static void do_zoom_keyboard (struct graph *g)
+static void do_zoom_common (struct graph *g, GdkEventButton *event)
 {
 	int cur_width = g->geom.width, cur_height = g->geom.height;
 	struct { double x, y; } factor;
 	int pointer_x, pointer_y;
 
-	get_mouse_position(g->drawing_area, &pointer_x, &pointer_y, NULL);
+	/* Get mouse position */
+	if (event == NULL) {
+		/* Keyboard - query it */
+		get_mouse_position (g->drawing_area, &pointer_x, &pointer_y, NULL);
+	}
+	else {
+		/* Mouse - just read it from event */
+		pointer_x = (int)event->x;
+		pointer_y = (int)event->y;
+	}
 
 	if (g->zoom.flags & ZOOM_OUT) {
 		if (g->zoom.flags & ZOOM_HLOCK)
@@ -3339,9 +3281,9 @@ static void do_zoom_keyboard (struct graph *g)
 	g->zoom.y = (g->geom.height- 1) / g->bounds.height;
 
 	g->geom.x -= (int )rint ((g->geom.width - cur_width) *
-			((pointer_x - g->geom.x)/(double )cur_width));
+			((pointer_x)/(double )cur_width));
 	g->geom.y -= (int )rint ((g->geom.height - cur_height) *
-			((pointer_y - g->geom.y)/(double )cur_height));
+			((pointer_y)/(double )cur_height));
 
 	if (g->geom.x > g->wp.x)
 		g->geom.x = g->wp.x;
@@ -3352,12 +3294,12 @@ static void do_zoom_keyboard (struct graph *g)
 	if (g->wp.y + g->wp.height > g->geom.y + g->geom.height)
 		g->geom.y = g->wp.height + g->wp.y - g->geom.height;
 #if 0
-	printf ("key press: graph: (%d,%d), (%d,%d); viewport: (%d,%d), "
-			"(%d,%d); zooms: (%f,%f)\n", g->geom.x, g->geom.y,
+	printf ("%s press: graph: (%d,%d), (%d,%d); viewport: (%d,%d), "
+			"(%d,%d); zooms: (%f,%f)\n",
+			(event != NULL) ? "mouse" : "key", g->geom.x, g->geom.y,
 			g->geom.width, g->geom.height, g->wp.x, g->wp.y, g->wp.width,
 			g->wp.height, g->zoom.x, g->zoom.y);
 #endif
-
 	graph_element_lists_make (g);
 	g->cross.erase_needed = 0;
 	graph_display (g);
@@ -3366,10 +3308,21 @@ static void do_zoom_keyboard (struct graph *g)
 	update_zoom_spins (g);
 #if USE_CROSSHAIR_CURSOR
 #else
-	if (g->cross.draw)
+	if (g->cross.draw) {
 		g->cross.erase_needed = FALSE;
-		cross_draw (g, pointer_x, pointer_y);
+		cross_draw (g, (int) event->x, (int) event->y);
+	}
 #endif /* USE_CROSSHAIR_CURSOR */
+}
+
+static void do_zoom_mouse (struct graph *g, GdkEventButton *event)
+{
+	do_zoom_common (g, event);
+}
+
+static void do_zoom_keyboard (struct graph *g)
+{
+	do_zoom_common (g, NULL);
 }
 
 static void do_zoom_in_keyboard (struct graph *g)
