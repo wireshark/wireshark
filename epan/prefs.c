@@ -62,7 +62,7 @@
 static module_t *find_subtree(module_t *parent, const char *tilte);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
-    void (*apply_cb)(void));
+    void (*apply_cb)(void), gboolean use_gui);
 static prefs_set_pref_e set_pref(gchar*, gchar*, void *, gboolean);
 static gchar *put_string_list(GList *);
 static void   free_col_info(e_prefs *);
@@ -143,6 +143,7 @@ free_pref(gpointer data, gpointer user_data _U_)
     case PREF_UINT:
     case PREF_STATIC_TEXT:
     case PREF_UAT:
+    case PREF_COLOR:
         break;
     case PREF_STRING:
     case PREF_FILENAME:
@@ -154,6 +155,9 @@ free_pref(gpointer data, gpointer user_data _U_)
         g_free(*pref->varp.range);
         *pref->varp.range = NULL;
         g_free(pref->default_val.range);
+        break;
+    case PREF_CUSTOM:
+        pref->custom_cbs.free_cb(pref);
         break;
     }
 
@@ -194,10 +198,11 @@ prefs_cleanup(void)
  */
 module_t *
 prefs_register_module(module_t *parent, const char *name, const char *title,
-                      const char *description, void (*apply_cb)(void))
+                      const char *description, void (*apply_cb)(void), 
+                      const gboolean use_gui)
 {
     return prefs_register_module_or_subtree(parent, name, title, description,
-                                            FALSE, apply_cb);
+                                            FALSE, apply_cb, use_gui);
 }
 
 /*
@@ -207,16 +212,19 @@ prefs_register_module(module_t *parent, const char *name, const char *title,
  * dialog box.
  */
 module_t *
-prefs_register_subtree(module_t *parent, const char *title, const char *description)
+prefs_register_subtree(module_t *parent, const char *title, const char *description,
+                       void (*apply_cb)(void))
 {
-    return prefs_register_module_or_subtree(parent, NULL, title,
-                                            description, TRUE, NULL);
+    return prefs_register_module_or_subtree(parent, NULL, title, description,
+                                            TRUE, apply_cb, 
+                                            parent ? parent->use_gui : FALSE);
 }
 
 static module_t *
 prefs_register_module_or_subtree(module_t *parent, const char *name,
                                  const char *title, const char *description,
-                                 gboolean is_subtree, void (*apply_cb)(void))
+                                 gboolean is_subtree, void (*apply_cb)(void),
+                                 gboolean use_gui)
 {
     module_t *module;
     const char *p;
@@ -248,6 +256,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
     module->numprefs = 0;
     module->prefs_changed = FALSE;
     module->obsolete = FALSE;
+    module->use_gui = use_gui;
 
     /*
      * Do we have a module name?
@@ -342,7 +351,7 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
     return prefs_register_module(protocols_module,
                                  proto_get_protocol_filter_name(id),
                                  proto_get_protocol_short_name(protocol),
-                                 proto_get_protocol_name(id), apply_cb);
+                                 proto_get_protocol_name(id), apply_cb, TRUE);
 }
 
 module_t *
@@ -383,7 +392,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
                  * being the name (if it's later registered explicitly
                  * with a description, that will override it).
                  */
-                new_module = prefs_register_subtree(subtree_module, ptr, ptr);
+                new_module = prefs_register_subtree(subtree_module, ptr, ptr, NULL);
             }
 
             subtree_module = new_module;
@@ -396,7 +405,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
     return prefs_register_module(subtree_module,
                                  proto_get_protocol_filter_name(id),
                                  proto_get_protocol_short_name(protocol),
-                                 proto_get_protocol_name(id), apply_cb);
+                                 proto_get_protocol_name(id), apply_cb, TRUE);
 }
 
 
@@ -424,7 +433,7 @@ prefs_register_protocol_obsolete(int id)
     module = prefs_register_module(protocols_module,
                                    proto_get_protocol_filter_name(id),
                                    proto_get_protocol_short_name(protocol),
-                                   proto_get_protocol_name(id), NULL);
+                                   proto_get_protocol_name(id), NULL, TRUE);
     module->obsolete = TRUE;
     return module;
 }
@@ -457,7 +466,7 @@ prefs_register_stat(const char *name, const char *title,
     }
 
     return prefs_register_module(stats_module, name, title, description,
-                                 apply_cb);
+                                 apply_cb, TRUE);
 }
 
 module_t *
@@ -655,7 +664,9 @@ register_preference(module_t *module, const char *name, const char *title,
     if (prefs_find_preference(module, name) != NULL)
         g_error("Preference %s has already been registered", name);
 
-    if (type != PREF_OBSOLETE) {
+    if ((type != PREF_OBSOLETE) && 
+        /* Don't compare if its a subtree */
+        (module->name != NULL)) {
         /*
          * Make sure the preference name doesn't begin with the
          * module name, as that's redundant and Just Silly.
@@ -680,6 +691,11 @@ register_preference(module_t *module, const char *name, const char *title,
  * Find a preference in a module's list of preferences, given the module
  * and the preference's name.
  */
+typedef struct {
+    GList *list_entry;
+    const char *name;
+} find_pref_arg_t;
+
 static gint
 preference_match(gconstpointer a, gconstpointer b)
 {
@@ -689,9 +705,29 @@ preference_match(gconstpointer a, gconstpointer b)
     return strcmp(name, pref->name);
 }
 
+static gboolean module_find_pref_cb(void *value, void *data)
+{
+    find_pref_arg_t* arg = (find_pref_arg_t*)data;
+    GList *list_entry;
+    module_t *module = value;
+
+    if (module == NULL)
+        return FALSE;
+
+    list_entry = g_list_find_custom(module->prefs, arg->name,
+        preference_match);
+
+    if (list_entry == NULL)
+        return FALSE;
+
+    arg->list_entry = list_entry;
+    return TRUE;
+}
+
 struct preference *
 prefs_find_preference(module_t *module, const char *name)
 {
+    find_pref_arg_t arg;
     GList *list_entry;
 
     if (module == NULL)
@@ -701,7 +737,21 @@ prefs_find_preference(module_t *module, const char *name)
         preference_match);
 
     if (list_entry == NULL)
+    {
+        arg.list_entry = NULL;
+        if (module->submodules != NULL)
+        {
+            arg.name = name;
+            pe_tree_foreach(module->submodules, module_find_pref_cb, &arg);
+        }
+
+        list_entry = arg.list_entry;
+    }
+
+    if (list_entry == NULL)
+    {
         return NULL;    /* no such preference */
+    }
 
     return (struct preference *) list_entry->data;
 }
@@ -895,7 +945,30 @@ prefs_register_uat_preference(module_t *module, const char *name,
     preference->varp.uat = uat;
 }
 
+/*
+ * Register a color preference.
+ */
+void prefs_register_color_preference(module_t *module, const char *name,
+    const char *title, const char *description, color_t *color)
+{
+    pref_t* preference = register_preference(module, name, title, description, PREF_COLOR);
 
+    preference->varp.color = color;
+    preference->default_val.color = *color;
+}
+
+/*
+ * Register a custom preference.
+ */
+void prefs_register_custom_preference(module_t *module, const char *name,
+    const char *title, const char *description, struct pref_custom_cbs* custom_cbs,
+    void** custom_data)
+{
+    pref_t* preference = register_preference(module, name, title, description, PREF_CUSTOM);
+
+    preference->custom_cbs = *custom_cbs;
+    preference->custom_cbs.init_cb(preference, custom_data);
+}
 
 /*
  * Register a preference that used to be supported but no longer is.
@@ -1020,7 +1093,7 @@ prefs_register_modules(void)
 
     /* Name Resolution */
     nameres_module = prefs_register_module(NULL, "nameres", "Name Resolution",
-        "Name Resolution", NULL);
+        "Name Resolution", NULL, TRUE);
     addr_resolve_pref_init(nameres_module);
     oid_pref_init(nameres_module);
 #ifdef HAVE_GEOIP
@@ -1029,7 +1102,7 @@ prefs_register_modules(void)
 
     /* Printing */
     printing = prefs_register_module(NULL, "print", "Printing",
-        "Printing", NULL);
+        "Printing", NULL, TRUE);
 
     prefs_register_enum_preference(printing, "format", 
                                    "Format", "Can be one of \"text\" or \"postscript\"", 
@@ -1050,7 +1123,7 @@ prefs_register_modules(void)
 
     /* Statistics */
     stats_module = prefs_register_module(NULL, "statistics", "Statistics",
-        "Statistics", &stats_callback);
+        "Statistics", &stats_callback, TRUE);
 
     prefs_register_uint_preference(stats_module, "update_interval",
                                    "Tap update interval in ms",
@@ -1069,7 +1142,7 @@ prefs_register_modules(void)
 
     /* Protocols */
     protocols_module = prefs_register_module(NULL, "protocols", "Protocols",
-                                             "Protocols", NULL);
+                                             "Protocols", NULL, TRUE);
 
     prefs_register_bool_preference(protocols_module, "display_hidden_proto_items",
                                    "Display hidden protocol items",
@@ -1638,6 +1711,14 @@ reset_pref(gpointer data, gpointer user_data _U_)
     case PREF_STATIC_TEXT:
     case PREF_UAT:
         /* Nothing to do */
+        break;
+
+    case PREF_COLOR:
+        *pref->varp.color = pref->default_val.color;
+        break;
+
+    case PREF_CUSTOM:
+        pref->custom_cbs.reset_cb(pref);
         break;
 
     case PREF_OBSOLETE:
@@ -3142,6 +3223,24 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
       break;
     }
 
+    case PREF_COLOR:
+    {
+      cval = strtoul(value, NULL, 16);
+      pref->varp.color->pixel = 0;
+      if ((pref->varp.color->red != RED_COMPONENT(cval)) ||
+          (pref->varp.color->green != GREEN_COMPONENT(cval)) ||
+          (pref->varp.color->blue != BLUE_COMPONENT(cval))) {
+          module->prefs_changed = TRUE;
+          pref->varp.color->red   = RED_COMPONENT(cval);
+          pref->varp.color->green = GREEN_COMPONENT(cval);
+          pref->varp.color->blue  = BLUE_COMPONENT(cval);
+      }
+      break;
+    }
+
+    case PREF_CUSTOM:
+        return pref->custom_cbs.set_cb(pref, value, &module->prefs_changed);
+
     case PREF_STATIC_TEXT:
     case PREF_UAT:
     {
@@ -3156,11 +3255,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
   return PREFS_SET_OK;
 }
 
-typedef struct {
-    module_t *module;
-    FILE     *pf;
-} write_pref_arg_t;
-
 /*
  * Write out a single dissector preference.
  */
@@ -3170,7 +3264,7 @@ write_pref(gpointer data, gpointer user_data)
     pref_t *pref = data;
     write_pref_arg_t *arg = user_data;
     const enum_val_t *enum_valp;
-    const char *val_string;
+    const char *val_string, *prefix;
     gchar **desc_lines;
     int i;
 
@@ -3192,20 +3286,28 @@ write_pref(gpointer data, gpointer user_data)
 	break;
     }
 
+    /* 
+     * The prefix will either be the module name or the parent 
+     * name if its a subtree
+     */
+    prefix = (arg->module->name != NULL) ? arg->module->name : arg->module->parent->name;
+
     /*
      * Make multiple line descriptions appear as
      * multiple commented lines in prefs file.
      */
-    if (pref->description &&
-            (g_ascii_strncasecmp(pref->description,"", 2) != 0)) {
-        desc_lines = g_strsplit(pref->description,"\n",0);
-        for (i = 0; desc_lines[i] != NULL; ++i) {
-            fprintf(arg->pf, "\n# %s", desc_lines[i]);
+    if (pref->type != PREF_CUSTOM) {
+        if (pref->description &&
+                (g_ascii_strncasecmp(pref->description,"", 2) != 0)) {
+            desc_lines = g_strsplit(pref->description,"\n",0);
+            for (i = 0; desc_lines[i] != NULL; ++i) {
+                fprintf(arg->pf, "\n# %s", desc_lines[i]);
+            }
+            fprintf(arg->pf, "\n");
+            g_strfreev(desc_lines);
+        } else {
+            fprintf(arg->pf, "\n# No description\n");
         }
-        fprintf(arg->pf, "\n");
-        g_strfreev(desc_lines);
-    } else {
-        fprintf(arg->pf, "\n# No description\n");
     }
 
     switch (pref->type) {
@@ -3217,7 +3319,7 @@ write_pref(gpointer data, gpointer user_data)
             fprintf(arg->pf, "# A decimal number.\n");
             if (pref->default_val.uint == *pref->varp.uint)
                 fprintf(arg->pf, "#");
-            fprintf(arg->pf, "%s.%s: %u\n", arg->module->name,
+            fprintf(arg->pf, "%s.%s: %u\n", prefix,
                 pref->name, *pref->varp.uint);
             break;
 
@@ -3225,7 +3327,7 @@ write_pref(gpointer data, gpointer user_data)
             fprintf(arg->pf, "# An octal number.\n");
             if (pref->default_val.uint == *pref->varp.uint)
                 fprintf(arg->pf, "#");
-            fprintf(arg->pf, "%s.%s: %#o\n", arg->module->name,
+            fprintf(arg->pf, "%s.%s: %#o\n", prefix,
                 pref->name, *pref->varp.uint);
             break;
 
@@ -3233,7 +3335,7 @@ write_pref(gpointer data, gpointer user_data)
             fprintf(arg->pf, "# A hexadecimal number.\n");
             if (pref->default_val.uint == *pref->varp.uint)
                 fprintf(arg->pf, "#");
-            fprintf(arg->pf, "%s.%s: %#x\n", arg->module->name,
+            fprintf(arg->pf, "%s.%s: %#x\n", prefix,
                 pref->name, *pref->varp.uint);
             break;
         }
@@ -3243,7 +3345,7 @@ write_pref(gpointer data, gpointer user_data)
         fprintf(arg->pf, "# TRUE or FALSE (case-insensitive).\n");
         if (pref->default_val.boolval == *pref->varp.boolp)
             fprintf(arg->pf, "#");
-        fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
+        fprintf(arg->pf, "%s.%s: %s\n", prefix, pref->name,
             *pref->varp.boolp ? "TRUE" : "FALSE");
         break;
 
@@ -3271,7 +3373,7 @@ write_pref(gpointer data, gpointer user_data)
         fprintf(arg->pf, "# (case-insensitive).\n");
         if (pref->default_val.enumval == *pref->varp.enump)
             fprintf(arg->pf, "#");
-        fprintf(arg->pf, "%s.%s: %s\n", arg->module->name,
+        fprintf(arg->pf, "%s.%s: %s\n", prefix,
             pref->name, val_string);
         break;
 
@@ -3280,7 +3382,7 @@ write_pref(gpointer data, gpointer user_data)
         fprintf(arg->pf, "# A string.\n");
         if (!(strcmp(pref->default_val.string, *pref->varp.string)))
             fprintf(arg->pf, "#");
-        fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
+        fprintf(arg->pf, "%s.%s: %s\n", prefix, pref->name,
             *pref->varp.string);
         break;
 
@@ -3292,10 +3394,28 @@ write_pref(gpointer data, gpointer user_data)
         fprintf(arg->pf, "# A string denoting an positive integer range (e.g., \"1-20,30-40\").\n");
         if ((ranges_are_equal(pref->default_val.range, *pref->varp.range)))
             fprintf(arg->pf, "#");
-        fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
+        fprintf(arg->pf, "%s.%s: %s\n", prefix, pref->name,
             range_string_p);
         break;
     }
+
+    case PREF_COLOR:
+    {
+        fprintf (arg->pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
+        if ((pref->default_val.color.red == pref->varp.color->red) &&
+            (pref->default_val.color.green == pref->varp.color->green) &&
+            (pref->default_val.color.blue == pref->varp.color->blue))
+            fprintf(arg->pf, "#");
+        fprintf (arg->pf, "%s.%s: %02x%02x%02x\n", prefix, pref->name,
+                   (pref->varp.color->red * 255 / 65535),
+                   (pref->varp.color->green * 255 / 65535),
+                   (pref->varp.color->blue * 255 / 65535));
+        break;
+    }
+
+    case PREF_CUSTOM:
+        pref->custom_cbs.write_cb(pref, arg);
+        break;
 
     case PREF_OBSOLETE:
     case PREF_STATIC_TEXT:

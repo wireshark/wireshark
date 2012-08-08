@@ -250,6 +250,10 @@ pref_show(pref_t *pref, gpointer user_data)
     break;
   }
 
+  case PREF_COLOR:
+  case PREF_CUSTOM:
+      /* currently not supported */
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -302,6 +306,13 @@ module_prefs_show(module_t *module, gpointer user_data)
   gchar            label_str[MAX_TREE_NODE_NAME_LEN];
   GtkTreeStore     *model;
   GtkTreeIter      iter;
+
+  if (!module->use_gui) {
+      /* This module uses its own GUI interface to modify its 
+       * preferences, so ignore it
+       */
+      return 0;
+  }
 
   /*
    * Is this module an interior node, with modules underneath it?
@@ -991,6 +1002,10 @@ pref_check(pref_t *pref, gpointer user_data)
     /* Value can't be bad. */
     break;
 
+  case PREF_COLOR:
+  case PREF_CUSTOM:
+      /* currently not supported */
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -1001,6 +1016,11 @@ pref_check(pref_t *pref, gpointer user_data)
 static guint
 module_prefs_check(module_t *module, gpointer user_data)
 {
+  /* Ignore any preferences with their own interface */
+  if (!module->use_gui) {
+      return 0;
+  }
+
   /* For all preferences in this module, fetch its value from this
      module's notebook page and check whether it's valid. */
   return prefs_pref_foreach(module, pref_check, user_data);
@@ -1094,6 +1114,10 @@ pref_fetch(pref_t *pref, gpointer user_data)
   case PREF_UAT:
     break;
 
+  case PREF_COLOR:
+  case PREF_CUSTOM:
+      /* currently not supported */
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -1105,6 +1129,11 @@ static guint
 module_prefs_fetch(module_t *module, gpointer user_data)
 {
   gboolean *must_redissect_p = user_data;
+
+  /* Ignore any preferences with their own interface */
+  if (!module->use_gui) {
+      return 0;
+  }
 
   /* For all preferences in this module, fetch its value from this
      module's notebook page.  Find out whether any of them changed. */
@@ -1223,6 +1252,10 @@ pref_clean(pref_t *pref, gpointer user_data _U_)
   case PREF_UAT:
     break;
 
+  case PREF_COLOR:
+  case PREF_CUSTOM:
+      /* currently not supported */
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -1233,6 +1266,11 @@ pref_clean(pref_t *pref, gpointer user_data _U_)
 static guint
 module_prefs_clean(module_t *module, gpointer user_data _U_)
 {
+  /* Ignore any preferences with their own interface */
+  if (!module->use_gui) {
+      return 0;
+  }
+
   /* For all preferences in this module, clean up any cruft allocated for
      use by the GUI code. */
   prefs_pref_foreach(module, pref_clean, NULL);
@@ -1403,6 +1441,10 @@ pref_copy(pref_t *pref, gpointer user_data _U_)
   case PREF_UAT:
     break;
 
+  case PREF_COLOR:
+  case PREF_CUSTOM:
+      /* currently not supported */
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -1413,6 +1455,11 @@ pref_copy(pref_t *pref, gpointer user_data _U_)
 static guint
 module_prefs_copy(module_t *module, gpointer user_data _U_)
 {
+  /* Ignore any preferences with their own interface */
+  if (!module->use_gui) {
+      return 0;
+  }
+
   /* For all preferences in this module, (re)save current value */
   prefs_pref_foreach(module, pref_copy, NULL);
   return 0;     /* continue making copies */
@@ -1609,6 +1656,10 @@ pref_revert(pref_t *pref, gpointer user_data)
   case PREF_UAT:
     break;
 
+  case PREF_COLOR:
+  case PREF_CUSTOM:
+      /* currently not supported */
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -1620,6 +1671,11 @@ static guint
 module_prefs_revert(module_t *module, gpointer user_data)
 {
   gboolean *must_redissect_p = user_data;
+
+  /* Ignore any preferences with their own interface */
+  if (!module->use_gui) {
+      return 0;
+  }
 
   /* For all preferences in this module, revert its value to the value
      it had when we popped up the Preferences dialog.  Find out whether
@@ -1690,6 +1746,13 @@ static guint
 module_search_properties(module_t *module, gpointer user_data)
 {
   struct properties_data *p = (struct properties_data *)user_data;
+
+  if (!module->use_gui) {
+      /* This module uses its own GUI interface, so its not a part
+       * of this search
+       */
+      return 0;
+  }
 
   /* If this module has the specified title, remember it. */
   if (strcmp(module->title, p->title) == 0) {

@@ -45,13 +45,40 @@ struct pref_module {
     gboolean obsolete;          /**< if TRUE, this is a module that used to
                                  * exist but no longer does
                                  */
+    gboolean use_gui;           /**< Determines whether or not the module will use the generic
+                                  * GUI interface/APIs with the preference value or if its own
+                                  * independent GUI will be provided.  This allows all preferences
+                                  * to have a common API for reading/writing, but not require them to
+                                  * use simple GUI controls to change the options.  In general, the "general" 
+                                  * Wireshark preferences should have this set to FALSE, while the protocol 
+                                  * modules will have this set to TRUE */
 };
+
+typedef struct {
+    module_t *module;
+    FILE     *pf;
+} write_pref_arg_t;
 
 /**
  * Module used for protocol preferences.
  * With MSVC and a libwireshark.dll, we need a special declaration.
  */
 WS_VAR_IMPORT module_t *protocols_module;
+
+typedef void (*pref_custom_init_cb) (pref_t* pref, void** value);
+typedef void (*pref_custom_free_cb) (pref_t* pref);
+typedef void (*pref_custom_reset_cb) (pref_t* pref);
+typedef prefs_set_pref_e (*pref_custom_set_cb) (pref_t* pref, gchar* value, gboolean* changed);
+typedef void (*pref_custom_write_cb) (pref_t* pref, write_pref_arg_t* arg);
+
+/** Structure to hold callbacks for PREF_CUSTOM type */
+struct pref_custom_cbs {
+    pref_custom_init_cb init_cb;
+    pref_custom_free_cb free_cb;
+    pref_custom_reset_cb reset_cb;
+    pref_custom_set_cb set_cb;
+    pref_custom_write_cb write_cb;
+};
 
 /**
  * PREF_OBSOLETE is used for preferences that a module used to support
@@ -66,6 +93,8 @@ typedef enum {
     PREF_STATIC_TEXT,
     PREF_UAT,
     PREF_FILENAME,
+    PREF_COLOR,     /* XXX - These are only supported for "internal" (non-protocol) */
+    PREF_CUSTOM,    /* use and not as a generic protocol preference */
     PREF_OBSOLETE
 } pref_type_t;
 
@@ -83,6 +112,8 @@ struct preference {
         const char **string;
         range_t **range;
         void* uat;
+        color_t *color;
+        void** custom;
     } varp;                          /**< pointer to variable storing the value */
     union {
         guint uint;
@@ -90,6 +121,8 @@ struct preference {
         gint enumval;
         char *string;
         range_t *range;
+        color_t color;
+        void* custom;
     } saved_val;                     /**< original value, when editing from the GUI */
     union {
         guint uint;
@@ -97,6 +130,8 @@ struct preference {
         gint enumval;
         char *string;
         range_t *range;
+        color_t color;
+        void* custom;
     } default_val;                   /**< the default value of the preference */
     union {
       guint base;                    /**< input/output base, for PREF_UINT */
@@ -109,6 +144,7 @@ struct preference {
                                           the preferences tab */
       } enum_info;                   /**< for PREF_ENUM */
     } info;                          /**< display/text file information */
+    struct pref_custom_cbs custom_cbs;   /**< for PREF_CUSTOM */
     void    *control;                /**< handle for GUI control for this preference */
 };
 

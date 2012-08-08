@@ -205,8 +205,9 @@ extern void prefs_cleanup(void);
  * Register a module that will have preferences.
  * Specify the module under which to register it or NULL to register it
  * at the top level, the name used for the module in the preferences file,
- * the title used in the tab for it in a preferences dialog box, and a
- * routine to call back when we apply the preferences.
+ * the title used in the tab for it in a preferences dialog box, a
+ * routine to call back when we apply the preferences, and if it should
+ * use the GUI controls provided by the preferences or it has its own.
  *
  * This should not be used for dissector preferences;
  * "prefs_register_protocol()" should be used for that, so that the
@@ -215,7 +216,8 @@ extern void prefs_cleanup(void);
  * call so that the "Protocol Properties..." menu item works.
  */
 extern module_t *prefs_register_module(module_t *parent, const char *name,
-    const char *title, const char *description, void (*apply_cb)(void));
+    const char *title, const char *description, void (*apply_cb)(void),
+    const gboolean use_gui);
 
 /*
  * Register a subtree that will have modules under it.
@@ -224,7 +226,7 @@ extern module_t *prefs_register_module(module_t *parent, const char *name,
  * dialog box.
  */
 extern module_t *prefs_register_subtree(module_t *parent, const char *title,
-    const char *description);
+    const char *description, void (*apply_cb)(void));
 
 /*
  * Register that a protocol has preferences.
@@ -400,6 +402,25 @@ extern void prefs_register_uat_preference(module_t *module,
 										  const char* title,
 										  const char *description,
 										  void* uat);
+
+/*
+ * Register a color preference.  Currently does not have any "GUI Dialog" support
+ * so the color data needs to be managed independently.  Currently used by the 
+ * "GUI preferences" to aid in reading/writing the preferences file, but the 
+ * "data" is still managed by the specific "GUI preferences" dialog.
+ */
+extern void prefs_register_color_preference(module_t *module, const char *name,
+    const char *title, const char *description, color_t *color);
+
+/*
+ * Register a custom preference.  Currently does not have any "GUI Dialog" support
+ * so data needs to be managed independently.  Currently used by the 
+ * "GUI preferences" to aid in reading/writing the preferences file, but the 
+ * "data" is still managed by the specific "GUI preferences" dialog.
+ */
+extern void prefs_register_custom_preference(module_t *module, const char *name,
+    const char *title, const char *description, struct pref_custom_cbs* custom_cbs,
+    void** custom_data);
 
 /*
  * Register a preference that used to be supported but no longer is.

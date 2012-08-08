@@ -5313,6 +5313,11 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
         g_signal_connect (menu_item, "activate", G_CALLBACK(uat_window_cb), pref->varp.uat);
         g_free (label);
         break;
+
+    case PREF_COLOR: 
+    case PREF_CUSTOM:
+        /* currently not supported */
+
     case PREF_STATIC_TEXT:
     case PREF_OBSOLETE:
     default:
