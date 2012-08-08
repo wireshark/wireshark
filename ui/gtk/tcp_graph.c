@@ -3206,6 +3206,7 @@ static void do_zoom_common (struct graph *g, GdkEventButton *event)
 		pointer_y = (int)event->y;
 	}
 
+	/* Work out x and y zooming factors to use */
 	if (g->zoom.flags & ZOOM_OUT) {
 		if (g->zoom.flags & ZOOM_HLOCK)
 			factor.x = 1.0;
@@ -3226,19 +3227,24 @@ static void do_zoom_common (struct graph *g, GdkEventButton *event)
 			factor.y = g->zoom.step_y;
 	}
 
+	/* Multiply by x and y factors */
 	g->geom.width = (int )rint (g->geom.width * factor.x);
 	g->geom.height = (int )rint (g->geom.height * factor.y);
+
 	if (g->geom.width < g->wp.width)
 		g->geom.width = g->wp.width;
 	if (g->geom.height < g->wp.height)
 		g->geom.height = g->wp.height;
+
+	/* Divide to work out new zoom */
 	g->zoom.x = (g->geom.width - 1) / g->bounds.width;
 	g->zoom.y = (g->geom.height- 1) / g->bounds.height;
 
+	/* Move origin to keep mouse position at centre of view */
 	g->geom.x -= (int )rint ((g->geom.width - cur_width) *
-			((pointer_x)/(double )cur_width));
+			((pointer_x - g->geom.x)/(double )cur_width));
 	g->geom.y -= (int )rint ((g->geom.height - cur_height) *
-			((pointer_y)/(double )cur_height));
+			((pointer_y - g->geom.y)/(double )cur_height));
 
 	if (g->geom.x > g->wp.x)
 		g->geom.x = g->wp.x;
@@ -3261,9 +3267,10 @@ static void do_zoom_common (struct graph *g, GdkEventButton *event)
 	axis_display (g->y_axis);
 	axis_display (g->x_axis);
 	update_zoom_spins (g);
+
 	if (g->cross.draw) {
 		g->cross.erase_needed = FALSE;
-		cross_draw (g, (int) event->x, (int) event->y);
+		cross_draw (g, pointer_x, pointer_y);
 	}
 }
 
