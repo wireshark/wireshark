@@ -3710,12 +3710,10 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         /* If newieflags == 0000 0010 then this indicates that there is a
          * HS-DSCH physical layer category and no other New IE flags. */
         if (newieflags == 2) {
-            guint8 hsdsch_physical_layer_category = 0;
             /* HS-DSCH physical layer category presence bit. */
             proto_tree_add_uint(tree, hf_fp_hsdsch_new_ie_flag[6], tvb, offset, 1, newieflags);
             offset++;
             /* HS-DSCH physical layer category. */
-            hsdsch_physical_layer_category = tvb_get_bits8(tvb, offset*8, 6);
             proto_tree_add_bits_item(tree, hf_fp_hsdsch_physical_layer_category, tvb, offset*8, 6, ENC_BIG_ENDIAN);
             offset++;
         }
