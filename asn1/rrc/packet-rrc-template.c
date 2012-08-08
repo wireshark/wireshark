@@ -60,7 +60,7 @@
 #define PSNAME "RRC"
 #define PFNAME "rrc"
 
-extern int proto_fp;	/*Handler to FP*/
+extern int proto_fp;    /*Handler to FP*/
 
 GTree * hsdsch_muxed_flows;
 GTree * rrc_ciph_inf;
@@ -140,45 +140,45 @@ static tvbuff_t * start_val;
 static int cipher_start_val[2] _U_;
 
 /*Stores how many channels we have detected for a HS-DSCH MAC-flow*/
-#define	RRC_MAX_NUM_HSDHSCH_MACDFLOW 8
+#define    RRC_MAX_NUM_HSDHSCH_MACDFLOW 8
 static guint8 num_chans_per_flow[RRC_MAX_NUM_HSDHSCH_MACDFLOW];
 static int rbid;
 static int activation_frame;
 
 
 /**
- * Return the maximum conunter, useful for initiating counters 
+ * Return the maximum counter, useful for initiating counters 
  */
  #if 0
 static int get_max_counter(int com_context){
-	int i;
-	guint32 max = 0;
-	rrc_ciphering_info * c_inf;
-	
-	if( (c_inf = g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)com_context))) == NULL ){
-		return 0;
-	}
-	for(i = 0; i<31; i++){
-			max = MAX(c_inf->ps_conf_counters[i][0], max);
-			max = MAX(c_inf->ps_conf_counters[i][1], max);
-		}
-	return max;
-	}
+    int i;
+    guint32 max = 0;
+    rrc_ciphering_info * c_inf;
+    
+    if( (c_inf = g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)com_context))) == NULL ){
+        return 0;
+    }
+    for(i = 0; i<31; i++){
+            max = MAX(c_inf->ps_conf_counters[i][0], max);
+            max = MAX(c_inf->ps_conf_counters[i][1], max);
+        }
+    return max;
+    }
 #endif 
-/** Utility functions used for various comparions/cleanups in tree **/
+/** Utility functions used for various comparisons/cleanups in tree **/
 gint rrc_key_cmp(gconstpointer b_ptr, gconstpointer a_ptr, gpointer ignore _U_){
-	if( GPOINTER_TO_INT(a_ptr) > GPOINTER_TO_INT(b_ptr) ){
-		return  -1;
-	}
-	return GPOINTER_TO_INT(a_ptr) < GPOINTER_TO_INT(b_ptr);
+    if( GPOINTER_TO_INT(a_ptr) > GPOINTER_TO_INT(b_ptr) ){
+        return  -1;
+    }
+    return GPOINTER_TO_INT(a_ptr) < GPOINTER_TO_INT(b_ptr);
 }
 void rrc_free_key(gpointer key _U_){
-			/*Key's should be de allocated elsewhere.*/
+            /*Keys should be de allocated elsewhere.*/
 
-	}
+    }
 void rrc_free_value(gpointer value ){
-			g_free(value);
-	}
+            g_free(value);
+    }
 #include "packet-rrc-fn.c"
 
 #include "packet-rrc.h"
@@ -187,68 +187,68 @@ void rrc_free_value(gpointer value ){
 static void
 dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	/* FIX ME Currently don't know the 'starting point' of this protocol
-	 * exported DL-DCCH-Message is the entry point.
-	 */
-	proto_item	*rrc_item = NULL;
-	proto_tree	*rrc_tree = NULL;
-	struct rrc_info *rrcinf;
+    /* FIX ME Currently don't know the 'starting point' of this protocol
+     * exported DL-DCCH-Message is the entry point.
+     */
+    proto_item    *rrc_item = NULL;
+    proto_tree    *rrc_tree = NULL;
+    struct rrc_info *rrcinf;
 
-	top_tree = tree;
-	rrcinf = p_get_proto_data(pinfo->fd, proto_rrc);
+    top_tree = tree;
+    rrcinf = p_get_proto_data(pinfo->fd, proto_rrc);
 
-	/* make entry in the Protocol column on summary display */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
+    /* make entry in the Protocol column on summary display */
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
 
-	/* create the rrc protocol tree */
-	rrc_item = proto_tree_add_item(tree, proto_rrc, tvb, 0, -1, ENC_NA);
-	rrc_tree = proto_item_add_subtree(rrc_item, ett_rrc);
+    /* create the rrc protocol tree */
+    rrc_item = proto_tree_add_item(tree, proto_rrc, tvb, 0, -1, ENC_NA);
+    rrc_tree = proto_item_add_subtree(rrc_item, ett_rrc);
 
-	if (rrcinf) {
-		switch (rrcinf->msgtype[pinfo->fd->subnum]) {
-			case RRC_MESSAGE_TYPE_PCCH:
-				call_dissector(rrc_pcch_handle, tvb, pinfo, rrc_tree);
-				break;
-			case RRC_MESSAGE_TYPE_UL_CCCH:
-				call_dissector(rrc_ul_ccch_handle, tvb, pinfo, rrc_tree);
-				break;
-			case RRC_MESSAGE_TYPE_DL_CCCH:
-				call_dissector(rrc_dl_ccch_handle, tvb, pinfo, rrc_tree);
-				break;
-			case RRC_MESSAGE_TYPE_UL_DCCH:
-				call_dissector(rrc_ul_dcch_handle, tvb, pinfo, rrc_tree);
-				break;
-			case RRC_MESSAGE_TYPE_DL_DCCH:
-				call_dissector(rrc_dl_dcch_handle, tvb, pinfo, rrc_tree);
-				break;
-			case RRC_MESSAGE_TYPE_BCCH_FACH:
-				call_dissector(rrc_bcch_fach_handle, tvb, pinfo, rrc_tree);
-				break;
-			default:
-				;
-		}
-	}
+    if (rrcinf) {
+        switch (rrcinf->msgtype[pinfo->fd->subnum]) {
+            case RRC_MESSAGE_TYPE_PCCH:
+                call_dissector(rrc_pcch_handle, tvb, pinfo, rrc_tree);
+                break;
+            case RRC_MESSAGE_TYPE_UL_CCCH:
+                call_dissector(rrc_ul_ccch_handle, tvb, pinfo, rrc_tree);
+                break;
+            case RRC_MESSAGE_TYPE_DL_CCCH:
+                call_dissector(rrc_dl_ccch_handle, tvb, pinfo, rrc_tree);
+                break;
+            case RRC_MESSAGE_TYPE_UL_DCCH:
+                call_dissector(rrc_ul_dcch_handle, tvb, pinfo, rrc_tree);
+                break;
+            case RRC_MESSAGE_TYPE_DL_DCCH:
+                call_dissector(rrc_dl_dcch_handle, tvb, pinfo, rrc_tree);
+                break;
+            case RRC_MESSAGE_TYPE_BCCH_FACH:
+                call_dissector(rrc_bcch_fach_handle, tvb, pinfo, rrc_tree);
+                break;
+            default:
+                ;
+        }
+    }
 }
 
 
 
 void rrc_init(void){
-	
-	/*Cleanup*/
-	if(hsdsch_muxed_flows){
-		g_tree_destroy(hsdsch_muxed_flows);
-	}
-	if(rrc_ciph_inf){
-		g_tree_destroy(rrc_ciph_inf);
-	}
-	/*Initialize structure for muxed flow indication*/
-	hsdsch_muxed_flows = g_tree_new_full(rrc_key_cmp,
+    
+    /*Cleanup*/
+    if(hsdsch_muxed_flows){
+        g_tree_destroy(hsdsch_muxed_flows);
+    }
+    if(rrc_ciph_inf){
+        g_tree_destroy(rrc_ciph_inf);
+    }
+    /*Initialize structure for muxed flow indication*/
+    hsdsch_muxed_flows = g_tree_new_full(rrc_key_cmp,
                        NULL,      /* data pointer, optional */
                        rrc_free_key,
                        rrc_free_value);
                        
-     	/*Initialize structure for muxed flow indication*/
-	rrc_ciph_inf = g_tree_new_full(rrc_key_cmp,
+         /*Initialize structure for muxed flow indication*/
+    rrc_ciph_inf = g_tree_new_full(rrc_key_cmp,
                        NULL,      /* data pointer, optional */
                        NULL,
                        rrc_free_value);
@@ -288,7 +288,7 @@ void proto_register_rrc(void) {
     &ett_rrc,
 #include "packet-rrc-ettarr.c"
     &ett_rrc_eutraFeatureGroupIndicators,
-	&ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo,
+    &ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo,
   };
 
 
@@ -305,7 +305,7 @@ void proto_register_rrc(void) {
 
 
 
-	register_init_routine(rrc_init);
+    register_init_routine(rrc_init);
 }
 
 

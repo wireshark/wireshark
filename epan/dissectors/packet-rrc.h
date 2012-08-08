@@ -33,7 +33,7 @@
 #ifndef PACKET_RRC_H
 #define PACKET_RRC_H
 
-#include <epan/asn1.h>	/* Needed for non asn1 dissectors?*/
+#include <epan/asn1.h>    /* Needed for non asn1 dissectors?*/
 
 extern int proto_rrc;
 
@@ -55,32 +55,32 @@ int dissect_rrc_TargetRNC_ToSourceRNC_Container_PDU(tvbuff_t *tvb _U_, packet_in
 #line 32 "../../asn1/rrc/packet-rrc-template.h"
 
 enum rrc_message_type {
-	RRC_MESSAGE_TYPE_INVALID	= 0,
-	RRC_MESSAGE_TYPE_PCCH		= 1,
-	RRC_MESSAGE_TYPE_UL_CCCH,
-	RRC_MESSAGE_TYPE_DL_CCCH,
-	RRC_MESSAGE_TYPE_UL_DCCH,
-	RRC_MESSAGE_TYPE_DL_DCCH,
-	RRC_MESSAGE_TYPE_BCCH_FACH
+  RRC_MESSAGE_TYPE_INVALID    = 0,
+  RRC_MESSAGE_TYPE_PCCH        = 1,
+  RRC_MESSAGE_TYPE_UL_CCCH,
+  RRC_MESSAGE_TYPE_DL_CCCH,
+  RRC_MESSAGE_TYPE_UL_DCCH,
+  RRC_MESSAGE_TYPE_DL_DCCH,
+  RRC_MESSAGE_TYPE_BCCH_FACH
 };
 
-#define MAX_RRC_FRAMES	64
+#define MAX_RRC_FRAMES    64
 typedef struct rrc_info
 {
-	enum rrc_message_type msgtype[MAX_RRC_FRAMES];
+  enum rrc_message_type msgtype[MAX_RRC_FRAMES];
 } rrc_info;
 
 /*Struct for storing ciphering information*/
 typedef struct rrc_ciph_info_
 {
-	int seq_no[31][2];	/*Indicates for each Rbid when ciphering starts*/
-	GTree * /*guint32*/ start_cs;	/*Start value for CS counter*/
-	GTree * /*guint32*/ start_ps;	/*Start value for PS counter*/
-	guint32 conf_algo_indicator;	/*Indicates which type of ciphering algorithm used*/
-	guint32 int_algo_indiccator;	/*Indicates which type of integrity algorithm used*/
-	unsigned int setup_frame;	/*Store which frame contained this information*/	
-	guint32 ps_conf_counters[31][2];	/*This should also be made for CS*/
-	
+  int seq_no[31][2];    /*Indicates for each Rbid when ciphering starts*/
+  GTree * /*guint32*/ start_cs;    /*Start value for CS counter*/
+  GTree * /*guint32*/ start_ps;    /*Start value for PS counter*/
+  guint32 conf_algo_indicator;    /*Indicates which type of ciphering algorithm used*/
+  guint32 int_algo_indiccator;    /*Indicates which type of integrity algorithm used*/
+  unsigned int setup_frame;    /*Store which frame contained this information*/    
+  guint32 ps_conf_counters[31][2];    /*This should also be made for CS*/
+  
 } rrc_ciphering_info;
 
 extern GTree * hsdsch_muxed_flows;
