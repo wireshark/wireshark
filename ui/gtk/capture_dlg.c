@@ -73,6 +73,7 @@
 #include "ui/gtk/keys.h"
 
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/expert_indicators.h"
 
 #ifdef HAVE_AIRPCAP
 #include <airpcap.h>
@@ -100,6 +101,12 @@ enum
 #endif
     FILTER,
     NUM_COLUMNS
+};
+
+enum
+{
+  SIGN = 0,
+  INAME
 };
 
 /* Capture callback data keys */
@@ -187,6 +194,9 @@ enum
 #define E_CAP_LOCAL_L_KEY               "cap_local_list"
 #define E_CAP_REMOTE_L_KEY              "cap_remote_list"
 
+#define E_COMPILE_SW_SCROLLW_KEY        "compileScrolledWindowInterfaces"
+#define E_COMPILE_TREE_VIEW_INTERFACES  "compileTreeViewInterfaces"
+
 #define DUMMY_SNAPLENGTH                65535
 #define DUMMY_NETMASK                   0xFF000000
 
@@ -215,6 +225,7 @@ static const gchar *selected_name;
 static GtkWidget *columns_menu_object;
 static GtkUIManager *ui_manager_columns = NULL;
 static GSList *popup_menu_list = NULL;
+static GHashTable *compile_results = NULL;
 
 static gint marked_interface;
 static gint marked_row;
@@ -1965,27 +1976,69 @@ compile_bpf_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 }
 
 static void
-add_page(gchar *name, gchar *text)
+select_first_entry(void)
 {
-  GtkWidget *page, *msg_label, *page_lb;
+  GtkWidget        *view;
+  GtkTreeModel     *model;
+  GtkTreeIter      iter;
+  GtkTreeSelection *selection;
 
-  page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
-  gtk_container_set_border_width(GTK_CONTAINER(page), 12);
-  g_object_set(gtk_widget_get_settings(page),
-    "gtk-label-select-on-focus", FALSE, NULL);
-  msg_label = gtk_label_new(text);
-  gtk_label_set_markup(GTK_LABEL(msg_label), text);
-  gtk_box_pack_start(GTK_BOX(page), msg_label, TRUE, TRUE, 0);
-  page_lb = gtk_label_new(name);
-  gtk_label_set_markup(GTK_LABEL(page_lb), name);
-  gtk_notebook_append_page(GTK_NOTEBOOK(g_object_get_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB)), page, page_lb);
-  gtk_widget_show_all(compile_bpf_w);
+  view = g_object_get_data(G_OBJECT(compile_bpf_w), E_COMPILE_TREE_VIEW_INTERFACES);
+  model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+  gtk_tree_model_get_iter_first(model, &iter);
+  selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+  gtk_tree_selection_select_iter(selection, &iter);
+}
+
+static void
+add_page(gchar *name, gchar *text, gboolean error)
+{
+  GtkWidget        *view;
+  GtkTreeModel     *model;
+  GtkTreeIter      iter;
+  GdkPixbuf        *pixbuf;
+
+  view = g_object_get_data(G_OBJECT(compile_bpf_w), E_COMPILE_TREE_VIEW_INTERFACES);
+  model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+  gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+  if (error) {
+    pixbuf = gdk_pixbuf_new_from_file("image/expert_error.png", NULL);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, SIGN, pixbuf, INAME, name, -1);
+  } else {
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, SIGN, NULL, INAME, name, -1);
+  }
+  g_hash_table_insert(compile_results, name, text);
+}
+
+static void
+compile_tree_select_cb(GtkTreeSelection *sel, gpointer dummy _U_)
+{
+  gchar *name,  *text;
+  GtkTreeModel  *model;
+  GtkTreeIter   iter;
+  GtkWidget     *textview;
+  GtkTextBuffer *buffer;
+
+  if (gtk_tree_selection_get_selected(sel, &model, &iter))
+  {
+    gtk_tree_model_get(model, &iter, INAME, &name, -1);
+    text = (gchar *)g_hash_table_lookup(compile_results, name);
+    textview = g_object_get_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB);
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
+    gtk_text_buffer_set_text(buffer, text, -1);
+    gtk_widget_show_all(compile_bpf_w);
+  }
 }
 
 static void
 compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
 {
-  GtkWidget   *main_box, *main_nb, *bbox, *ok_btn;
+  GtkWidget         *main_box, *main_vb, *bbox, *ok_btn, *top_hb, *ct_sb;
+  GtkListStore      *store;
+  GtkWidget         *view, *scrolled_win, *textview;
+  GtkTreeSelection  *selection;
+  GtkCellRenderer   *renderer;
+  GtkTreeViewColumn *column;
 
   if (compile_bpf_w != NULL) {
     /* There's already an "About Wireshark" dialog box; reactivate it. */
@@ -2005,10 +2058,59 @@ compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
   main_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_box), 6);
   gtk_container_add(GTK_CONTAINER(compile_bpf_w), main_box);
+  gtk_widget_show(main_box);
 
-  main_nb = gtk_notebook_new();
-  gtk_box_pack_start(GTK_BOX(main_box), main_nb, TRUE, TRUE, 0);
-  g_object_set_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB, main_nb);
+  /* Top row: Interfaces tree and notebook */
+  top_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10, FALSE);
+  gtk_box_pack_start(GTK_BOX(main_box), top_hb, TRUE, TRUE, 0);
+  gtk_widget_show(top_hb);
+
+  /* scrolled window on the left for the categories tree */
+  ct_sb = scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(ct_sb),
+                                   GTK_SHADOW_IN);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ct_sb),
+                                 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_box_pack_start(GTK_BOX(top_hb), ct_sb, TRUE, TRUE, 0);
+  gtk_widget_show(ct_sb);
+  g_object_set_data(G_OBJECT(compile_bpf_w), E_COMPILE_SW_SCROLLW_KEY, ct_sb);
+
+  store = gtk_list_store_new(2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
+  view = gtk_tree_view_new_with_model (GTK_TREE_MODEL(store));
+  gtk_tree_view_set_model(GTK_TREE_VIEW(view), GTK_TREE_MODEL (store));
+  g_object_set(G_OBJECT(view), "headers-visible", FALSE, NULL);
+  g_object_set_data(G_OBJECT(compile_bpf_w), E_COMPILE_TREE_VIEW_INTERFACES, view);
+  selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+  gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+  column = gtk_tree_view_column_new();
+  renderer = gtk_cell_renderer_pixbuf_new();
+  gtk_tree_view_column_pack_start(column, renderer, FALSE);
+  gtk_tree_view_column_set_attributes(column, renderer, "pixbuf", SIGN, NULL);
+  renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(column, renderer, TRUE);
+  gtk_tree_view_column_set_attributes(column, renderer, "text", INAME, NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
+  gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW(view), 0), TRUE);
+
+  g_signal_connect(selection, "changed", G_CALLBACK(compile_tree_select_cb), NULL);
+  gtk_container_add(GTK_CONTAINER(ct_sb), view);
+  gtk_widget_show(view);
+
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 10, FALSE);
+  gtk_box_pack_start(GTK_BOX(top_hb), main_vb, TRUE, TRUE, 0);
+  gtk_widget_show(main_vb);
+  g_object_set_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB, main_vb);
+
+  textview = gtk_text_view_new();
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), GTK_WRAP_WORD); 
+  scrolled_win = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win),
+                                 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_win),
+                                   GTK_SHADOW_IN);
+  gtk_container_add(GTK_CONTAINER(scrolled_win), textview);
+  gtk_box_pack_start(GTK_BOX(main_vb), scrolled_win, TRUE, TRUE, 0);
+  g_object_set_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB, textview);
 
   /* Button row */
   bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
@@ -2024,8 +2126,9 @@ compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
 
   gtk_widget_show_all(compile_bpf_w);
   window_present(compile_bpf_w);
-}
 
+  compile_results = g_hash_table_new(g_str_hash, g_str_equal);
+}
 
 static void
 capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
@@ -2037,7 +2140,6 @@ capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   gchar     *filter_text;
   guint     i;
   gboolean  set = FALSE;
-  char      *str;
 
   filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY);
 
@@ -2069,8 +2171,7 @@ capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
       if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, 0) < 0) {
 #endif
         g_mutex_unlock(pcap_compile_mtx);
-        str = g_markup_printf_escaped("<span background='red'><b>%s</b></span>", device.name);
-        add_page(str, g_markup_escape_text(pcap_geterr(pd), -1)); 
+        add_page(device.name, g_markup_escape_text(pcap_geterr(pd), -1), TRUE); 
       } else {
         GString *bpf_code_dump = g_string_new("");
         struct bpf_insn *insn = fcode.bf_insns;
@@ -2083,14 +2184,14 @@ capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
         }
         bpf_code_str = g_string_free(bpf_code_dump, FALSE);
         g_mutex_unlock(pcap_compile_mtx);
-        str = g_markup_printf_escaped("<span background='green'><b>%s</b></span>", device.name);
-        add_page(str, g_markup_escape_text(bpf_code_str, -1)); 
+        add_page(device.name, g_markup_escape_text(bpf_code_str, -1), FALSE); 
         g_free(bpf_code_str);
       }
       g_free(filter_text);
       pcap_close(pd);
     }
   }
+  select_first_entry();
 }
 #endif /* HAVE_PCAP_OPEN_DEAD && HAVE_BPF_IMAGE */
 
