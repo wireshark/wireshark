@@ -270,7 +270,10 @@ print_usage(gboolean print_ver)
   fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
   fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
 #endif  /* HAVE_LIBPCAP */
-
+#ifdef HAVE_PCAP_REMOTE
+  fprintf(output, "RPCAP options:\n");
+  fprintf(output, "  -A <user>:<password>     use RPCAP password authentication\n");
+#endif
   /*fprintf(output, "\n");*/
   fprintf(output, "Input file:\n");
   fprintf(output, "  -r <infile>              set the filename to read from (no pipes or stdin!)\n");
@@ -840,6 +843,11 @@ main(int argc, char *argv[])
   int                  optind_initial;
   gchar               *output_only = NULL;
 
+#ifdef HAVE_PCAP_REMOTE
+#define OPTSTRING_A "A:"
+#else
+#define OPTSTRING_A ""
+#endif
 #ifdef HAVE_LIBPCAP
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 #define OPTSTRING_B "B:"
@@ -856,7 +864,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "2a:A:b:" OPTSTRING_B "c:C:d:De:E:f:F:G:hH:i:" OPTSTRING_I "K:lLnN:o:O:pPqr:R:s:S:t:T:u:vVw:W:xX:y:z:"
+#define OPTSTRING "2a:" OPTSTRING_A "b:" OPTSTRING_B "c:C:d:De:E:f:F:G:hH:i:" OPTSTRING_I "K:lLnN:o:O:pPqr:R:s:S:t:T:u:vVw:W:xX:y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1094,6 +1102,9 @@ main(int argc, char *argv[])
     case 'f':        /* capture filter */
     case 'i':        /* Use interface x */
     case 'p':        /* Don't capture in promiscuous mode */
+#ifdef HAVE_PCAP_REMOTE
+    case 'A':        /* Authentication */
+#endif
 #ifdef HAVE_PCAP_CREATE
     case 'I':        /* Capture in monitor mode, if available */
 #endif

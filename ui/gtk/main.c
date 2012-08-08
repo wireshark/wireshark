@@ -1184,7 +1184,10 @@ print_usage(gboolean print_ver) {
   fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
   fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
 #endif  /* HAVE_LIBPCAP */
-
+#ifdef HAVE_PCAP_REMOTE
+  fprintf(output, "RPCAP options:\n");
+  fprintf(output, "  -A <user>:<password>     use RPCAP password authentication\n");
+#endif
   /*fprintf(output, "\n");*/
   fprintf(output, "Input file:\n");
   fprintf(output, "  -r <infile>              set the filename to read from (no pipes or stdin!)\n");
@@ -2217,14 +2220,18 @@ main(int argc, char *argv[])
 #else /* HAVE_LIBPCAP */
 #define OPTSTRING_B ""
 #endif  /* HAVE_LIBPCAP */
-
+#ifdef HAVE_PCAP_REMOTE
+#define OPTSTRING_A "A:"
+#else
+#define OPTSTRING_A ""
+#endif
 #ifdef HAVE_PCAP_CREATE
 #define OPTSTRING_I "I"
 #else
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "a:b:" OPTSTRING_B "c:C:d:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pr:R:Ss:t:u:vw:X:y:z:"
+#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:C:d:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pr:R:Ss:t:u:vw:X:y:z:"
 
   static const char optstring[] = OPTSTRING;
 
@@ -2604,6 +2611,9 @@ main(int argc, char *argv[])
       case 'i':        /* Use interface x */
 #ifdef HAVE_PCAP_CREATE
       case 'I':        /* Capture in monitor mode, if available */
+#endif
+#ifdef HAVE_PCAP_REMOTE
+      case 'A':        /* Authentication */
 #endif
       case 's':        /* Set the snapshot (capture) length */
       case 'S':        /* "Sync" mode: used for following file ala tail -f */
