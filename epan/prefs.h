@@ -190,6 +190,8 @@ WS_VAR_IMPORT e_prefs prefs;
  */
 struct pref_module;
 
+struct pref_custom_cbs;
+
 typedef struct pref_module module_t;
 
 /** Sets up memory used by proto routines. Called at program startup */
