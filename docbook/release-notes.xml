@@ -108,20 +108,15 @@ Wireshark Info
           </para> -->
         </listitem>
 
-
-
-
-
-
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-??.html">wnpa-sec-2012-??</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-17.html">wnpa-sec-2012-17</ulink>
           </para>
           <para>
-	    . Reported by
+	    The AFP dissector could go into a large loop. Reported by Stefan Cornelius.
 	    .
-            <!-- Fixed in trunk: r44??? -->
-            <!-- Fixed in trunk-1.8: r44??? -->
+            <!-- Fixed in trunk: r44317 -->
+            <!-- Fixed in trunk-1.8: r44349 -->
             <!-- Fixed in trunk-1.6: r44??? -->
             <!-- Fixed in trunk-1.4: r44??? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
@@ -132,6 +127,13 @@ Wireshark Info
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
           </para> -->
         </listitem>
+
+
+
+
+
+
+
 
         <listitem>
           <para>
