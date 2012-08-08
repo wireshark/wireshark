@@ -225,7 +225,9 @@ static const gchar *selected_name;
 static GtkWidget *columns_menu_object;
 static GtkUIManager *ui_manager_columns = NULL;
 static GSList *popup_menu_list = NULL;
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
 static GHashTable *compile_results = NULL;
+#endif
 
 static gint marked_interface;
 static gint marked_row;
