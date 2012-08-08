@@ -58,6 +58,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-enip.h"
 #include "packet-cip.h"
 
@@ -1644,29 +1645,38 @@ typedef struct mr_mult_req_info {
             num_services = tvb_get_letohs( tvb, offset+2+req_path_size );
             proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 2, "Number of Services: %d", num_services );
 
-            /* Add services */
-            temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+2, num_services*2, "Offsets: " );
+	    mr_mult_req_info = NULL;
+	    /* Ensure a rough sanity check */
+	    if (num_services*2 > tvb_reported_length_remaining(tvb, offset+2))
+	    {
+		 expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN, "Multiple Service Packet too many services for packet");
+		 return;
+	    }
+	    else
+	    {
+	       /* Add services */
+	       temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+2, num_services*2, "Offsets: " );
 
-            cip_req_info = (cip_req_info_t*)p_get_proto_data( pinfo->fd, proto_cip );
+	       cip_req_info = (cip_req_info_t*)p_get_proto_data( pinfo->fd, proto_cip );
 
-            mr_mult_req_info = NULL;
-            if ( cip_req_info )
-            {
-               if ( cip_req_info->pData == NULL )
-               {
-                  mr_mult_req_info = se_alloc(sizeof(mr_mult_req_info_t));
-                  mr_mult_req_info->service = SC_MULT_SERV_PACK;
-                  mr_mult_req_info->num_services = num_services;
-                  mr_mult_req_info->requests = se_alloc(sizeof(cip_req_info_t)*num_services);
-                  cip_req_info->pData = mr_mult_req_info;
-               }
-               else
-               {
-                  mr_mult_req_info = (mr_mult_req_info_t*)cip_req_info->pData;
-                  if ( mr_mult_req_info && mr_mult_req_info->num_services != num_services )
-                     mr_mult_req_info = NULL;
-               }
-            }
+	       if ( cip_req_info )
+	       {
+		  if ( cip_req_info->pData == NULL )
+		  {
+		     mr_mult_req_info = se_alloc(sizeof(mr_mult_req_info_t));
+		     mr_mult_req_info->service = SC_MULT_SERV_PACK;
+		     mr_mult_req_info->num_services = num_services;
+		     mr_mult_req_info->requests = se_alloc(sizeof(cip_req_info_t)*num_services);
+		     cip_req_info->pData = mr_mult_req_info;
+		  }
+		  else
+		  {
+		     mr_mult_req_info = (mr_mult_req_info_t*)cip_req_info->pData;
+		     if ( mr_mult_req_info && mr_mult_req_info->num_services != num_services )
+			mr_mult_req_info = NULL;
+		  }
+	       }
+	    }
             for( i=0; i < num_services; i++ )
             {
                int serv_length;
