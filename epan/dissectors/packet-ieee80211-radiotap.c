@@ -582,6 +582,7 @@ static int hf_radiotap_present_hdrfcs = -1;
 static int hf_radiotap_present_rxflags = -1;
 static int hf_radiotap_present_xchannel = -1;
 static int hf_radiotap_present_mcs = -1;
+static int hf_radiotap_present_ampdu = -1;
 static int hf_radiotap_present_rtap_ns = -1;
 static int hf_radiotap_present_vendor_ns = -1;
 static int hf_radiotap_present_ext = -1;
@@ -915,6 +916,11 @@ void proto_register_radiotap(void)
 		 {"HT information", "radiotap.present.mcs",
 		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(MCS),
 		  "Specifies if the HT field is present", HFILL}},
+
+		{&hf_radiotap_present_ampdu,
+		 {"A-MPDU Status", "radiotap.present.ampdu",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(AMPDU_STATUS),
+		  "Specifies if the A-MPDU status field is present", HFILL}},
 
 		{&hf_radiotap_present_rtap_ns,
 		 {"Radiotap NS next", "radiotap.present.rtap_ns",
@@ -1554,6 +1560,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_mcs, tvb,
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_ampdu, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
  always_bits:
 			proto_tree_add_item(present_tree,
