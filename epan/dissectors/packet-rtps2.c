@@ -993,12 +993,11 @@ static void rtps_util_add_extra_flags(proto_tree *tree,
                         const char *label) {
   if (tree) {
     guint16 flags = NEXT_guint16(tvb, offset, FALSE); /* Always big endian */
-    guint8  temp_buffer[20];
+    emem_strbuf_t *temp_buffer = ep_strbuf_new_label(NULL);
     int i;
     for (i = 0; i < 16; ++i) {
-      temp_buffer[i] = ((flags & (1 << (15-i))) != 0) ? '1' : '0';
+      ep_strbuf_append_c(temp_buffer, ((flags & (1 << (15-i))) != 0) ? '1' : '0');
     }
-    temp_buffer[16] = '\0';
 
     proto_tree_add_text(tree,
                         tvb,
@@ -1006,7 +1005,7 @@ static void rtps_util_add_extra_flags(proto_tree *tree,
                         2,
                         "%s: %s",
                         label,
-                        temp_buffer);
+                        temp_buffer->str);
   }
 }
 
@@ -3064,7 +3063,8 @@ static int rtps_util_add_bitmap(proto_tree *tree,
   guint64 seq_base;
   gint32 num_bits;
   guint32 data;
-  char temp_buff[MAX_BITMAP_SIZE];
+  emem_strbuf_t *temp_buff = ep_strbuf_new_label(NULL);
+  gchar *last_one;
   int i, j, idx;
   proto_item * ti;
   proto_tree * bitmap_tree;
@@ -3086,27 +3086,23 @@ static int rtps_util_add_bitmap(proto_tree *tree,
 
   /* Reads the bits (and format the print buffer) */
   idx = 0;
-  temp_buff[0] = '\0';
   for (i = 0; i < num_bits; i += 32) {
     data = NEXT_guint32(tvb, offset, little_endian);
     offset += 4;
     for (j = 0; j < 32; ++j) {
       datamask = (1 << (31-j));
-      temp_buff[idx] = ((data & datamask) == datamask) ? '1':'0';
+      ep_strbuf_append_c(temp_buff, ((data & datamask) == datamask) ? '1':'0');
       ++idx;
-      if (idx >= num_bits) {
-        break;
-      }
-      if (idx >= MAX_BITMAP_SIZE-1) {
+      if (idx >= num_bits || temp_buff->len >= ITEM_LABEL_LENGTH - 1) {
         break;
       }
     }
   }
-  temp_buff[idx] = '\0';
 
   /* removes all the ending '0' */
-  for (i = (int)strlen(temp_buff) - 1; (i>0 && temp_buff[i] == '0'); --i) {
-      temp_buff[i] = '\0';
+  last_one = strrchr(temp_buff->str, '1');
+  if (last_one) {
+    ep_strbuf_truncate(temp_buff, (gsize) (last_one - temp_buff->str));
   }
 
   if (tree) {
@@ -3118,7 +3114,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
                           label,
                           seq_base,
                           num_bits,
-                          temp_buff);
+                          temp_buff->str);
     bitmap_tree = proto_item_add_subtree(ti, ett_rtps_bitmap);
     proto_tree_add_text(bitmap_tree,
                           tvb,
@@ -3132,13 +3128,13 @@ static int rtps_util_add_bitmap(proto_tree *tree,
                           4,
                           "numBits: %u",
                           num_bits);
-    if (temp_buff[0] != '\0') {
+    if (temp_buff->len > 0) {
       proto_tree_add_text(bitmap_tree,
                           tvb,
                           original_offset + 12,
                           offset - original_offset - 12,
                           "bitmap: %s",
-                          temp_buff);
+                          temp_buff->str);
     }
   }
   return offset;
@@ -3163,7 +3159,8 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree,
   guint64 base;
   gint32 num_bits;
   guint32 data;
-  char temp_buff[MAX_BITMAP_SIZE];
+  emem_strbuf_t *temp_buff = ep_strbuf_new_label(NULL);
+  gchar *last_one;
   int i, j, idx;
   proto_item * ti;
   proto_tree * bitmap_tree;
@@ -3209,28 +3206,25 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree,
 
   /* Reads the bits (and format the print buffer) */
   idx = 0;
-  temp_buff[0] = '\0';
   for (i = 0; i < num_bits; i += 32) {
     data = NEXT_guint32(tvb, offset, little_endian);
     offset += 4;
     for (j = 0; j < 32; ++j) {
       datamask = (1 << (31-j));
-      temp_buff[idx] = ((data & datamask) != 0) ? '1':'0';
+      ep_strbuf_append_c(temp_buff, ((data & datamask) == datamask) ? '1':'0');
       ++idx;
-      if (idx > num_bits) {
-        break;
-      }
-      if (idx >= MAX_BITMAP_SIZE-1) {
+      if (idx >= num_bits || temp_buff->len >= ITEM_LABEL_LENGTH - 1) {
         break;
       }
     }
   }
-  temp_buff[idx] = '\0';
 
-  /* removes all (but the last one) characters '0' */
-  for (i = (int)strlen(temp_buff) - 1; (i>0 && temp_buff[i] == '0'); --i) {
-      temp_buff[i] = '\0';
+  /* removes all the ending '0' */
+  last_one = strrchr(temp_buff->str, '1');
+  if (last_one) {
+    ep_strbuf_truncate(temp_buff, (gsize) (last_one - temp_buff->str));
   }
+
   if (tree) {
     ti = proto_tree_add_text(tree,
                         tvb,
@@ -3240,7 +3234,7 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree,
                         label,
                         base,
                         num_bits,
-                        temp_buff);
+                        temp_buff->str);
     bitmap_tree = proto_item_add_subtree(ti, ett_rtps_bitmap);
     proto_tree_add_text(bitmap_tree,
                         tvb,
@@ -3254,13 +3248,13 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree,
                         4,
                         "numBits: %u",
                         num_bits);
-    if (temp_buff[0] != '\0') {
+    if (temp_buff->len > 0) {
       proto_tree_add_text(bitmap_tree,
                         tvb,
                         original_offset + base_size + 4,
                         offset - original_offset - base_size - 4,
                         "bitmap: %s",
-                        temp_buff);
+                        temp_buff->str);
     }
   }
   return offset;
@@ -9576,4 +9570,3 @@ void proto_register_rtps2(void) {
 void proto_reg_handoff_rtps2(void) {
   heur_dissector_add("udp", dissect_rtps, proto_rtps);
 }
-
