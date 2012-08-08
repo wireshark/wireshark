@@ -3856,13 +3856,6 @@ typedef struct
   PMO_AdditionsR98_t AdditionsR98;
 } Packet_Measurement_Order_t;
 
-typedef struct
-{
-  guint8 MESSAGE_TYPE;
-  guint8 PAGE_MODE;
-  PacketDownlinkID_t ID;
-} Packet_Measurement_Order_Reduced_t;
-
 /* Enhanced measurement report */
 
 typedef struct
@@ -4191,7 +4184,7 @@ typedef struct
     Packet_Access_Reject_t                Packet_Access_Reject;
     Packet_Cell_Change_Order_t            Packet_Cell_Change_Order;
     Packet_Downlink_Assignment_t          Packet_Downlink_Assignment;
-    Packet_Measurement_Order_Reduced_t    Packet_Measurement_Order;
+    Packet_Measurement_Order_t            Packet_Measurement_Order;
     Packet_Neighbour_Cell_Data_t          Packet_Neighbour_Cell_Data;
     Packet_Serving_Cell_Data_t            Packet_Serving_Cell_Data;
     Packet_Paging_Request_t               Packet_Paging_Request;
