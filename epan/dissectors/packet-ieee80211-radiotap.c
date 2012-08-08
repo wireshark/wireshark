@@ -38,6 +38,7 @@
 #include <epan/tap.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
+#include <epan/expert.h>
 #include "packet-ieee80211.h"
 #include "packet-ieee80211-radiotap.h"
 #include "packet-ieee80211-radiotap-iter.h"
@@ -583,6 +584,7 @@ static int hf_radiotap_present_rxflags = -1;
 static int hf_radiotap_present_xchannel = -1;
 static int hf_radiotap_present_mcs = -1;
 static int hf_radiotap_present_ampdu = -1;
+static int hf_radiotap_present_reserved = -1;
 static int hf_radiotap_present_rtap_ns = -1;
 static int hf_radiotap_present_vendor_ns = -1;
 static int hf_radiotap_present_ext = -1;
@@ -921,6 +923,11 @@ void proto_register_radiotap(void)
 		 {"A-MPDU Status", "radiotap.present.ampdu",
 		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(AMPDU_STATUS),
 		  "Specifies if the A-MPDU status field is present", HFILL}},
+
+		{&hf_radiotap_present_reserved,
+		 {"Reserved", "radiotap.present.reserved",
+		  FT_UINT32, BASE_HEX, NULL, IEEE80211_RADIOTAP_NOTDEFINED,
+		  "Not (yet) defined present flag (Must be zero)", HFILL}},
 
 		{&hf_radiotap_present_rtap_ns,
 		 {"Radiotap NS next", "radiotap.present.rtap_ns",
@@ -1564,6 +1571,17 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_ampdu, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
+			ti = proto_tree_add_item(present_tree,
+					    hf_radiotap_present_reserved, tvb,
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
+			/* Check if Reserved/Not Defined is not "zero" */
+			if(bmap & IEEE80211_RADIOTAP_NOTDEFINED)
+			{
+				expert_add_info_format(pinfo,ti, PI_UNDECODED, PI_NOTE,
+				"Unknown Radiotap fields, code not implemented, "
+				"Please check radiotap documentation, "
+				"Contact Wireshark developers if you want this supported" );
+			}
  always_bits:
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_rtap_ns, tvb,

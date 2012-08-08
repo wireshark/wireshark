@@ -215,6 +215,10 @@ enum ieee80211_radiotap_type {
 	IEEE80211_RADIOTAP_EXT = 31
 };
 
+/* not (yet) defined Radiotap present flag */
+/* Bit 21 to 28 are not defined (in binary : 0001 1111 1110 0000 0000 0000 0000 0000 */ 
+#define IEEE80211_RADIOTAP_NOTDEFINED 0x1FE00000
+
 /* Channel flags. */
 #define	IEEE80211_CHAN_TURBO	0x0010	/* Turbo channel */
 #define	IEEE80211_CHAN_CCK	0x0020	/* CCK channel */
