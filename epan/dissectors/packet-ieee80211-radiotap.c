@@ -44,6 +44,163 @@
 #include "packet-ieee80211-radiotap-iter.h"
 #include "packet-ieee80211-radiotap-defs.h"
 
+
+/* protocol */
+static int proto_radiotap = -1;
+
+static int hf_radiotap_version = -1;
+static int hf_radiotap_pad = -1;
+static int hf_radiotap_length = -1;
+static int hf_radiotap_present = -1;
+static int hf_radiotap_mactime = -1;
+static int hf_radiotap_channel = -1;
+static int hf_radiotap_channel_frequency = -1;
+static int hf_radiotap_channel_flags = -1;
+static int hf_radiotap_channel_flags_turbo = -1;
+static int hf_radiotap_channel_flags_cck = -1;
+static int hf_radiotap_channel_flags_ofdm = -1;
+static int hf_radiotap_channel_flags_2ghz = -1;
+static int hf_radiotap_channel_flags_5ghz = -1;
+static int hf_radiotap_channel_flags_passive = -1;
+static int hf_radiotap_channel_flags_dynamic = -1;
+static int hf_radiotap_channel_flags_gfsk = -1;
+static int hf_radiotap_channel_flags_gsm = -1;
+static int hf_radiotap_channel_flags_sturbo = -1;
+static int hf_radiotap_channel_flags_half = -1;
+static int hf_radiotap_channel_flags_quarter = -1;
+static int hf_radiotap_rxflags = -1;
+static int hf_radiotap_rxflags_badplcp = -1;
+static int hf_radiotap_xchannel = -1;
+static int hf_radiotap_xchannel_frequency = -1;
+static int hf_radiotap_xchannel_flags = -1;
+static int hf_radiotap_xchannel_flags_turbo = -1;
+static int hf_radiotap_xchannel_flags_cck = -1;
+static int hf_radiotap_xchannel_flags_ofdm = -1;
+static int hf_radiotap_xchannel_flags_2ghz = -1;
+static int hf_radiotap_xchannel_flags_5ghz = -1;
+static int hf_radiotap_xchannel_flags_passive = -1;
+static int hf_radiotap_xchannel_flags_dynamic = -1;
+static int hf_radiotap_xchannel_flags_gfsk = -1;
+static int hf_radiotap_xchannel_flags_gsm = -1;
+static int hf_radiotap_xchannel_flags_sturbo = -1;
+static int hf_radiotap_xchannel_flags_half = -1;
+static int hf_radiotap_xchannel_flags_quarter = -1;
+static int hf_radiotap_xchannel_flags_ht20 = -1;
+static int hf_radiotap_xchannel_flags_ht40u = -1;
+static int hf_radiotap_xchannel_flags_ht40d = -1;
+#if 0
+static int hf_radiotap_xchannel_maxpower = -1;
+#endif
+static int hf_radiotap_fhss_hopset = -1;
+static int hf_radiotap_fhss_pattern = -1;
+static int hf_radiotap_datarate = -1;
+static int hf_radiotap_antenna = -1;
+static int hf_radiotap_dbm_antsignal = -1;
+static int hf_radiotap_db_antsignal = -1;
+static int hf_radiotap_dbm_antnoise = -1;
+static int hf_radiotap_db_antnoise = -1;
+static int hf_radiotap_tx_attenuation = -1;
+static int hf_radiotap_db_tx_attenuation = -1;
+static int hf_radiotap_txpower = -1;
+static int hf_radiotap_vendor_ns = -1;
+static int hf_radiotap_ven_oui = -1;
+static int hf_radiotap_ven_subns = -1;
+static int hf_radiotap_ven_skip = -1;
+static int hf_radiotap_ven_data = -1;
+static int hf_radiotap_mcs = -1;
+static int hf_radiotap_mcs_known = -1;
+static int hf_radiotap_mcs_have_bw = -1;
+static int hf_radiotap_mcs_have_index = -1;
+static int hf_radiotap_mcs_have_gi = -1;
+static int hf_radiotap_mcs_have_format = -1;
+static int hf_radiotap_mcs_have_fec = -1;
+static int hf_radiotap_mcs_have_stbc = -1;
+static int hf_radiotap_mcs_bw = -1;
+static int hf_radiotap_mcs_index = -1;
+static int hf_radiotap_mcs_gi = -1;
+static int hf_radiotap_mcs_format = -1;
+static int hf_radiotap_mcs_fec = -1;
+static int hf_radiotap_mcs_stbc = -1;
+static int hf_radiotap_ampdu = -1;
+static int hf_radiotap_ampdu_ref = -1;
+static int hf_radiotap_ampdu_flags = -1;
+static int hf_radiotap_ampdu_flags_report_zerolen = -1;
+static int hf_radiotap_ampdu_flags_is_zerolen = -1;
+static int hf_radiotap_ampdu_flags_last_known = -1;
+static int hf_radiotap_ampdu_flags_is_last = -1;
+static int hf_radiotap_ampdu_flags_delim_crc_error = -1;
+static int hf_radiotap_ampdu_delim_crc = -1;
+
+/* "Present" flags */
+static int hf_radiotap_present_tsft = -1;
+static int hf_radiotap_present_flags = -1;
+static int hf_radiotap_present_rate = -1;
+static int hf_radiotap_present_channel = -1;
+static int hf_radiotap_present_fhss = -1;
+static int hf_radiotap_present_dbm_antsignal = -1;
+static int hf_radiotap_present_dbm_antnoise = -1;
+static int hf_radiotap_present_lock_quality = -1;
+static int hf_radiotap_present_tx_attenuation = -1;
+static int hf_radiotap_present_db_tx_attenuation = -1;
+static int hf_radiotap_present_dbm_tx_power = -1;
+static int hf_radiotap_present_antenna = -1;
+static int hf_radiotap_present_db_antsignal = -1;
+static int hf_radiotap_present_db_antnoise = -1;
+static int hf_radiotap_present_hdrfcs = -1;
+static int hf_radiotap_present_rxflags = -1;
+static int hf_radiotap_present_xchannel = -1;
+static int hf_radiotap_present_mcs = -1;
+static int hf_radiotap_present_ampdu = -1;
+static int hf_radiotap_present_reserved = -1;
+static int hf_radiotap_present_rtap_ns = -1;
+static int hf_radiotap_present_vendor_ns = -1;
+static int hf_radiotap_present_ext = -1;
+
+/* "present.flags" flags */
+static int hf_radiotap_flags = -1;
+static int hf_radiotap_flags_cfp = -1;
+static int hf_radiotap_flags_preamble = -1;
+static int hf_radiotap_flags_wep = -1;
+static int hf_radiotap_flags_frag = -1;
+static int hf_radiotap_flags_fcs = -1;
+static int hf_radiotap_flags_datapad = -1;
+static int hf_radiotap_flags_badfcs = -1;
+static int hf_radiotap_flags_shortgi = -1;
+
+static int hf_radiotap_quality = -1;
+static int hf_radiotap_fcs = -1;
+static int hf_radiotap_fcs_bad = -1;
+
+static gint ett_radiotap = -1;
+static gint ett_radiotap_present = -1;
+static gint ett_radiotap_flags = -1;
+static gint ett_radiotap_rxflags = -1;
+static gint ett_radiotap_channel_flags = -1;
+static gint ett_radiotap_xchannel_flags = -1;
+static gint ett_radiotap_vendor = -1;
+static gint ett_radiotap_mcs = -1;
+static gint ett_radiotap_mcs_known = -1;
+static gint ett_radiotap_ampdu = -1;
+static gint ett_radiotap_ampdu_flags = -1;
+
+static dissector_handle_t ieee80211_handle;
+static dissector_handle_t ieee80211_datapad_handle;
+
+static int radiotap_tap = -1;
+
+/* Settings */
+static gboolean radiotap_bit14_fcs = FALSE;
+
+static void
+dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
+
+#define BITNO_32(x) (((x) >> 16) ? 16 + BITNO_16((x) >> 16) : BITNO_16((x)))
+#define BITNO_16(x) (((x) >> 8) ? 8 + BITNO_8((x) >> 8) : BITNO_8((x)))
+#define BITNO_8(x) (((x) >> 4) ? 4 + BITNO_4((x) >> 4) : BITNO_4((x)))
+#define BITNO_4(x) (((x) >> 2) ? 2 + BITNO_2((x) >> 2) : BITNO_2((x)))
+#define BITNO_2(x) (((x) & 2) ? 1 : 0)
+#define BIT(n)	(1 << n)
+
 /* not officially defined (yet) */
 #define IEEE80211_RADIOTAP_F_SHORTGI	0x80
 #define IEEE80211_RADIOTAP_XCHANNEL	18
@@ -478,161 +635,55 @@ static const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2] = {
 	},
 };
 
-/* protocol */
-static int proto_radiotap = -1;
+static const value_string phy_type[] = {
+	{0, "Unknown"},
+	{IEEE80211_CHAN_A, "802.11a"},
+	{IEEE80211_CHAN_A | IEEE80211_CHAN_HT20, "802.11a (ht20)"},
+	{IEEE80211_CHAN_A | IEEE80211_CHAN_HT40U, "802.11a (ht40+)"},
+	{IEEE80211_CHAN_A | IEEE80211_CHAN_HT40D, "802.11a (ht40-)"},
+	{IEEE80211_CHAN_B, "802.11b"},
+	{IEEE80211_CHAN_PUREG, "802.11g (pure-g)"},
+	{IEEE80211_CHAN_G, "802.11g"},
+	{IEEE80211_CHAN_G | IEEE80211_CHAN_HT20, "802.11g (ht20)"},
+	{IEEE80211_CHAN_G | IEEE80211_CHAN_HT40U, "802.11g (ht40+)"},
+	{IEEE80211_CHAN_G | IEEE80211_CHAN_HT40D, "802.11g (ht40-)"},
+	{IEEE80211_CHAN_T, "802.11a (turbo)"},
+	{IEEE80211_CHAN_108PUREG, "802.11g (pure-g, turbo)"},
+	{IEEE80211_CHAN_108G, "802.11g (turbo)"},
+	{IEEE80211_CHAN_FHSS, "FHSS"},
+	{0, NULL}
+};
 
-static int hf_radiotap_version = -1;
-static int hf_radiotap_pad = -1;
-static int hf_radiotap_length = -1;
-static int hf_radiotap_present = -1;
-static int hf_radiotap_mactime = -1;
-static int hf_radiotap_channel = -1;
-static int hf_radiotap_channel_frequency = -1;
-static int hf_radiotap_channel_flags = -1;
-static int hf_radiotap_channel_flags_turbo = -1;
-static int hf_radiotap_channel_flags_cck = -1;
-static int hf_radiotap_channel_flags_ofdm = -1;
-static int hf_radiotap_channel_flags_2ghz = -1;
-static int hf_radiotap_channel_flags_5ghz = -1;
-static int hf_radiotap_channel_flags_passive = -1;
-static int hf_radiotap_channel_flags_dynamic = -1;
-static int hf_radiotap_channel_flags_gfsk = -1;
-static int hf_radiotap_channel_flags_gsm = -1;
-static int hf_radiotap_channel_flags_sturbo = -1;
-static int hf_radiotap_channel_flags_half = -1;
-static int hf_radiotap_channel_flags_quarter = -1;
-static int hf_radiotap_rxflags = -1;
-static int hf_radiotap_rxflags_badplcp = -1;
-static int hf_radiotap_xchannel = -1;
-static int hf_radiotap_xchannel_frequency = -1;
-static int hf_radiotap_xchannel_flags = -1;
-static int hf_radiotap_xchannel_flags_turbo = -1;
-static int hf_radiotap_xchannel_flags_cck = -1;
-static int hf_radiotap_xchannel_flags_ofdm = -1;
-static int hf_radiotap_xchannel_flags_2ghz = -1;
-static int hf_radiotap_xchannel_flags_5ghz = -1;
-static int hf_radiotap_xchannel_flags_passive = -1;
-static int hf_radiotap_xchannel_flags_dynamic = -1;
-static int hf_radiotap_xchannel_flags_gfsk = -1;
-static int hf_radiotap_xchannel_flags_gsm = -1;
-static int hf_radiotap_xchannel_flags_sturbo = -1;
-static int hf_radiotap_xchannel_flags_half = -1;
-static int hf_radiotap_xchannel_flags_quarter = -1;
-static int hf_radiotap_xchannel_flags_ht20 = -1;
-static int hf_radiotap_xchannel_flags_ht40u = -1;
-static int hf_radiotap_xchannel_flags_ht40d = -1;
-#if 0
-static int hf_radiotap_xchannel_maxpower = -1;
-#endif
-static int hf_radiotap_fhss_hopset = -1;
-static int hf_radiotap_fhss_pattern = -1;
-static int hf_radiotap_datarate = -1;
-static int hf_radiotap_antenna = -1;
-static int hf_radiotap_dbm_antsignal = -1;
-static int hf_radiotap_db_antsignal = -1;
-static int hf_radiotap_dbm_antnoise = -1;
-static int hf_radiotap_db_antnoise = -1;
-static int hf_radiotap_tx_attenuation = -1;
-static int hf_radiotap_db_tx_attenuation = -1;
-static int hf_radiotap_txpower = -1;
-static int hf_radiotap_vendor_ns = -1;
-static int hf_radiotap_ven_oui = -1;
-static int hf_radiotap_ven_subns = -1;
-static int hf_radiotap_ven_skip = -1;
-static int hf_radiotap_ven_data = -1;
-static int hf_radiotap_mcs = -1;
-static int hf_radiotap_mcs_known = -1;
-static int hf_radiotap_mcs_have_bw = -1;
-static int hf_radiotap_mcs_have_index = -1;
-static int hf_radiotap_mcs_have_gi = -1;
-static int hf_radiotap_mcs_have_format = -1;
-static int hf_radiotap_mcs_have_fec = -1;
-static int hf_radiotap_mcs_have_stbc = -1;
-static int hf_radiotap_mcs_bw = -1;
-static int hf_radiotap_mcs_index = -1;
-static int hf_radiotap_mcs_gi = -1;
-static int hf_radiotap_mcs_format = -1;
-static int hf_radiotap_mcs_fec = -1;
-static int hf_radiotap_mcs_stbc = -1;
-static int hf_radiotap_ampdu = -1;
-static int hf_radiotap_ampdu_ref = -1;
-static int hf_radiotap_ampdu_flags = -1;
-static int hf_radiotap_ampdu_flags_report_zerolen = -1;
-static int hf_radiotap_ampdu_flags_is_zerolen = -1;
-static int hf_radiotap_ampdu_flags_last_known = -1;
-static int hf_radiotap_ampdu_flags_is_last = -1;
-static int hf_radiotap_ampdu_flags_delim_crc_error = -1;
-static int hf_radiotap_ampdu_delim_crc = -1;
+static const value_string mcs_bandwidth[] = {
+	{ IEEE80211_RADIOTAP_MCS_BW_20, "20 MHz" },
+	{ IEEE80211_RADIOTAP_MCS_BW_40, "40 MHz" },
+	{ IEEE80211_RADIOTAP_MCS_BW_20L, "20 MHz lower" },
+	{ IEEE80211_RADIOTAP_MCS_BW_20U, "20 MHz upper" },
+	{0, NULL}
+};
 
-/* "Present" flags */
-static int hf_radiotap_present_tsft = -1;
-static int hf_radiotap_present_flags = -1;
-static int hf_radiotap_present_rate = -1;
-static int hf_radiotap_present_channel = -1;
-static int hf_radiotap_present_fhss = -1;
-static int hf_radiotap_present_dbm_antsignal = -1;
-static int hf_radiotap_present_dbm_antnoise = -1;
-static int hf_radiotap_present_lock_quality = -1;
-static int hf_radiotap_present_tx_attenuation = -1;
-static int hf_radiotap_present_db_tx_attenuation = -1;
-static int hf_radiotap_present_dbm_tx_power = -1;
-static int hf_radiotap_present_antenna = -1;
-static int hf_radiotap_present_db_antsignal = -1;
-static int hf_radiotap_present_db_antnoise = -1;
-static int hf_radiotap_present_hdrfcs = -1;
-static int hf_radiotap_present_rxflags = -1;
-static int hf_radiotap_present_xchannel = -1;
-static int hf_radiotap_present_mcs = -1;
-static int hf_radiotap_present_ampdu = -1;
-static int hf_radiotap_present_reserved = -1;
-static int hf_radiotap_present_rtap_ns = -1;
-static int hf_radiotap_present_vendor_ns = -1;
-static int hf_radiotap_present_ext = -1;
+static const value_string mcs_format[] = {
+	{ 0, "mixed" },
+	{ 1, "greenfield" },
+	{0, NULL},
+};
 
-/* "present.flags" flags */
-static int hf_radiotap_flags = -1;
-static int hf_radiotap_flags_cfp = -1;
-static int hf_radiotap_flags_preamble = -1;
-static int hf_radiotap_flags_wep = -1;
-static int hf_radiotap_flags_frag = -1;
-static int hf_radiotap_flags_fcs = -1;
-static int hf_radiotap_flags_datapad = -1;
-static int hf_radiotap_flags_badfcs = -1;
-static int hf_radiotap_flags_shortgi = -1;
+static const value_string mcs_fec[] = {
+	{ 0, "BCC" },
+	{ 1, "LDPC" },
+	{0, NULL}
+};
 
-static int hf_radiotap_quality = -1;
-static int hf_radiotap_fcs = -1;
-static int hf_radiotap_fcs_bad = -1;
+static const value_string mcs_gi[] = {
+	{ 0, "long" },
+	{ 1, "short" },
+	{0, NULL}
+};
 
-static gint ett_radiotap = -1;
-static gint ett_radiotap_present = -1;
-static gint ett_radiotap_flags = -1;
-static gint ett_radiotap_rxflags = -1;
-static gint ett_radiotap_channel_flags = -1;
-static gint ett_radiotap_xchannel_flags = -1;
-static gint ett_radiotap_vendor = -1;
-static gint ett_radiotap_mcs = -1;
-static gint ett_radiotap_mcs_known = -1;
-static gint ett_radiotap_ampdu = -1;
-static gint ett_radiotap_ampdu_flags = -1;
-
-static dissector_handle_t ieee80211_handle;
-static dissector_handle_t ieee80211_datapad_handle;
-
-static int radiotap_tap = -1;
-
-/* Settings */
-static gboolean radiotap_bit14_fcs = FALSE;
-
-static void
-dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-
-#define BITNO_32(x) (((x) >> 16) ? 16 + BITNO_16((x) >> 16) : BITNO_16((x)))
-#define BITNO_16(x) (((x) >> 8) ? 8 + BITNO_8((x) >> 8) : BITNO_8((x)))
-#define BITNO_8(x) (((x) >> 4) ? 4 + BITNO_4((x) >> 4) : BITNO_4((x)))
-#define BITNO_4(x) (((x) >> 2) ? 2 + BITNO_2((x) >> 2) : BITNO_2((x)))
-#define BITNO_2(x) (((x) & 2) ? 1 : 0)
-#define BIT(n)	(1 << n)
+static const true_false_string preamble_type = {
+	"Short",
+	"Long",
+};
 
 /*
  * The NetBSD ieee80211_radiotap man page
@@ -741,647 +792,6 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld)
 		capture_ieee80211_datapad(pd, offset + it_len, len, ld);
 	else
 		capture_ieee80211(pd, offset + it_len, len, ld);
-}
-
-void proto_register_radiotap(void)
-{
-	static const value_string phy_type[] = {
-		{0, "Unknown"},
-		{IEEE80211_CHAN_A, "802.11a"},
-		{IEEE80211_CHAN_A | IEEE80211_CHAN_HT20, "802.11a (ht20)"},
-		{IEEE80211_CHAN_A | IEEE80211_CHAN_HT40U, "802.11a (ht40+)"},
-		{IEEE80211_CHAN_A | IEEE80211_CHAN_HT40D, "802.11a (ht40-)"},
-		{IEEE80211_CHAN_B, "802.11b"},
-		{IEEE80211_CHAN_PUREG, "802.11g (pure-g)"},
-		{IEEE80211_CHAN_G, "802.11g"},
-		{IEEE80211_CHAN_G | IEEE80211_CHAN_HT20, "802.11g (ht20)"},
-		{IEEE80211_CHAN_G | IEEE80211_CHAN_HT40U, "802.11g (ht40+)"},
-		{IEEE80211_CHAN_G | IEEE80211_CHAN_HT40D, "802.11g (ht40-)"},
-		{IEEE80211_CHAN_T, "802.11a (turbo)"},
-		{IEEE80211_CHAN_108PUREG, "802.11g (pure-g, turbo)"},
-		{IEEE80211_CHAN_108G, "802.11g (turbo)"},
-		{IEEE80211_CHAN_FHSS, "FHSS"},
-		{0, NULL}
-	};
-
-	static const value_string mcs_bandwidth[] = {
-		{ IEEE80211_RADIOTAP_MCS_BW_20, "20 MHz" },
-		{ IEEE80211_RADIOTAP_MCS_BW_40, "40 MHz" },
-		{ IEEE80211_RADIOTAP_MCS_BW_20L, "20 MHz lower" },
-		{ IEEE80211_RADIOTAP_MCS_BW_20U, "20 MHz upper" },
-		{0, NULL}
-	};
-
-	static const value_string mcs_format[] = {
-		{ 0, "mixed" },
-		{ 1, "greenfield" },
-		{0, NULL},
-	};
-
-	static const value_string mcs_fec[] = {
-		{ 0, "BCC" },
-		{ 1, "LDPC" },
-		{0, NULL}
-	};
-
-	static const value_string mcs_gi[] = {
-		{ 0, "long" },
-		{ 1, "short" },
-		{0, NULL}
-	};
-
-	static const true_false_string preamble_type = {
-		"Short",
-		"Long",
-	};
-
-	static hf_register_info hf[] = {
-		{&hf_radiotap_version,
-		 {"Header revision", "radiotap.version",
-		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Version of radiotap header format", HFILL}},
-		{&hf_radiotap_pad,
-		 {"Header pad", "radiotap.pad",
-		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Padding", HFILL}},
-		{&hf_radiotap_length,
-		 {"Header length", "radiotap.length",
-		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Length of header including version, pad, length and data fields",
-		  HFILL}},
-		{&hf_radiotap_present,
-		 {"Present flags", "radiotap.present",
-		  FT_NONE, BASE_NONE, NULL, 0x0,
-		  "Bitmask indicating which fields are present", HFILL}},
-
-#define RADIOTAP_MASK(name)	BIT(IEEE80211_RADIOTAP_ ##name)
-
-		/* Boolean 'present' flags */
-		{&hf_radiotap_present_tsft,
-		 {"TSFT", "radiotap.present.tsft",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(TSFT),
-		  "Specifies if the Time Synchronization Function Timer field is present",
-		  HFILL}},
-
-		{&hf_radiotap_present_flags,
-		 {"Flags", "radiotap.present.flags",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(FLAGS),
-		  "Specifies if the channel flags field is present", HFILL}},
-
-		{&hf_radiotap_present_rate,
-		 {"Rate", "radiotap.present.rate",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RATE),
-		  "Specifies if the transmit/receive rate field is present",
-		  HFILL}},
-
-		{&hf_radiotap_present_channel,
-		 {"Channel", "radiotap.present.channel",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(CHANNEL),
-		  "Specifies if the transmit/receive frequency field is present",
-		  HFILL}},
-
-		{&hf_radiotap_present_fhss,
-		 {"FHSS", "radiotap.present.fhss",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(FHSS),
-		  "Specifies if the hop set and pattern is present for frequency hopping radios",
-		  HFILL}},
-
-		{&hf_radiotap_present_dbm_antsignal,
-		 {"dBm Antenna Signal", "radiotap.present.dbm_antsignal",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_ANTSIGNAL),
-		  "Specifies if the antenna signal strength in dBm is present",
-		  HFILL}},
-
-		{&hf_radiotap_present_dbm_antnoise,
-		 {"dBm Antenna Noise", "radiotap.present.dbm_antnoise",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_ANTNOISE),
-		  "Specifies if the RF noise power at antenna field is present",
-		  HFILL}},
-
-		{&hf_radiotap_present_lock_quality,
-		 {"Lock Quality", "radiotap.present.lock_quality",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(LOCK_QUALITY),
-		  "Specifies if the signal quality field is present", HFILL}},
-
-		{&hf_radiotap_present_tx_attenuation,
-		 {"TX Attenuation", "radiotap.present.tx_attenuation",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(TX_ATTENUATION),
-		  "Specifies if the transmit power distance from max power field is present",
-		  HFILL}},
-
-		{&hf_radiotap_present_db_tx_attenuation,
-		 {"dB TX Attenuation", "radiotap.present.db_tx_attenuation",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_TX_ATTENUATION),
-		  "Specifies if the transmit power distance from max power (in dB) field is present",
-		  HFILL}},
-
-		{&hf_radiotap_present_dbm_tx_power,
-		 {"dBm TX Power", "radiotap.present.dbm_tx_power",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_TX_POWER),
-		  "Specifies if the transmit power (in dBm) field is present",
-		  HFILL}},
-
-		{&hf_radiotap_present_antenna,
-		 {"Antenna", "radiotap.present.antenna",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(ANTENNA),
-		  "Specifies if the antenna number field is present", HFILL}},
-
-		{&hf_radiotap_present_db_antsignal,
-		 {"dB Antenna Signal", "radiotap.present.db_antsignal",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_ANTSIGNAL),
-		  "Specifies if the RF signal power at antenna in dB field is present",
-		  HFILL}},
-
-		{&hf_radiotap_present_db_antnoise,
-		 {"dB Antenna Noise", "radiotap.present.db_antnoise",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_ANTNOISE),
-		  "Specifies if the RF signal power at antenna in dBm field is present",
-		  HFILL}},
-
-		{&hf_radiotap_present_rxflags,
-		 {"RX flags", "radiotap.present.rxflags",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RX_FLAGS),
-		  "Specifies if the RX flags field is present", HFILL}},
-
-		{&hf_radiotap_present_hdrfcs,
-		 {"FCS in header", "radiotap.present.fcs",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RX_FLAGS),
-		  "Specifies if the FCS field is present", HFILL}},
-
-		{&hf_radiotap_present_xchannel,
-		 {"Channel+", "radiotap.present.xchannel",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(XCHANNEL),
-		  "Specifies if the extended channel info field is present",
-		  HFILL}},
-
-		{&hf_radiotap_present_mcs,
-		 {"HT information", "radiotap.present.mcs",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(MCS),
-		  "Specifies if the HT field is present", HFILL}},
-
-		{&hf_radiotap_present_ampdu,
-		 {"A-MPDU Status", "radiotap.present.ampdu",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(AMPDU_STATUS),
-		  "Specifies if the A-MPDU status field is present", HFILL}},
-
-		{&hf_radiotap_present_reserved,
-		 {"Reserved", "radiotap.present.reserved",
-		  FT_UINT32, BASE_HEX, NULL, IEEE80211_RADIOTAP_NOTDEFINED,
-		  "Not (yet) defined present flag (Must be zero)", HFILL}},
-
-		{&hf_radiotap_present_rtap_ns,
-		 {"Radiotap NS next", "radiotap.present.rtap_ns",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RADIOTAP_NAMESPACE),
-		  "Specifies a reset to the radiotap namespace", HFILL}},
-
-		{&hf_radiotap_present_vendor_ns,
-		 {"Vendor NS next", "radiotap.present.vendor_ns",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(VENDOR_NAMESPACE),
-		  "Specifies that the next bitmap is in a vendor namespace",
-		  HFILL}},
-
-		{&hf_radiotap_present_ext,
-		 {"Ext", "radiotap.present.ext",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(EXT),
-		  "Specifies if there are any extensions to the header present",
-		  HFILL}},
-
-		/* Boolean 'present.flags' flags */
-		{&hf_radiotap_flags,
-		 {"Flags", "radiotap.flags",
-		  FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-
-		{&hf_radiotap_flags_cfp,
-		 {"CFP", "radiotap.flags.cfp",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_CFP,
-		  "Sent/Received during CFP", HFILL}},
-
-		{&hf_radiotap_flags_preamble,
-		 {"Preamble", "radiotap.flags.preamble",
-		  FT_BOOLEAN, 8, TFS(&preamble_type),
-		  IEEE80211_RADIOTAP_F_SHORTPRE,
-		  "Sent/Received with short preamble", HFILL}},
-
-		{&hf_radiotap_flags_wep,
-		 {"WEP", "radiotap.flags.wep",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_WEP,
-		  "Sent/Received with WEP encryption", HFILL}},
-
-		{&hf_radiotap_flags_frag,
-		 {"Fragmentation", "radiotap.flags.frag",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_FRAG,
-		  "Sent/Received with fragmentation", HFILL}},
-
-		{&hf_radiotap_flags_fcs,
-		 {"FCS at end", "radiotap.flags.fcs",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_FCS,
-		  "Frame includes FCS at end", HFILL}},
-
-		{&hf_radiotap_flags_datapad,
-		 {"Data Pad", "radiotap.flags.datapad",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_DATAPAD,
-		  "Frame has padding between 802.11 header and payload",
-		  HFILL}},
-
-		{&hf_radiotap_flags_badfcs,
-		 {"Bad FCS", "radiotap.flags.badfcs",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_BADFCS,
-		  "Frame received with bad FCS", HFILL}},
-
-		{&hf_radiotap_flags_shortgi,
-		 {"Short GI", "radiotap.flags.shortgi",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_SHORTGI,
-		  "Frame Sent/Received with HT short Guard Interval", HFILL}},
-
-		{&hf_radiotap_mactime,
-		 {"MAC timestamp", "radiotap.mactime",
-		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Value in microseconds of the MAC's Time Synchronization Function timer when the first bit of the MPDU arrived at the MAC.",
-		  HFILL}},
-
-		{&hf_radiotap_quality,
-		 {"Signal Quality", "radiotap.quality",
-		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Signal quality (unitless measure)", HFILL}},
-
-		{&hf_radiotap_fcs,
-		 {"802.11 FCS", "radiotap.fcs",
-		  FT_UINT32, BASE_HEX, NULL, 0x0,
-		  "Frame check sequence of this frame", HFILL}},
-
-		{&hf_radiotap_channel,
-		 {"Channel", "radiotap.channel",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "802.11 channel number that this frame was sent/received on",
-		  HFILL}},
-
-		{&hf_radiotap_channel_frequency,
-		 {"Channel frequency", "radiotap.channel.freq",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Channel frequency in megahertz that this frame was sent/received on",
-		  HFILL}},
-
-		{&hf_radiotap_channel_flags,
-		 {"Channel type", "radiotap.channel.type",
-		  FT_UINT16, BASE_HEX, VALS(phy_type), 0x0,
-		  NULL, HFILL}},
-
-		{&hf_radiotap_channel_flags_turbo,
-		 {"Turbo", "radiotap.channel.type.turbo",
-		  FT_BOOLEAN, 16, NULL, 0x0010, "Channel Type Turbo", HFILL}},
-		{&hf_radiotap_channel_flags_cck,
-		 {"Complementary Code Keying (CCK)",
-		  "radiotap.channel.type.cck",
-		  FT_BOOLEAN, 16, NULL, 0x0020,
-		  "Channel Type Complementary Code Keying (CCK) Modulation",
-		  HFILL}},
-		{&hf_radiotap_channel_flags_ofdm,
-		 {"Orthogonal Frequency-Division Multiplexing (OFDM)",
-		  "radiotap.channel.type.ofdm",
-		  FT_BOOLEAN, 16, NULL, 0x0040,
-		  "Channel Type Orthogonal Frequency-Division Multiplexing (OFDM)",
-		  HFILL}},
-		{&hf_radiotap_channel_flags_2ghz,
-		 {"2 GHz spectrum", "radiotap.channel.type.2ghz",
-		  FT_BOOLEAN, 16, NULL, 0x0080, "Channel Type 2 GHz spectrum",
-		  HFILL}},
-		{&hf_radiotap_channel_flags_5ghz,
-		 {"5 GHz spectrum", "radiotap.channel.type.5ghz",
-		  FT_BOOLEAN, 16, NULL, 0x0100, "Channel Type 5 GHz spectrum",
-		  HFILL}},
-		{&hf_radiotap_channel_flags_passive,
-		 {"Passive", "radiotap.channel.type.passive",
-		  FT_BOOLEAN, 16, NULL, 0x0200, "Channel Type Passive", HFILL}},
-		{&hf_radiotap_channel_flags_dynamic,
-		 {"Dynamic CCK-OFDM", "radiotap.channel.type.dynamic",
-		  FT_BOOLEAN, 16, NULL, 0x0400,
-		  "Channel Type Dynamic CCK-OFDM Channel", HFILL}},
-		{&hf_radiotap_channel_flags_gfsk,
-		 {"Gaussian Frequency Shift Keying (GFSK)",
-		  "radiotap.channel.type.gfsk",
-		  FT_BOOLEAN, 16, NULL, 0x0800,
-		  "Channel Type Gaussian Frequency Shift Keying (GFSK) Modulation",
-		  HFILL}},
-		{&hf_radiotap_channel_flags_gsm,
-		 {"GSM (900MHz)", "radiotap.channel.type.gsm",
-		  FT_BOOLEAN, 16, NULL, 0x1000, "Channel Type GSM", HFILL}},
-		{&hf_radiotap_channel_flags_sturbo,
-		 {"Static Turbo", "radiotap.channel.type.sturbo",
-		  FT_BOOLEAN, 16, NULL, 0x2000, "Channel Type Status Turbo",
-		  HFILL}},
-		{&hf_radiotap_channel_flags_half,
-		 {"Half Rate Channel (10MHz Channel Width)",
-		  "radiotap.channel.type.half",
-		  FT_BOOLEAN, 16, NULL, 0x4000, "Channel Type Half Rate",
-		  HFILL}},
-		{&hf_radiotap_channel_flags_quarter,
-		 {"Quarter Rate Channel (5MHz Channel Width)",
-		  "radiotap.channel.type.quarter",
-		  FT_BOOLEAN, 16, NULL, 0x8000, "Channel Type Quarter Rate",
-		  HFILL}},
-
-		{&hf_radiotap_rxflags,
-		 {"RX flags", "radiotap.rxflags",
-		  FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-
-		{&hf_radiotap_rxflags_badplcp,
-		 {"Bad PLCP", "radiotap.rxflags.badplcp",
-		  FT_BOOLEAN, 24, NULL, IEEE80211_RADIOTAP_F_RX_BADPLCP,
-		  "Frame with bad PLCP", HFILL}},
-
-		{&hf_radiotap_xchannel,
-		 {"Channel number", "radiotap.xchannel",
-		  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-		{&hf_radiotap_xchannel_frequency,
-		 {"Channel frequency", "radiotap.xchannel.freq",
-		  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-		{&hf_radiotap_xchannel_flags,
-		 {"Channel type", "radiotap.xchannel.flags",
-		  FT_UINT32, BASE_HEX, VALS(phy_type), 0x0, NULL, HFILL}},
-
-		{&hf_radiotap_xchannel_flags_turbo,
-		 {"Turbo", "radiotap.xchannel.type.turbo",
-		  FT_BOOLEAN, 24, NULL, 0x0010, "Channel Type Turbo", HFILL}},
-		{&hf_radiotap_xchannel_flags_cck,
-		 {"Complementary Code Keying (CCK)",
-		  "radiotap.xchannel.type.cck",
-		  FT_BOOLEAN, 24, NULL, 0x0020,
-		  "Channel Type Complementary Code Keying (CCK) Modulation",
-		  HFILL}},
-		{&hf_radiotap_xchannel_flags_ofdm,
-		 {"Orthogonal Frequency-Division Multiplexing (OFDM)",
-		  "radiotap.xchannel.type.ofdm",
-		  FT_BOOLEAN, 24, NULL, 0x0040,
-		  "Channel Type Orthogonal Frequency-Division Multiplexing (OFDM)",
-		  HFILL}},
-		{&hf_radiotap_xchannel_flags_2ghz,
-		 {"2 GHz spectrum", "radiotap.xchannel.type.2ghz",
-		  FT_BOOLEAN, 24, NULL, 0x0080, "Channel Type 2 GHz spectrum",
-		  HFILL}},
-		{&hf_radiotap_xchannel_flags_5ghz,
-		 {"5 GHz spectrum", "radiotap.xchannel.type.5ghz",
-		  FT_BOOLEAN, 24, NULL, 0x0100, "Channel Type 5 GHz spectrum",
-		  HFILL}},
-		{&hf_radiotap_xchannel_flags_passive,
-		 {"Passive", "radiotap.channel.xtype.passive",
-		  FT_BOOLEAN, 24, NULL, 0x0200, "Channel Type Passive", HFILL}},
-		{&hf_radiotap_xchannel_flags_dynamic,
-		 {"Dynamic CCK-OFDM", "radiotap.xchannel.type.dynamic",
-		  FT_BOOLEAN, 24, NULL, 0x0400,
-		  "Channel Type Dynamic CCK-OFDM Channel", HFILL}},
-		{&hf_radiotap_xchannel_flags_gfsk,
-		 {"Gaussian Frequency Shift Keying (GFSK)",
-		  "radiotap.xchannel.type.gfsk",
-		  FT_BOOLEAN, 24, NULL, 0x0800,
-		  "Channel Type Gaussian Frequency Shift Keying (GFSK) Modulation",
-		  HFILL}},
-		{&hf_radiotap_xchannel_flags_gsm,
-		 {"GSM (900MHz)", "radiotap.xchannel.type.gsm",
-		  FT_BOOLEAN, 24, NULL, 0x1000, "Channel Type GSM", HFILL}},
-		{&hf_radiotap_xchannel_flags_sturbo,
-		 {"Static Turbo", "radiotap.xchannel.type.sturbo",
-		  FT_BOOLEAN, 24, NULL, 0x2000, "Channel Type Status Turbo",
-		  HFILL}},
-		{&hf_radiotap_xchannel_flags_half,
-		 {"Half Rate Channel (10MHz Channel Width)",
-		  "radiotap.xchannel.type.half",
-		  FT_BOOLEAN, 24, NULL, 0x4000, "Channel Type Half Rate",
-		  HFILL}},
-		{&hf_radiotap_xchannel_flags_quarter,
-		 {"Quarter Rate Channel (5MHz Channel Width)",
-		  "radiotap.xchannel.type.quarter",
-		  FT_BOOLEAN, 24, NULL, 0x8000, "Channel Type Quarter Rate",
-		  HFILL}},
-		{&hf_radiotap_xchannel_flags_ht20,
-		 {"HT Channel (20MHz Channel Width)",
-		  "radiotap.xchannel.type.ht20",
-		  FT_BOOLEAN, 24, NULL, 0x10000, "Channel Type HT/20", HFILL}},
-		{&hf_radiotap_xchannel_flags_ht40u,
-		 {"HT Channel (40MHz Channel Width with Extension channel above)", "radiotap.xchannel.type.ht40u",
-		  FT_BOOLEAN, 24, NULL, 0x20000, "Channel Type HT/40+", HFILL}},
-		{&hf_radiotap_xchannel_flags_ht40d,
-		 {"HT Channel (40MHz Channel Width with Extension channel below)", "radiotap.xchannel.type.ht40d",
-		  FT_BOOLEAN, 24, NULL, 0x40000, "Channel Type HT/40-", HFILL}},
-#if 0
-		{&hf_radiotap_xchannel_maxpower,
-		 {"Max transmit power", "radiotap.xchannel.maxpower",
-		  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-#endif
-		{&hf_radiotap_fhss_hopset,
-		 {"FHSS Hop Set", "radiotap.fhss.hopset",
-		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Frequency Hopping Spread Spectrum hopset", HFILL}},
-
-		{&hf_radiotap_fhss_pattern,
-		 {"FHSS Pattern", "radiotap.fhss.pattern",
-		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Frequency Hopping Spread Spectrum hop pattern", HFILL}},
-
-		{&hf_radiotap_datarate,
-		 {"Data rate (Mb/s)", "radiotap.datarate",
-		  FT_FLOAT, BASE_NONE, NULL, 0x0,
-		  "Speed this frame was sent/received at", HFILL}},
-
-		{&hf_radiotap_antenna,
-		 {"Antenna", "radiotap.antenna",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Antenna number this frame was sent/received over (starting at 0)",
-		  HFILL}},
-
-		{&hf_radiotap_dbm_antsignal,
-		 {"SSI Signal (dBm)", "radiotap.dbm_antsignal",
-		  FT_INT32, BASE_DEC, NULL, 0x0,
-		  "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt",
-		  HFILL}},
-
-		{&hf_radiotap_db_antsignal,
-		 {"SSI Signal (dB)", "radiotap.db_antsignal",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "RF signal power at the antenna from a fixed, arbitrary value in decibels",
-		  HFILL}},
-
-		{&hf_radiotap_dbm_antnoise,
-		 {"SSI Noise (dBm)", "radiotap.dbm_antnoise",
-		  FT_INT32, BASE_DEC, NULL, 0x0,
-		  "RF noise power at the antenna from a fixed, arbitrary value in decibels per one milliwatt",
-		  HFILL}},
-
-		{&hf_radiotap_db_antnoise,
-		 {"SSI Noise (dB)", "radiotap.db_antnoise",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "RF noise power at the antenna from a fixed, arbitrary value in decibels",
-		  HFILL}},
-
-		{&hf_radiotap_tx_attenuation,
-		 {"Transmit attenuation", "radiotap.txattenuation",
-		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Transmit power expressed as unitless distance from max power set at factory (0 is max power)",
-		  HFILL}},
-
-		{&hf_radiotap_db_tx_attenuation,
-		 {"Transmit attenuation (dB)", "radiotap.db_txattenuation",
-		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Transmit power expressed as decibels from max power set at factory (0 is max power)",
-		  HFILL}},
-
-		{&hf_radiotap_txpower,
-		 {"Transmit power", "radiotap.txpower",
-		  FT_INT32, BASE_DEC, NULL, 0x0,
-		  "Transmit power in decibels per one milliwatt (dBm)", HFILL}},
-
-		{&hf_radiotap_mcs,
-		 {"MCS information", "radiotap.mcs",
-		  FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-		{&hf_radiotap_mcs_known,
-		 {"Known MCS information", "radiotap.mcs.known",
-		  FT_UINT8, BASE_HEX, NULL, 0x0,
-		  "Bit mask indicating what MCS information is present", HFILL}},
-		{&hf_radiotap_mcs_have_bw,
-		 {"Bandwidth", "radiotap.mcs.have_bw",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_BW,
-		  "Bandwidth information present", HFILL}},
-		{&hf_radiotap_mcs_have_gi,
-		 {"Guard interval", "radiotap.mcs.have_gi",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_GI,
-		  "Sent/Received guard interval information present", HFILL}},
-		{&hf_radiotap_mcs_have_format,
-		 {"Format", "radiotap.mcs.have_format",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_FMT,
-		  "Format information present", HFILL}},
-		{&hf_radiotap_mcs_have_fec,
-		 {"FEC", "radiotap.mcs.have_fec",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_FEC,
-		  "Forward error correction information present", HFILL}},
-		{&hf_radiotap_mcs_have_stbc,
-		 {"STBC", "radiotap.mcs.have_stbc",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_STBC,
-		  "Space Time Block Coding information present", HFILL}},
-		{&hf_radiotap_mcs_have_index,
-		 {"MCS index", "radiotap.mcs.have_index",
-		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_MCS,
-		  "MCS index information present", HFILL}},
-		{&hf_radiotap_mcs_bw,
-		 {"Bandwidth", "radiotap.mcs.bw",
-		  FT_UINT8, BASE_DEC, VALS(mcs_bandwidth),
-		  IEEE80211_RADIOTAP_MCS_BW_MASK, NULL, HFILL}},
-		{&hf_radiotap_mcs_gi,
-		 {"Guard interval", "radiotap.mcs.gi",
-		  FT_UINT8, BASE_DEC, VALS(mcs_gi), IEEE80211_RADIOTAP_MCS_SGI,
-		  "Sent/Received guard interval", HFILL}},
-		{&hf_radiotap_mcs_format,
-		 {"Format", "radiotap.mcs.format",
-		  FT_UINT8, BASE_DEC, VALS(mcs_format), IEEE80211_RADIOTAP_MCS_FMT_GF,
-		  NULL, HFILL}},
-		{&hf_radiotap_mcs_fec,
-		 {"FEC", "radiotap.mcs.fec",
-		  FT_UINT8, BASE_DEC, VALS(mcs_fec), IEEE80211_RADIOTAP_MCS_FEC_LDPC,
-		  "forward error correction", HFILL}},
-		{&hf_radiotap_mcs_stbc,
-		 {"STBC", "radiotap.mcs.stbc",
-		  FT_BOOLEAN, 8, TFS(&tfs_on_off), IEEE80211_RADIOTAP_MCS_STBC,
-		  "Space Time Block Code", HFILL}},
-		{&hf_radiotap_mcs_index,
-		 {"MCS index", "radiotap.mcs.index",
-		  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-
-		{&hf_radiotap_ampdu,
-		 {"A-MPDU status", "radiotap.ampdu",
-		  FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-		{&hf_radiotap_ampdu_ref,
-		 {"A-MPDU reference number", "radiotap.ampdu.reference",
-		  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-		{&hf_radiotap_ampdu_flags,
-		 {"A-MPDU flags", "radiotap.ampdu.flags",
-		  FT_UINT16, BASE_HEX, NULL, 0x0,
-		  "A-MPDU status flags", HFILL}},
-		{&hf_radiotap_ampdu_flags_report_zerolen,
-		 {"Driver reports 0-length subframes in this A-MPDU", "radiotap.ampdu.flags.report_zerolen",
-		  FT_BOOLEAN, 16, NULL,
-		  IEEE80211_RADIOTAP_AMPDU_REPORT_ZEROLEN, NULL, HFILL}},
-		{&hf_radiotap_ampdu_flags_is_zerolen,
-		 {"This is a 0-length subframe", "radiotap.ampdu.flags.is_zerolen",
-		  FT_BOOLEAN, 16, NULL,
-		  IEEE80211_RADIOTAP_AMPDU_IS_ZEROLEN, NULL, HFILL}},
-		{&hf_radiotap_ampdu_flags_last_known,
-		 {"Last subframe of this A-MPDU is known", "radiotap.ampdu.flags.lastknown",
-		  FT_BOOLEAN, 16, NULL,
-		  IEEE80211_RADIOTAP_AMPDU_LAST_KNOWN, NULL, HFILL}},
-		{&hf_radiotap_ampdu_flags_is_last,
-		 {"This is the last subframe of this A-MPDU", "radiotap.ampdu.flags.last",
-		  FT_BOOLEAN, 16, NULL,
-		  IEEE80211_RADIOTAP_AMPDU_IS_LAST, NULL, HFILL}},
-		{&hf_radiotap_ampdu_flags_delim_crc_error,
-		 {"Delimiter CRC error on this subframe", "radiotap.ampdu.flags.delim_crc_error",
-		  FT_BOOLEAN, 16, NULL,
-		  IEEE80211_RADIOTAP_AMPDU_DELIM_CRC_ERR, NULL, HFILL}},
-		{&hf_radiotap_ampdu_delim_crc,
-		 {"A-MPDU subframe delimiter CRC", "radiotap.ampdu.delim_crc",
-		  FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-
-		{&hf_radiotap_vendor_ns,
-		 {"Vendor namespace", "radiotap.vendor_namespace",
-		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  NULL, HFILL}},
-
-		{&hf_radiotap_ven_oui,
-		 {"Vendor OUI", "radiotap.vendor_oui",
-		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  NULL, HFILL}},
-
-		{&hf_radiotap_ven_subns,
-		 {"Vendor sub namespace", "radiotap.vendor_subns",
-		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Vendor-specified sub namespace", HFILL}},
-
-		{&hf_radiotap_ven_skip,
-		 {"Vendor data length", "radiotap.vendor_data_len",
-		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Length of vendor-specified data", HFILL}},
-
-		{&hf_radiotap_ven_data,
-		 {"Vendor data", "radiotap.vendor_data",
-		  FT_NONE, BASE_NONE, NULL, 0x0,
-		  "Vendor-specified data", HFILL}},
-
-		/* Special variables */
-		{&hf_radiotap_fcs_bad,
-		 {"Bad FCS", "radiotap.fcs_bad",
-		  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		  "Specifies if this frame has a bad frame check sequence",
-		  HFILL}},
-
-	};
-	static gint *ett[] = {
-		&ett_radiotap,
-		&ett_radiotap_present,
-		&ett_radiotap_flags,
-		&ett_radiotap_rxflags,
-		&ett_radiotap_channel_flags,
-		&ett_radiotap_xchannel_flags,
-		&ett_radiotap_vendor,
-		&ett_radiotap_mcs,
-		&ett_radiotap_mcs_known,
-		&ett_radiotap_ampdu,
-		&ett_radiotap_ampdu_flags,
-	};
-	module_t *radiotap_module;
-
-	proto_radiotap =
-	    proto_register_protocol("IEEE 802.11 Radiotap Capture header",
-				    "802.11 Radiotap", "radiotap");
-	proto_register_field_array(proto_radiotap, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("radiotap", dissect_radiotap, proto_radiotap);
-
-	radiotap_tap = register_tap("radiotap");
-
-	radiotap_module = prefs_register_protocol(proto_radiotap, NULL);
-	prefs_register_bool_preference(radiotap_module, "bit14_fcs_in_header",
-				       "Assume bit 14 means FCS in header",
-				       "Radiotap has a bit to indicate whether the FCS is still on the frame or not. "
-				       "Some generators (e.g. AirPcap) use a non-standard radiotap flag 14 to put "
-				       "the FCS into the header.",
-				       &radiotap_bit14_fcs);
 }
 
 static void
@@ -2216,6 +1626,599 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		       next_tvb, pinfo, tree);
 
 	tap_queue_packet(radiotap_tap, pinfo, radiotap_info);
+}
+
+
+void proto_register_radiotap(void)
+{
+
+	static hf_register_info hf[] = {
+		{&hf_radiotap_version,
+		 {"Header revision", "radiotap.version",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Version of radiotap header format", HFILL}},
+		{&hf_radiotap_pad,
+		 {"Header pad", "radiotap.pad",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Padding", HFILL}},
+		{&hf_radiotap_length,
+		 {"Header length", "radiotap.length",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Length of header including version, pad, length and data fields",
+		  HFILL}},
+		{&hf_radiotap_present,
+		 {"Present flags", "radiotap.present",
+		  FT_NONE, BASE_NONE, NULL, 0x0,
+		  "Bitmask indicating which fields are present", HFILL}},
+
+#define RADIOTAP_MASK(name)	BIT(IEEE80211_RADIOTAP_ ##name)
+
+		/* Boolean 'present' flags */
+		{&hf_radiotap_present_tsft,
+		 {"TSFT", "radiotap.present.tsft",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(TSFT),
+		  "Specifies if the Time Synchronization Function Timer field is present",
+		  HFILL}},
+
+		{&hf_radiotap_present_flags,
+		 {"Flags", "radiotap.present.flags",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(FLAGS),
+		  "Specifies if the channel flags field is present", HFILL}},
+
+		{&hf_radiotap_present_rate,
+		 {"Rate", "radiotap.present.rate",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RATE),
+		  "Specifies if the transmit/receive rate field is present",
+		  HFILL}},
+
+		{&hf_radiotap_present_channel,
+		 {"Channel", "radiotap.present.channel",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(CHANNEL),
+		  "Specifies if the transmit/receive frequency field is present",
+		  HFILL}},
+
+		{&hf_radiotap_present_fhss,
+		 {"FHSS", "radiotap.present.fhss",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(FHSS),
+		  "Specifies if the hop set and pattern is present for frequency hopping radios",
+		  HFILL}},
+
+		{&hf_radiotap_present_dbm_antsignal,
+		 {"dBm Antenna Signal", "radiotap.present.dbm_antsignal",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_ANTSIGNAL),
+		  "Specifies if the antenna signal strength in dBm is present",
+		  HFILL}},
+
+		{&hf_radiotap_present_dbm_antnoise,
+		 {"dBm Antenna Noise", "radiotap.present.dbm_antnoise",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_ANTNOISE),
+		  "Specifies if the RF noise power at antenna field is present",
+		  HFILL}},
+
+		{&hf_radiotap_present_lock_quality,
+		 {"Lock Quality", "radiotap.present.lock_quality",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(LOCK_QUALITY),
+		  "Specifies if the signal quality field is present", HFILL}},
+
+		{&hf_radiotap_present_tx_attenuation,
+		 {"TX Attenuation", "radiotap.present.tx_attenuation",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(TX_ATTENUATION),
+		  "Specifies if the transmit power distance from max power field is present",
+		  HFILL}},
+
+		{&hf_radiotap_present_db_tx_attenuation,
+		 {"dB TX Attenuation", "radiotap.present.db_tx_attenuation",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_TX_ATTENUATION),
+		  "Specifies if the transmit power distance from max power (in dB) field is present",
+		  HFILL}},
+
+		{&hf_radiotap_present_dbm_tx_power,
+		 {"dBm TX Power", "radiotap.present.dbm_tx_power",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_TX_POWER),
+		  "Specifies if the transmit power (in dBm) field is present",
+		  HFILL}},
+
+		{&hf_radiotap_present_antenna,
+		 {"Antenna", "radiotap.present.antenna",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(ANTENNA),
+		  "Specifies if the antenna number field is present", HFILL}},
+
+		{&hf_radiotap_present_db_antsignal,
+		 {"dB Antenna Signal", "radiotap.present.db_antsignal",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_ANTSIGNAL),
+		  "Specifies if the RF signal power at antenna in dB field is present",
+		  HFILL}},
+
+		{&hf_radiotap_present_db_antnoise,
+		 {"dB Antenna Noise", "radiotap.present.db_antnoise",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_ANTNOISE),
+		  "Specifies if the RF signal power at antenna in dBm field is present",
+		  HFILL}},
+
+		{&hf_radiotap_present_rxflags,
+		 {"RX flags", "radiotap.present.rxflags",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RX_FLAGS),
+		  "Specifies if the RX flags field is present", HFILL}},
+
+		{&hf_radiotap_present_hdrfcs,
+		 {"FCS in header", "radiotap.present.fcs",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RX_FLAGS),
+		  "Specifies if the FCS field is present", HFILL}},
+
+		{&hf_radiotap_present_xchannel,
+		 {"Channel+", "radiotap.present.xchannel",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(XCHANNEL),
+		  "Specifies if the extended channel info field is present",
+		  HFILL}},
+
+		{&hf_radiotap_present_mcs,
+		 {"HT information", "radiotap.present.mcs",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(MCS),
+		  "Specifies if the HT field is present", HFILL}},
+
+		{&hf_radiotap_present_ampdu,
+		 {"A-MPDU Status", "radiotap.present.ampdu",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(AMPDU_STATUS),
+		  "Specifies if the A-MPDU status field is present", HFILL}},
+
+		{&hf_radiotap_present_reserved,
+		 {"Reserved", "radiotap.present.reserved",
+		  FT_UINT32, BASE_HEX, NULL, IEEE80211_RADIOTAP_NOTDEFINED,
+		  "Not (yet) defined present flag (Must be zero)", HFILL}},
+
+		{&hf_radiotap_present_rtap_ns,
+		 {"Radiotap NS next", "radiotap.present.rtap_ns",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RADIOTAP_NAMESPACE),
+		  "Specifies a reset to the radiotap namespace", HFILL}},
+
+		{&hf_radiotap_present_vendor_ns,
+		 {"Vendor NS next", "radiotap.present.vendor_ns",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(VENDOR_NAMESPACE),
+		  "Specifies that the next bitmap is in a vendor namespace",
+		  HFILL}},
+
+		{&hf_radiotap_present_ext,
+		 {"Ext", "radiotap.present.ext",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(EXT),
+		  "Specifies if there are any extensions to the header present",
+		  HFILL}},
+
+		/* Boolean 'present.flags' flags */
+		{&hf_radiotap_flags,
+		 {"Flags", "radiotap.flags",
+		  FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+		{&hf_radiotap_flags_cfp,
+		 {"CFP", "radiotap.flags.cfp",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_CFP,
+		  "Sent/Received during CFP", HFILL}},
+
+		{&hf_radiotap_flags_preamble,
+		 {"Preamble", "radiotap.flags.preamble",
+		  FT_BOOLEAN, 8, TFS(&preamble_type),
+		  IEEE80211_RADIOTAP_F_SHORTPRE,
+		  "Sent/Received with short preamble", HFILL}},
+
+		{&hf_radiotap_flags_wep,
+		 {"WEP", "radiotap.flags.wep",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_WEP,
+		  "Sent/Received with WEP encryption", HFILL}},
+
+		{&hf_radiotap_flags_frag,
+		 {"Fragmentation", "radiotap.flags.frag",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_FRAG,
+		  "Sent/Received with fragmentation", HFILL}},
+
+		{&hf_radiotap_flags_fcs,
+		 {"FCS at end", "radiotap.flags.fcs",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_FCS,
+		  "Frame includes FCS at end", HFILL}},
+
+		{&hf_radiotap_flags_datapad,
+		 {"Data Pad", "radiotap.flags.datapad",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_DATAPAD,
+		  "Frame has padding between 802.11 header and payload",
+		  HFILL}},
+
+		{&hf_radiotap_flags_badfcs,
+		 {"Bad FCS", "radiotap.flags.badfcs",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_BADFCS,
+		  "Frame received with bad FCS", HFILL}},
+
+		{&hf_radiotap_flags_shortgi,
+		 {"Short GI", "radiotap.flags.shortgi",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_SHORTGI,
+		  "Frame Sent/Received with HT short Guard Interval", HFILL}},
+
+		{&hf_radiotap_mactime,
+		 {"MAC timestamp", "radiotap.mactime",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  "Value in microseconds of the MAC's Time Synchronization Function timer when the first bit of the MPDU arrived at the MAC.",
+		  HFILL}},
+
+		{&hf_radiotap_quality,
+		 {"Signal Quality", "radiotap.quality",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Signal quality (unitless measure)", HFILL}},
+
+		{&hf_radiotap_fcs,
+		 {"802.11 FCS", "radiotap.fcs",
+		  FT_UINT32, BASE_HEX, NULL, 0x0,
+		  "Frame check sequence of this frame", HFILL}},
+
+		{&hf_radiotap_channel,
+		 {"Channel", "radiotap.channel",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "802.11 channel number that this frame was sent/received on",
+		  HFILL}},
+
+		{&hf_radiotap_channel_frequency,
+		 {"Channel frequency", "radiotap.channel.freq",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Channel frequency in megahertz that this frame was sent/received on",
+		  HFILL}},
+
+		{&hf_radiotap_channel_flags,
+		 {"Channel type", "radiotap.channel.type",
+		  FT_UINT16, BASE_HEX, VALS(phy_type), 0x0,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_channel_flags_turbo,
+		 {"Turbo", "radiotap.channel.type.turbo",
+		  FT_BOOLEAN, 16, NULL, 0x0010, "Channel Type Turbo", HFILL}},
+		{&hf_radiotap_channel_flags_cck,
+		 {"Complementary Code Keying (CCK)",
+		  "radiotap.channel.type.cck",
+		  FT_BOOLEAN, 16, NULL, 0x0020,
+		  "Channel Type Complementary Code Keying (CCK) Modulation",
+		  HFILL}},
+		{&hf_radiotap_channel_flags_ofdm,
+		 {"Orthogonal Frequency-Division Multiplexing (OFDM)",
+		  "radiotap.channel.type.ofdm",
+		  FT_BOOLEAN, 16, NULL, 0x0040,
+		  "Channel Type Orthogonal Frequency-Division Multiplexing (OFDM)",
+		  HFILL}},
+		{&hf_radiotap_channel_flags_2ghz,
+		 {"2 GHz spectrum", "radiotap.channel.type.2ghz",
+		  FT_BOOLEAN, 16, NULL, 0x0080, "Channel Type 2 GHz spectrum",
+		  HFILL}},
+		{&hf_radiotap_channel_flags_5ghz,
+		 {"5 GHz spectrum", "radiotap.channel.type.5ghz",
+		  FT_BOOLEAN, 16, NULL, 0x0100, "Channel Type 5 GHz spectrum",
+		  HFILL}},
+		{&hf_radiotap_channel_flags_passive,
+		 {"Passive", "radiotap.channel.type.passive",
+		  FT_BOOLEAN, 16, NULL, 0x0200, "Channel Type Passive", HFILL}},
+		{&hf_radiotap_channel_flags_dynamic,
+		 {"Dynamic CCK-OFDM", "radiotap.channel.type.dynamic",
+		  FT_BOOLEAN, 16, NULL, 0x0400,
+		  "Channel Type Dynamic CCK-OFDM Channel", HFILL}},
+		{&hf_radiotap_channel_flags_gfsk,
+		 {"Gaussian Frequency Shift Keying (GFSK)",
+		  "radiotap.channel.type.gfsk",
+		  FT_BOOLEAN, 16, NULL, 0x0800,
+		  "Channel Type Gaussian Frequency Shift Keying (GFSK) Modulation",
+		  HFILL}},
+		{&hf_radiotap_channel_flags_gsm,
+		 {"GSM (900MHz)", "radiotap.channel.type.gsm",
+		  FT_BOOLEAN, 16, NULL, 0x1000, "Channel Type GSM", HFILL}},
+		{&hf_radiotap_channel_flags_sturbo,
+		 {"Static Turbo", "radiotap.channel.type.sturbo",
+		  FT_BOOLEAN, 16, NULL, 0x2000, "Channel Type Status Turbo",
+		  HFILL}},
+		{&hf_radiotap_channel_flags_half,
+		 {"Half Rate Channel (10MHz Channel Width)",
+		  "radiotap.channel.type.half",
+		  FT_BOOLEAN, 16, NULL, 0x4000, "Channel Type Half Rate",
+		  HFILL}},
+		{&hf_radiotap_channel_flags_quarter,
+		 {"Quarter Rate Channel (5MHz Channel Width)",
+		  "radiotap.channel.type.quarter",
+		  FT_BOOLEAN, 16, NULL, 0x8000, "Channel Type Quarter Rate",
+		  HFILL}},
+
+		{&hf_radiotap_rxflags,
+		 {"RX flags", "radiotap.rxflags",
+		  FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+		{&hf_radiotap_rxflags_badplcp,
+		 {"Bad PLCP", "radiotap.rxflags.badplcp",
+		  FT_BOOLEAN, 24, NULL, IEEE80211_RADIOTAP_F_RX_BADPLCP,
+		  "Frame with bad PLCP", HFILL}},
+
+		{&hf_radiotap_xchannel,
+		 {"Channel number", "radiotap.xchannel",
+		  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+		{&hf_radiotap_xchannel_frequency,
+		 {"Channel frequency", "radiotap.xchannel.freq",
+		  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+		{&hf_radiotap_xchannel_flags,
+		 {"Channel type", "radiotap.xchannel.flags",
+		  FT_UINT32, BASE_HEX, VALS(phy_type), 0x0, NULL, HFILL}},
+
+		{&hf_radiotap_xchannel_flags_turbo,
+		 {"Turbo", "radiotap.xchannel.type.turbo",
+		  FT_BOOLEAN, 24, NULL, 0x0010, "Channel Type Turbo", HFILL}},
+		{&hf_radiotap_xchannel_flags_cck,
+		 {"Complementary Code Keying (CCK)",
+		  "radiotap.xchannel.type.cck",
+		  FT_BOOLEAN, 24, NULL, 0x0020,
+		  "Channel Type Complementary Code Keying (CCK) Modulation",
+		  HFILL}},
+		{&hf_radiotap_xchannel_flags_ofdm,
+		 {"Orthogonal Frequency-Division Multiplexing (OFDM)",
+		  "radiotap.xchannel.type.ofdm",
+		  FT_BOOLEAN, 24, NULL, 0x0040,
+		  "Channel Type Orthogonal Frequency-Division Multiplexing (OFDM)",
+		  HFILL}},
+		{&hf_radiotap_xchannel_flags_2ghz,
+		 {"2 GHz spectrum", "radiotap.xchannel.type.2ghz",
+		  FT_BOOLEAN, 24, NULL, 0x0080, "Channel Type 2 GHz spectrum",
+		  HFILL}},
+		{&hf_radiotap_xchannel_flags_5ghz,
+		 {"5 GHz spectrum", "radiotap.xchannel.type.5ghz",
+		  FT_BOOLEAN, 24, NULL, 0x0100, "Channel Type 5 GHz spectrum",
+		  HFILL}},
+		{&hf_radiotap_xchannel_flags_passive,
+		 {"Passive", "radiotap.channel.xtype.passive",
+		  FT_BOOLEAN, 24, NULL, 0x0200, "Channel Type Passive", HFILL}},
+		{&hf_radiotap_xchannel_flags_dynamic,
+		 {"Dynamic CCK-OFDM", "radiotap.xchannel.type.dynamic",
+		  FT_BOOLEAN, 24, NULL, 0x0400,
+		  "Channel Type Dynamic CCK-OFDM Channel", HFILL}},
+		{&hf_radiotap_xchannel_flags_gfsk,
+		 {"Gaussian Frequency Shift Keying (GFSK)",
+		  "radiotap.xchannel.type.gfsk",
+		  FT_BOOLEAN, 24, NULL, 0x0800,
+		  "Channel Type Gaussian Frequency Shift Keying (GFSK) Modulation",
+		  HFILL}},
+		{&hf_radiotap_xchannel_flags_gsm,
+		 {"GSM (900MHz)", "radiotap.xchannel.type.gsm",
+		  FT_BOOLEAN, 24, NULL, 0x1000, "Channel Type GSM", HFILL}},
+		{&hf_radiotap_xchannel_flags_sturbo,
+		 {"Static Turbo", "radiotap.xchannel.type.sturbo",
+		  FT_BOOLEAN, 24, NULL, 0x2000, "Channel Type Status Turbo",
+		  HFILL}},
+		{&hf_radiotap_xchannel_flags_half,
+		 {"Half Rate Channel (10MHz Channel Width)",
+		  "radiotap.xchannel.type.half",
+		  FT_BOOLEAN, 24, NULL, 0x4000, "Channel Type Half Rate",
+		  HFILL}},
+		{&hf_radiotap_xchannel_flags_quarter,
+		 {"Quarter Rate Channel (5MHz Channel Width)",
+		  "radiotap.xchannel.type.quarter",
+		  FT_BOOLEAN, 24, NULL, 0x8000, "Channel Type Quarter Rate",
+		  HFILL}},
+		{&hf_radiotap_xchannel_flags_ht20,
+		 {"HT Channel (20MHz Channel Width)",
+		  "radiotap.xchannel.type.ht20",
+		  FT_BOOLEAN, 24, NULL, 0x10000, "Channel Type HT/20", HFILL}},
+		{&hf_radiotap_xchannel_flags_ht40u,
+		 {"HT Channel (40MHz Channel Width with Extension channel above)", "radiotap.xchannel.type.ht40u",
+		  FT_BOOLEAN, 24, NULL, 0x20000, "Channel Type HT/40+", HFILL}},
+		{&hf_radiotap_xchannel_flags_ht40d,
+		 {"HT Channel (40MHz Channel Width with Extension channel below)", "radiotap.xchannel.type.ht40d",
+		  FT_BOOLEAN, 24, NULL, 0x40000, "Channel Type HT/40-", HFILL}},
+#if 0
+		{&hf_radiotap_xchannel_maxpower,
+		 {"Max transmit power", "radiotap.xchannel.maxpower",
+		  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+#endif
+		{&hf_radiotap_fhss_hopset,
+		 {"FHSS Hop Set", "radiotap.fhss.hopset",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Frequency Hopping Spread Spectrum hopset", HFILL}},
+
+		{&hf_radiotap_fhss_pattern,
+		 {"FHSS Pattern", "radiotap.fhss.pattern",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Frequency Hopping Spread Spectrum hop pattern", HFILL}},
+
+		{&hf_radiotap_datarate,
+		 {"Data rate (Mb/s)", "radiotap.datarate",
+		  FT_FLOAT, BASE_NONE, NULL, 0x0,
+		  "Speed this frame was sent/received at", HFILL}},
+
+		{&hf_radiotap_antenna,
+		 {"Antenna", "radiotap.antenna",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Antenna number this frame was sent/received over (starting at 0)",
+		  HFILL}},
+
+		{&hf_radiotap_dbm_antsignal,
+		 {"SSI Signal (dBm)", "radiotap.dbm_antsignal",
+		  FT_INT32, BASE_DEC, NULL, 0x0,
+		  "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt",
+		  HFILL}},
+
+		{&hf_radiotap_db_antsignal,
+		 {"SSI Signal (dB)", "radiotap.db_antsignal",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "RF signal power at the antenna from a fixed, arbitrary value in decibels",
+		  HFILL}},
+
+		{&hf_radiotap_dbm_antnoise,
+		 {"SSI Noise (dBm)", "radiotap.dbm_antnoise",
+		  FT_INT32, BASE_DEC, NULL, 0x0,
+		  "RF noise power at the antenna from a fixed, arbitrary value in decibels per one milliwatt",
+		  HFILL}},
+
+		{&hf_radiotap_db_antnoise,
+		 {"SSI Noise (dB)", "radiotap.db_antnoise",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "RF noise power at the antenna from a fixed, arbitrary value in decibels",
+		  HFILL}},
+
+		{&hf_radiotap_tx_attenuation,
+		 {"Transmit attenuation", "radiotap.txattenuation",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Transmit power expressed as unitless distance from max power set at factory (0 is max power)",
+		  HFILL}},
+
+		{&hf_radiotap_db_tx_attenuation,
+		 {"Transmit attenuation (dB)", "radiotap.db_txattenuation",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Transmit power expressed as decibels from max power set at factory (0 is max power)",
+		  HFILL}},
+
+		{&hf_radiotap_txpower,
+		 {"Transmit power", "radiotap.txpower",
+		  FT_INT32, BASE_DEC, NULL, 0x0,
+		  "Transmit power in decibels per one milliwatt (dBm)", HFILL}},
+
+		{&hf_radiotap_mcs,
+		 {"MCS information", "radiotap.mcs",
+		  FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+		{&hf_radiotap_mcs_known,
+		 {"Known MCS information", "radiotap.mcs.known",
+		  FT_UINT8, BASE_HEX, NULL, 0x0,
+		  "Bit mask indicating what MCS information is present", HFILL}},
+		{&hf_radiotap_mcs_have_bw,
+		 {"Bandwidth", "radiotap.mcs.have_bw",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_BW,
+		  "Bandwidth information present", HFILL}},
+		{&hf_radiotap_mcs_have_gi,
+		 {"Guard interval", "radiotap.mcs.have_gi",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_GI,
+		  "Sent/Received guard interval information present", HFILL}},
+		{&hf_radiotap_mcs_have_format,
+		 {"Format", "radiotap.mcs.have_format",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_FMT,
+		  "Format information present", HFILL}},
+		{&hf_radiotap_mcs_have_fec,
+		 {"FEC", "radiotap.mcs.have_fec",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_FEC,
+		  "Forward error correction information present", HFILL}},
+		{&hf_radiotap_mcs_have_stbc,
+		 {"STBC", "radiotap.mcs.have_stbc",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_STBC,
+		  "Space Time Block Coding information present", HFILL}},
+		{&hf_radiotap_mcs_have_index,
+		 {"MCS index", "radiotap.mcs.have_index",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_MCS,
+		  "MCS index information present", HFILL}},
+		{&hf_radiotap_mcs_bw,
+		 {"Bandwidth", "radiotap.mcs.bw",
+		  FT_UINT8, BASE_DEC, VALS(mcs_bandwidth),
+		  IEEE80211_RADIOTAP_MCS_BW_MASK, NULL, HFILL}},
+		{&hf_radiotap_mcs_gi,
+		 {"Guard interval", "radiotap.mcs.gi",
+		  FT_UINT8, BASE_DEC, VALS(mcs_gi), IEEE80211_RADIOTAP_MCS_SGI,
+		  "Sent/Received guard interval", HFILL}},
+		{&hf_radiotap_mcs_format,
+		 {"Format", "radiotap.mcs.format",
+		  FT_UINT8, BASE_DEC, VALS(mcs_format), IEEE80211_RADIOTAP_MCS_FMT_GF,
+		  NULL, HFILL}},
+		{&hf_radiotap_mcs_fec,
+		 {"FEC", "radiotap.mcs.fec",
+		  FT_UINT8, BASE_DEC, VALS(mcs_fec), IEEE80211_RADIOTAP_MCS_FEC_LDPC,
+		  "forward error correction", HFILL}},
+		{&hf_radiotap_mcs_stbc,
+		 {"STBC", "radiotap.mcs.stbc",
+		  FT_BOOLEAN, 8, TFS(&tfs_on_off), IEEE80211_RADIOTAP_MCS_STBC,
+		  "Space Time Block Code", HFILL}},
+		{&hf_radiotap_mcs_index,
+		 {"MCS index", "radiotap.mcs.index",
+		  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+		{&hf_radiotap_ampdu,
+		 {"A-MPDU status", "radiotap.ampdu",
+		  FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+		{&hf_radiotap_ampdu_ref,
+		 {"A-MPDU reference number", "radiotap.ampdu.reference",
+		  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+		{&hf_radiotap_ampdu_flags,
+		 {"A-MPDU flags", "radiotap.ampdu.flags",
+		  FT_UINT16, BASE_HEX, NULL, 0x0,
+		  "A-MPDU status flags", HFILL}},
+		{&hf_radiotap_ampdu_flags_report_zerolen,
+		 {"Driver reports 0-length subframes in this A-MPDU", "radiotap.ampdu.flags.report_zerolen",
+		  FT_BOOLEAN, 16, NULL,
+		  IEEE80211_RADIOTAP_AMPDU_REPORT_ZEROLEN, NULL, HFILL}},
+		{&hf_radiotap_ampdu_flags_is_zerolen,
+		 {"This is a 0-length subframe", "radiotap.ampdu.flags.is_zerolen",
+		  FT_BOOLEAN, 16, NULL,
+		  IEEE80211_RADIOTAP_AMPDU_IS_ZEROLEN, NULL, HFILL}},
+		{&hf_radiotap_ampdu_flags_last_known,
+		 {"Last subframe of this A-MPDU is known", "radiotap.ampdu.flags.lastknown",
+		  FT_BOOLEAN, 16, NULL,
+		  IEEE80211_RADIOTAP_AMPDU_LAST_KNOWN, NULL, HFILL}},
+		{&hf_radiotap_ampdu_flags_is_last,
+		 {"This is the last subframe of this A-MPDU", "radiotap.ampdu.flags.last",
+		  FT_BOOLEAN, 16, NULL,
+		  IEEE80211_RADIOTAP_AMPDU_IS_LAST, NULL, HFILL}},
+		{&hf_radiotap_ampdu_flags_delim_crc_error,
+		 {"Delimiter CRC error on this subframe", "radiotap.ampdu.flags.delim_crc_error",
+		  FT_BOOLEAN, 16, NULL,
+		  IEEE80211_RADIOTAP_AMPDU_DELIM_CRC_ERR, NULL, HFILL}},
+		{&hf_radiotap_ampdu_delim_crc,
+		 {"A-MPDU subframe delimiter CRC", "radiotap.ampdu.delim_crc",
+		  FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+		{&hf_radiotap_vendor_ns,
+		 {"Vendor namespace", "radiotap.vendor_namespace",
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_ven_oui,
+		 {"Vendor OUI", "radiotap.vendor_oui",
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}},
+
+		{&hf_radiotap_ven_subns,
+		 {"Vendor sub namespace", "radiotap.vendor_subns",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Vendor-specified sub namespace", HFILL}},
+
+		{&hf_radiotap_ven_skip,
+		 {"Vendor data length", "radiotap.vendor_data_len",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Length of vendor-specified data", HFILL}},
+
+		{&hf_radiotap_ven_data,
+		 {"Vendor data", "radiotap.vendor_data",
+		  FT_NONE, BASE_NONE, NULL, 0x0,
+		  "Vendor-specified data", HFILL}},
+
+		/* Special variables */
+		{&hf_radiotap_fcs_bad,
+		 {"Bad FCS", "radiotap.fcs_bad",
+		  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		  "Specifies if this frame has a bad frame check sequence",
+		  HFILL}},
+
+	};
+	static gint *ett[] = {
+		&ett_radiotap,
+		&ett_radiotap_present,
+		&ett_radiotap_flags,
+		&ett_radiotap_rxflags,
+		&ett_radiotap_channel_flags,
+		&ett_radiotap_xchannel_flags,
+		&ett_radiotap_vendor,
+		&ett_radiotap_mcs,
+		&ett_radiotap_mcs_known,
+		&ett_radiotap_ampdu,
+		&ett_radiotap_ampdu_flags,
+	};
+	module_t *radiotap_module;
+
+	proto_radiotap =
+	    proto_register_protocol("IEEE 802.11 Radiotap Capture header",
+				    "802.11 Radiotap", "radiotap");
+	proto_register_field_array(proto_radiotap, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+	register_dissector("radiotap", dissect_radiotap, proto_radiotap);
+
+	radiotap_tap = register_tap("radiotap");
+
+	radiotap_module = prefs_register_protocol(proto_radiotap, NULL);
+	prefs_register_bool_preference(radiotap_module, "bit14_fcs_in_header",
+				       "Assume bit 14 means FCS in header",
+				       "Radiotap has a bit to indicate whether the FCS is still on the frame or not. "
+				       "Some generators (e.g. AirPcap) use a non-standard radiotap flag 14 to put "
+				       "the FCS into the header.",
+				       &radiotap_bit14_fcs);
 }
 
 void proto_reg_handoff_radiotap(void)
