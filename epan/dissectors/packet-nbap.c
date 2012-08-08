@@ -10272,6 +10272,7 @@ umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
 address 	null_addr;
 conversation_t   *conversation = NULL;
 int i;
+
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &hrnti, FALSE);
 
@@ -32278,7 +32279,7 @@ transportFormatSet_type = NBAP_CPCH;
 				umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 				
 				/*Save unique UE-identifier */
-				umts_fp_conversation_info->com_context_id = crcn_context_present ? 1337 : 1;
+				umts_fp_conversation_info->com_context_id = crcn_context_present ?  com_context_id : 1;
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;

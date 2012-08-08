@@ -70,6 +70,20 @@ typedef struct rrc_info
 	enum rrc_message_type msgtype[MAX_RRC_FRAMES];
 } rrc_info;
 
+/*Struct for storing ciphering information*/
+typedef struct rrc_ciph_info_
+{
+	int seq_no[31][2];	/*Indicates for each Rbid when ciphering starts*/
+	GTree * /*guint32*/ start_cs;	/*Start value for CS counter*/
+	GTree * /*guint32*/ start_ps;	/*Start value for PS counter*/
+	guint32 conf_algo_indicator;	/*Indicates which type of ciphering algorithm used*/
+	guint32 int_algo_indiccator;	/*Indicates which type of integrity algorithm used*/
+	unsigned int setup_frame;	/*Store which frame contained this information*/	
+	guint32 ps_conf_counters[31][2];	/*This should also be made for CS*/
+	
+} rrc_ciphering_info;
 
 extern GTree * hsdsch_muxed_flows;
+extern GTree * rrc_ciph_inf;
+
 #endif  /* PACKET_RRC_H */

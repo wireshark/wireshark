@@ -27,6 +27,12 @@
  * Ref: 3GPP TS 25.331 V10.7.0 (2012-03)
  */
 
+/**
+ * 
+ * TODO:
+ * - Fix ciphering information for circuit switched stuff
+ */
+ 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -57,7 +63,8 @@
 extern int proto_fp;	/*Handler to FP*/
 
 GTree * hsdsch_muxed_flows;
-
+GTree * rrc_ciph_inf;
+static int msg_type _U_;
 
 static dissector_handle_t gsm_a_dtap_handle;
 static dissector_handle_t rrc_ue_radio_access_cap_info_handle=NULL;
@@ -129,11 +136,49 @@ static const true_false_string rrc_eutra_feat_group_ind_4_val = {
 static int flowd,type;
 
 static tvbuff_t * hrnti;
+static tvbuff_t * start_val;
+static int cipher_start_val[2] _U_;
+
 /*Stores how many channels we have detected for a HS-DSCH MAC-flow*/
-#define	MAX_NUM_HSDHSCH_MACDFLOW 8
-static guint8 num_chans_per_flow[MAX_NUM_HSDHSCH_MACDFLOW];
+#define	RRC_MAX_NUM_HSDHSCH_MACDFLOW 8
+static guint8 num_chans_per_flow[RRC_MAX_NUM_HSDHSCH_MACDFLOW];
+static int rbid;
+static int activation_frame;
 
 
+/**
+ * Return the maximum conunter, useful for initiating counters 
+ */
+ #if 0
+static int get_max_counter(int com_context){
+	int i;
+	guint32 max = 0;
+	rrc_ciphering_info * c_inf;
+	
+	if( (c_inf = g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)com_context))) == NULL ){
+		return 0;
+	}
+	for(i = 0; i<31; i++){
+			max = MAX(c_inf->ps_conf_counters[i][0], max);
+			max = MAX(c_inf->ps_conf_counters[i][1], max);
+		}
+	return max;
+	}
+#endif 
+/** Utility functions used for various comparions/cleanups in tree **/
+gint rrc_key_cmp(gconstpointer b_ptr, gconstpointer a_ptr, gpointer ignore _U_){
+	if( GPOINTER_TO_INT(a_ptr) > GPOINTER_TO_INT(b_ptr) ){
+		return  -1;
+	}
+	return GPOINTER_TO_INT(a_ptr) < GPOINTER_TO_INT(b_ptr);
+}
+void rrc_free_key(gpointer key _U_){
+			/*Key's should be de allocated elsewhere.*/
+
+	}
+void rrc_free_value(gpointer value ){
+			g_free(value);
+	}
 #include "packet-rrc-fn.c"
 
 #include "packet-rrc.h"
@@ -184,30 +229,30 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 }
-gint rrc_key_cmp(gconstpointer a_ptr, gconstpointer b_ptr, gpointer ignore _U_){
-	if( GPOINTER_TO_INT(a_ptr) > GPOINTER_TO_INT(b_ptr) ){
-		return  -1;
-	}
-	return GPOINTER_TO_INT(a_ptr) < GPOINTER_TO_INT(b_ptr);
-}
-void rrc_free_key(gpointer key _U_){
-			/*Key's should be de allocated elsewhere.*/
 
-	}
-void rrc_free_value(gpointer value ){
-			g_free(value);
-	}
+
+
 void rrc_init(void){
 	
 	/*Cleanup*/
 	if(hsdsch_muxed_flows){
 		g_tree_destroy(hsdsch_muxed_flows);
 	}
-	/*Initialize*/
+	if(rrc_ciph_inf){
+		g_tree_destroy(rrc_ciph_inf);
+	}
+	/*Initialize structure for muxed flow indication*/
 	hsdsch_muxed_flows = g_tree_new_full(rrc_key_cmp,
                        NULL,      /* data pointer, optional */
                        rrc_free_key,
                        rrc_free_value);
+                       
+     	/*Initialize structure for muxed flow indication*/
+	rrc_ciph_inf = g_tree_new_full(rrc_key_cmp,
+                       NULL,      /* data pointer, optional */
+                       NULL,
+                       rrc_free_value);
+     
 }
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_rrc(void) {

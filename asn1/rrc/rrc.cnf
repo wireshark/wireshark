@@ -1,6 +1,6 @@
 # rrc.cnf
 # rrc conformation file
-# Copyright 2006 Anders Broman 
+# Copyright 2006 Anders Broman
 # $Id$
 
 #.OPT
@@ -391,8 +391,18 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 %(DEFAULT_BODY)s
 
 #.FN_BODY SecurityModeComplete
+rrc_ciphering_info * c_inf ;
+fp_info       *fpinf ;
+
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeComplete");
+
 %(DEFAULT_BODY)s
+
+	fpinf = p_get_proto_data(actx->pinfo->fd, proto_fp);
+	if( (c_inf = g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)fpinf->com_context_id))) != NULL ){
+		c_inf->setup_frame = actx->pinfo->fd->num;
+	}
+
 
 #.FN_BODY SecurityModeFailure
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure");
@@ -500,7 +510,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 #.FN_BODY GSM-MessageList/_item VAL_PTR = &gsm_messagelist_tvb
   tvbuff_t *gsm_messagelist_tvb=NULL;
-  
+
 %(DEFAULT_BODY)s
 
   if (gsm_messagelist_tvb)
@@ -514,7 +524,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
   bits_remaining = 8*tvb_length(tvb) - offset;
   whole_octets_remaining = bits_remaining / 8;
-  
+
   gsm_message_tvb = tvb_new_octet_aligned(tvb, offset, 8*whole_octets_remaining);
 
   if (gsm_message_tvb) {
@@ -529,7 +539,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
   bits_remaining = 8*tvb_length(tvb) - offset;
   whole_octets_remaining = bits_remaining / 8;
-  
+
   gsm_message_tvb = tvb_new_octet_aligned(tvb, offset, 8*whole_octets_remaining);
 
   if (gsm_message_tvb) {
@@ -657,69 +667,196 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
   rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
 
 /*Here we try to figure out which HS-DSCH channels are multiplexed*/
-/*TODO: Should this also be made under r7?*/
 #.FN_BODY DL-TransportChannelType-r5 VAL_PTR = &type
 
     gint *flowd_p;
     gint *cur_val=NULL;
     guint16 hr=0;
-	
+
 	%(DEFAULT_BODY)s
-	
+
 	/*TODO: This should probably be done better*/
 	if(type == 4){	/*If this is type HS-DSCH*/
 		num_chans_per_flow[flowd]++;
-		
 
+		/*TODO: This configuration should proably be unique for each UE*/
 		if(num_chans_per_flow[flowd] > 1 ){
-			
+
 			if(hrnti == NULL){
 				expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Did not detect any H-RNTI ");
-			}	
+			}
 			else{
 				/*Read the H-RNTI value*/
-				hr = tvb_get_bits16(hrnti,0,16,FALSE);
+				hr = tvb_get_bits16(hrnti,0,16,TRUE);
+
+				/*If it doesnt exists, insert it*/
+				if( (cur_val=g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)hr))) == NULL ){
+
+					flowd_p = (guint*)g_malloc0(sizeof(gint));
+					*flowd_p = (1<<flowd);	/*Set the bit to mark it as true*/
+					g_tree_insert(hsdsch_muxed_flows, GINT_TO_POINTER((gint)hr), flowd_p);
+
+				}else{
+					*cur_val = (1<<flowd) | *cur_val;
+
+				}
 			}
-			/*If it doesnt exists, insert it*/
-			if( (cur_val=g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)hr))) == NULL ){
-				
-				flowd_p = (guint*)g_malloc0(sizeof(gint));  
-				*flowd_p = (1<<flowd);	/*Set the bit to mark it as true*/
-				g_tree_insert(hsdsch_muxed_flows, GINT_TO_POINTER((gint)hr), flowd_p);
-			
-			}else{
-				*cur_val = (1<<flowd) | *cur_val; 
-					
-			}
-		
+
 		}
 
 	}
-	
-	
-#.FN_BODY DL-LogicalChannelMapping-r5 
-	
+/*Here we try to figure out which HS-DSCH channels are multiplexed*/
+#.FN_BODY DL-TransportChannelType-r7 VAL_PTR = &type
+
+    gint *flowd_p;
+    gint *cur_val=NULL;
+    guint16 hr=0;
+
 	%(DEFAULT_BODY)s
-	
+
+	/*TODO: This should probably be done better*/
+	if(type == 4){	/*If this is type HS-DSCH*/
+		num_chans_per_flow[flowd]++;
+
+
+		if(num_chans_per_flow[flowd] > 1 ){
+
+			if(hrnti == NULL){
+				expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Did not detect any H-RNTI ");
+			}
+			else{
+				/*Read the H-RNTI value*/
+				hr = tvb_get_bits16(hrnti,0,16,TRUE);
+
+				/*If it doesnt exists, insert it*/
+				if( (cur_val=g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)hr))) == NULL ){
+
+					flowd_p = (guint*)g_malloc0(sizeof(gint));
+					*flowd_p = (1<<flowd);	/* Set the bit to mark it as true*/
+					g_tree_insert(hsdsch_muxed_flows, GINT_TO_POINTER((gint)hr), flowd_p);
+
+				}else{
+					*cur_val = (1<<flowd) | *cur_val;
+
+				}
+			}
+
+		}
+
+	}
+
+
+#.FN_BODY DL-LogicalChannelMapping-r5
+
+	%(DEFAULT_BODY)s
+
 #.FN_BODY DL-LogicalChannelMapping-r7
-	
+
 	%(DEFAULT_BODY)s
-#.FN_BODY LogicalChannelIdentity 
-	
+#.FN_BODY LogicalChannelIdentity
+
 		%(DEFAULT_BODY)s
-		
+
 #.FN_BODY MAC-d-FlowIdentity VAL_PTR = &flowd
 	%(DEFAULT_BODY)s
-	
+
 #.FN_BODY SRB-InformationSetupList2-r6
-	
+
 	%(DEFAULT_BODY)s
 	/*Clear memory*/
 	memset(num_chans_per_flow,0,sizeof(guint8));
-	
-#.FN_BODY H-RNTI VAL_PTR = &hrnti
 
-	
-	
+#.FN_BODY H-RNTI VAL_PTR = &hrnti
+	%(DEFAULT_BODY)s
+
+#.FN_BODY START-Value VAL_PTR = &start_val
+	fp_info       *fpinf;
+	rrc_ciphering_info * c_inf;
+	int i;
+	guint32 * start;
+
+	%(DEFAULT_BODY)s
+
+	/*We base this map on comuncation context from fp*/
+	fpinf = p_get_proto_data(actx->pinfo->fd, proto_fp);
+
+	/*If no info found, skip all this*/
+	if(fpinf == NULL){
+		return offset;
+	}
+	/*Retrieves the start value for the two ciphering domains*/
+	switch(rrc_nas_sys_info_gsm_map_type){
+			case RRC_NAS_SYS_INFO_CS:
+			/*
+				g_warning("Not implemented");
+			*/
+			break;
+			case RRC_NAS_SYS_INFO_PS:
+
+				/*Find the entry for the comucnation context (taken from FP)*/
+				if( (c_inf = g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)fpinf->com_context_id))) == NULL ){
+					c_inf = g_malloc0(sizeof(rrc_ciphering_info));
+
+					/*Initaite tree with START_PS values.*/
+					if(!c_inf->start_ps)
+						c_inf->start_ps = g_tree_new_full(rrc_key_cmp,
+						NULL,rrc_free_key,rrc_free_value);
+
+					/*Clear and intiliaze seq_no matrix*/
+					for(i = 0; i< 31; i++){
+						c_inf->seq_no[i][0] = -1;
+						c_inf->seq_no[i][1] = -1;
+					}
+					g_tree_insert(rrc_ciph_inf, GINT_TO_POINTER((gint)fpinf->com_context_id), c_inf);
+				}
+
+				/*Retrive and store the value*/
+				start = g_malloc(sizeof(guint32));
+				*start = tvb_get_bits32(start_val,0,20,ENC_BIG_ENDIAN);
+				if(c_inf && c_inf->start_ps)
+				/*Insert the value based on current frame num since this might vary over time*/
+				g_tree_insert(c_inf->start_ps, GINT_TO_POINTER((gint)actx->pinfo->fd->num), start);
+
+			break;
+			default:
+			break;
+		}
+		/*is this dangerous?*/
+		rrc_nas_sys_info_gsm_map_type = 0;
+
+#.FN_BODY RB-ActivationTimeInfo
+	fp_info       *fpinf;
+	rrc_ciphering_info * c_inf;
+
+
+	fpinf = p_get_proto_data(actx->pinfo->fd, proto_fp);
+
+%(DEFAULT_BODY)s
+
+	/*If no info found, skip all this*/
+	if(fpinf == NULL){
+		return offset;
+	}
+	/*This should not happen*/
+	if( (c_inf = g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)fpinf->com_context_id))) == NULL ){
+		return offset;
+	}
+	/*Set the ciphering activation frame information*/
+	c_inf->seq_no[rbid][fpinf->is_uplink] = activation_frame;
+
+
+#.FN_BODY RB-Identity VAL_PTR = &rbid
+
+%(DEFAULT_BODY)s
+
+
+
+#.FN_BODY RLC-SequenceNumber VAL_PTR = &activation_frame
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY DL-DCCH-MessageType VAL_PTR = &msg_type
+%(DEFAULT_BODY)s
+
 #.END
 
