@@ -34,6 +34,7 @@ LIBWSUTIL_SRC = 	\
 	crc7.c		\
 	crc8.c		\
 	crc10.c		\
+	crc11.c		\
 	crc16.c		\
 	crc16-plain.c	\
 	crc32.c		\
@@ -49,6 +50,7 @@ LIBWSUTIL_INCLUDES = 	\
 	crc7.h		\
 	crc8.h		\
 	crc10.h		\
+	crc11.h		\
 	crc16.h		\
 	crc16-plain.h	\
 	crc32.h		\

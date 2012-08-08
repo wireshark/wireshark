@@ -23,6 +23,9 @@ update_crc10_by_bytes
 ; crc8.c
 crc8_0x2F
 
+; crc11.c
+crc11_307_noreflect_noxor
+
 ; crc16.c
 crc16_0x5935
 crc16_ccitt
