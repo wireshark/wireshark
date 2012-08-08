@@ -34,6 +34,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 
@@ -226,7 +227,7 @@ dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	/** display common fields **/
 	offset = start;
 	/* alen(2) */
-	ti = proto_tree_add_uint(xtp_subtree, hf_xtp_aseg_alen, 
+	ti = proto_tree_add_uint(xtp_subtree, hf_xtp_aseg_alen,
 				tvb, offset, 2, aseg->alen);
 	offset += 2;
 	if (aseg->alen > len) {
@@ -235,11 +236,11 @@ dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 		error = 1;
 	}
 	/* adomain(1) */
-	proto_tree_add_uint(xtp_subtree, hf_xtp_aseg_adomain, 
+	proto_tree_add_uint(xtp_subtree, hf_xtp_aseg_adomain,
 			tvb, offset, 1, aseg->adomain);
 	offset++;
 	/* aformat(1) */
-	ti2 = proto_tree_add_uint(xtp_subtree, hf_xtp_aseg_aformat, 
+	ti2 = proto_tree_add_uint(xtp_subtree, hf_xtp_aseg_aformat,
 			tvb, offset, 1, aseg->aformat);
 	offset++;
 	switch (aseg->aformat) {
@@ -259,14 +260,14 @@ dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 		break;
 	default:
 		if (aseg->aformat < 128) {
-			proto_item_append_text(ti2, 
+			proto_item_append_text(ti2,
 				", Unsupported aformat(%u)", aseg->aformat);
 			error = 1;
 		}
 		break;
 	}
 
-	if (error) 
+	if (error)
 		return (offset - start);
 
 	/** parse and display each address fileds */
@@ -275,29 +276,29 @@ dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	case 0:
 		/* address(4) */
 		aseg->dsthost = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_uint(xtp_subtree, hf_xtp_aseg_address, 
+		proto_tree_add_uint(xtp_subtree, hf_xtp_aseg_address,
 				tvb, offset, 4, aseg->dsthost);
 		offset += 4;
 		break;
 	case 1:
 		/* dsthost(4) */
 		aseg->dsthost = tvb_get_ipv4(tvb, offset);
-		proto_tree_add_ipv4(xtp_subtree, hf_xtp_aseg_dsthost, 
+		proto_tree_add_ipv4(xtp_subtree, hf_xtp_aseg_dsthost,
 				tvb, offset, 4, aseg->dsthost);
 		offset += 4;
 		/* srchost(4) */
 		aseg->srchost = tvb_get_ipv4(tvb, offset);
-		proto_tree_add_ipv4(xtp_subtree, hf_xtp_aseg_srchost, 
+		proto_tree_add_ipv4(xtp_subtree, hf_xtp_aseg_srchost,
 				tvb, offset, 4, aseg->srchost);
 		offset += 4;
 		/* dstport(2) */
 		aseg->dstport = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(xtp_subtree, hf_xtp_aseg_dstport, 
+		proto_tree_add_uint(xtp_subtree, hf_xtp_aseg_dstport,
 				tvb, offset, 2, aseg->dstport);
 		offset += 2;
 		/* srcport(2) */
 		aseg->srcport = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(xtp_subtree, hf_xtp_aseg_srcport, 
+		proto_tree_add_uint(xtp_subtree, hf_xtp_aseg_srcport,
 				tvb, offset, 2, aseg->srcport);
 		offset += 2;
 
@@ -321,12 +322,12 @@ dissect_xtp_traffic_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *xtp_subtree;
 	struct xtp_traffic_cntl tcntl[1];
 
-	top_ti = proto_tree_add_text(tree, tvb, offset, len, 
+	top_ti = proto_tree_add_text(tree, tvb, offset, len,
 				"Traffic Control Segment");
 	xtp_subtree = proto_item_add_subtree(top_ti, ett_xtp_tcntl);
 
 	if (len < XTP_TRAFFIC_CNTL_LEN) {
-		proto_item_append_text(top_ti, 
+		proto_item_append_text(top_ti,
 				", bogus length(%u, must be at least %u)",
 				len, XTP_TRAFFIC_CNTL_LEN);
 		return 0;
@@ -356,34 +357,34 @@ dissect_xtp_traffic_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/** add summary **/
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, 
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" Recv-Seq=%" G_GINT64_MODIFIER "u", tcntl->rseq);
-		col_append_fstr(pinfo->cinfo, COL_INFO, 
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" Alloc=%" G_GINT64_MODIFIER "u", tcntl->alloc);
 	}
-	proto_item_append_text(top_ti, 
+	proto_item_append_text(top_ti,
 			", Recv-Seq: %" G_GINT64_MODIFIER "u", tcntl->rseq);
 
 	/** display **/
 	offset = start;
 	/* rseq(8) */
-	proto_tree_add_uint64(xtp_subtree, hf_xtp_tcntl_rseq, 
+	proto_tree_add_uint64(xtp_subtree, hf_xtp_tcntl_rseq,
 			tvb, offset, 8, tcntl->rseq);
 	offset += 8;
 	/* alloc(8) */
-	proto_tree_add_uint64(xtp_subtree, hf_xtp_tcntl_alloc, 
+	proto_tree_add_uint64(xtp_subtree, hf_xtp_tcntl_alloc,
 			tvb, offset, 8, tcntl->alloc);
 	offset += 4;
 	/* echo(4) */
-	proto_tree_add_uint(xtp_subtree, hf_xtp_tcntl_echo, 
+	proto_tree_add_uint(xtp_subtree, hf_xtp_tcntl_echo,
 			tvb, offset, 4, tcntl->echo);
 	offset += 4;
 	/* rsvd(4) */
-	proto_tree_add_uint(xtp_subtree, hf_xtp_tcntl_rsvd, 
+	proto_tree_add_uint(xtp_subtree, hf_xtp_tcntl_rsvd,
 			tvb, offset, 4, tcntl->rsvd);
 	offset += 4;
 	/* xkey(8) */
-	proto_tree_add_uint64(xtp_subtree, hf_xtp_tcntl_xkey, 
+	proto_tree_add_uint64(xtp_subtree, hf_xtp_tcntl_xkey,
 			tvb, offset, 8, tcntl->xkey);
 	offset += 8;
 
@@ -403,7 +404,7 @@ dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	xtp_subtree = proto_item_add_subtree(ti, ett_xtp_tspec);
 
 	if (len < XTP_TRAFFIC_SPEC0_LEN) {
-		proto_item_append_text(ti, 
+		proto_item_append_text(ti,
 			", bogus length(%u, must be at least %u)",
 			len, XTP_TRAFFIC_SPEC0_LEN);
 		return 0;
@@ -423,7 +424,7 @@ dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	/** display common fields */
 	offset = start;
 	/* tlen(2) */
-	ti = proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_tlen, 
+	ti = proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_tlen,
 			tvb, offset, 2, tspec->tlen);
 	offset += 2;
 	if (tspec->tlen > len) {
@@ -432,30 +433,30 @@ dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 		error = 1;
 	}
 	/* service(1) */
-	proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_service, 
+	proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_service,
 			tvb, offset, 1, tspec->service);
 	offset++;
 	/* tformat(1) */
-	ti2 = proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_tformat, 
+	ti2 = proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_tformat,
 			tvb, offset, 1, tspec->tformat);
 	offset++;
 	switch (tspec->tformat) {
 	case 0:
-		if (tspec->tlen != XTP_TRAFFIC_SPEC0_LEN) {	
+		if (tspec->tlen != XTP_TRAFFIC_SPEC0_LEN) {
 			proto_item_append_text(ti, ", bogus length(%u, must be %u)",
 				tspec->tlen, XTP_TRAFFIC_SPEC0_LEN);
 			error = 1;
 		}
 		break;
 	case 1:
-		if (tspec->tlen != XTP_TRAFFIC_SPEC1_LEN) {	
+		if (tspec->tlen != XTP_TRAFFIC_SPEC1_LEN) {
 			proto_item_append_text(ti, ", bogus length(%u, must be %u)",
 				tspec->tlen, XTP_TRAFFIC_SPEC1_LEN);
 			error = 1;
 		}
 		break;
 	default:
-		proto_item_append_text(ti2, ", Unsupported tformat(%u)", 
+		proto_item_append_text(ti2, ", Unsupported tformat(%u)",
 				tspec->tformat);
 		error = 1;
 		break;
@@ -470,34 +471,34 @@ dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	case 0:
 		/* traffic(4) */
 		tspec->maxdata = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_traffic, 
+		proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_traffic,
 				tvb, offset, 4, tspec->maxdata);
 		offset += 4;
 		break;
 	case 1:
 		/* maxdata(4) */
 		tspec->maxdata = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_maxdata, 
+		proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_maxdata,
 				tvb, offset, 4, tspec->maxdata);
 		offset += 4;
 		/* inrate(4) */
 		tspec->inrate = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_inrate, 
+		proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_inrate,
 				tvb, offset, 4, tspec->inrate);
 		offset += 4;
 		/* inburst(4) */
 		tspec->inburst = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_inburst, 
+		proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_inburst,
 				tvb, offset, 4, tspec->inburst);
 		offset += 4;
 		/* outrate(4) */
 		tspec->outrate = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_outrate, 
+		proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_outrate,
 				tvb, offset, 4, tspec->outrate);
 		offset += 4;
 		/* outburst(4) */
 		tspec->outburst = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_outburst, 
+		proto_tree_add_uint(xtp_subtree, hf_xtp_tspec_outburst,
 				tvb, offset, 4, tspec->outburst);
 		offset += 4;
 		break;
@@ -543,7 +544,7 @@ dissect_xtp_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *xtp_subtree;
 	struct xtp_cntl cntl[1];
 
-	top_ti = proto_tree_add_text(tree, tvb, offset, len, 
+	top_ti = proto_tree_add_text(tree, tvb, offset, len,
 				"Common Control Segment");
 	xtp_subtree = proto_item_add_subtree(top_ti, ett_xtp_cntl);
 
@@ -569,26 +570,26 @@ dissect_xtp_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/** add summary **/
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, 
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" Recv-Seq=%" G_GINT64_MODIFIER "u", cntl->rseq);
-		col_append_fstr(pinfo->cinfo, COL_INFO, 
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" Alloc=%" G_GINT64_MODIFIER "u", cntl->alloc);
 	}
-	proto_item_append_text(top_ti, 
+	proto_item_append_text(top_ti,
 			", Recv-Seq: %" G_GINT64_MODIFIER "u", cntl->rseq);
 
 	/** display **/
 	offset = start;
 	/* rseq(8) */
-	proto_tree_add_uint64(xtp_subtree, hf_xtp_cntl_rseq, 
+	proto_tree_add_uint64(xtp_subtree, hf_xtp_cntl_rseq,
 			tvb, offset, 8, cntl->rseq);
 	offset += 8;
 	/* alloc(8) */
-	proto_tree_add_uint64(xtp_subtree, hf_xtp_cntl_alloc, 
+	proto_tree_add_uint64(xtp_subtree, hf_xtp_cntl_alloc,
 			tvb, offset, 8, cntl->alloc);
 	offset += 4;
 	/* echo(4) */
-	proto_tree_add_uint(xtp_subtree, hf_xtp_cntl_echo, 
+	proto_tree_add_uint(xtp_subtree, hf_xtp_cntl_echo,
 			tvb, offset, 4, cntl->echo);
 
 	return;
@@ -606,6 +607,7 @@ dissect_xtp_first(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	return;
 }
 
+#define XTP_MAX_NSPANS 10000 /* Arbitrary. (Documentation link is dead.) */
 static void
 dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		guint32 offset) {
@@ -614,16 +616,15 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item *top_ti, *ti;
 	proto_tree *xtp_subtree;
 	struct xtp_ecntl ecntl[1];
-	guint64	*spans, *p;
-	guint32 spans_len;
+	guint spans_len;
 	guint i;
 
-	top_ti = proto_tree_add_text(tree, tvb, offset, len, 
+	top_ti = proto_tree_add_text(tree, tvb, offset, len,
 				"Error Control Segment");
 	xtp_subtree = proto_item_add_subtree(top_ti, ett_xtp_ecntl);
 
 	if (len < MIN_XTP_ECNTL_PKT_LEN) {
-		proto_item_append_text(top_ti, 
+		proto_item_append_text(top_ti,
 				", bogus length (%u, must be at least %u)",
 				len, MIN_XTP_ECNTL_PKT_LEN);
 		return;
@@ -648,61 +649,52 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
 	len = len + XTP_HEADER_LEN - offset;
 	spans_len = 16 * ecntl->nspan;
+
 	if (len != spans_len) {
-		proto_item_append_text(top_ti, 
-				", bogus spans field length (%u, must be %u)",
-				len, spans_len);
-		return;
+		expert_add_info_format(pinfo, top_ti, PI_MALFORMED, PI_ERROR, "Number of spans (%u) incorrect. Should be %u.", ecntl->nspan, len);
+		THROW(ReportedBoundsError);
 	}
-	/* spans(16n) */
-	spans = ep_alloc0(spans_len);
-	p = spans;
-	for (i = 0; i < ecntl->nspan*2; i++) {
-		guint64 span = tvb_get_ntohl(tvb, offset);
-		span <<= 32;
-		span += tvb_get_ntohl(tvb, offset+4);
-		*p++ = span;
-		offset += 8;
+
+	if (ecntl->nspan > XTP_MAX_NSPANS) {
+		expert_add_info_format(pinfo, top_ti, PI_MALFORMED, PI_ERROR, "Too many spans: %u", ecntl->nspan);
+		THROW(ReportedBoundsError);
 	}
 
 	/** add summary **/
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, 
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 				" Recv-Seq=%" G_GINT64_MODIFIER "u", ecntl->rseq);
-		col_append_fstr(pinfo->cinfo, COL_INFO, 
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 				" Alloc=%" G_GINT64_MODIFIER "u", ecntl->alloc);
 	}
-	proto_item_append_text(top_ti, 
+	proto_item_append_text(top_ti,
 				", Recv-Seq: %" G_GINT64_MODIFIER "u", ecntl->rseq);
-		
+
 	/** display **/
 	offset = start;
 	/* rseq(8) */
-	proto_tree_add_uint64(xtp_subtree, hf_xtp_ecntl_rseq, 
+	proto_tree_add_uint64(xtp_subtree, hf_xtp_ecntl_rseq,
 				tvb, offset, 8, ecntl->rseq);
 	offset += 8;
 	/* alloc(8) */
-	proto_tree_add_uint64(xtp_subtree, hf_xtp_ecntl_alloc, 
+	proto_tree_add_uint64(xtp_subtree, hf_xtp_ecntl_alloc,
 				tvb, offset, 8, ecntl->alloc);
 	offset += 8;
 	/* echo(4) */
-	proto_tree_add_uint(xtp_subtree, hf_xtp_ecntl_echo, 
+	proto_tree_add_uint(xtp_subtree, hf_xtp_ecntl_echo,
 				tvb, offset, 4, ecntl->echo);
 	offset += 4;
 	/* nspan(4) */
-	ti = proto_tree_add_uint(xtp_subtree, hf_xtp_ecntl_nspan, 
+	ti = proto_tree_add_uint(xtp_subtree, hf_xtp_ecntl_nspan,
 				tvb, offset, 4, ecntl->nspan);
 	offset += 4;
 	/* spans(16n) */
-	p = spans;
 	for (i = 0; i < ecntl->nspan; i++) {
-		proto_tree_add_uint64(xtp_subtree, hf_xtp_ecntl_span_left, 
-				tvb, offset, 8, *p);
-		p++;
+		proto_tree_add_item(xtp_subtree, hf_xtp_ecntl_span_left,
+				tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
-		proto_tree_add_uint64(xtp_subtree, hf_xtp_ecntl_span_right, 
-				tvb, offset, 8, *p);
-		p++;
+		proto_tree_add_item(xtp_subtree, hf_xtp_ecntl_span_right,
+				tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 	}
 
@@ -752,7 +744,7 @@ dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	xtp_subtree = proto_item_add_subtree(ti, ett_xtp_diag);
 
 	if (len < XTP_DIAG_PKT_HEADER_LEN) {
-		proto_item_append_text(ti, 
+		proto_item_append_text(ti,
 				", bogus length (%u, must be at least %u)",
 				len, XTP_DIAG_PKT_HEADER_LEN);
 		return;
@@ -768,19 +760,19 @@ dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	/* message(n) */
 	msg_len = tvb_length_remaining(tvb, offset);
 	diag->msg = tvb_get_string(tvb, offset, msg_len);
-	
+
 	/** display **/
 	offset = start;
 	/* code(4) */
-	proto_tree_add_uint(xtp_subtree, hf_xtp_diag_code, 
+	proto_tree_add_uint(xtp_subtree, hf_xtp_diag_code,
 			tvb, offset, 4, diag->code);
 	offset += 4;
 	/* val(4) */
-	proto_tree_add_uint(xtp_subtree, hf_xtp_diag_val, 
+	proto_tree_add_uint(xtp_subtree, hf_xtp_diag_val,
 			tvb, offset, 4, diag->val);
 	offset += 4;
 	/* message(4) */
-	proto_tree_add_string(xtp_subtree, hf_xtp_diag_msg, 
+	proto_tree_add_string(xtp_subtree, hf_xtp_diag_msg,
 			tvb, offset, msg_len, diag->msg);
 
 	return;
@@ -849,20 +841,20 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	for (i = 0; i < 16; i++) {
 		bpos = 1 << (15 - i);
 		if (cmd_options & bpos) {
-			returned_length = g_snprintf(&options[fpos], 
+			returned_length = g_snprintf(&options[fpos],
 			MAX_OPTIONS_LEN-fpos, "%s%s",
 			fpos?", ":"",
 			fstr[i]);
 			fpos += MIN(returned_length, MAX_OPTIONS_LEN-fpos);
 		}
 	}
-	
+
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_str(pinfo->cinfo, COL_INFO,
-			    val_to_str(xtph->cmd_ptype_pformat, 
+			    val_to_str(xtph->cmd_ptype_pformat,
 					pformat_vals, "Unknown pformat (%u)"));
 		col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", options);
-		col_append_fstr(pinfo->cinfo, COL_INFO, 
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 				" Seq=%" G_GINT64_MODIFIER "u", xtph->seq);
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", xtph->dlen);
 	}
@@ -870,75 +862,75 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_xtp, tvb, 0, -1, FALSE);
 		/** add summary **/
-		proto_item_append_text(ti, 
+		proto_item_append_text(ti,
 				", Key: 0x%016" G_GINT64_MODIFIER "X", xtph->key);
-		proto_item_append_text(ti, 
+		proto_item_append_text(ti,
 				", Seq: %" G_GINT64_MODIFIER "u", xtph->seq);
 		proto_item_append_text(ti, ", Len: %u", xtph->dlen);
 
 		xtp_tree = proto_item_add_subtree(ti, ett_xtp);
 		/* key(8) */
 		offset = 0;
-		ti = proto_tree_add_uint64(xtp_tree, hf_xtp_key, 
+		ti = proto_tree_add_uint64(xtp_tree, hf_xtp_key,
 					tvb, offset, 8, xtph->key);
 		xtp_subtree = proto_item_add_subtree(ti, ett_xtp_key);
 		offset += 8;
 		/* cmd(4) */
-		ti = proto_tree_add_uint(xtp_tree, hf_xtp_cmd, 
+		ti = proto_tree_add_uint(xtp_tree, hf_xtp_cmd,
 					tvb, offset, 4, xtph->cmd);
 		xtp_cmd_tree = proto_item_add_subtree(ti, ett_xtp_cmd);
-		ti = proto_tree_add_uint(xtp_cmd_tree, hf_xtp_cmd_options, 
+		ti = proto_tree_add_uint(xtp_cmd_tree, hf_xtp_cmd_options,
 					tvb, offset, 3, xtph->cmd_options);
 		/** add summary **/
 		proto_item_append_text(ti, " [%s]", options);
 
 		xtp_subtree = proto_item_add_subtree(ti, ett_xtp_cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_nocheck, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_nocheck,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_edge, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_edge,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_noerr, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_noerr,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_multi, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_multi,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_res, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_res,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_sort, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_sort,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_noflow, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_noflow,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_fastnak, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_fastnak,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_sreq, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_sreq,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_dreq, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_dreq,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_rclose, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_rclose,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_wclose, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_wclose,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_eom, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_eom,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_end, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_end,
 					tvb, offset, 3, xtph->cmd_options);
-		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_btag, 
+		proto_tree_add_boolean(xtp_subtree, hf_xtp_cmd_options_btag,
 					tvb, offset, 3, xtph->cmd_options);
-		offset += 3;	
-		ti = proto_tree_add_uint(xtp_cmd_tree, hf_xtp_cmd_ptype, 
+		offset += 3;
+		ti = proto_tree_add_uint(xtp_cmd_tree, hf_xtp_cmd_ptype,
 					tvb, offset, 1, xtph->cmd_ptype);
 		xtp_subtree = proto_item_add_subtree(ti, ett_xtp_cmd_ptype);
-		proto_tree_add_uint(xtp_subtree, hf_xtp_cmd_ptype_ver, 
+		proto_tree_add_uint(xtp_subtree, hf_xtp_cmd_ptype_ver,
 					tvb, offset, 1, xtph->cmd_ptype_ver);
 		if (xtph->cmd_ptype_ver != XTP_VERSION_4) {
-			proto_item_append_text(ti, 
+			proto_item_append_text(ti,
 				", Unknown XTP version (%03X)", xtph->cmd_ptype_ver);
 			error = 1;
 		}
-		proto_tree_add_uint(xtp_subtree, hf_xtp_cmd_ptype_pformat, 
+		proto_tree_add_uint(xtp_subtree, hf_xtp_cmd_ptype_pformat,
 				tvb, offset, 1, xtph->cmd_ptype_pformat);
 		offset++;
 		/* dlen(4) */
-		ti = proto_tree_add_uint(xtp_tree, hf_xtp_dlen, 
+		ti = proto_tree_add_uint(xtp_tree, hf_xtp_dlen,
 				tvb, offset, 4, xtph->dlen);
 		if (xtph->dlen != len - XTP_HEADER_LEN) {
 			proto_item_append_text(ti, ", bogus length (%u, must be %u)",
@@ -960,12 +952,12 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			} else {
 				proto_tree_add_text(xtp_tree, tvb, offset, 2,
 					"Checksum: 0x%04x [incorrect, should be 0x%04x]",
-					xtph->check, 
+					xtph->check,
 					in_cksum_shouldbe(xtph->check, computed_cksum));
 			}
 		}
 		else {
-			proto_tree_add_text(xtp_tree, tvb, offset, 2, 
+			proto_tree_add_text(xtp_tree, tvb, offset, 2,
 					"Checksum: 0x%04x", xtph->check);
 		}
 		offset += 2;
@@ -978,7 +970,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		/* seq(8) */
 		proto_tree_add_uint64(xtp_tree, hf_xtp_seq, tvb, offset, 8, xtph->seq);
 		offset += 8;
-		
+
 		if (!error) {
 			switch (xtph->cmd_ptype_pformat) {
 			case XTP_DATA_PKT:
@@ -1036,77 +1028,77 @@ proto_register_xtp(void)
 		},
 		{ &hf_xtp_cmd_options_nocheck,
 			{ "NOCHECK", "xtp.cmd.options.nocheck",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_NOCHECK, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_edge,
 			{ "EDGE", "xtp.cmd.options.edge",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_EDGE, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_noerr,
 			{ "NOERR", "xtp.cmd.options.noerr",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_NOERR, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_multi,
 			{ "MULTI", "xtp.cmd.options.multi",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_MULTI, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_res,
 			{ "RES", "xtp.cmd.options.res",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_RES, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_sort,
 			{ "SORT", "xtp.cmd.options.sort",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_SORT, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_noflow,
 			{ "NOFLOW", "xtp.cmd.options.noflow",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_NOFLOW, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_fastnak,
 			{ "FASTNAK", "xtp.cmd.options.fastnak",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_FASTNAK, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_sreq,
 			{ "SREQ", "xtp.cmd.options.sreq",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_SREQ, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_dreq,
 			{ "DREQ", "xtp.cmd.options.dreq",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_DREQ, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_rclose,
 			{ "RCLOSE", "xtp.cmd.options.rclose",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_RCLOSE, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_wclose,
 			{ "WCLOSE", "xtp.cmd.options.wclose",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_WCLOSE, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_eom,
 			{ "EOM", "xtp.cmd.options.eom",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_EOM, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_end,
 			{ "END", "xtp.cmd.options.end",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_END, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_options_btag,
 			{ "BTAG", "xtp.cmd.options.btag",
-			FT_BOOLEAN, 24, TFS(&tfs_set_notset), 
+			FT_BOOLEAN, 24, TFS(&tfs_set_notset),
 			XTP_CMD_OPTIONS_BTAG, NULL, HFILL }
 		},
 		{ &hf_xtp_cmd_ptype,
