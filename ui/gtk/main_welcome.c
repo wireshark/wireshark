@@ -135,6 +135,7 @@ static gboolean activate_link_cb(GtkLabel *label _U_, gchar *uri, gpointer user_
 #define CAPTURE_HB_BOX_INTERFACE_LIST "CaptureHorizontalBoxInterfaceList"
 #define CAPTURE_HB_BOX_START          "CaptureHorizontalBoxStart"
 #define CAPTURE_HB_BOX_CAPTURE        "CaptureHorizontalBoxCapture"
+#define CAPTURE_HB_BOX_REFRESH        "CaptureHorizontalBoxRefresh"
 
 
 static GtkWidget *
@@ -923,6 +924,10 @@ clear_capture_box(void)
     if (item_hb) {
         gtk_widget_destroy(item_hb);
     }
+    item_hb = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_REFRESH);
+    if (item_hb) {
+        gtk_widget_destroy(item_hb);
+    }
     if (swindow) {
         gtk_widget_destroy(swindow);
         swindow = NULL;
@@ -960,9 +965,16 @@ update_capture_box(void)
     gtk_tree_selection_set_select_function(GTK_TREE_SELECTION(entry), on_selection_changed, (gpointer)&changed, NULL);
 }
 
+static void
+refresh_interfaces_cb(GtkWidget *w _U_, gpointer user_data _U_)
+{
+  clear_capture_box();
+  refresh_local_interface_lists();
+}
+
 static void fill_capture_box(void)
 {
-    GtkWidget         *box_to_fill;
+    GtkWidget         *box_to_fill, *item_hb_refresh;
     GtkWidget         *item_hb_interface_list, *item_hb_capture, *item_hb_start, *label, *w;
 #ifdef _WIN32
     GtkWidget         *item_hb;
@@ -1121,6 +1133,15 @@ static void fill_capture_box(void)
         g_signal_connect(w, "activate-link", G_CALLBACK(activate_link_cb), NULL);
 #endif
         g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_LABEL, w);
+        if (error == CANT_GET_INTERFACE_LIST || error == NO_INTERFACES_FOUND) {
+          item_hb_refresh = welcome_button(GTK_STOCK_REFRESH,
+                                           "Refresh Interfaces",
+                                           "Get a new list of the local interfaces.",
+                                           "Click the title to get a new list of interfaces",
+                                           welcome_button_callback_helper, refresh_interfaces_cb);
+          gtk_box_pack_start(GTK_BOX(box_to_fill), item_hb_refresh, FALSE, FALSE, 5);
+          g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_REFRESH, item_hb_refresh);
+        }
     }
 }
 #endif  /* HAVE_LIBPCAP */
@@ -1139,6 +1160,11 @@ welcome_if_panel_reload(void)
         if (if_view && swindow && global_capture_opts.all_ifaces->len > 0) {
             update_capture_box();
         } else {
+            GtkWidget *item_hb;
+            item_hb = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_REFRESH);
+            if (item_hb) {
+                gtk_widget_destroy(item_hb);
+            }
             fill_capture_box();
         }
         gtk_widget_show_all(welcome_hb);
