@@ -92,11 +92,10 @@ wrs_count_bitshift(const guint32 bitmask)
  @return the header field matching 'hfinfo' */
 #define TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo) \
 	/* If this item is not referenced we dont have to do much work	\
-	   at all but we should still return a node so that		\
-	   field items below this node ( think proto_item_add_subtree() )\
-	   will still have somewhere to attach to			\
-	   or else filtering will not work (they would be ignored since tree\
-	   would be NULL).						\
+	   at all but we should still return a node so that field items	\
+	   below this node (think proto_item_add_subtree()) will still	\
+	   have somewhere to attach to or else filtering will not work	\
+	   (they would be ignored since tree would be NULL).		\
 	   DONT try to fake a node where PTREE_FINFO(tree) is NULL	\
 	   since dissectors that want to do proto_item_set_len() or	\
 	   other operations that dereference this would crash.		\
@@ -129,17 +128,14 @@ wrs_count_bitshift(const guint32 bitmask)
 /** See inlined comments.
  @param tree the tree to append this item to
  @param pi the created protocol item we're about to return */
-#if 1
 #define TRY_TO_FAKE_THIS_REPR(tree, pi) \
-	DISSECTOR_ASSERT(tree); \
+	g_assert(pi);			\
+	g_assert(tree);			\
 	if (!(PTREE_DATA(tree)->visible)) { \
 		/* If the tree (GUI) isn't visible it's pointless for us to generate the protocol \
 		 * items string representation */ \
 		return pi; \
 	}
-#else
-#define TRY_TO_FAKE_THIS_REPR(tree, pi)
-#endif
 
 static gboolean
 proto_tree_free_node(proto_node *node, gpointer data);
@@ -982,23 +978,25 @@ proto_tree *
 ptvcursor_add_text_with_subtree(ptvcursor_t *ptvc, gint length,
 				gint ett_subtree, const char *format, ...)
 {
-	proto_item        *it;
+	proto_item        *pi;
 	va_list            ap;
 	header_field_info *hfinfo;
+	proto_tree        *tree;
 
-	TRY_TO_FAKE_THIS_ITEM(ptvcursor_tree(ptvc), hf_text_only, hfinfo);
+	tree = ptvcursor_tree(ptvc);
 
-	it = proto_tree_add_text_node(ptvcursor_tree(ptvc), ptvcursor_tvbuff(ptvc),
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
+
+	pi = proto_tree_add_text_node(tree, ptvcursor_tvbuff(ptvc),
 				      ptvcursor_current_offset(ptvc), length);
 
-	if (it == NULL)
-		return NULL;
+	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
 	va_start(ap, format);
-	proto_tree_set_representation(it, format, ap);
+	proto_tree_set_representation(pi, format, ap);
 	va_end(ap);
 
-	return ptvcursor_add_subtree_item(ptvc, it, ett_subtree, length);
+	return ptvcursor_add_subtree_item(ptvc, pi, ett_subtree, length);
 }
 
 /* Add a text-only node, leaving it to our caller to fill the text in */
@@ -1008,8 +1006,6 @@ proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint lengt
 	proto_item *pi;
 
 	pi = proto_tree_add_pi(tree, hf_text_only, tvb, start, &length, NULL);
-	if (pi == NULL)
-		return NULL;
 
 	return pi;
 }
@@ -1026,8 +1022,6 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
 
 	pi = proto_tree_add_text_node(tree, tvb, start, length);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -1049,8 +1043,6 @@ proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
 
 	pi = proto_tree_add_text_node(tree, tvb, start, length);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -1732,8 +1724,6 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 	TRY_TO_FAKE_THIS_ITEM(ptvc->tree, hfindex, hfinfo);
 
 	new_fi = new_field_info(ptvc->tree, hfinfo, ptvc->tvb, offset, item_length);
-	if (new_fi == NULL)
-		return NULL;
 
 	return proto_tree_new_item(new_fi, ptvc->tree, ptvc->tvb,
 		offset, length, encoding);
@@ -1880,9 +1870,6 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length,
 					  tvb_get_ptr(tvb, start, length));
 
-	if (pi == NULL)
-		return NULL;
-
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
 	va_start(ap, format);
@@ -1909,9 +1896,6 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	else
 		pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length,
 					  tvb_get_ptr(tvb, start, length));
-
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -1953,7 +1937,7 @@ proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	DISSECTOR_ASSERT(hfinfo->type == FT_ABSOLUTE_TIME ||
-				hfinfo->type == FT_RELATIVE_TIME);
+			 hfinfo->type == FT_RELATIVE_TIME);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_time(new_fi, value_ptr);
@@ -1973,8 +1957,6 @@ proto_tree_add_time_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_time(tree, hfindex, tvb, start, length, value_ptr);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -1997,8 +1979,6 @@ proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_time(tree, hfindex, tvb, start, length, value_ptr);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2049,8 +2029,6 @@ proto_tree_add_ipxnet_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipxnet(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2073,8 +2051,6 @@ proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipxnet(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2123,8 +2099,6 @@ proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv4(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2147,8 +2121,6 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv4(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2198,8 +2170,6 @@ proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv6(tree, hfindex, tvb, start, length, value_ptr);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2222,8 +2192,6 @@ proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv6(tree, hfindex, tvb, start, length, value_ptr);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2280,8 +2248,6 @@ proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_guid(tree, hfindex, tvb, start, length, value_ptr);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2304,8 +2270,6 @@ proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_guid(tree, hfindex, tvb, start, length, value_ptr);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2366,8 +2330,6 @@ proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_oid(tree, hfindex, tvb, start, length, value_ptr);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2390,8 +2352,6 @@ proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_oid(tree, hfindex, tvb, start, length, value_ptr);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2516,8 +2476,6 @@ proto_tree_add_string_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2540,8 +2498,6 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2687,8 +2643,6 @@ proto_tree_add_ether_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ether(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2711,8 +2665,6 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ether(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2767,8 +2719,6 @@ proto_tree_add_boolean_format_value(proto_tree *tree, int hfindex,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_boolean(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2791,8 +2741,6 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_boolean(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2841,8 +2789,6 @@ proto_tree_add_float_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_float(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2865,8 +2811,6 @@ proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_float(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2915,8 +2859,6 @@ proto_tree_add_double_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_double(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2939,8 +2881,6 @@ proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_double(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2999,8 +2939,6 @@ proto_tree_add_uint_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3023,8 +2961,6 @@ proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3089,8 +3025,6 @@ proto_tree_add_uint64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint64(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3113,8 +3047,6 @@ proto_tree_add_uint64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint64(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3165,8 +3097,6 @@ proto_tree_add_int_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3189,8 +3119,6 @@ proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3255,8 +3183,6 @@ proto_tree_add_int64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int64(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3279,8 +3205,6 @@ proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int64(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3321,8 +3245,6 @@ proto_tree_add_eui64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_eui64(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3345,8 +3267,6 @@ proto_tree_add_eui64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_eui64(tree, hfindex, tvb, start, length, value);
-	if (pi == NULL)
-		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -5306,7 +5226,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_BYTES:
 		case FT_UINT_BYTES:
 			bytes = fvalue_get(&fi->value);
-			label_fill(label_str, hfinfo, 
+			label_fill(label_str, hfinfo,
 					(bytes) ? bytes_to_str(bytes, fvalue_length(&fi->value)) : "<MISSING>");
 			break;
 
@@ -5360,7 +5280,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			label_fill(label_str, hfinfo, 
+			label_fill(label_str, hfinfo,
 				   abs_time_to_str(fvalue_get(&fi->value), hfinfo->display, TRUE));
 			break;
 
@@ -5418,7 +5338,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				label_fill_descr(label_str, hfinfo,
 					 oid_encoded2string(bytes, fvalue_length(&fi->value)), name);
 			} else {
-				label_fill(label_str, hfinfo, 
+				label_fill(label_str, hfinfo,
 					 oid_encoded2string(bytes, fvalue_length(&fi->value)));
 			}
 			break;
