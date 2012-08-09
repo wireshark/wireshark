@@ -1618,31 +1618,23 @@ static void capture_column_reset_cb(pref_t* pref)
 
 static prefs_set_pref_e capture_column_set_cb(pref_t* pref, gchar* value, gboolean* changed _U_)
 {
-    GList    *col_l, *col_l_elt, 
-             *list = *pref->varp.list;
+    GList    *col_l, *col_l_elt;
     gchar    *col_name;
 
     col_l = prefs_get_string_list(value);
     if (col_l == NULL)
       return PREFS_SET_SYNTAX_ERR;
 
-    /* They're all valid; process them. */
-    while (list != NULL) {
-        col_name = list->data;
-
-        g_free(col_name);
-        list = g_list_remove_link(list, list);
-    }
-    g_list_free(list);
+    g_list_free(*pref->varp.list);
+    *pref->varp.list = NULL;
 
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
       col_name = (gchar *)col_l_elt->data;
-      list = g_list_append(list, col_name);
+      *pref->varp.list = g_list_append(*pref->varp.list, col_name);
       col_l_elt = col_l_elt->next;
     }
 
-    prefs_clear_string_list(col_l);
     return PREFS_SET_OK;
 }
 
@@ -2252,8 +2244,9 @@ put_string_list(GList *sl, gboolean is_default)
         /* Wrap the line.  */
         if (cur_len > 0) cur_len--;
         pref_str[cur_len] = '\n'; cur_len++;
-        if (is_default)
+        if (is_default) {
           pref_str[cur_len] = '#'; cur_len++;
+        }
         pref_str[cur_len] = '\t'; cur_len++;
       }
       g_snprintf(&pref_str[cur_len], MAX_FMT_PREF_LEN - (gulong) cur_len, "\"%s\", ", quoted_str);
