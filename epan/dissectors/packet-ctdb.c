@@ -32,7 +32,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/value_string.h>
+#include <epan/expert.h>
 #include <epan/emem.h>
 
 /* Initialize the protocol and registered fields */
@@ -284,18 +284,25 @@ static int dissect_control_get_recmode_reply(packet_info *pinfo, proto_tree *tre
 	return offset;
 }
 
-static int dissect_control_get_nodemap_reply(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status _U_, int endianess)
+#define CTDB_MAX_NODES 500 /* Arbitrary. */
+static int dissect_control_get_nodemap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status _U_, int endianess)
 {
 	guint32 num_nodes;
+	proto_item *item;
 
 	/* num nodes */
-	proto_tree_add_item(tree, hf_ctdb_num_nodes, tvb, offset, 4, endianess);
+	item = proto_tree_add_item(tree, hf_ctdb_num_nodes, tvb, offset, 4, endianess);
 	if(endianess){
 		num_nodes=tvb_get_letohl(tvb, offset);
 	} else {
 		num_nodes=tvb_get_ntohl(tvb, offset);
 	}
 	offset+=4;
+
+	if (num_nodes > CTDB_MAX_NODES) {
+		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Too many nodes (%u). Stopping dissection.", num_nodes);
+		THROW(ReportedBoundsError);
+	}
 
 	while(num_nodes--){
 		/* vnn */
