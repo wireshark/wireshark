@@ -97,6 +97,10 @@ static int hf_dns_rr_len = -1;
 static int hf_dns_rr_addr = -1;
 static int hf_dns_rr_primaryname = -1;
 static int hf_dns_rr_ns = -1;
+static int hf_dns_rr_opt = -1;
+static int hf_dns_rr_opt_code = -1;
+static int hf_dns_rr_opt_len = -1;
+static int hf_dns_rr_opt_data = -1;
 static int hf_dns_nsec3_algo = -1;
 static int hf_dns_nsec3_flags = -1;
 static int hf_dns_nsec3_flag_optout = -1;
@@ -131,6 +135,7 @@ static gint ett_dns_rr = -1;
 static gint ett_dns_qry = -1;
 static gint ett_dns_ans = -1;
 static gint ett_dns_flags = -1;
+static gint ett_dns_opts = -1;
 static gint ett_nsec3_flags = -1;
 static gint ett_t_key_flags = -1;
 static gint ett_t_key = -1;
@@ -283,6 +288,12 @@ typedef struct _dns_conv_info_t {
 #define F_AUTHENTIC     (1<<5)          /* authentic data (RFC2535) */
 #define F_CHECKDISABLE  (1<<4)          /* checking disabled (RFC2535) */
 #define F_RCODE         (0xF<<0)        /* reply code */
+
+/* Optcode values for EDNS0 options (RFC 2671) */
+#define O_LLQ            1              /* Long-lived query (on-hold, draft-sekar-dns-llq) */
+#define O_UL             2              /* Update lease (on-hold, draft-sekar-dns-ul) */
+#define O_NSID           3              /* Name Server Identifier (RFC 5001) */
+#define O_OWNER          4              /* Owner, reserved (draft-cheshire-edns0-owner-option) */
 
 static const true_false_string tfs_flags_response = {
   "Message is a response",
@@ -661,6 +672,15 @@ dns_type_description (guint type)
     return ep_strdup(short_name);
   }
 }
+
+static const value_string edns0_opt_code_vals[] = {
+  {0,            "Reserved"},
+  {O_LLQ,        "LLQ - Long-lived query"},
+  {O_UL,         "UL - Update lease"},
+  {O_NSID,       "NSID - Name Server Identifier"},
+  {O_OWNER,      "Owner (reserved)"},
+  {0,            NULL}
+ };
 
 static const value_string dns_classes[] = {
   {C_IN,   "IN"},
@@ -2216,9 +2236,42 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     break;
 
     case T_OPT:
+    {
+      int rropt_len = data_len;
+      guint16 optcode, optlen;
+      proto_item *rropt;
+      proto_tree *rropt_tree;
 
-      proto_tree_add_text(rr_tree, tvb, cur_offset, data_len, "Data");
-      break;
+      while (rropt_len > 0) {
+        if (rropt_len < 2) {
+          goto bad_rr;
+        }
+        optcode = tvb_get_ntohs(tvb, cur_offset);
+        rropt_len -= 2;
+
+        if (rropt_len < 2) {
+          goto bad_rr;
+        }
+        optlen = tvb_get_ntohs(tvb, cur_offset + 2);
+        rropt_len -= 2;
+
+        if (rropt_len < optlen) {
+          goto bad_rr;
+        }
+        rropt = proto_tree_add_item(rr_tree, hf_dns_rr_opt, tvb, cur_offset, 4 + optlen, ENC_NA);
+        proto_item_append_text(rropt, ": %s", val_to_str(optcode, edns0_opt_code_vals, "Unknown (%d)"));
+        rropt_tree = proto_item_add_subtree(rropt, ett_dns_opts);
+        proto_tree_add_item(rropt_tree, hf_dns_rr_opt_code, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        cur_offset += 2;
+        proto_tree_add_item(rropt_tree, hf_dns_rr_opt_len, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        cur_offset += 2;
+
+        proto_tree_add_item(rropt_tree, hf_dns_rr_opt_data, tvb, cur_offset, optlen, ENC_NA);
+        cur_offset += optlen;
+        rropt_len  -= optlen;
+      }
+    }
+    break;
 
     case T_DS:
     case T_DLV:
@@ -3845,6 +3898,28 @@ proto_register_dns(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_dns_rr_opt,
+     { "Option", "dns.rr.opt",
+        FT_NONE, BASE_NONE,
+        NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_opt_code,
+      { "Option Code", "dns.rr.opt.code",
+        FT_UINT16, BASE_DEC,
+        VALS(edns0_opt_code_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_opt_len,
+      { "Option Length", "dns.rr.opt.len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_opt_data,
+      { "Option Data", "dns.rr.opt.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
     { &hf_dns_count_questions,
       { "Questions", "dns.count.queries",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -4023,6 +4098,7 @@ proto_register_dns(void)
     &ett_dns_qry,
     &ett_dns_ans,
     &ett_dns_flags,
+    &ett_dns_opts,
     &ett_nsec3_flags,
     &ett_t_key_flags,
     &ett_t_key,
@@ -4058,5 +4134,3 @@ proto_register_dns(void)
 
   dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC Dissectors", FT_STRING, BASE_NONE);
 }
-
-
