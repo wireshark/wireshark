@@ -1955,9 +1955,9 @@ translate_hex_key(gchar * char_key){
         key_in = g_malloc0(sizeof(guint8)*16);
         /*memset(key_in,0,16);
         */
-        j= (strlen(char_key)/2)-1;
+        j= (int)(strlen(char_key)/2)-1;
         /*Translate "hex-string" into a byte aligned block */
-        for(i = strlen(char_key); i> 0; i-=2 ){
+        for(i = (int)strlen(char_key); i> 0; i-=2 ){
     
                 key_in[j] =  ( (guint8)  (strtol( &char_key[i-2], NULL, 16 ) ));
                 char_key[i-2] = '\0';
@@ -1982,12 +1982,13 @@ translate_hex_key(gchar * char_key){
  *  @return tvb Returns a deciphered tvb
  */
 
-static tvbuff_t * rlc_decipher_tvb(tvbuff_t * tvb, packet_info * pinfo , guint32 counter , guint8 rbid ,gboolean dir ){
 #if !HAVE_UMTS_KASUMI
+static tvbuff_t * rlc_decipher_tvb(tvbuff_t * tvb _U_, packet_info * pinfo , guint32 counter _U_ , guint8 rbid _U_,gboolean dir _U_ ){
         /*Check if we have a KASUMI implementatation*/
          expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "Unable to decipher packet since KASUMI implementation is missing.");
 		 return NULL;
 #else
+static tvbuff_t * rlc_decipher_tvb(tvbuff_t * tvb, packet_info * pinfo , guint32 counter , guint8 rbid ,gboolean dir ){
         guint64 i;
         guint8* out=NULL,*key_in = NULL;
         tvbuff_t *t;
