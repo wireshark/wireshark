@@ -2042,6 +2042,7 @@ compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
   GtkTreeSelection  *selection;
   GtkCellRenderer   *renderer;
   GtkTreeViewColumn *column;
+  PangoFontDescription *font;
 
   if (compile_bpf_w != NULL) {
     /* There's already an "About Wireshark" dialog box; reactivate it. */
@@ -2104,7 +2105,9 @@ compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(main_vb);
   g_object_set_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB, main_vb);
 
+  font = pango_font_description_from_string("Monospace");
   textview = gtk_text_view_new();
+  gtk_widget_modify_font(textview, font);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), GTK_WRAP_WORD); 
   scrolled_win = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win),
