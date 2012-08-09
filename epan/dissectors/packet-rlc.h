@@ -119,7 +119,7 @@ typedef struct rlc_info
 #define RLC_PAYLOAD_TAG         0x01
 
 
-/*Tells other functions if this packet i ciphered or not*/
+/*Tells other functions if this packet is ciphered or not*/
 gboolean rlc_is_ciphered(packet_info * pinfo);
 
 #endif /* PACKET_RLC_H */

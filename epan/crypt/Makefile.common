@@ -23,6 +23,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+include Custom.common
+
 LIBAIRPDCAP_SRC =		\
 	aes.c			\
 	airpdcap.c		\
@@ -35,7 +37,8 @@ LIBAIRPDCAP_SRC =		\
 	md4.c			\
 	md5.c			\
 	rc4.c			\
-	sha1.c
+	sha1.c			\
+	$(CUSTOM_CRYPTO_SRC)
 
 LIBAIRPDCAP_INCLUDES =	\
 	aes.h			\
@@ -47,6 +50,7 @@ LIBAIRPDCAP_INCLUDES =	\
 	airpdcap_user.h		\
 	airpdcap_ws.h		\
 	des.h			\
+	kasumi.h		\
 	md4.h			\
 	md5.h			\
 	rc4.h			\

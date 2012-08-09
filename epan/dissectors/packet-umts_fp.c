@@ -729,10 +729,6 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
 
             }
-            /*Encrypted data, show message*/
-            else if(rlc_is_ciphered(pinfo)){
-                expert_add_info_format(pinfo,tree_ti,PI_UNDECODED,PI_NOTE,"Ciphered data, dissection stopped.");
-            }
             num_tbs++;
 
             /* Advance bit offset */
@@ -804,15 +800,12 @@ dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                          ENC_NA);
             proto_item_set_text(pdu_ti, "MAC-d PDU (PDU %u)", pdu+1);
         }
-        if (preferences_call_mac_dissectors && !rlc_is_ciphered(pinfo)) {
+        if (preferences_call_mac_dissectors /*&& !rlc_is_ciphered(pinfo)*/) {
             tvbuff_t *next_tvb;
             next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
                                       ((bit_offset % 8) + length + 7)/8, -1);
             call_dissector(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree);
             dissected = TRUE;
-        } /*Encrypted data, show message*/
-        else if(rlc_is_ciphered(pinfo)){
-            expert_add_info_format(pinfo,pdus_ti,PI_UNDECODED,PI_NOTE,"Ciphered data, dissection stopped.");
         }
 
         /* Advance bit offset */
@@ -880,10 +873,7 @@ dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             call_dissector(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree);
             dissected = TRUE;
         }
-         /*Encrypted data, show message*/
-        else if(rlc_is_ciphered(pinfo)){
-                expert_add_info_format(pinfo,pdus_ti,PI_UNDECODED,PI_NOTE,"Ciphered data, dissection stopped.");
-        }
+      
         /* Advance offset */
         offset += length;
     }
@@ -2794,12 +2784,12 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         rlcinf->li_size[macd_idx] = RLC_LI_7BITS;
 
                         /*If this entry exists, SECRUITY_MODE is completed*/
-						if( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_fp_info->com_context_id)) ){
+						/*if( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_fp_info->com_context_id)) ){
 							rlcinf->ciphered[macd_idx] = TRUE;
 						}else{
 							rlcinf->ciphered[macd_idx] = FALSE;
-						}
-
+						}*/
+						rlcinf->ciphered[macd_idx] = FALSE;
                         rlcinf->deciphered[macd_idx] = FALSE;
                         p_fp_info->cur_tb = macd_idx;    /*Set the transport block index (NOTE: This and not subnum is used in MAC dissector!)*/
 
@@ -2808,10 +2798,6 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         dissected = TRUE;
                     }
                     else {
-                         /*Encrypted data, show message*/
-                        if(rlc_is_ciphered(pinfo)){
-                            expert_add_info_format(pinfo,tree,PI_UNDECODED,PI_NOTE,"Ciphered data, dissection stopped.");
-                        }
                         /* Just add as a MAC-d PDU */
                         proto_tree_add_item(maces_tree, hf_fp_mac_d_pdu, tvb,
                                             offset + (bit_offset/8),
@@ -3159,16 +3145,17 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
             /*Check if this is multiplexed (signaled by RRC)*/
-            if( !rlc_is_ciphered(pinfo) && p_fp_info->hsdhsch_macfdlow_is_mux[p_fp_info->hsdsch_macflowd_id] ){
+            if( /*!rlc_is_ciphered(pinfo) &&*/ p_fp_info->hsdhsch_macfdlow_is_mux[p_fp_info->hsdsch_macflowd_id] ){
                 macinf->ctmux[i] = TRUE;
             }else if(p_fp_info->hsdsch_macflowd_id == 0){              /*MACd-flow = 0 is often SRB */
                 expert_add_info_format(pinfo,NULL,PI_PROTOCOL,PI_NOTE,"Found MACd-Flow = 0 and  not MUX detected. (This might be SRB)");
             }else{
                     macinf->ctmux[i] = FALSE;    /*Either it's multiplexed and not signled or its not MUX*/
             }
-            rlcinf->urnti[i] = p_fp_info->channel;
+            rlcinf->urnti[i] = p_fp_info->com_context_id;
             rlcinf->li_size[i] = RLC_LI_7BITS;
             rlcinf->deciphered[i] = FALSE;
+            rlcinf->ciphered[i] = FALSE;
             rlcinf->rbid[i] = macinf->lchid[i];
         }
 
@@ -3442,12 +3429,12 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 /** Configure ciphering **/
                 /*If this entry exists, SECRUITY_MODE is completed*/
-                if( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_fp_info->com_context_id)) ){
+              /* if( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_fp_info->com_context_id)) ){
 					rlcinf->ciphered[j] = TRUE;
 				}else{
 					rlcinf->ciphered[j] = FALSE;
-				}
-
+				}*/
+				rlcinf->ciphered[j] = FALSE;
                 rlcinf->deciphered[j] = FALSE;
                 rlcinf->rbid[j] = (guint8)lchid[n]+1;
 
@@ -3689,7 +3676,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
 
                     rlcinf->li_size[j] = RLC_LI_7BITS;
-                    /*rlcinf->ciphered[j] = FALSE;*/
+                    rlcinf->ciphered[j] = FALSE;
                     rlcinf->deciphered[j] = FALSE;
                     rlcinf->rbid[j] = (guint8)lchid[n]+1;
                     rlcinf->urnti[j] = p_fp_info->channel; /*We need to fake urnti*/
@@ -3859,7 +3846,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then its SRB0 == UM else AM*/
             rlcinf->mode[0] = hsdsch_macdflow_id_rlc_map[p_conv_data->hsdsch_macdflow_id];
 
-            if(fpi->hsdsch_entity == hs && !rlc_is_ciphered(pinfo)){
+            if(fpi->hsdsch_entity == hs /*&& !rlc_is_ciphered(pinfo)*/){
                 for(i=0; i<MAX_NUM_HSDHSCH_MACDFLOW; i++){
                     /*Figure out if this channel is multiplexed (signaled from RRC)*/
                     if((cur_val=g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)p_conv_data->hrnti))) != NULL){
@@ -4033,12 +4020,12 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
                         rlcinf->li_size[j+chan] = RLC_LI_7BITS;
 
                         /*If this entry exists, SECRUITY_MODE is completed (signled by RRC)*/
-						if( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_conv_data->com_context_id)) != NULL ){
+						/*if( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_conv_data->com_context_id)) != NULL ){
 							rlcinf->ciphered[j+chan] = TRUE;
 						}else{
 							rlcinf->ciphered[j+chan] = FALSE;
-						}
-
+						}*/
+						rlcinf->ciphered[j+chan] = FALSE;
                         rlcinf->deciphered[j+chan] = FALSE;
 						rlcinf->rbid[j+chan] = macinf->lchid[j+chan];
 
