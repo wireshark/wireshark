@@ -44,7 +44,6 @@ static int proto_cip_class_s_supervisor   = -1;
 static int proto_cip_class_s_validator    = -1;
 static int proto_cip                      = -1;
 
-static dissector_handle_t cip_class_s_supervisor_handle;
 static dissector_handle_t cip_class_s_validator_handle;
 
 /* CIP Safety field identifiers */
@@ -1714,12 +1713,6 @@ attribute_info_t cip_safety_attribute_vals[52] = {
  * Protocol initialization
  */
 
-static void
-cipsafety_init_protocol(void)
-{
-   proto_cip = proto_get_id_by_filter_name( "cip" );
-}
-
 /*
  * Function name: proto_register_cipsafety
  *
@@ -2530,7 +2523,7 @@ proto_register_cipsafety(void)
    proto_cipsafety = proto_register_protocol("Common Industrial Protocol, Safety", "CIP Safety", "cipsafety");
    proto_register_field_array(proto_cipsafety, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
-   register_init_routine(&cipsafety_init_protocol);
+
    register_dissector( "cipsafety", dissect_cipsafety, proto_cipsafety);
 
    /* Register CIP Safety objects */
@@ -2556,6 +2549,8 @@ proto_register_cipsafety(void)
 void
 proto_reg_handoff_cipsafety(void)
 {
+   dissector_handle_t cip_class_s_supervisor_handle;
+
    /* Create and register dissector handle for Safety Supervisor */
    cip_class_s_supervisor_handle = new_create_dissector_handle( dissect_cip_class_s_supervisor, proto_cip_class_s_supervisor );
    dissector_add_uint( "cip.class.iface", CI_CLS_SAFETY_SUPERVISOR, cip_class_s_supervisor_handle );
@@ -2564,6 +2559,8 @@ proto_reg_handoff_cipsafety(void)
    cip_class_s_validator_handle = new_create_dissector_handle( dissect_cip_class_s_validator, proto_cip_class_s_validator );
    dissector_add_uint( "cip.class.iface", CI_CLS_SAFETY_VALIDATOR, cip_class_s_validator_handle );
    heur_dissector_add("cip.sc", dissect_class_svalidator_heur, proto_cip_class_s_validator);
+
+   proto_cip = proto_get_id_by_filter_name( "cip" );
 }
 
 
