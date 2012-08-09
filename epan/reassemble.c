@@ -235,10 +235,10 @@ static fragment_data *new_head(const guint32 flags)
 
 /*
  * For a reassembled-packet hash table entry, free the fragment data
- * to which the value refers.
+ * to which the value refers and also the key itself.
  */
 static gboolean
-free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
+free_all_reassembled_fragments(gpointer key_arg, gpointer value,
 				   gpointer user_data)
 {
 	GPtrArray *allocated_fragments = (GPtrArray *) user_data;
@@ -259,6 +259,8 @@ free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
 			fd_head->flags = FD_VISITED_FREE;
 		}
 	}
+
+	g_slice_free(reassembled_key, (reassembled_key *)key_arg);
 
 	return TRUE;
 }
@@ -307,8 +309,7 @@ fragment_table_init(GHashTable **fragment_table)
 		 *
 		 * Remove all entries and free fragment data for each entry.
 		 *
-		 * If slices are used (GLIB >= 2.10)
-		 * the keys are freed by calling fragment_free_key()
+		 * The keys are freed by calling fragment_free_key()
 		 * and the values are freed in free_all_fragments().
 		 *
 		 * free_all_fragments()
@@ -370,7 +371,7 @@ reassembled_table_init(GHashTable **reassembled_table)
 		 * The reassembled-packet hash table exists.
 		 *
 		 * Remove all entries and free reassembled packet
-		 * data for each entry.
+		 * data and key for each entry.
 		 */
 
 		allocated_fragments = g_ptr_array_new();
@@ -381,8 +382,7 @@ reassembled_table_init(GHashTable **reassembled_table)
 		g_ptr_array_free(allocated_fragments, TRUE);
 	} else {
 		/* The fragment table does not exist. Create it */
-		*reassembled_table = g_hash_table_new(reassembled_hash,
-				reassembled_equal);
+		*reassembled_table = g_hash_table_new(reassembled_hash, reassembled_equal);
 	}
 }
 
@@ -615,7 +615,7 @@ fragment_reassembled(fragment_data *fd_head, const packet_info *pinfo,
 		 * This was not fragmented, so there's no fragment
 		 * table; just hash it using the current frame number.
 		 */
-		new_key = se_alloc(sizeof(reassembled_key));
+		new_key = g_slice_new(reassembled_key);
 		new_key->frame = pinfo->fd->num;
 		new_key->id = id;
 		g_hash_table_insert(reassembled_table, new_key, fd_head);
@@ -624,7 +624,7 @@ fragment_reassembled(fragment_data *fd_head, const packet_info *pinfo,
 		 * Hash it with the frame numbers for all the frames.
 		 */
 		for (fd = fd_head->next; fd != NULL; fd = fd->next){
-			new_key = se_alloc(sizeof(reassembled_key));
+			new_key = g_slice_new(reassembled_key);
 			new_key->frame = fd->frame;
 			new_key->id = id;
 			g_hash_table_insert(reassembled_table, new_key,
@@ -1811,7 +1811,7 @@ fragment_end_seq_next(const packet_info *pinfo, const guint32 id, GHashTable *fr
 		 */
 		fragment_reassembled(fd_head, pinfo, reassembled_table, id);
 		if (fd_head->next != NULL) {
-			new_key = se_alloc(sizeof(reassembled_key));
+			new_key = g_slice_new(reassembled_key);
 			new_key->frame = pinfo->fd->num;
 			new_key->id = id;
 			g_hash_table_insert(reassembled_table, new_key, fd_head);
