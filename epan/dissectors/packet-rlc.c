@@ -1990,8 +1990,8 @@ static tvbuff_t *
 #ifndef HAVE_UMTS_KASUMI
 rlc_decipher_tvb(tvbuff_t *tvb _U_, packet_info *pinfo, guint32 counter _U_, guint8 rbid _U_, gboolean dir _U_) {
         /*Check if we have a KASUMI implementatation*/
-         expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "Unable to decipher packet since KASUMI implementation is missing.");
-		 return NULL;
+        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "Unable to decipher packet since KASUMI implementation is missing.");
+        return NULL;
 #else
 rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid, gboolean dir) {
         guint64 i;
@@ -1999,7 +1999,7 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
         tvbuff_t *t;
         int off = 0;
 
-		 /*Fix the key into a byte block*/
+        /*Fix the key into a byte block*/
         /*TODO: This should be done in a preferences callback function*/
         out = g_malloc0( strlen(global_rlc_kasumi_key)+1);  
         memcpy(out,global_rlc_kasumi_key,strlen(global_rlc_kasumi_key));    /*Copy from prefrence const pointer*/
@@ -2028,33 +2028,33 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
         add_new_data_source(pinfo, t, "Deciphered data");
         return t;
 #endif /* HAVE_UMTS_KASUMI */
-    }
-    
+}
 
-gboolean iter_same(gpointer key, gpointer value, gpointer data ){
-
+gboolean
+iter_same(gpointer key, gpointer value, gpointer data) {
     /*If true we found the correct frame*/
-    if( (int)key > (int) data ){
-        *((int*)data) = *(guint32*)value;
+    if (*(int *)key > *(int *)data){
+        *((int*)data) = *(guint32 *)value;
         return TRUE;
     }
-    *((int*)data) = (int)key; 
-    
+    *((int *)data) = *(int *)key;
+
     return TRUE;
 }
 
 /**
  * Used for looking up and old ciphering counter value in the counter_map tree.
  */
-gboolean rlc_find_old_counter(gpointer key, gpointer value, gpointer data ){
+gboolean
+rlc_find_old_counter(gpointer key, gpointer value, gpointer data) {
 
     /*If true we found the correct frame*/
-    if( (guint32)key >= ((guint32*)data)[0] ){      
+    if( *(guint32 *)key >= ((guint32 *)data)[0] ){
         return TRUE;
     }
     /*Overwrite the data since the previous one wasn't correct*/
     ((guint32*)data)[1] = ((guint32*)value)[0];
-    ((guint32*)data)[2] = ((guint32*)value)[1]; 
+    ((guint32*)data)[2] = ((guint32*)value)[1];
     
     return FALSE;
 }
