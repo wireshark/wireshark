@@ -76,8 +76,8 @@ static gboolean global_rlc_ciphered = FALSE;
 /* Preference to try deciphering */
 static gboolean global_rlc_try_decipher = FALSE;
 
-#if HAVE_UMTS_KASUMI
-static const char* global_rlc_kasumi_key = NULL;
+#ifdef HAVE_UMTS_KASUMI
+static const char *global_rlc_kasumi_key = NULL;
 #endif
 
 /* Stop trying to do reassembly if this is true. */
@@ -1949,7 +1949,7 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
             col_append_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Data]  SN=%u %s",
                          seq, poll_set ? "(P)" : "");
 }
-#if HAVE_UMTS_KASUMI
+#ifdef HAVE_UMTS_KASUMI
 static guint8 *
 translate_hex_key(gchar * char_key){
         int i,j;
@@ -1970,6 +1970,7 @@ translate_hex_key(gchar * char_key){
 
 }
 #endif
+
 /** @brief Deciphers a given tvb 
  *
  * Note that the actual KASUMI implementation needs to be placed into
@@ -1985,14 +1986,14 @@ translate_hex_key(gchar * char_key){
  *  @param dir Direction of the link
  *  @return tvb Returns a deciphered tvb
  */
-
-#if !HAVE_UMTS_KASUMI
-static tvbuff_t * rlc_decipher_tvb(tvbuff_t * tvb _U_, packet_info * pinfo , guint32 counter _U_ , guint8 rbid _U_,gboolean dir _U_ ){
+static tvbuff_t *
+#ifndef HAVE_UMTS_KASUMI
+rlc_decipher_tvb(tvbuff_t *tvb _U_, packet_info *pinfo, guint32 counter _U_, guint8 rbid _U_, gboolean dir _U_) {
         /*Check if we have a KASUMI implementatation*/
          expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "Unable to decipher packet since KASUMI implementation is missing.");
 		 return NULL;
 #else
-static tvbuff_t * rlc_decipher_tvb(tvbuff_t * tvb, packet_info * pinfo , guint32 counter , guint8 rbid ,gboolean dir ){
+rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid, gboolean dir) {
         guint64 i;
         guint8* out=NULL,*key_in = NULL;
         tvbuff_t *t;
@@ -2891,8 +2892,8 @@ proto_register_rlc(void)
 #ifdef HAVE_UMTS_KASUMI
     prefs_register_string_preference(rlc_module, "kasumi_key",
 	    "KASUMI key", "Key for kasumi 32 characters long hex-string", &global_rlc_kasumi_key);
-
 #endif /* HAVE_UMTS_KASUMI */
+
     register_init_routine(fragment_table_init);
 }
 
