@@ -3952,6 +3952,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             rlcinf = se_new0(rlc_info);
             macinf = se_new0(umts_mac_info);
             offset = 2;    /*To correctly read the tfi*/
+            fakes = 5; /* Reset fake counter. */
             for (chan=0; chan < fpi->num_chans; chan++) {    /*Iterate over the what channels*/
                     /*Iterate over the transport blocks*/
                    /*tfi = tvb_get_guint8(tvb,offset);*/

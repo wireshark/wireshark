@@ -679,7 +679,6 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
     if(type == 4){    /*If this is type HS-DSCH*/
         num_chans_per_flow[flowd]++;
 
-        /*TODO: This configuration should proably be unique for each UE*/
         if(num_chans_per_flow[flowd] > 1 ){
 
             if(hrnti == NULL){
@@ -747,12 +746,6 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 
 #.FN_BODY MAC-d-FlowIdentity VAL_PTR = &flowd
 %(DEFAULT_BODY)s
-
-#.FN_BODY SRB-InformationSetupList2-r6
-
-%(DEFAULT_BODY)s
-  /*Clear memory*/
-  memset(num_chans_per_flow,0,sizeof(guint8));
 
 #.FN_BODY H-RNTI VAL_PTR = &hrnti
 %(DEFAULT_BODY)s
