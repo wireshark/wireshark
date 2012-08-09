@@ -59,10 +59,8 @@ typedef struct mr_mult_req_info {
    cip_req_info_t *requests;
 } mr_mult_req_info_t;
 
-static dissector_handle_t cip_handle;
 static dissector_handle_t cip_class_generic_handle;
 static dissector_handle_t cip_class_cm_handle;
-static dissector_handle_t cip_class_mb_handle;
 static dissector_handle_t modbus_handle;
 static dissector_handle_t cip_class_cco_handle;
 static heur_dissector_list_t  heur_subdissector_service;
@@ -5597,13 +5595,6 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * Protocol initialization
  */
 
-static void
-cip_init_protocol(void)
-{
-   proto_enip = proto_get_id_by_filter_name( "enip" );
-   proto_modbus = proto_get_id_by_filter_name( "modbus" );
-}
-
 void
 proto_register_cip(void)
 {
@@ -6001,8 +5992,6 @@ proto_register_cip(void)
    proto_register_field_array(proto_cip_class_cco, hf_cco, array_length(hf_cco));
    proto_register_subtree_array(ett_cco, array_length(ett_cco));
 
-   register_init_routine(&cip_init_protocol);
-
    /* Register a heuristic dissector on the service of the message so objects
     * can override the dissector for common services */
    register_heur_dissector_list("cip.sc", &heur_subdissector_service);
@@ -6013,6 +6002,9 @@ proto_register_cip(void)
 void
 proto_reg_handoff_cip(void)
 {
+   dissector_handle_t cip_handle;
+   dissector_handle_t cip_class_mb_handle;
+
    /* Create dissector handles */
    /* Register for UCMM CIP data, using EtherNet/IP SendRRData service*/
    /* Register for Connected CIP data, using EtherNet/IP SendUnitData service*/
@@ -6037,6 +6029,9 @@ proto_reg_handoff_cip(void)
    cip_class_cco_handle = new_create_dissector_handle( dissect_cip_class_cco, proto_cip_class_cco );
    dissector_add_uint( "cip.class.iface", CI_CLS_CCO, cip_class_cco_handle );
    heur_dissector_add("cip.sc", dissect_class_cco_heur, proto_cip_class_cco);
+
+   proto_enip = proto_get_id_by_filter_name( "enip" );
+   proto_modbus = proto_get_id_by_filter_name( "modbus" );
 
 } /* end of proto_reg_handoff_cip() */
 
