@@ -765,8 +765,8 @@ static const gchar *dvbci_siv = NULL;
 static gboolean dvbci_dissect_lsc_msg = FALSE;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t mpeg_pmt_handle;
 static dissector_handle_t dvb_nit_handle;
-static dissector_table_t mpeg_sect_tid_dissector_table;
 static dissector_table_t tcp_dissector_table;
 static dissector_table_t udp_dissector_table;
 
@@ -2480,15 +2480,14 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree)
 {
-    proto_item        *pi;
-    guint16            nid, onid, tsid, svcid;
-    guint8             ref;
-    guint16            old_pid, new_pid;
-    gboolean           pmt_flag;
-    gint               desc_loop_len;
-    guint8             table_id;
-    tvbuff_t          *pmt_tvb = NULL;
-    guint8             status;
+    proto_item *pi;
+    guint16     nid, onid, tsid, svcid;
+    guint8      ref;
+    guint16     old_pid, new_pid;
+    gboolean    pmt_flag;
+    gint        desc_loop_len;
+    tvbuff_t   *pmt_tvb = NULL;
+    guint8      status;
 
 
     switch (tag) {
@@ -2551,17 +2550,15 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
                 break;
             offset += desc_loop_len;
             if (pmt_flag) {
-                table_id = tvb_get_guint8(tvb, offset);
-                pmt_tvb = tvb_new_subset(tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset),
-                        tvb_reported_length_remaining(tvb, offset));
-                if (mpeg_sect_tid_dissector_table && pmt_tvb) {
+                pmt_tvb = tvb_new_subset_remaining(tvb, offset);
+                if (mpeg_pmt_handle) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
                     /* prevent mpeg_pmt dissector from clearing col_info */
                     col_set_fence(pinfo->cinfo, COL_INFO);
-                    dissector_try_uint(mpeg_sect_tid_dissector_table,
-                            (const guint32)table_id, pmt_tvb, pinfo, tree);
+                    call_dissector(mpeg_pmt_handle, pmt_tvb, pinfo, tree);
                 }
+                else
+                    call_dissector(data_handle, pmt_tvb, pinfo, tree);
             }
             break;
         case T_TUNE_REPLY:
@@ -5343,8 +5340,8 @@ proto_reg_handoff_dvbci(void)
     dissector_add_uint("wtap_encap", WTAP_ENCAP_DVBCI, dvbci_handle);
 
     data_handle = find_dissector("data");
+    mpeg_pmt_handle = find_dissector("mpeg_pmt");
     dvb_nit_handle = find_dissector("dvb_nit");
-    mpeg_sect_tid_dissector_table = find_dissector_table("mpeg_sect.tid");
     tcp_dissector_table = find_dissector_table("tcp.port");
     udp_dissector_table = find_dissector_table("udp.port");
 }
