@@ -1295,13 +1295,14 @@ guint32 no_ddi_entries, i;
 	}
 
 	p_conv_data->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
-
+	
 	/* Figure out which type of E-DCH frame, based on DDI value (DDI = 0 => type 2)*/
 	if( 0 == e_dch_ddi_value ){
+
 		p_conv_data->edch_type = 1; /* 1 means T2 */
 	}else{ 
-    	
-		p_conv_data->edch_type = 0;  /* 1 means T2 */
+
+		p_conv_data->edch_type = 0;  /* 0 means T1 */
 	}
 	/* use to display e_dch_macdflow_id */
 	p_conv_data->num_dch_in_flow = 1;
