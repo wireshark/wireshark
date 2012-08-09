@@ -3586,6 +3586,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
     }
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
+  header->req_id = request_id;
   if (check_col(pinfo->cinfo, COL_INFO))
     {
       col_append_fstr(pinfo->cinfo, COL_INFO, " id=%u", request_id);

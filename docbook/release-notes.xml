@@ -226,11 +226,11 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-23.html">wnpa-sec-2012-23</ulink>
           </para>
           <para>
-	    The AFP dissector could go into a large loop. Reported by Ben Schmidt.
+	    The CTDB dissector could go into a large loop. Reported by Ben Schmidt.
             <!-- Fixed in trunk: r44403 -->
             <!-- Fixed in trunk-1.8: r44404 -->
-            <!-- Fixed in trunk-1.6: r44??? -->
-            <!-- Fixed in trunk-1.4: r44??? -->
+            <!-- Fixed in trunk-1.6: r44405 -->
+            <!-- Fixed in trunk-1.4: r44406 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7573">Bug
             7573</ulink>)
           </para>
@@ -239,93 +239,6 @@ Wireshark Info
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
           </para> -->
         </listitem>
-
-
-
-
-
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-??.html">wnpa-sec-2012-??</ulink>
-          </para>
-          <para>
-	    . Reported by
-	    .
-            <!-- Fixed in trunk: r44??? -->
-            <!-- Fixed in trunk-1.8: r44??? -->
-            <!-- Fixed in trunk-1.6: r44??? -->
-            <!-- Fixed in trunk-1.4: r44??? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-??.html">wnpa-sec-2012-??</ulink>
-          </para>
-          <para>
-	    . Reported by
-	    .
-            <!-- Fixed in trunk: r44??? -->
-            <!-- Fixed in trunk-1.8: r44??? -->
-            <!-- Fixed in trunk-1.6: r44??? -->
-            <!-- Fixed in trunk-1.4: r44??? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-??.html">wnpa-sec-2012-??</ulink>
-          </para>
-          <para>
-	    . Reported by
-	    .
-            <!-- Fixed in trunk: r44??? -->
-            <!-- Fixed in trunk-1.8: r44??? -->
-            <!-- Fixed in trunk-1.6: r44??? -->
-            <!-- Fixed in trunk-1.4: r44??? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-??.html">wnpa-sec-2012-??</ulink>
-          </para>
-          <para>
-	    . Reported by
-	    .
-            <!-- Fixed in trunk: r44??? -->
-            <!-- Fixed in trunk-1.8: r44??? -->
-            <!-- Fixed in trunk-1.6: r44??? -->
-            <!-- Fixed in trunk-1.4: r44??? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-
 
       </itemizedlist>
 
@@ -351,6 +264,24 @@ Wireshark Info
           Wireshark crashes on opening very short NFS pcap file.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7498">Bug
           7498</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          crashes in interface list, pipe handling.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7511">Bug
+          7511</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ISDN LAPD  X.31 packet traffic can not be decoded.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7514">Bug
+          7514</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          GIOP request_id used for sub dissectors is not assigned when decoding GIOP 1.2 Request message.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7516">Bug
+          7516</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -379,7 +310,22 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+AFP,
+CIP,
+CTDB,
+DCP ETSI,
+ERF,
+EtherCAT Mailbox,
+GIOP,
+GSM RLC MAC,
+GTPv2,
+ISDN,
+MongoDB,
+MPLS PM,
+NFS,
+RTPS2,
+STUN,
+XTP
 
     </para>
     </section>

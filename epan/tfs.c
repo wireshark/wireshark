@@ -37,6 +37,7 @@ const true_false_string tfs_true_false = { "True", "False" };
 const true_false_string tfs_yes_no = { "Yes", "No" };
 const true_false_string tfs_set_notset = { "Set", "Not set" };
 const true_false_string tfs_enabled_disabled = { "Enabled", "Disabled" };
+const true_false_string tfs_disabled_enabled = { "Disabled", "Enabled" };
 const true_false_string tfs_ok_error = { "Ok", "Error" };
 const true_false_string tfs_error_ok = { "Error", "Ok" };
 const true_false_string tfs_success_fail = { "Success", "Fail" };
