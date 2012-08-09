@@ -1995,19 +1995,20 @@ select_first_entry(void)
 static void
 add_page(gchar *name, gchar *text, gboolean error)
 {
-  GtkWidget        *view;
+  GtkWidget        *view, *icon;
   GtkTreeModel     *model;
   GtkTreeIter      iter;
-  GdkPixbuf        *pixbuf;
+  /*GdkPixbuf        *pixbuf;*/
 
   view = g_object_get_data(G_OBJECT(compile_bpf_w), E_COMPILE_TREE_VIEW_INTERFACES);
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
   gtk_list_store_append (GTK_LIST_STORE(model), &iter);
   if (error) {
-    pixbuf = gdk_pixbuf_new_from_file("image/expert_error.png", NULL);
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, SIGN, pixbuf, INAME, name, -1);
+    icon = pixbuf_to_widget(expert_error_pb_data);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, SIGN, gtk_image_get_pixbuf(GTK_IMAGE(icon)), INAME, name, -1);
   } else {
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, SIGN, NULL, INAME, name, -1);
+    icon = pixbuf_to_widget(expert_ok_pb_data);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, SIGN, gtk_image_get_pixbuf(GTK_IMAGE(icon)), INAME, name, -1);
   }
   g_hash_table_insert(compile_results, name, text);
 }

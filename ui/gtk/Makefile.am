@@ -105,7 +105,7 @@ checkapi-todo:
 expert_indicators.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
-	for elevel in chat error none note warn ; do \
+	for elevel in chat error none note warn ok ; do \
 		gdk-pixbuf-csource --raw --name=expert_$${elevel}_pb_data $(top_srcdir)/image/expert_$${elevel}.png >> $@ ;\
 	done
 
