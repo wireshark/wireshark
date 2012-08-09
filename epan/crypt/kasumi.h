@@ -19,11 +19,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef	_UMTS_KASMUI_H_
-#define	_UMTS_KASMUI_H_
+#ifndef	KASUMI_H
+#define	KASUMI_H
 
 /*This needs to be set in order to indicate presence of KASUMI implementation!*/
 #define HAVE_UMTS_KASUMI 0
 
 
-#endif /* _UMTS_KASMUI_H_ */
+#endif /* KASUMI_H */
