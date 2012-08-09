@@ -509,6 +509,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if ((stun_trans =
 		     se_tree_lookup32_array(stun_info->transaction_pdus,
 					    transaction_id_key)) == NULL) {
+
+			transaction_id_key[0].length = 3;
+			transaction_id_key[0].key =  transaction_id;
+			transaction_id_key[1].length = 0;
+			transaction_id_key[1].key = NULL;
+
 			stun_trans=se_alloc(sizeof(stun_transaction_t));
 			stun_trans->req_frame=0;
 			stun_trans->rep_frame=0;
