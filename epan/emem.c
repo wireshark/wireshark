@@ -1841,9 +1841,8 @@ create_sub_tree(void* d)
 
 /* insert a new node in the tree. if this node matches an already existing node
  * then just replace the data for that node */
-
-void
-emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
+static void
+emem_tree_insert32_array_local(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
 {
 	emem_tree_t *next_tree;
 
@@ -1863,11 +1862,44 @@ emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
 		key[0].length--;
 		key[0].key++;
 	}
-	emem_tree_insert32_array(next_tree, key, data);
+	emem_tree_insert32_array_local(next_tree, key, data);
 }
 
-void *
-emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
+void
+emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
+{
+	int key_count = 0;
+	emem_tree_key_t *local_key = key,
+					*copy_key;
+
+	if((key[0].length<1)||(key[0].length>100)){
+		DISSECTOR_ASSERT_NOT_REACHED();
+	}
+
+	/* Make a copy of the keys so the length isn't destroyed */
+	while ((local_key->key != NULL) && (local_key->length != 0)) {
+		key_count++;
+		local_key++;
+	}
+
+	copy_key = ep_alloc(sizeof(emem_tree_key_t)*(key_count+1));
+	local_key = copy_key;
+	while ((key->key != NULL) && (key->length != 0)) {
+		copy_key->length = key->length;
+		copy_key->key = key->key;
+		key++;
+		copy_key++;
+	}
+
+	/* "NULL terminate" the key */
+	copy_key->length = 0;
+	copy_key->key = NULL;
+
+	emem_tree_insert32_array_local(se_tree, local_key, data);
+}
+
+static void *
+emem_tree_lookup32_array_local(emem_tree_t *se_tree, emem_tree_key_t *key)
 {
 	emem_tree_t *next_tree;
 
@@ -1889,11 +1921,46 @@ emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 		key[0].length--;
 		key[0].key++;
 	}
-	return emem_tree_lookup32_array(next_tree, key);
+	return emem_tree_lookup32_array_local(next_tree, key);
 }
 
 void *
-emem_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key)
+emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
+{
+	int key_count = 0;
+	emem_tree_key_t *local_key = key,
+					*copy_key;
+
+	if(!se_tree || !key) return NULL; /* prevent searching on NULL pointer */
+
+	if((key[0].length<1)||(key[0].length>100)){
+		DISSECTOR_ASSERT_NOT_REACHED();
+	}
+
+	/* Make a copy of the keys so the length isn't destroyed */
+	while ((local_key->key != NULL) && (local_key->length != 0)) {
+		key_count++;
+		local_key++;
+	}
+
+	copy_key = ep_alloc(sizeof(emem_tree_key_t)*(key_count+1));
+	local_key = copy_key;
+	while ((key->key != NULL) && (key->length != 0)) {
+		copy_key->length = key->length;
+		copy_key->key = key->key;
+		key++;
+		copy_key++;
+	}
+
+	/* "NULL terminate" the key */
+	copy_key->length = 0;
+	copy_key->key = NULL;
+
+	return emem_tree_lookup32_array_local(se_tree, local_key);
+}
+
+static void *
+emem_tree_lookup32_array_le_local(emem_tree_t *se_tree, emem_tree_key_t *key)
 {
 	emem_tree_t *next_tree;
 
@@ -1917,7 +1984,42 @@ emem_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key)
 		key[0].length--;
 		key[0].key++;
 	}
-	return emem_tree_lookup32_array_le(next_tree, key);
+	return emem_tree_lookup32_array_le_local(next_tree, key);
+}
+
+void *
+emem_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key)
+{
+	int key_count = 0;
+	emem_tree_key_t *local_key = key,
+					*copy_key;
+
+	if(!se_tree || !key) return NULL; /* prevent searching on NULL pointer */
+
+	if((key[0].length<1)||(key[0].length>100)){
+		DISSECTOR_ASSERT_NOT_REACHED();
+	}
+
+	/* Make a copy of the keys so the length isn't destroyed */
+	while ((local_key->key != NULL) && (local_key->length != 0)) {
+		key_count++;
+		local_key++;
+	}
+
+	copy_key = ep_alloc(sizeof(emem_tree_key_t)*(key_count+1));
+	local_key = copy_key;
+	while ((key->key != NULL) && (key->length != 0)) {
+		copy_key->length = key->length;
+		copy_key->key = key->key;
+		key++;
+		copy_key++;
+	}
+
+	/* "NULL terminate" the key */
+	copy_key->length = 0;
+	copy_key->key = NULL;
+
+	return emem_tree_lookup32_array_le_local(se_tree, local_key);
 }
 
 /* Strings are stored as an array of uint32 containing the string characters
