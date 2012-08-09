@@ -1841,185 +1841,112 @@ create_sub_tree(void* d)
 
 /* insert a new node in the tree. if this node matches an already existing node
  * then just replace the data for that node */
-static void
-emem_tree_insert32_array_local(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
-{
-	emem_tree_t *next_tree;
-
-	if((key[0].length<1)||(key[0].length>100)){
-		DISSECTOR_ASSERT_NOT_REACHED();
-	}
-	if((key[0].length==1)&&(key[1].length==0)){
-		emem_tree_insert32(se_tree, *key[0].key, data);
-		return;
-	}
-
-	next_tree=lookup_or_insert32(se_tree, *key[0].key, create_sub_tree, se_tree, EMEM_TREE_NODE_IS_SUBTREE);
-
-	if(key[0].length==1){
-		key++;
-	} else {
-		key[0].length--;
-		key[0].key++;
-	}
-	emem_tree_insert32_array_local(next_tree, key, data);
-}
 
 void
 emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
 {
-	int key_count = 0;
-	emem_tree_key_t *local_key = key,
-					*copy_key;
+	emem_tree_t *insert_tree = NULL;
+	emem_tree_key_t *cur_key;
+	guint32 i, insert_key32;
 
-	if((key[0].length<1)||(key[0].length>100)){
+	if(!se_tree || !key) return;
+
+	for (cur_key = key; cur_key->length > 0; cur_key++) {
+		if(cur_key->length > 100) {
+			DISSECTOR_ASSERT_NOT_REACHED();
+		}
+
+		for (i = 0; i < cur_key->length; i++) {
+			/* Insert using the previous key32 */
+			if (!insert_tree) {
+				insert_tree = se_tree;
+			} else {
+				insert_tree = lookup_or_insert32(insert_tree, insert_key32, create_sub_tree, se_tree, EMEM_TREE_NODE_IS_SUBTREE);
+			}
+			insert_key32 = cur_key->key[i];
+		}
+	}
+
+	if(!insert_tree) {
+		/* We didn't get a valid key. Should we return NULL instead? */
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
-	/* Make a copy of the keys so the length isn't destroyed */
-	while ((local_key->key != NULL) && (local_key->length != 0)) {
-		key_count++;
-		local_key++;
-	}
+	emem_tree_insert32(insert_tree, insert_key32, data);
 
-	copy_key = ep_alloc(sizeof(emem_tree_key_t)*(key_count+1));
-	local_key = copy_key;
-	while ((key->key != NULL) && (key->length != 0)) {
-		copy_key->length = key->length;
-		copy_key->key = key->key;
-		key++;
-		copy_key++;
-	}
-
-	/* "NULL terminate" the key */
-	copy_key->length = 0;
-	copy_key->key = NULL;
-
-	emem_tree_insert32_array_local(se_tree, local_key, data);
-}
-
-static void *
-emem_tree_lookup32_array_local(emem_tree_t *se_tree, emem_tree_key_t *key)
-{
-	emem_tree_t *next_tree;
-
-	if(!se_tree || !key) return NULL; /* prevent searching on NULL pointer */
-
-	if((key[0].length<1)||(key[0].length>100)){
-		DISSECTOR_ASSERT_NOT_REACHED();
-	}
-	if((key[0].length==1)&&(key[1].length==0)){
-		return emem_tree_lookup32(se_tree, *key[0].key);
-	}
-	next_tree=emem_tree_lookup32(se_tree, *key[0].key);
-	if(!next_tree){
-		return NULL;
-	}
-	if(key[0].length==1){
-		key++;
-	} else {
-		key[0].length--;
-		key[0].key++;
-	}
-	return emem_tree_lookup32_array_local(next_tree, key);
 }
 
 void *
 emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 {
-	int key_count = 0;
-	emem_tree_key_t *local_key = key,
-					*copy_key;
+	emem_tree_t *lookup_tree = NULL;
+	emem_tree_key_t *cur_key;
+	guint32 i, lookup_key32;
 
 	if(!se_tree || !key) return NULL; /* prevent searching on NULL pointer */
 
-	if((key[0].length<1)||(key[0].length>100)){
+	for (cur_key = key; cur_key->length > 0; cur_key++) {
+		if(cur_key->length > 100) {
+			DISSECTOR_ASSERT_NOT_REACHED();
+		}
+
+		for (i = 0; i < cur_key->length; i++) {
+			/* Lookup using the previous key32 */
+			if (!lookup_tree) {
+				lookup_tree = se_tree;
+			} else {
+				lookup_tree = emem_tree_lookup32(lookup_tree, lookup_key32);
+				if (!lookup_tree) {
+					return NULL;
+				}
+			}
+			lookup_key32 = cur_key->key[i];
+		}
+	}
+
+	if(!lookup_tree) {
+		/* We didn't get a valid key. Should we return NULL instead? */
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
-	/* Make a copy of the keys so the length isn't destroyed */
-	while ((local_key->key != NULL) && (local_key->length != 0)) {
-		key_count++;
-		local_key++;
-	}
-
-	copy_key = ep_alloc(sizeof(emem_tree_key_t)*(key_count+1));
-	local_key = copy_key;
-	while ((key->key != NULL) && (key->length != 0)) {
-		copy_key->length = key->length;
-		copy_key->key = key->key;
-		key++;
-		copy_key++;
-	}
-
-	/* "NULL terminate" the key */
-	copy_key->length = 0;
-	copy_key->key = NULL;
-
-	return emem_tree_lookup32_array_local(se_tree, local_key);
-}
-
-static void *
-emem_tree_lookup32_array_le_local(emem_tree_t *se_tree, emem_tree_key_t *key)
-{
-	emem_tree_t *next_tree;
-
-	if(!se_tree || !key) return NULL; /* prevent searching on NULL pointer */
-
-	if((key[0].length<1)||(key[0].length>100)){
-		DISSECTOR_ASSERT_NOT_REACHED();
-	}
-	if((key[0].length==1)&&(key[1].length==0)){ /* last key in key array */
-		return emem_tree_lookup32_le(se_tree, *key[0].key);
-	}
-	next_tree=emem_tree_lookup32(se_tree, *key[0].key);
-	/* key[0].key not found so find le and return */
-	if(!next_tree)
-		return emem_tree_lookup32_le(se_tree, *key[0].key);
-
-	/* key[0].key found so inc key pointer and try again */
-	if(key[0].length==1){
-		key++;
-	} else {
-		key[0].length--;
-		key[0].key++;
-	}
-	return emem_tree_lookup32_array_le_local(next_tree, key);
+	return emem_tree_lookup32(lookup_tree, lookup_key32);
 }
 
 void *
 emem_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key)
 {
-	int key_count = 0;
-	emem_tree_key_t *local_key = key,
-					*copy_key;
+	emem_tree_t *lookup_tree = NULL;
+	emem_tree_key_t *cur_key;
+	guint32 i, lookup_key32;
 
 	if(!se_tree || !key) return NULL; /* prevent searching on NULL pointer */
 
-	if((key[0].length<1)||(key[0].length>100)){
+	for (cur_key = key; cur_key->length > 0; cur_key++) {
+		if(cur_key->length > 100) {
+			DISSECTOR_ASSERT_NOT_REACHED();
+		}
+
+		for (i = 0; i < cur_key->length; i++) {
+			/* Lookup using the previous key32 */
+			if (!lookup_tree) {
+				lookup_tree = se_tree;
+			} else {
+				lookup_tree = emem_tree_lookup32_le(lookup_tree, lookup_key32);
+				if (!lookup_tree) {
+					return NULL;
+				}
+			}
+			lookup_key32 = cur_key->key[i];
+		}
+	}
+
+	if(!lookup_tree) {
+		/* We didn't get a valid key. Should we return NULL instead? */
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
-	/* Make a copy of the keys so the length isn't destroyed */
-	while ((local_key->key != NULL) && (local_key->length != 0)) {
-		key_count++;
-		local_key++;
-	}
+	return emem_tree_lookup32_le(lookup_tree, lookup_key32);
 
-	copy_key = ep_alloc(sizeof(emem_tree_key_t)*(key_count+1));
-	local_key = copy_key;
-	while ((key->key != NULL) && (key->length != 0)) {
-		copy_key->length = key->length;
-		copy_key->key = key->key;
-		key++;
-		copy_key++;
-	}
-
-	/* "NULL terminate" the key */
-	copy_key->length = 0;
-	copy_key->key = NULL;
-
-	return emem_tree_lookup32_array_le_local(se_tree, local_key);
 }
 
 /* Strings are stored as an array of uint32 containing the string characters
