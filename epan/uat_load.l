@@ -67,15 +67,15 @@
 #pragma warning (disable:4018)
 #endif
 
-	static uat_t* uat;
-	static guint colnum;
-	static gchar* ptr;
-	static guint len;
-	static gchar* error;
-	static void* record;
-	static guint linenum;
-	static gchar *parse_str;
-	static guint parse_str_pos;
+static uat_t* uat;
+static guint colnum;
+static gchar* ptr;
+static guint len;
+static gchar* error;
+static void* record;
+static guint linenum;
+static gchar *parse_str;
+static guint parse_str_pos;
 
 #define ERROR(fmtd) do { error = ep_strdup_printf("%s:%d: %s",uat->filename,linenum,ep_strdup_printf fmtd); yyterminate(); } while(0)
 
@@ -252,6 +252,8 @@ comment #[^\n]*\n
 	colnum = 0;
 	ptr = NULL;
 	len = 0;
+
+	/* XXX is this necessary since we free it before reusing anyway? */
 	memset(record,0,uat->record_size);
 
 	BEGIN START_OF_LINE;
@@ -272,8 +274,10 @@ comment #[^\n]*\n
 
 
 
-gboolean uat_load(uat_t* uat_in, char** err) {
-	gchar* fname = uat_get_actual_filename(uat_in, FALSE);
+gboolean
+uat_load(uat_t *uat_in, char **err)
+{
+	gchar *fname = uat_get_actual_filename(uat_in, FALSE);
 
 	uat = uat_in;
 	parse_str = NULL;
@@ -296,6 +300,7 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 
 	error = NULL;
 	colnum = 0;
+	g_free(record);
 	record = g_malloc0(uat->record_size);
 	linenum = 1;
 
@@ -323,7 +328,9 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 	return TRUE;
 }
 
-gboolean uat_load_str(uat_t* uat_in, char* entry, char** err) {
+gboolean
+uat_load_str(uat_t *uat_in, char *entry, char **err)
+{
 	uat = uat_in;
 	parse_str = g_strdup_printf("%s\n", entry); /* Records must end with a newline */
 	parse_str_pos = 0;
@@ -331,6 +338,7 @@ gboolean uat_load_str(uat_t* uat_in, char* entry, char** err) {
 
 	error = NULL;
 	colnum = 0;
+	g_free(record);
 	record = g_malloc0(uat->record_size);
 	linenum = 1;
 
@@ -365,6 +373,8 @@ gboolean uat_load_str(uat_t* uat_in, char* entry, char** err) {
  * warnings by the Windows VC compiler).
  */
 
-int yywrap(void) {
+int
+yywrap(void)
+{
     return 1;
 }
