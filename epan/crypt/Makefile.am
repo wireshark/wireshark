@@ -46,6 +46,7 @@ libairpdcap_la_SOURCES =	\
 	$(LIBAIRPDCAP_INCLUDES)
 
 EXTRA_DIST = \
+	Custom.common \
 	Makefile.common	\
 	Makefile.nmake 
 
