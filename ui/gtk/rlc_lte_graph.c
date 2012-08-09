@@ -343,6 +343,7 @@ static char helptext[] =
     "\n"
     "   'i' or '+'       zoom in (towards area under mouse pointer)\n"
     "   'o' or '-'       zoom out\n"
+    "                    (add shift to lock Y axis, control to lock X axis)\n"
     "   'r' or <Home>    restore graph to initial state (zoom out max)\n"
     "   't'              toggle time axis to being at zero, or to use time in capture\n"
     "\n"
@@ -1851,7 +1852,8 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer 
 #endif
 
 /* Zoom because of keyboard or mouse press */
-static void do_zoom_common(struct graph *g, GdkEventButton *event)
+static void do_zoom_common(struct graph *g, GdkEventButton *event,
+                           gboolean lock_vertical, gboolean lock_horizontal)
 {
     int cur_width = g->geom.width, cur_height = g->geom.height;
     struct { double x, y; } factor;
@@ -1870,15 +1872,38 @@ static void do_zoom_common(struct graph *g, GdkEventButton *event)
 
 
     if (g->zoom.flags & ZOOM_OUT) {
+
+        /* If can't zoom out anymore so don't waste time redrawing the whole graph! */
+        if ((g->geom.height <= g->wp.height) &&
+            (g->geom.width  <= g->wp.width)) {
+            return;
+        }
+
         /* Zoom out */
-        factor.x = 1 / g->zoom.step_x;
-        factor.y = 1 / g->zoom.step_y;
+        if (lock_horizontal) {
+            factor.x = 1.0;
+        }
+        else {
+            factor.x = 1 / g->zoom.step_x;
+        }
+
+        if (lock_vertical) {
+            factor.y = 1.0;
+        }
+        else {
+            factor.y = 1 / g->zoom.step_y;
+        }
     } else {
         /* Zoom in */
-        factor.x = g->zoom.step_x;
+        if (lock_horizontal) {
+            factor.x = 1.0;
+        }
+        else {
+            factor.x = g->zoom.step_x;
+        }
 
         /* Don't zoom in too far vertically */
-        if (g->geom.height >= (g->bounds.height * MAX_PIXELS_PER_SN)) {
+        if ((g->geom.height >= (g->bounds.height * MAX_PIXELS_PER_SN)) || lock_vertical) {
             factor.y = 1.0;
         }
         else {
@@ -1917,8 +1942,8 @@ static void do_zoom_common(struct graph *g, GdkEventButton *event)
         g->geom.y = g->wp.height + g->wp.y - g->geom.height;
 #if 0
     printf("%s press: graph: (%d,%d), (%d,%d); viewport: (%d,%d), "
-            "(%d,%d); zooms: (%f,%f)\n", g->geom.x, g->geom.y,
-            (event != NULL) ? "mouse" : "key",
+            "(%d,%d); zooms: (%f,%f)\n",
+            (event != NULL) ? "mouse" : "key", g->geom.x, g->geom.y,
             g->geom.width, g->geom.height, g->wp.x, g->wp.y, g->wp.width,
             g->wp.height, g->zoom.x, g->zoom.y);
 #endif
@@ -1935,26 +1960,34 @@ static void do_zoom_common(struct graph *g, GdkEventButton *event)
 }
 
 
-static void do_zoom_keyboard(struct graph *g)
+static void do_zoom_keyboard(struct graph *g,
+                             gboolean lock_vertical,
+                             gboolean lock_horizontal)
 {
-    do_zoom_common(g, NULL);
+    do_zoom_common(g, NULL, lock_vertical, lock_horizontal);
 }
 
 static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
 {
-    do_zoom_common(g, event);
+    do_zoom_common(g, event,
+                   event->state & GDK_SHIFT_MASK,
+                   event->state & GDK_CONTROL_MASK);
 }
 
-static void do_zoom_in_keyboard(struct graph *g)
+static void do_zoom_in_keyboard(struct graph *g,
+                                gboolean lock_vertical,
+                                gboolean lock_horizontal)
 {
     g->zoom.flags &= ~ZOOM_OUT;
-    do_zoom_keyboard(g);
+    do_zoom_keyboard(g, lock_vertical, lock_horizontal);
 }
 
-static void do_zoom_out_keyboard(struct graph *g)
+static void do_zoom_out_keyboard(struct graph *g,
+                                 gboolean lock_vertical,
+                                 gboolean lock_horizontal)
 {
     g->zoom.flags |= ZOOM_OUT;
-    do_zoom_keyboard(g);
+    do_zoom_keyboard(g, lock_vertical, lock_horizontal);
 }
 
 static void do_key_motion(struct graph *g)
@@ -2127,17 +2160,36 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
             break;
         case 'r':
         case GDK_Home:
+            /* Go back to original view, all zoomed out */
             restore_initial_graph_view(g);
             break;
+
+        /* Zooming in */
         case 'i':
-        case '+':
-            do_zoom_in_keyboard(g);
+        case 'I':
+            do_zoom_in_keyboard(g,
+                                event->state & GDK_SHIFT_MASK,
+                                event->state & GDK_CONTROL_MASK);
             break;
-        case 'o':
-        case '-':
-            do_zoom_out_keyboard(g);
+        case '+':
+            do_zoom_in_keyboard(g,
+                                FALSE,
+                                event->state & GDK_CONTROL_MASK);
             break;
 
+        /* Zooming out */
+        case 'o':
+        case 'O':
+            do_zoom_out_keyboard(g,
+                                 event->state & GDK_SHIFT_MASK,
+                                 event->state & GDK_CONTROL_MASK);
+            break;
+        case '-':
+            do_zoom_out_keyboard(g,
+                                 FALSE,
+                                 event->state & GDK_CONTROL_MASK);
+
+        /* Direction keys */
         case GDK_Left:
             do_key_motion_left(g, step);
             break;
@@ -2151,6 +2203,7 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
             do_key_motion_down(g, step);
             break;
 
+        /* Help */
         case GDK_F1:
             callback_create_help(NULL, NULL);
             break;

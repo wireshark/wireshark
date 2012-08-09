@@ -3208,6 +3208,12 @@ static void do_zoom_common (struct graph *g, GdkEventButton *event)
 
 	/* Work out x and y zooming factors to use */
 	if (g->zoom.flags & ZOOM_OUT) {
+		/* If can't zoom out anymore so don't waste time redrawing the whole graph! */
+		if ((g->geom.height <= g->wp.height) &&
+			(g->geom.width  <= g->wp.width)) {
+			return;
+		}
+
 		if (g->zoom.flags & ZOOM_HLOCK)
 			factor.x = 1.0;
 		else
