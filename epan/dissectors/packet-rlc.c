@@ -76,8 +76,9 @@ static gboolean global_rlc_ciphered = FALSE;
 /* Preferences to try to deciphere*/
 static gboolean global_rlc_try_decipher = FALSE;
 
-
+#if HAVE_UMTS_KASUMI
 static const char* global_rlc_kasumi_key = NULL;
+#endif
 
 /* Stop trying to do reassembly if this is true. */
 static gboolean fail = FALSE;
@@ -1947,6 +1948,7 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
             col_append_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Data]  SN=%u %s",
                          seq, poll_set ? "(P)" : "");
 }
+#if HAVE_UMTS_KASUMI
 static guint8 *
 translate_hex_key(gchar * char_key){
         int i,j;
@@ -1966,6 +1968,7 @@ translate_hex_key(gchar * char_key){
         return key_in;
 
 }
+#endif
 /** @brief Deciphers a given tvb 
  *
  * Note that the actual KASUMI implementation needs to be placed into
