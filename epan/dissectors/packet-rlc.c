@@ -2030,7 +2030,7 @@ static tvbuff_t * rlc_decipher_tvb(tvbuff_t * tvb, packet_info * pinfo , guint32
     }
     
 
-gboolean iter_some(gpointer key, gpointer value, gpointer data ){
+gboolean iter_same(gpointer key, gpointer value, gpointer data ){
 
     /*If true we found the correct frame*/
     if( (int)key > (int) data ){
@@ -2146,7 +2146,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
                     counter_init[rlcinf->rbid[pos]][fpinf->is_uplink] = TRUE;
                     counter_init[rlcinf->rbid[pos]][!fpinf->is_uplink] = TRUE;
                     /*Find apropriate start value*/
-                    g_tree_foreach(c_inf->start_ps, (GTraverseFunc)iter_some, &frame_num);
+                    g_tree_foreach(c_inf->start_ps, (GTraverseFunc)iter_same, &frame_num);
                     
                     /*Set COUNTER value accordingly as specified by 6.4.8 in 3GPP TS 33.102 */
                     if(max_counter +2 > frame_num && c_inf->seq_no[rlcinf->rbid[pos]][fpinf->is_uplink] == -1){
@@ -2888,11 +2888,11 @@ proto_register_rlc(void)
         "LI size in bits, either 7 or 15 bit",
         &global_rlc_li_size, li_size_enumvals, FALSE);
         
-#ifdef UMTS_HAVE_KASUMI
+#ifdef HAVE_UMTS_KASUMI
     prefs_register_string_preference(rlc_module, "kasumi_key",
 	    "KASUMI key", "Key for kasumi 32 characters long hex-string", &global_rlc_kasumi_key);
 
-#endif
+#endif /* HAVE_UMTS_KASUMI */
     register_init_routine(fragment_table_init);
 }
 
