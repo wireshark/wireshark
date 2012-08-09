@@ -231,28 +231,32 @@ static fragment_data *new_head(const guint32 flags)
 	return fd_head;
 }
 
+#define FD_VISITED_FREE 0xffff
+
 /*
  * For a reassembled-packet hash table entry, free the fragment data
  * to which the value refers.
  */
 static gboolean
 free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
-				   gpointer user_data _U_)
+				   gpointer user_data)
 {
+	GPtrArray *allocated_fragments = (GPtrArray *) user_data;
 	fragment_data *fd_head;
 
 	for (fd_head = value; fd_head != NULL; fd_head = fd_head->next) {
-		if(fd_head->data && !(fd_head->flags&FD_NOT_MALLOCED)) {
-			g_free(fd_head->data);
-
-			/*
-			 * A reassembled packet is inserted into the
-			 * hash table once for every frame that made
-			 * up the reassembled packet; clear the data
-			 * pointer so that we only free the data the
-			 * first time we see it.
-			 */
-			fd_head->data = NULL;
+		/*
+		 * A reassembled packet is inserted into the
+		 * hash table once for every frame that made
+		 * up the reassembled packet; add first seen
+		 * fragments to array and later free them in
+		 * free_fragments()
+		 */
+		if (fd_head->flags != FD_VISITED_FREE) {
+			if (fd_head->flags & FD_NOT_MALLOCED)
+				fd_head->data = NULL;
+			g_ptr_array_add(allocated_fragments, fd_head);
+			fd_head->flags = FD_VISITED_FREE;
 		}
 	}
 
@@ -344,6 +348,15 @@ dcerpc_fragment_table_init(GHashTable **fragment_table)
 	}
 }
 
+static void
+free_fragments(gpointer data, gpointer user_data _U_)
+{
+	fragment_data *fd_head = (fragment_data *) data;
+
+	g_free(fd_head->data);
+	g_slice_free(fragment_data, fd_head);
+}
+
 /*
  * Initialize a reassembled-packet table.
  */
@@ -351,14 +364,21 @@ void
 reassembled_table_init(GHashTable **reassembled_table)
 {
 	if (*reassembled_table != NULL) {
+		GPtrArray *allocated_fragments;
+
 		/*
 		 * The reassembled-packet hash table exists.
 		 *
 		 * Remove all entries and free reassembled packet
 		 * data for each entry.
 		 */
+
+		allocated_fragments = g_ptr_array_new();
 		g_hash_table_foreach_remove(*reassembled_table,
-				free_all_reassembled_fragments, NULL);
+				free_all_reassembled_fragments, allocated_fragments);
+
+		g_ptr_array_foreach(allocated_fragments, free_fragments, NULL);
+		g_ptr_array_free(allocated_fragments, TRUE);
 	} else {
 		/* The fragment table does not exist. Create it */
 		*reassembled_table = g_hash_table_new(reassembled_hash,
