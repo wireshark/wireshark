@@ -4685,7 +4685,7 @@ decode_kauth_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
 	offset += 4;
 
 	if (entries > AFP_MAX_ACL_ENTRIES) {
-		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Excessive number of ACL entries (%u). Stopping dissection.", entries);
+		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Too many ACL entries (%u). Stopping dissection.", entries);
 		THROW(ReportedBoundsError);
 	}
 
