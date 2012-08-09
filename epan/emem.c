@@ -1847,7 +1847,7 @@ emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
 {
 	emem_tree_t *insert_tree = NULL;
 	emem_tree_key_t *cur_key;
-	guint32 i, insert_key32;
+	guint32 i, insert_key32 = 0;
 
 	if(!se_tree || !key) return;
 
@@ -1881,7 +1881,7 @@ emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 {
 	emem_tree_t *lookup_tree = NULL;
 	emem_tree_key_t *cur_key;
-	guint32 i, lookup_key32;
+	guint32 i, lookup_key32 = 0;
 
 	if(!se_tree || !key) return NULL; /* prevent searching on NULL pointer */
 
@@ -1917,7 +1917,7 @@ emem_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key)
 {
 	emem_tree_t *lookup_tree = NULL;
 	emem_tree_key_t *cur_key;
-	guint32 i, lookup_key32;
+	guint32 i, lookup_key32 = 0;
 
 	if(!se_tree || !key) return NULL; /* prevent searching on NULL pointer */
 
