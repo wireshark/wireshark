@@ -90,6 +90,8 @@ struct erf_eth_hdrx {
   guint8 byte1;
 };
 
+#define DECHAN_MAX_LINE_RATE 5
+#define DECHAN_MAX_VC_SIZE 5
 #define DECHAN_MAX_AUG_INDEX 4
 
 typedef struct sdh_g707_format_s
@@ -97,9 +99,7 @@ typedef struct sdh_g707_format_s
   guint8 m_sdh_line_rate;
   guint8 m_vc_size ;
   gint8 m_vc_index_array[DECHAN_MAX_AUG_INDEX];
-  	/* XXX - this array is only of size 4, not 5... */
-        /* i = 4 --> ITU-T letter #E - index of AUG-64
-         * i = 3 --> ITU-T letter #D - index of AUG-16
+        /* i = 3 --> ITU-T letter #D - index of AUG-16
          * i = 2 --> ITU-T letter #C - index of AUG-4,
          * i = 1 --> ITU-T letter #B - index of AUG-1
          * i = 0 --> ITU-T letter #A - index of AU3*/
@@ -161,7 +161,7 @@ static int hf_erf_ehdr_chan_seqnum                    = -1;
 static int hf_erf_ehdr_chan_res                       = -1;
 static int hf_erf_ehdr_chan_virt_container_id         = -1;
 static int hf_erf_ehdr_chan_assoc_virt_container_size = -1;
-static int hf_erf_ehdr_chan_speed                     = -1;
+static int hf_erf_ehdr_chan_rate                      = -1;
 static int hf_erf_ehdr_chan_type                      = -1;
 
 /* Filter Hash extension header */
@@ -491,7 +491,7 @@ static const value_string channelised_assoc_virt_container_size[] = {
   { 0, NULL }
 };
 
-static const value_string channelised_speed[] = {
+static const value_string channelised_rate[] = {
   { 0x00, "Reserved"},
   { 0x01, "STM-0 / STS-1"},
   { 0x02, "STM-1 / STS-3"},
@@ -680,35 +680,30 @@ dissect_bfs_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int 
 }
 
 static int
-channelised_fill_sdh_g707_format(sdh_g707_format_t* in_fmt, guint16 bit_flds, guint8 vc_size, guint8 speed)
+channelised_fill_sdh_g707_format(sdh_g707_format_t* in_fmt, guint16 bit_flds, guint8 vc_size, guint8 rate)
 {
-  int i = 0; /* i = 4 --> ITU-T letter #E - index of AUG-64
-              * i = 3 --> ITU-T letter #D - index of AUG-16
+  int i = 0; /* i = 3 --> ITU-T letter #D - index of AUG-16
               * i = 2 --> ITU-T letter #C - index of AUG-4,
               * i = 1 --> ITU-T letter #B - index of AUG-1
               * i = 0 --> ITU-T letter #A - index of AU3*/
 
-  if (0 == vc_size)
+  if ( (0 == vc_size) || (vc_size > DECHAN_MAX_VC_SIZE) || (rate > DECHAN_MAX_LINE_RATE) )
   {
-    /* unknown / unsed container size*/
+    /* unknown / unused / invalid container size or invalid line rate */
+    in_fmt->m_vc_size = 0;
+    in_fmt->m_sdh_line_rate = 0;
+    memset(&(in_fmt->m_vc_index_array[0]), 0x00, DECHAN_MAX_AUG_INDEX);
     return -1;
   }
+
   in_fmt->m_vc_size = vc_size;
-
-  /* Sanity check to avoid crashes.  The speed is added as an item in
-   * dissect_channelised_ex_header(); presumably that is enough notification
-   * to the user of this bogusness?
-   */
-  if (speed > DECHAN_MAX_AUG_INDEX)
-    speed = DECHAN_MAX_AUG_INDEX;
-
-  in_fmt->m_sdh_line_rate = speed;
+  in_fmt->m_sdh_line_rate = rate;
   memset(&(in_fmt->m_vc_index_array[0]), 0xff, DECHAN_MAX_AUG_INDEX);
 
   /* for STM64 traffic, start from #E index shoud be 0 */
-  in_fmt->m_vc_index_array[ speed - 1] = 0;
+  in_fmt->m_vc_index_array[ rate - 1] = 0;
   /* for STM64 traffic,from #D and so on .. */
-    for (i = (speed - 2); i >= 0; i--)
+    for (i = (rate - 2); i >= 0; i--)
   {
     guint8 aug_n_index = 0;
 
@@ -734,13 +729,18 @@ channelised_fill_vc_id_string(emem_strbuf_t* out_string, sdh_g707_format_t* in_f
   gboolean is_printed  = FALSE;
 
   static char* g_vc_size_strings[] = {
-    "unknown",  /* 0x0 */
+    "unknown",  /*0x0*/
     "VC3",      /*0x1*/
     "VC4",      /*0x2*/
     "VC4-4c",   /*0x3*/
     "VC4-16c",  /*0x4*/
-    "VC4-64c",  /*0x5*/
-    "VC4-256c", /*0x6*/};
+    "VC4-64c",  /*0x5*/};
+
+  if ( (in_fmt->m_vc_size > DECHAN_MAX_VC_SIZE) || (in_fmt->m_sdh_line_rate > DECHAN_MAX_LINE_RATE) )
+  {
+    ep_strbuf_printf(out_string, "Malformed");
+    return;
+  }
 
   ep_strbuf_printf(out_string, "%s(",
                    (in_fmt->m_vc_size < array_length(g_vc_size_strings)) ?
@@ -791,11 +791,11 @@ dissect_channelised_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tr
   guint64            hdr              = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
   guint8             vc_id            = (guint8)((hdr >> 24) & 0xFF);
   guint8             vc_size          = (guint8)((hdr >> 16) & 0xFF);
-  guint8             line_speed       = (guint8)((hdr >> 8) & 0xFF);
+  guint8             line_rate        = (guint8)((hdr >> 8) & 0xFF);
   sdh_g707_format_t  g707_format;
   emem_strbuf_t     *vc_id_string = ep_strbuf_new_label("");
 
-  channelised_fill_sdh_g707_format(&g707_format, vc_id, vc_size, line_speed);
+  channelised_fill_sdh_g707_format(&g707_format, vc_id, vc_size, line_rate);
   channelised_fill_vc_id_string(vc_id_string, &g707_format);
 
   if (tree) {
@@ -805,7 +805,7 @@ dissect_channelised_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tr
     proto_tree_add_uint(tree, hf_erf_ehdr_chan_res, tvb, 0, 0, (guint8)((hdr >> 32) & 0xFF));
     proto_tree_add_uint_format(tree, hf_erf_ehdr_chan_virt_container_id, tvb, 0, 0, vc_id, "Virtual Container ID: 0x%0x2 (g.707: %s)", vc_id, vc_id_string->str);
     proto_tree_add_uint(tree, hf_erf_ehdr_chan_assoc_virt_container_size, tvb, 0, 0, vc_size);
-    proto_tree_add_uint(tree, hf_erf_ehdr_chan_speed, tvb, 0, 0, line_speed);
+    proto_tree_add_uint(tree, hf_erf_ehdr_chan_rate, tvb, 0, 0, line_rate);
     proto_tree_add_uint(tree, hf_erf_ehdr_chan_type, tvb, 0, 0, (guint8)((hdr >> 0) & 0xFF));
   }
 }
@@ -1607,9 +1607,9 @@ proto_register_erf(void)
     { &hf_erf_ehdr_chan_assoc_virt_container_size,
       { "Associated Virtual Container Size", "erf.ehdr.chan.vcsize",
         FT_UINT8, BASE_HEX, VALS(channelised_assoc_virt_container_size), 0, NULL, HFILL } },
-    { &hf_erf_ehdr_chan_speed,
+    { &hf_erf_ehdr_chan_rate,
       { "Origin Line Type/Rate", "erf.ehdr.chan.rate",
-        FT_UINT8, BASE_HEX, VALS(channelised_speed), 0, NULL, HFILL } },
+        FT_UINT8, BASE_HEX, VALS(channelised_rate), 0, NULL, HFILL } },
     { &hf_erf_ehdr_chan_type,
       { "Frame Part Type", "erf.ehdr.chan.type",
         FT_UINT8, BASE_HEX, VALS(channelised_type), 0, NULL, HFILL } },
