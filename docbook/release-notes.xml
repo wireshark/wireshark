@@ -171,9 +171,9 @@ Wireshark Info
           <para>
 	    The CIP dissector could exhaust system memory. Reported by Ben Schmidt.
             <!-- Fixed in trunk: r44312 -->
-            <!-- Fixed in trunk-1.8: r44359 -->
-            <!-- Fixed in trunk-1.6: r44??? -->
-            <!-- Fixed in trunk-1.4: r44??? -->
+            <!-- Fixed in trunk-1.8: r44360 -->
+            <!-- Fixed in trunk-1.6: r44361 -->
+            <!-- Fixed in trunk-1.4: r44362 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7570">Bug
             7570</ulink>)
           </para>
@@ -183,20 +183,14 @@ Wireshark Info
           </para> -->
         </listitem>
 
-
-
-
-
-
         <listitem>
           <para>
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-??.html">wnpa-sec-2012-??</ulink>
           </para>
           <para>
-	    . Reported by
-	    .
-            <!-- Fixed in trunk: r44??? -->
-            <!-- Fixed in trunk-1.8: r44??? -->
+	    The STUN dissector could crash. Reported by Laurent Butti.
+            <!-- Fixed in trunk: r44366 -->
+            <!-- Fixed in trunk-1.8: r44367 -->
             <!-- Fixed in trunk-1.6: r44??? -->
             <!-- Fixed in trunk-1.4: r44??? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
@@ -207,6 +201,11 @@ Wireshark Info
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
           </para> -->
         </listitem>
+
+
+
+
+
 
         <listitem>
           <para>
