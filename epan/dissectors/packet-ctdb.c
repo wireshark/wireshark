@@ -32,7 +32,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/value_string.h>
+#include <epan/expert.h>
 #include <epan/emem.h>
 
 /* Initialize the protocol and registered fields */
@@ -284,18 +284,25 @@ static int dissect_control_get_recmode_reply(packet_info *pinfo, proto_tree *tre
 	return offset;
 }
 
-static int dissect_control_get_nodemap_reply(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status _U_, int endianess)
+#define CTDB_MAX_NODES 500 /* Arbitrary. */
+static int dissect_control_get_nodemap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status _U_, int endianess)
 {
 	guint32 num_nodes;
+	proto_item *item;
 
 	/* num nodes */
-	proto_tree_add_item(tree, hf_ctdb_num_nodes, tvb, offset, 4, endianess);
+	item = proto_tree_add_item(tree, hf_ctdb_num_nodes, tvb, offset, 4, endianess);
 	if(endianess){
 		num_nodes=tvb_get_letohl(tvb, offset);
 	} else {
 		num_nodes=tvb_get_ntohl(tvb, offset);
 	}
 	offset+=4;
+
+	if (num_nodes > CTDB_MAX_NODES) {
+		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Too many nodes (%u). Stopping dissection.", num_nodes);
+		THROW(ReportedBoundsError);
+	}
 
 	while(num_nodes--){
 		/* vnn */
@@ -516,7 +523,7 @@ ctdb_hash(tvbuff_t *tvb, int offset, guint32 len)
 	for(value=0x238F13AF*len, i=0; i < len; i++)
 		value=(value+(tvb_get_guint8(tvb, offset+i) << (i*5 % 24)));
 
-	return (1103515243 * value + 12345);  
+	return (1103515243 * value + 12345);
 }
 
 static int
@@ -567,7 +574,7 @@ dissect_ctdb_reply_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 	/* data */
 	proto_tree_add_item(tree, hf_ctdb_data, tvb, offset, datalen, endianess);
 	offset+=datalen;
-	
+
 
 	return offset;
 }
@@ -613,7 +620,7 @@ dissect_ctdb_reply_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 	/* data */
 	proto_tree_add_item(tree, hf_ctdb_data, tvb, offset, datalen, endianess);
 	offset+=datalen;
-	
+
 	tkey[0].length=1;
 	tkey[0].key=&reqid;
 	tkey[1].length=1;
@@ -787,7 +794,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	}
 
 	ctdb_display_control(pinfo, tree, tvb, ctdb_control);
-	
+
 	return offset;
 }
 
@@ -869,7 +876,7 @@ dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 		proto_tree_add_item(tree, hf_ctdb_error, tvb, offset, errorlen, endianess);
 		offset+=datalen;
 	}
-	
+
 
 	cd=find_control_dissector(ctdb_control->opcode, FALSE);
 	if (cd) {
@@ -901,7 +908,7 @@ dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	}
 	if(flags&0x00000001){
 		col_append_str(pinfo->cinfo, COL_INFO, " IMMEDIATE");
-	}	
+	}
 	offset+=4;
 
 	/* dbid */
@@ -998,7 +1005,7 @@ dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	default:
 		return FALSE;
 	}
-	
+
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CTDB");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -1104,116 +1111,116 @@ void
 proto_register_ctdb(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_ctdb_length, { 
-	  "Length", "ctdb.len", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_length, {
+	  "Length", "ctdb.len", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, "Size of CTDB PDU", HFILL }},
-	{ &hf_ctdb_dst, { 
-	  "Destination", "ctdb.dst", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_dst, {
+	  "Destination", "ctdb.dst", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_src, { 
-	  "Source", "ctdb.src", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_src, {
+	  "Source", "ctdb.src", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_id, { 
-	  "Id", "ctdb.id", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_id, {
+	  "Id", "ctdb.id", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, "Transaction ID", HFILL }},
-	{ &hf_ctdb_opcode, { 
-	  "Opcode", "ctdb.opcode", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_opcode, {
+	  "Opcode", "ctdb.opcode", FT_UINT32, BASE_DEC,
 	  VALS(ctdb_opcodes), 0x0, "CTDB command opcode", HFILL }},
-	{ &hf_ctdb_flags_immediate, { 
-	  "Immediate", "ctdb.immediate", FT_BOOLEAN, 32, 
+	{ &hf_ctdb_flags_immediate, {
+	  "Immediate", "ctdb.immediate", FT_BOOLEAN, 32,
 	  TFS(&flags_immediate_tfs), 0x00000001, "Force migration of DMASTER?", HFILL }},
-	{ &hf_ctdb_dbid, { 
-	  "DB Id", "ctdb.dbid", FT_UINT32, BASE_HEX, 
+	{ &hf_ctdb_dbid, {
+	  "DB Id", "ctdb.dbid", FT_UINT32, BASE_HEX,
 	  VALS(ctdb_dbid_vals), 0x0, "Database ID", HFILL }},
-	{ &hf_ctdb_callid, { 
-	  "Call Id", "ctdb.callid", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_callid, {
+	  "Call Id", "ctdb.callid", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, "Call ID", HFILL }},
-	{ &hf_ctdb_status, { 
-	  "Status", "ctdb.status", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_status, {
+	  "Status", "ctdb.status", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_datalen, { 
-	  "Data Length", "ctdb.datalen", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_datalen, {
+	  "Data Length", "ctdb.datalen", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_errorlen, { 
-	  "Error Length", "ctdb.errorlen", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_errorlen, {
+	  "Error Length", "ctdb.errorlen", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_keylen, { 
-	  "Key Length", "ctdb.keylen", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_keylen, {
+	  "Key Length", "ctdb.keylen", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_magic, { 
-	  "Magic", "ctdb.magic", FT_UINT32, BASE_HEX, 
+	{ &hf_ctdb_magic, {
+	  "Magic", "ctdb.magic", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_version, { 
-	  "Version", "ctdb.version", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_version, {
+	  "Version", "ctdb.version", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_dmaster, { 
-	  "Dmaster", "ctdb.dmaster", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_dmaster, {
+	  "Dmaster", "ctdb.dmaster", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_generation, { 
-	  "Generation", "ctdb.generation", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_generation, {
+	  "Generation", "ctdb.generation", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_key, { 
-	  "Key", "ctdb.key", FT_BYTES, BASE_NONE, 
+	{ &hf_ctdb_key, {
+	  "Key", "ctdb.key", FT_BYTES, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_keyhash, { 
-	  "KeyHash", "ctdb.keyhash", FT_UINT32, BASE_HEX, 
+	{ &hf_ctdb_keyhash, {
+	  "KeyHash", "ctdb.keyhash", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_data, { 
-	  "Data", "ctdb.data", FT_BYTES, BASE_NONE, 
+	{ &hf_ctdb_data, {
+	  "Data", "ctdb.data", FT_BYTES, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_error, { 
-	  "Error", "ctdb.error", FT_BYTES, BASE_NONE, 
+	{ &hf_ctdb_error, {
+	  "Error", "ctdb.error", FT_BYTES, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_request_in, { 
-	  "Request In", "ctdb.request_in", FT_FRAMENUM, BASE_NONE, 
+	{ &hf_ctdb_request_in, {
+	  "Request In", "ctdb.request_in", FT_FRAMENUM, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_response_in, { 
-	  "Response In", "ctdb.response_in", FT_FRAMENUM, BASE_NONE, 
+	{ &hf_ctdb_response_in, {
+	  "Response In", "ctdb.response_in", FT_FRAMENUM, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_time, { 
-	  "Time since request", "ctdb.time", FT_RELATIVE_TIME, BASE_NONE, 
+	{ &hf_ctdb_time, {
+	  "Time since request", "ctdb.time", FT_RELATIVE_TIME, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_hopcount, { 
-	  "Hopcount", "ctdb.hopcount", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_hopcount, {
+	  "Hopcount", "ctdb.hopcount", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_rsn, { 
-	  "RSN", "ctdb.rsn", FT_UINT64, BASE_HEX, 
+	{ &hf_ctdb_rsn, {
+	  "RSN", "ctdb.rsn", FT_UINT64, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_ctrl_opcode, { 
-	  "CTRL Opcode", "ctdb.ctrl_opcode", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_ctrl_opcode, {
+	  "CTRL Opcode", "ctdb.ctrl_opcode", FT_UINT32, BASE_DEC,
 	  VALS(ctrl_opcode_vals), 0x0, NULL, HFILL }},
-	{ &hf_ctdb_srvid, { 
-	  "SrvId", "ctdb.srvid", FT_UINT64, BASE_HEX, 
+	{ &hf_ctdb_srvid, {
+	  "SrvId", "ctdb.srvid", FT_UINT64, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_clientid, { 
-	  "ClientId", "ctdb.clientid", FT_UINT32, BASE_HEX, 
+	{ &hf_ctdb_clientid, {
+	  "ClientId", "ctdb.clientid", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_ctrl_flags, { 
-	  "CTRL Flags", "ctdb.ctrl_flags", FT_UINT32, BASE_HEX, 
+	{ &hf_ctdb_ctrl_flags, {
+	  "CTRL Flags", "ctdb.ctrl_flags", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_recmaster, { 
-	  "Recovery Master", "ctdb.recmaster", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_recmaster, {
+	  "Recovery Master", "ctdb.recmaster", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_recmode, { 
-	  "Recovery Mode", "ctdb.recmode", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_recmode, {
+	  "Recovery Mode", "ctdb.recmode", FT_UINT32, BASE_DEC,
 	  VALS(recmode_vals), 0x0, NULL, HFILL }},
-	{ &hf_ctdb_num_nodes, { 
-	  "Num Nodes", "ctdb.num_nodes", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_num_nodes, {
+	  "Num Nodes", "ctdb.num_nodes", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_vnn, { 
-	  "VNN", "ctdb.vnn", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_vnn, {
+	  "VNN", "ctdb.vnn", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_node_flags, { 
-	  "Node Flags", "ctdb.node_flags", FT_UINT32, BASE_HEX, 
+	{ &hf_ctdb_node_flags, {
+	  "Node Flags", "ctdb.node_flags", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_node_ip, { 
-	  "Node IP", "ctdb.node_ip", FT_IPv4, BASE_NONE, 
+	{ &hf_ctdb_node_ip, {
+	  "Node IP", "ctdb.node_ip", FT_IPv4, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_pid, { 
-	  "PID", "ctdb.pid", FT_UINT32, BASE_DEC, 
+	{ &hf_ctdb_pid, {
+	  "PID", "ctdb.pid", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL }},
-	{ &hf_ctdb_process_exists, { 
-	  "Process Exists", "ctdb.process_exists", FT_BOOLEAN, 32, 
+	{ &hf_ctdb_process_exists, {
+	  "Process Exists", "ctdb.process_exists", FT_BOOLEAN, 32,
 	  TFS(&process_exists_tfs), 0x01, NULL, HFILL }},
 	};
 
