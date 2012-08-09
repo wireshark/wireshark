@@ -1874,7 +1874,7 @@ prefs_register_modules(void)
     prefs_register_bool_preference(gui_module, "ask_unsaved",
                                    "Ask to save unsaved capture files",
                                    "Ask to save unsaved capture files?",
-                                   &prefs.filter_toolbar_show_in_statusbar);
+                                   &prefs.gui_ask_unsaved);
 
     prefs_register_bool_preference(gui_module, "find_wrap",
                                    "Wrap to beginning/end of file during search",
@@ -1884,7 +1884,7 @@ prefs_register_modules(void)
     prefs_register_bool_preference(gui_module, "use_pref_save",
                                    "Settings dialogs use a save button",
                                    "Settings dialogs use a save button?",
-                                   &prefs.gui_find_wrap);
+                                   &prefs.gui_use_pref_save);
 
     prefs_register_bool_preference(gui_module, "geometry.save.position",
                                    "Save window position at exit",
@@ -2018,10 +2018,10 @@ prefs_register_modules(void)
         "Capture in promiscuous mode?", &prefs.capture_prom_mode);
 
     prefs_register_bool_preference(capture_module, "pcap_ng", "Capture in Pcap-NG format", 
-        "Capture in Pcap-NG format?", &prefs.capture_real_time);
+        "Capture in Pcap-NG format?", &prefs.capture_pcap_ng);
 
     prefs_register_bool_preference(capture_module, "real_time_update", "Update packet list in real time during capture",
-        "Update packet list in real time during capture?", &prefs.capture_prom_mode);
+        "Update packet list in real time during capture?", &prefs.capture_real_time);
 
     prefs_register_bool_preference(capture_module, "auto_scroll", "Scroll packet list during capture",
         "Scroll packet list during capture?", &prefs.capture_auto_scroll);
