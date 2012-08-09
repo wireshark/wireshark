@@ -157,9 +157,28 @@ Wireshark Info
             <!-- Fixed in trunk: r44366 -->
             <!-- Fixed in trunk-1.8: r44367 -->
             <!-- Fixed in trunk-1.6: r44368 -->
-            <!-- Fixed in trunk-1.4: r44??? -->
+            <!-- Fixed in trunk-1.4: r44369 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7569">Bug
             7569</ulink>)
+          </para>
+          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
+          <!-- <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
+          </para> -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-??.html">wnpa-sec-2012-??</ulink>
+          </para>
+          <para>
+	    The EtherCAT Mailbox dissector could abort. Reported by Laurent Butti.
+            <!-- Fixed in trunk: r43149 -->
+            <!-- Fixed in trunk-1.8: r44389 -->
+            <!-- Fixed in trunk-1.6: r44391 -->
+            <!-- Fixed in trunk-1.4: r44??? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7562">Bug
+            7562</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
           <!-- <para>
