@@ -5307,11 +5307,11 @@
 			<type type-name="Unsigned32"/>
 		</avp>
 
-    <avp name="UE-Time-Zone" code="1641" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
+		<avp name="UE-Time-Zone" code="1641" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="UTF8String"/>
+		</avp>
 
-    <!--
+		<!--
 		Note: The AVP codes from 1638 to 1699 are reserved for TS 29.272.
 		-->
 
@@ -5835,7 +5835,7 @@
 		2408 MME-Realm DiameterIdentity
 		Note: The AVP codes from 2409 to 2499 are reserved for TS 29.173
 		-->
-		
+
 		<avp name="Serving-Node" code="2401" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SGSN-Number"/>
@@ -5855,7 +5855,7 @@
 		</avp>
 		<avp name="LCS-Capabilities-Sets" code="2304" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
-		</avp>	
+		</avp>
 		<avp name="MME-Realm" code="2408" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="DiameterIdentity"/>
 		</avp>
