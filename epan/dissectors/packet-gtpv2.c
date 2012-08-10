@@ -6633,7 +6633,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_arp_pvi,
           {"Pre-emption Vulnerability (PVI)", "gtpv2.arp_pvi",
-          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
+          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x01,
           NULL, HFILL}
         },
         { &hf_gtpv2_arp_pl,
@@ -6643,7 +6643,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_arp_pci,
           {"Pre-emption Capability (PCI)", "gtpv2.arp_pci",
-          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
+          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x40,
           NULL, HFILL}
         },
         { &hf_gtpv2_mm_context_higher_br_16mb_flg_len,

@@ -3163,8 +3163,8 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
         }
         int_data = g_array_index(wdh->interface_data, wtapng_if_descr_t,
             epb.interface_id);
-        ts = (((guint64)phdr->ts.secs) * int_data.time_units_per_second) +
-               (phdr->ts.nsecs / (1000000000/int_data.time_units_per_second));
+        ts = ((guint64)phdr->ts.secs) * int_data.time_units_per_second +
+             (((guint64)phdr->ts.nsecs) * int_data.time_units_per_second) / 1000000000;
         epb.timestamp_high      = (guint32)(ts >> 32);
         epb.timestamp_low       = (guint32)ts;
         epb.captured_len        = phdr->caplen + phdr_len;

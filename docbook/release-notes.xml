@@ -295,6 +295,30 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Move Y.1711 out of MPLS dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6787">Bug
+          6787</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Patch: Add frame.interface_id support for ERF file format.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7266">Bug
+          7266</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Freeze when Resizing or Moving while capturing.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7305">Bug
+          7305</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes when using multiple files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7423">Bug
+          7423</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark crashes on opening very short NFS pcap file.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7498">Bug
           7498</ulink>)
@@ -342,6 +366,12 @@ Wireshark Info
           7533</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          DNS AD flag not shown properly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7555">Bug
+          7555</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -377,9 +407,11 @@ EtherCAT Mailbox,
 GIOP,
 GSM A,
 GSM RLC MAC,
+GTP,
 GTPv2,
 ISDN,
 MongoDB,
+MPLS ITU-T Y.1711 OAM,
 MPLS PM,
 NFS,
 RTPS2,

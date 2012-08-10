@@ -26,7 +26,7 @@
 /*
  * RFC 1034, RFC 1035
  * RFC 2136 for dynamic DNS
- * http://files.multicastdns.org/draft-cheshire-dnsext-multicastdns.txt
+ * http://datatracker.ietf.org/doc/draft-cheshire-dnsext-multicastdns/
  *  for multicast DNS
  * RFC 4795 for link-local multicast name resolution (LLMNR)
  */
@@ -48,6 +48,7 @@
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/strutil.h>
+#include <epan/expert.h>
 
 static int proto_dns = -1;
 static int hf_dns_length = -1;
@@ -63,6 +64,7 @@ static int hf_dns_flags_tentative = -1;
 static int hf_dns_flags_recavail = -1;
 static int hf_dns_flags_z = -1;
 static int hf_dns_flags_authenticated = -1;
+static int hf_dns_flags_ad = -1;
 static int hf_dns_flags_checkdisable = -1;
 static int hf_dns_flags_rcode = -1;
 static int hf_dns_transaction_id = -1;
@@ -207,33 +209,44 @@ typedef struct _dns_conv_info_t {
 #define T_AAAA          28              /* IPv6 address (RFC 1886) */
 #define T_LOC           29              /* geographical location (RFC 1876) */
 #define T_NXT           30              /* "next" name (RFC 2535) */
-#define T_EID           31              /* ??? (Nimrod?) */
-#define T_NIMLOC        32              /* ??? (Nimrod?) */
+#define T_EID           31              /* Endpoint Identifier */
+#define T_NIMLOC        32              /* Nimrod Locator */
 #define T_SRV           33              /* service location (RFC 2052) */
-#define T_ATMA          34              /* ??? */
+#define T_ATMA          34              /* ATM Address */
 #define T_NAPTR         35              /* naming authority pointer (RFC 3403) */
 #define T_KX            36              /* Key Exchange (RFC 2230) */
 #define T_CERT          37              /* Certificate (RFC 4398) */
-#define T_A6            38              /* IPv6 address with indirection (RFC 2874) */
+#define T_A6            38              /* IPv6 address with indirection (RFC 2874 - obsolete) */
 #define T_DNAME         39              /* Non-terminal DNS name redirection (RFC 2672) */
+#define T_SINK          40              /* SINK */
 #define T_OPT           41              /* OPT pseudo-RR (RFC 2671) */
 #define T_APL           42              /* Lists of Address Prefixes (APL RR) (RFC 3123) */
 #define T_DS            43              /* Delegation Signature(RFC 3658) */
 #define T_SSHFP         44              /* Using DNS to Securely Publish SSH Key Fingerprints (RFC 4255) */
-#define T_IPSECKEY      45              /* draft-ietf-ipseckey-rr */
-#define T_RRSIG         46              /* future RFC 2535bis */
-#define T_NSEC          47              /* future RFC 2535bis */
-#define T_DNSKEY        48              /* future RFC 2535bis */
+#define T_IPSECKEY      45              /* RFC 4025 */
+#define T_RRSIG         46              /* RFC 4034 */
+#define T_NSEC          47              /* RFC 4034 */
+#define T_DNSKEY        48              /* RFC 4034 */
 #define T_DHCID         49              /* DHCID RR (RFC 4701) */
 #define T_NSEC3         50              /* Next secure hash (RFC 5155) */
 #define T_NSEC3PARAM    51              /* NSEC3 parameters (RFC 5155) */
+#define T_TLSA          52              /* TLSA */
 #define T_HIP           55              /* Host Identity Protocol (HIP) RR (RFC 5205) */
+#define T_NINFO         56              /* NINFO */
+#define T_RKEY          57              /* RKEY */
+#define T_TALINK        58              /* Trust Anchor LINK */
+#define T_CDS           59              /* Child DS */
 #define T_SPF           99              /* SPF RR (RFC 4408) section 3 */
 #define T_TKEY         249              /* Transaction Key (RFC 2930) */
 #define T_TSIG         250              /* Transaction Signature (RFC 2845) */
+#define T_IXFR         251              /* incremental transfer (RFC 1995) */
+#define T_AXFR         252              /* transfer of an entire zone (RFC 5936) */
+#define T_MAILB        253              /* mailbox-related RRs (MB, MG or MR) (RFC 1035) */
+#define T_MAILA        254              /* mail agent RRs (OBSOLETE - see MX) (RFC 1035) */
+#define T_ANY          255              /* A request for all records (RFC 1035) */
+#define T_DLV        32769              /* DNSSEC Lookaside Validation (DLV) DNS Resource Record (RFC 4431) */
 #define T_WINS       65281              /* Microsoft's WINS RR */
 #define T_WINS_R     65282              /* Microsoft's WINS-R RR */
-#define T_DLV        32769              /* DNSSEC Lookaside Validation (DLV) DNS Resource Record (RFC 4431) */
 
 /* Class values */
 #define C_IN             1              /* the Internet */
@@ -480,43 +493,42 @@ static const value_string dns_types[] = {
   { T_CERT,       "CERT"       }, /* RFC 4398 */
   { T_A6,         "A6"         }, /* RFC 2874 */
   { T_DNAME,      "DNAME"      }, /* RFC 2672 */
-
+  { T_SINK,       "SINK"       },
   { T_OPT,        "OPT"        }, /* RFC 2671 */
   { T_APL,        "APL"        }, /* RFC 3123 */
   { T_DS,         "DS"         }, /* RFC 3658 */
-  { T_SSHFP,      "SSHFP"      }, /* Using DNS to Securely Publish SSH Key Fingerprints (RFC 4255) */
-  { T_IPSECKEY,   "IPSECKEY"   }, /* draft-ietf-ipseckey-rr */
-  { T_RRSIG,      "RRSIG"      }, /* future RFC 2535bis */
-  { T_NSEC,       "NSEC"       }, /* future RFC 2535bis */
-  { T_DNSKEY,     "DNSKEY"     }, /* future RFC 2535bis */
-  { T_DHCID,      "DHCID"      }, /* DHCID RR (RFC 4701) */
-  { T_NSEC3,      "NSEC3"      }, /* Next secure hash (RFC 5155) */
-  { T_NSEC3PARAM, "NSEC3PARAM" }, /* Next secure hash (RFC 5155) */
-
-  { T_HIP,        "HIP"        }, /* Host Identity Protocol (HIP) RR (RFC 5205) */
-
-
-
-  { T_SPF,        "SPF"        }, /* SPF RR (RFC 4408) section 3 */
-  { 100,          "UINFO"      },
-  { 101,          "UID"        },
-  { 102,          "GID"        },
-  { 103,          "UNSPEC"     },
+  { T_SSHFP,      "SSHFP"      }, /* RFC 4255 */
+  { T_IPSECKEY,   "IPSECKEY"   }, /* RFC 4025 */
+  { T_RRSIG,      "RRSIG"      }, /* RFC 4034 */
+  { T_NSEC,       "NSEC"       }, /* RFC 4034 */
+  { T_DNSKEY,     "DNSKEY"     }, /* RFC 4034 */
+  { T_DHCID,      "DHCID"      }, /* RFC 4701 */
+  { T_NSEC3,      "NSEC3"      }, /* RFC 5155 */
+  { T_NSEC3PARAM, "NSEC3PARAM" }, /* RFC 5155 */
+  { T_TLSA,       "TLSA"       },
+  { T_HIP,        "HIP"        }, /* RFC 5205 */
+  { T_RKEY,       "RKEY"       },
+  { T_TALINK,     "TALINK"     },
+  { T_CDS,        "CDS"        },
+  { T_SPF,        "SPF"        }, /* RFC 4408 */
+  { 100,          "UINFO"      }, /* IANA reserved */
+  { 101,          "UID"        }, /* IANA reserved */
+  { 102,          "GID"        }, /* IANA reserved */
+  { 103,          "UNSPEC"     }, /* IANA reserved */
 
   { T_TKEY,       "TKEY"       },
   { T_TSIG,       "TSIG"       },
+  { T_IXFR,       "IXFR"       },
+  { T_AXFR,       "AXFR"       },
+  { T_MAILA,      "MAILB"      },
+  { T_MAILB,      "MAILA"      },
+  { T_ANY,        "ANY"        },
 
+  { T_DLV,        "DLV"        }, /* RFC 4431 */
+  
   { T_WINS,       "WINS"       },
   { T_WINS_R,     "WINS-R"     },
 
-  { 251,          "IXFR"       },
-  { 252,          "AXFR"       },
-  { 253,          "MAILB"      },
-  { 254,          "MAILA"      },
-  { 255,          "ANY"        },
-
-
-  { T_DLV,        "DLV"        }, /* Domain Lookaside Validation DNS Resource Record (RFC 4431) */
   {0,             NULL}
 };
 
@@ -561,31 +573,35 @@ dns_type_description (guint type)
     "IPv6 address",                         /* RFC 1886 */
     "Location",                             /* RFC 1876 */
     "Next",                                 /* RFC 2535 */
-    "EID",
-    "NIMLOC",
+    "Endpoint identifier",
+    "Nimrod locator",
     "Service location",                     /* RFC 2052 */
-    "ATMA",
+    "ATM address",
     "Naming authority pointer",             /* RFC 2168 */
     "Key Exchange",                         /* RFC 2230 */
     "Certificate",                          /* RFC 4398 */
     "IPv6 address with indirection",        /* RFC 2874 */
     "Non-terminal DNS name redirection",    /* RFC 2672 */
-    NULL,
+    "SINK",
     "EDNS0 option",                         /* RFC 2671 */
     "Lists of Address Prefixes",            /* RFC 3123 */
     "Delegation Signer",                    /* RFC 3658 */
     "SSH public host key fingerprint",      /* RFC 4255 */
-    "key to use with IPSEC",                /* draft-ietf-ipseckey-rr */
+    "Key to use with IPSEC",                /* draft-ietf-ipseckey-rr */
     "RR signature",                         /* future RFC 2535bis */
     "Next secured",                         /* future RFC 2535bis */
     "DNS public key",                       /* future RFC 2535bis */
     "DHCP Information",                     /* RFC 4701 */
     "Next secured hash",                    /* RFC 5155 */
     "NSEC3 parameters",                     /* RFC 5155 */
+    "TLSA",
     NULL,
     NULL,
-    NULL,
-    "Host Identity Protocol"
+    "Host Identity Protocol",               /* RFC 5205 */
+    "NINFO",
+    "RKEY",
+    "Trust Anchor LINK",
+    "Child DS"
   };
   const char *short_name;
   const char *long_name;
@@ -608,19 +624,19 @@ dns_type_description (guint type)
         break;
 
         /* queries  */
-      case 251:
+      case T_IXFR:
         long_name = "Request for incremental zone transfer";   /* RFC 1995 */
         break;
-      case 252:
+      case T_AXFR:
         long_name = "Request for full zone transfer";
         break;
-      case 253:
+      case T_MAILB:
         long_name = "Request for mailbox-related records";
         break;
-      case 254:
+      case T_MAILA:
         long_name = "Request for mail agent resource records";
         break;
-      case 255:
+      case T_ANY:
         long_name = "Request for all records";
         break;
       default:
@@ -3403,6 +3419,11 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (flags & F_RESPONSE) {
       proto_tree_add_item(field_tree, hf_dns_flags_authenticated,
                 tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
+    } else if (flags & F_AUTHENTIC) {
+      proto_item *pi = proto_tree_add_item(field_tree, hf_dns_flags_ad,
+                                 tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
+      expert_add_info_format(pinfo, pi, PI_SECURITY, PI_WARN,
+        "AD bit set in DNS Query");
     }
     proto_tree_add_item(field_tree, hf_dns_flags_checkdisable,
                 tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
@@ -3616,6 +3637,11 @@ proto_register_dns(void)
       { "Answer authenticated", "dns.flags.authenticated",
         FT_BOOLEAN, 16, TFS(&tfs_flags_authenticated), F_AUTHENTIC,
         "Was the reply data authenticated by the server?", HFILL }},
+
+    { &hf_dns_flags_ad,
+      { "AD bit", "dns.flags.authenticated",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), F_AUTHENTIC,
+        NULL, HFILL }},
 
     { &hf_dns_flags_checkdisable,
       { "Non-authenticated data", "dns.flags.checkdisable",
