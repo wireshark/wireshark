@@ -4186,7 +4186,7 @@ proto_item_set_expert_flags(proto_item *pi, const int group, const guint severit
 }
 
 proto_tree *
-proto_tree_create_root(void)
+proto_tree_create_root(packet_info *pinfo)
 {
 	proto_node *pnode;
 
@@ -4195,6 +4195,9 @@ proto_tree_create_root(void)
 	pnode->parent = NULL;
 	PNODE_FINFO(pnode) = NULL;
 	pnode->tree_data = g_new(tree_data_t, 1);
+
+	/* Make sure we can access pinfo everywhere */
+	pnode->tree_data->pinfo = pinfo;
 
 	/* Don't initialize the tree_data_t. Wait until we know we need it */
 	pnode->tree_data->interesting_hfids = NULL;

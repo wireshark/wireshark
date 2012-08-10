@@ -63,11 +63,12 @@ expert_get_highest_severity(void);
 
 /** Add an expert info.
  Add an expert info tree to a protocol item, with classification and message.
- @param pinfo packet info of the currently processed packet
- @param pi current protocol item (or NULL)
- @param group the expert group (like PI_CHECKSUM - see: proto.h)
- @param severity the expert severity (like PI_WARN - see: proto.h)
- @param format printf like format string with further infos
+ @param pinfo Packet info of the currently processed packet. May be NULL if
+        pi is supplied
+ @param pi Current protocol item (or NULL)
+ @param group The expert group (like PI_CHECKSUM - see: proto.h)
+ @param severity The expert severity (like PI_WARN - see: proto.h)
+ @param format Printf-style format string for additional arguments
  */
 extern void
 expert_add_info_format(packet_info *pinfo, proto_item *pi, int group,
@@ -76,12 +77,12 @@ expert_add_info_format(packet_info *pinfo, proto_item *pi, int group,
 
 /** Add an expert info about not dissected "item"
  Add an expert info tree to a not dissected protocol item.
- @patam tvb the tvb with the item.
- @param pinfo packet info of the currently processed packet
- @param tree tree to add the item to
- @param offset in tvb
- @param length the length of the item.
- @param severity the expert severity (like PI_WARN - see: proto.h)
+ @patam tvb The tvb associated with the item.
+ @param pinfo Packet info of the currently processed packet. May be NULL.
+ @param tree Tree to add the item to
+ @param offset Offset in tvb
+ @param length The length of the item.
+ @param severity The expert severity (like PI_WARN - see: proto.h)
   */
 
 extern void

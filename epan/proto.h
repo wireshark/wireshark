@@ -467,9 +467,10 @@ typedef struct
  * in the protocol tree points to the same copy. */
 typedef struct {
     GHashTable  *interesting_hfids;
-    gboolean    visible;
-    gboolean    fake_protocols;
-    gint        count;
+    gboolean     visible;
+    gboolean     fake_protocols;
+    gint         count;
+    struct _packet_info *pinfo;
 } tree_data_t;
 
 /** Each proto_tree, proto_item is one of these. */
@@ -697,7 +698,7 @@ extern gboolean proto_item_set_expert_flags(proto_item *ti, const int group, con
 
 /** Creates a new proto_tree root.
  @return the new tree root */
-extern proto_tree* proto_tree_create_root(void);
+extern proto_tree* proto_tree_create_root(struct _packet_info *pinfo);
 
 /** Clear memory for entry proto_tree. Clears proto_tree struct also.
  @param tree the tree to free */

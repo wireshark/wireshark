@@ -7510,7 +7510,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     if ((run_info_str || run_req_cond) && !ncp_tree) {
         proto_item *ti;
 
-        temp_tree = proto_tree_create_root();
+        temp_tree = proto_tree_create_root(pinfo);
         proto_tree_set_visible(temp_tree, FALSE);
         ti = proto_tree_add_item(temp_tree, proto_ncp, tvb, 0, -1, FALSE);
         ncp_tree = proto_item_add_subtree(ti, ett_ncp);
@@ -11538,7 +11538,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
     if ((run_info_str || run_req_cond) && !ncp_tree) {
         proto_item *ti;
 
-        temp_tree = proto_tree_create_root();
+        temp_tree = proto_tree_create_root(pinfo);
         proto_tree_set_visible(temp_tree, FALSE);
         ti = proto_tree_add_item(temp_tree, proto_ncp, tvb, 0, -1, FALSE);
         ncp_tree = proto_item_add_subtree(ti, ett_ncp);
@@ -11854,7 +11854,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
         if (ncp_rec && !ncp_tree) {
             proto_item *ti;
 
-            temp_tree = proto_tree_create_root();
+            temp_tree = proto_tree_create_root(pinfo);
             proto_tree_set_visible(temp_tree, FALSE);
             ti = proto_tree_add_item(temp_tree, proto_ncp, tvb, 0, -1, FALSE);
             ncp_tree = proto_item_add_subtree(ti, ett_ncp);
@@ -12005,4 +12005,3 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
         CLEANUP_CALL_AND_POP;
     }
 }
-

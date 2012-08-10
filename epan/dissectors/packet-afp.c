@@ -4666,7 +4666,7 @@ decode_kauth_ace(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 #define AFP_MAX_ACL_ENTRIES 500 /* Arbitrary. */
 static gint
-decode_kauth_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+decode_kauth_acl(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
 	int         entries;
 	int         i;
@@ -4681,11 +4681,11 @@ decode_kauth_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
 	sub_tree = proto_item_add_subtree(item, ett_afp_ace_entries);
 	offset += 4;
 
-	item = proto_tree_add_item(tree, hf_afp_acl_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_afp_acl_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	if (entries > AFP_MAX_ACL_ENTRIES) {
-		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Too many ACL entries (%u). Stopping dissection.", entries);
+		expert_add_info_format(NULL, item, PI_UNDECODED, PI_WARN, "Too many ACL entries (%u). Stopping dissection.", entries);
 		THROW(ReportedBoundsError);
 	}
 
@@ -4700,7 +4700,7 @@ decode_kauth_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
 }
 
 static gint
-decode_uuid_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, guint16 bitmap)
+decode_uuid_acl(tvbuff_t *tvb, proto_tree *tree, gint offset, guint16 bitmap)
 {
 	if ((offset & 1))
 		PAD(1);
@@ -4716,7 +4716,7 @@ decode_uuid_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset
 	}
 
 	if ((bitmap & kFileSec_ACL)) {
-		offset = decode_kauth_acl(tvb, pinfo, tree, offset);
+		offset = decode_kauth_acl(tvb, tree, offset);
 	}
 
 	return offset;
@@ -4736,7 +4736,7 @@ dissect_query_afp_set_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
 	offset = decode_name(tree, pinfo, tvb, offset);
 
-	offset = decode_uuid_acl(tvb, pinfo, tree, offset, bitmap);
+	offset = decode_uuid_acl(tvb, tree, offset, bitmap);
 
 	return offset;
 }
@@ -4768,7 +4768,7 @@ dissect_reply_afp_get_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	bitmap = decode_acl_list_bitmap(tvb, tree, offset);
 	offset += 2;
 
-	offset = decode_uuid_acl(tvb, pinfo, tree, offset, bitmap);
+	offset = decode_uuid_acl(tvb, tree, offset, bitmap);
 
 	return offset;
 }
@@ -6550,7 +6550,7 @@ proto_register_afp(void)
 
 		{ &hf_afp_acl_entrycount,
 		  { "ACEs count",         "afp.acl_entrycount",
-		    FT_UINT32, BASE_DEC, NULL, 0,
+		    FT_UINT32, BASE_HEX, NULL, 0,
 		    "Number of ACL entries", HFILL }},
 
 		{ &hf_afp_acl_flags,

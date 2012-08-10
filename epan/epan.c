@@ -168,7 +168,7 @@ epan_dissect_init(epan_dissect_t *edt, const gboolean create_proto_tree, const g
 	g_assert(edt);
 
 	if (create_proto_tree) {
-		edt->tree = proto_tree_create_root();
+		edt->tree = proto_tree_create_root(&edt->pi);
 		proto_tree_set_visible(edt->tree, proto_tree_visible);
 	}
 	else {

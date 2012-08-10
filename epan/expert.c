@@ -166,6 +166,10 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	proto_tree      *tree;
 	proto_item      *ti;
 
+	if (pinfo == NULL && pi->tree_data) {
+		pinfo = PTREE_DATA(pi)->pinfo;
+	}
+
 	/* if this packet isn't loaded because of a read filter, don't output anything */
 	if (pinfo == NULL || PINFO_FD_NUM(pinfo) == 0) {
 		return;
@@ -232,7 +236,7 @@ void
 expert_add_undecoded_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, const int severity)
 {
 
-	proto_item *expert_item; 
+	proto_item *expert_item;
 
 	expert_item = proto_tree_add_text(tree, tvb, offset, length, "Not dissected yet");
 
@@ -240,4 +244,3 @@ expert_add_undecoded_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	PROTO_ITEM_SET_GENERATED(expert_item); \
 
 }
-
