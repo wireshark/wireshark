@@ -56,6 +56,7 @@ Specs:
 #endif
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/emem.h>
 
@@ -206,6 +207,7 @@ static const value_string njack_cmd_vals[] = {
 
 	{ 0,	NULL }
 };
+static value_string_ext njack_cmd_vals_ext = VALUE_STRING_EXT_INIT(njack_cmd_vals);
 
 typedef enum {
 	NJACK_SETRESULT_SUCCESS		= 0x01,
@@ -381,8 +383,8 @@ dissect_portsettings(tvbuff_t *tvb, proto_tree *port_tree, guint32 offset)
 static int
 dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 {
-	guint8 tlv_type;
-	guint8 tlv_length;
+	guint8      tlv_type;
+	guint8      tlv_length;
 	proto_item *tlv_item;
 	proto_item *tlv_tree;
 
@@ -407,7 +409,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 			"T %02x, L %02x: %s",
 			tlv_type,
 			tlv_length,
-			val_to_str(tlv_type, njack_cmd_vals, "Unknown"));
+			val_to_str_ext_const(tlv_type, &njack_cmd_vals_ext, "Unknown"));
 		tlv_tree = proto_item_add_subtree(tlv_item,
 			ett_njack_tlv_header);
 		proto_tree_add_item(tlv_tree, hf_njack_tlv_type,
@@ -519,18 +521,18 @@ verify_password(tvbuff_t *tvb, const char *password)
 {
 	/* 1. pad non-terminated password-string to a length of 32 bytes
 	 *    (padding: 0x01, 0x02, 0x03...)
-         * 2. Calculate MD5 of padded password and write it to offset 12 of packet
-         * 3. Calculate MD5 of resulting packet and write it to offset 12 of packet
+	 * 2. Calculate MD5 of padded password and write it to offset 12 of packet
+	 * 3. Calculate MD5 of resulting packet and write it to offset 12 of packet
 	 */
 
-	gboolean is_valid = TRUE;
-	const guint8	*packetdata;
-	guint32 length;
-	guint8	*workbuffer;
-	guint	i;
-	guint8	byte;
-	md5_state_t md_ctx;
-	md5_byte_t *digest;
+	gboolean      is_valid = TRUE;
+	const guint8 *packetdata;
+	guint32       length;
+	guint8       *workbuffer;
+	guint         i;
+	guint8        byte;
+	md5_state_t   md_ctx;
+	md5_byte_t   *digest;
 
 	workbuffer=ep_alloc(32);
 	digest=ep_alloc(16);
@@ -569,75 +571,73 @@ static int
 dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_tree *njack_tree = NULL;
-	guint32 offset = 0;
-	guint8 packet_type;
-	guint8 setresult;
-	gint remaining;
+	proto_tree *njack_tree;
+	guint32     offset     = 0;
+	guint8      packet_type;
+	guint8      setresult;
+	gint        remaining;
 
 	packet_type = tvb_get_guint8(tvb, 5);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
- 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type, njack_type_vals, "Type 0x%02x"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type, njack_type_vals, "Type 0x%02x"));
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_njack, tvb, offset, -1,
-		    ENC_NA);
-		njack_tree = proto_item_add_subtree(ti, ett_njack);
+	ti = proto_tree_add_item(tree, proto_njack, tvb, offset, -1,
+				 ENC_NA);
+	njack_tree = proto_item_add_subtree(ti, ett_njack);
 
-		proto_tree_add_item(njack_tree, hf_njack_magic, tvb, offset, 5,
-			ENC_ASCII|ENC_NA);
-		offset += 5;
+	proto_tree_add_item(njack_tree, hf_njack_magic, tvb, offset, 5,
+			    ENC_ASCII|ENC_NA);
+	offset += 5;
 
-		proto_tree_add_item(njack_tree, hf_njack_type, tvb, offset, 1,
-			ENC_BIG_ENDIAN);
+	proto_tree_add_item(njack_tree, hf_njack_type, tvb, offset, 1,
+			    ENC_BIG_ENDIAN);
+	offset += 1;
+	switch (packet_type) {
+	case NJACK_TYPE_SET:
+		/* Type 0x07: S -> M, Magic, type, length (16 bit be) */
+		proto_tree_add_item(njack_tree, hf_njack_set_length, tvb, offset,
+				    2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(njack_tree, hf_njack_set_salt, tvb, offset,
+				    4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(njack_tree, hf_njack_set_authdata, tvb, offset,
+				    16, ENC_NA);
+		offset += 16;
+		offset = dissect_tlvs(tvb, njack_tree, offset);
+		break;
+	case NJACK_TYPE_SETRESULT:
+		/* Type 0x08: M -> S, Magic, type, setresult (8 bit) */
+		setresult = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(njack_tree, hf_njack_setresult, tvb, offset,
+				    1, ENC_BIG_ENDIAN);
 		offset += 1;
-		switch (packet_type) {
-		case NJACK_TYPE_SET:
-			/* Type 0x07: S -> M, Magic, type, length (16 bit be) */
-			proto_tree_add_item(njack_tree, hf_njack_set_length, tvb, offset,
-				2, ENC_BIG_ENDIAN);
-			offset += 2;
-			proto_tree_add_item(njack_tree, hf_njack_set_salt, tvb, offset,
-				4, ENC_LITTLE_ENDIAN);
-			offset += 4;
-			proto_tree_add_item(njack_tree, hf_njack_set_authdata, tvb, offset,
-				16, ENC_NA);
-			offset += 16;
-			offset = dissect_tlvs(tvb, njack_tree, offset);
-			break;
-		case NJACK_TYPE_SETRESULT:
-			/* Type 0x08: M -> S, Magic, type, setresult (8 bit) */
-			setresult = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(njack_tree, hf_njack_setresult, tvb, offset,
-				1, ENC_BIG_ENDIAN);
-			offset += 1;
-			col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-					val_to_str(setresult, njack_setresult_vals, "[0x%02x]"));
-			break;
-		case NJACK_TYPE_GET:
-			/* Type 0x0b: S -> M, Magic, type, 00 00 63 ff */
-			offset = dissect_tlvs(tvb, njack_tree, offset);
-			break;
-		case NJACK_TYPE_QUERYRESP:
-			/* Type 0x02: M -> S, Magic, type, T(8 bit) L(8 bit) V(L bytes) */
-		case NJACK_TYPE_GETRESP:
-			/* Type 0x0c: M -> S, Magic, type, T(8 bit) L(8 bit) V(L bytes) */
-			offset = dissect_tlvs(tvb, njack_tree, offset);
-			proto_tree_add_item(njack_tree, hf_njack_getresp_unknown1, tvb, offset,
-				1, ENC_BIG_ENDIAN);
-			offset += 1;
-			break;
-		case NJACK_TYPE_DHCPINFO: /* not completely understood */
-		default:
-			/* Unknown type */
-			remaining = tvb_reported_length_remaining(tvb, offset);
-			if (remaining > 0) {
-				proto_tree_add_item(njack_tree, hf_njack_tlv_data,
-					tvb, offset, remaining, ENC_NA);
-				offset += remaining;
-			}
-			break;
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+				val_to_str(setresult, njack_setresult_vals, "[0x%02x]"));
+		break;
+	case NJACK_TYPE_GET:
+		/* Type 0x0b: S -> M, Magic, type, 00 00 63 ff */
+		offset = dissect_tlvs(tvb, njack_tree, offset);
+		break;
+	case NJACK_TYPE_QUERYRESP:
+		/* Type 0x02: M -> S, Magic, type, T(8 bit) L(8 bit) V(L bytes) */
+	case NJACK_TYPE_GETRESP:
+		/* Type 0x0c: M -> S, Magic, type, T(8 bit) L(8 bit) V(L bytes) */
+		offset = dissect_tlvs(tvb, njack_tree, offset);
+		proto_tree_add_item(njack_tree, hf_njack_getresp_unknown1, tvb, offset,
+				    1, ENC_BIG_ENDIAN);
+		offset += 1;
+		break;
+	case NJACK_TYPE_DHCPINFO: /* not completely understood */
+	default:
+		/* Unknown type */
+		remaining = tvb_reported_length_remaining(tvb, offset);
+		if (remaining > 0) {
+			proto_tree_add_item(njack_tree, hf_njack_tlv_data,
+					    tvb, offset, remaining, ENC_NA);
+			offset += remaining;
 		}
+		break;
 	}
 	return offset;
 }
@@ -688,66 +688,66 @@ proto_register_njack(void)
 
 	/* TLV fields */
 		{ &hf_njack_tlv_type,
-		{ "TlvType",	"njack.tlv.type", FT_UINT8, BASE_HEX, VALS(njack_cmd_vals),
+		{ "TlvType",	"njack.tlv.type", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &njack_cmd_vals_ext,
 			0x0, NULL, HFILL }},
 
 		{ &hf_njack_tlv_length,
 		{ "TlvLength",	"njack.tlv.length", FT_UINT8, BASE_HEX, NULL,
 			0x0, NULL, HFILL }},
 
-                { &hf_njack_tlv_data,
-                { "TlvData",   "njack.tlv.data", FT_BYTES, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_data,
+		{ "TlvData",   "njack.tlv.data", FT_BYTES, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
 
-                { &hf_njack_tlv_version,
-                { "TlvFwVersion",   "njack.tlv.version", FT_IPv4, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_version,
+		{ "TlvFwVersion",   "njack.tlv.version", FT_IPv4, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
 
-                { &hf_njack_tlv_snmpwrite,
-                { "TlvTypeSnmpwrite",   "njack.tlv.snmpwrite", FT_UINT8, BASE_DEC, VALS(njack_snmpwrite),
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_snmpwrite,
+		{ "TlvTypeSnmpwrite",	"njack.tlv.snmpwrite", FT_UINT8, BASE_DEC, VALS(njack_snmpwrite),
+			0x0, NULL, HFILL }},
 
-                { &hf_njack_tlv_dhcpcontrol,
-                { "TlvTypeDhcpControl",   "njack.tlv.dhcpcontrol", FT_UINT8, BASE_DEC, VALS(njack_dhcpcontrol),
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_dhcpcontrol,
+		{ "TlvTypeDhcpControl",	  "njack.tlv.dhcpcontrol", FT_UINT8, BASE_DEC, VALS(njack_dhcpcontrol),
+			0x0, NULL, HFILL }},
 
-                { &hf_njack_tlv_devicemac,
-                { "TlvTypeDeviceMAC",   "njack.tlv.devicemac", FT_ETHER, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_devicemac,
+		{ "TlvTypeDeviceMAC",	"njack.tlv.devicemac", FT_ETHER, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
 
 		/* XXX dummy entries, to be replaced */
-                { &hf_njack_tlv_typeip,
-                { "TlvTypeIP",   "njack.tlv.typeip", FT_IPv4, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_typeip,
+		{ "TlvTypeIP",	 "njack.tlv.typeip", FT_IPv4, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
 
-                { &hf_njack_tlv_typestring,
-                { "TlvTypeString",   "njack.tlv.typestring", FT_STRING, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_typestring,
+		{ "TlvTypeString",   "njack.tlv.typestring", FT_STRING, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
 
 		/* 1st tab */
-                { &hf_njack_tlv_scheduling,
-                { "TlvTypeScheduling",   "njack.tlv.scheduling", FT_UINT8, BASE_DEC, VALS(njack_scheduling),
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_scheduling,
+		{ "TlvTypeScheduling",	 "njack.tlv.scheduling", FT_UINT8, BASE_DEC, VALS(njack_scheduling),
+			0x0, NULL, HFILL }},
 
-                { &hf_njack_tlv_addtagscheme,
-                { "TlvAddTagScheme",   "njack.tlv.addtagscheme", FT_UINT8, BASE_DEC, VALS(njack_addtagscheme),
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_addtagscheme,
+		{ "TlvAddTagScheme",   "njack.tlv.addtagscheme", FT_UINT8, BASE_DEC, VALS(njack_addtagscheme),
+			0x0, NULL, HFILL }},
 
-                { &hf_njack_tlv_portingressmode,
-                { "TlvTypePortingressmode",   "njack.tlv.portingressmode", FT_UINT8, BASE_DEC, VALS(njack_portingressmode),
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_portingressmode,
+		{ "TlvTypePortingressmode",   "njack.tlv.portingressmode", FT_UINT8, BASE_DEC, VALS(njack_portingressmode),
+			0x0, NULL, HFILL }},
 
-                { &hf_njack_tlv_maxframesize,
-                { "TlvTypeMaxframesize",   "njack.tlv.maxframesize", FT_UINT8, BASE_DEC, VALS(njack_maxframesize),
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_maxframesize,
+		{ "TlvTypeMaxframesize",   "njack.tlv.maxframesize", FT_UINT8, BASE_DEC, VALS(njack_maxframesize),
+			0x0, NULL, HFILL }},
 
-                { &hf_njack_tlv_countermode,
-                { "TlvTypeCountermode",   "njack.tlv.countermode", FT_UINT8, BASE_DEC, VALS(njack_countermode),
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_countermode,
+		{ "TlvTypeCountermode",	  "njack.tlv.countermode", FT_UINT8, BASE_DEC, VALS(njack_countermode),
+			0x0, NULL, HFILL }},
 
-                { &hf_njack_tlv_powerforwarding,
-                { "TlvTypePowerforwarding",   "njack.tlv.powerforwarding", FT_UINT8, BASE_DEC, VALS(njack_powerforwarding),
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_tlv_powerforwarding,
+		{ "TlvTypePowerforwarding",   "njack.tlv.powerforwarding", FT_UINT8, BASE_DEC, VALS(njack_powerforwarding),
+			0x0, NULL, HFILL }},
 
 	/* Type 0x07: set */
 		{ &hf_njack_set_length,
@@ -758,14 +758,14 @@ proto_register_njack(void)
 		{ "Salt",	"njack.set.salt", FT_UINT32, BASE_HEX, NULL,
 			0x0, NULL, HFILL }},
 
-                { &hf_njack_set_authdata,
-                { "Authdata",   "njack.tlv.authdata", FT_BYTES, BASE_NONE, NULL,
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_set_authdata,
+		{ "Authdata",	"njack.tlv.authdata", FT_BYTES, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
 
 	/* Type 0x08: set result */
-                { &hf_njack_setresult,
-                { "SetResult",   "njack.setresult", FT_UINT8, BASE_HEX, VALS(njack_setresult_vals),
-                        0x0, NULL, HFILL }},
+		{ &hf_njack_setresult,
+		{ "SetResult",	 "njack.setresult", FT_UINT8, BASE_HEX, VALS(njack_setresult_vals),
+			0x0, NULL, HFILL }},
 
 	/* Type 0x0b get */
 
@@ -774,14 +774,14 @@ proto_register_njack(void)
 		{ "Unknown1",	"njack.getresp.unknown1", FT_UINT8, BASE_HEX, NULL,
 			0x0, NULL, HFILL }},
 
-        };
+	};
 	static gint *ett[] = {
 		&ett_njack,
 		&ett_njack_tlv_header,
 	};
 
-        proto_njack = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "njack");
-        proto_register_field_array(proto_njack, hf, array_length(hf));
+	proto_njack = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "njack");
+	proto_register_field_array(proto_njack, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -796,7 +796,7 @@ proto_reg_handoff_njack(void)
 	dissector_add_uint("udp.port", PORT_NJACK_SWITCH, njack_handle);
 	/* dissector_add_uint("tcp.port", PORT_NJACK_SWITCH, njack_handle); */
 
-        heur_dissector_add("udp", dissect_njack_heur, proto_njack);
-        /* heur_dissector_add("tcp", dissect_njack_heur, proto_njack); */
+	heur_dissector_add("udp", dissect_njack_heur, proto_njack);
+	/* heur_dissector_add("tcp", dissect_njack_heur, proto_njack); */
 }
 
