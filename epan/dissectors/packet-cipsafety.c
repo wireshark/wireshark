@@ -470,7 +470,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
 
    proto_item_append_text( rrsc_item, "%s (%s)",
                val_to_str( ( service & 0x7F ), cip_sc_vals_ssupervisor , "Unknown Service (0x%02x)"),
-               val_to_str( ( service & 0x80 )>>7, cip_sc_rr, "") );
+               val_to_str_const( ( service & 0x80 )>>7, cip_sc_rr, "") );
 
    /* Add Service code */
    proto_tree_add_item(rrsc_tree, hf_cip_ssupervisor_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
@@ -1151,7 +1151,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
    proto_item_append_text( rrsc_item, "%s (%s)",
                val_to_str( ( service & 0x7F ),
                   cip_sc_vals_svalidator , "Unknown Service (0x%02x)"),
-               val_to_str( ( service & 0x80 )>>7,
+               val_to_str_const( ( service & 0x80 )>>7,
                   cip_sc_rr, "") );
 
    /* Add Service code */

@@ -469,13 +469,13 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
         it = proto_tree_add_uint_format(attr_tree, xmcp_attr_error_code, tvb,
                                         (offset+2), 2, error_code,
                                         "Error Code: %d (%s)", error_code,
-                                        val_to_str(error_code, error_codes,
-                                                   "Unknown"));
+                                        val_to_str_const(error_code, error_codes,
+                                                         "Unknown"));
         PROTO_ITEM_SET_GENERATED(it);
         proto_item_append_text(attr_tree, ": %d", error_code);
         if (check_col(pinfo->cinfo, COL_INFO)) {
           col_append_fstr(pinfo->cinfo, COL_INFO, ", error %d (%s)", error_code,
-                          val_to_str(error_code, error_codes, "Unknown"));
+                          val_to_str_const(error_code, error_codes, "Unknown"));
         }
 
         /*
@@ -492,8 +492,8 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
         case 500: /* Responder Error */
           expert_add_info_format(pinfo, it, PI_RESPONSE_CODE, PI_WARN,
                                  "Unusual error code (%u, %s)", error_code,
-                                 val_to_str(error_code, error_codes,
-                                            "Unknown"));
+                                 val_to_str_const(error_code, error_codes,
+                                                  "Unknown"));
           break;
         default:
           break;
@@ -683,8 +683,8 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                         (offset+3), 1, ENC_BIG_ENDIAN);
     xmcp_service_protocol = tvb_get_guint8(tvb, (offset+3));
     proto_item_append_text(attr_tree, ": %u (%s)", xmcp_service_protocol,
-                           val_to_str_ext(xmcp_service_protocol,
-                                          &ipproto_val_ext, "Unknown"));
+                           val_to_str_ext_const(xmcp_service_protocol,
+                                                &ipproto_val_ext, "Unknown"));
     /* If we now know both port and protocol number, fill in the port name */
     if (xmcp_service_port != -1 && xmcp_it_service_port != NULL) {
       add_xmcp_port_name();
@@ -1027,8 +1027,8 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                       (XMCP_ATTR_HDR_LEN +
                                        get_xmcp_attr_padded_len(attr_length)),
                                       "%s, length %u",
-                                      val_to_str(attr_type, attributes,
-                                                 "Unknown"),
+                                      val_to_str_const(attr_type, attributes,
+                                                       "Unknown"),
                                       attr_length);
 
       /* Add subtree for this TLV */
@@ -1075,13 +1075,13 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (xmcp_msg_type_method == XMCP_METHOD_REGISTER) {
       expert_add_info_format(pinfo, xmcp_tree, PI_SEQUENCE, PI_CHAT,
                              "New session - Register %s",
-                             val_to_str(xmcp_msg_type_class, classes, ""));
+                             val_to_str_const(xmcp_msg_type_class, classes, ""));
     } else if (xmcp_msg_type_method == XMCP_METHOD_UNREGISTER ||
                xmcp_msg_type_method == XMCP_METHOD_REG_REVOKE) {
       expert_add_info_format(pinfo, xmcp_tree, PI_SEQUENCE, PI_CHAT,
                              "Session termination - %s %s",
-                             val_to_str(xmcp_msg_type_method, methods, ""),
-                             val_to_str(xmcp_msg_type_class, classes, ""));
+                             val_to_str_const(xmcp_msg_type_method, methods, ""),
+                             val_to_str_const(xmcp_msg_type_class, classes, ""));
     }
   }
 }

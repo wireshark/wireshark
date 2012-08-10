@@ -406,7 +406,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 	if(vendor->vs_avps_ext == NULL) {
 		g_array_sort(vendor->vs_avps, compare_avps);
 		vendor->vs_avps_ext = value_string_ext_new(VND_AVP_VS(vendor), VND_AVP_VS_LEN(vendor)+1,
-							   g_strdup_printf("diameter_vendor_%s",val_to_str_ext(vendorid, &sminmpec_values_ext, "Unknown")));
+							   g_strdup_printf("diameter_vendor_%s",val_to_str_ext_const(vendorid, &sminmpec_values_ext, "Unknown")));
 #if 0
 		{ /* Debug code */
 			value_string* vendor_avp_vs=VALUE_STRING_EXT_VS_P(vendor->vs_avps_ext);
@@ -434,7 +434,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 		                                     "if you know what this is you can add it to dictionary.xml");
 		expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN,
 		                       "Unknown AVP %u (vendor=%s)", code,
-		                       val_to_str_ext(vendorid, &sminmpec_values_ext, "Unknown"));
+		                       val_to_str_ext_const(vendorid, &sminmpec_values_ext, "Unknown"));
 		PROTO_ITEM_SET_GENERATED(iu);
 	}
 
@@ -928,7 +928,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 			break;
 		}
 	}
-	cmd_str = val_to_str(cmd, cmd_vs, "Unknown");
+	cmd_str = val_to_str_const(cmd, cmd_vs, "Unknown");
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 			 "cmd=%s%s(%d) flags=%s %s=%s(%d) h2h=%x e2e=%x",
@@ -937,7 +937,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 			 cmd,
 			 msgflags_str[((flags_bits>>4)&0x0f)],
 			 c->version_rfc ? "appl" : "vend",
-			 val_to_str(fourth, c->version_rfc ? dictionary.applications : vnd_short_vs, "Unknown"),
+			 val_to_str_const(fourth, c->version_rfc ? dictionary.applications : vnd_short_vs, "Unknown"),
 			 fourth,
 			 tvb_get_ntohl(tvb,12),
 			 tvb_get_ntohl(tvb,16));

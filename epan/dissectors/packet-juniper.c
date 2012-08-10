@@ -530,11 +530,11 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 
   proto_tree_add_uint_format (juniper_subtree, hf_juniper_direction, tvb, 3, 1,
                               direction, "Direction: %s",
-                              val_to_str(direction,juniper_direction_vals,"Unknown"));
+                              val_to_str_const(direction,juniper_direction_vals,"Unknown"));
 
   proto_tree_add_uint_format (juniper_subtree, hf_juniper_l2hdr_presence, tvb, 3, 1,
                               l2hdr_presence, "L2-header: %s",
-                              val_to_str(l2hdr_presence,juniper_l2hdr_presence_vals,"Unknown"));
+                              val_to_str_const(l2hdr_presence,juniper_l2hdr_presence_vals,"Unknown"));
 
   /* calculate hdr_len before cookie, payload */
 
@@ -555,7 +555,7 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 
       tisub = proto_tree_add_text (juniper_ext_subtree, tvb, ext_offset, EXT_TLV_HEADER_SIZE + ext_len,
                                    "%s Extension TLV #%u, length: %u",
-                                   val_to_str(ext_type, ext_tlv_vals, "Unknown"),
+                                   val_to_str_const(ext_type, ext_tlv_vals, "Unknown"),
                                    ext_type,
                                    ext_len);
 
@@ -626,7 +626,7 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   guint8     nlpid;
 
   proto_tree_add_text (juniper_subtree, tvb, offset, 0, "[Payload Type: %s]",
-                       val_to_str(proto,juniper_proto_vals,"Unknown"));
+                       val_to_str_const(proto,juniper_proto_vals,"Unknown"));
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
 

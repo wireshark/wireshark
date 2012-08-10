@@ -685,8 +685,8 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
                 proto_tree_add_text(subtree, tvb, offset, 2,
                     "Exif Tag: 0x%04X (%s), Type: %u (%s), Count: %u, "
                     "Value offset from start of TIFF header: %u",
-                    tag, val_to_str(tag, vals_exif_tags, "Unknown Exif tag"),
-                    type, val_to_str(type, vals_exif_types, "Unknown Exif type"),
+                    tag, val_to_str_const(tag, vals_exif_tags, "Unknown Exif tag"),
+                    type, val_to_str_const(type, vals_exif_types, "Unknown Exif type"),
                     count, off);
                 offset += 12;
             }

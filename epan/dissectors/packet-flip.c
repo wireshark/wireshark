@@ -191,9 +191,9 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
         /* ETYPE: 8 bits */
         proto_tree_add_uint_format_value(chksum_hdr_tree, hf_flip_chksum_etype,
                                          tvb, offset + 0, 1, dw,
-                                         "%s", val_to_str(chksum_hdr_etype,
-                                                    flip_etype,
-                                                    "Unknown"));
+                                         "%s", val_to_str_const(chksum_hdr_etype,
+                                                                flip_etype,
+                                                                "Unknown"));
         /* SPARE: 7 bits */
         proto_tree_add_uint_format_value(chksum_hdr_tree, hf_flip_chksum_spare,
                                          tvb, offset + 1, 1, dw,
@@ -203,9 +203,9 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
         /* EXT HDR: 1 bit */
         proto_tree_add_uint_format_value(chksum_hdr_tree, hf_flip_chksum_e,
                                          tvb, offset + 1, 1, dw,
-                                         "%s", val_to_str(chksum_hdr_ext,
-                                                    flip_boolean,
-                                                    "Unknown"));
+                                         "%s", val_to_str_const(chksum_hdr_ext,
+                                                                flip_boolean,
+                                                                "Unknown"));
         /* CHKSUM: 16 bits. */
         proto_tree_add_uint_format_value(
             chksum_hdr_tree,
@@ -457,9 +457,9 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format_value(basic_hdr_tree,
                                          hf_flip_basic_e,
                                          flip_tvb, offset + 0, 1, dw1,
-                                         "%s", val_to_str(basic_hdr_ext,
-                                                    flip_boolean,
-                                                    "Unknown"));
+                                         "%s", val_to_str_const(basic_hdr_ext,
+                                                                flip_boolean,
+                                                                "Unknown"));
         /* Reserved: 3 bits. */
         proto_tree_add_uint_format_value(basic_hdr_tree,
                                          hf_flip_basic_reserved,

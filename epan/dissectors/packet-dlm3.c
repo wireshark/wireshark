@@ -465,9 +465,9 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       hf_dlm3_m_type, tvb, offset, 4, m_type);
   col_append_fstr(pinfo->cinfo, COL_INFO,
                 ": %s",
-                val_to_str(m_type,
-                           dlm3_msg,
-                           "Unknown"));
+                val_to_str_const(m_type,
+                                 dlm3_msg,
+                                 "Unknown"));
 
   offset += 4;
   proto_tree_add_item(tree,
@@ -703,9 +703,9 @@ dissect_dlm3_rcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       hf_dlm3_rc_type, tvb, offset, 4, rc_type);
   col_append_fstr(pinfo->cinfo, COL_INFO,
                   ": %s",
-                  val_to_str(rc_type,
-                             dlm3_rcom,
-                             "Unknown"));
+                  val_to_str_const(rc_type,
+                                   dlm3_rcom,
+                                   "Unknown"));
 
   offset += 4;
   proto_tree_add_item(tree,

@@ -196,7 +196,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       if (check_col(pinfo->cinfo, COL_INFO)) {
          col_append_str(pinfo->cinfo, COL_INFO,
-  	       val_to_str(raw_octet, pdu_vers, "Unknown PDU version"));
+  	       val_to_str_const(raw_octet, pdu_vers, "Unknown PDU version"));
       }
 
       if (raw_octet == PAGP_FLUSH_PDU) {
@@ -352,7 +352,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tlv_tree = proto_item_add_subtree (tlv_item, ett_pagp_tlvs);
 		proto_tree_add_uint_format (tlv_tree, hf_pagp_tlv, tvb,
 			offset,2,tlv,"Type = %d (%s)", tlv,
-			val_to_str(tlv,tlv_types, "Unknown")) ;
+			val_to_str_const(tlv,tlv_types, "Unknown")) ;
 		proto_tree_add_text (tlv_tree, tvb, offset+2, 2,
 			"Length = %u bytes (includes Type and Length)", len) ;
 		if ( tvb_reported_length_remaining(tvb, offset) < len ) {

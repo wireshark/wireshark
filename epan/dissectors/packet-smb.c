@@ -8991,7 +8991,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		proto_tree_add_uint(tree, hf_smb_nt_trans_subcmd, tvb, offset, 2, subcmd);
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str_ext(subcmd, &nt_cmd_vals_ext, "<unknown>"));
+				val_to_str_ext_const(subcmd, &nt_cmd_vals_ext, "<unknown>"));
 		}
 		ntd.subcmd = subcmd;
 		if (!si->unidir && sip) {

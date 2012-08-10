@@ -110,7 +110,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	type = tvb_get_ntohs(tvb, 2);
 	proto_tree_add_text(tree, tvb, 2, 2, "Type: %s",
-		val_to_str(type, rpl_type_vals, "Unknown Type"));
+		val_to_str_const(type, rpl_type_vals, "Unknown Type"));
 	offset = 4;
 
 	switch (type) {
@@ -138,8 +138,10 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if(subtyp == 0xc005) ett_type = ett_rpl_c005;
 				if(subtyp == 0xc014) ett_type = ett_rpl_c014;
 				ti = proto_tree_add_text(tree, tvb,
-					offset, sublen, "%s", val_to_str(subtyp,
-					rpl_type_vals, "Unknown Type"));
+					offset, sublen, "%s",
+					val_to_str_const(subtyp,
+						rpl_type_vals,
+						"Unknown Type"));
 				rpl_container_tree = proto_item_add_subtree(ti,
 					ett_type);
 				length = tvb_length_remaining(tvb, offset);

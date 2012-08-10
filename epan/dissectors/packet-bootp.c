@@ -1737,10 +1737,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			optoff = optoff + 5;
 			duidtype = tvb_get_ntohs(tvb, optoff);
 			proto_tree_add_text(v_tree, tvb, optoff, 2,
-				"DUID type: %s (%u)",
-						val_to_str(duidtype,
-							   duidtype_vals, "Unknown"),
-						duidtype);
+					    "DUID type: %s (%u)",
+					    val_to_str_const(duidtype, duidtype_vals, "Unknown"),
+					    duidtype);
 			switch (duidtype) {
 			case DUID_LLT:
 				if (optlen < 8) {
@@ -2130,7 +2129,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			i = rfc3825_fixpoint_to_decimal(&location_fp, &location);
 
 			if (i != RFC3825_NOERROR) {
-				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Error: %s", val_to_str(i, rfc3825_error_types, "Unknown"));
+				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Error: %s", val_to_str_const(i, rfc3825_error_types, "Unknown"));
 			} else {
 				proto_tree_add_text(v_tree, tvb, optoff, 5, "Latitude: %15.10f", location.latitude);
 				proto_tree_add_text(v_tree, tvb, optoff+5, 5, "Longitude: %15.10f", location.longitude);
@@ -2138,8 +2137,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				proto_tree_add_text(v_tree, tvb, optoff+5, 1, "Longitude resolution: %15.10f", location.longitude_res);
 				proto_tree_add_text(v_tree, tvb, optoff+12, 4, "Altitude: %15.10f", location.altitude);
 				proto_tree_add_text(v_tree, tvb, optoff+10, 2, "Altitude resolution: %15.10f", location.altitude_res);
-				proto_tree_add_text(v_tree, tvb, optoff+10, 1, "Altitude type: %s (%d)", val_to_str(location.altitude_type, altitude_type_values, "Unknown"), location.altitude_type);
-				proto_tree_add_text(v_tree, tvb, optoff+15, 1, "Map Datum: %s (%d)", val_to_str(location.datum_type, map_datum_type_values, "Unknown"), location.datum_type);
+				proto_tree_add_text(v_tree, tvb, optoff+10, 1, "Altitude type: %s (%d)", val_to_str_const(location.altitude_type, altitude_type_values, "Unknown"), location.altitude_type);
+				proto_tree_add_text(v_tree, tvb, optoff+15, 1, "Map Datum: %s (%d)", val_to_str_const(location.datum_type, map_datum_type_values, "Unknown"), location.datum_type);
 			}
 		} else if (optlen < 69) { /* CableLabs DSS_ID */
 
@@ -2407,7 +2406,7 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option82_suboption,
-		tvb, optoff, subopt_len+2, subopt, "(%d) %s", subopt, val_to_str(subopt, option82_suboption_vals, "Unknown"));
+		tvb, optoff, subopt_len+2, subopt, "(%d) %s", subopt, val_to_str_const(subopt, option82_suboption_vals, "Unknown"));
 
 	o82_v_tree = proto_item_add_subtree(vti, ett_bootp_option82_suboption);
 	proto_tree_add_item(o82_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
@@ -2608,7 +2607,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option43_pxeclient_suboption,
 				tvb, optoff, subopt_len+2, subopt, "(%d) %s",
-				subopt, val_to_str(subopt, option43_pxeclient_suboption_vals, "Unknown"));
+				subopt, val_to_str_const(subopt, option43_pxeclient_suboption_vals, "Unknown"));
 
 	o43pxeclient_v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
 	proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
@@ -2910,7 +2909,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option43_cl_suboption,
 				tvb, optoff, subopt_len+2, subopt, "(%d) %s",
-				subopt, val_to_str(subopt, option43_cl_suboption_vals, "Unknown"));
+				subopt, val_to_str_const(subopt, option43_cl_suboption_vals, "Unknown"));
 
 	o43cl_v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
 	proto_tree_add_item(o43cl_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
@@ -3012,7 +3011,7 @@ dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option43_alcatel_suboption,
 				tvb, optoff, subopt_len+2, subopt, "(%d) %s",
-				subopt, val_to_str(subopt, option43_alcatel_suboption_vals, "Unknown"));
+				subopt, val_to_str_const(subopt, option43_alcatel_suboption_vals, "Unknown"));
 
 	o43alcatel_v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
 	proto_tree_add_item(o43alcatel_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
@@ -3133,7 +3132,7 @@ dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option63_suboption,
 				tvb, optoff, subopt_len+2, subopt, "(%d) %s",
-				subopt, val_to_str(subopt, option63_suboption_vals, "Unknown"));
+				subopt, val_to_str_const(subopt, option63_suboption_vals, "Unknown"));
 
 	o63_v_tree = proto_item_add_subtree(vti, ett_bootp_option63_suboption);
 	proto_tree_add_item(o63_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
@@ -3223,7 +3222,7 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option125_tr111_suboption,
 				tvb, optoff, subopt_len+2, subopt, "(%d) %s",
-				subopt, val_to_str(subopt, option125_tr111_suboption_vals, "Unknown"));
+				subopt, val_to_str_const(subopt, option125_tr111_suboption_vals, "Unknown"));
 
 	o125_v_tree = proto_item_add_subtree(vti, hf_bootp_option125_tr111_suboption);
 	proto_tree_add_item(o125_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
@@ -3316,7 +3315,7 @@ dissect_vendor_cl_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option125_cl_suboption,
 				tvb, optoff, subopt_len+2, subopt, "(%d) %s",
-				subopt, val_to_str(subopt, option125_cl_suboption_vals, "Unknown"));
+				subopt, val_to_str_const(subopt, option125_cl_suboption_vals, "Unknown"));
 
 	o125_v_tree = proto_item_add_subtree(vti, hf_bootp_option125_cl_suboption);
 	proto_tree_add_item(o125_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
@@ -3585,14 +3584,14 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 				    tvb, off, (tlv_len * 2) + 4,
 				    "0x%s: %s = ",
 				    tvb_format_text(tvb, off, 2),
-				    val_to_str(raw_val, pkt_mdc_type_vals, "unknown"));
+				    val_to_str_const(raw_val, pkt_mdc_type_vals, "unknown"));
 				switch (raw_val) {
 
 				case PKT_MDC_VERSION:
 					raw_val = tvb_get_ntohs(tvb, off + 4);
 					proto_item_append_text(ti,
 							       "%s (%s)",
-							       val_to_str(raw_val, pkt_mdc_version_vals, "Reserved"),
+							       val_to_str_const(raw_val, pkt_mdc_version_vals, "Reserved"),
 							       tvb_format_stringzpad(tvb, off + 4, 2) );
 					break;
 
@@ -3629,7 +3628,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					raw_val = tvb_get_ntohs(tvb, off + 4);
 					proto_item_append_text(ti,
 							       "%s (%s)",
-							       val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
+							       val_to_str_const(raw_val, pkt_mdc_boolean_vals, "unknown"),
 							       tvb_format_stringzpad(tvb, off + 4, 2) );
 					break;
 
@@ -3640,7 +3639,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 						proto_item_append_text(ti,
 								       "%s%s (%s)",
 								       plurality(i + 1, "", ", "),
-								       val_to_str(raw_val, pkt_mdc_codec_vals, "unknown"),
+								       val_to_str_const(raw_val, pkt_mdc_codec_vals, "unknown"),
 								       tvb_format_stringzpad(tvb, off + 4 + (i * 2), 2) );
 					}
 					break;
@@ -3657,7 +3656,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					raw_val = tvb_get_ntohs(tvb, off + 4);
 					proto_item_append_text(ti,
 							       "%s (%s)",
-							       val_to_str(raw_val, pkt_mdc_t38_version_vals, "unknown"),
+							       val_to_str_const(raw_val, pkt_mdc_t38_version_vals, "unknown"),
 							       tvb_format_stringzpad(tvb, off + 4, 2) );
 					break;
 
@@ -3665,7 +3664,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					raw_val = tvb_get_ntohs(tvb, off + 4);
 					proto_item_append_text(ti,
 							       "%s (%s)",
-							       val_to_str(raw_val, pkt_mdc_t38_ec_vals, "unknown"),
+							       val_to_str_const(raw_val, pkt_mdc_t38_ec_vals, "unknown"),
 							       tvb_format_stringzpad(tvb, off + 4, 2) );
 					break;
 
@@ -3707,11 +3706,11 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					tvb_memcpy(tvb, asc_val, subopt_off, 2);
 
 					mib_ti = proto_tree_add_text(subtree, tvb, subopt_off, 2, "%s (%s)",
-						val_to_str(raw_val, pkt_mdc_mib_orgs, "Unknown"), asc_val);
+						val_to_str_const(raw_val, pkt_mdc_mib_orgs, "Unknown"), asc_val);
 					if (subopt_off > off + 4 + 2) {
 						proto_item_append_text(ti, ", ");
 					}
-					proto_item_append_text(ti, "%s", val_to_str(raw_val, pkt_mdc_mib_orgs, "Unknown"));
+					proto_item_append_text(ti, "%s", val_to_str_const(raw_val, pkt_mdc_mib_orgs, "Unknown"));
 
 					subopt_off += 2;
 					tvb_memcpy(tvb, asc_val, subopt_off, 2);
@@ -4057,7 +4056,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 							 tlv_type,
 							 "0x%02x: %s = ",
 							 tlv_type,
-							 val_to_str(tlv_type, docsis_cm_cap_type_vals, "unknown"));
+							 val_to_str_const(tlv_type, docsis_cm_cap_type_vals, "unknown"));
 		}
 		else
 		{
@@ -4070,7 +4069,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 							 tlv_type,
 							 "0x%02x: %s = ",
 							 tlv_type,
-							 val_to_str(tlv_type, docsis_cm_cap_type_vals, "unknown"));
+							 val_to_str_const(tlv_type, docsis_cm_cap_type_vals, "unknown"));
 		}
 
 		if (tlv_len == 1)
@@ -4101,33 +4100,33 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		case DOCSIS_CM_CAP_IPV6_SUP:
 			proto_item_append_text(ti,
 					       "%s",
-					       val_to_str(val_byte, docsis_cm_cap_supported_vals, "Reserved"));
+					       val_to_str_const(val_byte, docsis_cm_cap_supported_vals, "Reserved"));
 			break;
 		case DOCSIS_CM_CAP_DOCSIS_VER:
 			proto_item_append_text(ti,
 					       "%s",
-					       val_to_str(val_byte, docsis_cm_cap_version_vals, "Reserved"));
+					       val_to_str_const(val_byte, docsis_cm_cap_version_vals, "Reserved"));
 			break;
 		case DOCSIS_CM_CAP_PRIV_SUP:
 			proto_item_append_text(ti,
 					       "%s",
-					       val_to_str(val_byte, docsis_cm_cap_privacy_vals, "Reserved"));
+					       val_to_str_const(val_byte, docsis_cm_cap_privacy_vals, "Reserved"));
 			break;
 		case DOCSIS_CM_CAP_FILT_SUP:
 			proto_item_append_text(ti,
 					       "%s",
-					       val_to_str(val_byte, docsis_cm_cap_filt_vals, "Reserved"));
+					       val_to_str_const(val_byte, docsis_cm_cap_filt_vals, "Reserved"));
 			break;
 		case DOCSIS_CM_CAP_L2VPN_SUP:
 			proto_item_append_text(ti,
 					       "%s",
-					       val_to_str(val_byte, docsis_cm_cap_l2vpn_vals, "Reserved"));
+					       val_to_str_const(val_byte, docsis_cm_cap_l2vpn_vals, "Reserved"));
 			break;
 		case DOCSIS_CM_CAP_L2VPN_HOST_SUP:
 			if (tlv_len == 7) {
 				proto_item_append_text(ti,
 						       "eSAFE ifIndex %s (%i)/eSAFE MAC %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x",
-						       val_to_str(val_other[0], docsis_cm_cap_map_l2vpn_esafe_index_support_vals, "Reserved"),
+						       val_to_str_const(val_other[0], docsis_cm_cap_map_l2vpn_esafe_index_support_vals, "Reserved"),
 						       val_other[0],
 						       val_other[1],
 						       val_other[2],
@@ -4144,17 +4143,17 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		case DOCSIS_CM_CAP_USFREQRNG_SUP:
 			proto_item_append_text(ti,
 					       "%s",
-					       val_to_str(val_byte, docsis_cm_cap_usfreqrng_vals, "Reserved"));
+					       val_to_str_const(val_byte, docsis_cm_cap_usfreqrng_vals, "Reserved"));
 			break;
 		case DOCSIS_CM_CAP_MAPUCDRECEIPT_SUP:
 			proto_item_append_text(ti,
 					       "%s",
-					       val_to_str(val_byte, docsis_cm_cap_map_ucd_receipt_vals, "Reserved"));
+					       val_to_str_const(val_byte, docsis_cm_cap_map_ucd_receipt_vals, "Reserved"));
 			break;
 		case DOCSIS_CM_CAP_DPV_SUP:
 			proto_item_append_text(ti,
 					       "%s",
-					       val_to_str(val_byte, docsis_cm_cap_map_dpv_support_vals, "Reserved"));
+					       val_to_str_const(val_byte, docsis_cm_cap_map_dpv_support_vals, "Reserved"));
 			break;
 		case DOCSIS_CM_CAP_DSAID_SUP:
 		case DOCSIS_CM_CAP_MULTTXCHAN_SUP:
@@ -4221,12 +4220,12 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		case DOCSIS_CM_CAP_FCTF_SUP:
 			proto_item_append_text(ti,
 					       "%s",
-					       val_to_str(val_byte, docsis_cm_cap_map_fctfc_support_vals, "Reserved"));
+					       val_to_str_const(val_byte, docsis_cm_cap_map_fctfc_support_vals, "Reserved"));
 			break;
 		case DOCSIS_CM_CAP_MULTDSIDFW_SUP:
 			proto_item_append_text(ti,
 					       "%s",
-					       val_to_str(val_byte, docsis_cm_cap_map_multDsidForward_support_vals, "Reserved"));
+					       val_to_str_const(val_byte, docsis_cm_cap_map_multDsidForward_support_vals, "Reserved"));
 			break;
 		}
 
@@ -4344,7 +4343,7 @@ dissect_packetcable_i05_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 
 	vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 		"Suboption %u: %s: ", subopt,
-		val_to_str(subopt, pkt_i05_ccc_opt_vals, "unknown/reserved") );
+		val_to_str_const(subopt, pkt_i05_ccc_opt_vals, "unknown/reserved") );
 
 	switch (subopt) {
 
@@ -4443,7 +4442,7 @@ dissect_packetcable_i05_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 		}
 		ticket_ctl = tvb_get_guint8(tvb, suboptoff);
 		proto_item_append_text(vti, "%s (%u) (%u byte%s%s)",
-				       val_to_str (ticket_ctl, pkt_i05_ccc_ticket_ctl_vals, "unknown/invalid"),
+				       val_to_str_const (ticket_ctl, pkt_i05_ccc_ticket_ctl_vals, "unknown/invalid"),
 				       ticket_ctl,
 				       subopt_len,
 				       plurality(subopt_len, "", "s"),
@@ -4494,7 +4493,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 
 	vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 	    "Suboption %u: %s: ", subopt,
-	    val_to_str(subopt, pkt_draft5_ccc_opt_vals, "unknown/reserved") );
+	    val_to_str_const(subopt, pkt_draft5_ccc_opt_vals, "unknown/reserved") );
 
 	switch (subopt) {
 

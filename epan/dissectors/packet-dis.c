@@ -211,7 +211,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Locate the string name for the PDU type enumeration,
      * or default to "Unknown".
     */
-    pduString = val_to_str(pduType, DIS_PDU_Type_Strings, "Unknown");
+    pduString = val_to_str_const(pduType, DIS_PDU_Type_Strings, "Unknown");
 
     /* Locate the appropriate PDU parser, if type is known.
      */
@@ -413,8 +413,8 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_fstr( pinfo->cinfo, COL_INFO,
                       "PDUType: %s, %s, %s",
                       pduString,
-                      val_to_str(entityKind, DIS_PDU_EntityKind_Strings, "Unknown Entity Kind"),
-                      val_to_str(entityDomain, DIS_PDU_Domain_Strings, "Unknown Entity Domain")
+                      val_to_str_const(entityKind, DIS_PDU_EntityKind_Strings, "Unknown Entity Kind"),
+                      val_to_str_const(entityDomain, DIS_PDU_Domain_Strings, "Unknown Entity Domain")
                      );
         break;
 
@@ -423,7 +423,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                       "PDUType: %s, RadioID=%u, Encoding Type=%s, Number of Samples=%u",
                       pduString,
                       radioID,
-                      val_to_str(DIS_ENCODING_TYPE(encodingScheme), DIS_PDU_Encoding_Type_Strings, "Unknown Encoding Type"),
+                      val_to_str_const(DIS_ENCODING_TYPE(encodingScheme), DIS_PDU_Encoding_Type_Strings, "Unknown Encoding Type"),
                       numSamples
                       );
         break;
@@ -432,7 +432,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                       "PDUType: %s, RadioID=%u, Transmit State=%s",
                       pduString,
                       radioID,
-                      val_to_str(disRadioTransmitState, DIS_PDU_RadioTransmitState_Strings, "Unknown Transmit State")
+                      val_to_str_const(disRadioTransmitState, DIS_PDU_RadioTransmitState_Strings, "Unknown Transmit State")
                       );
         break;
     default:

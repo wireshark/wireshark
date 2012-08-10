@@ -230,7 +230,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		if (check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_fstr(pinfo->cinfo, COL_INFO,
-			               " (%s)", val_to_str(control_byte, control_message_vals, "Unknown"));
+			               " (%s)", val_to_str_const(control_byte, control_message_vals, "Unknown"));
 		}
 
 		offset = urgent_offset + 1; /* adjust offset */

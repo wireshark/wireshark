@@ -6222,7 +6222,7 @@ dissect_vendor_ie_atheros(proto_item * item _U_, proto_tree * ietree,
   }
   proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_type, tvb, offset, 1, ENC_NA);
   type = tvb_get_guint8(tvb, offset);
-  proto_item_append_text(item, ": %s", val_to_str(type, atheros_ie_type_vals, "Unknown"));
+  proto_item_append_text(item, ": %s", val_to_str_const(type, atheros_ie_type_vals, "Unknown"));
   offset += 1;
   tag_len -= 1;
 
@@ -6380,7 +6380,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
   }
   if (!dont_change) {
     proto_item_append_text(aironet_item, ": Aironet %s",
-      val_to_str(type, aironet_ie_type_vals, "Unknown"));
+      val_to_str_const(type, aironet_ie_type_vals, "Unknown"));
   }
 }
 
@@ -7678,9 +7678,9 @@ static int ieee80211_tag_supp_rates(packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_ieee80211_tag_supp_rates, tvb, offset, 1,
                         ENC_BIG_ENDIAN);
     proto_item_append_text(ti, " %s,",
-                           val_to_str(tvb_get_guint8(tvb, offset),
-                                      ieee80211_supported_rates_vals,
-                                      "Unknown Rate") );
+                           val_to_str_const(tvb_get_guint8(tvb, offset),
+                                            ieee80211_supported_rates_vals,
+                                            "Unknown Rate") );
     offset++;
   }
 
@@ -8973,7 +8973,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       while(offset < tag_end)
       {
         proto_tree_add_item(tree, hf_ieee80211_tag_ext_supp_rates, tvb, offset, 1, ENC_NA);
-        proto_item_append_text(ti, " %s,", val_to_str(tvb_get_guint8(tvb, offset), ieee80211_supported_rates_vals, "Unknown Rate") );
+        proto_item_append_text(ti, " %s,", val_to_str_const(tvb_get_guint8(tvb, offset), ieee80211_supported_rates_vals, "Unknown Rate") );
         offset += 1;
       }
       proto_item_append_text(ti, " [Mbit/sec]");

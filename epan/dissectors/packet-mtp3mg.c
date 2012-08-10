@@ -462,7 +462,7 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		     val_to_str(h1, chm_h1_message_type_acro_values, "Unknown"));
+		     val_to_str_const(h1, chm_h1_message_type_acro_values, "Unknown"));
 
     switch (h1)
     {
@@ -521,7 +521,7 @@ dissect_mtp3mg_ecm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		     val_to_str(h1, ecm_h1_message_type_acro_values, "Unknown"));
+		     val_to_str_const(h1, ecm_h1_message_type_acro_values, "Unknown"));
 
     switch (h1)
     {
@@ -547,7 +547,7 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *apc_item;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		     val_to_str(h1, fcm_h1_message_type_acro_values, "Unknown"));
+		     val_to_str_const(h1, fcm_h1_message_type_acro_values, "Unknown"));
 
     switch (h1)
     {
@@ -637,7 +637,7 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *apc_item;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		     val_to_str(h1, tfm_h1_message_type_acro_values, "Unknown"));
+		     val_to_str_const(h1, tfm_h1_message_type_acro_values, "Unknown"));
 
     switch (h1)
     {
@@ -722,7 +722,7 @@ dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *apc_item;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		     val_to_str(h1, rsm_h1_message_type_acro_values, "Unknown"));
+		     val_to_str_const(h1, rsm_h1_message_type_acro_values, "Unknown"));
 
     switch (h1)
     {
@@ -812,7 +812,7 @@ dissect_mtp3mg_mim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		     val_to_str(h1, mim_h1_message_type_acro_values, "Unknown"));
+		     val_to_str_const(h1, mim_h1_message_type_acro_values, "Unknown"));
 
     switch (h1)
     {
@@ -842,7 +842,7 @@ dissect_mtp3mg_trm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		     val_to_str(h1, trm_h1_message_type_acro_values, "Unknown"));
+		     val_to_str_const(h1, trm_h1_message_type_acro_values, "Unknown"));
 
     switch (h1)
     {
@@ -865,7 +865,7 @@ dissect_mtp3mg_dlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		     val_to_str(h1, dlm_h1_message_type_acro_values, "Unknown"));
+		     val_to_str_const(h1, dlm_h1_message_type_acro_values, "Unknown"));
 
     switch (h1)
     {
@@ -899,7 +899,7 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *apc_item;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		     val_to_str(h1, ufc_h1_message_type_acro_values, "Unknown"));
+		     val_to_str_const(h1, ufc_h1_message_type_acro_values, "Unknown"));
 
     switch (h1)
     {
@@ -971,7 +971,7 @@ dissect_mtp3mg_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8 length;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		     val_to_str(h1, test_h1_message_type_acro_values, "Unknown"));
+		     val_to_str_const(h1, test_h1_message_type_acro_values, "Unknown"));
 
     switch (h1)
     {
@@ -1052,7 +1052,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				JAPAN_SPARE_LENGTH, H0H1_LENGTH, ENC_NA);
 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			     val_to_str(h0h1, japan_test_message_type_acro_values, "Unknown"));
+			     val_to_str_const(h0h1, japan_test_message_type_acro_values, "Unknown"));
 
 	    switch (h0h1)
 	    {

@@ -662,7 +662,7 @@ dissect_3gpp2_radius_aut_flow_profile_ids(proto_tree  *tree, tvbuff_t  *tvb, pac
         /* value is 2 octets */
         value = tvb_get_ntohs(tvb,offset+2);
         item = proto_tree_add_text(tree, tvb, offset, sub_type_length, "%s = %u",
-                                   val_to_str(sub_type, a11_aut_flow_prof_subtype_vals, "Unknown"), value);
+                                   val_to_str_const(sub_type, a11_aut_flow_prof_subtype_vals, "Unknown"), value);
         sub_tree = proto_item_add_subtree(item, ett_a11_aut_flow_profile_ids);
 
         proto_tree_add_item(sub_tree, hf_a11_aut_flow_prof_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);

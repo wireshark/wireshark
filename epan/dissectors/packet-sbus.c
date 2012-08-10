@@ -761,15 +761,15 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                           sbus_web_seq = tvb_get_guint8(tvb,13);
                                           col_add_fstr(pinfo->cinfo, COL_INFO,
                                                        "Web Server Request: %s (Seq No: %d)",
-                                                       val_to_str(sbus_web_aid,
-                                                                  webserver_aid_vals, "Unknown Request!"),
+                                                       val_to_str_const(sbus_web_aid,
+                                                                        webserver_aid_vals, "Unknown Request!"),
                                                        sbus_web_seq);
                                           break;
                                    case SBUS_RD_WR_PCD_BLOCK:
                                           sbus_rdwr_type = tvb_get_guint8(tvb, 12);
                                           col_add_fstr( pinfo->cinfo, COL_INFO,
-                                                        "Request:  %s", val_to_str( sbus_rdwr_type, rdwrblock_vals,
-                                                                                    "This RD/WR block telegram is not implemented"));
+                                                        "Request:  %s", val_to_str_const( sbus_rdwr_type, rdwrblock_vals,
+                                                                                          "This RD/WR block telegram is not implemented"));
                                           /* Add name of file to be written in case of start of file stream */
                                           if (sbus_rdwr_type == SBUS_WR_START_OF_STREAM) {
                                                  sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
@@ -813,8 +813,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    default:
                                           /* All other requests */
                                           col_add_fstr(pinfo->cinfo, COL_INFO,
-                                                       "Request: %s", val_to_str(sbus_cmd_code,
-                                                                                 sbus_command_vals, "Unknown Command!"));
+                                                       "Request: %s", val_to_str_const(sbus_cmd_code,
+                                                                                       sbus_command_vals, "Unknown Command!"));
                                           break;
                             }
                             /*mark retries*/
@@ -832,8 +832,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    sbus_web_aid = tvb_get_guint8(tvb,10);
                                    col_add_fstr(pinfo->cinfo, COL_INFO,
                                           "Response: %s",
-                                          val_to_str(sbus_web_aid,
-                                                 webserver_aid_vals, "Unknown Request!"));
+                                          val_to_str_const(sbus_web_aid,
+                                                           webserver_aid_vals, "Unknown Request!"));
                                    if (sbus_web_size > 1) {
                                           sbus_web_seq = tvb_get_guint8(tvb,11);
                                           col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -852,8 +852,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                           case SBUS_RD_ABORT_BLOCK_STREAM:
                                                  sbus_rdwr_ack_nak = tvb_get_guint8(tvb, 10);
                                                  col_add_fstr( pinfo->cinfo, COL_INFO,
-                                                               "Response: %s", val_to_str(sbus_rdwr_ack_nak,
-                                                                                          rdwrblock_sts, "Unknown response!"));
+                                                               "Response: %s", val_to_str_const(sbus_rdwr_ack_nak,
+                                                                                                rdwrblock_sts, "Unknown response!"));
                                                  break;
                                           default:
                                                  sbus_rdwr_type = tvb_get_guint8(tvb, 9);
@@ -870,9 +870,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      case SBUS_ACKNAK:
                             sbus_ack_code = tvb_get_ntohs(tvb,9);
                             col_add_fstr(pinfo->cinfo, COL_INFO,
-                                         "%s", val_to_str(sbus_ack_code,
-                                                          sbus_ack_nak_vals,
-                                                          "Unknown NAK response code!"));
+                                         "%s", val_to_str_const(sbus_ack_code,
+                                                                sbus_ack_nak_vals,
+                                                                "Unknown NAK response code!"));
                             break;
 
                      default:

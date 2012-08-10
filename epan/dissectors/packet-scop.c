@@ -281,8 +281,8 @@ dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Display the Packet type*/
     proto_tree_add_uint(tree, hf_scop_type, tvb, offset, 1, type);
-    proto_item_append_text(tree, ", %s", val_to_str(type, scop_types, "Reserved Type"));
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, scop_types, "Reserved Type"));
+    proto_item_append_text(tree, ", %s", val_to_str_const(type, scop_types, "Reserved Type"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(type, scop_types, "Reserved Type"));
     offset += 2;
 
     if (type == SCOP_CMD_HELLO_RESP) {

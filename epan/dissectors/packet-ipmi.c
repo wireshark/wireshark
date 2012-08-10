@@ -1048,7 +1048,7 @@ ipmi_get_completion_code(guint8 completion, ipmi_cmd_t *cmd)
 		return "Standard command-specific code";
 	}
 
-	return val_to_str(completion, std_completion_codes, "Unknown");
+	return val_to_str_const(completion, std_completion_codes, "Unknown");
 }
 
 /* Guess the parsing flags for a message

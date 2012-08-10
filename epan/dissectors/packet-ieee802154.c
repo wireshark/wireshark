@@ -362,7 +362,7 @@ static gboolean ieee802154_extend_auth = TRUE;
    if (!(_x_))                                                      \
      expert_add_info_format(_pinfo_, _item_, PI_MALFORMED, PI_WARN, \
                             "Invalid Addressing for %s",            \
-                            val_to_str(_cmdid_, ieee802154_cmd_names, "Unknown Command"))
+                            val_to_str_const(_cmdid_, ieee802154_cmd_names, "Unknown Command"))
 
 /* CRC definitions. IEEE 802.15.4 CRCs vary from CCITT by using an initial value of
  * 0x0000, and no XOR out. IEEE802154_CRC_XOR is defined as 0xFFFF in order to un-XOR
@@ -412,14 +412,14 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
     packet->src_addr_mode   = (fcf & IEEE802154_FCF_SADDR_MASK) >> 14;
 
     /* Display the frame type. */
-    if (tree) proto_item_append_text(tree, " %s", val_to_str(packet->frame_type, ieee802154_frame_types, "Reserved"));
+    if (tree) proto_item_append_text(tree, " %s", val_to_str_const(packet->frame_type, ieee802154_frame_types, "Reserved"));
     if (check_col(pinfo->cinfo, COL_INFO)) col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->frame_type, ieee802154_frame_types, "Reserved"));
 
     /* Add the FCF to the protocol tree. */
     if (tree) {
         /*  Create the FCF subtree. */
         ti = proto_tree_add_text(tree, tvb, *offset, 2, "Frame Control Field: %s (0x%04x)",
-                val_to_str(packet->frame_type, ieee802154_frame_types, "Unknown"), fcf);
+                val_to_str_const(packet->frame_type, ieee802154_frame_types, "Unknown"), fcf);
         field_tree = proto_item_add_subtree(ti, ett_ieee802154_fcf);
 
         /* FCF Fields. */
@@ -1459,7 +1459,7 @@ dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Create a subtree for this command frame. */
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, 1, "%s", val_to_str(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
+        ti = proto_tree_add_text(tree, tvb, 0, 1, "%s", val_to_str_const(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
         subtree = proto_item_add_subtree(ti, ett_ieee802154_cmd);
     }
 
@@ -1511,7 +1511,7 @@ dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Create a subtree for this command frame. */
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, 3, "%s", val_to_str(packet->command_id,
+        ti = proto_tree_add_text(tree, tvb, offset, 3, "%s", val_to_str_const(packet->command_id,
                     ieee802154_cmd_names, "Unknown Command"));
         subtree = proto_item_add_subtree(ti, ett_ieee802154_cmd);
     }
@@ -1586,7 +1586,7 @@ dissect_ieee802154_disassoc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Create a subtree for this command frame. */
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, 1, "%s", val_to_str(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
+        ti = proto_tree_add_text(tree, tvb, 0, 1, "%s", val_to_str_const(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
         subtree = proto_item_add_subtree(ti, ett_ieee802154_cmd);
     }
 
@@ -1652,7 +1652,7 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* Create a subtree for this command frame. */
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, 0, "%s", val_to_str(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
+        ti = proto_tree_add_text(tree, tvb, offset, 0, "%s", val_to_str_const(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
         subtree = proto_item_add_subtree(ti, ett_ieee802154_cmd);
     }
 
@@ -1738,8 +1738,8 @@ dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     /* Create a subtree for this command frame. */
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, 1, "%s", val_to_str(packet->command_id, ieee802154_cmd_names,
-                    "Unknown Command"));
+        ti = proto_tree_add_text(tree, tvb, 0, 1, "%s", val_to_str_const(packet->command_id, ieee802154_cmd_names,
+                                                                         "Unknown Command"));
         subtree = proto_item_add_subtree(ti, ett_ieee802154_cmd);
     }
 

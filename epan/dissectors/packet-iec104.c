@@ -1121,7 +1121,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	it104 = proto_tree_add_item(tree, proto_iec104asdu, tvb, 0, -1, ENC_NA);
 
 	/* 'Packet Details': ROOT ITEM */
-	proto_item_append_text(it104, ": %s'%s'", res->str, Len >= ASDU_HEAD_LEN ? val_to_str(asduh->TypeId, asdu_lngtypes, "<Unknown TypeId>") : "");
+	proto_item_append_text(it104, ": %s'%s'", res->str, Len >= ASDU_HEAD_LEN ? val_to_str_const(asduh->TypeId, asdu_lngtypes, "<Unknown TypeId>") : "");
 
 	/* 'Packet Details': TREE */
 	if (Len < ASDU_HEAD_LEN)   return;
@@ -1567,7 +1567,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if (Brossa != TcpLen)  {
 		if (apcih->ApduLen <= APDU_MAX_LEN)  {
 			/* APCI in 'Paquet List' */
-			ep_strbuf_append_printf(res, "%s%s(", pinfo->srcport == iec104port ? "->" : "<-", val_to_str(apcih->Type, apci_types, "<ERR>"));
+			ep_strbuf_append_printf(res, "%s%s(", pinfo->srcport == iec104port ? "->" : "<-", val_to_str_const(apcih->Type, apci_types, "<ERR>"));
 			switch(apcih->Type) {  /* APCI in 'Packet List' */
 			case I_TYPE:
 				ep_strbuf_append_printf(res, "%d,", apcih->Tx);
@@ -1580,7 +1580,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					ep_strbuf_append_c(res, ' ');
 				break;
 			case U_TYPE:
-				ep_strbuf_append_printf(res, "%s)", val_to_str(apcih->UType >> 2, u_types, "<ERR>"));
+				ep_strbuf_append_printf(res, "%s)", val_to_str_const(apcih->UType >> 2, u_types, "<ERR>"));
 				break;
 			}
 			if (apcih->Type != I_TYPE  &&  apcih->ApduLen > APDU_MIN_LEN)   ep_strbuf_append_printf(res, "<ERR %u bytes> ", apcih->ApduLen- APDU_MIN_LEN);

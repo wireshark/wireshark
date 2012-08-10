@@ -358,10 +358,10 @@ static gint dissect_msmms_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 /* Dissect command packet */
 static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint        offset = 0;
-    proto_item  *ti = NULL;
-    proto_tree  *msmms_tree = NULL;
-    proto_tree  *msmms_common_command_tree = NULL;
+    gint        offset                    = 0;
+    proto_item *ti                        = NULL;
+    proto_tree *msmms_tree                = NULL;
+    proto_tree *msmms_common_command_tree = NULL;
     guint32     sequence_number;
     guint16     command_id;
     guint16     command_dir;
@@ -421,8 +421,8 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                                            "",
                                            "%s (to %s)",
                                            (command_dir == TO_SERVER) ?
-                                                val_to_str(command_id, to_server_command_vals, "Unknown") :
-                                                val_to_str(command_id, to_client_command_vals, "Unknown"),
+                                                val_to_str_const(command_id, to_server_command_vals, "Unknown") :
+                                                val_to_str_const(command_id, to_client_command_vals, "Unknown"),
                                            (command_dir == TO_SERVER) ? "server" : "client");
         msmms_common_command_tree = proto_item_add_subtree(ti, ett_msmms_command_common_header);
     }
@@ -486,8 +486,8 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                     sequence_number,
                     (command_dir == TO_SERVER) ? "-->" : "<--",
                     (command_dir == TO_SERVER) ?
-                        val_to_str(command_id, to_server_command_vals, "Unknown") :
-                        val_to_str(command_id, to_client_command_vals, "Unknown"));
+                        val_to_str_const(command_id, to_server_command_vals, "Unknown") :
+                        val_to_str_const(command_id, to_client_command_vals, "Unknown"));
 
     /* Adjust length_remaining for command-specific details */
     length_remaining = (length_remaining*8) - 8;
@@ -572,9 +572,9 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 /* Parse the only known UDP command (0x01) */
 static gint dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *msmms_tree = NULL;
-    gint offset = 0;
+    proto_item *ti         = NULL;
+    proto_tree *msmms_tree = NULL;
+    gint        offset     = 0;
 
     /* Set protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSMMS");
@@ -654,7 +654,7 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* Flag value is in 5th byte */
         value = tvb_get_letohs(tvb, 4) & 0xff00;
         /* Reject packet if not a recognised packet type */
-        if (strcmp(val_to_str(value, tcp_flags_vals, "Unknown"), "Unknown") == 0)
+        if (match_strval(value, tcp_flags_vals) == NULL)
         {
             return 0;
         }
@@ -815,10 +815,10 @@ static void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, pro
 static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 guint offset)
 {
-    guint32 server_version_length = 0;
-    guint32 tool_version_length = 0;
-    guint32 download_update_player_length = 0;
-    guint32 password_encryption_type_length = 0;
+    guint32 server_version_length;
+    guint32 tool_version_length;
+    guint32 download_update_player_length;
+    guint32 password_encryption_type_length;
     char    *server_version;
     char    *tool_version;
     char    *download_update_player;
@@ -1116,7 +1116,7 @@ static void dissect_media_stream_mbr_selector(tvbuff_t *tvb, proto_tree *tree, g
 /* Dissect header request */
 static void dissect_header_request(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    gint n = 0;
+    gint n;
 
     /* Command Level */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1149,8 +1149,8 @@ static void dissect_stop_button_pressed(tvbuff_t *tvb, proto_tree *tree, guint o
 /********************************************************/
 static void msmms_data_add_address(packet_info *pinfo, address *addr, port_type pt, int port)
 {
-    address null_addr;
-    conversation_t* p_conv;
+    address         null_addr;
+    conversation_t *p_conv;
 
     /* If this isn't the first time this packet has been processed,
      * we've already done this work, so we don't need to do it

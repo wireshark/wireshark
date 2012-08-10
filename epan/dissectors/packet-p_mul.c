@@ -258,7 +258,7 @@ static const true_false_string no_yes = {
 
 static const gchar *get_type (guint8 value)
 {
-  return val_to_str (value, pdu_vals, "Unknown");
+  return val_to_str_const (value, pdu_vals, "Unknown");
 }
 
 

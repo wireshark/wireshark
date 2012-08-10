@@ -562,7 +562,7 @@ dissect_rpcap_filterbpf_insn (tvbuff_t *tvb, packet_info *pinfo _U_,
   code_tree = proto_item_add_subtree (code_ti, ett_filterbpf_insn_code);
   proto_tree_add_item (code_tree, hf_code_class, tvb, offset, 2, ENC_BIG_ENDIAN);
   class = tvb_get_guint8 (tvb, offset + 1) & 0x07;
-  proto_item_append_text (ti, ": %s", val_to_str (class, bpf_class, ""));
+  proto_item_append_text (ti, ": %s", val_to_str_const (class, bpf_class, ""));
   switch (class) {
   case 0x00: /* ld */
   case 0x01: /* ldx */

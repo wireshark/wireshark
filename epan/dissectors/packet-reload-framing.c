@@ -270,8 +270,8 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   reload_framing_tree = proto_item_add_subtree(ti, ett_reload_framing);
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(type, types, "Unknown"));
-  proto_item_append_text(ti, ": %s", val_to_str(type, types, "Unknown"));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(type, types, "Unknown"));
+  proto_item_append_text(ti, ": %s", val_to_str_const(type, types, "Unknown"));
 
   /* Retransmission control */
   if (type == DATA) {

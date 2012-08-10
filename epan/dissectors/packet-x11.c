@@ -1188,7 +1188,7 @@ static const value_string zero_is_none_vals[] = {
       opcode = VALUE8(tvb, *offsetp);                             \
       proto_tree_add_uint_format(t, hf_x11_opcode, tvb, *offsetp, \
             1, opcode,  "opcode: %u (%s)", opcode,                \
-            val_to_str(opcode, state->opcode_vals, "Unknown"));   \
+            val_to_str_const(opcode, state->opcode_vals, "Unknown"));   \
       *offsetp += 1;                                              \
   }
 

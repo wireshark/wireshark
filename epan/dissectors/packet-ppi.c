@@ -179,7 +179,7 @@ typedef enum {
     MOHAMED_THAGA_PRIVATE        = 30001,
     PPI_GPS_INFO                 = 30002, /* 30002 - 30005 described in PPI-GEOLOCATION specifcation */
     PPI_VECTOR_INFO              = 30003, /* currently available in draft from. jellch@harris.com */
-    PPI_SENSOR_INFO              = 30004, 
+    PPI_SENSOR_INFO              = 30004,
     PPI_ANTENNA_INFO             = 30005,
     CACE_PRIVATE                 = 0xCACE
     /* All others RESERVED.  Contact the WinPcap team for an assignment */
@@ -329,22 +329,22 @@ static const true_false_string tfs_invalid_valid = { "Invalid", "Valid" };
 static const true_false_string tfs_phy_error = { "PHY error", "No errors"};
 
 static const value_string vs_ppi_field_type[] = {
-    {PPI_80211_COMMON, "802.11-Common"},
-    {PPI_80211N_MAC, "802.11n MAC Extensions"},
-    {PPI_80211N_MAC_PHY, "802.11n MAC+PHY Extensions"},
-    {PPI_SPECTRUM_MAP, "Spectrum-Map"},
-    {PPI_PROCESS_INFO, "Process-Info"},
-    {PPI_CAPTURE_INFO, "Capture-Info"},
+    {PPI_80211_COMMON,          "802.11-Common"},
+    {PPI_80211N_MAC,            "802.11n MAC Extensions"},
+    {PPI_80211N_MAC_PHY,        "802.11n MAC+PHY Extensions"},
+    {PPI_SPECTRUM_MAP,          "Spectrum-Map"},
+    {PPI_PROCESS_INFO,          "Process-Info"},
+    {PPI_CAPTURE_INFO,          "Capture-Info"},
     {PPI_AGGREGATION_EXTENSION, "Aggregation Extension"},
-    {PPI_8023_EXTENSION, "802.3 Extension"},
+    {PPI_8023_EXTENSION,        "802.3 Extension"},
 
-    {INTEL_CORP_PRIVATE, "Intel Corporation (private)"},
-    {MOHAMED_THAGA_PRIVATE, "Mohamed Thaga (private)"},
-    {PPI_GPS_INFO, "GPS Tagging"},
-    {PPI_VECTOR_INFO, "Vector Tagging"},
-    {PPI_SENSOR_INFO, "Sensor tagging"},
-    {PPI_ANTENNA_INFO, "Antenna Tagging"},
-    {CACE_PRIVATE, "CACE Technologies (private)"},
+    {INTEL_CORP_PRIVATE,        "Intel Corporation (private)"},
+    {MOHAMED_THAGA_PRIVATE,     "Mohamed Thaga (private)"},
+    {PPI_GPS_INFO,              "GPS Tagging"},
+    {PPI_VECTOR_INFO,           "Vector Tagging"},
+    {PPI_SENSOR_INFO,           "Sensor tagging"},
+    {PPI_ANTENNA_INFO,          "Antenna Tagging"},
+    {CACE_PRIVATE,              "CACE Technologies (private)"},
     {0, NULL}
 };
 
@@ -374,9 +374,9 @@ static gboolean ppi_ampdu_reassemble = TRUE;
 void
 capture_ppi(const guchar *pd, int len, packet_counts *ld)
 {
-    guint32 dlt;
-    guint ppi_len, data_type, data_len;
-    guint offset = PPI_V0_HEADER_LEN;
+    guint32  dlt;
+    guint    ppi_len, data_type, data_len;
+    guint    offset = PPI_V0_HEADER_LEN;
     gboolean is_htc = FALSE;
 
     ppi_len = pletohs(pd+2);
@@ -420,7 +420,7 @@ capture_ppi(const guchar *pd, int len, packet_counts *ld)
 static void
 ptvcursor_add_invalid_check(ptvcursor_t *csr, int hf, gint len, guint64 invalid_val) {
     proto_item *ti;
-    guint64 val = invalid_val;
+    guint64     val = invalid_val;
 
     switch (len) {
         case 8:
@@ -451,7 +451,7 @@ ptvcursor_add_invalid_check(ptvcursor_t *csr, int hf, gint len, guint64 invalid_
 static void
 add_ppi_field_header(tvbuff_t *tvb, proto_tree *tree, int *offset)
 {
-    ptvcursor_t *csr = NULL;
+    ptvcursor_t *csr;
 
     csr = ptvcursor_new(tree, tvb, *offset);
     ptvcursor_add(csr, hf_ppi_field_type, 2, ENC_LITTLE_ENDIAN);
@@ -464,13 +464,13 @@ add_ppi_field_header(tvbuff_t *tvb, proto_tree *tree, int *offset)
 static void
 dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int data_len)
 {
-    proto_tree *ftree = NULL;
-    proto_item *ti = NULL;
-    ptvcursor_t *csr = NULL;
-    gint rate_kbps;
-    guint32 common_flags;
-    guint16 common_frequency;
-    gchar *chan_str;
+    proto_tree  *ftree = NULL;
+    proto_item  *ti    = NULL;
+    ptvcursor_t *csr;
+    gint         rate_kbps;
+    guint32      common_flags;
+    guint16      common_frequency;
+    gchar       *chan_str;
 
     ti = proto_tree_add_text(tree, tvb, offset, data_len, "802.11-Common");
     ftree = proto_item_add_subtree(ti, ett_dot11_common);
@@ -550,10 +550,10 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 static void
 dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int data_len, gboolean add_subtree, guint32 *n_mac_flags, guint32 *ampdu_id)
 {
-    proto_tree *ftree = tree;
-    proto_item *ti = NULL;
-    ptvcursor_t *csr = NULL;
-    int subtree_off = add_subtree ? 4 : 0;
+    proto_tree  *ftree       = tree;
+    proto_item  *ti          = NULL;
+    ptvcursor_t *csr;
+    int          subtree_off = add_subtree ? 4 : 0;
 
     *n_mac_flags = tvb_get_letohl(tvb, offset + subtree_off);
     *ampdu_id = tvb_get_letohl(tvb, offset + 4 + subtree_off);
@@ -596,11 +596,11 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
 static void
 dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int data_len, guint32 *n_mac_flags, guint32 *ampdu_id)
 {
-    proto_tree *ftree = NULL;
-    proto_item *ti = NULL;
-    ptvcursor_t *csr = NULL;
-    guint16 ext_frequency;
-    gchar *chan_str;
+    proto_tree  *ftree = NULL;
+    proto_item  *ti    = NULL;
+    ptvcursor_t *csr;
+    guint16      ext_frequency;
+    gchar       *chan_str;
 
     ti = proto_tree_add_text(tree, tvb, offset, data_len, "802.11n MAC+PHY");
     ftree = proto_item_add_subtree(ti, ett_dot11n_mac_phy);
@@ -672,7 +672,7 @@ dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 {
     proto_tree *ftree = tree;
     proto_item *ti = NULL;
-    ptvcursor_t *csr = NULL;
+    ptvcursor_t *csr;
 
     ti = proto_tree_add_text(tree, tvb, offset, data_len, "Aggregation Extension");
     ftree = proto_item_add_subtree(ti, ett_aggregation_extension);
@@ -693,9 +693,9 @@ dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static void
 dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int data_len)
 {
-    proto_tree *ftree = tree;
-    proto_item *ti = NULL;
-    ptvcursor_t *csr = NULL;
+    proto_tree  *ftree = tree;
+    proto_item  *ti    = NULL;
+    ptvcursor_t *csr;
 
     ti = proto_tree_add_text(tree, tvb, offset, data_len, "802.3 Extension");
     ftree = proto_item_add_subtree(ti, ett_8023_extension);
@@ -732,24 +732,24 @@ dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static void
 dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *ppi_tree = NULL, *ppi_flags_tree = NULL, *seg_tree = NULL, *ampdu_tree = NULL;
-    proto_tree *agg_tree = NULL;
-    proto_item *ti = NULL;
-    tvbuff_t *next_tvb;
-    int offset = 0;
-    guint version, flags;
-    gint tot_len, data_len;
-    guint data_type;
-    guint32 dlt;
-    guint32 n_ext_flags = 0;
-    guint32 ampdu_id = 0;
-    fragment_data *fd_head = NULL, *ft_fdh = NULL;
+    proto_tree    *ppi_tree    = NULL, *ppi_flags_tree = NULL, *seg_tree = NULL, *ampdu_tree = NULL;
+    proto_tree    *agg_tree    = NULL;
+    proto_item    *ti          = NULL;
+    tvbuff_t      *next_tvb;
+    int            offset      = 0;
+    guint          version, flags;
+    gint           tot_len, data_len;
+    guint          data_type;
+    guint32        dlt;
+    guint32        n_ext_flags = 0;
+    guint32        ampdu_id    = 0;
+    fragment_data *fd_head     = NULL, *ft_fdh = NULL;
+    gint           mpdu_count  = 0;
+    gchar         *mpdu_str;
+    gboolean       first_mpdu  = TRUE;
+    guint          last_frame  = 0;
+    gboolean       is_ht       = FALSE;
     gint len_remain, /*pad_len = 0,*/ ampdu_len = 0;
-    gint mpdu_count = 0;
-    gchar *mpdu_str;
-    gboolean first_mpdu = TRUE;
-    guint last_frame = 0;
-    gboolean is_ht = FALSE;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPI");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -833,7 +833,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (ppi_gps_handle == NULL)
             {
                 proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-                                    "%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "GPS: "), data_len);
+                                    "%s (%u bytes)", val_to_str_const(data_type, vs_ppi_field_type, "GPS: "), data_len);
             }
             else /* we found a suitable dissector */
             {
@@ -846,7 +846,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (ppi_vector_handle == NULL)
             {
                 proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-                                    "%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "VECTOR: "), data_len);
+                                    "%s (%u bytes)", val_to_str_const(data_type, vs_ppi_field_type, "VECTOR: "), data_len);
             }
             else /* we found a suitable dissector */
             {
@@ -859,7 +859,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (ppi_sensor_handle == NULL)
             {
                 proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-                                    "%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "HARRIS: "), data_len);
+                                    "%s (%u bytes)", val_to_str_const(data_type, vs_ppi_field_type, "HARRIS: "), data_len);
             }
             else /* we found a suitable dissector */
             {
@@ -872,7 +872,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (ppi_antenna_handle == NULL)
             {
                 proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-                                    "%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "ANTENNA: "), data_len);
+                                    "%s (%u bytes)", val_to_str_const(data_type, vs_ppi_field_type, "ANTENNA: "), data_len);
             }
             else /* we found a suitable dissector */
             {
@@ -885,7 +885,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         default:
             if (tree)
                 proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-                                    "%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "Reserved"), data_len);
+                                    "%s (%u bytes)", val_to_str_const(data_type, vs_ppi_field_type, "Reserved"), data_len);
         }
 
         offset += data_len;

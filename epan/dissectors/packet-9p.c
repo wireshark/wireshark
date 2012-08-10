@@ -43,33 +43,33 @@
 	http://www.cs.bell-labs.com/sys/man/5/INDEX.html
 */
 enum {
-	TVERSION	= 100,
-	RVERSION	= 101,
-	TAUTH 		= 102,
-	RAUTH 		= 103,
-	TATTACH		= 104,
-	RATTACH		= 105,
-	TERROR		= 106,	/* Not used */
-	RERROR		= 107,
-	TFLUSH		= 108,
-	RFLUSH		= 109,
-	TWALK		= 110,
-	RWALK		= 111,
-	TOPEN = 112,
+	TVERSION = 100,
+	RVERSION = 101,
+	TAUTH 	 = 102,
+	RAUTH 	 = 103,
+	TATTACH	 = 104,
+	RATTACH	 = 105,
+	TERROR	 = 106,	/* Not used */
+	RERROR	 = 107,
+	TFLUSH	 = 108,
+	RFLUSH	 = 109,
+	TWALK	 = 110,
+	RWALK	 = 111,
+	TOPEN    = 112,
 	ROPEN,
-	TCREATE = 114,
+	TCREATE  = 114,
 	RCREATE,
-	TREAD = 116,
+	TREAD    = 116,
 	RREAD,
-	TWRITE = 118,
+	TWRITE   = 118,
 	RWRITE,
-	TCLUNK = 120,
+	TCLUNK   = 120,
 	RCLUNK,
-	TREMOVE = 122,
+	TREMOVE  = 122,
 	RREMOVE,
-	TSTAT = 124,
+	TSTAT    = 124,
 	RSTAT,
-	TWSTAT = 126,
+	TWSTAT   = 126,
 	RWSTAT
 };
 /* File open modes */
@@ -189,6 +189,8 @@ static const value_string ninep_msg_type[] =
 	{RWSTAT,	"Rwstat"},
 	{0,		NULL},
 };
+static value_string_ext ninep_msg_type_ext = VALUE_STRING_EXT_INIT(ninep_msg_type);
+
 /* Open/Create modes */
 static const value_string ninep_mode_vals[] =
 {
@@ -223,7 +225,7 @@ static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	/*ninesz = tvb_get_letohl(tvb, offset);*/
 	ninemsg = tvb_get_guint8(tvb, offset + 4);
 
-	mname = val_to_str(ninemsg, ninep_msg_type, "Unknown");
+	mname = val_to_str_ext_const(ninemsg, &ninep_msg_type_ext, "Unknown");
 
 	if(strcmp(mname,"Unknown") == 0) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "9P Data Continuation(?) (Tag %u)",(guint)ninemsg);
@@ -678,7 +680,7 @@ void proto_register_9P(void)
 		 {"Msg length", "9p.msglen", FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "9P Message Length", HFILL}},
 		{&hf_9P_msgtype,
-		 {"Msg Type", "9p.msgtype", FT_UINT8, BASE_DEC, VALS(ninep_msg_type), 0x0,
+		 {"Msg Type", "9p.msgtype", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ninep_msg_type_ext, 0x0,
 		  "Message Type", HFILL}},
 		{&hf_9P_tag,
 		 {"Tag", "9p.tag", FT_UINT16, BASE_DEC, NULL, 0x0,

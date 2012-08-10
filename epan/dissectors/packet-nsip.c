@@ -288,9 +288,9 @@ check_correct_iei(nsip_ie_t *ie, build_info_t *bi) {
   if (fetched_iei != ie->iei) {
     proto_tree_add_text(bi->nsip_tree, bi->tvb, bi->offset, 1,
                         "Tried IEI %s (%#02x), found IEI %s (%#02x)",
-                        val_to_str(ie->iei, tab_nsip_ieis, "Unknown"),
+                        val_to_str_const(ie->iei, tab_nsip_ieis, "Unknown"),
                         ie->iei,
-                        val_to_str(fetched_iei, tab_nsip_ieis, "Unknown"),
+                        val_to_str_const(fetched_iei, tab_nsip_ieis, "Unknown"),
                         fetched_iei);
   }
 #endif
@@ -307,8 +307,8 @@ decode_iei_cause(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
                                bi->tvb, ie_start_offset, ie->total_length,
                                cause,
                                "Cause: %s (%#02x)",
-                               val_to_str(cause, tab_nsip_cause_values,
-                                          "Unknown"), cause);
+                               val_to_str_const(cause, tab_nsip_cause_values,
+                                                "Unknown"), cause);
     if (check_col(bi->pinfo->cinfo, COL_INFO)) {
         col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
             "Cause: %s",
@@ -1011,15 +1011,15 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_uint_format(nsip_tree, hf_nsip_pdu_type, tvb, 0, 1,
                                pdu_type,
                                "PDU type: %s (%#02x)",
-                               val_to_str(pdu_type, tab_nsip_pdu_types,
-                                          "Unknown"), pdu_type);
+                               val_to_str_const(pdu_type, tab_nsip_pdu_types,
+                                                "Unknown"), pdu_type);
     proto_item_append_text(bi.ti, ", PDU type: %s",
-                               val_to_str(pdu_type, tab_nsip_pdu_types, "Unknown"));
+                               val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown"));
     bi.nsip_tree = nsip_tree;
   }
 
   col_add_str(pinfo->cinfo, COL_INFO,
-              val_to_str(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
+              val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
   decode_pdu(pdu_type, &bi);
 }
 

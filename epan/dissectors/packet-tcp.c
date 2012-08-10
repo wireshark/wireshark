@@ -3295,7 +3295,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
     pitem = proto_tree_add_boolean_format_value(
         opt_tree, hf_tcp_option_rvbd_probe, tvb, offset, optlen, 1,
-        "%s", val_to_str(type, rvbd_probe_type_vs, "Probe Unknown"));
+        "%s", val_to_str_const(type, rvbd_probe_type_vs, "Probe Unknown"));
 
     if (type >= PROBE_TYPE_MAX)
         return;

@@ -692,7 +692,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	{
 		/* Set chassis tree */
 		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Chassis Subtype = %s",
-								val_to_str(tempType, chassis_id_subtypes, "Reserved" ));
+								val_to_str_const(tempType, chassis_id_subtypes, "Reserved" ));
 		chassis_tree = proto_item_add_subtree(tf, ett_chassis_id);
 
 		proto_tree_add_item(chassis_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -818,7 +818,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	{
 		/* Set port tree */
 		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Port Subtype = %s",
-								val_to_str(tempType, port_id_subtypes, "Unknown" ));
+								val_to_str_const(tempType, port_id_subtypes, "Unknown" ));
 		port_tree = proto_item_add_subtree(tf, ett_port_id);
 
 		proto_tree_add_item(port_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1165,7 +1165,7 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		/* Get management address subtype */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		proto_tree_add_text(system_mgm_addr, tvb, tempOffset, 1, "Address Subtype: %s (%u)",
-							val_to_str(tempByte, afn_vals, "Undefined"),
+							val_to_str_const(tempByte, afn_vals, "Undefined"),
 							tempByte);
 
 		tempOffset++;
@@ -1190,7 +1190,7 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		/* Get interface numbering subtype */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		proto_tree_add_text(system_mgm_addr, tvb, tempOffset, 1, "Interface Subtype: %s (%u)",
-							val_to_str(tempByte, interface_subtype_values, "Undefined"),
+							val_to_str_const(tempByte, interface_subtype_values, "Undefined"),
 							tempByte);
 
 		tempOffset++;
@@ -1674,7 +1674,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "Operational MAU Type: %s (0x%04X)",
-							val_to_str(tempShort,operational_mau_type_values,"Unknown"),
+							val_to_str_const(tempShort,operational_mau_type_values,"Unknown"),
 							tempShort);
 
 		tempOffset += 2;
@@ -1740,8 +1740,8 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s %s",
 				decode_boolean_bitfield(tempByte, 0xC0, 8, "Power Type:", "Power Type:"),
-				val_to_str(subType, power_type_802_3, "Unknown"),
-				val_to_str(subType, media_power_type, "Unknown"));
+				val_to_str_const(subType, power_type_802_3, "Unknown"),
+				val_to_str_const(subType, media_power_type, "Unknown"));
 
 		/* Determine power source */
 		switch (subType)
@@ -1750,7 +1750,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		case 2:
 		{
 			subType = ((tempByte & 0x30) >> 4);
-			strPtr = val_to_str(subType, media_power_pse_device, "Reserved");
+			strPtr = val_to_str_const(subType, media_power_pse_device, "Reserved");
 
 			break;
 		}
@@ -1758,7 +1758,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		case 3:
 		{
 			subType = ((tempByte & 0x30) >> 4);
-			strPtr = val_to_str(subType, media_power_pd_device, "Reserved");
+			strPtr = val_to_str_const(subType, media_power_pd_device, "Reserved");
 
 			break;
 		}
@@ -1778,7 +1778,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
 				decode_boolean_bitfield(tempByte, 0x0F, 8, "Power Priority:", "Power Priority:"),
-				val_to_str(subType, media_power_priority, "Reserved"));
+				val_to_str_const(subType, media_power_priority, "Reserved"));
 
 		tempOffset++;
 
@@ -1920,7 +1920,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		}
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Class Type: %s", val_to_str(tempByte, media_class_values, "Unknown"));
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "Class Type: %s", val_to_str_const(tempByte, media_class_values, "Unknown"));
 		tempOffset++;
 		tlvLen--;
 
@@ -1937,7 +1937,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "Application Type: %s (%u)",
-							val_to_str(tempByte, media_application_type, "Unknown"), tempByte);
+							val_to_str_const(tempByte, media_application_type, "Unknown"), tempByte);
 		tempOffset++;
 		tlvLen--;
 
@@ -2001,7 +2001,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "Location Data Format: %s (%u)",
-							val_to_str(tempByte, location_data_format, "Unknown"), tempByte);
+							val_to_str_const(tempByte, location_data_format, "Unknown"), tempByte);
 		tempOffset++;
 		tlvLen--;
 
@@ -2139,7 +2139,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			tempByte = tvb_get_guint8(tvb, tempOffset);
 			if (tree)
 				proto_tree_add_text(tree, tvb, tempOffset, 1, "What: %s (%u)",
-									val_to_str(tempByte,civic_address_what_values,"Unknown"),
+									val_to_str_const(tempByte,civic_address_what_values,"Unknown"),
 									tempByte);
 			tempOffset++;
 			LCI_Length--;
@@ -2168,7 +2168,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				tempByte = tvb_get_guint8(tvb, tempOffset);
 				if (tree)
 					proto_tree_add_text(tree, tvb, tempOffset, 1, "CA Type: %s (%u)",
-									val_to_str(tempByte,civic_address_type_values,"Unknown"),
+									val_to_str_const(tempByte,civic_address_type_values,"Unknown"),
 									tempByte);
 
 				tempOffset++;
@@ -2231,7 +2231,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
 						decode_boolean_bitfield(tempByte, 0xC0, 8, "Power Type:", "Power Type:"),
-												val_to_str(subType, media_power_type, "Unknown"));
+												val_to_str_const(subType, media_power_type, "Unknown"));
 
 		/* Determine power source */
 		switch (subType)
@@ -2239,14 +2239,14 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		case 0:
 		{
 			subType = ((tempByte & 0x30) >> 4);
-			strPtr = val_to_str(subType, media_power_pse_device, "Reserved");
+			strPtr = val_to_str_const(subType, media_power_pse_device, "Reserved");
 
 			break;
 		}
 		case 1:
 		{
 			subType = ((tempByte & 0x30) >> 4);
-			strPtr = val_to_str(subType, media_power_pd_device, "Reserved");
+			strPtr = val_to_str_const(subType, media_power_pd_device, "Reserved");
 
 			break;
 		}
@@ -2266,7 +2266,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
 						decode_boolean_bitfield(tempByte, 0x0F, 8, "Power Priority:", "Power Priority:"),
-												val_to_str(subType, media_power_priority, "Reserved"));
+												val_to_str_const(subType, media_power_priority, "Reserved"));
 
 		tempOffset++;
 
@@ -2600,7 +2600,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		return tLength;
 	}
 	/* maintain previous OUI names.  If not included, look in manuf database for OUI */
-	ouiStr = val_to_str(oui, tlv_oui_subtype_vals, "Unknown");
+	ouiStr = val_to_str_const(oui, tlv_oui_subtype_vals, "Unknown");
 	if (strcmp(ouiStr, "Unknown")==0) {
 		ouiStr = uint_get_manuf_name_if_known(oui);
 		if(ouiStr==NULL) ouiStr="Unknown";

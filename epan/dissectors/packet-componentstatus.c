@@ -194,7 +194,7 @@ dissect_componentstatusprotocol_message(tvbuff_t *message_tvb, packet_info *pinf
   guint8      type;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
-  col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, message_type_values, "Unknown ComponentStatusProtocol type"));
+  col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(type, message_type_values, "Unknown ComponentStatusProtocol type"));
   proto_tree_add_item(componentstatusprotocol_tree, hf_message_type,            message_tvb, MESSAGE_TYPE_OFFSET,     MESSAGE_TYPE_LENGTH,     ENC_BIG_ENDIAN);
   flags_item = proto_tree_add_item(componentstatusprotocol_tree, hf_message_flags,           message_tvb, MESSAGE_FLAGS_OFFSET, MESSAGE_FLAGS_LENGTH, ENC_BIG_ENDIAN);
   flags_tree = proto_item_add_subtree(flags_item, ett_message_flags);

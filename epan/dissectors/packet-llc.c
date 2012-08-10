@@ -595,7 +595,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 		    "; SNAP, OUI 0x%06X (%s), PID 0x%04X",
-		    oui, val_to_str(oui, oui_vals, "Unknown"), etype);
+		    oui, val_to_str_const(oui, oui_vals, "Unknown"), etype);
 	}
 	if (tree) {
 		proto_tree_add_uint(snap_tree, hf_oui, tvb, offset, 3, oui);

@@ -57,10 +57,10 @@
 #define UDP_PORT_AODV	654
 
 /* Message Types */
-#define RREQ			1
-#define RREP			2
-#define RERR			3
-#define RREP_ACK		4
+#define RREQ			 1
+#define RREP			 2
+#define RERR			 3
+#define RREP_ACK		 4
 #define DRAFT_01_V6_RREQ	16
 #define DRAFT_01_V6_RREP	17
 #define DRAFT_01_V6_RERR	18
@@ -151,7 +151,7 @@ dissect_aodv_ext(tvbuff_t * tvb, int offset, proto_tree * tree)
 {
     proto_tree *ext_tree;
     proto_item *ti;
-    guint8 type, len;
+    guint8      type, len;
 
     if (!tree)
 	return;
@@ -168,7 +168,7 @@ dissect_aodv_ext(tvbuff_t * tvb, int offset, proto_tree * tree)
 
     proto_tree_add_text(ext_tree, tvb, offset, 1,
 			"Type: %u (%s)", type,
-			val_to_str(type, exttype_vals, "Unknown"));
+			val_to_str_const(type, exttype_vals, "Unknown"));
 
     if (len == 0) {
         proto_tree_add_text(ext_tree, tvb, offset + 1, 1,
@@ -203,19 +203,19 @@ static void
 dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 		  proto_item *ti, gboolean is_ipv6)
 {
-    int offset = 1;
-    proto_item *tj;
-    proto_tree *aodv_flags_tree;
-    guint8 flags;
-    guint8 hop_count;
-    guint32 rreq_id;
-    guint32 dest_addr_v4;
-    struct e_in6_addr dest_addr_v6;
-    guint32 dest_seqno;
-    guint32 orig_addr_v4;
-    struct e_in6_addr orig_addr_v6;
-    guint32 orig_seqno;
-    int extlen;
+    int                offset = 1;
+    proto_item        *tj;
+    proto_tree        *aodv_flags_tree;
+    guint8             flags;
+    guint8             hop_count;
+    guint32            rreq_id;
+    guint32            dest_addr_v4;
+    struct e_in6_addr  dest_addr_v6;
+    guint32            dest_seqno;
+    guint32            orig_addr_v4;
+    struct e_in6_addr  orig_addr_v6;
+    guint32            orig_seqno;
+    int                extlen;
 
     flags = tvb_get_guint8(tvb, offset);
     if (aodv_tree) {
@@ -332,19 +332,19 @@ static void
 dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 		  proto_item *ti, gboolean is_ipv6)
 {
-    int offset = 1;
-    proto_item *tj;
-    proto_tree *aodv_flags_tree;
-    guint8 flags;
-    guint8 prefix_sz;
-    guint8 hop_count;
-    guint32 dest_addr_v4;
-    struct e_in6_addr dest_addr_v6;
-    guint32 dest_seqno;
-    guint32 orig_addr_v4;
-    struct e_in6_addr orig_addr_v6;
-    guint32 lifetime;
-    int extlen;
+    int                offset = 1;
+    proto_item        *tj;
+    proto_tree        *aodv_flags_tree;
+    guint8             flags;
+    guint8             prefix_sz;
+    guint8             hop_count;
+    guint32            dest_addr_v4;
+    struct e_in6_addr  dest_addr_v6;
+    guint32            dest_seqno;
+    guint32            orig_addr_v4;
+    struct e_in6_addr  orig_addr_v6;
+    guint32            lifetime;
+    int                extlen;
 
     flags = tvb_get_guint8(tvb, offset);
     if (aodv_tree) {
@@ -452,13 +452,13 @@ static void
 dissect_aodv_rerr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 		  gboolean is_ipv6)
 {
-    int offset = 1;
+    int         offset = 1;
     proto_item *tj;
     proto_tree *aodv_flags_tree;
     proto_tree *aodv_unreach_dest_tree;
-    guint8 flags;
-    guint8 dest_count;
-    int i;
+    guint8      flags;
+    guint8      dest_count;
+    int         i;
 
     flags = tvb_get_guint8(tvb, offset);
     if (aodv_tree) {
@@ -512,17 +512,17 @@ static void
 dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
 			      proto_tree *aodv_tree, proto_item *ti)
 {
-    int offset = 1;
-    proto_item *tj;
-    proto_tree *aodv_flags_tree;
-    guint8 flags;
-    guint8 hop_count;
-    guint32 rreq_id;
-    guint32 dest_seqno;
-    guint32 orig_seqno;
-    struct e_in6_addr dest_addr_v6;
-    struct e_in6_addr orig_addr_v6;
-    int extlen;
+    int                offset = 1;
+    proto_item        *tj;
+    proto_tree        *aodv_flags_tree;
+    guint8             flags;
+    guint8             hop_count;
+    guint32            rreq_id;
+    guint32            dest_seqno;
+    guint32            orig_seqno;
+    struct e_in6_addr  dest_addr_v6;
+    struct e_in6_addr  orig_addr_v6;
+    int                extlen;
 
     flags = tvb_get_guint8(tvb, offset);
     if (aodv_tree) {
@@ -615,17 +615,17 @@ static void
 dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
 			      proto_tree *aodv_tree, proto_item *ti)
 {
-    int offset = 1;
-    proto_item *tj;
-    proto_tree *aodv_flags_tree;
-    guint8 flags;
-    guint8 prefix_sz;
-    guint8 hop_count;
-    guint32 dest_seqno;
-    struct e_in6_addr dest_addr_v6;
-    struct e_in6_addr orig_addr_v6;
-    guint32 lifetime;
-    int extlen;
+    int                offset = 1;
+    proto_item        *tj;
+    proto_tree        *aodv_flags_tree;
+    guint8             flags;
+    guint8             prefix_sz;
+    guint8             hop_count;
+    guint32            dest_seqno;
+    struct e_in6_addr  dest_addr_v6;
+    struct e_in6_addr  orig_addr_v6;
+    guint32            lifetime;
+    int                extlen;
 
     flags = tvb_get_guint8(tvb, offset);
     if (aodv_tree) {
@@ -708,13 +708,13 @@ static void
 dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
 			      proto_tree *aodv_tree)
 {
-    int offset = 1;
+    int         offset = 1;
     proto_item *tj;
     proto_tree *aodv_flags_tree;
     proto_tree *aodv_unreach_dest_tree;
-    guint8 flags;
-    guint8 dest_count;
-    int i;
+    guint8      flags;
+    guint8      dest_count;
+    int         i;
 
     flags = tvb_get_guint8(tvb, offset);
     if (aodv_tree) {
@@ -754,10 +754,10 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
 static int
 dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti = NULL;
+    proto_item *ti        = NULL;
     proto_tree *aodv_tree = NULL;
-    gboolean is_ipv6;
-    guint8 type;
+    gboolean    is_ipv6;
+    guint8      type;
 
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AODV");

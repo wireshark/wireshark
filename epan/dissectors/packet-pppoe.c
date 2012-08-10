@@ -308,7 +308,7 @@ const value_string datarate_scale_vals[] = {
 #define CASE_VSPEC_DSLF_TAG_UINT(tag_name, relation, length, hf_var) case tag_name: \
 		if (!(poe_tag_length relation length)) { \
 			expert_add_info_format(pinfo, pppoe_tree, PI_MALFORMED, PI_WARN, "%s: Wrong length: %u (expected %s %d)", \
-					val_to_str(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, #relation, length); \
+					val_to_str_const(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, #relation, length); \
 		} else { \
 			proto_tree_add_item(pppoe_tree, hf_var, tvb, \
 				tagstart+2, poe_tag_length, ENC_BIG_ENDIAN); \
@@ -318,7 +318,7 @@ const value_string datarate_scale_vals[] = {
 #define CASE_VSPEC_DSLF_TAG_STRING(tag_name, relation, length, hf_var) case tag_name: \
 		if (!(poe_tag_length relation length)) { \
 			expert_add_info_format(pinfo, pppoe_tree, PI_MALFORMED, PI_WARN, "%s: Wrong length: %u (expected %s %d)", \
-					val_to_str(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, #relation, length); \
+					val_to_str_const(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, #relation, length); \
 		} else { \
 			proto_tree_add_item(pppoe_tree, hf_var, tvb, \
 				tagstart+2, poe_tag_length, ENC_ASCII|ENC_NA); \
@@ -399,7 +399,7 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 					if (poe_tag_length != 3) {
 						expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
 								"%s: Wrong length: %u (expected 3)",
-								val_to_str(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length);
+								val_to_str_const(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length);
 					}
 					encaps_tree = proto_item_add_subtree(ti, ett_pppoed_tag_vspec_dslf_access_loop_encaps);
 					proto_tree_add_item(encaps_tree, hf_pppoed_tag_vspec_access_loop_encap_data_link,
@@ -710,7 +710,7 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pppoe_code, code_vals, "Unknown"));
+		col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(pppoe_code, code_vals, "Unknown"));
 	}
 
 	/* Read length of payload */
@@ -1074,7 +1074,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo,COL_INFO))
 	{
 		col_add_str(pinfo->cinfo, COL_INFO,
-		             val_to_str(pppoe_code, code_vals, "Unknown"));
+		             val_to_str_const(pppoe_code, code_vals, "Unknown"));
 	}
 
 	reported_payload_length = tvb_get_ntohs(tvb, 4);

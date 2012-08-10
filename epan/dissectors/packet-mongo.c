@@ -612,7 +612,7 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_set_str(pinfo->cinfo, COL_INFO, "Request :");
 
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(opcode, opcode_vals, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(opcode, opcode_vals, "Unknown"));
 
     switch(opcode){
     case OP_REPLY:

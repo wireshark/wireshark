@@ -2179,12 +2179,12 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
     subtree_colour = proto_item_add_subtree(item_colour, ett_udh_tfc);
 
 
-    str = val_to_str(oct & 0x0f, text_color_values, "Unknown");
+    str = val_to_str_const(oct & 0x0f, text_color_values, "Unknown");
     proto_tree_add_text(subtree_colour, tvb, offset, 1,
                         "Foreground Colour : 0x%x %s",
                         oct & 0x0f , str);
 
-    str = val_to_str((oct >> 4) & 0x0f, text_color_values, "Unknown");
+    str = val_to_str_const((oct >> 4) & 0x0f, text_color_values, "Unknown");
     proto_tree_add_text(subtree_colour,
                         tvb, offset, 1,
                         "Background Colour : 0x%x %s",

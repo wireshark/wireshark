@@ -265,8 +265,8 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (mtp3_tvb == NULL && check_col(pinfo->cinfo, COL_INFO)) {
     if (pri >= 0) {
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s.%s: %s",
-        val_to_str(fac, short_fac, "UNKNOWN"),
-        val_to_str(lev, short_lev, "UNKNOWN"), msg_str);
+        val_to_str_const(fac, short_fac, "UNKNOWN"),
+        val_to_str_const(lev, short_lev, "UNKNOWN"), msg_str);
     } else {
       col_add_str(pinfo->cinfo, COL_INFO, msg_str);
     }
@@ -276,8 +276,8 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (pri >= 0) {
       ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0, -1,
         "Syslog message: %s.%s: %s",
-        val_to_str(fac, short_fac, "UNKNOWN"),
-        val_to_str(lev, short_lev, "UNKNOWN"), msg_str);
+        val_to_str_const(fac, short_fac, "UNKNOWN"),
+        val_to_str_const(lev, short_lev, "UNKNOWN"), msg_str);
     } else {
       ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0, -1,
         "Syslog message: (unknown): %s", msg_str);

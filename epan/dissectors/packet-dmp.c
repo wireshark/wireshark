@@ -1082,18 +1082,18 @@ static const gchar *msg_type_to_str (void)
   case STANAG:
     /* Include message type and precedence */
     msg_type = ep_strdup_printf ("%s (%s) [%s]",
-                val_to_str (dmp.msg_type, type_vals, "Unknown"),
-                val_to_str (dmp.st_type, message_type_vals, "Unknown"),
+                val_to_str_const (dmp.msg_type, type_vals, "Unknown"),
+                val_to_str_const (dmp.st_type, message_type_vals, "Unknown"),
                 (dmp.prec == 0x6 || dmp.prec == 0x7) ?
-                val_to_str (dmp.prec-4, precedence, "Unknown") :
-                val_to_str (dmp.prec, precedence, "Unknown"));
+                val_to_str_const (dmp.prec-4, precedence, "Unknown") :
+                val_to_str_const (dmp.prec, precedence, "Unknown"));
     break;
 
   case IPM:
     /* Include importance */
     msg_type = ep_strdup_printf ("%s [%s]",
-                val_to_str (dmp.msg_type, type_vals, "Unknown"),
-                val_to_str (dmp.prec, importance, "Unknown"));
+                val_to_str_const (dmp.msg_type, type_vals, "Unknown"),
+                val_to_str_const (dmp.prec, importance, "Unknown"));
     break;
 
   case REPORT:
@@ -1104,7 +1104,7 @@ static const gchar *msg_type_to_str (void)
     break;
 
   case NOTIF:
-    msg_type = val_to_str (dmp.notif_type, notif_type, "Unknown");
+    msg_type = val_to_str_const (dmp.notif_type, notif_type, "Unknown");
     break;
 
   case ACK:
@@ -1129,9 +1129,9 @@ static const gchar *non_del_reason_str (guint32 value)
 {
   if (value < 0x3D) {
     /* Standard values according to P1 */
-    return val_to_str (value, p1_NonDeliveryReasonCode_vals, "Unknown");
+    return val_to_str_const (value, p1_NonDeliveryReasonCode_vals, "Unknown");
   } else {
-    return val_to_str (value, non_del_reason, "Unknown");
+    return val_to_str_const (value, non_del_reason, "Unknown");
   }
 }
 
@@ -1139,25 +1139,25 @@ static const gchar *non_del_diagn_str (guint32 value)
 {
   if (value < 0x7C) {
     /* Standard values according to P1 */
-    return val_to_str (value, p1_NonDeliveryDiagnosticCode_vals, "Unknown");
+    return val_to_str_const (value, p1_NonDeliveryDiagnosticCode_vals, "Unknown");
   } else {
-    return val_to_str (value, non_del_diagn, "Unknown");
+    return val_to_str_const (value, non_del_diagn, "Unknown");
   }
 }
 
 static const gchar *nrn_reason_str (guint32 value)
 {
   /* Standard values according to P22 */
-  return val_to_str (value, p22_NonReceiptReasonField_vals, "Reserved");
+  return val_to_str_const (value, p22_NonReceiptReasonField_vals, "Reserved");
 }
 
 static const gchar *discard_reason_str (guint32 value)
 {
   if (value < 0xFE) {
     /* Standard values according to P22 */
-    return val_to_str (value, p22_DiscardReasonField_vals, "Reserved");
+    return val_to_str_const (value, p22_DiscardReasonField_vals, "Reserved");
   } else {
-    return val_to_str (value, discard_reason, "Unknown");
+    return val_to_str_const (value, discard_reason, "Unknown");
   }
 }
 
@@ -1956,7 +1956,7 @@ static gint dissect_dmp_direct_addr (tvbuff_t *tvb, packet_info *pinfo,
     en = proto_tree_add_uint_format (field_tree, hf_addr_dir_address1, tvb,
                                      offset, 1, value,
                                      "%sDirect Address (bits 6-0): %d",
-                                     val_to_str (addr_type, addr_type_str, ""),
+                                     val_to_str_const (addr_type, addr_type_str, ""),
                                      value & 0x7F);
     addr_tree = proto_item_add_subtree (en, ett_address_direct);
     proto_tree_add_item (addr_tree, hf_addr_dir_addr_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1969,7 +1969,7 @@ static gint dissect_dmp_direct_addr (tvbuff_t *tvb, packet_info *pinfo,
     en = proto_tree_add_uint_format (field_tree, hf_addr_dir_address2, tvb,
                                      offset, 1, value,
                                      "%sDirect Address (bits 12-7): %d",
-                                     val_to_str (addr_type, addr_type_str, ""),
+                                     val_to_str_const (addr_type, addr_type_str, ""),
                                      value & 0x3F);
     addr_tree = proto_item_add_subtree (en, ett_address_direct);
     proto_tree_add_item (addr_tree, hf_addr_dir_addr_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1988,7 +1988,7 @@ static gint dissect_dmp_direct_addr (tvbuff_t *tvb, packet_info *pinfo,
       en = proto_tree_add_uint_format (field_tree, hf_addr_dir_address3, tvb,
                                        offset, 1, value,
                                        "%sDirect Address (bits 18-13): %d",
-                                       val_to_str (addr_type,addr_type_str,""),
+                                       val_to_str_const (addr_type,addr_type_str,""),
                                        value & 0x3F);
       addr_tree = proto_item_add_subtree (en, ett_address_direct);
       en = proto_tree_add_item (addr_tree, hf_reserved_0xC0, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2003,14 +2003,14 @@ static gint dissect_dmp_direct_addr (tvbuff_t *tvb, packet_info *pinfo,
     en = proto_tree_add_uint_format (field_tree, hf_addr_dir_address_generated,
                                      tvb, offset, 0, dir_addr,
                                      "%sDirect Address: %d",
-                                     val_to_str (addr_type, addr_type_str, ""),
+                                     val_to_str_const (addr_type, addr_type_str, ""),
                                      dir_addr);
     PROTO_ITEM_SET_GENERATED (en);
   } else {
     en = proto_tree_add_uint_format (field_tree, hf_addr_dir_address, tvb,
                                      offset, 1, value,
                                      "%sDirect Address: %d",
-                                     val_to_str (addr_type, addr_type_str, ""),
+                                     val_to_str_const (addr_type, addr_type_str, ""),
                                      value & 0x7F);
     addr_tree = proto_item_add_subtree (en, ett_address_direct);
     proto_tree_add_item (addr_tree, hf_addr_dir_addr_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2025,7 +2025,7 @@ static gint dissect_dmp_direct_addr (tvbuff_t *tvb, packet_info *pinfo,
     }
   }
   proto_item_append_text (tf, ", %sDirect Address: %d",
-                          val_to_str (addr_type, addr_type_str, ""), dir_addr);
+                          val_to_str_const (addr_type, addr_type_str, ""), dir_addr);
 
   return offset;
 }
@@ -2051,13 +2051,13 @@ static gint dissect_dmp_ext_addr (tvbuff_t *tvb, packet_info *pinfo,
   length = (value & 0x1F);
   ef = proto_tree_add_none_format (field_tree, hf_addr_ext_address, tvb,
                                    offset, -1, "%sExtended Address",
-                                   val_to_str (addr_type, addr_type_str, ""));
+                                   val_to_str_const (addr_type, addr_type_str, ""));
   ext_tree = proto_item_add_subtree (ef, ett_address_extended);
 
   en = proto_tree_add_uint_format (ext_tree, hf_addr_ext_type, tvb,
                                    offset, 1, value, "Address Type: %s",
-                                   val_to_str (type, ext_addr_type,
-                                               "Reserved"));
+                                   val_to_str_const (type, ext_addr_type,
+                                                     "Reserved"));
   addr_tree = proto_item_add_subtree (en, ett_address_ext_type);
   proto_tree_add_item (addr_tree, hf_addr_ext_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -2077,8 +2077,8 @@ static gint dissect_dmp_ext_addr (tvbuff_t *tvb, packet_info *pinfo,
 
     en = proto_tree_add_uint_format (ext_tree, hf_addr_ext_type_ext, tvb,
                                      offset, 1, value, "Address Type Ext: %s",
-                                     val_to_str (type, ext_addr_type_ext,
-                                                 "Reserved"));
+                                     val_to_str_const (type, ext_addr_type_ext,
+                                                       "Reserved"));
     addr_tree = proto_item_add_subtree (en, ett_address_ext_type);
     proto_tree_add_item (addr_tree, hf_addr_ext_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -2118,7 +2118,7 @@ static gint dissect_dmp_ext_addr (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   proto_item_append_text (ef, ", Type: %s, Length: %d",
-                          val_to_str (type, ext_addr_type, "Reserved"),
+                          val_to_str_const (type, ext_addr_type, "Reserved"),
                           length);
 
   if (rec_no != -1) {
@@ -2128,8 +2128,8 @@ static gint dissect_dmp_ext_addr (tvbuff_t *tvb, packet_info *pinfo,
     }
   }
   proto_item_append_text (tf, ", %sExtended Address Type: %s",
-                          val_to_str (addr_type, addr_type_str, ""),
-                          val_to_str (type, ext_addr_type_short, "Reserved"));
+                          val_to_str_const (addr_type, addr_type_str, ""),
+                          val_to_str_const (type, ext_addr_type_short, "Reserved"));
 
   proto_item_set_len (ef, offset - boffset);
 
@@ -2160,16 +2160,16 @@ static gint dissect_dmp_originator (tvbuff_t *tvb, packet_info *pinfo,
       en = proto_tree_add_uint_format (field_tree, hf_addr_ext_form_orig_v1, tvb,
                                        offset, 1, value,
                                        "Address Form: %s",
-                                       val_to_str (dmp_addr_form,
-                                                   addr_form_orig_v1, "Reserved"));
+                                       val_to_str_const (dmp_addr_form,
+                                                         addr_form_orig_v1, "Reserved"));
       rec_tree = proto_item_add_subtree (en, ett_address_ext_form);
       proto_tree_add_item (rec_tree, hf_addr_ext_form_orig_v1, tvb, offset, 1, ENC_BIG_ENDIAN);
     } else {
       en = proto_tree_add_uint_format (field_tree, hf_addr_ext_form_orig, tvb,
                                        offset, 1, value,
                                        "Address Form: %s",
-                                       val_to_str (dmp_addr_form,
-                                                   addr_form_orig, "Reserved"));
+                                       val_to_str_const (dmp_addr_form,
+                                                         addr_form_orig, "Reserved"));
       rec_tree = proto_item_add_subtree (en, ett_address_ext_form);
       proto_tree_add_item (rec_tree, hf_addr_ext_form_orig, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
@@ -2268,12 +2268,12 @@ static void dmp_add_recipient_info (proto_item *tf, guint8 rep_req,
   }
   if (rep_req) {
     proto_item_append_text (tf, "%s",
-                            val_to_str (rep_req, report_vals_short, ""));
+                            val_to_str_const (rep_req, report_vals_short, ""));
   }
   if (not_req) {
     dmp.notif_req = TRUE;
     proto_item_append_text (tf, "%s",
-                            val_to_str (not_req, notif_vals_short, ""));
+                            val_to_str_const (not_req, notif_vals_short, ""));
   }
   if (action) {
     if (dmp.msg_type == STANAG) {
@@ -2472,8 +2472,8 @@ static gint dissect_dmp_ext_encoding (tvbuff_t *tvb, packet_info *pinfo,
   en = proto_tree_add_uint_format (field_tree, hf_addr_ext_form, tvb,
                                    offset, 1, value,
                                    "Address Form: %s",
-                                   val_to_str (dmp_addr_form,
-                                               addr_form, "Reserved"));
+                                   val_to_str_const (dmp_addr_form,
+                                                     addr_form, "Reserved"));
   addr_tree = proto_item_add_subtree (en, ett_address_ext_form);
   proto_tree_add_item (addr_tree, hf_addr_ext_form, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -2487,8 +2487,8 @@ static gint dissect_dmp_ext_encoding (tvbuff_t *tvb, packet_info *pinfo,
   en = proto_tree_add_uint_format (field_tree, hf_addr_ext_rep_req, tvb,
                                    offset, 1, value,
                                    "Report Request: %s",
-                                   val_to_str ((value & 0x0C) >> 2,
-                                               report_vals, "Reserved"));
+                                   val_to_str_const ((value & 0x0C) >> 2,
+                                                     report_vals, "Reserved"));
   addr_tree = proto_item_add_subtree (en, ett_address_ext_rep_req);
   proto_tree_add_item (addr_tree, hf_addr_ext_rep_req, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -2496,8 +2496,8 @@ static gint dissect_dmp_ext_encoding (tvbuff_t *tvb, packet_info *pinfo,
   en = proto_tree_add_uint_format (field_tree, hf_addr_ext_not_req, tvb,
                                    offset, 1, value,
                                    "Notification Request: %s",
-                                   val_to_str (value & 0x03,
-                                               notif_vals, "Reserved"));
+                                   val_to_str_const (value & 0x03,
+                                                     notif_vals, "Reserved"));
   addr_tree = proto_item_add_subtree (en, ett_address_ext_not_req);
   proto_tree_add_item (addr_tree, hf_addr_ext_not_req, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
@@ -2644,12 +2644,12 @@ static gint dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo,
 
   dmp.ack_reason = tvb_get_guint8 (tvb, offset);
   proto_item_append_text (en, ", Reason: %s",
-                          val_to_str (dmp.ack_reason, ack_reason, "Reserved"));
+                          val_to_str_const (dmp.ack_reason, ack_reason, "Reserved"));
 
   rt = proto_tree_add_item (ack_tree, hf_ack_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
   if (dmp.ack_reason != 0) {
     expert_add_info_format (pinfo, rt, PI_RESPONSE_CODE, PI_NOTE, "ACK reason: %s",
-                            val_to_str (dmp.ack_reason, ack_reason, "Reserved"));
+                            val_to_str_const (dmp.ack_reason, ack_reason, "Reserved"));
   }
   offset += 1;
 
@@ -2879,8 +2879,8 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   tf = proto_tree_add_uint_format (envelope_tree, hf_envelope_type,
                                    tvb, offset, 1, envelope,
                                    "Content Type: %s (%d)",
-                                   val_to_str (envelope & 0x07,
-                                               type_vals, "Unknown"),
+                                   val_to_str_const (envelope & 0x07,
+                                                     type_vals, "Unknown"),
                                    envelope & 0x07);
   field_tree = proto_item_add_subtree (tf, ett_envelope_cont_type);
   proto_tree_add_item (field_tree, hf_envelope_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2909,7 +2909,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     tf = proto_tree_add_uint_format (envelope_tree, hf_envelope_msg_id_type,
                                      tvb, offset, 1, envelope,
                                      "Message Identifier Type: %s (%d)",
-                                     val_to_str (dmp.msg_id_type, msg_id_type_vals, "Unknown"),
+                                     val_to_str_const (dmp.msg_id_type, msg_id_type_vals, "Unknown"),
                                      dmp.msg_id_type);
     field_tree = proto_item_add_subtree (tf, ett_envelope_msg_id_type);
     proto_tree_add_item (field_tree, hf_envelope_msg_id_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3142,19 +3142,19 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
     /* Encoded Information Type */
     tf = proto_tree_add_uint_format (message_tree, hf_message_eit,
                                      tvb, offset, 1, message, "EIT: %s (%d)",
-                                     val_to_str (eit, eit_vals, "Unknown"),
+                                     val_to_str_const (eit, eit_vals, "Unknown"),
                                      eit);
     field_tree = proto_item_add_subtree (tf, ett_message_eit);
     proto_tree_add_item (field_tree, hf_message_eit, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text (en, ", Type: %s",
-                            val_to_str (eit, eit_vals, "Unknown"));
+                            val_to_str_const (eit, eit_vals, "Unknown"));
 
     /* Compression Algorithm */
     tf = proto_tree_add_uint_format (message_tree, hf_message_compr,
                                      tvb, offset, 1, message,
                                      "Compression Algorithm: %s (%d)",
-                                     val_to_str (compr_alg, compression_vals,
-                                                 "Unknown"), compr_alg);
+                                     val_to_str_const (compr_alg, compression_vals, "Unknown"),
+                                     compr_alg);
     field_tree = proto_item_add_subtree (tf, ett_message_compr);
     tr = proto_tree_add_item (field_tree, hf_message_compr, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (compr_alg == ALGORITHM_ZLIB) {
@@ -3631,8 +3631,8 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       tf = proto_tree_add_uint_format (message_tree, hf_message_st_type,
                                        tvb, offset, 1, message,
                                        "Message Type: %s (%d)",
-                                       val_to_str (dmp.st_type,
-                                                   message_type_vals, ""),
+                                       val_to_str_const (dmp.st_type,
+                                                         message_type_vals, ""),
                                        dmp.st_type);
       field_tree = proto_item_add_subtree (tf, ett_message_st_type);
       proto_tree_add_item (field_tree, hf_message_st_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3653,7 +3653,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       tf = proto_tree_add_uint_format (message_tree, hf_message_precedence,
                                        tvb, offset, 1, message,
                                        "Precedence: %s (%d)",
-                                       val_to_str (dmp.prec, precedence, ""),
+                                       val_to_str_const (dmp.prec, precedence, ""),
                                        dmp.prec);
       field_tree = proto_item_add_subtree (tf, ett_message_precedence);
       proto_tree_add_item (field_tree, hf_message_precedence, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3675,7 +3675,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       tf = proto_tree_add_uint_format (message_tree, hf_message_importance,
                                        tvb, offset, 1, message,
                                        "Importance: %s (%d)",
-                                       val_to_str (dmp.prec, importance, ""),
+                                       val_to_str_const (dmp.prec, importance, ""),
                                        dmp.prec);
       field_tree = proto_item_add_subtree (tf, ett_message_importance);
       proto_tree_add_item (field_tree, hf_message_importance, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3685,8 +3685,8 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     tf = proto_tree_add_uint_format (message_tree, hf_message_body_format,
                                      tvb, offset, 1, message,
                                      "Body Format: %s (%d)",
-                                     val_to_str (message & 0x03,
-                                                 body_format_vals, ""),
+                                     val_to_str_const (message & 0x03,
+                                                       body_format_vals, ""),
                                      message & 0x03);
     field_tree = proto_item_add_subtree (tf, ett_message_body_format);
     proto_tree_add_item (field_tree, hf_message_body_format, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3708,7 +3708,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     class_name = dmp_national_sec_class (dmp_nation, dmp_sec_class);
   }
   if ((dmp_sec_pol == NATO || dmp_sec_pol == NATIONAL) && !class_name) {
-    class_name = val_to_str (dmp_sec_class, sec_class, "");
+    class_name = val_to_str_const (dmp_sec_class, sec_class, "");
   }
   if (class_name && class_name[0]) {
     tf = proto_tree_add_uint_format (message_tree, hf_message_sec_class_val,
@@ -3757,8 +3757,8 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     tf = proto_tree_add_uint_format (message_tree, hf_notif_type,
                                      tvb, offset, 1, message,
                                      "Notification Type: %s",
-                                     val_to_str (dmp.notif_type, notif_type,
-                                                 "Reserved"));
+                                     val_to_str_const (dmp.notif_type, notif_type,
+                                                       "Reserved"));
     field_tree = proto_item_add_subtree (tf, ett_notif_type);
     proto_tree_add_item (field_tree, hf_notif_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   } else if (message & 0x02) {

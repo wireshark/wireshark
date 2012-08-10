@@ -120,7 +120,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						tvb, offset, 1, ver_type,
 						"Version %u, Packet type %u (%s)",
 						hi_nibble(ver_type), lo_nibble(ver_type),
-						val_to_str(lo_nibble(ver_type), vrrp_type_vals, "Unknown"));
+						val_to_str_const(lo_nibble(ver_type), vrrp_type_vals, "Unknown"));
 		ver_type_tree = proto_item_add_subtree(tv, ett_vrrp_ver_type);
 		proto_tree_add_uint(ver_type_tree, hf_vrrp_version, tvb,
 				    offset, 1, ver_type);
@@ -134,7 +134,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		priority = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint_format(vrrp_tree, hf_vrrp_prio, tvb, offset, 1, priority, "Priority: %u (%s)",
 					   priority,
-					   val_to_str(priority, vrrp_prio_vals, "Non-default backup priority"));
+					   val_to_str_const(priority, vrrp_prio_vals, "Non-default backup priority"));
 		offset++;
 
 		addr_count = tvb_get_guint8(tvb, offset);

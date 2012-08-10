@@ -75,7 +75,7 @@ redbackli_dissect_avp(guint8 avptype, guint8 avplen, tvbuff_t *tvb, gint offset,
 	const char	*avpname;
 	proto_tree	*ti, *st=NULL;
 
-	avpname=val_to_str(avptype, avp_names, "Unknown");
+	avpname=val_to_str_const(avptype, avp_names, "Unknown");
 
 	ti = proto_tree_add_text(tree, tvb, offset, avplen+2, "%s AVP", avpname);
 	st = proto_item_add_subtree(ti, ett_redbackli);

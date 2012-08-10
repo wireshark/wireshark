@@ -259,11 +259,11 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if ((function_code == ENCAP_INTERFACE_TRANSP) && (exception_code == 0))  {
-        func_string = val_to_str(tvb_get_guint8(tvb, offset + 8), encap_interface_code_vals, "Encapsulated Interface Transport");
+        func_string = val_to_str_const(tvb_get_guint8(tvb, offset + 8), encap_interface_code_vals, "Encapsulated Interface Transport");
         subfunction_code = 1;
     }
     else if ((function_code == DIAGNOSTICS) && (exception_code == 0))  {
-        func_string = val_to_str(tvb_get_ntohs(tvb, offset + 8), diagnostic_code_vals, "Diagnostics");
+        func_string = val_to_str_const(tvb_get_ntohs(tvb, offset + 8), diagnostic_code_vals, "Diagnostics");
         subfunction_code = 1;
     }
     else {
@@ -280,7 +280,7 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case QUERY_PACKET :
                 pkt_type_str="query";
                 break;
-            case RESPONSE_PACKET :     
+            case RESPONSE_PACKET :
                 pkt_type_str="response";
                 break;
             case CANNOT_CLASSIFY :
@@ -324,7 +324,7 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* if a tree exists, perform operations to add fields to it */
-    if (tree) 
+    if (tree)
     {
         mi = proto_tree_add_protocol_format(tree, proto_mbtcp, tvb, offset,
                 len+6, "Modbus/TCP");
@@ -448,7 +448,7 @@ dissect_mbtcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 f
 static int
 dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree    *modbus_tree, *group_tree, *event_tree, 
+    proto_tree    *modbus_tree, *group_tree, *event_tree,
                   *event_item_tree, *device_objects_tree,
                   *device_objects_item_tree;
     proto_item    *mi, *mf, *me, *mei, *doe, *doie;
@@ -489,7 +489,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              function_code);
 
     /** detail payload as a function of exception/function code */
-    func_string = val_to_str(function_code, function_code_vals, "Unknown function");
+    func_string = val_to_str_const(function_code, function_code_vals, "Unknown function");
 
     payload_start = offset + 1;
     payload_len = len - 1;
@@ -941,7 +941,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             for (i = 1; i <= num_objects; i++)
                             {
                                 device_objects_tree = proto_item_add_subtree(doe, ett_device_id_objects);
-                     
+
                                 /* add each "object item" as its own subtree */
 
                                 /* compute length of object */

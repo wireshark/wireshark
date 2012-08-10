@@ -144,24 +144,24 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    proto   = tvb_get_guint8(tvb, 6);
 	    col_append_str(pinfo->cinfo, COL_INFO,
-			   val_to_str(proto, rmi_protocol_str,
-				      "Unknown protocol"));
+			   val_to_str_const(proto, rmi_protocol_str,
+					    "Unknown protocol"));
 	    break;
 	case RMI_OUTPUTMESSAGE:
 	    message = tvb_get_guint8(tvb,0);
 	    col_set_str(pinfo->cinfo, COL_INFO,
 			"JRMI, ");
 	    col_append_str(pinfo->cinfo, COL_INFO,
-			   val_to_str(message, rmi_output_message_str,
-				      "Unknown message"));
+			   val_to_str_const(message, rmi_output_message_str,
+					    "Unknown message"));
 	    break;
 	case RMI_INPUTSTREAM:
 	    message = tvb_get_guint8(tvb,0);
 	    col_set_str(pinfo->cinfo, COL_INFO,
 			"JRMI, ");
 	    col_append_str(pinfo->cinfo, COL_INFO,
-			   val_to_str(message, rmi_input_message_str,
-				      "Unknown message"));
+			   val_to_str_const(message, rmi_input_message_str,
+					    "Unknown message"));
 	    break;
 	case SERIALIZATION_DATA:
 	    version = tvb_get_ntohs(tvb,2);

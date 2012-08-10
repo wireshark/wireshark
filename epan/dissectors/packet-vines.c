@@ -322,7 +322,7 @@ dissect_vines_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_text(vines_llc_tree, tvb, 0, 1,
 				    "Packet Type: %s (0x%02x)",
-				    val_to_str(ptype, vines_llc_ptype_vals,
+				    val_to_str_const(ptype, vines_llc_ptype_vals,
 				        "Unknown"),
 				    ptype);
 	}
@@ -406,7 +406,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)",
-		    val_to_str(viph.vip_proto, proto_vals,
+		    val_to_str_const(viph.vip_proto, proto_vals,
 		        "Unknown VIP protocol"),
 		    viph.vip_proto);
 	}
@@ -704,7 +704,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(vipc_tree, tvb, offset,  1,
 				    "Packet type: 0x%02x (%s)",
 				    viph.vipc_pkttype,
-				    val_to_str(viph.vipc_pkttype, pkttype_vals,
+				    val_to_str_const(viph.vipc_pkttype, pkttype_vals,
 				        "Unknown"));
 	}
 	offset += 1;
@@ -769,7 +769,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (viph.vipc_pkttype == PKTTYPE_ERR) {
 				proto_tree_add_text(vipc_tree, tvb, offset, 2,
 						    "Error: %s (%u)",
-						    val_to_str(viph.vipc_err_len,
+						    val_to_str_const(viph.vipc_err_len,
 						        vipc_err_vals,
 						        "Unknown"),
 						    viph.vipc_err_len);
@@ -869,7 +869,7 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(vspp_tree, tvb, offset + 4,  1,
 				    "Packet type: 0x%02x (%s)",
 				    viph.vspp_pkttype,
-				    val_to_str(viph.vspp_pkttype, pkttype_vals,
+				    val_to_str_const(viph.vspp_pkttype, pkttype_vals,
 				        "Unknown"));
 		ti = proto_tree_add_text(vspp_tree, tvb, offset + 5,  1,
 				    "Control: 0x%02x", viph.vspp_control);
@@ -991,7 +991,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		proto_tree_add_text(vines_arp_tree, tvb, 0, 1,
 				    "Version: %s (0x%02x)",
-				    val_to_str(version, vines_version_vals,
+				    val_to_str_const(version, vines_version_vals,
 				      "Unknown"),
 				    version);
 	}
@@ -1009,7 +1009,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree) {
 			proto_tree_add_text(vines_arp_tree, tvb, 1, 1,
 					    "Packet Type: %s (0x%02x)",
-					    val_to_str(packet_type,
+					    val_to_str_const(packet_type,
 					      vines_arp_packet_type_vals,
 					      "Unknown"),
 					    packet_type);
@@ -1051,7 +1051,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree) {
 			proto_tree_add_text(vines_arp_tree, tvb, 0, 2,
 					    "Packet Type: %s (0x%04x)",
-					    val_to_str(packet_type,
+					    val_to_str_const(packet_type,
 					      vines_arp_packet_type_vals,
 					      "Unknown"),
 					    packet_type);
@@ -1178,7 +1178,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree) {
 			proto_tree_add_text(vines_rtp_tree, tvb, offset, 1,
 					    "Operation Type: %s (0x%02x)",
-					    val_to_str(operation_type,
+					    val_to_str_const(operation_type,
 					      vines_rtp_operation_type_vals,
 					      "Unknown"),
 					    operation_type);
@@ -1186,7 +1186,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			node_type = tvb_get_guint8(tvb, offset);
 			proto_tree_add_text(vines_rtp_tree, tvb, offset, 1,
 					    "Node Type: %s (0x%02x)",
-					    val_to_str(node_type,
+					    val_to_str_const(node_type,
 					      vines_rtp_node_type_vals,
 					      "Unknown"),
 					    node_type);
@@ -1194,7 +1194,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			controller_type = tvb_get_guint8(tvb, offset);
 			proto_tree_add_text(vines_rtp_tree, tvb, offset, 1,
 					    "Controller Type: %s (0x%02x)",
-					    val_to_str(controller_type,
+					    val_to_str_const(controller_type,
 					      vines_rtp_controller_type_vals,
 					      "Unknown"),
 					    controller_type);
@@ -1258,7 +1258,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			version = tvb_get_ntohs(tvb, offset);
 			proto_tree_add_text(vines_rtp_tree, tvb, offset, 2,
 					    "Version: %s (0x%04x)",
-					    val_to_str(version, vines_version_vals,
+					    val_to_str_const(version, vines_version_vals,
 					      "Unknown"),
 					    version);
 		}
@@ -1272,7 +1272,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree) {
 			proto_tree_add_text(vines_rtp_tree, tvb, offset, 1,
 					    "Operation Type: %s (0x%02x)",
-					    val_to_str(operation_type,
+					    val_to_str_const(operation_type,
 					      vines_rtp_operation_type_vals,
 					      "Unknown"),
 					    operation_type);
@@ -1280,7 +1280,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			node_type = tvb_get_guint8(tvb, offset);
 			proto_tree_add_text(vines_rtp_tree, tvb, offset, 1,
 					    "Node Type: %s (0x%02x)",
-					    val_to_str(node_type,
+					    val_to_str_const(node_type,
 					      vines_rtp_node_type_vals,
 					      "Unknown"),
 					    node_type);
@@ -1326,7 +1326,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_text(vines_rtp_tree, tvb,
 					    offset, 1,
 					    "Information Type: %s (0x%02x)",
-					    val_to_str(info_type,
+					    val_to_str_const(info_type,
 					      vines_rtp_info_type_vals,
 					      "Unknown"),
 					    info_type);
@@ -1449,7 +1449,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_text(vines_rtp_tree, tvb,
 					    offset, 1,
 					    "Destination Node Type: %s (0x%02x)",
-					    val_to_str(node_type,
+					    val_to_str_const(node_type,
 					      vines_rtp_node_type_vals,
 					      "Unknown"),
 					    node_type);
@@ -1477,7 +1477,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_text(vines_rtp_tree, tvb,
 					    offset, 1,
 					    "Preferred Gateway Node Type: %s (0x%02x)",
-					    val_to_str(node_type,
+					    val_to_str_const(node_type,
 					      vines_rtp_node_type_vals,
 					      "Unknown"),
 					    node_type);
@@ -1578,7 +1578,7 @@ srtp_show_machine_info(proto_tree *tree, tvbuff_t *tvb, int offset, const char *
 	node_type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "%s Node Type: %s (0x%02x)", tag,
-	    val_to_str(node_type, vines_rtp_node_type_vals, "Unknown"),
+	    val_to_str_const(node_type, vines_rtp_node_type_vals, "Unknown"),
 	    node_type);
 	offset += 1;
 	rtp_show_machine_type(tree, tvb, offset, tag);
@@ -1586,7 +1586,7 @@ srtp_show_machine_info(proto_tree *tree, tvbuff_t *tvb, int offset, const char *
 	controller_type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "%s Controller Type: %s (0x%02x)", tag,
-	    val_to_str(controller_type, vines_rtp_controller_type_vals, "Unknown"),
+	    val_to_str_const(controller_type, vines_rtp_controller_type_vals, "Unknown"),
 	    controller_type);
 	offset += 1;
 	return offset;
@@ -1679,7 +1679,7 @@ dissect_vines_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		proto_tree_add_text(vines_icp_tree, tvb, offset, 2,
 				    "Packet Type: %s (0x%04x)",
-				    val_to_str(packet_type,
+				    val_to_str_const(packet_type,
 				      vines_icp_packet_type_vals,
 				      "Unknown"),
 				    packet_type);
@@ -1698,7 +1698,7 @@ dissect_vines_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree) {
 			proto_tree_add_text(vines_icp_tree, tvb, offset, 2,
 					    "Exception Code: %s (%u)",
-					    val_to_str(exception_code,
+					    val_to_str_const(exception_code,
 					      vipc_err_vals,
 					      "Unknown"),
 					    exception_code);

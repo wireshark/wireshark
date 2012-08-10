@@ -308,9 +308,9 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
 
     dccp_item =
         proto_tree_add_text(dccp_options_tree, tvb, offset, option_len, "%s(",
-                            val_to_str(option_type,
-                                       dccp_feature_options_vals,
-                                       "Unknown Type"));
+                            val_to_str_const(option_type,
+                                             dccp_feature_options_vals,
+                                             "Unknown Type"));
 
     /*
      * decode the feature according to whether it is server-priority (list)
@@ -329,9 +329,9 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
     case 9:       /* Check Data Checksum; fall through             */
     case 192:     /* Send Loss Event Rate, RFC 4342, section 8.4   */
         proto_item_append_text(dccp_item, "%s",
-                               val_to_str(feature_number,
-                                          dccp_feature_numbers_vals,
-                                          "Unknown Type"));
+                               val_to_str_const(feature_number,
+                                                dccp_feature_numbers_vals,
+                                                "Unknown Type"));
         for (i = 0; i < option_len - 3; i++)
             proto_item_append_text(dccp_item, "%s %d", i ? "," : "",
                                    tvb_get_guint8(tvb,
@@ -343,9 +343,9 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
     case 3:       /* Sequence Window; fall through                 */
     case 5:       /* Ack Ratio                                     */
         proto_item_append_text(dccp_item, "%s",
-                               val_to_str(feature_number,
-                                          dccp_feature_numbers_vals,
-                                          "Unknown Type"));
+                               val_to_str_const(feature_number,
+                                                dccp_feature_numbers_vals,
+                                                "Unknown Type"));
 
         if (option_len > 3) /* could be empty Confirm */
             proto_item_append_text(dccp_item, " %" G_GINT64_MODIFIER "u",
@@ -716,7 +716,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  "%s > %s [%s] Seq=%" G_GINT64_MODIFIER "u",
                  get_dccp_port(dccph->sport),
                  get_dccp_port(dccph->dport),
-                 val_to_str(dccph->type, dccp_packet_type_vals, "Unknown Type"),
+                 val_to_str_const(dccph->type, dccp_packet_type_vals, "Unknown Type"),
                  dccph->seq);
 
     if (tree) {
@@ -729,8 +729,8 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     " [%s] Seq=%" G_GINT64_MODIFIER "u",
                     get_dccp_port(dccph->sport), dccph->sport,
                     get_dccp_port(dccph->dport), dccph->dport,
-                    val_to_str(dccph->type, dccp_packet_type_vals,
-                               "Unknown Type"),
+                    val_to_str_const(dccph->type, dccp_packet_type_vals,
+                                     "Unknown Type"),
                     dccph->seq);
         } else {
             dccp_item = proto_tree_add_item(tree, proto_dccp, tvb, offset, 8,
@@ -1016,8 +1016,8 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 dccph->data3);
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, " (code=%s)",
-                        val_to_str(dccph->reset_code, dccp_reset_code_vals,
-                                   "Unknown"));
+                        val_to_str_const(dccph->reset_code, dccp_reset_code_vals,
+                                         "Unknown"));
 
         offset += 4; /* move offset past the Reset Code and data123 */
         break;

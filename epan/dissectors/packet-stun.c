@@ -611,7 +611,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 			att_length = tvb_get_ntohs(tvb, offset+2); /* Length field in attribute header */
 			ti = proto_tree_add_uint_format(att_all_tree, hf_stun_attr,
 							tvb, offset, ATTR_HDR_LEN+att_length,
-							att_type, "%s", val_to_str(att_type, attributes, "Unknown"));
+							att_type, "%s", val_to_str_const(att_type, attributes, "Unknown"));
 			att_tree = proto_item_add_subtree(ti, ett_stun_att);
 			ti = proto_tree_add_uint(att_tree, stun_att_type, tvb,
 						 offset, 2, att_type);
@@ -671,7 +671,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 						col_append_fstr(
 							pinfo->cinfo, COL_INFO,
 							" %s: %s:%d",
-							val_to_str(att_type, attributes, "Unknown"),
+							val_to_str_const(att_type, attributes, "Unknown"),
 							ipstr,
 							tvb_get_ntohs(tvb,offset+2)
 							);
@@ -728,13 +728,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 						att_tree,
 						" %d (%s)",
 						human_error_num, /* human readable error code */
-						val_to_str(human_error_num, error_code, "*Unknown error code*")
+						val_to_str_const(human_error_num, error_code, "*Unknown error code*")
 						);
 					col_append_fstr(
 						pinfo->cinfo, COL_INFO,
 						" error-code: %d (%s)",
 						human_error_num,
-						val_to_str(human_error_num, error_code, "*Unknown error code*")
+						val_to_str_const(human_error_num, error_code, "*Unknown error code*")
 						);
 				}
 				if (att_length < 5)
@@ -829,7 +829,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 						col_append_fstr(
 							pinfo->cinfo, COL_INFO,
 							" %s: %s:%d",
-							val_to_str(att_type, attributes, "Unknown"),
+							val_to_str_const(att_type, attributes, "Unknown"),
 							ipstr,
 							port
 							);

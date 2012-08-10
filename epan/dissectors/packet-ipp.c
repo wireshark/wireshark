@@ -515,18 +515,18 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                                          1 + 2 + name_length + 2 + value_length,
                                          "%s: %s",
                                          format_text(name_val, name_length),
-                                         val_to_str(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2),
-                                                    printer_state_vals,
-                                                    "Unknown Printer State"));
+                                         val_to_str_const(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2),
+                                                          printer_state_vals,
+                                                          "Unknown Printer State"));
             }
             else if ((name_length > 5) && name_val && !tvb_memeql(tvb, offset + 1 + 2, "job-state", 9)) {
                 ti = proto_tree_add_text(tree, tvb, offset,
                                          1 + 2 + name_length + 2 + value_length,
                                          "%s: %s",
                                          format_text(name_val, name_length),
-                                         val_to_str(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2),
-                                                    job_state_vals,
-                                                    "Unknown Job State"));
+                                         val_to_str_const(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2),
+                                                          job_state_vals,
+                                                          "Unknown Job State"));
             }
             else {
                 ti = proto_tree_add_text(tree, tvb, offset,

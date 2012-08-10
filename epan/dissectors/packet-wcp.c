@@ -319,10 +319,10 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 /*XXX should test seq to be sure it the last + 1 !! */
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, cmd_string, "Unknown"));
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmd, cmd_string, "Unknown"));
 		if ( cmd == 0xf)
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str(ext_cmd, ext_cmd_string, "Unknown"));
+				val_to_str_const(ext_cmd, ext_cmd_string, "Unknown"));
 	}
 
 	if (tree) {

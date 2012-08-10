@@ -595,7 +595,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
         ti = proto_tree_add_uint_format(tree, hf_ipv6_routing_hdr_opt, tvb,
                       offset, len, rt.ip6r_type,
                       "Routing Header, Type : %s (%u)",
-                      val_to_str(rt.ip6r_type, routing_header_type, "Unknown"),
+                      val_to_str_const(rt.ip6r_type, routing_header_type, "Unknown"),
                       rt.ip6r_type);
         rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
@@ -1288,7 +1288,7 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
     if (tree)
     {
         /* Option Type */
-        ctype = val_to_str( (tvb_get_ntohs(tvb, offset) & SHIM6_BITMASK_OPT_TYPE) >> 1, shimoptvals, "Unknown Option Type");
+        ctype = val_to_str_const( (tvb_get_ntohs(tvb, offset) & SHIM6_BITMASK_OPT_TYPE) >> 1, shimoptvals, "Unknown Option Type");
         ti = proto_tree_add_text(tree, tvb, offset, total_len, "%s", ctype);
         opt_tree = proto_item_add_subtree(ti, ett_ipv6_shim6_option);
 
@@ -1498,7 +1498,7 @@ dissect_shimctrl(tvbuff_t *tvb, gint offset, guint type, proto_tree *shim_tree)
                                         "Probes Received: %u", probes_rcvd);
             p++;
 
-            sta = val_to_str((tvb_get_guint8(tvb, p) & SHIM6_BITMASK_STA) >> 6,
+            sta = val_to_str_const((tvb_get_guint8(tvb, p) & SHIM6_BITMASK_STA) >> 6,
                                         shimreapstates, "Unknown REAP State");
             proto_tree_add_uint_format(shim_tree, hf_ipv6_shim6_reap, tvb,
                 p, 1, (tvb_get_guint8(tvb, p) & SHIM6_BITMASK_STA) >> 6,
@@ -2089,7 +2089,7 @@ again:
               }
               else {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Shim6 (%s)",
-                   val_to_str(stype & SHIM6_BITMASK_TYPE, shimctrlvals, "Unknown"));
+                   val_to_str_const(stype & SHIM6_BITMASK_TYPE, shimctrlvals, "Unknown"));
               }
             }
           } else

@@ -1616,7 +1616,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     /*
      * now dissect the next layer
      */
-    ssl_debug_printf("dissect_ssl3_record: content_type %d %s\n",content_type, val_to_str(content_type, ssl_31_content_type, "unknown"));
+    ssl_debug_printf("dissect_ssl3_record: content_type %d %s\n",content_type, val_to_str_const(content_type, ssl_31_content_type, "unknown"));
 
     /* PAOLO try to decrypt each record (we must keep ciphers "in sync")
      * store plain text only for app data */
@@ -1697,7 +1697,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         proto_item_set_text(ssl_record_tree,
            "%s Record Layer: %s Protocol: %s",
             val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
-            val_to_str(content_type, ssl_31_content_type, "unknown"),
+            val_to_str_const(content_type, ssl_31_content_type, "unknown"),
             association?association->info:"Application Data");
 
         proto_tree_add_item(ssl_record_tree, hf_ssl_record_appdata, tvb,
@@ -1753,7 +1753,7 @@ dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
         proto_item_set_text(tree,
                             "%s Record Layer: %s Protocol: Change Cipher Spec",
                             val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
-                            val_to_str(content_type, ssl_31_content_type, "unknown"));
+                            val_to_str_const(content_type, ssl_31_content_type, "unknown"));
         proto_tree_add_item(tree, hf_ssl_change_cipher_spec, tvb,
                             offset++, 1, ENC_NA);
     }
@@ -1922,7 +1922,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             {
                 proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
                                     val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
-                                    val_to_str(content_type, ssl_31_content_type, "unknown"),
+                                    val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                                     (msg_type_str!=NULL) ? msg_type_str :
                                         "Encrypted Handshake Message");
             }
@@ -1930,7 +1930,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             {
                 proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
                                     val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
-                                    val_to_str(content_type, ssl_31_content_type, "unknown"),
+                                    val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                                     "Multiple Handshake Messages");
             }
 

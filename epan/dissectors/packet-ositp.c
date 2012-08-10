@@ -360,7 +360,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
     proto_tree_add_text(tree, tvb, offset, 1,
 		"Parameter code:   0x%02x (%s)",
 			    code,
-			    val_to_str(code, tp_vpart_type_vals, "Unknown"));
+			    val_to_str_const(code, tp_vpart_type_vals, "Unknown"));
     offset += 1;
     vp_length -= 1;
 

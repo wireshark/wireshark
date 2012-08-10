@@ -2416,7 +2416,7 @@ dissect_file_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *par
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-			val_to_str(type, file_fs_type_vals, "Unknown type") );
+			val_to_str_const(type, file_fs_type_vals, "Unknown type") );
 	}
 
 	proto_item_set_len(item, offset-old_offset);

@@ -259,8 +259,8 @@ static void dissect_authinfo(proto_item *pitem, tvbuff_t *tvb, int offset, int s
 
 		ti = proto_tree_add_text(authtree, tvb, offset, len + 3,
 			"%s(%d)",
-			val_to_str(pduhdr.pdu_type, iapp_auth_type_vals,
-				"Unknown PDU Type"),
+			val_to_str_const(pduhdr.pdu_type, iapp_auth_type_vals,
+                                         "Unknown PDU Type"),
 			pduhdr.pdu_type);
 		append_authval_str(ti, pduhdr.pdu_type, len, tvb, offset);
 
@@ -329,13 +329,13 @@ append_pduval_str(proto_item *ti, int type, int len, tvbuff_t *tvb, int offset,
 			break;
 		case IAPP_PDU_PHYTYPE:
 			val = tvb_get_guint8(tvb, offset + 3);
-			strval = val_to_str(val, iapp_phy_vals, "Unknown");
+			strval = val_to_str_const(val, iapp_phy_vals, "Unknown");
 			proto_item_append_text(ti, "%s", strval);
                         is_fhss = (val == IAPP_PHY_FHSS);
 			break;
 		case IAPP_PDU_REGDOMAIN:
 			val = tvb_get_guint8(tvb, offset + 3);
-			strval = val_to_str(val, iapp_dom_vals, "Unknown");
+			strval = val_to_str_const(val, iapp_dom_vals, "Unknown");
 			proto_item_append_text(ti, "%s", strval);
 			break;
 		case IAPP_PDU_CHANNEL:
@@ -349,7 +349,7 @@ append_pduval_str(proto_item *ti, int type, int len, tvbuff_t *tvb, int offset,
 		case IAPP_PDU_OUIIDENT:
 			for (val = z = 0; z < 3; z++)
 				val = (val << 8) | tvb_get_guint8(tvb, offset + 3 + z);
-			strval = val_to_str(val, oui_vals, "Unknown");
+			strval = val_to_str_const(val, oui_vals, "Unknown");
 			proto_item_append_text(ti, "%s", strval);
 			break;
 	}
@@ -380,8 +380,8 @@ dissect_pdus(tvbuff_t *tvb, int offset, proto_tree *pdutree, int pdulen)
 
 		ti = proto_tree_add_text(pdutree, tvb, offset, len + 3,
 			"%s(%d)",
-			val_to_str(pduhdr.pdu_type, iapp_pdu_type_vals,
-				"Unknown PDU Type"),
+			val_to_str_const(pduhdr.pdu_type, iapp_pdu_type_vals,
+                                         "Unknown PDU Type"),
 			pduhdr.pdu_type);
 		is_fhss = append_pduval_str(ti, pduhdr.pdu_type, len, tvb,
 			offset, is_fhss);
@@ -416,7 +416,7 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	ia_version = (int)ih.ia_version;
         ia_type = (int)ih.ia_type;
-	codestrval = val_to_str(ia_type, iapp_vals,  "Unknown Packet");
+	codestrval = val_to_str_const(ia_type, iapp_vals,  "Unknown Packet");
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s(%d) (version=%d)",

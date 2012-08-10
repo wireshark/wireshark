@@ -392,9 +392,9 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if( strlen(key)==1 )
-    key = (char*)val_to_str( key[0], short_key_name_value_string, key );
+    key = (char*)val_to_str_const( key[0], short_key_name_value_string, key );
   if( strlen(val)==1 )
-    val = (char*)val_to_str( val[0], short_val_name_value_string, val );
+    val = (char*)val_to_str_const( val[0], short_val_name_value_string, val );
 
   proto_item_set_text( ti, "%s: %s", key, val );
   proto_item_set_len( ti, offset-orig_offset );

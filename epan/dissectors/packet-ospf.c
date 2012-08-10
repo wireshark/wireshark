@@ -1331,7 +1331,7 @@ dissect_ospfv2_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
     length = tvb_get_ntohs(tvb, offset + 2);
 
     ti = proto_tree_add_text(tree, tvb, offset, length + 4, "%s",
-                             val_to_str(type, lls_tlv_type_vals, "Unknown TLV"));
+                             val_to_str_const(type, lls_tlv_type_vals, "Unknown TLV"));
     ospf_lls_tlv_tree = proto_item_add_subtree(ti, ett_ospf_lls_tlv);
 
     proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset, 2,
@@ -1400,7 +1400,7 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
         break;
     default:
         ti = proto_tree_add_text(tree, tvb, offset, length + 4, "%s",
-                                 val_to_str(type, lls_v3_tlv_type_vals, "Unknown TLV"));
+                                 val_to_str_const(type, lls_v3_tlv_type_vals, "Unknown TLV"));
     }
 
     ospf_lls_tlv_tree = proto_item_add_subtree(ti, ett_ospf_lls_tlv);
@@ -1678,7 +1678,7 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
                                 (reserved == 0 ? "Reserved: %u" :  "Reserved: %u [incorrect, should be 0]"), reserved);
             ls_type = tvb_get_ntohs(tvb, offset+2);
             proto_tree_add_text(ospf_lsr_tree, tvb, offset+2, 2, "LS Type: %s (0x%04x)",
-                                val_to_str(ls_type, v3_ls_type_vals, "Unknown"),
+                                val_to_str_const(ls_type, v3_ls_type_vals, "Unknown"),
                                 ls_type);
             break;
         }
@@ -1876,15 +1876,15 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
             while (stlv_offset < tlv_end_offset) {
                 stlv_type = tvb_get_ntohs(tvb, stlv_offset);
                 stlv_len = tvb_get_ntohs(tvb, stlv_offset + 2);
-                stlv_name = val_to_str(stlv_type, mpls_link_stlv_str, "Unknown sub-TLV");
+                stlv_name = val_to_str_const(stlv_type, mpls_link_stlv_str, "Unknown sub-TLV");
                 switch (stlv_type) {
 
                 case MPLS_LINK_TYPE:
                     ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
                                              "%s: %u - %s", stlv_name,
                                              tvb_get_guint8(tvb, stlv_offset + 4),
-                                             val_to_str(tvb_get_guint8(tvb, stlv_offset + 4),
-                                                        mpls_link_stlv_ltype_str, "Unknown Link Type"));
+                                             val_to_str_const(tvb_get_guint8(tvb, stlv_offset + 4),
+                                                              mpls_link_stlv_ltype_str, "Unknown Link Type"));
                     stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
                     proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
                                         "TLV Type: %u: %s", stlv_type, stlv_name);
@@ -2232,7 +2232,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
             while (stlv_offset < tlv_end_offset) {
                 stlv_type = tvb_get_ntohs(tvb, stlv_offset);
                 stlv_len = tvb_get_ntohs(tvb, stlv_offset + 2);
-                stlv_name = val_to_str(stlv_type, oif_stlv_str, "Unknown sub-TLV");
+                stlv_name = val_to_str_const(stlv_type, oif_stlv_str, "Unknown sub-TLV");
                 switch (stlv_type) {
 
                 case OIF_NODE_ID:
@@ -2347,7 +2347,7 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
                                         tlv_length_with_pad, ENC_NA);
         tlv_tree = proto_item_add_subtree(tree_item, ett_ospf_lsa_grace_tlv);
         proto_tree_add_text(tlv_tree, tvb, offset, 2, "Type: %s (%u)",
-                            val_to_str(tlv_type, grace_tlv_type_vals, "Unknown grace-LSA TLV"), tlv_type);
+                            val_to_str_const(tlv_type, grace_tlv_type_vals, "Unknown grace-LSA TLV"), tlv_type);
         proto_tree_add_text(tlv_tree, tvb, offset + 2, 2, "Length: %u", tlv_length);
 
         switch (tlv_type) {
@@ -2363,7 +2363,7 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
             proto_tree_add_item(tlv_tree, hf_ospf_filter[OSPFF_V2_GRACE_REASON], tvb, offset + 4,
                                 tlv_length, ENC_BIG_ENDIAN);
             proto_item_set_text(tree_item, "Restart Reason: %s (%u)",
-                                val_to_str(restart_reason, restart_reason_vals, "Unknown Restart Reason"),
+                                val_to_str_const(restart_reason, restart_reason_vals, "Unknown Restart Reason"),
                                 restart_reason);
             break;
         case GRACE_TLV_IP:
@@ -2846,7 +2846,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     if (disassemble_body) {
         ti = proto_tree_add_text(tree, tvb, offset, ls_length,
-                                 "%s (Type: 0x%04x)", val_to_str(ls_type, v3_ls_type_vals,"Unknown"), ls_type);
+                                 "%s (Type: 0x%04x)", val_to_str_const(ls_type, v3_ls_type_vals,"Unknown"), ls_type);
     } else {
         ti = proto_tree_add_text(tree, tvb, offset, OSPF_LSA_HEADER_LENGTH,
                                  "LSA Header");
@@ -2859,7 +2859,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
                         (tvb_get_ntohs(tvb, offset) & OSPF_DNA_LSA) ? "True" : "False");
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 2, 2, "LSA Type: 0x%04x (%s)",
-                        ls_type, val_to_str(ls_type, v3_ls_type_vals,"Unknown"));
+                        ls_type, val_to_str_const(ls_type, v3_ls_type_vals,"Unknown"));
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Link State ID: %s",
                         tvb_ip_to_str(tvb, offset + 4));
@@ -3062,7 +3062,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         /* referenced LS type */
         referenced_ls_type=tvb_get_ntohs(tvb, offset+6);
         proto_tree_add_text(ospf_lsa_tree, tvb, offset+6, 2,"Referenced LS type 0x%04x (%s)",
-                            referenced_ls_type, val_to_str(referenced_ls_type, v3_ls_type_vals, "Unknown"));
+                            referenced_ls_type, val_to_str_const(referenced_ls_type, v3_ls_type_vals, "Unknown"));
 
         offset+=8;
 
@@ -3160,7 +3160,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         /* referenced LS type */
         referenced_ls_type=tvb_get_ntohs(tvb, offset+2);
         proto_tree_add_text(ospf_lsa_tree, tvb, offset+2, 2,"Referenced LS type 0x%04x (%s)",
-                            referenced_ls_type, val_to_str(referenced_ls_type, v3_ls_type_vals, "Unknown"));
+                            referenced_ls_type, val_to_str_const(referenced_ls_type, v3_ls_type_vals, "Unknown"));
 
         /* Referenced Link State ID */
         proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Referenced Link State ID: %s",

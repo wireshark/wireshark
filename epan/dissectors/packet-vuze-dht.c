@@ -337,7 +337,7 @@ dissect_vuze_dht_contact(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   /* the decoded length is ip length+5, see the format above */
   ti = proto_tree_add_none_format( tree, hf_vuze_dht_contact, tvb, offset, tvb_get_guint8(tvb,offset+2)+5,
       "%s contact, version %d",
-      val_to_str( tvb_get_guint8(tvb, offset), vuze_dht_contact_type_vals, "Unknown"),
+      val_to_str_const( tvb_get_guint8(tvb, offset), vuze_dht_contact_type_vals, "Unknown"),
       tvb_get_guint8(tvb, offset+1) );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_contact);
 
@@ -615,7 +615,7 @@ dissect_vuze_dht_request_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
   proto_tree_add_item(tree, hf_vuze_dht_action, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   *action = tvb_get_ntohl(tvb, offset);
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Action: %s", val_to_str( *action, vuze_dht_action_type_vals, "Unknown") );
+  col_append_fstr(pinfo->cinfo, COL_INFO, " Action: %s", val_to_str_const( *action, vuze_dht_action_type_vals, "Unknown") );
   offset += TL_INT;
 
   proto_tree_add_item(tree, hf_vuze_dht_transaction_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
@@ -668,7 +668,7 @@ dissect_vuze_dht_reply_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
   proto_tree_add_item(tree, hf_vuze_dht_action, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   *action = tvb_get_ntohl(tvb, offset);
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Action: %s", val_to_str( *action, vuze_dht_action_type_vals, "Unknown") );
+  col_append_fstr(pinfo->cinfo, COL_INFO, " Action: %s", val_to_str_const( *action, vuze_dht_action_type_vals, "Unknown") );
   offset += TL_INT;
 
   proto_tree_add_item(tree, hf_vuze_dht_transaction_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
@@ -950,7 +950,7 @@ dissect_vuze_dht_reply_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   proto_tree_add_item(tree, hf_vuze_dht_error_type, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   error_type = tvb_get_ntohl( tvb, offset );
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Error: %s", val_to_str( error_type, vuze_dht_error_type_vals, "Unknown") );
+  col_append_fstr(pinfo->cinfo, COL_INFO, " Error: %s", val_to_str_const( error_type, vuze_dht_error_type_vals, "Unknown") );
   offset += TL_INT;
 
   switch(error_type)

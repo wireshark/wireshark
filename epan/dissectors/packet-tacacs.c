@@ -399,14 +399,14 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 	val=tvb_get_guint8(tvb,offset);
 	proto_tree_add_text( tree, tvb, offset, 1,
 			"Authentication type: %s",
-			val_to_str( val, tacplus_authen_type_vals, "Unknown Packet" ) );
+			val_to_str_const( val, tacplus_authen_type_vals, "Unknown Packet" ) );
 	offset++;
 
 	/* service */
 	val=tvb_get_guint8(tvb,offset);
 	proto_tree_add_text( tree, tvb, offset, 1,
 			"Service: %s",
-			val_to_str( val, tacplus_authen_service_vals, "Unknown Packet" ) );
+			val_to_str_const( val, tacplus_authen_service_vals, "Unknown Packet" ) );
 	offset++;
 
 	/* user_len && user */
@@ -539,7 +539,7 @@ dissect_tacplus_body_authen_req( tvbuff_t* tvb, proto_tree *tree )
 	proto_tree_add_text( tree, tvb,
 			AUTHEN_S_ACTION_OFF, 1,
 			"Action: %s",
-			val_to_str( val, tacplus_authen_action_vals, "Unknown Packet" ) );
+			val_to_str_const( val, tacplus_authen_action_vals, "Unknown Packet" ) );
 
 	var_off=proto_tree_add_tacplus_common_fields( tvb, tree , AUTHEN_S_PRIV_LVL_OFF, AUTHEN_S_VARDATA_OFF );
 
@@ -594,7 +594,7 @@ dissect_tacplus_body_authen_rep( tvbuff_t *tvb, proto_tree *tree )
 	val=tvb_get_guint8( tvb, AUTHEN_R_STATUS_OFF );
 	proto_tree_add_text(tree, tvb,
 			AUTHEN_R_STATUS_OFF, 1, "Status: 0x%01x (%s)", val,
-			val_to_str( val, tacplus_reply_status_vals, "Unknown Packet" )  );
+			val_to_str_const( val, tacplus_reply_status_vals, "Unknown Packet" )  );
 
 	val=tvb_get_guint8( tvb, AUTHEN_R_FLAGS_OFF );
 	proto_tree_add_text(tree, tvb,
@@ -627,7 +627,7 @@ dissect_tacplus_body_author_req( tvbuff_t* tvb, proto_tree *tree )
 
 	val=tvb_get_guint8( tvb, AUTHOR_Q_AUTH_METH_OFF ) ;
 	proto_tree_add_text( tree, tvb, AUTHOR_Q_AUTH_METH_OFF, 1,
-			"Auth Method: %s", val_to_str( val, tacplus_authen_method, "Unknown Authen Method" ) );
+			"Auth Method: %s", val_to_str_const( val, tacplus_authen_method, "Unknown Authen Method" ) );
 
 	val=tvb_get_guint8( tvb, AUTHOR_Q_ARGC_OFF );
 	var_off=proto_tree_add_tacplus_common_fields( tvb, tree ,
@@ -650,7 +650,7 @@ dissect_tacplus_body_author_rep( tvbuff_t* tvb, proto_tree *tree )
 
 	proto_tree_add_text( tree, tvb, AUTHOR_R_STATUS_OFF	, 1,
 			"Auth Status: 0x%01x (%s)", val,
-			val_to_str( val, tacplus_author_status, "Unknown Authorization Status" ));
+			val_to_str_const( val, tacplus_author_status, "Unknown Authorization Status" ));
 
 	val=tvb_get_ntohs( tvb, AUTHOR_R_SRV_MSG_LEN_OFF );
 	offset+=val;
@@ -695,7 +695,7 @@ dissect_tacplus_body_acct_req( tvbuff_t* tvb, proto_tree *tree )
 	val=tvb_get_guint8( tvb, ACCT_Q_METHOD_OFF );
 	proto_tree_add_text( tree, tvb, ACCT_Q_METHOD_OFF, 1,
 			"Authen Method: 0x%01x (%s)",
-			val, val_to_str( val, tacplus_authen_method, "Unknown Authen Method" ) );
+			val, val_to_str_const( val, tacplus_authen_method, "Unknown Authen Method" ) );
 
 	val=tvb_get_guint8( tvb, ACCT_Q_ARG_CNT_OFF );
 
@@ -723,7 +723,7 @@ dissect_tacplus_body_acct_rep( tvbuff_t* tvb, proto_tree *tree )
 	/* Status */
 	val=tvb_get_guint8( tvb, ACCT_R_STATUS_OFF );
 	proto_tree_add_text( tree, tvb, ACCT_R_STATUS_OFF, 1, "Status: 0x%02x (%s)", val,
-				val_to_str( val, tacplus_acct_status, "Bogus status..") );
+				val_to_str_const( val, tacplus_acct_status, "Bogus status..") );
 
 	/* Server Message */
 	val=tvb_get_ntohs( tvb, ACCT_R_SRV_MSG_LEN_OFF );

@@ -1268,7 +1268,7 @@ dissect_supported_extensions_parameter(tvbuff_t *parameter_tvb, proto_tree *para
   number_of_types = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / CHUNK_TYPE_LENGTH;
   for(type_number = 1, offset = PARAMETER_VALUE_OFFSET; type_number <= number_of_types; type_number++, offset +=  CHUNK_TYPE_LENGTH) {
     proto_tree_add_item(parameter_tree, hf_supported_chunk_type, parameter_tvb, offset, CHUNK_TYPE_LENGTH, ENC_BIG_ENDIAN);
-    proto_item_append_text(parameter_item, "%s", val_to_str(tvb_get_guint8(parameter_tvb, offset), chunk_type_values, "Unknown"));
+    proto_item_append_text(parameter_item, "%s", val_to_str_const(tvb_get_guint8(parameter_tvb, offset), chunk_type_values, "Unknown"));
     if (type_number < number_of_types)
       proto_item_append_text(parameter_item, ", ");
 
@@ -1471,7 +1471,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
     return;
 
   if (chunk_tree) {
-    parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_reported_length(parameter_tvb), "%s parameter", val_to_str(type, parameter_identifier_values, "Unknown"));
+    parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_reported_length(parameter_tvb), "%s parameter", val_to_str_const(type, parameter_identifier_values, "Unknown"));
     parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
 
     type_item = proto_tree_add_item(parameter_tree, hf_parameter_type,   parameter_tvb, PARAMETER_TYPE_OFFSET,   PARAMETER_TYPE_LENGTH,   ENC_BIG_ENDIAN);
@@ -1702,7 +1702,7 @@ dissect_unrecognized_chunk_type_cause(tvbuff_t *cause_tvb,  packet_info *pinfo, 
                                           MIN(chunk_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
   dissect_sctp_chunk(unrecognized_chunk_tvb, pinfo, cause_tree,cause_tree, NULL, FALSE);
   unrecognized_type   = tvb_get_guint8(unrecognized_chunk_tvb, CHUNK_TYPE_OFFSET);
-  proto_item_append_text(cause_item, " (Type: %u (%s))", unrecognized_type, val_to_str(unrecognized_type, chunk_type_values, "unknown"));
+  proto_item_append_text(cause_item, " (Type: %u (%s))", unrecognized_type, val_to_str_const(unrecognized_type, chunk_type_values, "unknown"));
 }
 
 static void
@@ -1901,7 +1901,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
   padding_length = tvb_reported_length(cause_tvb) - length;
 
-  cause_item = proto_tree_add_text(chunk_tree, cause_tvb, CAUSE_HEADER_OFFSET, tvb_reported_length(cause_tvb), "%s cause", val_to_str(code, cause_code_values, "Unknown"));
+  cause_item = proto_tree_add_text(chunk_tree, cause_tvb, CAUSE_HEADER_OFFSET, tvb_reported_length(cause_tvb), "%s cause", val_to_str_const(code, cause_code_values, "Unknown"));
   cause_tree = proto_item_add_subtree(cause_item, ett_sctp_chunk_cause);
 
   proto_tree_add_item(cause_tree, hf_cause_code, cause_tvb,   CAUSE_CODE_OFFSET,   CAUSE_CODE_LENGTH,   ENC_BIG_ENDIAN);
@@ -3687,11 +3687,11 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   padding_length  = reported_length - length;
 
  if (useinfo)
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, chunk_type_values, "RESERVED"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(type, chunk_type_values, "RESERVED"));
 
   if (tree) {
     /* create proto_tree stuff */
-    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, reported_length, "%s chunk", val_to_str(type, chunk_type_values, "RESERVED"));
+    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, reported_length, "%s chunk", val_to_str_const(type, chunk_type_values, "RESERVED"));
     chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
 
     /* then insert the chunk header components into the protocol tree */

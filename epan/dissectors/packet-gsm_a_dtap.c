@@ -2405,7 +2405,7 @@ de_call_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 	default:
 		proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_call_state, tvb,
 				offset, 1, call_state, "%s (%u)",
-				val_to_str(call_state, gsm_a_dtap_call_state_vals, "Reserved"),
+				val_to_str_const(call_state, gsm_a_dtap_call_state_vals, "Reserved"),
 				call_state);
 		break;
 	}
@@ -3124,7 +3124,7 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 	default:
 		proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_progress_description, tvb,
 				curr_offset, 1, progress_description, "%s (%u)",
-				val_to_str(progress_description, gsm_a_dtap_progress_description_vals, "Unspecific"),
+				val_to_str_const(progress_description, gsm_a_dtap_progress_description_vals, "Unspecific"),
 				progress_description);
 		break;
 	}
@@ -3496,13 +3496,13 @@ de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 	oct = tvb_get_guint8(tvb, curr_offset);
 	proto_tree_add_uint_format(tree, hf_gsm_a_dtap_cause_of_no_cli, tvb, curr_offset, 1, oct,
 				   "Cause of no CLI: %s (%u)",
-				   val_to_str(oct, gsm_a_cause_of_no_cli_values, "Unavailable"),
+				   val_to_str_const(oct, gsm_a_cause_of_no_cli_values, "Unavailable"),
 				   oct);
 
 	curr_offset++;
 
 	if (add_string)
-		g_snprintf(add_string, string_len, " - (%s)", val_to_str(oct, gsm_a_cause_of_no_cli_values, "Unavailable"));
+		g_snprintf(add_string, string_len, " - (%s)", val_to_str_const(oct, gsm_a_cause_of_no_cli_values, "Unavailable"));
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -6313,7 +6313,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hf_idx = -1;
 	dtap_msg_fcn = NULL;
 	nsd = FALSE;
-	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",val_to_str(pd,gsm_a_pd_short_str_vals,"unknown"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",val_to_str_const(pd,gsm_a_pd_short_str_vals,"unknown"));
 
 	/*
 	 * octet 1

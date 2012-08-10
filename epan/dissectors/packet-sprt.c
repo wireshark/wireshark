@@ -964,7 +964,7 @@ dissect_sprt_data(tvbuff_t *tvb,
                 category_id = (word >> 12);
 
                 ti = proto_tree_add_uint_format_value(sprt_payload_tree, hf_sprt_payload_msg_jminfo_category_data, tvb, offset, 2, word,
-                    "Item #%d: %s (0x%04x)", category_count, val_to_str(category_id, sprt_jm_info_cat_id_name, "Unknown"), category_id);
+                    "Item #%d: %s (0x%04x)", category_count, val_to_str_const(category_id, sprt_jm_info_cat_id_name, "Unknown"), category_id);
                 category_count++;
                 field_subtree = proto_item_add_subtree(ti, ett_jminfo_msg_cat_data);
                 proto_tree_add_item(field_subtree, hf_sprt_payload_msg_jminfo_category_id, tvb, offset, 2, ENC_BIG_ENDIAN);

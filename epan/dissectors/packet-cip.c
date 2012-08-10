@@ -2577,7 +2577,7 @@ dissect_deviceid(tvbuff_t *tvb, int offset, proto_tree *tree,
    /* Add Major revision/Compatibility tree */
    compatibility_item = proto_tree_add_uint_format_value(tree, hf_compatibility,
             tvb, offset+6, 1, compatibility, "%s, Major Revision: %d",
-               val_to_str( ( compatibility & 0x80 )>>7, cip_com_bit_vals , "" ),
+               val_to_str_const( ( compatibility & 0x80 )>>7, cip_com_bit_vals , "" ),
                compatibility & 0x7F);
    compatibility_tree = proto_item_add_subtree(compatibility_item, ett_mcsc);
 
@@ -2796,7 +2796,7 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
                   it = proto_tree_add_uint(path_seg_tree, hf_cip_logical_seg_format, NULL, 0, 0, segment_type & CI_LOGICAL_SEG_FORMAT_MASK);
                   PROTO_ITEM_SET_GENERATED(it);
                }
-               cia_item = proto_tree_add_text(path_seg_tree, NULL, 0, 0, "%s", val_to_str( ((segment_type & (CI_LOGICAL_SEG_TYPE_MASK|CI_LOGICAL_SEG_FORMAT_MASK))), cip_logical_seg_vals, "Reserved"));
+               cia_item = proto_tree_add_text(path_seg_tree, NULL, 0, 0, "%s", val_to_str_const( ((segment_type & (CI_LOGICAL_SEG_TYPE_MASK|CI_LOGICAL_SEG_FORMAT_MASK))), cip_logical_seg_vals, "Reserved"));
                PROTO_ITEM_SET_GENERATED(cia_item);
             }
             else
@@ -2804,10 +2804,10 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
                proto_tree_add_item(path_seg_tree, hf_cip_logical_seg_type, tvb, offset+pathpos, 1, ENC_LITTLE_ENDIAN );
                if ((segment_type & CI_LOGICAL_SEG_TYPE_MASK) <= CI_LOGICAL_SEG_ATTR_ID)
                   proto_tree_add_item(path_seg_tree, hf_cip_logical_seg_format, tvb, offset + pathpos, 1, ENC_LITTLE_ENDIAN);
-               cia_item = proto_tree_add_text(path_seg_tree, tvb, offset + pathpos, 1, "%s", val_to_str( ((segment_type & (CI_LOGICAL_SEG_TYPE_MASK|CI_LOGICAL_SEG_FORMAT_MASK))), cip_logical_seg_vals, "Reserved"));
+               cia_item = proto_tree_add_text(path_seg_tree, tvb, offset + pathpos, 1, "%s", val_to_str_const( ((segment_type & (CI_LOGICAL_SEG_TYPE_MASK|CI_LOGICAL_SEG_FORMAT_MASK))), cip_logical_seg_vals, "Reserved"));
             }
 
-            proto_item_append_text( path_seg_item, " (%s)", val_to_str( ((segment_type & (CI_LOGICAL_SEG_TYPE_MASK|CI_LOGICAL_SEG_FORMAT_MASK))), cip_logical_seg_vals, "Reserved"));
+            proto_item_append_text( path_seg_item, " (%s)", val_to_str_const( ((segment_type & (CI_LOGICAL_SEG_TYPE_MASK|CI_LOGICAL_SEG_FORMAT_MASK))), cip_logical_seg_vals, "Reserved"));
             cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
 
             switch( segment_type & CI_LOGICAL_SEG_TYPE_MASK )
@@ -2922,16 +2922,16 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
             {
                it = proto_tree_add_uint(path_seg_tree, hf_cip_data_seg_type, NULL, 0, 0, segment_type & CI_DATA_SEG_TYPE_MASK);
                PROTO_ITEM_SET_GENERATED(it);
-               ds_item = proto_tree_add_text(path_seg_tree, NULL, 0, 0, "%s", val_to_str( (segment_type & CI_DATA_SEG_TYPE_MASK), cip_data_segment_type_vals, "Reserved"));
+               ds_item = proto_tree_add_text(path_seg_tree, NULL, 0, 0, "%s", val_to_str_const( (segment_type & CI_DATA_SEG_TYPE_MASK), cip_data_segment_type_vals, "Reserved"));
                PROTO_ITEM_SET_GENERATED(ds_item);
             }
             else
             {
                proto_tree_add_item(path_seg_tree, hf_cip_data_seg_type, tvb, offset+pathpos, 1, ENC_LITTLE_ENDIAN );
-               ds_item = proto_tree_add_text(path_seg_tree, tvb, offset + pathpos, 1, "%s", val_to_str( (segment_type & CI_DATA_SEG_TYPE_MASK), cip_data_segment_type_vals, "Reserved"));
+               ds_item = proto_tree_add_text(path_seg_tree, tvb, offset + pathpos, 1, "%s", val_to_str_const( (segment_type & CI_DATA_SEG_TYPE_MASK), cip_data_segment_type_vals, "Reserved"));
             }
 
-            proto_item_append_text( path_seg_item, " (%s)", val_to_str( (segment_type & CI_DATA_SEG_TYPE_MASK), cip_data_segment_type_vals, "Reserved"));
+            proto_item_append_text( path_seg_item, " (%s)", val_to_str_const( (segment_type & CI_DATA_SEG_TYPE_MASK), cip_data_segment_type_vals, "Reserved"));
             ds_tree = proto_item_add_subtree( ds_item, ett_data_seg  );
 
             switch( segment_type & CI_DATA_SEG_TYPE_MASK)
@@ -3018,16 +3018,16 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
             {
                it = proto_tree_add_uint(path_seg_tree, hf_cip_network_seg_type, NULL, 0, 0, segment_type & CI_NETWORK_SEG_TYPE_MASK);
                PROTO_ITEM_SET_GENERATED(it);
-               net_item = proto_tree_add_text(path_seg_tree, NULL, 0, 0, "%s", val_to_str( (segment_type & CI_NETWORK_SEG_TYPE_MASK), cip_network_segment_type_vals, "Reserved"));
+               net_item = proto_tree_add_text(path_seg_tree, NULL, 0, 0, "%s", val_to_str_const( (segment_type & CI_NETWORK_SEG_TYPE_MASK), cip_network_segment_type_vals, "Reserved"));
                PROTO_ITEM_SET_GENERATED(net_item);
             }
             else
             {
                proto_tree_add_item(path_seg_tree, hf_cip_network_seg_type, tvb, offset+pathpos, 1, ENC_LITTLE_ENDIAN );
-               net_item = proto_tree_add_text(path_seg_tree, tvb, offset + pathpos, 1, "%s", val_to_str( (segment_type & CI_NETWORK_SEG_TYPE_MASK), cip_network_segment_type_vals, "Reserved"));
+               net_item = proto_tree_add_text(path_seg_tree, tvb, offset + pathpos, 1, "%s", val_to_str_const( (segment_type & CI_NETWORK_SEG_TYPE_MASK), cip_network_segment_type_vals, "Reserved"));
             }
 
-            proto_item_append_text( path_seg_item, " (%s)", val_to_str( (segment_type & CI_NETWORK_SEG_TYPE_MASK), cip_network_segment_type_vals, "Reserved"));
+            proto_item_append_text( path_seg_item, " (%s)", val_to_str_const( (segment_type & CI_NETWORK_SEG_TYPE_MASK), cip_network_segment_type_vals, "Reserved"));
             net_tree = proto_item_add_subtree( net_item, ett_network_seg  );
 
             switch( segment_type & CI_NETWORK_SEG_TYPE_MASK )
@@ -3072,7 +3072,7 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
                   temp_data = tvb_get_guint8( tvb, offset + pathpos + 2 );
                   if (temp_data < 3)
                   {
-                     safety_item = proto_tree_add_text(net_tree, tvb, offset + pathpos+3, seg_size-1, "%s", val_to_str(temp_data, cip_safety_segment_format_type_vals, "Reserved"));
+                     safety_item = proto_tree_add_text(net_tree, tvb, offset + pathpos+3, seg_size-1, "%s", val_to_str_const(temp_data, cip_safety_segment_format_type_vals, "Reserved"));
                      safety_tree = proto_item_add_subtree( safety_item, ett_network_seg_safety  );
                      switch (temp_data)
                      {
@@ -4369,7 +4369,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    proto_item_append_text( rrsc_item, "%s (%s)",
                val_to_str( ( service & 0x7F ),
                   cip_sc_vals_cm , "Unknown Service (0x%02x)"),
-               val_to_str( ( service & 0x80 )>>7,
+               val_to_str_const( ( service & 0x80 )>>7,
                   cip_sc_rr, "") );
 
    /* Add Service code */
@@ -4749,7 +4749,7 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    proto_item_append_text( rrsc_item, "%s (%s)",
                val_to_str( ( service & 0x7F ),
                   cip_sc_vals_mb , "Unknown Service (0x%02x)"),
-               val_to_str( ( service & 0x80 )>>7,
+               val_to_str_const( ( service & 0x80 )>>7,
                   cip_sc_rr, "") );
 
    /* Add Service code */
@@ -5131,7 +5131,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
    proto_item_append_text( rrsc_item, "%s (%s)",
                val_to_str( ( service & 0x7F ),
                   cip_sc_vals_cco , "Unknown Service (0x%02x)"),
-               val_to_str( ( service & 0x80 )>>7,
+               val_to_str_const( ( service & 0x80 )>>7,
                   cip_sc_rr, "") );
 
    /* Add Service code */
@@ -5385,7 +5385,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
    rrsc_item = proto_tree_add_uint_format_value(cip_tree, hf_cip_service,
                                tvb, offset, 1, service, "%s (%s)",
                                val_to_str( ( service & 0x7F ), cip_sc_vals , "Unknown Service (0x%02x)"),
-                               val_to_str( ( service & 0x80 )>>7, cip_sc_rr, ""));
+                               val_to_str_const( ( service & 0x80 )>>7, cip_sc_rr, ""));
 
    rrsc_tree = proto_item_add_subtree( rrsc_item, ett_rrsc );
 

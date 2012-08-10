@@ -416,7 +416,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 
 				tuple_type = tvb_get_ntohs(tvb, offset);
 				proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, 2,
-					"Tuple Type: %s(%d)", val_to_str( tuple_type, edp_tuple_types, "Unknown"), tuple_type );
+					"Tuple Type: %s(%d)", val_to_str_const( tuple_type, edp_tuple_types, "Unknown"), tuple_type );
 				offset += 2;
 				proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, 2,
 					"Tuple Length: %d", tuple_length);

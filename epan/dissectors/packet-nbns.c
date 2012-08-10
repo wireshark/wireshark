@@ -468,16 +468,16 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
 #define MAX_BUF_SIZE (128+1)
 	buf=ep_alloc(MAX_BUF_SIZE);
 	opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
-	g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str(opcode, opcode_vals, "Unknown operation"));
+	g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str_const(opcode, opcode_vals, "Unknown operation"));
 	if (flags & F_RESPONSE && !is_wack) {
 		g_strlcat(buf, " response", MAX_BUF_SIZE);
 		g_strlcat(buf, ", ", MAX_BUF_SIZE);
-		g_strlcat(buf, val_to_str(flags & F_RCODE, rcode_vals, "Unknown error"), MAX_BUF_SIZE);
+		g_strlcat(buf, val_to_str_const(flags & F_RCODE, rcode_vals, "Unknown error"), MAX_BUF_SIZE);
 		buf[MAX_BUF_SIZE-1] = '\0';
 		if ((flags & F_RCODE))
 			col_append_fstr(cinfo, COL_INFO, ", %s",
-					val_to_str(flags & F_RCODE, rcode_vals,
-						   "Unknown error"));
+					val_to_str_const(flags & F_RCODE, rcode_vals,
+							 "Unknown error"));
 	}
 	tf = proto_tree_add_uint_format(nbns_tree, hf_nbns_flags,
 	    tvb, offset, 2, flags, "Flags: 0x%04x (%s)", flags, buf);
@@ -521,7 +521,7 @@ nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset, gushort flags)
 	};
 
 	buf=ep_alloc(MAX_BUF_SIZE);
-	g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str(flags & NB_FLAGS_ONT, nb_flags_ont_vals,
+	g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str_const(flags & NB_FLAGS_ONT, nb_flags_ont_vals,
 	    "Unknown"));
 	g_strlcat(buf, ", ", MAX_BUF_SIZE);
 	if (flags & NB_FLAGS_G)
@@ -557,7 +557,7 @@ nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
 	};
 
 	buf=ep_alloc(MAX_BUF_SIZE);
-	g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str(flags & NAME_FLAGS_ONT, name_flags_ont_vals,
+	g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str_const(flags & NAME_FLAGS_ONT, name_flags_ont_vals,
 	    "Unknown"));
 	g_strlcat(buf, ", ", MAX_BUF_SIZE);
 	if (flags & NAME_FLAGS_G)

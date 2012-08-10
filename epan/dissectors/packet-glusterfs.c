@@ -417,7 +417,7 @@ glusterfs_rpc_dissect_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 		accmode_hf = proto_registrar_get_nth(hf_glusterfs_flags_accmode);
 		accmode = tvb_get_ntohl(tvb, offset);
 		proto_tree_add_uint_format_value(flag_tree, hf_glusterfs_flags_accmode, tvb, offset, 4, accmode,
-		                                 "%s", val_to_str((accmode & accmode_hf->bitmask), glusterfs_accmode_vals, "Unknown"));
+		                                 "%s", val_to_str_const((accmode & accmode_hf->bitmask), glusterfs_accmode_vals, "Unknown"));
 		if ((accmode & accmode_hf->bitmask) == accmode_hf->bitmask)
 			proto_item_append_text(flag_tree, ", %s", proto_registrar_get_nth(hf_glusterfs_flags_accmode)->name);
 	}

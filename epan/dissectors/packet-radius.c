@@ -582,7 +582,7 @@ void radius_integer(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo 
 	proto_tree_add_item(tree,a->hf,tvb, offset, len, ENC_BIG_ENDIAN);
 
 	if (a->vs) {
-		proto_item_append_text(avp_item, "%s(%u)", val_to_str(uint, a->vs, "Unknown"),uint);
+		proto_item_append_text(avp_item, "%s(%u)", val_to_str_const(uint, a->vs, "Unknown"),uint);
 	} else {
 		proto_item_append_text(avp_item, "%u", uint);
 	}
@@ -618,7 +618,7 @@ void radius_signed(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 	proto_tree_add_int(tree,a->hf,tvb,offset,len,uint);
 
 	if (a->vs) {
-		proto_item_append_text(avp_item, "%s(%d)", val_to_str(uint, a->vs, "Unknown"),uint);
+		proto_item_append_text(avp_item, "%s(%d)", val_to_str_const(uint, a->vs, "Unknown"),uint);
 	} else {
 		proto_item_append_text(avp_item, "%d", uint);
 	}
@@ -1394,7 +1394,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_add_fstr(pinfo->cinfo,COL_INFO,"%s(%d) (id=%d, l=%d)",
-			val_to_str_ext(rh.rh_code, &radius_pkt_type_codes_ext, "Unknown Packet"),
+			val_to_str_ext_const(rh.rh_code, &radius_pkt_type_codes_ext, "Unknown Packet"),
 			rh.rh_code, rh.rh_ident, rh.rh_pktlength);
 	}
 

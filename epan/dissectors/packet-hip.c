@@ -564,7 +564,7 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         ti_tlv = proto_tree_add_uint_format(hip_tlv_tree, hf_hip_type, tvb,
                                                             offset, 4 + tlv_length_h, tlv_type_h,
                                                             "%s (type=%u, length=%u)",
-                                                            val_to_str(tlv_type_h, hip_param_vals, "Unknown"),
+                                                            val_to_str_const(tlv_type_h, hip_param_vals, "Unknown"),
                                                             tlv_type_h, tlv_length_h);
 
                         /* Parse value */
@@ -788,7 +788,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 /* First Group ID*/
                 proto_tree_add_uint_format(t, hf_hip_tlv_dh_group_id, tvb, newoffset,
                                            1, n, "%u (%s)", n,
-                                           val_to_str(n, dh_group_id_vals, "Unknown"));
+                                           val_to_str_const(n, dh_group_id_vals, "Unknown"));
                 /* First Public value len */
                 newoffset++;
                 pv_len = tvb_get_ntohs(tvb, newoffset);
@@ -803,7 +803,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                         newoffset += pv_len;
                         proto_tree_add_uint_format(t, hf_hip_tlv_dh_group_id, tvb, newoffset,
                                                    1, n, "%u (%s)", n,
-                                                   val_to_str(n, dh_group_id_vals, "Unknown"));
+                                                   val_to_str_const(n, dh_group_id_vals, "Unknown"));
                         /* Second Public value len */
                         newoffset += 1;
                         pv_len = tvb_get_ntohs(tvb, newoffset);
@@ -827,7 +827,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                         trans = tvb_get_ntohs(tvb, newoffset);
                         proto_tree_add_uint_format(t, hf_hip_tlv_trans_id, tvb,
                                                    newoffset, 2, trans, "%u (%s)", trans,
-                                                   val_to_str(trans, transform_id_vals, "Unknown"));
+                                                   val_to_str_const(trans, transform_id_vals, "Unknown"));
                         tlv_len -= 2;
                         newoffset += 2;
                 }
@@ -840,7 +840,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                         trans = tvb_get_ntohs(tvb, newoffset);
                         proto_tree_add_uint_format(t, hf_hip_tlv_trans_id, tvb,
                                                    newoffset, 2, trans, "%u (%s)", trans,
-                                                   val_to_str(trans, transform_id_vals, "Unknown"));
+                                                   val_to_str_const(trans, transform_id_vals, "Unknown"));
                         tlv_len -= 2;
                         newoffset += 2;
                 }
@@ -857,7 +857,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                         trans = tvb_get_ntohs(tvb, newoffset);
                         proto_tree_add_uint_format(t, hf_hip_tlv_nat_traversal_mode_id, tvb,
                                                    newoffset, 2, trans, "%u (%s)", trans,
-                                                   val_to_str(trans, mode_id_vals, "Unknown"));
+                                                   val_to_str_const(trans, mode_id_vals, "Unknown"));
                         tlv_len -= 2;
                         newoffset += 2;
                 }
@@ -1100,7 +1100,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                         reg_type = tvb_get_guint8(tvb, newoffset);
                         proto_tree_add_uint_format(t, hf_hip_tlv_reg_type, tvb,
                                                    newoffset, 1, reg_type, "%u (%s)", reg_type,
-                                                   val_to_str(reg_type, reg_type_vals, "Unknown"));
+                                                   val_to_str_const(reg_type, reg_type_vals, "Unknown"));
                         /* one byte per registration type */
                         tlv_len--;
                         newoffset++;
@@ -1122,7 +1122,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 n = tvb_get_guint8(tvb, offset+4);
                 proto_tree_add_uint_format(t, hf_hip_tlv_sig_alg, tvb, newoffset, 1,
                                            n, "%u (%s)", n,
-                                           val_to_str(n, sig_alg_vals, "Unknown"));
+                                           val_to_str_const(n, sig_alg_vals, "Unknown"));
                 newoffset++;
                 /* Signature */
                 proto_tree_add_item(t, hf_hip_tlv_sig, tvb, newoffset, tlv_len-1,

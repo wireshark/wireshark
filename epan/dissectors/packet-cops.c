@@ -913,7 +913,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     op_code = tvb_get_guint8(tvb, 1);
     col_add_fstr(pinfo->cinfo, COL_INFO, "COPS %s",
-                 val_to_str(op_code, cops_op_code_vals, "Unknown Op Code"));
+                 val_to_str_const(op_code, cops_op_code_vals, "Unknown Op Code"));
 
     /* Currently used by PacketCable */
     client_type = tvb_get_ntohs(tvb, 2);
@@ -926,7 +926,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tv = proto_tree_add_uint_format(cops_tree, hf_cops_ver_flags, tvb, offset, 1,
                                     ver_flags, "Version: %u, Flags: %s",
                                     hi_nibble(ver_flags),
-                                    val_to_str(lo_nibble(ver_flags), cops_flags_vals, "Unknown"));
+                                    val_to_str_const(lo_nibble(ver_flags), cops_flags_vals, "Unknown"));
     ver_flags_tree = proto_item_add_subtree(tv, ett_cops_ver_flags);
     proto_tree_add_uint(ver_flags_tree, hf_cops_version, tvb, offset, 1, ver_flags);
     proto_tree_add_uint(ver_flags_tree, hf_cops_flags, tvb, offset, 1, ver_flags);
@@ -1032,7 +1032,7 @@ static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code
     c_type = tvb_get_guint8(tvb, offset + 3);
 
     ti = proto_tree_add_uint_format(tree, hf_cops_obj_c_num, tvb, offset, object_len, c_num,
-                                    "%s: %s", val_to_str(c_num, cops_c_num_vals, "Unknown"),
+                                    "%s: %s", val_to_str_const(c_num, cops_c_num_vals, "Unknown"),
                                     cops_c_type_to_str(c_num, c_type));
     obj_tree = proto_item_add_subtree(ti, ett_cops_obj);
 
@@ -1085,7 +1085,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 o
         s_num = tvb_get_guint8(tvb, offset + 2);
 
         ti = proto_tree_add_uint_format(cops_pr_tree, hf_cops_obj_s_num, tvb, offset, object_len, s_num,
-                                        "%s", val_to_str(s_num, cops_s_num_vals, "Unknown"));
+                                        "%s", val_to_str_const(s_num, cops_s_num_vals, "Unknown"));
         obj_tree = proto_item_add_subtree(ti, ett_cops_pr_obj);
 
         proto_tree_add_uint(obj_tree, hf_cops_obj_len, tvb, offset, 2, object_len);
@@ -1097,7 +1097,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 o
         pr_len--;
 
         s_type = tvb_get_guint8(tvb, offset);
-        type_str = val_to_str(s_type, cops_s_type_vals, "Unknown");
+        type_str = val_to_str_const(s_type, cops_s_type_vals, "Unknown");
         proto_tree_add_text(obj_tree, tvb, offset, 1, "S-Type: %s%s%u%s",
                             type_str,
                             strlen(type_str) ? " (" : "",
@@ -1138,7 +1138,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
         r_type = tvb_get_ntohs(tvb, offset);
         m_type = tvb_get_ntohs(tvb, offset + 2);
         ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: R-Type: %s, M-Type: %u",
-                                 val_to_str(r_type, cops_r_type_vals, "Unknown"),
+                                 val_to_str_const(r_type, cops_r_type_vals, "Unknown"),
                                  m_type);
 
         r_type_tree = proto_item_add_subtree(ti, ett_cops_r_type_flags);
@@ -1179,7 +1179,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
         reason = tvb_get_ntohs(tvb, offset);
         reason_sub = tvb_get_ntohs(tvb, offset + 2);
         ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Reason-Code: %s, Reason Sub-code: 0x%04x",
-                                 val_to_str(reason, cops_reason_vals, "<Unknown value>"), reason_sub);
+                                 val_to_str_const(reason, cops_reason_vals, "<Unknown value>"), reason_sub);
         reason_tree = proto_item_add_subtree(ti, ett_cops_reason);
         proto_tree_add_uint(reason_tree, hf_cops_reason, tvb, offset, 2, reason);
         offset += 2;
@@ -1197,8 +1197,8 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
             cmd_code = tvb_get_ntohs(tvb, offset);
             cmd_flags = tvb_get_ntohs(tvb, offset + 2);
             ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Command-Code: %s, Flags: %s",
-                                     val_to_str(cmd_code, cops_dec_cmd_code_vals, "<Unknown value>"),
-                                     val_to_str(cmd_flags, cops_dec_cmd_flag_vals, "<Unknown flag>"));
+                                     val_to_str_const(cmd_code, cops_dec_cmd_code_vals, "<Unknown value>"),
+                                     val_to_str_const(cmd_flags, cops_dec_cmd_flag_vals, "<Unknown flag>"));
             dec_tree = proto_item_add_subtree(ti, ett_cops_decision);
             proto_tree_add_uint(dec_tree, hf_cops_dec_cmd_code, tvb, offset, 2, cmd_code);
             offset += 2;
@@ -1224,7 +1224,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
         error = tvb_get_ntohs(tvb, offset);
         error_sub = tvb_get_ntohs(tvb, offset + 2);
         ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Error-Code: %s, Error Sub-code: 0x%04x",
-                                 val_to_str(error, cops_error_vals, "<Unknown value>"), error_sub);
+                                 val_to_str_const(error, cops_error_vals, "<Unknown value>"), error_sub);
         error_tree = proto_item_add_subtree(ti, ett_cops_error);
         proto_tree_add_uint(error_tree, hf_cops_error, tvb, offset, 2, error);
         offset += 2;
@@ -1570,7 +1570,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
         gperror = tvb_get_ntohs(tvb, offset);
         gperror_sub = tvb_get_ntohs(tvb, offset + 2);
         ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Error-Code: %s, Error Sub-code: 0x%04x",
-                                 val_to_str(gperror, cops_gperror_vals, "<Unknown value>"), gperror_sub);
+                                 val_to_str_const(gperror, cops_gperror_vals, "<Unknown value>"), gperror_sub);
         gperror_tree = proto_item_add_subtree(ti, ett_cops_gperror);
         proto_tree_add_uint(gperror_tree, hf_cops_gperror, tvb, offset, 2, gperror);
         offset += 2;
@@ -1589,7 +1589,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
         cperror = tvb_get_ntohs(tvb, offset);
         cperror_sub = tvb_get_ntohs(tvb, offset + 2);
         ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Error-Code: %s, Error Sub-code: 0x%04x",
-                                 val_to_str(cperror, cops_cperror_vals, "<Unknown value>"), cperror_sub);
+                                 val_to_str_const(cperror, cops_cperror_vals, "<Unknown value>"), cperror_sub);
         cperror_tree = proto_item_add_subtree(ti, ett_cops_cperror);
         proto_tree_add_uint(cperror_tree, hf_cops_cperror, tvb, offset, 2, cperror);
         offset += 2;
@@ -2640,12 +2640,12 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
                 /* Hexadecimal format */
                 pi = proto_tree_add_uint_format(
                     stt, *hf_proto_parameter,tvb, offset, octets, code8,
-                    "%-28s : %s (0x%02x)",str,val_to_str(code8, vsp, "Unknown"),code8);
+                    "%-28s : %s (0x%02x)",str,val_to_str_const(code8, vsp, "Unknown"),code8);
             else
                 /* String table indexed */
                 pi = proto_tree_add_uint_format(
                     stt, *hf_proto_parameter,tvb, offset, octets, code8,
-                    "%-28s : %s (%u)",str,val_to_str(code8, vsp, "Unknown"),code8);
+                    "%-28s : %s (%u)",str,val_to_str_const(code8, vsp, "Unknown"),code8);
         }
         break;
 
@@ -2712,11 +2712,11 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
             /* Hexadecimal format */
             if (mode==FMT_HEX)
                 pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb, offset, octets,
-                                                code32,"%-28s : %s (0x%08x)",str,val_to_str(code32, vsp, "Unknown"),code32);
+                                                code32,"%-28s : %s (0x%08x)",str,val_to_str_const(code32, vsp, "Unknown"),code32);
             else
                 /* String table indexed */
                 pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb, offset, octets,
-                                                code32,"%-28s : %s (%u)",str,val_to_str(code32, vsp, "Unknown"),code32);
+                                                code32,"%-28s : %s (%u)",str,val_to_str_const(code32, vsp, "Unknown"),code32);
         }
         break;
 
@@ -2775,8 +2775,8 @@ cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op
                                val_to_str(code16,table_cops_dqos_transaction_id, "Unknown (0x%04x)"),code16);
 
     /* Write the right data into the 'info field' on the Gui */
-    g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str(op_code,cops_op_code_vals, "Unknown"),
-               val_to_str(code16,table_cops_dqos_transaction_id, "Unknown"));
+    g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str_const(op_code,cops_op_code_vals, "Unknown"),
+               val_to_str_const(code16,table_cops_dqos_transaction_id, "Unknown"));
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO,info);
@@ -3168,8 +3168,8 @@ cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8
             val_to_str(code16,table_cops_mm_transaction_id, "Unknown (0x%04x)"),code16);
 
      /* Write the right data into the 'info field' on the Gui */
-     g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str(op_code,cops_op_code_vals, "Unknown"),
-                val_to_str(code16,table_cops_mm_transaction_id, "Unknown"));
+     g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str_const(op_code,cops_op_code_vals, "Unknown"),
+                val_to_str_const(code16,table_cops_mm_transaction_id, "Unknown"));
 
      col_clear(pinfo->cinfo, COL_INFO);
      col_add_str(pinfo->cinfo, COL_INFO,info);
@@ -5561,7 +5561,7 @@ cops_packetcable_mm_error(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset
 
     code = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint_format(stt, hf_cops_pcmm_packetcable_error_code, tvb, offset, 2, code,
-                               "Error Code: %s (%u)", val_to_str(code, pcmm_packetcable_error_code, "Unknown"),
+                               "Error Code: %s (%u)", val_to_str_const(code, pcmm_packetcable_error_code, "Unknown"),
                                code);
     offset += 2;
 

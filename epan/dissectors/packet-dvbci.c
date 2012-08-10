@@ -2684,8 +2684,8 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             break;
         case T_DISPLAY_CONTROL:
             disp_ctl_cmd = tvb_get_guint8(tvb,offset);
-            disp_ctl_cmd_str = val_to_str(disp_ctl_cmd,
-                    dvbci_disp_ctl_cmd, "unknown command");
+            disp_ctl_cmd_str = val_to_str_const(disp_ctl_cmd,
+                                                dvbci_disp_ctl_cmd, "unknown command");
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                     "%s", disp_ctl_cmd_str);
             proto_tree_add_item(tree, hf_dvbci_disp_ctl_cmd, tvb,
@@ -2707,7 +2707,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             break;
         case T_DISPLAY_REPLY:
             disp_rep_id = tvb_get_guint8(tvb,offset);
-            disp_rep_id_str = val_to_str(disp_rep_id,
+            disp_rep_id_str = val_to_str_const(disp_rep_id,
                     dvbci_disp_rep_id, "unknown command");
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                     "%s", disp_rep_id_str);
@@ -2856,7 +2856,7 @@ dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
       upgrade_type = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(tree, hf_dvbci_cup_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(%s)",
-                    val_to_str(upgrade_type, dvbci_cup_type, "unknown"));
+                    val_to_str_const(upgrade_type, dvbci_cup_type, "unknown"));
       offset++;
       download_time = tvb_get_ntohs(tvb, offset);
       if (download_time == 0) {
@@ -2875,7 +2875,7 @@ dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
       answer = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(tree, hf_dvbci_cup_answer, tvb, offset, 1, ENC_BIG_ENDIAN);
       col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
-                    val_to_str(answer, dvbci_cup_answer, "unknown"));
+                    val_to_str_const(answer, dvbci_cup_answer, "unknown"));
       break;
     case T_CAM_FIRMWARE_UPGRADE_PROGRESS:
       progress = tvb_get_guint8(tvb, offset);
@@ -2932,7 +2932,7 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             proto_tree_add_item(
                     tree, hf_dvbci_cc_status_field, tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
-                    val_to_str(status, dvbci_cc_status, "unknown"));
+                    val_to_str_const(status, dvbci_cc_status, "unknown"));
             break;
         case T_CC_SAC_DATA_REQ:
         case T_CC_SAC_DATA_CNF:
@@ -3049,7 +3049,7 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             proto_tree_add_item(tree, hf_dvbci_pincode_status,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
-                    val_to_str(pin_stat, dvbci_pincode_status, "unknown"));
+                    val_to_str_const(pin_stat, dvbci_pincode_status, "unknown"));
             break;
         case T_CC_PIN_EVENT:
             proto_tree_add_item(tree, hf_dvbci_cc_prog_num,
@@ -3151,13 +3151,13 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             proto_tree_add_item(
                     tree, hf_dvbci_ack_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
-                    val_to_str(ack_code, dvbci_ack_code, "unknown"));
+                    val_to_str_const(ack_code, dvbci_ack_code, "unknown"));
             break;
         case T_FILE_REQUEST:
             req_type = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
-                    val_to_str(req_type, dvbci_req_type, "unknown"));
+                    val_to_str_const(req_type, dvbci_req_type, "unknown"));
             offset++;
             if (req_type==REQ_TYPE_FILE_HASH) {
                 proto_tree_add_item(tree, hf_dvbci_file_hash,
@@ -3193,7 +3193,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             offset++;
             proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
-                    val_to_str(req_type, dvbci_req_type, "unknown"));
+                    val_to_str_const(req_type, dvbci_req_type, "unknown"));
             offset++;
             if (req_type==REQ_TYPE_FILE || req_type==REQ_TYPE_FILE_HASH) {
                 file_name_len = tvb_get_guint8(tvb, offset);
@@ -3755,7 +3755,7 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
         apdu_res_id = GPOINTER_TO_UINT(
                 (gpointer)circuit_get_proto_data(circuit, proto_dvbci));
 
-        ai_res_class_str = val_to_str(ai->res_class, dvbci_res_class, "Unknown");
+        ai_res_class_str = val_to_str_const(ai->res_class, dvbci_res_class, "Unknown");
 
         if(RES_CLASS(apdu_res_id) != ai->res_class) {
             pi = proto_tree_add_text(app_tree, tvb, 0, APDU_TAG_SIZE,
@@ -4348,7 +4348,7 @@ dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
             tpl_tree = proto_item_add_subtree(ti_tpl, ett_dvbci_cis_tpl);
             proto_tree_add_uint_format(tpl_tree, hf_dvbci_cistpl_code,
                     tvb, offset, 1, tpl_code, "Tuple code: %s (0x%x)",
-                    val_to_str(tpl_code, dvbci_cistpl_code, "unknown"), tpl_code);
+                    val_to_str_const(tpl_code, dvbci_cistpl_code, "unknown"), tpl_code);
             if (tpl_code != CISTPL_END) {
                 proto_tree_add_text(tpl_tree, tvb, offset+1, 1,
                         "Length: %d", len_field);

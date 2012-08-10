@@ -201,7 +201,7 @@ dissect_itdm_125usec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_INFO,
       "Flow %d Chan %d ACT %d ACK %d %s",
       flowid, chanid, actbit, ackbit,
-      val_to_str(chcmd, chcmd_vals, "Reserved"));
+      val_to_str_const(chcmd, chcmd_vals, "Reserved"));
     if (chcmd == ITDM_CMD_NEW_CHAN ||
         chcmd == ITDM_CMD_CLOSE_CHAN ||
         chcmd == ITDM_CMD_CYCLIC_REAF)
@@ -295,7 +295,7 @@ dissect_itdm_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   {
     col_add_fstr(pinfo->cinfo, COL_INFO,
       "Flow %d Command %s ",
-      flowid, val_to_str(command, itdm_ctl_command_vals, "Reserved"));
+      flowid, val_to_str_const(command, itdm_ctl_command_vals, "Reserved"));
 
     if (command != ITDM_CTL_CMD_AFI_REQ )
     {

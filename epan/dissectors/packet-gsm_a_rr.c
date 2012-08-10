@@ -7787,7 +7787,7 @@ de_rr_ext_meas_result(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     for (i=0; i<21; i++)
     {
         value = tvb_get_bits8(tvb,bit_offset,6);
-        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "RXLEV carrier %d: %s (%d)",i,val_to_str_ext(value, &gsm_a_rr_rxlev_vals_ext, "Unknown"),value);
+        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "RXLEV carrier %d: %s (%d)",i,val_to_str_ext_const(value, &gsm_a_rr_rxlev_vals_ext, "Unknown"),value);
         bit_offset += 6;
     }
 

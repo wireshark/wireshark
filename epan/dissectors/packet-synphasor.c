@@ -515,7 +515,7 @@ static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO); /* clear out stuff in the info column */
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(frame_type, typenames, "invalid packet type"));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(frame_type, typenames, "invalid packet type"));
 	}
 
 	/* CFG-2 and DATA frames need special treatment during the first run:
@@ -570,8 +570,8 @@ static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvbuff_t *sub_tvb;
 
 		temp_item = proto_tree_add_item(tree, proto_synphasor, tvb, 0, -1, ENC_NA);
-		proto_item_append_text(temp_item, ", %s", val_to_str(frame_type, typenames,
-								     ", invalid packet type"));
+		proto_item_append_text(temp_item, ", %s", val_to_str_const(frame_type, typenames,
+									   ", invalid packet type"));
 
 		/* synphasor_tree is where from now on all new elements for this protocol get added */
 		synphasor_tree = proto_item_add_subtree(temp_item, ett_synphasor);
@@ -866,7 +866,7 @@ static int dissect_command_frame(tvbuff_t    *tvb,
 	/* CMD */
 	proto_tree_add_item(command_tree, hf_command, tvb, 0, 2, ENC_BIG_ENDIAN);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		const char *s = val_to_str(tvb_get_ntohs(tvb, 0), command_names, "invalid command");
+		const char *s = val_to_str_const(tvb_get_ntohs(tvb, 0), command_names, "invalid command");
 		col_append_str(pinfo->cinfo, COL_INFO, ", ");
 		col_append_str(pinfo->cinfo, COL_INFO, s);
 	}

@@ -1230,7 +1230,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         /* Destination address mode changes meanings depending on multicast compression. */
         dam_vs = (iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP) ? (lowpan_iphc_mcast_modes) : (lowpan_iphc_addr_modes);
         ti_dam = proto_tree_add_uint_format_value(iphc_tree, hf_6lowpan_iphc_flag_dam, tvb, offset, sizeof(guint16),
-            iphc_flags & LOWPAN_IPHC_FLAG_DST_MODE, "%s (0x%04x)", val_to_str(iphc_dst_mode, dam_vs, "Reserved"), iphc_dst_mode);
+            iphc_flags & LOWPAN_IPHC_FLAG_DST_MODE, "%s (0x%04x)", val_to_str_const(iphc_dst_mode, dam_vs, "Reserved"), iphc_dst_mode);
     }
     offset += sizeof(guint16);
 

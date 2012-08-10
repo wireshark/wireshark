@@ -726,8 +726,8 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				{
 
 					col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %-27s  SubType: %s",
-						val_to_str(base_message_type, wlccp_msg_type_vs_0, "Unknown"),
-						val_to_str(message_sub_type, wlccp_subtype_vs, "Unknown")
+						val_to_str_const(base_message_type, wlccp_msg_type_vs_0, "Unknown"),
+						val_to_str_const(message_sub_type, wlccp_subtype_vs, "Unknown")
 					);
 					break;
 
@@ -737,8 +737,8 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				{
 
 					col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %-27s  SubType: %s",
-						val_to_str(base_message_type, wlccp_msg_type_vs_1, "Unknown"),
-						val_to_str(message_sub_type, wlccp_subtype_vs, "Unknown")
+						val_to_str_const(base_message_type, wlccp_msg_type_vs_1, "Unknown"),
+						val_to_str_const(message_sub_type, wlccp_subtype_vs, "Unknown")
 					);
 					break;
 				} /* case WLCCP_SAP_SEC */
@@ -746,8 +746,8 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case WLCCP_SAP_RRM:
 				{
 					col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %-27s  SubType: %s",
-						val_to_str(base_message_type, wlccp_msg_type_vs_2, "Unknown"),
-						val_to_str(message_sub_type, wlccp_subtype_vs, "Unknown")
+						val_to_str_const(base_message_type, wlccp_msg_type_vs_2, "Unknown"),
+						val_to_str_const(message_sub_type, wlccp_subtype_vs, "Unknown")
 					);
 					break;
 
@@ -756,8 +756,8 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case WLCCP_SAP_QOS:
 				{
 					col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %-27s  SubType: %s",
-						val_to_str(base_message_type, wlccp_msg_type_vs_3, "Unknown"),
-						val_to_str(message_sub_type, wlccp_subtype_vs, "Unknown")
+						val_to_str_const(base_message_type, wlccp_msg_type_vs_3, "Unknown"),
+						val_to_str_const(message_sub_type, wlccp_subtype_vs, "Unknown")
 					);
 					break;
 				} /* case WLCCP_SAP_QOS */
@@ -765,8 +765,8 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case WLCCP_SAP_NM:
 				{
 					col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %-27s  SubType: %s",
-						val_to_str(base_message_type, wlccp_msg_type_vs_4, "Unknown"),
-						val_to_str(message_sub_type, wlccp_subtype_vs, "Unknown")
+						val_to_str_const(base_message_type, wlccp_msg_type_vs_4, "Unknown"),
+						val_to_str_const(message_sub_type, wlccp_subtype_vs, "Unknown")
 					);
 					break;
 
@@ -775,8 +775,8 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case WLCCP_SAP_MIP:
 				{
 					col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %-27s  SubType: %s",
-						val_to_str(base_message_type, wlccp_msg_type_vs_5, "Unknown"),
-						val_to_str(message_sub_type, wlccp_subtype_vs, "Unknown")
+						val_to_str_const(base_message_type, wlccp_msg_type_vs_5, "Unknown"),
+						val_to_str_const(message_sub_type, wlccp_subtype_vs, "Unknown")
 					);
 					break;
 				} /* case WLCCP_SAP_MIP */
@@ -785,7 +785,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				{
 					col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %-27s  SubType: %s",
 						"Unknown",
-						val_to_str(message_sub_type, wlccp_subtype_vs, "Unknown")
+						val_to_str_const(message_sub_type, wlccp_subtype_vs, "Unknown")
 					);
 					break;
 				} /* default for switch sap */

@@ -314,7 +314,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				i1/625000, i1);
 	    i1 = tvb_get_guint8(tvb, offset+6);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+6, 1, "Code identifier: 0x%0x: %s",
-				i1, val_to_str(i1, slimp3_ir_types, "Unknown"));
+				i1, val_to_str_const(i1, slimp3_ir_types, "Unknown"));
 	    proto_tree_add_text(slimp3_tree, tvb, offset+7, 1, "Code bits: %d",
 				tvb_get_guint8(tvb, offset+7));
 
@@ -325,14 +325,14 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    	/* This is the custom SLIMP3 remote. */
 		proto_tree_add_text(slimp3_tree, tvb, offset+8, 4,
 				    "Infrared Code: %s: 0x%0x",
-				    val_to_str(i1, slimp3_ir_codes_slimp3, "Unknown"), i1);
+				    val_to_str_const(i1, slimp3_ir_codes_slimp3, "Unknown"), i1);
 	    }
 	    else if (tvb_get_guint8(tvb, offset+6) == 0xff &&
 		     tvb_get_guint8(tvb, offset+7) == 16) {
 	    	/* This is a JVC DVD player remote */
 		proto_tree_add_text(slimp3_tree, tvb, offset+8, 4,
 				    "Infrared Code: %s: 0x%0x",
-				    val_to_str(i1, slimp3_ir_codes_jvc, "Unknown"), i1);
+				    val_to_str_const(i1, slimp3_ir_codes_jvc, "Unknown"), i1);
 	    } else {
 		/* Unknown code; just write it */
 		proto_tree_add_text(slimp3_tree, tvb, offset+8, 4, "Infrared Code: 0x%0x", i1);

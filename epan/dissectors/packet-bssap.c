@@ -572,9 +572,10 @@ dissect_bssap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tree,
 
     default:
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-                val_to_str(pdu_type, ((bssap_or_bsap_global == BSSAP) ?
-                              bssap_pdu_type_acro_values : bsap_pdu_type_acro_values),
-                       "Unknown"));
+                val_to_str_const(pdu_type,
+                                 ((bssap_or_bsap_global == BSSAP) ?
+                                  bssap_pdu_type_acro_values : bsap_pdu_type_acro_values),
+                                 "Unknown"));
         dissect_bssap_unknown_message(tvb, bssap_tree);
         break;
     }

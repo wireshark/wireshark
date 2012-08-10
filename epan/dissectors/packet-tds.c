@@ -1034,7 +1034,7 @@ dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
         token_item = proto_tree_add_text(query_tree, tvb, pos, token_sz,
                                          "Token 0x%02x %s", token,
-                                         val_to_str(token, token_names, "Unknown Token Type"));
+                                         val_to_str_const(token, token_names, "Unknown Token Type"));
         token_tree = proto_item_add_subtree(token_item, ett_tds_token);
 
         /*
@@ -1139,18 +1139,18 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         len = tvb_get_letohs(tvb, offset + i*4 + 2);
         proto_tree_add_text(length_tree, tvb, offset + i*4, 2,
                             "%s offset: %u",
-                            val_to_str(i, login_field_names, "Unknown"),
+                            val_to_str_const(i, login_field_names, "Unknown"),
                             offset2);
         proto_tree_add_text(length_tree, tvb, offset + i*4 + 2, 2,
                             "%s length: %u",
-                            val_to_str(i, login_field_names, "Unknown"),
+                            val_to_str_const(i, login_field_names, "Unknown"),
                             len);
         if (len != 0) {
             if( i != 2) {
                 /* tds 7 is always unicode */
                 len *= 2;
                 val = tvb_get_ephemeral_unicode_string(tvb, offset2, len, ENC_LITTLE_ENDIAN);
-                proto_tree_add_text(login_tree, tvb, offset2, len, "%s: %s", val_to_str(i, login_field_names, "Unknown"), val);
+                proto_tree_add_text(login_tree, tvb, offset2, len, "%s: %s", val_to_str_const(i, login_field_names, "Unknown"), val);
             } else {
                 /* This field is the password.  We retrieve it from the packet
                  * as a non-unicode string and then perform two operations on it
@@ -1173,7 +1173,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 val2[k] = '\0'; /* Null terminate our new string */
 
-                proto_tree_add_text(login_tree, tvb, offset2, len, "%s: %s", val_to_str(i, login_field_names, "Unknown"), val2);
+                proto_tree_add_text(login_tree, tvb, offset2, len, "%s: %s", val_to_str_const(i, login_field_names, "Unknown"), val2);
             }
         }
     }
@@ -1441,7 +1441,7 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
 
     env_type = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 1, "Type: %u (%s)", env_type,
-                        val_to_str(env_type, env_chg_names, "Unknown"));
+                        val_to_str_const(env_type, env_chg_names, "Unknown"));
 
     new_len = tvb_get_guint8(tvb, offset+1);
     old_len_offset = offset + new_len + 2;
@@ -2196,7 +2196,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         token_item = proto_tree_add_text(tree, tvb, pos, token_sz,
                                          "Token 0x%02x %s", token,
-                                         val_to_str(token, token_names, "Unknown Token Type"));
+                                         val_to_str_const(token, token_names, "Unknown Token Type"));
         token_tree = proto_item_add_subtree(token_item, ett_tds_token);
 
         /*

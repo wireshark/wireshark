@@ -333,7 +333,7 @@ int get_netbios_name( tvbuff_t *tvb, int offset, char *name_ret, int name_ret_le
 const char *
 netbios_name_type_descr(int name_type)
 {
-	return val_to_str(name_type, nb_name_type_vals, "Unknown");
+	return val_to_str_const(name_type, nb_name_type_vals, "Unknown");
 }
 
 void netbios_add_name(const char* label, tvbuff_t *tvb, int offset,

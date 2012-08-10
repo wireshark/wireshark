@@ -835,7 +835,7 @@ dissect_swils_elp(tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         offset += 22;
 
         proto_tree_add_string(elp_tree, hf_swils_elp_isl_fc_mode, tvb, offset, 2,
-                              val_to_str(elp.isl_flwctrl_mode, fcswils_elp_fc_val, "Vendor Unique"));
+                              val_to_str_const(elp.isl_flwctrl_mode, fcswils_elp_fc_val, "Vendor Unique"));
         offset += 2;
         proto_tree_add_item(elp_tree, hf_swils_elp_fcplen, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;

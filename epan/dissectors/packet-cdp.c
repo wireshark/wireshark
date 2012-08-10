@@ -467,11 +467,11 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_text(tlv_tree, tvb, offset+4, 3,
                                     "OUI: 0x%06X (%s)",
                                     tvb_get_ntoh24(tvb,offset+4),
-                                    val_to_str(tvb_get_ntoh24(tvb,offset+4), oui_vals, "Unknown"));
+                                    val_to_str_const(tvb_get_ntoh24(tvb,offset+4), oui_vals, "Unknown"));
                 proto_tree_add_text(tlv_tree, tvb, offset+7, 2,
                                     "Protocol ID: 0x%04X (%s)",
                                     tvb_get_ntohs(tvb, offset+7),
-                                    val_to_str(tvb_get_ntohs(tvb, offset+7), type_hello_vals, "Unknown"));
+                                    val_to_str_const(tvb_get_ntohs(tvb, offset+7), type_hello_vals, "Unknown"));
 
                 switch(tvb_get_ntohs(tvb, offset+7)) {
 

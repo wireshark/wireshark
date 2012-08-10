@@ -132,7 +132,7 @@ dissect_mpls_psc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_add_fstr(pinfo->cinfo, COL_INFO,
                  "%s(%u,%u)",
-                 val_to_str(req, mpls_psc_req_short_vals, "Unknown-Request"),
+                 val_to_str_const(req, mpls_psc_req_short_vals, "Unknown-Request"),
                  fpath, path);
 
     if (!tree) {

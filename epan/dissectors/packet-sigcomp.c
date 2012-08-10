@@ -833,8 +833,8 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             /* Add expert item for NACK */
             expert_add_info_format(pinfo, reason_ti, PI_SEQUENCE, PI_WARN,
                                    "SigComp NACK (reason=%s, opcode=%s)",
-                                   val_to_str(octet, sigcomp_nack_reason_code_vals, "Unknown"),
-                                   val_to_str(opcode, udvm_instruction_code_vals, "Unknown"));
+                                   val_to_str_const(octet, sigcomp_nack_reason_code_vals, "Unknown"),
+                                   val_to_str_const(opcode, udvm_instruction_code_vals, "Unknown"));
 
             proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_pc, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset = offset +2;
@@ -843,8 +843,8 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
             /* Add NACK info to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK reason=%s, opcode=%s",
-                            val_to_str(octet, sigcomp_nack_reason_code_vals, "Unknown"),
-                            val_to_str(opcode, udvm_instruction_code_vals, "Unknown"));
+                            val_to_str_const(octet, sigcomp_nack_reason_code_vals, "Unknown"),
+                            val_to_str_const(opcode, udvm_instruction_code_vals, "Unknown"));
 
             switch ( octet){
             case SIGCOMP_NACK_STATE_NOT_FOUND:

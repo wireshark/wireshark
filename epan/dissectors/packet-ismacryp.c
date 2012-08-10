@@ -265,7 +265,7 @@ static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		/* display mode */
 		if (pref_user_mode == FALSE){
 			if (check_col( pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",val_to_str(mode, modetypenames, "user mode"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",val_to_str_const(mode, modetypenames, "user mode"));
 		}
 		if (pref_user_mode == TRUE){
 			if ( check_col( pinfo->cinfo, COL_INFO))

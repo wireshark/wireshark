@@ -171,7 +171,7 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Session ID 0x%x", session_id);
 		if (authtype == IPMI_AUTH_RMCPP) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", payload type: %s",
-					val_to_str(payloadtype, ipmi_payload_vals, "Unknown"));
+					val_to_str_const(payloadtype, ipmi_payload_vals, "Unknown"));
 		}
 	}
 
@@ -190,7 +190,7 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* IPMI v2.0+ */
 			ti = proto_tree_add_text(sess_tree, tvb, offset, 1,
 					"Payload type: %s (0x%02x), %sencrypted, %sauthenticated",
-					val_to_str(payloadtype, ipmi_payload_vals, "Unknown"),
+					val_to_str_const(payloadtype, ipmi_payload_vals, "Unknown"),
 					payloadtype,
 					payloadtype_enc ? "" : "not ",
 					payloadtype_auth ? "" : "not ");

@@ -1243,7 +1243,7 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Message Type 2 Bytes */
 		proto_tree_add_item(simulcrypt_header_tree, hf_simulcrypt_message_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		simulcrypt_item = proto_tree_add_uint_format(simulcrypt_header_tree, hf_simulcrypt_interface, tvb, offset, 2, iftype,
-							     "Interface: %s", val_to_str(iftype, interfacenames, "Unknown"));
+							     "Interface: %s", val_to_str_const(iftype, interfacenames, "Unknown"));
 		PROTO_ITEM_SET_GENERATED (simulcrypt_item);
 		offset+=2;
 

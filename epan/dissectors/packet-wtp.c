@@ -507,7 +507,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				", PDU: Invoke (%u)"
 				", Transaction Class: %s (%u)",
 				INVOKE,
-				val_to_str(clsTransaction, vals_transaction_classes, "Undefined"),
+				val_to_str_const(clsTransaction, vals_transaction_classes, "Undefined"),
 				clsTransaction);
 		break;
 
@@ -544,7 +544,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					", Reason: %s (%u)",
 					ABORT,
 					PROVIDER,
-					val_to_str(reason, vals_abort_reason_provider, "Undefined"),
+					val_to_str_const(reason, vals_abort_reason_provider, "Undefined"),
 					reason);
 		}
 		else if (abortType == USER)

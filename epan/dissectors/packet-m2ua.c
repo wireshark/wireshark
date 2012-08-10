@@ -243,7 +243,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
 
   if (m2ua_tree) {
     /* add the components of the common header to the protocol tree */
@@ -252,7 +252,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
     proto_tree_add_item(m2ua_tree, hf_message_class,  common_header_tvb, MESSAGE_CLASS_OFFSET,  MESSAGE_CLASS_LENGTH,  ENC_BIG_ENDIAN);
     proto_tree_add_uint_format(m2ua_tree, hf_message_type, common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH, message_type,
                                "Message type: %s (%u)",
-                               val_to_str(message_class * 256 + message_type, message_class_type_values, "reserved"), message_type);
+                               val_to_str_const(message_class * 256 + message_type, message_class_type_values, "reserved"), message_type);
     proto_tree_add_item(m2ua_tree, hf_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
   }
 }
@@ -370,7 +370,7 @@ dissect_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
 {
   proto_tree_add_item(parameter_tree, hf_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)",
-                         val_to_str(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), traffic_mode_type_values, "unknown"));
+                         val_to_str_const(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), traffic_mode_type_values, "unknown"));
 }
 
 #define INVALID_VERSION_ERROR_CODE                       0x01
@@ -419,7 +419,7 @@ dissect_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
 {
   proto_tree_add_item(parameter_tree, hf_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)",
-                         val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), error_code_values, "unknown"));
+                         val_to_str_const(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), error_code_values, "unknown"));
 }
 
 #define AS_STATE_CHANGE_TYPE       1
@@ -466,10 +466,10 @@ dissect_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, pr
   proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_uint_format(parameter_tree, hf_status_ident,  parameter_tvb, STATUS_IDENT_OFFSET, STATUS_IDENT_LENGTH,
                              status_id, "Status identification: %u (%s)", status_id,
-                             val_to_str(status_type * 256 * 256 + status_id, status_type_id_values, "unknown"));
+                             val_to_str_const(status_type * 256 * 256 + status_id, status_type_id_values, "unknown"));
 
   proto_item_append_text(parameter_item, " (%s)",
-                         val_to_str(status_type * 256 * 256 + status_id, status_type_id_values, "unknown status information"));
+                         val_to_str_const(status_type * 256 * 256 + status_id, status_type_id_values, "unknown status information"));
 }
 
 #define ASP_IDENTIFIER_OFFSET PARAMETER_VALUE_OFFSET
@@ -561,7 +561,7 @@ static void
 dissect_state_request_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_state, parameter_tvb, STATE_OFFSET, STATE_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, STATE_OFFSET), state_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(tvb_get_ntohl(parameter_tvb, STATE_OFFSET), state_values, "unknown"));
 }
 
 #define EVENT_RPO_ENTER        0x1
@@ -583,7 +583,7 @@ static void
 dissect_state_event_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_event, parameter_tvb, EVENT_OFFSET, EVENT_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, STATE_OFFSET), event_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(tvb_get_ntohl(parameter_tvb, STATE_OFFSET), event_values, "unknown"));
 }
 
 #define LEVEL_NONE       0x0
@@ -605,7 +605,7 @@ static void
 dissect_congestion_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_congestion_status, parameter_tvb, CONGESTION_STATUS_OFFSET, CONGESTION_STATUS_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, CONGESTION_STATUS_OFFSET), level_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(tvb_get_ntohl(parameter_tvb, CONGESTION_STATUS_OFFSET), level_values, "unknown"));
 }
 
 #define DISCARD_STATUS_LENGTH 4
@@ -615,7 +615,7 @@ static void
 dissect_discard_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_discard_status, parameter_tvb, DISCARD_STATUS_OFFSET, DISCARD_STATUS_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, DISCARD_STATUS_OFFSET), level_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(tvb_get_ntohl(parameter_tvb, DISCARD_STATUS_OFFSET), level_values, "unknown"));
 }
 
 #define ACTION_RTRV_BSN      0x1
@@ -634,7 +634,7 @@ static void
 dissect_action_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_action, parameter_tvb, ACTION_OFFSET, ACTION_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, ACTION_OFFSET), action_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(tvb_get_ntohl(parameter_tvb, ACTION_OFFSET), action_values, "unknown"));
 }
 
 #define SEQUENCE_NUMBER_LENGTH 4
@@ -663,7 +663,7 @@ static void
 dissect_retrieval_result_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_retrieval_result, parameter_tvb, RETRIEVAL_RESULT_OFFSET, RETRIEVAL_RESULT_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)",  val_to_str(tvb_get_ntohl(parameter_tvb, RETRIEVAL_RESULT_OFFSET), retrieval_result_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)",  val_to_str_const(tvb_get_ntohl(parameter_tvb, RETRIEVAL_RESULT_OFFSET), retrieval_result_values, "unknown"));
 }
 
 static void
@@ -753,7 +753,7 @@ static void
 dissect_registration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_registration_status, parameter_tvb, REGISTRATION_STATUS_OFFSET, REGISTRATION_STATUS_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)",  val_to_str(tvb_get_ntohl(parameter_tvb, REGISTRATION_STATUS_OFFSET), registration_status_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)",  val_to_str_const(tvb_get_ntohl(parameter_tvb, REGISTRATION_STATUS_OFFSET), registration_status_values, "unknown"));
 }
 
 static void
@@ -788,7 +788,7 @@ static void
 dissect_deregistration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_deregistration_status, parameter_tvb, DEREGISTRATION_STATUS_OFFSET, DEREGISTRATION_STATUS_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)",  val_to_str(tvb_get_ntohl(parameter_tvb, DEREGISTRATION_STATUS_OFFSET), deregistration_status_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)",  val_to_str_const(tvb_get_ntohl(parameter_tvb, DEREGISTRATION_STATUS_OFFSET), deregistration_status_values, "unknown"));
 }
 
 static void
@@ -891,7 +891,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
 
   /* create proto_tree stuff */
   parameter_item   = proto_tree_add_text(m2ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s",
-                                         val_to_str(tag, parameter_tag_values, "Unknown parameter"));
+                                         val_to_str_const(tag, parameter_tag_values, "Unknown parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_m2ua_parameter);
 
   if ((protocol_data_1_global == PROTOCOL_DATA_1_DRAFT_7) &&

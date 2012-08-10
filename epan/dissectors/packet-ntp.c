@@ -660,14 +660,14 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Show version and mode in info column and NTP root */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s",
-		val_to_str((flags & NTP_VN_MASK) >> 3, ver_nums,
-			   "Unknown version"),
-		val_to_str(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
+		val_to_str_const((flags & NTP_VN_MASK) >> 3, ver_nums,
+				 "Unknown version"),
+		val_to_str_const(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
 
 	proto_item_append_text(ti, " (%s, %s)",
-	                       val_to_str((flags & NTP_VN_MASK) >> 3, ver_nums,
-	                                  "Unknown version"),
-	                       val_to_str(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
+	                       val_to_str_const((flags & NTP_VN_MASK) >> 3, ver_nums,
+						"Unknown version"),
+	                       val_to_str_const(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
 
 	/* Dissect according to mode */
 	(*dissector)(tvb, ntp_tree, flags);

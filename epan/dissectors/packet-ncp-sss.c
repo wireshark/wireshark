@@ -687,7 +687,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
     if (tvb_length_remaining(tvb, foffset)<4) {
         return;
     }
-    aitem = proto_tree_add_text(ncp_tree, tvb, foffset, -1, "Function: %s", val_to_str(subfunc, sss_func_enum, "val_to_str"));
+    aitem = proto_tree_add_text(ncp_tree, tvb, foffset, -1, "Function: %s", val_to_str_const(subfunc, sss_func_enum, "Unknown"));
     atree = proto_item_add_subtree(aitem, ett_sss);
     switch (subfunc) {
     case 1:

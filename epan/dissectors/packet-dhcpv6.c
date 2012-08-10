@@ -434,7 +434,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
     vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 4,
                               "Sub element %u: %s: ", subopt,
-                              val_to_str(subopt, pkt_ccc_opt_vals, "unknown/reserved") );
+                              val_to_str_const(subopt, pkt_ccc_opt_vals, "unknown/reserved") );
 
     switch (subopt) {
     case PKT_CCC_PRI_DHCP:      /* IPv4 address values */
@@ -634,7 +634,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
     vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 4,
         "Sub element %u: %s: ", subopt,
-        val_to_str(subopt, pkt_cccV6_opt_vals, "unknown/reserved") );
+        val_to_str_const(subopt, pkt_cccV6_opt_vals, "unknown/reserved") );
 
     switch (subopt) {
         case PKT_CCCV6_PRI_DSS:
@@ -796,8 +796,8 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
             /* Type */
             type = tvb_get_ntohs(tvb, off);
             ti = proto_tree_add_text(v_tree, tvb, off, 2,
-                                     "Suboption %d: %s", type, val_to_str(type,
-                                                                          cl_vendor_subopt_values, "unknown"));
+                                     "Suboption %d: %s", type, val_to_str_const(type,
+                                                                                cl_vendor_subopt_values, "unknown"));
             /* Length */
             tlv_len = tvb_get_ntohs(tvb, off+2);
 
@@ -1139,8 +1139,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         duidtype = tvb_get_ntohs(tvb, off);
         proto_tree_add_text(subtree, tvb, off, 2,
                             "DUID type: %s (%u)",
-                            val_to_str(duidtype,
-                                       duidtype_vals, "Unknown"),
+                            val_to_str_const(duidtype,
+                                             duidtype_vals, "Unknown"),
                             duidtype);
         switch (duidtype) {
         case DUID_LLT:
@@ -1307,9 +1307,9 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             requested_opt_code = tvb_get_ntohs(tvb, off + i);
             proto_tree_add_text(subtree, tvb, off + i,
                                 2, "Requested Option code: %s (%d)",
-                                val_to_str(requested_opt_code,
-                                           opttype_vals,
-                                           "Unknown"),
+                                val_to_str_const(requested_opt_code,
+                                                 opttype_vals,
+                                                 "Unknown"),
                                 requested_opt_code);
         }
         break;
@@ -1381,8 +1381,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         status_code = tvb_get_ntohs(tvb, off);
         proto_tree_add_text(subtree, tvb, off, 2,
                             "Status Code: %s (%d)",
-                            val_to_str(status_code, statuscode_vals,
-                                       "Unknown"),
+                            val_to_str_const(status_code, statuscode_vals,
+                                             "Unknown"),
                             status_code);
 
         if (optlen - 2 > 0) {

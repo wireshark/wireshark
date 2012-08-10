@@ -283,7 +283,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		name_type = get_netbios_name(tvb, offset+2, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s<%02x>",
-				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
+				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"),
 				name, name_type);
 		}
 		if (nbipx_tree) {
@@ -332,7 +332,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case NBIPX_SESSION_END_ACK:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_str(pinfo->cinfo, COL_INFO,
-				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
+				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 		}
 		dissect_conn_control(tvb, offset, nbipx_tree);
 		offset += 1;
@@ -405,7 +405,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case NBIPX_DIRECTED_DATAGRAM:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_str(pinfo->cinfo, COL_INFO,
-				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
+				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 		}
 		dissect_conn_control(tvb, offset, nbipx_tree);
 		offset += 1;
@@ -432,7 +432,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	default:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_str(pinfo->cinfo, COL_INFO,
-				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
+				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 		}
 
 		/*
@@ -502,7 +502,7 @@ dissect_packet_type(tvbuff_t *tvb, int offset, guint8 packet_type,
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 1,
 				"Packet Type: %s (%02X)",
-				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
+				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"),
 				packet_type);
 	}
 }
@@ -745,11 +745,11 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		proto_tree_add_text(nmpi_tree, tvb, offset, 1,
 		    "Opcode: %s (0x%02x)",
-		    val_to_str(opcode, nmpi_opcode_vals, "Unknown"),
+		    val_to_str_const(opcode, nmpi_opcode_vals, "Unknown"),
 		    opcode);
 		proto_tree_add_text(nmpi_tree, tvb, offset+1, 1,
 		    "Name Type: %s (0x%02x)",
-		    val_to_str(nmpi_name_type, nmpi_name_type_vals, "Unknown"),
+		    val_to_str_const(nmpi_name_type, nmpi_name_type_vals, "Unknown"),
 		    nmpi_name_type);
 		proto_tree_add_text(nmpi_tree, tvb, offset+2, 2,
 		    "Message ID: 0x%04x",

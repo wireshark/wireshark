@@ -916,17 +916,17 @@ dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
                 col_add_fstr(pinfo->cinfo, COL_INFO,
                     "%s, opcode=%s, serial=0x%x, result=%s",
-                        val_to_str((guint32)message_type,message_types_values,"unknown"),
-                        val_to_str(opcode, opcode_values, "unknown"),
+                        val_to_str_const((guint32)message_type,message_types_values,"unknown"),
+                        val_to_str_const(opcode, opcode_values, "unknown"),
                         serial,
-                        val_to_str(result,result_values,"unknown"));
+                        val_to_str_const(result,result_values,"unknown"));
             }
         else
         {
                 col_add_fstr(pinfo->cinfo, COL_INFO,
                         "%s, opcode=%s, serial=0x%x",
-                        val_to_str((guint32)message_type,message_types_values,"unknown"),
-                        val_to_str(opcode, opcode_values, "unknown"),
+                        val_to_str_const((guint32)message_type,message_types_values,"unknown"),
+                        val_to_str_const(opcode, opcode_values, "unknown"),
                 serial);
         }
     }

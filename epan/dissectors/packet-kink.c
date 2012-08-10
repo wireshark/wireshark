@@ -199,7 +199,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
   /* It shows kink type by the type value. */
   if(check_col(pinfo->cinfo, COL_INFO)){
-    col_add_str(pinfo->cinfo, COL_INFO,  val_to_str(type, kink_type_vals, "unknown"));
+    col_add_str(pinfo->cinfo, COL_INFO,  val_to_str_const(type, kink_type_vals, "unknown"));
   }
   /* Make the kink tree */
   if(tree){

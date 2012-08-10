@@ -1236,7 +1236,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
       ies_tree = proto_item_add_subtree(ti, ett_iax2_ie);
 
       proto_tree_add_text(ies_tree, tvb, offset, 1, "IE id: %s (0x%02X)",
-                          val_to_str(ies_type, iax_ies_type, "Unknown"),
+                          val_to_str_const(ies_type, iax_ies_type, "Unknown"),
                           ies_type);
 
       proto_tree_add_text(ies_tree, tvb, offset+1, 1, "Length: %u",ies_len);
@@ -1366,7 +1366,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
             /* we don't understand this ie: add a generic one */
             guint32 value;
             const guint8 *ptr;
-            const gchar *ie_name = val_to_str(ies_type, iax_ies_type, "Unknown");
+            const gchar *ie_name = val_to_str_const(ies_type, iax_ies_type, "Unknown");
 
             switch(ies_len) {
               case 1:

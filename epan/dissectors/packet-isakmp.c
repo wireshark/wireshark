@@ -3470,22 +3470,22 @@ _U_
     case 1:	/* ISAKMP */
       proto_tree_add_uint_format(tree, hf_isakmp_trans_id, tvb, offset, 1,
                                  transform_id, "Transform ID: %s (%u)",
-                                 val_to_str(transform_id, vs_v1_trans_isakmp, "UNKNOWN-TRANS-TYPE"), transform_id);
+                                 val_to_str_const(transform_id, vs_v1_trans_isakmp, "UNKNOWN-TRANS-TYPE"), transform_id);
       break;
     case 2:	/* AH */
       proto_tree_add_uint_format(tree, hf_isakmp_trans_id, tvb, offset, 1,
                                  transform_id, "Transform ID: %s (%u)",
-                                 val_to_str(transform_id, vs_v1_trans_ah, "UNKNOWN-AH-TRANS-TYPE"), transform_id);
+                                 val_to_str_const(transform_id, vs_v1_trans_ah, "UNKNOWN-AH-TRANS-TYPE"), transform_id);
       break;
     case 3:	/* ESP */
       proto_tree_add_uint_format(tree, hf_isakmp_trans_id, tvb, offset, 1,
                                  transform_id, "Transform ID: %s (%u)",
-                                 val_to_str(transform_id, vs_v1_trans_esp, "UNKNOWN-ESP-TRANS-TYPE"), transform_id);
+                                 val_to_str_const(transform_id, vs_v1_trans_esp, "UNKNOWN-ESP-TRANS-TYPE"), transform_id);
       break;
     case 4:	/* IPCOMP */
       proto_tree_add_uint_format(tree, hf_isakmp_trans_id, tvb, offset, 1,
                                  transform_id, "Transform ID: %s (%u)",
-                                 val_to_str(transform_id, transform_id_ipcomp, "UNKNOWN-IPCOMP-TRANS-TYPE"), transform_id);
+                                 val_to_str_const(transform_id, transform_id_ipcomp, "UNKNOWN-IPCOMP-TRANS-TYPE"), transform_id);
       break;
     default:
       proto_tree_add_item(tree, hf_isakmp_trans_id, tvb, offset, 1, ENC_BIG_ENDIAN);

@@ -296,7 +296,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	port        = tvb_get_ntohs  (tvb, 64);
 	rate	    = tvb_get_ntohs  (tvb, 66);
 
-	packet_type = val_to_str(messageID, ldss_message_id_value, "unknown");
+	packet_type = val_to_str_const(messageID, ldss_message_id_value, "unknown");
 
 	if (messageID == MESSAGE_ID_WILLSEND) {
 		if (cookie == 0) {
@@ -323,7 +323,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else if (messageID == MESSAGE_ID_NEEDFILE) {
 		messageDetail = INFERRED_SEARCH;
 	}
-	packet_detail = val_to_str(messageDetail, ldss_inferred_info, "unknown");
+	packet_detail = val_to_str_const(messageDetail, ldss_inferred_info, "unknown");
 
 	/* Set the info column */
 	if (check_col(pinfo->cinfo, COL_INFO)) {

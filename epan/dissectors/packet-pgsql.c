@@ -244,10 +244,10 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else
                 typestr = "Unknown";
         } else
-            typestr = val_to_str(type, fe_messages, "Unknown");
+            typestr = val_to_str_const(type, fe_messages, "Unknown");
     }
     else {
-        typestr = val_to_str(type, be_messages, "Unknown");
+        typestr = val_to_str_const(type, be_messages, "Unknown");
     }
 
     if (info) {

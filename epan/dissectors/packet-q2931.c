@@ -959,7 +959,7 @@ l2_done:
 				proto_tree_add_text(tree, tvb, offset, 3,
 				    "Organization Code: 0x%06X (%s)",
 				    organization_code,
-				    val_to_str(organization_code, oui_vals,
+				    val_to_str_const(organization_code, oui_vals,
 				        "Unknown"));
 				offset += 3;
 				len -= 3;

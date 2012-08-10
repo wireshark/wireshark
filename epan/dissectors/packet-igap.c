@@ -232,15 +232,15 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
 	    /* Challenge field indicates the result of the authenticaion */
 	    proto_tree_add_text(tree, tvb, offset, msize,
 				"Authentication result: %s (0x%x)",
-				val_to_str(message[0], igap_auth_result,
-				"Unknown"), message[0]);
+				val_to_str_const(message[0], igap_auth_result, "Unknown"),
+				message[0]);
 	    break;
 	case IGAP_SUBTYPE_ACCOUNTING_MESSAGE:
 	    /* Challenge field indicates the accounting status */
 	    proto_tree_add_text(tree, tvb, offset, msize,
 				"Accounting status: %s (0x%x)",
-				val_to_str(message[0], igap_account_status,
-				"Unknown"), message[0]);
+				val_to_str_const(message[0], igap_account_status, "Unknown"),
+				message[0]);
 	    break;
 	default:
 	    proto_tree_add_text(tree, tvb, offset, msize,

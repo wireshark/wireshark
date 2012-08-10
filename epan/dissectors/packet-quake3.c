@@ -256,7 +256,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 		if (text_tree)
 			proto_tree_add_string(text_tree, hf_quake3_connectionless_command,
 					tvb, offset, command_len,
-					val_to_str(command, names_command, "Unknown"));
+					val_to_str_const(command, names_command, "Unknown"));
 		command_finished = TRUE;
 
 		/* now we decode all the rest */
@@ -321,7 +321,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
         if (text_tree && command_finished == FALSE) {
 		proto_tree_add_string(text_tree, hf_quake3_connectionless_command,
 					tvb, offset, command_len,
-					val_to_str(command, names_command, "Unknown"));
+					val_to_str_const(command, names_command, "Unknown"));
         }
 
         offset += len + 1;

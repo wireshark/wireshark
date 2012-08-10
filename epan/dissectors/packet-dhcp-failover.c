@@ -400,7 +400,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    hf_dhcpfo_type, tvb, offset, 1, type);
 	}
 	col_add_str(pinfo->cinfo, COL_INFO,
-	    val_to_str(type, failover_vals, "Unknown Packet"));
+	    val_to_str_const(type, failover_vals, "Unknown Packet"));
 	offset += 1;
 
 	poffset = tvb_get_guint8(tvb, offset);
@@ -483,7 +483,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*** DHCP-Style-Options ****/
 
 		proto_item_append_text(oi, ", %s (%u)",
-		    val_to_str(opcode, option_code_vals, "Unknown Option"),
+		    val_to_str_const(opcode, option_code_vals, "Unknown Option"),
 		    opcode);
 
 		proto_tree_add_uint(option_tree, hf_dhcpfo_option_code, tvb,
@@ -501,7 +501,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case DHCP_FO_PD_BINDING_STATUS:
 			binding_status = tvb_get_guint8(tvb, offset);
 			proto_item_append_text(oi, ", %s (%d)",
-			    val_to_str(binding_status,
+			    val_to_str_const(binding_status,
 				binding_status_vals,
 				"Unknown Packet"),
 			    binding_status);
@@ -611,7 +611,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			reject_reason = tvb_get_guint8(tvb, offset);
 
 			proto_item_append_text(oi, ", %s (%d)",
-			    val_to_str(reject_reason, reject_reason_vals,
+			    val_to_str_const(reject_reason, reject_reason_vals,
 			      "Unknown Packet"),
 			    reject_reason);
 
@@ -775,7 +775,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			server_state = tvb_get_guint8(tvb, offset);
 
 			proto_item_append_text(oi, ", %s (%u)",
-			    val_to_str(server_state, server_state_vals,
+			    val_to_str_const(server_state, server_state_vals,
 			        "Unknown"),
 			    server_state);
 

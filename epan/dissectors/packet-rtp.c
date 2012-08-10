@@ -1097,7 +1097,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_follow, tvb, offset, 1, ENC_BIG_ENDIAN );
 		proto_tree_add_uint_format(rfc2198_hdr_tree, hf_rtp_payload_type, tvb,
 		    offset, 1, octet1, "Payload type: %s (%u)",
-			payload_type_str ? payload_type_str : val_to_str_ext(hdr_new->pt, &rtp_payload_type_vals_ext, "Unknown"),
+			payload_type_str ? payload_type_str : val_to_str_ext_const(hdr_new->pt, &rtp_payload_type_vals_ext, "Unknown"),
 			hdr_new->pt);
 		proto_item_append_text(ti, ": PT=%s",
 				       payload_type_str ? payload_type_str :
@@ -1465,7 +1465,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 		proto_tree_add_uint_format( rtp_tree, hf_rtp_payload_type, tvb,
 		    offset, 1, octet2, "Payload type: %s (%u)",
-			payload_type_str ? payload_type_str : val_to_str_ext( payload_type, &rtp_payload_type_vals_ext,"Unknown"),
+			payload_type_str ? payload_type_str : val_to_str_ext_const( payload_type, &rtp_payload_type_vals_ext,"Unknown"),
 			payload_type);
 
 		offset++;

@@ -542,11 +542,11 @@ eti_2_pst_sev(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si,
 		ti = proto_tree_add_text(tree, tvb, 0, 1, "Previous state/severity");
 		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
 		tmp = d >> 4;
-		desc = (tmp == 0x0f) ? "Unspecified" : val_to_str(tmp, etoff_07, "Unknown");
+		desc = (tmp == 0x0f) ? "Unspecified" : val_to_str_const(tmp, etoff_07, "Unknown");
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sSeverity: %s (0x%02x)",
 				ipmi_dcd8(d, 0xf0), desc, tmp);
 		tmp = d & 0xf;
-		desc = (tmp == 0x0f) ? "Unspecified" : val_to_str(tmp, si->offsets, "Unknown");
+		desc = (tmp == 0x0f) ? "Unspecified" : val_to_str_const(tmp, si->offsets, "Unknown");
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sPrevious state: %s (0x%02x)",
 				ipmi_dcd8(d, 0x0f), desc, tmp);
 		return TRUE;
@@ -985,7 +985,7 @@ ssi_08_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte3);
 		tmp = d & 0x0f;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sError type: %s (0x%02x)",
-				ipmi_dcd8(d, 0x0f), val_to_str(tmp, err_vals, "Reserved"), tmp);
+				ipmi_dcd8(d, 0x0f), val_to_str_const(tmp, err_vals, "Reserved"), tmp);
 		return TRUE;
 	}
 	return FALSE;
@@ -1054,12 +1054,12 @@ ssi_0f_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 
 	if (b == 0x3 && offs == 0x00) {
 		proto_tree_add_text(tree, tvb, 0, 1, "Extension code: %s (0x%02x)",
-				val_to_str(d, err_vals, "Reserved"), d);
+				val_to_str_const(d, err_vals, "Reserved"), d);
 		return TRUE;
 	}
 	if (b == 0x3 && (offs == 0x01 || offs == 0x02)) {
 		proto_tree_add_text(tree, tvb, 0, 1, "Extension code: %s (0x%02x)",
-				val_to_str(d, progress_vals, "Reserved"), d);
+				val_to_str_const(d, progress_vals, "Reserved"), d);
 		return TRUE;
 	}
 	return FALSE;
@@ -1105,7 +1105,7 @@ ssi_10_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 				ipmi_dcd8(d, 0x10), (d & 0x10) ? "Deassertion" : "Assertion");
 		d &= 0x0f;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sEvent Offset: %s (0x%02x)",
-				ipmi_dcd8(d, 0x0f), val_to_str(d, off_vals, "Unknown"), d);
+				ipmi_dcd8(d, 0x0f), val_to_str_const(d, off_vals, "Unknown"), d);
 		return TRUE;
 	}
 	if (b == 0x3 && offs == 0x05) {
@@ -1148,10 +1148,10 @@ ssi_12_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
 		tmp = d >> 4;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sLog entry action: %s (0x%02x)",
-				ipmi_dcd8(d, 0xf0), val_to_str(tmp, act_vals, "Reserved"), tmp);
+				ipmi_dcd8(d, 0xf0), val_to_str_const(tmp, act_vals, "Reserved"), tmp);
 		tmp = d & 0x0f;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sLog type: %s (0x%02x)",
-				ipmi_dcd8(d, 0x0f), val_to_str(tmp, type_vals, "Reserved"), tmp);
+				ipmi_dcd8(d, 0x0f), val_to_str_const(tmp, type_vals, "Reserved"), tmp);
 		return TRUE;
 	}
 	if (b == 0x3 && offs == 0x04) {
@@ -1178,7 +1178,7 @@ ssi_12_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 				ipmi_dcd8(d, 0x80), (d & 0x80) ? "second" : "first");
 		tmp = d & 0x0f;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sTimestamp clock type: %s (0x%02x)",
-				ipmi_dcd8(d, 0x0f), val_to_str(tmp, clock_vals, "Reserved"), tmp);
+				ipmi_dcd8(d, 0x0f), val_to_str_const(tmp, clock_vals, "Reserved"), tmp);
 	}
 	return FALSE;
 }
@@ -1189,7 +1189,7 @@ ssi_19_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 {
 	if (b == 0x3 && offs == 0x00) {
 		proto_tree_add_text(tree, tvb, 0, 1, "Requested power state: %s (0x%02x)",
-				val_to_str(d, ssoff_22, "Reserved"), d);
+				val_to_str_const(d, ssoff_22, "Reserved"), d);
 		return TRUE;
 	}
 	return FALSE;
@@ -1201,7 +1201,7 @@ ssi_19_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 {
 	if (b == 0x3 && offs == 0x00) {
 		proto_tree_add_text(tree, tvb, 0, 1, "Power state at time of request: %s (0x%02x)",
-				val_to_str(d, ssoff_22, "Reserved"), d);
+				val_to_str_const(d, ssoff_22, "Reserved"), d);
 		return TRUE;
 	}
 	return FALSE;
@@ -1236,7 +1236,7 @@ ssi_1d_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
 		tmp = d & 0x0f;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sRestart cause: %s (0x%02x)",
-				ipmi_dcd8(d, 0x0f), val_to_str(tmp, cause_vals, "Reserved"), tmp);
+				ipmi_dcd8(d, 0x0f), val_to_str_const(tmp, cause_vals, "Reserved"), tmp);
 		return TRUE;
 	}
 	return FALSE;
@@ -1278,7 +1278,7 @@ ssi_21_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 
 	if (b == 0x3) {
 		proto_tree_add_text(tree, tvb, 0, 1, "Slot/connector type: %s (0x%02x)",
-				val_to_str(d, type_vals, "Reserved"), d);
+				val_to_str_const(d, type_vals, "Reserved"), d);
 		return TRUE;
 	}
 	return FALSE;
@@ -1325,10 +1325,10 @@ ssi_23_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
 		tmp = d >> 4;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sInterrupt type: %s (0x%02x)",
-				ipmi_dcd8(d, 0xf0), val_to_str(tmp, intr_vals, "Reserved"), tmp);
+				ipmi_dcd8(d, 0xf0), val_to_str_const(tmp, intr_vals, "Reserved"), tmp);
 		tmp = d & 0x0f;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sTimer use at expiration: %s (0x%02x)",
-				ipmi_dcd8(d, 0x0f), val_to_str(tmp, use_vals, "Reserved"), tmp);
+				ipmi_dcd8(d, 0x0f), val_to_str_const(tmp, use_vals, "Reserved"), tmp);
 
 		return TRUE;
 	}
@@ -1426,7 +1426,7 @@ ssi_2a_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte3);
 		tmp = (d >> 4) & 0x3;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sSession deactivated by: %s (0x%02x)",
-				ipmi_dcd8(d, 0x30), val_to_str(tmp, deact_vals, "Reserved"), tmp);
+				ipmi_dcd8(d, 0x30), val_to_str_const(tmp, deact_vals, "Reserved"), tmp);
 		ipmi_fmt_channel(s, d & 0xf);
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sChannel: %s",
 				ipmi_dcd8(d, 0x0f), s);
@@ -1469,7 +1469,7 @@ ssi_2b_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 
 	if (b == 0x3) {
 		proto_tree_add_text(tree, tvb, 0, 1, "Version change type: %s",
-				val_to_str(d, vctype_vals, "Reserved"));
+				val_to_str_const(d, vctype_vals, "Reserved"));
 		return TRUE;
 	}
 	return FALSE;
@@ -1503,10 +1503,10 @@ ssi_2c_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si,
 		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
 		tmp = d >> 4;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sCause: %s (0x%02x)",
-				ipmi_dcd8(d, 0xf0), val_to_str(tmp, cause_vals, "Reserved"), tmp);
+				ipmi_dcd8(d, 0xf0), val_to_str_const(tmp, cause_vals, "Reserved"), tmp);
 		tmp = d & 0xf;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sPrevious state: %s (0x%02x)",
-				ipmi_dcd8(d, 0x0f), val_to_str(tmp, si->offsets, "Reserved"), tmp);
+				ipmi_dcd8(d, 0x0f), val_to_str_const(tmp, si->offsets, "Reserved"), tmp);
 		return TRUE;
 	}
 	return FALSE;
@@ -1539,10 +1539,10 @@ ssi_f0_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si,
 		s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte2);
 		tmp = d >> 4;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sCause: %s (0x%02x)",
-				ipmi_dcd8(d, 0xf0), val_to_str(tmp, cause_vals, "Reserved"), tmp);
+				ipmi_dcd8(d, 0xf0), val_to_str_const(tmp, cause_vals, "Reserved"), tmp);
 		tmp = d & 0xf;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sPrevious state: %s (0x%02x)",
-				ipmi_dcd8(d, 0x0f), val_to_str(tmp, si->offsets, "Reserved"), tmp);
+				ipmi_dcd8(d, 0x0f), val_to_str_const(tmp, si->offsets, "Reserved"), tmp);
 		return TRUE;
 	}
 	return FALSE;
@@ -1609,13 +1609,13 @@ ssi_f1_3(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 				ipmi_dcd8(d, 0x80), override_state[!!tmp]);
 		tmp = (d & 0x70) >> 4;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sIPMB-B Local status: %s (0x%02x)",
-				ipmi_dcd8(d, 0x70), val_to_str(tmp, status_vals, "Reserved"), tmp);
+				ipmi_dcd8(d, 0x70), val_to_str_const(tmp, status_vals, "Reserved"), tmp);
 		tmp = d & 0x08;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sIPMB-A Override state: %s",
 				ipmi_dcd8(d, 0x08), override_state[!!tmp]);
 		tmp = d & 0x07;
 		proto_tree_add_text(s_tree, tvb, 0, 1, "%sIPMB-A Local status: %s (0x%02x)",
-				ipmi_dcd8(d, 0x07), val_to_str(tmp, status_vals, "Reserved"), tmp);
+				ipmi_dcd8(d, 0x07), val_to_str_const(tmp, status_vals, "Reserved"), tmp);
 		return TRUE;
 	}
 	return FALSE;
@@ -1815,14 +1815,14 @@ parse_platform_event(tvbuff_t *tvb, proto_tree *tree)
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte1);
 	proto_tree_add_uint_format(s_tree, hf_ipmi_se_evt_data1_b2, tvb, 4, 1, b2 << 6,
 			"%sByte 2: %s (0x%02x)",
-			ipmi_dcd8(offs, 0xc0), val_to_str(b2, eti->byte2, "Reserved"), b2);
+			ipmi_dcd8(offs, 0xc0), val_to_str_const(b2, eti->byte2, "Reserved"), b2);
 	proto_tree_add_uint_format(s_tree, hf_ipmi_se_evt_data1_b3, tvb, 4, 1, b3 << 4,
 			"%sByte 3: %s (0x%02x)",
-			ipmi_dcd8(offs, 0x30), val_to_str(b3, eti->byte3, "Reserved"), b3);
+			ipmi_dcd8(offs, 0x30), val_to_str_const(b3, eti->byte3, "Reserved"), b3);
 	offs &= 0x0f;
 	proto_tree_add_uint_format(s_tree, hf_ipmi_se_evt_data1_offs, tvb, 4, 1, offs,
 			"%sOffset: %s (0x%02x)",
-			ipmi_dcd8(offs, 0x0f), val_to_str(offs, off_vals, "Reserved"), offs);
+			ipmi_dcd8(offs, 0x0f), val_to_str_const(offs, off_vals, "Reserved"), offs);
 
 	/* This is tricky. First, bytes 2-3 are optional and may be absent.
 	   Second, the necessity to interpret them either in a generic way or in

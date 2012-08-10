@@ -1283,7 +1283,7 @@ dissect_destination(int anchor, tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       proto_item_append_text(ti_destination, " (Destination)");
     }
     destination_tree = proto_item_add_subtree(ti_destination, ett_reload_destination);
-    proto_item_append_text(ti_destination, ": %s", val_to_str(destination_type, destinationtypes, "Unknown"));
+    proto_item_append_text(ti_destination, ": %s", val_to_str_const(destination_type, destinationtypes, "Unknown"));
 
     proto_tree_add_item(destination_tree, hf_reload_destination_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_uint(destination_tree, hf_reload_length_uint8, tvb, offset+1, 1, destination_length);
@@ -1405,7 +1405,7 @@ dissect_ipaddressport(int anchor, tvbuff_t *tvb, proto_tree *tree, guint16 offse
   ti_ipaddressport = proto_tree_add_item(tree, hf, tvb, offset, ipaddressport_length+2, ENC_NA);
   if (hf == anchor) proto_item_append_text(ti_ipaddressport, " (IpAddressPort)");
   ipaddressport_type = tvb_get_guint8(tvb, offset);
-  proto_item_append_text(ti_ipaddressport, ": %s", val_to_str(ipaddressport_type, ipaddressporttypes,"Unknown Type"));
+  proto_item_append_text(ti_ipaddressport, ": %s", val_to_str_const(ipaddressport_type, ipaddressporttypes,"Unknown Type"));
   if (ipaddressport_type == IPADDRESSPORTTYPE_IPV4) {
     proto_item_append_text(ti_ipaddressport, " (%s:%d)", tvb_ip_to_str(tvb, offset+2),tvb_get_ntohs(tvb,offset+2+4));
   }
@@ -1535,7 +1535,7 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
       icecandidate_offset += 4;
       proto_tree_add_item(icecandidate_tree, hf_reload_icecandidate_type, tvb,
                           offset+local_offset+icecandidates_offset+icecandidate_offset, 1, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti_icecandidate, ": %s, priority=%d", val_to_str(candtype, candtypes, "Unknown"), priority);
+      proto_item_append_text(ti_icecandidate, ": %s, priority=%d", val_to_str_const(candtype, candtypes, "Unknown"), priority);
     }
     icecandidate_offset += 1;
     {
@@ -2884,7 +2884,7 @@ static int dissect_forwardingoption(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   proto_tree *option_tree;
 
   ti_option = proto_tree_add_item(tree, hf_reload_forwarding_option, tvb, offset+local_offset, option_length + 4, ENC_NA);
-  proto_item_append_text(ti_option, " type=%s, flags=%02x, length=%d", val_to_str(option_type, forwardingoptiontypes, "Unknown"), option_flags, option_length);
+  proto_item_append_text(ti_option, " type=%s, flags=%02x, length=%d", val_to_str_const(option_type, forwardingoptiontypes, "Unknown"), option_flags, option_length);
 
   option_tree = proto_item_add_subtree(ti_option, ett_reload_forwarding_option);
   proto_tree_add_item(option_tree, hf_reload_forwarding_option_type, tvb, offset+local_offset, 1, ENC_BIG_ENDIAN);
@@ -3150,8 +3150,8 @@ static int dissect_diagnosticinfo(tvbuff_t *tvb, proto_tree *tree, guint16 offse
                                          offset+local_offset+messages_offset, 2,
                                          message_code,
                                          "%s_%s",
-                                         val_to_str(MSGCODE_TO_METHOD(message_code), methods_short, "Unknown"),
-                                         val_to_str(MSGCODE_TO_CLASS(message_code), classes_short, "Unknown"));
+                                         val_to_str_const(MSGCODE_TO_METHOD(message_code), methods_short, "Unknown"),
+                                         val_to_str_const(MSGCODE_TO_CLASS(message_code), classes_short, "Unknown"));
       }
       proto_tree_add_item(sent_rcvd_tree, hf_reload_diagnosticinfo_messages_sent,
                           tvb, offset+local_offset+messages_offset+2, 8, ENC_BIG_ENDIAN);
@@ -3754,8 +3754,8 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
     else {
       proto_item_append_text(ti_message_body,
                              " (%s%s<%d>)",
-                             val_to_str(MSGCODE_TO_METHOD(message_code),methods,"opaque"),
-                             val_to_str(MSGCODE_TO_CLASS(message_code), classes_Short, ""),
+                             val_to_str_const(MSGCODE_TO_METHOD(message_code),methods,"opaque"),
+                             val_to_str_const(MSGCODE_TO_CLASS(message_code), classes_Short, ""),
                              message_body_length);
 
     }
@@ -3791,7 +3791,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
                                    tvb, offset, 2 + 2 + error_length, ENC_NA);
     error_tree = proto_item_add_subtree(ti_error, ett_reload_error_response);
     proto_tree_add_item(error_tree, hf_reload_error_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_item_append_text(ti_error, ": %s", val_to_str(error_code, errorcodes, "Unknown"));
+    proto_item_append_text(ti_error, ": %s", val_to_str_const(error_code, errorcodes, "Unknown"));
     switch(error_code) {
     case ERRORCODE_GENERATIONCOUNTERTOOLOW:
     {
@@ -4235,8 +4235,8 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (message_code == RELOAD_ERROR) {
     error_code = tvb_get_ntohs(tvb, forwarding_length + 2+4);
     msg_class_str = "Error Response";
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", msg_class_str, val_to_str(error_code, errorcodes, "Unknown"));
-    proto_item_append_text(ti, ": %s %s", msg_class_str, val_to_str(error_code, errorcodes, "Unknown"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", msg_class_str, val_to_str_const(error_code, errorcodes, "Unknown"));
+    proto_item_append_text(ti, ": %s %s", msg_class_str, val_to_str_const(error_code, errorcodes, "Unknown"));
   }
   else {
     msg_class_str = val_to_str(MSGCODE_TO_CLASS(message_code), classes, "Unknown %d");

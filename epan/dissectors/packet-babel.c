@@ -60,29 +60,29 @@ static gint ett_subtree = -1;
 #define UDP_PORT_BABEL 6696
 #define UDP_PORT_BABEL_OLD 6697
 
-#define MESSAGE_PAD1 0
-#define MESSAGE_PADN 1
-#define MESSAGE_ACK_REQ 2
-#define MESSAGE_ACK 3
-#define MESSAGE_HELLO 4
-#define MESSAGE_IHU 5
-#define MESSAGE_ROUTER_ID 6
-#define MESSAGE_NH 7
-#define MESSAGE_UPDATE 8
-#define MESSAGE_REQUEST 9
+#define MESSAGE_PAD1        0
+#define MESSAGE_PADN        1
+#define MESSAGE_ACK_REQ     2
+#define MESSAGE_ACK         3
+#define MESSAGE_HELLO       4
+#define MESSAGE_IHU         5
+#define MESSAGE_ROUTER_ID   6
+#define MESSAGE_NH          7
+#define MESSAGE_UPDATE      8
+#define MESSAGE_REQUEST     9
 #define MESSAGE_MH_REQUEST 10
 
 static const value_string messages[] = {
-    { MESSAGE_PAD1, "pad1"},
-    { MESSAGE_PADN, "padn"},
-    { MESSAGE_ACK_REQ, "ack-req"},
-    { MESSAGE_ACK, "ack"},
-    { MESSAGE_HELLO, "hello"},
-    { MESSAGE_IHU, "ihu"},
-    { MESSAGE_ROUTER_ID, "router-id"},
-    { MESSAGE_NH, "nh"},
-    { MESSAGE_UPDATE, "update"},
-    { MESSAGE_REQUEST, "request"},
+    { MESSAGE_PAD1,       "pad1"},
+    { MESSAGE_PADN,       "padn"},
+    { MESSAGE_ACK_REQ,    "ack-req"},
+    { MESSAGE_ACK,        "ack"},
+    { MESSAGE_HELLO,      "hello"},
+    { MESSAGE_IHU,        "ihu"},
+    { MESSAGE_ROUTER_ID,  "router-id"},
+    { MESSAGE_NH,         "nh"},
+    { MESSAGE_UPDATE,     "update"},
+    { MESSAGE_REQUEST,    "request"},
     { MESSAGE_MH_REQUEST, "mh-request"},
     { 0, NULL}
 };
@@ -126,7 +126,7 @@ network_prefix(int ae, int plen, unsigned int omitted,
                const unsigned char *p, const unsigned char *dp,
                unsigned int len, unsigned char *p_r)
 {
-    unsigned pb;
+    unsigned      pb;
     unsigned char prefix[16];
 
     if(plen >= 0)
@@ -188,10 +188,10 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     unsigned char v4_prefix[16] = {0}, v6_prefix[16] = {0};
-    int i = 0;
+    int         i = 0;
     proto_tree *babel_tree = NULL;
-    guint8 version;
-    guint16 bodylen;
+    guint8      version;
+    guint16     bodylen;
 
     if(tvb_length(tvb) < 4)
         return 0;
@@ -235,13 +235,12 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                        val_to_str(type, messages, "unknown"));
+                        val_to_str_const(type, messages, "unknown"));
 
         ti = proto_tree_add_uint_format(babel_tree, hf_babel_message,
                                         tvb, message, total_length, type,
                                         "Message %s (%u)",
-                                        val_to_str(type, messages,
-                                                   "unknown"),
+                                        val_to_str_const(type, messages, "unknown"),
                                         type);
 
         if(tree) {
@@ -274,8 +273,8 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(message_tree, hf_babel_message_interval,
                                     tvb, message + 6, 2, ENC_BIG_ENDIAN);
             } else if(type == MESSAGE_IHU) {
-                proto_tree *subtree;
-                unsigned char address[16];
+                proto_tree    *subtree;
+                unsigned char  address[16];
                 int rc =
                     network_address(tvb_get_guint8(tvb, message + 2),
                                     tvb_get_ptr(tvb, message + 8, len - 6),
@@ -299,8 +298,8 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(message_tree, hf_babel_message_routerid,
                                     tvb, message + 4, 8, ENC_NA);
             } else if(type == MESSAGE_NH) {
-                proto_tree *subtree;
-                unsigned char nh[16];
+                proto_tree    *subtree;
+                unsigned char  nh[16];
                 int rc =
                     network_address(tvb_get_guint8(tvb, message + 2),
                                     tvb_get_ptr(tvb, message + 4, len - 2),
@@ -316,11 +315,12 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(subtree, hf_babel_message_prefix,
                                     tvb, message + 4, len - 2, ENC_NA);
             } else if(type == MESSAGE_UPDATE) {
-                proto_tree *subtree;
-                unsigned char p[16];
-                guint8 ae = tvb_get_guint8(tvb, message + 2);
-                guint8 flags = tvb_get_guint8(tvb, message + 3);
-                guint8 plen = tvb_get_guint8(tvb, message + 4);
+
+                proto_tree    *subtree;
+                unsigned char  p[16];
+                guint8         ae    = tvb_get_guint8(tvb, message + 2);
+                guint8         flags = tvb_get_guint8(tvb, message + 3);
+                guint8         plen  = tvb_get_guint8(tvb, message + 4);
                 int rc =
                     network_prefix(ae, plen,
                                    tvb_get_guint8(tvb, message + 5),
@@ -357,9 +357,9 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(subtree, hf_babel_message_prefix,
                                     tvb, message + 12, len - 10, ENC_NA);
             } else if(type == MESSAGE_REQUEST) {
-                proto_tree *subtree;
-                unsigned char p[16];
-                guint8 plen = tvb_get_guint8(tvb, message + 3);
+                proto_tree    *subtree;
+                unsigned char  p[16];
+                guint8         plen = tvb_get_guint8(tvb, message + 3);
                 int rc =
                     network_prefix(tvb_get_guint8(tvb, message + 2), plen,
                                    0,
@@ -379,9 +379,9 @@ dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(subtree, hf_babel_message_prefix,
                                     tvb, message + 4, len - 2, ENC_NA);
             } else if(type == MESSAGE_MH_REQUEST) {
-                proto_tree *subtree;
-                unsigned char p[16];
-                guint8 plen = tvb_get_guint8(tvb, message + 3);
+                proto_tree    *subtree;
+                unsigned char  p[16];
+                guint8         plen = tvb_get_guint8(tvb, message + 3);
                 int rc =
                     network_prefix(tvb_get_guint8(tvb, message + 2), plen,
                                    0,

@@ -447,7 +447,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 						proto_tree_add_int_format(tree, hf_index, tvb, start_offset, 1, codenum,
 							  "%s: %s (%d)",
 							  str,
-							  val_to_str(codenum, cVALS(hf_field->strings), "Unknown "),
+							  val_to_str_const(codenum, cVALS(hf_field->strings), "Unknown "),
 							  codenum);
 					}else{
 						switch(hf_field->display){
@@ -472,7 +472,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 					proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
 						  "%s: %s (%u)",
 						  str,
-						  val_to_str(codenum, cVALS(hf_field->strings), "Unknown "),
+						  val_to_str_const(codenum, cVALS(hf_field->strings), "Unknown "),
 						  codenum);
 				}else{
 					switch(hf_field->display){
@@ -590,7 +590,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 				proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
 						  "%s: %s (%u)",
 						  str,
-						  val_to_str(codenum, cVALS(hf_field->strings), "Unknown "),
+						  val_to_str_const(codenum, cVALS(hf_field->strings), "Unknown "),
 						  codenum);
 			}else{
 				switch(hf_field->display){
@@ -616,7 +616,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 				proto_tree_add_int_format(tree, hf_index, tvb, start_offset, 1, codenum,
 						  "%s: %s (%d)",
 						  str,
-						  val_to_str(codenum, cVALS(hf_field->strings), "Unknown "),
+						  val_to_str_const(codenum, cVALS(hf_field->strings), "Unknown "),
 						  se_value);
 			}else{
 				switch(hf_field->display){
@@ -1028,7 +1028,7 @@ dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	if((level_idc==11)&&(constraint_set3_flag==1)){
 		proto_item_append_text(level_item," [Level 1b (128kb/s)]");
 	}else{
-		proto_item_append_text(level_item," [Level %.1f %s]",((double)level_idc/10),val_to_str(level_idc, h264_level_bitrate_values, "Unknown "));
+		proto_item_append_text(level_item," [Level %.1f %s]",((double)level_idc/10),val_to_str_const(level_idc, h264_level_bitrate_values, "Unknown "));
 	}
 
 }
@@ -1398,7 +1398,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	if((level_idc==11)&&(constraint_set3_flag==1)){
 		proto_item_append_text(level_item,"[Level 1b]");
 	}else{
-		proto_item_append_text(level_item," [Level %.1f %s]",((double)level_idc/10),val_to_str(level_idc, h264_level_bitrate_values, "Unknown "));
+		proto_item_append_text(level_item," [Level %.1f %s]",((double)level_idc/10),val_to_str_const(level_idc, h264_level_bitrate_values, "Unknown "));
 	}
 	offset++;
 	/* seq_parameter_set_id 0 ue(v)

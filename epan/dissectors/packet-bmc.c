@@ -200,7 +200,7 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                                        tvb, offset, 1, message_description_type,
                                        "Message %d Message Description Type: %s (%d)",
                                        bit,
-                                       val_to_str(message_description_type, message_description_type_vals,"Unknown"),
+                                       val_to_str_const(message_description_type, message_description_type_vals,"Unknown"),
                                        message_description_type);
             offset += 1;
 

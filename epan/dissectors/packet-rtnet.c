@@ -607,7 +607,7 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       }
     } else {
       if (!(flags & RTMAC_FLAG_TUNNEL))
-        type_str = val_to_str(type, rtmac_type_vals, "Unknown");
+        type_str = val_to_str_const(type, rtmac_type_vals, "Unknown");
       else {
         if (dissector != data_handle)
           type_str = dissector_handle_get_short_name(dissector);

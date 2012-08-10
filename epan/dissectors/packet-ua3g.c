@@ -2630,7 +2630,7 @@ decode_beep(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
                         offset++;
                         length--;
                         proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "%s %d: %x",
-                            val_to_str(beep_number, str_duration, "Unknown"),
+                            val_to_str_const(beep_number, str_duration, "Unknown"),
                             i, tvb_get_guint8(tvb, offset));
                         offset++;
                         length--;

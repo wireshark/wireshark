@@ -3194,7 +3194,7 @@ dissect_isup_circuit_group_supervision_message_type_parameter(tvbuff_t *paramete
   cgs_message_type = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_uint(parameter_tree, hf_isup_cgs_message_type, parameter_tvb, 0, CIRC_GRP_SV_MSG_TYPE_LENGTH, cgs_message_type);
 
-  proto_item_set_text(parameter_item, "Circuit group supervision message type: %s (%u)"  ,val_to_str(cgs_message_type, isup_cgs_message_type_value,"unknown"), cgs_message_type);
+  proto_item_set_text(parameter_item, "Circuit group supervision message type: %s (%u)"  ,val_to_str_const(cgs_message_type, isup_cgs_message_type_value,"unknown"), cgs_message_type);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Facility indicator parameter
@@ -3206,7 +3206,7 @@ dissect_isup_facility_ind_parameter(tvbuff_t *parameter_tvb, proto_item *paramet
 
   indicator = tvb_get_guint8(parameter_tvb, 0);
 
-  proto_item_set_text(parameter_item, "Facility indicator: %s (%u)"  ,val_to_str(indicator, isup_facility_ind_value,"spare"), indicator);
+  proto_item_set_text(parameter_item, "Facility indicator: %s (%u)"  ,val_to_str_const(indicator, isup_facility_ind_value,"spare"), indicator);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Circuit state indicator
@@ -3228,13 +3228,13 @@ dissect_isup_circuit_state_ind_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
     circuit_state = tvb_get_guint8(parameter_tvb, offset);
     if ((circuit_state & DC_8BIT_MASK) == 0) {
       proto_tree_add_uint(circuit_state_tree, hf_isup_mtc_blocking_state1, parameter_tvb, offset, 1, circuit_state);
-      proto_item_set_text(circuit_state_item, "Circuit# CIC+%u state: %s", i++, val_to_str(circuit_state&BA_8BIT_MASK, isup_mtc_blocking_state_DC00_value, "unknown"));
+      proto_item_set_text(circuit_state_item, "Circuit# CIC+%u state: %s", i++, val_to_str_const(circuit_state&BA_8BIT_MASK, isup_mtc_blocking_state_DC00_value, "unknown"));
     }
     else {
       proto_tree_add_uint(circuit_state_tree, hf_isup_mtc_blocking_state2, parameter_tvb, offset, 1, circuit_state);
       proto_tree_add_uint(circuit_state_tree, hf_isup_call_proc_state, parameter_tvb, offset, 1, circuit_state);
       proto_tree_add_uint(circuit_state_tree, hf_isup_hw_blocking_state, parameter_tvb, offset, 1, circuit_state);
-      proto_item_set_text(circuit_state_item, "Circuit# CIC+%u state: %s", i++, val_to_str(circuit_state&BA_8BIT_MASK, isup_mtc_blocking_state_DCnot00_value, "unknown"));
+      proto_item_set_text(circuit_state_item, "Circuit# CIC+%u state: %s", i++, val_to_str_const(circuit_state&BA_8BIT_MASK, isup_mtc_blocking_state_DCnot00_value, "unknown"));
     }
     offset++;
   }
@@ -3249,10 +3249,10 @@ dissect_isup_event_information_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
   guint8 indicators;
 
   indicators = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_uint_format(parameter_tree, hf_isup_event_ind, parameter_tvb, 0, EVENT_INFO_LENGTH, indicators, "Event indicator: %s (%u)", val_to_str(indicators & GFEDCBA_8BIT_MASK, isup_event_ind_value, "spare"), indicators & GFEDCBA_8BIT_MASK);
+  proto_tree_add_uint_format(parameter_tree, hf_isup_event_ind, parameter_tvb, 0, EVENT_INFO_LENGTH, indicators, "Event indicator: %s (%u)", val_to_str_const(indicators & GFEDCBA_8BIT_MASK, isup_event_ind_value, "spare"), indicators & GFEDCBA_8BIT_MASK);
   proto_tree_add_boolean(parameter_tree, hf_isup_event_presentation_restricted_ind, parameter_tvb, 0, EVENT_INFO_LENGTH, indicators);
 
-  proto_item_set_text(parameter_item,"Event information: %s (%u)", val_to_str(indicators & GFEDCBA_8BIT_MASK, isup_event_ind_value, "spare"),indicators);
+  proto_item_set_text(parameter_item,"Event information: %s (%u)", val_to_str_const(indicators & GFEDCBA_8BIT_MASK, isup_event_ind_value, "spare"),indicators);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter User-to-user information- no detailed dissection since defined in Rec. Q.931
@@ -4387,7 +4387,7 @@ dissect_isup_optional_forward_call_indicators_parameter(tvbuff_t *parameter_tvb,
   proto_tree_add_boolean(parameter_tree, hf_isup_connected_line_identity_request_ind, parameter_tvb, 0, OPTIONAL_FORWARD_CALL_IND_LENGTH, indicators);
 
 
-  proto_item_set_text(parameter_item,"Optional forward call indicators: %s (%u)", val_to_str(indicators & BA_8BIT_MASK, isup_CUG_call_ind_value, "spare"), indicators);
+  proto_item_set_text(parameter_item,"Optional forward call indicators: %s (%u)", val_to_str_const(indicators & BA_8BIT_MASK, isup_CUG_call_ind_value, "spare"), indicators);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter calling party number
@@ -4889,7 +4889,7 @@ dissect_isup_automatic_congestion_level_parameter(tvbuff_t *parameter_tvb, proto
 
   congestion_level = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_uint(parameter_tree, hf_isup_automatic_congestion_level, parameter_tvb, 0, AUTO_CONGEST_LEVEL_LENGTH, congestion_level);
-  proto_item_set_text(parameter_item, "Automatic congestion level: %s (%u)", val_to_str(congestion_level, isup_auto_congestion_level_value, "spare"), congestion_level);
+  proto_item_set_text(parameter_item, "Automatic congestion level: %s (%u)", val_to_str_const(congestion_level, isup_auto_congestion_level_value, "spare"), congestion_level);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Optional backward Call indicators
@@ -5937,7 +5937,7 @@ dissect_isup_calling_geodetic_location_parameter(tvbuff_t *parameter_tvb, proto_
   proto_tree_add_boolean(parameter_tree, hf_isup_extension_ind, parameter_tvb, 1, 1, oct);
   proto_tree_add_text(parameter_tree, parameter_tvb, 1, 1,
     "Calling geodetic location type of shape: %s (%u)",
-    val_to_str(oct & GFEDCBA_8BIT_MASK, isup_location_type_of_shape_value, "spare/reserved"), oct);
+    val_to_str_const(oct & GFEDCBA_8BIT_MASK, isup_location_type_of_shape_value, "spare/reserved"), oct);
 
   if (length > 2)
   {

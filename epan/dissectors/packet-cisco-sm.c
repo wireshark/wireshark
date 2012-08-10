@@ -155,13 +155,13 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SM");
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Cisco SM Packet (%s)",
-		val_to_str(sm_message_type, sm_message_type_value_info,"reserved"));
+		val_to_str_const(sm_message_type, sm_message_type_value_info,"reserved"));
 
 	ti = proto_tree_add_item(tree, proto_sm, tvb, offset, 0, ENC_NA);
 	sm_tree = proto_item_add_subtree(ti, ett_sm);
 
 	proto_tree_add_uint_format(sm_tree, hf_sm_sm_msg_type, tvb, offset, 4, sm_message_type,
-		"SM Message type: %s (0x%0x)", val_to_str(sm_message_type, sm_message_type_value, "reserved"), sm_message_type);
+		"SM Message type: %s (0x%0x)", val_to_str_const(sm_message_type, sm_message_type_value, "reserved"), sm_message_type);
 
 	offset = offset + 4;
 	if (sm_message_type ==  MESSAGE_TYPE_PDU) {
@@ -178,7 +178,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = offset +2;
 			msg_type = tvb_get_ntohs(tvb,offset);
 			proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
-				"Message type: %s (0x%0x)", val_to_str(msg_type, sm_pdu_type_value, "reserved"),
+				"Message type: %s (0x%0x)", val_to_str_const(msg_type, sm_pdu_type_value, "reserved"),
 				msg_type);
 			msg_type = tvb_get_ntohs(tvb,offset);
 			offset = offset + 2;
@@ -294,7 +294,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = offset +2;
 			msg_type = tvb_get_ntohs(tvb,offset);
 			proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
-				"Message type: %s (0x%0x)", val_to_str(msg_type, sm_pdu_type_value, "reserved"),
+				"Message type: %s (0x%0x)", val_to_str_const(msg_type, sm_pdu_type_value, "reserved"),
 				msg_type);
 			msg_type = tvb_get_ntohs(tvb,offset);
 			offset = offset + 2;

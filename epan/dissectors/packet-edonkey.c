@@ -643,7 +643,7 @@ static int dissect_kademlia_search_condition(tvbuff_t *tvb, packet_info *pinfo _
     proto_item * ti;
     guint16 value = tvb_get_guint8(tvb, offset);
     ti = proto_tree_add_item( tree, hf_kademlia_search_condition, tvb, offset, 1, ENC_BIG_ENDIAN );
-    proto_item_append_text(ti, " [%s]", val_to_str( value, kademlia_search_conds, "Unknown") );
+    proto_item_append_text(ti, " [%s]", val_to_str_const( value, kademlia_search_conds, "Unknown") );
 
     return offset + 1;
 }
@@ -922,7 +922,7 @@ static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo _U_,
     if ( tagname && string_length == 1 ) {
         tagname_value = *(guint8*)tagname;
         /* lookup tagname */
-        tag_full_name = val_to_str( tagname_value, kademlia_tags, tag_full_name );
+        tag_full_name = val_to_str_const( tagname_value, kademlia_tags, tag_full_name );
     }
 
     ti = proto_tree_add_item(tree, hf_kademlia_tag_name, tvb, offset+2, string_length, ENC_BIG_ENDIAN);
@@ -1581,7 +1581,7 @@ static int dissect_kademlia_peer(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* offset = dissect_kademlia_peertype(tvb, pinfo, offset, peer_tree); */
     kad_version = tvb_get_guint8(tvb, offset);
     ti = proto_tree_add_item(peer_tree, hf_kademlia_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(ti, "%s", val_to_str(kad_version, kademlia_versions, " Unknown"));
+    proto_item_append_text(ti, "%s", val_to_str_const(kad_version, kademlia_versions, " Unknown"));
     return offset + 1;
 }
 
@@ -1637,7 +1637,7 @@ static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo _U_,
 
             /* Add query info */
             proto_tree_add_text(search_tree, tvb, offset, 2, "Boolean search (0x%02x): %s (0x%02x)",
-                                search_type, val_to_str(operator, edonkey_search_ops, "Unknown"), operator);
+                                search_type, val_to_str_const(operator, edonkey_search_ops, "Unknown"), operator);
 
             offset+=2;
             offset = dissect_edonkey_search_query(tvb, pinfo, offset, search_tree);
@@ -1702,7 +1702,7 @@ static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo _U_,
 
             /* Add query info */
             proto_tree_add_text(search_tree, tvb, offset, 6, "Search by limit (0x%02x): %s %u",
-                                search_type, val_to_str(limit_type, edonkey_search_conds, "Unknown"), limit);
+                                search_type, val_to_str_const(limit_type, edonkey_search_conds, "Unknown"), limit);
             proto_tree_add_uint(search_tree, hf_edonkey_metatag_namesize, tvb, tag_name_offset, 2, tag_name_size);
             edonkey_tree_add_metatag_name(search_tree, tvb, tag_name_offset+2, tag_name_size, special_tagtype);
             offset += search_length;
@@ -2342,7 +2342,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
     subtree = proto_item_add_subtree( tag_node, ett_kademlia_tag );
 
     type = tvb_get_guint8( tvb, offset );
-    str_type = val_to_str(type, kademlia_tag_types, "Unknown" );
+    str_type = val_to_str_const(type, kademlia_tag_types, "Unknown" );
 
     {
         proto_item * ti_tagtype;
@@ -2393,11 +2393,11 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
                 switch (tag_type) {
                     case KADEMLIA_TAG_SOURCETYPE:
                         {
-                            proto_item_append_text(ti," (%s)", val_to_str(value, kademlia_tag_sourcetype, "Unknown"));
+                            proto_item_append_text(ti," (%s)", val_to_str_const(value, kademlia_tag_sourcetype, "Unknown"));
                         }
                         break;
                     case KADEMLIA_TAG_ENCRYPTION:
-                        proto_item_append_text(ti, " (%s)", val_to_str(value, kademlia_tag_encryption, "Unknown"));
+                        proto_item_append_text(ti, " (%s)", val_to_str_const(value, kademlia_tag_encryption, "Unknown"));
                         break;
                 }
                 offset += 1;
@@ -2605,7 +2605,7 @@ static int dissect_kademlia2_prolog( tvbuff_t *tvb, packet_info *pinfo _U_,
     kad_version = tvb_get_guint8(tvb, offset);
     /* ti = proto_tree_add_text(tree, tvb, offset, 1, "Kad Version: %d", kad_version ); */
     ti = proto_tree_add_item(tree, hf_kademlia_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(ti, "%s", val_to_str(kad_version, kademlia_versions, " Unknown"));
+    proto_item_append_text(ti, "%s", val_to_str_const(kad_version, kademlia_versions, " Unknown"));
     offset++;
 
     return offset;
@@ -2714,7 +2714,7 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
 
                 type = tvb_get_guint8(tvb, offset);
                 ti = proto_tree_add_uint_format_value(tree, hf_kademlia_request_type, tvb, offset, 1, type, "0x%02x", type );
-                proto_item_append_text(ti, "%s", val_to_str(type, kademlia_parameter, " Unknown"));
+                proto_item_append_text(ti, "%s", val_to_str_const(type, kademlia_parameter, " Unknown"));
                 offset +=1;
 
                 /* get target id */
@@ -2997,13 +2997,13 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     msg_type = tvb_get_guint8(tvb, offset);
     switch (protocol) {
         case EDONKEY_PROTO_EDONKEY:
-            message_name =  val_to_str(msg_type, edonkey_tcp_msgs, "Unknown");
+            message_name =  val_to_str_const(msg_type, edonkey_tcp_msgs, "Unknown");
             dissector = dissect_edonkey_tcp_message;
             break;
 
         case EDONKEY_PROTO_EMULE_EXT:
-            message_name = val_to_str(msg_type, emule_tcp_msgs,
-                                      val_to_str(msg_type, edonkey_tcp_msgs, "Unknown"));
+            message_name = val_to_str_const(msg_type, emule_tcp_msgs,
+                                            val_to_str_const(msg_type, edonkey_tcp_msgs, "Unknown"));
             dissector = dissect_emule_tcp_message;
             break;
 
@@ -3013,7 +3013,7 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
              * except that the payload (after the type byte) is a zlib compressed
              * stream.
              */
-            message_name = val_to_str(msg_type, edonkey_tcp_msgs, "Unknown");
+            message_name = val_to_str_const(msg_type, edonkey_tcp_msgs, "Unknown");
             tvbraw = tvb_child_uncompress(tvb, tvb, offset+1, msg_len-1);
             if (tvbraw) {
               dissector = dissect_edonkey_tcp_message;
@@ -3079,13 +3079,13 @@ static void dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if (tvb_length_remaining(tvb, offset) >= EDONKEY_UDP_HEADER_LENGTH) {
         protocol = tvb_get_guint8(tvb, offset);
         msg_type = tvb_get_guint8(tvb, offset+1);
-        protocol_name = val_to_str(protocol, edonkey_protocols, "Unknown");
+        protocol_name = val_to_str_const(protocol, edonkey_protocols, "Unknown");
 
         if (protocol == EDONKEY_PROTO_KADEMLIA || protocol == EDONKEY_PROTO_KADEMLIA_COMP
             || protocol == EDONKEY_PROTO_ADU_KADEMLIA || protocol == EDONKEY_PROTO_ADU_KADEMLIA_COMP)
-            message_name = val_to_str( msg_type, kademlia_msgs, "Unknown");
+            message_name = val_to_str_const( msg_type, kademlia_msgs, "Unknown");
         else
-            message_name = val_to_str(msg_type, edonkey_udp_msgs, "Unknown");
+            message_name = val_to_str_const(msg_type, edonkey_udp_msgs, "Unknown");
 
         if (check_col(pinfo->cinfo, COL_INFO)) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s UDP: %s", protocol_name, message_name);

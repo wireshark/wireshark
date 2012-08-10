@@ -494,7 +494,7 @@ static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_
     total_length = 4 + 16 + ((length - 1) | 3) + 1;
 
     olsr_ns_item = proto_tree_add_bytes_format(olsr_tree, hf_olsrorg_ns, tvb, offset, total_length,
-        NULL, "Nameservice: %s (%d)", val_to_str(type, nameservice_type_vals, "UNKNOWN"), type);
+        NULL, "Nameservice: %s (%d)", val_to_str_const(type, nameservice_type_vals, "UNKNOWN"), type);
 
     olsr_ns_tree = proto_item_add_subtree(olsr_ns_item, ett_olsr_message_ns);
 
@@ -587,7 +587,7 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       message_len = tvb_get_ntohs(tvb, offset + 2);
 
       message_item = proto_tree_add_bytes_format(olsr_tree, hf_olsr_message, tvb, offset, message_len,
-          NULL, "Message: %s (%d)", val_to_str(message_type, message_type_vals, "UNKNOWN"),
+          NULL, "Message: %s (%d)", val_to_str_const(message_type, message_type_vals, "UNKNOWN"),
           message_type);
       message_tree = proto_item_add_subtree(message_item, ett_olsr_message[message_type]);
 

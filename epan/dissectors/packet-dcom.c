@@ -1104,7 +1104,7 @@ dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 		/* special formatted output of indexed value */
 		item = proto_tree_add_uint_format(tree, hf_dcom_hresult, tvb, offset-4, 4, u32HResult,
 			"HResult[%u]: %s (0x%08x)", field_index,
-			val_to_str(u32HResult, dcom_hresult_vals, "Unknown"),
+			val_to_str_const(u32HResult, dcom_hresult_vals, "Unknown"),
 			u32HResult);
 	}
 	/* expert info only if severity flag is set */

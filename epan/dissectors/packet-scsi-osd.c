@@ -2634,7 +2634,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		if(check_col(pinfo->cinfo, COL_INFO)){
 			col_append_str(pinfo->cinfo, COL_INFO,
-				val_to_str(svcaction, scsi_osd_svcaction_vals, "Unknown OSD Serviceaction"));
+				val_to_str_const(svcaction, scsi_osd_svcaction_vals, "Unknown OSD Serviceaction"));
 		}
 		dissector=find_svcaction_dissector(svcaction);
 		if(dissector){
@@ -2652,7 +2652,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	if(check_col(pinfo->cinfo, COL_INFO)){
 		col_append_str(pinfo->cinfo, COL_INFO,
-			val_to_str(svcaction, scsi_osd_svcaction_vals, "Unknown OSD Serviceaction"));
+			val_to_str_const(svcaction, scsi_osd_svcaction_vals, "Unknown OSD Serviceaction"));
 	}
 	if(svcaction){
 		proto_item *it;

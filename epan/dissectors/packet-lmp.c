@@ -769,7 +769,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  class = tvb_get_guint8(tvb, offset+1);
 	  type = tvb_get_guint8(tvb, offset);
 	  negotiable = (type >> 7); type &= 0x7f;
-	  object_type = val_to_str(class, lmp_class_vals, "Unknown");
+	  object_type = val_to_str_const(class, lmp_class_vals, "Unknown");
 	  hidden_item = proto_tree_add_uint(lmp_tree, hf_lmp_filter[LMPF_OBJECT], tvb,
 				     offset, 1, class);
 	  PROTO_ITEM_SET_HIDDEN(hidden_item);

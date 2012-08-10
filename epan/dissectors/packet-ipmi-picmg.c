@@ -661,7 +661,7 @@ parse_led_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *desc)
 	v = tvb_get_guint8(tvb, offs + 2) & 0x0f;
 	ti = proto_tree_add_bitmask_text(tree, tvb, offs + 2, 1,
 			NULL, NULL, ett_ipmi_picmg_led_color, color, ENC_LITTLE_ENDIAN, 0);
-	proto_item_set_text(ti, "%sColor: %s", desc, val_to_str(v, led_color_vals, "Reserved"));
+	proto_item_set_text(ti, "%sColor: %s", desc, val_to_str_const(v, led_color_vals, "Reserved"));
 }
 
 /* Set FRU LED State
@@ -814,7 +814,7 @@ parse_link_info_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *n
 	proto_tree_add_bitmask_text(tree, tvb, offs, 4, buf, NULL,
 			ett_ipmi_picmg_link_info, link_info, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_uint_format(tree, hf_ipmi_picmg_linkinfo_state, tvb, offs + 4, 1,
-			v, "State%s: %s (0x%02x)", num, val_to_str(v, vs, "Reserved"), v);
+			v, "State%s: %s (0x%02x)", num, val_to_str_const(v, vs, "Reserved"), v);
 }
 
 /* Set Port State
@@ -1030,9 +1030,11 @@ rq17(tvbuff_t *tvb, proto_tree *tree)
 	}
 
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_17_cmd, tvb, 0, 1,
-			cmd, "%s (0x%02x)", val_to_str(cmd,
-				to_shmm ? vals_17_cmd_toshmm : vals_17_cmd_fromshmm,
-				"Reserved"), cmd);
+				cmd, "%s (0x%02x)",
+				val_to_str_const(cmd,
+						 to_shmm ? vals_17_cmd_toshmm : vals_17_cmd_fromshmm,
+						 "Reserved"),
+				cmd);
 	proto_tree_add_item(tree, hf_ipmi_picmg_17_resid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
@@ -1073,7 +1075,7 @@ rs17(tvbuff_t *tvb, proto_tree *tree)
 	status = tvb_get_guint8(tvb, 0);
 	val = (val << 8) | status;
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_17_status, tvb, 0, 1,
-			status, "%s (0x%02x)", val_to_str(val, response_vals, "Reserved"), status);
+			status, "%s (0x%02x)", val_to_str_const(val, response_vals, "Reserved"), status);
 }
 
 /* Get IPMB Link Info
@@ -1525,7 +1527,7 @@ rs36(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_uint_format(tree, hf_ipmi_picmg_36_result, tvb, 0, 1,
 			res, "Self test result: %s (0x%02x)",
-			val_to_str(res, vals_36_result, "Device-specific internal failure"),
+			val_to_str_const(res, vals_36_result, "Device-specific internal failure"),
 			res);
 
 	if (res == 0x55 || res == 0xff) {

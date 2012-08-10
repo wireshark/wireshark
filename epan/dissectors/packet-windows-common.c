@@ -1647,7 +1647,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 					} else if (i==5) {
 						rid = sa_field;
 						rid_offset = offset;
-						mapped_rid = val_to_str(rid, wkwn_S_1_5_21_rids, "Domain RID");
+						mapped_rid = val_to_str_const(rid, wkwn_S_1_5_21_rids, "Domain RID");
 						ep_strbuf_append_printf(label_str, "-%s", mapped_rid);
 
 					} else {

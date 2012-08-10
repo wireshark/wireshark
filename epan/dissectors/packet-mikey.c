@@ -660,7 +660,7 @@ dissect_payload_hdr(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 		proto_tree_add_item(tree, hf_mikey[POS_HDR_DATA_TYPE], tvb, offset+1, 1, ENC_BIG_ENDIAN);
 		parent = proto_tree_get_parent(tree);
-		proto_item_append_text(parent, " Type: %s", val_to_str(mikey->type, data_type_vals, "Unknown"));
+		proto_item_append_text(parent, " Type: %s", val_to_str_const(mikey->type, data_type_vals, "Unknown"));
 
 		add_next_payload(tvb, tree, offset+2);
 
@@ -844,7 +844,7 @@ dissect_payload_t(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 	if (tree) {
 		parent = proto_tree_get_parent(tree);
-		proto_item_append_text(parent, " Type: %s", val_to_str(ts_type, ts_type_vals, "Unknown"));
+		proto_item_append_text(parent, " Type: %s", val_to_str_const(ts_type, ts_type_vals, "Unknown"));
 		proto_tree_add_item(tree, hf_mikey[POS_TS_TYPE], tvb, offset+1, 1, ENC_BIG_ENDIAN);
 	}
 
@@ -886,7 +886,7 @@ dissect_payload_id(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 		proto_tree_add_item(tree, hf_mikey[POS_ID], tvb, 4, length, ENC_ASCII|ENC_NA);
 
 		parent = proto_tree_get_parent(tree);
-		proto_item_append_text(parent, " %s: %s", val_to_str(type, id_type_vals, "Unknown"), tvb_get_ephemeral_string(tvb, 4, length));
+		proto_item_append_text(parent, " %s: %s", val_to_str_const(type, id_type_vals, "Unknown"), tvb_get_ephemeral_string(tvb, 4, length));
 	}
 
 	return 4 + length;
@@ -914,7 +914,7 @@ dissect_payload_cert(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo, prot
 		proto_tree_add_item(tree, hf_mikey[POS_CERT_TYPE], tvb, 1, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_mikey[POS_CERT_LEN], tvb, 1, 2, ENC_BIG_ENDIAN);
 
-		proto_item_append_text(parent, " Type: %s", val_to_str(type, cert_type_vals, "Unknown"));
+		proto_item_append_text(parent, " Type: %s", val_to_str_const(type, cert_type_vals, "Unknown"));
 	}
 
 	subtvb = tvb_new_subset(tvb, offset+4, length, length);
@@ -1021,7 +1021,7 @@ dissect_payload_sp(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 		proto_tree_add_item(tree, hf_mikey[POS_SP_TYPE], tvb, 2, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_mikey[POS_SP_PARAM_LEN], tvb, 3, 2, ENC_BIG_ENDIAN);
 
-		proto_item_append_text(parent, " No: %d, Type: %s", no, val_to_str(type, sp_prot_type_vals, "Unknown"));
+		proto_item_append_text(parent, " No: %d, Type: %s", no, val_to_str_const(type, sp_prot_type_vals, "Unknown"));
 	}
 
 	tvb_ensure_bytes_exist(tvb, offset+5, length);
@@ -1081,7 +1081,7 @@ dissect_payload_err(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, p
 		proto_tree_add_item(tree, hf_mikey[POS_ERR_RESERVED], tvb, 2, 2, ENC_NA);
 	}
 	parent = proto_tree_get_parent(tree);
-	proto_item_append_text(parent, ": %s", val_to_str(err_no, err_vals, "Unknown"));
+	proto_item_append_text(parent, ": %s", val_to_str_const(err_no, err_vals, "Unknown"));
 
 	return 4;
 }
@@ -1115,7 +1115,7 @@ dissect_payload_keydata(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U
 		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA], tvb, 4, data_len, ENC_NA);
 
 		parent = proto_tree_get_parent(tree);
-		proto_item_append_text(parent, " Type: %s", val_to_str(key_type, kd_vals, "Unknown"));
+		proto_item_append_text(parent, " Type: %s", val_to_str_const(key_type, kd_vals, "Unknown"));
 		offset += data_len;
 
 		/* Dissect SALT key */
@@ -1191,7 +1191,7 @@ dissect_payload_general_ext(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinf
 		} else {
 			proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_DATA], tvb, 4, data_len, ENC_NA);
 		}
-		proto_item_append_text(parent, " Type: %s", val_to_str(type, genext_type_vals, "Unknown"));
+		proto_item_append_text(parent, " Type: %s", val_to_str_const(type, genext_type_vals, "Unknown"));
 	}
 	return 4 + data_len;
 }
@@ -1301,13 +1301,13 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (ti) {
-		proto_item_append_text(ti, ": %s", val_to_str(mikey->type, data_type_vals, "Unknown"));
+		proto_item_append_text(ti, ": %s", val_to_str_const(mikey->type, data_type_vals, "Unknown"));
 	}
 
 	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/MIKEY");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Mikey: %s", val_to_str(mikey->type, data_type_vals, "Unknown"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Mikey: %s", val_to_str_const(mikey->type, data_type_vals, "Unknown"));
 
 	/* Return the amount of data this dissector was able to dissect */
 	return tvb_length(tvb);

@@ -961,9 +961,9 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset,
 
 	if ( check_col(mypinfo->cinfo, COL_INFO) ) {
 		col_append_fstr(mypinfo->cinfo, COL_INFO, " %s",
-				val_to_str(tvb_get_guint8(tvb, offset),
-					   icep_replystatus_vals,
-					   "unknown reply status"));
+				val_to_str_const(tvb_get_guint8(tvb, offset),
+                                                 icep_replystatus_vals,
+                                                 "unknown reply status"));
 	}
 
 	offset++;

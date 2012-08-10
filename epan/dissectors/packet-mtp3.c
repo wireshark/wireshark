@@ -721,9 +721,9 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (mtp3_heuristic_standard) {
 	heuristic_standard = heur_mtp3_standard(tvb, pinfo, si);
 	if (heuristic_standard == HEURISTIC_FAILED_STANDARD) {
-	    gen_item = proto_tree_add_text(tree, tvb, 0, 0, "Could not determine Heuristic using %s", val_to_str(mtp3_standard, mtp3_standard_vals, "unknown"));
+	    gen_item = proto_tree_add_text(tree, tvb, 0, 0, "Could not determine Heuristic using %s", val_to_str_const(mtp3_standard, mtp3_standard_vals, "unknown"));
 	} else {
-	    gen_item = proto_tree_add_text(tree, tvb, 0, 0, "%s", val_to_str(heuristic_standard, mtp3_standard_vals, "unknown"));
+	    gen_item = proto_tree_add_text(tree, tvb, 0, 0, "%s", val_to_str_const(heuristic_standard, mtp3_standard_vals, "unknown"));
 	    mtp3_standard = heuristic_standard;
 
 	    /* Register a frame-end routine to ensure mtp3_standard is set

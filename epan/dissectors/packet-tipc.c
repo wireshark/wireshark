@@ -665,13 +665,13 @@ tipc_v2_set_info_col(tvbuff_t *tvb, packet_info *pinfo, guint8 user, guint8 msg_
 		case TIPCv2_DATA_NORMAL:
 		case TIPCv2_DATA_HIGH:
 		case TIPCv2_DATA_NON_REJECTABLE:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_data_msg_type_defines, "unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(msg_type, tipcv2_data_msg_type_defines, "unknown"));
 
 			/* Display Error != 0 in Info Column */
 			dword = tvb_get_ntohl(tvb, 4);
 			error = (dword>>25) & 0xf;
 			if (error > 0)
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(error, tipcv2_error_code_short_strings, "unknown"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(error, tipcv2_error_code_short_strings, "unknown"));
 			if (hdr_size > 8) {
 				/* Port Name Type: 32 bits */
 				portNameType = tvb_get_ntohl(tvb, 32);
@@ -689,34 +689,34 @@ tipc_v2_set_info_col(tvbuff_t *tvb, packet_info *pinfo, guint8 user, guint8 msg_
 			}
 			break;
 		case TIPCv2_BCAST_PROTOCOL:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_bcast_mtype_strings, "unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(msg_type, tipcv2_bcast_mtype_strings, "unknown"));
 			break;
 		case TIPCv2_MSG_BUNDLER:
 			/* No message types */
 			break;
 		case TIPCv2_LINK_PROTOCOL:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_link_mtype_strings, "unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(msg_type, tipcv2_link_mtype_strings, "unknown"));
 			break;
 		case TIPCv2_CONN_MANAGER:
 			dword = tvb_get_ntohl(tvb, 4);
 			/* Display Error != 0 in Info Column */
 			error = (dword>>25) & 0xf;
 			if (error > 0)
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(error, tipcv2_error_code_short_strings, "unknown"));
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_connmgr_mtype_strings, "unknown"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(error, tipcv2_error_code_short_strings, "unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(msg_type, tipcv2_connmgr_mtype_strings, "unknown"));
 			break;
 		case TIPCv2_ROUTE_DISTRIBUTOR:
 			/* determine if it is TIPC v1.6 or v1.7 */
 			/*dword = tvb_get_ntohl(tvb, 36);  */
 			/*item_size = (dword >> 24) & 0xff;*/
 			if ((handle_v2_as & V2_AS_1_6) || ((handle_v2_as & V2_AS_ALL) == 0)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_route_mtype_strings_1_6, "unknown"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(msg_type, tipcv2_route_mtype_strings_1_6, "unknown"));
 			} else {
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_route_mtype_strings_1_7, "unknown"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(msg_type, tipcv2_route_mtype_strings_1_7, "unknown"));
 			}
 			break;
 		case TIPCv2_CHANGEOVER_PROTOCOL:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_changeover_mtype_strings, "unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(msg_type, tipcv2_changeover_mtype_strings, "unknown"));
 			break;
 		case TIPCv2_NAME_DISTRIBUTOR:
 			portNameType     = tvb_get_ntohl(tvb, 40);
@@ -725,18 +725,18 @@ tipc_v2_set_info_col(tvbuff_t *tvb, packet_info *pinfo, guint8 user, guint8 msg_
 
 			if (portNameInstLow == portNameInstHigh) {
 				col_append_fstr(pinfo->cinfo, COL_INFO, " %s type:%d inst:%d",
-						val_to_str(msg_type, tipcv2_naming_mtype_strings, "unknown"), portNameType, portNameInstLow);
+						val_to_str_const(msg_type, tipcv2_naming_mtype_strings, "unknown"), portNameType, portNameInstLow);
 			} else {
 				/* sequence */
 				col_append_fstr(pinfo->cinfo, COL_INFO, " %s type:%d seq:%d-%d",
-						val_to_str(msg_type, tipcv2_naming_mtype_strings, "unknown"), portNameType, portNameInstLow, portNameInstHigh);
+						val_to_str_const(msg_type, tipcv2_naming_mtype_strings, "unknown"), portNameType, portNameInstLow, portNameInstHigh);
 			}
 			break;
 		case TIPCv2_MSG_FRAGMENTER:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_fragmenter_mtype_strings, "unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(msg_type, tipcv2_fragmenter_mtype_strings, "unknown"));
 			break;
 		case TIPCv2_NEIGHBOUR_DISCOVERY:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(msg_type, tipcv2_neighbour_mtype_strings, "unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(msg_type, tipcv2_neighbour_mtype_strings, "unknown"));
 			break;
 		default:
 			break;
@@ -758,25 +758,25 @@ tipc_v1_set_col_msgtype(packet_info *pinfo, guint8 user, guint8 msg_type)
 			 * src and dest address will be found at different location depending on User ad hdr_size
 			 */
 			datatype_hdr = TRUE;
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_data_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str_const(msg_type, tipc_data_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_NAME_DISTRIBUTOR:
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_name_dist_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str_const(msg_type, tipc_name_dist_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_CONNECTION_MANAGER:
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_cm_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str_const(msg_type, tipc_cm_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_ROUTING_MANAGER:
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_routing_mgr_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str_const(msg_type, tipc_routing_mgr_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_LINK_PROTOCOL:
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_link_prot_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str_const(msg_type, tipc_link_prot_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_CHANGEOVER_PROTOCOL:
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_cng_prot_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str_const(msg_type, tipc_cng_prot_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_SEGMENTATION_MANAGER:
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str(msg_type, tipc_sm_msg_type_values, "unknown"), msg_type);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str_const(msg_type, tipc_sm_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_MSG_BUNDLER:
 			break;
@@ -952,7 +952,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 				msg_in_bundle_user = (dword >> 25) & 0xf;
 
 				proto_tree_add_text(top_tree, tipc_tvb, offset, msg_in_bundle_size, "Message %u of %u in Bundle (%s)",
-						msg_no, message_count, val_to_str(msg_in_bundle_user, tipcv2_user_short_str_vals, "unknown"));
+						msg_no, message_count, val_to_str_const(msg_in_bundle_user, tipcv2_user_short_str_vals, "unknown"));
 				data_tvb = tvb_new_subset(tipc_tvb, offset, msg_in_bundle_size, msg_in_bundle_size);
 
 				/* the info column shall not be deleted by the
@@ -1903,7 +1903,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 				case 0: /* DUPLICATE_MSG */
 				case 1: /* ORIGINAL_MSG */
 					proto_tree_add_text(tipc_tree, tvb, offset, -1, "TIPC_CHANGEOVER_PROTOCOL %s (%u)",
-							val_to_str(msg_type, tipc_cng_prot_msg_type_values, "unknown"), msg_type);
+							val_to_str_const(msg_type, tipc_cng_prot_msg_type_values, "unknown"), msg_type);
 					data_tvb = tvb_new_subset_remaining(tvb, offset);
 					col_set_fence(pinfo->cinfo, COL_INFO);
 					dissect_tipc(data_tvb, pinfo, tipc_tree);
@@ -2048,7 +2048,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0:
 		case TIPCv1:
 			msg_type = tvb_get_guint8(tipc_tvb, offset + 20)>>4;
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str(user, tipc_user_values, "unknown"), user);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str_const(user, tipc_user_values, "unknown"), user);
 			/* Set msg type in info col and find out if its a data hdr or not */
 			datatype_hdr = tipc_v1_set_col_msgtype(pinfo, user, msg_type);
 			if (datatype_hdr) {
@@ -2075,7 +2075,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case TIPCv2:
 			msg_type = tvb_get_guint8(tipc_tvb, offset + 4)>>5;
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%-12s", val_to_str(user, tipcv2_user_short_str_vals, "unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%-12s", val_to_str_const(user, tipcv2_user_short_str_vals, "unknown"));
 			/* Set msg type in info col */
 			tipc_v2_set_info_col(tvb, pinfo, user, msg_type, hdr_size);
 

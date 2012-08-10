@@ -1137,7 +1137,7 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
   offset = dissect_rdp_fields(tvb, offset, pinfo, tree, share_fields);
 
   if (pduType2 != PDUTYPE2_CONTROL)
-    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str(pduType2, rdp_pduType2_vals, "Unknown"));
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_const(pduType2, rdp_pduType2_vals, "Unknown"));
 
   fields = NULL;
   switch(pduType2) {
@@ -1202,7 +1202,7 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
   }
 
   if (pduType2 == PDUTYPE2_CONTROL)
-    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str(action, rdp_action_vals, "Unknown"));
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_const(action, rdp_action_vals, "Unknown"));
 
   return offset;
 }
@@ -1467,7 +1467,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, msg_fields);
 
-        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str(bMsgType, rdp_bMsgType_vals, "Unknown"));
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_const(bMsgType, rdp_bMsgType_vals, "Unknown"));
 
         switch(bMsgType) {
         case LICENSE_REQUEST:
@@ -1519,7 +1519,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       pduType &= PDUTYPE_TYPE_MASK; /* mask out just the type */
 
       if (pduType != PDUTYPE_DATAPDU)
-        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str(pduType, rdp_pduTypeType_vals, "Unknown"));
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_const(pduType, rdp_pduTypeType_vals, "Unknown"));
 
       switch(pduType) {
       case PDUTYPE_DEMANDACTIVEPDU:
@@ -1865,8 +1865,8 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ss_fields);
 
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "Encryption: %s (%s)",
-                            val_to_str(encryptionMethod, rdp_encryptionMethod_vals, "Unknown"),
-                            val_to_str(encryptionLevel, rdp_encryptionLevel_vals, "Unknown"));
+                            val_to_str_const(encryptionMethod, rdp_encryptionMethod_vals, "Unknown"),
+                            val_to_str_const(encryptionLevel, rdp_encryptionLevel_vals, "Unknown"));
 
         if ((encryptionLevel != 0) || (encryptionMethod != 0)) {
 

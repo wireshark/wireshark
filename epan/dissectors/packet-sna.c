@@ -1545,7 +1545,7 @@ dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 		    "SNA XID Format:%d Type:%s", format,
-		    val_to_str(lo_nibble(type), sna_xid_type_vals,
+		    val_to_str_const(lo_nibble(type), sna_xid_type_vals,
 		    "Unknown Type"));
 
 	if (tree) {
@@ -2451,11 +2451,11 @@ dissect_control(tvbuff_t *parent_tvb, int offset, int control_len,
 
 		if (((key == 0) || (key == 3) || (key == 5)) && hpr)
 			sub_item = proto_tree_add_text(tree, tvb, 0, -1, "%s",
-			    val_to_str(key, sna_control_hpr_vals,
+			    val_to_str_const(key, sna_control_hpr_vals,
 			    "Unknown Control Vector"));
 		else
 			sub_item = proto_tree_add_text(tree, tvb, 0, -1, "%s",
-			    val_to_str(key, sna_control_vals,
+			    val_to_str_const(key, sna_control_vals,
 			    "Unknown Control Vector"));
 		sub_tree = proto_item_add_subtree(sub_item, ett);
 		if (parse == LT) {

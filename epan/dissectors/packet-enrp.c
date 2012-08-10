@@ -178,7 +178,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
   padding_length = tvb_length(cause_tvb) - length;
 
-  cause_item = proto_tree_add_text(parameter_tree, cause_tvb, CAUSE_HEADER_OFFSET, tvb_length(cause_tvb), "%s", val_to_str(code, cause_code_values, "Unknown error cause"));
+  cause_item = proto_tree_add_text(parameter_tree, cause_tvb, CAUSE_HEADER_OFFSET, tvb_length(cause_tvb), "%s", val_to_str_const(code, cause_code_values, "Unknown error cause"));
   cause_tree = proto_item_add_subtree(cause_item, ett_enrp_cause);
 
   proto_tree_add_item(cause_tree, hf_cause_code,   cause_tvb, CAUSE_CODE_OFFSET,   CAUSE_CODE_LENGTH,   ENC_BIG_ENDIAN);
@@ -645,7 +645,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *enrp_tree)
   padding_length = tvb_length(parameter_tvb) - length;
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(enrp_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str(type, parameter_type_values, "Unknown Parameter"));
+  parameter_item   = proto_tree_add_text(enrp_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str_const(type, parameter_type_values, "Unknown Parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_enrp_parameter);
 
   /* add tag and length to the enrp tree */
@@ -942,7 +942,7 @@ dissect_enrp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *enrp
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   /* pinfo is NULL only if dissect_enrp_message is called via dissect_error_cause */
   if (pinfo && (check_col(pinfo->cinfo, COL_INFO)))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown ENRP Type"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(type, message_type_values, "Unknown ENRP Type"));
 
   if (enrp_tree) {
     proto_tree_add_item(enrp_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   ENC_BIG_ENDIAN);

@@ -126,7 +126,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_add_str(pinfo->cinfo, COL_PROTOCOL,
-		    val_to_str(version, version_vals, "RIP"));
+		    val_to_str_const(version, version_vals, "RIP"));
     if (check_col(pinfo->cinfo, COL_INFO))
         col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(command, command_vals, "Unknown command (%u)"));

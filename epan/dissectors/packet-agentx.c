@@ -107,15 +107,15 @@ static gint ett_addcap = -1;
 static gint ett_remcap = -1;
 
 
-#define 	AGENTX_OPEN_PDU 		1
-#define         AGENTX_CLOSE_PDU   		2
-#define         AGENTX_REGISTER_PDU		3
-#define         AGENTX_UNREGISTER_PDU 		4
-#define         AGENTX_GET_PDU			5
-#define         AGENTX_GETNEXT_PDU		6
-#define         AGENTX_GETBULK_PDU		7
-#define         AGENTX_TESTSET_PDU		8
-#define         AGENTX_COMMITSET_PDU		9
+#define 	AGENTX_OPEN_PDU 		 1
+#define         AGENTX_CLOSE_PDU   		 2
+#define         AGENTX_REGISTER_PDU		 3
+#define         AGENTX_UNREGISTER_PDU 		 4
+#define         AGENTX_GET_PDU			 5
+#define         AGENTX_GETNEXT_PDU		 6
+#define         AGENTX_GETBULK_PDU		 7
+#define         AGENTX_TESTSET_PDU		 8
+#define         AGENTX_COMMITSET_PDU		 9
 #define         AGENTX_UNDOSET_PDU		10
 #define         AGENTX_CLEANUPSET_PDU		11
 #define         AGENTX_NOTIFY_PDU		12
@@ -148,20 +148,20 @@ static const value_string type_values [] = {
 	{ AGENTX_RESPONSE_PDU,		"Response-PDU" },
 	{ 0, NULL }
 };
-
+static value_string_ext type_values_ext = VALUE_STRING_EXT_INIT(type_values);
 
 /* VarBind types */
 
-#define VB_INT		2
-#define VB_OSTR		4
-#define VB_NULL		5
-#define VB_OID		6
-#define VB_IPADDR	64
-#define VB_COUNTER32	65
-#define VB_GAUGE32	66
-#define VB_TIMETICK	67
-#define VB_OPAQUE	68
-#define VB_COUNTER64	70
+#define VB_INT		  2
+#define VB_OSTR		  4
+#define VB_NULL		  5
+#define VB_OID		  6
+#define VB_IPADDR	 64
+#define VB_COUNTER32	 65
+#define VB_GAUGE32	 66
+#define VB_TIMETICK	 67
+#define VB_OPAQUE	 68
+#define VB_COUNTER64	 70
 #define VB_NOSUCHOBJ	128
 #define VB_NOSUCHINST	129
 #define VB_ENDOFMIB	130
@@ -183,7 +183,7 @@ static const value_string vtag_values [] = {
 	{ VB_ENDOFMIB,		"endOfMibView" },
 	{ 0, NULL }
 };
-
+static value_string_ext vtag_values_ext = VALUE_STRING_EXT_INIT(vtag_values);
 
 /* Close reasons */
 #define CREASON_OTHER 		1
@@ -206,25 +206,25 @@ static const value_string close_reasons[] = {
 
 
 /* Response errors */
-#define AGENTX_NO_ERROR		0
-#define AGENTX_TOO_BIG		1
-#define AGENTX_NO_SUCH_NAME	2
-#define AGENTX_BAD_VALUE	3
-#define AGENTX_READ_ONLY	4
-#define AGENTX_GEN_ERROR	5
-#define AGENTX_NO_ACCESS	6
-#define AGENTX_WRONG_TYPE	7
-#define AGENTX_WRONG_LEN	8
-#define AGENTX_WRONG_ENCODE	9
-#define AGENTX_WRONG_VALUE	10
-#define AGENTX_NO_CREATION	11
-#define AGENTX_INCONSIST_VALUE	12
-#define AGENTX_RES_UNAVAIL	13
-#define AGENTX_COMMIT_FAILED	14
-#define AGENTX_UNDO_FAILED	15
-#define AGENTX_AUTH_ERROR	16
-#define AGENTX_NOTWRITABLE	17
-#define AGENTX_INCONSIS_NAME	18
+#define AGENTX_NO_ERROR		  0
+#define AGENTX_TOO_BIG		  1
+#define AGENTX_NO_SUCH_NAME	  2
+#define AGENTX_BAD_VALUE	  3
+#define AGENTX_READ_ONLY	  4
+#define AGENTX_GEN_ERROR	  5
+#define AGENTX_NO_ACCESS	  6
+#define AGENTX_WRONG_TYPE	  7
+#define AGENTX_WRONG_LEN	  8
+#define AGENTX_WRONG_ENCODE	  9
+#define AGENTX_WRONG_VALUE	 10
+#define AGENTX_NO_CREATION	 11
+#define AGENTX_INCONSIST_VALUE	 12
+#define AGENTX_RES_UNAVAIL	 13
+#define AGENTX_COMMIT_FAILED	 14
+#define AGENTX_UNDO_FAILED	 15
+#define AGENTX_AUTH_ERROR	 16
+#define AGENTX_NOTWRITABLE	 17
+#define AGENTX_INCONSIS_NAME	 18
 #define AGENTX_OPEN_FAILED	256
 #define AGENTX_NOT_OPEN		257
 #define AGENTX_IDX_WRONT_TYPE	258
@@ -269,6 +269,7 @@ static const value_string resp_errors[] = {
   { AGENTX_UNKNOWN_CAPS, 	"unknownAgentCaps" },
   { 0, NULL }
 };
+static value_string_ext resp_errors_ext = VALUE_STRING_EXT_INIT(resp_errors);
 
 /* OID usage indicators */
 
@@ -320,9 +321,9 @@ static int
 convert_oid_to_str(guint32 *oid, int len, char* str, int slen, char prefix)
 {
 	int i, tlen = 0;
-	if(!oid) return 0;
-	if(!str) return 0;
-	if(!len) return 0;
+	if(!oid)  return 0;
+	if(!str)  return 0;
+	if(!len)  return 0;
 	if(!slen) return 0;
 	if(slen < len) return 0;
 
@@ -352,7 +353,7 @@ dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, guint8 flags, enu
 	memset(str_oid, '\0', sizeof(str_oid));
 
 	n_subid = tvb_get_guint8(tvb, offset);
-	prefix = tvb_get_guint8(tvb, offset + 1);
+	prefix	= tvb_get_guint8(tvb, offset + 1);
 	include = tvb_get_guint8(tvb, offset + 2);
 	tvb_get_guint8(tvb, offset + 3);
 
@@ -374,7 +375,8 @@ dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, guint8 flags, enu
 		item = proto_tree_add_text(tree, tvb, offset, 4 + (n_subid * 4) ,
 				"Object Identifier: %s%s%s", range, str_oid, inclusion);
 		subtree = proto_item_add_subtree(item, ett_obj_ident);
-	} else return offset;
+	} else
+		return offset;
 
 	proto_tree_add_uint(subtree, hf_oid_sub, tvb, offset, 1, n_subid);
 	proto_tree_add_uint(subtree, hf_oid_prefix, tvb, offset + 1, 1, prefix);
@@ -851,7 +853,7 @@ dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AgentX");
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: sid=%d, tid=%d, packid=%d, plen=%d",
-		     val_to_str(type, type_values, "unknown"),
+		     val_to_str_ext_const(type, &type_values_ext, "unknown"),
 		     session_id, trans_id, packet_id, payload_len);
 
 
@@ -861,7 +863,7 @@ dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*t_item = proto_tree_add_item(tree, proto_agentx, tvb, 0, -1, ENC_NA);*/
 	t_item = proto_tree_add_protocol_format(tree, proto_agentx, tvb, 0, -1,
 			"Agent Extensibility (AgentX) Protocol: %s, sid=%d, tid=%d, packid=%d, plen=%d",
-			val_to_str(type, type_values, "unknown"),
+			val_to_str_ext_const(type, &type_values_ext, "unknown"),
 			session_id, trans_id, packet_id, payload_len);
 	agentx_tree = proto_item_add_subtree(t_item, ett_agentx);
 
@@ -979,7 +981,7 @@ proto_register_agentx(void)
 		    "header version", HFILL }},
 
 		{ &hf_type,
-		  { "Type", "agentx.type", FT_UINT8, BASE_DEC, VALS(type_values), 0x0,
+		  { "Type", "agentx.type", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &type_values_ext, 0x0,
 		    "header type", HFILL }},
 
 		{ &hf_flags,
@@ -1051,7 +1053,7 @@ proto_register_agentx(void)
 		    NULL, HFILL }},
 
 		{ &hf_resp_error,
-		  { "Resp. error", "agentx.r.error", FT_UINT16, BASE_DEC, VALS(resp_errors), 0x0,
+		  { "Resp. error", "agentx.r.error", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &resp_errors_ext, 0x0,
 		    "response error", HFILL }},
 
 		{ &hf_resp_index,
@@ -1059,7 +1061,7 @@ proto_register_agentx(void)
 		    "response index", HFILL }},
 
 		{ &hf_vtag,
-		  { "Variable type", "agentx.v.tag", FT_UINT16, BASE_DEC, VALS(vtag_values), 0x0,
+		  { "Variable type", "agentx.v.tag", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &vtag_values_ext, 0x0,
 		    "vtag", HFILL }},
 
 		{ &hf_val32,

@@ -936,7 +936,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ( check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s (%u)",
-			val_to_str(type, tns_type_vals, "Unknown"), type);
+			val_to_str_const(type, tns_type_vals, "Unknown"), type);
 	}
 
 	if ( tree )

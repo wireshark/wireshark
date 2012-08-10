@@ -375,9 +375,9 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			conntype = (dword >>24) & 0xf;
 			/* Write non trivial header name to info column */
 			if ((thishdr != ETHCM_NONE) && (thishdr != ETHCM_MAIN)) {
-			        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(thishdr, linx_short_header_names, "unknown"));
+			        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(thishdr, linx_short_header_names, "unknown"));
 				if(thishdr == ETHCM_CONN)
-				        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(conntype, linx_conn_cmd, "unknown"));
+				        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(conntype, linx_conn_cmd, "unknown"));
 			}
 
 			switch (thishdr) {
@@ -519,7 +519,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					        dword = tvb_get_ntohl(linx_tvb, offset);
 
 						/* Write to info column */
-						col_append_fstr(pinfo->cinfo, COL_INFO, "rlnh:%s ", val_to_str(dword, linx_short_rlnh_names, "unknown"));
+						col_append_fstr(pinfo->cinfo, COL_INFO, "rlnh:%s ", val_to_str_const(dword, linx_short_rlnh_names, "unknown"));
 
 						/* create new paragraph for RLNH */
 						item = proto_tree_add_text(linx_tree, linx_tvb, offset, 4, "RLNH");
@@ -868,7 +868,7 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		size  += (dword & 0xFFFFFFFF);
 	}
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "tcpcm:%s ", val_to_str(type, linx_short_tcp_names, "unknown"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "tcpcm:%s ", val_to_str_const(type, linx_short_tcp_names, "unknown"));
 
 	tvb_set_reported_length(tvb, size);
 	linx_tcp_tvb = tvb_new_subset(tvb, 0, size, size);
@@ -899,7 +899,7 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dword = tvb_get_ntohl(linx_tcp_tvb, offset);
 
 			/* Write to info column */
-			col_append_fstr(pinfo->cinfo, COL_INFO, "rlnh:%s ", val_to_str(dword, linx_short_rlnh_names, "unknown"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "rlnh:%s ", val_to_str_const(dword, linx_short_rlnh_names, "unknown"));
 
 			/* create new paragraph for RLNH */
 			item = proto_tree_add_text(linx_tcp_tree, linx_tcp_tvb, offset, 4, "RLNH");

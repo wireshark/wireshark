@@ -1581,15 +1581,15 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_previous_frame, tvb, 0, 0, rohc_cid_context->prev_ir_frame_number);
                 PROTO_ITEM_SET_GENERATED(conf_item);
             }
-            conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Profile:(%s)", val_to_str(rohc_cid_context->profile, rohc_profile_vals, "Unknown"));
+            conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Profile:(%s)", val_to_str_const(rohc_cid_context->profile, rohc_profile_vals, "Unknown"));
             PROTO_ITEM_SET_GENERATED(conf_item);
-            conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "IP version:(%s)", val_to_str(rohc_cid_context->rohc_ip_version, rohc_ip_version_vals, "Unknown"));
+            conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "IP version:(%s)", val_to_str_const(rohc_cid_context->rohc_ip_version, rohc_ip_version_vals, "Unknown"));
             PROTO_ITEM_SET_GENERATED(conf_item);
             if(rohc_cid_context->mode == 0){
                 conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Mode not known");
                 PROTO_ITEM_SET_GENERATED(conf_item);
             }else{
-                conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Mode:(%s)", val_to_str(rohc_cid_context->mode, rohc_mode_vals, "Unknown"));
+                conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Mode:(%s)", val_to_str_const(rohc_cid_context->mode, rohc_mode_vals, "Unknown"));
                 PROTO_ITEM_SET_GENERATED(conf_item);
             }
 
@@ -1612,7 +1612,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     rohc_cid_context->ir_frame_number = pinfo->fd->num;
 #endif
 #if 0
-/*    "Profile:(%s)", val_to_str(p_rohc_info->profile, rohc_profile_vals, "Unknown")); */
+/*    "Profile:(%s)", val_to_str_const(p_rohc_info->profile, rohc_profile_vals, "Unknown")); */
     if(p_rohc_info->large_cid_present == FALSE){
         item = proto_tree_add_text(rohc_tree, tvb, offset, -1, "Small CID configured");
         PROTO_ITEM_SET_GENERATED(item);

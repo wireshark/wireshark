@@ -672,7 +672,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_append_str(pinfo->cinfo, COL_INFO, "MPX_CTRL ");
 
         if(mcc_type){
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(mcc_type, vs_ctl, "Unknown"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(mcc_type, vs_ctl, "Unknown"));
         }
 
         offset += length;

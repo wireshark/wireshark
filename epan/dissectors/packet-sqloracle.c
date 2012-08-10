@@ -569,7 +569,7 @@ dissect_sqloracle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if ( check_col(pinfo->cinfo, COL_INFO))
     {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(header_operation, sqloracle_operation_type, ""));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(header_operation, sqloracle_operation_type, ""));
     }
 
     if ( tree )
@@ -586,7 +586,7 @@ dissect_sqloracle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case NET8_TYPE_USERTOSERVER: /* 0x3 */
             if ( check_col(pinfo->cinfo, COL_INFO))
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ":%s ", val_to_str(func_type, sql_func_type, ""));
+                col_append_fstr(pinfo->cinfo, COL_INFO, ":%s ", val_to_str_const(func_type, sql_func_type, ""));
             }
             switch (func_type)
             {

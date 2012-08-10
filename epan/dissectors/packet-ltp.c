@@ -514,7 +514,7 @@ dissect_cancel_segment(proto_tree * ltp_tree, tvbuff_t *tvb,int frame_offset){
 	ltp_cancel_tree = proto_item_add_subtree(ltp_cancel_item, ett_session_mgmt);
 
 	proto_tree_add_uint_format_value(ltp_cancel_tree, hf_ltp_cancel_code, tvb, frame_offset, 1, reason_code,
-			"%x (%s)", reason_code, val_to_str(reason_code,ltp_cancel_codes,"Reserved"));
+			"%x (%s)", reason_code, val_to_str_const(reason_code,ltp_cancel_codes,"Reserved"));
 	return 1;
 }
 
@@ -556,7 +556,7 @@ dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int hdr
 	ltp_hdr_extn_tree = proto_item_add_subtree(ltp_hdr_extn_item, ett_hdr_extn);
 
 	for(i = 0; i < hdr_extn_cnt; i++){
-		proto_tree_add_uint_format_value(ltp_hdr_extn_tree, hf_ltp_hdr_extn_tag, tvb, frame_offset, 1, extn_type[i], "%x (%s)", extn_type[i], val_to_str(extn_type[i],extn_tag_codes,"Unassigned/Reserved"));
+		proto_tree_add_uint_format_value(ltp_hdr_extn_tree, hf_ltp_hdr_extn_tag, tvb, frame_offset, 1, extn_type[i], "%x (%s)", extn_type[i], val_to_str_const(extn_type[i],extn_tag_codes,"Unassigned/Reserved"));
 
 		proto_tree_add_uint64_format(ltp_hdr_extn_tree, hf_ltp_hdr_extn_len, tvb, frame_offset, length_size[i],length[i], "Length [%d]: %"G_GINT64_MODIFIER"d",i+1,length[i]);
 		frame_offset += length_size[i];
@@ -610,7 +610,7 @@ dissect_trailer_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int tr
 	ltp_trl_extn_tree = proto_item_add_subtree(ltp_trl_extn_item, ett_trl_extn);
 
 	for(i = 0; i < trl_extn_cnt; i++){
-		proto_tree_add_uint_format_value(ltp_trl_extn_tree, hf_ltp_trl_extn_tag, tvb, frame_offset, 1, extn_type[i], "%x (%s)", extn_type[i], val_to_str(extn_type[i],extn_tag_codes,"Unassigned/Reserved"));
+		proto_tree_add_uint_format_value(ltp_trl_extn_tree, hf_ltp_trl_extn_tag, tvb, frame_offset, 1, extn_type[i], "%x (%s)", extn_type[i], val_to_str_const(extn_type[i],extn_tag_codes,"Unassigned/Reserved"));
 
 		proto_tree_add_uint64_format(ltp_trl_extn_tree, hf_ltp_trl_extn_len, tvb, frame_offset, length_size[i], length[i], "Length [%d]: %"G_GINT64_MODIFIER"d",i+1,length[i]);
 		frame_offset += length_size[i];
@@ -687,7 +687,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(ltp_header_tree,hf_ltp_version,tvb,frame_offset,1,hi_nibble(ltp_hdr));
 	ltp_type = lo_nibble(ltp_hdr);
 	proto_tree_add_uint_format_value(ltp_header_tree,hf_ltp_type,tvb,frame_offset,1,ltp_type,"%x (%s)",
-			 ltp_type,val_to_str(ltp_type,ltp_type_codes,"Invalid"));
+			 ltp_type,val_to_str_const(ltp_type,ltp_type_codes,"Invalid"));
 
 	frame_offset++;
 	/* Adding the session id subtree */

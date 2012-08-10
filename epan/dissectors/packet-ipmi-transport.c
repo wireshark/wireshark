@@ -929,15 +929,15 @@ lan_24(tvbuff_t *tvb, proto_tree *tree)
 		v2 = v >> 4;
 		ti = proto_tree_add_text(tree, tvb, i + 1, 1,
 				"Cipher Suite #%d: %s (0x%02x), Cipher Suite #%d: %s (0x%02x)",
-				i * 2 + 1, val_to_str(v1, lan24_priv_vals, "Reserved"), v1,
-				i * 2 + 2, val_to_str(v2, lan24_priv_vals, "Reserved"), v2);
+				i * 2 + 1, val_to_str_const(v1, lan24_priv_vals, "Reserved"), v1,
+				i * 2 + 2, val_to_str_const(v2, lan24_priv_vals, "Reserved"), v2);
 		s_tree = proto_item_add_subtree(ti, *ett[i]);
 		proto_tree_add_uint_format(s_tree, hf_ipmi_trn_lan24_priv, tvb, i + 1, 1,
 				v2 << 4, "%sMaximum Privilege Level for Cipher Suite #%d: %s (0x%02x)",
-				ipmi_dcd8(v, 0xf0), i * 2 + 2, val_to_str(v2, lan24_priv_vals, "Reserved"), v2);
+				ipmi_dcd8(v, 0xf0), i * 2 + 2, val_to_str_const(v2, lan24_priv_vals, "Reserved"), v2);
 		proto_tree_add_uint_format(s_tree, hf_ipmi_trn_lan24_priv, tvb, i + 1, 1,
 				v1, "%sMaximum Privilege Level for Cipher Suite #%d: %s (0x%02x)",
-				ipmi_dcd8(v, 0x0f), i * 2 + 1, val_to_str(v1, lan24_priv_vals, "Reserved"), v1);
+				ipmi_dcd8(v, 0x0f), i * 2 + 1, val_to_str_const(v1, lan24_priv_vals, "Reserved"), v1);
 	}
 }
 

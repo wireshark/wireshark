@@ -929,7 +929,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     proto_item_set_text(dtls_record_tree,
                         "%s Record Layer: %s Protocol: %s",
                         val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
-                        val_to_str(content_type, ssl_31_content_type, "unknown"),
+                        val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                         association?association->info:"Application Data");
 
     /* show decrypted data info, if available */
@@ -1017,7 +1017,7 @@ dissect_dtls_change_cipher_spec(tvbuff_t *tvb,
       proto_item_set_text(tree,
                           "%s Record Layer: %s Protocol: Change Cipher Spec",
                           val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
-                          val_to_str(content_type, ssl_31_content_type, "unknown"));
+                          val_to_str_const(content_type, ssl_31_content_type, "unknown"));
       proto_tree_add_item(tree, hf_dtls_change_cipher_spec, tvb,
                           offset, 1, ENC_NA);
     }
@@ -1257,7 +1257,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             {
               proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
                                   val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
-                                  val_to_str(content_type, ssl_31_content_type, "unknown"),
+                                  val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                                   (msg_type_str!=NULL) ? msg_type_str :
                                   "Encrypted Handshake Message",
                                   (frag_str!=NULL) ? frag_str : "");
@@ -1266,7 +1266,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             {
               proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
                                   val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
-                                  val_to_str(content_type, ssl_31_content_type, "unknown"),
+                                  val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                                   "Multiple Handshake Messages",
                                   (frag_str!=NULL) ? frag_str : "");
             }

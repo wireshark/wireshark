@@ -211,7 +211,7 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 	/* Extract the message type;  all other processing is based on this */
 	message_type   = tvb_get_guint8(tvb, SCCPMG_MESSAGE_TYPE_OFFSET);
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, sccpmg_message_type_acro_values, "Unknown"));
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_type, sccpmg_message_type_acro_values, "Unknown"));
 
 	if (sccpmg_tree) {
 		/* add the message type to the protocol tree */

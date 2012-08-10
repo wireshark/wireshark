@@ -715,7 +715,7 @@ dissect_eigrp_auth_tlv (proto_tree *tree, tvbuff_t *tvb,
     auth_type = tvb_get_ntohs(tvb, 0);
     auth_len = tvb_get_ntohs(tvb, 2);
 
-    proto_item_append_text(ti, " %s", val_to_str(auth_type, eigrp_auth2string, ""));
+    proto_item_append_text(ti, " %s", val_to_str_const(auth_type, eigrp_auth2string, ""));
 
     ti_auth_type = proto_tree_add_item(tree, hf_eigrp_auth_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -1271,7 +1271,7 @@ dissect_eigrp_service (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     for (; tvb_length_remaining(sub_tvb, sub_offset) > 0; ) {
         service = tvb_get_ntohs(sub_tvb, sub_offset);
         proto_item_append_text(sub_ti, "%c %s", (sub_offset == 0 ? '=':','),
-                               val_to_str(service, eigrp_saf_srv2string, ""));
+                               val_to_str_const(service, eigrp_saf_srv2string, ""));
 
         sub_service = tvb_get_ntohs(sub_tvb, sub_offset+2);
         proto_item_append_text(ti, "%c %u:%u", (sub_offset == 0 ? '=':','),
@@ -2523,8 +2523,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(eigrp_tree, hf_eigrp_vrid, tvb, 16, 2,
                              ENC_BIG_ENDIAN);
     vrid = (tvb_get_ntohs(tvb, 16) & EIGRP_VRID_MASK);
-    proto_item_append_text(ti, " %s", val_to_str(vrid, eigrp_vrid2string,
-                                                 ""));
+    proto_item_append_text(ti, " %s", val_to_str_const(vrid, eigrp_vrid2string, ""));
 
     /* print autonomous-system */
     proto_tree_add_item(eigrp_tree, hf_eigrp_as, tvb, 18, 2,

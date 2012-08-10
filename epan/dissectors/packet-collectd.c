@@ -283,7 +283,7 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	{
 		pi = proto_tree_add_text (tree_root, tvb, offset, length,
 					  "collectd %s segment: Length = %i <BAD>",
-					  val_to_str (type, part_names, "UNKNOWN"),
+					  val_to_str_const (type, part_names, "UNKNOWN"),
 					  length);
 		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
 					"String part with invalid part length: "
@@ -298,7 +298,7 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 
 	pi = proto_tree_add_text (tree_root, tvb, offset, length,
 				  "collectd %s segment: \"%s\"",
-				  val_to_str (type, part_names, "UNKNOWN"),
+				  val_to_str_const (type, part_names, "UNKNOWN"),
 				  *ret_string);
 
 	if (ret_item != NULL)
@@ -338,7 +338,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	{
 		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
 					  "collectd %s segment: <BAD>",
-					  val_to_str (type, part_names, "UNKNOWN"));
+					  val_to_str_const (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_integer);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2,
@@ -358,7 +358,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	{
 		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
 					  "collectd %s segment: <BAD>",
-					  val_to_str (type, part_names, "UNKNOWN"));
+					  val_to_str_const (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_integer);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2,
@@ -376,7 +376,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 
 	pi = proto_tree_add_text (tree_root, tvb, offset, length,
 				  "collectd %s segment: %"G_GINT64_MODIFIER"u",
-				  val_to_str (type, part_names, "UNKNOWN"),
+				  val_to_str_const (type, part_names, "UNKNOWN"),
 				  *ret_value);
 	if (ret_item != NULL)
 		*ret_item = pi;
@@ -546,7 +546,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	{
 		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
 					  "collectd %s segment: <BAD>",
-					  val_to_str (type, part_names, "UNKNOWN"));
+					  val_to_str_const (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_part_value);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
@@ -565,7 +565,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	{
 		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
 					  "collectd %s segment: <BAD>",
-					  val_to_str (type, part_names, "UNKNOWN"));
+					  val_to_str_const (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_part_value);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
@@ -584,7 +584,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	{
 		pi = proto_tree_add_text (tree_root, tvb, offset, length,
 					  "collectd %s segment: %d (%d) value%s <BAD>",
-					  val_to_str (type, part_names, "UNKNOWN"),
+					  val_to_str_const (type, part_names, "UNKNOWN"),
 					  values_count, corrected_values_count,
 					  plurality(values_count, "", "s"));
 	}
@@ -592,7 +592,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	{
 		pi = proto_tree_add_text (tree_root, tvb, offset, length,
 					  "collectd %s segment: %d value%s",
-					  val_to_str (type, part_names, "UNKNOWN"),
+					  val_to_str_const (type, part_names, "UNKNOWN"),
 					  values_count,
 					  plurality(values_count, "", "s"));
 	}
@@ -664,7 +664,7 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 	{
 		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
 					  "collectd %s segment: <BAD>",
-					  val_to_str (type, part_names, "UNKNOWN"));
+					  val_to_str_const (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_signature);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
@@ -683,7 +683,7 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 	{
 		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
 					  "collectd %s segment: <BAD>",
-					  val_to_str (type, part_names, "UNKNOWN"));
+					  val_to_str_const (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_signature);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
@@ -697,7 +697,7 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 
 	pi = proto_tree_add_text (tree_root, tvb, offset, length,
 				  "collectd %s segment: HMAC-SHA-256",
-				  val_to_str (type, part_names, "UNKNOWN"));
+				  val_to_str_const (type, part_names, "UNKNOWN"));
 
 	pt = proto_item_add_subtree (pi, ett_collectd_signature);
 	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
@@ -735,7 +735,7 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 	{
 		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
 					  "collectd %s segment: <BAD>",
-					  val_to_str (type, part_names, "UNKNOWN"));
+					  val_to_str_const (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_encryption);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
@@ -754,7 +754,7 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 	{
 		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
 					  "collectd %s segment: <BAD>",
-					  val_to_str (type, part_names, "UNKNOWN"));
+					  val_to_str_const (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_encryption);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
@@ -771,7 +771,7 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 	{
 		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
 					  "collectd %s segment: <BAD>",
-					  val_to_str (type, part_names, "UNKNOWN"));
+					  val_to_str_const (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_encryption);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
@@ -787,7 +787,7 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 
 	pi = proto_tree_add_text (tree_root, tvb, offset, length,
 				  "collectd %s segment: AES-256",
-				  val_to_str (type, part_names, "UNKNOWN"));
+				  val_to_str_const (type, part_names, "UNKNOWN"));
 
 	pt = proto_item_add_subtree (pi, ett_collectd_encryption);
 	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
@@ -979,7 +979,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			pi = proto_tree_add_text (collectd_tree, tvb,
 						  offset, part_length,
 						  "collectd %s segment: Length = %i <BAD>",
-						  val_to_str (part_type, part_names, "UNKNOWN"),
+						  val_to_str_const (part_type, part_names, "UNKNOWN"),
 						  part_length);
 
 			pt = proto_item_add_subtree (pi, ett_collectd_invalid_length);
@@ -1187,7 +1187,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					     ndispatch.time, ndispatch.time_str ? ndispatch.time_str : "(null)");
 			proto_tree_add_text (pt, tvb, ndispatch.severity_off, 8,
 					     "Severity: %s (%#"G_GINT64_MODIFIER"x)",
-					     val_to_str((gint32)ndispatch.severity, severity_names, "UNKNOWN"),
+					     val_to_str_const((gint32)ndispatch.severity, severity_names, "UNKNOWN"),
 					     ndispatch.severity);
 			proto_tree_add_text (pt, tvb, ndispatch.message_off,
 					     ndispatch.message_len,
@@ -1211,7 +1211,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_item_set_text (pi,
 						"collectd SEVERITY segment: "
 						"%s (%"G_GINT64_MODIFIER"u)",
-						val_to_str ((gint32)ndispatch.severity, severity_names, "UNKNOWN"),
+						val_to_str_const ((gint32)ndispatch.severity, severity_names, "UNKNOWN"),
 						ndispatch.severity);
 			}
 
@@ -1245,7 +1245,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			pi = proto_tree_add_text (collectd_tree, tvb,
 						  offset, part_length,
 						  "collectd %s segment: %i bytes",
-						  val_to_str(part_type, part_names, "UNKNOWN"),
+						  val_to_str_const(part_type, part_names, "UNKNOWN"),
 						  part_length);
 
 			pt = proto_item_add_subtree(pi, ett_collectd_unknown);

@@ -66,6 +66,7 @@ static const value_string msg_type_strings[] = {
     { 14,   "Modify Request (MOD)" },
     { 0, NULL }
 };
+static value_string_ext msg_type_strings_ext = VALUE_STRING_EXT_INIT(msg_type_strings);
 
 static const value_string send_notification[] = {
     { 0, "Do Not Send Notification"},
@@ -1225,42 +1226,42 @@ typedef struct _alcap_param_info_t {
 } alcap_param_info_t;
 
 static alcap_param_info_t param_infos[]  = {
-    {-1, "Unknown", dissect_fields_unknown , FALSE},
-    {-1, "CAU", dissect_fields_cau, TRUE},
-    {-1, "CEID", dissect_fields_ceid, TRUE},
-    {-1, "DESEA", dissect_fields_desea, FALSE},
-    {-1, "DNSEA", dissect_fields_dnsea, TRUE},
-    {-1, "ALC", dissect_fields_alc, FALSE},
-    {-1, "OSAID", dissect_fields_osaid, TRUE},
-    {-1, "SUGR", dissect_fields_sugr, TRUE},
-    {-1, "SUT", dissect_fields_sut, FALSE},
-    {-1, "SSIA", dissect_fields_ssia, FALSE},
-    {-1, "SSIM", dissect_fields_ssim, FALSE},
-    {-1, "SSISA", dissect_fields_ssisa, FALSE},
-    {-1, "SSISU", dissect_fields_ssisu, FALSE},
-    {-1, "TCI", dissect_fields_none, FALSE},
-    {-1, "MSLC", dissect_fields_none, FALSE},
-    {-1, "MSSSI", dissect_fields_none, FALSE},
-    {-1, "PT", dissect_fields_pt, FALSE},
-    {-1, "PLC", dissect_fields_plc, FALSE},
-    {-1, "PSSIAE", dissect_fields_pssiae, FALSE},
-    {-1, "PSSIME", dissect_fields_pssime, FALSE},
-    {-1, "SUCI", dissect_fields_suci, FALSE},
-    {-1, "ONSEA", dissect_fields_onsea, TRUE},
-    {-1, "SSIAE", dissect_fields_ssiae, FALSE},
-    {-1, "SSIME", dissect_fields_ssime, FALSE},
-    {-1, "ACC", dissect_fields_acc, FALSE},
-    {-1, "CP", dissect_fields_cp, FALSE},
-    {-1, "HC", dissect_fields_hc, FALSE},
-    {-1, "OESEA", dissect_fields_oesea, FALSE},
-    {-1, "PFBW", dissect_fields_pfbw, FALSE},
-    {-1, "PVBWS", dissect_fields_pvbws, FALSE},
-    {-1, "PVBWT", dissect_fields_pvbwt, FALSE},
-    {-1, "TTC", dissect_fields_none, FALSE},
-    {-1, "FBW", dissect_fields_fbw, FALSE},
-    {-1, "VBWS", dissect_fields_vbws, FALSE},
-    {-1, "VBWT", dissect_fields_vbwt, FALSE},
-    {-1, "TCS", dissect_fields_none, FALSE}
+    {-1, "Unknown", dissect_fields_unknown, FALSE},
+    {-1, "CAU",     dissect_fields_cau,     TRUE},
+    {-1, "CEID",    dissect_fields_ceid,    TRUE},
+    {-1, "DESEA",   dissect_fields_desea,   FALSE},
+    {-1, "DNSEA",   dissect_fields_dnsea,   TRUE},
+    {-1, "ALC",     dissect_fields_alc,     FALSE},
+    {-1, "OSAID",   dissect_fields_osaid,   TRUE},
+    {-1, "SUGR",    dissect_fields_sugr,    TRUE},
+    {-1, "SUT",     dissect_fields_sut,     FALSE},
+    {-1, "SSIA",    dissect_fields_ssia,    FALSE},
+    {-1, "SSIM",    dissect_fields_ssim,    FALSE},
+    {-1, "SSISA",   dissect_fields_ssisa,   FALSE},
+    {-1, "SSISU",   dissect_fields_ssisu,   FALSE},
+    {-1, "TCI",     dissect_fields_none,    FALSE},
+    {-1, "MSLC",    dissect_fields_none,    FALSE},
+    {-1, "MSSSI",   dissect_fields_none,    FALSE},
+    {-1, "PT",      dissect_fields_pt,      FALSE},
+    {-1, "PLC",     dissect_fields_plc,     FALSE},
+    {-1, "PSSIAE",  dissect_fields_pssiae,  FALSE},
+    {-1, "PSSIME",  dissect_fields_pssime,  FALSE},
+    {-1, "SUCI",    dissect_fields_suci,    FALSE},
+    {-1, "ONSEA",   dissect_fields_onsea,   TRUE},
+    {-1, "SSIAE",   dissect_fields_ssiae,   FALSE},
+    {-1, "SSIME",   dissect_fields_ssime,   FALSE},
+    {-1, "ACC",     dissect_fields_acc,     FALSE},
+    {-1, "CP",      dissect_fields_cp,      FALSE},
+    {-1, "HC",      dissect_fields_hc,      FALSE},
+    {-1, "OESEA",   dissect_fields_oesea,   FALSE},
+    {-1, "PFBW",    dissect_fields_pfbw,    FALSE},
+    {-1, "PVBWS",   dissect_fields_pvbws,   FALSE},
+    {-1, "PVBWT",   dissect_fields_pvbwt,   FALSE},
+    {-1, "TTC",     dissect_fields_none,    FALSE},
+    {-1, "FBW",     dissect_fields_fbw,     FALSE},
+    {-1, "VBWS",    dissect_fields_vbws,    FALSE},
+    {-1, "VBWT",    dissect_fields_vbwt,    FALSE},
+    {-1, "TCS",     dissect_fields_none,    FALSE}
 };
 
 #define GET_PARAM_INFO(id) ( array_length(param_infos) <= id ? &(param_infos[0]) : &(param_infos[id]) )
@@ -1343,7 +1344,9 @@ static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, const alcap_leg_info
 
         do {
             pi_local = proto_tree_add_uint(tree_local,hf_alcap_leg_frame,tvb,0,0,msg->framenum);
-            proto_item_set_text(pi_local,"%s in frame %u", val_to_str(msg->msg_type,msg_type_strings,"Unknown message"),msg->framenum);
+            proto_item_set_text(pi_local,"%s in frame %u",
+                                val_to_str_ext_const(msg->msg_type,&msg_type_strings_ext,"Unknown message"),
+                                msg->framenum);
             PROTO_ITEM_SET_GENERATED(pi_local);
         } while (( msg = msg->next));
 
@@ -1529,201 +1532,857 @@ proto_register_alcap(void)
     module_t *alcap_module;
 
     static hf_register_info hf[] = {
-    { &hf_alcap_dsaid, { "DSAID", "alcap.dsaid", FT_UINT32, BASE_HEX, NULL, 0, "Destination Service Association ID", HFILL }},
-    { &hf_alcap_msg_id, { "Message Type", "alcap.msg_type", FT_UINT8, BASE_DEC, VALS(msg_type_strings), 0, NULL, HFILL }},
-    { &hf_alcap_compat, { "Message Compatibility", "alcap.compat", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_compat_pass_on_sni, { "Pass-On SNI", "alcap.compat.pass.sni", FT_UINT8, BASE_DEC, VALS(send_notification), 0x40, "Send Notificaation Indicator", HFILL }},
-    { &hf_alcap_compat_pass_on_ii, { "Pass-On II", "alcap.compat.pass.ii", FT_UINT8, BASE_DEC, VALS(instruction_indicator), 0x30, "Instruction Indicator", HFILL }},
-    { &hf_alcap_compat_general_sni, { "General SNI", "alcap.compat.general.sni", FT_UINT8, BASE_DEC, VALS(send_notification), 0x04, "Send Notificaation Indicator", HFILL }},
-    { &hf_alcap_compat_general_ii, { "General II", "alcap.compat.general.ii", FT_UINT8, BASE_DEC, VALS(instruction_indicator), 0x03, "Instruction Indicator", HFILL }},
+    { &hf_alcap_dsaid,
+      { "DSAID", "alcap.dsaid",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "Destination Service Association ID", HFILL }
+    },
+    { &hf_alcap_msg_id,
+      { "Message Type", "alcap.msg_type",
+        FT_UINT8, BASE_DEC | BASE_EXT_STRING, &msg_type_strings_ext, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_compat,
+      { "Message Compatibility", "alcap.compat",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_compat_pass_on_sni,
+      { "Pass-On SNI", "alcap.compat.pass.sni",
+        FT_UINT8, BASE_DEC, VALS(send_notification), 0x40,
+        "Send Notificaation Indicator", HFILL }
+    },
+    { &hf_alcap_compat_pass_on_ii,
+      { "Pass-On II", "alcap.compat.pass.ii",
+        FT_UINT8, BASE_DEC, VALS(instruction_indicator), 0x30,
+        "Instruction Indicator", HFILL }
+    },
+    { &hf_alcap_compat_general_sni,
+      { "General SNI", "alcap.compat.general.sni",
+        FT_UINT8, BASE_DEC, VALS(send_notification), 0x04,
+        "Send Notificaation Indicator", HFILL }
+    },
+    { &hf_alcap_compat_general_ii,
+      { "General II", "alcap.compat.general.ii",
+        FT_UINT8, BASE_DEC, VALS(instruction_indicator), 0x03,
+        "Instruction Indicator", HFILL }
+    },
 
-    { &hf_alcap_unknown, { "Unknown Field Data", "alcap.unknown.field", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_unknown,
+      { "Unknown Field Data", "alcap.unknown.field",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_param_id, { "Parameter", "alcap.param", FT_UINT8, BASE_DEC, VALS(msg_parm_strings), 0, "Parameter Id", HFILL }},
-    { &hf_alcap_param_len, { "Length", "alcap.param.len", FT_UINT8, BASE_DEC, NULL, 0, "Parameter Length", HFILL }},
+    { &hf_alcap_param_id,
+      { "Parameter", "alcap.param",
+        FT_UINT8, BASE_DEC, VALS(msg_parm_strings), 0,
+        "Parameter Id", HFILL }
+    },
+    { &hf_alcap_param_len,
+      { "Length", "alcap.param.len",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Parameter Length", HFILL }
+    },
 
-    { &hf_alcap_cau_coding, { "Cause Coding", "alcap.cau.coding", FT_UINT8, BASE_DEC, VALS(cause_coding_vals), 0x03, NULL, HFILL }},
-    { &hf_alcap_cau_value_itu, { "Cause Value (ITU)", "alcap.cau.value", FT_UINT8, BASE_DEC, VALS(cause_values_itu), 0x7f, NULL, HFILL }},
-    { &hf_alcap_cau_value_non_itu, { "Cause Value (Other)", "alcap.cau.value", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
-    { &hf_alcap_cau_diag, { "Diagnostic", "alcap.cau.diag", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_cau_diag_len, { "Length", "alcap.cau.diag.len", FT_UINT8, BASE_DEC, NULL, 0, "Diagnostics Length", HFILL }},
-    { &hf_alcap_cau_diag_msg, { "Message Identifier", "alcap.cau.diag.msg", FT_UINT8, BASE_DEC, VALS(msg_type_strings), 0, NULL, HFILL }},
-    { &hf_alcap_cau_diag_param_id, { "Parameter Identifier", "alcap.cau.diag.param", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_cau_diag_field_num, { "Field Number", "alcap.cau.diag.field_num", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_cau_coding,
+      { "Cause Coding", "alcap.cau.coding",
+        FT_UINT8, BASE_DEC, VALS(cause_coding_vals), 0x03,
+        NULL, HFILL }
+    },
+    { &hf_alcap_cau_value_itu,
+      { "Cause Value (ITU)", "alcap.cau.value",
+        FT_UINT8, BASE_DEC, VALS(cause_values_itu), 0x7f,
+        NULL, HFILL }
+    },
+    { &hf_alcap_cau_value_non_itu,
+      { "Cause Value (Other)", "alcap.cau.value",
+        FT_UINT8, BASE_DEC, NULL, 0x7f,
+        NULL, HFILL }
+    },
+    { &hf_alcap_cau_diag,
+      { "Diagnostic", "alcap.cau.diag",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_cau_diag_len,
+      { "Length", "alcap.cau.diag.len",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Diagnostics Length", HFILL }
+    },
+    { &hf_alcap_cau_diag_msg,
+      { "Message Identifier", "alcap.cau.diag.msg",
+        FT_UINT8, BASE_DEC | BASE_EXT_STRING, &msg_type_strings_ext, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_cau_diag_param_id,
+      { "Parameter Identifier", "alcap.cau.diag.param",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_cau_diag_field_num,
+      { "Field Number", "alcap.cau.diag.field_num",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_ceid_pathid, { "Path ID", "alcap.ceid.pathid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_ceid_cid, { "CID", "alcap.ceid.cid", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_ceid_pathid,
+      { "Path ID", "alcap.ceid.pathid",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ceid_cid,
+      { "CID", "alcap.ceid.cid",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_dnsea, { "Address", "alcap.dnsea.addr", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_dnsea,
+      { "Address", "alcap.dnsea.addr",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_alc_max_br_fw, { "Maximum Forward Bit Rate", "alcap.alc.bitrate.max.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_alc_max_br_bw, { "Maximum Backwards Bit Rate", "alcap.alc.bitrate.max.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_alc_avg_br_fw, { "Average Forward Bit Rate", "alcap.alc.bitrate.avg.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_alc_avg_br_bw, { "Average Backwards Bit Rate", "alcap.alc.bitrate.avg.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_alc_max_sdu_fw, { "Maximum Forward CPS SDU Size", "alcap.alc.sdusize.max.fw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
-    { &hf_alcap_alc_max_sdu_bw, { "Maximum Backwards CPS SDU Size", "alcap.alc.sdusize.max.bw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
-    { &hf_alcap_alc_avg_sdu_fw, { "Average Forward CPS SDU Size", "alcap.alc.sdusize.avg.fw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
-    { &hf_alcap_alc_avg_sdu_bw, { "Average Backwards CPS SDU Size", "alcap.alc.sdusize.avg.bw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
+    { &hf_alcap_alc_max_br_fw,
+      { "Maximum Forward Bit Rate", "alcap.alc.bitrate.max.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_alc_max_br_bw,
+      { "Maximum Backwards Bit Rate", "alcap.alc.bitrate.max.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_alc_avg_br_fw,
+      { "Average Forward Bit Rate", "alcap.alc.bitrate.avg.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_alc_avg_br_bw,
+      { "Average Backwards Bit Rate", "alcap.alc.bitrate.avg.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_alc_max_sdu_fw,
+      { "Maximum Forward CPS SDU Size", "alcap.alc.sdusize.max.fw",
+        FT_UINT8, BASE_DEC, NULL, 0x7f,
+        NULL, HFILL }
+    },
+    { &hf_alcap_alc_max_sdu_bw,
+      { "Maximum Backwards CPS SDU Size", "alcap.alc.sdusize.max.bw",
+        FT_UINT8, BASE_DEC, NULL, 0x7f,
+        NULL, HFILL }
+    },
+    { &hf_alcap_alc_avg_sdu_fw,
+      { "Average Forward CPS SDU Size", "alcap.alc.sdusize.avg.fw",
+        FT_UINT8, BASE_DEC, NULL, 0x7f,
+        NULL, HFILL }
+    },
+    { &hf_alcap_alc_avg_sdu_bw,
+      { "Average Backwards CPS SDU Size", "alcap.alc.sdusize.avg.bw",
+        FT_UINT8, BASE_DEC, NULL, 0x7f,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_osaid, { "OSAID", "alcap.osaid", FT_UINT32, BASE_HEX, NULL, 0, "Originating Service Association ID", HFILL }},
+    { &hf_alcap_osaid,
+      { "OSAID", "alcap.osaid",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "Originating Service Association ID", HFILL }
+    },
 
-    { &hf_alcap_sugr, { "SUGR", "alcap.sugr", FT_BYTES, BASE_NONE, NULL, 0, "Served User Generated Reference", HFILL }},
+    { &hf_alcap_sugr,
+      { "SUGR", "alcap.sugr",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Served User Generated Reference", HFILL }
+    },
 
-    { &hf_alcap_sut_len, { "SUT Length", "alcap.sut.sut_len", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_sut, { "SUT", "alcap.sut.transport", FT_BYTES, BASE_NONE, NULL, 0, "Served User Transport", HFILL }},
+    { &hf_alcap_sut_len,
+      { "SUT Length", "alcap.sut.sut_len",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_sut,
+      { "SUT", "alcap.sut.transport",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Served User Transport", HFILL }
+    },
 
-    { &hf_alcap_ssia_pr_type, { "Profile Type", "alcap.ssia.profile.type", FT_UINT8, BASE_DEC, VALS(audio_profile_type), 0xc0, "I.366.2 Profile Type", HFILL }},
-    { &hf_alcap_ssia_pr_id, { "Profile Id", "alcap.ssia.profile.id", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_ssia_frm, { "Frame Mode", "alcap.ssia.frm", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, NULL, HFILL }},
-    { &hf_alcap_ssia_cmd, { "Circuit Mode", "alcap.ssia.cmd", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40, NULL, HFILL }},
-    { &hf_alcap_ssia_mfr2, { "Multi-Frequency R2", "alcap.ssia.mfr2", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x20, NULL, HFILL }},
-    { &hf_alcap_ssia_mfr1, { "Multi-Frequency R1", "alcap.ssia.mfr1", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x10, NULL, HFILL }},
-    { &hf_alcap_ssia_dtmf, { "DTMF", "alcap.ssia.dtmf", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x08, NULL, HFILL }},
-    { &hf_alcap_ssia_cas, { "CAS", "alcap.ssia.cas", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x04, "Channel Associated Signalling", HFILL }},
-    { &hf_alcap_ssia_fax, { "Fax", "alcap.ssia.fax", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x02, "Facsimile", HFILL }},
-    { &hf_alcap_ssia_pcm, { "PCM Mode", "alcap.ssia.pcm", FT_UINT8, BASE_DEC, VALS(alaw_ulaw), 0x01, NULL, HFILL }},
-    { &hf_alcap_ssia_max_len, { "Max Len of FM Data", "alcap.ssia.max_fmdata_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_ssia_oui, { "OUI", "alcap.ssia.oui", FT_BYTES, BASE_NONE, NULL, 0, "Organizational Unique Identifier", HFILL }},
+    { &hf_alcap_ssia_pr_type,
+      { "Profile Type", "alcap.ssia.profile.type",
+        FT_UINT8, BASE_DEC, VALS(audio_profile_type), 0xc0,
+        "I.366.2 Profile Type", HFILL }
+    },
+    { &hf_alcap_ssia_pr_id,
+      { "Profile Id", "alcap.ssia.profile.id",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssia_frm,
+      { "Frame Mode", "alcap.ssia.frm",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssia_cmd,
+      { "Circuit Mode", "alcap.ssia.cmd",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssia_mfr2,
+      { "Multi-Frequency R2", "alcap.ssia.mfr2",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x20,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssia_mfr1,
+      { "Multi-Frequency R1", "alcap.ssia.mfr1",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssia_dtmf,
+      { "DTMF", "alcap.ssia.dtmf",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssia_cas,
+      { "CAS", "alcap.ssia.cas",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x04,
+        "Channel Associated Signalling", HFILL }
+    },
+    { &hf_alcap_ssia_fax,
+      { "Fax", "alcap.ssia.fax",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x02,
+        "Facsimile", HFILL }
+    },
+    { &hf_alcap_ssia_pcm,
+      { "PCM Mode", "alcap.ssia.pcm",
+        FT_UINT8, BASE_DEC, VALS(alaw_ulaw), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssia_max_len,
+      { "Max Len of FM Data", "alcap.ssia.max_fmdata_len",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssia_oui,
+      { "OUI", "alcap.ssia.oui",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Organizational Unique Identifier", HFILL }
+    },
 
-    { &hf_alcap_ssim_frm, { "Frame Mode", "alcap.ssim.frm", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, NULL, HFILL }},
-    { &hf_alcap_ssim_mult, { "Multiplier", "alcap.ssim.mult", FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL }},
-    { &hf_alcap_ssim_max, { "Max Len", "alcap.ssim.max", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_ssim_frm,
+      { "Frame Mode", "alcap.ssim.frm",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssim_mult,
+      { "Multiplier", "alcap.ssim.mult",
+        FT_UINT8, BASE_DEC, NULL, 0x1f,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssim_max,
+      { "Max Len", "alcap.ssim.max",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_ssisa_max_sssar_fw, { "Maximum Len of SSSAR-SDU Forward", "alcap.ssisa.sssar.max_len.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_ssisa_max_sssar_bw, { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisa.sssar.max_len.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_ssisa_max_sscop_sdu_fw, { "Maximum Len of SSSAR-SDU Forward", "alcap.ssisa.sscop.max_sdu_len.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_ssisa_max_sscop_sdu_bw, { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisa.sscop.max_sdu_len.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_ssisa_max_sscop_uu_fw, { "Maximum Len of SSSAR-SDU Forward", "alcap.ssisa.sscop.max_uu_len.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_ssisa_max_sscop_uu_bw, { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisa.sscop.max_uu_len.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_ssisa_max_sssar_fw,
+      { "Maximum Len of SSSAR-SDU Forward", "alcap.ssisa.sssar.max_len.fw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssisa_max_sssar_bw,
+      { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisa.sssar.max_len.fw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssisa_max_sscop_sdu_fw,
+      { "Maximum Len of SSSAR-SDU Forward", "alcap.ssisa.sscop.max_sdu_len.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssisa_max_sscop_sdu_bw,
+      { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisa.sscop.max_sdu_len.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssisa_max_sscop_uu_fw,
+      { "Maximum Len of SSSAR-SDU Forward", "alcap.ssisa.sscop.max_uu_len.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssisa_max_sscop_uu_bw,
+      { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisa.sscop.max_uu_len.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_ssisu_max_sssar_fw, { "Maximum Len of SSSAR-SDU Forward", "alcap.ssisu.sssar.max_len.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_ssisu_max_sssar_bw, { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisu.sssar.max_len.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_ssisu_ted, { "Transmission Error Detection", "alcap.ssisu.ted", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, NULL, HFILL }},
+    { &hf_alcap_ssisu_max_sssar_fw,
+      { "Maximum Len of SSSAR-SDU Forward", "alcap.ssisu.sssar.max_len.fw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssisu_max_sssar_bw,
+      { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisu.sssar.max_len.fw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssisu_ted,
+      { "Transmission Error Detection", "alcap.ssisu.ted",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_pt, { "QoS Codepoint", "alcap.pt.codepoint", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_alcap_pt,
+      { "QoS Codepoint", "alcap.pt.codepoint",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_plc_max_br_fw, { "Maximum Forward Bit Rate", "alcap.plc.bitrate.max.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_plc_max_br_bw, { "Maximum Backwards Bit Rate", "alcap.plc.bitrate.max.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_plc_avg_br_fw, { "Average Forward Bit Rate", "alcap.plc.bitrate.avg.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_plc_avg_br_bw, { "Average Backwards Bit Rate", "alcap.plc.bitrate.avg.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_plc_max_sdu_fw, { "Maximum Forward CPS SDU Size", "alcap.plc.sdusize.max.fw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
-    { &hf_alcap_plc_max_sdu_bw, { "Maximum Backwards CPS SDU Size", "alcap.plc.sdusize.max.bw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
-    { &hf_alcap_plc_avg_sdu_fw, { "Maximum Forward CPS SDU Size", "alcap.plc.sdusize.max.fw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
-    { &hf_alcap_plc_avg_sdu_bw, { "Maximum Backwards CPS SDU Size", "alcap.plc.sdusize.max.bw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
+    { &hf_alcap_plc_max_br_fw,
+      { "Maximum Forward Bit Rate", "alcap.plc.bitrate.max.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_plc_max_br_bw,
+      { "Maximum Backwards Bit Rate", "alcap.plc.bitrate.max.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_plc_avg_br_fw,
+      { "Average Forward Bit Rate", "alcap.plc.bitrate.avg.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_plc_avg_br_bw,
+      { "Average Backwards Bit Rate", "alcap.plc.bitrate.avg.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_plc_max_sdu_fw,
+      { "Maximum Forward CPS SDU Size", "alcap.plc.sdusize.max.fw",
+        FT_UINT8, BASE_DEC, NULL, 0x7f,
+        NULL, HFILL }
+    },
+    { &hf_alcap_plc_max_sdu_bw,
+      { "Maximum Backwards CPS SDU Size", "alcap.plc.sdusize.max.bw",
+        FT_UINT8, BASE_DEC, NULL, 0x7f,
+        NULL, HFILL }
+    },
+    { &hf_alcap_plc_avg_sdu_fw,
+      { "Maximum Forward CPS SDU Size", "alcap.plc.sdusize.max.fw",
+        FT_UINT8, BASE_DEC, NULL, 0x7f,
+        NULL, HFILL }
+    },
+    { &hf_alcap_plc_avg_sdu_bw,
+      { "Maximum Backwards CPS SDU Size", "alcap.plc.sdusize.max.bw",
+        FT_UINT8, BASE_DEC, NULL, 0x7f,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_pssiae_pr_type, { "Profile Type", "alcap.pssiae.profile.type", FT_UINT8, BASE_DEC, VALS(audio_profile_type), 0xc0, "I.366.2 Profile Type", HFILL }},
-    { &hf_alcap_pssiae_pr_id, { "Profile Id", "alcap.pssiae.profile.id", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pssiae_lb, { "Loopback", "alcap.pssiae.lb", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0, NULL, HFILL }},
-    { &hf_alcap_pssiae_rc, { "Rate Control", "alcap.pssiae.rc", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0, NULL, HFILL }},
-    { &hf_alcap_pssiae_syn, { "Synchronization", "alcap.pssiae.syn", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0, "Transport of synchronization of change in SSCS operation", HFILL }},
-    { &hf_alcap_pssiae_frm, { "Frame Mode", "alcap.pssiae.frm", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, NULL, HFILL }},
-    { &hf_alcap_pssiae_cmd, { "Circuit Mode", "alcap.pssiae.cmd", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40, NULL, HFILL }},
-    { &hf_alcap_pssiae_mfr2, { "Multi-Frequency R2", "alcap.pssiae.mfr2", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x20, NULL, HFILL }},
-    { &hf_alcap_pssiae_mfr1, { "Multi-Frequency R1", "alcap.pssiae.mfr1", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x10, NULL, HFILL }},
-    { &hf_alcap_pssiae_dtmf, { "DTMF", "alcap.pssiae.dtmf", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x08, NULL, HFILL }},
-    { &hf_alcap_pssiae_cas, { "CAS", "alcap.pssiae.cas", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x04, "Channel Associated Signalling", HFILL }},
-    { &hf_alcap_pssiae_fax, { "Fax", "alcap.pssiae.fax", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x02, "Facsimile", HFILL }},
-    { &hf_alcap_pssiae_pcm, { "PCM Mode", "alcap.pssiae.pcm", FT_UINT8, BASE_DEC, VALS(alaw_ulaw), 0x01, NULL, HFILL }},
-    { &hf_alcap_pssiae_max_len, { "Max Len of FM Data", "alcap.pssiae.max_fmdata_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pssiae_oui, { "OUI", "alcap.pssiae.oui", FT_BYTES, BASE_NONE, NULL, 0, "Organizational Unique Identifier", HFILL }},
+    { &hf_alcap_pssiae_pr_type,
+      { "Profile Type", "alcap.pssiae.profile.type",
+        FT_UINT8, BASE_DEC, VALS(audio_profile_type), 0xc0,
+        "I.366.2 Profile Type", HFILL }
+    },
+    { &hf_alcap_pssiae_pr_id,
+      { "Profile Id", "alcap.pssiae.profile.id",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssiae_lb,
+      { "Loopback", "alcap.pssiae.lb",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssiae_rc,
+      { "Rate Control", "alcap.pssiae.rc",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssiae_syn,
+      { "Synchronization", "alcap.pssiae.syn",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0,
+        "Transport of synchronization of change in SSCS operation", HFILL }
+    },
+    { &hf_alcap_pssiae_frm,
+      { "Frame Mode", "alcap.pssiae.frm",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssiae_cmd,
+      { "Circuit Mode", "alcap.pssiae.cmd",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssiae_mfr2,
+      { "Multi-Frequency R2", "alcap.pssiae.mfr2",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x20,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssiae_mfr1,
+      { "Multi-Frequency R1", "alcap.pssiae.mfr1",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssiae_dtmf,
+      { "DTMF", "alcap.pssiae.dtmf",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssiae_cas,
+      { "CAS", "alcap.pssiae.cas",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x04,
+        "Channel Associated Signalling", HFILL }
+    },
+    { &hf_alcap_pssiae_fax,
+      { "Fax", "alcap.pssiae.fax",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x02,
+        "Facsimile", HFILL }
+    },
+    { &hf_alcap_pssiae_pcm,
+      { "PCM Mode", "alcap.pssiae.pcm",
+        FT_UINT8, BASE_DEC, VALS(alaw_ulaw), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssiae_max_len,
+      { "Max Len of FM Data", "alcap.pssiae.max_fmdata_len",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssiae_oui,
+      { "OUI", "alcap.pssiae.oui",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Organizational Unique Identifier", HFILL }
+    },
 
-    { &hf_alcap_pssime_frm, { "Frame Mode", "alcap.pssime.frm", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, NULL, HFILL }},
-    { &hf_alcap_pssime_lb, { "Loopback", "alcap.pssime.lb", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40, NULL, HFILL }},
-    { &hf_alcap_pssime_mult, { "Multiplier", "alcap.pssime.mult", FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL }},
-    { &hf_alcap_pssime_max, { "Max Len", "alcap.pssime.max", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_pssime_frm,
+      { "Frame Mode", "alcap.pssime.frm",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssime_lb,
+      { "Loopback", "alcap.pssime.lb",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssime_mult,
+      { "Multiplier", "alcap.pssime.mult",
+        FT_UINT8, BASE_DEC, NULL, 0x1f,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pssime_max,
+      { "Max Len", "alcap.pssime.max",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_suci, { "SUCI", "alcap.suci", FT_UINT8, BASE_HEX, NULL, 0, "Served User Correlation Id", HFILL }},
+    { &hf_alcap_suci,
+      { "SUCI", "alcap.suci",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        "Served User Correlation Id", HFILL }
+    },
 
-    { &hf_alcap_onsea, { "Address", "alcap.onsea.addr", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_onsea,
+      { "Address", "alcap.onsea.addr",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_ssiae_pr_type, { "Profile Type", "alcap.ssiae.profile.type", FT_UINT8, BASE_DEC, VALS(audio_profile_type), 0xc0, "I.366.2 Profile Type", HFILL }},
-    { &hf_alcap_ssiae_lb, { "Loopback", "alcap.ssiae.lb", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0, NULL, HFILL }},
-    { &hf_alcap_ssiae_rc, { "Rate Control", "alcap.ssiae.rc", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0, NULL, HFILL }},
-    { &hf_alcap_ssiae_syn, { "Synchronization", "alcap.ssiae.syn", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0, "Transport of synchronization of change in SSCS operation", HFILL }},
-    { &hf_alcap_ssiae_pr_id, { "Profile Id", "alcap.ssiae.profile.id", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_ssiae_frm, { "Frame Mode", "alcap.ssiae.frm", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, NULL, HFILL }},
-    { &hf_alcap_ssiae_cmd, { "Circuit Mode", "alcap.ssiae.cmd", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40, NULL, HFILL }},
-    { &hf_alcap_ssiae_mfr2, { "Multi-Frequency R2", "alcap.ssiae.mfr2", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x20, NULL, HFILL }},
-    { &hf_alcap_ssiae_mfr1, { "Multi-Frequency R1", "alcap.ssiae.mfr1", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x10, NULL, HFILL }},
-    { &hf_alcap_ssiae_dtmf, { "DTMF", "alcap.ssiae.dtmf", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x08, NULL, HFILL }},
-    { &hf_alcap_ssiae_cas, { "CAS", "alcap.ssiae.cas", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x04, "Channel Associated Signalling", HFILL }},
-    { &hf_alcap_ssiae_fax, { "Fax", "alcap.ssiae.fax", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x02, "Facsimile", HFILL }},
-    { &hf_alcap_ssiae_pcm, { "PCM Mode", "alcap.ssiae.pcm", FT_UINT8, BASE_DEC, VALS(alaw_ulaw), 0x01, NULL, HFILL }},
-    { &hf_alcap_ssiae_max_len, { "Max Len of FM Data", "alcap.ssiae.max_fmdata_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_ssiae_oui, { "OUI", "alcap.ssiae.oui", FT_BYTES, BASE_NONE, NULL, 0, "Organizational Unique Identifier", HFILL }},
+    { &hf_alcap_ssiae_pr_type,
+      { "Profile Type", "alcap.ssiae.profile.type",
+        FT_UINT8, BASE_DEC, VALS(audio_profile_type), 0xc0,
+        "I.366.2 Profile Type", HFILL }
+    },
+    { &hf_alcap_ssiae_lb,
+      { "Loopback", "alcap.ssiae.lb",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssiae_rc,
+      { "Rate Control", "alcap.ssiae.rc",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssiae_syn,
+      { "Synchronization", "alcap.ssiae.syn",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0,
+        "Transport of synchronization of change in SSCS operation", HFILL }
+    },
+    { &hf_alcap_ssiae_pr_id,
+      { "Profile Id", "alcap.ssiae.profile.id",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssiae_frm,
+      { "Frame Mode", "alcap.ssiae.frm",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssiae_cmd,
+      { "Circuit Mode", "alcap.ssiae.cmd",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssiae_mfr2,
+      { "Multi-Frequency R2", "alcap.ssiae.mfr2",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x20,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssiae_mfr1,
+      { "Multi-Frequency R1", "alcap.ssiae.mfr1",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssiae_dtmf,
+      { "DTMF", "alcap.ssiae.dtmf",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssiae_cas,
+      { "CAS", "alcap.ssiae.cas",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x04,
+        "Channel Associated Signalling", HFILL }
+    },
+    { &hf_alcap_ssiae_fax,
+      { "Fax", "alcap.ssiae.fax",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x02,
+        "Facsimile", HFILL }
+    },
+    { &hf_alcap_ssiae_pcm,
+      { "PCM Mode", "alcap.ssiae.pcm",
+        FT_UINT8, BASE_DEC, VALS(alaw_ulaw), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssiae_max_len,
+      { "Max Len of FM Data", "alcap.ssiae.max_fmdata_len",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssiae_oui,
+      { "OUI", "alcap.ssiae.oui",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Organizational Unique Identifier", HFILL }
+    },
 
-    { &hf_alcap_ssime_frm, { "Frame Mode", "alcap.ssime.frm", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, NULL, HFILL }},
-    { &hf_alcap_ssime_lb, { "Loopback", "alcap.ssime.lb", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40, NULL, HFILL }},
-    { &hf_alcap_ssime_mult, { "Multiplier", "alcap.ssime.mult", FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL }},
-    { &hf_alcap_ssime_max, { "Max Len", "alcap.ssime.max", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_ssime_frm,
+      { "Frame Mode", "alcap.ssime.frm",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssime_lb,
+      { "Loopback", "alcap.ssime.lb",
+        FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssime_mult,
+      { "Multiplier", "alcap.ssime.mult",
+        FT_UINT8, BASE_DEC, NULL, 0x1f,
+        NULL, HFILL }
+    },
+    { &hf_alcap_ssime_max,
+      { "Max Len", "alcap.ssime.max",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_acc_level, { "Congestion Level", "alcap.acc.level", FT_UINT8, BASE_DEC, VALS(congestion_level), 0, NULL, HFILL }},
+    { &hf_alcap_acc_level,
+      { "Congestion Level", "alcap.acc.level",
+        FT_UINT8, BASE_DEC, VALS(congestion_level), 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_cp, { "Level", "alcap.cp.level", FT_UINT8, BASE_DEC, VALS(connection_priority), 0x07, NULL, HFILL }},
+    { &hf_alcap_cp,
+      { "Level", "alcap.cp.level",
+        FT_UINT8, BASE_DEC, VALS(connection_priority), 0x07,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_hc, { "Codepoint", "alcap.hc.codepoint", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_hc,
+      { "Codepoint", "alcap.hc.codepoint",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_pfbw_br_fw, { "CPS Forward Bitrate", "alcap.pfbw.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pfbw_br_bw, { "CPS Backwards Bitrate", "alcap.pfbw.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pfbw_bucket_fw, { "Forward CPS Bucket Size", "alcap.pfbw.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pfbw_bucket_bw, { "Backwards CPS Bucket Size", "alcap.pfbw.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pfbw_size_fw, { "Forward CPS Packet Size", "alcap.pfbw.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pfbw_size_bw, { "Backwards CPS Packet Size", "alcap.pfbw.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_pfbw_br_fw,
+      { "CPS Forward Bitrate", "alcap.pfbw.bitrate.fw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pfbw_br_bw,
+      { "CPS Backwards Bitrate", "alcap.pfbw.bitrate.bw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pfbw_bucket_fw,
+      { "Forward CPS Bucket Size", "alcap.pfbw.bucket_size.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pfbw_bucket_bw,
+      { "Backwards CPS Bucket Size", "alcap.pfbw.bucket_size.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pfbw_size_fw,
+      { "Forward CPS Packet Size", "alcap.pfbw.max_size.fw",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pfbw_size_bw,
+      { "Backwards CPS Packet Size", "alcap.pfbw.max_size.bw",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_pvbws_br_fw, { "Peak CPS Forward Bitrate", "alcap.pvbws.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbws_br_bw, { "Peak CPS Backwards Bitrate", "alcap.pvbws.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbws_bucket_fw, { "Peak Forward CPS Bucket Size", "alcap.pvbws.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbws_bucket_bw, { "Peak Backwards CPS Bucket Size", "alcap.pvbws.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbws_size_fw, { "Forward CPS Packet Size", "alcap.pvbws.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbws_size_bw, { "Backwards CPS Packet Size", "alcap.pvbws.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbws_stt, { "Source Traffic Type", "alcap.pvbws.stt", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_pvbws_br_fw,
+      { "Peak CPS Forward Bitrate", "alcap.pvbws.bitrate.fw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbws_br_bw,
+      { "Peak CPS Backwards Bitrate", "alcap.pvbws.bitrate.bw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbws_bucket_fw,
+      { "Peak Forward CPS Bucket Size", "alcap.pvbws.bucket_size.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbws_bucket_bw,
+      { "Peak Backwards CPS Bucket Size", "alcap.pvbws.bucket_size.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbws_size_fw,
+      { "Forward CPS Packet Size", "alcap.pvbws.max_size.fw",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbws_size_bw,
+      { "Backwards CPS Packet Size", "alcap.pvbws.max_size.bw",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbws_stt,
+      { "Source Traffic Type", "alcap.pvbws.stt",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_pvbwt_peak_br_fw, { "Peak CPS Forward Bitrate", "alcap.pvbwt.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbwt_peak_br_bw, { "Peak CPS Backwards Bitrate", "alcap.pvbwt.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbwt_peak_bucket_fw, { "Peak Forward CPS Bucket Size", "alcap.pvbwt.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbwt_peak_bucket_bw, { "Peak Backwards CPS Bucket Size", "alcap.pvbwt.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbwt_sust_br_fw, { "Sustainable CPS Forward Bitrate", "alcap.pvbwt.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbwt_sust_br_bw, { "Sustainable CPS Backwards Bitrate", "alcap.pvbwt.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbwt_sust_bucket_fw, { "Sustainable Forward CPS Bucket Size", "alcap.pvbwt.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbwt_sust_bucket_bw, { "Sustainable Backwards CPS Bucket Size", "alcap.pvbwt.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbwt_size_fw, { "Forward CPS Packet Size", "alcap.pvbwt.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_pvbwt_size_bw, { "Backwards CPS Packet Size", "alcap.pvbwt.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_pvbwt_peak_br_fw,
+      { "Peak CPS Forward Bitrate", "alcap.pvbwt.bitrate.fw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbwt_peak_br_bw,
+      { "Peak CPS Backwards Bitrate", "alcap.pvbwt.bitrate.bw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbwt_peak_bucket_fw,
+      { "Peak Forward CPS Bucket Size", "alcap.pvbwt.bucket_size.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbwt_peak_bucket_bw,
+      { "Peak Backwards CPS Bucket Size", "alcap.pvbwt.bucket_size.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbwt_sust_br_fw,
+      { "Sustainable CPS Forward Bitrate", "alcap.pvbwt.bitrate.fw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbwt_sust_br_bw,
+      { "Sustainable CPS Backwards Bitrate", "alcap.pvbwt.bitrate.bw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbwt_sust_bucket_fw,
+      { "Sustainable Forward CPS Bucket Size", "alcap.pvbwt.bucket_size.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbwt_sust_bucket_bw,
+      { "Sustainable Backwards CPS Bucket Size", "alcap.pvbwt.bucket_size.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbwt_size_fw,
+      { "Forward CPS Packet Size", "alcap.pvbwt.max_size.fw",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_pvbwt_size_bw,
+      { "Backwards CPS Packet Size", "alcap.pvbwt.max_size.bw",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_fbw_br_fw, { "CPS Forward Bitrate", "alcap.fbw.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_fbw_br_bw, { "CPS Backwards Bitrate", "alcap.fbw.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_fbw_bucket_fw, { "Forward CPS Bucket Size", "alcap.fbw.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_fbw_bucket_bw, { "Backwards CPS Bucket Size", "alcap.fbw.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_fbw_size_fw, { "Forward CPS Packet Size", "alcap.fbw.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_fbw_size_bw, { "Backwards CPS Packet Size", "alcap.fbw.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_fbw_br_fw,
+      { "CPS Forward Bitrate", "alcap.fbw.bitrate.fw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_fbw_br_bw,
+      { "CPS Backwards Bitrate", "alcap.fbw.bitrate.bw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_fbw_bucket_fw,
+      { "Forward CPS Bucket Size", "alcap.fbw.bucket_size.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_fbw_bucket_bw,
+      { "Backwards CPS Bucket Size", "alcap.fbw.bucket_size.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_fbw_size_fw,
+      { "Forward CPS Packet Size", "alcap.fbw.max_size.fw",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_fbw_size_bw,
+      { "Backwards CPS Packet Size", "alcap.fbw.max_size.bw",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_vbws_br_fw, { "CPS Forward Bitrate", "alcap.vbws.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbws_br_bw, { "CPS Backwards Bitrate", "alcap.vbws.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbws_bucket_fw, { "Forward CPS Bucket Size", "alcap.vbws.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbws_bucket_bw, { "Backwards CPS Bucket Size", "alcap.vbws.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbws_size_fw, { "Forward CPS Packet Size", "alcap.vbws.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbws_size_bw, { "Backwards CPS Packet Size", "alcap.vbws.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbws_stt, { "Source Traffic Type", "alcap.vbws.stt", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_vbws_br_fw,
+      { "CPS Forward Bitrate", "alcap.vbws.bitrate.fw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbws_br_bw,
+      { "CPS Backwards Bitrate", "alcap.vbws.bitrate.bw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbws_bucket_fw,
+      { "Forward CPS Bucket Size", "alcap.vbws.bucket_size.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbws_bucket_bw,
+      { "Backwards CPS Bucket Size", "alcap.vbws.bucket_size.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbws_size_fw,
+      { "Forward CPS Packet Size", "alcap.vbws.max_size.fw",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbws_size_bw,
+      { "Backwards CPS Packet Size", "alcap.vbws.max_size.bw",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbws_stt,
+      { "Source Traffic Type", "alcap.vbws.stt",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_vbwt_peak_br_fw, { "Peak CPS Forward Bitrate", "alcap.vbwt.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbwt_peak_br_bw, { "Peak CPS Backwards Bitrate", "alcap.vbwt.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbwt_peak_bucket_fw, { "Peak Forward CPS Bucket Size", "alcap.vbwt.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbwt_peak_bucket_bw, { "Peak Backwards CPS Bucket Size", "alcap.vbwt.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbwt_sust_br_fw, { "Sustainable CPS Forward Bitrate", "alcap.vbwt.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbwt_sust_br_bw, { "Sustainable CPS Backwards Bitrate", "alcap.vbwt.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbwt_sust_bucket_fw, { "Sustainable Forward CPS Bucket Size", "alcap.vbwt.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbwt_sust_bucket_bw, { "Sustainable Backwards CPS Bucket Size", "alcap.vbwt.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbwt_size_fw, { "Forward CPS Packet Size", "alcap.vbwt.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-    { &hf_alcap_vbwt_size_bw, { "Backwards CPS Packet Size", "alcap.vbwt.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_alcap_vbwt_peak_br_fw,
+      { "Peak CPS Forward Bitrate", "alcap.vbwt.bitrate.fw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbwt_peak_br_bw,
+      { "Peak CPS Backwards Bitrate", "alcap.vbwt.bitrate.bw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbwt_peak_bucket_fw,
+      { "Peak Forward CPS Bucket Size", "alcap.vbwt.bucket_size.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbwt_peak_bucket_bw,
+      { "Peak Backwards CPS Bucket Size", "alcap.vbwt.bucket_size.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbwt_sust_br_fw,
+      { "Sustainable CPS Forward Bitrate", "alcap.vbwt.bitrate.fw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbwt_sust_br_bw,
+      { "Sustainable CPS Backwards Bitrate", "alcap.vbwt.bitrate.bw",
+        FT_UINT24, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbwt_sust_bucket_fw,
+      { "Sustainable Forward CPS Bucket Size", "alcap.vbwt.bucket_size.fw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbwt_sust_bucket_bw,
+      { "Sustainable Backwards CPS Bucket Size", "alcap.vbwt.bucket_size.bw",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbwt_size_fw,
+      { "Forward CPS Packet Size", "alcap.vbwt.max_size.fw",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_vbwt_size_bw,
+      { "Backwards CPS Packet Size", "alcap.vbwt.max_size.bw",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
 
-    { &hf_alcap_leg_osaid, { "Leg's ERQ OSA id",    "alcap.leg.osaid", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
-    { &hf_alcap_leg_dsaid, { "Leg's ECF OSA id",    "alcap.leg.dsaid", FT_UINT32, BASE_HEX, NULL, 0,NULL, HFILL } },
-    { &hf_alcap_leg_pathid, { "Leg's path id",    "alcap.leg.pathid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
-    { &hf_alcap_leg_cid, { "Leg's channel id",    "alcap.leg.cid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
-    { &hf_alcap_leg_sugr, { "Leg's SUGR",    "alcap.leg.sugr", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
-    { &hf_alcap_leg_dnsea, { "Leg's destination NSAP",    "alcap.leg.dnsea", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
-    { &hf_alcap_leg_onsea, { "Leg's originating NSAP",    "alcap.leg.onsea", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
-    { &hf_alcap_leg_frame, { "a message of this leg",    "alcap.leg.msg", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
-    { &hf_alcap_leg_release_cause, { "Leg's cause value in REL",    "alcap.leg.cause", FT_UINT8, BASE_DEC, VALS(cause_values_itu), 0, NULL, HFILL }},
+    { &hf_alcap_leg_osaid,
+      { "Leg's ERQ OSA id", "alcap.leg.osaid",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_leg_dsaid,
+      { "Leg's ECF OSA id", "alcap.leg.dsaid",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_leg_pathid,
+      { "Leg's path id", "alcap.leg.pathid",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_leg_cid,
+      { "Leg's channel id", "alcap.leg.cid",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_leg_sugr,
+      { "Leg's SUGR", "alcap.leg.sugr",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_leg_dnsea,
+      { "Leg's destination NSAP", "alcap.leg.dnsea",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_leg_onsea,
+      { "Leg's originating NSAP", "alcap.leg.onsea",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_leg_frame,
+      { "a message of this leg", "alcap.leg.msg",
+        FT_FRAMENUM, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_alcap_leg_release_cause,
+      { "Leg's cause value in REL", "alcap.leg.cause",
+        FT_UINT8, BASE_DEC, VALS(cause_values_itu), 0,
+        NULL, HFILL }
+    },
 
     };
 
@@ -1784,8 +2443,8 @@ proto_register_alcap(void)
                                    "Whether persistent call leg information is to be kept",
                                    &keep_persistent_info);
 
-    legs_by_dsaid = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_dsaid");
-    legs_by_osaid = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_osaid");
+    legs_by_dsaid  = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_dsaid");
+    legs_by_osaid  = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_osaid");
     legs_by_bearer = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_bearer");
 }
 
@@ -1793,7 +2452,7 @@ proto_register_alcap(void)
 void
 proto_reg_handoff_alcap(void)
 {
-    dissector_handle_t alcap_handle = create_dissector_handle(dissect_alcap, proto_alcap);
+    dissector_handle_t alcap_handle = find_dissector("alcap");
 
     dissector_add_uint("mtp3.service_indicator", MTP_SI_AAL2, alcap_handle);
 }

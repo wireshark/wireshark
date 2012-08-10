@@ -1180,7 +1180,7 @@ dissect_q933_pvc_status_ie(tvbuff_t *tvb, int offset, int len,
 
 	proto_tree_add_text(tree, tvb, offset, dlci_len, "DLCI: %u", dlci);
 	proto_tree_add_text(tree, tvb, offset+dlci_len, 1, "Status: %s",
-                            val_to_str(dlci_status, q933_pvc_status_vals, "Unknown"));
+                            val_to_str_const(dlci_status, q933_pvc_status_vals, "Unknown"));
 }
 
 /*

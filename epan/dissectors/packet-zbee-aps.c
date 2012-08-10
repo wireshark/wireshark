@@ -617,16 +617,16 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Display the frame type to the proto root and info column. */
     if (tree) {
-        proto_item_append_text(proto_root, " %s", val_to_str(packet.type, zbee_aps_frame_types, "Unknown Type"));
+        proto_item_append_text(proto_root, " %s", val_to_str_const(packet.type, zbee_aps_frame_types, "Unknown Type"));
     }
     col_clear(pinfo->cinfo, COL_INFO);
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(packet.type, zbee_aps_frame_types, "Unknown Frame Type"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet.type, zbee_aps_frame_types, "Unknown Frame Type"));
 
     /*  Display the FCF */
     if (tree) {
         /* Create the subtree */
         ti = proto_tree_add_text(aps_tree, tvb, offset, 1, "Frame Control Field: %s (0x%02x)",
-                    val_to_str(packet.type, zbee_aps_frame_types, "Unknown"), fcf);
+                    val_to_str_const(packet.type, zbee_aps_frame_types, "Unknown"), fcf);
         field_tree = proto_item_add_subtree(ti, ett_zbee_aps_fcf);
 
         /* Add the frame type and delivery mode. */
@@ -980,7 +980,7 @@ static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     /*  Create a subtree for the APS Command frame, and add the command ID to it. */
     if(tree){
-        cmd_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Command Frame: %s", val_to_str(cmd_id, zbee_aps_cmd_names, "Unknown"));
+        cmd_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Command Frame: %s", val_to_str_const(cmd_id, zbee_aps_cmd_names, "Unknown"));
         cmd_tree = proto_item_add_subtree(cmd_root, ett_zbee_aps_cmd);
 
         /* Add the command ID. */

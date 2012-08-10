@@ -1752,38 +1752,38 @@ val_to_str_err_code(guint8 class, guint8 code)
 {
 	switch(class) {
 		case 1:
-			return(val_to_str(code, names_err_code_vfd_state, "Unknown"));
+			return(val_to_str_const(code, names_err_code_vfd_state, "Unknown"));
 
 		case 2:
-			return(val_to_str(code, names_err_code_appl_ref, "Unknown"));
+			return(val_to_str_const(code, names_err_code_appl_ref, "Unknown"));
 
 		case 3:
-			return(val_to_str(code, names_err_code_def, "Unknown"));
+			return(val_to_str_const(code, names_err_code_def, "Unknown"));
 
 		case 4:
-			return(val_to_str(code, names_err_code_res, "Unknown"));
+			return(val_to_str_const(code, names_err_code_res, "Unknown"));
 
 		case 5:
-			return(val_to_str(code, names_err_code_srv, "Unknown"));
+			return(val_to_str_const(code, names_err_code_srv, "Unknown"));
 
 		case 6:
-			return(val_to_str(code, names_err_code_access, "Unknown"));
+			return(val_to_str_const(code, names_err_code_access, "Unknown"));
 
 		case 7:
-			return(val_to_str(code, names_err_code_od, "Unknown"));
+			return(val_to_str_const(code, names_err_code_od, "Unknown"));
 
 		case 8:
-			return(val_to_str(code, names_err_code_other, "Unknown"));
+			return(val_to_str_const(code, names_err_code_other, "Unknown"));
 
 		case 9:
-			return(val_to_str(code, names_err_code_reject, "Unknown"));
+			return(val_to_str_const(code, names_err_code_reject, "Unknown"));
 
 		case 10:
-			return(val_to_str(code,
+			return(val_to_str_const(code,
 				names_err_code_h1_sm_reason_code, "Unknown"));
 
 		case 11:
-			return(val_to_str(code, names_err_code_fms_init, "Unknown"));
+			return(val_to_str_const(code, names_err_code_fms_init, "Unknown"));
 
 		default:
 			return("Unknown");

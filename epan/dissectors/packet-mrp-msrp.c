@@ -503,8 +503,9 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             msg_tree = proto_item_add_subtree(msg_ti, ett_msg);
 
             /* Append AttributeType description to the end of the "Message" heading */
-            proto_item_append_text(msg_tree, ": %s (%d)", val_to_str(attribute_type,
-                                   attribute_type_vals, "<Unknown>"), attribute_type);
+            proto_item_append_text(msg_tree, ": %s (%d)",
+                                   val_to_str_const(attribute_type, attribute_type_vals, "<Unknown>"),
+                                   attribute_type);
 
             dissect_msrp_common1(msg_tree, tvb, msg_offset);
 

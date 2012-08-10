@@ -3149,7 +3149,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (icmp6_type) {
         case ICMP6_DST_UNREACH:
-            code_name = val_to_str(icmp6_code, icmpv6_unreach_code_val, "Unknown");
+            code_name = val_to_str_const(icmp6_code, icmpv6_unreach_code_val, "Unknown");
             break;
         case ICMP6_TIME_EXCEEDED:
             code_name = val_to_str(icmp6_code, icmpv6_timeex_code_val, "Unknown (%d)");

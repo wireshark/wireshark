@@ -368,7 +368,7 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, g
 
 	item = proto_tree_add_text(coap_tree, tvb, offset, opt_hlen + opt_length,
 				   "Option #%u: %s (Type: %u)",
-				   opt_count, val_to_str(*opt_code, vals_opt_type, *opt_code % 14 == 0 ? "No-Op" : "Unknown Option"), *opt_code);
+				   opt_count, val_to_str_const(*opt_code, vals_opt_type, *opt_code % 14 == 0 ? "No-Op" : "Unknown Option"), *opt_code);
 
 	subtree = proto_item_add_subtree(item, ett_coap_option);
 	proto_tree_add_item(subtree, hf_coap_opt_delta, tvb, offset, 1, ENC_BIG_ENDIAN);

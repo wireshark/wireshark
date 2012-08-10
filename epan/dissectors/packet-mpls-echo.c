@@ -470,7 +470,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
             /* FEC sub-TLV Type and Length */
             proto_tree_add_uint_format(tlv_fec_tree, hf_mpls_echo_tlv_fec_type, tvb,
                                        offset, 2, saved_type, "Type: %s (%u)",
-                                       val_to_str(type, mpls_echo_tlv_fec_names, "Unknown sub-TLV type"), saved_type);
+                                       val_to_str_const(type, mpls_echo_tlv_fec_names, "Unknown sub-TLV type"), saved_type);
 
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_len, tvb, offset + 2,
                                 2, ENC_BIG_ENDIAN);
@@ -623,7 +623,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                     if (label <= LABEL_MAX_RESERVED) {
                         proto_tree_add_uint_format(tlv_fec_tree, hf_mpls_echo_tlv_fec_nil_label,
                                                    tvb, offset + 4, 3, label, "Label %u: %u (%s)", nil_idx, label,
-                                                   val_to_str(label, special_labels, "Reserved - Unknown"));
+                                                   val_to_str_const(label, special_labels, "Reserved - Unknown"));
                     } else {
                         proto_tree_add_uint_format(tlv_fec_tree, hf_mpls_echo_tlv_fec_nil_label,
                                                    tvb, offset + 4, 3, label, "Label %u: %u", nil_idx, label);
@@ -853,9 +853,9 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
         if (label <= LABEL_MAX_RESERVED) {
             proto_tree_add_uint_format(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_label,
                                        tvb, offset, 3, label, "Downstream Label: %u (%s)", label,
-                                       val_to_str(label, special_labels, "Reserved - Unknown"));
-            proto_item_append_text(ti, " (%s)", val_to_str(label, special_labels,
-                                                           "Reserved - Unknown"));
+                                       val_to_str_const(label, special_labels, "Reserved - Unknown"));
+            proto_item_append_text(ti, " (%s)", val_to_str_const(label, special_labels,
+                                                                 "Reserved - Unknown"));
         } else {
             proto_tree_add_uint_format(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_label,
                                        tvb, offset, 3, label, "Downstream Label: %u", label);
@@ -867,8 +867,8 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
                                    tvb, offset + 2, 1, bos, "Downstream BOS: %u", bos);
         proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_proto,
                             tvb, offset + 3, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, ", Protocol: %u (%s)", proto, val_to_str(proto,
-                                                                            mpls_echo_tlv_ds_map_mp_proto, "Unknown"));
+        proto_item_append_text(ti, ", Protocol: %u (%s)", proto, val_to_str_const(proto,
+                                                                                  mpls_echo_tlv_ds_map_mp_proto, "Unknown"));
         rem -= 4;
         offset += 4;
         idx++;
@@ -1194,9 +1194,9 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
         if (label <= LABEL_MAX_RESERVED) {
             proto_tree_add_uint_format(tlv_ilso, hf_mpls_echo_tlv_ilso_label,
                                        tvb, offset, 3, label, "Label: %u (%s)", label,
-                                       val_to_str(label, special_labels, "Reserved - Unknown"));
-            proto_item_append_text(ti, " (%s)", val_to_str(label, special_labels,
-                                                           "Reserved - Unknown"));
+                                       val_to_str_const(label, special_labels, "Reserved - Unknown"));
+            proto_item_append_text(ti, " (%s)", val_to_str_const(label, special_labels,
+                                                                 "Reserved - Unknown"));
         } else {
             proto_tree_add_uint_format(tlv_ilso, hf_mpls_echo_tlv_ilso_label,
                                        tvb, offset, 3, label, "Label: %u", label);
@@ -1274,11 +1274,11 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
         if (in_errored) {
             proto_tree_add_uint_format(mpls_echo_tlv_tree, hf_mpls_echo_tlv_errored_type, tvb,
                                        offset, 2, saved_type, "Errored TLV Type: %s (%u)",
-                                       val_to_str(type, mpls_echo_tlv_type_names, "Unknown TLV type"), saved_type);
+                                       val_to_str_const(type, mpls_echo_tlv_type_names, "Unknown TLV type"), saved_type);
         } else {
             proto_tree_add_uint_format(mpls_echo_tlv_tree, hf_mpls_echo_tlv_type, tvb,
                                        offset, 2, saved_type, "Type: %s (%u)",
-                                       val_to_str(type, mpls_echo_tlv_type_names, "Unknown TLV type"), saved_type);
+                                       val_to_str_const(type, mpls_echo_tlv_type_names, "Unknown TLV type"), saved_type);
         }
         proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_len, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 

@@ -134,7 +134,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO,"%s id %d CPort %s CIP %s SIP %s",
-		val_to_str(tpcph.type, type_vals, "Unknown"),
+		val_to_str_const(tpcph.type, type_vals, "Unknown"),
 		tpcph.id,
 		get_udp_port(tpcph.cport),
 		ip_to_str((guint8 *)&tpcph.caddr),
@@ -150,7 +150,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_uint_format(tpcp_tree, hf_tpcp_type, tvb, 1, 1, tpcph.type,
 			"Type: %s (%d)",
-			val_to_str(tpcph.type, type_vals, "Unknown"), tpcph.type);
+			val_to_str_const(tpcph.type, type_vals, "Unknown"), tpcph.type);
 
 		/* flags next , i'll do that when I can work out how to do it :-(   */
 		tf = proto_tree_add_text(tpcp_tree, tvb, 2, 2, "Flags: 0x%04x",tpcph.flags);

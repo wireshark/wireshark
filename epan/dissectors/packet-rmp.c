@@ -114,7 +114,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_str(pinfo->cinfo, COL_INFO,
-		    val_to_str(type, rmp_type_vals, "Unknown Type"));
+		    val_to_str_const(type, rmp_type_vals, "Unknown Type"));
 	}
 
 	if (tree) {

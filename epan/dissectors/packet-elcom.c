@@ -226,7 +226,7 @@ dissect_lower_address(proto_item *ti_arg, gint ett_arg,
                 return offset;
         }
 
-        proto_item_append_text(ti, " (%s)", val_to_str(suffix[1], suffix_vals, "<<-- WHAT?") );
+        proto_item_append_text(ti, " (%s)", val_to_str_const(suffix[1], suffix_vals, "<<-- WHAT?") );
         return offset;
 }
 

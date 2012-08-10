@@ -569,16 +569,16 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
 
                     svc = tvb_get_guint8(tvb, foffset+1);
         			proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
-        				    "Service Type: %s", val_to_str(svc, srvloc_svc, "Unknown"));
+        				    "Service Type: %s", val_to_str_const(svc, srvloc_svc, "Unknown"));
                     ss = tvb_get_guint8(tvb, foffset+5);
         			proto_tree_add_text(srvloc_tree, tvb, foffset+5, 1,
-        				    "Communication Type: %s", val_to_str(ss, srvloc_ss, "Unknown"));
+        				    "Communication Type: %s", val_to_str_const(ss, srvloc_ss, "Unknown"));
                     foffset += 9;
                     if (svc == 50) {
                         if (tvb_get_guint8(tvb, foffset)==54) { /* TCP */
                             prot = tvb_get_guint8(tvb, foffset);
                             proto_tree_add_text(srvloc_tree, tvb, foffset, 1,
-                                    "Protocol: %s", val_to_str(prot, srvloc_prot, "Unknown"));
+                                    "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
                             foffset += 2;
                         }
                         else
@@ -586,7 +586,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                             byte_value = unicode_to_bytes(tvb, foffset, 4, FALSE); /* UDP */
                             prot = atol(byte_value);
                             proto_tree_add_text(srvloc_tree, tvb, foffset, 4,
-                                    "Protocol: %s", val_to_str(prot, srvloc_prot, "Unknown"));
+                                    "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
                             foffset += 4;
                         }
                     }
@@ -595,7 +595,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                         byte_value = unicode_to_bytes(tvb, foffset, 8, FALSE); /* IPX */
                         prot = atol(byte_value);
                         proto_tree_add_text(srvloc_tree, tvb, foffset, 8,
-                                    "Protocol: %s", val_to_str(prot, srvloc_prot, "Unknown"));
+                                    "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
                         foffset += 8;
                     }
                     if (svc == 50) {
@@ -643,16 +643,16 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
 
             svc = tvb_get_guint8(tvb, foffset+1);
 			proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
-				    "Service Type: %s", val_to_str(svc, srvloc_svc, "Unknown"));
+				    "Service Type: %s", val_to_str_const(svc, srvloc_svc, "Unknown"));
             ss = tvb_get_guint8(tvb, foffset+3);
 			proto_tree_add_text(srvloc_tree, tvb, foffset+3, 1,
-				    "Communication Type: %s", val_to_str(ss, srvloc_ss, "Unknown"));
+				    "Communication Type: %s", val_to_str_const(ss, srvloc_ss, "Unknown"));
             foffset += 5;
             if (svc == 50) {
                 if (tvb_get_guint8(tvb, foffset)==54) { /* TCP */
                     prot = tvb_get_guint8(tvb, foffset);
                     proto_tree_add_text(srvloc_tree, tvb, foffset, 1,
-                            "Protocol: %s", val_to_str(prot, srvloc_prot, "Unknown"));
+                            "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
                     foffset += 1;
                 }
                 else
@@ -661,7 +661,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                     byte_value = unicode_to_bytes(tvb, foffset, 2, FALSE); /* UDP */
                     prot = atol(byte_value);
                     proto_tree_add_text(srvloc_tree, tvb, foffset, 2,
-                            "Protocol: %s", val_to_str(prot, srvloc_prot, "Unknown"));
+                            "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
                     foffset += 2;
                 }
             }
@@ -670,7 +670,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                 byte_value = unicode_to_bytes(tvb, foffset, 4, FALSE); /* IPX */
                 prot = atol(byte_value);
                 proto_tree_add_text(srvloc_tree, tvb, foffset, 4,
-                            "Protocol: %s", val_to_str(prot, srvloc_prot, "Unknown"));
+                            "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
                 foffset += 4;
             }
             if (svc == 50) {
@@ -868,7 +868,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         encoding = tvb_get_ntohs(tvb, offset + 8);
         proto_tree_add_text(srvloc_tree, tvb, offset + 8, 2, "Encoding: %u (%s)",
                             encoding,
-                            val_to_str(encoding, charsets, "Unknown"));
+                            val_to_str_const(encoding, charsets, "Unknown"));
         proto_tree_add_text(srvloc_tree, tvb, offset + 10, 2, "Transaction ID: %u",
                             tvb_get_ntohs(tvb, offset + 10));
         /* added echo of XID to info colomn by Greg Morris 0ct 14, 2005 */

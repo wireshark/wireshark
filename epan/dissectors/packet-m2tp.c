@@ -272,7 +272,7 @@ dissect_m2tp_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
   message_length = tvb_get_ntohl (common_header_tvb, MESSAGE_LENGTH_OFFSET);
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, m2tp_message_class_type_acro_values, "reserved"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_class * 256 + message_type, m2tp_message_class_type_acro_values, "reserved"));
 
   if (m2tp_tree) {
     /* add the components of the common header to the protocol tree */
@@ -282,7 +282,7 @@ dissect_m2tp_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
     proto_tree_add_uint_format(m2tp_tree, hf_m2tp_message_type,
                                common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH,
                                message_type, "Message type: %u (%s)",
-                               message_type, val_to_str(message_class * 256 + message_type, m2tp_message_class_type_values, "reserved"));
+                               message_type, val_to_str_const(message_class * 256 + message_type, m2tp_message_class_type_values, "reserved"));
     proto_tree_add_uint(m2tp_tree, hf_m2tp_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, message_length);
   };
 }
@@ -309,7 +309,7 @@ dissect_m2tp_master_slave_parameter (tvbuff_t *parameter_tvb, proto_tree *parame
   if (parameter_tree) {
     parameter_value = tvb_get_ntohl(parameter_tvb, PARAMETER_VALUE_OFFSET);
     proto_tree_add_uint(parameter_tree, hf_m2tp_master_slave, parameter_tvb, MASTER_SLAVE_OFFSET, MASTER_SLAVE_LENGTH, parameter_value);
-    proto_item_set_text(parameter_item, "Master Slave Indicator (%s)", val_to_str(parameter_value, m2tp_mode_values, "unknown"));
+    proto_item_set_text(parameter_item, "Master Slave Indicator (%s)", val_to_str_const(parameter_value, m2tp_mode_values, "unknown"));
   }
 }
 
@@ -379,7 +379,7 @@ dissect_m2tp_reason_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   if (parameter_tree) {
     reason = tvb_get_ntohl(parameter_tvb, REASON_OFFSET);
     proto_tree_add_uint(parameter_tree, hf_m2tp_reason, parameter_tvb, REASON_OFFSET, REASON_LENGTH, reason);
-    proto_item_set_text(parameter_item, "Reason parameter (%s)", val_to_str(reason, m2tp_reason_code_values, "unknown"));
+    proto_item_set_text(parameter_item, "Reason parameter (%s)", val_to_str_const(reason, m2tp_reason_code_values, "unknown"));
   }
 }
 
@@ -392,7 +392,7 @@ dissect_m2tp_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
   if (parameter_tree) {
     error_code = tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET);
     proto_tree_add_uint(parameter_tree, hf_m2tp_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, error_code);
-    proto_item_set_text(parameter_item, "Error code parameter (%s)", val_to_str(error_code, m2tp_error_code_values, "unknown"));
+    proto_item_set_text(parameter_item, "Error code parameter (%s)", val_to_str_const(error_code, m2tp_error_code_values, "unknown"));
   }
 }
 

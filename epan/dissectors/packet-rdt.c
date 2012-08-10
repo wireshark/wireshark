@@ -330,7 +330,7 @@ static void dissect_rdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            "",
                                            "RDT packet (%s)",
                                            packet_type < 0xff00 ? "Data" :
-                                               val_to_str(packet_type, packet_type_vals, "Unknown"));
+                                               val_to_str_const(packet_type, packet_type_vals, "Unknown"));
         rdt_packet_tree = proto_item_add_subtree(ti, ett_rdt_packet);
 
         /* Dissect the details of the next packet in this frame */

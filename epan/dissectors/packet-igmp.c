@@ -467,7 +467,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 		"Group Record : %s  %s",
 			ip_to_str((guint8*)&ip),
-			val_to_str(tvb_get_guint8(tvb, offset), vs_record_type,"")
+			val_to_str_const(tvb_get_guint8(tvb, offset), vs_record_type,"")
 		);
 	tree = proto_item_add_subtree(item, ett_group_record);
 
@@ -835,8 +835,8 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 			"Response data block: %s -> %s,  Proto: %s,  Forwarding Code: %s",
 			tvb_ip_to_str(tvb, offset + 4),
 			tvb_ip_to_str(tvb, offset + 8),
-			val_to_str(tvb_get_guint8(tvb, offset + 28), mtrace_rtg_vals, "Unknown"),
-			val_to_str(tvb_get_guint8(tvb, offset + 31), mtrace_fwd_code_vals, "Unknown"));
+			val_to_str_const(tvb_get_guint8(tvb, offset + 28), mtrace_rtg_vals, "Unknown"),
+			val_to_str_const(tvb_get_guint8(tvb, offset + 31), mtrace_fwd_code_vals, "Unknown"));
 		block_tree = proto_item_add_subtree(bi, ett_mtrace_block);
 
 		/* Query Arrival Time */

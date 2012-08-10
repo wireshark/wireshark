@@ -366,7 +366,7 @@ table_v5 [] = {
 static const char*
 findMsgType(int num)
 {
-    return val_to_str(num, msgTypeCode, "Unknown");
+    return val_to_str_const(num, msgTypeCode, "Unknown");
 }
 
 static const char*
@@ -1516,7 +1516,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint_format(icq_header_tree, hf_icq_client_cmd,
 				   decr_tvb, ICQ5_CL_CMD, 2, cmd,
 				   "Command: %s (%u)",
-				   val_to_str(cmd, clientCmdCode, "Unknown"), cmd);
+				   val_to_str_const(cmd, clientCmdCode, "Unknown"), cmd);
 	proto_tree_add_text(icq_header_tree, decr_tvb, ICQ5_CL_SEQNUM1, 2,
 			    "Seq Number 1: 0x%04x",
 			    tvb_get_letohs(decr_tvb, ICQ5_CL_SEQNUM1));
@@ -1616,7 +1616,7 @@ dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    offset + ICQ5_SRV_SESSIONID, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format(icq_header_tree, hf_icq_server_cmd, tvb,
 			    offset + ICQ5_SRV_CMD, 2, cmd, "Command: %s (%u)",
-			    val_to_str(cmd, serverCmdCode, "Unknown"), cmd);
+			    val_to_str_const(cmd, serverCmdCode, "Unknown"), cmd);
 	proto_tree_add_text(icq_header_tree, tvb, offset + ICQ5_SRV_SEQNUM1, 2,
 			    "Seq Number 1: 0x%04x",
 			    tvb_get_letohs(tvb, offset + ICQ5_SRV_SEQNUM1));

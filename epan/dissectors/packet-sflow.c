@@ -1059,7 +1059,7 @@ dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
             len += 4;
             kludge = 8;
             ti = proto_tree_add_text(tree, tvb, offset + len - kludge, kludge,
-                    "%s, (%u entries)", val_to_str(path_type, sflow_245_as_types, "Unknown AS type"), dst_seg_len);
+                    "%s, (%u entries)", val_to_str_const(path_type, sflow_245_as_types, "Unknown AS type"), dst_seg_len);
             sflow_245_dst_as_seg_tree = proto_item_add_subtree(ti, ett_sflow_245_gw_as_dst_seg);
         }
 
@@ -1188,7 +1188,7 @@ dissect_sflow_5_ipv4(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     /* 7 bits for type of service, plus 1 reserved bit */
     tos = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 1, "%s",
-            val_to_str(tos >> 5, sflow_245_ipv4_precedence_types, "Unknown precedence type"));
+            val_to_str_const(tos >> 5, sflow_245_ipv4_precedence_types, "Unknown precedence type"));
     (tos & 0x10) >> 4 ?
             proto_tree_add_text(tree, tvb, offset, 1, "Delay: ...1... (Low)") :
             proto_tree_add_text(tree, tvb, offset, 1, "Delay: ...0... (Normal)");
@@ -1592,7 +1592,7 @@ dissect_sflow_5_extended_80211_rx(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 
     version = tvb_get_ntohl(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 4, "Version: %s",
-            val_to_str(version, sflow_5_ieee80211_versions, "Unknown"));
+            val_to_str_const(version, sflow_5_ieee80211_versions, "Unknown"));
     offset += 4;
 
     channel = tvb_get_ntohl(tvb, offset);
@@ -1648,7 +1648,7 @@ dissect_sflow_5_extended_80211_tx(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 
     version = tvb_get_ntohl(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 4, "Version: %s",
-            val_to_str(version, sflow_5_ieee80211_versions, "Unknown"));
+            val_to_str_const(version, sflow_5_ieee80211_versions, "Unknown"));
     offset += 4;
 
     transmissions = tvb_get_ntohl(tvb, offset);
@@ -1769,7 +1769,7 @@ dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
          * the end, so more info can be correct.
          */
         ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                val_to_str(ext_type, sflow_245_extended_data_types, "Unknown extended information"));
+                val_to_str_const(ext_type, sflow_245_extended_data_types, "Unknown extended information"));
         extended_data_tree = proto_item_add_subtree(ti, ett_sflow_245_extended_data);
         proto_tree_add_uint(extended_data_tree, hf_sflow_245_extended_information_type, tvb, offset, 4, ext_type);
         offset += 4;
@@ -1813,7 +1813,7 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* only accept default enterprise 0 (InMon sFlow) */
     if (enterprise == ENTERPRISE_DEFAULT) {
         ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                val_to_str(format, sflow_5_flow_record_type, "Unknown sample format"));
+                val_to_str_const(format, sflow_5_flow_record_type, "Unknown sample format"));
         flow_data_tree = proto_item_add_subtree(ti, ett_sflow_5_flow_record);
 
         proto_tree_add_text(flow_data_tree, tvb, offset, 4, "Enterprise: standard sFlow (%u)", enterprise);
@@ -2212,7 +2212,7 @@ dissect_sflow_5_counters_record(tvbuff_t *tvb, proto_tree *tree, gint offset) {
 
     if (enterprise == ENTERPRISE_DEFAULT) { /* only accept default enterprise 0 (InMon sFlow) */
         ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                val_to_str(format, sflow_5_counters_record_type, "Unknown sample format"));
+                val_to_str_const(format, sflow_5_counters_record_type, "Unknown sample format"));
         counter_data_tree = proto_item_add_subtree(ti, ett_sflow_5_counters_record);
 
         proto_tree_add_text(counter_data_tree, tvb, offset, 4, "Enterprise: standard sFlow (%u)", enterprise);
@@ -2414,7 +2414,7 @@ dissect_sflow_24_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint offset, p
             "Sampling Interval: %u",
             g_ntohl(counters_header.sampling_interval));
     proto_tree_add_text(tree, tvb, offset + 12, 4, "Counters type: %s",
-            val_to_str(g_ntohl(counters_header.counters_type),
+            val_to_str_const(g_ntohl(counters_header.counters_type),
             sflow_245_counterstype, "Unknown type"));
 
     offset += sizeof (counters_header);
@@ -2591,7 +2591,7 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
         if (enterprise == ENTERPRISE_DEFAULT) { /* only accept default enterprise 0 (InMon sFlow) */
             ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                    val_to_str(format, sflow_245_sampletype, "Unknown sample format"));
+                    val_to_str_const(format, sflow_245_sampletype, "Unknown sample format"));
             sflow_245_sample_tree = proto_item_add_subtree(ti, ett_sflow_245_sample);
 
             proto_tree_add_text(sflow_245_sample_tree, tvb, offset, 4, "Enterprise: standard sFlow (%u)", enterprise);
@@ -2630,7 +2630,7 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     } else { /* version 2 or 4 */
         ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                val_to_str(sample_type, sflow_245_sampletype, "Unknown sample type"));
+                val_to_str_const(sample_type, sflow_245_sampletype, "Unknown sample type"));
         sflow_245_sample_tree = proto_item_add_subtree(ti, ett_sflow_245_sample);
 
         proto_tree_add_item(sflow_245_sample_tree, hf_sflow_245_sampletype, tvb, offset, 4, ENC_BIG_ENDIAN);

@@ -205,7 +205,7 @@ dissect_vdp_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
 	oui = tvb_get_ntoh24(tvb, (tempOffset));
 	/* maintain previous OUI names.  If not included, look in manuf database for OUI */
-	ouiStr = val_to_str(oui, tlv_oui_subtype_vals, "Unknown");
+	ouiStr = val_to_str_const(oui, tlv_oui_subtype_vals, "Unknown");
 	if (strcmp(ouiStr, "Unknown")==0) {
 		ouiStr = uint_get_manuf_name_if_known(oui);
 		if(ouiStr==NULL) ouiStr="Unknown";

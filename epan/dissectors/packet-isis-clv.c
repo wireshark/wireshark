@@ -481,8 +481,8 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
 						*/
 					       (tvb_get_guint8(tvb, offset) == NLPID_IEEE_8021AQ
 						? "IEEE 802.1aq (SPB)"
-						: val_to_str(tvb_get_guint8(tvb, offset), nlpid_vals,
-							     "Unknown")),
+						: val_to_str_const(tvb_get_guint8(tvb, offset), nlpid_vals,
+                                                                   "Unknown")),
 					       tvb_get_guint8(tvb, offset));
 			offset++;
 			first = FALSE;

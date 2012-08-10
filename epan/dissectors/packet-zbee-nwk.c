@@ -405,7 +405,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
         /* Create a subtree for the FCF. */
         ti = proto_tree_add_text(nwk_tree, tvb, offset, 2, "Frame Control Field: %s (0x%04x)",
-                val_to_str(packet.type, zbee_nwk_frame_types, "Unknown"), fcf);
+                val_to_str_const(packet.type, zbee_nwk_frame_types, "Unknown"), fcf);
         field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_fcf);
         proto_tree_add_uint(field_tree, hf_zbee_nwk_frame_type, tvb, offset, 1,
                             fcf & ZBEE_NWK_FCF_FRAME_TYPE);
@@ -434,7 +434,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Add the frame type to the info column and protocol root. */
     if (tree) {
-        proto_item_append_text(proto_root, " %s", val_to_str(packet.type, zbee_nwk_frame_types, "Unknown Type"));
+        proto_item_append_text(proto_root, " %s", val_to_str_const(packet.type, zbee_nwk_frame_types, "Unknown Type"));
     }
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet.type, zbee_nwk_frame_types, "Reserved Frame Type"));
 
@@ -729,7 +729,7 @@ static void dissect_zbee_nwk_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* Create a subtree for this command. */
     if (tree) {
         cmd_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Command Frame: %s",
-                                        val_to_str(cmd_id, zbee_nwk_cmd_names, "Unknown"));
+                                        val_to_str_const(cmd_id, zbee_nwk_cmd_names, "Unknown"));
         cmd_tree = proto_item_add_subtree(cmd_root, ett_zbee_nwk_cmd);
 
         /* Add the command ID. */
@@ -1030,7 +1030,7 @@ dissect_zbee_nwk_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     offset += 2;
 
     /* Update the info column. */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", 0x%04x: %s", addr, val_to_str(status_code, zbee_nwk_status_codes, "Unknown Status Code"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", 0x%04x: %s", addr, val_to_str_const(status_code, zbee_nwk_status_codes, "Unknown Status Code"));
 
     /* Done */
     return offset;
@@ -1209,7 +1209,7 @@ dissect_zbee_nwk_rejoin_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
        col_append_fstr(pinfo->cinfo, COL_INFO, ", Address: 0x%04x", packet->src);
     }
     else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(status, zbee_nwk_rejoin_codes, "Unknown Rejoin Response"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(status, zbee_nwk_rejoin_codes, "Unknown Rejoin Response"));
     }
 
     /* Done */
@@ -1318,7 +1318,7 @@ dissect_zbee_nwk_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     }
 
     /* Update the info column. */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(report_type, zbee_nwk_report_types, "Unknown Report Type"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(report_type, zbee_nwk_report_types, "Unknown Report Type"));
 
     /* Done */
     return offset;
@@ -1384,7 +1384,7 @@ dissect_zbee_nwk_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     }
 
     /* Update the info column. */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(update_type, zbee_nwk_update_types, "Unknown Update Type"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(update_type, zbee_nwk_update_types, "Unknown Update Type"));
 
     /* Done */
     return offset;

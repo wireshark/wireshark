@@ -522,7 +522,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
 
   if (sua_tree) {
     /* add the components of the common header to the protocol tree */
@@ -530,7 +530,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
     proto_tree_add_item(sua_tree, hf_sua_reserved,       common_header_tvb, RESERVED_OFFSET,       RESERVED_LENGTH,       ENC_NA);
     proto_tree_add_item(sua_tree, hf_sua_message_class,  common_header_tvb, MESSAGE_CLASS_OFFSET,  MESSAGE_CLASS_LENGTH,  ENC_BIG_ENDIAN);
     proto_tree_add_uint_format(sua_tree, hf_sua_message_type, common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH, message_type, "Message Type: %s (%u)",
-			                   val_to_str(message_class * 256 + message_type, message_class_type_values, "reserved"), message_type);
+			                   val_to_str_const(message_class * 256 + message_type, message_class_type_values, "reserved"), message_type);
     proto_tree_add_item(sua_tree, hf_sua_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
   };
 }
@@ -611,7 +611,7 @@ static void
 dissect_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_sua_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), traffic_mode_type_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), traffic_mode_type_values, "unknown"));
 }
 
 #define ERROR_CODE_OFFSET PARAMETER_VALUE_OFFSET
@@ -643,7 +643,7 @@ static void
 dissect_v8_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_sua_v8_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), v8_error_code_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), v8_error_code_values, "unknown"));
 }
 
 static const value_string error_code_values[] = {
@@ -673,7 +673,7 @@ static void
 dissect_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_sua_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), error_code_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), error_code_values, "unknown"));
 }
 
 #define STATUS_TYPE_LENGTH 2
@@ -718,9 +718,9 @@ dissect_status_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 
   proto_tree_add_item(parameter_tree, hf_sua_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_uint_format(parameter_tree, hf_sua_status_info, parameter_tvb, STATUS_INFO_OFFSET, STATUS_INFO_LENGTH,
-			                 status_info, "Status info: %s (%u)", val_to_str(status_type * 256 * 256 + status_info, status_type_info_values, "unknown"), status_info);
+			                 status_info, "Status info: %s (%u)", val_to_str_const(status_type * 256 * 256 + status_info, status_type_info_values, "unknown"), status_info);
 
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(status_type * 256 * 256 + status_info, status_type_info_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(status_type * 256 * 256 + status_info, status_type_info_values, "unknown"));
 }
 
 #define ASP_IDENTIFIER_LENGTH 4
@@ -809,7 +809,7 @@ static void
 dissect_registration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_sua_registration_status, parameter_tvb, REGISTRATION_STATUS_OFFSET, REGISTRATION_STATUS_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, REGISTRATION_STATUS_OFFSET), registration_status_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(tvb_get_ntohl(parameter_tvb, REGISTRATION_STATUS_OFFSET), registration_status_values, "unknown"));
 }
 
 #define DEREGISTRATION_STATUS_LENGTH 4
@@ -828,7 +828,7 @@ static void
 dissect_deregistration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_sua_deregistration_status, parameter_tvb, DEREGISTRATION_STATUS_OFFSET, DEREGISTRATION_STATUS_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, DEREGISTRATION_STATUS_OFFSET), deregistration_status_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(tvb_get_ntohl(parameter_tvb, DEREGISTRATION_STATUS_OFFSET), deregistration_status_values, "unknown"));
 }
 
 #define LOCAL_ROUTING_KEY_IDENTIFIER_LENGTH 4
@@ -980,26 +980,26 @@ dissect_sccp_cause_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
 
   switch (cause_type) {
   case CAUSE_TYPE_RETURN:
-    cause_string = val_to_str(cause, sccp_return_cause_values, "unknown");
+    cause_string = val_to_str_const(cause, sccp_return_cause_values, "unknown");
     break;
   case CAUSE_TYPE_REFUSAL:
-    cause_string = val_to_str(cause, sccp_refusal_cause_values, "unknown");
+    cause_string = val_to_str_const(cause, sccp_refusal_cause_values, "unknown");
     break;
   case CAUSE_TYPE_RELEASE:
-    cause_string = val_to_str(cause, sccp_release_cause_values, "unknown");
+    cause_string = val_to_str_const(cause, sccp_release_cause_values, "unknown");
     break;
   case CAUSE_TYPE_RESET:
-    cause_string = val_to_str(cause, sccp_reset_cause_values, "unknown");
+    cause_string = val_to_str_const(cause, sccp_reset_cause_values, "unknown");
     break;
   case CAUSE_TYPE_ERROR:
-    cause_string = val_to_str(cause, sccp_error_cause_values, "unknown");
+    cause_string = val_to_str_const(cause, sccp_error_cause_values, "unknown");
     break;
   default:
     cause_string = "unknown";
   }
 
   proto_item_append_text(pi, " (%s)", cause_string);
-  proto_item_append_text(parameter_item, " (%s: %s)", val_to_str(cause_type, cause_type_values, "unknown"), cause_string);
+  proto_item_append_text(parameter_item, " (%s: %s)", val_to_str_const(cause_type, cause_type_values, "unknown"), cause_string);
 }
 
 #define SEQUENCE_NUMBER_REC_SEQ_LENGTH  1
@@ -1382,12 +1382,12 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
     even_signal = tvb_get_guint8(parameter_tvb, offset) & GT_EVEN_SIGNAL_MASK;
     even_signal >>= GT_EVEN_SIGNAL_SHIFT;
 
-    g_strlcat(gt_digits, val_to_str(odd_signal, sccp_address_signal_values,
+    g_strlcat(gt_digits, val_to_str_const(odd_signal, sccp_address_signal_values,
 				    "Unknown"), GT_MAX_SIGNALS+1);
 
     /* If the last signal is NOT filler */
     if (offset != (GLOBAL_TITLE_OFFSET + global_title_length - 1) || even_length == TRUE)
-      g_strlcat(gt_digits, val_to_str(even_signal, sccp_address_signal_values,
+      g_strlcat(gt_digits, val_to_str_const(even_signal, sccp_address_signal_values,
 				   "Unknown"), GT_MAX_SIGNALS+1);
 
     offset += GT_SIGNAL_LENGTH;
@@ -1595,7 +1595,7 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
 
   if (tree) {
     /* create proto_tree stuff */
-    parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str(tag, v8_parameter_tag_values, "Unknown parameter"));
+    parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str_const(tag, v8_parameter_tag_values, "Unknown parameter"));
     parameter_tree   = proto_item_add_subtree(parameter_item, ett_sua_parameter);
 
     /* add tag and length to the sua tree */

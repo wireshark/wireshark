@@ -31,7 +31,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
 
 static gint proto_auto_rp = -1;
 static gint ett_auto_rp = -1;
@@ -119,24 +118,24 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         ver_type = tvb_get_guint8(tvb, 0);
         rp_count = tvb_get_guint8(tvb, 1);
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%s) for %u RP%s",
-                         val_to_str(lo_nibble(ver_type), auto_rp_type_vals, "Unknown"),
-                         val_to_str(hi_nibble(ver_type), auto_rp_ver_vals, "Unknown"),
-                         rp_count, plurality(rp_count, "", "s"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%s) for %u RP%s",
+                     val_to_str_const(lo_nibble(ver_type), auto_rp_type_vals, "Unknown"),
+                     val_to_str_const(hi_nibble(ver_type), auto_rp_ver_vals,  "Unknown"),
+                     rp_count, plurality(rp_count, "", "s"));
 
         if (tree) {
                 proto_item *ti, *tv;
                 proto_tree *auto_rp_tree, *ver_type_tree;
-                int i, offset;
-                guint16 holdtime;
+                int         i, offset;
+                guint16     holdtime;
 
                 offset = 0;
                 ti = proto_tree_add_item(tree, proto_auto_rp, tvb, offset, -1, ENC_NA);
                 auto_rp_tree = proto_item_add_subtree(ti, ett_auto_rp);
 
                 tv = proto_tree_add_text(auto_rp_tree, tvb, offset, 1, "Version: %s, Packet type: %s",
-                                         val_to_str(hi_nibble(ver_type), auto_rp_ver_vals, "Unknown"),
-                                         val_to_str(lo_nibble(ver_type), auto_rp_type_vals, "Unknown"));
+                                         val_to_str_const(hi_nibble(ver_type), auto_rp_ver_vals,  "Unknown"),
+                                         val_to_str_const(lo_nibble(ver_type), auto_rp_type_vals, "Unknown"));
                 ver_type_tree = proto_item_add_subtree(tv, ett_auto_rp_ver_type);
                 proto_tree_add_uint(ver_type_tree, hf_auto_rp_version, tvb, offset, 1, ver_type);
                 proto_tree_add_uint(ver_type_tree, hf_auto_rp_type, tvb, offset, 1, ver_type);
@@ -161,6 +160,59 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         return;
+}
+
+/*
+ * Handles one Auto-RP map entry. Returns the new offset.
+ */
+static int do_auto_rp_map(tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree)
+{
+        proto_item *ti;
+        proto_tree *map_tree;
+        guint8      group_count;
+        guint32     rp_addr;    /* In network byte order */
+        int         i;
+
+        rp_addr = tvb_get_ipv4(tvb, offset);
+        group_count = tvb_get_guint8(tvb, offset + 5);
+
+        /* sizeof map header + n * sizeof encoded group addresses */
+        ti = proto_tree_add_text(auto_rp_tree, tvb, offset, 6 + group_count * 6,
+                                 "RP %s: %u group%s", ip_to_str((void *)&rp_addr),
+                                 group_count, plurality(group_count, "", "s"));
+        map_tree = proto_item_add_subtree(ti, ett_auto_rp_map);
+
+        proto_tree_add_ipv4(map_tree, hf_auto_rp_rp_addr, tvb, offset, 4, rp_addr);
+        offset += 4;
+        proto_tree_add_uint(map_tree, hf_auto_rp_pim_ver, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+        offset++;
+        proto_tree_add_text(map_tree, tvb, offset, 1, "Number of groups this RP maps to: %u", group_count);
+        offset++;
+
+        for (i = 0; i < group_count; i++) {
+                proto_item *gi;
+                proto_tree *grp_tree;
+                guint8      sign, mask_len;
+                guint32     group_addr; /* In network byte order */
+
+                sign = tvb_get_guint8(tvb, offset);
+                mask_len = tvb_get_guint8(tvb, offset + 1);
+                group_addr = tvb_get_ipv4(tvb, offset + 2);
+                gi = proto_tree_add_text(map_tree, tvb, offset, 6, "Group %s/%u (%s)",
+                                         ip_to_str((void *)&group_addr), mask_len,
+                                         val_to_str_const(sign&AUTO_RP_SIGN_MASK, auto_rp_mask_sign_vals, ""));
+                grp_tree = proto_item_add_subtree(gi, ett_auto_rp_group);
+
+                proto_tree_add_uint(grp_tree, hf_auto_rp_prefix_sgn, tvb, offset, 1, sign);
+                offset++;
+                proto_tree_add_uint(grp_tree, hf_auto_rp_mask_len, tvb, offset, 1, mask_len);
+                offset++;
+                proto_tree_add_ipv4(grp_tree, hf_auto_rp_group_prefix, tvb, offset, 4, group_addr);
+                offset += 4;
+
+        }
+
+        return offset;
 }
 
 void proto_register_auto_rp(void)
@@ -220,7 +272,7 @@ void proto_register_auto_rp(void)
         };
 
         proto_auto_rp = proto_register_protocol("Cisco Auto-RP",
-	    "Auto-RP", "auto_rp");
+                                                "Auto-RP", "auto_rp");
         proto_register_field_array(proto_auto_rp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 
@@ -230,62 +282,9 @@ void proto_register_auto_rp(void)
 void
 proto_reg_handoff_auto_rp(void)
 {
-	dissector_handle_t auto_rp_handle;
+        dissector_handle_t auto_rp_handle;
 
-	auto_rp_handle = create_dissector_handle(dissect_auto_rp,
-	    proto_auto_rp);
-	dissector_add_uint("udp.port", UDP_PORT_PIM_RP_DISC, auto_rp_handle);
-}
-
-/*
- * Handles one Auto-RP map entry. Returns the new offset.
- */
-static int do_auto_rp_map(tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree)
-{
-        proto_item *ti;
-        proto_tree *map_tree;
-        guint8 group_count;
-        guint32 rp_addr;      /* In network byte order */
-        int i;
-
-        rp_addr = tvb_get_ipv4(tvb, offset);
-        group_count = tvb_get_guint8(tvb, offset + 5);
-
-                               /* sizeof map header + n * sizeof encoded group addresses */
-        ti = proto_tree_add_text(auto_rp_tree, tvb, offset, 6 + group_count * 6,
-                                 "RP %s: %u group%s", ip_to_str((void *)&rp_addr),
-                                 group_count, plurality(group_count, "", "s"));
-        map_tree = proto_item_add_subtree(ti, ett_auto_rp_map);
-
-        proto_tree_add_ipv4(map_tree, hf_auto_rp_rp_addr, tvb, offset, 4, rp_addr);
-        offset += 4;
-        proto_tree_add_uint(map_tree, hf_auto_rp_pim_ver, tvb, offset, 1, tvb_get_guint8(tvb, offset));
-        offset++;
-        proto_tree_add_text(map_tree, tvb, offset, 1, "Number of groups this RP maps to: %u", group_count);
-        offset++;
-
-        for (i = 0; i < group_count; i++) {
-                proto_item *gi;
-                proto_tree *grp_tree;
-                guint8 sign, mask_len;
-                guint32 group_addr;     /* In network byte order */
-
-                sign = tvb_get_guint8(tvb, offset);
-                mask_len = tvb_get_guint8(tvb, offset + 1);
-                group_addr = tvb_get_ipv4(tvb, offset + 2);
-                gi = proto_tree_add_text(map_tree, tvb, offset, 6, "Group %s/%u (%s)",
-                                         ip_to_str((void *)&group_addr), mask_len,
-                                         val_to_str(sign&AUTO_RP_SIGN_MASK, auto_rp_mask_sign_vals, ""));
-                grp_tree = proto_item_add_subtree(gi, ett_auto_rp_group);
-
-                proto_tree_add_uint(grp_tree, hf_auto_rp_prefix_sgn, tvb, offset, 1, sign);
-                offset++;
-                proto_tree_add_uint(grp_tree, hf_auto_rp_mask_len, tvb, offset, 1, mask_len);
-                offset++;
-                proto_tree_add_ipv4(grp_tree, hf_auto_rp_group_prefix, tvb, offset, 4, group_addr);
-                offset += 4;
-
-        }
-
-        return offset;
+        auto_rp_handle = create_dissector_handle(dissect_auto_rp,
+                                                 proto_auto_rp);
+        dissector_add_uint("udp.port", UDP_PORT_PIM_RP_DISC, auto_rp_handle);
 }

@@ -460,7 +460,7 @@ rs04(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_uint_format(tree, hf_ipmi_app_04_result, tvb, 0, 1,
 			res, "Self test result: %s (0x%02x)",
-			val_to_str(res, vals_04_result, "Device-specific internal failure"),
+			val_to_str_const(res, vals_04_result, "Device-specific internal failure"),
 			res);
 
 	if (res == 0x55 || res == 0x56 || res == 0xff) {

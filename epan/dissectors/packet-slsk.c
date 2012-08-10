@@ -375,7 +375,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           offset += 4;
           i=tvb_get_guint8(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_login_successful, tvb, offset, 1, tvb_get_guint8(tvb, offset),
-            "Login successful: %s (Byte: %d)", val_to_str(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
+            "Login successful: %s (Byte: %d)", val_to_str_const(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
           offset += 1;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           proto_tree_add_item(slsk_tree, hf_slsk_login_message, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
@@ -447,7 +447,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_user_exists, tvb, offset, 1, tvb_get_guint8(tvb, offset),
-            "User exists: %s (Byte: %d)", val_to_str(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
+            "User exists: %s (Byte: %d)", val_to_str_const(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
           offset += 1;
         }
         else if (check_slsk_format(tvb, offset, "is")) {
@@ -565,7 +565,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                               hf_slsk_integer, uncompr_tvb,
                               uncompr_tvb_offset, 4,
                               tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-                              "Dir #%d File #%d Attr #%d type: %s (Code: %d)", i+1, i2+1, i3+1, val_to_str(tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset), slsk_attr_type, "Unknown"), tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
+                              "Dir #%d File #%d Attr #%d type: %s (Code: %d)", i+1, i2+1, i3+1, val_to_str_const(tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset), slsk_attr_type, "Unknown"), tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
                             uncompr_tvb_offset += 4;
                             proto_tree_add_uint_format(slsk_compr_packet_tree,
                               hf_slsk_integer, uncompr_tvb,
@@ -605,7 +605,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_status_code, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-            "Status: %s (Code: %d)", val_to_str(tvb_get_letohl(tvb, offset), slsk_status_codes, "Unknown"), tvb_get_letohl(tvb, offset));
+            "Status: %s (Code: %d)", val_to_str_const(tvb_get_letohl(tvb, offset), slsk_status_codes, "Unknown"), tvb_get_letohl(tvb, offset));
           offset += 4;
         }
         else if (check_slsk_format(tvb, offset, "is")) {
@@ -707,7 +707,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                       if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "ii*")) {
                         proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer,
                           uncompr_tvb, uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-                          "File #%d Attr #%d type: %s (Code: %d)", i+1, i2+1, val_to_str(tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset), slsk_attr_type, "Unknown"), tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
+                          "File #%d Attr #%d type: %s (Code: %d)", i+1, i2+1, val_to_str_const(tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset), slsk_attr_type, "Unknown"), tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
                         uncompr_tvb_offset += 4;
                         proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer,
                           uncompr_tvb, uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
@@ -720,7 +720,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                   i++;
                 }
                 proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_byte, uncompr_tvb, uncompr_tvb_offset, 1, tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset),
-                  "Free upload slots: %s (Byte: %d)", val_to_str(tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset), slsk_yes_no, "Unknown"), tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset));
+                  "Free upload slots: %s (Byte: %d)", val_to_str_const(tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset), slsk_yes_no, "Unknown"), tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset));
                 uncompr_tvb_offset += 1;
                 proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
                   "Upload speed: %d", tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
@@ -814,7 +814,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             while (i<j){
               if (check_slsk_format(tvb, offset, "i*")) {
                 proto_tree_add_uint_format(slsk_tree, hf_slsk_status_code, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-                  "Status of User #%d: %s (Code: %d)", i+1, val_to_str(tvb_get_letohl(tvb, offset), slsk_status_codes, "Unknown"), tvb_get_letohl(tvb, offset));
+                  "Status of User #%d: %s (Code: %d)", i+1, val_to_str_const(tvb_get_letohl(tvb, offset), slsk_status_codes, "Unknown"), tvb_get_letohl(tvb, offset));
                 offset += 4;
               }
               i++;
@@ -920,7 +920,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_item(slsk_tree, hf_slsk_user_description, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_picture_exists, tvb, offset, 1, tvb_get_guint8(tvb, offset),
-            "Picture exists: %s (Byte: %d)", val_to_str(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
+            "Picture exists: %s (Byte: %d)", val_to_str_const(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
           offset += 1;
           if ( tvb_get_guint8(tvb, offset -1 ) == 1 ) {
             proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
@@ -933,7 +933,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_uint(slsk_tree, hf_slsk_queued_uploads, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
           proto_tree_add_uint_format(slsk_tree, hf_slsk_slots_available, tvb, offset, 1, tvb_get_guint8(tvb, offset),
-            "Upload Slots available: %s (Byte: %d)", val_to_str(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
+            "Upload Slots available: %s (Byte: %d)", val_to_str_const(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
           offset += 1;
         }
       break;
@@ -1073,7 +1073,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint_format(slsk_tree, hf_slsk_status_code, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-            "Status: %s (Code: %d)", val_to_str(tvb_get_letohl(tvb, offset), slsk_status_codes, "Unknown"), tvb_get_letohl(tvb, offset));
+            "Status: %s (Code: %d)", val_to_str_const(tvb_get_letohl(tvb, offset), slsk_status_codes, "Unknown"), tvb_get_letohl(tvb, offset));
           offset += 4;
         }
       break;
@@ -1277,7 +1277,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             proto_tree_add_uint_format(slsk_compr_packet_tree,
                               hf_slsk_integer, uncompr_tvb,
                               uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-                              "Dir #%d File #%d Attr #%d type: %s (Code: %d)", i+1, i2+1, i3+1, val_to_str(tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset), slsk_attr_type, "Unknown"), tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
+                              "Dir #%d File #%d Attr #%d type: %s (Code: %d)", i+1, i2+1, i3+1, val_to_str_const(tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset), slsk_attr_type, "Unknown"), tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
                             uncompr_tvb_offset += 4;
                             proto_tree_add_uint_format(slsk_compr_packet_tree,
                               hf_slsk_integer, uncompr_tvb,
@@ -1326,7 +1326,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           offset += 4;
           i = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_transfer_direction, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-            "Transfer Direction: %s (Code: %d)", val_to_str(tvb_get_letohl(tvb, offset), slsk_transfer_direction, "Unknown"), tvb_get_letohl(tvb, offset));
+            "Transfer Direction: %s (Code: %d)", val_to_str_const(tvb_get_letohl(tvb, offset), slsk_transfer_direction, "Unknown"), tvb_get_letohl(tvb, offset));
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
@@ -1354,7 +1354,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           offset += 4;
           i = tvb_get_guint8(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_allowed, tvb, offset, 1, tvb_get_guint8(tvb, offset),
-            "Download allowed: %s (Byte: %d)", val_to_str(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
+            "Download allowed: %s (Byte: %d)", val_to_str_const(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
           offset += 1;
           if ( i == 1 ) {
             if ( tvb_length_remaining(tvb, offset) == 8 ) {
@@ -1834,7 +1834,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             while (i<j){
               if (check_slsk_format(tvb, offset, "i*")) {
                 proto_tree_add_uint_format(slsk_tree, hf_slsk_status_code, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-                  "Status of User #%d: %s (Code: %d)", i+1, val_to_str(tvb_get_letohl(tvb, offset), slsk_status_codes, "Unknown"), tvb_get_letohl(tvb, offset));
+                  "Status of User #%d: %s (Code: %d)", i+1, val_to_str_const(tvb_get_letohl(tvb, offset), slsk_status_codes, "Unknown"), tvb_get_letohl(tvb, offset));
                 offset += 4;
               }
               i++;
