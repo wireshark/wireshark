@@ -105,7 +105,7 @@ enum
 
 enum
 {
-  ERROR = 0,
+  COMPILE_ERROR = 0,
   SIGN,
   INAME
 };
@@ -2005,10 +2005,10 @@ add_page(gchar *name, gchar *text, gboolean error)
   gtk_list_store_append (GTK_LIST_STORE(model), &iter);
   if (error) {
     icon = pixbuf_to_widget(expert_error_pb_data);
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, ERROR, 1, SIGN, gtk_image_get_pixbuf(GTK_IMAGE(icon)), INAME, name, -1);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, COMPILE_ERROR, 1, SIGN, gtk_image_get_pixbuf(GTK_IMAGE(icon)), INAME, name, -1);
   } else {
     icon = pixbuf_to_widget(expert_ok_pb_data);
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, ERROR, 0, SIGN, gtk_image_get_pixbuf(GTK_IMAGE(icon)), INAME, name, -1);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, COMPILE_ERROR, 0, SIGN, gtk_image_get_pixbuf(GTK_IMAGE(icon)), INAME, name, -1);
   }
   g_hash_table_insert(compile_results, name, text);
 }
@@ -2025,7 +2025,7 @@ compile_tree_select_cb(GtkTreeSelection *sel, gpointer dummy _U_)
 
   if (gtk_tree_selection_get_selected(sel, &model, &iter))
   {
-    gtk_tree_model_get(model, &iter, ERROR, &error, INAME, &name, -1);
+    gtk_tree_model_get(model, &iter, COMPILE_ERROR, &error, INAME, &name, -1);
     text = (gchar *)g_hash_table_lookup(compile_results, name);
     textview = g_object_get_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB);
     if (error == 1) {
@@ -2096,7 +2096,7 @@ compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
   column = gtk_tree_view_column_new();
   renderer = gtk_cell_renderer_text_new();
   gtk_tree_view_column_pack_start(column, renderer, TRUE);
-  gtk_tree_view_column_set_attributes(column, renderer, "text", ERROR, NULL);
+  gtk_tree_view_column_set_attributes(column, renderer, "text", COMPILE_ERROR, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   gtk_tree_view_column_set_visible(column, FALSE);
   column = gtk_tree_view_column_new();
