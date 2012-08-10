@@ -700,8 +700,6 @@ channelised_fill_sdh_g707_format(sdh_g707_format_t* in_fmt, guint16 bit_flds, gu
   in_fmt->m_sdh_line_rate = rate;
   memset(&(in_fmt->m_vc_index_array[0]), 0xff, DECHAN_MAX_AUG_INDEX);
 
-  /* for STM64 traffic, start from #E index shoud be 0 */
-  in_fmt->m_vc_index_array[ rate - 1] = 0;
   /* for STM64 traffic,from #D and so on .. */
     for (i = (rate - 2); i >= 0; i--)
   {
