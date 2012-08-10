@@ -166,7 +166,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	proto_tree      *tree;
 	proto_item      *ti;
 
-	if (pinfo == NULL && pi->tree_data) {
+	if (pinfo == NULL && pi && pi->tree_data) {
 		pinfo = PTREE_DATA(pi)->pinfo;
 	}
 
