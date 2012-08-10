@@ -460,7 +460,6 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32       group_byte_cnt, group_word_cnt;
     guint8        function_code, exception_code, mei_code, event_code, object_type;
     guint16       diagnostic_code;
-    guint8        *object_str;
 
     /* Don't need to do anything if there's no tree */
     if (tree == NULL)
@@ -960,17 +959,15 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                                 if (object_type < 7)
                                 {
-                                    object_str = tvb_get_string(tvb, payload_start+6+object_index, object_len);
-                                    proto_tree_add_string(device_objects_item_tree, hf_modbus_object_str_value, tvb, payload_start+6+object_index, object_len, object_str);
-                                    g_free(object_str);
-                     		}
+                                    proto_tree_add_item(device_objects_item_tree, hf_modbus_object_str_value, tvb, payload_start+6+object_index, object_len, ENC_ASCII|ENC_NA);
+                                }
                                 else
                                 {
                                     if (object_len > 0)
                                         proto_tree_add_text(device_objects_item_tree, tvb, payload_start+6+object_index, object_len, "Object Value");
-                     		}
+                                }
                                 object_index += object_len;
-                  	    }
+                            }
                             break;
 
                         case CANOPEN_REQ_RESP:

@@ -111,13 +111,11 @@ static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree_add_item (bjnp_tree, hf_cmd_code, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  info = g_strdup_printf ("%s: %s",val_to_str (dev_type, dev_type_vals, "Unknown type (%d)"),
+  info = ep_strdup_printf("%s: %s",val_to_str (dev_type, dev_type_vals, "Unknown type (%d)"),
                           val_to_str (cmd_code, cmd_code_vals, "Unknown code (%d)"));
 
   proto_item_append_text (ti, ", %s", info);
   col_add_str (pinfo->cinfo, COL_INFO, info);
-
-  g_free (info);
 
   proto_tree_add_item (bjnp_tree, hf_seq_no, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;

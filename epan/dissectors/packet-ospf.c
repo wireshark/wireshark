@@ -2403,9 +2403,6 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
     proto_tree *ri_tree;
     proto_tree *tlv_tree;
 
-    guint8 *hostname_str;
-    guint8 *unknown_str;
-
     int tlv_type;
     int tlv_length;
 
@@ -2443,9 +2440,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
 
            proto_tree_add_text(tlv_tree, tvb, offset + 2, 2, "TLV Length: %u", tlv_length);
 
-           hostname_str = tvb_get_string(tvb, offset+4, tlv_length);
-           proto_tree_add_string(tlv_tree, hf_ospf_filter[OSPFF_DYN_HOSTNAME], tvb, offset+4, tlv_length, hostname_str);
-           g_free(hostname_str);
+           proto_tree_add_item(tlv_tree, hf_ospf_filter[OSPFF_DYN_HOSTNAME], tvb, offset+4, tlv_length, ENC_ASCII|ENC_NA);
            break;
 
         default:
@@ -2458,9 +2453,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
 
            proto_tree_add_text(tlv_tree, tvb, offset + 2, 2, "TLV Length: %u", tlv_length);
 
-           unknown_str = tvb_get_string(tvb, offset+4, tlv_length);
-           proto_tree_add_string(tlv_tree, hf_ospf_filter[OSPFF_UNKNOWN_TLV_TXT], tvb, offset+4, tlv_length, unknown_str);
-           g_free(unknown_str);
+           proto_tree_add_item(tlv_tree, hf_ospf_filter[OSPFF_UNKNOWN_TLV_TXT], tvb, offset+4, tlv_length, ENC_ASCII|ENC_NA);
            break;
 
         }

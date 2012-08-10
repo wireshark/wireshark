@@ -1161,7 +1161,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 len *= 2;
                 val = (gchar*)tvb_get_ephemeral_string(tvb, offset2, len);
-                val2 = g_malloc((len/2)+1);
+                val2 = ep_alloc((len/2)+1);
 
                 for(j = 0, k = 0; j < len; j += 2, k++) {
                     val[j] ^= 0xA5;
@@ -1174,7 +1174,6 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 val2[k] = '\0'; /* Null terminate our new string */
 
                 proto_tree_add_text(login_tree, tvb, offset2, len, "%s: %s", val_to_str(i, login_field_names, "Unknown"), val2);
-                g_free(val2);
             }
         }
     }

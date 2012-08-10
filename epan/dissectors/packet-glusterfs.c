@@ -517,13 +517,13 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 		offset += 4;
 
 		/* read the key, '\0' terminated */
-		key = tvb_get_stringz(tvb, offset, &key_len);
+		key = tvb_get_ephemeral_stringz(tvb, offset, &key_len);
 		if (tree)
 			dict_item = proto_tree_add_text(subtree, tvb, offset, -1, "%s: ", key);
 		offset += key_len;
 
 		/* read the value, possibly '\0' terminated */
-		value = tvb_get_string(tvb, offset, value_len);
+		value = tvb_get_ephemeral_string(tvb, offset, value_len);
 		if (tree) {
 			/* keys named "gfid-req" contain a GFID in hex */
 			if (value_len == 16 && !strncmp("gfid-req", key, 8)) {
@@ -534,9 +534,6 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 				proto_item_append_text(dict_item, "%s", value);
 		}
 		offset += value_len;
-
-		g_free(key);
-		g_free(value);
 	}
 
 	if (roundup) {

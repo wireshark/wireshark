@@ -317,7 +317,7 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
     proto_tree         *item_tree;
     proto_item         *subti;
     /* field values */
-    guint8              dir, nsapi, rat, aal5proto, *apn, *calling, *called;
+    guint8              dir, nsapi, rat, aal5proto;
     guint16             phylinkid, localdevid, remotedevid, tapgroupid;
     guint32             tlli;
     guint64             ts, imsi, imei, cell;
@@ -372,10 +372,8 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
                 tvb, offs, 8, imei);
             break;
         case META_ID_APN:
-            apn = tvb_get_string(tvb, offs, len);
-            proto_tree_add_string(meta_tree, hf_meta_item_apn, tvb,
-                offs, len, apn);
-            g_free(apn);
+            proto_tree_add_item(meta_tree, hf_meta_item_apn, tvb,
+                offs, len, ENC_ASCII|ENC_NA);
             break;
         case META_ID_RAT:
             rat = tvb_get_guint8(tvb, offs);
@@ -456,16 +454,12 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
                 offs, 4, tlli);
             break;
         case META_ID_CALLING:
-            calling = tvb_get_string(tvb, offs, len);
-            proto_tree_add_string(meta_tree, hf_meta_item_calling, tvb,
-                offs, len, calling);
-            g_free(calling);
+            proto_tree_add_item(meta_tree, hf_meta_item_calling, tvb,
+                offs, len, ENC_ASCII|ENC_NA);
             break;
         case META_ID_CALLED:
-            called = tvb_get_string(tvb, offs, len);
-            proto_tree_add_string(meta_tree, hf_meta_item_called, tvb,
-                offs, len, called);
-            g_free(called);
+            proto_tree_add_item(meta_tree, hf_meta_item_called, tvb,
+                offs, len, ENC_ASCII|ENC_NA);
             break;
         default:
             subti = proto_tree_add_item(meta_tree, hf_meta_item, tvb, offs - 4,

@@ -161,10 +161,10 @@ static gchar *
 csm_fc(guint16 fc, guint16 ct)
 {
     if (fc == 0x0000) {
-        return g_strdup(val_to_str(ct, class_type_vals,
+        return ep_strdup(val_to_str(ct, class_type_vals,
                        "0x%04x"));
     } else {
-        return g_strdup(val_to_str(fc, function_code_vals,
+        return ep_strdup(val_to_str(fc, function_code_vals,
                        "0x%04x"));
     }
 }
@@ -257,7 +257,6 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_fstr(pinfo->cinfo, COL_INFO,
                             "--> %-35s Ch: 0x%04X, Seq: %2d (From Host)",
                             str_function_name, channel, sequence);
-        g_free(str_function_name);
     }
 
 

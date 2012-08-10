@@ -800,7 +800,7 @@ getFrameInformation(tvbuff_t *tvb, proto_tree *field_tree){
     char *information_field, *save_information_field_ptr;
 
     /*Get the data from information field as string*/
-    information_field = tvb_get_string(tvb,offset,length_info);
+    information_field = tvb_get_ephemeral_string(tvb,offset,length_info);
     save_information_field_ptr = information_field;
     tmp = 0;
 
@@ -831,7 +831,6 @@ getFrameInformation(tvbuff_t *tvb, proto_tree *field_tree){
 
     /*Add info to subtree*/
     proto_tree_add_uint_format(field_tree, hf_mux27010_information, tvb, offset, length_info, controlchannel_type_command, "Information: %s",information_field);
-    g_free(information_field);
 
     /*Increment offset by the length of chars in info field*/
     offset +=length_info;

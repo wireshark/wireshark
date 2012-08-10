@@ -1420,11 +1420,10 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
                               ie_finfo->rep->representation);
         else {
           guint8 *ie_val = NULL;
-          ie_val = g_malloc(ITEM_LABEL_LENGTH);
+          ie_val = ep_alloc(ITEM_LABEL_LENGTH);
           proto_item_fill_label(ie_finfo, ie_val);
           proto_item_set_text(ti, "Information Element: %s",
                               ie_val);
-          g_free(ie_val);
         }
       }
     }

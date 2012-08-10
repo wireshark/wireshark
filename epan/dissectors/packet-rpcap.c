@@ -735,14 +735,13 @@ dissect_rpcap_startcap_request (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (field_tree, hf_flags_outbound, tvb, offset, 2, ENC_BIG_ENDIAN);
 
   if (flags & 0x1F) {
-    gchar *flagstr = g_strdup_printf ("%s%s%s%s%s",
+    gchar *flagstr = ep_strdup_printf ("%s%s%s%s%s",
 	  (flags & FLAG_PROMISC)    ? ", Promiscuous" : "",
 	  (flags & FLAG_DGRAM)      ? ", Datagram"    : "",
 	  (flags & FLAG_SERVEROPEN) ? ", ServerOpen"  : "",
 	  (flags & FLAG_INBOUND)    ? ", Inbound"     : "",
 	  (flags & FLAG_OUTBOUND)   ? ", Outbound"    : "");
     proto_item_append_text (field_ti, ":%s", &flagstr[1]);
-    g_free (flagstr);
   } else {
     proto_item_append_text (field_ti, " (none)");
   }

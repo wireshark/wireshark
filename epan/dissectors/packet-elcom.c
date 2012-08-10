@@ -217,19 +217,16 @@ dissect_lower_address(proto_item *ti_arg, gint ett_arg,
         offset += 8;                /* skip the zero bytes */
 
         /* SUFFIX */
-        suffix = tvb_get_string(tvb, offset+1, len2);
+        suffix = tvb_get_ephemeral_string(tvb, offset+1, len2);
         ti = proto_tree_add_item(tree, hf_suff, tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN);
         offset += len2+1;
 
         if (!(suffix[0] == 'A' || suffix[0] == 'B')) {
-                g_free(suffix);
                 proto_item_append_text(ti, " (invalid)");
                 return offset;
         }
 
         proto_item_append_text(ti, " (%s)", val_to_str(suffix[1], suffix_vals, "<<-- WHAT?") );
-
-        g_free(suffix);
         return offset;
 }
 
@@ -452,9 +449,8 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         if (tvb_get_guint8(tvb, 3+1+TOTAL_LEN+LOWADR_LEN) != SUFFIX_LEN) return;
 
                         /* finally believe that there is valid suffix */
-                        suffix = tvb_get_string(tvb, 3+2+LOWADR_LEN, 2);
+                        suffix = tvb_get_ephemeral_string(tvb, 3+2+LOWADR_LEN, 2);
                         col_append_fstr(pinfo->cinfo, COL_INFO, " %s Connect", suffix);
-                        g_free(suffix);
                         break;
 
                 case P_RELRQ:

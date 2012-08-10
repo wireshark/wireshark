@@ -217,11 +217,10 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                 proto_tree_add_item(subtree, hf_a_length, tvb, 4, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_a_text, tvb, 5, -1, ENC_ASCII|ENC_NA);
 
-                pstr = tvb_get_string(tvb, 5, tvb_get_guint8(tvb, 4));
+                pstr = tvb_get_ephemeral_string(tvb, 5, tvb_get_guint8(tvb, 4));
                 if(pstr)
                 {
                     proto_item_append_text(ti, ": '%s'", pstr);
-                    g_free(pstr);
                 }
             }
             else
@@ -284,12 +283,10 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                         ti = proto_tree_add_item(subtree, hf_a_item, tvb, i, len+2, ENC_NA);
                         infotree = proto_item_add_subtree(ti, ett_a_item);
                         proto_tree_add_item(infotree, hf_a_weekday, tvb, i+2, len, ENC_ASCII|ENC_NA);
-                        pstr = tvb_get_string(tvb, i+2, len);
+                        pstr = tvb_get_ephemeral_string(tvb, i+2, len);
                         if(pstr)
-                        {
                             proto_item_append_text(ti, ", Weekday: '%s'", pstr);
-                            g_free(pstr);
-                        }
+
                         i += len +2;
                         break;
                     }
@@ -299,12 +296,9 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                         ti = proto_tree_add_item(subtree, hf_a_item, tvb, i, len+2, ENC_NA);
                         infotree = proto_item_add_subtree(ti, ett_a_item);
                         proto_tree_add_item(infotree, hf_a_month_name, tvb, i+2, len, ENC_ASCII|ENC_NA);
-                        pstr = tvb_get_string(tvb, i+2, len);
+                        pstr = tvb_get_ephemeral_string(tvb, i+2, len);
                         if(pstr)
-                        {
                             proto_item_append_text(ti, ", Month name: '%s'", pstr);
-                            g_free(pstr);
-                        }
                         i += len +2;
                         break;
                     }
@@ -314,12 +308,9 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                         ti = proto_tree_add_item(subtree, hf_a_item, tvb, i, len+2, ENC_NA);
                         infotree = proto_item_add_subtree(ti, ett_a_item);
                         proto_tree_add_item(infotree, hf_a_weekofyear_prefix, tvb, i+2, len, ENC_ASCII|ENC_NA);
-                        pstr = tvb_get_string(tvb, i+2, len);
+                        pstr = tvb_get_ephemeral_string(tvb, i+2, len);
                         if(pstr)
-                        {
                             proto_item_append_text(ti, ", Week of the year prefix: '%s'", pstr);
-                            g_free(pstr);
-                        }
                         i += len +2;
                         break;
                     }
@@ -364,12 +355,9 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                 proto_tree_add_item(subtree, hf_a_length, tvb, 2, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_a_cdpn, tvb, 3, -1, ENC_ASCII|ENC_NA);
 
-                pstr = tvb_get_string(tvb, 3, tvb_get_guint8(tvb, 2));
+                pstr = tvb_get_ephemeral_string(tvb, 3, tvb_get_guint8(tvb, 2));
                 if(pstr)
-                {
                     proto_item_append_text(ti, ": '%s'", pstr);
-                    g_free(pstr);
-                }
             }
             else
                 proto_item_append_text(ti, ": ???");

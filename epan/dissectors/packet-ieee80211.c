@@ -3745,10 +3745,9 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
     }
     proto_tree_add_item(realm_tree, hf_ieee80211_ff_anqp_nai_realm,
                         tvb, offset, nai_len, ENC_ASCII|ENC_NA);
-    realm = tvb_get_string(tvb, offset, nai_len);
+    realm = tvb_get_ephemeral_string(tvb, offset, nai_len);
     if (realm) {
       proto_item_append_text(r_item, " (%s)", realm);
-      g_free(realm);
     }
     offset += nai_len;
     eap_count = tvb_get_guint8(tvb, offset);
