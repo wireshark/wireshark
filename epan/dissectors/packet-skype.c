@@ -60,6 +60,8 @@ static int hf_skype_som_id = -1;
 static int hf_skype_som_unk = -1;
 static int hf_skype_som_type = -1;
 /* Message body */
+/* Unknown_0 */
+static int hf_skype_unknown_0_unk1 = -1;
 /* Payload */
 static int hf_skype_payload_iv = -1;
 static int hf_skype_payload_crc = -1;
@@ -78,7 +80,7 @@ static int hf_skype_natrequest_srcip = -1;
 static int hf_skype_natrequest_unk1 = -1;
 /* Audio */
 static int hf_skype_audio_unk1 = -1;
-/* Unknown */
+/* Unknown_f */
 static int hf_skype_unknown_f_unk1 = -1;
 
 
@@ -91,6 +93,7 @@ static int hf_skype_unknown_f_unk1 = -1;
 #endif
 
 typedef enum {
+	SKYPE_TYPE_UNKNOWN_0 = 0,
 	SKYPE_TYPE_PAYLOAD = 2,
 	SKYPE_TYPE_FFR = 3,
 	SKYPE_TYPE_NAT_INFO = 5,
@@ -101,6 +104,7 @@ typedef enum {
 
 
 static const value_string skype_type_vals[] = {
+	{ SKYPE_TYPE_UNKNOWN_0,	"Unknown_0" },
 	{ SKYPE_TYPE_PAYLOAD,	"Payload" },
 	{ SKYPE_TYPE_FFR,	"Fragment/Forward/Resend" },
 	{ SKYPE_TYPE_NAT_INFO ,	"NAT info" },
@@ -150,6 +154,11 @@ dissect_skype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Body dissection */
 		switch (packet_type) {
 
+		case SKYPE_TYPE_UNKNOWN_0:
+			proto_tree_add_item(skype_tree, hf_skype_unknown_0_unk1, tvb, offset, -1,
+				ENC_NA);
+			offset = packet_length;
+			break;
 		case SKYPE_TYPE_PAYLOAD:
 			proto_tree_add_item(skype_tree, hf_skype_payload_iv, tvb, offset, 4,
 				ENC_BIG_ENDIAN);
@@ -219,8 +228,9 @@ test_skype(tvbuff_t *tvb)
 	guint length = tvb_length(tvb);
 	guint8 type = tvb_get_guint8(tvb, 2) & 0xF;
 	if ( length >= 3 &&
-		    ( type == 2   ||
+		    ( type == 0   ||
 			/* FIXME: Extend this by minimum length per message type */
+		      type == 2   ||
 		      type == 3   ||
 		      type == 5   ||
 		      type == 7   ||
@@ -273,6 +283,11 @@ proto_register_skype(void)
 			SKYPE_SOM_TYPE_MASK, "Message type", HFILL }},
 
 	/* Message body */
+
+	/* Unknown_0 */
+		{ &hf_skype_unknown_0_unk1,
+		{ "Unknown1",   "skype.unknown_0.unk1", FT_BYTES, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
 
 	/* Payload */
 		{ &hf_skype_payload_iv,
@@ -331,7 +346,7 @@ proto_register_skype(void)
 		{ "Unknown1",   "skype.audio.unk1", FT_BYTES, BASE_NONE, NULL,
 			0x0, NULL, HFILL }},
 
-	/* Unknown */
+	/* Unknown_F */
 		{ &hf_skype_unknown_f_unk1,
 		{ "Unknown1",   "skype.unknown_f.unk1", FT_BYTES, BASE_NONE, NULL,
 			0x0, NULL, HFILL }},
