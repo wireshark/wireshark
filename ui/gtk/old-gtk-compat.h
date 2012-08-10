@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifndef OLD_GTK_COMPAT_H
@@ -51,13 +51,20 @@
 #	define gtk_widget_get_has_window(x) (!GTK_WIDGET_NO_WINDOW(x))
 #	define gtk_widget_get_visible(x) GTK_WIDGET_VISIBLE(x)
 #	define gtk_widget_get_state(x) GTK_WIDGET_STATE(x)
-#	define gtk_widget_get_allocation(x,y) (*(y) = x->allocation)
+#	define gtk_widget_get_allocation(x,y) *(y) = (x)->allocation
+#	define gtk_widget_set_allocation(x, y) (x)->allocation = *(y)
 #	define gtk_widget_get_sensitive(x) GTK_WIDGET_SENSITIVE(x)
 #	define gtk_widget_is_drawable(x) GDK_IS_DRAWABLE(x)
+#	define gtk_widget_set_window(x, y) (x)->window = (y)
+#	define gtk_widget_set_can_default(w,y) if(y==TRUE){GTK_WIDGET_SET_FLAGS (w, GTK_CAN_DEFAULT);}else{GTK_WIDGET_UNSET_FLAGS (w, GTK_CAN_DEFAULT);}
+#	define gtk_widget_set_can_focus(w,y) if(y==TRUE){GTK_WIDGET_SET_FLAGS (w, GTK_CAN_FOCUS);}else{GTK_WIDGET_UNSET_FLAGS (w, GTK_CAN_FOCUS);}
 #endif
 
 #if !GTK_CHECK_VERSION (2, 20, 0)
 #	define gtk_widget_get_realized(x) GTK_WIDGET_REALIZED(x)
+#   define _gtk_widget_set_realized_true(x) GTK_WIDGET_SET_FLAGS(widget, GTK_REALIZED)
+#else
+#   define _gtk_widget_set_realized_true(x) gtk_widget_set_realized(x, TRUE)
 #endif
 
 #if !GTK_CHECK_VERSION (2, 22, 0)
