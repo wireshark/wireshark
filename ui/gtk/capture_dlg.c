@@ -105,7 +105,8 @@ enum
 
 enum
 {
-  SIGN = 0,
+  ERROR = 0,
+  SIGN,
   INAME
 };
 
@@ -1998,17 +1999,16 @@ add_page(gchar *name, gchar *text, gboolean error)
   GtkWidget        *view, *icon;
   GtkTreeModel     *model;
   GtkTreeIter      iter;
-  /*GdkPixbuf        *pixbuf;*/
 
   view = g_object_get_data(G_OBJECT(compile_bpf_w), E_COMPILE_TREE_VIEW_INTERFACES);
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
   gtk_list_store_append (GTK_LIST_STORE(model), &iter);
   if (error) {
     icon = pixbuf_to_widget(expert_error_pb_data);
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, SIGN, gtk_image_get_pixbuf(GTK_IMAGE(icon)), INAME, name, -1);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, ERROR, 1, SIGN, gtk_image_get_pixbuf(GTK_IMAGE(icon)), INAME, name, -1);
   } else {
     icon = pixbuf_to_widget(expert_ok_pb_data);
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, SIGN, gtk_image_get_pixbuf(GTK_IMAGE(icon)), INAME, name, -1);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, ERROR, 0, SIGN, gtk_image_get_pixbuf(GTK_IMAGE(icon)), INAME, name, -1);
   }
   g_hash_table_insert(compile_results, name, text);
 }
@@ -2021,12 +2021,18 @@ compile_tree_select_cb(GtkTreeSelection *sel, gpointer dummy _U_)
   GtkTreeIter   iter;
   GtkWidget     *textview;
   GtkTextBuffer *buffer;
+  guint         error;
 
   if (gtk_tree_selection_get_selected(sel, &model, &iter))
   {
-    gtk_tree_model_get(model, &iter, INAME, &name, -1);
+    gtk_tree_model_get(model, &iter, ERROR, &error, INAME, &name, -1);
     text = (gchar *)g_hash_table_lookup(compile_results, name);
     textview = g_object_get_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB);
+    if (error == 1) {
+      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), TRUE);
+    } else {
+      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), FALSE);
+    }
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
     gtk_text_buffer_set_text(buffer, text, -1);
     gtk_widget_show_all(compile_bpf_w);
@@ -2071,6 +2077,7 @@ compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
 
   /* scrolled window on the left for the categories tree */
   ct_sb = scrolled_window_new(NULL, NULL);
+  gtk_widget_set_size_request(GTK_WIDGET(ct_sb), 50, -1);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(ct_sb),
                                    GTK_SHADOW_IN);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ct_sb),
@@ -2079,13 +2086,19 @@ compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(ct_sb);
   g_object_set_data(G_OBJECT(compile_bpf_w), E_COMPILE_SW_SCROLLW_KEY, ct_sb);
 
-  store = gtk_list_store_new(2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
+  store = gtk_list_store_new(3, G_TYPE_UINT, GDK_TYPE_PIXBUF, G_TYPE_STRING);
   view = gtk_tree_view_new_with_model (GTK_TREE_MODEL(store));
   gtk_tree_view_set_model(GTK_TREE_VIEW(view), GTK_TREE_MODEL (store));
   g_object_set(G_OBJECT(view), "headers-visible", FALSE, NULL);
   g_object_set_data(G_OBJECT(compile_bpf_w), E_COMPILE_TREE_VIEW_INTERFACES, view);
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
   gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+  column = gtk_tree_view_column_new();
+  renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(column, renderer, TRUE);
+  gtk_tree_view_column_set_attributes(column, renderer, "text", ERROR, NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
+  gtk_tree_view_column_set_visible(column, FALSE);
   column = gtk_tree_view_column_new();
   renderer = gtk_cell_renderer_pixbuf_new();
   gtk_tree_view_column_pack_start(column, renderer, FALSE);
@@ -2108,8 +2121,8 @@ compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
   font = pango_font_description_from_string("Monospace");
   textview = gtk_text_view_new();
   gtk_widget_modify_font(textview, font);
-  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), GTK_WRAP_WORD); 
   scrolled_win = gtk_scrolled_window_new(NULL, NULL);
+  gtk_widget_set_size_request(GTK_WIDGET(scrolled_win), 350, -1);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win),
                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_win),
@@ -2177,7 +2190,7 @@ capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
       if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, 0) < 0) {
 #endif
         g_mutex_unlock(pcap_compile_mtx);
-        add_page(device.name, g_markup_escape_text(pcap_geterr(pd), -1), TRUE); 
+        add_page(device.name, g_strdup(pcap_geterr(pd)), TRUE);
       } else {
         GString *bpf_code_dump = g_string_new("");
         struct bpf_insn *insn = fcode.bf_insns;
@@ -2190,7 +2203,7 @@ capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
         }
         bpf_code_str = g_string_free(bpf_code_dump, FALSE);
         g_mutex_unlock(pcap_compile_mtx);
-        add_page(device.name, g_markup_escape_text(bpf_code_str, -1), FALSE); 
+        add_page(device.name, g_strdup(bpf_code_str), FALSE);
         g_free(bpf_code_str);
       }
       g_free(filter_text);
@@ -2973,8 +2986,8 @@ void enable_selected_interface(gchar *name, gboolean selected)
   do {
     gtk_tree_model_get(model, &iter, IFACE_HIDDEN_NAME, &name_str, -1);
     if (strcmp(name, name_str) == 0) {
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, selected, -1);
-    break;
+      gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, selected, -1);
+      break;
     }
   }
   while (gtk_tree_model_iter_next(model, &iter));
