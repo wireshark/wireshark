@@ -114,6 +114,7 @@ static int hf_fp_edch_mac_es_pdu = -1;
 static int hf_fp_edch_user_buffer_size = -1;
 static int hf_fp_edch_no_macid_sdus = -1;
 static int hf_fp_edch_number_of_mac_is_pdus = -1;
+static int hf_fp_edch_mac_is_pdu = -1;
 
 static int hf_fp_edch_e_rnti = -1;
 static int hf_fp_edch_macis_descriptors = -1;
@@ -3024,8 +3025,16 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                 mac_is_info->lchid[i] = subframes[n].mac_is_lchid[pdu_no][i];
                 length += subframes[n].mac_is_length[pdu_no][i];
             }
-            p_add_proto_data(pinfo->fd, proto_umts_mac, mac_is_info);
-            call_dissector(mac_fdd_edch_type2_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, top_level_tree);
+
+            /* Call MAC for this PDU if configured to */
+            if (preferences_call_mac_dissectors) {
+                p_add_proto_data(pinfo->fd, proto_umts_mac, mac_is_info);
+                call_dissector(mac_fdd_edch_type2_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, top_level_tree);
+            }
+            else {
+                /* Still show data if not decoding as MAC PDU */
+                proto_tree_add_item(tree, hf_fp_edch_mac_is_pdu, tvb, offset, length, ENC_NA);
+            }
 
             /* get_mac_tsn_size in packet-umts_mac.h, gets the global_mac_tsn_size preference in umts_mac.c */
             if (get_mac_tsn_size() == MAC_TSN_14BITS) {
@@ -4757,6 +4766,12 @@ void proto_register_fp(void)
             { &hf_fp_edch_number_of_mac_is_pdus,
               { "Number of Mac-is PDUs",
                 "fp.edch.number-of-mac-is-pdus", FT_UINT8, BASE_DEC, 0, 0x0,
+                NULL, HFILL
+              }
+            },
+            { &hf_fp_edch_mac_is_pdu,
+              { "Mac-is PDU",
+                "fp.edch.mac-is-pdu", FT_BYTES, BASE_NONE, 0, 0x0,
                 NULL, HFILL
               }
             },
