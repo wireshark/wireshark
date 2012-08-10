@@ -47,6 +47,7 @@
 #include "asm_utils.h"
 #include "column-utils.h"
 #include "to_str.h"
+#include "expert.h"
 
 #include "wspython/wspy_register.h"
 
@@ -1075,6 +1076,15 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 	return pi;
 }
 
+/* We could probably get away with changing is_error to a minimum length value. */
+static void
+report_type_length_mismatch(proto_tree *tree, const gchar *descr, int length, gboolean is_error) {
+	expert_add_info_format(NULL, tree, PI_MALFORMED, is_error ? PI_ERROR : PI_WARN, "Trying to fetch %s with length %d", descr, length);
+	if (is_error) {
+		THROW(ReportedBoundsError);
+	}
+}
+
 /*
  * NOTE: to support code written when proto_tree_add_item() took a
  * gboolean as its last argument, with FALSE meaning "big-endian"
@@ -1082,9 +1092,10 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
  * "encoding" as meaning "little-endian".
  */
 static guint32
-get_uint_value(tvbuff_t *tvb, gint offset, gint length, const guint encoding)
+get_uint_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const guint encoding)
 {
 	guint32 value;
+	gboolean length_error;
 
 	switch (length) {
 
@@ -1108,8 +1119,17 @@ get_uint_value(tvbuff_t *tvb, gint offset, gint length, const guint encoding)
 		break;
 
 	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
-		value = 0;
+		if (length < 1) {
+			length_error = TRUE;
+			value = 0;
+		} else {
+			length_error = FALSE;
+			value = encoding ? tvb_get_letohl(tvb, offset)
+					 : tvb_get_ntohl(tvb, offset);
+		}
+		report_type_length_mismatch(tree, "an unsigned integer", length, length_error);
+		value = encoding ? tvb_get_letohl(tvb, offset)
+				 : tvb_get_ntohl(tvb, offset);
 		break;
 	}
 	return value;
@@ -1122,9 +1142,10 @@ get_uint_value(tvbuff_t *tvb, gint offset, gint length, const guint encoding)
  * "encoding" as meaning "little-endian".
  */
 static gint32
-get_int_value(tvbuff_t *tvb, gint offset, gint length, const guint encoding)
+get_int_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const guint encoding)
 {
 	gint32 value;
+	gboolean length_error;
 
 	switch (length) {
 
@@ -1152,8 +1173,17 @@ get_int_value(tvbuff_t *tvb, gint offset, gint length, const guint encoding)
 		break;
 
 	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
-		value = 0;
+		if (length < 1) {
+			length_error = TRUE;
+			value = 0;
+		} else {
+			length_error = FALSE;
+			value = encoding ? tvb_get_letohl(tvb, offset)
+					 : tvb_get_ntohl(tvb, offset);
+		}
+		report_type_length_mismatch(tree, "an unsigned integer", length, length_error);
+		value = encoding ? tvb_get_letohl(tvb, offset)
+				 : tvb_get_ntohl(tvb, offset);
 		break;
 	}
 	return value;
@@ -1203,6 +1233,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	const char *string;
 	nstime_t    time_stamp;
 	GPtrArray  *ptrs;
+	gboolean    length_error;
 
 	/* there is a possibility here that we might raise an exception
 	 * and thus would lose track of the field_info.
@@ -1246,7 +1277,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding)
 				encoding = ENC_LITTLE_ENDIAN;
-			n = get_uint_value(tvb, start, length, encoding);
+			n = get_uint_value(tree, tvb, start, length, encoding);
 			proto_tree_set_bytes_tvb(new_fi, tvb, start + length, n);
 
 			/* Instead of calling proto_item_set_len(), since we don't yet
@@ -1262,7 +1293,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			if (encoding)
 				encoding = ENC_LITTLE_ENDIAN;
 			proto_tree_set_boolean(new_fi,
-				get_uint_value(tvb, start, length, encoding));
+				get_uint_value(tree, tvb, start, length, encoding));
 			break;
 
 		/* XXX - make these just FT_UINT? */
@@ -1277,7 +1308,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			if (encoding)
 				encoding = ENC_LITTLE_ENDIAN;
 			proto_tree_set_uint(new_fi,
-				get_uint_value(tvb, start, length, encoding));
+				get_uint_value(tree, tvb, start, length, encoding));
 			break;
 
 		case FT_INT64:
@@ -1288,7 +1319,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding)
 				encoding = ENC_LITTLE_ENDIAN;
-			DISSECTOR_ASSERT( length <= 8 && length >= 1);
+			if (length < 1 || length > 8) {
+				length_error = length < 1 ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "a 64-bit integer", length, length_error);
+			}
 			proto_tree_set_uint64_tvb(new_fi, tvb, start, length, encoding);
 			break;
 
@@ -1304,7 +1338,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			if (encoding)
 				encoding = ENC_LITTLE_ENDIAN;
 			proto_tree_set_int(new_fi,
-				get_int_value(tvb, start, length, encoding));
+				get_int_value(tree, tvb, start, length, encoding));
 			break;
 
 		case FT_IPv4:
@@ -1314,7 +1348,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding)
 				encoding = ENC_LITTLE_ENDIAN;
-			DISSECTOR_ASSERT(length == FT_IPv4_LEN);
+			if (length != FT_IPv4_LEN) {
+				length_error = length < FT_IPv4_LEN ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "an IPv4 address", length, length_error);
+			}
 			value = tvb_get_ipv4(tvb, start);
 			/*
 			 * NOTE: to support code written when
@@ -1328,23 +1365,36 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_IPXNET:
-			DISSECTOR_ASSERT(length == FT_IPXNET_LEN);
+			if (length != FT_IPXNET_LEN) {
+				length_error = length < FT_IPXNET_LEN ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "an IPXNET address", length, length_error);
+			}
 			proto_tree_set_ipxnet(new_fi,
-				get_uint_value(tvb, start, 4, FALSE));
+				get_uint_value(tree, tvb, start, FT_IPXNET_LEN, FALSE));
 			break;
 
 		case FT_IPv6:
-			DISSECTOR_ASSERT(length >= 0 && length <= FT_IPv6_LEN);
+			if (length != FT_IPv6_LEN) {
+				length_error = length < FT_IPv6_LEN ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "an IPv6 address", length, length_error);
+			}
 			proto_tree_set_ipv6_tvb(new_fi, tvb, start, length);
 			break;
 
 		case FT_AX25:
-			DISSECTOR_ASSERT(length == 7);
+			if (length != 7) {
+				length_error = length < 7 ? TRUE : FALSE;
+				expert_add_info_format(NULL, tree, PI_MALFORMED, PI_ERROR, "Trying to fetch an AX.25 address with length %d", length);
+				THROW(ReportedBoundsError);
+			}
 			proto_tree_set_ax25_tvb(new_fi, tvb, start);
 			break;
 
 		case FT_ETHER:
-			DISSECTOR_ASSERT(length == FT_ETHER_LEN);
+			if (length != FT_ETHER_LEN) {
+				length_error = length < FT_ETHER_LEN ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "an Ethernet", length, length_error);
+			}
 			proto_tree_set_ether_tvb(new_fi, tvb, start);
 			break;
 
@@ -1355,7 +1405,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding)
 				encoding = ENC_LITTLE_ENDIAN;
-			DISSECTOR_ASSERT(length == FT_EUI64_LEN);
+			if (length != FT_EUI64_LEN) {
+				length_error = length < FT_EUI64_LEN ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "an EUI-64 address", length, length_error);
+			}
 			proto_tree_set_eui64_tvb(new_fi, tvb, start, encoding);
 			break;
 		case FT_GUID:
@@ -1365,7 +1418,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding)
 				encoding = ENC_LITTLE_ENDIAN;
-			DISSECTOR_ASSERT(length == FT_GUID_LEN);
+			if (length != FT_GUID_LEN) {
+				length_error = length < FT_GUID_LEN ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "a GUID", length, length_error);
+			}
 			proto_tree_set_guid_tvb(new_fi, tvb, start, encoding);
 			break;
 
@@ -1389,7 +1445,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding)
 				encoding = ENC_LITTLE_ENDIAN;
-			DISSECTOR_ASSERT(length == 4);
+			if (length != 4) {
+				length_error = length < 4 ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "a single-precision floating point number", length, length_error);
+			}
 			if (encoding)
 				floatval = tvb_get_letohieee_float(tvb, start);
 			else
@@ -1413,7 +1472,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding == TRUE)
 				encoding = ENC_LITTLE_ENDIAN;
-			DISSECTOR_ASSERT(length == 8);
+			if (length != 4) {
+				length_error = length < 8 ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "a double-precision floating point number", length, length_error);
+			}
 			if (encoding)
 				doubleval = tvb_get_letohieee_double(tvb, start);
 			else
@@ -1427,7 +1489,9 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_STRINGZ:
-			DISSECTOR_ASSERT(length >= -1);
+			if (length < -1 ) {
+				report_type_length_mismatch(tree, "a string", length, TRUE);
+			}
 			/* Instead of calling proto_item_set_len(),
 			 * since we don't yet have a proto_item, we
 			 * set the field_info's length ourselves.
@@ -1495,7 +1559,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding == TRUE)
 				encoding = ENC_ASCII|ENC_LITTLE_ENDIAN;
-			n = get_uint_value(tvb, start, length, encoding);
+			n = get_uint_value(tree, tvb, start, length, encoding);
 			proto_tree_set_string_tvb(new_fi, tvb, start + length, n,
 			    encoding);
 
@@ -1528,6 +1592,11 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			if (encoding == TRUE)
 				encoding = ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN;
 
+			if (length != 8 && length != 4) {
+				length_error = length < 4 ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "an absolute time value", length, length_error);
+			}
+
 			switch (encoding) {
 
 			case ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN:
@@ -1536,7 +1605,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 * 4-byte fractional time in nanoseconds,
 				 * both big-endian.
 				 */
-				DISSECTOR_ASSERT(length == 8 || length == 4);
 				time_stamp.secs  = tvb_get_ntohl(tvb, start);
 				if (length == 8)
 					time_stamp.nsecs = tvb_get_ntohl(tvb, start+4);
@@ -1550,7 +1618,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 * 4-byte fractional time in nanoseconds,
 				 * both little-endian.
 				 */
-				DISSECTOR_ASSERT(length == 8 || length == 4);
 				time_stamp.secs  = tvb_get_letohl(tvb, start);
 				if (length == 8)
 					time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
@@ -1562,7 +1629,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				/*
 				 * NTP time stamp, big-endian.
 				 */
-				DISSECTOR_ASSERT(length == 8 || length == 4);
 
 /* XXX - where should this go? */
 #define NTP_BASETIME 2208988800ul
@@ -1588,7 +1654,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				/*
 				 * NTP time stamp, big-endian.
 				 */
-				DISSECTOR_ASSERT(length == 8 || length == 4);
 				time_stamp.secs  = tvb_get_letohl(tvb, start);
 				if (time_stamp.secs)
 					time_stamp.secs -= NTP_BASETIME;
@@ -1634,13 +1699,17 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				encoding = ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN;
 			switch (encoding) {
 
+			if (length != 8 && length != 4) {
+				length_error = length < 4 ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "a relative time value", length, length_error);
+			}
+
 			case ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN:
 				/*
 				 * 4-byte UNIX epoch, possibly followed by
 				 * 4-byte fractional time in nanoseconds,
 				 * both big-endian.
 				 */
-				DISSECTOR_ASSERT(length == 8 || length == 4);
 				time_stamp.secs  = tvb_get_ntohl(tvb, start);
 				if (length == 8)
 					time_stamp.nsecs = tvb_get_ntohl(tvb, start+4);
@@ -1654,7 +1723,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 * 4-byte fractional time in nanoseconds,
 				 * both little-endian.
 				 */
-				DISSECTOR_ASSERT(length == 8 || length == 4);
 				time_stamp.secs  = tvb_get_letohl(tvb, start);
 				if (length == 8)
 					time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
@@ -1716,7 +1784,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 		 * The length of the rest of the item is in the first N
 		 * bytes of the item.
 		 */
-		n = get_uint_value(ptvc->tvb, offset, length, encoding);
+		n = get_uint_value(ptvc->tree, ptvc->tvb, offset, length, encoding);
 		ptvc->offset += n;
 	}
 
