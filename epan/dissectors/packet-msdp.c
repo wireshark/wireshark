@@ -176,59 +176,57 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         proto_item *ti;
         proto_tree *msdp_tree;
-        int offset;
+        int         offset;
+        guint8      type;
+        guint16     length;
+
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSDP");
 
         if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_str(pinfo->cinfo, COL_INFO, val_to_str(tvb_get_guint8(tvb, 0),
-                                                            msdp_types,
-                                                            "<Unknown MSDP message type>"));
+                col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(tvb_get_guint8(tvb, 0),
+                                                                     msdp_types,
+                                                                     "<Unknown MSDP message type>"));
 
-        if (tree) {
-                guint8 type;
-                guint16 length;
+        ti = proto_tree_add_item(tree, proto_msdp, tvb, 0, -1, ENC_NA);
+        msdp_tree = proto_item_add_subtree(ti, ett_msdp);
 
-                ti = proto_tree_add_item(tree, proto_msdp, tvb, 0, -1, ENC_NA);
-                msdp_tree = proto_item_add_subtree(ti, ett_msdp);
+        offset = 0;
+        while (tvb_reported_length_remaining(tvb, offset) >= 3) {
+                type = tvb_get_guint8(tvb, offset);
+                length = tvb_get_ntohs(tvb, offset + 1);
+                if (length < 3)
+                        break;
+                proto_tree_add_uint(msdp_tree, hf_msdp_type, tvb, offset, 1, type);
+                proto_tree_add_uint(msdp_tree, hf_msdp_length, tvb, offset + 1, 2, length);
+                offset += 3;
+                length -= 3;
 
-                offset = 0;
-                while (tvb_reported_length_remaining(tvb, offset) >= 3) {
-                        type = tvb_get_guint8(tvb, offset);
-                        length = tvb_get_ntohs(tvb, offset + 1);
-                        if (length < 3)
-                                break;
-                        proto_tree_add_uint(msdp_tree, hf_msdp_type, tvb, offset, 1, type);
-                        proto_tree_add_uint(msdp_tree, hf_msdp_length, tvb, offset + 1, 2, length);
-                        offset += 3;
-                        length -= 3;
-
-                        switch (type) {
-                        case MSDP_SA:
-                        case MSDP_SA_RSP:
-                                dissect_msdp_sa(tvb, pinfo, msdp_tree, &offset,
-                                    length);
-                                break;
-                        case MSDP_SA_REQ:
-                                proto_tree_add_item(msdp_tree, hf_msdp_sa_req_res, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                proto_tree_add_item(msdp_tree, hf_msdp_sa_req_group, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
-                                offset += 5;
-                                break;
-                        case MSDP_NOTIFICATION:
-                                dissect_msdp_notification(tvb, pinfo, msdp_tree, &offset, length);
-                                break;
-                        default:
-                                if (length > 0)
-                                        proto_tree_add_text(msdp_tree, tvb, offset, length, "TLV contents");
-                                offset += length;
-                                break;
-                        }
+                switch (type) {
+                case MSDP_SA:
+                case MSDP_SA_RSP:
+                        dissect_msdp_sa(tvb, pinfo, msdp_tree, &offset,
+                                        length);
+                        break;
+                case MSDP_SA_REQ:
+                        proto_tree_add_item(msdp_tree, hf_msdp_sa_req_res, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(msdp_tree, hf_msdp_sa_req_group, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
+                        offset += 5;
+                        break;
+                case MSDP_NOTIFICATION:
+                        dissect_msdp_notification(tvb, pinfo, msdp_tree, &offset, length);
+                        break;
+                default:
+                        if (length > 0)
+                                proto_tree_add_text(msdp_tree, tvb, offset, length, "TLV contents");
+                        offset += length;
+                        break;
                 }
-
-                if (tvb_length_remaining(tvb, offset) > 0)
-                        proto_tree_add_text(msdp_tree, tvb, offset,
-                                            -1, "Trailing junk");
         }
+
+        if (tvb_length_remaining(tvb, offset) > 0)
+                proto_tree_add_text(msdp_tree, tvb, offset,
+                                    -1, "Trailing junk");
 
         return;
 }
@@ -250,7 +248,7 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
         length -= 1;
 
         if (length < 4) {
-               	*offset += length;
+                *offset += length;
                 return;
         }
         proto_tree_add_item(tree, hf_msdp_sa_rp_addr, tvb, *offset, 4, ENC_BIG_ENDIAN);
@@ -265,7 +263,7 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree *entry_tree;
 
                 if (length < 12) {
-                	*offset += length;
+                        *offset += length;
                         return;
                 }
                 ei = proto_tree_add_text(tree, tvb, *offset, 12, "(S,G) block: %s/%u -> %s",
@@ -344,7 +342,7 @@ static void add_notification_data_ipv4addr(tvbuff_t *tvb, proto_tree *tree, int 
 
 static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, guint16 tlv_len)
 {
-        guint8 error, error_sub;
+        guint8              error, error_sub;
         const value_string *vals;
 
         proto_tree_add_item(tree, hf_msdp_not_o, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -382,7 +380,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
         error_sub = tvb_get_guint8(tvb, *offset);
         proto_tree_add_uint_format(tree, hf_msdp_not_error_sub, tvb, *offset, 1,
                                    error_sub, "Error subcode: %s (%u)",
-                                   val_to_str(error_sub, vals, "<Unknown Error subcode>"),
+                                   val_to_str_const(error_sub, vals, "<Unknown Error subcode>"),
                                    error_sub);
         *offset += 1;
 
@@ -565,9 +563,9 @@ proto_register_msdp(void)
 void
 proto_reg_handoff_msdp(void)
 {
-	dissector_handle_t msdp_handle;
+        dissector_handle_t msdp_handle;
 
-	msdp_handle = create_dissector_handle(dissect_msdp, proto_msdp);
+        msdp_handle = create_dissector_handle(dissect_msdp, proto_msdp);
         dissector_add_uint("tcp.port", 639, msdp_handle);
 
         ip_handle = find_dissector("ip");
