@@ -467,91 +467,6 @@ goto_previous_frame_conversation_cb(GtkAction *action _U_, gpointer user_data _U
 }
 
 
-/*Apply a filter */
-
-static void
-tree_view_menu_apply_selected_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/Selected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
-}
-
-static void
-tree_view_menu_apply_not_selected_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/NotSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
-}
-
-static void
-tree_view_menu_apply_and_selected_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/AndSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
-}
-
-static void
-tree_view_menu_apply_or_selected_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/OrSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
-}
-
-static void
-tree_view_menu_apply_and_not_selected_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/AndNotSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
-}
-
-static void
-tree_view_menu_apply_or_not_selected_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/OrNotSelected");
-    match_selected_ptree_cb( widget , user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
-}
-/* Prepare a filter */
-static void
-tree_view_menu_prepare_selected_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/Selected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE);
-}
-
-static void
-tree_view_menu_prepare_not_selected_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/NotSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_NOT);
-}
-
-static void
-tree_view_menu_prepare_and_selected_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/AndSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND);
-}
-
-static void
-tree_view_menu_prepare_or_selected_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/OrSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR);
-}
-
-static void
-tree_view_menu_prepare_and_not_selected_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/AndNotSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND_NOT);
-}
-
-static void
-tree_view_menu_prepare_or_not_selected_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/OrNotSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR_NOT);
-}
 
 static void
 copy_description_cb(GtkAction *action _U_, gpointer user_data)
@@ -572,9 +487,10 @@ copy_value_cb(GtkAction *action _U_, gpointer user_data)
 }
 
 static void
-copy_as_filter_cb(GtkAction *action _U_, gpointer user_data)
+copy_as_filter_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    match_selected_ptree_cb( NULL /* widget _U_ */ , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 }
 
 static void
@@ -1148,21 +1064,21 @@ static const char *ui_desc_menubar =
 "      <menuitem name='DisplayFilterMacros' action='/Analyze/DisplayFilterMacros'/>\n"
 "      <separator/>\n"
 "      <menuitem name='ApplyasColumn' action='/Analyze/ApplyasColumn'/>\n"
-"      <menu name= 'ApplyAsFilter' action='/Analyze/ApplyasFilter'>\n"
-"        <menuitem name='Selected' action='/Analyze/ApplyasFilter/Selected'/>\n"
-"        <menuitem name='NotSelected' action='/Analyze/ApplyasFilter/NotSelected'/>\n"
-"        <menuitem name='AndSelected' action='/Analyze/ApplyasFilter/AndSelected'/>\n"
-"        <menuitem name='OrSelected' action='/Analyze/ApplyasFilter/OrSelected'/>\n"
-"        <menuitem name='AndNotSelected' action='/Analyze/ApplyasFilter/AndNotSelected'/>\n"
-"        <menuitem name='OrNotSelected' action='/Analyze/ApplyasFilter/OrNotSelected'/>\n"
+"      <menu name= 'ApplyAsFilter' action='/ApplyasFilter'>\n"
+"        <menuitem name='Selected' action='/ApplyasFilter/Selected'/>\n"
+"        <menuitem name='NotSelected' action='/ApplyasFilter/Not Selected'/>\n"
+"        <menuitem name='AndSelected' action='/ApplyasFilter/AndSelected'/>\n"
+"        <menuitem name='OrSelected' action='/ApplyasFilter/OrSelected'/>\n"
+"        <menuitem name='AndNotSelected' action='/ApplyasFilter/AndNotSelected'/>\n"
+"        <menuitem name='OrNotSelected' action='/ApplyasFilter/OrNotSelected'/>\n"
 "      </menu>\n"
-"      <menu name= 'PrepareaFilter' action='/Analyze/PrepareaFilter'>\n"
-"        <menuitem name='Selected' action='/Analyze/PrepareaFilter/Selected'/>\n"
-"        <menuitem name='NotSelected' action='/Analyze/PrepareaFilter/NotSelected'/>\n"
-"        <menuitem name='AndSelected' action='/Analyze/PrepareaFilter/AndSelected'/>\n"
-"        <menuitem name='OrSelected' action='/Analyze/PrepareaFilter/OrSelected'/>\n"
-"        <menuitem name='AndNotSelected' action='/Analyze/PrepareaFilter/AndNotSelected'/>\n"
-"        <menuitem name='OrNotSelected' action='/Analyze/PrepareaFilter/OrNotSelected'/>\n"
+"      <menu name= 'PrepareaFilter' action='/PrepareaFilter'>\n"
+"        <menuitem name='Selected' action='/PrepareaFilter/Selected'/>\n"
+"        <menuitem name='NotSelected' action='/PrepareaFilter/Not Selected'/>\n"
+"        <menuitem name='AndSelected' action='/PrepareaFilter/AndSelected'/>\n"
+"        <menuitem name='OrSelected' action='/PrepareaFilter/OrSelected'/>\n"
+"        <menuitem name='AndNotSelected' action='/PrepareaFilter/AndNotSelected'/>\n"
+"        <menuitem name='OrNotSelected' action='/PrepareaFilter/OrNotSelected'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
 "      <menuitem name='EnabledProtocols' action='/Analyze/EnabledProtocols'/>\n"
@@ -1412,6 +1328,25 @@ static const char *ui_desc_menubar =
  * GCallback callback;          The function to call when the action is activated.
  *
  */
+#if 0
+   { "/Analyze/ApplyasFilter",                  NULL,                           "Apply as Filter",      NULL,                   NULL,               NULL },
+
+   { "/Analyze/ApplyasFilter/Selected",         NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(tree_view_menu_apply_selected_cb) },
+   { "/Analyze/ApplyasFilter/NotSelected",      NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(tree_view_menu_apply_not_selected_cb) },
+   { "/Analyze/ApplyasFilter/AndSelected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " _and Selected",        NULL, NULL, G_CALLBACK(tree_view_menu_apply_and_selected_cb) },
+   { "/Analyze/ApplyasFilter/OrSelected",       NULL, UTF8_HORIZONTAL_ELLIPSIS " _or Selected",     NULL, NULL, G_CALLBACK(tree_view_menu_apply_or_selected_cb) },
+   { "/Analyze/ApplyasFilter/AndNotSelected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected",    NULL, NULL, G_CALLBACK(tree_view_menu_apply_and_not_selected_cb) },
+   { "/Analyze/ApplyasFilter/OrNotSelected",    NULL, UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, NULL, G_CALLBACK(tree_view_menu_apply_or_not_selected_cb) },
+
+   { "/Analyze/PrepareaFilter",                 NULL, "Prepare a Filter",       NULL, NULL, NULL },
+   { "/Analyze/PrepareaFilter/Selected",        NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(tree_view_menu_prepare_selected_cb) },
+   { "/Analyze/PrepareaFilter/NotSelected",     NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(tree_view_menu_prepare_not_selected_cb) },
+   { "/Analyze/PrepareaFilter/AndSelected",     NULL, UTF8_HORIZONTAL_ELLIPSIS " _and Selected",        NULL, NULL, G_CALLBACK(tree_view_menu_prepare_and_selected_cb) },
+   { "/Analyze/PrepareaFilter/OrSelected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " _or Selected",     NULL, NULL, G_CALLBACK(tree_view_menu_prepare_or_selected_cb) },
+   { "/Analyze/PrepareaFilter/AndNotSelected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected",    NULL, NULL, G_CALLBACK(tree_view_menu_prepare_and_not_selected_cb) },
+   { "/Analyze/PrepareaFilter/OrNotSelected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, NULL, G_CALLBACK(tree_view_menu_prepare_or_not_selected_cb) },
+
+#endif
 static const GtkActionEntry main_menu_bar_entries[] = {
   /* Top level */
   { "/File",                    NULL,                              "_File",              NULL,                   NULL,           NULL },
@@ -1615,22 +1550,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Analyze/DisplayFilterMacros",            NULL,                   "Display Filter _Macros...",    NULL,                   NULL,               G_CALLBACK(macros_dialog_cb) },
    { "/Analyze/ApplyasColumn",                  NULL,                           "Apply as Column",      NULL,                   NULL,               G_CALLBACK(apply_as_custom_column_cb) },
-   { "/Analyze/ApplyasFilter",                  NULL,                           "Apply as Filter",      NULL,                   NULL,               NULL },
-
-   { "/Analyze/ApplyasFilter/Selected",         NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(tree_view_menu_apply_selected_cb) },
-   { "/Analyze/ApplyasFilter/NotSelected",      NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(tree_view_menu_apply_not_selected_cb) },
-   { "/Analyze/ApplyasFilter/AndSelected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " _and Selected",        NULL, NULL, G_CALLBACK(tree_view_menu_apply_and_selected_cb) },
-   { "/Analyze/ApplyasFilter/OrSelected",       NULL, UTF8_HORIZONTAL_ELLIPSIS " _or Selected",     NULL, NULL, G_CALLBACK(tree_view_menu_apply_or_selected_cb) },
-   { "/Analyze/ApplyasFilter/AndNotSelected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected",    NULL, NULL, G_CALLBACK(tree_view_menu_apply_and_not_selected_cb) },
-   { "/Analyze/ApplyasFilter/OrNotSelected",    NULL, UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, NULL, G_CALLBACK(tree_view_menu_apply_or_not_selected_cb) },
-
-   { "/Analyze/PrepareaFilter",                 NULL, "Prepare a Filter",       NULL, NULL, NULL },
-   { "/Analyze/PrepareaFilter/Selected",        NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(tree_view_menu_prepare_selected_cb) },
-   { "/Analyze/PrepareaFilter/NotSelected",     NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(tree_view_menu_prepare_not_selected_cb) },
-   { "/Analyze/PrepareaFilter/AndSelected",     NULL, UTF8_HORIZONTAL_ELLIPSIS " _and Selected",        NULL, NULL, G_CALLBACK(tree_view_menu_prepare_and_selected_cb) },
-   { "/Analyze/PrepareaFilter/OrSelected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " _or Selected",     NULL, NULL, G_CALLBACK(tree_view_menu_prepare_or_selected_cb) },
-   { "/Analyze/PrepareaFilter/AndNotSelected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected",    NULL, NULL, G_CALLBACK(tree_view_menu_prepare_and_not_selected_cb) },
-   { "/Analyze/PrepareaFilter/OrNotSelected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, NULL, G_CALLBACK(tree_view_menu_prepare_or_not_selected_cb) },
 
    { "/Analyze/EnabledProtocols",   WIRESHARK_STOCK_CHECKBOX, "_Enabled Protocols...",  "<shift><control>E", NULL, G_CALLBACK(proto_cb) },
    { "/Analyze/DecodeAs",   WIRESHARK_STOCK_DECODE_AS, "Decode _As...",         NULL, NULL, G_CALLBACK(decode_as_cb) },
@@ -1965,75 +1884,173 @@ packet_list_menu_set_ref_time_cb(GtkAction *action _U_, gpointer user_data)
 
 
 static void
-packet_list_menu_apply_selected_cb(GtkAction *action _U_, gpointer user_data)
+apply_selected_filter_cb(GtkAction *action, gpointer user_data)
 {
-    match_selected_plist_cb( NULL /* widget _U_ */, user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+	const gchar *path = gtk_action_get_accel_path(action);
+	/*g_warning("Accelerator path %s",path+9);*/
+
+	/* path starts with "<Actions>" */
+	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+		/* Use different callbacks depending action path */
+        match_selected_plist_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+	} else {
+		match_selected_ptree_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+	}
 }
 
 static void
-packet_list_menu_apply_not_selected_cb(GtkAction *action _U_, gpointer user_data)
+apply_not_selected_cb(GtkAction *action, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
+	const gchar *path = gtk_action_get_accel_path(action);
+
+    /* path starts with "<Actions>" */
+	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+		/* Use different callbacks depending action path */
+        match_selected_plist_cb(user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
+	} else {
+		match_selected_ptree_cb(user_data, MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+	}
 }
 
 static void
-packet_list_menu_apply_and_selected_cb(GtkAction *action _U_, gpointer user_data)
+apply_and_selected_cb(GtkAction *action, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
+	const gchar *path = gtk_action_get_accel_path(action);
+
+    /* path starts with "<Actions>" */
+	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+		/* Use different callbacks depending action path */
+        match_selected_plist_cb(user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
+	} else {
+		match_selected_ptree_cb(user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
+	}
 }
 
 static void
-packet_list_menu_apply_or_selected_cb(GtkAction *action _U_, gpointer user_data)
+apply_or_selected_cb(GtkAction *action, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
+	const gchar *path = gtk_action_get_accel_path(action);
+
+    /* path starts with "<Actions>" */
+	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+		/* Use different callbacks depending action path */
+        match_selected_plist_cb(user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
+	} else {
+		match_selected_ptree_cb(user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
+	}
 }
 
 static void
-packet_list_menu_apply_and_not_selected_cb(GtkAction *action _U_, gpointer user_data)
+apply_and_not_selected_cb(GtkAction *action, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
+	const gchar *path = gtk_action_get_accel_path(action);
+
+    /* path starts with "<Actions>" */
+	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+		/* Use different callbacks depending action path */
+        match_selected_plist_cb(user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
+	} else {
+		match_selected_ptree_cb(user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
+	}
 }
 
 static void
-packet_list_menu_apply_or_not_selected_cb(GtkAction *action _U_, gpointer user_data)
+apply_or_not_selected_cb(GtkAction *action, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+	const gchar *path = gtk_action_get_accel_path(action);
+
+    /* path starts with "<Actions>" */
+	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+		/* Use different callbacks depending action path */
+        match_selected_plist_cb(user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+	} else {
+		match_selected_ptree_cb(user_data, MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+	}
 }
+
 /* Prepare a filter */
 static void
-packet_list_menu_prepare_selected_cb(GtkAction *action _U_, gpointer user_data)
+prepare_selected_cb(GtkAction *action, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_REPLACE);
+	const gchar *path = gtk_action_get_accel_path(action);
+
+    /* path starts with "<Actions>" */
+	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+		/* Use different callbacks depending action path */
+         match_selected_plist_cb(user_data, MATCH_SELECTED_REPLACE);
+	} else {
+		match_selected_ptree_cb(user_data, MATCH_SELECTED_REPLACE);
+	}
 }
 
 static void
-packet_list_menu_prepare_not_selected_cb(GtkAction *action _U_, gpointer user_data)
+prepare_not_selected_cb(GtkAction *action, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_NOT);
+	const gchar *path = gtk_action_get_accel_path(action);
+
+    /* path starts with "<Actions>" */
+	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+		/* Use different callbacks depending action path */
+         match_selected_plist_cb(user_data, MATCH_SELECTED_NOT);
+	} else {
+		match_selected_ptree_cb(user_data, MATCH_SELECTED_NOT);
+	}
 }
 
 static void
-packet_list_menu_prepare_and_selected_cb(GtkAction *action _U_, gpointer user_data)
+prepare_and_selected_cb(GtkAction *action, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_AND);
+	const gchar *path = gtk_action_get_accel_path(action);
+
+    /* path starts with "<Actions>" */
+	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+		/* Use different callbacks depending action path */
+         match_selected_plist_cb(user_data, MATCH_SELECTED_AND);
+	} else {
+		match_selected_ptree_cb(user_data, MATCH_SELECTED_AND);
+	}
 }
 
 static void
-packet_list_menu_prepare_or_selected_cb(GtkAction *action _U_, gpointer user_data)
+prepare_or_selected_cb(GtkAction *action, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_OR);
+	const gchar *path = gtk_action_get_accel_path(action);
+
+    /* path starts with "<Actions>" */
+	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+		/* Use different callbacks depending action path */
+         match_selected_plist_cb(user_data, MATCH_SELECTED_OR);
+	} else {
+		match_selected_ptree_cb(user_data, MATCH_SELECTED_OR);
+	}
 }
 
 static void
-packet_list_menu_prepare_and_not_selected_cb(GtkAction *action _U_, gpointer user_data)
+prepare_and_not_selected_cb(GtkAction *action, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_AND_NOT);
+	const gchar *path = gtk_action_get_accel_path(action);
+
+    /* path starts with "<Actions>" */
+	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+		/* Use different callbacks depending action path */
+         match_selected_plist_cb(user_data, MATCH_SELECTED_AND_NOT);
+	} else {
+		match_selected_ptree_cb(user_data, MATCH_SELECTED_AND_NOT);
+	}
 }
 
 static void
-packet_list_menu_prepare_or_not_selected_cb(GtkAction *action _U_, gpointer user_data)
+prepare_or_not_selected_cb(GtkAction *action, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_OR_NOT);
+	const gchar *path = gtk_action_get_accel_path(action);
+
+    /* path starts with "<Actions>" */
+	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+		/* Use different callbacks depending action path */
+         match_selected_plist_cb(user_data, MATCH_SELECTED_OR_NOT);
+	} else {
+		match_selected_ptree_cb(user_data, MATCH_SELECTED_OR_NOT);
+	}
 }
 
 static void
@@ -2421,7 +2438,7 @@ packet_list_menu_copy_sum_csv(GtkAction *action _U_, gpointer user_data)
 static void
 packet_list_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb( NULL /* widget _U_ */ , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 }
 
 static void
@@ -2542,10 +2559,10 @@ tree_view_menu_copy_value(GtkAction *action _U_, gpointer user_data)
 }
 
 static void
-tree_view_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/Copy/AsFilter");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 }
 
 static const char *ui_desc_packet_list_heading_menu_popup =
@@ -2606,21 +2623,21 @@ static const char *ui_desc_packet_list_menu_popup =
 "     <separator/>\n"
 "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"
 "     <separator/>\n"
-"     <menu name= 'ApplyAsFilter' action='/Apply as Filter'>\n"
-"       <menuitem name='Selected' action='/Apply as Filter/Selected'/>\n"
-"       <menuitem name='NotSelected' action='/Apply as Filter/Not Selected'/>\n"
-"       <menuitem name='AndSelected' action='/Apply as Filter/AndSelected'/>\n"
-"       <menuitem name='OrSelected' action='/Apply as Filter/OrSelected'/>\n"
-"       <menuitem name='AndNotSelected' action='/Apply as Filter/AndNotSelected'/>\n"
-"       <menuitem name='OrNotSelected' action='/Apply as Filter/OrNotSelected'/>\n"
+"     <menu name= 'ApplyAsFilter' action='/ApplyasFilter'>\n"
+"       <menuitem name='Selected' action='/ApplyasFilter/Selected'/>\n"
+"       <menuitem name='NotSelected' action='/ApplyasFilter/Not Selected'/>\n"
+"       <menuitem name='AndSelected' action='/ApplyasFilter/AndSelected'/>\n"
+"       <menuitem name='OrSelected' action='/ApplyasFilter/OrSelected'/>\n"
+"       <menuitem name='AndNotSelected' action='/ApplyasFilter/AndNotSelected'/>\n"
+"       <menuitem name='OrNotSelected' action='/ApplyasFilter/OrNotSelected'/>\n"
 "     </menu>\n"
-"     <menu name= 'PrepareaFilter' action='/Prepare a Filter'>\n"
-"       <menuitem name='Selected' action='/Prepare a Filter/Selected'/>\n"
-"       <menuitem name='NotSelected' action='/Prepare a Filter/Not Selected'/>\n"
-"       <menuitem name='AndSelected' action='/Prepare a Filter/AndSelected'/>\n"
-"       <menuitem name='OrSelected' action='/Prepare a Filter/OrSelected'/>\n"
-"       <menuitem name='AndNotSelected' action='/Prepare a Filter/AndNotSelected'/>\n"
-"       <menuitem name='OrNotSelected' action='/Prepare a Filter/OrNotSelected'/>\n"
+"     <menu name= 'PrepareaFilter' action='/PrepareaFilter'>\n"
+"       <menuitem name='Selected' action='/PrepareaFilter/Selected'/>\n"
+"       <menuitem name='NotSelected' action='/PrepareaFilter/Not Selected'/>\n"
+"       <menuitem name='AndSelected' action='/PrepareaFilter/AndSelected'/>\n"
+"       <menuitem name='OrSelected' action='/PrepareaFilter/OrSelected'/>\n"
+"       <menuitem name='AndNotSelected' action='/PrepareaFilter/AndNotSelected'/>\n"
+"       <menuitem name='OrNotSelected' action='/PrepareaFilter/OrNotSelected'/>\n"
 "     </menu>\n"
 "     <menu name= 'ConversationFilter' action='/Conversation Filter'>\n"
 "       <menuitem name='Ethernet' action='/Conversation Filter/Ethernet'/>\n"
@@ -2725,29 +2742,33 @@ static const char *ui_desc_packet_list_menu_popup =
 "  </popup>\n"
 "</ui>\n";
 
+static const GtkActionEntry apply_prepare_filter_action_entries[] = {
+  { "/ApplyasFilter",                 NULL, "Apply as Filter",                             NULL, NULL, NULL },
+  { "/ApplyasFilter/Selected",        NULL, "_Selected" ,                                  NULL, NULL, G_CALLBACK(apply_selected_filter_cb) },
+  { "/ApplyasFilter/Not Selected",    NULL, "_Not Selected",                               NULL, NULL, G_CALLBACK(apply_not_selected_cb) },
+  { "/ApplyasFilter/AndSelected",     NULL, UTF8_HORIZONTAL_ELLIPSIS " _and Selected",     NULL, NULL, G_CALLBACK(apply_and_selected_cb) },
+  { "/ApplyasFilter/OrSelected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " _or Selected",      NULL, NULL, G_CALLBACK(apply_or_selected_cb) },
+  { "/ApplyasFilter/AndNotSelected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected", NULL, NULL, G_CALLBACK(apply_and_not_selected_cb) },
+  { "/ApplyasFilter/OrNotSelected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected",  NULL, NULL, G_CALLBACK(apply_or_not_selected_cb) },
+
+  { "/PrepareaFilter",                NULL, "Prepare a Filter",       NULL, NULL, NULL },
+  { "/PrepareaFilter/Selected",       NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(prepare_selected_cb) },
+  { "/PrepareaFilter/Not Selected",   NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(prepare_not_selected_cb) },
+  { "/PrepareaFilter/AndSelected",    NULL, UTF8_HORIZONTAL_ELLIPSIS " _and Selected",        NULL, NULL, G_CALLBACK(prepare_and_selected_cb) },
+  { "/PrepareaFilter/OrSelected",     NULL, UTF8_HORIZONTAL_ELLIPSIS " _or Selected",     NULL, NULL, G_CALLBACK(prepare_or_selected_cb) },
+  { "/PrepareaFilter/AndNotSelected", NULL, UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected",    NULL, NULL, G_CALLBACK(prepare_and_not_selected_cb) },
+  { "/PrepareaFilter/OrNotSelected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, NULL, G_CALLBACK(prepare_or_not_selected_cb) },
+};
+
+
 static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
   { "/MarkPacket",                      NULL,                   "Mark Packet (toggle)",         NULL,                   NULL,           G_CALLBACK(new_packet_list_mark_frame_cb) },
   { "/IgnorePacket",                    NULL,                   "Ignore Packet (toggle)",       NULL,                   NULL,           G_CALLBACK(new_packet_list_ignore_frame_cb) },
   { "/Set Time Reference",              WIRESHARK_STOCK_TIME,   "Set Time Reference (toggle)",  NULL,                   NULL,           G_CALLBACK(packet_list_menu_set_ref_time_cb) },
   { "/TimeShift",                       WIRESHARK_STOCK_TIME,   "Time Shift...",                NULL,                   NULL,           G_CALLBACK(time_shift_cb) },
   { "/ManuallyResolveAddress",          NULL,                   "Manually Resolve Address",     NULL,                   NULL,           G_CALLBACK(manual_addr_resolv_dlg) },
-  { "/Apply as Filter",                 NULL,                   "Apply as Filter",              NULL,                   NULL,           NULL },
   { "/Edit/AddEditPktComment",          WIRESHARK_STOCK_EDIT,   "Edit or Add Packet Comment...",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
 
-  { "/Apply as Filter/Selected",        NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(packet_list_menu_apply_selected_cb) },
-  { "/Apply as Filter/Not Selected",    NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(packet_list_menu_apply_not_selected_cb) },
-  { "/Apply as Filter/AndSelected",     NULL, UTF8_HORIZONTAL_ELLIPSIS " _and Selected",        NULL, NULL, G_CALLBACK(packet_list_menu_apply_and_selected_cb) },
-  { "/Apply as Filter/OrSelected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " _or Selected",     NULL, NULL, G_CALLBACK(packet_list_menu_apply_or_selected_cb) },
-  { "/Apply as Filter/AndNotSelected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected",    NULL, NULL, G_CALLBACK(packet_list_menu_apply_and_not_selected_cb) },
-  { "/Apply as Filter/OrNotSelected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, NULL, G_CALLBACK(packet_list_menu_apply_or_not_selected_cb) },
-
-  { "/Prepare a Filter",                NULL, "Prepare a Filter",       NULL, NULL, NULL },
-  { "/Prepare a Filter/Selected",       NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(packet_list_menu_prepare_selected_cb) },
-  { "/Prepare a Filter/Not Selected",   NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(packet_list_menu_prepare_not_selected_cb) },
-  { "/Prepare a Filter/AndSelected",    NULL, UTF8_HORIZONTAL_ELLIPSIS " _and Selected",        NULL, NULL, G_CALLBACK(packet_list_menu_prepare_and_selected_cb) },
-  { "/Prepare a Filter/OrSelected",     NULL, UTF8_HORIZONTAL_ELLIPSIS " _or Selected",     NULL, NULL, G_CALLBACK(packet_list_menu_prepare_or_selected_cb) },
-  { "/Prepare a Filter/AndNotSelected", NULL, UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected",    NULL, NULL, G_CALLBACK(packet_list_menu_prepare_and_not_selected_cb) },
-  { "/Prepare a Filter/OrNotSelected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, NULL, G_CALLBACK(packet_list_menu_prepare_or_not_selected_cb) },
 
   { "/Conversation Filter",             NULL, "Conversation Filter",    NULL, NULL, NULL },
   { "/Conversation Filter/Ethernet",    NULL, "Ethernet",               NULL, NULL, G_CALLBACK(packet_list_menu_conversation_ethernet_cb) },
@@ -2866,21 +2887,21 @@ static const char *ui_desc_tree_view_menu_popup =
 "     <separator/>\n"
 "     <menuitem name='ApplyasColumn' action='/Apply as Column'/>\n"
 "     <separator/>\n"
-"     <menu name= 'ApplyAsFilter' action='/Apply as Filter'>\n"
-"       <menuitem name='Selected' action='/Apply as Filter/Selected'/>\n"
-"       <menuitem name='NotSelected' action='/Apply as Filter/Not Selected'/>\n"
-"       <menuitem name='AndSelected' action='/Apply as Filter/AndSelected'/>\n"
-"       <menuitem name='OrSelected' action='/Apply as Filter/OrSelected'/>\n"
-"       <menuitem name='AndNotSelected' action='/Apply as Filter/AndNotSelected'/>\n"
-"       <menuitem name='OrNotSelected' action='/Apply as Filter/OrNotSelected'/>\n"
+"     <menu name= 'ApplyAsFilter' action='/ApplyasFilter'>\n"
+"       <menuitem name='Selected' action='/ApplyasFilter/Selected'/>\n"
+"       <menuitem name='NotSelected' action='/ApplyasFilter/Not Selected'/>\n"
+"       <menuitem name='AndSelected' action='/ApplyasFilter/AndSelected'/>\n"
+"       <menuitem name='OrSelected' action='/ApplyasFilter/OrSelected'/>\n"
+"       <menuitem name='AndNotSelected' action='/ApplyasFilter/AndNotSelected'/>\n"
+"       <menuitem name='OrNotSelected' action='/ApplyasFilter/OrNotSelected'/>\n"
 "     </menu>\n"
-"     <menu name= 'PrepareaFilter' action='/Prepare a Filter'>\n"
-"       <menuitem name='Selected' action='/Prepare a Filter/Selected'/>\n"
-"       <menuitem name='NotSelected' action='/Prepare a Filter/Not Selected'/>\n"
-"       <menuitem name='AndSelected' action='/Prepare a Filter/AndSelected'/>\n"
-"       <menuitem name='OrSelected' action='/Prepare a Filter/OrSelected'/>\n"
-"       <menuitem name='AndNotSelected' action='/Prepare a Filter/AndNotSelected'/>\n"
-"       <menuitem name='OrNotSelected' action='/Prepare a Filter/OrNotSelected'/>\n"
+"     <menu name= 'PrepareaFilter' action='/PrepareaFilter'>\n"
+"       <menuitem name='Selected' action='/PrepareaFilter/Selected'/>\n"
+"       <menuitem name='NotSelected' action='/PrepareaFilter/Not Selected'/>\n"
+"       <menuitem name='AndSelected' action='/PrepareaFilter/AndSelected'/>\n"
+"       <menuitem name='OrSelected' action='/PrepareaFilter/OrSelected'/>\n"
+"       <menuitem name='AndNotSelected' action='/PrepareaFilter/AndNotSelected'/>\n"
+"       <menuitem name='OrNotSelected' action='/PrepareaFilter/OrNotSelected'/>\n"
 "     </menu>\n"
 "     <menu name= 'ColorizewithFilter' action='/Colorize with Filter'>\n"
 "       <menuitem name='Color1' action='/Colorize with Filter/Color 1'/>\n"
@@ -2934,22 +2955,6 @@ static const GtkActionEntry tree_view_menu_popup_action_entries[] = {
   { "/ExpandAll",                       NULL,                           "Expand All",           NULL,                   NULL,           G_CALLBACK(expand_all_cb) },
   { "/CollapseAll",                     NULL,                           "Collapse All",         NULL,                   NULL,           G_CALLBACK(collapse_all_cb) },
   { "/Apply as Column",                 NULL,                           "Apply as Column",      NULL,                   NULL,           G_CALLBACK(apply_as_custom_column_cb) },
-  { "/Apply as Filter",                 NULL,                           "Apply as Filter",      NULL,                   NULL,           NULL },
-
-  { "/Apply as Filter/Selected",        NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(tree_view_menu_apply_selected_cb) },
-  { "/Apply as Filter/Not Selected",    NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(tree_view_menu_apply_not_selected_cb) },
-  { "/Apply as Filter/AndSelected",     NULL, UTF8_HORIZONTAL_ELLIPSIS " _and Selected",        NULL, NULL, G_CALLBACK(tree_view_menu_apply_and_selected_cb) },
-  { "/Apply as Filter/OrSelected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " _or Selected",     NULL, NULL, G_CALLBACK(tree_view_menu_apply_or_selected_cb) },
-  { "/Apply as Filter/AndNotSelected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected",    NULL, NULL, G_CALLBACK(tree_view_menu_apply_and_not_selected_cb) },
-  { "/Apply as Filter/OrNotSelected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, NULL, G_CALLBACK(tree_view_menu_apply_or_not_selected_cb) },
-
-  { "/Prepare a Filter",                NULL, "Prepare a Filter",       NULL, NULL, NULL },
-  { "/Prepare a Filter/Selected",       NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(tree_view_menu_prepare_selected_cb) },
-  { "/Prepare a Filter/Not Selected",   NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(tree_view_menu_prepare_not_selected_cb) },
-  { "/Prepare a Filter/AndSelected",    NULL, UTF8_HORIZONTAL_ELLIPSIS " _and Selected",        NULL, NULL, G_CALLBACK(tree_view_menu_prepare_and_selected_cb) },
-  { "/Prepare a Filter/OrSelected",     NULL, UTF8_HORIZONTAL_ELLIPSIS " _or Selected",     NULL, NULL, G_CALLBACK(tree_view_menu_prepare_or_selected_cb) },
-  { "/Prepare a Filter/AndNotSelected", NULL, UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected",    NULL, NULL, G_CALLBACK(tree_view_menu_prepare_and_not_selected_cb) },
-  { "/Prepare a Filter/OrNotSelected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, NULL, G_CALLBACK(tree_view_menu_prepare_or_not_selected_cb) },
 
   { "/Colorize with Filter",            NULL, "Colorize with Filter",   NULL, NULL, NULL },
   { "/Colorize with Filter/Color 1",        WIRESHARK_STOCK_COLOR1, "Color 1",                  NULL, NULL, G_CALLBACK(tree_view_menu_color_with_flt_color1_cb) },
@@ -3291,6 +3296,12 @@ menus_init(void) {
             G_N_ELEMENTS(packet_list_menu_popup_action_entries),                   /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
+        /* Add the filter menu items */
+        gtk_action_group_add_actions (packet_list_action_group,                    /* the action group */
+            (gpointer)apply_prepare_filter_action_entries,                         /* an array of action descriptions */
+            G_N_ELEMENTS(apply_prepare_filter_action_entries),                     /* the number of entries */
+            popup_menu_object);                                                    /* data to pass to the action callbacks */
+
         ui_manager_packet_list_menu = gtk_ui_manager_new ();
 
         gtk_ui_manager_insert_action_group (ui_manager_packet_list_menu,
@@ -3319,6 +3330,13 @@ menus_init(void) {
             (gpointer)tree_view_menu_popup_action_entries,                         /* an array of action descriptions */
             G_N_ELEMENTS(tree_view_menu_popup_action_entries),                     /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
+
+        /* Add the filter menu items */
+        gtk_action_group_add_actions (packet_list_details_action_group,            /* the action group */
+            (gpointer)apply_prepare_filter_action_entries,                        /* an array of action descriptions */
+            G_N_ELEMENTS(apply_prepare_filter_action_entries),                    /* the number of entries */
+            popup_menu_object);                                                    /* data to pass to the action callbacks */
+
 
         ui_manager_tree_view_menu = gtk_ui_manager_new ();
 
@@ -3392,6 +3410,12 @@ menus_init(void) {
                                     main_menu_bar_entries,                              /* an array of action descriptions */
                                     G_N_ELEMENTS(main_menu_bar_entries),                /* the number of entries */
                                     NULL);                                              /* data to pass to the action callbacks */
+
+        /* Add the filter menu items */
+        gtk_action_group_add_actions (main_menu_bar_action_group,                       /* the action group */
+                                    (gpointer)apply_prepare_filter_action_entries,     /* an array of action descriptions */
+                                    G_N_ELEMENTS(apply_prepare_filter_action_entries), /* the number of entries */
+                                    popup_menu_object);                                 /* data to pass to the action callbacks */
 
         gtk_action_group_add_toggle_actions(main_menu_bar_action_group,                 /* the action group */
                                     main_menu_bar_toggle_action_entries,                /* an array of action descriptions */

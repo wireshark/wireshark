@@ -267,6 +267,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Analyze-&gt;Apply as Filter and Analyze-&gt;Prepare a Filter cause crashes.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7506">Bug
+          7506</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           crashes in interface list, pipe handling.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7511">Bug
           7511</ulink>)
@@ -282,6 +288,24 @@ Wireshark Info
           GIOP request_id used for sub dissectors is not assigned when decoding GIOP 1.2 Request message.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7516">Bug
           7516</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          pcap-ng -ISB always writes 0 for isb_ifrecv option.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7523">Bug
+          7523</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          GSM classmark3 decode wrong.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7524">Bug
+          7524</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          mem corruption\heap corruption\div0 bugs.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7533">Bug
+          7533</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -317,6 +341,7 @@ DCP ETSI,
 ERF,
 EtherCAT Mailbox,
 GIOP,
+GSM A,
 GSM RLC MAC,
 GTPv2,
 ISDN,
@@ -333,7 +358,7 @@ XTP
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+pcap-ng
 
     </para>
     </section>
