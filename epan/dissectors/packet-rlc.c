@@ -80,9 +80,6 @@ static gboolean global_rlc_try_decipher = FALSE;
 static const char *global_rlc_kasumi_key = NULL;
 #endif
 
-/* Stop trying to do reassembly if this is true. */
-static gboolean fail = FALSE;
-
 /* LI size preference */
 #define RLC_LI_UPPERLAYER 255 /* LI-size comes from rlc_info struct rather than preference */
 static gint global_rlc_li_size = RLC_LI_UPPERLAYER;
@@ -248,13 +245,15 @@ struct rlc_seq {
     guint32  frame_num;
     nstime_t arrival;
     guint16  seq;
-    guint16  oc;        /* overflow counter */
+    guint16  oc;        /* overflow counter, this is not used? */
 };
 
 struct rlc_seqlist {
     struct rlc_channel ch;
-
     GList *list;
+    /* We will store one seqlist per channel so this is a good place to indicate
+     *  whether or not this channel's reassembly has failed or not. */
+    guint fail_packet; /* Equal to packet where fail flag was set or 0 otherwise. */
 };
 
 /* fragment representation */
@@ -558,8 +557,6 @@ fragment_table_init(void)
     sequence_table = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal,
         NULL, free_sequence_table_entry_data);
     duplicate_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
-    fail = FALSE; /* Reset fail flag. */
-
 
     /*Reset and or clear deciphering variables*/
     counter_map = g_tree_new_full(rlc_simple_key_cmp,NULL,NULL,rlc_channel_delete);
@@ -570,7 +567,6 @@ fragment_table_init(void)
         counter_init[i][1] = 0;
     }
     max_counter = 0;
-
 }
 
 /* add the list of fragments for this sdu to 'tree' */
@@ -848,6 +844,7 @@ reassemble_data(struct rlc_channel *ch, struct rlc_sdu *sdu, struct rlc_frag *fr
     }
 }
 
+#define RLC_ADD_FRAGMENT_FAIL_PRINT 0
 #define RLC_ADD_FRAGMENT_DEBUG_PRINT 0
 #if RLC_ADD_FRAGMENT_DEBUG_PRINT
 static void printends(GList * list)
@@ -871,11 +868,13 @@ static struct rlc_frag ** get_frags(packet_info * pinfo, struct rlc_channel * ch
     /* Look for already created frags table */
     if (g_hash_table_lookup_extended(fragment_table, ch_lookup, NULL, &value)) {
         frags = value;
-    } else {
+    } else if (pinfo != NULL) {
         struct rlc_channel *ch;
         ch = rlc_channel_create(ch_lookup->mode, pinfo);
         frags = se_alloc0(sizeof(struct rlc_frag *) * 4096);
         g_hash_table_insert(fragment_table, ch, frags);
+    } else {
+        return NULL;
     }
     return frags;
 }
@@ -886,15 +885,17 @@ static struct rlc_seqlist * get_endlist(packet_info * pinfo, struct rlc_channel 
     /* If there already exists a frag table for this channel use that one. */
     if (g_hash_table_lookup_extended(endpoints, ch_lookup, NULL, &value)) {
         endlist = value;
-    } else { /* Else create a new one. */
+    } else if (pinfo != NULL) { /* Else create a new one. */
         struct rlc_channel * ch;
 
         endlist = se_new(struct rlc_seqlist);
         ch = rlc_channel_create(ch_lookup->mode, pinfo);
-
+        endlist->fail_packet = 0;
         endlist->list = NULL;
         endlist->list = g_list_prepend(endlist->list, GINT_TO_POINTER(-1));
         g_hash_table_insert(endpoints, ch, endlist);
+    } else {
+        return NULL;
     }
     return endlist;
 }
@@ -925,6 +926,32 @@ static void reassemble_sequence(struct rlc_frag ** frags, struct rlc_seqlist * e
         }
     }
     reassemble_data(ch_lookup, sdu, NULL);
+}
+
+/* Reset the specified channel's reassembly data, useful for when a sequence
+ * resets on transport channel swap. */
+void rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 urnti)
+{
+    struct rlc_frag ** frags = NULL;
+    struct rlc_seqlist * endlist = NULL;
+    struct rlc_channel ch_lookup;
+    guint i;
+
+    ch_lookup.mode = mode;
+    ch_lookup.rbid = rbid;
+    ch_lookup.dir = dir;
+    ch_lookup.urnti = urnti;
+    frags = get_frags(NULL, &ch_lookup);
+    endlist = get_endlist(NULL, &ch_lookup);
+    DISSECTOR_ASSERT(frags && endlist);
+
+    endlist->fail_packet = 0;
+    g_list_free(endlist->list);
+    endlist->list = NULL;
+
+    for (i = 0; i < 4096; i++) {
+        frags[i] = NULL;
+    }
 }
 
 /* add a new fragment to an SDU
@@ -996,8 +1023,8 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
                     expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because of previous unfinished sequence.");
                 }
             } else if (endlist->list) {
-                if (fail) {
-                    proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because fail flag was set previously.");
+                if (endlist->fail_packet != 0 && endlist->fail_packet <= pinfo->fd->num) {
+                    proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because fail flag was set in packet %u.", endlist->fail_packet);
                     expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because fail flag was set previously.");
                 } else {
                     gint16 end = GPOINTER_TO_INT(endlist->list->data);
@@ -1015,7 +1042,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
         return NULL; /* If already done reassembly and no SDU found, too bad */
     }
 
-    if (fail) { /* don't continue after sh*t has hit the fan */
+    if (endlist->fail_packet != 0) { /* don't continue after sh*t has hit the fan */
         return NULL;
     }
 
@@ -1031,7 +1058,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
                 tempfrag = tempfrag->next;
             tempfrag->next = frag;
         } else { /* This should never happen */
-            fail = TRUE;
+            endlist->fail_packet = pinfo->fd->num;
             return NULL;
         }
     } else {
@@ -1062,8 +1089,10 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
         gint16 start = (GPOINTER_TO_INT(endlist->list->data) + 1) % 4096;
         gint16 end = GPOINTER_TO_INT(endlist->list->next->data);
         if (frags[end] == NULL) {
+#if RLC_ADD_FRAGMENT_FAIL_PRINT
             g_warning("frag[end] is null, this is probably because end was a startpoint but because of some error ended up being treated as an endpoint, setting fail flag, start %d, end %d, packet %u\n", start, end, pinfo->fd->num);
-            fail = TRUE;
+#endif
+            endlist->fail_packet = pinfo->fd->num;
             return NULL;
         }
 
@@ -1094,13 +1123,13 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
         {
             if (frags[start] == NULL) {
                 if (MIN((start-seq+4096)%4096, (seq-start+4096)%4096) >= 1028) {
-#if RLC_ADD_FRAGMENT_DEBUG_PRINT
+#if RLC_ADD_FRAGMENT_FAIL_PRINT
                     g_warning(
 "Packet %u. Setting fail flag because RLC fragment with sequence number %u was \
 too far away from an unfinished sequence (%u->%u). The missing sequence number \
 is %u. The most recently complete sequence ended in packet %u.", pinfo->fd->num, seq, 0, end, start, 0);
 #endif
-                    fail = TRUE; /* If it has gone too far, give up */
+                    endlist->fail_packet = pinfo->fd->num; /* If it has gone too far, give up */
                     return NULL;
                 }
                 return frag;
@@ -1113,13 +1142,13 @@ is %u. The most recently complete sequence ended in packet %u.", pinfo->fd->num,
         /* If the distance between the oldest stored endpoint in endlist and
          * this endpoint is too large, set fail flag. */
         if (MIN((first-seq+4096)%4096, (seq-first+4096)%4096) >= 1028) {
-#if RLC_ADD_FRAGMENT_DEBUG_PRINT
+#if RLC_ADD_FRAGMENT_FAIL_PRINT
             g_warning(
 "Packet %u. Setting fail flag because RLC fragment with sequence number %u was \
 too far away from an unfinished sequence with start %u and without end.", pinfo->fd->num, seq, first);
 #endif
-        fail = TRUE; /* Give up if things have gone too far. */
-        return NULL;
+            endlist->fail_packet = pinfo->fd->num; /* Give up if things have gone too far. */
+            return NULL;
         }
     }
 

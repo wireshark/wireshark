@@ -77,6 +77,7 @@ dissector_handle_t fp_handle;
 static guint32	transportLayerAddress_ipv4;
 static guint16	BindingID_port;
 static guint32	com_context_id;
+static int cfn;
 
 #include "packet-nbap-val.h"
 
@@ -145,6 +146,16 @@ typedef struct
 
 nbap_edch_channel_info_t nbap_edch_channel_info[maxNrOfEDCHMACdFlows];
 
+
+typedef struct
+{
+	guint32 	crnc_address;
+	guint16		crnc_port[maxNrOfEDCHMACdFlows];
+
+} nbap_edch_port_info_t;
+
+nbap_edch_port_info_t * nbap_edch_port_info;
+
 typedef struct
 {
 	address 			crnc_address;
@@ -176,6 +187,8 @@ gint hrnti;
 
 guint node_b_com_context_id;
 
+static GTree * edch_flow_port_map = NULL;
+
 /*Stuff for mapping NodeB-Comuncation Context ID to CRNC Comuncation Context ID*/
 typedef struct com_ctxt_{
 		/*guint	nodeb_context;*/
@@ -183,7 +196,7 @@ typedef struct com_ctxt_{
 		guint	frame_num;
 }nbap_com_context_id;
 gboolean crcn_context_present = FALSE;
-GTree * com_context_map;
+static GTree * com_context_map;
 
 struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;
 
@@ -411,11 +424,22 @@ static void nbap_init(void){
 	if(com_context_map){
 		g_tree_destroy(com_context_map);
 	}
+/*	if(edch_flow_port_map){
+		g_tree_destroy(edch_flow_port_map);
+	}*/
 	/*Initialize*/
 	com_context_map = g_tree_new_full(nbap_key_cmp,
                        NULL,      /* data pointer, optional */
                        NULL,
                        nbap_free_value);
+                       
+                       
+                           /*Initialize structure for muxed flow indication*/
+    edch_flow_port_map = g_tree_new_full(nbap_key_cmp,
+                       NULL,      /* data pointer, optional */
+                       NULL,
+                       NULL);
+                       
     for (i = 0; i < 15; i++) {
 		lchId_type_table[i+1] = *lch_contents[i];
 	}

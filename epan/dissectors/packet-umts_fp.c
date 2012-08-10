@@ -3142,6 +3142,8 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;
 
         header_length = offset;
+        
+   
         /************************/
         /*Configure the pdus*/
         for(i=0;i<number_of_pdus; i++){
@@ -3166,8 +3168,21 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             rlcinf->deciphered[i] = FALSE;
             rlcinf->ciphered[i] = FALSE;
             rlcinf->rbid[i] = macinf->lchid[i];
+            
+            /*When a flow has been reconfigured rlc needs to be reset.
+             * This needs more work though since we must figure out when the re-configuration becomes
+             * active based on the CFN value
+             * */
+#if 0
+               	/*Indicate we need to reset stream*/
+			if(p_fp_info->reset_frag){
+					rlc_reset_channel(rlcinf->mode[i], macinf->lchid[i], p_fp_info->is_uplink,  rlcinf->urnti[i] );
+					p_fp_info->reset_frag = FALSE;
+					
+			}
+#endif
         }
-
+  
 
         /* MAC-d PDUs */
         offset = dissect_macd_pdu_data(tvb, pinfo, tree, offset, pdu_length,
@@ -3825,13 +3840,21 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
     fpi->dch_crc_present = p_conv_data->dch_crc_present;
     /*fpi->paging_indications;*/
     fpi->link_type = FP_Link_Ethernet;
-
+    
+#if 0
+    /*Only do this the first run, signals that we need to reset the RLC fragtable*/
+    if(!pinfo->fd->flags.visited &&  p_conv_data->reset_frag ){
+		fpi->reset_frag = p_conv_data->reset_frag;
+		p_conv_data->reset_frag = FALSE;
+	}
+#endif
     /* remember 'lower' UDP layer port information so we can later
      * differentiate 'lower' UDP layer from 'user data' UDP layer */
     fpi->srcport = pinfo->srcport;
     fpi->destport = pinfo->destport;
-    fpi->com_context_id = p_conv_data->com_context_id;
 
+	fpi->com_context_id = p_conv_data->com_context_id;
+	
     if (pinfo->link_dir==P2P_DIR_UL) {
         fpi->is_uplink = TRUE;
     } else {
@@ -3892,7 +3915,8 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
             p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
-
+		
+		
             return fpi;
 
         case CHANNEL_EDCH:
@@ -4168,10 +4192,12 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (p_conv) {
          /*Find correct conversation, basically find the on thats closest to this frame*/
-         while(p_conv->next != NULL && p_conv->next->setup_frame < pinfo->fd->num){
+         /*while(p_conv->next != NULL && p_conv->next->setup_frame < pinfo->fd->num){
             p_conv = p_conv->next;
-         }
+         }*/
+
         p_conv_data = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
+       
         if (p_conv_data) {
             /*Figure out the direction of the link*/
             if (ADDRESSES_EQUAL(&(pinfo->net_dst), (&p_conv_data->crnc_address))) {

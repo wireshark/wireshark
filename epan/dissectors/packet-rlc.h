@@ -52,6 +52,10 @@ typedef struct rlc_info
 	gboolean deciphered[MAX_RLC_CHANS];
 } rlc_info;
 
+/* Reset the specified channel's reassembly data, useful for when a sequence
+ * resets on transport channel swap. */
+void rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 urnti);
+
 /*****************************************************************/
 /* UDP framing format                                            */
 /* -----------------------                                       */

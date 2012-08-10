@@ -121,6 +121,8 @@ typedef struct fp_info
     gboolean hsdhsch_macfdlow_is_mux[MAX_NUM_HSDHSCH_MACDFLOW];
     enum   fp_link_type link_type;
     guint urnti;	/*Used for tracking a "sequence" over diffrent transport channels*/
+    
+    gboolean reset_frag; 	/*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/
 } fp_info;
 
 /* From NBAC-Constants.asn */
@@ -180,6 +182,9 @@ typedef struct
 		
 	guint urnti;	/*Used for tracking a "sequence" over diffrent transport channels*/
 	guint hrnti;	/*Used for tracking a HS-DSCH flow*/
+	gboolean reset_frag; 	/*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/
+	guint32 cfn;
+	guint32 cfn_index;
 } umts_fp_conversation_info_t;
 
 void set_umts_fp_conv_data(conversation_t *conversation, umts_fp_conversation_info_t *umts_fp_conversation_info);
