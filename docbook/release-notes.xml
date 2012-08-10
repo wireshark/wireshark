@@ -195,7 +195,7 @@ Wireshark Info
             <!-- Fixed in trunk: r44403 -->
             <!-- Fixed in trunk-1.8: r44404 -->
             <!-- Fixed in trunk-1.6: r44405 -->
-            <!-- Fixed in trunk-1.4: r44??? -->
+            <!-- Fixed in trunk-1.4: r44406 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7573">Bug
             7573</ulink>)
           </para>
@@ -229,6 +229,24 @@ Wireshark Info
 	  Wireshark may not run on Windows due to missing DLLs.
         </para></listitem>
 
+        <listitem><para>
+          ISDN LAPD  X.31 packet traffic can not be decoded.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7514">Bug
+          7514</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          GSM classmark3 decode wrong.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7524">Bug
+          7524</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          tshark WARNING ERR:   Dissector bug, protocol X2AP, in packet 17019451: proto.c:1347: failed assertion &quot;length == 4.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7542">Bug
+          7542</ulink>)
+        </para></listitem>
+
      </itemizedlist>
 
     </para>
@@ -255,7 +273,19 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+AFP,
+CIP,
+CTDB,
+DCP ETSI,
+EtherCAT Mailbox,
+GSM A,
+GSM RLC MAC,
+ISDN,
+NFS,
+RTPS2,
+STUN,
+X2AP,
+XTP
 
     </para>
     </section>

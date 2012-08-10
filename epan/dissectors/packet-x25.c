@@ -38,6 +38,7 @@
 #include <epan/emem.h>
 #include <epan/nlpid.h>
 #include <epan/x264_prt_id.h>
+#include <epan/lapd_sapi.h>
 
 /*
  * Direction of packet.
@@ -2742,4 +2743,5 @@ proto_reg_handoff_x25(void)
 
     x25_handle = find_dissector("x.25");
     dissector_add_uint("llc.dsap", SAP_X25, x25_handle);
+    dissector_add_uint("lapd.sapi", LAPD_SAPI_X25, x25_handle);
 }

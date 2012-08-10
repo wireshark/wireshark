@@ -584,7 +584,9 @@ static int hf_gsm_a_ecsd_multi_slot_class		= -1;
 static int hf_gsm_a_8_psk_struct_present		= -1;
 static int hf_gsm_a_8_psk_struct				= -1;
 static int hf_gsm_a_modulation_capability		= -1;
+static int hf_gsm_a_8_psk_rf_power_capability_1_present = -1;
 static int hf_gsm_a_8_psk_rf_power_capability_1	= -1;
+static int hf_gsm_a_8_psk_rf_power_capability_2_present = -1;
 static int hf_gsm_a_8_psk_rf_power_capability_2	= -1;
 static int hf_gsm_a_gsm_400_band_info_present	= -1;
 static int hf_gsm_a_gsm_400_bands_supported		= -1;
@@ -964,7 +966,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, FALSE);
 			proto_item_append_text(velocity_item," km/h");
 			curr_offset+=2;
-			/* Vertical Speed Octet 5 
+			/* Vertical Speed Octet 5
 			 * Vertical speed is encoded in increments of 1 kilometre per hour using 8 bits giving a number N between 0 and 28-1.
 			 */
 			velocity_item = proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, FALSE);
@@ -982,7 +984,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, FALSE);
 			proto_item_append_text(velocity_item," km/h");
 			curr_offset+=2;
-			/* Uncertainty Speed Octet 5 
+			/* Uncertainty Speed Octet 5
 			 * Uncertainty speed is encoded in increments of 1 kilometre per hour using an 8 bit binary coded number N. The value of
 			 * N gives the uncertainty speed except for N=255 which indicates that the uncertainty is not specified.
 			 */
@@ -1008,7 +1010,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, FALSE);
 			proto_item_append_text(velocity_item," km/h");
 			curr_offset+=2;
-			/* Vertical Speed Octet 5 
+			/* Vertical Speed Octet 5
 			 * Vertical speed is encoded in increments of 1 kilometre per hour using 8 bits giving a number N between 0 and 28-1.
 			 */
 			velocity_item = proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, FALSE);
@@ -1222,7 +1224,7 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
 
 /*
  * Type Extendable Length Value (TELV) element dissector
- * This is a version where the length field can be one or two octets depending 
+ * This is a version where the length field can be one or two octets depending
  * if the extension bit is set or not (TS 48.016 p 10.1.2).
  *         8        7 6 5 4 3 2 1
  * octet 2 0/1 ext  length
@@ -2383,9 +2385,10 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	guint8	length;
 	proto_tree	*subtree;
 	proto_item	*item;
-	guint32 bits_left, target_bit_offset;
+	guint32 bits_left, target_bit_offset, old_bit_offset;
 	guint64 multi_bnd_sup_fields, rsupport, multislotCapability, msMeasurementCapability, msPosMethodCapPresent;
-	guint64 ecsdMultiSlotCapability, eightPskStructPresent, gsm400BandInfoPresent, gsm850AssocRadioCapabilityPresent;
+	guint64 ecsdMultiSlotCapability, eightPskStructPresent, eightPskStructRfPowerCapPresent;
+	guint64 gsm400BandInfoPresent, gsm850AssocRadioCapabilityPresent;
 	guint64 gsm1900AssocRadioCapabilityPresent, dtmEGprsMultiSlotInfoPresent, dtmEgprsMultiSlotClassPresent, singleBandSupport;
 	guint64 gsm750AssocRadioCapabilityPresent, extDtmEGprsMultiSlotInfoPresent, highMultislotCapPresent, geranIuModeSupport;
 	guint64 tGsm400BandInfoPresent, tGsm900AssocRadioCapabilityPresent, dtmEGprsHighMultiSlotInfoPresent;
@@ -2579,20 +2582,37 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	if(eightPskStructPresent == 1)
 	{
 		/* Extract 8-PSK struct */
-		item = proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_struct, tvb, bit_offset, 5, FALSE);
+		item = proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_struct, tvb, bit_offset, -1, ENC_BIG_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
+		old_bit_offset = bit_offset;
 
 		/* Extract Modulation Capability */
-		proto_tree_add_bits_item(subtree, hf_gsm_a_modulation_capability, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(subtree, hf_gsm_a_modulation_capability, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 1;
 
 		/* Extract 8_PSK RF Power Capability 1 */
-		proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_1, tvb, bit_offset, 2, FALSE);
-		bit_offset = bit_offset + 2;
+		proto_tree_add_bits_ret_val(subtree, hf_gsm_a_8_psk_rf_power_capability_1_present, tvb, bit_offset,
+					    1, &eightPskStructRfPowerCapPresent, ENC_BIG_ENDIAN);
+		bit_offset = bit_offset + 1;
+		if (eightPskStructRfPowerCapPresent == 1)
+		{
+			proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_1, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+			bit_offset = bit_offset + 2;
+		}
 
 		/* Extract 8_PSK RF Power Capability 2 */
-		proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_2, tvb, bit_offset, 2, FALSE);
-		bit_offset = bit_offset + 2;
+		proto_tree_add_bits_ret_val(subtree, hf_gsm_a_8_psk_rf_power_capability_2_present, tvb, bit_offset,
+					    1, &eightPskStructRfPowerCapPresent, ENC_BIG_ENDIAN);
+		bit_offset = bit_offset + 1;
+		if (eightPskStructRfPowerCapPresent == 1)
+		{
+			proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_2, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+			bit_offset = bit_offset + 2;
+		}
+		length = (guint8)((bit_offset - old_bit_offset)>>3);
+		if ((bit_offset - old_bit_offset) & 0x07)
+		    length++;
+		proto_item_set_len(item, length);
 	}
 
 	/* { 0 | 1 < GSM 400 Bands Supported : { 01 | 10 | 11 } >
@@ -3264,7 +3284,7 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 	curr_offset = offset;
 
 	proto_tree_add_text(tree, tvb, curr_offset, len, "IE not dissected yet");
-	/*     8     7     6     5     4     3     2      1 
+	/*     8     7     6     5     4     3     2      1
 	 *     0     0     0   old     0     Type of ciphering
 	 * spare  spare  spare XID  spare      algorithm
 	 */
@@ -3277,7 +3297,7 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 	 */
 	proto_tree_add_item(tree, hf_gsm_a_iov_ui, tvb, curr_offset, 4, FALSE);
 	curr_offset+=4;
-	
+
 	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
@@ -3664,10 +3684,20 @@ proto_register_gsm_a_common(void)
 		FT_BOOLEAN, 8, TFS(&modulation_capability_vals), 0x00,
 		NULL, HFILL}
 	},
+	{ &hf_gsm_a_8_psk_rf_power_capability_1_present,
+	    { "8-PSK RF Power Capability 1 present", "gsm_a.classmark3.8_psk_rf_power_capability_1_present",
+	    FT_BOOLEAN, BASE_NONE, TFS(&true_false_vals), 0x00,
+	    NULL, HFILL}
+	},
 	{ &hf_gsm_a_8_psk_rf_power_capability_1,
 		{ "8-PSK RF Power Capability 1", "gsm_a.classmark3.8_psk_rf_power_capability_1",
 		FT_UINT8, BASE_HEX, VALS(eight_psk_rf_power_capability_vals), 0x00,
 		NULL, HFILL}
+	},
+	{ &hf_gsm_a_8_psk_rf_power_capability_2_present,
+	    { "8-PSK RF Power Capability 2 present", "gsm_a.classmark3.8_psk_rf_power_capability_2_present",
+	    FT_BOOLEAN, BASE_NONE, TFS(&true_false_vals), 0x00,
+	    NULL, HFILL}
 	},
 	{ &hf_gsm_a_8_psk_rf_power_capability_2,
 		{ "8-PSK RF Power Capability 2", "gsm_a.classmark3.8_psk_rf_power_capability_2",

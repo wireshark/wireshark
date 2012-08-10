@@ -143,7 +143,7 @@ void proto_register_x2ap(void) {
         NULL, HFILL }},
     { &hf_x2ap_transportLayerAddressIPv6,
       { "transportLayerAddress(IPv6)", "x2ap.transportLayerAddressIPv6",
-        FT_IPv4, BASE_NONE, NULL, 0,
+        FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
 #include "packet-x2ap-hfarr.c"
