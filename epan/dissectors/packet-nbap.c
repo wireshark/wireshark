@@ -10032,7 +10032,7 @@ dissect_nbap_AddorDeleteIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_nbap_CFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2024 "../../asn1/nbap/nbap.cnf"
+#line 2026 "../../asn1/nbap/nbap.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &cfn, FALSE);
 
@@ -10285,7 +10285,7 @@ dissect_nbap_AvailabilityStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_nbap_HSDSCH_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1994 "../../asn1/nbap/nbap.cnf"
+#line 1996 "../../asn1/nbap/nbap.cnf"
 umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
 address     null_addr;
 conversation_t   *conversation = NULL;
@@ -13343,7 +13343,7 @@ dissect_nbap_CriticalityDiagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_nbap_CRNC_CommunicationContextID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1973 "../../asn1/nbap/nbap.cnf"
+#line 1975 "../../asn1/nbap/nbap.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 1048575U, &com_context_id, FALSE);
 
@@ -15609,7 +15609,7 @@ dissect_nbap_FDD_DCHs_to_ModifyItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_FDD_DCHs_to_ModifyItem, FDD_DCHs_to_ModifyItem_sequence);
 
-    /*g_warning("im going to modify dch_id: %d and t_dch_id: %d", dch_id, t_dch_id);
+    /*g_warning("I'm going to modify dch_id: %d and t_dch_id: %d", dch_id, t_dch_id);
     */
 
 
@@ -18487,7 +18487,7 @@ num_items = 1;
     
          
      /****** Look up old port and ip information since this is not included in this message ******/
-    /*Find proper comunication context ID*/
+    /*Find proper communication context ID*/
     if(crcn_context_present){
                 /*umts_fp_conversation_info->com_context_id = com_context_id;*/
                 }else{
@@ -18495,7 +18495,7 @@ num_items = 1;
                     if((cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
                         com_context_id= cur_val->crnc_context;
                     }else{
-                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not find Comunication Context-ID, unable to reconfigure this E-DCH flow.");
+                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not find Communication Context-ID, unable to reconfigure this E-DCH flow.");
                     }
     }
 
@@ -18504,7 +18504,7 @@ num_items = 1;
       expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not find port information for reconfigured E-DCH flow, unable to reconfigure");
     return offset;
   }
-  /*Set the apropiate port, cheat and use same variable.*/
+  /*Set the appropriate port, cheat and use same variable.*/
   BindingID_port = old_info->crnc_port[e_dch_macdflow_id];
   /*TODO: Fix this for ipv6 aswell!*/
   transportLayerAddress_ipv4 =  old_info->crnc_address;
@@ -18666,7 +18666,7 @@ BindingID_port = 0;
                     if((cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
                         umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
                     }else{
-                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Comunication Context-ID, fragments over reconfigured channels might fail");
+                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail");
                     }
                 }
         
@@ -24168,7 +24168,7 @@ static int
 dissect_nbap_HSDSCH_MACdPDUSizeFormat(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 1630 "../../asn1/nbap/nbap.cnf"
 /*
- * Removed 10 Aug. 2012, Im not sure if this was right, it wrongfully
+ * Removed 10 Aug. 2012, I'm not sure if this was right, it wrongfully
  * set some packets as type 2 for HSDHCH modified items. 
  **/
 
@@ -24176,13 +24176,13 @@ dissect_nbap_HSDSCH_MACdPDUSizeFormat(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
     /*
     * Set the channel entity i.e the type of the hsdsch channels (if this is present entity = ehs)
     */
-/*
-int i;
+
+/*int i;*/
 
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, FALSE, 0, NULL);
 
-    for (i = 0; i < maxNrOfMACdFlows; i++) {
+    /*for (i = 0; i < maxNrOfMACdFlows; i++) {
         if (nbap_hsdsch_channel_info[i].crnc_port != 0){
             nbap_hsdsch_channel_info[i].entity = ehs;
         }
@@ -24690,9 +24690,13 @@ static const per_sequence_t HSDSCH_Paging_System_InformationFDD_sequence[] = {
 static int
 dissect_nbap_HSDSCH_Paging_System_InformationFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 1965 "../../asn1/nbap/nbap.cnf"
-    /*
-    g_warning("HS-DSCH Type 3 NOT Implemented!");
-    */
+  /*
+  g_warning("HS-DSCH Type 3 NOT Implemented!");
+  */
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nbap_HSDSCH_Paging_System_InformationFDD, HSDSCH_Paging_System_InformationFDD_sequence);
+
+
 
 
 
@@ -27990,7 +27994,7 @@ dissect_nbap_NI_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_nbap_NodeB_CommunicationContextID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1977 "../../asn1/nbap/nbap.cnf"
+#line 1979 "../../asn1/nbap/nbap.cnf"
 /*Set up and map that maps Node-B ids to CRNC ids, since often you only have one of them present in nbap*/
 nbap_com_context_id *cur_val;
 
@@ -28591,7 +28595,7 @@ dch_id = 0xFFFFFFFF;
             return offset;
         }
         
-        /*RBS might sometimes send a nonses bind, to indicate that no DCH is present*/
+        /*RBS might sometimes send a nonsens bind, to indicate that no DCH is present*/
         if(BindingID_port == NBAP_IGNORE_PORT){
                 return offset;
         }
@@ -28777,12 +28781,12 @@ BindingID_port = 0;
                     if((cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
                         umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
                     }else{
-                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Comunication Context-ID, fragments over reconfigured channels might fail");
+                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail");
                     }
                 }
                 /*Saving port/flow map based on context id for future reconfigurations*/
                 nbap_edch_port_info->crnc_port[e_dch_macdflow_id] = BindingID_port;
-                /*Ip address might be useful aswell*/
+                /*Ip address might be useful as well*/
                 nbap_edch_port_info->crnc_address = transportLayerAddress_ipv4;
                 g_tree_insert(edch_flow_port_map, GINT_TO_POINTER((gint)umts_fp_conversation_info->com_context_id), nbap_edch_port_info);
                 
@@ -40965,7 +40969,7 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationCommit ");
 actx->pinfo->link_dir=P2P_DIR_DL;
 
 
-#line 2016 "../../asn1/nbap/nbap.cnf"
+#line 2018 "../../asn1/nbap/nbap.cnf"
 /*
  * Here we need to signal the CFN value, down to FP so
  * that lowert layers know when a reconfiguration becomes active

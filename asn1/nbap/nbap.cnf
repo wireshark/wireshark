@@ -598,7 +598,7 @@ actx->pinfo->link_dir=P2P_DIR_UL;
   if (!parameter_tvb)
     return offset;
 # TransportLayerAddress ::= BIT STRING (SIZE (1..160, ...))
-# Asume 4 bytes used in case of IPv4
+# Assume 4 bytes used in case of IPv4
     /* Get the length */
     tvb_len = tvb_length(parameter_tvb);
     subtree = proto_item_add_subtree(actx->created_item, ett_nbap_TransportLayerAddress);
@@ -1078,7 +1078,7 @@ guint32 TransportBlockSize;
 #.FN_BODY FDD-DCHs-to-ModifyItem
 
 %(DEFAULT_BODY)s
-    /*g_warning("im going to modify dch_id: %%d and t_dch_id: %%d", dch_id, t_dch_id);
+    /*g_warning("I'm going to modify dch_id: %%d and t_dch_id: %%d", dch_id, t_dch_id);
     */
 
 #.FN_BODY RL-Specific-DCH-Info-Item/dCH-id
@@ -1103,7 +1103,7 @@ dch_id = 0xFFFFFFFF;
             return offset;
         }
         
-        /*RBS might sometimes send a nonses bind, to indicate that no DCH is present*/
+        /*RBS might sometimes send a nonsens bind, to indicate that no DCH is present*/
         if(BindingID_port == NBAP_IGNORE_PORT){
                 return offset;
         }
@@ -1264,12 +1264,12 @@ BindingID_port = 0;
                     if((cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
                         umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
                     }else{
-                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Comunication Context-ID, fragments over reconfigured channels might fail");
+                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail");
                     }
                 }
                 /*Saving port/flow map based on context id for future reconfigurations*/
                 nbap_edch_port_info->crnc_port[e_dch_macdflow_id] = BindingID_port;
-                /*Ip address might be useful aswell*/
+                /*Ip address might be useful as well*/
                 nbap_edch_port_info->crnc_address = transportLayerAddress_ipv4;
                 g_tree_insert(edch_flow_port_map, GINT_TO_POINTER((gint)umts_fp_conversation_info->com_context_id), nbap_edch_port_info);
                 
@@ -1401,7 +1401,7 @@ BindingID_port = 0;
                     if((cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
                         umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
                     }else{
-                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Comunication Context-ID, fragments over reconfigured channels might fail");
+                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail");
                     }
                 }
         
@@ -1435,7 +1435,7 @@ num_items = 1;
     
          
      /****** Look up old port and ip information since this is not included in this message ******/
-    /*Find proper comunication context ID*/
+    /*Find proper communication context ID*/
     if(crcn_context_present){
                 /*umts_fp_conversation_info->com_context_id = com_context_id;*/
                 }else{
@@ -1443,7 +1443,7 @@ num_items = 1;
                     if((cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
                         com_context_id= cur_val->crnc_context;
                     }else{
-                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not find Comunication Context-ID, unable to reconfigure this E-DCH flow.");
+                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not find Communication Context-ID, unable to reconfigure this E-DCH flow.");
                     }
     }
 
@@ -1452,7 +1452,7 @@ num_items = 1;
       expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not find port information for reconfigured E-DCH flow, unable to reconfigure");
     return offset;
   }
-  /*Set the apropiate port, cheat and use same variable.*/
+  /*Set the appropriate port, cheat and use same variable.*/
   BindingID_port = old_info->crnc_port[e_dch_macdflow_id];
   /*TODO: Fix this for ipv6 aswell!*/
   transportLayerAddress_ipv4 =  old_info->crnc_address;
@@ -1628,7 +1628,7 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
 
 #.FN_BODY HSDSCH-MACdPDUSizeFormat
 /*
- * Removed 10 Aug. 2012, Im not sure if this was right, it wrongfully
+ * Removed 10 Aug. 2012, I'm not sure if this was right, it wrongfully
  * set some packets as type 2 for HSDHCH modified items. 
  **/
 
@@ -1636,11 +1636,11 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
     /*
     * Set the channel entity i.e the type of the hsdsch channels (if this is present entity = ehs)
     */
-/*
-int i;
+
+/*int i;*/
 
 %(DEFAULT_BODY)s
-    for (i = 0; i < maxNrOfMACdFlows; i++) {
+    /*for (i = 0; i < maxNrOfMACdFlows; i++) {
         if (nbap_hsdsch_channel_info[i].crnc_port != 0){
             nbap_hsdsch_channel_info[i].entity = ehs;
         }
@@ -1960,11 +1960,13 @@ int i;
         }
 
     }
-#This guy should perhaps also be impletemend, hsdsch frame type 3
+#This guy should perhaps also be impletemented, hsdsch frame type 3
 #.FN_BODY HSDSCH-Paging-System-InformationFDD   
-    /*
-    g_warning("HS-DSCH Type 3 NOT Implemented!");
-    */
+  /*
+  g_warning("HS-DSCH Type 3 NOT Implemented!");
+  */
+%(DEFAULT_BODY)s
+
 #
 #Routines for figuring out a unique UE identification number (to track flows over changing channels)    
 #
