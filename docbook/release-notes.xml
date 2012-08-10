@@ -97,8 +97,8 @@ Wireshark Info
           </para>
           <para>
 	    The ERF dissector could overflow a buffer. Reported by Laurent Butti.
-            <!-- Fixed in trunk: r44306 -->
-            <!-- Fixed in trunk-1.8: r44347 -->
+            <!-- Fixed in trunk: r44306, r44377, r44419 -->
+            <!-- Fixed in trunk-1.8: r44347, r44431 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7563">Bug
             7563</ulink>)
           </para>
