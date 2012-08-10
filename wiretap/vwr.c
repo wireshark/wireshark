@@ -1610,7 +1610,7 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
     int             bytes_written = 0;              /* bytes output to buf so far */
     register int    i;                              /* temps */
     register guint8 *s_ptr, *m_ptr;                 /* stats and MPDU pointers */
-    gint16          msdu_length,actual_octets;      /* octets in frame */
+    guint16         msdu_length,actual_octets;      /* octets in frame */
     guint8          flow_seq;                       /* seqnum */
     guint64         s_time = LL_ZERO, e_time = LL_ZERO; /* start/end */
                                                         /* times, nsec */
