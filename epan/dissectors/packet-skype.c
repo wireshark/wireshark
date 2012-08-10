@@ -51,12 +51,13 @@ static int proto_skype = -1;
 /* ett handles */
 static int ett_skype = -1;
 
-#define SKYPE_SOM_TYPE_MASK	0x00000F
-#define SKYPE_SOM_ID_MASK	0xFFFFF0
+#define SKYPE_SOM_UNK_MASK	0xF0
+#define SKYPE_SOM_TYPE_MASK	0x0F
 
 /* hf elements */
 /* Start of Message */
 static int hf_skype_som_id = -1;
+static int hf_skype_som_unk = -1;
 static int hf_skype_som_type = -1;
 /* Message body */
 /* Payload */
@@ -95,7 +96,7 @@ typedef enum {
 	SKYPE_TYPE_NAT_INFO = 5,
 	SKYPE_TYPE_NAT_REPEAT = 7,
 	SKYPE_TYPE_AUDIO = 0xd,
-	SKYPE_TYPE_UNKNOWN = 0xf,
+	SKYPE_TYPE_UNKNOWN_F = 0xf,
 } skype_type_t;
 
 
@@ -105,7 +106,7 @@ static const value_string skype_type_vals[] = {
 	{ SKYPE_TYPE_NAT_INFO ,	"NAT info" },
 	{ SKYPE_TYPE_NAT_REPEAT,"NAT repeat" },
 	{ SKYPE_TYPE_AUDIO,	"Audio" },
-	{ SKYPE_TYPE_UNKNOWN ,	"Unknown" },
+	{ SKYPE_TYPE_UNKNOWN_F,	"Unknown_F" },
 
 	{ 0,	NULL }
 };
@@ -117,17 +118,19 @@ dissect_skype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *skype_tree = NULL;
 	guint32 offset = 0;
 	guint32 packet_length;
-	guint8 packet_type;
+	guint8 packet_type, packet_unk;
 
 	packet_type = tvb_get_guint8(tvb, 2) & SKYPE_SOM_TYPE_MASK;
+	packet_unk = (tvb_get_guint8(tvb, 2) & SKYPE_SOM_UNK_MASK) >> 4;
 
 	packet_length = tvb_length(tvb);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type,
-			skype_type_vals, "Type 0x%02x"));
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type,
+		skype_type_vals, "Type 0x%1x"));
+	if (packet_unk) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Unk: %1x", packet_unk);
+	}
 
 	if (tree) {
 		/* Start of message dissection */
@@ -135,11 +138,14 @@ dissect_skype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    ENC_NA);
 		skype_tree = proto_item_add_subtree(ti, ett_skype);
 
-		proto_tree_add_item(skype_tree, hf_skype_som_id, tvb, offset, 3,
+		proto_tree_add_item(skype_tree, hf_skype_som_id, tvb, offset, 2,
 			ENC_BIG_ENDIAN);
-		proto_tree_add_item(skype_tree, hf_skype_som_type, tvb, offset, 3,
-			ENC_BIG_ENDIAN);
-		offset += 3;
+		offset += 2;
+		proto_tree_add_item(skype_tree, hf_skype_som_unk, tvb, offset, 1,
+			ENC_NA);
+		proto_tree_add_item(skype_tree, hf_skype_som_type, tvb, offset, 1,
+			ENC_NA);
+		offset += 1;
 
 		/* Body dissection */
 		switch (packet_type) {
@@ -193,7 +199,7 @@ dissect_skype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ENC_NA);
 			offset = packet_length;
 			break;
-		case SKYPE_TYPE_UNKNOWN:
+		case SKYPE_TYPE_UNKNOWN_F:
 			proto_tree_add_item(skype_tree, hf_skype_unknown_f_unk1, tvb, offset, -1,
 				ENC_NA);
 			offset = packet_length;
@@ -255,8 +261,12 @@ proto_register_skype(void)
 
 	/* Start of message fields */
 		{ &hf_skype_som_id,
-		{ "ID",	"skype.som.id", FT_UINT24, BASE_HEX, NULL,
-			SKYPE_SOM_ID_MASK, "Message ID", HFILL }},
+		{ "ID",	"skype.som.id", FT_UINT16, BASE_HEX, NULL,
+			0x0, "Message ID", HFILL }},
+
+		{ &hf_skype_som_unk,
+		{ "Unknown",	"skype.som.unk", FT_UINT8, BASE_HEX, NULL,
+			SKYPE_SOM_UNK_MASK, NULL, HFILL }},
 
 		{ &hf_skype_som_type,
 		{ "Type",	"skype.som.type", FT_UINT8, BASE_HEX, VALS(skype_type_vals),
