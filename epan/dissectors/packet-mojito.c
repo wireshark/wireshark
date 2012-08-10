@@ -4,8 +4,8 @@
  *
  * Copyright (c) 2008 by Travis Dawson <travis.dawson@sprint.com>
  *
- * $Id: $
- * 
+ * $Id$
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -23,7 +23,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -36,16 +36,16 @@
 #define MOJITO_HEADER_LENGTH    38
 
 /* All the Defines for OpCodes */
-#define PING_REQUEST 1
-#define PING_RESPONSE 2
-#define STORE_REQUEST 3
-#define STORE_RESPONSE 4
-#define FIND_NODE_REQUEST 5
-#define FIND_NODE_RESPONSE 6
-#define FIND_VALUE_REQUEST 7
-#define FIND_VALUE_RESPONSE 8
-#define STATS_REQUEST_DEPRECATED 9
-#define STATS_RESPONSE_DEPRECATED 10
+#define PING_REQUEST			 1
+#define PING_RESPONSE			 2
+#define STORE_REQUEST			 3
+#define STORE_RESPONSE			 4
+#define FIND_NODE_REQUEST		 5
+#define FIND_NODE_RESPONSE		 6
+#define FIND_VALUE_REQUEST		 7
+#define FIND_VALUE_RESPONSE		 8
+#define STATS_REQUEST_DEPRECATED	 9
+#define STATS_RESPONSE_DEPRECATED	10
 
 /* Initialize the protocol and registered fields */
 static int proto_mojito = -1;
@@ -129,15 +129,15 @@ typedef struct mojito_header_data {
 
 /* Values for OPCode Flags */
 static const value_string opcodeflags[] = {
-	{ PING_REQUEST, "PING REQUEST" },
-	{ PING_RESPONSE, "PING RESPONSE" },
-	{ STORE_REQUEST, "STORE REQUEST" },
-	{ STORE_RESPONSE, "STORE RESPONSE" },
-	{ FIND_NODE_REQUEST, "FIND NODE REQUEST" },
-	{ FIND_NODE_RESPONSE, "FIND NODE RESPONSE" },
-	{ FIND_VALUE_REQUEST, "FIND VALUE REQUEST" },
-	{ FIND_VALUE_RESPONSE, "FIND VALUE RESPONSE" },
-	{ STATS_REQUEST_DEPRECATED, "STATS REQUEST (DEPRECATED)" },
+	{ PING_REQUEST,              "PING REQUEST" },
+	{ PING_RESPONSE,             "PING RESPONSE" },
+	{ STORE_REQUEST,             "STORE REQUEST" },
+	{ STORE_RESPONSE,            "STORE RESPONSE" },
+	{ FIND_NODE_REQUEST,         "FIND NODE REQUEST" },
+	{ FIND_NODE_RESPONSE,        "FIND NODE RESPONSE" },
+	{ FIND_VALUE_REQUEST,        "FIND VALUE REQUEST" },
+	{ FIND_VALUE_RESPONSE,       "FIND VALUE RESPONSE" },
+	{ STATS_REQUEST_DEPRECATED,  "STATS REQUEST (DEPRECATED)" },
 	{ STATS_RESPONSE_DEPRECATED, "STATS RESPONSE (DEPRECATED)" },
 	{ 0, NULL }
 };
@@ -148,14 +148,15 @@ static const value_string statuscodeflags[] = {
 	{ 0, NULL }
 };
 
+#if 0
 static const value_string vendorcodeflags[] = {
-	{ 0, "MESSAGES_SUPPORTED" },
-	{ 4, "HOPS_FLOW" },
-	{ 5, "CRAWLER_PING" },
-	{ 6, "CRAWLER_PONG" },
-	{ 7, "UDP_CONNECT_BACK" },
-	{ 8, "UDP_CONNECT_BACK_REDIR" },
-	{ 9, "NGTH_MINUS_PAYLOAD" },
+	{  0, "MESSAGES_SUPPORTED" },
+	{  4, "HOPS_FLOW" },
+	{  5, "CRAWLER_PING" },
+	{  6, "CRAWLER_PONG" },
+	{  7, "UDP_CONNECT_BACK" },
+	{  8, "UDP_CONNECT_BACK_REDIR" },
+	{  9, "NGTH_MINUS_PAYLOAD" },
 	{ 10, "CAPABILITIES" },
 	{ 11, "LIME_ACK" },
 	{ 12, "REPLY_NUMBER" },
@@ -180,14 +181,15 @@ static const value_string vendorcodeflags[] = {
 
 	{ 0, NULL }
 };
+#endif
 
 static int
 dissect_mojito_contact(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int contact_id)
 {
-	guint8 socketaddressversion;
+	guint8      socketaddressversion;
 	proto_tree *contract_tree, *version_tree, *socket_tree;
 	proto_item *contract_item, *version_item, *socket_item;
-	int socket_length;
+	int         socket_length;
 
 	if (contact_id > 0)
 	{
@@ -260,15 +262,15 @@ dissect_mojito_contact(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	return socket_length+26;
 }
 
-static int 
-dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
+static int
+dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       int offset, mojito_header_data_t* header_data)
 {
 	proto_tree *header_tree, *version_tree, *contract_tree, *socket_tree, *flag_tree;
 	proto_item *header_item, *version_item, *contract_item, *socket_item, *flag_item;
-	guint8 socketaddressversion;
-	int start_offset = offset, 
-		socket_length;
+	guint8      socketaddressversion;
+	int         start_offset = offset;
+	int	    socket_length;
 
 	header_item = proto_tree_add_text(tree, tvb, offset, 61, "Gnutella Header");
 	header_tree = proto_item_add_subtree(header_item, ett_mojito_header);
@@ -293,7 +295,7 @@ dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
 
 	header_data->opcode = tvb_get_guint8(tvb, offset);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(header_data->opcode, opcodeflags, "Unknown"));
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(header_data->opcode, opcodeflags, "Unknown"));
 	proto_tree_add_item(header_tree, hf_mojito_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -353,7 +355,7 @@ dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/*Flags*/
 	flag_item = proto_tree_add_item(header_tree, hf_mojito_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-	flag_tree = proto_item_add_subtree(flag_item, ett_mojito_flags);    
+	flag_tree = proto_item_add_subtree(flag_item, ett_mojito_flags);
 	proto_tree_add_item(flag_tree, hf_mojito_flags_shutdown, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flag_tree, hf_mojito_flags_firewalled, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -368,8 +370,8 @@ dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_mojito_ping_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint8 bigintlen,
-		   socketaddressversion = tvb_get_guint8(tvb, offset);
+	guint8      bigintlen;
+	guint8      socketaddressversion = tvb_get_guint8(tvb, offset);
 	proto_tree *socket_tree, *bigint_tree;
 	proto_item *socket_item, *bigint_item;
 
@@ -445,10 +447,10 @@ dissect_mojito_store_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
 	proto_tree *dht_tree, *version_tree;
 	proto_item *dht_item, *version_item;
-	guint8 i, contactcount,
-			  sectokenlen = tvb_get_guint8(tvb, offset);
-	guint16 dhtvaluelength;
-	int contact_offset, start_offset;
+	guint8      i, contactcount;
+	guint8      sectokenlen = tvb_get_guint8(tvb, offset);
+	guint16     dhtvaluelength;
+	int         contact_offset, start_offset;
 
 	proto_tree_add_item(tree, hf_mojito_sectokenlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -503,15 +505,15 @@ dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 {
 	proto_tree *sc_tree;
 	proto_item *sc_item;
-	guint8 i, contactcount = tvb_get_guint8(tvb, offset);
-	guint16 dhtvaluelength;
-	int start_offset;
+	guint8      i, contactcount = tvb_get_guint8(tvb, offset);
+	guint16     dhtvaluelength;
+	int         start_offset;
 
 	proto_tree_add_item(tree, hf_mojito_storestatuscode_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* For each Contact, display the info */
-	for (i = 1; i <= contactcount; i++) 
+	for (i = 1; i <= contactcount; i++)
 	{
 		sc_item = proto_tree_add_text(tree, tvb, offset, 23, "Status Code %d", i);
 		sc_tree = proto_item_add_subtree(sc_item, ett_mojito_status_code);
@@ -546,9 +548,9 @@ dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static void
 dissect_mojito_find_node_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint8 i, contactcount,
-			  sectokenlen = tvb_get_guint8(tvb, offset);
-	int contact_offset;
+	guint8 i, contactcount;
+	guint8 sectokenlen = tvb_get_guint8(tvb, offset);
+	int    contact_offset;
 
 	proto_tree_add_item(tree, hf_mojito_sectokenlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -575,7 +577,10 @@ dissect_mojito_find_value_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
 	proto_tree *kuid_tree;
 	proto_item *kuid_item;
-	guint8 i, kuidcount;
+	guint8      i, kuidcount;
+
+	if (!tree)
+		return;
 
 	proto_tree_add_item(tree, hf_mojito_target_kuid, tvb, offset, 20, ENC_NA);
 	offset += 20;
@@ -604,9 +609,9 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
 	proto_tree *dht_tree, *version_tree, *kuid_tree;
 	proto_item *dht_item, *version_item, *kuid_item;
-	guint16 dhtvaluelength;
-	int contact_offset, start_offset;
-	guint8 i, dhtvaluescount, kuidcount;
+	guint16     dhtvaluelength;
+	int         contact_offset, start_offset;
+	guint8      i, dhtvaluescount, kuidcount;
 
 	proto_tree_add_item(tree, hf_mojito_requestload, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
@@ -624,6 +629,7 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		contact_offset = dissect_mojito_contact(tvb, pinfo, dht_tree, offset, -1);
 		if (contact_offset == -1)
 			return;
+
 		offset += contact_offset;
 
 		proto_tree_add_item(dht_tree, hf_mojito_dhtvalue_kuid, tvb, offset, 20, ENC_NA);
@@ -668,70 +674,71 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	}
 }
 
-static int 
+static int
 dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree *mojito_tree, *opcode_tree;
-	proto_item *ti, *opcode_item;
-	mojito_header_data_t header_data;
-	gint offset = 0;
+	proto_tree           *mojito_tree, *opcode_tree;
+	proto_item           *ti, *opcode_item;
+	mojito_header_data_t  header_data;
+	gint                  offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Mojito");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) 
+	/* Add a new item to the tree */
+	ti = proto_tree_add_item(tree, proto_mojito, tvb, 0, -1, ENC_NA);
+	mojito_tree = proto_item_add_subtree(ti, ett_mojito);
+
+	offset = dissect_mojito_header(tvb, pinfo, mojito_tree, offset, &header_data);
+	if (offset == 0) /* Some error occurred */
+		return 0;
+
+	opcode_item = proto_tree_add_text(mojito_tree, tvb,
+					  offset, header_data.payloadlength - MOJITO_HEADER_LENGTH,
+					  "Opcode specific data (%s)",
+					  val_to_str_const(header_data.opcode, opcodeflags, "Unknown"));
+	opcode_tree = proto_item_add_subtree(opcode_item, ett_mojito_opcode);
+
+	/* Now use the opcode to figure out what to do next */
+	switch (header_data.opcode)
 	{
-		/* Add a new item to the tree */
-		ti = proto_tree_add_item(tree, proto_mojito, tvb, 0, -1, ENC_NA);
-		mojito_tree = proto_item_add_subtree(ti, ett_mojito);
+	case PING_RESPONSE: /* PING RESPONSE */
+		dissect_mojito_ping_response(tvb, pinfo, opcode_tree, offset);
+		break;
 
-		offset = dissect_mojito_header(tvb, pinfo, mojito_tree, offset, &header_data);
-		if (offset == 0) /* Some error occurred */
-			return 0;
+	case STORE_REQUEST: /* STORE REQUEST */
+		dissect_mojito_store_request(tvb, pinfo, opcode_tree, offset);
+		break;
 
-		opcode_item = proto_tree_add_text(mojito_tree, tvb, offset, header_data.payloadlength - MOJITO_HEADER_LENGTH, "Opcode specific data (%s)", val_to_str(header_data.opcode, opcodeflags, "Unknown"));
-		opcode_tree = proto_item_add_subtree(opcode_item, ett_mojito_opcode);
+	case STORE_RESPONSE: /* STORE RESPONSE */
+		dissect_mojito_store_response(tvb, pinfo, opcode_tree, offset);
+		break;
 
-		/* Now use the opcode to figure out what to do next */
-		switch (header_data.opcode)
-		{
-		case PING_RESPONSE: /* PING RESPONSE */
-			dissect_mojito_ping_response(tvb, pinfo, opcode_tree, offset);
-			break;
+	case FIND_NODE_REQUEST: /* FIND NODE REQUEST */
+		proto_tree_add_item(opcode_tree, hf_mojito_target_kuid, tvb, offset, 20, ENC_NA);
+		offset += 20;
+		break;
 
-		case STORE_REQUEST: /* STORE REQUEST */
-			dissect_mojito_store_request(tvb, pinfo, opcode_tree, offset);
-			break;
+	case FIND_NODE_RESPONSE: /* FIND NODE RESPONSE */
+		dissect_mojito_find_node_response(tvb, pinfo, opcode_tree, offset);
+		break;
 
-		case STORE_RESPONSE: /* STORE RESPONSE */
-			dissect_mojito_store_response(tvb, pinfo, opcode_tree, offset);
-			break;
+	case FIND_VALUE_REQUEST: /* FIND VALUE REQUEST */
+		dissect_mojito_find_value_request(tvb, pinfo, opcode_tree, offset);
+		break;
 
-		case FIND_NODE_REQUEST: /* FIND NODE REQUEST */
-			proto_tree_add_item(opcode_tree, hf_mojito_target_kuid, tvb, offset, 20, ENC_NA);
-			offset += 20;
-			break;
+	case FIND_VALUE_RESPONSE: /* FIND VALUE RESPONSE */
+		dissect_mojito_find_value_response(tvb, pinfo, opcode_tree, offset);
+		break;
 
-		case FIND_NODE_RESPONSE: /* FIND NODE RESPONSE */
-			dissect_mojito_find_node_response(tvb, pinfo, opcode_tree, offset);
-			break;
-
-		case FIND_VALUE_REQUEST: /* FIND VALUE REQUEST */
-			dissect_mojito_find_value_request(tvb, pinfo, opcode_tree, offset);
-			break;
-
-		case FIND_VALUE_RESPONSE: /* FIND VALUE RESPONSE */
-			dissect_mojito_find_value_response(tvb, pinfo, opcode_tree, offset);
-			break;
-
-		case PING_REQUEST: /* PING REQUEST */
-		case STATS_REQUEST_DEPRECATED: /* STATS REQUEST (DEPRECATED) */
-		case STATS_RESPONSE_DEPRECATED: /* STATS RESPONSE (DEPRECATED) */
-		default:
-			if (header_data.payloadlength - MOJITO_HEADER_LENGTH > 0)
-				proto_tree_add_item(opcode_tree, hf_mojito_opcode_data, tvb, offset, header_data.payloadlength - MOJITO_HEADER_LENGTH, ENC_NA);
-			break;
-		}
+	case PING_REQUEST: /* PING REQUEST */
+	case STATS_REQUEST_DEPRECATED: /* STATS REQUEST (DEPRECATED) */
+	case STATS_RESPONSE_DEPRECATED: /* STATS RESPONSE (DEPRECATED) */
+	default:
+		if (header_data.payloadlength - MOJITO_HEADER_LENGTH > 0)
+			proto_tree_add_item(opcode_tree, hf_mojito_opcode_data, tvb,
+					    offset, header_data.payloadlength - MOJITO_HEADER_LENGTH, ENC_NA);
+		break;
 	}
 
 	return tvb_length(tvb);
@@ -740,12 +747,14 @@ dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean dissect_mojito_heuristic (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/*
-	Test the overall length to make sure its at least 61 bytes (the header)
-	Test to make sure that its of type 44 (mojito)
-	Test to make sure that the length field is there and correct
-	(tvb_get_letohl(tvb, 20) + 23) == tvb_length(tvb)
+	  Test the overall length to make sure its at least 61 bytes (the header)
+	  Test to make sure that it's of type 44 (mojito)
+	  Test to make sure that the length field is there and correct
+	  (tvb_get_letohl(tvb, 20) + 23) == tvb_length(tvb)
 	*/
-	if (tvb_length(tvb) >= 60 &&  tvb_get_guint8(tvb, 16) == 68 &&(tvb_get_letohl(tvb, 19) + 23) == tvb_length(tvb))
+	if ((tvb_length(tvb) >= 60) &&
+	    (tvb_get_guint8(tvb, 16) == 68) &&
+	    ((tvb_get_letohl(tvb, 19) + 23) == tvb_reported_length(tvb)))
 	{
 		dissect_mojito(tvb, pinfo, tree);
 		return TRUE;
@@ -762,280 +771,280 @@ proto_register_mojito(void)
 
 	static hf_register_info hf[] = {
 		{ &hf_mojito_dhtvaluecount,
-			{ "DHTValue Count", "mojito.dhtvaluecount",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "DHTValue Count", "mojito.dhtvaluecount",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_messageid,
-			{ "Message ID", "mojito.messageid",
-				FT_BYTES, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Message ID", "mojito.messageid",
+		    FT_BYTES, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_requestload,
-			{ "Request Load", "mojito.requestload",
-				FT_UINT32, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Request Load", "mojito.requestload",
+		    FT_UINT32, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_fdhtmessage,
-			{ "FDHTMessage", "mojito.fdhtmessage",
-				FT_UINT8, BASE_HEX,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "FDHTMessage", "mojito.fdhtmessage",
+		    FT_UINT8, BASE_HEX,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_mjrversion,
-			{ "Major Version", "mojito.majorversion",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Major Version", "mojito.majorversion",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_mnrversion,
-			{ "Minor Version", "mojito.minorversion",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Minor Version", "mojito.minorversion",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_length,
-			{ "Payload Length", "mojito.payloadlength",
-				FT_UINT32, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Payload Length", "mojito.payloadlength",
+		    FT_UINT32, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_opcode,
-			{ "OPCode", "mojito.opcode",
-				FT_UINT8, BASE_DEC,
-				VALS(opcodeflags), 0x0,
-			NULL, HFILL }
+		  { "OPCode", "mojito.opcode",
+		    FT_UINT8, BASE_DEC,
+		    VALS(opcodeflags), 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_vendor,
-			{ "Vendor", "mojito.vendor",
-				FT_STRING, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Vendor", "mojito.vendor",
+		    FT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_origmjrversion,
-			{ "Major Version", "mojito.majorversion",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Major Version", "mojito.majorversion",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_origmnrversion,
-			{ "Minor Version", "mojito.minorversion",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Minor Version", "mojito.minorversion",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_kuid,
-			{ "Kademlia Unique ID (KUID)", "mojito.kuid",
-				FT_BYTES, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Kademlia Unique ID (KUID)", "mojito.kuid",
+		    FT_BYTES, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_socketaddress_version,
-			{ "IP Version", "mojito.socketaddressversion",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "IP Version", "mojito.socketaddressversion",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_socketaddress_ipv4,
-			{ "IP Address", "mojito.socketaddressipv4",
-				FT_IPv4, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "IP Address", "mojito.socketaddressipv4",
+		    FT_IPv4, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_socketaddress_ipv6,
-			{ "IP Address", "mojito.socketaddressipv6",
-				FT_IPv6, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "IP Address", "mojito.socketaddressipv6",
+		    FT_IPv6, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_socketaddress_port,
-			{ "IP Port", "mojito.socketaddressport",
-				FT_UINT16, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "IP Port", "mojito.socketaddressport",
+		    FT_UINT16, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_instanceid,
-			{ "Instance ID", "mojito.instanceid",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Instance ID", "mojito.instanceid",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_flags,
-			{ "Flags", "mojito.flags",
-				FT_UINT8, BASE_HEX,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Flags", "mojito.flags",
+		    FT_UINT8, BASE_HEX,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_flags_shutdown,
-			{ "SHUTDOWN", "mojito.shutdownflag",
-				FT_BOOLEAN, 8,
-				NULL, 2,
-			NULL, HFILL }
+		  { "SHUTDOWN", "mojito.shutdownflag",
+		    FT_BOOLEAN, 8,
+		    NULL, 2,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_flags_firewalled,
-			{ "Firewalled", "mojito.firewalledflag",
-				FT_BOOLEAN, 8,
-				NULL, 1,
-			NULL, HFILL }
+		  { "Firewalled", "mojito.firewalledflag",
+		    FT_BOOLEAN, 8,
+		    NULL, 1,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_extendedlength,
-			{ "Extended Length", "mojito.extlength",
-				FT_UINT16, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Extended Length", "mojito.extlength",
+		    FT_UINT16, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_kuidcount,
-			{ "Secondary KUID Count", "mojito.kuidcount",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Secondary KUID Count", "mojito.kuidcount",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_dhtvaluetype,
-			{ "DHT Value Type", "mojito.dhtvaluetype",
-				FT_STRING, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "DHT Value Type", "mojito.dhtvaluetype",
+		    FT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_bigintegerlen,
-			{ "Big Integer Length", "mojito.bigintegerlen",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Big Integer Length", "mojito.bigintegerlen",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_bigintegerval,
-			{ "Big Integer HEX Value", "mojito.bigintegerhexval",
-				FT_BYTES, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Big Integer HEX Value", "mojito.bigintegerhexval",
+		    FT_BYTES, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_sectokenlen,
-			{ "Security Token Length", "mojito.sectokenlen",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Security Token Length", "mojito.sectokenlen",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_sectoken,
-			{ "Security Token", "mojito.sectoken",
-				FT_BYTES, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Security Token", "mojito.sectoken",
+		    FT_BYTES, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_contactcount,
-			{ "Contact Count", "mojito.contactcount",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Contact Count", "mojito.contactcount",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_contactvendor,
-			{ "Vendor", "mojito.contactvendor",
-				FT_STRING, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Vendor", "mojito.contactvendor",
+		    FT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_contactversion,
-			{ "Contact Version", "mojito.contactversion",
-				FT_UINT16, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Contact Version", "mojito.contactversion",
+		    FT_UINT16, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_contactkuid,
-			{ "KUID of the Contact", "mojito.contactkuid",
-				FT_BYTES, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "KUID of the Contact", "mojito.contactkuid",
+		    FT_BYTES, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_dhtvalue_valuetype,
-			{ "DHTValue ValueType", "mojito.dhtvaluevaluetype",
-				FT_STRING, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "DHTValue ValueType", "mojito.dhtvaluevaluetype",
+		    FT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_dhtvalue_version,
-			{ "DHTValue Version", "mojito.dhtvalueversion",
-				FT_UINT16, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "DHTValue Version", "mojito.dhtvalueversion",
+		    FT_UINT16, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_dhtvalue_length,
-			{ "DHTValue Length", "mojito.dhtvaluelength",
-				FT_UINT16, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "DHTValue Length", "mojito.dhtvaluelength",
+		    FT_UINT16, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_dhtvalue_value,
-			{ "DHTValue", "mojito.dhtvaluehexvalue",
-				FT_STRING, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "DHTValue", "mojito.dhtvaluehexvalue",
+		    FT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_bigint_value_one,
-			{ "Big Integer DEC Value", "mojito.bigintegerval",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Big Integer DEC Value", "mojito.bigintegerval",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_bigint_value_two,
-			{ "Big Integer DEC Value", "mojito.bigintegerval",
-				FT_UINT16, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Big Integer DEC Value", "mojito.bigintegerval",
+		    FT_UINT16, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_bigint_value_three,
-			{ "Big Integer DEC Value", "mojito.bigintegerval",
-				FT_UINT24, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Big Integer DEC Value", "mojito.bigintegerval",
+		    FT_UINT24, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_bigint_value_four,
-			{ "Big Integer DEC Value", "mojito.bigintegerval",
-				FT_UINT32, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Big Integer DEC Value", "mojito.bigintegerval",
+		    FT_UINT32, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_dhtvalue_kuid,
-			{ "Kademlia Unique ID (KUID)", "mojito.kuid",
-				FT_BYTES, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Kademlia Unique ID (KUID)", "mojito.kuid",
+		    FT_BYTES, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_target_kuid,
-			{ "Target Kademlia Unique ID (KUID)", "mojito.kuid",
-				FT_BYTES, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Target Kademlia Unique ID (KUID)", "mojito.kuid",
+		    FT_BYTES, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_storestatuscode_count,
-			{ "Status Code Count", "mojito.statuscodecount",
-				FT_UINT8, BASE_DEC,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Status Code Count", "mojito.statuscodecount",
+		    FT_UINT8, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_storestatuscode_code,
-			{ "StatusCode", "mojito.statuscodecount",
-				FT_UINT16, BASE_DEC,
-				VALS(statuscodeflags), 0x0,
-			NULL, HFILL }
+		  { "StatusCode", "mojito.statuscodecount",
+		    FT_UINT16, BASE_DEC,
+		    VALS(statuscodeflags), 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_storestatuscode_kuid,
-			{ "Primary KUID of the Status Code", "mojito.statuscodekuid",
-				FT_BYTES, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Primary KUID of the Status Code", "mojito.statuscodekuid",
+		    FT_BYTES, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_storestatuscode_secondary_kuid,
-			{ "Secondary KUID of the Status Code", "mojito.statuscodesecondarykuid",
-				FT_BYTES, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Secondary KUID of the Status Code", "mojito.statuscodesecondarykuid",
+		    FT_BYTES, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_mojito_opcode_data,
-			{ "Data", "mojito.opcode.data",
-				FT_BYTES, BASE_NONE,
-				NULL, 0x0,
-			NULL, HFILL }
+		  { "Data", "mojito.opcode.data",
+		    FT_BYTES, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
 		}
 	};
 
@@ -1065,20 +1074,20 @@ proto_register_mojito(void)
 	/* Set the Prefs */
 	mojito_module = prefs_register_protocol(proto_mojito, NULL);
 
-	prefs_register_uint_preference(mojito_module, 
-								   "udp.port", 
-								   "Mojito UDP Port",
-								   "Mojito UDP Port",
-								   10, 
-								   &udp_mojito_port);
+	prefs_register_uint_preference(mojito_module,
+				       "udp.port",
+				       "Mojito UDP Port",
+				       "Mojito UDP Port",
+				       10,
+				       &udp_mojito_port);
 }
 
 /* Control the handoff */
 void
 proto_reg_handoff_mojito(void)
 {
-	static gboolean initialized = FALSE;
-	static int old_mojito_udp_port = 0;
+	static gboolean           initialized         = FALSE;
+	static int                old_mojito_udp_port = 0;
 	static dissector_handle_t mojito_handle;
 
 	if (!initialized) {
