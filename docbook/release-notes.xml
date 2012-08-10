@@ -207,6 +207,12 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Wireshark crashes on opening very short NFS pcap file.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7498">Bug
+          7498</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -234,7 +240,15 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+AFP,
+CIP,
+CTDB,
+DCP ETSI,
+EtherCAT Mailbox,
+NFS,
+RTPS2,
+STUN,
+XTP
 
     </para>
     </section>
@@ -242,7 +256,7 @@ There are no new protocols in this release.
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+There are no new or updated capture file formats in this release.
 
     </para>
     </section>
