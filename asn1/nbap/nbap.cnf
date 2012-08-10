@@ -1287,7 +1287,7 @@ BindingID_port = 0;
 
 #.FN_BODY E-DCH-MACdFlow-Specific-InfoItem
 umts_fp_conversation_info_t *p_conv_data = NULL;
-address     dst_addr,null_addr;
+address     null_addr;
 conversation_t   *p_conv;
 guint32 no_ddi_entries, i;
 
@@ -1296,9 +1296,6 @@ guint32 no_ddi_entries, i;
     {
         return offset;
     }
-    dst_addr.type=AT_IPv4;
-    dst_addr.len=4;
-    dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
             
     /* Check if we have conversation info */
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
@@ -1423,7 +1420,7 @@ BindingID_port = 0;
 
 #.FN_BODY E-DCH-MACdFlow-Specific-InfoItem-to-Modify
 guint32 no_ddi_entries, i;
-address     dst_addr, null_addr;
+address     null_addr;
 nbap_edch_port_info_t * old_info;
 umts_fp_conversation_info_t *p_conv_data = NULL;
 conversation_t   *p_conv;
@@ -1461,11 +1458,6 @@ num_items = 1;
   transportLayerAddress_ipv4 =  old_info->crnc_address;
   
   /*Do the configurations*/
-    dst_addr.type=AT_IPv4;
-    dst_addr.len=4;
-    dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
-        
-        
     /* Check if we have conversation info */
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
     p_conv = find_conversation(actx->pinfo->fd->num, &nbap_edch_channel_info[e_dch_macdflow_id].crnc_address, &null_addr,
