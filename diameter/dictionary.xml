@@ -22,7 +22,8 @@
 	<!ENTITY Tango		SYSTEM "Tango.xml">
 	<!ENTITY mobileipv6	SYSTEM "mobileipv6.xml">
 	<!ENTITY Cisco		SYSTEM "Cisco.xml">
-	<!ENTITY Vodafone	SYSTEM "Vodafone.xml">
+  <!ENTITY Vodafone	SYSTEM "Vodafone.xml">
+  <!ENTITY AlcatelLucent	SYSTEM "AlcatelLucent.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -194,7 +195,8 @@
 		<vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
 		<vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
 		<vendor vendor-id="Tango" code="13421" name="Tango Telecom Limited"/>
-		<!-- *********************** End Vendors ************************** -->
+    <vendor vendor-id="ALU" code="637" name="ALU Network"/>
+    <!-- *********************** End Vendors ************************** -->
 
 
 		<!-- ************************************************************** -->
@@ -6130,5 +6132,6 @@
 	&Ericsson;
 	&mobileipv6;
 	&Cisco;
-	&Vodafone;
+  &Vodafone;
+  &AlcatelLucent;
 </dictionary>
