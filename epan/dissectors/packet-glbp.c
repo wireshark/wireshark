@@ -198,14 +198,14 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset,
   switch (addrtype) {
     case 1:
     if (addrlen != 4) {
-      expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Wrong IPv4 address length: %u", addrlen);
+      expert_add_info_format(NULL, NULL, PI_MALFORMED, PI_ERROR, "Wrong IPv4 address length: %u", addrlen);
       return offset + addrlen;
     }
     proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualipv4, tvb, offset, addrlen, ENC_BIG_ENDIAN);
     break;
   case 2:
     if (addrlen != 16) {
-      expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Wrong IPv6 address length: %u", addrlen);
+      expert_add_info_format(NULL, NULL, PI_MALFORMED, PI_ERROR, "Wrong IPv6 address length: %u", addrlen);
       return offset + addrlen;
     }
     proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualipv6, tvb, offset, addrlen, ENC_NA);
@@ -327,7 +327,7 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     type = tvb_get_guint8(tvb, offset);
     length = tvb_get_guint8(tvb, offset+1);
     if (length < 2) {
-      expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Length %u too small", length);
+      expert_add_info_format(NULL, NULL, PI_MALFORMED, PI_ERROR, "Length %u too small", length);
       return offset;
     }
     length -= 2;
@@ -360,7 +360,7 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
     if (lastoffset >= offset) {
-      expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Zero or negative length");
+      expert_add_info_format(NULL, NULL, PI_MALFORMED, PI_ERROR, "Zero or negative length");
       return lastoffset;
     }
     /* Skip over trailing bytes before starting with the next element */

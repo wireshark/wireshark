@@ -112,7 +112,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector(ieee80211_handle, wlan_tvb, pinfo, tree);
 		} CATCH2(BoundsError, ReportedBoundsError) {
 
-			expert_add_info_format(pinfo, NULL,
+			expert_add_info_format(NULL, NULL,
 				PI_MALFORMED, PI_ERROR,
 				"Malformed or short IEEE80211 subpacket");
 

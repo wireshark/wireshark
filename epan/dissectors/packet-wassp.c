@@ -784,7 +784,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	TRY {
 		call_dissector(snmp_handle, snmp_tvb, pinfo, wassp_tree);
 	} CATCH2(BoundsError, ReportedBoundsError) {
-		expert_add_info_format(pinfo, NULL,
+		expert_add_info_format(NULL, NULL,
 			PI_MALFORMED, PI_ERROR,
 			"Malformed or short SNMP subpacket");
 
@@ -816,7 +816,7 @@ dissect_ieee80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	TRY {
 		call_dissector(ieee80211_handle, ieee80211_tvb, pinfo, wassp_tree);
 	} CATCH2(BoundsError, ReportedBoundsError) {
-		expert_add_info_format(pinfo, NULL,
+		expert_add_info_format(NULL, NULL,
 			PI_MALFORMED, PI_ERROR,
 			"Malformed or short IEEE 802.11 subpacket");
 

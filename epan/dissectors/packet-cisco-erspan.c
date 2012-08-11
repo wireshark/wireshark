@@ -152,8 +152,8 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti_ver = proto_tree_add_item(erspan_tree, hf_erspan_version, tvb, offset, 2,
 			ENC_BIG_ENDIAN);
 		if ((version != 1) && (version != 2 )) {
-			expert_add_info_format(pinfo, ti_ver, PI_UNDECODED, PI_WARN, "Unknown version, please report or test to use fake ERSPAN preference");
-                	return;
+			expert_add_info_format(NULL, ti_ver, PI_UNDECODED, PI_WARN, "Unknown version, please report or test to use fake ERSPAN preference");
+			return;
 		}
 		proto_tree_add_item(erspan_tree, hf_erspan_vlan, tvb, offset, 2,
 			ENC_BIG_ENDIAN);
