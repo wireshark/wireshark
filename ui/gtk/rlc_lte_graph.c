@@ -362,6 +362,9 @@ static char helptext[] =
     "   <Ctrl><Right>    move view right 1 pixel (if zoomed in)\n"
     "   <Ctrl><Up>       move view up by 1 pixel (if zoomed in)\n"
     "   <Ctrl><Down>     move view down by 1 pixel (if zoomed in)\n"
+    "\n"
+    "   <Page_Up>        move up by a large number of pixels (if zoomed in)\n"
+    "   <Page_Down>   move down by a large number of pixels (if zoomed in)\n"
 ;
 
 static void set_busy_cursor(GdkWindow *w)
@@ -536,7 +539,7 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
     GtkTextBuffer *buf;
 
     toplevel = dlg_window_new("Help for LTE RLC graphing");
-    gtk_window_set_default_size(GTK_WINDOW(toplevel), 520, 500);
+    gtk_window_set_default_size(GTK_WINDOW(toplevel), 540, 540);
 
     vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
@@ -2209,6 +2212,13 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
             break;
         case GDK_Down:
             do_key_motion_down(g, step);
+            break;
+
+        case GDK_Page_Up:
+            do_key_motion_up(g, 2000);
+            break;
+        case GDK_Page_Down:
+            do_key_motion_down(g, 2000);
             break;
 
         /* Help */
