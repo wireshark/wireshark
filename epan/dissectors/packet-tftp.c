@@ -152,7 +152,7 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	      opcode == TFTP_OACK) {
 		gint blocksize = strtol((const char *)optionvalue, NULL, 10);
 		if (blocksize < 8 || blocksize > 65464) {
-			expert_add_info_format(NULL, NULL, PI_RESPONSE_CODE,
+			expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE,
 				PI_WARN, "TFTP blocksize out of range");
 		} else {
 			tftp_info->blocksize = blocksize;
@@ -305,7 +305,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Message: %s",
 			  tvb_format_stringzpad(tvb, offset, i1));
 
-	  expert_add_info_format(NULL, NULL, PI_RESPONSE_CODE,
+	  expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE,
 			         PI_NOTE, "TFTP blocksize out of range");
 	  break;
 
