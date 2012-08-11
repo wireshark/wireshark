@@ -823,6 +823,8 @@ EXTRA_DIST = \
 	macosx-setup.sh		\
 	macosx-support-lib-patches/glib-pkgconfig.patch \
 	macosx-support-lib-patches/gnutls-pkgconfig.patch \
+	macosx-support-lib-patches/portaudio-configure.in.patch \
+	macosx-support-lib-patches/portaudio-pa_mac_core.h.patch \
 	make-version.pl		\
 	manuf			\
 	manuf.tmpl		\

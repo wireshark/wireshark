@@ -1,0 +1,83 @@
+--- configure.in.dist	2011-11-10 20:06:17.000000000 -0800
++++ configure.in	2012-08-11 13:57:51.000000000 -0700
+@@ -208,23 +208,63 @@
+         LIBS="-framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework Carbon"
+ 
+         if test "x$enable_mac_universal" = "xyes" ; then
+-           if [[ -d /Developer/SDKs/MacOSX10.5.sdk ]] ; then
+-              mac_version_min="-mmacosx-version-min=10.3"
+-              mac_arches="-arch i386 -arch ppc -arch x86_64 -arch ppc64"
+-              mac_sysroot="-isysroot /Developer/SDKs/MacOSX10.5.sdk"
+-           elif [[ -d /Developer/SDKs/MacOSX10.6.sdk ]] ; then
+-              mac_version_min="-mmacosx-version-min=10.4"
+-              mac_arches="-arch i386 -arch x86_64"
+-              mac_sysroot="-isysroot /Developer/SDKs/MacOSX10.6.sdk"
+-           elif [[ -d /Developer/SDKs/MacOSX10.7.sdk ]] ; then
+-              mac_version_min="-mmacosx-version-min=10.4"
+-              mac_arches="-arch i386 -arch x86_64"
+-              mac_sysroot="-isysroot /Developer/SDKs/MacOSX10.7.sdk"
+-           else
+-              mac_version_min="-mmacosx-version-min=10.3"
+-              mac_arches="-arch i386 -arch ppc"
+-              mac_sysroot="-isysroot /Developer/SDKs/MacOSX10.4u.sdk"
+-           fi
++           case "xcodebuild -version | sed -n 's/Xcode \(.*\)/\1/p'" in
++
++           [12]*|3.0|3.1)
++              dnl In pre-3.2 versions of Xcode, xcodebuild doesn't
++              dnl support -sdk, so we can't use that to look for
++              dnl SDKs.  However, in those versions of Xcode, the
++              dnl SDKs are under /Developer/SDKs, so we can just look
++              dnl there.  Also, we assume they had no SDKs later
++              dnl than 10.5, as 3.2 was the version that came with
++              dnl 10.6, at least if the Wikipedia page for Xcode
++              dnl is to be believed.
++              if [[ -d /Developer/SDKs/MacOSX10.5.sdk ]] ; then
++                 mac_version_min="-mmacosx-version-min=10.3"
++                 mac_sysroot="-isysroot /Developer/SDKs/MacOSX10.5.sdk"
++              else
++                 mac_version_min="-mmacosx-version-min=10.3"
++                 mac_sysroot="-isysroot /Developer/SDKs/MacOSX10.4u.sdk"
++              fi
++              ;;
++
++           *)
++              dnl In 3.2 and later, xcodebuild supports -sdk, and, in
++              dnl 4.3 and later, the SDKs aren't under /Developer/SDKs
++              dnl as there *is* no /Developer, so we use -sdk to check
++              dnl what SDKs are available and to get the full path of
++              dnl the SDKs.
++              if xcodebuild -version -sdk macosx10.5 Path >/dev/null 2>&1 ; then
++                 mac_version_min="-mmacosx-version-min=10.3"
++                 mac_sysroot="-isysroot `xcodebuild -version -sdk macosx10.5 Path`"
++              elif xcodebuild -version -sdk macosx10.6 Path >/dev/null 2>&1 ; then
++                 mac_version_min="-mmacosx-version-min=10.4"
++                 mac_sysroot="-isysroot `xcodebuild -version -sdk macosx10.6 Path`"
++              elif xcodebuild -version -sdk macosx10.7 Path >/dev/null 2>&1 ; then
++                 mac_version_min="-mmacosx-version-min=10.4"
++                 mac_sysroot="-isysroot `xcodebuild -version -sdk macosx10.7 Path`"
++              else
++                 AC_MSG_ERROR([Couldn't find 10.5, 10.6, or 10.7 SDK])
++              fi
++           esac
++
++           dnl Pick which architectures to build for based on what
++           dnl the compiler supports.
++           mac_arches=""
++           for arch in i386 x86_64 ppc ppc64
++           do
++              save_CFLAGS="$CFLAGS"
++              CFLAGS="$CFLAGS -arch $arch"
++              AC_TRY_COMPILE([], [return 0;],
++                 [
++                    if [[ -z "$mac_arches" ]] ; then
++                       mac_arches="-arch $arch"
++                    else
++                       mac_arches="$mac_arches -arch $arch"
++                    fi
++                 ])
++              CFLAGS="$save_CFLAGS"
++           done
+         else
+            mac_arches=""
+            mac_sysroot=""

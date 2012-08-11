@@ -396,6 +396,28 @@ then
 	curl -L -O http://www.portaudio.com/archives/$PORTAUDIO_VERSION.tgz || exit 1
 	tar xf $PORTAUDIO_VERSION.tgz || exit 1
 	cd portaudio
+	#
+	# Fix some problems with Xcode 4 and PortAudio's configure
+	# script - patch the configure script and rebuild it.
+	#
+	# "autoreconf -if" is what the PortAudio README.configure.txt
+	# file says to use; I'm guessing it's required in order to
+	# adapt to the libtool *you* have installed rather than the
+	# one installed on the machine on which the PortAudio tarball
+	# was built.
+	#
+	# However, it appears that, as PortAudio doesn't use
+	# automake, it removes config.guess and config.sub and
+	# *doesn't replace them* as it doesn't run "automake --add-missing".
+	# We therefore do so ourselves.
+	#
+	patch -p0 configure.in <../../macosx-support-lib-patches/portaudio-configure.in.patch
+	autoreconf -if
+	automake --add-missing
+	#
+	# And also un-comment an include that's required on Lion.
+	#
+	patch -p0 include/pa_mac_core.h <../../macosx-support-lib-patches/portaudio-pa_mac_core.h.patch
 	./configure || exit 1
 	make -j 3 || exit 1
 	$DO_MAKE_INSTALL || exit 1
