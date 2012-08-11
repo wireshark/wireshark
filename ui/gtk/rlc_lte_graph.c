@@ -60,7 +60,8 @@
 #define MOUSE_BUTTON_MIDDLE	2
 #define MOUSE_BUTTON_RIGHT	3
 
-#define MAX_PIXELS_PER_SN   90
+#define MAX_PIXELS_PER_SN       90
+#define MAX_PIXELS_PER_SECOND   50000
 
 extern int proto_rlc_lte;
 
@@ -1902,7 +1903,7 @@ static void do_zoom_common(struct graph *g, GdkEventButton *event,
         }
     } else {
         /* Zoom in */
-        if (lock_horizontal) {
+        if ((lock_horizontal) || (g->geom.width >= (g->bounds.width * MAX_PIXELS_PER_SECOND))) {
             factor.x = 1.0;
         }
         else {
@@ -1910,7 +1911,7 @@ static void do_zoom_common(struct graph *g, GdkEventButton *event,
         }
 
         /* Don't zoom in too far vertically */
-        if ((g->geom.height >= (g->bounds.height * MAX_PIXELS_PER_SN)) || lock_vertical) {
+        if (lock_vertical || (g->geom.height >= (g->bounds.height * MAX_PIXELS_PER_SN))) {
             factor.y = 1.0;
         }
         else {
