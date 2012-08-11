@@ -822,7 +822,14 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
 
     /* Add address if unique and have space for it */
     if (is_unique && (th->num_hdrs < MAX_SUPPORTED_CHANNELS)) {
-        th->rlchdrs[th->num_hdrs++] = header;
+        /* Copy the tap stuct in as next header */
+        th->rlchdrs[th->num_hdrs] = header;
+
+        /* Store in direction of data though... */
+        if (th->rlchdrs[th->num_hdrs]->isControlPDU) {
+            th->rlchdrs[th->num_hdrs]->direction = !th->rlchdrs[th->num_hdrs]->direction;
+        }
+        th->num_hdrs++;
     }
 
     return 0;
