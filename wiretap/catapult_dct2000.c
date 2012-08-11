@@ -279,7 +279,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
 /**************************************************/
 static gboolean
 catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
-                               gint64 *data_offset)
+                      gint64 *data_offset)
 {
     gint64 offset = file_tell(wth->fh);
     long dollar_offset, before_time_offset, after_time_offset;
@@ -612,8 +612,8 @@ catapult_dct2000_dump_can_write_encap(int encap)
 
 static gboolean
 catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-                               const union wtap_pseudo_header *pseudo_header,
-                               const guint8 *pd, int *err)
+                      const union wtap_pseudo_header *pseudo_header,
+                      const guint8 *pd, int *err)
 {
     guint32 n;
     line_prefix_info_t *prefix = NULL;
@@ -793,7 +793,7 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 /**********************************************************************/
 static gboolean
 read_new_line(FILE_T fh, gint64 *offset, gint *length,
-                       gchar *linebuff, size_t linebuffsize)
+              gchar *linebuff, size_t linebuffsize)
 {
     /* Read in a line */
     gint64 pos_before = file_tell(fh);
@@ -812,6 +812,11 @@ read_new_line(FILE_T fh, gint64 *offset, gint *length,
         linebuff[*length-1] = '\0';
         *length = *length - 1;
     }
+    /* Nor do we want '\r' (as will be written when log is created on windows) */
+    if (linebuff[*length-1] == '\r') {
+        linebuff[*length-1] = '\0';
+        *length = *length - 1;
+    }
 
     return TRUE;
 }
@@ -826,15 +831,15 @@ read_new_line(FILE_T fh, gint64 *offset, gint *length,
 /**********************************************************************/
 static gboolean
 parse_line(gchar *linebuff, gint line_length,
-                           gint *seconds, gint *useconds,
-                           long *before_time_offset, long *after_time_offset,
-                           long *data_offset, gint *data_chars,
-                           packet_direction_t *direction,
-                           int *encap, int *is_comment,
-                           gchar *aal_header_chars,
-                           gchar *context_name, guint8 *context_portp,
-                           gchar *protocol_name, gchar *variant_name,
-                           gchar *outhdr_name)
+           gint *seconds, gint *useconds,
+           long *before_time_offset, long *after_time_offset,
+           long *data_offset, gint *data_chars,
+           packet_direction_t *direction,
+           int *encap, int *is_comment,
+           gchar *aal_header_chars,
+           gchar *context_name, guint8 *context_portp,
+           gchar *protocol_name, gchar *variant_name,
+           gchar *outhdr_name)
 {
     int  n = 0;
     int  port_digits;
@@ -1246,10 +1251,10 @@ parse_line(gchar *linebuff, gint line_length,
 /*****************************************************************/
 static int
 write_stub_header(guint8 *frame_buffer, char *timestamp_string,
-                             packet_direction_t direction, int encap,
-                             gchar *context_name, guint8 context_port,
-                             gchar *protocol_name, gchar *variant_name,
-                             gchar *outhdr_name)
+                  packet_direction_t direction, int encap,
+                  gchar *context_name, guint8 context_port,
+                  gchar *protocol_name, gchar *variant_name,
+                  gchar *outhdr_name)
 {
     int stub_offset = 0;
 
@@ -1293,11 +1298,11 @@ write_stub_header(guint8 *frame_buffer, char *timestamp_string,
 /**************************************************************/
 static void
 set_pseudo_header_info(wtap *wth,
-                                   int pkt_encap,
-                                   gint64 file_offset,
-                                   union wtap_pseudo_header *pseudo_header,
-                                   packet_direction_t direction,
-                                   gchar *aal_header_chars)
+                       int pkt_encap,
+                       gint64 file_offset,
+                       union wtap_pseudo_header *pseudo_header,
+                       packet_direction_t direction,
+                       gchar *aal_header_chars)
 {
     pseudo_header->dct2000.seek_off = file_offset;
     pseudo_header->dct2000.wth = wth;
@@ -1325,8 +1330,8 @@ set_pseudo_header_info(wtap *wth,
 /*********************************************/
 static void
 set_aal_info(union wtap_pseudo_header *pseudo_header,
-                         packet_direction_t direction,
-                         gchar *aal_header_chars)
+             packet_direction_t direction,
+             gchar *aal_header_chars)
 {
     /* 'aal_head_chars' has this format (for AAL2 at least):
        Global Flow Control (4 bits) | VPI (8 bits) | VCI (16 bits) |
@@ -1381,7 +1386,7 @@ set_aal_info(union wtap_pseudo_header *pseudo_header,
 /**********************************************/
 static void
 set_isdn_info(union wtap_pseudo_header *pseudo_header,
-                   packet_direction_t direction)
+              packet_direction_t direction)
 {
     /* This field is used to set the 'Source' and 'Destination' columns to
        'User' or 'Network'. If we assume that we're simulating the network,
@@ -1401,7 +1406,7 @@ set_isdn_info(union wtap_pseudo_header *pseudo_header,
 /*********************************************/
 static void
 set_ppp_info(union wtap_pseudo_header *pseudo_header,
-                         packet_direction_t direction)
+             packet_direction_t direction)
 {
     /* Set direction. */
     pseudo_header->dct2000.inner_pseudo_header.p2p.sent = (direction == sent);
@@ -1569,7 +1574,7 @@ get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs)
 /* Free the data allocated inside a line_prefix_info_t */
 static gboolean
 free_line_prefix_info(gpointer key, gpointer value,
-                               gpointer user_data _U_)
+                      gpointer user_data _U_)
 {
     line_prefix_info_t *info = (line_prefix_info_t*)value;
 
