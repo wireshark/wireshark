@@ -22,8 +22,6 @@ GLIB_VERSION=2.32.3
 #
 # pkg-config 0.26 appears to have broken the "we have our own GLib"
 # stuff, even if you explicitly set GLIB_CFLAGS and GLIB_LIBS.
-# Life's too short to work around the circular dependency in a script,
-# so we use 0.25 instead.
 #
 PKG_CONFIG_VERSION=0.26
 ATK_VERSION=2.4.0
