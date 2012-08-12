@@ -1472,7 +1472,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding == TRUE)
 				encoding = ENC_LITTLE_ENDIAN;
-			if (length != 4) {
+			if (length != 8) {
 				length_error = length < 8 ? TRUE : FALSE;
 				report_type_length_mismatch(tree, "a double-precision floating point number", length, length_error);
 			}
