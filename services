@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-08-02
+# 2012-08-07
 # 
 # Experts
 # 
@@ -12872,7 +12872,7 @@ ovbus	7501/udp	# HP OpenView Bus Daemon       [David_M_Rhodes]                  
 adcp	7508/tcp	# Automation Device            [Festo_AG]                                         [Joerg_Ullmann]                                           2011-05-27   2012-07-26
 # Configuration Protocol
 # 7508        udp    Reserved
-acplt	7509/tcp	# ACPLT - process automation   [Henning_Mersch]                                   [Henning_Mersch]                                          2010-12-07
+acplt	7509/tcp	# ACPLT - process automation   [Chair_for_Process_Control_Engineering]            [Ulrich_Epple]                                            2010-12-07   2012-08-07
 # service
 # 7509        udp    Reserved
 ovhpas	7510/tcp	# HP OpenView Application      [Jeff_Conrad]                                      [Jeff_Conrad]
@@ -17494,6 +17494,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Casper_Stoel]                                            Casper Stoel                                    mailto:cbs&ascinc.com
 # [Cedric_Maloux]                                           Cedric Maloux                                   mailto:cedric&allpeers.com                                    2007-04
 # [Chad_Williams]                                           Chad Williams                                   mailto:chad&apple.com
+# [Chair_for_Process_Control_Engineering]                                             The Chair for Process mailto:ks&plt.rwth-aachen.de                                  2012-08-07
+# Control Engineering
 # [Chandar_Venkataraman]                                    Chandar Venkataraman                            mailto:CVENKATA&us.oracle.com
 # [Chaoyi_Lang]                                             Chaoyi Lang                                     mailto:chao-yi_lang&maxtor.com                                2006-01
 # [Chap_Tippin]                                             Chap Tippin                                     mailto:chad.tippin&jibeinc.com                                2003-06
@@ -21321,6 +21323,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Uffe_Harksen]                                            Uffe Harksen                                    mailto:uh&uhcommunications.com                                2005-08
 # [Ulaganathan_Sriramul]                                    Ulaganathan Sriramulu                           mailto:ulag&effigent.com
 # [Ulli_Horlacher]                                          Ulli Horlacher                                  mailto:framstag&rus.uni-stuttgart.de
+# [Ulrich_Epple]                                            Ulrich Epple                                    mailto:ks&plt.rwth-aachen.de                                  2012-08-07
 # [Ulrich_Kortenkamp]                                       Ulrich Kortenkamp                               mailto:kortenkamp&cinderella.de                               2003-06
 # [Ulysses_G_Smith_Jr]                                      Ulysses G. Smith Jr.                            mailto:ugsmith&cesi.com
 # The University
