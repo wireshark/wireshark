@@ -143,7 +143,7 @@ static void ref_time_packets(capture_file *cf);
  */
 typedef struct {
   cf_callback_t cb_fct;
-  gpointer user_data;
+  gpointer      user_data;
 } cf_callback_data_t;
 
 static GList *cf_callbacks = NULL;
@@ -152,12 +152,12 @@ static void
 cf_callback_invoke(int event, gpointer data)
 {
   cf_callback_data_t *cb;
-  GList *cb_item = cf_callbacks;
+  GList              *cb_item = cf_callbacks;
 
   /* there should be at least one interested */
   g_assert(cb_item != NULL);
 
-  while(cb_item != NULL) {
+  while (cb_item != NULL) {
     cb = cb_item->data;
     cb->cb_fct(event, data, cb->user_data);
     cb_item = g_list_next(cb_item);
@@ -181,11 +181,11 @@ void
 cf_callback_remove(cf_callback_t func)
 {
   cf_callback_data_t *cb;
-  GList *cb_item = cf_callbacks;
+  GList              *cb_item = cf_callbacks;
 
-  while(cb_item != NULL) {
+  while (cb_item != NULL) {
     cb = cb_item->data;
-    if(cb->cb_fct == func) {
+    if (cb->cb_fct == func) {
       cf_callbacks = g_list_remove(cf_callbacks, cb);
       g_free(cb);
       return;
@@ -204,12 +204,12 @@ cf_timestamp_auto_precision(capture_file *cf)
 
 
   /* don't try to get the file's precision if none is opened */
-  if(cf->state == FILE_CLOSED) {
+  if (cf->state == FILE_CLOSED) {
     return;
   }
 
   /* if we are in auto mode, set precision of current file */
-  if(prec == TS_PREC_AUTO ||
+  if (prec == TS_PREC_AUTO ||
      prec == TS_PREC_AUTO_SEC ||
      prec == TS_PREC_AUTO_DSEC ||
      prec == TS_PREC_AUTO_CSEC ||
@@ -262,8 +262,8 @@ static void reset_elapsed(void)
 
 static void compute_elapsed(GTimeVal *start_time)
 {
-  gdouble    delta_time;
-  GTimeVal   time_now;
+  gdouble  delta_time;
+  GTimeVal time_now;
 
   g_get_current_time(&time_now);
 
@@ -276,8 +276,8 @@ static void compute_elapsed(GTimeVal *start_time)
 cf_status_t
 cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
-  wtap       *wth;
-  gchar       *err_info;
+  wtap  *wth;
+  gchar *err_info;
 
   wth = wtap_open_offline(fname, err, &err_info, TRUE);
   if (wth == NULL)
@@ -344,7 +344,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   new_packet_list_queue_draw();
   fileset_file_opened(fname);
 
-  if(cf->cd_t == WTAP_FILE_BER) {
+  if (cf->cd_t == WTAP_FILE_BER) {
     /* tell the BER dissector the file name */
     ber_set_filename(cf->filename);
   }
@@ -452,7 +452,7 @@ cf_reset_state(capture_file *cf)
 void
 cf_close(capture_file *cf)
 {
-  if(cf->state != FILE_CLOSED) {
+  if (cf->state != FILE_CLOSED) {
     cf_callback_invoke(cf_cb_file_closing, cf);
 
   /* close things, if not already closed before */
@@ -467,7 +467,7 @@ cf_close(capture_file *cf)
 static float
 calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_str, gulong status_size)
 {
-  float   progbar_val;
+  float progbar_val;
 
   progbar_val = (gfloat) file_pos / (gfloat) size;
   if (progbar_val > 1.0) {
@@ -499,27 +499,27 @@ calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_s
 cf_read_status_t
 cf_read(capture_file *cf, gboolean reloading)
 {
-  int         err;
-  gchar       *err_info;
-  gchar       *name_ptr;
-  gint64       data_offset;
-  gint64       file_pos;
-  progdlg_t *volatile progbar = NULL;
-  gboolean     stop_flag;
-  volatile gint64 size;
-  volatile float progbar_val;
-  GTimeVal     start_time;
-  gchar        status_str[100];
-  volatile gint64 progbar_nextstep;
-  volatile gint64 progbar_quantum;
-  dfilter_t   *dfcode;
-  gboolean    filtering_tap_listeners;
-  guint       tap_flags;
-  volatile int count = 0;
+  int                  err;
+  gchar               *err_info;
+  gchar               *name_ptr;
+  gint64               data_offset;
+  gint64               file_pos;
+  progdlg_t *volatile  progbar        = NULL;
+  gboolean             stop_flag;
+  volatile gint64      size;
+  volatile float       progbar_val;
+  GTimeVal             start_time;
+  gchar                status_str[100];
+  volatile gint64      progbar_nextstep;
+  volatile gint64      progbar_quantum;
+  dfilter_t           *dfcode;
+  gboolean             filtering_tap_listeners;
+  guint                tap_flags;
+  volatile int         count          = 0;
 #ifdef HAVE_LIBPCAP
-  volatile int displayed_once = 0;
+  volatile int         displayed_once = 0;
 #endif
-  gboolean compiled;
+  gboolean             compiled;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -554,7 +554,7 @@ cf_read(capture_file *cf, gboolean reloading)
   progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  if (size >= 0){
+  if (size >= 0) {
     progbar_quantum = size/N_PROGBAR_UPDATES;
     if (progbar_quantum < MIN_QUANTUM)
       progbar_quantum = MIN_QUANTUM;
@@ -577,7 +577,7 @@ cf_read(capture_file *cf, gboolean reloading)
       /* Create the progress bar if necessary.
        * Check whether it should be created or not every MIN_NUMBER_OF_PACKET
        */
-      if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)){
+      if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)) {
         progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
         if (reloading)
           progbar = delayed_create_progress_dlg(cf->window, "Reloading", name_ptr,
@@ -642,7 +642,7 @@ cf_read(capture_file *cf, gboolean reloading)
   g_free(name_ptr);
 
   /* Cleanup and release all dfilter resources */
-  if (dfcode != NULL){
+  if (dfcode != NULL) {
     dfilter_free(dfcode);
   }
 
@@ -680,11 +680,11 @@ cf_read(capture_file *cf, gboolean reloading)
 
   /* If we have any displayed packets to select, select the first of those
      packets by making the first row the selected row. */
-  if (cf->first_displayed != 0){
+  if (cf->first_displayed != 0) {
     new_packet_list_select_first_row();
   }
 
-  if(stop_flag) {
+  if (stop_flag) {
     simple_message_box(ESD_TYPE_WARN, NULL,
                   "The remaining packets in the file were discarded.\n"
                   "\n"
@@ -764,13 +764,13 @@ cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *er
 cf_read_status_t
 cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 {
-  gint64 data_offset = 0;
-  gchar *err_info;
-  volatile int newly_displayed_packets = 0;
-  dfilter_t   *dfcode;
-  gboolean filtering_tap_listeners;
-  guint tap_flags;
-  gboolean compiled;
+  gint64        data_offset             = 0;
+  gchar        *err_info;
+  volatile int  newly_displayed_packets = 0;
+  dfilter_t    *dfcode;
+  gboolean      filtering_tap_listeners;
+  guint         tap_flags;
+  gboolean      compiled;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -832,7 +832,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   cf->lnk_t = wtap_file_encap(cf->wth);
 
   /* Cleanup and release all dfilter resources */
-  if (dfcode != NULL){
+  if (dfcode != NULL) {
     dfilter_free(dfcode);
   }
 
@@ -844,7 +844,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   /* With the new packet list the first packet
    * isn't automatically selected.
    */
-  if(!cf->current_frame)
+  if (!cf->current_frame)
     new_packet_list_select_first_row();
 
   /* moving to the end of the packet list - if the user requested so and
@@ -878,12 +878,12 @@ cf_fake_continue_tail(capture_file *cf) {
 cf_read_status_t
 cf_finish_tail(capture_file *cf, int *err)
 {
-  gchar *err_info;
-  gint64 data_offset;
-  dfilter_t   *dfcode;
-  gboolean filtering_tap_listeners;
-  guint tap_flags;
-  gboolean compiled;
+  gchar     *err_info;
+  gint64     data_offset;
+  dfilter_t *dfcode;
+  gboolean   filtering_tap_listeners;
+  guint      tap_flags;
+  gboolean   compiled;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -898,7 +898,7 @@ cf_finish_tail(capture_file *cf, int *err)
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
 
-  if(cf->wth == NULL) {
+  if (cf->wth == NULL) {
     cf_close(cf);
     return CF_READ_ERROR;
   }
@@ -918,7 +918,7 @@ cf_finish_tail(capture_file *cf, int *err)
   }
 
   /* Cleanup and release all dfilter resources */
-  if (dfcode != NULL){
+  if (dfcode != NULL) {
     dfilter_free(dfcode);
   }
 
@@ -975,7 +975,7 @@ cf_get_display_name(capture_file *cf)
   /* Return a name to use in displays */
   if (!cf->is_tempfile) {
     /* Get the last component of the file name, and use that. */
-    if (cf->filename){
+    if (cf->filename) {
       displayname = g_filename_display_basename(cf->filename);
     } else {
       displayname=g_strdup("(No file)");
@@ -1072,9 +1072,9 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
 static void
 find_and_mark_frame_depended_upon(gpointer data, gpointer user_data)
 {
-  frame_data *dependent_fd;
-  guint32 dependent_frame = GPOINTER_TO_UINT(data);
-  capture_file *cf = (capture_file *)user_data;
+  frame_data   *dependent_fd;
+  guint32       dependent_frame = GPOINTER_TO_UINT(data);
+  capture_file *cf              = (capture_file *)user_data;
 
   dependent_fd = frame_data_sequence_find(cf->frames, dependent_frame);
   dependent_fd->flags.dependent_of_displayed = 1;
@@ -1088,10 +1088,10 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     gboolean refilter,
     gboolean add_to_packet_list)
 {
-  gboolean  create_proto_tree = FALSE;
-  epan_dissect_t edt;
-  column_info *cinfo;
-  gint row = -1;
+  gboolean        create_proto_tree = FALSE;
+  epan_dissect_t  edt;
+  column_info    *cinfo;
+  gint            row               = -1;
 
   cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
@@ -1140,7 +1140,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   } else
     fdata->flags.passed_dfilter = 1;
 
-  if(fdata->flags.passed_dfilter || fdata->flags.ref_time)
+  if (fdata->flags.passed_dfilter || fdata->flags.ref_time)
     cf->displayed_count++;
 
   if (add_to_packet_list) {
@@ -1148,7 +1148,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
       row = new_packet_list_append(cinfo, fdata, &edt.pi);
   }
 
-  if(fdata->flags.passed_dfilter || fdata->flags.ref_time)
+  if (fdata->flags.passed_dfilter || fdata->flags.ref_time)
   {
     frame_data_set_after_dissect(fdata, &cum_bytes, &prev_dis_ts);
 
@@ -1182,7 +1182,7 @@ static int
 read_packet(capture_file *cf, dfilter_t *dfcode,
             gboolean filtering_tap_listeners, guint tap_flags, gint64 offset)
 {
-  const struct wtap_pkthdr *phdr = wtap_phdr(cf->wth);
+  const struct wtap_pkthdr *phdr          = wtap_phdr(cf->wth);
   union wtap_pseudo_header *pseudo_header = wtap_pseudoheader(cf->wth);
   const guchar *buf = wtap_buf_ptr(cf->wth);
   frame_data    fdlocal;
@@ -1238,28 +1238,28 @@ cf_status_t
 cf_merge_files(char **out_filenamep, int in_file_count,
                char *const *in_filenames, int file_type, gboolean do_append)
 {
-  merge_in_file_t  *in_files, *in_file;
-  char             *out_filename;
-  char             *tmpname;
-  int               out_fd;
-  wtap_dumper      *pdh;
-  int               open_err, read_err, write_err, close_err;
-  gchar            *err_info;
-  int               err_fileno;
-  int               i;
-  gboolean          got_read_error = FALSE, got_write_error = FALSE;
-  gint64            data_offset;
-  progdlg_t        *progbar = NULL;
-  gboolean          stop_flag;
-  gint64            f_len, file_pos;
-  float             progbar_val;
-  GTimeVal          start_time;
-  gchar             status_str[100];
-  gint64            progbar_nextstep;
-  gint64            progbar_quantum;
-  gchar            *display_basename;
-  int               selected_frame_type;
-  gboolean          fake_interface_ids = FALSE;
+  merge_in_file_t *in_files, *in_file;
+  char            *out_filename;
+  char            *tmpname;
+  int              out_fd;
+  wtap_dumper     *pdh;
+  int              open_err, read_err, write_err, close_err;
+  gchar           *err_info;
+  int              err_fileno;
+  int              i;
+  gboolean         got_read_error     = FALSE, got_write_error = FALSE;
+  gint64           data_offset;
+  progdlg_t       *progbar            = NULL;
+  gboolean         stop_flag;
+  gint64           f_len, file_pos;
+  float            progbar_val;
+  GTimeVal         start_time;
+  gchar            status_str[100];
+  gint64           progbar_nextstep;
+  gint64           progbar_quantum;
+  gchar           *display_basename;
+  int              selected_frame_type;
+  gboolean         fake_interface_ids = FALSE;
 
   /* open the input files */
   if (!merge_open_in_files(in_file_count, in_filenames, &in_files,
@@ -1300,95 +1300,98 @@ cf_merge_files(char **out_filenamep, int in_file_count,
    * We need something similar when merging pcapng files possibly with an option to say
    * the same interface(s) used in all in files. SHBs comments should be merged together.
    */
-  if((selected_frame_type == WTAP_ENCAP_PER_PACKET)&&(file_type == WTAP_FILE_PCAP)){
-	/* Write output in pcapng format */
-    wtapng_section_t	*shb_hdr;
-	wtapng_iface_descriptions_t *idb_inf, *idb_inf_merge_file;
-	wtapng_if_descr_t int_data, *file_int_data;
-    GString *comment_gstr;
-	int i;
+  if ((selected_frame_type == WTAP_ENCAP_PER_PACKET)&&(file_type == WTAP_FILE_PCAP)) {
+    /* Write output in pcapng format */
+    wtapng_section_t            *shb_hdr;
+    wtapng_iface_descriptions_t *idb_inf, *idb_inf_merge_file;
+    wtapng_if_descr_t            int_data, *file_int_data;
+    GString                     *comment_gstr;
+    int                          i;
 
-	fake_interface_ids = TRUE;
-	/* Create SHB info */
-	shb_hdr = wtap_file_get_shb_info(in_files[0].wth);
+    fake_interface_ids = TRUE;
+    /* Create SHB info */
+    shb_hdr = wtap_file_get_shb_info(in_files[0].wth);
     comment_gstr = g_string_new("");
-	g_string_append_printf(comment_gstr, "%s \n",shb_hdr->opt_comment);
+    g_string_append_printf(comment_gstr, "%s \n",shb_hdr->opt_comment);
     g_string_append_printf(comment_gstr, "File created by merging: \n");
-	file_type = WTAP_FILE_PCAPNG;
+    file_type = WTAP_FILE_PCAPNG;
 
     for (i = 0; i < in_file_count; i++) {
         g_string_append_printf(comment_gstr, "File%d: %s \n",i+1,in_files[i].filename);
     }
     shb_hdr->section_length = -1;
     /* options */
-    shb_hdr->opt_comment   =	g_string_free(comment_gstr, FALSE);		/* NULL if not available */
-    shb_hdr->shb_hardware  =	NULL;		/* NULL if not available, UTF-8 string containing the description of the hardware used to create this section. */
-    shb_hdr->shb_os        =	NULL;		/* NULL if not available, UTF-8 string containing the name of the operating system used to create this section. */
-    shb_hdr->shb_user_appl =	"Wireshark";	/* NULL if not available, UTF-8 string containing the name of the application used to create this section. */
+    shb_hdr->opt_comment   = g_string_free(comment_gstr, FALSE);  /* NULL if not available */
+    shb_hdr->shb_hardware  = NULL;        /* NULL if not available, UTF-8 string containing the        */
+                                          /*  description of the hardware used to create this section. */
+    shb_hdr->shb_os        = NULL;        /* NULL if not available, UTF-8 string containing the name   */
+                                          /*  of the operating system used to create this section.     */
+    shb_hdr->shb_user_appl = "Wireshark"; /* NULL if not available, UTF-8 string containing the name   */
+                                          /*  of the application used to create this section.          */
 
-	/* create fake IDB info */
-	idb_inf = g_new(wtapng_iface_descriptions_t,1);
-	idb_inf->number_of_interfaces = in_file_count; /* TODO make this the number of DIFFERENT encapsulation types
-												    * check that snaplength is the same too?
-												    */
-	idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+    /* create fake IDB info */
+    idb_inf = g_new(wtapng_iface_descriptions_t,1);
+    idb_inf->number_of_interfaces = in_file_count; /* TODO make this the number of DIFFERENT encapsulation types
+                                                    * check that snaplength is the same too?
+                                                    */
+    idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 
-	for (i = 0; i < in_file_count; i++) {
-		idb_inf_merge_file               = wtap_file_get_idb_info(in_files[i].wth);
-		/* read the interface data from the in file to our combined interfca data */
-		file_int_data = &g_array_index (idb_inf_merge_file->interface_data, wtapng_if_descr_t, 0);
-		int_data.wtap_encap            = file_int_data->wtap_encap;
-		int_data.time_units_per_second = file_int_data->time_units_per_second;
-		int_data.link_type             = file_int_data->link_type; 
-		int_data.snap_len              = file_int_data->snap_len;
-		int_data.if_name               = g_strdup(file_int_data->if_name);
-		int_data.opt_comment           = NULL;
-		int_data.if_description        = NULL;
-		int_data.if_speed              = 0;
-		int_data.if_tsresol            = 6;
-		int_data.if_filter_str         = NULL;
-		int_data.bpf_filter_len        = 0;
-		int_data.if_filter_bpf_bytes   = NULL;
-		int_data.if_os                 = NULL;
-		int_data.if_fcslen             = -1;
-		int_data.num_stat_entries      = 0;          /* Number of ISB:s */
-		int_data.interface_statistics  = NULL;
+    for (i = 0; i < in_file_count; i++) {
+      idb_inf_merge_file               = wtap_file_get_idb_info(in_files[i].wth);
+      /* read the interface data from the in file to our combined interfca data */
+      file_int_data = &g_array_index (idb_inf_merge_file->interface_data, wtapng_if_descr_t, 0);
+      int_data.wtap_encap            = file_int_data->wtap_encap;
+      int_data.time_units_per_second = file_int_data->time_units_per_second;
+      int_data.link_type             = file_int_data->link_type;
+      int_data.snap_len              = file_int_data->snap_len;
+      int_data.if_name               = g_strdup(file_int_data->if_name);
+      int_data.opt_comment           = NULL;
+      int_data.if_description        = NULL;
+      int_data.if_speed              = 0;
+      int_data.if_tsresol            = 6;
+      int_data.if_filter_str         = NULL;
+      int_data.bpf_filter_len        = 0;
+      int_data.if_filter_bpf_bytes   = NULL;
+      int_data.if_os                 = NULL;
+      int_data.if_fcslen             = -1;
+      int_data.num_stat_entries      = 0;          /* Number of ISB:s */
+      int_data.interface_statistics  = NULL;
 
-		g_array_append_val(idb_inf->interface_data, int_data);
-		g_free(idb_inf_merge_file);
+      g_array_append_val(idb_inf->interface_data, int_data);
+      g_free(idb_inf_merge_file);
 
-		/* Set fake interface Id in per file data */
-		in_files[i].interface_id = i;
-	}
+      /* Set fake interface Id in per file data */
+      in_files[i].interface_id = i;
+    }
 
-    pdh = wtap_dump_fdopen_ng(out_fd, file_type, 
-		selected_frame_type, 
-		merge_max_snapshot_length(in_file_count, in_files),
-        FALSE /* compressed */, shb_hdr, idb_inf /* wtapng_iface_descriptions_t *idb_inf */, &open_err);
-    
-	  if (pdh == NULL) {
-		ws_close(out_fd);
-		merge_close_in_files(in_file_count, in_files);
-		g_free(in_files);
-		cf_open_failure_alert_box(out_filename, open_err, err_info, TRUE,
-								  file_type);
-		return CF_ERROR;
-	  }
+    pdh = wtap_dump_fdopen_ng(out_fd, file_type,
+                              selected_frame_type,
+                              merge_max_snapshot_length(in_file_count, in_files),
+                              FALSE /* compressed */, shb_hdr, idb_inf /* wtapng_iface_descriptions_t *idb_inf */, &open_err);
 
-  }else{
+    if (pdh == NULL) {
+      ws_close(out_fd);
+      merge_close_in_files(in_file_count, in_files);
+      g_free(in_files);
+      cf_open_failure_alert_box(out_filename, open_err, err_info, TRUE,
+                                file_type);
+      return CF_ERROR;
+    }
 
-	  pdh = wtap_dump_fdopen(out_fd, file_type,
-		  selected_frame_type,
-		  merge_max_snapshot_length(in_file_count, in_files),
-		  FALSE /* compressed */, &open_err);
-	  if (pdh == NULL) {
-		ws_close(out_fd);
-		merge_close_in_files(in_file_count, in_files);
-		g_free(in_files);
-		cf_open_failure_alert_box(out_filename, open_err, err_info, TRUE,
-								  file_type);
-		return CF_ERROR;
-	  }
+  } else {
+
+    pdh = wtap_dump_fdopen(out_fd, file_type,
+                           selected_frame_type,
+                           merge_max_snapshot_length(in_file_count, in_files),
+                           FALSE /* compressed */, &open_err);
+    if (pdh == NULL) {
+      ws_close(out_fd);
+      merge_close_in_files(in_file_count, in_files);
+      g_free(in_files);
+      cf_open_failure_alert_box(out_filename, open_err, err_info, TRUE,
+                                file_type);
+      return CF_ERROR;
+    }
   }
 
   /* Get the sum of the sizes of all the files. */
@@ -1472,19 +1475,19 @@ cf_merge_files(char **out_filenamep, int in_file_count,
       break;
     }
 
-	/* If we have WTAP_ENCAP_PER_PACKETend the infiles are of type WTAP_FILE_PCAP
-	 * we need to set the interface id in the paket header = the interface index we used
-	 * in the IDBs interface description for this file(encapsulation type).
-	 */
-	if(fake_interface_ids){
-		struct wtap_pkthdr *phdr;
+    /* If we have WTAP_ENCAP_PER_PACKETend the infiles are of type WTAP_FILE_PCAP
+     * we need to set the interface id in the paket header = the interface index we used
+     * in the IDBs interface description for this file(encapsulation type).
+     */
+    if (fake_interface_ids) {
+      struct wtap_pkthdr *phdr;
 
-		phdr = wtap_phdr(in_file->wth);
-		phdr->interface_id = in_file->interface_id;
-		phdr->presence_flags = phdr->presence_flags | WTAP_HAS_INTERFACE_ID;
-	}
+      phdr = wtap_phdr(in_file->wth);
+      phdr->interface_id = in_file->interface_id;
+      phdr->presence_flags = phdr->presence_flags | WTAP_HAS_INTERFACE_ID;
+    }
     if (!wtap_dump(pdh, wtap_phdr(in_file->wth), wtap_pseudoheader(in_file->wth),
-         wtap_buf_ptr(in_file->wth), &write_err)) {
+                   wtap_buf_ptr(in_file->wth), &write_err)) {
       got_write_error = TRUE;
       break;
     }
@@ -1604,8 +1607,8 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 {
   const char *filter_new = dftext ? dftext : "";
   const char *filter_old = cf->dfilter ? cf->dfilter : "";
-  dfilter_t   *dfcode;
-  GTimeVal     start_time;
+  dfilter_t  *dfcode;
+  GTimeVal    start_time;
 
   /* if new filter equals old one, do nothing unless told to do so */
   if (!force && strcmp(filter_new, filter_old) == 0) {
@@ -1665,7 +1668,6 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 void
 cf_reftime_packets(capture_file *cf)
 {
-
   ref_time_packets(cf);
 }
 
@@ -1679,7 +1681,7 @@ gboolean
 cf_read_frame_r(capture_file *cf, frame_data *fdata,
                 union wtap_pseudo_header *pseudo_header, guint8 *pd)
 {
-  int err;
+  int    err;
   gchar *err_info;
   gchar *display_basename;
 
@@ -1766,11 +1768,11 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   gchar       status_str[100];
   int         progbar_nextstep;
   int         progbar_quantum;
-  dfilter_t   *dfcode;
+  dfilter_t  *dfcode;
   gboolean    filtering_tap_listeners;
   guint       tap_flags;
   gboolean    add_to_packet_list = FALSE;
-  gboolean compiled;
+  gboolean    compiled;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -2068,7 +2070,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 static void
 ref_time_packets(capture_file *cf)
 {
-  guint32 framenum;
+  guint32     framenum;
   frame_data *fdata;
 
   nstime_set_unset(&first_ts);
@@ -2093,7 +2095,7 @@ ref_time_packets(capture_file *cf)
     }
       /* if this frames is marked as a reference time frame, reset
         firstsec and firstusec to this frame */
-    if(fdata->flags.ref_time){
+    if (fdata->flags.ref_time) {
         first_ts = fdata->abs_ts;
     }
 
@@ -2118,7 +2120,7 @@ ref_time_packets(capture_file *cf)
 
     /* If this frame is displayed, get the time elapsed between the
      previous displayed packet and this packet. */
-    if( fdata->flags.passed_dfilter ) {
+    if ( fdata->flags.passed_dfilter ) {
         nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
         prev_dis_ts = fdata->abs_ts;
     }
@@ -2126,11 +2128,11 @@ ref_time_packets(capture_file *cf)
     /*
      * Byte counts
      */
-    if( (fdata->flags.passed_dfilter) || (fdata->flags.ref_time) ){
+    if ( (fdata->flags.passed_dfilter) || (fdata->flags.ref_time) ) {
         /* This frame either passed the display filter list or is marked as
         a time reference frame.  All time reference frames are displayed
         even if they dont pass the display filter */
-        if(fdata->flags.ref_time){
+        if (fdata->flags.ref_time) {
             /* if this was a TIME REF frame we should reset the cum_bytes field */
             cum_bytes = fdata->pkt_len;
             fdata->cum_bytes =  cum_bytes;
@@ -2155,21 +2157,22 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
                          union wtap_pseudo_header *, const guint8 *, void *),
     void *callback_args)
 {
-  guint32 framenum;
-  frame_data *fdata;
   union wtap_pseudo_header pseudo_header;
-  guint8      pd[WTAP_MAX_PACKET_SIZE+1];
-  psp_return_t ret = PSP_FINISHED;
 
-  progdlg_t  *progbar = NULL;
-  int         progbar_count;
-  float       progbar_val;
-  gboolean    progbar_stop_flag;
-  GTimeVal    progbar_start_time;
-  gchar       progbar_status_str[100];
-  int         progbar_nextstep;
-  int         progbar_quantum;
-  range_process_e process_this;
+  guint32          framenum;
+  frame_data      *fdata;
+  guint8           pd[WTAP_MAX_PACKET_SIZE+1];
+  psp_return_t     ret     = PSP_FINISHED;
+
+  progdlg_t       *progbar = NULL;
+  int              progbar_count;
+  float            progbar_val;
+  gboolean         progbar_stop_flag;
+  GTimeVal         progbar_start_time;
+  gchar            progbar_status_str[100];
+  int              progbar_nextstep;
+  int              progbar_quantum;
+  range_process_e  process_this;
 
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
@@ -2270,7 +2273,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
 }
 
 typedef struct {
-  gboolean construct_protocol_tree;
+  gboolean     construct_protocol_tree;
   column_info *cinfo;
 } retap_callback_args_t;
 
@@ -2280,7 +2283,7 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
              void *argsp)
 {
   retap_callback_args_t *args = argsp;
-  epan_dissect_t edt;
+  epan_dissect_t         edt;
 
   epan_dissect_init(&edt, args->construct_protocol_tree, FALSE);
   tap_queue_init(&edt);
@@ -2294,10 +2297,10 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
 cf_read_status_t
 cf_retap_packets(capture_file *cf)
 {
-  packet_range_t range;
+  packet_range_t        range;
   retap_callback_args_t callback_args;
-  gboolean filtering_tap_listeners;
-  guint tap_flags;
+  gboolean              filtering_tap_listeners;
+  guint                 tap_flags;
 
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
@@ -2360,15 +2363,15 @@ print_packet(capture_file *cf, frame_data *fdata,
              void *argsp)
 {
   print_callback_args_t *args = argsp;
-  epan_dissect_t edt;
+  epan_dissect_t  edt;
   int             i;
   char           *cp;
   int             line_len;
   int             column_len;
   int             cp_off;
   gboolean        proto_tree_needed;
-  char            bookmark_name[9+10+1];    /* "__frameNNNNNNNNNN__\0" */
-  char            bookmark_title[6+10+1];   /* "Frame NNNNNNNNNN__\0" */
+  char            bookmark_name[9+10+1];  /* "__frameNNNNNNNNNN__\0" */
+  char            bookmark_title[6+10+1]; /* "Frame NNNNNNNNNN__\0"  */
 
   /* Create the protocol tree, and make it visible, if we're printing
      the dissection or the hex data.
@@ -2490,7 +2493,7 @@ print_packet(capture_file *cf, frame_data *fdata,
   epan_dissect_cleanup(&edt);
 
   /* do we want to have a formfeed between each packet from now on? */
-  if(args->print_args->print_formfeed) {
+  if (args->print_args->print_formfeed) {
     args->print_formfeed = TRUE;
   }
 
@@ -2505,13 +2508,13 @@ cf_print_status_t
 cf_print_packets(capture_file *cf, print_args_t *print_args)
 {
   print_callback_args_t callback_args;
-  gint        data_width;
-  char        *cp;
-  int         i, cp_off, column_len, line_len;
-  int         num_visible_col = 0, last_visible_col = 0, visible_col_count;
-  psp_return_t ret;
-  GList       *clp;
-  fmt_data    *cfmt;
+  gint          data_width;
+  char         *cp;
+  int           i, cp_off, column_len, line_len;
+  int           num_visible_col = 0, last_visible_col = 0, visible_col_count;
+  psp_return_t  ret;
+  GList        *clp;
+  fmt_data     *cfmt;
 
   callback_args.print_args = print_args;
   callback_args.print_header_line = TRUE;
@@ -2669,8 +2672,8 @@ write_pdml_packet(capture_file *cf _U_, frame_data *fdata,
                   union wtap_pseudo_header *pseudo_header, const guint8 *pd,
           void *argsp)
 {
-  FILE *fh = argsp;
-  epan_dissect_t edt;
+  FILE           *fh = argsp;
+  epan_dissect_t  edt;
 
   /* Create the protocol tree, but don't fill in the column information. */
   epan_dissect_init(&edt, TRUE, TRUE);
@@ -2687,8 +2690,8 @@ write_pdml_packet(capture_file *cf _U_, frame_data *fdata,
 cf_print_status_t
 cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
 {
-  FILE        *fh;
-  psp_return_t ret;
+  FILE         *fh;
+  psp_return_t  ret;
 
   fh = ws_fopen(print_args->file, "w");
   if (fh == NULL)
@@ -2739,9 +2742,9 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
                   union wtap_pseudo_header *pseudo_header, const guint8 *pd,
           void *argsp)
 {
-  FILE *fh = argsp;
-  epan_dissect_t edt;
-  gboolean proto_tree_needed;
+  FILE           *fh = argsp;
+  epan_dissect_t  edt;
+  gboolean        proto_tree_needed;
 
   /* Fill in the column information, only create the protocol tree
      if having custom columns. */
@@ -2762,8 +2765,8 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
 cf_print_status_t
 cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
 {
-  FILE        *fh;
-  psp_return_t ret;
+  FILE         *fh;
+  psp_return_t  ret;
 
   fh = ws_fopen(print_args->file, "w");
   if (fh == NULL)
@@ -2814,9 +2817,9 @@ write_csv_packet(capture_file *cf, frame_data *fdata,
                  union wtap_pseudo_header *pseudo_header, const guint8 *pd,
                  void *argsp)
 {
-  FILE *fh = argsp;
-  epan_dissect_t edt;
-  gboolean proto_tree_needed;
+  FILE           *fh = argsp;
+  epan_dissect_t  edt;
+  gboolean        proto_tree_needed;
 
   /* Fill in the column information, only create the protocol tree
      if having custom columns. */
@@ -2837,8 +2840,8 @@ write_csv_packet(capture_file *cf, frame_data *fdata,
 cf_print_status_t
 cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
 {
-  FILE        *fh;
-  psp_return_t ret;
+  FILE         *fh;
+  psp_return_t  ret;
 
   fh = ws_fopen(print_args->file, "w");
   if (fh == NULL)
@@ -2889,8 +2892,8 @@ write_carrays_packet(capture_file *cf _U_, frame_data *fdata,
              union wtap_pseudo_header *pseudo_header,
              const guint8 *pd, void *argsp)
 {
-  FILE *fh = argsp;
-  epan_dissect_t edt;
+  FILE           *fh = argsp;
+  epan_dissect_t  edt;
 
   epan_dissect_init(&edt, TRUE, TRUE);
   epan_dissect_run(&edt, pseudo_header, pd, fdata, NULL);
@@ -2903,8 +2906,8 @@ write_carrays_packet(capture_file *cf _U_, frame_data *fdata,
 cf_print_status_t
 cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
 {
-  FILE        *fh;
-  psp_return_t ret;
+  FILE         *fh;
+  psp_return_t  ret;
 
   fh = ws_fopen(print_args->file, "w");
 
@@ -2952,7 +2955,7 @@ gboolean
 cf_find_packet_protocol_tree(capture_file *cf, const char *string,
                              search_direction dir)
 {
-  match_data        mdata;
+  match_data mdata;
 
   mdata.string = string;
   mdata.string_len = strlen(string);
@@ -2974,8 +2977,8 @@ cf_find_string_protocol_tree(capture_file *cf, proto_tree *tree,  match_data *md
 static match_result
 match_protocol_tree(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  match_data        *mdata = criterion;
-  epan_dissect_t    edt;
+  match_data     *mdata = criterion;
+  epan_dissect_t  edt;
 
   /* Load the frame's data. */
   if (!cf_read_frame(cf, fdata)) {
@@ -2999,17 +3002,17 @@ match_protocol_tree(capture_file *cf, frame_data *fdata, void *criterion)
 static void
 match_subtree_text(proto_node *node, gpointer data)
 {
-  match_data    *mdata = (match_data *) data;
-  const gchar   *string = mdata->string;
+  match_data   *mdata      = (match_data *) data;
+  const gchar  *string     = mdata->string;
   size_t        string_len = mdata->string_len;
-  capture_file  *cf = mdata->cf;
-  field_info    *fi = PNODE_FINFO(node);
+  capture_file *cf         = mdata->cf;
+  field_info   *fi         = PNODE_FINFO(node);
   gchar         label_str[ITEM_LABEL_LENGTH];
-  gchar         *label_ptr;
+  gchar        *label_ptr;
   size_t        label_len;
   guint32       i;
   guint8        c_char;
-  size_t        c_match = 0;
+  size_t        c_match    = 0;
 
   g_assert(fi && "dissection with an invisible proto tree?");
 
@@ -3058,7 +3061,7 @@ gboolean
 cf_find_packet_summary_line(capture_file *cf, const char *string,
                             search_direction dir)
 {
-  match_data        mdata;
+  match_data mdata;
 
   mdata.string = string;
   mdata.string_len = strlen(string);
@@ -3068,17 +3071,17 @@ cf_find_packet_summary_line(capture_file *cf, const char *string,
 static match_result
 match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  match_data        *mdata = criterion;
-  const gchar       *string = mdata->string;
-  size_t            string_len = mdata->string_len;
-  epan_dissect_t    edt;
-  const char        *info_column;
-  size_t            info_column_len;
-  match_result      result = MR_NOTMATCHED;
-  gint              colx;
-  guint32           i;
-  guint8            c_char;
-  size_t            c_match = 0;
+  match_data     *mdata      = criterion;
+  const gchar    *string     = mdata->string;
+  size_t          string_len = mdata->string_len;
+  epan_dissect_t  edt;
+  const char     *info_column;
+  size_t          info_column_len;
+  match_result    result     = MR_NOTMATCHED;
+  gint            colx;
+  guint32         i;
+  guint8          c_char;
+  size_t          c_match    = 0;
 
   /* Load the frame's data. */
   if (!cf_read_frame(cf, fdata)) {
@@ -3119,7 +3122,7 @@ match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
 
 typedef struct {
     const guint8 *data;
-    size_t data_len;
+    size_t        data_len;
 } cbs_t;    /* "Counted byte string" */
 
 gboolean
@@ -3156,14 +3159,14 @@ cf_find_packet_data(capture_file *cf, const guint8 *string, size_t string_size,
 static match_result
 match_ascii_and_unicode(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  cbs_t        *info = criterion;
+  cbs_t        *info       = criterion;
   const guint8 *ascii_text = info->data;
-  size_t       textlen = info->data_len;
-  match_result result;
-  guint32      buf_len;
-  guint32      i;
-  guint8       c_char;
-  size_t       c_match = 0;
+  size_t        textlen    = info->data_len;
+  match_result  result;
+  guint32       buf_len;
+  guint32       i;
+  guint8        c_char;
+  size_t        c_match    = 0;
 
   /* Load the frame's data. */
   if (!cf_read_frame(cf, fdata)) {
@@ -3202,14 +3205,14 @@ match_ascii_and_unicode(capture_file *cf, frame_data *fdata, void *criterion)
 static match_result
 match_ascii(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  cbs_t        *info = criterion;
+  cbs_t        *info       = criterion;
   const guint8 *ascii_text = info->data;
-  size_t       textlen = info->data_len;
-  match_result result;
-  guint32      buf_len;
-  guint32      i;
-  guint8       c_char;
-  size_t       c_match = 0;
+  size_t        textlen    = info->data_len;
+  match_result  result;
+  guint32       buf_len;
+  guint32       i;
+  guint8        c_char;
+  size_t        c_match    = 0;
 
   /* Load the frame's data. */
   if (!cf_read_frame(cf, fdata)) {
@@ -3247,14 +3250,14 @@ match_ascii(capture_file *cf, frame_data *fdata, void *criterion)
 static match_result
 match_unicode(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  cbs_t        *info = criterion;
+  cbs_t        *info       = criterion;
   const guint8 *ascii_text = info->data;
-  size_t       textlen = info->data_len;
-  match_result result;
-  guint32      buf_len;
-  guint32      i;
-  guint8       c_char;
-  size_t       c_match = 0;
+  size_t        textlen    = info->data_len;
+  match_result  result;
+  guint32       buf_len;
+  guint32       i;
+  guint8        c_char;
+  size_t        c_match    = 0;
 
   /* Load the frame's data. */
   if (!cf_read_frame(cf, fdata)) {
@@ -3292,13 +3295,13 @@ match_unicode(capture_file *cf, frame_data *fdata, void *criterion)
 static match_result
 match_binary(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  cbs_t        *info = criterion;
+  cbs_t        *info        = criterion;
   const guint8 *binary_data = info->data;
-  size_t       datalen = info->data_len;
-  match_result result;
-  guint32      buf_len;
-  guint32      i;
-  size_t       c_match = 0;
+  size_t        datalen     = info->data_len;
+  match_result  result;
+  guint32       buf_len;
+  guint32       i;
+  size_t        c_match     = 0;
 
   /* Load the frame's data. */
   if (!cf_read_frame(cf, fdata)) {
@@ -3341,7 +3344,7 @@ cf_find_packet_dfilter_string(capture_file *cf, const char *filter,
                               search_direction dir)
 {
   dfilter_t *sfcode;
-  gboolean result;
+  gboolean   result;
 
   if (!dfilter_compile(filter, &sfcode)) {
      /*
@@ -3366,8 +3369,8 @@ static match_result
 match_dfilter(capture_file *cf, frame_data *fdata, void *criterion)
 {
   dfilter_t      *sfcode = criterion;
-  epan_dissect_t edt;
-  match_result   result;
+  epan_dissect_t  edt;
+  match_result    result;
 
   /* Load the frame's data. */
   if (!cf_read_frame(cf, fdata)) {
@@ -3633,8 +3636,8 @@ cf_goto_bottom_frame(void)
 gboolean
 cf_goto_framenum(capture_file *cf)
 {
-  header_field_info       *hfinfo;
-  guint32                 framenum;
+  header_field_info *hfinfo;
+  guint32            framenum;
 
   if (cf->finfo_selected) {
     hfinfo = cf->finfo_selected->hfinfo;
@@ -3654,7 +3657,7 @@ void
 cf_select_packet(capture_file *cf, int row)
 {
   epan_dissect_t *old_edt;
-  frame_data *fdata;
+  frame_data     *fdata;
 
   /* Get the frame data struct pointer for this frame */
   fdata = new_packet_list_get_row_data(row);
@@ -3813,11 +3816,11 @@ const gchar *
 cf_read_shb_comment(capture_file *cf)
 {
   wtapng_section_t *shb_inf;
-  const gchar *temp_str;
+  const gchar      *temp_str;
 
   /* Get info from SHB */
   shb_inf = wtap_file_get_shb_info(cf->wth);
-  if(shb_inf == NULL)
+  if (shb_inf == NULL)
         return NULL;
   temp_str = shb_inf->opt_comment;
   g_free(shb_inf);
@@ -3898,7 +3901,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
             void *argsp)
 {
   save_callback_args_t *args = argsp;
-  struct wtap_pkthdr hdr;
+  struct wtap_pkthdr    hdr;
   int           err;
   gchar        *display_basename;
 
@@ -3995,23 +3998,23 @@ static cf_read_status_t
 rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
   const struct wtap_pkthdr *phdr;
-  gchar       *err_info;
-  gchar       *name_ptr;
-  gint64       data_offset;
-  gint64       file_pos;
-  progdlg_t *volatile progbar = NULL;
-  gboolean     stop_flag;
-  volatile gint64 size;
-  volatile float progbar_val;
-  GTimeVal     start_time;
-  gchar        status_str[100];
-  volatile gint64 progbar_nextstep;
-  volatile gint64 progbar_quantum;
-  guint32       framenum;
-  frame_data   *fdata;
-  volatile int count = 0;
+  gchar               *err_info;
+  gchar               *name_ptr;
+  gint64               data_offset;
+  gint64               file_pos;
+  progdlg_t *volatile  progbar        = NULL;
+  gboolean             stop_flag;
+  volatile gint64      size;
+  volatile float       progbar_val;
+  GTimeVal             start_time;
+  gchar                status_str[100];
+  volatile gint64      progbar_nextstep;
+  volatile gint64      progbar_quantum;
+  guint32              framenum;
+  frame_data          *fdata;
+  volatile int         count          = 0;
 #ifdef HAVE_LIBPCAP
-  volatile int displayed_once = 0;
+  volatile int         displayed_once = 0;
 #endif
 
   /* Close the old handle. */
@@ -4065,7 +4068,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  if (size >= 0){
+  if (size >= 0) {
     progbar_quantum = size/N_PROGBAR_UPDATES;
     if (progbar_quantum < MIN_QUANTUM)
       progbar_quantum = MIN_QUANTUM;
@@ -4090,7 +4093,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
       /* Create the progress bar if necessary.
        * Check whether it should be created or not every MIN_NUMBER_OF_PACKET
        */
-      if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)){
+      if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)) {
         progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
         progbar = delayed_create_progress_dlg(cf->window, "Rescanning", name_ptr,
                                               TRUE, &stop_flag, &start_time, progbar_val);
@@ -4529,13 +4532,13 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
                             packet_range_t *range, guint save_format,
                             gboolean compressed)
 {
-  gchar        *fname_new = NULL;
-  int           err;
-  wtap_dumper  *pdh;
-  save_callback_args_t callback_args;
-  wtapng_section_t *shb_hdr = NULL;
-  wtapng_iface_descriptions_t *idb_inf = NULL;
-  int encap;
+  gchar                       *fname_new = NULL;
+  int                          err;
+  wtap_dumper                 *pdh;
+  save_callback_args_t         callback_args;
+  wtapng_section_t            *shb_hdr;
+  wtapng_iface_descriptions_t *idb_inf;
+  int                          encap;
 
   cf_callback_invoke(cf_cb_file_export_specified_packets_started, (gpointer)fname);
 
@@ -4870,9 +4873,9 @@ cf_close_failure_alert_box(const char *filename, int err)
 /* Reload the current capture file. */
 void
 cf_reload(capture_file *cf) {
-  gchar *filename;
-  gboolean is_tempfile;
-  int err;
+  gchar    *filename;
+  gboolean  is_tempfile;
+  int       err;
 
   /* If the file could be opened, "cf_open()" calls "cf_close()"
      to get rid of state for the old capture file before filling in state
