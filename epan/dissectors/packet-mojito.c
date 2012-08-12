@@ -111,7 +111,6 @@ static gint ett_mojito_contact = -1;
 static gint ett_mojito_contact_version = -1;
 static gint ett_mojito_socket_address = -1;
 static gint ett_mojito_flags = -1;
-static gint ett_mojito_ping_socket_address = -1;
 static gint ett_mojito_bigint = -1;
 static gint ett_mojito_opcode = -1;
 static gint ett_mojito_dht_version = -1;
@@ -184,93 +183,103 @@ static const value_string vendorcodeflags[] = {
 #endif
 
 static int
+dissect_mojito_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		int offset, const char *title)
+{
+	int         offset_start;
+	guint8      socket_address_version;
+	proto_tree *socket_tree;
+	proto_item *socket_item;
+
+	offset_start = offset;
+
+	/* new subtree for socket address*/
+	socket_address_version = tvb_get_guint8(tvb, offset);
+	socket_item = proto_tree_add_text(tree, tvb, offset, 1, "%s", title);
+	socket_tree = proto_item_add_subtree(socket_item, ett_mojito_socket_address);
+
+	proto_tree_add_item(socket_tree, hf_mojito_socketaddress_version, tvb, offset, 1, ENC_NA);
+	offset += 1;
+	
+	switch (socket_address_version)
+	{
+	case FT_IPv4_LEN: /* IPv4 */
+
+		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		break;
+
+	case FT_IPv6_LEN: /* IPv6 */
+
+		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_ipv6, tvb, offset, 16, ENC_NA);
+		offset += 16;
+		break;
+
+	default: /* ABORT */
+		expert_add_info_format(pinfo, socket_item, PI_PROTOCOL, PI_ERROR, "Unsupported Socket Address Type");
+		return 0;
+	}
+
+	proto_tree_add_item(socket_tree, hf_mojito_socketaddress_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_item_set_len(socket_item, offset - offset_start);
+
+	return offset;
+}
+
+static int
 dissect_mojito_contact(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int contact_id)
 {
-	guint8      socketaddressversion;
-	proto_tree *contract_tree, *version_tree, *socket_tree;
-	proto_item *contract_item, *version_item, *socket_item;
-	int         socket_length;
+	int         offset_start;
+	proto_tree *contact_tree, *version_tree;
+	proto_item *contact_item, *version_item;
+
+	offset_start = offset;
 
 	if (contact_id > 0)
 	{
-		contract_item = proto_tree_add_text(tree, tvb, offset, 1, "Contact #%d", contact_id);
+		contact_item = proto_tree_add_text(tree, tvb, offset, 1, "Contact #%d", contact_id);
 	}
 	else
 	{
-		contract_item = proto_tree_add_text(tree, tvb, offset, 1, "Contact");
+		contact_item = proto_tree_add_text(tree, tvb, offset, 1, "Contact");
 	}
-	contract_tree = proto_item_add_subtree(contract_item, ett_mojito_contact);
+	contact_tree = proto_item_add_subtree(contact_item, ett_mojito_contact);
 
-	proto_tree_add_item(contract_tree, hf_mojito_contactvendor, tvb, offset, 4, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(contact_tree, hf_mojito_contactvendor, tvb, offset, 4, ENC_ASCII|ENC_NA);
 	offset += 4;
 
-	version_item = proto_tree_add_item(contract_tree, hf_mojito_contactversion, tvb, offset, 2, ENC_BIG_ENDIAN);
+	version_item = proto_tree_add_item(contact_tree, hf_mojito_contactversion, tvb, offset, 2, ENC_BIG_ENDIAN);
 	version_tree = proto_item_add_subtree(version_item, ett_mojito_contact_version);
 	proto_tree_add_item(version_tree, hf_mojito_mjrversion, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(version_tree, hf_mojito_mnrversion, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(contract_tree, hf_mojito_contactkuid, tvb, offset, 20, ENC_NA);
+	proto_tree_add_item(contact_tree, hf_mojito_contactkuid, tvb, offset, 20, ENC_NA);
 	offset += 20;
 
-	/* new subtree for socket address*/
-	socketaddressversion = tvb_get_guint8(tvb, offset);
-	socket_item = proto_tree_add_text(contract_tree, tvb, offset, 1, "Socket Address");
-	socket_tree = proto_item_add_subtree(socket_item, ett_mojito_socket_address);
-
-	switch (socketaddressversion)
+	offset = dissect_mojito_address(tvb, pinfo, contact_tree, offset, "Socket Address");
+	
+	if (offset == 0)
 	{
-	case FT_IPv4_LEN: /* IPv4 */
-
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
-
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
-
-		/* Set the socket length to properly set item length */
-		socket_length = 7;
-		break;
-
-	case FT_IPv6_LEN: /* IPv6 */
-
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
-
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_ipv6, tvb, offset, 16, ENC_NA);
-		offset += 16;
-
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
-
-		/* Set the socket length to properly set item length */
-		socket_length = 19;
-		break;
-
-	default: /* ABORT */
-		expert_add_info_format(pinfo, socket_item, PI_PROTOCOL, PI_ERROR, "Unsupported Socket Address Type");
-		return -1;
+		return 0;
 	}
 
-	proto_item_set_len(socket_item, socket_length);
-	proto_item_set_len(contract_item, socket_length+26);
+	proto_item_set_len(contact_item, offset - offset_start);
 
-	return socket_length+26;
+	return offset - offset_start;
 }
 
 static int
 dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       int offset, mojito_header_data_t* header_data)
 {
-	proto_tree *header_tree, *version_tree, *contract_tree, *socket_tree, *flag_tree;
-	proto_item *header_item, *version_item, *contract_item, *socket_item, *flag_item;
-	guint8      socketaddressversion;
+	proto_tree *header_tree, *version_tree, *contact_tree, *flag_tree;
+	proto_item *header_item, *version_item, *contact_item, *flag_item;
 	int         start_offset = offset;
-	int	    socket_length;
+	int         contact_start_offset;
 
 	header_item = proto_tree_add_text(tree, tvb, offset, 61, "Gnutella Header");
 	header_tree = proto_item_add_subtree(header_item, ett_mojito_header);
@@ -299,13 +308,14 @@ dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(header_tree, hf_mojito_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	contract_item = proto_tree_add_text(header_tree, tvb, offset, 35, "Originating Contact");
-	contract_tree = proto_item_add_subtree(contract_item, ett_mojito_contact);
+	contact_start_offset = offset;
+	contact_item = proto_tree_add_text(header_tree, tvb, offset, 35, "Originating Contact");
+	contact_tree = proto_item_add_subtree(contact_item, ett_mojito_contact);
 
-	proto_tree_add_item(contract_tree, hf_mojito_vendor, tvb, offset, 4, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(contact_tree, hf_mojito_vendor, tvb, offset, 4, ENC_ASCII|ENC_NA);
 	offset += 4;
 
-	version_item = proto_tree_add_text(contract_tree, tvb, offset, 2, "Contact Version");
+	version_item = proto_tree_add_text(contact_tree, tvb, offset, 2, "Contact Version");
 	version_tree = proto_item_add_subtree(version_item, ett_mojito_contact_version);
 
 	proto_tree_add_item(version_tree, hf_mojito_origmjrversion, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -313,42 +323,17 @@ dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(version_tree, hf_mojito_origmnrversion, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(contract_tree, hf_mojito_kuid, tvb, offset, 20, ENC_NA);
+	proto_tree_add_item(contact_tree, hf_mojito_kuid, tvb, offset, 20, ENC_NA);
 	offset += 20;
 
-	socket_item = proto_tree_add_text(contract_tree, tvb, offset, 7, "Socket Address");
-	socket_tree = proto_item_add_subtree(socket_item, ett_mojito_socket_address);
+	offset = dissect_mojito_address(tvb, pinfo, contact_tree, offset, "Socket Address");
 
-	/* Socket Address */
-	socketaddressversion = tvb_get_guint8(tvb, offset);
-	switch (socketaddressversion)
+	if (offset == 0)
 	{
-	case FT_IPv4_LEN: /* IPv4 */
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
-
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		socket_length = 7;
-		break;
-
-	case FT_IPv6_LEN: /* IPv6 */
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_ipv6, tvb, offset, 16, ENC_NA);
-		offset += 16;
-		socket_length = 19;
-		break;
-	default:
-		/* Abort */
 		return 0;
 	}
 
-	proto_tree_add_item(socket_tree, hf_mojito_socketaddress_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-
-	proto_item_set_len(socket_item, socket_length);
-	proto_item_set_len(contract_item, socket_length+26);
+	proto_item_set_len(contact_item, offset - contact_start_offset);
 
 	proto_tree_add_item(header_tree, hf_mojito_instanceid, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -371,42 +356,16 @@ static void
 dissect_mojito_ping_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	guint8      bigintlen;
-	guint8      socketaddressversion = tvb_get_guint8(tvb, offset);
-	proto_tree *socket_tree, *bigint_tree;
-	proto_item *socket_item, *bigint_item;
+	proto_tree *bigint_tree;
+	proto_item *bigint_item;
 
-	socket_item = proto_tree_add_text(tree, tvb, offset, 1, "Requester\'s External Socket Address");
-	socket_tree = proto_item_add_subtree(socket_item, ett_mojito_ping_socket_address);
+	offset = dissect_mojito_address(tvb, pinfo, tree,
+			offset, "Requester's External Socket Address");
 
-	switch (socketaddressversion)
+	if (offset == 0)
 	{
-	case FT_IPv4_LEN:
-		proto_item_set_len(socket_item, 7);
-
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
-
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		break;
-
-	case FT_IPv6_LEN:
-		proto_item_set_len(socket_item, 19);
-
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
-
-		proto_tree_add_item(socket_tree, hf_mojito_socketaddress_ipv6, tvb, offset, 16, ENC_NA);
-		offset += 16;
-		break;
-
-	default:
-		expert_add_info_format(pinfo, socket_item, PI_PROTOCOL, PI_ERROR, "Unsupported Socket Address Type");
 		return;
 	}
-
-	proto_tree_add_item(socket_tree, hf_mojito_socketaddress_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
 
 	/* BigInt subtree */
 	bigintlen = tvb_get_guint8(tvb, offset);
@@ -470,7 +429,7 @@ dissect_mojito_store_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		dht_tree = proto_item_add_subtree(dht_item, ett_mojito_dht);
 		start_offset = offset;
 		contact_offset = dissect_mojito_contact(tvb, pinfo, dht_tree, offset, -1);
-		if (contact_offset == -1)
+		if (contact_offset == 0)
 			return;
 		offset += contact_offset;
 
@@ -566,7 +525,7 @@ dissect_mojito_find_node_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	for (i = 1; i <= contactcount; i++)
 	{
 		contact_offset = dissect_mojito_contact(tvb, pinfo, tree, offset, i);
-		if (contact_offset == -1)
+		if (contact_offset == 0)
 			return;
 		offset += contact_offset;
 	}
@@ -627,7 +586,7 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		dht_tree = proto_item_add_subtree(dht_item, ett_mojito_dht);
 		start_offset = offset;
 		contact_offset = dissect_mojito_contact(tvb, pinfo, dht_tree, offset, -1);
-		if (contact_offset == -1)
+		if (contact_offset == 0)
 			return;
 
 		offset += contact_offset;
@@ -1057,7 +1016,6 @@ proto_register_mojito(void)
 		&ett_mojito_contact_version,
 		&ett_mojito_socket_address,
 		&ett_mojito_flags,
-		&ett_mojito_ping_socket_address,
 		&ett_mojito_bigint,
 		&ett_mojito_opcode,
 		&ett_mojito_dht_version,
