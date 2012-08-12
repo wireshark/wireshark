@@ -103,9 +103,14 @@ typedef struct _fragment_data {
 typedef void *(*fragment_key_copier)(const void *key);
 
 /*
- * Initialize a fragment table.
+ * Initialize/destroy a fragment table.
+ *
+ * init: If table doesn't exist: create table;
+ *       else: just remove any entries;
+ * destroy: remove entries and destroy table;
  */
 extern void fragment_table_init(GHashTable **fragment_table);
+extern void fragment_table_destroy(GHashTable **fragment_table);
 extern void dcerpc_fragment_table_init(GHashTable **fragment_table);
 
 /*

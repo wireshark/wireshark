@@ -32,8 +32,6 @@
 
 #include <epan/reassemble.h>
 
-#include <epan/emem.h>
-
 #include <epan/dissectors/packet-dcerpc.h>
 
 typedef struct _fragment_key {
@@ -321,6 +319,32 @@ fragment_table_init(GHashTable **fragment_table)
 		/* The fragment table does not exist. Create it */
 		*fragment_table = g_hash_table_new_full(fragment_hash,
 							fragment_equal, fragment_free_key, NULL);
+	}
+}
+
+/*
+ * Destroy a fragment table.
+ */
+void
+frgment_table_destroy(GHashTable **fragment_table)
+{
+	if (*fragment_table != NULL) {
+		/*
+		 * The fragment hash table exists.
+		 *
+		 * Remove all entries and free fragment data for each entry.
+		 *
+		 * The keys are freed by calling fragment_free_key()
+		 * and the values are freed in free_all_fragments().
+		 *
+		 * free_all_fragments()
+		 * will free the address data associated with the key
+		 */
+		g_hash_table_foreach_remove(*fragment_table,
+				free_all_fragments, NULL);
+
+		g_hash_table_destroy(*fragment_table);
+		*fragment_table = NULL;
 	}
 }
 
