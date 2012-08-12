@@ -253,6 +253,9 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 
 	if [ $VALGRIND -eq 1 ]; then
 	    VG_ERR_CNT="`grep "ERROR SUMMARY:" $TMP_DIR/$ERR_FILE | cut -f4 -d' '`"
+	    if grep -q "Valgrind cannot continue" $TMP_DIR/$ERR_FILE; then
+		    VG_ERR_CNT=-1
+	    fi
 	fi
 
 	if [ \( $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 -o $VG_ERR_CNT -ne 0 \) \
