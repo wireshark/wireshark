@@ -36,16 +36,16 @@
 #define MOJITO_HEADER_LENGTH    38
 
 /* All the Defines for OpCodes */
-#define PING_REQUEST			 1
-#define PING_RESPONSE			 2
-#define STORE_REQUEST			 3
-#define STORE_RESPONSE			 4
-#define FIND_NODE_REQUEST		 5
-#define FIND_NODE_RESPONSE		 6
-#define FIND_VALUE_REQUEST		 7
-#define FIND_VALUE_RESPONSE		 8
-#define STATS_REQUEST_DEPRECATED	 9
-#define STATS_RESPONSE_DEPRECATED	10
+#define MOJITO_PING_REQUEST                1
+#define MOJITO_PING_RESPONSE               2
+#define MOJITO_STORE_REQUEST               3
+#define MOJITO_STORE_RESPONSE              4
+#define MOJITO_FIND_NODE_REQUEST           5
+#define MOJITO_FIND_NODE_RESPONSE          6
+#define MOJITO_FIND_VALUE_REQUEST          7
+#define MOJITO_FIND_VALUE_RESPONSE         8
+#define MOJITO_STATS_REQUEST_DEPRECATED    9
+#define MOJITO_STATS_RESPONSE_DEPRECATED  10
 
 /* Initialize the protocol and registered fields */
 static int proto_mojito = -1;
@@ -129,16 +129,16 @@ typedef struct mojito_header_data {
 
 /* Values for OPCode Flags */
 static const value_string opcodeflags[] = {
-	{ PING_REQUEST,              "PING REQUEST" },
-	{ PING_RESPONSE,             "PING RESPONSE" },
-	{ STORE_REQUEST,             "STORE REQUEST" },
-	{ STORE_RESPONSE,            "STORE RESPONSE" },
-	{ FIND_NODE_REQUEST,         "FIND NODE REQUEST" },
-	{ FIND_NODE_RESPONSE,        "FIND NODE RESPONSE" },
-	{ FIND_VALUE_REQUEST,        "FIND VALUE REQUEST" },
-	{ FIND_VALUE_RESPONSE,       "FIND VALUE RESPONSE" },
-	{ STATS_REQUEST_DEPRECATED,  "STATS REQUEST (DEPRECATED)" },
-	{ STATS_RESPONSE_DEPRECATED, "STATS RESPONSE (DEPRECATED)" },
+	{ MOJITO_PING_REQUEST,              "PING REQUEST" },
+	{ MOJITO_PING_RESPONSE,             "PING RESPONSE" },
+	{ MOJITO_STORE_REQUEST,             "STORE REQUEST" },
+	{ MOJITO_STORE_RESPONSE,            "STORE RESPONSE" },
+	{ MOJITO_FIND_NODE_REQUEST,         "FIND NODE REQUEST" },
+	{ MOJITO_FIND_NODE_RESPONSE,        "FIND NODE RESPONSE" },
+	{ MOJITO_FIND_VALUE_REQUEST,        "FIND VALUE REQUEST" },
+	{ MOJITO_FIND_VALUE_RESPONSE,       "FIND VALUE RESPONSE" },
+	{ MOJITO_STATS_REQUEST_DEPRECATED,  "STATS REQUEST (DEPRECATED)" },
+	{ MOJITO_STATS_RESPONSE_DEPRECATED, "STATS RESPONSE (DEPRECATED)" },
 	{ 0, NULL }
 };
 
@@ -702,38 +702,38 @@ dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Now use the opcode to figure out what to do next */
 	switch (header_data.opcode)
 	{
-	case PING_RESPONSE: /* PING RESPONSE */
+	case MOJITO_PING_RESPONSE: /* PING RESPONSE */
 		dissect_mojito_ping_response(tvb, pinfo, opcode_tree, offset);
 		break;
 
-	case STORE_REQUEST: /* STORE REQUEST */
+	case MOJITO_STORE_REQUEST: /* STORE REQUEST */
 		dissect_mojito_store_request(tvb, pinfo, opcode_tree, offset);
 		break;
 
-	case STORE_RESPONSE: /* STORE RESPONSE */
+	case MOJITO_STORE_RESPONSE: /* STORE RESPONSE */
 		dissect_mojito_store_response(tvb, pinfo, opcode_tree, offset);
 		break;
 
-	case FIND_NODE_REQUEST: /* FIND NODE REQUEST */
+	case MOJITO_FIND_NODE_REQUEST: /* FIND NODE REQUEST */
 		proto_tree_add_item(opcode_tree, hf_mojito_target_kuid, tvb, offset, 20, ENC_NA);
 		offset += 20;
 		break;
 
-	case FIND_NODE_RESPONSE: /* FIND NODE RESPONSE */
+	case MOJITO_FIND_NODE_RESPONSE: /* FIND NODE RESPONSE */
 		dissect_mojito_find_node_response(tvb, pinfo, opcode_tree, offset);
 		break;
 
-	case FIND_VALUE_REQUEST: /* FIND VALUE REQUEST */
+	case MOJITO_FIND_VALUE_REQUEST: /* FIND VALUE REQUEST */
 		dissect_mojito_find_value_request(tvb, pinfo, opcode_tree, offset);
 		break;
 
-	case FIND_VALUE_RESPONSE: /* FIND VALUE RESPONSE */
+	case MOJITO_FIND_VALUE_RESPONSE: /* FIND VALUE RESPONSE */
 		dissect_mojito_find_value_response(tvb, pinfo, opcode_tree, offset);
 		break;
 
-	case PING_REQUEST: /* PING REQUEST */
-	case STATS_REQUEST_DEPRECATED: /* STATS REQUEST (DEPRECATED) */
-	case STATS_RESPONSE_DEPRECATED: /* STATS RESPONSE (DEPRECATED) */
+	case MOJITO_PING_REQUEST: /* PING REQUEST */
+	case MOJITO_STATS_REQUEST_DEPRECATED: /* STATS REQUEST (DEPRECATED) */
+	case MOJITO_STATS_RESPONSE_DEPRECATED: /* STATS RESPONSE (DEPRECATED) */
 	default:
 		if (header_data.payloadlength - MOJITO_HEADER_LENGTH > 0)
 			proto_tree_add_item(opcode_tree, hf_mojito_opcode_data, tvb,
@@ -1107,3 +1107,16 @@ proto_reg_handoff_mojito(void)
 
 	old_mojito_udp_port = udp_mojito_port;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
