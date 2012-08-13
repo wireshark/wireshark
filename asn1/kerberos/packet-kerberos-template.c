@@ -249,6 +249,7 @@ printf("added key in %u    keytype:%d len:%d\n",pinfo->fd->num, keytype, keyleng
 
 	new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
 	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u",origin,pinfo->fd->num);
+	new_key->fd_num = pinfo->fd->num;
 	new_key->next=enc_key_list;
 	enc_key_list=new_key;
 	new_key->keytype=keytype;
@@ -304,6 +305,7 @@ printf("read keytab file %s\n", filename);
 
 	do{
 		new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
+		new_key->fd_num = -1;
 		new_key->next=enc_key_list;
 		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
 		if(ret==0){
@@ -439,6 +441,7 @@ read_keytab_file(const char *filename)
 
 	do{
 		new_key=g_malloc(sizeof(enc_key_t));
+		new_key->fd_num = -1;
 		new_key->next=enc_key_list;
 		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
 		if(ret==0){
