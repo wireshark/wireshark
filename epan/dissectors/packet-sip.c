@@ -823,7 +823,7 @@ static sip_info_value_t *stat_info;
  * For each call, keep track of the current cseq number and state of
  * transaction, in order to be able to detect retransmissions.
  *
- * Don't use the conservation mechanism, but instead:
+ * Don't use the conversation mechanism, but instead:
  * - store with each dissected packet original frame (if any)
  * - maintain a global hash table of
  *   (call_id, source_addr, dest_addr) -> (cseq, transaction_state, frame)
