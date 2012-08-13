@@ -288,9 +288,13 @@ unix:LIBS += -L../../lib -Wl,-rpath ../../lib -lwireshark -lwiretap -lwsutil \
     -lpcap
 macx:LIBS += -Wl,-macosx_version_min,10.5 -liconv
 
+# XXX Copy this only if we're linking with Lua.
+EXTRA_BINFILES = \
+    ../../epan/wslua/console.lua
+
 # http://stackoverflow.com/questions/3984104/qmake-how-to-copy-a-file-to-the-output
 unix: {
-    EXTRA_BINFILES = \
+    EXTRA_BINFILES += \
         ../../dumpcap \
         ../../lib/*.so  \
 }
@@ -315,7 +319,7 @@ win32 {
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-$${WTAP_VERSION} \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0
 
-    EXTRA_BINFILES = \
+    EXTRA_BINFILES += \
         ../../dumpcap.exe \
         ../../epan/libwireshark.dll ../../wiretap/wiretap-$${WTAP_VERSION}.dll ../../wsutil/libwsutil.dll \
         $${GLIB_DIR}/bin/libglib-2.0-0.dll $${GLIB_DIR}/bin/libgmodule-2.0-0.dll \
