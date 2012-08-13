@@ -40,6 +40,8 @@
 #include "packet-smb2.h"
 #include "packet-dcerpc.h"
 #include "packet-ntlmssp.h"
+#include <epan/asn1.h>
+#include "packet-kerberos.h"
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
 #include "packet-smb.h"
@@ -2562,6 +2564,49 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	dissect_smb2_olb_buffer(pinfo, tree, tvb, &s_olb, si, dissect_smb2_secblob);
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &s_olb);
+
+	/* If we have found a uid->acct_name mapping, store it */
+#ifdef HAVE_KERBEROS
+	if (!pinfo->fd->flags.visited && si->status == 0) {
+		enc_key_t *ek;
+
+		if (krb_decrypt) {
+			read_keytab_file_from_preferences();
+		}
+
+		for (ek=enc_key_list;ek;ek=ek->next) {
+			if (ek->fd_num == (int)pinfo->fd->num) {
+				break;
+			}
+		}
+
+		if (ek != NULL) {
+			smb2_sesid_info_t *sesid;
+			guint8 session_key[16] = { 0, };
+
+			memcpy(session_key, ek->keyvalue, MIN(ek->keylength, 16));
+
+			sesid = wmem_new(wmem_file_scope(), smb2_sesid_info_t);
+			sesid->sesid = si->sesid;
+			/* TODO: fill in the correct information */
+			sesid->acct_name = NULL;
+			sesid->domain_name = NULL;
+			sesid->host_name = NULL;
+			smb2_key_derivation(session_key, sizeof(session_key),
+					    "SMB2AESCCM", 11,
+					    "ServerIn ", 10,
+					    sesid->server_decryption_key);
+			smb2_key_derivation(session_key, sizeof(session_key),
+					    "SMB2AESCCM", 11,
+					    "ServerOut", 10,
+					    sesid->client_decryption_key);
+			sesid->server_port = pinfo->srcport;
+			sesid->auth_frame = pinfo->fd->num;
+			sesid->tids = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
+			g_hash_table_insert(si->conv->sesids, sesid, sesid);
+		}
+	}
+#endif
 
 	return offset;
 }
