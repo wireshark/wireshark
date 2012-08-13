@@ -4946,6 +4946,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
      widget that *doesn't* handle the Return key has the input focus. */
   /*dlg_set_activate(gtk_bin_get_child(GTK_BIN(if_cb)), ok_bt);*/
   dlg_set_activate(file_te, ok_bt);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+  dlg_set_activate(all_filter_te, ok_bt);
+  gtk_widget_grab_focus(all_filter_te);
+#endif
 
   g_signal_connect(cap_open_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
   g_signal_connect(cap_open_w, "destroy", G_CALLBACK(capture_prep_destroy_cb), NULL);
