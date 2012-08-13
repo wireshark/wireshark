@@ -62,16 +62,29 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
         idx = idx + 1;
     }
 
+    QStyleOptionViewItemV4 optv4 = option;
+    QStyledItemDelegate::initStyleOption(&optv4, index);
+
     painter->save();
+
+#ifdef Q_WS_WIN
+    // QWindowsVistaStyle::drawControl does this internally. Unfortunately there
+    // doesn't appear to be a way to do this dynamically.
+    optv4.palette.setColor(QPalette::All, QPalette::HighlightedText, optv4.palette.color(QPalette::Active, QPalette::Text));
+#endif
+
+    QPalette::ColorGroup cg = optv4.state & QStyle::State_Enabled
+                              ? QPalette::Normal : QPalette::Disabled;
+    if (cg == QPalette::Normal && !(optv4.state & QStyle::State_Active))
+        cg = QPalette::Inactive;
+    if (optv4.state & QStyle::State_Selected) {
+        painter->setPen(optv4.palette.color(cg, QPalette::HighlightedText));
+    } else {
+        painter->setPen(optv4.palette.color(cg, QPalette::Text));
+    }
+
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->translate(option.rect.x() + SL_MARGIN + 0.5, option.rect.y() + SL_MARGIN + 0.5);
-
-    // XXX Handle disabled and Windows
-    if (option.state & QStyle::State_Selected) {
-        painter->setPen(option.palette.color(QPalette::HighlightedText));
-    } else {
-        painter->setPen(option.palette.color(QPalette::WindowText));
-    }
     painter->drawPolyline(QPolygonF(fpoints));
 
 //    painter->setPen(Qt::NoPen);
