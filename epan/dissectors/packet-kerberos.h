@@ -73,6 +73,7 @@ typedef struct _enc_key_t {
 	int keylength;
 	char *keyvalue;
 	char 			key_origin[KRB_MAX_ORIG_LEN+1];
+	int fd_num; /* remember where we learned a key */
 } enc_key_t;
 extern enc_key_t *enc_key_list;
 
