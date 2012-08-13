@@ -597,7 +597,6 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
         return new_off;
     } else {
         if (BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_START_POS) || BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_STOP_POS)) {
-            /* TODO: needs to be tested */
 
             proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_fragid, tvb, cur_off + new_off, 1, ENC_BIG_ENDIAN);
 
@@ -702,7 +701,7 @@ static gboolean test_dvb_s2_crc(tvbuff_t *tvb, guint offset) {
     guint8  input8;
 
     /* only check BB Header and return */
-    if (tvb_length(tvb) < (offset + DVB_S2_BB_HEADER_LEN)) /* XXX: I think 'offset + ...' is about right */
+    if (tvb_length(tvb) < (offset + DVB_S2_BB_HEADER_LEN))
         return FALSE;
 
     input8 = tvb_get_guint8(tvb, offset + DVB_S2_BB_OFFS_CRC);

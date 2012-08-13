@@ -3463,6 +3463,11 @@ Richard Stearn		<richard[at]rns-stearn.demon.co.uk> {
 	AX.25 support
 }
 
+Tobias Rutz		<tobias.rutz[at]work-microwave.de> {
+	DVB-S2 Baseband Frame and GSE support
+}
+
+
 and by:
 
 Pavel Roskin		<proski[AT]gnu.org>
