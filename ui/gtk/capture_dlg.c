@@ -713,7 +713,7 @@ capture_all_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   if (!filter_te)
     return;
 
-  if (global_capture_opts.all_ifaces->len > 0) {
+  if (global_capture_opts.num_selected > 0) {
     interface_t device;
 
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
@@ -2218,6 +2218,61 @@ capture_all_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
 
 #if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
 static void
+compile_results_win(gchar *text, gboolean error)
+{
+  GtkWidget         *main_box, *bbox, *ok_btn, *results_w;
+  GtkWidget         *scrolled_win, *textview;
+  PangoFontDescription *font;
+  GtkTextBuffer     *buffer;
+
+  results_w = dlg_window_new("Compile results");
+  /* set the initial position (must be done, before show is called!) */
+  /* default position is not appropriate for the about dialog */
+  gtk_window_set_position(GTK_WINDOW(results_w), GTK_WIN_POS_CENTER_ON_PARENT);
+  gtk_window_set_default_size(GTK_WINDOW(results_w), 400, 400);
+  gtk_window_set_modal(GTK_WINDOW(results_w), TRUE);
+  gtk_window_set_transient_for(GTK_WINDOW(results_w), GTK_WINDOW(opt_edit_w));
+  gtk_container_set_border_width(GTK_CONTAINER(results_w), 6);
+  main_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
+  gtk_container_set_border_width(GTK_CONTAINER(main_box), 6);
+  gtk_container_add(GTK_CONTAINER(results_w), main_box);
+  gtk_widget_show(main_box);
+  font = pango_font_description_from_string("Monospace");
+  textview = gtk_text_view_new();
+  gtk_widget_modify_font(textview, font);
+  scrolled_win = gtk_scrolled_window_new(NULL, NULL);
+  gtk_widget_set_size_request(GTK_WIDGET(scrolled_win), 350, -1);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win),
+                                 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_win),
+                                   GTK_SHADOW_IN);
+  gtk_container_add(GTK_CONTAINER(scrolled_win), textview);
+  gtk_box_pack_start(GTK_BOX(main_box), scrolled_win, TRUE, TRUE, 0);
+  if (error == 1) {
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), TRUE);
+  } else {
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), FALSE);
+  }
+  buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
+  gtk_text_buffer_set_text(buffer, g_strdup(text), -1);
+  /* Button row */
+  bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+  gtk_box_pack_start(GTK_BOX(main_box), bbox, FALSE, FALSE, 0);
+
+  ok_btn = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  gtk_widget_grab_focus(ok_btn);
+  gtk_widget_grab_default(ok_btn);
+  window_set_cancel_button(results_w, ok_btn, window_cancel_button_cb);
+
+  g_signal_connect(results_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  g_signal_connect(results_w, "destroy", G_CALLBACK(compile_bpf_destroy_cb), NULL);
+
+  gtk_widget_show_all(results_w);
+  window_present(results_w);
+}
+
+
+static void
 capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
   pcap_t *pd;
@@ -2245,14 +2300,13 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, 0) < 0) {
 #endif
     g_mutex_unlock(pcap_compile_mtx);
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", pcap_geterr(pd));
+    compile_results_win(g_strdup(pcap_geterr(pd)), 1);
   } else {
     GString *bpf_code_dump = g_string_new("");
     struct bpf_insn *insn = fcode.bf_insns;
     int i, n = fcode.bf_len;
 
     gchar *bpf_code_str;
-    gchar *bpf_code_markup;
 
     g_mutex_unlock(pcap_compile_mtx);
 
@@ -2262,12 +2316,9 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
     }
 
     bpf_code_str = g_string_free(bpf_code_dump, FALSE);
-    bpf_code_markup = g_markup_escape_text(bpf_code_str, -1);
-
-    simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "<markup><tt>%s</tt></markup>", bpf_code_markup);
+    compile_results_win(g_strdup(bpf_code_str), 0);
 
     g_free(bpf_code_str);
-    g_free(bpf_code_markup);
   }
   g_free(filter_text);
 
@@ -2897,8 +2948,8 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_widget_set_tooltip_text(help_bt,
     "Show help about capturing.");
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_OPTIONS_DIALOG);
-  gtk_widget_grab_default(ok_but);
   dlg_set_activate(filter_te, ok_but);
+  gtk_widget_grab_focus(filter_te);
   g_signal_connect(opt_edit_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
   g_signal_connect(opt_edit_w, "destroy", G_CALLBACK(options_edit_destroy_cb), NULL);
   gtk_widget_show_all(opt_edit_w);
@@ -4946,10 +4997,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
      widget that *doesn't* handle the Return key has the input focus. */
   /*dlg_set_activate(gtk_bin_get_child(GTK_BIN(if_cb)), ok_bt);*/
   dlg_set_activate(file_te, ok_bt);
-#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
   dlg_set_activate(all_filter_te, ok_bt);
   gtk_widget_grab_focus(all_filter_te);
-#endif
 
   g_signal_connect(cap_open_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
   g_signal_connect(cap_open_w, "destroy", G_CALLBACK(capture_prep_destroy_cb), NULL);
