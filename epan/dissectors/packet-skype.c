@@ -46,6 +46,13 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/conversation.h>
+
+/* Things we may want to remember for a whole conversation */
+typedef struct _skype_udp_conv_info_t {
+	guint32 global_src_ip;
+	guint32 global_dst_ip;
+} skype_udp_conv_info_t;
 
 /* protocol handles */
 static int proto_skype = -1;
@@ -118,13 +125,31 @@ static const value_string skype_type_vals[] = {
 };
 
 static int
-dissect_skype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_skype_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *skype_tree = NULL;
 	guint32 offset = 0;
 	guint32 packet_length;
 	guint8 packet_type, packet_unk;
+
+	conversation_t   *conversation = NULL;
+	skype_udp_conv_info_t *skype_udp_info;
+
+	/* look up the conversation */
+	conversation = find_or_create_conversation(pinfo);
+
+	/* if conversation found get the data pointer that you stored */
+	skype_udp_info = conversation_get_proto_data(conversation, proto_skype);
+	if (!skype_udp_info) {
+		/* new conversation create local data structure */
+		skype_udp_info = se_alloc(sizeof(skype_udp_conv_info_t));
+		skype_udp_info->global_src_ip = 0;
+		skype_udp_info->global_dst_ip = 0;
+		conversation_add_proto_data(conversation, proto_skype,
+			skype_udp_info);
+	}
+	/* at this point the conversation data is ready */
 
 	packet_type = tvb_get_guint8(tvb, 2) & SKYPE_SOM_TYPE_MASK;
 	packet_unk = (tvb_get_guint8(tvb, 2) & SKYPE_SOM_UNK_MASK) >> 4;
@@ -192,17 +217,21 @@ dissect_skype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case SKYPE_TYPE_NAT_INFO:
 			proto_tree_add_item(skype_tree, hf_skype_natinfo_srcip, tvb, offset, 4,
 				ENC_BIG_ENDIAN);
+			skype_udp_info->global_src_ip = tvb_get_ipv4(tvb, offset);
 			offset += 4;
 			proto_tree_add_item(skype_tree, hf_skype_natinfo_dstip, tvb, offset, 4,
 				ENC_BIG_ENDIAN);
+			skype_udp_info->global_dst_ip = tvb_get_ipv4(tvb, offset);
 			offset += 4;
 			break;
 		case SKYPE_TYPE_NAT_REPEAT:
 			proto_tree_add_item(skype_tree, hf_skype_natrequest_srcip, tvb, offset, 4,
 				ENC_BIG_ENDIAN);
+			skype_udp_info->global_src_ip = tvb_get_ipv4(tvb, offset);
 			offset += 4;
 			proto_tree_add_item(skype_tree, hf_skype_natrequest_dstip, tvb, offset, 4,
 				ENC_BIG_ENDIAN);
+			skype_udp_info->global_dst_ip = tvb_get_ipv4(tvb, offset);
 			offset += 4;
 			break;
 		case SKYPE_TYPE_AUDIO:
@@ -224,7 +253,7 @@ dissect_skype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-test_skype(tvbuff_t *tvb)
+test_skype_udp(tvbuff_t *tvb)
 {
 	/* Minimum of 3 bytes, check for valid message type */
 	guint length = tvb_length(tvb);
@@ -258,12 +287,12 @@ dissect_skype_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 
 static int
-dissect_skype_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_skype_udp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if ( !test_skype(tvb) ) {
+	if ( !test_skype_udp(tvb) ) {
 		return 0;
 	}
-	return dissect_skype(tvb, pinfo, tree);
+	return dissect_skype_udp(tvb, pinfo, tree);
 }
 
 void
@@ -368,7 +397,7 @@ proto_reg_handoff_skype(void)
 {
 	dissector_handle_t skype_handle;
 
-	skype_handle = new_create_dissector_handle(dissect_skype_static, proto_skype);
+	skype_handle = new_create_dissector_handle(dissect_skype_udp_static, proto_skype);
 	dissector_add_uint("udp.port", PORT_SKYPE_UDP, skype_handle);
 #if 0
 	dissector_add_uint("tcp.port", PORT_SKYPE_TCP, skype_handle);
