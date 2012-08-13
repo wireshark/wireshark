@@ -399,7 +399,7 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-        pi = proto_tree_add_protocol_format(tree, proto_hdcp,
+        pi = proto_tree_add_protocol_format(tree, proto_hdcp2,
                 tvb, 0, tvb_reported_length(tvb), "HDCPv2");
         hdcp_tree = proto_item_add_subtree(pi, ett_hdcp);
     }
