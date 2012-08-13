@@ -25,17 +25,19 @@
  */
 
 /*
+ * Documentation that formed the basis of the packet decoding:
  * https://github.com/matthiasbock/OpenSkype/wiki/Skype's-UDP-Format
-
-  TODO:
-  - Authentication
-  - TCP
-  - Conversation stuff (to obtain external IPs for decryption)
-  - Decryption (with given keys)
-  - CRC check
-  - Heuristics to reliably detect Skype traffic - most likely impossible
-    to implement in Wireshark (see http://en.wikipedia.org/wiki/Skype)
-  - Improve tests
+ * For additional information see: http://wiki.wireshark.org/Skype
+ *
+ *  TODO:
+ *  - Authentication
+ *  - TCP
+ *  - Conversation stuff (to obtain external IPs for decryption)
+ *  - Decryption (with given keys)
+ *  - Test CRC check (requires working decryption)
+ *  - Heuristics to reliably detect Skype traffic - most likely impossible
+ *    to implement in Wireshark (see http://en.wikipedia.org/wiki/Skype)
+ *  - Improve tests
  */
 
 #ifdef HAVE_CONFIG_H
@@ -74,10 +76,10 @@ static int hf_skype_ffr_crc = -1;
 static int hf_skype_ffr_enc_data = -1;
 /* Nat info */
 static int hf_skype_natinfo_srcip = -1;
-static int hf_skype_natinfo_unk1 = -1;
+static int hf_skype_natinfo_dstip = -1;
 /* Nat request */
 static int hf_skype_natrequest_srcip = -1;
-static int hf_skype_natrequest_unk1 = -1;
+static int hf_skype_natrequest_dstip = -1;
 /* Audio */
 static int hf_skype_audio_unk1 = -1;
 /* Unknown_f */
@@ -191,7 +193,7 @@ dissect_skype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(skype_tree, hf_skype_natinfo_srcip, tvb, offset, 4,
 				ENC_BIG_ENDIAN);
 			offset += 4;
-			proto_tree_add_item(skype_tree, hf_skype_natinfo_unk1, tvb, offset, 4,
+			proto_tree_add_item(skype_tree, hf_skype_natinfo_dstip, tvb, offset, 4,
 				ENC_BIG_ENDIAN);
 			offset += 4;
 			break;
@@ -199,7 +201,7 @@ dissect_skype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(skype_tree, hf_skype_natrequest_srcip, tvb, offset, 4,
 				ENC_BIG_ENDIAN);
 			offset += 4;
-			proto_tree_add_item(skype_tree, hf_skype_natrequest_unk1, tvb, offset, 4,
+			proto_tree_add_item(skype_tree, hf_skype_natrequest_dstip, tvb, offset, 4,
 				ENC_BIG_ENDIAN);
 			offset += 4;
 			break;
@@ -326,19 +328,19 @@ proto_register_skype(void)
 	/* Nat info */
 		{ &hf_skype_natinfo_srcip,
 		{ "Src IP",   "skype.natinfo.srcip", FT_IPv4, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
+			0x0, "Global source IP", HFILL }},
 
-		{ &hf_skype_natinfo_unk1,
-		{ "Unknown1",   "skype.natinfo.unk1", FT_UINT32, BASE_HEX, NULL,
-			0x0, NULL, HFILL }},
+		{ &hf_skype_natinfo_dstip,
+		{ "Dst IP",   "skype.natinfo.dstip", FT_UINT32, BASE_HEX, NULL,
+			0x0, "Global destination IP", HFILL }},
 
 	/* Nat request */
 		{ &hf_skype_natrequest_srcip,
 		{ "Src IP",   "skype.natrequest.srcip", FT_IPv4, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
+			0x0, "Global source IP", HFILL }},
 
-		{ &hf_skype_natrequest_unk1,
-		{ "Unknown1",   "skype.natrequest.unk1", FT_UINT32, BASE_HEX, NULL,
+		{ &hf_skype_natrequest_dstip,
+		{ "Dst IP",   "skype.natrequest.dstip", FT_UINT32, BASE_HEX, NULL,
 			0x0, NULL, HFILL }},
 
 	/* Audio */
