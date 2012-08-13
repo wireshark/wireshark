@@ -228,6 +228,7 @@ static GtkUIManager *ui_manager_columns = NULL;
 static GSList *popup_menu_list = NULL;
 #if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
 static GHashTable *compile_results = NULL;
+static GtkWidget *all_compile_bt;
 #endif
 
 static gint marked_interface;
@@ -2339,8 +2340,14 @@ update_options_table(gint index)
   #endif
       if (global_capture_opts.num_selected > 0) {
         gtk_widget_set_sensitive(ok_bt, TRUE);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+        gtk_widget_set_sensitive(all_compile_bt, TRUE);
+#endif
       } else {
         gtk_widget_set_sensitive(ok_bt, FALSE);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+        gtk_widget_set_sensitive(all_compile_bt, FALSE);
+#endif
       }
       gtk_tree_path_free (path);
       g_free(path_str);
@@ -2950,8 +2957,14 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
     }
     if (global_capture_opts.num_selected > 0) {
       gtk_widget_set_sensitive(ok_bt, TRUE);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+      gtk_widget_set_sensitive(all_compile_bt, TRUE);
+#endif
     } else {
       gtk_widget_set_sensitive(ok_bt, FALSE);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+      gtk_widget_set_sensitive(all_compile_bt, FALSE);
+#endif
     }
   /* do something with the new enabled value, and set the new
      enabled value in your treemodel */
@@ -2993,8 +3006,14 @@ void enable_selected_interface(gchar *name, gboolean selected)
   while (gtk_tree_model_iter_next(model, &iter));
   if (global_capture_opts.num_selected > 0) {
     gtk_widget_set_sensitive(ok_bt, TRUE);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+    gtk_widget_set_sensitive(all_compile_bt, TRUE);
+#endif
   } else {
     gtk_widget_set_sensitive(ok_bt, FALSE);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+    gtk_widget_set_sensitive(all_compile_bt, FALSE);
+#endif
   }
 }
 
@@ -3037,8 +3056,14 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
   }
   if (global_capture_opts.num_selected > 0) {
     gtk_widget_set_sensitive(ok_bt, TRUE);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+    gtk_widget_set_sensitive(all_compile_bt, TRUE);
+#endif
   } else {
     gtk_widget_set_sensitive(ok_bt, FALSE);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+    gtk_widget_set_sensitive(all_compile_bt, FALSE);
+#endif
   }
 }
 
@@ -3178,8 +3203,14 @@ static void change_pipe_name_cb(gpointer dialog _U_, gint btn, gpointer data)
           }
           if (global_capture_opts.num_selected > 0) {
             gtk_widget_set_sensitive(ok_bt, TRUE);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+            gtk_widget_set_sensitive(all_compile_bt, TRUE);
+#endif
           } else {
             gtk_widget_set_sensitive(ok_bt, FALSE);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+            gtk_widget_set_sensitive(all_compile_bt, FALSE);
+#endif
           }
           refresh_non_local_interface_lists();
           break;
@@ -3299,8 +3330,14 @@ add_pipe_cb(gpointer w _U_)
 #endif
     if (global_capture_opts.num_selected > 0) {
       gtk_widget_set_sensitive(ok_bt, TRUE);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+      gtk_widget_set_sensitive(all_compile_bt, TRUE);
+#endif
     } else {
       gtk_widget_set_sensitive(ok_bt, FALSE);
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
+      gtk_widget_set_sensitive(all_compile_bt, FALSE);
+#endif
     }
 
     /* Refresh all places that are displaying an interface list
@@ -4196,9 +4233,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *e_resolv_cb,
                 *bbox, *close_bt,
                 *all_filter_cm, *all_filter_te, *all_filter_bt, *all_filter_hb,
-#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
-                *all_compile_bt,
-#endif
                 *all_vb,
                 *help_bt;
 #ifdef HAVE_AIRPCAP
@@ -4530,6 +4564,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
    "Compile the capture filter expression and show the BPF (Berkeley Packet Filter) code.");
   /* We can't compile without any supported link-types, so disable the button in that case */
   gtk_box_pack_start(GTK_BOX(all_filter_hb), all_compile_bt, FALSE, FALSE, 3);
+  if (global_capture_opts.num_selected > 0) {
+    gtk_widget_set_sensitive(all_compile_bt, TRUE);
+  } else {
+    gtk_widget_set_sensitive(all_compile_bt, FALSE);
+  }
 #endif
 
   /* Capture file-related options frame */
