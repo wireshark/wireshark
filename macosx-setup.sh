@@ -200,15 +200,17 @@ cd ..
 # Now we have reached a point where we can build everything but
 # the GUI (Wireshark).
 #
-
+# Cairo is part of Mac OS X 10.6 and 10.7.
+# The *headers* are supplied by 10.5, but the *libraries* aren't, so
+# we have to build it on 10.5.
+# GTK+ 3 requires a newer Cairo build than the one that comes with
+# 10.6, so we build Cairo if we are using GTK+ 3.
+# In 10.6 and 10.7, it's an X11 library; if we build with "native" GTK+
+# rather than X11 GTK+, we might have to build and install Cairo.
+#
 if [[ -n "$GTK3" || $MACOSX_VERSION = "9" ]]; then
   #
-  # Cairo is part of Mac OS X 10.6, but broken in 10.5.
-  # However, it's an X11 library; if we build with "native" GTK+ rather
-  # than X11 GTK+, we might have to build and install Cairo.
-  # GTK+-3 requires a newer cairo build as well.
-  #
-  # Requirements for cairo first
+  # Requirements for Cairo first
   #
   echo "Downloading, building, and installing libpng:"
   curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-$PNG_VERSION.tar.xz
@@ -229,7 +231,7 @@ if [[ -n "$GTK3" || $MACOSX_VERSION = "9" ]]; then
   cd ..
 
   #
-  # And now cairo itself.
+  # And now Cairo itself.
   #
   echo "Downloading, building, and installing Cairo:"
   curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
