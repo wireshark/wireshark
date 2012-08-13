@@ -8,6 +8,8 @@
 # http://nplab.fh-muenster.de/groups/wiki/wiki/fb7a4/Building_Wireshark_on_SnowLeopard.html
 #
 
+MACOSX_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
+
 # To set up a GTK3 environment
 # GTK3=1
 # To build cmake
@@ -199,9 +201,9 @@ cd ..
 # the GUI (Wireshark).
 #
 
-if [ -n "$GTK3" ]; then
+if [[ -n "$GTK3" || $MACOSX_VERSION = "9" ]]; then
   #
-  # Cairo is part of Mac OS X 10.6 (and, I think, 10.5).
+  # Cairo is part of Mac OS X 10.6, but broken in 10.5.
   # However, it's an X11 library; if we build with "native" GTK+ rather
   # than X11 GTK+, we might have to build and install Cairo.
   # GTK+-3 requires a newer cairo build as well.
