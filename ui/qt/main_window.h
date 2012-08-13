@@ -35,6 +35,7 @@
 #include <QMainWindow>
 #include <QSplitter>
 #include "main_welcome.h"
+#include "packet_list.h"
 #include "display_filter_combo.h"
 #include "progress_bar.h"
 
@@ -62,6 +63,7 @@ private:
     MainWelcome *mainWelcome;
     DisplayFilterCombo *dfComboBox;
     capture_file *capFile;
+    PacketList *m_packetList;
 
 signals:
     void showProgress(progdlg_t **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
@@ -77,6 +79,10 @@ private slots:
     void updateRecentFiles();
     void openCaptureFile(QString& cfPath = *new QString());
     void recentActionTriggered();
+    void on_actionGoNextPacket_triggered();
+    void on_actionGoPreviousPacket_triggered();
+    void on_actionGoFirstPacket_triggered();
+    void on_actionGoLastPacket_triggered();
     void on_actionHelpWebsite_triggered();
     void on_actionHelpFAQ_triggered();
     void on_actionHelpAsk_triggered();

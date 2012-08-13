@@ -94,27 +94,19 @@ g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: new_packet_list_resize_column %d", col);
 void
 new_packet_list_select_first_row(void)
 {
-    cur_packet_list->setCurrentIndex(cur_packet_list->packetListModel()->index(0,0));
+    if (!cur_packet_list)
+        return;
+    cur_packet_list->goToFirst();
     cur_packet_list->setFocus();
 }
 
 void
 new_packet_list_select_last_row(void)
 {
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: new_packet_list_select_last_row");
-//    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
-//    GtkTreeIter iter;
-//    gint children;
-//    guint last_row;
-
-//    if((children = gtk_tree_model_iter_n_children(model, NULL)) == 0)
-//        return;
-
-//    last_row = children-1;
-//    if(!gtk_tree_model_iter_nth_child(model, &iter, NULL, last_row))
-//        return;
-
-//    scroll_to_and_select_iter(model, NULL, &iter);
+    if (!cur_packet_list)
+        return;
+    cur_packet_list->goToLast();
+    cur_packet_list->setFocus();
 }
 
 /*
@@ -224,32 +216,8 @@ new_packet_list_get_row_data(gint row)
 void
 new_packet_list_moveto_end(void)
 {
-//    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
-//    GtkTreeIter iter;
-//    GtkTreePath *path;
-//    gint children;
-//    guint last_row;
-
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: new_packet_list_moveto_end");
-
-//    if((children = gtk_tree_model_iter_n_children(model, NULL)) == 0)
-//        return;
-
-//    last_row = children-1;
-//    if(!gtk_tree_model_iter_nth_child(model, &iter, NULL, last_row))
-//        return;
-
-//    path = gtk_tree_model_get_path(model, &iter);
-
-//    gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(packetlist->view),
-//                                 path,
-//                                 NULL,
-//                                 TRUE,	/* use_align */
-//                                 0.5,	/* row_align determines where the row is placed, 0.5 means center */
-//                                 0); 	/* The horizontal alignment of the column */
-
-//    gtk_tree_path_free(path);
-
+    if (cur_packet_list)
+        cur_packet_list->goToLast();
 }
 
 /* Redraw the packet list *and* currently-selected detail */
@@ -409,4 +377,22 @@ void PacketList::writeRecent(FILE *rf) {
     }
     fprintf (rf, "\n");
 
+}
+
+#include <QDebug>
+
+void PacketList::goToNext(void) {
+    setCurrentIndex(moveCursor(MoveDown, Qt::NoModifier));
+}
+
+void PacketList::goToPrev(void) {
+    setCurrentIndex(moveCursor(MoveUp, Qt::NoModifier));
+}
+
+void PacketList::goToFirst(void) {
+    setCurrentIndex(moveCursor(MoveHome, Qt::NoModifier));
+}
+
+void PacketList::goToLast(void) {
+    setCurrentIndex(moveCursor(MoveEnd, Qt::NoModifier));
 }

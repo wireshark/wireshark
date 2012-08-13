@@ -42,6 +42,10 @@ public:
     void setByteViewTab(ByteViewTab *byteViewTab);
     void clear();
     void writeRecent(FILE *rf);
+    void goToNext();
+    void goToPrev();
+    void goToFirst();
+    void goToLast();
 
 protected:
     void showEvent (QShowEvent *event);

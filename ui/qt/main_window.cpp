@@ -35,7 +35,6 @@
 #include "ui/main_statusbar.h"
 
 #include "wireshark_application.h"
-#include "packet_list.h"
 #include "proto_tree.h"
 #include "byte_view_tab.h"
 #include "capture_file_dialog.h"
@@ -86,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
     splitterV->setObjectName(QString::fromUtf8("splitterV"));
     splitterV->setOrientation(Qt::Vertical);
 
-    PacketList *packetList = new PacketList(splitterV);
+    m_packetList = new PacketList(splitterV);
 
     ProtoTree *protoTree = new ProtoTree(splitterV);
     protoTree->setHeaderHidden(true);
@@ -95,10 +94,10 @@ MainWindow::MainWindow(QWidget *parent) :
     byteViewTab->setTabPosition(QTabWidget::South);
     byteViewTab->setDocumentMode(true);
 
-    packetList->setProtoTree(protoTree);
-    packetList->setByteViewTab(byteViewTab);
+    m_packetList->setProtoTree(protoTree);
+    m_packetList->setByteViewTab(byteViewTab);
 
-    splitterV->addWidget(packetList);
+    splitterV->addWidget(m_packetList);
     splitterV->addWidget(protoTree);
     splitterV->addWidget(byteViewTab);
 
@@ -136,6 +135,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     if (event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_Slash) {
         dfComboBox->setFocus(Qt::ShortcutFocusReason);
         return;
+    }
+
+    if (event->key() == Qt::Key_F7) {
+        m_packetList->goToPrev();
+    } else if (event->key() == Qt::Key_F8) {
+        m_packetList->goToNext();
     }
 
     QMainWindow::keyPressEvent(event);
@@ -191,9 +196,26 @@ void MainWindow::captureFileClosing(const capture_file *cf) {
 //    gtk_widget_show(expert_info_none);
 }
 
-/* Help Menu */
-void MainWindow::on_actionHelpWebsite_triggered() {
+// Go Menu
 
+void MainWindow::on_actionGoNextPacket_triggered() {
+    m_packetList->goToNext();
+}
+
+void MainWindow::on_actionGoPreviousPacket_triggered() {
+    m_packetList->goToPrev();
+}
+
+void MainWindow::on_actionGoFirstPacket_triggered() {
+    m_packetList->goToFirst();
+}
+
+void MainWindow::on_actionGoLastPacket_triggered() {
+    m_packetList->goToLast();
+}
+
+// Help Menu
+void MainWindow::on_actionHelpWebsite_triggered() {
     QDesktopServices::openUrl(QUrl("http://www.wireshark.org"));
 }
 
