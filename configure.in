@@ -2,7 +2,7 @@
 #
 AC_PREREQ(2.60)
 
-AC_INIT(wireshark, 1.9.0)
+AC_INIT(wireshark, 1.9.0, http://bugs.wireshark.org/, , http://www.wireshark.org/)
 
 dnl Check for CPU / vendor / OS
 dnl The user is encouraged to use either `AC_CANONICAL_BUILD', or
