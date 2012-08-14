@@ -75,5 +75,8 @@
 #define PROTO_3GPP_RNA_PROTOCOL_ID      42
 #define PROTO_3GPP_M2AP_PROTOCOL_ID     43
 #define PROTO_3GPP_M3AP_PROTOCOL_ID     44
+#define DIAMETER_PROTOCOL_ID            46
+#define DIAMETER_DTLS_PROTOCOL_ID       47
+#define R14P_BER_PROTOCOL_ID            48
 #define M2TP_PAYLOAD_PROTOCOL_ID        99    /* s-link */
 #endif /* sctpppids.h */

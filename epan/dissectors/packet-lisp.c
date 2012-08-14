@@ -265,7 +265,7 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree, g
             tir = proto_tree_add_text(lisp_tree, tvb, 0, 12 + INET_ADDRLEN,
                     "EID prefix: %s/%d, TTL: %s, %sAuthoritative, %s",
                     ip_to_str((guint8 *)&prefix_v4), prefix_mask,
-                    (ttl == 0xFFFFFFFF) ? "Unlimited" : g_strdup_printf("%d", ttl),
+                    (ttl == 0xFFFFFFFF) ? "Unlimited" : ep_strdup_printf("%d", ttl),
                     (flags&LISP_MAP_AUTH) ? "" : "Not ", lisp_actions[act]);
             offset += INET_ADDRLEN;
             /* Update the INFO column if there is only one record */
@@ -278,7 +278,7 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree, g
             tir = proto_tree_add_text(lisp_tree, tvb, 0, 12 + INET6_ADDRLEN,
                     "EID prefix: %s/%d, TTL: %s, %sAuthoritative, %s",
                     ip6_to_str(&prefix_v6), prefix_mask,
-                    (ttl == 0xFFFFFFFF) ? "Unlimited" : g_strdup_printf("%d", ttl),
+                    (ttl == 0xFFFFFFFF) ? "Unlimited" : ep_strdup_printf("%d", ttl),
                     (flags&LISP_MAP_AUTH) ? "" : "Not ", lisp_actions[act]);
             offset += INET6_ADDRLEN;
             /* Update the INFO column if there is only one record */
