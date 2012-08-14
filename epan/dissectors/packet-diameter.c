@@ -61,6 +61,7 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/diam_dict.h>
+#include <epan/sctpppids.h>
 #include "packet-tcp.h"
 #include "packet-diameter.h"
 
@@ -1841,6 +1842,8 @@ proto_reg_handoff_diameter(void)
 							      proto_diameter);
 		data_handle = find_dissector("data");
 		eap_handle = find_dissector("eap");
+
+		dissector_add_uint("sctp.ppi", DIAMETER_PROTOCOL_ID, diameter_sctp_handle);
 
 		/* Register special decoding for some AVP:s */
 		/* AVP Code: 97 Framed-IPv6-Address */
