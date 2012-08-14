@@ -60,11 +60,11 @@
      </property>
      <addaction name="actionDummyNoFilesFound"/>
     </widget>
-    <addaction name="actionOpenCaptureFile"/>
+    <addaction name="actionFileOpen"/>
     <addaction name="menuOpenRecentCaptureFile"/>
     <addaction name="separator"/>
-    <addaction name="actionCloseCaptureFile"/>
-    <addaction name="actionQuit"/>
+    <addaction name="actionFileClose"/>
+    <addaction name="actionFileQuit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -170,17 +170,23 @@
     <bool>true</bool>
    </attribute>
   </widget>
-  <action name="actionOpenCaptureFile">
+  <action name="actionFileOpen">
    <property name="text">
     <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open a capture file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionQuit">
+  <action name="actionFileQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+   <property name="toolTip">
+    <string>Quit Wireshark</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -222,9 +228,12 @@
     <string>Stop capturing packets</string>
    </property>
   </action>
-  <action name="actionCloseCaptureFile">
+  <action name="actionFileClose">
    <property name="text">
     <string>Close</string>
+   </property>
+   <property name="toolTip">
+    <string>Close the current capture file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
@@ -400,7 +409,7 @@
  </resources>
  <connections>
   <connection>
-   <sender>actionQuit</sender>
+   <sender>actionFileQuit</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>close()</slot>
@@ -415,41 +424,5 @@
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>actionOpenCaptureFile</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>openCaptureFile()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>408</x>
-     <y>258</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionCloseCaptureFile</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>closeCaptureFile()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>479</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
- <slots>
-  <slot>openCaptureFile()</slot>
-  <slot>closeCaptureFile()</slot>
- </slots>
 </ui>

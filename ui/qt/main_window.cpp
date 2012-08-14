@@ -106,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mainWelcome = new MainWelcome(ui->mainStack);
     ui->mainStack->addWidget(mainWelcome);
     connect(mainWelcome, SIGNAL(recentFileActivated(QString&)),
-            this, SLOT(openCaptureFile(QString&)));
+            this, SLOT(on_actionFileOpen_triggered(QString&)));
 
     connect(wsApp, SIGNAL(captureFileReadStarted(const capture_file*)),
             this, SLOT(captureFileReadStarted(const capture_file*)));
@@ -255,12 +255,64 @@ void MainWindow::captureFileClosed(const capture_file *cf) {
     capFile = NULL;
 }
 
-void MainWindow::closeCaptureFile() {
-    cf_close(&cfile);
-    ui->mainStack->setCurrentWidget(mainWelcome);
+// XXX - Copied from ui/gtk/menus.c
+
+/**
+ * Add the capture filename (with an absolute path) to the "Recent Files" menu.
+ *
+ * @param cf_name Absolute path to the file.
+ * @param first Prepend the filename if true, otherwise append it. Default is false (append).
+ */
+// XXX - We should probably create a RecentFile class.
+void MainWindow::updateRecentFiles() {
+    QAction *ra;
+    QMenu *recentMenu = ui->menuOpenRecentCaptureFile;
+    QString action_cf_name;
+
+    if (!recentMenu) {
+        return;
+    }
+
+    recentMenu->clear();
+
+    /* Iterate through the actions in menuOpenRecentCaptureFile,
+     * removing special items, a maybe duplicate entry and every item above count_max */
+    int shortcut = Qt::Key_0;
+    foreach (recent_item_status *ri, wsApp->recent_item_list()) {
+        // Add the new item
+        ra = new QAction(recentMenu);
+        ra->setData(ri->filename);
+        // XXX - Needs get_recent_item_status or equivalent
+        ra->setEnabled(ri->accessible);
+        recentMenu->insertAction(NULL, ra);
+        action_cf_name = ra->data().toString();
+        if (shortcut <= Qt::Key_9) {
+            ra->setShortcut(Qt::META | shortcut);
+            shortcut++;
+        }
+        ra->setText(action_cf_name);
+        connect(ra, SIGNAL(triggered()), this, SLOT(recentActionTriggered()));
+    }
+
+    if (recentMenu->actions().count() > 0) {
+        // Separator + "Clear"
+        // XXX - Do we really need this?
+        ra = new QAction(recentMenu);
+        ra->setSeparator(true);
+        recentMenu->insertAction(NULL, ra);
+
+        ra = new QAction(recentMenu);
+        ra->setText(tr("Clear Menu"));
+        recentMenu->insertAction(NULL, ra);
+        connect(ra, SIGNAL(triggered()), wsApp, SLOT(clearRecentItems()));
+    } else {
+        if (ui->actionDummyNoFilesFound) {
+            recentMenu->addAction(ui->actionDummyNoFilesFound);
+        }
+    }
 }
 
-void MainWindow::openCaptureFile(QString &cfPath)
+void MainWindow::on_actionFileOpen_triggered(QString &cfPath)
 {
     QString fileName = "";
     QString displayFilter = "";
@@ -336,68 +388,16 @@ void MainWindow::openCaptureFile(QString &cfPath)
     ui->statusBar->showExpert();
 }
 
+void MainWindow::on_actionFileClose_triggered() {
+    cf_close(&cfile);
+    ui->mainStack->setCurrentWidget(mainWelcome);
+}
+
 void MainWindow::recentActionTriggered() {
     QAction *ra = qobject_cast<QAction*>(sender());
 
     if (ra) {
         QString cfPath = ra->data().toString();
-        openCaptureFile(cfPath);
-    }
-}
-
-// XXX - Copied from ui/gtk/menus.c
-
-/**
- * Add the capture filename (with an absolute path) to the "Recent Files" menu.
- *
- * @param cf_name Absolute path to the file.
- * @param first Prepend the filename if true, otherwise append it. Default is false (append).
- */
-// XXX - We should probably create a RecentFile class.
-void MainWindow::updateRecentFiles() {
-    QAction *ra;
-    QMenu *recentMenu = ui->menuOpenRecentCaptureFile;
-    QString action_cf_name;
-
-    if (!recentMenu) {
-        return;
-    }
-
-    recentMenu->clear();
-
-    /* Iterate through the actions in menuOpenRecentCaptureFile,
-     * removing special items, a maybe duplicate entry and every item above count_max */
-    int shortcut = Qt::Key_0;
-    foreach (recent_item_status *ri, wsApp->recent_item_list()) {
-        // Add the new item
-        ra = new QAction(recentMenu);
-        ra->setData(ri->filename);
-        // XXX - Needs get_recent_item_status or equivalent
-        ra->setEnabled(ri->accessible);
-        recentMenu->insertAction(NULL, ra);
-        action_cf_name = ra->data().toString();
-        if (shortcut <= Qt::Key_9) {
-            ra->setShortcut(Qt::META | shortcut);
-            shortcut++;
-        }
-        ra->setText(action_cf_name);
-        connect(ra, SIGNAL(triggered()), this, SLOT(recentActionTriggered()));
-    }
-
-    if (recentMenu->actions().count() > 0) {
-        // Separator + "Clear"
-        // XXX - Do we really need this?
-        ra = new QAction(recentMenu);
-        ra->setSeparator(true);
-        recentMenu->insertAction(NULL, ra);
-
-        ra = new QAction(recentMenu);
-        ra->setText(tr("Clear Menu"));
-        recentMenu->insertAction(NULL, ra);
-        connect(ra, SIGNAL(triggered()), wsApp, SLOT(clearRecentItems()));
-    } else {
-        if (ui->actionDummyNoFilesFound) {
-            recentMenu->addAction(ui->actionDummyNoFilesFound);
-        }
+        on_actionFileOpen_triggered(cfPath);
     }
 }

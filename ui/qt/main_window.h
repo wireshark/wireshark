@@ -75,9 +75,9 @@ public slots:
     void captureFileClosed(const capture_file *cf);
 
 private slots:
-    void closeCaptureFile();
     void updateRecentFiles();
-    void openCaptureFile(QString& cfPath = *new QString());
+    void on_actionFileOpen_triggered(QString& cfPath = *new QString());
+    void on_actionFileClose_triggered();
     void recentActionTriggered();
     void on_actionGoNextPacket_triggered();
     void on_actionGoPreviousPacket_triggered();
