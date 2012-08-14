@@ -1846,9 +1846,6 @@ get_CDR_fixed(tvb, &seq, offset, @digits@, @scale@);
 if (tree) {
    proto_tree_add_text(tree,tvb,*offset-@length@, @length@, "@varname@ < @digits@, @scale@> = %s",seq);
 }
-
-g_free(seq);          /*  free buffer  */
-seq = NULL;
 """
     template_get_CDR_enum_symbolic = """\
 
@@ -1867,8 +1864,6 @@ if (tree) {
       u_octet4, (u_octet4 > 0) ? seq : \"\");
 }
 
-g_free(seq);          /*  free buffer  */
-seq = NULL;
 """
     template_get_CDR_wchar = """\
 s_octet1 = get_CDR_wchar(tvb, &seq, offset, header);
@@ -1884,8 +1879,6 @@ if (tree) {
 
 }
 
-g_free(seq);          /*  free buffer  */
-seq = NULL;
 """
     template_get_CDR_TypeCode = """\
 u_octet4 = get_CDR_typeCode(tvb, tree, offset, stream_is_big_endian, boundary, header);
@@ -1917,8 +1910,6 @@ if (u_octet4_loop_@seqname@ > 0 && tree) {
         u_octet4_loop_@seqname@);
     proto_tree_add_text(tree, tvb, *offset - u_octet4_loop_@seqname@,
         u_octet4_loop_@seqname@, \"@seqname@: %s\", text_seq_@seqname@);
-    g_free(binary_seq_@seqname@);
-    g_free(text_seq_@seqname@);
 }
 """
     template_get_CDR_array_start = """\
