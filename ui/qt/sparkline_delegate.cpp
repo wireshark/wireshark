@@ -24,8 +24,7 @@
 #include "sparkline_delegate.h"
 
 #include <QPainter>
-
-#include <QDebug>
+#include <QApplication>
 
 #define MIN_WIDTH 10
 
@@ -67,11 +66,11 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
     painter->save();
 
-#ifdef Q_WS_WIN
-    // QWindowsVistaStyle::drawControl does this internally. Unfortunately there
-    // doesn't appear to be a way to do this dynamically.
-    optv4.palette.setColor(QPalette::All, QPalette::HighlightedText, optv4.palette.color(QPalette::Active, QPalette::Text));
-#endif
+    if (QApplication::style()->objectName().contains("vista")) {
+        // QWindowsVistaStyle::drawControl does this internally. Unfortunately there
+        // doesn't appear to be a more general way to do this.
+        optv4.palette.setColor(QPalette::All, QPalette::HighlightedText, optv4.palette.color(QPalette::Active, QPalette::Text));
+    }
 
     QPalette::ColorGroup cg = optv4.state & QStyle::State_Enabled
                               ? QPalette::Normal : QPalette::Disabled;
