@@ -40,6 +40,8 @@
 void
 color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
 {
+    Q_UNUSED(colorf);
+    Q_UNUSED(user_data);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: color_filter_add_cb");
 //    GtkWidget        *color_filters = user_data;
 

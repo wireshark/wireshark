@@ -38,6 +38,8 @@ void capture_info_ui_create(
 capture_info    *cinfo,
 capture_options *capture_opts)
 {
+    Q_UNUSED(cinfo);
+    Q_UNUSED(capture_opts);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: capture_info_ui_create");
 }
 
@@ -47,6 +49,7 @@ capture_options *capture_opts)
 void capture_info_ui_update(
 capture_info    *cinfo)
 {
+    Q_UNUSED(cinfo);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: capture_info_ui_update");
 }
 
@@ -54,6 +57,7 @@ capture_info    *cinfo)
 void capture_info_ui_destroy(
 capture_info    *cinfo)
 {
+    Q_UNUSED(cinfo);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: capture_info_ui_destroy");
 }
 

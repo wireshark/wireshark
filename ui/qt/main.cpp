@@ -154,6 +154,11 @@ extern capture_options global_capture_opts;
 // Copied from ui/gtk/gui_utils.c
 void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
 {
+    Q_UNUSED(source);
+    Q_UNUSED(user_data);
+    Q_UNUSED(child_process);
+    Q_UNUSED(input_cb);
+
 //    static pipe_input_t pipe_input;
 
 //    pipe_input.source        = source;
@@ -619,12 +624,12 @@ int main(int argc, char *argv[])
     MainWindow *w;
 
     char                *init_progfile_dir_error;
-    char                *s;
+//    char                *s;
     int                  opt;
-    gboolean             arg_error = FALSE;
+//    gboolean             arg_error = FALSE;
 
-    extern int           info_update_freq;  /* Found in about_dlg.c. */
-    const gchar         *filter;
+//    extern int           info_update_freq;  /* Found in about_dlg.c. */
+//    const gchar         *filter;
 
 #ifdef _WIN32
     WSADATA 	       wsaData;
@@ -635,8 +640,8 @@ int main(int argc, char *argv[])
     char                *gdp_path, *dp_path;
     int                  err;
 #ifdef HAVE_LIBPCAP
-    gboolean             start_capture = FALSE;
-    gboolean             list_link_layer_types = FALSE;
+//    gboolean             start_capture = FALSE;
+//    gboolean             list_link_layer_types = FALSE;
     GList               *if_list;
     gchar               *err_str;
 #else
@@ -647,17 +652,17 @@ int main(int argc, char *argv[])
 #endif
 #endif
 #endif
-    gint                 pl_size = 280, tv_size = 95, bv_size = 75;
-    gchar               *rc_file, *cf_name = NULL, *rfilter = NULL, *jfilter = NULL;
-    dfilter_t           *rfcode = NULL;
-    gboolean             rfilter_parse_failed = FALSE;
+//    gint                 pl_size = 280, tv_size = 95, bv_size = 75;
+//    gchar               *rc_file, *cf_name = NULL, *rfilter = NULL, *jfilter = NULL;
+//    dfilter_t           *rfcode = NULL;
+//    gboolean             rfilter_parse_failed = FALSE;
     e_prefs             *prefs_p;
-    char                 badopt;
+//    char                 badopt;
     //GtkWidget           *splash_win = NULL;
     GLogLevelFlags       log_flags;
-    guint                go_to_packet = 0;
-    gboolean             jump_backwards = FALSE;
-    dfilter_t           *jump_to_filter = NULL;
+//    guint                go_to_packet = 0;
+//    gboolean             jump_backwards = FALSE;
+//    dfilter_t           *jump_to_filter = NULL;
     int                  optind_initial;
     int                  status;
 

@@ -1398,7 +1398,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     double      cur_time;
     gboolean    is_breaked = FALSE;
 
-    for (i = EWFD_PT_FORMAT; i <= EWFD_PTX_ELAPSED; i++) {
+    for (i = EWFD_PTX_FORMAT; i <= EWFD_PTX_ELAPSED; i++) {
         cur_ctrl = GetDlgItem(of_hwnd, i);
         if (cur_ctrl) {
             EnableWindow(cur_ctrl, FALSE);

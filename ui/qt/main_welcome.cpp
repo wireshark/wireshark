@@ -202,7 +202,7 @@ void MainWelcome::updateRecentFiles() {
         rfRow++;
     }
 
-    while (m_recent_files.count() > prefs.gui_recent_files_count_max) {
+    while (m_recent_files.count() > (int) prefs.gui_recent_files_count_max) {
         m_recent_files.takeItem(m_recent_files.count());
     }
 }
