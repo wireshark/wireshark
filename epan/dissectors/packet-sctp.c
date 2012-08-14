@@ -384,6 +384,9 @@ static const value_string sctp_payload_proto_id_values[] = {
   { PROTO_3GPP_M2AP_PROTOCOL_ID,         "3GPP M2AP" },
   { PROTO_3GPP_M3AP_PROTOCOL_ID,         "3GPP M3AP" },
   { SSH_PAYLOAD_PROTOCOL_ID,             "SSH" },
+  { DIAMETER_PROTOCOL_ID,                "DIAMETER" },
+  { DIAMETER_DTLS_PROTOCOL_ID,           "DIAMETER OVER DTLS" },
+  { R14P_BER_PROTOCOL_ID,                "R14P" },
   { 0,                                   NULL } };
 
 
