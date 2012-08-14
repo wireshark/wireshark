@@ -319,6 +319,16 @@ win32 {
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-$${WTAP_VERSION} \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0
 
+    CONFIG(debug, debug|release) {
+        EXTRA_BINFILES += \
+            $$QMAKE_LIBDIR_QT/QtCored4.dll \
+            $$QMAKE_LIBDIR_QT/QtGuid4.dll
+    } else:CONFIG(release, debug|release) {
+        EXTRA_BINFILES += \
+            $$QMAKE_LIBDIR_QT/QtCore4.dll \
+            $$QMAKE_LIBDIR_QT/QtGui4.dll
+    }
+
     EXTRA_BINFILES += \
         ../../dumpcap.exe \
         ../../epan/libwireshark.dll ../../wiretap/wiretap-$${WTAP_VERSION}.dll ../../wsutil/libwsutil.dll \
