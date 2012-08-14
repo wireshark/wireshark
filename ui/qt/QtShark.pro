@@ -116,7 +116,7 @@ win32 {
         error("Can't find config.pri. Have you run 'nmake -f Makefile.nmake' two directories up?")
     }
 
-    DESTDIR = wireshark-qt
+    DESTDIR = ../../wireshark-qt
 
     !wireshark_manifest_info_required {
         CONFIG -= embed_manifest_dll
@@ -326,7 +326,7 @@ win32 {
         $${GLIB_DIR}/bin/libgthread-2.0-0.dll $${GLIB_DIR}/bin/$${INTL_DLL} \
         $${C_ARES_DIR}/bin/libcares-2.dll $${ZLIB_DIR}/zlib1.dll \
         $${GNUTLS_DIR}/bin/libgcrypt-11.dll $${GNUTLS_DIR}/bin/libgnutls-26.dll \
-        $${GNUTLS_DIR}/bin/libgpg-error-0.dll $${GNUTLS_DIR}/bin/ $${GNUTLS_DIR}/bin/libtasn1-3.dll \
+        $${GNUTLS_DIR}/bin/libgpg-error-0.dll $${GNUTLS_DIR}/bin/libtasn1-3.dll \
         $${GNUTLS_DIR}/bin/libintl-8.dll $${SMI_DIR}/bin/libsmi-2.dll \
         $${LUA_DIR}/lua5.1.dll \
         $${GEOIP_DIR}/bin/libGeoIP-1.dll \
