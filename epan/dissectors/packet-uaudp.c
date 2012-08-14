@@ -666,7 +666,7 @@ void proto_reg_handoff_uaudp(void)
         else
         {
             use_sys_ip = FALSE;
-            pref_sys_ip_s = g_strdup("");
+            pref_sys_ip_s = "";
         }
     }
 

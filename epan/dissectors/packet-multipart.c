@@ -167,8 +167,6 @@ static gint
 is_known_multipart_header(const char *header_str, guint len);
 static gint
 index_of_char(const char *str, const char c);
-static char *
-unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset);
 
 
 /* Return a tvb that contains the binary representation of a base64
@@ -209,7 +207,7 @@ unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset)
 	if (! lines) return NULL;
 
 	c = *p;
-	ret = g_malloc(strlen(lines) + 1);
+	ret = ep_alloc(strlen(lines) + 1);
 	q = ret;
 
 	while (c) {
@@ -414,7 +412,6 @@ get_multipart_info(packet_info *pinfo)
 	start = find_parameter(parameters, "boundary=", &len);
 
 	if(!start) {
-		g_free(parameters);
 		return NULL;
 	}
 
@@ -425,7 +422,6 @@ get_multipart_info(packet_info *pinfo)
 	m_info->type = type;
 	m_info->boundary = g_strndup(start, len);
 	m_info->boundary_length = len;
-	g_free(parameters);
 
 	return m_info;
 }
@@ -709,7 +705,6 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 				}
 			}
 		}
-		g_free(header_str);
 		offset = next_offset;
 	}
 

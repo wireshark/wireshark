@@ -2030,10 +2030,9 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
 
         /*Fix the key into a byte block*/
         /*TODO: This should be done in a preferences callback function*/
-        out = g_malloc0( strlen(global_rlc_kasumi_key)+1);
+        out = ep_alloc0( strlen(global_rlc_kasumi_key)+1);
         memcpy(out,global_rlc_kasumi_key,strlen(global_rlc_kasumi_key));    /*Copy from prefrence const pointer*/
         key_in = translate_hex_key(out);    /*Translation*/
-        g_free(out);
 
         /*Location for decrypted data*/
         out = g_malloc( tvb_length(tvb) );

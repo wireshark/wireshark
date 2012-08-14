@@ -201,12 +201,7 @@ Cmd_Argv_length(int arg)
 static void
 Cmd_TokenizeString(char* text)
 {
-	int i;
 	int start;
-
-	/* clear the args from the last string */
-	for (i=0 ; i<cmd_argc ; i++)
-		g_free(cmd_argv[i]);
 
 	cmd_argc = 0;
 
@@ -233,7 +228,7 @@ Cmd_TokenizeString(char* text)
 			return;
 
 		if (cmd_argc < MAX_ARGS) {
-			cmd_argv[cmd_argc] = g_strdup(com_token);
+			cmd_argv[cmd_argc] = ep_strdup(com_token);
 			cmd_argv_start[cmd_argc] = start + com_token_start;
 			cmd_argv_length[cmd_argc] = com_token_length;
 			cmd_argc++;

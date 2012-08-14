@@ -9333,9 +9333,8 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_RENEW:
-			clientid_array = tvb_get_string(tvb, offset, 8);
+			clientid_array = tvb_get_ephemeral_string(tvb, offset, 8);
 			clientid_hash = crc16_ccitt(clientid_array, 8);
-			g_free(clientid_array);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4, offset);
 			g_string_append_printf (op_summary[ops_counter].optext, " CID: 0x%04x", clientid_hash);
 

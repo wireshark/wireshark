@@ -114,17 +114,12 @@ static gint ett_fw1 = -1;
 #define ETH_HEADER_SIZE 14
 
 #define MAX_INTERFACES  20
-static char     *p_interfaces[MAX_INTERFACES];
+static gchar    *p_interfaces[MAX_INTERFACES];
 static int      interface_anzahl=0;
 
 static void
 fw1_init(void)
 {
-  int           i;
-
-  for (i=0; i<interface_anzahl; i++) {
-    g_free(p_interfaces[i]);
-  }
   interface_anzahl = 0;
 }
 
@@ -176,7 +171,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
   if (!found && interface_anzahl < MAX_INTERFACES) {
-    p_interfaces[interface_anzahl] = g_strdup(interface_name);
+    p_interfaces[interface_anzahl] = se_strdup(interface_name);
     interface_anzahl++;
   }
 
@@ -278,7 +273,7 @@ proto_register_fw1(void)
 
   register_dissector("fw1", dissect_fw1, proto_fw1);
 
-  for (i=0; i<interface_anzahl; i++) {
+  for (i=0; i<MAX_INTERFACES; i++) {
     p_interfaces[i] = NULL;
   }
   register_init_routine(fw1_init);

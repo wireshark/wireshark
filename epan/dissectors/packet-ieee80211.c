@@ -16721,8 +16721,7 @@ try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *
     /* decrypt successful, let's set up a new data tvb.              */
     decr_tvb = tvb_new_child_real_data(tvb, tmp, len, len);
     tvb_set_free_cb(decr_tvb, g_free);
-  } else
-    g_free(tmp);
+  }
 
   return decr_tvb;
 }
@@ -16740,7 +16739,7 @@ void set_airpdcap_keys(void)
   GByteArray *bytes = NULL;
   gboolean res;
 
-  keys=(PAIRPDCAP_KEYS_COLLECTION)g_malloc(sizeof(AIRPDCAP_KEYS_COLLECTION));
+  keys=(PAIRPDCAP_KEYS_COLLECTION)se_alloc(sizeof(AIRPDCAP_KEYS_COLLECTION));
   keys->nKeys = 0;
 
   for(i = 0; (uat_wep_key_records != NULL) && (i < num_wepkeys_uat) && (i < MAX_ENCRYPTION_KEYS); i++)
@@ -16807,7 +16806,6 @@ void set_airpdcap_keys(void)
 
   /* Now set the keys */
   AirPDcapSetKeys(&airpdcap_ctx,keys->Keys,keys->nKeys);
-  g_free(keys);
   if (bytes)
     g_byte_array_free(bytes, TRUE);
 

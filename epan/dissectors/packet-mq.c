@@ -2245,11 +2245,10 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             {
                                 guint8* sFormat = NULL;
                                 sFormat = tvb_get_ephemeral_string_enc(tvb, tMsgProps.iOffsetFormat, 8, string_rep);
-                                if (strip_trailing_blanks(sFormat, 8) == 0) sFormat = (guint8*)g_strdup("MQNONE");
-                                if (check_col(pinfo->cinfo, COL_INFO))
-                                {
-                                    col_append_fstr(pinfo->cinfo, COL_INFO, " Fmt=%s", sFormat);
-                                }
+                                if (strip_trailing_blanks(sFormat, 8) == 0) 
+                                    sFormat = (guint8*)ep_strdup("MQNONE");
+
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " Fmt=%s", sFormat);
                                 if (tree)
                                 {
                                     proto_item *hidden_item;

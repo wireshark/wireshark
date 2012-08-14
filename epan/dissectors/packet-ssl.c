@@ -2066,7 +2066,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                         }
 
                         /* convert hex string into char*/
-                        out = (unsigned char*) g_malloc(size > 0 ? size / 2 : 0);
+                        out = (unsigned char*) ep_alloc(size > 0 ? size / 2 : 0);
 
                         for (i = 0; i < size; i+=2)
                         {
@@ -2092,8 +2092,6 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                         pre_master_secret.data[psk_len + 3] = psk_len & 0xFF;
                         /* psk*/
                         memcpy(&pre_master_secret.data[psk_len + 4], ssl->psk, psk_len);
-
-                        g_free(out);
 
                         ssl->pre_master_secret.data = pre_master_secret.data;
                         ssl->pre_master_secret.data_len = pre_master_len;
