@@ -1302,7 +1302,8 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	}
 	actx->created_item = it;
 	if (value) *value = val;
-	return offset;}
+	return offset;
+}
 
 guint32
 dissect_per_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint64 min, guint64 max, guint64 *value, gboolean has_extension)
@@ -1333,14 +1334,14 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 	 *			d)	"range" is greater than 64K (the indefinite length case).
 	 */
 	if(((max-min)>65536)&&(actx->aligned)){
-               /* just set range really big so it will fall through
-                  to the bottom of the encoding */
-               /* range=1000000; */
-			   range = max-min;
-			   if (range==65536)
-				   range++; /* make it fall trough? */
+		/* just set range really big so it will fall through
+		   to the bottom of the encoding */
+		/* range=1000000; */
+		range = max-min;
+		if (range==65536)
+			range++; /* make it fall trough? */
 	} else {
-		/* Copied from the 32 bit version, asuming the same problem occures
+		/* Copied from the 32 bit version, assuming the same problem occurs
 		 * at 64 bit boundary.
 		 * Really ugly hack.
 		 * We should really use guint64 as parameters for min/max.
@@ -1375,11 +1376,11 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		 */
 		char *str;
 		int i, bit, length;
-		guint32 mask,mask2;
-		/* We only handle 32 bit integers */
-		mask  = 0x80000000;
-		mask2 = 0x7fffffff;
-		i = 32;
+		guint64 mask,mask2;
+		/* We only handle 64 bit integers */
+		mask  = G_GINT64_CONSTANT(0x8000000000000000);
+		mask2 = G_GINT64_CONSTANT(0x7fffffffffffffff);
+		i = 64;
 		while ((range & mask)== 0){
 			i = i - 1;
 			mask = mask>>1;
