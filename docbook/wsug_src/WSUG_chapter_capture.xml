@@ -358,6 +358,35 @@ wireshark -i eth0 -k
 	      </para>
 	    </listitem>
 	  </varlistentry>
+	  <varlistentry><term><command>Capture Filter</command></term>
+	    <listitem>
+	      <para>
+		This field allows you to specify a capture filter for all interfaces
+		that are currently selected. Once a filter has been entered in this field,
+		the newly selected interfaces will inherit the filter.
+		Capture filters are discussed in more details in 
+		<xref linkend="ChCapCaptureFilterSection"/>. It defaults to empty, or 
+		  no filter.
+	      </para>
+	      <para>
+		You can also click on the button labeled "Capture Filter", and Wireshark 
+		will bring up the Capture Filters dialog box and allow you to create 
+		and/or select a filter.  Please see 
+		<xref linkend="ChWorkDefineFilterSection"/>
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Compile selected BPFs</command></term>
+	    <listitem>
+	      <para>
+		This button allows you to compile the capture filter into BPF code and
+		pop up a window showing you the resulting pseudo code. This can help in 
+		understanding the working of the capture filter you created.
+		The "Compile selected BPFs" button leads you to 
+		<xref linkend="ChCapCompileSelectedBpfsDialog"/>.
+	      </para>
+	    </listitem>
+	  </varlistentry>
 	  <varlistentry>
 	    <term>
               <command>Manage Interfaces</command>
@@ -744,6 +773,22 @@ wireshark -i eth0 -k
       </variablelist>
     </section>
 
+     <section id="ChCapCompileSelectedBpfsSection">
+      <title>The "Compile Results" dialog box</title>
+      <para>
+	This figure shows the compile results of the selected interfaces. 
+      </para>
+      	<figure id="ChCapCompileSelectedBpfsDialog">
+      <title>The "Compile Results" dialog box</title>
+      <graphic entityref="WiresharkCaptureCompileSelectedBPFsDialog" format="PNG"/>
+      </figure>
+ <para>
+ In the left window the interface names are listed. A green bullet indicates a successful 
+ compilation, a red bullet a failure. The results of an individual interface are shown
+ in the right window, when it is selected.
+ </para>
+ </section>
+	
    <section id="ChCapManageInterfacesSection">
       <title>The "Add New Interfaces" dialog box</title>
       <para>
