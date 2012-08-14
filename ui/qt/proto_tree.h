@@ -43,7 +43,7 @@ private:
 
 signals:
     void protoItemSelected(QString &);
-    void protoItemUnselected();
+    void protoItemSelected(bool);
 
 public slots:
     void updateSelectionStatus(QTreeWidgetItem*);

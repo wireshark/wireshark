@@ -406,6 +406,9 @@
    </property>
   </action>
   <action name="actionViewExpandSubtrees">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>E&amp;xpand Subtrees</string>
    </property>

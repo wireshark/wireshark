@@ -190,8 +190,10 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
                 itemInfo.append(QString(tr(", %1 bytes")).arg(finfo_length));
             }
 
-            emit protoItemUnselected();
+            emit protoItemSelected(QString());
+            emit protoItemSelected(false);
             emit protoItemSelected(itemInfo);
+            emit protoItemSelected(true);
         } // else the GTK+ version pushes an empty string as described below.
         /*
          * Don't show anything if the field name is zero-length;
@@ -214,7 +216,8 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
          */
 
     } else {
-        emit protoItemUnselected();
+        emit protoItemSelected(QString());
+        emit protoItemSelected(false);
     }
 }
 
@@ -224,12 +227,28 @@ void ProtoTree::expandSubtrees()
 {
     QTreeWidgetItem *topSel;
 
-    foreach(topSel, selectedItems()) {
-        QTreeWidgetItemIterator iter(topSel);
-        while (*iter) {
-            (*iter)->setExpanded(true);
-            iter++;
+    if (selectedItems().length() < 1) {
+        return;
+    }
+
+    topSel = selectedItems()[0];
+
+    if (!topSel) {
+        return;
+    }
+
+    while (topSel->parent()) {
+        topSel = topSel->parent();
+    }
+
+    QTreeWidgetItemIterator iter(topSel);
+    while (*iter) {
+        if ((*iter) != topSel && (*iter)->parent() == NULL) {
+            // We found the next top-level item
+            break;
         }
+        (*iter)->setExpanded(true);
+        iter++;
     }
 }
 

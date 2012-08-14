@@ -243,7 +243,11 @@ void MainStatusBar::popFileStatus() {
 }
 
 void MainStatusBar::pushFieldStatus(QString &message) {
-    m_infoStatus.pushText(message, STATUS_CTX_FIELD);
+    if (message.isNull()) {
+        popFieldStatus();
+    } else {
+        m_infoStatus.pushText(message, STATUS_CTX_FIELD);
+    }
 }
 
 void MainStatusBar::popFieldStatus() {

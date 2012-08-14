@@ -136,8 +136,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(protoTree, SIGNAL(protoItemSelected(QString&)),
             ui->statusBar, SLOT(pushFieldStatus(QString&)));
-    connect(protoTree, SIGNAL(protoItemUnselected()),
-            ui->statusBar, SLOT(popFieldStatus()));
+
+    connect(protoTree, SIGNAL(protoItemSelected(bool)),
+            ui->actionViewExpandSubtrees, SLOT(setEnabled(bool)));
 
     ui->mainStack->setCurrentWidget(mainWelcome);
 }
