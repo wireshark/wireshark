@@ -241,12 +241,16 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 AFP,
+Bluetooth L2CAP,
 CIP,
 CTDB,
 DCP ETSI,
 EtherCAT Mailbox,
+FC Link Control,
+LISP,
 NFS,
 RTPS2,
+SCTP,
 STUN,
 XTP
 

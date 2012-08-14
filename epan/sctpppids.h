@@ -59,5 +59,8 @@
 /* Unassigned 26 */
 #define X2AP_PAYLOAD_PROTOCOL_ID        27
 #define IRCP_PAYLOAD_PROTOCOL_ID        28
+#define DIAMETER_PROTOCOL_ID            46
+#define DIAMETER_DTLS_PROTOCOL_ID       47
+#define R14P_BER_PROTOCOL_ID            48
 #define M2TP_PAYLOAD_PROTOCOL_ID        99    /* s-link */
 #endif /* sctpppids.h */

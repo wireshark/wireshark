@@ -354,6 +354,9 @@ static const value_string sctp_payload_proto_id_values[] = {
 /* Unassigned 26 */
   { X2AP_PAYLOAD_PROTOCOL_ID,            "X2AP" },
   { IRCP_PAYLOAD_PROTOCOL_ID,            "IRCP" },
+  { DIAMETER_PROTOCOL_ID,                "DIAMETER" },
+  { DIAMETER_DTLS_PROTOCOL_ID,           "DIAMETER OVER DTLS" },
+  { R14P_BER_PROTOCOL_ID,                "R14P" },
   { 0,                                   NULL } };
 
 
