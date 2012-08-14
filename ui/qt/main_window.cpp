@@ -47,6 +47,7 @@
 #include <QAction>
 #include <QToolButton>
 #include <QKeyEvent>
+#include <QMetaObject>
 
 //menu_recent_file_write_all
 
@@ -117,6 +118,22 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(captureFileClosed(const capture_file*)),
             this, SLOT(captureFileClosed(const capture_file*)));
 
+    connect(ui->actionGoNextPacket, SIGNAL(triggered()),
+            m_packetList, SLOT(goNextPacket()));
+    connect(ui->actionGoPreviousPacket, SIGNAL(triggered()),
+            m_packetList, SLOT(goPreviousPacket()));
+    connect(ui->actionGoFirstPacket, SIGNAL(triggered()),
+            m_packetList, SLOT(goFirstPacket()));
+    connect(ui->actionGoLastPacket, SIGNAL(triggered()),
+            m_packetList, SLOT(goLastPacket()));
+
+    connect(ui->actionViewExpandSubtrees, SIGNAL(triggered()),
+            protoTree, SLOT(expandSubtrees()));
+    connect(ui->actionViewExpandAll, SIGNAL(triggered()),
+            protoTree, SLOT(expandAll()));
+    connect(ui->actionViewCollapseAll, SIGNAL(triggered()),
+            protoTree, SLOT(collapseAll()));
+
     connect(protoTree, SIGNAL(protoItemSelected(QString&)),
             ui->statusBar, SLOT(pushFieldStatus(QString&)));
     connect(protoTree, SIGNAL(protoItemUnselected()),
@@ -132,17 +149,26 @@ MainWindow::~MainWindow()
 
 void MainWindow::keyPressEvent(QKeyEvent *event) {
 
+    // Explicitly focus on the display filter combo.
     if (event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_Slash) {
         dfComboBox->setFocus(Qt::ShortcutFocusReason);
         return;
     }
 
-    if (event->key() == Qt::Key_F7) {
-        m_packetList->goToPrev();
-    } else if (event->key() == Qt::Key_F8) {
-        m_packetList->goToNext();
+    // The user typed some text. Start filling in a filter.
+    // XXX We need to install an event filter for the packet list and proto tree
+    if ((event->modifiers() == Qt::NoModifier || event->modifiers() == Qt::ShiftModifier) && event->text().length() > 0) {
+        QApplication::sendEvent(dfComboBox, event);
     }
 
+    // Move up & down the packet list.
+    if (event->key() == Qt::Key_F7) {
+        m_packetList->goPreviousPacket();
+    } else if (event->key() == Qt::Key_F8) {
+        m_packetList->goNextPacket();
+    }
+
+    // Move along, citizen.
     QMainWindow::keyPressEvent(event);
 }
 
@@ -196,23 +222,13 @@ void MainWindow::captureFileClosing(const capture_file *cf) {
 //    gtk_widget_show(expert_info_none);
 }
 
+// View Menu
+
+// Expand / collapse slots in proto_tree
+
 // Go Menu
 
-void MainWindow::on_actionGoNextPacket_triggered() {
-    m_packetList->goToNext();
-}
-
-void MainWindow::on_actionGoPreviousPacket_triggered() {
-    m_packetList->goToPrev();
-}
-
-void MainWindow::on_actionGoFirstPacket_triggered() {
-    m_packetList->goToFirst();
-}
-
-void MainWindow::on_actionGoLastPacket_triggered() {
-    m_packetList->goToLast();
-}
+// Next / previous / first / last slots in packet_list
 
 // Help Menu
 void MainWindow::on_actionHelpWebsite_triggered() {

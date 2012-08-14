@@ -79,10 +79,6 @@ private slots:
     void on_actionFileOpen_triggered(QString& cfPath = *new QString());
     void on_actionFileClose_triggered();
     void recentActionTriggered();
-    void on_actionGoNextPacket_triggered();
-    void on_actionGoPreviousPacket_triggered();
-    void on_actionGoFirstPacket_triggered();
-    void on_actionGoLastPacket_triggered();
     void on_actionHelpWebsite_triggered();
     void on_actionHelpFAQ_triggered();
     void on_actionHelpAsk_triggered();

@@ -96,7 +96,7 @@ new_packet_list_select_first_row(void)
 {
     if (!cur_packet_list)
         return;
-    cur_packet_list->goToFirst();
+    cur_packet_list->goFirstPacket();
     cur_packet_list->setFocus();
 }
 
@@ -105,7 +105,7 @@ new_packet_list_select_last_row(void)
 {
     if (!cur_packet_list)
         return;
-    cur_packet_list->goToLast();
+    cur_packet_list->goLastPacket();
     cur_packet_list->setFocus();
 }
 
@@ -217,7 +217,7 @@ void
 new_packet_list_moveto_end(void)
 {
     if (cur_packet_list)
-        cur_packet_list->goToLast();
+        cur_packet_list->goLastPacket();
 }
 
 /* Redraw the packet list *and* currently-selected detail */
@@ -381,18 +381,18 @@ void PacketList::writeRecent(FILE *rf) {
 
 #include <QDebug>
 
-void PacketList::goToNext(void) {
+void PacketList::goNextPacket(void) {
     setCurrentIndex(moveCursor(MoveDown, Qt::NoModifier));
 }
 
-void PacketList::goToPrev(void) {
+void PacketList::goPreviousPacket(void) {
     setCurrentIndex(moveCursor(MoveUp, Qt::NoModifier));
 }
 
-void PacketList::goToFirst(void) {
+void PacketList::goFirstPacket(void) {
     setCurrentIndex(moveCursor(MoveHome, Qt::NoModifier));
 }
 
-void PacketList::goToLast(void) {
+void PacketList::goLastPacket(void) {
     setCurrentIndex(moveCursor(MoveEnd, Qt::NoModifier));
 }

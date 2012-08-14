@@ -47,7 +47,7 @@ signals:
 
 public slots:
     void updateSelectionStatus(QTreeWidgetItem*);
-
+    void expandSubtrees();
 };
 
 #endif // PROTO_TREE_H

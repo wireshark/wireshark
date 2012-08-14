@@ -120,8 +120,18 @@
     <addaction name="actionGoFirstPacket"/>
     <addaction name="actionGoLastPacket"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionViewExpandSubtrees"/>
+    <addaction name="actionViewExpandAll"/>
+    <addaction name="actionViewCollapseAll"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
    <addaction name="menuGo"/>
    <addaction name="menuCapture"/>
    <addaction name="menuHelp"/>
@@ -393,6 +403,39 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+End</string>
+   </property>
+  </action>
+  <action name="actionViewExpandSubtrees">
+   <property name="text">
+    <string>E&amp;xpand Subtrees</string>
+   </property>
+   <property name="toolTip">
+    <string>Expand the current packet detail</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Right</string>
+   </property>
+  </action>
+  <action name="actionViewExpandAll">
+   <property name="text">
+    <string>&amp;Expand All</string>
+   </property>
+   <property name="toolTip">
+    <string>Expand packet details</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Right</string>
+   </property>
+  </action>
+  <action name="actionViewCollapseAll">
+   <property name="text">
+    <string>Collapse &amp;All</string>
+   </property>
+   <property name="toolTip">
+    <string>Collapse all packet details</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Left</string>
    </property>
   </action>
  </widget>

@@ -30,6 +30,7 @@
 
 #include <QApplication>
 #include <QHeaderView>
+#include <QTreeWidgetItemIterator>
 
 QColor        expert_color_chat       ( 0x80, 0xb7, 0xf7 );        /* light blue */
 QColor        expert_color_note       ( 0xa0, 0xff, 0xff );        /* bright turquoise */
@@ -216,3 +217,19 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
         emit protoItemUnselected();
     }
 }
+
+#include <QDebug>
+
+void ProtoTree::expandSubtrees()
+{
+    QTreeWidgetItem *topSel;
+
+    foreach(topSel, selectedItems()) {
+        QTreeWidgetItemIterator iter(topSel);
+        while (*iter) {
+            (*iter)->setExpanded(true);
+            iter++;
+        }
+    }
+}
+
