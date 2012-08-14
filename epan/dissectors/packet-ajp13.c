@@ -733,7 +733,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       if (ajp13_tree) {
         proto_tree_add_string_format(ajp13_tree, hf_ajp13_req_attribute,
                                      tvb, apos, 1+aname_len+2+aval_len+2,
-                                     g_strdup_printf("%s: %s", aname, aval),
+                                     ep_strdup_printf("%s: %s", aname, aval),
                                      "%s: %s", aname, aval);
       }
     } else if (aid == 0x0B ) {
