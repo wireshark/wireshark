@@ -1004,7 +1004,7 @@ packet_list_compare_custom(gint sort_id, gint text_sort_id, PacketListRecord *a,
 		else if (num_a > num_b)
 			return 1;
 		else
-			return frame_data_compare(a->fdata, b->fdata, COL_NUMBER);
+			return 0;
 	  }
 
 	return strcmp(a->col_text[text_sort_id], b->col_text[text_sort_id]);
@@ -1021,9 +1021,9 @@ _packet_list_compare_records(gint sort_id, gint text_sort_id, PacketListRecord *
 	if(a->col_text[text_sort_id] == b->col_text[text_sort_id])
 		return 0; /* no need to call strcmp() */
 
-	if (cfile.cinfo.col_fmt[sort_id] == COL_CUSTOM) {
-		return packet_list_compare_custom (sort_id, text_sort_id, a, b);
-	}
+	if (cfile.cinfo.col_fmt[sort_id] == COL_CUSTOM)
+		return packet_list_compare_custom(sort_id, text_sort_id, a, b);
+
 	return strcmp(a->col_text[text_sort_id], b->col_text[text_sort_id]);
 }
 
@@ -1037,7 +1037,7 @@ packet_list_compare_records(gint sort_id, gint text_sort_id, PacketListRecord *a
 
 	ret = _packet_list_compare_records(sort_id, text_sort_id, a, b);
 	if (ret == 0)
-		ret = a->fdata->num - b->fdata->num;
+		ret = frame_data_compare(a->fdata, b->fdata, COL_NUMBER);
 	return ret;
 }
 
