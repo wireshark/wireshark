@@ -46,7 +46,7 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     field_info   *fi = PNODE_FINFO(node);
     gchar         label_str[ITEM_LABEL_LENGTH];
     gchar        *label_ptr;
-    gboolean      is_leaf, is_expanded;
+    gboolean      is_leaf;
 
     g_assert(fi && "dissection with an invisible proto tree?");
 
@@ -66,16 +66,9 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     if (node->first_child != NULL) {
         is_leaf = FALSE;
         g_assert(fi->tree_type >= 0 && fi->tree_type < num_tree_types);
-        if (tree_is_expanded[fi->tree_type]) {
-            is_expanded = TRUE;
-        }
-        else {
-            is_expanded = FALSE;
-        }
     }
     else {
         is_leaf = TRUE;
-        is_expanded = FALSE;
     }
 
     if (PROTO_ITEM_IS_GENERATED(node)) {
@@ -190,7 +183,7 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
                 itemInfo.append(QString(tr(", %1 bytes")).arg(finfo_length));
             }
 
-            emit protoItemSelected(QString());
+            emit protoItemSelected(new QString());
             emit protoItemSelected(false);
             emit protoItemSelected(itemInfo);
             emit protoItemSelected(true);
@@ -216,7 +209,7 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
          */
 
     } else {
-        emit protoItemSelected(QString());
+        emit protoItemSelected(new QString());
         emit protoItemSelected(false);
     }
 }
