@@ -1036,13 +1036,22 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         sdulen = tvb_get_letohs(tvb, offset);
         pi = proto_tree_add_item(btl2cap_tree, hf_btl2cap_sdulength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
-        length -= 6; /*Control, SDUlength, FCS*/
+
 
         /* Detect malformed data */
+
+        if (length <= 6) {
+            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN,
+                    "SDU length too short: %u", length);
+	    THROW(ReportedBoundsError);
+        }
+
+        length -= 6; /*Control, SDUlength, FCS*/
+
         if (sdulen < length) {
             sdulen = length;
             expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN,
-                    "SDU length less than length of first packet");
+                    "SDU length less than length of first packet (%u < %u)", sdulen, length);
         }
 
         if (!pinfo->fd->flags.visited) {
@@ -1051,8 +1060,8 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             mfp->last_frame  = 0;
             mfp->tot_len     = sdulen;
             mfp->reassembled = se_alloc(sdulen);
-            tvb_memcpy(tvb, mfp->reassembled, offset, length);
-            mfp->cur_off     = length;
+            tvb_memcpy(tvb, mfp->reassembled, offset, sdulen);
+            mfp->cur_off     = sdulen;
             se_tree_insert32(config_data->start_fragments, pinfo->fd->num, mfp);
         } else {
             mfp              = se_tree_lookup32(config_data->start_fragments, pinfo->fd->num);
@@ -1064,6 +1073,11 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             col_append_fstr(pinfo->cinfo, COL_INFO, "[Reassembled in #%u] ", mfp->last_frame);
         }
     } else {
+        if (length <= 4) {
+            expert_add_info_format(pinfo, btl2cap_tree, PI_MALFORMED, PI_WARN,
+                    "Control / FCS length too short: %u", length);
+	    THROW(ReportedBoundsError);
+        }
         length -= 4; /*Control, FCS*/
     }
     if (segment == 0x02 || segment == 0x03) {
@@ -1897,5 +1911,3 @@ proto_reg_handoff_btl2cap(void)
        using the PSM channel so we know which sub-dissector to call */
     register_tap_listener("btsdp", NULL, NULL, TL_IS_DISSECTOR_HELPER, NULL, btl2cap_sdp_tap_packet, NULL);
 }
-
-

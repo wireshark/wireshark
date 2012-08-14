@@ -400,22 +400,27 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 AFP,
+Apache JServ Protocol v1.3,
+Bluetooth L2CAP,
 CIP,
 CTDB,
 DCP ETSI,
 ERF,
 EtherCAT Mailbox,
+FC Link Control,
 GIOP,
 GSM A,
 GSM RLC MAC,
 GTP,
 GTPv2,
 ISDN,
+LISP,
 MongoDB,
 MPLS ITU-T Y.1711 OAM,
 MPLS PM,
 NFS,
 RTPS2,
+SCTP,
 STUN,
 XTP
 
