@@ -870,6 +870,7 @@ proto_tree_add_uint_format
 proto_tree_add_uint_format_value
 proto_tree_add_uint_bits_format_value
 proto_tree_children_foreach
+proto_tree_free
 proto_tree_get_parent
 proto_tree_get_root
 proto_tree_move_item
