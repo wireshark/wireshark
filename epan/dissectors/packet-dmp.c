@@ -3531,7 +3531,7 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
                                   (message & 0x20) ? ",ex" : "",
                                   (message & 0x10) ? ",ne" : "");
       proto_item_append_text (tf, ": %s", &sec_cat[1]);
-      *label_string = ep_strconcat(*label_string, sec_cat);
+      *label_string = ep_strconcat(*label_string, sec_cat, NULL);
     }
     break;
 
@@ -3725,7 +3725,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   tf = proto_tree_add_item (field_tree, hf_message_sec_class_val, tvb, offset, 1, ENC_BIG_ENDIAN);
   if (class_name) {
     proto_item_append_text (tf, " (%s)", class_name);
-    label_string = ep_strconcat(label_string, class_name);
+    label_string = ep_strconcat(label_string, class_name, NULL);
   }
 
   /* Security Policy */
