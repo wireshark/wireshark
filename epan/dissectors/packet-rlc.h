@@ -56,6 +56,9 @@ typedef struct rlc_info
  * resets on transport channel swap. */
 void rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 urnti);
 
+/* Tells other functions if this packet is ciphered or not */
+gboolean rlc_is_ciphered(packet_info * pinfo);
+
 /*****************************************************************/
 /* UDP framing format                                            */
 /* -----------------------                                       */
@@ -121,9 +124,5 @@ void rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 urnt
 /* RLC PDU. Following this tag comes the actual RLC PDU (there is no length, the PDU
    continues until the end of the frame) */
 #define RLC_PAYLOAD_TAG         0x01
-
-
-/*Tells other functions if this packet is ciphered or not*/
-gboolean rlc_is_ciphered(packet_info * pinfo);
 
 #endif /* PACKET_RLC_H */

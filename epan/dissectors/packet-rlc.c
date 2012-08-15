@@ -492,7 +492,8 @@ rlc_cmp_seq(gconstpointer a, gconstpointer b)
             0;
 }
 
-static int special_cmp(gconstpointer a, gconstpointer b)
+static int
+special_cmp(gconstpointer a, gconstpointer b)
 {
     const gint16 p = GPOINTER_TO_INT(a), q = GPOINTER_TO_INT(b);
     if (ABS(p-q) < 2048) {
@@ -521,7 +522,8 @@ free_sequence_table_entry_data(gpointer data)
 }
 
 /** Utility functions used for various comparions/cleanups in tree **/
-gint rlc_simple_key_cmp(gconstpointer b_ptr, gconstpointer a_ptr, gpointer ignore _U_){
+static gint
+rlc_simple_key_cmp(gconstpointer b_ptr, gconstpointer a_ptr, gpointer ignore _U_){
     if( GPOINTER_TO_INT(a_ptr) > GPOINTER_TO_INT(b_ptr) ){
         return  -1;
     }
@@ -624,7 +626,8 @@ tree_add_fragment_list_incomplete(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree
 }
 
 /* Add the same description to too the two given proto_items */
-static void add_description(proto_item *li_ti, proto_item *length_ti,
+static void
+add_description(proto_item *li_ti, proto_item *length_ti,
                 const char *format, ...)
 {
 #define MAX_INFO_BUFFER 256
@@ -847,7 +850,8 @@ reassemble_data(struct rlc_channel *ch, struct rlc_sdu *sdu, struct rlc_frag *fr
 #define RLC_ADD_FRAGMENT_FAIL_PRINT 0
 #define RLC_ADD_FRAGMENT_DEBUG_PRINT 0
 #if RLC_ADD_FRAGMENT_DEBUG_PRINT
-static void printends(GList * list)
+static void
+printends(GList * list)
 {
     if (list == NULL)
         return;
@@ -861,7 +865,8 @@ static void printends(GList * list)
 }
 #endif
 
-static struct rlc_frag ** get_frags(packet_info * pinfo, struct rlc_channel * ch_lookup)
+static struct rlc_frag **
+get_frags(packet_info * pinfo, struct rlc_channel * ch_lookup)
 {
     gpointer value = NULL;
     struct rlc_frag ** frags = NULL;
@@ -878,7 +883,8 @@ static struct rlc_frag ** get_frags(packet_info * pinfo, struct rlc_channel * ch
     }
     return frags;
 }
-static struct rlc_seqlist * get_endlist(packet_info * pinfo, struct rlc_channel * ch_lookup)
+static struct rlc_seqlist *
+get_endlist(packet_info * pinfo, struct rlc_channel * ch_lookup)
 {
     gpointer value = NULL;
     struct rlc_seqlist * endlist = NULL;
@@ -900,7 +906,9 @@ static struct rlc_seqlist * get_endlist(packet_info * pinfo, struct rlc_channel 
     return endlist;
 }
 
-static void reassemble_sequence(struct rlc_frag ** frags, struct rlc_seqlist * endlist, struct rlc_channel * ch_lookup, guint16 start, guint16 end)
+static void
+reassemble_sequence(struct rlc_frag ** frags, struct rlc_seqlist * endlist,
+                    struct rlc_channel * ch_lookup, guint16 start, guint16 end)
 {
     GList * element = NULL;
     struct rlc_sdu * sdu = rlc_sdu_create();
@@ -930,7 +938,8 @@ static void reassemble_sequence(struct rlc_frag ** frags, struct rlc_seqlist * e
 
 /* Reset the specified channel's reassembly data, useful for when a sequence
  * resets on transport channel swap. */
-void rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 urnti)
+void
+rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 urnti)
 {
     struct rlc_frag ** frags = NULL;
     struct rlc_seqlist * endlist = NULL;
@@ -1314,10 +1323,40 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
 }
 
 static void
+add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * fpinf, rlc_info * rlcinf)
+{
+    proto_item * item;
+    proto_tree * channel_tree ;
+
+    item = proto_tree_add_item(tree, hf_rlc_channel, NULL, 0, 0, ENC_NA);
+    channel_tree = proto_item_add_subtree(item, ett_rlc_channel);
+    proto_item_append_text(item, " (rbid: %u, dir: %s, uid: %u)", rlcinf->rbid[fpinf->cur_tb],
+                           val_to_str_const(pinfo->p2p_dir, rlc_dir_vals, "Unknown"), rlcinf->urnti[fpinf->cur_tb]);
+    PROTO_ITEM_SET_GENERATED(item);
+    item = proto_tree_add_uint(channel_tree, hf_rlc_channel_rbid, NULL, 0, 0, rlcinf->rbid[fpinf->cur_tb]);
+    PROTO_ITEM_SET_GENERATED(item);
+    item = proto_tree_add_uint(channel_tree, hf_rlc_channel_dir, NULL, 0, 0, pinfo->p2p_dir);
+    PROTO_ITEM_SET_GENERATED(item);
+    item = proto_tree_add_uint(channel_tree, hf_rlc_channel_ueid, NULL, 0, 0, rlcinf->urnti[fpinf->cur_tb]);
+    PROTO_ITEM_SET_GENERATED(item);
+
+}
+
+static void
 dissect_rlc_tm(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
            proto_tree *top_level, proto_tree *tree)
 {
+    fp_info       *fpinf;
+    rlc_info      *rlcinf;
+
+    fpinf = p_get_proto_data(pinfo->fd, proto_fp);
+    rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
+
     if (tree) {
+        if (fpinf && rlcinf) {
+            /* Add "channel" information, very useful for debugging. */
+            add_channel_info(pinfo, tree, fpinf, rlcinf);
+        }
         proto_tree_add_item(tree, hf_rlc_data, tvb, 0, -1, ENC_NA);
     }
     rlc_call_subdissector(channel, tvb, pinfo, top_level);
@@ -1548,25 +1587,6 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     return num_li;
 }
 
-static void add_channel_info(packet_info * pinfo , proto_tree * tree, fp_info * fpinf , rlc_info * rlcinf )
-{
-    proto_item * item;
-    proto_tree * channel_tree ;
-
-    item = proto_tree_add_item(tree, hf_rlc_channel, NULL, 0, 0, ENC_NA);
-    channel_tree = proto_item_add_subtree(item, ett_rlc_channel);
-    proto_item_append_text(item, " (rbid: %u, dir: %s, uid: %u)", rlcinf->rbid[fpinf->cur_tb],
-                           val_to_str_const(pinfo->p2p_dir, rlc_dir_vals, "Unknown"), rlcinf->urnti[fpinf->cur_tb]);
-    PROTO_ITEM_SET_GENERATED(item);
-    item = proto_tree_add_uint(channel_tree, hf_rlc_channel_rbid, NULL, 0, 0, rlcinf->rbid[fpinf->cur_tb]);
-    PROTO_ITEM_SET_GENERATED(item);
-    item = proto_tree_add_uint(channel_tree, hf_rlc_channel_dir, NULL, 0, 0, pinfo->p2p_dir);
-    PROTO_ITEM_SET_GENERATED(item);
-    item = proto_tree_add_uint(channel_tree, hf_rlc_channel_ueid, NULL, 0, 0, rlcinf->urnti[fpinf->cur_tb]);
-    PROTO_ITEM_SET_GENERATED(item);
-
-}
-
 static void
 dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
            proto_tree *top_level, proto_tree *tree)
@@ -1585,23 +1605,23 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     next_byte = tvb_get_guint8(tvb, offs++);
     seq = next_byte >> 1;
 
-    /* show sequence number and extension bit */
+    fpinf = p_get_proto_data(pinfo->fd, proto_fp);
+    rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
+
     if (tree) {
+        if (fpinf && rlcinf) {
+            /* Add "channel" information, very useful for debugging. */
+            add_channel_info(pinfo, tree, fpinf, rlcinf);
+        }
+        /* show sequence number and extension bit */
         proto_tree_add_bits_item(tree, hf_rlc_seq, tvb, 0, 7, ENC_BIG_ENDIAN);
         proto_tree_add_bits_item(tree, hf_rlc_ext, tvb, 7, 1, ENC_BIG_ENDIAN);
     }
 
-    fpinf = p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
     if (!fpinf || !rlcinf) {
         proto_tree_add_text(tree, tvb, 0, -1,
             "Cannot dissect RLC frame because per-frame info is missing");
         return;
-    }
-
-    if(tree){
-        /* Add "channel" information, very useful for debugging. */
-        add_channel_info(pinfo, tree, fpinf, rlcinf);
     }
 
     pos = fpinf->cur_tb;
@@ -2063,7 +2083,7 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
  * @param value is a pointer to a guint32
  * @param data is a pointer to a guint32
  */
-gboolean
+static gboolean
 iter_same(gpointer key, gpointer value, gpointer data) {
     /*If true we found the correct frame*/
     if ((guint32)GPOINTER_TO_INT(key) > *(guint32*)data){
@@ -2081,7 +2101,7 @@ iter_same(gpointer key, gpointer value, gpointer data) {
  * @param value is pointer to an array of 2 guint32s
  * @param data is a pointer to an array of 3 guint32s
  */
-gboolean
+static gboolean
 rlc_find_old_counter(gpointer key, gpointer value, gpointer data) {
 
     /*If true we found the correct frame*/
@@ -2111,10 +2131,18 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     proto_item    *truncated_ti;
     guint64        polling;
 
+    fpinf = p_get_proto_data(pinfo->fd, proto_fp);
+    rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
+
     next_byte = tvb_get_guint8(tvb, offs++);
     dc = next_byte >> 7;
-    if (tree)
+    if (tree) {
+        if (fpinf && rlcinf) {
+            /* Add "channel" information, very useful for debugging. */
+            add_channel_info(pinfo, tree, fpinf, rlcinf);
+        }
         proto_tree_add_bits_item(tree, hf_rlc_dc, tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
     if (dc == 0) {
         col_set_str(pinfo->cinfo, COL_INFO, "[RLC Control Frame]");
         dissect_rlc_control(tvb, pinfo, tree);
@@ -2143,17 +2171,10 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
         return;
     }
 
-    fpinf = p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
     if (!fpinf || !rlcinf) {
         proto_tree_add_text(tree, tvb, 0, -1,
             "Cannot dissect RLC frame because per-frame info is missing");
         return;
-    }
-
-    if (tree) {
-        /* Add "channel" information, very useful for debugging. */
-        add_channel_info(pinfo, tree, fpinf, rlcinf);
     }
 
     pos = fpinf->cur_tb;
@@ -2699,13 +2720,21 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return TRUE;
 }
 
-gboolean rlc_is_ciphered(packet_info * pinfo _U_){
-#if 0
-        int i;
-        i = pinfo->fd->num;
-#endif
+gboolean
+rlc_is_ciphered(packet_info * pinfo){
+    fp_info *fpinf;
+    rlc_info *rlcinf;
+
+    if (!pinfo) {
         return global_rlc_ciphered;
     }
+
+    fpinf = p_get_proto_data(pinfo->fd, proto_fp);
+    rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
+
+    return ((rlcinf && fpinf && (rlcinf->ciphered[fpinf->cur_tb] == TRUE) && (rlcinf->deciphered[fpinf->cur_tb] == FALSE))
+            || global_rlc_ciphered);
+}
 
 void
 proto_register_rlc(void)
