@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
-r42787 | gerald | 2012-05-22 10:49:57 -0700 (Tue, 22 May 2012) | 2 lines
+r43968 | gerald | 2012-07-24 13:31:33 -0700 (Tue, 24 Jul 2012) | 2 lines
 Changed paths:
    M /trunk-1.4/config.nmake
    M /trunk-1.4/configure.in
@@ -7,276 +7,289 @@ Changed paths:
    M /trunk-1.4/docbook/release-notes.xml
    M /trunk-1.4/version.conf
 
-1.4.12 → 1.4.13.
+1.4.14 → 1.4.15.
 
 ------------------------------------------------------------------------
-r42864 | gerald | 2012-05-27 08:04:31 -0700 (Sun, 27 May 2012) | 1 line
+r44106 | gerald | 2012-07-29 08:35:03 -0700 (Sun, 29 Jul 2012) | 1 line
 Changed paths:
    M /trunk-1.4/epan/enterprise-numbers
    M /trunk-1.4/manuf
    M /trunk-1.4/services
 
-[Automatic manuf, services and enterprise-numbers update for 2012-05-27]
+[Automatic manuf, services and enterprise-numbers update for 2012-07-29]
 ------------------------------------------------------------------------
-r42955 | gerald | 2012-05-31 16:34:53 -0700 (Thu, 31 May 2012) | 2 lines
+r44279 | gerald | 2012-08-05 08:35:09 -0700 (Sun, 05 Aug 2012) | 1 line
+Changed paths:
+   M /trunk-1.4/epan/enterprise-numbers
+   M /trunk-1.4/manuf
+   M /trunk-1.4/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-08-05]
+------------------------------------------------------------------------
+r44311 | gerald | 2012-08-07 12:42:40 -0700 (Tue, 07 Aug 2012) | 16 lines
 Changed paths:
    M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/epan/dissectors/packet-dcp-etsi.c
 
-Mention that you can get certification.
-
-------------------------------------------------------------------------
-r43022 | gerald | 2012-06-03 08:04:36 -0700 (Sun, 03 Jun 2012) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-06-03]
-------------------------------------------------------------------------
-r43311 | gerald | 2012-06-17 08:34:50 -0700 (Sun, 17 Jun 2012) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-06-17]
-------------------------------------------------------------------------
-r43459 | gerald | 2012-06-24 08:34:54 -0700 (Sun, 24 Jun 2012) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-06-24]
-------------------------------------------------------------------------
-r43504 | guy | 2012-06-26 22:27:33 -0700 (Tue, 26 Jun 2012) | 13 lines
-Changed paths:
-   M /trunk-1.4/dumpcap.c
-
-Copy over r43501 from the trunk, with manual intervention:
+Copy over r44247 from the trunk:
 
   ------------------------------------------------------------------------
-  r43501 | guy | 2012-06-26 22:13:06 -0700 (Tue, 26 Jun 2012) | 7 lines
-
-  Don't supply a fallback error message for pcap_open() unless it actually
-  fails.
-
-  This may clear up the problem most recently reported in bug 7021 after
-  the crash was fixed, where the capture starts successfully but an error
-  dialog pops up.
-
-
-------------------------------------------------------------------------
-r43554 | gerald | 2012-07-01 08:34:59 -0700 (Sun, 01 Jul 2012) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-07-01]
-------------------------------------------------------------------------
-r43614 | gerald | 2012-07-08 08:35:01 -0700 (Sun, 08 Jul 2012) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-07-08]
-------------------------------------------------------------------------
-r43725 | gerald | 2012-07-15 08:34:59 -0700 (Sun, 15 Jul 2012) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-07-15]
-------------------------------------------------------------------------
-r43870 | gerald | 2012-07-20 12:45:58 -0700 (Fri, 20 Jul 2012) | 17 lines
-Changed paths:
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-ppp.c
-
-Copy over r43784 from the trunk:
-
-  ------------------------------------------------------------------------
-  r43784 | rbalint | 2012-07-18 08:14:45 -0700 (Wed, 18 Jul 2012) | 6 lines
+  r44247 | morriss | 2012-08-03 09:20:31 -0700 (Fri, 03 Aug 2012) | 6 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-ppp.c
+     M /trunk/epan/dissectors/packet-dcp-etsi.c
 
-  Fix crash in PPP dissector
+  Fix fuzz failure reported in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7566 :
 
-  Make sure that there is enough space allocated for PPP encapsulated CRTP
-  packet's header.
-  The bug can be triggered on an x86_64 system using the cpature file attached to
-  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=680056
+  Don't try to reassemble a message of length 0 (fixes a later divide-by-zero
+  error but I don't see why we'd want to do any work for message whose length
+  we think is 0).
   ------------------------------------------------------------------------
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r43871 | gerald | 2012-07-20 13:40:41 -0700 (Fri, 20 Jul 2012) | 56 lines
+r44345 | gerald | 2012-08-08 09:23:26 -0700 (Wed, 08 Aug 2012) | 20 lines
 Changed paths:
-   M /trunk-1.4/AUTHORS
-   M /trunk-1.4/asn1/snmp/packet-snmp-template.c
-   M /trunk-1.4/capture_sync.c
    M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-diameter.c
-   M /trunk-1.4/epan/dissectors/packet-snmp.c
-   M /trunk-1.4/epan/dissectors/packet-syslog.c
-   M /trunk-1.4/epan/dissectors/packet-udp.c
-   M /trunk-1.4/epan/dissectors/packet-vmlab.c
-   M /trunk-1.4/epan/filesystem.c
-   M /trunk-1.4/rawshark.c
-   M /trunk-1.4/wiretap/netscreen.c
+   M /trunk-1.4/epan/dissectors/packet-xtp.c
 
-Copy over revisions from the trunk:
+Copy over r44289 with manual intervention:
 
   ------------------------------------------------------------------------
-  r43174 | cmaynard | 2012-06-09 08:43:08 -0700 (Sat, 09 Jun 2012) | 3 lines
+  r44289 | gerald | 2012-08-06 16:12:13 -0700 (Mon, 06 Aug 2012) | 10 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-syslog.c
+     M /trunk/epan/dissectors/packet-xtp.c
 
-  Allow syslog to work with "Decode As" for TCP.
-  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5241
-  ------------------------------------------------------------------------
-  r43179 | cmaynard | 2012-06-09 10:56:08 -0700 (Sat, 09 Jun 2012) | 2 lines
-  Changed paths:
-     M /trunk/asn1/snmp/packet-snmp-template.c
-     M /trunk/epan/dissectors/packet-diameter.c
-     M /trunk/epan/dissectors/packet-snmp.c
-     M /trunk/epan/dissectors/packet-vmlab.c
+  Add a maximum span length check to XTP. Fixes a crash discovered by Ben
+  Schmidt.
 
-  Do not use BASE_NONE for FT_*INT* types.
-  ------------------------------------------------------------------------
-  r43187 | cmaynard | 2012-06-10 12:43:40 -0700 (Sun, 10 Jun 2012) | 3 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-udp.c
+  Just use proto_tree_add_item() instead of allocating a
+  big-ol-honkin'-block of guint64s and adding their values to the tree via
+  proto_tree_add_uint64().
 
-  Fix UDP-Lite checksum verification bug introduced with r40387 and reported by "answer" via http://ask.wireshark.org/questions/11798/is-udp-lite-checksum-correct-ipv6
-  There is a difference between the UDP and UDP-Lite pseudo header that wasn't realized when r40387 was committed.  Details of the difference in http://tools.ietf.org/html/rfc3828#section-3.2
-  ------------------------------------------------------------------------
-  r43191 | cmaynard | 2012-06-10 17:53:23 -0700 (Sun, 10 Jun 2012) | 2 lines
-  Changed paths:
-     M /trunk/AUTHORS
-
-  Remove duplicate entry.
-  ------------------------------------------------------------------------
-
-
-Copy over by hand:
-
-  ------------------------------------------------------------------------
-  r43139 | darkjames | 2012-06-06 12:59:55 -0700 (Wed, 06 Jun 2012) | 4 lines
-  Changed paths:
-     M /trunk/wiretap/netscreen.c
-
-  Fix bug #7340
-
-  interface name can also contain hyphen (v1-untrust, v1-trust).
-  ------------------------------------------------------------------------
-  r43172 | cmaynard | 2012-06-08 20:41:23 -0700 (Fri, 08 Jun 2012) | 2 lines
-  Changed paths:
-     M /trunk/capture_sync.c
-     M /trunk/epan/filesystem.c
-     M /trunk/rawshark.c
-
-  Be sure to specify FORMAT_MESSAGE_IGNORE_INSERTS in the dwFlags arg to all FormatMessage() calls where FORMAT_MESSAGE_FROM_SYSTEM is also specified.  (Ref: http://blogs.msdn.com/b/oldnewthing/archive/2007/11/28/6564257.aspx)
+  Dissection *should* still work correctly but I can't find any XTP
+  captures for testing.
   ------------------------------------------------------------------------
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r43872 | gerald | 2012-07-20 14:14:53 -0700 (Fri, 20 Jul 2012) | 74 lines
+r44352 | gerald | 2012-08-08 10:37:06 -0700 (Wed, 08 Aug 2012) | 15 lines
 Changed paths:
-   M /trunk-1.4/Makefile.am
-   M /trunk-1.4/doc/README.developer
    M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-ethertype.c
+   M /trunk-1.4/epan/dissectors/packet-afp.c
+
+Copy over r44317 with manual intervention:
+
+  ------------------------------------------------------------------------
+  r44317 | gerald | 2012-08-07 16:06:29 -0700 (Tue, 07 Aug 2012) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-afp.c
+
+  Fix a large loop found by Stefan Cornelius of Red Hat Security Response
+  Team (bug 7603).
+
+  Display the ACL entry count as decimal instead of hexadecimal.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r44355 | gerald | 2012-08-08 11:49:21 -0700 (Wed, 08 Aug 2012) | 17 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/epan/dissectors/packet-rtps2.c
+
+Copy over r44320 from the trunk:
+
+  ------------------------------------------------------------------------
+  r44320 | gerald | 2012-08-07 17:40:03 -0700 (Tue, 07 Aug 2012) | 7 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-rtps2.c
+
+  Use ep_strbufs instead of trying to track string offsets manually
+  and overflowing a buffer. Fixes a crash in bug 7568 discovered by
+  Laurent Butti.
+
+  We do the Dance Of The String Offset Pointers in several other
+  places. They should probably be changed to ep_strbufs as well.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r44362 | gerald | 2012-08-08 14:21:10 -0700 (Wed, 08 Aug 2012) | 5 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/epan/dissectors/packet-cip.c
+
+Copy over the fix for bug 7570 from r44312 by hand. The problem isn't as severe
+in 1.6 but it's still there.
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r44369 | gerald | 2012-08-08 17:32:22 -0700 (Wed, 08 Aug 2012) | 14 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/epan/dissectors/packet-stun.c
+
+Copy over r44366 from the trunk:
+
+  ------------------------------------------------------------------------
+  r44366 | gerald | 2012-08-08 17:20:18 -0700 (Wed, 08 Aug 2012) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-stun.c
+
+  se_tree_lookup32_array() can destroy its key. Make sure we refresh it
+  before passing it to se_tree_insert32_array(). Fixes bug 7569 reported
+  by Laurent Butti.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r44392 | gerald | 2012-08-09 10:56:30 -0700 (Thu, 09 Aug 2012) | 17 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/plugins/ethercat/packet-ecatmb.c
+
+Copy over r43149 from the trunk with manual intervention:
+
+  ------------------------------------------------------------------------
+  r43149 | wmeier | 2012-06-07 13:16:28 -0700 (Thu, 07 Jun 2012) | 6 lines
+  Changed paths:
+     M /trunk/plugins/ethercat/packet-ecatmb.c
+
+  Attempt to fix display of "eoe macfilter header".
+  Among other things: fix incorrect 'display' value in several hf[] entries.
+  (See XXX coments in source for further details).
+  Attempt to fix use of incorrect value in hf[] entry 'display' fields
+  ------------------------------------------------------------------------
+
+Fixes an abort reported by Laurent Butti in bug 7562.
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r44406 | gerald | 2012-08-09 15:23:41 -0700 (Thu, 09 Aug 2012) | 13 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/epan/dissectors/packet-ctdb.c
+
+Copy over r44403 with manual intervention:
+
+  ------------------------------------------------------------------------
+  r44403 | gerald | 2012-08-09 15:04:46 -0700 (Thu, 09 Aug 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ctdb.c
+
+  Add a check for the number of nodes. Fixes a DoS in bug 7573 reported by
+  Ben Schmidt.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r44433 | gerald | 2012-08-10 11:39:26 -0700 (Fri, 10 Aug 2012) | 39 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
    M /trunk-1.4/epan/dissectors/packet-nfs.c
-   M /trunk-1.4/epan/etypes.h
-   M /trunk-1.4/epan/ftypes/ftype-double.c
-   M /trunk-1.4/gtk/main_proto_draw.c
 
 Copy over revisions from the trunk:
 
   ------------------------------------------------------------------------
-  r43212 | darkjames | 2012-06-11 12:27:57 -0700 (Mon, 11 Jun 2012) | 4 lines
-  Changed paths:
-     M /trunk/epan/ftypes/ftype-double.c
-
-  Fix bug 6917
-
-  strtod() is locale-aware, change it to g_ascii_strtod()
-  ------------------------------------------------------------------------
-  r43224 | wmeier | 2012-06-12 06:03:05 -0700 (Tue, 12 Jun 2012) | 2 lines
-  Changed paths:
-     M /trunk/doc/README.developer
-
-  Note that calls to "expert" functions should not be under 'if (tree)'.
-  ------------------------------------------------------------------------
-
-
-Copy over by hand:
-
-  ------------------------------------------------------------------------
-  r43277 | darkjames | 2012-06-15 16:04:59 -0700 (Fri, 15 Jun 2012) | 5 lines
-  Changed paths:
-     M /trunk/ui/gtk/main_proto_draw.c
-
-  highlight_field: use passed GtkTreeView for proto_tree_draw.
-
-  highlight_field() is also called when we open packet in new window and we click some bytes,
-  it caused redrawing packet details in *main window* but with protocol tree from (possibly) another frame.
-  ------------------------------------------------------------------------
-  r43561 | guy | 2012-07-03 13:12:50 -0700 (Tue, 03 Jul 2012) | 18 lines
-  Changed paths:
-     M /trunk/Makefile.am
-
-  As per Gentoo bug 423743
-
-  	https://bugs.gentoo.org/show_bug.cgi?id=423743
-
-  "The Makefile.am claims including GLIB_LIBS when linking wireshark is
-  unnecessary, because wireshark links to GTK_LIBS which is a superset.
-  It is not actually a superset: gmodule is included in GLIB_LIBS but
-  not in GTK_LIBS (unless accidentally on older glibs/gtks)."
-
-  so we must explicitly link with GLIB_LIBS.
-
-  Update the comment to reflect that - and to reflect that GTK+ doesn't
-  necessarily run atop X11 - while we're at it.
-
-  Fixes bug 7427.
-
-  #BACKPORT
-  ------------------------------------------------------------------------
-  r43576 | darkjames | 2012-07-05 14:09:34 -0700 (Thu, 05 Jul 2012) | 6 lines
+  r44111 | wmeier | 2012-07-29 11:17:17 -0700 (Sun, 29 Jul 2012) | 11 lines
   Changed paths:
      M /trunk/epan/dissectors/packet-nfs.c
 
-  Fix bug #7436
+  Fix crash when "file_name_snooping" & "file_full_name_snooping" prefs enabled.
 
-  offset returned from dissect_nfs_open_claim4, dissect_nfs_openflag4 were different
-  when we were building tree and where we didn't.
-  Fix other similar cases.
+  Crash due to a g_snprintf() incorrect (too large) "max number of bytes" parameter.
+
+  Note that g_snprintf() apparently writes to (initializes ?) bytes beyond the
+   actual string written.
+
+  Fixes Bug #7948: (To be confirmed by the user)
+  See: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7498
   ------------------------------------------------------------------------
-  r43850 | jake | 2012-07-19 23:26:35 -0700 (Thu, 19 Jul 2012) | 2 lines
+  r44112 | wmeier | 2012-07-29 12:00:46 -0700 (Sun, 29 Jul 2012) | 2 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-ethertype.c
-     M /trunk/epan/etypes.h
+     M /trunk/epan/dissectors/packet-nfs.c
 
-  Add some relevant ethertypes.
+  Cast away a compile warning: "conversion from '__int64' to 'gulong', possible loss of data"
+  ------------------------------------------------------------------------
+  r44113 | wmeier | 2012-07-29 12:05:18 -0700 (Sun, 29 Jul 2012) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-nfs.c
+
+  Fix a typo  :(
+  ------------------------------------------------------------------------
+  r44117 | wmeier | 2012-07-29 13:19:38 -0700 (Sun, 29 Jul 2012) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-nfs.c
+
+  g_assert --> DISSECTOR_ASSERT
   ------------------------------------------------------------------------
 
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r43914 | gerald | 2012-07-22 08:35:09 -0700 (Sun, 22 Jul 2012) | 1 line
+r44455 | gerald | 2012-08-12 08:35:05 -0700 (Sun, 12 Aug 2012) | 1 line
 Changed paths:
    M /trunk-1.4/epan/enterprise-numbers
    M /trunk-1.4/manuf
    M /trunk-1.4/services
 
-[Automatic manuf, services and enterprise-numbers update for 2012-07-22]
+[Automatic manuf, services and enterprise-numbers update for 2012-08-12]
+------------------------------------------------------------------------
+r44505 | gerald | 2012-08-14 14:01:26 -0700 (Tue, 14 Aug 2012) | 2 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+
+Add CVE IDs.
+
+------------------------------------------------------------------------
+r44508 | gerald | 2012-08-14 14:51:57 -0700 (Tue, 14 Aug 2012) | 33 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/epan/dissectors/packet-btl2cap.c
+   M /trunk-1.4/epan/dissectors/packet-fclctl.c
+   M /trunk-1.4/epan/dissectors/packet-sctp.c
+   M /trunk-1.4/epan/sctpppids.h
+
+Copy over r44500 from the trunk:
+
+  ------------------------------------------------------------------------
+  r44500 | tuexen | 2012-08-14 13:31:49 -0700 (Tue, 14 Aug 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-sctp.c
+     M /trunk/epan/sctpppids.h
+
+  Update SCTP PPIDs.
+  This also fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7635
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r44476 | gerald | 2012-08-13 12:30:42 -0700 (Mon, 13 Aug 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-btl2cap.c
+
+  Add length checks to make sure we don't underflow an integer. Make
+  sure we allocate and copy the same amount of data. Fixes bug 7621.
+  ------------------------------------------------------------------------
+  r44491 | mmann | 2012-08-14 09:29:38 -0700 (Tue, 14 Aug 2012) | 1 line
+  Changed paths:
+     M /trunk/epan/dissectors/packet-fclctl.c
+
+  fix subtle g_strdup_printf() memory leaks with ephemeral memory
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
 ------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-Wireshark 1.4.14 Release Notes
+Wireshark 1.4.15 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,34 +14,90 @@ What's New
 
    The following vulnerabilities have been fixed.
 
-     o wnpa-sec-2012-11
+     o wnpa-sec-2012-13
 
-       The PPP dissector could crash. (Debian bug 680056)
+       The DCP ETSI dissector could trigger a zero division. Reported
+       by Laurent Butti. (Bug 7566)
 
-       Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
 
-       CVE-2012-4048
+       CVE-2012-4285
 
-     o wnpa-sec-2012-12
+     o wnpa-sec-2012-15
 
-       The NFS dissector could use excessive amounts of CPU. (Bug
-       7436)
+       The XTP dissector could go into an infinite loop. Reported by
+       Ben Schmidt. (Bug 7571)
 
-       Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
 
-       CVE-2012-4049
+       CVE-2012-4288
+
+     o wnpa-sec-2012-17
+
+       The AFP dissector could go into a large loop. Reported by
+       Stefan Cornelius. (Bug 7603)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4289
+
+     o wnpa-sec-2012-18
+
+       The RTPS2 dissector could overflow a buffer. Reported by
+       Laurent Butti. (Bug 7568)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4296
+
+     o wnpa-sec-2012-20
+
+       The CIP dissector could exhaust system memory. Reported by Ben
+       Schmidt. (Bug 7570)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4291
+
+     o wnpa-sec-2012-21
+
+       The STUN dissector could crash. Reported by Laurent Butti.
+       (Bug 7569)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4292
+
+     o wnpa-sec-2012-22
+
+       The EtherCAT Mailbox dissector could abort. Reported by
+       Laurent Butti. (Bug 7562)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4293
+
+     o wnpa-sec-2012-23
+
+       The CTDB dissector could go into a large loop. Reported by Ben
+       Schmidt. (Bug 7573)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4290
 
    The following bugs have been fixed:
 
-     o Cannot run tshark under tcp using decode-as format for syslog.
-       (Bug 5241)
-
-     o Problem with Floating point (double-precision). (Bug 6917)
-
-     o Netscreen - can't parse packet-header. (Bug 7340)
-
-     o Wireshark fails to link because of missing @GLIB_LIBS@
-       reference in Makefile.am. (Bug 7427)
+     o Wireshark crashes on opening very short NFS pcap file. (Bug
+       7498)
 
   New and Updated Features
 
@@ -53,11 +109,12 @@ What's New
 
   Updated Protocol Support
 
-   DIAMETER, NFS, PPP, SNMP, Syslog, UDP-Lite, VMLAB
+   AFP, Bluetooth L2CAP, CIP, CTDB, DCP ETSI, EtherCAT Mailbox, FC
+   Link Control, LISP, NFS, RTPS2, SCTP, STUN, XTP
 
   New and Updated Capture File Support
 
-   Juniper NetScreen
+   There are no new or updated capture file formats in this release.
 
 Getting Wireshark
 
