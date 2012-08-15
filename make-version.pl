@@ -264,8 +264,8 @@ sub update_configure_in
 
 	open(CFGIN, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CFGIN>) {
-		if ($line =~ /^AC_INIT\(wireshark, (\d+)\.(\d+).(\d+).*([\r\n]+)$/) {
-			$line = sprintf("AC_INIT\(wireshark, %d.%d.%d%s)$4",
+		if ($line =~ /^AC_INIT\(wireshark, (\d+)\.(\d+).(\d+) *,(.*[\r\n]+)$/) {
+			$line = sprintf("AC_INIT\(wireshark, %d.%d.%d%s,$4",
 					$set_version ? $version_pref{"version_major"} : $1,
 					$set_version ? $version_pref{"version_minor"} : $2,
 					$set_version ? $version_pref{"version_micro"} : $3,
