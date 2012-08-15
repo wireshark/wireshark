@@ -23,9 +23,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* This dissector supports HDCP 1.x over I2C and  HDCP 2.x over TCP.
-   For now, only the most common authentication protocol messages are
-   recognized. */
+/* This dissector supports HDCP (version 1) over I2C. For now, only the
+   most common protocol messages are recognized. */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -33,24 +32,16 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/ptvcursor.h>
 #include <epan/expert.h>
 #include "packet-hdcp.h"
 
 
 static int proto_hdcp  = -1;
-static int proto_hdcp2 = -1;
-
-static gboolean  hdcp2_enable_dissector = FALSE;
 
 static emem_tree_t *transactions = NULL;
 
-void proto_reg_handoff_hdcp2(void);
-
-/* etts are shared by hdcp and hdcp2 */
 static gint ett_hdcp = -1;
-static gint ett_hdcp_cert = -1;
 
 static int hf_hdcp_addr = -1;
 static int hf_hdcp_reg = -1;
@@ -71,22 +62,6 @@ static int hf_hdcp_depth = -1;
 static int hf_hdcp_max_devs_exc = -1;
 static int hf_hdcp_downstream = -1;
 static int hf_hdcp_link_vfy = -1;
-static int hf_hdcp2_msg_id = -1;
-static int hf_hdcp2_r_tx = -1;
-static int hf_hdcp2_repeater = -1;
-static int hf_hdcp2_cert_rcv_id = -1;
-static int hf_hdcp2_cert_n = -1;
-static int hf_hdcp2_cert_e = -1;
-static int hf_hdcp2_cert_rcv_sig = -1;
-static int hf_hdcp2_e_kpub_km = -1;
-static int hf_hdcp2_e_kh_km = -1;
-static int hf_hdcp2_m = -1;
-static int hf_hdcp2_r_rx = -1;
-static int hf_hdcp2_h_prime = -1;
-static int hf_hdcp2_r_n = -1;
-static int hf_hdcp2_l_prime = -1;
-static int hf_hdcp2_e_dkey_ks = -1;
-static int hf_hdcp2_r_iv = -1;
 
 /* the addresses used by this dissector are 8bit, including the direction bit
    (to be in line with the HDCP specification) */
@@ -103,24 +78,6 @@ static int hf_hdcp2_r_iv = -1;
 #define REG_AN      0x18
 #define REG_BCAPS   0x40
 #define REG_BSTATUS 0x41
-
-#define ID_AKE_INIT          2
-#define ID_AKE_SEND_CERT     3
-#define ID_AKE_NO_STORED_KM  4
-#define ID_AKE_STORED_KM     5
-#define ID_AKE_SEND_RRX      6
-#define ID_AKE_SEND_H_PRIME  7
-#define ID_LC_INIT           9
-#define ID_LC_SEND_L_PRIME  10
-#define ID_SKE_SEND_EKS     11
-#define ID_MAX              31
-
-#define RCV_ID_LEN    5  /* all lengths are in bytes */
-#define N_LEN       128
-#define E_LEN         3
-#define RCV_SIG_LEN 384
-
-#define CERT_RX_LEN   (RCV_ID_LEN + N_LEN + E_LEN + 2 + RCV_SIG_LEN)
 
 typedef struct _hdcp_transaction_t {
     guint32 rqst_frame;
@@ -142,39 +99,6 @@ static const value_string hdcp_reg[] = {
     { REG_BSTATUS, "B_status"},
     { 0, NULL }
 };
-
-static const value_string hdcp_msg_id[] = {
-    { ID_AKE_INIT,         "AKE_Init" },
-    { ID_AKE_SEND_CERT,    "AKE_Send_Cert" },
-    { ID_AKE_NO_STORED_KM, "AKE_No_Stored_km" },
-    { ID_AKE_STORED_KM,    "AKE_Stored_km" },
-    { ID_AKE_SEND_RRX,     "AKE_Send_rrx" },
-    { ID_AKE_SEND_H_PRIME, "AKE_Send_H_prime" },
-    { ID_LC_INIT,          "LC_Init" },
-    { ID_LC_SEND_L_PRIME,  "LC_Send_L_prime" },
-    { ID_SKE_SEND_EKS,     "SKE_Send_Eks" },
-    { 0, NULL }
-};
-
-typedef struct _msg_info_t {
-    guint8  id;
-    guint16 len;  /* number of bytes following initial msg_id field */
-} msg_info_t;
-
-static GHashTable *msg_table = NULL;
-
-static const msg_info_t msg_info[] = {
-    { ID_AKE_INIT,           8 },
-    { ID_AKE_SEND_CERT,    1+CERT_RX_LEN },
-    { ID_AKE_NO_STORED_KM, 128 },
-    { ID_AKE_STORED_KM,     32 },
-    { ID_AKE_SEND_RRX,       8 },
-    { ID_AKE_SEND_H_PRIME,  32 },
-    { ID_LC_INIT,            8 },
-    { ID_LC_SEND_L_PRIME,   32 },
-    { ID_SKE_SEND_EKS,      24 }
-};
-
 
 gboolean
 sub_check_hdcp(packet_info *pinfo _U_)
@@ -377,111 +301,9 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-static int
-dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    msg_info_t *mi;
-    proto_item *pi;
-    proto_tree *hdcp_tree = NULL, *cert_tree = NULL;
-    guint8 msg_id;
-    gboolean repeater;
-    guint16 reserved;
-    ptvcursor_t *cursor;
-
-    /* do the plausibility checks before setting up anything */
-    msg_id = tvb_get_guint8(tvb, 0);
-    if (msg_id > ID_MAX)
-        return 0;
-
-    mi = (msg_info_t *)g_hash_table_lookup(msg_table,
-            GUINT_TO_POINTER((guint)msg_id));
-    /* 1 -> start after msg_id byte */
-    if (!mi || mi->len!=tvb_reported_length_remaining(tvb, 1))
-        return 0;
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HDCP");
-    col_clear(pinfo->cinfo, COL_INFO);
-
-    if (tree) {
-        pi = proto_tree_add_protocol_format(tree, proto_hdcp2,
-                tvb, 0, tvb_reported_length(tvb), "HDCPv2");
-        hdcp_tree = proto_item_add_subtree(pi, ett_hdcp);
-    }
-    cursor = ptvcursor_new(hdcp_tree, tvb, 0);
-
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
-                    val_to_str(msg_id, hdcp_msg_id, "unknown (0x%x)"));
-    ptvcursor_add(cursor, hf_hdcp2_msg_id, 1, ENC_BIG_ENDIAN);
-
-    switch (msg_id) {
-        case ID_AKE_INIT:
-            ptvcursor_add(cursor, hf_hdcp2_r_tx, 8, ENC_BIG_ENDIAN);
-            break;
-        case ID_AKE_SEND_CERT:
-            repeater = ((tvb_get_guint8(tvb, ptvcursor_current_offset(cursor))
-                        & 0x01) == 0x01);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
-                    repeater ? "repeater" : "no repeater");
-            ptvcursor_add(cursor, hf_hdcp2_repeater, 1, ENC_BIG_ENDIAN);
-            if (hdcp_tree) {
-                cert_tree = ptvcursor_add_text_with_subtree(cursor, CERT_RX_LEN,
-                        ett_hdcp_cert, "%s", "HDCP Certificate");
-            }
-            ptvcursor_add(cursor, hf_hdcp2_cert_rcv_id, RCV_ID_LEN, ENC_NA);
-            ptvcursor_add(cursor, hf_hdcp2_cert_n, N_LEN, ENC_NA);
-            ptvcursor_add(cursor, hf_hdcp2_cert_e, E_LEN, ENC_BIG_ENDIAN);
-            reserved = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-            proto_tree_add_text(cert_tree, tvb,
-                        ptvcursor_current_offset(cursor), 2, "reserved bytes");
-            if (reserved != 0) {
-                pi = proto_tree_add_text(cert_tree, tvb,
-                        ptvcursor_current_offset(cursor), 2, "invalid value");
-                expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                        "reserved bytes must be set to 0x0");
-            }
-            ptvcursor_advance(cursor, 2);
-            ptvcursor_add(cursor, hf_hdcp2_cert_rcv_sig, RCV_SIG_LEN, ENC_NA);
-            if (cert_tree)
-                ptvcursor_pop_subtree(cursor);
-            break;
-        case ID_AKE_NO_STORED_KM:
-            ptvcursor_add(cursor, hf_hdcp2_e_kpub_km, 128, ENC_NA);
-            break;
-        case ID_AKE_STORED_KM:
-            ptvcursor_add(cursor, hf_hdcp2_e_kh_km, 16, ENC_NA);
-            ptvcursor_add(cursor, hf_hdcp2_m, 16, ENC_NA);
-            break;
-        case ID_AKE_SEND_RRX:
-            ptvcursor_add(cursor, hf_hdcp2_r_rx, 8, ENC_BIG_ENDIAN);
-            break;
-        case ID_AKE_SEND_H_PRIME:
-            ptvcursor_add(cursor, hf_hdcp2_h_prime, 32, ENC_NA);
-            break;
-        case ID_LC_INIT:
-            ptvcursor_add(cursor, hf_hdcp2_r_n, 8, ENC_BIG_ENDIAN);
-            break;
-        case ID_LC_SEND_L_PRIME:
-            ptvcursor_add(cursor, hf_hdcp2_l_prime, 32, ENC_NA);
-            break;
-        case ID_SKE_SEND_EKS:
-            ptvcursor_add(cursor, hf_hdcp2_e_dkey_ks, 16, ENC_NA);
-            ptvcursor_add(cursor, hf_hdcp2_r_iv, 8, ENC_BIG_ENDIAN);
-            break;
-        default:
-            break;
-    }
-
-    ptvcursor_free(cursor);
-    return tvb_reported_length(tvb);
-}
-
-
-
 void
 proto_register_hdcp(void)
 {
-    guint i;
-
     static hf_register_info hf[] = {
         { &hf_hdcp_addr,
             { "8bit I2C address", "hdcp.addr", FT_UINT8, BASE_HEX,
@@ -540,104 +362,23 @@ proto_register_hdcp(void)
                 FT_UINT16, BASE_DEC, NULL, 0x007F, NULL, HFILL } },
         { &hf_hdcp_link_vfy,
             { "Link verification response Ri'", "hdcp.link_vfy",
-                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_msg_id,
-            { "Message ID", "hdcp2.msg_id", FT_UINT8, BASE_HEX,
-                VALS(hdcp_msg_id), 0, NULL, HFILL } },
-        { &hf_hdcp2_r_tx,
-            { "r_tx", "hdcp2.r_tx", FT_UINT64, BASE_HEX,
-                NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_repeater,
-            { "Repeater", "hdcp2.repeater", FT_BOOLEAN, 8,
-                NULL, 0x1, NULL, HFILL } },
-        { &hf_hdcp2_cert_rcv_id,
-            { "Receiver ID", "hdcp2.cert.rcv_id", FT_BYTES, BASE_NONE,
-                NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_cert_n,
-            { "Receiver RSA key n", "hdcp2.cert.n", FT_BYTES, BASE_NONE,
-                NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_cert_e,
-            { "Receiver RSA key e", "hdcp2.cert.e", FT_UINT24, BASE_HEX,
-                NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_cert_rcv_sig,
-            { "Receiver signature", "hdcp2.cert.rcv_sig", FT_BYTES,
-                BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_e_kpub_km,
-            { "E_kpub_km", "hdcp2.e_kpub_km", FT_BYTES, BASE_NONE,
-                NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_e_kh_km,
-            { "E_kh_km", "hdcp2.e_kh_km", FT_BYTES, BASE_NONE,
-                NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_m,
-            { "m", "hdcp2.m", FT_BYTES, BASE_NONE,
-                NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_r_rx,
-            { "r_rx", "hdcp2.r_rx", FT_UINT64, BASE_HEX,
-                NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_h_prime,
-            { "H'", "hdcp2.h_prime", FT_BYTES, BASE_NONE,
-                NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_r_n,
-            { "r_n", "hdcp2.r_n", FT_UINT64, BASE_HEX,
-                NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_l_prime,
-            { "L'", "hdcp2.l_prime", FT_BYTES, BASE_NONE,
-                NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_e_dkey_ks,
-            { "E_dkey_ks", "hdcp2.e_dkey_ks", FT_BYTES, BASE_NONE,
-                NULL, 0, NULL, HFILL } },
-        { &hf_hdcp2_r_iv,
-            { "r_iv", "hdcp2.r_iv", FT_UINT64, BASE_HEX,
-                NULL, 0, NULL, HFILL } }
-};
-
-    static gint *ett[] = {
-        &ett_hdcp,
-        &ett_hdcp_cert
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } }
     };
 
-    module_t *hdcp2_module;
+    static gint *ett[] = {
+        &ett_hdcp
+    };
 
-    msg_table = g_hash_table_new(g_direct_hash, g_direct_equal);
-    for(i=0; i<array_length(msg_info); i++) {
-        g_hash_table_insert(msg_table,
-                GUINT_TO_POINTER((guint)msg_info[i].id),
-                (const gpointer)(&msg_info[i]));
-    }
 
     proto_hdcp = proto_register_protocol(
             "High bandwidth Digital Content Protection", "HDCP", "hdcp");
-    proto_hdcp2 = proto_register_protocol(
-            "High bandwidth Digital Content Protection version 2",
-            "HDCPv2", "hdcp2");
-
-    hdcp2_module = prefs_register_protocol(proto_hdcp2, proto_reg_handoff_hdcp2);
-    prefs_register_bool_preference(hdcp2_module, "enable", "Enable dissector",
-                        "Enable heuristic HDCPv2 dissector (default is false)",
-                        &hdcp2_enable_dissector);
 
     proto_register_field_array(proto_hdcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     new_register_dissector("hdcp", dissect_hdcp, proto_hdcp);
-    new_register_dissector("hdcp2", dissect_hdcp2, proto_hdcp2);
 
     register_init_routine(hdcp_init);
-
-}
-
-void
-proto_reg_handoff_hdcp2(void)
-{
-    static gboolean prefs_initialized = FALSE;
-
-    if (!prefs_initialized) {
-        heur_dissector_add ("tcp", dissect_hdcp2, proto_hdcp2);
-
-        prefs_initialized = TRUE;
-    }
-
-    proto_set_decoding(proto_hdcp2, hdcp2_enable_dissector);
 }
 
 /*
