@@ -2724,7 +2724,6 @@ proto_register_dtls(void)
 
   register_dissector("dtls", dissect_dtls, proto_dtls);
   dtls_handle = find_dissector("dtls");
-  dissector_add_uint("sctp.ppi", DIAMETER_DTLS_PROTOCOL_ID, dtls_handle);
   dtls_associations = g_tree_new(ssl_association_cmp);
 
   register_init_routine(dtls_init);
@@ -2750,8 +2749,10 @@ proto_reg_handoff_dtls(void)
   dtls_parse_uat();
   dtls_parse_old_keys();
 
-  if (initialized == FALSE)
+  if (initialized == FALSE) {
     heur_dissector_add("udp", dissect_dtls_heur, proto_dtls);
+    dissector_add_uint("sctp.ppi", DIAMETER_DTLS_PROTOCOL_ID, find_dissector("dtls"));
+  }
 
   initialized = TRUE;
 }
