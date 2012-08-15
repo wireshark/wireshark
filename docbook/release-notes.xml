@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-<!ENTITY WiresharkCurrentVersion "1.6.10">
+<!ENTITY WiresharkCurrentVersion "1.6.11">
 
 ]>
 
@@ -36,172 +36,20 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-13.html">wnpa-sec-2012-13</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-26.html">wnpa-sec-2012-26</ulink>
           </para>
           <para>
-	    The DCP ETSI dissector could trigger a zero division. Reported by
-	    Laurent Butti.
-            <!-- Fixed in trunk: r44247 -->
-            <!-- Fixed in trunk-1.8: r44309 -->
-            <!-- Fixed in trunk-1.6: r44310 -->
-            <!-- Fixed in trunk-1.4: r44311 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7566">Bug
-            7566</ulink>)
+	    .
+            <!-- Fixed in trunk: r? -->
+            <!-- Fixed in trunk-1.8: r? -->
+            <!-- Fixed in trunk-1.6: r? -->
+            <!-- Fixed in trunk-1.4: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=?">Bug
+            ?</ulink>)
           </para>
-          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
+          <para>Versions affected: 1.4.0 to 1.4.15, 1.6.0 to 1.6.10, 1.8.0 to 1.8.2.</para>
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-4285">CVE-2012-4285</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-15.html">wnpa-sec-2012-15</ulink>
-          </para>
-          <para>
-	    The XTP dissector could go into an infinite loop. Reported by Ben Schmidt.
-            <!-- Fixed in trunk: r44289 -->
-            <!-- Fixed in trunk-1.8: r44343 -->
-            <!-- Fixed in trunk-1.6: r44344 -->
-            <!-- Fixed in trunk-1.4: r44345 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7571">Bug
-            7571</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-4288">CVE-2012-4288</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-17.html">wnpa-sec-2012-17</ulink>
-          </para>
-          <para>
-	    The AFP dissector could go into a large loop. Reported by Stefan Cornelius.
-            <!-- Fixed in trunk: r44317 -->
-            <!-- Fixed in trunk-1.8: r44349 -->
-            <!-- Fixed in trunk-1.6: r44351 -->
-            <!-- Fixed in trunk-1.4: r44352 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7603">Bug
-            7603</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-4289">CVE-2012-4289</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-18.html">wnpa-sec-2012-18</ulink>
-          </para>
-          <para>
-	    The RTPS2 dissector could overflow a buffer. Reported by Laurent Butti.
-            <!-- Fixed in trunk: r44320 -->
-            <!-- Fixed in trunk-1.8: r44353 -->
-            <!-- Fixed in trunk-1.6: r44354 -->
-            <!-- Fixed in trunk-1.4: r44??? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7568">Bug
-            7568</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-4296">CVE-2012-4296</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-19.html">wnpa-sec-2012-19</ulink>
-          </para>
-          <para>
-	    The GSM RLC MAC dissector could overflow a buffer. Reported by Laurent Butti.
-            <!-- Fixed in trunk: r44307, r44319 -->
-            <!-- Fixed in trunk-1.8: r44356 -->
-            <!-- Fixed in trunk-1.6: r44357 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7561">Bug
-            7561</ulink>)
-          </para>
-          <para>Versions affected: 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-4297">CVE-2012-4297</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-20.html">wnpa-sec-2012-20</ulink>
-          </para>
-          <para>
-	    The CIP dissector could exhaust system memory. Reported by Ben Schmidt.
-            <!-- Fixed in trunk: r44312 -->
-            <!-- Fixed in trunk-1.8: r44360 -->
-            <!-- Fixed in trunk-1.6: r44361 -->
-            <!-- Fixed in trunk-1.4: r44362 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7570">Bug
-            7570</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-4291">CVE-2012-4291</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-21.html">wnpa-sec-2012-21</ulink>
-          </para>
-          <para>
-	    The STUN dissector could crash. Reported by Laurent Butti.
-            <!-- Fixed in trunk: r44366 -->
-            <!-- Fixed in trunk-1.8: r44367 -->
-            <!-- Fixed in trunk-1.6: r44368 -->
-            <!-- Fixed in trunk-1.4: r44369 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7569">Bug
-            7569</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-4292">CVE-2012-4292</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-22.html">wnpa-sec-2012-22</ulink>
-          </para>
-          <para>
-	    The EtherCAT Mailbox dissector could abort. Reported by Laurent Butti.
-            <!-- Fixed in trunk: r43149 -->
-            <!-- Fixed in trunk-1.8: r44389 -->
-            <!-- Fixed in trunk-1.6: r44391 -->
-            <!-- Fixed in trunk-1.4: r44392 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7562">Bug
-            7562</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-4293">CVE-2012-4293</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-23.html">wnpa-sec-2012-23</ulink>
-          </para>
-          <para>
-	    The CTDB dissector could go into a large loop. Reported by Ben Schmidt.
-            <!-- Fixed in trunk: r44403 -->
-            <!-- Fixed in trunk-1.8: r44404 -->
-            <!-- Fixed in trunk-1.6: r44405 -->
-            <!-- Fixed in trunk-1.4: r44406 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7573">Bug
-            7573</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-4290">CVE-2012-4290</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
           </para>
         </listitem>
 
@@ -224,28 +72,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-	  Wireshark may not run on Windows due to missing DLLs.
-        </para></listitem>
-
-        <listitem><para>
-          ISDN LAPD  X.31 packet traffic can not be decoded.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7514">Bug
-          7514</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          GSM classmark3 decode wrong.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7524">Bug
-          7524</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          tshark WARNING ERR:   Dissector bug, protocol X2AP, in packet 17019451: proto.c:1347: failed assertion &quot;length == 4.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7542">Bug
-          7542</ulink>)
-        </para></listitem>
 
      </itemizedlist>
 
@@ -273,19 +99,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-AFP,
-CIP,
-CTDB,
-DCP ETSI,
-EtherCAT Mailbox,
-GSM A,
-GSM RLC MAC,
-ISDN,
-NFS,
-RTPS2,
-STUN,
-X2AP,
-XTP
+.
 
     </para>
     </section>
