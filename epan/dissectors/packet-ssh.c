@@ -436,28 +436,27 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item *ssh2_tree=NULL;
 
 	if(tree) {
-		GString *title=g_string_new("SSH Version 2");
+		emem_strbuf_t *title=ep_strbuf_new("SSH Version 2");
 
 		if (global_data->enc || global_data->mac || global_data->comp) {
-			g_string_append_printf(title," (");
+			ep_strbuf_append_printf(title," (");
 			if (global_data->enc)
-				g_string_append_printf(title,"encryption:%s%s",
+				ep_strbuf_append_printf(title,"encryption:%s%s",
 					global_data->enc,
 					global_data->mac || global_data->comp
 						? " " : "");
 			if (global_data->mac)
-				g_string_append_printf(title,"mac:%s%s",
+				ep_strbuf_append_printf(title,"mac:%s%s",
 					global_data->mac,
 					global_data->comp ? " " : "");
 			if (global_data->comp)
-				g_string_append_printf(title,"compression:%s",
+				ep_strbuf_append_printf(title,"compression:%s",
 					global_data->comp);
-			g_string_append_printf(title,")");
+			ep_strbuf_append_printf(title,")");
 		}
 
 		ti=proto_tree_add_text(tree,tvb,offset,-1, "%s", title->str);
 		ssh2_tree = proto_item_add_subtree(ti ,ett_ssh2);
-		g_string_free(title,TRUE);
 	}
 
 	if((is_response && this_number > 3) || (!is_response && this_number>4)) {

@@ -3493,7 +3493,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 /* Ref chapter 6.2.1.2.8 SecurityCategories */
 static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
-                                           proto_tree *tree, GString *label_string,
+                                           proto_tree *tree, gchar **label_string,
                                            gint offset, guint8 ext)
 {
   proto_tree *field_tree = NULL;
@@ -3531,7 +3531,7 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
                                   (message & 0x20) ? ",ex" : "",
                                   (message & 0x10) ? ",ne" : "");
       proto_item_append_text (tf, ": %s", &sec_cat[1]);
-      g_string_append (label_string, sec_cat);
+      *label_string = ep_strconcat(*label_string, sec_cat);
     }
     break;
 
@@ -3544,7 +3544,7 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
     } else {
       tr = proto_tree_add_item (field_tree, hf_message_sec_cat_permissive, tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_item_append_text (tf, ": rel-to-%s", get_nat_pol_id_short (message >> 2));
-      g_string_append_printf (label_string, ",rel-to-%s", get_nat_pol_id_short (message >> 2));
+      *label_string = ep_strdup_printf("%s,rel-to-%s", *label_string, get_nat_pol_id_short (message >> 2));
       if ((message >> 2) == 0) {
         expert_add_info_format (pinfo, tr, PI_UNDECODED, PI_WARN, "Reserved value");
       }
@@ -3604,7 +3604,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *field_tree = NULL;
   proto_item *en = NULL, *ei = NULL, *tf = NULL;
   proto_item *hidden_item;
-  GString    *label_string = g_string_new ("");
+  gchar      *label_string = ep_strdup ("");
   const gchar *class_name = NULL;
   guint8      message, dmp_sec_pol, dmp_sec_class, dmp_nation = 0, exp_time, dtg;
   gint32      secs = 0;
@@ -3725,7 +3725,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   tf = proto_tree_add_item (field_tree, hf_message_sec_class_val, tvb, offset, 1, ENC_BIG_ENDIAN);
   if (class_name) {
     proto_item_append_text (tf, " (%s)", class_name);
-    g_string_append (label_string, class_name);
+    label_string = ep_strconcat(label_string, class_name);
   }
 
   /* Security Policy */
@@ -3797,10 +3797,10 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
 
   /* Security Categories */
   if (dmp_sec_pol == NATO || dmp_sec_pol == NATIONAL || dmp_sec_pol == EXTENDED_NATIONAL) {
-    offset = dissect_dmp_security_category (tvb, pinfo, message_tree, label_string, offset, 0);
-    proto_item_append_text (en, ", Security Label: %s", label_string->str);
+    offset = dissect_dmp_security_category (tvb, pinfo, message_tree, &label_string, offset, 0);
+    proto_item_append_text (en, ", Security Label: %s", label_string);
     tf = proto_tree_add_string (message_tree, hf_message_sec_label, tvb, loffset,
-                                offset - loffset + 1, label_string->str);
+                                offset - loffset + 1, label_string);
     PROTO_ITEM_SET_GENERATED (tf);
   } else {
     tf = proto_tree_add_item (message_tree, hf_message_sec_cat_val, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3917,8 +3917,6 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     /* Notification Data */
     offset = dissect_dmp_notification (tvb, pinfo, dmp_tree, offset);
   }
-
-  g_string_free (label_string, TRUE);
 
   return offset;
 }

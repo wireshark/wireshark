@@ -178,7 +178,7 @@ add_message_data(tvbuff_t * tvb, gint offset, gint data_len, proto_tree * tree)
 }
 
 static gint
-add_message(tvbuff_t * tvb, gint offset, proto_tree * tree, GString * info)
+add_message(tvbuff_t * tvb, gint offset, proto_tree * tree, emem_strbuf_t * info)
 {
 	guint16 descriptor_id, message_id;
 	gint data_len;
@@ -211,7 +211,7 @@ add_message(tvbuff_t * tvb, gint offset, proto_tree * tree, GString * info)
 	proto_tree_add_item(msg_tree, hf_armagetronad_descriptor_id, tvb,
 			    offset, 2, ENC_BIG_ENDIAN);
 	if (info)
-		g_string_append_printf(info, "%s, ", descriptor);
+		ep_strbuf_append_printf(info, "%s, ", descriptor);
 
 	/* MessageID field */
 	proto_tree_add_item(msg_tree, hf_armagetronad_message_id, tvb,
@@ -235,13 +235,13 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	proto_tree *armagetronad_tree;
 	guint16 sender;
 	gint offset = 0;
-	GString *info;
+	emem_strbuf_t *info;
 	gsize new_len;
 
 	if (!is_armagetronad_packet(tvb))
 		return 0;
 
-	info = g_string_new("");
+	info = ep_strbuf_new("");
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Armagetronad");
 
@@ -261,13 +261,12 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	new_len = info->len - 2;	/* Remove the trailing ", " */
 	if (new_len > 0)
-		g_string_truncate(info, new_len);
+		info = ep_strbuf_truncate(info, new_len);
 	else
-		g_string_assign(info, "No message");
+		info = ep_strbuf_new("No message");
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] from 0x%04x",
 		     info->str, sender);
-	g_string_free(info, TRUE);
 
 	return offset + 2;
 }

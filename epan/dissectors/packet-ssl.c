@@ -419,27 +419,24 @@ static void
 ssl_parse_old_keys(void)
 {
     gchar **old_keys, **parts, *err;
-    GString *uat_entry = g_string_new("");
+    gchar *uat_entry;
     guint i;
 
     /* Import old-style keys */
     if (ssldecrypt_uat && ssl_keys_list && ssl_keys_list[0]) {
-        old_keys = g_strsplit(ssl_keys_list, ";", 0);
+        old_keys = ep_strsplit(ssl_keys_list, ";", 0);
         for (i = 0; old_keys[i] != NULL; i++) {
-            parts = g_strsplit(old_keys[i], ",", 4);
+            parts = ep_strsplit(old_keys[i], ",", 4);
             if (parts[0] && parts[1] && parts[2] && parts[3]) {
-                g_string_printf(uat_entry, "\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
+                uat_entry = ep_strdup_printf("\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
                                 parts[0], parts[1], parts[2], parts[3]);
-                if (!uat_load_str(ssldecrypt_uat, uat_entry->str, &err)) {
+                if (!uat_load_str(ssldecrypt_uat, uat_entry, &err)) {
                     ssl_debug_printf("ssl_parse_old_keys: Can't load UAT string %s: %s\n",
-                                     uat_entry->str, err);
+                                     uat_entry, err);
                 }
             }
-            g_strfreev(parts);
         }
-        g_strfreev(old_keys);
     }
-    g_string_free(uat_entry, TRUE);
 }
 
 /*********************************************************************

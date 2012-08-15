@@ -402,7 +402,7 @@ static const value_string ascenddf_portq[]      = { {1, "lt"}, {2, "eq"}, {3, "g
 
 static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
 	const gchar *str;
-	GString	*filterstr;
+	emem_strbuf_t *filterstr;
 	int len;
 	guint8 proto, srclen, dstlen;
 	guint32 srcip, dstip;
@@ -416,11 +416,11 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 		return str;
 	}
 
-	filterstr=g_string_sized_new(64);
+	filterstr=ep_strbuf_sized_new(64, 64);
 
 	proto_tree_add_item(tree, hf_radius_ascend_data_filter, tvb, 0, -1, ENC_NA);
 
-	g_string_printf(filterstr, "%s %s %s",
+	ep_strbuf_printf(filterstr, "%s %s %s",
 		val_to_str(tvb_get_guint8(tvb, 0), ascenddf_filtertype, "%u"),
 		val_to_str(tvb_get_guint8(tvb, 2), ascenddf_inout, "%u"),
 		val_to_str(tvb_get_guint8(tvb, 1), ascenddf_filteror, "%u"));
@@ -428,7 +428,7 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	proto=tvb_get_guint8(tvb, 14);
 	if (proto) {
 		str=val_to_str(proto, ascenddf_proto, "%u");
-		g_string_append_printf(filterstr, " %s", str);
+		ep_strbuf_append_printf(filterstr, " %s", str);
 	}
 
 	srcip=tvb_get_ipv4(tvb, 4);
@@ -437,9 +437,9 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	srcportq=tvb_get_guint8(tvb, 20);
 
 	if (srcip || srclen || srcportq) {
-		g_string_append_printf(filterstr, " srcip %s/%d", ip_to_str((guint8 *) &srcip), srclen);
+		ep_strbuf_append_printf(filterstr, " srcip %s/%d", ip_to_str((guint8 *) &srcip), srclen);
 		if (srcportq)
-			g_string_append_printf(filterstr, " srcport %s %d",
+			ep_strbuf_append_printf(filterstr, " srcport %s %d",
 				val_to_str(srcportq, ascenddf_portq, "%u"), srcport);
 	}
 
@@ -449,14 +449,13 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	dstportq=tvb_get_guint8(tvb, 21);
 
 	if (dstip || dstlen || dstportq) {
-		g_string_append_printf(filterstr, " dstip %s/%d", ip_to_str((guint8 *) &dstip), dstlen);
+		ep_strbuf_append_printf(filterstr, " dstip %s/%d", ip_to_str((guint8 *) &dstip), dstlen);
 		if (dstportq)
-			g_string_append_printf(filterstr, " dstport %s %d",
+			ep_strbuf_append_printf(filterstr, " dstport %s %d",
 				val_to_str(dstportq, ascenddf_portq, "%u"), dstport);
 	}
 
 	str=ep_strdup(filterstr->str);
-	g_string_free(filterstr, TRUE);
 
 	return str;
 }

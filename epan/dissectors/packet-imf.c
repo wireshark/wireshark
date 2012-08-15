@@ -506,7 +506,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
   int         end_offset;
   tvbuff_t   *label_tvb;
   gchar      *type = NULL;
-  GString    *label_string = g_string_new ("");
+  emem_strbuf_t  *label_string = ep_strbuf_new("");
 
   /* a semicolon separated list of attributes */
   tree = proto_item_add_subtree(item, ett_imf_siolabel);
@@ -553,7 +553,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
 
     } else if (tvb_strneql(tvb, item_offset, "label", 5) == 0) {
       gchar *label = tvb_get_ephemeral_string(tvb, value_offset + 1, value_length - 2); /* quoted */
-      label_string = g_string_append(label_string, label);
+      label_string = ep_strbuf_append(label_string, label);
 
       if (tvb_get_guint8(tvb, item_offset + 5) == '*') { /* continuations */
         int num = strtol(tvb_get_ephemeral_string(tvb, item_offset + 6, value_offset - item_offset + 6), NULL, 10);
@@ -584,8 +584,6 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
       dissect_p1_MessageSecurityLabel_PDU(label_tvb, pinfo, tree);
     }
   }
-
-  g_string_free (label_string, TRUE);
 }
 
 static void

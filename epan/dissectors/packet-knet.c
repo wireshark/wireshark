@@ -122,8 +122,6 @@ static guint32 knet_sctp_port =   PORT; /*!< Port used by kNet SCTP */
 static guint32 knet_tcp_port =    PORT; /*!< Port used by kNet TCP */
 static guint32 knet_udp_port =    PORT; /*!< Port used by kNet UDP */
 
-static GString* info_field = NULL;   /*!< Contains the info string of the packet */
-
 static const value_string packettypenames[] = { /*!< Messageid List */
     { PINGREQUEST,          "Ping Request"        },
     { PINGREPLY,            "Ping Reply"          },
@@ -365,7 +363,7 @@ dissect_reliable_message_number(tvbuff_t *buffer, int offset, proto_tree *tree)
  *
  */
 static int
-dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *pinfo)
+dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *pinfo, emem_strbuf_t* info_field)
 {
     gint   messageid_length;
     guint8 messageid;
@@ -393,7 +391,7 @@ dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *
 
     *offset += messageid_length;
 
-    g_string_append_printf(info_field, "Msg ID (%d) ", messageid);
+    ep_strbuf_append_printf(info_field, "Msg ID (%d) ", messageid);
 
     return messageid;
 }
@@ -469,7 +467,7 @@ dissect_payload(tvbuff_t *buffer, int offset, int messageid, proto_tree *tree, i
  *
  */
 static void
-dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, emem_strbuf_t* info_field)
 {
     int offset;
     int content_length;
@@ -491,14 +489,14 @@ dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
     content_length = dissect_content_length(tvb, offset, msgblock_tree); /* Calculates the Content Length of this packet. */
 
-    g_string_append_printf(info_field, "%d: ", messageindex + 1);
+    ep_strbuf_append_printf(info_field, "%d: ", messageindex + 1);
 
     offset += 2; /* Move the offset the amount of contentlength and flags fields */
 
     if(tvb_get_bits8(tvb, 11, 1) > 0) /* If the reliable flag is 1 then calculate RMN */
         offset += dissect_reliable_message_number(tvb, offset, msgblock_tree);
 
-    messageid = dissect_messageid(tvb, &offset, msgblock_tree, pinfo);
+    messageid = dissect_messageid(tvb, &offset, msgblock_tree, pinfo, info_field);
 
     dissect_payload(tvb, offset, messageid, msgblock_tree, content_length);
 
@@ -540,6 +538,9 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t   *next_tvb;
     gboolean    bytes_left;
 
+    /* String that is going to be displayed in the info column in Wireshark */
+    emem_strbuf_t *info_field = ep_strbuf_new("");
+
     int offset;
     int length;
     int content_length;
@@ -549,8 +550,6 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset       = 0;
     messageindex = 0;
     bytes_left   = TRUE;
-
-    info_field = g_string_new(""); /* String that is going to be displayed in the info column in Wireshark */
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_PROTOCOL, "KNET");
@@ -578,9 +577,9 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if(tree == NULL)
                 offset += count_vle_bytes(next_tvb, offset);
 
-            g_string_append_printf(info_field, "%d: ", messageindex + 1);
+            ep_strbuf_append_printf(info_field, "%d: ", messageindex + 1);
 
-            messageid = dissect_messageid(next_tvb, &offset, message_tree, pinfo); /* Calculate messageid and add it to the tree-view */
+            messageid = dissect_messageid(next_tvb, &offset, message_tree, pinfo, info_field); /* Calculate messageid and add it to the tree-view */
 
             dissect_payload(next_tvb, offset, messageid, message_tree, content_length); /* Calculate payload and add it to the tree-view */
 
@@ -606,7 +605,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         packetid = dissect_packetid(tvb, 0, datagram_tree); /* Lets calculate our packetid! */
 
-        g_string_append_printf(info_field, "Packet ID: %d ", packetid);
+        ep_strbuf_append_printf(info_field, "Packet ID: %d ", packetid);
 
         offset += 3;
 
@@ -633,7 +632,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(tvb_get_bits8(next_tvb, 11, 1) == 1) /* If reliable flag is 1 */
                     length += dissect_reliable_message_number(next_tvb, offset + 2, NULL); /* We add the RMN into the length of the message */
 
-                dissect_knet_message(next_tvb, pinfo, knet_tree); /* Call the message subdissector */
+                dissect_knet_message(next_tvb, pinfo, knet_tree, info_field); /* Call the message subdissector */
 
                 offset += length; /* Move the offset the amount of the payload */
 
@@ -649,7 +648,6 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else
         col_add_fstr(pinfo->cinfo, COL_INFO, "Messages: %d %s", messageindex + 1,  info_field->str);
 
-    g_string_free(info_field, TRUE);
     messageindex++;
 }
 

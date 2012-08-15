@@ -64,7 +64,6 @@
 #include "packet-ssl-utils.h"
 #include <wsutil/file_util.h>
 #include <epan/uat.h>
-#include <epan/sctpppids.h>
 
 /* DTLS User Access Table */
 static ssldecrypt_assoc_t *dtlskeylist_uats = NULL;
@@ -273,27 +272,23 @@ dtls_parse_old_keys(void)
 {
   gchar          **old_keys, **parts, *err;
   guint            i;
-  GString         *uat_entry = g_string_new("");
+  gchar          *uat_entry;
 
   /* Import old-style keys */
   if (dtlsdecrypt_uat && dtls_keys_list && dtls_keys_list[0]) {
-    old_keys = g_strsplit(dtls_keys_list, ";", 0);
+    old_keys = ep_strsplit(dtls_keys_list, ";", 0);
     for (i = 0; old_keys[i] != NULL; i++) {
-      parts = g_strsplit(old_keys[i], ",", 4);
+      parts = ep_strsplit(old_keys[i], ",", 4);
       if (parts[0] && parts[1] && parts[2] && parts[3]) {
-        g_string_printf(uat_entry, "\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
+        uat_entry = ep_strdup_printf("\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
                         parts[0], parts[1], parts[2], parts[3]);
-        if (!uat_load_str(dtlsdecrypt_uat, uat_entry->str, &err)) {
+        if (!uat_load_str(dtlsdecrypt_uat, uat_entry, &err)) {
           ssl_debug_printf("dtls_parse: Can't load UAT string %s: %s\n",
-                           uat_entry->str, err);
+                           uat_entry, err);
         }
       }
-      g_strfreev(parts);
     }
-    g_strfreev(old_keys);
   }
-  g_string_free(uat_entry, TRUE);
-
 }
 
 /*
@@ -2724,6 +2719,7 @@ proto_register_dtls(void)
 
   register_dissector("dtls", dissect_dtls, proto_dtls);
   dtls_handle = find_dissector("dtls");
+
   dtls_associations = g_tree_new(ssl_association_cmp);
 
   register_init_routine(dtls_init);
@@ -2749,10 +2745,8 @@ proto_reg_handoff_dtls(void)
   dtls_parse_uat();
   dtls_parse_old_keys();
 
-  if (initialized == FALSE) {
+  if (initialized == FALSE)
     heur_dissector_add("udp", dissect_dtls_heur, proto_dtls);
-    dissector_add_uint("sctp.ppi", DIAMETER_DTLS_PROTOCOL_ID, find_dissector("dtls"));
-  }
 
   initialized = TRUE;
 }
