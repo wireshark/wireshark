@@ -170,7 +170,7 @@ proto_register_mpls_psc(void)
         {
             &hf_mpls_psc_ver,
             {
-                "Version", "mpls.psc.ver",
+                "Version", "mpls_psc.ver",
                 FT_UINT8, BASE_DEC, NULL, 0xC0,
                 NULL, HFILL
             }
@@ -178,7 +178,7 @@ proto_register_mpls_psc(void)
         {
             &hf_mpls_psc_req,
             {
-                "Request", "mpls.psc.req",
+                "Request", "mpls_psc.req",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(mpls_psc_req_rvals), 0x3C,
                 NULL, HFILL
             }
@@ -186,7 +186,7 @@ proto_register_mpls_psc(void)
         {
             &hf_mpls_psc_pt,
             {
-                "Protection Type", "mpls.psc.pt",
+                "Protection Type", "mpls_psc.pt",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(mpls_psc_pt_rvals), 0x03,
                 NULL, HFILL
             }
@@ -194,7 +194,7 @@ proto_register_mpls_psc(void)
         {
             &hf_mpls_psc_rev,
             {
-                "R", "mpls.psc.rev",
+                "R", "mpls_psc.rev",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(mpls_psc_rev_rvals), 0x80,
                 NULL, HFILL
             }
@@ -202,7 +202,7 @@ proto_register_mpls_psc(void)
         {
             &hf_mpls_psc_fpath,
             {
-                "Fault Path", "mpls.psc.fpath",
+                "Fault Path", "mpls_psc.fpath",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(mpls_psc_fpath_rvals), 0x0,
                 NULL, HFILL
             }
@@ -210,7 +210,7 @@ proto_register_mpls_psc(void)
         {
             &hf_mpls_psc_dpath,
             {
-                "Data Path", "mpls.psc.dpath",
+                "Data Path", "mpls_psc.dpath",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(mpls_psc_dpath_rvals), 0x0,
                 NULL, HFILL
             }
@@ -218,7 +218,7 @@ proto_register_mpls_psc(void)
         {
             &hf_mpls_psc_tlvlen,
             {
-                "TLV Length", "mpls.psc.tlvlen",
+                "TLV Length", "mpls_psc.tlvlen",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL
             }
@@ -232,7 +232,7 @@ proto_register_mpls_psc(void)
     proto_mpls_psc =
         proto_register_protocol("PSC", "MPLS[-TP] Protection State "
                                 "Coordination (PSC) Protocol",
-                                "mplspsc");
+                                "mpls_psc");
 
     proto_register_field_array(proto_mpls_psc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

@@ -853,21 +853,21 @@ proto_register_mpls_pm(void)
         {
             &hf_mpls_pm_version,
             {
-                "Version", "mpls.pm.version", FT_UINT8, BASE_DEC, NULL,
+                "Version", "mpls_pm.version", FT_UINT8, BASE_DEC, NULL,
                 0xF0, NULL, HFILL
             }
         },
         {
             &hf_mpls_pm_flags,
             {
-                "Flags", "mpls.pm.flags", FT_UINT8,
+                "Flags", "mpls_pm.flags", FT_UINT8,
                 BASE_HEX, NULL, MPLS_PM_FLAGS_MASK, NULL, HFILL
             }
         },
         {
             &hf_mpls_pm_flags_r,
             {
-                "Response indicator (R)", "mpls.pm.flags.r",
+                "Response indicator (R)", "mpls_pm.flags.r",
                 FT_BOOLEAN, 4, TFS(&tfs_set_notset), MPLS_PM_FLAGS_R,
                 NULL, HFILL
             }
@@ -876,7 +876,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_flags_t,
             {
                 "Traffic-class-specific measurement indicator (T)",
-                "mpls.pm.flags.t",
+                "mpls_pm.flags.t",
                 FT_BOOLEAN, 4, TFS(&tfs_set_notset), MPLS_PM_FLAGS_T,
                 NULL, HFILL
             }
@@ -885,7 +885,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_flags_res,
             {
                 "Reserved",
-                "mpls.pm.flags.res",
+                "mpls_pm.flags.res",
                 FT_BOOLEAN, 4, TFS(&tfs_set_notset), MPLS_PM_FLAGS_RES,
                 NULL, HFILL
             }
@@ -894,7 +894,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_query_ctrl_code,
             {
                 "Control Code",
-                "mpls.pm.ctrl.code",
+                "mpls_pm.ctrl.code",
                 FT_UINT8, BASE_RANGE_STRING | BASE_HEX,
                 RVALS(mpls_pm_query_ctrl_code_rvals), 0x0,
                 "Code identifying the query type", HFILL
@@ -904,7 +904,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_response_ctrl_code,
             {
                 "Control Code",
-                "mpls.pm.ctrl.code",
+                "mpls_pm.ctrl.code",
                 FT_UINT8, BASE_RANGE_STRING | BASE_HEX,
                 RVALS(mpls_pm_response_ctrl_code_rvals), 0x0,
                 "Code identifying the response type", HFILL
@@ -914,7 +914,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_length,
             {
                 "Message Length",
-                "mpls.pm.length",
+                "mpls_pm.length",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 "Total length of this message in bytes", HFILL
             }
@@ -922,7 +922,7 @@ proto_register_mpls_pm(void)
         {
             &hf_mpls_pm_dflags,
             {
-                "DFlags", "mpls.pm.dflags", FT_UINT8,
+                "DFlags", "mpls_pm.dflags", FT_UINT8,
                 BASE_HEX, NULL, MPLS_PM_DFLAGS_MASK,
                 NULL, HFILL
             }
@@ -930,7 +930,7 @@ proto_register_mpls_pm(void)
         {
             &hf_mpls_pm_dflags_x,
             {
-                "Extended counter format indicator (X)", "mpls.pm.dflags.x",
+                "Extended counter format indicator (X)", "mpls_pm.dflags.x",
                 FT_BOOLEAN, 4, TFS(&tfs_set_notset), MPLS_PM_DFLAGS_X,
                 NULL, HFILL
             }
@@ -938,7 +938,7 @@ proto_register_mpls_pm(void)
         {
             &hf_mpls_pm_dflags_b,
             {
-                "Octet/Byte count indicator (B)", "mpls.pm.dflags.b",
+                "Octet/Byte count indicator (B)", "mpls_pm.dflags.b",
                 FT_BOOLEAN, 4, TFS(&tfs_set_notset), MPLS_PM_DFLAGS_B,
                 NULL, HFILL
             }
@@ -947,7 +947,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_dflags_res,
             {
                 "Reserved",
-                "mpls.pm.dflags.res",
+                "mpls_pm.dflags.res",
                 FT_BOOLEAN, 4, NULL, MPLS_PM_DFLAGS_RES,
                 NULL, HFILL
             }
@@ -956,7 +956,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_otf,
             {
                 "Origin Timestamp Format (OTF)",
-                "mpls.pm.otf",
+                "mpls_pm.otf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
                 RVALS(mpls_pm_time_stamp_format_rvals), 0x0F,
                 NULL, HFILL
@@ -966,7 +966,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_session_id,
             {
                 "Session Identifier",
-                "mpls.pm.session.id",
+                "mpls_pm.session.id",
                 FT_UINT32, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -976,7 +976,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_ds,
             {
                 "Differentiated Services Codepoint",
-                "mpls.pm.ds",
+                "mpls_pm.ds",
                 FT_UINT8, BASE_DEC | BASE_EXT_STRING,
                 &dscp_vals_ext, 0x3F,
                 NULL, HFILL
@@ -986,7 +986,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_origin_timestamp_null,
             {
                 "Origin Timestamp",
-                "mpls.pm.origin.timestamp.null",
+                "mpls_pm.origin.timestamp.null",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -996,7 +996,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_origin_timestamp_seq,
             {
                 "Origin Timestamp",
-                "mpls.pm.origin.timestamp.seq",
+                "mpls_pm.origin.timestamp.seq",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1006,7 +1006,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_origin_timestamp_ntp,
             {
                 "Origin Timestamp",
-                "mpls.pm.origin.timestamp.ntp",
+                "mpls_pm.origin.timestamp.ntp",
                 FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1016,7 +1016,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_origin_timestamp_ptp,
             {
                 "Origin Timestamp",
-                "mpls.pm.origin.timestamp.ptp",
+                "mpls_pm.origin.timestamp.ptp",
                 FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1026,7 +1026,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_origin_timestamp_unk,
             {
                 "Origin Timestamp (Unknown Type)",
-                "mpls.pm.origin.timestamp.unk",
+                "mpls_pm.origin.timestamp.unk",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1036,7 +1036,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_counter1,
             {
                 "Counter 1",
-                "mpls.pm.counter1",
+                "mpls_pm.counter1",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1046,7 +1046,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_counter2,
             {
                 "Counter 2",
-                "mpls.pm.counter2",
+                "mpls_pm.counter2",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1056,7 +1056,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_counter3,
             {
                 "Counter 3",
-                "mpls.pm.counter3",
+                "mpls_pm.counter3",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1066,7 +1066,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_counter4,
             {
                 "Counter 4",
-                "mpls.pm.counter4",
+                "mpls_pm.counter4",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1076,7 +1076,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_qtf,
             {
                 "Querier timestamp format (QTF)",
-                "mpls.pm.qtf",
+                "mpls_pm.qtf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
                 RVALS(mpls_pm_time_stamp_format_rvals), 0xF0,
                 NULL, HFILL
@@ -1086,7 +1086,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_qtf_combined,
             {
                 "Querier timestamp format (QTF)",
-                "mpls.pm.qtf",
+                "mpls_pm.qtf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
                 RVALS(mpls_pm_time_stamp_format_rvals), 0x0F,
                 NULL, HFILL
@@ -1096,7 +1096,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_rtf,
             {
                 "Responder timestamp format (RTF)",
-                "mpls.pm.rtf",
+                "mpls_pm.rtf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
                 RVALS(mpls_pm_time_stamp_format_rvals), 0x0F,
                 NULL, HFILL
@@ -1106,7 +1106,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_rtf_combined,
             {
                 "Responder timestamp format (RTF)",
-                "mpls.pm.rtf",
+                "mpls_pm.rtf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
                 RVALS(mpls_pm_time_stamp_format_rvals), 0xF0,
                 NULL, HFILL
@@ -1116,7 +1116,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_rptf,
             {
                 "Responder's preferred timestamp format (RPTF)",
-                "mpls.pm.rptf",
+                "mpls_pm.rptf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
                 RVALS(mpls_pm_time_stamp_format_rvals), 0xF0,
                 NULL, HFILL
@@ -1126,7 +1126,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_rptf_combined,
             {
                 "Responder's preferred timestamp format (RPTF)",
-                "mpls.pm.rptf",
+                "mpls_pm.rptf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
                 RVALS(mpls_pm_time_stamp_format_rvals), 0x0F,
                 NULL, HFILL
@@ -1136,7 +1136,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp1_q_null,
             {
                 "Timestamp 1 (T1)",
-                "mpls.pm.timestamp1.null",
+                "mpls_pm.timestamp1.null",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1146,7 +1146,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp1_r_null,
             {
                 "Timestamp 1 (T3)",
-                "mpls.pm.timestamp1.null",
+                "mpls_pm.timestamp1.null",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1156,7 +1156,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp1_q_seq,
             {
                 "Timestamp 1 (T1)",
-                "mpls.pm.timestamp1.seq",
+                "mpls_pm.timestamp1.seq",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1166,7 +1166,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp1_r_seq,
             {
                 "Timestamp 1 (T3)",
-                "mpls.pm.timestamp1.seq",
+                "mpls_pm.timestamp1.seq",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1176,7 +1176,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp1_q_ntp,
             {
                 "Timestamp 1 (T1)",
-                "mpls.pm.timestamp1.ntp",
+                "mpls_pm.timestamp1.ntp",
                 FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1186,7 +1186,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp1_r_ntp,
             {
                 "Timestamp 1 (T3)",
-                "mpls.pm.timestamp1.ntp",
+                "mpls_pm.timestamp1.ntp",
                 FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1196,7 +1196,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp1_q_ptp,
             {
                 "Timestamp 1 (T1)",
-                "mpls.pm.timestamp1.ptp",
+                "mpls_pm.timestamp1.ptp",
                 FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1206,7 +1206,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp1_r_ptp,
             {
                 "Timestamp 1 (T3)",
-                "mpls.pm.timestamp1.ptp",
+                "mpls_pm.timestamp1.ptp",
                 FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1216,7 +1216,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp1_unk,
             {
                 "Timestamp 1 (Unknown Type)",
-                "mpls.pm.timestamp1.unk",
+                "mpls_pm.timestamp1.unk",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1226,7 +1226,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp2_null,
             {
                 "Timestamp 2",
-                "mpls.pm.timestamp2.null",
+                "mpls_pm.timestamp2.null",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1236,7 +1236,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp3_null,
             {
                 "Timestamp 3",
-                "mpls.pm.timestamp3.null",
+                "mpls_pm.timestamp3.null",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1246,7 +1246,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp3_r_null,
             {
                 "Timestamp 3 (T1)",
-                "mpls.pm.timestamp3.null",
+                "mpls_pm.timestamp3.null",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1256,7 +1256,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp3_r_seq,
             {
                 "Timestamp 3 (T1)",
-                "mpls.pm.timestamp3.seq",
+                "mpls_pm.timestamp3.seq",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1266,7 +1266,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp3_r_ntp,
             {
                 "Timestamp 3 (T1)",
-                "mpls.pm.timestamp3.ntp",
+                "mpls_pm.timestamp3.ntp",
                 FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1276,7 +1276,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp3_r_ptp,
             {
                 "Timestamp 3 (T1)",
-                "mpls.pm.timestamp3_ptp",
+                "mpls_pm.timestamp3_ptp",
                 FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1286,7 +1286,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp3_unk,
             {
                 "Timestamp 3 (Unknown Type)",
-                "mpls.pm.timestamp3.unk",
+                "mpls_pm.timestamp3.unk",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1296,7 +1296,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp4_null,
             {
                 "Timestamp 4",
-                "mpls.pm.timestamp4.null",
+                "mpls_pm.timestamp4.null",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1306,7 +1306,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp4_r_null,
             {
                 "Timestamp 4 (T2)",
-                "mpls.pm.timestamp4.null",
+                "mpls_pm.timestamp4.null",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1316,7 +1316,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp4_r_seq,
             {
                 "Timestamp 4 (T2)",
-                "mpls.pm.timestamp4.seq",
+                "mpls_pm.timestamp4.seq",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1326,7 +1326,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp4_r_ntp,
             {
                 "Timestamp 4 (T2)",
-                "mpls.pm.timestamp4.ntp",
+                "mpls_pm.timestamp4.ntp",
                 FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1336,7 +1336,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp4_r_ptp,
             {
                 "Timestamp 4 (T2)",
-                "mpls.pm.timestamp4.ptp",
+                "mpls_pm.timestamp4.ptp",
                 FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL
@@ -1346,7 +1346,7 @@ proto_register_mpls_pm(void)
             &hf_mpls_pm_timestamp4_unk,
             {
                 "Timestamp 4 (Unknown Type)",
-                "mpls.pm.timestamp4.unk",
+                "mpls_pm.timestamp4.unk",
                 FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL

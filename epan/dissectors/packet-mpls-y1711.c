@@ -355,7 +355,7 @@ proto_register_mpls_y1711(void)
         {
             &hf_mpls_y1711_function_type,
             {
-                "Function Type", "mpls.y1711.function_type", FT_UINT8,
+                "Function Type", "mpls_y1711.function_type", FT_UINT8,
                 BASE_HEX, VALS(y1711_function_type_vals),
                 0x0, "Function Type codepoint", HFILL
             }
@@ -364,14 +364,14 @@ proto_register_mpls_y1711(void)
             &hf_mpls_y1711_ttsi,
             {
                 "Trail Termination Source Identifier",
-                "mpls.y1711.ttsi",
+                "mpls_y1711.ttsi",
                 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
         {
             &hf_mpls_y1711_frequency,
             {
-                "Frequency", "mpls.y1711.frequency", FT_UINT8,
+                "Frequency", "mpls_y1711.frequency", FT_UINT8,
                 BASE_HEX, VALS(y1711_frequency_vals), 0x0,
                 "Frequency of probe injection", HFILL
             }
@@ -379,21 +379,21 @@ proto_register_mpls_y1711(void)
         {
             &hf_mpls_y1711_defect_type,
             {
-                "Defect Type", "mpls.y1711.defect_type", FT_UINT16,
+                "Defect Type", "mpls_y1711.defect_type", FT_UINT16,
                 BASE_HEX, VALS(y1711_defect_type_vals), 0x0, NULL, HFILL
             }
         },
         {
             &hf_mpls_y1711_defect_location,
             {
-                "Defect Location (AS)", "mpls.y1711.defect_location",
+                "Defect Location (AS)", "mpls_y1711.defect_location",
                 FT_UINT32, BASE_DEC, NULL, 0x0, "Defect Location", HFILL
             }
         },
         {
             &hf_mpls_y1711_bip16,
             {
-                "BIP16", "mpls.y1711.bip16", FT_UINT16,
+                "BIP16", "mpls_y1711.bip16", FT_UINT16,
                 BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
@@ -406,7 +406,7 @@ proto_register_mpls_y1711(void)
     proto_mpls_y1711 =
         proto_register_protocol("MPLS ITU-T Y.1711 OAM",
                                 "MPLS ITU-T Y.1711 OAM",
-                                "mplsy1711");
+                                "mpls_y1711");
     proto_register_field_array(proto_mpls_y1711, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     new_register_dissector("mpls_y1711", dissect_mpls_y1711, proto_mpls_y1711);
