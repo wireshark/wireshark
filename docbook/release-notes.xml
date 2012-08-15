@@ -373,6 +373,12 @@ Wireshark Info
           7555</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Wireshark and TShark crash at start with invalid color filter on SPARC.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7634">Bug
+          7634</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
