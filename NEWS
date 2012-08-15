@@ -1,4 +1,4 @@
-Wireshark 1.8.1 Release Notes
+Wireshark 1.8.2 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,41 +14,165 @@ What's New
 
    The following vulnerabilities have been fixed.
 
-     o wnpa-sec-2012-11
+     o wnpa-sec-2012-13
 
-       The PPP dissector could crash. (Debian bug 680056) -->
+       The DCP ETSI dissector could trigger a zero division. Reported
+       by Laurent Butti. (Bug 7566)
 
-       Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
 
-     o wnpa-sec-2012-12
+       CVE-2012-4285
 
-       The NFS dissector could use excessive amounts of CPU. (Bug
-       7436)
+     o wnpa-sec-2012-14
 
-       Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.
+       The MongoDB dissector could go into a large loop. Reported by
+       Ben Schmidt. (Bug 7572)
+
+       Versions affected: 1.8.0 to 1.8.1.
+
+       CVE-2012-4287
+
+     o wnpa-sec-2012-15
+
+       The XTP dissector could go into an infinite loop. Reported by
+       Ben Schmidt. (Bug 7571)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4288
+
+     o wnpa-sec-2012-16
+
+       The ERF dissector could overflow a buffer. Reported by Laurent
+       Butti. (Bug 7563)
+
+       Versions affected: 1.8.0 to 1.8.1.
+
+       CVE-2012-4294 CVE-2012-4295
+
+     o wnpa-sec-2012-17
+
+       The AFP dissector could go into a large loop. Reported by
+       Stefan Cornelius. (Bug 7603)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4289
+
+     o wnpa-sec-2012-18
+
+       The RTPS2 dissector could overflow a buffer. Reported by
+       Laurent Butti. (Bug 7568)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4296
+
+     o wnpa-sec-2012-19
+
+       The GSM RLC MAC dissector could overflow a buffer. Reported by
+       Laurent Butti. (Bug 7561)
+
+       Versions affected: 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.
+
+       CVE-2012-4297
+
+     o wnpa-sec-2012-20
+
+       The CIP dissector could exhaust system memory. Reported by Ben
+       Schmidt. (Bug 7570)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4291
+
+     o wnpa-sec-2012-21
+
+       The STUN dissector could crash. Reported by Laurent Butti.
+       (Bug 7569)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4292
+
+     o wnpa-sec-2012-22
+
+       The EtherCAT Mailbox dissector could abort. Reported by
+       Laurent Butti. (Bug 7562)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4293
+
+     o wnpa-sec-2012-23
+
+       The CTDB dissector could go into a large loop. Reported by Ben
+       Schmidt. (Bug 7573)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4290
+
+     o wnpa-sec-2012-24
+
+       The pcap-ng file parser could trigger a zero division. (Bug
+       7533)
+
+       Versions affected: 1.8.0 to 1.8.1.
+
+       CVE-2012-4286
+
+     o wnpa-sec-2012-25
+
+       The Ixia IxVeriWave file parser could overflow a buffer. (Bug
+       7533)
+
+       Versions affected: 1.8.0 to 1.8.1.
+
+       CVE-2012-4298
 
    The following bugs have been fixed:
 
-     o Wireshark crashes on bootp filter. (Bug 7391)
+     o Move Y.1711 out of MPLS dissector. (Bug 6787)
 
-     o Wireshark > 1.4 does not correctly read Association ID for PS
-       Poll packets. (Bug 7429)
+     o Patch: Add frame.interface_id support for ERF file format.
+       (Bug 7266)
 
-     o Radius-EAP broken since 1.8.0 release. (Bug 7430)
+     o Freeze when Resizing or Moving while capturing. (Bug 7305)
 
-     o SNMP incorrectly marks SNMPv3 "discovery" packet as malformed.
-       (Bug 7438)
+     o Wireshark crashes when using multiple files. (Bug 7423)
 
-     o Widgets are not properly expanded in GTK3. (Bug 7377)
+     o Wireshark crashes on opening very short NFS pcap file. (Bug
+       7498)
 
-     o Find Next Mark duplicated on Edit Menu. (Bug 7445)
+     o Analyze->Apply as Filter and Analyze->Prepare a Filter cause
+       crashes. (Bug 7506)
 
-     o DVB-CI/CI+: fix offset error in operator_info apdu. (Bug 7468)
+     o crashes in interface list, pipe handling. (Bug 7511)
 
-     o Unable to correctly identify IEC 61850 MMS packets. (Bug 7488)
+     o ISDN LAPD X.31 packet traffic can not be decoded. (Bug 7514)
 
-     o WinPcap doesn't install if vcredist_x64 requires reboot. (Bug
-       7507)
+     o GIOP request_id used for sub dissectors is not assigned when
+       decoding GIOP 1.2 Request message. (Bug 7516)
+
+     o pcap-ng -ISB always writes 0 for isb_ifrecv option. (Bug 7523)
+
+     o GSM classmark3 decode wrong. (Bug 7524)
+
+     o mem corruption\heap corruption\div0 bugs. (Bug 7533)
+
+     o DNS AD flag not shown properly. (Bug 7555)
+
+     o Wireshark and TShark crash at start with invalid color filter
+       on SPARC. (Bug 7634)
 
   New and Updated Features
 
@@ -60,12 +184,14 @@ What's New
 
   Updated Protocol Support
 
-   BACapp, BOOTP, DCERPC SPOOLSS, DVB-CI, H.248, IEEE 802.11,
-   Jmirror, NAS EPS, NFS, PPP, RELOAD Framing, SES, SNMP, XMPP
+   AFP, Apache JServ Protocol v1.3, Bluetooth L2CAP, CIP, CTDB, DCP
+   ETSI, ERF, EtherCAT Mailbox, FC Link Control, GIOP, GSM A, GSM RLC
+   MAC, GTP, GTPv2, ISDN, LISP, MongoDB, MPLS ITU-T Y.1711 OAM, MPLS
+   PM, NFS, RTPS2, SCTP, STUN, XTP
 
   New and Updated Capture File Support
 
-   Microsoft Network Monitor
+   Ixia IxVeriWave, pcap-ng
 
 Getting Wireshark
 
