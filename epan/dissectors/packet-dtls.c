@@ -64,6 +64,7 @@
 #include "packet-ssl-utils.h"
 #include <wsutil/file_util.h>
 #include <epan/uat.h>
+#include <epan/sctpppids.h>
 
 /* DTLS User Access Table */
 static ssldecrypt_assoc_t *dtlskeylist_uats = NULL;
@@ -2484,21 +2485,21 @@ proto_register_dtls(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "Hello Extension data", HFILL }
     },
-	{ &hf_dtls_handshake_session_ticket_lifetime_hint,
-	  { "Session Ticket Lifetime Hint", "dtls.handshake.session_ticket_lifetime_hint",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
-		"New DTLS Session Ticket Lifetime Hint", HFILL }
-	},
-	{ &hf_dtls_handshake_session_ticket_len,
-	  { "Session Ticket Length", "dtls.handshake.session_ticket_length",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"New DTLS Session Ticket Length", HFILL }
-	},
-	{ &hf_dtls_handshake_session_ticket,
-	  { "Session Ticket", "dtls.handshake.session_ticket",
-		FT_BYTES, BASE_NONE, NULL, 0x0,
-		"New DTLS Session Ticket", HFILL }
-	},
+    { &hf_dtls_handshake_session_ticket_lifetime_hint,
+      { "Session Ticket Lifetime Hint", "dtls.handshake.session_ticket_lifetime_hint",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "New DTLS Session Ticket Lifetime Hint", HFILL }
+    },
+    { &hf_dtls_handshake_session_ticket_len,
+      { "Session Ticket Length", "dtls.handshake.session_ticket_length",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "New DTLS Session Ticket Length", HFILL }
+    },
+    { &hf_dtls_handshake_session_ticket,
+      { "Session Ticket", "dtls.handshake.session_ticket",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "New DTLS Session Ticket", HFILL }
+    },
     { &hf_dtls_handshake_certificates_len,
       { "Certificates Length", "dtls.handshake.certificates_length",
         FT_UINT24, BASE_DEC, NULL, 0x0,
@@ -2745,8 +2746,10 @@ proto_reg_handoff_dtls(void)
   dtls_parse_uat();
   dtls_parse_old_keys();
 
-  if (initialized == FALSE)
+  if (initialized == FALSE) {
     heur_dissector_add("udp", dissect_dtls_heur, proto_dtls);
+    dissector_add_uint("sctp.ppi", DIAMETER_DTLS_PROTOCOL_ID, find_dissector("dtls"));
+  }
 
   initialized = TRUE;
 }
