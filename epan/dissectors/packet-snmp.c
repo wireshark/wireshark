@@ -3227,7 +3227,7 @@ static void
 snmp_users_update_cb(void* p _U_, const char** err)
 {
 	snmp_ue_assoc_t* ue = (snmp_ue_assoc_t*)p;
-	GString* es = g_string_new("");
+	emem_strbuf_t* es = ep_strbuf_new("");
 	unsigned i;
 
 	*err = NULL;
@@ -3237,14 +3237,14 @@ snmp_users_update_cb(void* p _U_, const char** err)
 		return;
 
 	if (! ue->user.userName.len)
-		g_string_append_printf(es,"no userName\n");
+		ep_strbuf_append_printf(es,"no userName\n");
 
 	for (i=0; i<num_ueas-1; i++) {
 		snmp_ue_assoc_t* u = &(ueas[i]);
 
 		/* RFC 3411 section 5 */
 		if ((u->engine.len > 0) && (u->engine.len < 5 || u->engine.len > 32)) {
-			g_string_append_printf(es, "Invalid engineId length (%u). Must be between 5 and 32 (10 and 64 hex digits)\n", u->engine.len);
+			ep_strbuf_append_printf(es, "Invalid engineId length (%u). Must be between 5 and 32 (10 and 64 hex digits)\n", u->engine.len);
 		}
 
 
@@ -3254,24 +3254,22 @@ snmp_users_update_cb(void* p _U_, const char** err)
 			if (u->engine.len > 0 && memcmp( u->engine.data,   ue->engine.data,  u->engine.len ) == 0) {
 				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
 					/* XXX: make a string for the engineId */
-					g_string_append_printf(es,"Duplicate key (userName='%s')\n",ue->user.userName.data);
+					ep_strbuf_append_printf(es,"Duplicate key (userName='%s')\n",ue->user.userName.data);
 				}
 			}
 
 			if (u->engine.len == 0) {
 				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
-					g_string_append_printf(es,"Duplicate key (userName='%s' engineId=NONE)\n",ue->user.userName.data);
+					ep_strbuf_append_printf(es,"Duplicate key (userName='%s' engineId=NONE)\n",ue->user.userName.data);
 				}
 			}
 		}
 	}
 
 	if (es->len) {
-		g_string_truncate(es,es->len-1);
+		es = ep_strbuf_truncate(es,es->len-1);
 		*err = ep_strdup(es->str);
 	}
-
-	g_string_free(es,TRUE);
 
 	return;
 }

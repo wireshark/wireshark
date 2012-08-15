@@ -2160,6 +2160,8 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		    TL_IS_DISSECTOR_HELPER, NULL, NULL, NULL);
 		if(!error_string){
 			ntlmssp_tap_id=find_tap_id("ntlmssp");
+		} else {
+			g_string_free(error_string, TRUE);
 		}
 	}
 
