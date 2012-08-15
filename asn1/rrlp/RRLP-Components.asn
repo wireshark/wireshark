@@ -1072,7 +1072,7 @@ Rel7-MsrPosition-Req-Extension ::= SEQUENCE {
 }
 
 -- additional satellite systems may be added in future versions of the protocol
--- Bit 0 of GANSSPositioningMethod bit map shall not be the only one set to TRUE (‘1’)
+-- Bit 0 of GANSSPositioningMethod bit map shall not be the only one set to TRUE ('1')
 GANSSPositioningMethod ::= BIT STRING {
 	gps 	 	 	 (0),
 	galileo 	 	 (1),
@@ -1711,7 +1711,7 @@ GANSSEphemerisDeltaEpoch ::= SEQUENCE {
 ...
 }
 -- Each GANSSDeltaEpoch element contains a header and the delta values for a particular time window
--- for all PRN’s.
+-- for all PRN's.
 
 GANSSDeltaEpochHeader ::= SEQUENCE {
 	validityPeriod				INTEGER(1..8)					OPTIONAL,
@@ -1968,7 +1968,7 @@ GPSEphemerisDeltaEpoch ::= SEQUENCE {
 }
 
 -- Each GPSDeltaEpoch element contains a header and the delta values for a particular time window 
--- for all PRN’s.
+-- for all PRN's.
 GPSDeltaEpochHeader ::= SEQUENCE {
 	validityPeriod				INTEGER(1..8)				OPTIONAL,
 	ephemerisDeltaSizes			GPSEphemerisDeltaBitSizes	OPTIONAL,
@@ -2099,7 +2099,7 @@ GANSSLocationInfo ::= SEQUENCE {
  	ganssTimeID 				INTEGER (0 .. 7) 		OPTIONAL, -- Coding according to Annex
 	fixType			 			FixType,
  	posData 					PositionData,
- 	stationaryIndication 		INTEGER(0 .. 1) 		OPTIONAL, -- ‘0’ if moving or motion not
+ 	stationaryIndication 		INTEGER(0 .. 1) 		OPTIONAL, -- '0' if moving or motion not
 																  -- known 
 	-- Possible shapes carried in posEstimate are
 	-- ellipsoid point,
