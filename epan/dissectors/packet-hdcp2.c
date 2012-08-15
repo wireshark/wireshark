@@ -23,8 +23,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* This dissector supports HDCP 2.x over TCP. For now, only the most common
-   authentication protocol messages are recognized. */
+/* This dissector supports HDCP 2.x over TCP. For now, only the
+   authentication protocol messages are supported. */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -63,16 +63,17 @@ static int hf_hdcp2_l_prime = -1;
 static int hf_hdcp2_e_dkey_ks = -1;
 static int hf_hdcp2_r_iv = -1;
 
-#define ID_AKE_INIT          2
-#define ID_AKE_SEND_CERT     3
-#define ID_AKE_NO_STORED_KM  4
-#define ID_AKE_STORED_KM     5
-#define ID_AKE_SEND_RRX      6
-#define ID_AKE_SEND_H_PRIME  7
-#define ID_LC_INIT           9
-#define ID_LC_SEND_L_PRIME  10
-#define ID_SKE_SEND_EKS     11
-#define ID_MAX              31
+#define ID_AKE_INIT              2
+#define ID_AKE_SEND_CERT         3
+#define ID_AKE_NO_STORED_KM      4
+#define ID_AKE_STORED_KM         5
+#define ID_AKE_SEND_RRX          6
+#define ID_AKE_SEND_H_PRIME      7
+#define ID_AKE_SEND_PAIRING_INFO 8
+#define ID_LC_INIT               9
+#define ID_LC_SEND_L_PRIME      10
+#define ID_SKE_SEND_EKS         11
+#define ID_MAX                  31
 
 #define RCV_ID_LEN    5  /* all lengths are in bytes */
 #define N_LEN       128
@@ -82,15 +83,16 @@ static int hf_hdcp2_r_iv = -1;
 #define CERT_RX_LEN   (RCV_ID_LEN + N_LEN + E_LEN + 2 + RCV_SIG_LEN)
 
 static const value_string hdcp2_msg_id[] = {
-    { ID_AKE_INIT,         "AKE_Init" },
-    { ID_AKE_SEND_CERT,    "AKE_Send_Cert" },
-    { ID_AKE_NO_STORED_KM, "AKE_No_Stored_km" },
-    { ID_AKE_STORED_KM,    "AKE_Stored_km" },
-    { ID_AKE_SEND_RRX,     "AKE_Send_rrx" },
-    { ID_AKE_SEND_H_PRIME, "AKE_Send_H_prime" },
-    { ID_LC_INIT,          "LC_Init" },
-    { ID_LC_SEND_L_PRIME,  "LC_Send_L_prime" },
-    { ID_SKE_SEND_EKS,     "SKE_Send_Eks" },
+    { ID_AKE_INIT,              "AKE_Init" },
+    { ID_AKE_SEND_CERT,         "AKE_Send_Cert" },
+    { ID_AKE_NO_STORED_KM,      "AKE_No_Stored_km" },
+    { ID_AKE_STORED_KM,         "AKE_Stored_km" },
+    { ID_AKE_SEND_RRX,          "AKE_Send_rrx" },
+    { ID_AKE_SEND_H_PRIME,      "AKE_Send_H_prime" },
+    { ID_AKE_SEND_PAIRING_INFO, "AKE_Send_Pairing_Info" },
+    { ID_LC_INIT,               "LC_Init" },
+    { ID_LC_SEND_L_PRIME,       "LC_Send_L_prime" },
+    { ID_SKE_SEND_EKS,          "SKE_Send_Eks" },
     { 0, NULL }
 };
 
@@ -102,15 +104,16 @@ typedef struct _msg_info_t {
 static GHashTable *msg_table = NULL;
 
 static const msg_info_t msg_info[] = {
-    { ID_AKE_INIT,           8 },
-    { ID_AKE_SEND_CERT,    1+CERT_RX_LEN },
-    { ID_AKE_NO_STORED_KM, 128 },
-    { ID_AKE_STORED_KM,     32 },
-    { ID_AKE_SEND_RRX,       8 },
-    { ID_AKE_SEND_H_PRIME,  32 },
-    { ID_LC_INIT,            8 },
-    { ID_LC_SEND_L_PRIME,   32 },
-    { ID_SKE_SEND_EKS,      24 }
+    { ID_AKE_INIT,               8 },
+    { ID_AKE_SEND_CERT,        1+CERT_RX_LEN },
+    { ID_AKE_NO_STORED_KM,     128 },
+    { ID_AKE_STORED_KM,         32 },
+    { ID_AKE_SEND_RRX,           8 },
+    { ID_AKE_SEND_H_PRIME,      32 },
+    { ID_AKE_SEND_PAIRING_INFO, 16 },
+    { ID_LC_INIT,                8 },
+    { ID_LC_SEND_L_PRIME,       32 },
+    { ID_SKE_SEND_EKS,          24 }
 };
 
 
@@ -193,6 +196,9 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case ID_AKE_SEND_H_PRIME:
             ptvcursor_add(cursor, hf_hdcp2_h_prime, 32, ENC_NA);
+            break;
+        case ID_AKE_SEND_PAIRING_INFO:
+            ptvcursor_add(cursor, hf_hdcp2_e_kh_km, 16, ENC_NA);
             break;
         case ID_LC_INIT:
             ptvcursor_add(cursor, hf_hdcp2_r_n, 8, ENC_BIG_ENDIAN);
