@@ -1,4 +1,4 @@
-Wireshark 1.6.9 Release Notes
+Wireshark 1.6.10 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,53 +14,106 @@ What's New
 
    The following vulnerabilities have been fixed.
 
-     o wnpa-sec-2012-11
+     o wnpa-sec-2012-13
 
-       The PPP dissector could crash. (Debian bug 680056) -->
+       The DCP ETSI dissector could trigger a zero division. Reported
+       by Laurent Butti. (Bug 7566)
 
-       Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
 
-     o wnpa-sec-2012-12
+       CVE-2012-4285
 
-       The NFS dissector could use excessive amounts of CPU. (Bug
-       7436)
+     o wnpa-sec-2012-15
 
-       Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.
+       The XTP dissector could go into an infinite loop. Reported by
+       Ben Schmidt. (Bug 7571)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4288
+
+     o wnpa-sec-2012-17
+
+       The AFP dissector could go into a large loop. Reported by
+       Stefan Cornelius. (Bug 7603)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4289
+
+     o wnpa-sec-2012-18
+
+       The RTPS2 dissector could overflow a buffer. Reported by
+       Laurent Butti. (Bug 7568)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4296
+
+     o wnpa-sec-2012-19
+
+       The GSM RLC MAC dissector could overflow a buffer. Reported by
+       Laurent Butti. (Bug 7561)
+
+       Versions affected: 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.
+
+       CVE-2012-4297
+
+     o wnpa-sec-2012-20
+
+       The CIP dissector could exhaust system memory. Reported by Ben
+       Schmidt. (Bug 7570)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4291
+
+     o wnpa-sec-2012-21
+
+       The STUN dissector could crash. Reported by Laurent Butti.
+       (Bug 7569)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4292
+
+     o wnpa-sec-2012-22
+
+       The EtherCAT Mailbox dissector could abort. Reported by
+       Laurent Butti. (Bug 7562)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4293
+
+     o wnpa-sec-2012-23
+
+       The CTDB dissector could go into a large loop. Reported by Ben
+       Schmidt. (Bug 7573)
+
+       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
+       1.8.1.
+
+       CVE-2012-4290
 
    The following bugs have been fixed:
 
-     o Cannot run tshark under TCP using decode-as format for syslog.
-       (Bug 5241)
+     o Wireshark may not run on Windows due to missing DLLs.
 
-     o Unable to reassemble EAP-TLS fragments across multiple RADIUS
-       packets (works on 1.2.15). (Bug 5735)
+     o ISDN LAPD X.31 packet traffic can not be decoded. (Bug 7514)
 
-     o Rearranging columns in preferences doesn't work on 64-bit
-       Windows. (Bug 6077)
+     o GSM classmark3 decode wrong. (Bug 7524)
 
-     o Incorrect PER UNALIGNED decoding of IA5String. (Bug 6246)
-
-     o After fix for Bug 3046, after save-as then open you cannot see
-       the packet list. (Bug 6640)
-
-     o Problem with Floating point (double-precision). (Bug 6917)
-
-     o Unhandled exception ( group=1, code=4) occurs when trying to
-       capture in pdml file. (Bug 7333)
-
-     o Netscreen - Can't parse packet-header. (Bug 7340)
-
-     o Assignment Request message is not decoded after Service
-       handover parameter. (Bug 7360)
-
-     o Wireshark fails to link because of missing @GLIB_LIBS@
-       reference in Makefile.am. (Bug 7427)
-
-     o Wireshark > 1.4 does not correctly read Association ID for PS
-       Poll packets. (Bug 7429)
-
-     o SNMP incorrectly marks SNMPv3 "discovery" packet as malformed.
-       (Bug 7438)
+     o tshark WARNING ERR: Dissector bug, protocol X2AP, in packet
+       17019451: proto.c:1347: failed assertion "length == 4. (Bug
+       7542)
 
   New and Updated Features
 
@@ -72,12 +125,12 @@ What's New
 
   Updated Protocol Support
 
-   ASN.1 PER, DIAMETER, GSM BSSMAP, IEEE 802.11, MNDP, NFS, PPP,
-   RADIUS, SNMP, Syslog, UDP-Lite, VMLAB, WiMax DL-MAP, WiMax UL-MAP
+   AFP, CIP, CTDB, DCP ETSI, EtherCAT Mailbox, GSM A, GSM RLC MAC,
+   ISDN, NFS, RTPS2, STUN, X2AP, XTP
 
   New and Updated Capture File Support
 
-   Juniper NetScreen
+   .
 
 Getting Wireshark
 
