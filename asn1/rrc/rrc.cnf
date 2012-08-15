@@ -138,7 +138,6 @@ HandoverFromUTRANCommand-GSM-r3-IEs/gsm-message/single-GSM-Message single-GSM-Me
 HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Message-r6
 
 #.END
-#.FN_PARS UTRAN-GANSSReferenceTime/ue-GANSSTimingOfCellFrames FN_VARIANT = _64b
 
 #.FN_BODY NAS-Message VAL_PTR = &nas_message_tvb
   tvbuff_t *nas_message_tvb=NULL;

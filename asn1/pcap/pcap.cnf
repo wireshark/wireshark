@@ -415,5 +415,6 @@ PositionPeriodicTermination						N pcap.proc.imsg id-PositionPeriodicTermination
 UTRAN-GPSReferenceTimeResult/ue-GPSTimingOfCell TYPE = FT_UINT64  DISPLAY = BASE_DEC  STRINGS = NULL
 UTRAN-GANSSReferenceTimeUL/ue-GANSSTimingOfCellFrames  TYPE = FT_UINT64  DISPLAY = BASE_DEC  STRINGS = NULL
 UTRAN-GPSReferenceTime/utran-GPSTimingOfCell  TYPE = FT_UINT64  DISPLAY = BASE_DEC  STRINGS = NULL
+UTRAN-GANSSReferenceTimeResult/ue-GANSSTimingOfCell TYPE = FT_UINT64  DISPLAY = BASE_DEC  STRINGS = NULL
 
 #.END

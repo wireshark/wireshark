@@ -368,10 +368,6 @@ dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvb , offset, actx ,tre
 
 dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvb , offset, actx ,tree , hf_ranap_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU );
 
-# Handle 64 bit constraint
-#.FN_PARS UE-AggregateMaximumBitRateDownlink FN_VARIANT = _64b
-#.FN_PARS UE-AggregateMaximumBitRateUplink FN_VARIANT = _64b
-    
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &ranap_ProtocolIE_ID_vals_ext
 GTP-TEI TYPE = FT_UINT32  DISPLAY = BASE_HEX_DEC STRINGS = NULL

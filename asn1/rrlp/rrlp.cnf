@@ -42,13 +42,47 @@ tvbuff_t *parameter_tvb = NULL;
 
 # Handle 64 bit constraint
 #.FN_PARS UTCmodelSet3/tauC FN_VARIANT = _64b
+#.TYPE_ATTR
+UTCmodelSet3/tauC TYPE = FT_INT64
 #.FN_PARS UTCmodelSet4/utcA0wnt FN_VARIANT = _64b
+#.TYPE_ATTR
+UTCmodelSet4/utcA0wnt TYPE = FT_INT64
 #.FN_PARS NavModel-CNAVKeplerianSet/cnavMo FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModel-CNAVKeplerianSet/cnavMo TYPE = FT_INT64
 #.FN_PARS NavModel-CNAVKeplerianSet/cnavOmega FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModel-CNAVKeplerianSet/cnavOmega TYPE = FT_INT64
 #.FN_PARS NavModel-CNAVKeplerianSet/cnavOMEGA0 FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModel-CNAVKeplerianSet/cnavOMEGA0 TYPE = FT_INT64
 #.FN_PARS NavModel-CNAVKeplerianSet/cnavIo FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModel-CNAVKeplerianSet/cnavIo TYPE = FT_INT64
 #.FN_PARS NavModel-CNAVKeplerianSet/cnavE FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModel-CNAVKeplerianSet/cnavE TYPE = FT_UINT64
+#.FN_PARS NavModel-KeplerianSet/keplerW FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModel-KeplerianSet/keplerW TYPE = FT_INT64
+#.FN_PARS NavModel-KeplerianSet/keplerM0 FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModel-KeplerianSet/keplerM0 TYPE = FT_INT64
+#.FN_PARS NavModel-KeplerianSet/keplerI0 FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModel-KeplerianSet/keplerI0 TYPE = FT_INT64
+#.FN_PARS NavModel-KeplerianSet/keplerOmega0 FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModel-KeplerianSet/keplerOmega0 TYPE = FT_INT64
 #.FN_PARS ReferenceNavModel/keplerW FN_VARIANT = _64b
+#.TYPE_ATTR
+ReferenceNavModel/keplerW TYPE = FT_INT64
 #.FN_PARS ReferenceNavModel/keplerM0 FN_VARIANT = _64b
+#.TYPE_ATTR
+ReferenceNavModel/keplerM0 TYPE = FT_INT64
 #.FN_PARS ReferenceNavModel/keplerI0 FN_VARIANT = _64b
+#.TYPE_ATTR
+ReferenceNavModel/keplerI0 TYPE = FT_INT64
 #.FN_PARS ReferenceNavModel/keplerOmega0 FN_VARIANT = _64b
+#.TYPE_ATTR
+ReferenceNavModel/keplerOmega0 TYPE = FT_INT64
