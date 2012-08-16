@@ -3771,7 +3771,7 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
     case CONFACK:
     case CONFNAK:
     case CONFREJ:
-        if (tree && (length > 0)) {
+        if (length > 0) {
             proto_item *tf;
             proto_tree *field_tree;
 
@@ -4005,15 +4005,13 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case CONFREJ:
     case TERMREQ:
     case TERMACK:
-        if (tree) {
-            if (length > 0) {
-                tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-                    "Options: (%d byte%s)", length,
-                    plurality(length, "", "s"));
-                field_tree = proto_item_add_subtree(tf, ett_vsncp_options);
-                dissect_ip_tcp_options(tvb, offset, length, vsncp_opts,
-                    N_VSNCP_OPTS, -1, pinfo, field_tree, NULL);
-            }
+        if (length > 0) {
+            tf = proto_tree_add_text(fh_tree, tvb, offset, length,
+                                     "Options: (%d byte%s)", length,
+                                     plurality(length, "", "s"));
+            field_tree = proto_item_add_subtree(tf, ett_vsncp_options);
+            dissect_ip_tcp_options(tvb, offset, length, vsncp_opts,
+                                   N_VSNCP_OPTS, -1, pinfo, field_tree, NULL);
         }
         break;
 
@@ -4273,14 +4271,12 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         length--;
     }
 
-    if (tree) {
-        if (length > 0) {
-            tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-                "Data (%d byte%s)", length, plurality(length, "", "s"));
-            field_tree = proto_item_add_subtree(tf, ett_bap_options);
-            dissect_ip_tcp_options(tvb, offset, length, bap_opts, N_BAP_OPTS,
-                -1, pinfo, field_tree, NULL);
-        }
+    if (length > 0) {
+        tf = proto_tree_add_text(fh_tree, tvb, offset, length,
+                                 "Data (%d byte%s)", length, plurality(length, "", "s"));
+        field_tree = proto_item_add_subtree(tf, ett_bap_options);
+        dissect_ip_tcp_options(tvb, offset, length, bap_opts, N_BAP_OPTS,
+                               -1, pinfo, field_tree, NULL);
     }
 }
 
@@ -5155,82 +5151,80 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti, *data_ti;
     proto_tree *fh_tree, *data_tree = NULL;
-    guint8  code;
-    gchar  *peer_id, *password, *message;
-    guint8  peer_id_length, password_length, message_length;
-    int     offset = 0;
+    guint8      code;
+    gchar      *peer_id, *password, *message;
+    guint8      peer_id_length, password_length, message_length;
+    int         offset              = 0;
 
     code = tvb_get_guint8(tvb, 0);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP PAP");
     col_add_str(pinfo->cinfo, COL_INFO,
-        val_to_str_const(code, pap_vals, "Unknown"));
+                val_to_str_const(code, pap_vals, "Unknown"));
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_pap, tvb, 0, -1, ENC_NA);
-        fh_tree = proto_item_add_subtree(ti, ett_pap);
+    ti = proto_tree_add_item(tree, proto_pap, tvb, 0, -1, ENC_NA);
+    fh_tree = proto_item_add_subtree(ti, ett_pap);
 
-        proto_tree_add_item(fh_tree, hf_pap_code, tvb, offset, 1,
-            ENC_BIG_ENDIAN);
+    proto_tree_add_item(fh_tree, hf_pap_code, tvb, offset, 1,
+                        ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(fh_tree, hf_pap_identifier, tvb, offset, 1,
+                        ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(fh_tree, hf_pap_length, tvb, offset, 2,
+                        ENC_BIG_ENDIAN);
+    offset += 2;
+
+    data_ti = proto_tree_add_item(fh_tree, hf_pap_data, tvb, offset, -1,
+                                  ENC_NA);
+    data_tree = proto_item_add_subtree(data_ti, ett_pap_data);
+
+    switch (code) {
+    case CONFREQ:
+        proto_tree_add_item(data_tree, hf_pap_peer_id_length, tvb, offset,
+                            1, ENC_BIG_ENDIAN);
+        peer_id_length = tvb_get_guint8(tvb, offset);
         offset++;
 
-        proto_tree_add_item(fh_tree, hf_pap_identifier, tvb, offset, 1,
-            ENC_BIG_ENDIAN);
+        proto_tree_add_item(data_tree, hf_pap_peer_id, tvb, offset,
+                            peer_id_length, ENC_ASCII|ENC_NA);
+        peer_id = tvb_format_text(tvb, offset, peer_id_length);
+        offset += peer_id_length;
+
+        proto_tree_add_item(data_tree, hf_pap_password_length, tvb, offset,
+                            1, ENC_BIG_ENDIAN);
+        password_length = tvb_get_guint8(tvb, offset);
         offset++;
 
-        proto_tree_add_item(fh_tree, hf_pap_length, tvb, offset, 2,
-            ENC_BIG_ENDIAN);
-        offset += 2;
+        proto_tree_add_item(data_tree, hf_pap_password, tvb, offset,
+                            password_length, ENC_ASCII|ENC_NA);
+        password = tvb_format_text(tvb, offset, password_length);
 
-        data_ti = proto_tree_add_item(fh_tree, hf_pap_data, tvb, offset, -1,
-            ENC_NA);
-        data_tree = proto_item_add_subtree(data_ti, ett_pap_data);
+        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        " (Peer-ID='%s', Password='%s')", peer_id, password);
+        break;
 
-        switch (code) {
-        case CONFREQ:
-            proto_tree_add_item(data_tree, hf_pap_peer_id_length, tvb, offset,
-                1, ENC_BIG_ENDIAN);
-            peer_id_length = tvb_get_guint8(tvb, offset);
-            offset++;
+    case CONFACK:
+    case CONFNAK:
+        proto_tree_add_item(data_tree, hf_pap_message_length, tvb, offset,
+                            1, ENC_BIG_ENDIAN);
+        message_length = tvb_get_guint8(tvb, offset);
+        offset +=1;
 
-            proto_tree_add_item(data_tree, hf_pap_peer_id, tvb, offset,
-                peer_id_length, ENC_ASCII|ENC_NA);
-            peer_id = tvb_format_text(tvb, offset, peer_id_length);
-            offset += peer_id_length;
+        proto_tree_add_item(data_tree, hf_pap_message, tvb, offset,
+                            message_length, ENC_ASCII|ENC_NA);
+        message = tvb_format_text(tvb, offset, message_length);
 
-            proto_tree_add_item(data_tree, hf_pap_password_length, tvb, offset,
-                1, ENC_BIG_ENDIAN);
-            password_length = tvb_get_guint8(tvb, offset);
-            offset++;
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Message='%s')",
+                        message);
+        break;
 
-            proto_tree_add_item(data_tree, hf_pap_password, tvb, offset,
-                password_length, ENC_ASCII|ENC_NA);
-            password = tvb_format_text(tvb, offset, password_length);
-
-            col_append_fstr(pinfo->cinfo, COL_INFO,
-                " (Peer-ID='%s', Password='%s')", peer_id, password);
-            break;
-
-        case CONFACK:
-        case CONFNAK:
-            proto_tree_add_item(data_tree, hf_pap_message_length, tvb, offset,
-                1, ENC_BIG_ENDIAN);
-            message_length = tvb_get_guint8(tvb, offset);
-            offset +=1;
-
-            proto_tree_add_item(data_tree, hf_pap_message, tvb, offset,
-                message_length, ENC_ASCII|ENC_NA);
-            message = tvb_format_text(tvb, offset, message_length);
-
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (Message='%s')",
-                message);
-            break;
-
-        default:
-            proto_tree_add_item(data_tree, hf_pap_stuff, tvb, offset, -1,
-                ENC_NA);
-            break;
-        }
+    default:
+        proto_tree_add_item(data_tree, hf_pap_stuff, tvb, offset, -1,
+                            ENC_NA);
+        break;
     }
 }
 
@@ -5241,13 +5235,13 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti = NULL;
+    proto_item *ti      = NULL;
     proto_tree *fh_tree = NULL;
     proto_item *tf;
     proto_tree *field_tree;
-    guint8  code, value_size;
-    guint32 length;
-    int     offset;
+    guint8      code, value_size;
+    guint32     length;
+    int         offset;
 
     code = tvb_get_guint8(tvb, 0);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP CHAP");
@@ -5286,56 +5280,54 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Challenge or Response data */
     case CHAP_CHAL:
     case CHAP_RESP:
-        if (tree) {
+        if (length > 0) {
+            guint value_offset = 0;
+            guint name_offset  = 0, name_size = 0;
+
+            /* Create data subtree */
+            tf = proto_tree_add_item(fh_tree, hf_chap_data, tvb, offset,
+                                     length, ENC_NA);
+            field_tree = proto_item_add_subtree(tf, ett_chap_data);
+            length--;
+
+            /* Value size */
+            value_size = tvb_get_guint8(tvb, offset);
+            if (value_size > length) {
+                proto_tree_add_text(field_tree, tvb, offset, 1,
+                                    "Value Size: %d byte%s (invalid, must be <= %u)",
+                                    value_size, plurality(value_size, "", "s"), length);
+                return;
+            }
+            proto_tree_add_item(field_tree, hf_chap_value_size, tvb,
+                                offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+
+            /* Value */
             if (length > 0) {
-                guint value_offset = 0;
-                guint name_offset = 0, name_size = 0;
+                value_offset = offset;
+                proto_tree_add_item(field_tree, hf_chap_value, tvb, offset,
+                                    value_size, ENC_NA);
 
-                /* Create data subtree */
-                tf = proto_tree_add_item(fh_tree, hf_chap_data, tvb, offset,
-                    length, ENC_NA);
-                field_tree = proto_item_add_subtree(tf, ett_chap_data);
-                length--;
+                /* Move along value_size bytes */
+                offset += value_size;
+                length -= value_size;
 
-                /* Value size */
-                value_size = tvb_get_guint8(tvb, offset);
-                if (value_size > length) {
-                    proto_tree_add_text(field_tree, tvb, offset, 1,
-                        "Value Size: %d byte%s (invalid, must be <= %u)",
-                        value_size, plurality(value_size, "", "s"), length);
-                    return;
-                }
-                proto_tree_add_item(field_tree, hf_chap_value_size, tvb,
-                    offset, 1, ENC_BIG_ENDIAN);
-                offset++;
-
-                /* Value */
+                /* Find name in remaining bytes */
                 if (length > 0) {
-                    value_offset = offset;
-                    proto_tree_add_item(field_tree, hf_chap_value, tvb, offset,
-                        value_size, ENC_NA);
-
-                    /* Move along value_size bytes */
-                    offset += value_size;
-                    length -= value_size;
-
-                    /* Find name in remaining bytes */
-                    if (length > 0) {
-                        tvb_ensure_bytes_exist(tvb, offset, length);
-                        proto_tree_add_item(field_tree, hf_chap_name, tvb,
-                            offset, length, ENC_ASCII|ENC_NA);
-                        name_offset = offset;
-                        name_size = length;
-                    }
-
-                    /* Show name and value in info column */
-                    col_append_fstr(pinfo->cinfo, COL_INFO,
-                        " (NAME='%s%s', VALUE=0x%s)",
-                        tvb_format_text(tvb, name_offset,
-                        (name_size > 20) ? 20 : name_size),
-                        (name_size > 20) ? "..." : "",
-                        tvb_bytes_to_str(tvb, value_offset, value_size));
+                    tvb_ensure_bytes_exist(tvb, offset, length);
+                    proto_tree_add_item(field_tree, hf_chap_name, tvb,
+                                        offset, length, ENC_ASCII|ENC_NA);
+                    name_offset = offset;
+                    name_size = length;
                 }
+
+                /* Show name and value in info column */
+                col_append_fstr(pinfo->cinfo, COL_INFO,
+                                " (NAME='%s%s', VALUE=0x%s)",
+                                tvb_format_text(tvb, name_offset,
+                                                (name_size > 20) ? 20 : name_size),
+                                (name_size > 20) ? "..." : "",
+                                tvb_bytes_to_str(tvb, value_offset, value_size));
             }
         }
         break;
@@ -6778,10 +6770,10 @@ proto_reg_handoff_iphc_crtp(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
