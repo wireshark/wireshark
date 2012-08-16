@@ -295,6 +295,7 @@
 #include <epan/conversation.h>
 #include <epan/emem.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 #include "packet-giop.h"
 #include "packet-ziop.h"
@@ -622,6 +623,9 @@ static const value_string service_context_ids[] = {
 
 static const guint GIOP_MAJOR =  1;
 static const guint GIOP_MINOR =  2;
+
+/* 1 Mb  Used as a sanity check to ensure correct endian of message size field */
+#define GIOP_MAX_MESSAGE_SIZE             1024*1000  
 
 
 static const value_string reply_status_types[] = {
@@ -2357,6 +2361,15 @@ guint8 get_CDR_octet(tvbuff_t *tvb, int *offset) {
 void get_CDR_octet_seq(tvbuff_t *tvb, gchar **seq, int *offset, guint32 len) {
 
   /*
+   * Make sure that the entire sequence of octets is in the buffer before
+   * allocating the buffer, so that we don't try to allocate a buffer bigger
+   * than the data we'll actually be copying, and thus don't run the risk
+   * of crashing if the buffer is *so* big that we fail to allocate it
+   * and "ep_alloc_array0()" aborts.
+   */
+  tvb_ensure_bytes_exist(tvb, *offset, len);
+
+  /*
    * XXX - should we just allocate "len" bytes, and have "get_CDR_string()"
    * do what we do now, and null-terminate the string (which also means
    * we don't need to zero out the entire allocation, just the last byte)?
@@ -2930,6 +2943,7 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
     if (sequence_length != 0 && sequence_length < ITEM_LABEL_LENGTH)
     {
 #if 1
+      tvb_ensure_bytes_exist(tvb, offset, sequence_length);
       header->exception_id = tvb_get_ephemeral_stringz(tvb,offset, &sequence_length);
 
       if (tree)
@@ -3376,10 +3390,12 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
     objkey_len = get_CDR_ulong (tvb, &offset, stream_is_big_endian,
                                 GIOP_HEADER_SIZE);
 
-    if (tree)
-    {
-      proto_tree_add_text (request_tree, tvb, offset-4, 4,
+    tf = proto_tree_add_text (request_tree, tvb, offset-4, 4,
                            "Object Key length: %u", objkey_len);
+
+    if (objkey_len > (guint32)tvb_reported_length_remaining(tvb, offset-4)) {
+        expert_add_info_format(pinfo, tf, PI_MALFORMED, PI_ERROR, "Object key length bigger than packet size");
+        return;
     }
 
     if (objkey_len > 0)
@@ -3870,12 +3886,9 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
        If we should return FALSE, we should do so *without* setting
        the "Info" column, *without* setting the "Protocol" column,
        and *without* adding anything to the protocol tree. */
+    col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
+                  header.GIOP_version.major, header.GIOP_version.minor);
 
-    if (check_col (pinfo->cinfo, COL_INFO))
-    {
-      col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
-                    header.GIOP_version.major, header.GIOP_version.minor);
-    }
     if (tree)
     {
       ti = proto_tree_add_item (tree, proto_giop, tvb, 0, -1, ENC_NA);
@@ -3890,13 +3903,10 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
     return;
   }
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-  {
-    col_add_fstr (pinfo->cinfo, COL_INFO, "GIOP %u.%u %s",
-                  header.GIOP_version.major, header.GIOP_version.minor,
-                  val_to_str(header.message_type, giop_message_types,
-                             "Unknown message type (0x%02x)"));
-  }
+  col_add_fstr (pinfo->cinfo, COL_INFO, "GIOP %u.%u %s",
+                header.GIOP_version.major, header.GIOP_version.minor,
+                val_to_str(header.message_type, giop_message_types,
+                           "Unknown message type (0x%02x)"));
 
   stream_is_big_endian = is_big_endian (&header);
 
@@ -3905,13 +3915,10 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
   else
     message_size = pletohl (&header.message_size);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-  {
-    gMessageType = val_to_str(header.message_type, giop_message_types, "Unknown message type (0x%02x)");
-    col_add_fstr (pinfo->cinfo, COL_INFO, "GIOP %u.%u %s s=%u",
+  gMessageType = val_to_str(header.message_type, giop_message_types, "Unknown message type (0x%02x)");
+  col_add_fstr (pinfo->cinfo, COL_INFO, "GIOP %u.%u %s s=%u",
                   header.GIOP_version.major, header.GIOP_version.minor, gMessageType, message_size );
-  }
-
+ 
   if (tree)
   {
     ti = proto_tree_add_item (tree, proto_giop, tvb, 0, -1, ENC_NA);
@@ -3940,8 +3947,6 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
     default:
       break;
     }                       /* minor_version */
-
-    gMessageType = val_to_str(header.message_type, giop_message_types, "(0x%02x)" );
 
     proto_tree_add_uint_format (clnp_tree,
                                 hf_giop_message_type,
@@ -4056,6 +4061,9 @@ get_giop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   else
     message_size = pletohl (&header.message_size);
 
+  /* Make sure the size is reasonable, otherwise just take the header */
+  if (message_size > GIOP_MAX_MESSAGE_SIZE)
+      return GIOP_HEADER_SIZE;
 
   return message_size + GIOP_HEADER_SIZE;
 }
