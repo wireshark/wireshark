@@ -69,8 +69,8 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *blk_tree;
-    guint16 msglen, real_msglen, whole_len;
-    guint remaining;
+    guint16     msglen, real_msglen, whole_len;
+    guint       remaining;
 
     if (tvb_length_remaining(tvb, offset) < MOLDUDP64_MSGLEN_LEN)
         return 0;
@@ -121,9 +121,9 @@ dissect_moldudp64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *moldudp64_tree;
-    guint offset = 0;
-    guint16 count, real_count = 0;
-    guint64 sequence;
+    guint       offset            = 0;
+    guint16     count, real_count = 0;
+    guint64     sequence;
 
     /* Check that there's enough data */
     if (tvb_reported_length(tvb) < (MOLDUDP64_SESSION_LEN  +
@@ -259,9 +259,9 @@ proto_register_moldudp64(void)
 void
 proto_reg_handoff_moldudp64(void)
 {
-    static gboolean initialized = FALSE;
+    static gboolean           initialized = FALSE;
     static dissector_handle_t moldudp64_handle;
-    static int currentPort;
+    static int                currentPort;
 
     if (!initialized) {
 
@@ -284,10 +284,10 @@ proto_reg_handoff_moldudp64(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

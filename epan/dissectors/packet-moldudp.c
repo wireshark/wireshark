@@ -68,8 +68,8 @@ dissect_moldudp_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *blk_tree;
-    guint16 msglen, real_msglen, whole_len;
-    guint remaining;
+    guint16     msglen, real_msglen, whole_len;
+    guint       remaining;
 
     if (tvb_reported_length(tvb) - offset < MOLDUDP_MSGLEN_LEN)
         return 0;
@@ -123,9 +123,9 @@ dissect_moldudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *moldudp_tree;
-    guint offset = 0;
-    guint16 count, real_count = 0;
-    guint32 sequence;
+    guint       offset            = 0;
+    guint16     count, real_count = 0;
+    guint32     sequence;
 
     /* Check that there's enough data */
     if (tvb_reported_length(tvb) < (MOLDUDP_SESSION_LEN  +
@@ -241,7 +241,7 @@ proto_register_moldudp(void)
     moldudp_module = prefs_register_protocol(proto_moldudp,
             proto_reg_handoff_moldudp);
 
-    /* Register a sample port preference   */
+    /* Register a port preference   */
     prefs_register_uint_preference(moldudp_module, "udp.port", "MoldUDP UDP Port",
             "MoldUDP UDP port to capture on.",
             10, &pf_moldudp_port);
@@ -251,12 +251,11 @@ proto_register_moldudp(void)
 void
 proto_reg_handoff_moldudp(void)
 {
-    static gboolean initialized = FALSE;
+    static gboolean           initialized = FALSE;
     static dissector_handle_t moldudp_handle;
-    static int currentPort;
+    static int                currentPort;
 
     if (!initialized) {
-
         moldudp_handle = new_create_dissector_handle(dissect_moldudp,
                 proto_moldudp);
         initialized = TRUE;
@@ -276,10 +275,10 @@ proto_reg_handoff_moldudp(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
