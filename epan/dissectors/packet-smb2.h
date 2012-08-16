@@ -70,6 +70,9 @@ typedef struct _smb2_sesid_info_t {
 	char *acct_name;
 	char *domain_name;
 	char *host_name;
+	guint16 server_port;
+	guint8 client_decryption_key[16];
+	guint8 server_decryption_key[16];
 	GHashTable *tids;
 } smb2_sesid_info_t;
 
@@ -92,6 +95,7 @@ typedef struct _smb2_conv_info_t {
 #define SMB2_FLAGS_CHAINED	0x00000004
 #define SMB2_FLAGS_SIGNATURE	0x00000008
 #define SMB2_FLAGS_DFS_OP	0x10000000
+#define SMB2_FLAGS_REPLAY_OPERATION	0x20000000
 typedef struct _smb2_info_t {
 	guint16 opcode;
 	guint32 ioctl_function;
@@ -113,7 +117,9 @@ typedef struct _smb2_transform_info_t {
 	guint8  nonce[16];
 	guint32 size;
 	guint16 alg;
-	guint8  session_id[8];
+	guint64 sesid;
+	smb2_conv_info_t *conv;
+	smb2_sesid_info_t *session;
 } smb2_transform_info_t;
 
 

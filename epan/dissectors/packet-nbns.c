@@ -1691,8 +1691,6 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    && tvb_get_guint8(tvb,offset+6) == 'M'
 		    && tvb_get_guint8(tvb,offset+7) == 'B') {
 			is_cifs = TRUE;
-		} else {
-			is_cifs = FALSE;
 		}
 
 		/*

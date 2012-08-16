@@ -48,6 +48,12 @@
 #include "packet-dcerpc-nt.h"
 #include <string.h>
 
+#include <glib.h>
+/* Use libgcrypt for cipher libraries. */
+#ifdef HAVE_LIBGCRYPT
+#include <gcrypt.h>
+#endif /* HAVE_LIBGCRYPT */
+
 static char smb_header_label[] = "SMB2 Header";
 static char smb_transform_header_label[] = "SMB2 Transform Header";
 
@@ -69,6 +75,7 @@ static int hf_smb2_flags_async_cmd = -1;
 static int hf_smb2_flags_dfs_op = -1;
 static int hf_smb2_flags_chained = -1;
 static int hf_smb2_flags_signature = -1;
+static int hf_smb2_flags_replay_operation = -1;
 static int hf_smb2_chain_offset = -1;
 static int hf_smb2_security_blob = -1;
 static int hf_smb2_ioctl_in_data = -1;
@@ -266,6 +273,8 @@ static int hf_smb2_share_caching = -1;
 static int hf_smb2_share_caps = -1;
 static int hf_smb2_share_caps_dfs = -1;
 static int hf_smb2_share_caps_continuous_availability = -1;
+static int hf_smb2_share_caps_scaleout = -1;
+static int hf_smb2_share_caps_cluster = -1;
 static int hf_smb2_create_flags = -1;
 static int hf_smb2_lock_count = -1;
 static int hf_smb2_min_count = -1;
@@ -314,7 +323,6 @@ static int hf_smb2_transform_signature = -1;
 static int hf_smb2_transform_nonce = -1;
 static int hf_smb2_transform_msg_size = -1;
 static int hf_smb2_transform_reserved = -1;
-static int hf_smb2_transform_sessionid = -1;
 static int hf_smb2_encryption_aes128_ccm = -1;
 static int hf_smb2_transform_enc_alg = -1;
 static int hf_smb2_transform_encyrpted_data = -1;
@@ -598,6 +606,43 @@ smb2_sesid_info_hash(gconstpointer k)
 	return hash;
 }
 
+static void smb2_key_derivation(const guint8 *KI _U_, guint32 KI_len _U_,
+			 const guint8 *Label _U_, guint32 Label_len _U_,
+			 const guint8 *Context _U_, guint32 Context_len _U_,
+			 guint8 KO[16])
+{
+#ifdef HAVE_LIBGCRYPT
+	gcry_md_hd_t hd = NULL;
+	guint8 buf[4];
+	guint8 *digest = NULL;
+
+	/*
+	 * a simplified version of
+	 * "NIST Special Publication 800-108" section 5.1
+	 * using hmac-sha256.
+	 */
+	gcry_md_open(&hd, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC);
+	gcry_md_setkey(hd, KI, KI_len);
+
+	memset(buf, 0, sizeof(buf));
+	buf[3] = 1;
+	gcry_md_write(hd, buf, sizeof(buf));
+	gcry_md_write(hd, Label, Label_len);
+	gcry_md_write(hd, buf, 1);
+	gcry_md_write(hd, Context, Context_len);
+	buf[3] = 128;
+	gcry_md_write(hd, buf, sizeof(buf));
+
+	digest = gcry_md_read(hd, GCRY_MD_SHA256);
+
+	memcpy(KO, digest, 16);
+
+	gcry_md_close(hd);
+#else
+	memset(KO, 0, 16);
+#endif
+}
+
 static int dissect_smb2_file_info_0f(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, smb2_info_t *si);
 
 
@@ -860,6 +905,11 @@ static const true_false_string tfs_flags_signature = {
 	"This pdu is NOT signed"
 };
 
+static const true_false_string tfs_flags_replay_operation = {
+	"This is a REPLAY OPEARATION",
+	"This is NOT a replay operation"
+};
+
 static const true_false_string tfs_cap_dfs = {
 	"This host supports DFS",
 	"This host does NOT support DFS"
@@ -919,6 +969,8 @@ static const value_string smb2_ioctl_vals[] = {
   {0x0011C017, "FSCTL_PIPE_TRANSCEIVE"},
   {0x001401D4, "FSCTL_LMR_REQUEST_RESILIENCY"},
   {0x001401FC, "FSCTL_QUERY_NETWORK_INTERFACE_INFO"},
+  {0x00140200, "FSCTL_VALIDATE_NEGOTIATE_INFO_224"},
+  {0x00140204, "FSCTL_VALIDATE_NEGOTIATE_INFO"},
   {0x00144064, "FSCTL_GET_SHADOW_COPY_DATA"},
   {0x000900C0, "FSCTL_CREATE_OR_GET_OBJECT_ID"},
   {0x0009009C, "FSCTL_GET_OBJECT_ID"},
@@ -1080,9 +1132,26 @@ dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 	if (ioctlfunc)
 		*ioctlfunc=ioctl_function;
 	if(ioctl_function){
+		const gchar *unknown = "unknown";
+		const gchar *ioctl_name = val_to_str_const(ioctl_function,
+							   smb2_ioctl_vals,
+							   unknown);
+
+		/*
+		 * val_to_str_const() doesn't work with a unknown == NULL
+		 */
+		if (ioctl_name == unknown) {
+			ioctl_name = NULL;
+		}
+
+		if (check_col(pinfo->cinfo, COL_INFO) && ioctl_name != NULL) {
+			col_append_fstr(
+				pinfo->cinfo, COL_INFO, " %s", ioctl_name);
+		}
+
 		/* device */
 		proto_tree_add_item(tree, hf_smb2_ioctl_function_device, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		if (check_col(pinfo->cinfo, COL_INFO)){
+		if (check_col(pinfo->cinfo, COL_INFO) && ioctl_name == NULL) {
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, " %s",
 				val_to_str((ioctl_function>>16)&0xffff, smb2_ioctl_device_vals,
@@ -1094,7 +1163,7 @@ dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 
 		/* function */
 		proto_tree_add_item(tree, hf_smb2_ioctl_function_function, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		if (check_col(pinfo->cinfo, COL_INFO)){
+		if (check_col(pinfo->cinfo, COL_INFO) && ioctl_name == NULL) {
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, " Function:0x%04x",
 				(ioctl_function>>2)&0x0fff);
@@ -2111,8 +2180,10 @@ dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 	return offset;
 }
 
-#define SHARE_CAPS_DFS		0x00000008
-#define SHARE_CAPS_CONTINUOUS_AVAILABILITY 0x00000010
+#define SHARE_CAPS_DFS				0x00000008
+#define SHARE_CAPS_CONTINUOUS_AVAILABILITY	0x00000010
+#define SHARE_CAPS_SCALEOUT			0x00000020
+#define SHARE_CAPS_CLUSTER			0x00000040
 
 static int
 dissect_smb2_share_caps(proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -2120,6 +2191,8 @@ dissect_smb2_share_caps(proto_tree *tree, tvbuff_t *tvb, int offset)
 	static const int *sc_fields[] = {
 		&hf_smb2_share_caps_dfs,
 		&hf_smb2_share_caps_continuous_availability,
+		&hf_smb2_share_caps_scaleout,
+		&hf_smb2_share_caps_cluster,
 		NULL
 	};
 
@@ -2200,13 +2273,32 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	if(!pinfo->fd->flags.visited){
 		idx=0;
 		while((ntlmssph=fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL){
-			if(ntlmssph && ntlmssph->type==3){
+			if(ntlmssph && ntlmssph->type==NTLMSSP_AUTH){
+				static const gint8 zeros[NTLMSSP_KEY_LEN];
 				smb2_sesid_info_t *sesid;
 				sesid=se_alloc(sizeof(smb2_sesid_info_t));
 				sesid->sesid=si->sesid;
 				sesid->acct_name=se_strdup(ntlmssph->acct_name);
 				sesid->domain_name=se_strdup(ntlmssph->domain_name);
 				sesid->host_name=se_strdup(ntlmssph->host_name);
+				if (memcmp(ntlmssph->session_key, zeros, NTLMSSP_KEY_LEN) != 0) {
+					smb2_key_derivation(ntlmssph->session_key,
+							    NTLMSSP_KEY_LEN,
+							    "SMB2AESCCM", 11,
+							    "ServerIn ", 10,
+							    sesid->server_decryption_key);
+					smb2_key_derivation(ntlmssph->session_key,
+							    NTLMSSP_KEY_LEN,
+							    "SMB2AESCCM", 11,
+							    "ServerOut", 10,
+							    sesid->client_decryption_key);
+				} else {
+					memset(sesid->server_decryption_key, 0,
+					       sizeof(sesid->server_decryption_key));
+					memset(sesid->client_decryption_key, 0,
+					       sizeof(sesid->client_decryption_key));
+				}
+				sesid->server_port = pinfo->destport;
 				sesid->auth_frame=pinfo->fd->num;
 				sesid->tids= g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
 				g_hash_table_insert(si->conv->sesids, sesid, sesid);
@@ -4097,6 +4189,89 @@ dissect_smb2_FSCTL_QUERY_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinf
 }
 
 static void
+dissect_smb2_FSCTL_VALIDATE_NEGOTIATE_INFO_224(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset _U_, gboolean data_in)
+{
+	/*
+	 * This is only used by Windows 8 beta
+	 */
+	if(data_in){
+		/* capabilities */
+		offset = dissect_smb2_capabilities(tree, tvb, offset);
+
+		/* client guid */
+		proto_tree_add_item(tree, hf_smb2_client_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+		offset += 16;
+
+		/* security mode, skip second byte */
+		offset = dissect_smb2_secmode(tree, tvb, offset);
+		offset++;
+
+		/* dialect */
+		proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+	} else {
+		/* capabilities */
+		offset = dissect_smb2_capabilities(tree, tvb, offset);
+
+		/* server guid */
+		proto_tree_add_item(tree, hf_smb2_server_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+		offset += 16;
+
+		/* security mode, skip second byte */
+		offset = dissect_smb2_secmode(tree, tvb, offset);
+		offset++;
+
+		/* dialect */
+		proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+	}
+}
+
+static void
+dissect_smb2_FSCTL_VALIDATE_NEGOTIATE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset _U_, gboolean data_in)
+{
+	if(data_in){
+		guint16 dc;
+
+		/* capabilities */
+		offset = dissect_smb2_capabilities(tree, tvb, offset);
+
+		/* client guid */
+		proto_tree_add_item(tree, hf_smb2_client_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+		offset += 16;
+
+		/* security mode, skip second byte */
+		offset = dissect_smb2_secmode(tree, tvb, offset);
+		offset++;
+
+		/* dialect count */
+		dc = tvb_get_letohs(tvb, offset);
+		proto_tree_add_item(tree, hf_smb2_dialect_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		for(;dc>0;dc--){
+			proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+		}
+	} else {
+		/* capabilities */
+		offset = dissect_smb2_capabilities(tree, tvb, offset);
+
+		/* server guid */
+		proto_tree_add_item(tree, hf_smb2_server_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+		offset += 16;
+
+		/* security mode, skip second byte */
+		offset = dissect_smb2_secmode(tree, tvb, offset);
+		offset++;
+
+		/* dialect */
+		proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+	}
+}
+
+static void
 dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
 	guint32 num_volumes;
@@ -4279,6 +4454,12 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		break;
 	case 0x001401FC: /* FSCTL_QUERY_NETWORK_INTERFACE_INFO */
 		dissect_smb2_FSCTL_QUERY_NETWORK_INTERFACE_INFO(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x00140200: /* FSCTL_VALIDATE_NEGOTIATE_INFO_224 */
+		dissect_smb2_FSCTL_VALIDATE_NEGOTIATE_INFO_224(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x00140204: /* FSCTL_VALIDATE_NEGOTIATE_INFO */
+		dissect_smb2_FSCTL_VALIDATE_NEGOTIATE_INFO(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x00144064: /* FSCTL_GET_SHADOW_COPY_DATA */
 		dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvb, pinfo, tree, 0, data_in);
@@ -5014,35 +5195,51 @@ typedef struct create_context_data_dissectors {
 
 struct create_context_data_tag_dissectors {
 	const char *tag;
+	const char *val;
 	create_context_data_dissectors_t dissectors;
 };
 
 struct create_context_data_tag_dissectors create_context_dissectors_array[] = {
-	{ "ExtA", { dissect_smb2_ExtA_buffer_request, dissect_smb2_ExtA_buffer_response } },
-	{ "SecD", { dissect_smb2_SecD_buffer_request, dissect_smb2_SecD_buffer_response } },
-	{ "AlSi", { dissect_smb2_AlSi_buffer_request, dissect_smb2_AlSi_buffer_response } },
-	{ "MxAc", { dissect_smb2_MxAc_buffer_request, dissect_smb2_MxAc_buffer_response } },
-	{ "DHnQ", { dissect_smb2_DHnQ_buffer_request, dissect_smb2_DHnQ_buffer_response } },
-	{ "DHnC", { dissect_smb2_DHnC_buffer_request, dissect_smb2_DHnC_buffer_response } },
-	{ "DH2Q", { dissect_smb2_DH2Q_buffer_request, dissect_smb2_DH2Q_buffer_response } },
-	{ "DH2C", { dissect_smb2_DH2C_buffer_request, dissect_smb2_DH2C_buffer_response } },
-	{ "TWrp", { dissect_smb2_TWrp_buffer_request, dissect_smb2_TWrp_buffer_response } },
-	{ "QFid", { dissect_smb2_QFid_buffer_request, dissect_smb2_QFid_buffer_response } },
-	{ "RqLs", { dissect_smb2_RqLs_buffer_request, dissect_smb2_RqLs_buffer_response } },
-	{ "744D142E-46FA-0890-4AF7-A7EF6AA6BC45",
+	{ "ExtA", "SMB2_CREATE_EA_BUFFER",
+	  { dissect_smb2_ExtA_buffer_request, dissect_smb2_ExtA_buffer_response } },
+	{ "SecD", "SMB2_CREATE_SD_BUFFER",
+	  { dissect_smb2_SecD_buffer_request, dissect_smb2_SecD_buffer_response } },
+	{ "AlSi", "SMB2_CREATE_ALLOCATION_SIZE",
+	  { dissect_smb2_AlSi_buffer_request, dissect_smb2_AlSi_buffer_response } },
+	{ "MxAc", "SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST",
+	  { dissect_smb2_MxAc_buffer_request, dissect_smb2_MxAc_buffer_response } },
+	{ "DHnQ", "SMB2_CREATE_DURABLE_HANDLE_REQUEST",
+	  { dissect_smb2_DHnQ_buffer_request, dissect_smb2_DHnQ_buffer_response } },
+	{ "DHnC", "SMB2_CREATE_DURABLE_HANDLE_RECONNECT",
+	  { dissect_smb2_DHnC_buffer_request, dissect_smb2_DHnC_buffer_response } },
+	{ "DH2Q", "SMB2_CREATE_DURABLE_HANDLE_REQUEST_V2",
+	  { dissect_smb2_DH2Q_buffer_request, dissect_smb2_DH2Q_buffer_response } },
+	{ "DH2C", "SMB2_CREATE_DURABLE_HANDLE_RECONNECT_V2",
+	  { dissect_smb2_DH2C_buffer_request, dissect_smb2_DH2C_buffer_response } },
+	{ "TWrp", "SMB2_CREATE_TIMEWARP_TOKEN",
+	  { dissect_smb2_TWrp_buffer_request, dissect_smb2_TWrp_buffer_response } },
+	{ "QFid", "SMB2_CREATE_QUERY_ON_DISK_ID",
+	  { dissect_smb2_QFid_buffer_request, dissect_smb2_QFid_buffer_response } },
+	{ "RqLs", "SMB2_CREATE_REQUEST_LEASE",
+	  { dissect_smb2_RqLs_buffer_request, dissect_smb2_RqLs_buffer_response } },
+	{ "744D142E-46FA-0890-4AF7-A7EF6AA6BC45", "SMB2_CREATE_APP_INSTANCE_ID",
 		{ dissect_smb2_APP_INSTANCE_buffer_request,
 		  dissect_smb2_APP_INSTANCE_buffer_response } }
 };
 
-static struct create_context_data_dissectors*
-get_create_context_data_dissectors(const char *tag)
+static struct create_context_data_tag_dissectors*
+get_create_context_data_tag_dissectors(const char *tag)
 {
+	static struct create_context_data_tag_dissectors INVALID = {
+		NULL, "<invalid>", { NULL, NULL }
+	};
+
 	size_t i;
 	for (i=0; i<array_length(create_context_dissectors_array); i++) {
 		if (!strcmp(tag, create_context_dissectors_array[i].tag))
-			return &create_context_dissectors_array[i].dissectors;
+			return &create_context_dissectors_array[i];
 	}
-	return NULL;
+	return &INVALID;
 }
 
 static void
@@ -5059,6 +5256,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	proto_item *sub_item=NULL;
 	proto_tree *sub_tree=NULL;
 	proto_item *parent_item=NULL;
+	struct create_context_data_tag_dissectors *tag_dissectors;
 
 	chain_offset=tvb_get_letohl(tvb, offset);
 	if (chain_offset) {
@@ -5084,11 +5282,13 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	/* tag string */
 	tag = dissect_smb2_olb_string(pinfo, sub_tree, tvb, &tag_olb, OLB_TYPE_ASCII_STRING);
 
+	tag_dissectors = get_create_context_data_tag_dissectors(tag);
+
 	proto_item_append_text(parent_item, " %s", tag);
-	proto_item_append_text(sub_item, ": %s", tag);
+	proto_item_append_text(sub_item, ": %s \"%s\"", tag_dissectors->val, tag);
 
 	/* data */
-	dissectors = get_create_context_data_dissectors(tag);
+	dissectors = &tag_dissectors->dissectors;
 	if (dissectors)
 		dissector = (si->flags & SMB2_FLAGS_RESPONSE) ? dissectors->response : dissectors->request;
 
@@ -6059,12 +6259,27 @@ static smb2_function smb2_dissector[256] = {
 #define ENC_ALG_aes128_ccm	0x0001
 
 static int
-dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, smb2_transform_info_t *sti)
+dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
+			      tvbuff_t *tvb, int offset,
+			      smb2_transform_info_t *sti,
+			      tvbuff_t **enc_tvb, tvbuff_t **plain_tvb)
 {
+	proto_item *sesid_item=NULL;
+	proto_tree *sesid_tree=NULL;
+	smb2_sesid_info_t sesid_key;
+	int sesid_offset;
+	guint8 *plain_data=NULL;
+#ifdef HAVE_LIBGCRYPT
+	guint8 *decryption_key=NULL;
+#endif
+	proto_item *item;
 	static const int *sf_fields[] = {
 		&hf_smb2_encryption_aes128_ccm,
 		NULL
 	};
+
+	*enc_tvb = NULL;
+	*plain_tvb = NULL;
 
 	/* signature */
 	proto_tree_add_item(tree, hf_smb2_transform_signature, tvb, offset, 16, ENC_LITTLE_ENDIAN);
@@ -6090,10 +6305,103 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t
 	offset += 2;
 
 	/* session ID */
-	proto_tree_add_item(tree, hf_smb2_transform_sessionid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-	tvb_memcpy(tvb, sti->session_id, offset, 8);
+	sesid_offset = offset;
+	sti->sesid=tvb_get_letoh64(tvb, offset);
+	sesid_item=proto_tree_add_item(tree, hf_smb2_sesid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	if(tree){
+		sesid_tree=proto_item_add_subtree(sesid_item, ett_smb2_sesid_tree);
+	}
 	offset += 8;
 
+	/* now we need to first lookup the uid session */
+	sesid_key.sesid=sti->sesid;
+	sti->session=g_hash_table_lookup(sti->conv->sesids, &sesid_key);
+
+	if (sti->session != NULL && sti->session->auth_frame != (guint32)-1) {
+		item=proto_tree_add_string(sesid_tree, hf_smb2_acct_name, tvb, sesid_offset, 0, sti->session->acct_name);
+		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(sesid_item, " Acct:%s", sti->session->acct_name);
+
+		item=proto_tree_add_string(sesid_tree, hf_smb2_domain_name, tvb, sesid_offset, 0, sti->session->domain_name);
+		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(sesid_item, " Domain:%s", sti->session->domain_name);
+
+		item=proto_tree_add_string(sesid_tree, hf_smb2_host_name, tvb, sesid_offset, 0, sti->session->host_name);
+		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(sesid_item, " Host:%s", sti->session->host_name);
+
+		item=proto_tree_add_uint(sesid_tree, hf_smb2_auth_frame, tvb, sesid_offset, 0, sti->session->auth_frame);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+
+#ifdef HAVE_LIBGCRYPT
+	if (sti->session != NULL && sti->alg == ENC_ALG_aes128_ccm) {
+		static const guint8 zeros[16];
+
+		if (pinfo->destport == sti->session->server_port) {
+			decryption_key = sti->session->server_decryption_key;
+		} else {
+			decryption_key = sti->session->client_decryption_key;
+		}
+
+		if (memcmp(decryption_key, zeros, 16) == 0) {
+			decryption_key = NULL;
+		}
+	}
+
+	if (decryption_key != NULL) {
+		gcry_cipher_hd_t cipher_hd = NULL;
+		guint8 A_1[16] = {
+			3, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 1
+		};
+
+		memcpy(&A_1[1], sti->nonce, 15 - 4);
+
+		plain_data = tvb_memdup(tvb, offset, sti->size);
+
+		/* Open the cipher. */
+		if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0)) {
+			g_free(plain_data);
+			plain_data = NULL;
+			goto done_decryption;
+		}
+
+		/* Set the key and initial value. */
+		if (gcry_cipher_setkey(cipher_hd, decryption_key, 16)) {
+			gcry_cipher_close(cipher_hd);
+			g_free(plain_data);
+			plain_data = NULL;
+			goto done_decryption;
+		}
+		if (gcry_cipher_setctr(cipher_hd, A_1, 16)) {
+			gcry_cipher_close(cipher_hd);
+			g_free(plain_data);
+			plain_data = NULL;
+			goto done_decryption;
+		}
+
+		if (gcry_cipher_encrypt(cipher_hd, plain_data, sti->size, NULL, 0)) {
+			gcry_cipher_close(cipher_hd);
+			g_free(plain_data);
+			plain_data = NULL;
+			goto done_decryption;
+		}
+
+		/* Done with the cipher. */
+		gcry_cipher_close(cipher_hd);
+	}
+done_decryption:
+#endif
+	*enc_tvb = tvb_new_subset(tvb, offset, sti->size, sti->size);
+
+	if (plain_data != NULL) {
+		*plain_tvb = tvb_new_child_real_data(*enc_tvb, plain_data, sti->size, sti->size);
+		tvb_set_free_cb(*plain_tvb, g_free);
+		add_new_data_source(pinfo, *plain_tvb, "Decrypted SMB3");
+	}
+
+	offset += sti->size;
 	return offset;
 }
 
@@ -6282,6 +6590,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		conversation_add_proto_data(conversation, proto_smb2, si->conv);
 	}
 
+	sti->conv = si->conv;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB2");
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -6306,11 +6615,12 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	}
 
 	/* Decode the header */
-	/* SMB2 marker */
-	proto_tree_add_text(header_tree, tvb, offset, 4, "Server Component: SMB2");
-	offset += 4;
 
 	if (!smb2_transform_header) {
+		/* SMB2 marker */
+		proto_tree_add_text(header_tree, tvb, offset, 4, "Server Component: SMB2");
+		offset += 4;
+
 		/* we need the flags before we know how to parse the credits field */
 		si->flags=tvb_get_letohl(tvb, offset+12);
 
@@ -6354,6 +6664,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 				"Flags: 0x%08x", si->flags);
 			flags_tree = proto_item_add_subtree(flags_item, ett_smb2_flags);
 		}
+		proto_tree_add_boolean(flags_tree, hf_smb2_flags_replay_operation, tvb, offset, 4, si->flags);
 		proto_tree_add_boolean(flags_tree, hf_smb2_flags_dfs_op, tvb, offset, 4, si->flags);
 		proto_tree_add_boolean(flags_tree, hf_smb2_flags_signature, tvb, offset, 4, si->flags);
 		proto_tree_add_boolean(flags_tree, hf_smb2_flags_chained, tvb, offset, 4, si->flags);
@@ -6482,13 +6793,30 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	} else {
 		proto_item *enc_item=NULL;
 		proto_tree *enc_tree=NULL;
+		tvbuff_t *enc_tvb=NULL;
+		tvbuff_t *plain_tvb=NULL;
 
-		offset = dissect_smb2_transform_header(pinfo, header_tree, tvb, offset, sti);
-		enc_item = proto_tree_add_text(tree, tvb, offset, -1, "Encrypted SMB2 data");
+		/* SMB2_TRANSFORM marker */
+		proto_tree_add_text(header_tree, tvb, offset, 4, "Server Component: SMB2_TRANSFORM");
+		offset += 4;
+
+		offset = dissect_smb2_transform_header(pinfo, header_tree, tvb, offset, sti,
+						       &enc_tvb, &plain_tvb);
+
+		enc_item = proto_tree_add_text(tree, enc_tvb, 0, sti->size, "Encrypted SMB3 data");
 		enc_tree = proto_item_add_subtree(enc_item, ett_smb2_encrypted);
-		proto_tree_add_item(enc_tree, hf_smb2_transform_encyrpted_data, tvb, offset, sti->size, ENC_LITTLE_ENDIAN);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Encrypted SMB 2.2");
-		offset += sti->size;
+		if (plain_tvb != NULL) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Decrypted SMB3");
+			dissect_smb2(plain_tvb, pinfo, enc_tree, FALSE);
+		} else {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Encrypted SMB3");
+			proto_tree_add_item(enc_tree, hf_smb2_transform_encyrpted_data,
+					    enc_tvb, 0, sti->size, ENC_LITTLE_ENDIAN);
+		}
+
+		if (tvb_reported_length_remaining(tvb, offset) > 0) {
+			chain_offset = offset;
+		}
 	}
 
 	if (chain_offset > 0) {
@@ -6611,6 +6939,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_flags_signature,
 		{ "Signing", "smb2.flags.signature", FT_BOOLEAN, 32,
 		TFS(&tfs_flags_signature), SMB2_FLAGS_SIGNATURE, "Whether the pdu is signed or not", HFILL }},
+	{ &hf_smb2_flags_replay_operation,
+		{ "Replay operation", "smb2.flags.replay", FT_BOOLEAN, 32,
+		TFS(&tfs_flags_replay_operation), SMB2_FLAGS_REPLAY_OPERATION, "Whether this is a replay operation", HFILL }},
 	{ &hf_smb2_tree,
 		{ "Tree", "smb2.tree", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of the Tree/Share", HFILL }},
@@ -7375,6 +7706,16 @@ proto_register_smb2(void)
 		NULL, SHARE_CAPS_CONTINUOUS_AVAILABILITY,
 		"The specified share is continuously available", HFILL }},
 
+	{ &hf_smb2_share_caps_scaleout,
+		{ "SCALEOUT", "smb2.share_caps.scaleout", FT_BOOLEAN, 32,
+		NULL, SHARE_CAPS_SCALEOUT,
+		"The specified share is a scaleout share", HFILL }},
+
+	{ &hf_smb2_share_caps_cluster,
+		{ "CLUSTER", "smb2.share_caps.cluster", FT_BOOLEAN, 32,
+		NULL, SHARE_CAPS_CLUSTER,
+		"The specified share is a cluster share", HFILL }},
+
 	{ &hf_smb2_ioctl_flags,
 		{ "Flags", "smb2.ioctl.flags", FT_UINT32, BASE_HEX,
 		NULL, 0, NULL, HFILL }},
@@ -7552,10 +7893,6 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_transform_reserved,
 		{ "Reserved", "smb2.header.transform.reserved", FT_BYTES, BASE_NONE,
-		NULL, 0, NULL, HFILL }},
-
-	{ &hf_smb2_transform_sessionid,
-		{ "Session ID", "smb2.header.transform.sessionid", FT_BYTES, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_transform_enc_alg,

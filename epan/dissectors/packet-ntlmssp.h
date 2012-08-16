@@ -26,6 +26,15 @@
 #ifndef __PACKET_NTLMSSP_H__
 #define __PACKET_NTLMSSP_H__
 
+/* Message types */
+
+#define NTLMSSP_NEGOTIATE 1
+#define NTLMSSP_CHALLENGE 2
+#define NTLMSSP_AUTH      3
+#define NTLMSSP_UNKNOWN   4
+
+#define NTLMSSP_KEY_LEN 16
+
 /* Dissect a ntlmv2 response */
 
 int
@@ -38,6 +47,7 @@ typedef struct _ntlmssp_header_t {
 	const char 	*domain_name;
 	const char 	*acct_name;
 	const char 	*host_name;
+	guint8		session_key[NTLMSSP_KEY_LEN];
 } ntlmssp_header_t;
 
 #endif

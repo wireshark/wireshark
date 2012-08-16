@@ -57,18 +57,10 @@
 
 static int ntlmssp_tap = -1;
 
-/* Message types */
-
-#define NTLMSSP_NEGOTIATE 1
-#define NTLMSSP_CHALLENGE 2
-#define NTLMSSP_AUTH      3
-#define NTLMSSP_UNKNOWN   4
 #define CLIENT_SIGN_TEXT "session key to client-to-server signing key magic constant"
 #define CLIENT_SEAL_TEXT "session key to client-to-server sealing key magic constant"
 #define SERVER_SIGN_TEXT "session key to server-to-client signing key magic constant"
 #define SERVER_SEAL_TEXT "session key to server-to-client sealing key magic constant"
-
-#define NTLMSSP_KEY_LEN 16
 
 static const value_string ntlmssp_message_types[] = {
   { NTLMSSP_NEGOTIATE, "NTLMSSP_NEGOTIATE" },
@@ -631,6 +623,7 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
     memcpy(sessionkey,keyexchangekey,NTLMSSP_KEY_LEN);
   }
 
+  memcpy(ntlmssph->session_key, sessionkey, NTLMSSP_KEY_LEN);
 }
  /* Create an NTLMSSP version 1 key
  * That is more complicated logic and methods and user challenge as well.
@@ -640,7 +633,8 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
 static void
 create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, const guint8 *clientchallenge,
                       guint8 *sessionkey,const  guint8 *encryptedsessionkey, int flags,
-                      const guint8 *ref_nt_challenge_response,const guint8 *ref_lm_challenge_response)
+                      const guint8 *ref_nt_challenge_response,const guint8 *ref_lm_challenge_response,
+                      ntlmssp_header_t *ntlmssph)
 {
   unsigned char lm_password_upper[NTLMSSP_KEY_LEN];
   unsigned char lm_password_hash[NTLMSSP_KEY_LEN];
@@ -767,6 +761,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
   {
     memcpy(sessionkey,keyexchangekey,NTLMSSP_KEY_LEN);
   }
+  memcpy(ntlmssph->session_key, sessionkey, NTLMSSP_KEY_LEN);
 }
 
 static void
@@ -1483,7 +1478,6 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   ntlmssp_info *conv_ntlmssp_info = NULL;
   conversation_t *conversation;
   gboolean unicode_strings = FALSE;
-  guint8 challenge[8];
   guint8 tmp[8];
   guint8 sspkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key */
   int ssp_key_len; /* Either 8 or 16 (40 bit or 128) */
@@ -1532,7 +1526,6 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     /* Insert the flags into the conversation */
     conv_ntlmssp_info->flags = negotiate_flags;
     /* Insert the RC4 state information into the conversation */
-    tvb_memcpy(tvb, challenge, offset, 8);
     tvb_memcpy(tvb, conv_ntlmssp_info->server_challenge, offset, 8);
     conv_ntlmssp_info->is_auth_ntlm_v2=0;
     /* Between the challenge and the user provided password, we can build the
@@ -1544,7 +1537,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     if (!(conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY))
     {
       conv_ntlmssp_info->rc4_state_initialized = 0;
-      create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge,NULL, sspkey,NULL,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response.contents,conv_ntlmssp_info->lm_response.contents);
+      create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge,NULL, sspkey,NULL,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response.contents,conv_ntlmssp_info->lm_response.contents,ntlmssph);
       if( memcmp(sspkey,gbl_zeros,NTLMSSP_KEY_LEN) != 0 ) {
         get_sealing_rc4key(sspkey,conv_ntlmssp_info->flags,&ssp_key_len,clientkey,serverkey);
         crypt_rc4_init(&conv_ntlmssp_info->rc4_state_client, sspkey, ssp_key_len);
@@ -1823,7 +1816,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
         else
         {
           memcpy(conv_ntlmssp_info->client_challenge,conv_ntlmssp_info->lm_response.contents,8);
-          create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge,conv_ntlmssp_info->client_challenge, sspkey,encryptedsessionkey,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response.contents,conv_ntlmssp_info->lm_response.contents);
+          create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge,conv_ntlmssp_info->client_challenge, sspkey,encryptedsessionkey,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response.contents,conv_ntlmssp_info->lm_response.contents,ntlmssph);
         }
         /* ssp is the exported session key */
         if( memcmp(sspkey,gbl_zeros,NTLMSSP_KEY_LEN) != 0) {
@@ -2134,6 +2127,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ntlmssph->domain_name=NULL;
   ntlmssph->acct_name=NULL;
   ntlmssph->host_name=NULL;
+  memset(ntlmssph->session_key, 0, NTLMSSP_KEY_LEN);
 
   /* Setup a new tree for the NTLMSSP payload */
   if (tree) {
@@ -2207,7 +2201,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     show_reported_bounds_error(tvb, pinfo, tree);
   } ENDTRY;
 
-  /*tap_queue_packet(ntlmssp_tap, pinfo, ntlmssph);*/
+  tap_queue_packet(ntlmssp_tap, pinfo, ntlmssph);
 }
 
 static gboolean
