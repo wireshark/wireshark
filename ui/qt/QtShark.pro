@@ -319,6 +319,10 @@ win32 {
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-$${WTAP_VERSION} \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0
 
+    !isEmpty(MSVCR_DLL) {
+        EXTRA_BINFILES += \"$${MSVCR_DLL}\"
+    }
+
     CONFIG(debug, debug|release) {
         EXTRA_BINFILES += \
             $$QMAKE_LIBDIR_QT/QtCored4.dll \
