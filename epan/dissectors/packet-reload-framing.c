@@ -1,4 +1,3 @@
-/* -*- Mode: C; tab-width: 2 -*- */
 /* packet-reload-framing.c
  * Routines for REsource LOcation And Discovery (RELOAD) Framing
  * Author: Stephane Bryant <sbryant@glycon.org>
@@ -56,8 +55,8 @@ static dissector_handle_t reload_handle;
 
 /* Structure containing transaction specific information */
 typedef struct _reload_frame_t {
-  guint32 data_frame;
-  guint32 ack_frame;
+  guint32  data_frame;
+  guint32  ack_frame;
   nstime_t req_time;
 } reload_frame_t;
 
@@ -113,19 +112,19 @@ get_reload_framing_message_length(packet_info *pinfo _U_, tvbuff_t *tvb, int off
 static int
 dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *ti;
-  proto_tree *reload_framing_tree;
-  guint32 relo_token;
-  guint32 message_length=0;
-  emem_tree_key_t transaction_id_key[4];
-  guint32 *key_save, len_save;
-  guint32 sequence;
-  guint effective_length;
-  guint16 offset;
-  conversation_t *conversation;
+  proto_item         *ti;
+  proto_tree         *reload_framing_tree;
+  guint32             relo_token;
+  guint32             message_length = 0;
+  emem_tree_key_t     transaction_id_key[4];
+  guint32            *key_save, len_save;
+  guint32             sequence;
+  guint               effective_length;
+  guint16             offset;
+  conversation_t     *conversation;
   reload_conv_info_t *reload_framing_info;
-  reload_frame_t * reload_frame;
-  guint8 type;
+  reload_frame_t *    reload_frame;
+  guint8              type;
 
   offset = 0;
   effective_length = tvb_length(tvb);
@@ -185,16 +184,16 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
    * in raw bytes. */
   if (type==DATA) {
     transaction_id_key[1].length = 1;
-    transaction_id_key[1].key = &pinfo->srcport;
+    transaction_id_key[1].key    = &pinfo->srcport;
     transaction_id_key[2].length = (pinfo->src.len) / sizeof(guint32);
-    transaction_id_key[2].key = g_malloc(pinfo->src.len);
+    transaction_id_key[2].key    = g_malloc(pinfo->src.len);
     memcpy(transaction_id_key[2].key, pinfo->src.data, pinfo->src.len);
   }
   else {
     transaction_id_key[1].length = 1;
-    transaction_id_key[1].key = &pinfo->destport;
+    transaction_id_key[1].key    = &pinfo->destport;
     transaction_id_key[2].length = (pinfo->dst.len) / sizeof(guint32);
-    transaction_id_key[2].key = g_malloc(pinfo->dst.len);
+    transaction_id_key[2].key    = g_malloc(pinfo->dst.len);
     memcpy(transaction_id_key[2].key, pinfo->dst.data, pinfo->dst.len);
   }
   transaction_id_key[3].length=0;
@@ -229,8 +228,8 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       transaction_id_key[2].length = len_save;
       reload_frame = se_alloc(sizeof(reload_frame_t));
       reload_frame->data_frame = 0;
-      reload_frame->ack_frame = 0;
-      reload_frame->req_time = pinfo->fd->abs_ts;
+      reload_frame->ack_frame  = 0;
+      reload_frame->req_time   = pinfo->fd->abs_ts;
       se_tree_insert32_array(reload_framing_info->transaction_pdus, transaction_id_key, (void *)reload_frame);
     }
     transaction_id_key[2].key    = key_save;
@@ -262,8 +261,8 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* create a "fake" pana_trans structure */
     reload_frame = ep_alloc(sizeof(reload_frame_t));
     reload_frame->data_frame = (type==DATA) ? pinfo->fd->num : 0;
-    reload_frame->ack_frame = (type!=DATA) ? pinfo->fd->num : 0;
-    reload_frame->req_time = pinfo->fd->abs_ts;
+    reload_frame->ack_frame  = (type!=DATA) ? pinfo->fd->num : 0;
+    reload_frame->req_time   = pinfo->fd->abs_ts;
   }
 
   ti = proto_tree_add_item(tree, proto_reload_framing, tvb, 0, -1, ENC_NA);
@@ -296,7 +295,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     if (reload_frame->data_frame) {
       proto_item *it;
-      nstime_t ns;
+      nstime_t    ns;
 
       it = proto_tree_add_uint(reload_framing_tree, hf_reload_framing_response_to, tvb, 0, 0, reload_frame->data_frame);
       PROTO_ITEM_SET_GENERATED(it);
@@ -316,7 +315,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   case DATA:
   {
-    tvbuff_t *next_tvb;
+    tvbuff_t   *next_tvb;
     proto_item *ti_message;
     proto_tree *message_tree;
 
@@ -339,7 +338,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   case ACK:
   {
-    guint32 sequence;
+    guint32     sequence;
     proto_item *ti_received;
 
     sequence = tvb_get_ntohl(tvb, offset);
@@ -348,11 +347,11 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     ti_received = proto_tree_add_item(reload_framing_tree, hf_reload_framing_received, tvb, offset , 4, ENC_BIG_ENDIAN);
     {
-      guint32 received;
-      int last_received=-1;
-      int index = 0;
-      proto_tree * received_tree;
-      proto_item *ti_parsed_received=NULL;
+      guint32     received;
+      int         last_received      = -1;
+      int         index              = 0;
+      proto_tree *received_tree;
+      proto_item *ti_parsed_received = NULL;
 
       received = tvb_get_ntohl(tvb, offset);
       while ((received<<index) != 0) {
@@ -562,7 +561,20 @@ proto_reg_handoff_reload_framing(void)
   dissector_add_uint("tcp.port", TCP_PORT_RELOAD, reload_framing_tcp_handle);
   dissector_add_uint("udp.port", UDP_PORT_RELOAD, reload_framing_udp_handle);
 
-  heur_dissector_add("udp", dissect_reload_framing_heur, proto_reload_framing);
-  heur_dissector_add("tcp", dissect_reload_framing_heur, proto_reload_framing);
+  heur_dissector_add("udp",  dissect_reload_framing_heur, proto_reload_framing);
+  heur_dissector_add("tcp",  dissect_reload_framing_heur, proto_reload_framing);
   heur_dissector_add("dtls", dissect_reload_framing_heur, proto_reload_framing);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
