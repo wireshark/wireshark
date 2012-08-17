@@ -84,7 +84,8 @@ MainWelcome::MainWelcome(QWidget *parent) :
 
     setStyleSheet(
                 "MainWelcome {"
-                "  background: palette(base);"
+                "  background: palette(light);"
+                "  color: palette(dark);"
                 "  padding: 2em;"
                 " }"
                 "QListWidget {"
@@ -129,8 +130,8 @@ MainWelcome::MainWelcome(QWidget *parent) :
 //                "  background-color: palette(midlight);"
 //                "}"
                 "QListWidget::item:selected {"
-                "  background-color: palette(window);"
-                "  color: palette(window-text);"
+                "  background-color: palette(mid);"
+                "  color: palette(light);"
                 "}"
                 );
 
