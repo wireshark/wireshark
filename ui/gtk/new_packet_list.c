@@ -348,7 +348,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
 	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 5);
 
-	label = gtk_label_new(ep_strdup_printf("Title:"));
+	label = gtk_label_new("Title:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 0, 1);
 	gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 	gtk_widget_set_tooltip_text(label, "Packet list column title.");
@@ -359,7 +359,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	g_free(unescaped_title);
 	gtk_widget_set_tooltip_text(title_te, "Packet list column title.");
 
-	label = gtk_label_new(ep_strdup_printf("Field type:"));
+	label = gtk_label_new("Field type:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
 	gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 	gtk_widget_set_tooltip_text(label, "Select which packet information to present in the column.");
@@ -372,7 +372,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), format_cmb, 1, 2, 1, 2);
 	gtk_widget_set_tooltip_text(format_cmb, "Select which packet information to present in the column.");
 
-	field_lb = gtk_label_new(ep_strdup_printf("Field name:"));
+	field_lb = gtk_label_new("Field name:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), field_lb, 0, 1, 2, 3);
 	gtk_misc_set_alignment(GTK_MISC(field_lb), 1.0f, 0.5f);
 	gtk_widget_set_tooltip_text(field_lb,
@@ -388,7 +388,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 			      "Field name used when field type is \"Custom\". "
 			      "This string has the same syntax as a display filter string.");
 
-	occurrence_lb = gtk_label_new(ep_strdup_printf("Occurrence:"));
+	occurrence_lb = gtk_label_new("Occurrence:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), occurrence_lb, 0, 1, 3, 4);
 	gtk_misc_set_alignment(GTK_MISC(occurrence_lb), 1.0f, 0.5f);
 	gtk_widget_set_tooltip_text (occurrence_lb,
