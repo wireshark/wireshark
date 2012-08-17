@@ -456,6 +456,10 @@ we do not want any new callers of these functions.
 Instead use g_snprintf() since that function will if used correctly prevent
 buffer overflows for large strings.
 
+Be sure that all pointers passed to %s specifiers in format strings are non-
+NULL. Some implementations will automatically replace NULL pointers with the
+string "(NULL)", but most will not.
+
 When using a buffer to create a string, do not use a buffer stored on the stack.
 I.e. do not use a buffer declared as
 
