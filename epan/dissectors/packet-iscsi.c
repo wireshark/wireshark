@@ -724,6 +724,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     proto_tree *ti = NULL;
     guint8 scsi_status = 0;
     gboolean S_bit=FALSE;
+    gboolean A_bit=FALSE;
     guint cdb_offset = offset + 32; /* offset of CDB from start of PDU */
     guint end_offset = offset + tvb_length_remaining(tvb, offset);
     iscsi_conv_data_t *cdata = NULL;
@@ -1306,6 +1307,10 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             if(b&ISCSI_SCSI_DATA_FLAG_S){
                 S_bit=TRUE;
             }
+
+            if(b&ISCSI_SCSI_DATA_FLAG_A){
+                A_bit=TRUE;
+            }
             proto_tree_add_boolean(tt, hf_iscsi_SCSIData_F, tvb, offset + 1, 1, b);
             if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT08) {
                 proto_tree_add_boolean(tt, hf_iscsi_SCSIData_A, tvb, offset + 1, 1, b);
@@ -1322,14 +1327,18 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         }
         proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
         if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
-            dissect_scsi_lun(ti, tvb, offset + 8);
+            if (A_bit) {
+                dissect_scsi_lun(ti, tvb, offset + 8);
+            }
         }
         proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, ENC_BIG_ENDIAN);
         if(iscsi_protocol_version <= ISCSI_PROTOCOL_DRAFT09) {
             proto_tree_add_item(ti, hf_iscsi_SCSIData_ResidualCount, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
         }
         else {
-            proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
+            if (A_bit) {
+                proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
+            }
         }
         proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, ENC_BIG_ENDIAN);
