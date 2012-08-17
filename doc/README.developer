@@ -3037,6 +3037,8 @@ to the DISSECTOR_SRC section of epan/CMakeLists.txt
 1.10a Using git with the SVN source code tree.
 
   Install git and the git-svn package.
+  A probably incomplete list for various OSes of git GUIs can be found at
+  "http://delicious.com/matthew.mccullough/git+gui".
   Run "mkdir git; cd git; git svn clone <svn-url>", e.g. if you are using
   the anonymous svn tree, run
   "git svn clone http://anonsvn.wireshark.org/wireshark/trunk/"
