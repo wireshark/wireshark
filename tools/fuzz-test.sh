@@ -191,6 +191,24 @@ export MallocCheckHeapAbort=1
 # Call abort() if an illegal free() call is made
 export MallocBadFreeAbort=1
 
+function exit_error() {
+    echo -e "\n ERROR"
+    echo -e "Processing failed. Capture info follows:\n"
+    echo "  Input file: $CF"
+
+    if [ -d .svn ] ; then
+        echo -e "\nSubversion revision" >> $TMP_DIR/$ERR_FILE
+        svn log -l 1 >> $TMP_DIR/$ERR_FILE
+    elif [ -d .git ] ; then
+        echo -e "\nGit commit" >> $TMP_DIR/$ERR_FILE
+        svn log -l 1 >> $TMP_DIR/$ERR_FILE
+    fi
+
+    echo -e "stderr follows:\n"
+    cat $TMP_DIR/$ERR_FILE
+
+    exit 1
+}
 
 # Iterate over our capture files.
 PASS=0
@@ -220,13 +238,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 	    continue
 	elif [ $RETVAL -ne 0 -a $DONE -ne 1 ] ; then
 	    # Some other error
-	    echo ""
-	    echo " ERROR"
-	    echo -e "Processing failed.  Capture info follows:\n"
-	    echo "  Input file: $CF"
-	    echo -e "stderr follows:\n"
-	    cat $TMP_DIR/$ERR_FILE
-	    exit 1
+	    exit_error
 	fi
 
 	DISSECTOR_BUG=0
@@ -261,13 +273,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 	if [ \( $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 -o $VG_ERR_CNT -ne 0 \) \
 	    -a $DONE -ne 1 ] ; then
 
-	    echo ""
-	    echo " ERROR"
-	    echo -e "Processing failed.  Capture info follows:\n"
-	    echo "  Output file: $TMP_DIR/$TMP_FILE"
-	    echo -e "stderr follows:\n"
-	    cat $TMP_DIR/$ERR_FILE
-	    exit 1
+	    exit_error
 	fi
 
 	echo " OK"

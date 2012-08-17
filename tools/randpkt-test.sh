@@ -82,6 +82,25 @@ echo ""
 
 trap "MAX_PASSES=1; echo 'Caught signal'" HUP INT TERM
 
+function exit_error() {
+    echo -e "\n ERROR"
+    echo -e "Processing failed. Capture info follows:\n"
+    echo "  Input file: $CF"
+
+    if [ -d .svn ] ; then
+        echo -e "\nSubversion revision" >> $TMP_DIR/$ERR_FILE
+        svn log -l 1 >> $TMP_DIR/$ERR_FILE
+    elif [ -d .git ] ; then
+        echo -e "\nGit commit" >> $TMP_DIR/$ERR_FILE
+        svn log -l 1 >> $TMP_DIR/$ERR_FILE
+    fi
+
+    echo -e "stderr follows:\n"
+    cat $TMP_DIR/$ERR_FILE
+
+    exit 1
+}
+
 # Iterate over our capture files.
 PASS=0
 while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
@@ -104,16 +123,10 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
 	    > /dev/null 2>&1 && DISSECTOR_BUG=1
 	if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
 	    RAND_FILE="randpkt-`$DATE +%Y-%m-%d`-$$.pcap"
-            echo ""
-	    echo " ERROR"
-	    echo -e "Processing failed.  Capture info follows:\n"
 	    mv $TMP_DIR/$TMP_FILE $TMP_DIR/$RAND_FILE
 	    echo "  Output file: $TMP_DIR/$RAND_FILE"
-	    if [ $DISSECTOR_BUG -ne 0 ] ; then
-		echo -e "stderr follows:\n"
-		cat $TMP_DIR/$ERR_FILE
-	    fi
-	    exit 1
+
+	    exit_error
 	fi
 	echo " OK"
         rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE
