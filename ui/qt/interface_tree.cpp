@@ -149,8 +149,6 @@ void InterfaceTree::updateStatistics(void) {
     }
     if (!m_statCache) return;
 
-    qDebug() << "cw0" << columnWidth(0) << "cw1" << columnWidth(1);
-
     QTreeWidgetItemIterator iter(this);
     while (*iter) {
         QList<int> *points;
