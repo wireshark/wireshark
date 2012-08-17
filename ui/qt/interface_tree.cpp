@@ -48,17 +48,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     setRootIsDecorated(false);
     setUniformRowHeights(true);
     setColumnCount(2);
-#ifdef Q_WS_MAC
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-#endif
     setAccessibleName(tr("Welcome screen list"));
-    setColumnWidth(1, 10);
-
-    setStyleSheet(
-            "QTreeWidget {"
-            "  border: 0;"
-            "}"
-            );
 
     m_statCache = NULL;
     m_statTimer = new QTimer(this);
@@ -70,13 +60,10 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     if_list = g_list_sort(if_list, if_list_comparator_alph);
 
     if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-        ti = new QTreeWidgetItem();
-        QLabel *label = new QLabel(QString(tr("<h3>No interfaces found</h3>%1")).arg(QString().fromUtf8(err_str)));
-        label->setWordWrap(true);
-
         setDisabled(true);
+        ti = new QTreeWidgetItem();
+        ti->setText(0, QString(tr("No interfaces found\n%1")).arg(QString().fromUtf8(err_str)));
         addTopLevelItem(ti);
-        setItemWidget(ti, 0, label);
         return;
     } else if (err_str) {
         g_free(err_str);
@@ -144,6 +131,9 @@ void InterfaceTree::hideEvent(QHideEvent *evt) {
 void InterfaceTree::showEvent(QShowEvent *evt) {
     Q_UNUSED(evt);
 
+    // XXX The column disappears otherwise.
+    setColumnWidth(1, 10);
+
     m_statTimer->start(1000);
 }
 
@@ -159,6 +149,8 @@ void InterfaceTree::updateStatistics(void) {
     }
     if (!m_statCache) return;
 
+    qDebug() << "cw0" << columnWidth(0) << "cw1" << columnWidth(1);
+
     QTreeWidgetItemIterator iter(this);
     while (*iter) {
         QList<int> *points;
@@ -166,7 +158,6 @@ void InterfaceTree::updateStatistics(void) {
 
         for (if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
-
             if ((*iter)->text(0).compare(QString().fromUtf8(device.name)) || device.hidden || device.type == IF_PIPE)
                 continue;
 
@@ -184,7 +175,6 @@ void InterfaceTree::updateStatistics(void) {
             update(indexFromItem((*iter), 1));
             global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, if_idx);
             g_array_insert_val(global_capture_opts.all_ifaces, if_idx, device);
-
         }
         iter++;
     }

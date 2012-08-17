@@ -52,24 +52,24 @@
 //menu_recent_file_write_all
 
 // If we ever add support for multiple windows this will need to be replaced.
-static MainWindow *cur_main_window = NULL;
+static MainWindow *gbl_cur_main_window = NULL;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    main_ui_(new Ui::MainWindow)
 {
-    capFile = NULL;
-    cur_main_window = this;
-    ui->setupUi(this);
+    cap_file_ = NULL;
+    gbl_cur_main_window = this;
+    main_ui_->setupUi(this);
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     updateRecentFiles();
 
-    dfComboBox = new DisplayFilterCombo();
-    const DisplayFilterEdit *dfEdit = dynamic_cast<DisplayFilterEdit *>(dfComboBox->lineEdit());
-    connect(dfEdit, SIGNAL(pushFilterSyntaxStatus(QString&)), ui->statusBar, SLOT(pushFilterStatus(QString&)));
-    connect(dfEdit, SIGNAL(popFilterSyntaxStatus()), ui->statusBar, SLOT(popFilterStatus()));
-    connect(dfEdit, SIGNAL(pushFilterSyntaxWarning(QString&)), ui->statusBar, SLOT(pushTemporaryStatus(QString&)));
+    df_combo_box_ = new DisplayFilterCombo();
+    const DisplayFilterEdit *dfEdit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
+    connect(dfEdit, SIGNAL(pushFilterSyntaxStatus(QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));
+    connect(dfEdit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
+    connect(dfEdit, SIGNAL(pushFilterSyntaxWarning(QString&)), main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
 
 #ifdef _WIN32
     // Qt <= 4.7 doesn't seem to style Windows toolbars. If we wanted to be really fancy we could use Blur Behind:
@@ -80,33 +80,33 @@ MainWindow::MainWindow(QWidget *parent) :
                 "}"
             );
 #endif
-    ui->mainToolBar->addWidget(dfComboBox);
+    main_ui_->mainToolBar->addWidget(df_combo_box_);
 
-    splitterV = new QSplitter(ui->mainStack);
-    splitterV->setObjectName(QString::fromUtf8("splitterV"));
-    splitterV->setOrientation(Qt::Vertical);
+    splitter_v_ = new QSplitter(main_ui_->mainStack);
+    splitter_v_->setObjectName(QString::fromUtf8("splitterV"));
+    splitter_v_->setOrientation(Qt::Vertical);
 
-    m_packetList = new PacketList(splitterV);
+    packet_list_ = new PacketList(splitter_v_);
 
-    ProtoTree *protoTree = new ProtoTree(splitterV);
+    ProtoTree *protoTree = new ProtoTree(splitter_v_);
     protoTree->setHeaderHidden(true);
 
-    ByteViewTab *byteViewTab = new ByteViewTab(splitterV);
+    ByteViewTab *byteViewTab = new ByteViewTab(splitter_v_);
     byteViewTab->setTabPosition(QTabWidget::South);
     byteViewTab->setDocumentMode(true);
 
-    m_packetList->setProtoTree(protoTree);
-    m_packetList->setByteViewTab(byteViewTab);
+    packet_list_->setProtoTree(protoTree);
+    packet_list_->setByteViewTab(byteViewTab);
 
-    splitterV->addWidget(m_packetList);
-    splitterV->addWidget(protoTree);
-    splitterV->addWidget(byteViewTab);
+    splitter_v_->addWidget(packet_list_);
+    splitter_v_->addWidget(protoTree);
+    splitter_v_->addWidget(byteViewTab);
 
-    ui->mainStack->addWidget(splitterV);
+    main_ui_->mainStack->addWidget(splitter_v_);
 
-    mainWelcome = new MainWelcome(ui->mainStack);
-    ui->mainStack->addWidget(mainWelcome);
-    connect(mainWelcome, SIGNAL(recentFileActivated(QString&)),
+    main_welcome_ = new MainWelcome(main_ui_->mainStack);
+    main_ui_->mainStack->addWidget(main_welcome_);
+    connect(main_welcome_, SIGNAL(recentFileActivated(QString&)),
             this, SLOT(on_actionFileOpen_triggered(QString&)));
 
     connect(wsApp, SIGNAL(captureFileReadStarted(const capture_file*)),
@@ -118,55 +118,55 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(captureFileClosed(const capture_file*)),
             this, SLOT(captureFileClosed(const capture_file*)));
 
-    connect(ui->actionGoNextPacket, SIGNAL(triggered()),
-            m_packetList, SLOT(goNextPacket()));
-    connect(ui->actionGoPreviousPacket, SIGNAL(triggered()),
-            m_packetList, SLOT(goPreviousPacket()));
-    connect(ui->actionGoFirstPacket, SIGNAL(triggered()),
-            m_packetList, SLOT(goFirstPacket()));
-    connect(ui->actionGoLastPacket, SIGNAL(triggered()),
-            m_packetList, SLOT(goLastPacket()));
+    connect(main_ui_->actionGoNextPacket, SIGNAL(triggered()),
+            packet_list_, SLOT(goNextPacket()));
+    connect(main_ui_->actionGoPreviousPacket, SIGNAL(triggered()),
+            packet_list_, SLOT(goPreviousPacket()));
+    connect(main_ui_->actionGoFirstPacket, SIGNAL(triggered()),
+            packet_list_, SLOT(goFirstPacket()));
+    connect(main_ui_->actionGoLastPacket, SIGNAL(triggered()),
+            packet_list_, SLOT(goLastPacket()));
 
-    connect(ui->actionViewExpandSubtrees, SIGNAL(triggered()),
+    connect(main_ui_->actionViewExpandSubtrees, SIGNAL(triggered()),
             protoTree, SLOT(expandSubtrees()));
-    connect(ui->actionViewExpandAll, SIGNAL(triggered()),
+    connect(main_ui_->actionViewExpandAll, SIGNAL(triggered()),
             protoTree, SLOT(expandAll()));
-    connect(ui->actionViewCollapseAll, SIGNAL(triggered()),
+    connect(main_ui_->actionViewCollapseAll, SIGNAL(triggered()),
             protoTree, SLOT(collapseAll()));
 
     connect(protoTree, SIGNAL(protoItemSelected(QString&)),
-            ui->statusBar, SLOT(pushFieldStatus(QString&)));
+            main_ui_->statusBar, SLOT(pushFieldStatus(QString&)));
 
     connect(protoTree, SIGNAL(protoItemSelected(bool)),
-            ui->actionViewExpandSubtrees, SLOT(setEnabled(bool)));
+            main_ui_->actionViewExpandSubtrees, SLOT(setEnabled(bool)));
 
-    ui->mainStack->setCurrentWidget(mainWelcome);
+    main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+    delete main_ui_;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event) {
 
     // Explicitly focus on the display filter combo.
     if (event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_Slash) {
-        dfComboBox->setFocus(Qt::ShortcutFocusReason);
+        df_combo_box_->setFocus(Qt::ShortcutFocusReason);
         return;
     }
 
     // The user typed some text. Start filling in a filter.
     // XXX We need to install an event filter for the packet list and proto tree
     if ((event->modifiers() == Qt::NoModifier || event->modifiers() == Qt::ShiftModifier) && event->text().length() > 0) {
-        QApplication::sendEvent(dfComboBox, event);
+        QApplication::sendEvent(df_combo_box_, event);
     }
 
     // Move up & down the packet list.
     if (event->key() == Qt::Key_F7) {
-        m_packetList->goPreviousPacket();
+        packet_list_->goPreviousPacket();
     } else if (event->key() == Qt::Key_F8) {
-        m_packetList->goNextPacket();
+        packet_list_->goNextPacket();
     }
 
     // Move along, citizen.
@@ -174,21 +174,21 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 }
 
 void MainWindow::captureFileReadStarted(const capture_file *cf) {
-    if (cf != capFile) return;
+    if (cf != cap_file_) return;
 //    tap_param_dlg_update();
 
     /* Set up main window for a capture file. */
 //    main_set_for_capture_file(TRUE);
 
-    ui->statusBar->popFileStatus();
+    main_ui_->statusBar->popFileStatus();
     QString msg = QString(tr("Loading: %1")).arg(get_basename(cf->filename));
-    ui->statusBar->pushFileStatus(msg);
-    ui->mainStack->setCurrentWidget(splitterV);
+    main_ui_->statusBar->pushFileStatus(msg);
+    main_ui_->mainStack->setCurrentWidget(splitter_v_);
     WiresharkApplication::processEvents();
 }
 
 void MainWindow::captureFileReadFinished(const capture_file *cf) {
-    if (cf != capFile) return;
+    if (cf != cap_file_) return;
 
 //    gchar *dir_path;
 
@@ -210,16 +210,16 @@ void MainWindow::captureFileReadFinished(const capture_file *cf) {
 //    /* Enable menu items that make sense if you have some captured packets. */
 //    set_menus_for_captured_packets(TRUE);
 
-    ui->statusBar->popFileStatus();
+    main_ui_->statusBar->popFileStatus();
     QString msg = QString().sprintf("%s", get_basename(cf->filename));
-    ui->statusBar->pushFileStatus(msg);
+    main_ui_->statusBar->pushFileStatus(msg);
 }
 
 void MainWindow::captureFileClosing(const capture_file *cf) {
-    if (cf != capFile) return;
+    if (cf != cap_file_) return;
 
     // Reset expert info indicator
-    ui->statusBar->hideExpert();
+    main_ui_->statusBar->hideExpert();
 //    gtk_widget_show(expert_info_none);
 }
 
@@ -262,14 +262,14 @@ void MainWindow::on_actionHelpSampleCaptures_triggered() {
 }
 
 void MainWindow::captureFileClosed(const capture_file *cf) {
-    if (cf != capFile) return;
+    if (cf != cap_file_) return;
     packets_bar_update();
 
     // Reset expert info indicator
-    ui->statusBar->hideExpert();
+    main_ui_->statusBar->hideExpert();
 
-    ui->statusBar->popFileStatus();
-    capFile = NULL;
+    main_ui_->statusBar->popFileStatus();
+    cap_file_ = NULL;
 }
 
 // XXX - Copied from ui/gtk/menus.c
@@ -283,7 +283,7 @@ void MainWindow::captureFileClosed(const capture_file *cf) {
 // XXX - We should probably create a RecentFile class.
 void MainWindow::updateRecentFiles() {
     QAction *ra;
-    QMenu *recentMenu = ui->menuOpenRecentCaptureFile;
+    QMenu *recentMenu = main_ui_->menuOpenRecentCaptureFile;
     QString action_cf_name;
 
     if (!recentMenu) {
@@ -323,8 +323,8 @@ void MainWindow::updateRecentFiles() {
         recentMenu->insertAction(NULL, ra);
         connect(ra, SIGNAL(triggered()), wsApp, SLOT(clearRecentItems()));
     } else {
-        if (ui->actionDummyNoFilesFound) {
-            recentMenu->addAction(ui->actionDummyNoFilesFound);
+        if (main_ui_->actionDummyNoFilesFound) {
+            recentMenu->addAction(main_ui_->actionDummyNoFilesFound);
         }
     }
 }
@@ -336,7 +336,7 @@ void MainWindow::on_actionFileOpen_triggered(QString &cfPath)
     dfilter_t *rfcode = NULL;
     int err;
 
-    capFile = NULL;
+    cap_file_ = NULL;
 
     for (;;) {
 
@@ -376,7 +376,7 @@ void MainWindow::on_actionFileOpen_triggered(QString &cfPath)
             continue;
         }
 
-        capFile = &cfile;
+        cap_file_ = &cfile;
         cfile.window = this;
 
         switch (cf_read(&cfile, FALSE)) {
@@ -393,21 +393,21 @@ void MainWindow::on_actionFileOpen_triggered(QString &cfPath)
                capture file has been closed - just free the capture file name
                string and return (without changing the last containing
                directory). */
-            capFile = NULL;
+            cap_file_ = NULL;
             return;
         }
         break;
     }
     // get_dirname overwrites its path. Hopefully this isn't a problem.
     set_last_open_dir(get_dirname(cfPath.toUtf8().data()));
-    dfComboBox->setEditText(displayFilter);
+    df_combo_box_->setEditText(displayFilter);
 
-    ui->statusBar->showExpert();
+    main_ui_->statusBar->showExpert();
 }
 
 void MainWindow::on_actionFileClose_triggered() {
     cf_close(&cfile);
-    ui->mainStack->setCurrentWidget(mainWelcome);
+    main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
 
 void MainWindow::recentActionTriggered() {

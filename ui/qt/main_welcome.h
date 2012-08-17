@@ -36,6 +36,9 @@
 //    void paintEvent(QPaintEvent *event);
 //};
 
+namespace Ui {
+    class MainWelcome;
+}
 
 class MainWelcome : public QFrame
 {
@@ -49,7 +52,9 @@ protected:
 private:
     // QListWidget doesn't activate items when the return or enter keys are pressed on OS X.
     // We may want to subclass it at some point.
-    QListWidget m_recent_files;
+    Ui::MainWelcome *welcome_ui_;
+    QListWidget *task_list_;
+    QListWidget *recent_files_;
 //    MWOverlay *overlay;
 
 
@@ -57,6 +62,7 @@ signals:
     void recentFileActivated(QString& cfile);
 
 private slots:
+    void showTask();
     void updateRecentFiles();
     void openRecentItem(QListWidgetItem *item);
 

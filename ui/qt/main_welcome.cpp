@@ -30,20 +30,12 @@
 #include "version_info.h"
 
 #include "main_welcome.h"
+#include "ui_main_welcome.h"
 
 #include "wireshark_application.h"
 #include "interface_tree.h"
 
 #include <QWidget>
-#include <QGridLayout>
-#include <QVBoxLayout>
-#include <QPainter>
-#include <QPen>
-#include <QResizeEvent>
-#include <QGraphicsBlurEffect>
-#include <QLabel>
-#include <QHeaderView>
-#include <QFont>
 
 //MWOverlay::MWOverlay(QWidget *parent) : QWidget(parent)
 //{
@@ -76,52 +68,51 @@
 
 
 MainWelcome::MainWelcome(QWidget *parent) :
-    QFrame(parent)
+    QFrame(parent),
+    welcome_ui_(new Ui::MainWelcome)
+
 {
-    QGridLayout *grid = new QGridLayout(this);
-    QVBoxLayout *column;
-    QLabel *heading;
+//    QGridLayout *grid = new QGridLayout(this);
+//    QVBoxLayout *column;
+//    QLabel *heading;
     InterfaceTree *iface_tree;
 
+    welcome_ui_->setupUi(this);
+    task_list_ = welcome_ui_->taskList;
+    iface_tree = welcome_ui_->interfaceTree;
+    recent_files_ = welcome_ui_->recentList;
+
     setStyleSheet(
-            "QFrame {"
-            "  background: palette(base);"
-            " }"
-            );
+                "QFrame {"
+                "  background: palette(base);"
+                " }"
+                "QListWidget {"
+                "  border: 0;"
+                "}"
+                "QListWidget::focus {"
+                "  border: 1px dotted palette(mid);"
+                "  background-color: palette(midlight);"
+                "}"
+                "QListWidget::item::hover {"
+                "  background-color: palette(highlight);"
+                "  color: palette(highlighted-text);"
+                "}"
+                "QTreeWidget {"
+                "  border: 0;"
+                "}"
+                "QTreeWidget::focus {"
+                "  border: 1px dotted palette(mid);"
+                "  background-color: palette(midlight);"
+                "}"
+                );
 
-//    grid->setContentsMargins (0, 0, 0, 0);
-    grid->setColumnStretch(0, 60);
+#ifdef Q_WS_MAC
+    recent_files_->setAttribute(Qt::WA_MacShowFocusRect, false);
+    welcome_ui_->taskList->setAttribute(Qt::WA_MacShowFocusRect, false);
+    iface_tree->setAttribute(Qt::WA_MacShowFocusRect, false);
+#endif
 
-    // Banner row, 3 column span
-    QString banner = QString(tr("Wireshark"));
-    heading = new QLabel(banner);
-    grid->addWidget(heading, 0, 0, 1, 3);
-
-    // Column 1: Capture
-    column = new QVBoxLayout();
-    grid->addLayout(column, 1, 0, Qt::AlignTop);
-
-    heading = new QLabel(tr("<h1>Capture</h1>"));
-    column->addWidget(heading);
-
-    iface_tree = new InterfaceTree(this);
-    column->addWidget(iface_tree);
-
-    heading = new QLabel(tr("<h1>Capture Help</h1>"));
-    column->addWidget(heading);
-
-    // Column 2: Files
-    column = new QVBoxLayout();
-    grid->addLayout(column, 1, 1, Qt::AlignTop);
-    grid->setColumnStretch(1, 70);
-
-    heading = new QLabel(tr("<h1>Recent Files</h1>"));
-    column->addWidget(heading);
-
-    m_recent_files.setStyleSheet(
-            "QListWidget {"
-            "  border: 0;"
-            "}"
+    recent_files_->setStyleSheet(
             "QListWidget::item {"
             "  padding-top: 0.1em;"
             "  padding-bottom: 0.1em;"
@@ -132,38 +123,21 @@ MainWelcome::MainWelcome(QWidget *parent) :
             "QListWidget::item::last {"
             "  padding-bottom: 0;"
             "}"
-            "QListWidget::item::hover {"
-            "  background-color: palette(highlight);"
-            "  color: palette(highlighted-text);"
-            "}"
             );
-    m_recent_files.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-#ifdef Q_WS_MAC
-    m_recent_files.setAttribute(Qt::WA_MacShowFocusRect, false);
-#endif
-    m_recent_files.setTextElideMode(Qt::ElideLeft);
-    column->addWidget(&m_recent_files);
+    recent_files_->setTextElideMode(Qt::ElideLeft);
+
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
-    connect(&m_recent_files, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(openRecentItem(QListWidgetItem *)));
+    connect(task_list_, SIGNAL(itemSelectionChanged()), this, SLOT(showTask()));
+    connect(recent_files_, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(openRecentItem(QListWidgetItem *)));
     updateRecentFiles();
 
-    // Column 3: Online Resources
-    column = new QVBoxLayout();
-    grid->addLayout(column, 1, 2, Qt::AlignTop);
-    grid->setColumnStretch(2, 50);
-
-    heading = new QLabel(tr("<h1>Online</h1>"));
-    column->addWidget(heading);
-
-    // Sigh. This doesn't work in Qt 4.7 on OS X.
-//    QGraphicsBlurEffect *effect = new QGraphicsBlurEffect(this) ;
-//    effect->setBlurRadius(10);
-//    effect->setBlurHints(QGraphicsBlurEffect::QualityHint);
-//    setGraphicsEffect( effect );
-//    overlay = new MWOverlay(this);
+    task_list_->setCurrentRow(0);
 
 }
 
+void MainWelcome::showTask() {
+    welcome_ui_->taskStack->setCurrentIndex(task_list_->currentRow());
+}
 
 void MainWelcome::updateRecentFiles() {
     QString itemLabel;
@@ -174,8 +148,8 @@ void MainWelcome::updateRecentFiles() {
     foreach (recent_item_status *ri, wsApp->recent_item_list()) {
         itemLabel = ri->filename;
 
-        if (rfRow >= m_recent_files.count()) {
-            m_recent_files.addItem(itemLabel);
+        if (rfRow >= recent_files_->count()) {
+            recent_files_->addItem(itemLabel);
         }
 
         itemLabel.append(" (");
@@ -194,7 +168,7 @@ void MainWelcome::updateRecentFiles() {
         }
         itemLabel.append(")");
         rfFont.setItalic(!ri->accessible);
-        rfItem = m_recent_files.item(rfRow);
+        rfItem = recent_files_->item(rfRow);
         rfItem->setText(itemLabel);
         rfItem->setData(Qt::UserRole, ri->filename);
         rfItem->setFlags(ri->accessible ? Qt::ItemIsSelectable | Qt::ItemIsEnabled : Qt::NoItemFlags);
@@ -202,8 +176,8 @@ void MainWelcome::updateRecentFiles() {
         rfRow++;
     }
 
-    while (m_recent_files.count() > (int) prefs.gui_recent_files_count_max) {
-        m_recent_files.takeItem(m_recent_files.count());
+    while (recent_files_->count() > (int) prefs.gui_recent_files_count_max) {
+        recent_files_->takeItem(recent_files_->count());
     }
 }
 

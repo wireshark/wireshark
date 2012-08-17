@@ -57,13 +57,13 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 
 private:
-    Ui::MainWindow *ui;
-    QMenu *openRecentMenu;
-    QSplitter *splitterV;
-    MainWelcome *mainWelcome;
-    DisplayFilterCombo *dfComboBox;
-    capture_file *capFile;
-    PacketList *m_packetList;
+    Ui::MainWindow *main_ui_;
+    QMenu *open_recent_menu_;
+    QSplitter *splitter_v_;
+    MainWelcome *main_welcome_;
+    DisplayFilterCombo *df_combo_box_;
+    capture_file *cap_file_;
+    PacketList *packet_list_;
 
 signals:
     void showProgress(progdlg_t **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);

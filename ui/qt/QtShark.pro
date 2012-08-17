@@ -238,7 +238,8 @@ HEADERS_QT_CPP = \
     sparkline_delegate.h \
     wireshark_application.h
 
-FORMS += main_window.ui
+FORMS += main_window.ui \
+    main_welcome.ui
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
