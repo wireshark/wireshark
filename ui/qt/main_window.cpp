@@ -104,10 +104,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     main_ui_->mainStack->addWidget(splitter_v_);
 
-    main_welcome_ = new MainWelcome(main_ui_->mainStack);
-    main_ui_->mainStack->addWidget(main_welcome_);
+    main_welcome_ = main_ui_->welcomePage;
     connect(main_welcome_, SIGNAL(recentFileActivated(QString&)),
-            this, SLOT(on_actionFileOpen_triggered(QString&)));
+            this, SLOT(openRecentCaptureFile(QString&)));
 
     connect(wsApp, SIGNAL(captureFileReadStarted(const capture_file*)),
             this, SLOT(captureFileReadStarted(const capture_file*)));
@@ -329,7 +328,7 @@ void MainWindow::updateRecentFiles() {
     }
 }
 
-void MainWindow::on_actionFileOpen_triggered(QString &cfPath)
+void MainWindow::openRecentCaptureFile(QString &cfPath)
 {
     QString fileName = "";
     QString displayFilter = "";
@@ -415,6 +414,6 @@ void MainWindow::recentActionTriggered() {
 
     if (ra) {
         QString cfPath = ra->data().toString();
-        on_actionFileOpen_triggered(cfPath);
+        openRecentCaptureFile(cfPath);
     }
 }

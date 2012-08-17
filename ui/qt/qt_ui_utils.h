@@ -33,7 +33,6 @@
 
 #include <glib.h>
 #include <epan/timestamp.h>
-//#include <packet_list.h>
 
 #ifdef __cplusplus
 extern "C" {

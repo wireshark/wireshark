@@ -83,11 +83,13 @@ MainWelcome::MainWelcome(QWidget *parent) :
     recent_files_ = welcome_ui_->recentList;
 
     setStyleSheet(
-                "QFrame {"
+                "MainWelcome {"
                 "  background: palette(base);"
+                "  padding: 2em;"
                 " }"
                 "QListWidget {"
                 "  border: 0;"
+//                "  border: 1px dotted blue;"
                 "}"
 //                "QListWidget::focus {"
 //                "  border: 1px dotted palette(mid);"
@@ -99,6 +101,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
                 "}"
                 "QTreeWidget {"
                 "  border: 0;"
+//                "  border: 1px dotted green;"
                 "}"
 //                "QTreeWidget::focus {"
 //                "  border: 1px dotted palette(mid);"
@@ -111,6 +114,25 @@ MainWelcome::MainWelcome(QWidget *parent) :
     welcome_ui_->taskList->setAttribute(Qt::WA_MacShowFocusRect, false);
     iface_tree->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
+
+    task_list_->setStyleSheet(
+                "QListWidget {"
+                "  margin-right: 2em;"
+                "}"
+                "QListWidget::item {"
+                "  padding: 1.5em;"
+                "  margin-bottom: 1em;"
+                "  border-radius: 0.5em;"
+                "}"
+//                "QListWidget::item:hover {"
+//                "  background-color: palette(midlight);"
+//                "  background-color: palette(midlight);"
+//                "}"
+                "QListWidget::item:selected {"
+                "  background-color: palette(window);"
+                "  color: palette(window-text);"
+                "}"
+                );
 
     recent_files_->setStyleSheet(
             "QListWidget::item {"

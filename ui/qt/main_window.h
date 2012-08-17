@@ -76,7 +76,7 @@ public slots:
 
 private slots:
     void updateRecentFiles();
-    void on_actionFileOpen_triggered(QString& cfPath = *new QString());
+    void openRecentCaptureFile(QString& cfPath = *new QString());
     void on_actionFileClose_triggered();
     void recentActionTriggered();
     void on_actionHelpWebsite_triggered();

@@ -35,7 +35,7 @@
     </property>
     <item row="0" column="0">
      <widget class="QStackedWidget" name="mainStack">
-      <widget class="QWidget" name="welcomePage"/>
+      <widget class="MainWelcome" name="welcomePage"/>
       <widget class="QWidget" name="packetPage"/>
      </widget>
     </item>
@@ -448,6 +448,12 @@
    <class>MainStatusBar</class>
    <extends>QStatusBar</extends>
    <header>main_status_bar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MainWelcome</class>
+   <extends>QFrame</extends>
+   <header>main_welcome.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

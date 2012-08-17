@@ -37,79 +37,61 @@
      </item>
      <item row="1" column="1">
       <widget class="QStackedWidget" name="taskStack">
-       <property name="currentIndex">
-        <number>2</number>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
        </property>
-       <widget class="QWidget" name="capturePage">
-        <widget class="InterfaceTree" name="interfaceTree">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>521</width>
-           <height>421</height>
-          </rect>
-         </property>
-         <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOff</enum>
-         </property>
-         <property name="columnCount">
-          <number>2</number>
-         </property>
-         <attribute name="headerVisible">
-          <bool>false</bool>
-         </attribute>
-         <column>
-          <property name="text">
-           <string notr="true">1</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string notr="true">2</string>
-          </property>
-         </column>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="recentPage">
-        <widget class="QListWidget" name="recentList">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>521</width>
-           <height>431</height>
-          </rect>
-         </property>
-         <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOff</enum>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="helpPage">
-        <widget class="QLabel" name="helpLinks">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>321</width>
-           <height>391</height>
-          </rect>
-         </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="InterfaceTree" name="interfaceTree">
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="columnCount">
+         <number>2</number>
+        </property>
+        <attribute name="headerVisible">
+         <bool>false</bool>
+        </attribute>
+        <column>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;User's Guide&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Wiki&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string notr="true">1</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </column>
+        <column>
+         <property name="text">
+          <string notr="true">2</string>
          </property>
-        </widget>
+        </column>
+       </widget>
+       <widget class="QListWidget" name="recentList">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+       </widget>
+       <widget class="QLabel" name="helpLinks">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;User's Guide&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Wiki&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
        </widget>
       </widget>
      </item>
      <item row="1" column="0">
       <widget class="QListWidget" name="taskList">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
          <horstretch>0</horstretch>
          <verstretch>5</verstretch>
         </sizepolicy>
@@ -123,6 +105,9 @@
        <property name="autoScroll">
         <bool>false</bool>
        </property>
+       <property name="textElideMode">
+        <enum>Qt::ElideNone</enum>
+       </property>
        <item>
         <property name="text">
          <string>Capture
@@ -132,7 +117,7 @@ live packets from the network</string>
        <item>
         <property name="text">
          <string>Open
-recent capture files</string>
+a recent capture file</string>
         </property>
        </item>
        <item>

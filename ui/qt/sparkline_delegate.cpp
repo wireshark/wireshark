@@ -26,29 +26,29 @@
 #include <QPainter>
 #include <QApplication>
 
-#define MIN_WIDTH 10
-
-// XXX - Should we use a style sheet for this?
-#define SL_MARGIN 2
+#define SPARKLINE_MIN_EM_WIDTH 10
 
 void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
     QList<int> *points = qvariant_cast<QList<int> *>(index.data(Qt::UserRole));
     int max = 1;
-    int content_w = option.rect.width() - (SL_MARGIN * 2);
-    int content_h = option.rect.height() - (SL_MARGIN * 2);
+    int em_w = option.fontMetrics.height();
+    int content_w = option.rect.width() - (em_w / 4);
+    int content_h = option.fontMetrics.ascent() - 1;
     int val;
     qreal idx = 0.0;
+    qreal step_w = em_w / 10.0;
+    qreal steps = content_w / step_w;
     QVector<QPointF> fpoints;
 
     QStyledItemDelegate::paint(painter, option, index);
 
-    if (!points || points->isEmpty() || content_w <= 0 || content_h <= 0) {
+    if (!points || points->isEmpty() || steps < 1.0 || content_h <= 0) {
         return;
     }
 
-    while(points->length() > content_w) {
+    while((qreal) points->length() > steps) {
         points->removeFirst();
     }
 
@@ -58,7 +58,7 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
     foreach (val, *points) {
         fpoints.append(QPointF(idx, (qreal) content_h - (val * content_h / max) ));
-        idx = idx + 1;
+        idx = idx + step_w;
     }
 
     QStyleOptionViewItemV4 optv4 = option;
@@ -83,7 +83,9 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     }
 
     painter->setRenderHint(QPainter::Antialiasing, true);
-    painter->translate(option.rect.x() + SL_MARGIN + 0.5, option.rect.y() + SL_MARGIN + 0.5);
+    painter->translate(
+                option.rect.x() + (em_w / 8) + 0.5,
+                option.rect.y() + ((option.rect.height() - option.fontMetrics.height()) / 2) + 1 + 0.5);
     painter->drawPolyline(QPolygonF(fpoints));
 
 //    painter->setPen(Qt::NoPen);
@@ -98,5 +100,5 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
 QSize SparkLineDelegate::sizeHint(const QStyleOptionViewItem &option,
                                   const QModelIndex &index) const {
-    return QSize(MIN_WIDTH, QStyledItemDelegate::sizeHint(option, index).height());
+    return QSize(option.fontMetrics.height() * SPARKLINE_MIN_EM_WIDTH, QStyledItemDelegate::sizeHint(option, index).height());
 }

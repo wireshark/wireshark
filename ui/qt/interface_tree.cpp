@@ -94,6 +94,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
             v.setValue(points);
             ti->setData(1, Qt::UserRole, v);
             addTopLevelItem(ti);
+            resizeColumnToContents(1);
 
         }
     }
@@ -130,9 +131,6 @@ void InterfaceTree::hideEvent(QHideEvent *evt) {
 
 void InterfaceTree::showEvent(QShowEvent *evt) {
     Q_UNUSED(evt);
-
-    // XXX The column disappears otherwise.
-    setColumnWidth(1, 10);
 
     m_statTimer->start(1000);
 }
