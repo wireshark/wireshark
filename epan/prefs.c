@@ -1841,7 +1841,7 @@ prefs_register_modules(void)
     prefs_register_enum_preference(gui_module, "console_open",
                        "Open a console window",
                        "Open a console window (WIN32 only)",
-                       (gint*)(&prefs.gui_console_open), gui_console_open_type, FALSE);
+                       (gint*)(void*)(&prefs.gui_console_open), gui_console_open_type, FALSE);
 
     prefs_register_enum_preference(gui_module, "fileopen.style",
                        "Where to start the File Open dialog box",
@@ -1934,7 +1934,7 @@ prefs_register_modules(void)
     prefs_register_enum_preference(gui_module, "version_placement",
                        "Show version in the start page and/or main screen's title bar",
                        "Show version in the start page and/or main screen's title bar",
-                       (gint*)(&prefs.gui_version_placement), gui_version_placement_type, FALSE);
+                       (gint*)(void*)(&prefs.gui_version_placement), gui_version_placement_type, FALSE);
 
     prefs_register_bool_preference(gui_module, "auto_scroll_on_expand",
                                    "Automatically scroll the recently expanded item",
@@ -1954,22 +1954,22 @@ prefs_register_modules(void)
                                    "Layout type",
                                    "Layout type (1-6)",
                                    10,
-                                   (guint*)(&prefs.gui_layout_type));
+                                   (guint*)(void*)(&prefs.gui_layout_type));
 
     prefs_register_enum_preference(gui_layout_module, "layout_content_1",
                        "Layout content of the pane 1",
                        "Layout content of the pane 1",
-                       (gint*)(&prefs.gui_layout_content_1), gui_layout_content, FALSE);
+                       (gint*)(void*)(&prefs.gui_layout_content_1), gui_layout_content, FALSE);
 
     prefs_register_enum_preference(gui_layout_module, "layout_content_2",
                        "Layout content of the pane 2",
                        "Layout content of the pane 2",
-                       (gint*)(&prefs.gui_layout_content_2), gui_layout_content, FALSE);
+                       (gint*)(void*)(&prefs.gui_layout_content_2), gui_layout_content, FALSE);
 
     prefs_register_enum_preference(gui_layout_module, "layout_content_3",
                        "Layout content of the pane 3",
                        "Layout content of the pane 3",
-                       (gint*)(&prefs.gui_layout_content_3), gui_layout_content, FALSE);
+                       (gint*)(void*)(&prefs.gui_layout_content_3), gui_layout_content, FALSE);
 
     /* Console
      * These are preferences that can be read/written using the 
