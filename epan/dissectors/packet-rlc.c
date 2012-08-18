@@ -1342,6 +1342,233 @@ add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * fpinf, rlc_in
 
 }
 
+#ifdef HAVE_UMTS_KASUMI
+static guint8 *
+translate_hex_key(gchar * char_key){
+    int i,j;
+    guint8 * key_in;
+
+    key_in = g_malloc0(sizeof(guint8)*16);
+    j= (int)(strlen(char_key)/2)-1;
+    /*Translate "hex-string" into a byte aligned block */
+    for(i = (int)strlen(char_key); i> 0; i-=2 ){
+        key_in[j] =  ( (guint8)  (strtol( &char_key[i-2], NULL, 16 ) ));
+        char_key[i-2] = '\0';
+        j--;
+    }
+    return key_in;
+
+}
+#endif
+
+/** @brief Deciphers a given tvb
+ *
+ * Note that the actual KASUMI implementation needs to be placed into
+ * epan/crypt/kasumi.* by "end users" since due to patents the acutal implementation
+ * cannot be distributed openly at the moment.
+ *
+ * Refer to 3GPP TS 35.201 and 3GPP TS 35.202 for further information.
+ *
+ *  @param tvb The ciphered data.
+ *  @param  pinfo Packet info.
+ *  @param counter the COUNTER value input
+ *  @param rbid the radiobear id
+ *  @param dir Direction of the link
+ *  @param header_size Size of the unciphered header
+ *  @return tvb Returns a deciphered tvb
+ */
+static tvbuff_t *
+#ifndef HAVE_UMTS_KASUMI
+rlc_decipher_tvb(tvbuff_t *tvb _U_, packet_info *pinfo, guint32 counter _U_,
+                 guint8 rbid _U_, gboolean dir _U_, guint8 header_size _U_) {
+    /*Check if we have a KASUMI implementation*/
+    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "Unable to decipher packet since KASUMI implementation is missing.");
+    return NULL;
+#else
+rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid, gboolean dir, guint8 header_size) {
+    guint i;
+    guint8* out=NULL,*key_in = NULL;
+    tvbuff_t *t;
+
+    /*Fix the key into a byte block*/
+    /*TODO: This should be done in a preferences callback function*/
+    out = ep_alloc0( strlen(global_rlc_kasumi_key)+1);
+    memcpy(out,global_rlc_kasumi_key,strlen(global_rlc_kasumi_key));    /*Copy from prefrence const pointer*/
+    key_in = translate_hex_key(out);    /*Translation*/
+
+    /*Location for decrypted data*/
+    out = g_malloc( tvb_length(tvb) );
+
+    /*Build data input but dont send the header*/
+    for(i = 0; i< tvb_length(tvb)-header_size; i++ ){
+        out[i+header_size] = tvb_get_guint8(tvb, header_size+i);
+    }
+    /*Call KASUMI confidentiality function, note that rbid is zero indexed*/
+    f8( key_in, counter, rbid-1, dir, &out[header_size], (tvb_length(tvb)-header_size)*8 );
+
+    /*Restore header in tvb*/
+    for (i = 0; i < header_size; i++) {
+        out[i] = tvb_get_guint8(tvb, i);
+    }
+
+    /*Create new tvb.*/
+    t = tvb_new_real_data(out,tvb_length(tvb), tvb_reported_length(tvb));
+    /*add_new_data_source(pinfo, tvb, "Data enciphered");*/
+    add_new_data_source(pinfo, t, "Deciphered data");
+    return t;
+#endif /* HAVE_UMTS_KASUMI */
+}
+
+/*
+ * @param key is created with GINT_TO_POINTER
+ * @param value is a pointer to a guint32
+ * @param data is a pointer to a guint32
+ */
+static gboolean
+iter_same(gpointer key, gpointer value, gpointer data) {
+    /*If true we found the correct frame*/
+    if ((guint32)GPOINTER_TO_INT(key) > *(guint32*)data){
+        *((guint32*)data) = *((guint32*)value);
+        return TRUE;
+    }
+    *((guint32*)data) = (guint32)GPOINTER_TO_INT(key);
+
+    return TRUE;
+}
+
+/**
+ * Used for looking up and old ciphering counter value in the counter_map tree.
+ * @param key is created with GINT_TO_POINTER
+ * @param value is pointer to an array of 2 guint32s
+ * @param data is a pointer to an array of 3 guint32s
+ */
+static gboolean
+rlc_find_old_counter(gpointer key, gpointer value, gpointer data) {
+
+    /*If true we found the correct frame*/
+    if( (guint32)GPOINTER_TO_INT(key) >= ((guint32 *)data)[0] ){
+        return TRUE;
+    }
+    /*Overwrite the data since the previous one wasn't correct*/
+    ((guint32*)data)[1] = ((guint32*)value)[0];
+    ((guint32*)data)[2] = ((guint32*)value)[1];
+
+    return FALSE;
+}
+
+static void
+rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fpinf,
+             rlc_info * rlcinf, guint16 seq, enum rlc_mode mode)
+{
+    rrc_ciphering_info * c_inf;
+    guint8 index, header_size, hfn_shift;
+    gint16 pos;
+
+    index = fpinf->is_uplink ? 1 : 0;
+    pos = fpinf->cur_tb;
+    if (mode ==RLC_UM) {
+        header_size = 1;
+        hfn_shift = 7;
+    } else {
+        header_size = 2;
+        hfn_shift = 12;
+    }
+
+    /*Ciphering info singled in RRC by securitymodecommands */
+    c_inf =  g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)fpinf->com_context_id));
+
+    /*TODO: This doesnt really work for all packets..*/
+    /*Check if we have ciphering info and that this frame is ciphered*/
+    if(c_inf!=NULL && ( (c_inf->setup_frame > 0 && c_inf->setup_frame < pinfo->fd->num && c_inf->seq_no[rlcinf->rbid[pos]][index] == -1)  ||
+                     (c_inf->setup_frame < pinfo->fd->num && c_inf->seq_no[rlcinf->rbid[pos]][index] >= 0  && c_inf->seq_no[rlcinf->rbid[pos]][index] <= seq) )){
+
+        tvbuff_t *t;
+
+        /*Check if this counter has been initialized*/
+        if(!counter_init[rlcinf->rbid[pos]][index] ){
+            guint32 frame_num = pinfo->fd->num;
+
+            /*Initializes counter*/
+            counter_init[rlcinf->rbid[pos]][0] = TRUE;
+            counter_init[rlcinf->rbid[pos]][1] = TRUE;
+            /*Find apropriate start value*/
+            g_tree_foreach(c_inf->start_ps, (GTraverseFunc)iter_same, &frame_num);
+
+            /*Set COUNTER value accordingly as specified by 6.4.8 in 3GPP TS 33.102 */
+            if(max_counter +2 > frame_num && c_inf->seq_no[rlcinf->rbid[pos]][index] == -1){
+                ps_counter[rlcinf->rbid[pos]][0] = (max_counter+2) << hfn_shift;
+                ps_counter[rlcinf->rbid[pos]][1] = (max_counter+2) << hfn_shift;
+            }else{
+                ps_counter[rlcinf->rbid[pos]][0] = frame_num << hfn_shift;
+                ps_counter[rlcinf->rbid[pos]][1] = frame_num << hfn_shift;
+            }
+
+            if(!tree){
+                /*Preserve counter value for next dissection round*/
+                guint32 * ciph;
+                ciph = g_malloc(sizeof(guint32)*2);
+                ciph[0] = ps_counter[rlcinf->rbid[pos]][0];
+                ciph[1] = ps_counter[rlcinf->rbid[pos]][1];
+                g_tree_insert(counter_map, GINT_TO_POINTER((gint)pinfo->fd->num), ciph);
+            }
+
+        }
+        /*Update the maximal COUNTER value seen so far*/
+        max_counter = MAX(max_counter,((ps_counter[rlcinf->rbid[pos]][index]) | seq) >> hfn_shift);
+
+    /*XXX:Since RBID in umts isnt configured properly..*/
+        if(rlcinf->rbid[pos] == 9 ){
+            if(tree){
+                guint32 frame_num[3];
+                /*Set frame num we will be "searching" around*/
+                frame_num[0] = pinfo->fd->num;
+                /*Find the correct counter value*/
+                g_tree_foreach(counter_map, (GTraverseFunc)rlc_find_old_counter, &frame_num[0]);
+                t = rlc_decipher_tvb(tvb, pinfo, (frame_num[index+1] | seq),16,!fpinf->is_uplink,header_size);
+            }else{
+                t = rlc_decipher_tvb(tvb, pinfo, ((ps_counter[rlcinf->rbid[pos]][index]) | seq),16,!fpinf->is_uplink,header_size);
+            }
+        }else{
+            if(tree){
+                /*We need to find the original counter value for second dissection pass*/
+                guint32 frame_num[3];
+                frame_num[0] = pinfo->fd->num;
+                g_tree_foreach(counter_map, (GTraverseFunc)rlc_find_old_counter, &frame_num[0]);
+                t = rlc_decipher_tvb(tvb, pinfo, (frame_num[index+1] | seq),rlcinf->rbid[pos],!fpinf->is_uplink,header_size);
+            }else
+                t = rlc_decipher_tvb(tvb, pinfo, ((ps_counter[rlcinf->rbid[pos]][index]) | seq),rlcinf->rbid[pos],!fpinf->is_uplink,header_size);
+        }
+
+        /*Update the hyperframe number*/
+        if(seq == 4095){
+
+            ps_counter[rlcinf->rbid[pos]][index] += 1 << hfn_shift;
+
+            if(!tree){/*Preserve counter for second packet analysis run*/
+                guint32 * ciph;
+                ciph = g_malloc(sizeof(guint32)*2);
+                ciph[0] = ps_counter[rlcinf->rbid[pos]][0];
+                ciph[1] = ps_counter[rlcinf->rbid[pos]][1];
+                g_tree_insert(counter_map, GINT_TO_POINTER((gint)pinfo->fd->num+1), ciph);
+            }
+        }
+
+        /*Unable to decipher the packet*/
+        if(t == NULL){
+            proto_tree_add_text(tree, tvb, 0, -1,
+                "Cannot dissect RLC frame because it is ciphered");
+            col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
+            return;
+
+        }else{
+            col_append_str(pinfo->cinfo, COL_INFO, "[Deciphered Data]");
+            tvb = t;
+
+            /*TODO: Old tvb should be freed here?*/
+        }
+    }
+}
+
 static void
 dissect_rlc_tm(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
            proto_tree *top_level, proto_tree *tree)
@@ -1626,22 +1853,26 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 
     pos = fpinf->cur_tb;
 
-	if ((rlcinf->ciphered[pos] == TRUE && rlcinf->deciphered[pos] == FALSE) || global_rlc_ciphered) {
-		proto_tree_add_text(tree, tvb, 0, -1,
-			"Cannot dissect RLC frame because it is ciphered");
-		col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
-		return;
-	}
+    if ((rlcinf->ciphered[pos] == TRUE && rlcinf->deciphered[pos] == FALSE) || global_rlc_ciphered) {
+        if(global_rlc_try_decipher){
+            rlc_decipher(tvb, pinfo, tree, fpinf, rlcinf, seq, RLC_UM);
+        }else{
+            proto_tree_add_text(tree, tvb, 0, -1,
+                    "Cannot dissect RLC frame because it is ciphered");
+            col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
+            return;
+        }
+    }
 
-	if (global_rlc_li_size == RLC_LI_UPPERLAYER) {
-		if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
-			li_is_on_2_bytes = (tvb_length(tvb) > 125) ? TRUE : FALSE;
-		} else {
-			li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
-		}
-	} else { /* Override rlcinf configuration with preference. */
-		li_is_on_2_bytes = (global_rlc_li_size == RLC_LI_15BITS) ? TRUE : FALSE;
-	}
+    if (global_rlc_li_size == RLC_LI_UPPERLAYER) {
+        if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
+            li_is_on_2_bytes = (tvb_length(tvb) > 125) ? TRUE : FALSE;
+        } else {
+            li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
+        }
+    } else { /* Override rlcinf configuration with preference. */
+        li_is_on_2_bytes = (global_rlc_li_size == RLC_LI_15BITS) ? TRUE : FALSE;
+    }
 
 
 
@@ -1998,122 +2229,6 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
             col_append_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Data]  SN=%u %s",
                          seq, poll_set ? "(P)" : "");
 }
-#ifdef HAVE_UMTS_KASUMI
-static guint8 *
-translate_hex_key(gchar * char_key){
-        int i,j;
-        guint8 * key_in;
-
-        key_in = g_malloc0(sizeof(guint8)*16);
-        /*memset(key_in,0,16);
-        */
-        j= (int)(strlen(char_key)/2)-1;
-        /*Translate "hex-string" into a byte aligned block */
-        for(i = (int)strlen(char_key); i> 0; i-=2 ){
-
-                key_in[j] =  ( (guint8)  (strtol( &char_key[i-2], NULL, 16 ) ));
-                char_key[i-2] = '\0';
-                j--;
-        }
-        return key_in;
-
-}
-#endif
-
-/** @brief Deciphers a given tvb
- *
- * Note that the actual KASUMI implementation needs to be placed into
- * epan/crypt/kasumi.* by "end users" since due to patents the acutal implementation
- * cannot be distributed openly at the moment.
- *
- * Refer to 3GPP TS 35.201 and 3GPP TS 35.202 for further information.
- *
- *  @param tvb The ciphered data.
- *  @param  pinfo Packet info.
- *  @param counter the COUNTER value input
- *  @param rbid the radiobear id
- *  @param dir Direction of the link
- *  @return tvb Returns a deciphered tvb
- */
-static tvbuff_t *
-#ifndef HAVE_UMTS_KASUMI
-rlc_decipher_tvb(tvbuff_t *tvb _U_, packet_info *pinfo, guint32 counter _U_, guint8 rbid _U_, gboolean dir _U_) {
-        /*Check if we have a KASUMI implementatation*/
-        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "Unable to decipher packet since KASUMI implementation is missing.");
-        return NULL;
-#else
-rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid, gboolean dir) {
-        guint64 i;
-        guint8* out=NULL,*key_in = NULL;
-        tvbuff_t *t;
-        int off = 0;
-
-        /*Fix the key into a byte block*/
-        /*TODO: This should be done in a preferences callback function*/
-        out = ep_alloc0( strlen(global_rlc_kasumi_key)+1);
-        memcpy(out,global_rlc_kasumi_key,strlen(global_rlc_kasumi_key));    /*Copy from prefrence const pointer*/
-        key_in = translate_hex_key(out);    /*Translation*/
-
-        /*Location for decrypted data*/
-        out = g_malloc( tvb_length(tvb) );
-
-        /*Build data input but dont send the two bytes header*/
-        off = 16;
-        for(i = 0; i< tvb_length(tvb)-2; i++ ){
-            out[i+2] = tvb_get_bits8(tvb,off,8);
-            off+=8;
-        }
-        /*Call KASUMI confidentiality function, note that rbid is zero indexed*/
-        f8( key_in, counter, rbid-1, dir, &out[2], (tvb_length(tvb)-2)*8 );
-
-        /*Restore header in tvb*/
-        out[0] = tvb_get_bits(tvb,0,8,ENC_BIG_ENDIAN);
-        out[1] = tvb_get_bits(tvb,8,8,ENC_BIG_ENDIAN);
-
-        /*Create new tvb.*/
-        t = tvb_new_real_data(out,tvb_length(tvb), tvb_reported_length(tvb));
-        /*add_new_data_source(pinfo, tvb, "Data enciphered");*/
-        add_new_data_source(pinfo, t, "Deciphered data");
-        return t;
-#endif /* HAVE_UMTS_KASUMI */
-}
-
-/*
- * @param key is created with GINT_TO_POINTER
- * @param value is a pointer to a guint32
- * @param data is a pointer to a guint32
- */
-static gboolean
-iter_same(gpointer key, gpointer value, gpointer data) {
-    /*If true we found the correct frame*/
-    if ((guint32)GPOINTER_TO_INT(key) > *(guint32*)data){
-        *((guint32*)data) = *((guint32*)value);
-        return TRUE;
-    }
-    *((guint32*)data) = (guint32)GPOINTER_TO_INT(key);
-
-    return TRUE;
-}
-
-/**
- * Used for looking up and old ciphering counter value in the counter_map tree.
- * @param key is created with GINT_TO_POINTER
- * @param value is pointer to an array of 2 guint32s
- * @param data is a pointer to an array of 3 guint32s
- */
-static gboolean
-rlc_find_old_counter(gpointer key, gpointer value, gpointer data) {
-
-    /*If true we found the correct frame*/
-    if( (guint32)GPOINTER_TO_INT(key) >= ((guint32 *)data)[0] ){
-        return TRUE;
-    }
-    /*Overwrite the data since the previous one wasn't correct*/
-    ((guint32*)data)[1] = ((guint32*)value)[0];
-    ((guint32*)data)[2] = ((guint32*)value)[1];
-
-    return FALSE;
-}
 
 static void
 dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
@@ -2126,7 +2241,8 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     guint8         ext, dc;
     guint8         next_byte, offs = 0;
     guint32        orig_num        = 0;
-    gint16         num_li          = 0, seq, pos;
+    gint16         num_li          = 0, pos;
+    guint16        seq;
     gboolean       is_truncated, li_is_on_2_bytes;
     proto_item    *truncated_ti;
     guint64        polling;
@@ -2183,110 +2299,14 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
      * WARNING DECIPHERING IS HIGHLY EXPERIMENTAL!!!
      * */
     if (((rlcinf->ciphered[pos] == TRUE && rlcinf->deciphered[pos] == FALSE) || global_rlc_ciphered)) {
-
         if(global_rlc_try_decipher){
-            rrc_ciphering_info * c_inf;
-            /*Ciphering info singled in RRC by securitymodecommands */
-            c_inf =  g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)fpinf->com_context_id));
-
-            /*TODO: This doesnt really work for all packets..*/
-            /*Check if we have ciphering info and that this frame is ciphered*/
-            if(c_inf!=NULL && ( (c_inf->setup_frame > 0 && c_inf->setup_frame < pinfo->fd->num && c_inf->seq_no[rlcinf->rbid[pos]][fpinf->is_uplink] == -1)  ||
-                             (c_inf->setup_frame < pinfo->fd->num && c_inf->seq_no[rlcinf->rbid[pos]][fpinf->is_uplink] >= 0  && c_inf->seq_no[rlcinf->rbid[pos]][fpinf->is_uplink] <= seq) )){
-
-                tvbuff_t *t;
-
-                /*Check if this counter has been initialized*/
-                if(!counter_init[rlcinf->rbid[pos]][fpinf->is_uplink] ){
-                    guint32 frame_num = pinfo->fd->num;
-
-                    /*Initializes counter*/
-                    counter_init[rlcinf->rbid[pos]][fpinf->is_uplink] = TRUE;
-                    counter_init[rlcinf->rbid[pos]][!fpinf->is_uplink] = TRUE;
-                    /*Find apropriate start value*/
-                    g_tree_foreach(c_inf->start_ps, (GTraverseFunc)iter_same, &frame_num);
-
-                    /*Set COUNTER value accordingly as specified by 6.4.8 in 3GPP TS 33.102 */
-                    if(max_counter +2 > frame_num && c_inf->seq_no[rlcinf->rbid[pos]][fpinf->is_uplink] == -1){
-                        ps_counter[rlcinf->rbid[pos]][fpinf->is_uplink] = (max_counter+2) << 12;
-                        ps_counter[rlcinf->rbid[pos]][!fpinf->is_uplink] = (max_counter+2) << 12;
-                    }else{
-                        ps_counter[rlcinf->rbid[pos]][fpinf->is_uplink] = frame_num << 12;
-                        ps_counter[rlcinf->rbid[pos]][!fpinf->is_uplink] = frame_num << 12;
-                    }
-
-
-                    if(!tree){
-                        /*Preserve counter value for next dissection round*/
-                        guint32 * ciph;
-                        ciph = g_malloc(sizeof(guint32)*2);
-                        ciph[fpinf->is_uplink] = ps_counter[rlcinf->rbid[pos]][fpinf->is_uplink];
-                        ciph[!fpinf->is_uplink] = ps_counter[rlcinf->rbid[pos]][!fpinf->is_uplink];
-                        g_tree_insert(counter_map, GINT_TO_POINTER((gint)pinfo->fd->num), ciph);
-                    }
-
-                }
-                /*Update the maximal COUNTER value seen so far*/
-                max_counter = MAX(max_counter,((ps_counter[rlcinf->rbid[pos]][fpinf->is_uplink]) | seq) >> 12);
-
-            /*XXX:Since RBID in umts isnt configured properly..*/
-                if(rlcinf->rbid[pos] == 9 ){
-                    if(tree){
-                        guint32 frame_num[3];
-                        /*Set frame num we will be "searching" around*/
-                        frame_num[0] = pinfo->fd->num;
-                        /*Find the correct counter value*/
-                        g_tree_foreach(counter_map, (GTraverseFunc)rlc_find_old_counter, &frame_num[0]);
-                        t = rlc_decipher_tvb(tvb, pinfo, (frame_num[fpinf->is_uplink+1] | seq),16,!fpinf->is_uplink);
-                    }else{
-                        t = rlc_decipher_tvb(tvb, pinfo, ((ps_counter[rlcinf->rbid[pos]][fpinf->is_uplink]) | seq),16,!fpinf->is_uplink);
-                    }
-                }else{
-                    if(tree){
-                        /*We need to find the original counter value for second dissection pass*/
-                        guint32 frame_num[3];
-                        frame_num[0] = pinfo->fd->num;
-                        g_tree_foreach(counter_map, (GTraverseFunc)rlc_find_old_counter, &frame_num[0]);
-                        t = rlc_decipher_tvb(tvb, pinfo, (frame_num[fpinf->is_uplink+1] | seq),rlcinf->rbid[pos],!fpinf->is_uplink);
-                    }else
-                        t = rlc_decipher_tvb(tvb, pinfo, ((ps_counter[rlcinf->rbid[pos]][fpinf->is_uplink]) | seq),rlcinf->rbid[pos],!fpinf->is_uplink);
-                }
-
-                /*Update the hyperframe number*/
-                if(seq == 4095){
-
-                    ps_counter[rlcinf->rbid[pos]][fpinf->is_uplink] += 1 << 12;
-
-                    if(!tree){/*Preserve counter for second packet analysis run*/
-                        guint32 * ciph;
-                        ciph = g_malloc(sizeof(guint32)*2);
-                        ciph[fpinf->is_uplink] = ps_counter[rlcinf->rbid[pos]][fpinf->is_uplink];
-                        ciph[!fpinf->is_uplink] = ps_counter[rlcinf->rbid[pos]][!fpinf->is_uplink];
-                        g_tree_insert(counter_map, GINT_TO_POINTER((gint)pinfo->fd->num+1), ciph);
-                    }
-                }
-
-                /*Unable to decipher the packet*/
-                if(t == NULL){
-                    proto_tree_add_text(tree, tvb, 0, -1,
-                        "Cannot dissect RLC frame because it is ciphered");
-                    col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
-                    return;
-
-                }else{
-                    col_append_str(pinfo->cinfo, COL_INFO, "[Deciphered Data]");
-                    tvb = t;
-
-                    /*TODO: Old tvb should be freed here?*/
-                }
-            }
+            rlc_decipher(tvb, pinfo, tree, fpinf, rlcinf, seq, RLC_AM);
         }else{
             proto_tree_add_text(tree, tvb, 0, -1,
                     "Cannot dissect RLC frame because it is ciphered");
             col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
             return;
         }
-
     }
 
     if (global_rlc_li_size == RLC_LI_UPPERLAYER) {
