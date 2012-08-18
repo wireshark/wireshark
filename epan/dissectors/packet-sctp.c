@@ -2128,58 +2128,11 @@ frag_hash(gconstpointer k)
          key->stream_id ^ key->stream_seq_num;
 }
 
-
-
-static void
-frag_free_msgs(sctp_frag_msg *msg)
-{
-  sctp_frag_be *beginend;
-  sctp_fragment *fragment;
-
-  /* free all begins */
-  while (msg->begins) {
-    beginend = msg->begins;
-    msg->begins = msg->begins->next;
-    g_free(beginend);
-  }
-
-  /* free all ends */
-  while (msg->ends) {
-    beginend = msg->ends;
-    msg->ends = msg->ends->next;
-    g_free(beginend);
-  }
-
-  /* free all fragments */
-  while (msg->fragments) {
-    fragment = msg->fragments;
-    msg->fragments = msg->fragments->next;
-    g_free(fragment->data);
-    g_free(fragment);
-  }
-
-  /* msg->messages is se_ allocated, no need to free it */
-
-  g_free(msg);
-}
-
-static gboolean
-free_table_entry(gpointer key, gpointer value, gpointer user_data _U_)
-{
-  sctp_frag_msg *msg = value;
-  frag_key *fkey = key;
-
-  frag_free_msgs(msg);
-  g_free(fkey);
-  return TRUE;
-}
-
 static void
 frag_table_init(void)
 {
   /* destroy an existing hash table and create a new one */
   if (frag_table) {
-    g_hash_table_foreach_remove(frag_table, free_table_entry, NULL);
     g_hash_table_destroy(frag_table);
     frag_table=NULL;
   }
@@ -2237,14 +2190,14 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
   msg = find_message(stream_id, stream_seq_num);
 
   if (!msg) {
-    msg = g_malloc (sizeof (sctp_frag_msg));
+    msg = se_alloc (sizeof (sctp_frag_msg));
     msg->begins = NULL;
     msg->ends = NULL;
     msg->fragments = NULL;
     msg->messages = NULL;
     msg->next = NULL;
 
-    key = g_malloc(sizeof (frag_key));
+    key = se_alloc(sizeof (frag_key));
     key->sport = sctp_info.sport;
     key->dport = sctp_info.dport;
     key->verification_tag = sctp_info.verification_tag;
@@ -2284,12 +2237,12 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     return NULL;
 
   /* create new fragment */
-  fragment = g_malloc (sizeof (sctp_fragment));
+  fragment = se_alloc (sizeof (sctp_fragment));
   fragment->frame_num = pinfo->fd->num;
   fragment->tsn = tsn;
   fragment->len = tvb_length(tvb);
   fragment->next = NULL;
-  fragment->data = g_malloc (fragment->len);
+  fragment->data = se_alloc (fragment->len);
   tvb_memcpy(tvb, fragment->data, 0, fragment->len);
 
   /* add new fragment to linked list. sort ascending by tsn */
@@ -2313,7 +2266,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
 
   /* save begin or end if neccessary */
   if (b_bit && !e_bit) {
-    beginend = g_malloc (sizeof (sctp_frag_be));
+    beginend = se_alloc (sizeof (sctp_frag_be));
     beginend->fragment = fragment;
     beginend->next = NULL;
 
@@ -2338,7 +2291,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
   }
 
   if (!b_bit && e_bit) {
-    beginend = g_malloc (sizeof (sctp_frag_be));
+    beginend = se_alloc (sizeof (sctp_frag_be));
     beginend->fragment = fragment;
     beginend->next = NULL;
 
@@ -2572,7 +2525,6 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
       offset += frag_i->len;
 
       /* release fragment data */
-      g_free(frag_i->data);
       frag_i->data = NULL;
     }
 
@@ -2585,7 +2537,6 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
       offset += frag_i->len;
 
       /* release fragment data */
-      g_free(frag_i->data);
       frag_i->data = NULL;
     }
 
@@ -2599,7 +2550,6 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
       offset += frag_i->len;
 
       /* release fragment data */
-      g_free(frag_i->data);
       frag_i->data = NULL;
     }
   }
@@ -2625,7 +2575,6 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     if (beginend && beginend->next == begin)
       beginend->next = begin->next;
   }
-  g_free(begin);
 
   if (msg->ends == end) {
     msg->ends = end->next;
@@ -2636,7 +2585,6 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     if (beginend && beginend->next == end)
       beginend->next = end->next;
   }
-   g_free(end);
 
   /* create data source */
   new_tvb = tvb_new_child_real_data(tvb, message->data, len, len);
