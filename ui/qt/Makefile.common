@@ -31,6 +31,7 @@ GENERATED_HEADER_FILES =
 
 # Generated header files that we don't want in the distribution.
 GENERATED_NODIST_HEADER_FILES = \
+	ui_main_welcome.h \
 	ui_main_window.h
 
 # Generated C source files that we want in the distribution.
