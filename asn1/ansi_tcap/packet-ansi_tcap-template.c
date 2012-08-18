@@ -167,12 +167,9 @@ static GHashTable *TransactionId_table=NULL;
 static void
 TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
 
-        struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)value;
         gchar *TransactionId_str = (gchar *)key;
 
         g_free(TransactionId_str);
-        g_free(ansi_tcap_saved_invokedata);
-
 }
 
 static void
@@ -226,7 +223,7 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
           if(ansi_tcap_saved_invokedata)
                   return;
 
-          ansi_tcap_saved_invokedata = g_new(struct ansi_tcap_invokedata_t,1);
+          ansi_tcap_saved_invokedata = se_new(struct ansi_tcap_invokedata_t);
           ansi_tcap_saved_invokedata->OperationCode = ansi_tcap_private.d.OperationCode;
           ansi_tcap_saved_invokedata->OperationCode_national = ansi_tcap_private.d.OperationCode_national;
           ansi_tcap_saved_invokedata->OperationCode_private = ansi_tcap_private.d.OperationCode_private;

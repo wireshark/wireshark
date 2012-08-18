@@ -258,12 +258,9 @@ static GHashTable *TransactionId_table=NULL;
 static void
 TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
 
-        struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)value;
         gchar *TransactionId_str = (gchar *)key;
 
         g_free(TransactionId_str);
-        g_free(ansi_tcap_saved_invokedata);
-
 }
 
 static void
@@ -271,6 +268,7 @@ ansi_tcap_init_transaction_table(void){
 
         /* Destroy any existing memory chunks / hashes. */
         if (TransactionId_table){
+                g_hash_table_foreach(TransactionId_table, TransactionId_table_cleanup, NULL);
                 g_hash_table_destroy(TransactionId_table);
                 TransactionId_table = NULL;
         }
@@ -1407,7 +1405,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 366 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 363 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 
 
@@ -1753,7 +1751,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 503 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 500 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1791,7 +1789,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 514 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 511 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 	static enum_val_t ansi_tcap_response_matching_type_values[] = {
