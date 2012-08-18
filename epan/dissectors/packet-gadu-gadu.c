@@ -479,19 +479,19 @@ dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, int hfindex, proto_tree *tree, i
 
 	const int org_offset = offset;
 
-	GString *str;
+	emem_strbuf_t *str;
 	guint8 ch;
 	gint len;
 	
 	len = tvb_reported_length_remaining(tvb, offset);
 
-	str = g_string_new(NULL);
+	str = ep_strbuf_new("");
 
 	while ((len > 0) && (ch = tvb_get_guint8(tvb, offset))) {
 		if (ch < 0x80)
-			g_string_append_c(str, ch);
+			ep_strbuf_append_c(str, ch);
 		else
-			g_string_append_unichar(str, table_cp1250[ch-0x80]);
+			ep_strbuf_append_unichar(str, table_cp1250[ch-0x80]);
 		offset++;
 		len--;
 	}
@@ -499,7 +499,6 @@ dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, int hfindex, proto_tree *tree, i
 		offset++;	/* NUL */
 
 	proto_tree_add_unicode_string(tree, hfindex, tvb, org_offset, offset - org_offset, str->str);
-	g_string_free(str, TRUE);
 
 	return offset;
 }

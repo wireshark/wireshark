@@ -2355,6 +2355,31 @@ ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c)
 }
 
 emem_strbuf_t *
+ep_strbuf_append_unichar(emem_strbuf_t *strbuf, const gunichar c)
+{
+	gchar buf[6];
+	gint charlen;
+
+	if (!strbuf) {
+		return strbuf;
+	}
+
+	charlen = g_unichar_to_utf8(c, buf);
+
+	/* +charlen for the new character & +1 for the trailing '\0'. */
+	if (strbuf->alloc_len < strbuf->len + charlen + 1) {
+		ep_strbuf_grow(strbuf, strbuf->len + charlen + 1);
+	}
+	if (strbuf->alloc_len >= strbuf->len + charlen + 1) {
+		memcpy(&strbuf->str[strbuf->len], buf, charlen);
+		strbuf->len += charlen;
+		strbuf->str[strbuf->len] = '\0';
+	}
+
+	return strbuf;
+}
+
+emem_strbuf_t *
 ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len)
 {
 	if (!strbuf || len >= strbuf->len) {

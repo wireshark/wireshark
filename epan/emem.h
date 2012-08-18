@@ -506,6 +506,16 @@ emem_strbuf_t *ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str);
 emem_strbuf_t *ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c);
 
 /**
+ * Append a Unicode characeter converted to UTF-8 to a string buffer.
+ *
+ * @param strbuf The ep_strbuf-allocated string buffer to append to.
+ * @param c The Unicode character to append.
+ *
+ * @return strbuf
+ */
+emem_strbuf_t *ep_strbuf_append_unichar(emem_strbuf_t *strbuf, const gunichar c);
+
+/**
  * Chop off the end of a string buffer.
  *
  * @param strbuf The ep_strbuf-allocated string buffer to append to.

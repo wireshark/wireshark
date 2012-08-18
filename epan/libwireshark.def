@@ -384,6 +384,7 @@ ep_stack_pop
 ep_stack_push
 ep_strbuf_append
 ep_strbuf_append_c
+ep_strbuf_append_unichar
 ep_strbuf_append_printf
 ep_strbuf_append_vprintf
 ep_strbuf_new
