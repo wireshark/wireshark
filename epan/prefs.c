@@ -1684,6 +1684,44 @@ static void capture_column_write_cb(pref_t* pref, write_pref_arg_t* arg)
 
 }
 
+
+static void colorized_frame_free_cb(pref_t* pref)
+{
+    g_free((char *)*pref->varp.string);
+    *pref->varp.string = NULL;
+    g_free(pref->default_val.string);
+}
+
+static void colorized_frame_reset_cb(pref_t* pref)
+{
+    g_free((void *)*pref->varp.string);
+    *pref->varp.string = g_strdup(pref->default_val.string);
+}
+
+static prefs_set_pref_e colorized_frame_set_cb(pref_t* pref, gchar* value, gboolean* changed)
+{
+    if (strcmp(*pref->varp.string, value) != 0) {
+        *changed = TRUE;
+        g_free((void *)*pref->varp.string);
+        *pref->varp.string = g_strdup(value);
+    }
+
+    return PREFS_SET_OK;
+}
+
+static void colorized_frame_write_cb(pref_t* pref _U_, write_pref_arg_t* arg _U_)
+{
+   /* Don't write the colors of the 10 easy-access-colorfilters to the preferences
+    * file until the colors can be changed in the GUI. Currently this is not really
+    * possible since the STOCK-icons for these colors are hardcoded.
+    *
+    * XXX Find a way to change the colors of the STOCK-icons on the fly and then
+    *     add these 10 colors to the list of colors that can be changed through
+    *     the preferences.
+    *
+    */
+}
+
 /*
  * Register all non-dissector modules' preferences.
  */
@@ -1825,18 +1863,19 @@ prefs_register_modules(void)
     prefs_register_color_preference(gui_color_module, "stream.server.bg", "TCP stream window color preference", 
         "TCP stream window color preference", &prefs.st_server_bg);
 
-    /* XXX - placeholders for gui.colorized_frame.fg and gui.colorized_frame.fg */
-   /* Don't write the colors of the 10 easy-access-colorfilters to the preferences
-    * file until the colors can be changed in the GUI. Currently this is not really
-    * possible since the STOCK-icons for these colors are hardcoded.
-    *
-    * XXX Find a way to change the colors of the STOCK-icons on the fly and then
-    *     add these 10 colors to the list of colors that can be changed through
-    *     the preferences.
-    *
-#define PRS_GUI_COLORIZED_FG             "gui.colorized_frame.fg"
-#define PRS_GUI_COLORIZED_BG             "gui.colorized_frame.bg"
-    */
+    custom_cbs.free_cb = colorized_frame_free_cb;
+    custom_cbs.reset_cb = colorized_frame_reset_cb;
+    custom_cbs.set_cb = colorized_frame_set_cb;
+    custom_cbs.write_cb = colorized_frame_write_cb;
+    prefs_register_string_custom_preference(gui_column_module, "colorized_frame.fg", "Colorized Foreground", 
+        "Filter Colorized Foreground", &custom_cbs, (const char **)&prefs.gui_colorized_fg);
+
+    custom_cbs.free_cb = colorized_frame_free_cb;
+    custom_cbs.reset_cb = colorized_frame_reset_cb;
+    custom_cbs.set_cb = colorized_frame_set_cb;
+    custom_cbs.write_cb = colorized_frame_write_cb;
+    prefs_register_string_custom_preference(gui_column_module, "colorized_frame.bg", "Colorized Background", 
+        "Filter Colorized Background", &custom_cbs, (const char **)&prefs.gui_colorized_bg);
 
     prefs_register_enum_preference(gui_module, "console_open",
                        "Open a console window",
@@ -2711,13 +2750,6 @@ prefs_reset(void)
   prefs_initialized = FALSE;
 
   /*
-   * Free information associated with the current values of non-dissector
-   * preferences.
-   */
-  g_free(prefs.gui_colorized_fg);
-  g_free(prefs.gui_colorized_bg);
-
-  /*
    * Unload all UAT preferences.
    */
   uat_unload_all();
@@ -3237,8 +3269,6 @@ prefs_capture_options_dialog_column_is_visible(const gchar *column)
     return FALSE;
 }
 
-#define PRS_GUI_COLORIZED_FG             "gui.colorized_frame.fg"
-#define PRS_GUI_COLORIZED_BG             "gui.colorized_frame.bg"
 #define PRS_GUI_FILTER_LABEL             "gui.filter_expressions.label"
 #define PRS_GUI_FILTER_EXPR              "gui.filter_expressions.expr"
 #define PRS_GUI_FILTER_ENABLED           "gui.filter_expressions.enabled"
@@ -3357,12 +3387,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     } else {
 	    prefs.gui_version_placement = version_neither;
     }
-  } else if (strcmp(pref_name, PRS_GUI_COLORIZED_FG) == 0) {
-    g_free(prefs.gui_colorized_fg);
-    prefs.gui_colorized_fg = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_GUI_COLORIZED_BG) == 0) {
-    g_free(prefs.gui_colorized_bg);
-    prefs.gui_colorized_bg = g_strdup(value);
 /* handle the deprecated name resolution options */
   } else if (strcmp(pref_name, "name_resolve") == 0 ||
 	     strcmp(pref_name, "capture.name_resolve") == 0) {
