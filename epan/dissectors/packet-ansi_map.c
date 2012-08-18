@@ -1183,7 +1183,6 @@ ansi_map_init_transaction_table(void){
 
     /* Destroy any existing memory chunks / hashes. */
     if (TransactionId_table){
-        g_hash_table_foreach(TransactionId_table, TransactionId_table_cleanup, NULL);
         g_hash_table_destroy(TransactionId_table);
     }
 
@@ -1235,7 +1234,7 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
             if(ansi_map_saved_invokedata)
                 return;
 
-            ansi_map_saved_invokedata = g_new(struct ansi_map_invokedata_t,1);
+            ansi_map_saved_invokedata = se_new(struct ansi_map_invokedata_t);
             ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
             ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 
