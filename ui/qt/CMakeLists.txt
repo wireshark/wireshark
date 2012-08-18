@@ -88,6 +88,7 @@ set(QTSHARK_SRC
 )
 
 set(QTSHARK_UI
+	main_welcome.ui
 	main_window.ui
 )
 
