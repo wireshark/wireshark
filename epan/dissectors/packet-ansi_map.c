@@ -1170,11 +1170,9 @@ static GHashTable *TransactionId_table=NULL;
 static void
 TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
 
-    struct ansi_map_invokedata_t *ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)value;
     gchar *TransactionId_str = (gchar *)key;
 
     g_free(TransactionId_str);
-    g_free(ansi_map_saved_invokedata);
 
 }
 
@@ -1183,6 +1181,7 @@ ansi_map_init_transaction_table(void){
 
     /* Destroy any existing memory chunks / hashes. */
     if (TransactionId_table){
+        g_hash_table_foreach(TransactionId_table, TransactionId_table_cleanup, NULL);
         g_hash_table_destroy(TransactionId_table);
     }
 
@@ -15474,7 +15473,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3601 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 3599 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -19320,7 +19319,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5254 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5252 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19581,7 +19580,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5287 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5285 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     static enum_val_t ansi_map_response_matching_type_values[] = {

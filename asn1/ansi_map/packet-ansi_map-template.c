@@ -382,11 +382,9 @@ static GHashTable *TransactionId_table=NULL;
 static void
 TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
 
-    struct ansi_map_invokedata_t *ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)value;
     gchar *TransactionId_str = (gchar *)key;
 
     g_free(TransactionId_str);
-    g_free(ansi_map_saved_invokedata);
 
 }
 
@@ -447,7 +445,7 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
             if(ansi_map_saved_invokedata)
                 return;
 
-            ansi_map_saved_invokedata = g_new(struct ansi_map_invokedata_t,1);
+            ansi_map_saved_invokedata = se_new(struct ansi_map_invokedata_t);
             ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
             ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 
