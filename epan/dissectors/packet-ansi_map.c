@@ -1168,25 +1168,14 @@ static void dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo 
 static GHashTable *TransactionId_table=NULL;
 
 static void
-TransactionId_table_cleanup(gpointer key, gpointer value _U_, gpointer user_data _U_){
-
-    gchar *TransactionId_str = (gchar *)key;
-
-    g_free(TransactionId_str);
-
-}
-
-static void
 ansi_map_init_transaction_table(void){
 
     /* Destroy any existing memory chunks / hashes. */
     if (TransactionId_table){
-        g_hash_table_foreach(TransactionId_table, TransactionId_table_cleanup, NULL);
         g_hash_table_destroy(TransactionId_table);
     }
 
     TransactionId_table = g_hash_table_new(g_str_hash, g_str_equal);
-
 }
 
 static void
@@ -1204,9 +1193,7 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
     address* dst = &(pinfo->dst);
     guint8 *src_str;
     guint8 *dst_str;
-    char *buf;
-
-    buf=ep_alloc(1024);
+    char *buf = NULL;
 
     src_str = ep_address_to_str(src);
     dst_str = ep_address_to_str(dst);
@@ -1219,13 +1206,13 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
             /* The hash string needs to contain src and dest to distiguish differnt flows */
             switch(ansi_map_response_matching_type){
                 case ANSI_MAP_TID_ONLY:
-                    g_snprintf(buf,1024,"%s",p_private_tcap->TransactionID_str);
+                    buf = ep_strdup(p_private_tcap->TransactionID_str);
                     break;
                 case 1:
-                    g_snprintf(buf,1024,"%s%s",p_private_tcap->TransactionID_str,src_str);
+                    buf = ep_strdup_printf("%s%s",p_private_tcap->TransactionID_str,src_str);
                     break;
                 default:
-                    g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
+                    buf = ep_strdup_printf("%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
                     break;
             }
             /* If the entry allready exists don't owervrite it */
@@ -1238,7 +1225,7 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
             ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 
             g_hash_table_insert(TransactionId_table,
-                                g_strdup(buf),
+                                se_strdup(buf),
                                 ansi_map_saved_invokedata);
 
             /*g_warning("Invoke Hash string %s pkt: %u",buf,pinfo->fd->num);*/
@@ -15473,7 +15460,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3599 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 3586 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -19319,7 +19306,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5252 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5239 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19580,7 +19567,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5285 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5272 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     static enum_val_t ansi_map_response_matching_type_values[] = {

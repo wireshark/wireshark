@@ -380,25 +380,14 @@ static void dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo 
 static GHashTable *TransactionId_table=NULL;
 
 static void
-TransactionId_table_cleanup(gpointer key, gpointer value _U_, gpointer user_data _U_){
-
-    gchar *TransactionId_str = (gchar *)key;
-
-    g_free(TransactionId_str);
-
-}
-
-static void
 ansi_map_init_transaction_table(void){
 
     /* Destroy any existing memory chunks / hashes. */
     if (TransactionId_table){
-        g_hash_table_foreach(TransactionId_table, TransactionId_table_cleanup, NULL);
         g_hash_table_destroy(TransactionId_table);
     }
 
     TransactionId_table = g_hash_table_new(g_str_hash, g_str_equal);
-
 }
 
 static void
@@ -416,9 +405,7 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
     address* dst = &(pinfo->dst);
     guint8 *src_str;
     guint8 *dst_str;
-    char *buf;
-
-    buf=ep_alloc(1024);
+    char *buf = NULL;
 
     src_str = ep_address_to_str(src);
     dst_str = ep_address_to_str(dst);
@@ -431,13 +418,13 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
             /* The hash string needs to contain src and dest to distiguish differnt flows */
             switch(ansi_map_response_matching_type){
                 case ANSI_MAP_TID_ONLY:
-                    g_snprintf(buf,1024,"%s",p_private_tcap->TransactionID_str);
+                    buf = ep_strdup(p_private_tcap->TransactionID_str);
                     break;
                 case 1:
-                    g_snprintf(buf,1024,"%s%s",p_private_tcap->TransactionID_str,src_str);
+                    buf = ep_strdup_printf("%s%s",p_private_tcap->TransactionID_str,src_str);
                     break;
                 default:
-                    g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
+                    buf = ep_strdup_printf("%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
                     break;
             }
             /* If the entry allready exists don't owervrite it */
@@ -450,7 +437,7 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
             ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 
             g_hash_table_insert(TransactionId_table,
-                                g_strdup(buf),
+                                se_strdup(buf),
                                 ansi_map_saved_invokedata);
 
             /*g_warning("Invoke Hash string %s pkt: %u",buf,pinfo->fd->num);*/

@@ -256,19 +256,10 @@ struct ansi_tcap_invokedata_t {
 static GHashTable *TransactionId_table=NULL;
 
 static void
-TransactionId_table_cleanup(gpointer key, gpointer value _U_, gpointer user_data _U_){
-
-        gchar *TransactionId_str = (gchar *)key;
-
-        g_free(TransactionId_str);
-}
-
-static void
 ansi_tcap_init_transaction_table(void){
 
         /* Destroy any existing memory chunks / hashes. */
         if (TransactionId_table){
-                g_hash_table_foreach(TransactionId_table, TransactionId_table_cleanup, NULL);
                 g_hash_table_destroy(TransactionId_table);
                 TransactionId_table = NULL;
         }
@@ -295,17 +286,15 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
 
           /* Only do this once XXX I hope its the right thing to do */
           /* The hash string needs to contain src and dest to distiguish differnt flows */
-          buf = ep_alloc(MAX_TID_STR_LEN);
-          buf[0] = '\0';
 		  switch(ansi_tcap_response_matching_type){
 				case 0:
-					g_snprintf(buf,MAX_TID_STR_LEN,"%s",ansi_tcap_private.TransactionID_str);
+					buf = ep_strdup(ansi_tcap_private.TransactionID_str);
 					break;
 				case 1:
-					g_snprintf(buf,MAX_TID_STR_LEN,"%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src));
+					buf = ep_strdup_printf("%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src));
 					break;
 				default:
-					g_snprintf(buf,MAX_TID_STR_LEN,"%s%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src),ep_address_to_str(dst));
+					buf = ep_strdup_printf("%s%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src),ep_address_to_str(dst));
 					break;
 			}
 
@@ -320,7 +309,7 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
           ansi_tcap_saved_invokedata->OperationCode_private = ansi_tcap_private.d.OperationCode_private;
 
           g_hash_table_insert(TransactionId_table,
-                        g_strdup(buf),
+                        se_strdup(buf),
                         ansi_tcap_saved_invokedata);
           /*
           g_warning("Tcap Invoke Hash string %s",buf);
@@ -1405,7 +1394,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 363 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 352 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 
 
@@ -1751,7 +1740,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 500 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 489 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1789,7 +1778,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 511 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 500 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 	static enum_val_t ansi_tcap_response_matching_type_values[] = {
