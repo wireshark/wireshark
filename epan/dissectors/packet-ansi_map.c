@@ -1168,7 +1168,7 @@ static void dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo 
 static GHashTable *TransactionId_table=NULL;
 
 static void
-TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
+TransactionId_table_cleanup(gpointer key, gpointer value _U_, gpointer user_data _U_){
 
     gchar *TransactionId_str = (gchar *)key;
 
@@ -19629,8 +19629,3 @@ void proto_register_ansi_map(void) {
 
     register_init_routine(&ansi_map_init_protocol);
 }
-
-
-
-
-

@@ -256,7 +256,7 @@ struct ansi_tcap_invokedata_t {
 static GHashTable *TransactionId_table=NULL;
 
 static void
-TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
+TransactionId_table_cleanup(gpointer key, gpointer value _U_, gpointer user_data _U_){
 
         gchar *TransactionId_str = (gchar *)key;
 
@@ -1812,12 +1812,10 @@ proto_register_ansi_tcap(void)
 
     ansi_tcap_module = prefs_register_protocol(proto_ansi_tcap, proto_reg_handoff_ansi_tcap);
 
-	prefs_register_enum_preference(ansi_tcap_module, "transaction.matchtype",
-				       "Type of matching invoke/response",
-				       "Type of matching invoke/response, risk of missmatch if loose matching choosen",
-				       &ansi_tcap_response_matching_type, ansi_tcap_response_matching_type_values, FALSE);
+    prefs_register_enum_preference(ansi_tcap_module, "transaction.matchtype",
+                                   "Type of matching invoke/response",
+                                   "Type of matching invoke/response, risk of missmatch if loose matching choosen",
+                                   &ansi_tcap_response_matching_type, ansi_tcap_response_matching_type_values, FALSE);
 
     register_init_routine(&ansi_tcap_init_protocol);
 }
-
-
