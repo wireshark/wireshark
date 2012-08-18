@@ -1501,7 +1501,7 @@ static const per_sequence_t RequestCapabilities_sequence[] = {
 
 static int
 dissect_lpp_RequestCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 39 "../../asn1/lpp/lpp.cnf"
+#line 49 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Capabilities");
 
@@ -2285,7 +2285,7 @@ static const per_sequence_t ProvideCapabilities_sequence[] = {
 
 static int
 dissect_lpp_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 43 "../../asn1/lpp/lpp.cnf"
+#line 53 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Capabilities");
 
@@ -3046,7 +3046,7 @@ static const per_sequence_t RequestAssistanceData_sequence[] = {
 
 static int
 dissect_lpp_RequestAssistanceData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 47 "../../asn1/lpp/lpp.cnf"
+#line 57 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Assistance Data");
 
@@ -5958,7 +5958,7 @@ static const per_sequence_t ProvideAssistanceData_sequence[] = {
 
 static int
 dissect_lpp_ProvideAssistanceData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 51 "../../asn1/lpp/lpp.cnf"
+#line 61 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Assistance Data");
 
@@ -6356,7 +6356,7 @@ static const per_sequence_t RequestLocationInformation_sequence[] = {
 
 static int
 dissect_lpp_RequestLocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 55 "../../asn1/lpp/lpp.cnf"
+#line 65 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Location Information");
 
@@ -7540,7 +7540,7 @@ static const per_sequence_t ProvideLocationInformation_sequence[] = {
 
 static int
 dissect_lpp_ProvideLocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "../../asn1/lpp/lpp.cnf"
+#line 69 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Location Information");
 
@@ -7667,7 +7667,7 @@ static const per_sequence_t Abort_sequence[] = {
 
 static int
 dissect_lpp_Abort(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 63 "../../asn1/lpp/lpp.cnf"
+#line 73 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Abort");
 
@@ -7754,7 +7754,7 @@ static const per_choice_t Error_choice[] = {
 
 static int
 dissect_lpp_Error(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 67 "../../asn1/lpp/lpp.cnf"
+#line 77 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Error");
 
@@ -9710,19 +9710,19 @@ void proto_register_lpp(void) {
         "INTEGER_M4194304_4194303", HFILL }},
     { &hf_lpp_cnavMo,
       { "cnavMo", "lpp.cnavMo",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_cnavE,
       { "cnavE", "lpp.cnavE",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_cnavOmega,
       { "cnavOmega", "lpp.cnavOmega",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_cnavOMEGA0,
       { "cnavOMEGA0", "lpp.cnavOMEGA0",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_cnavDeltaOmegaDot,
       { "cnavDeltaOmegaDot", "lpp.cnavDeltaOmegaDot",
@@ -9730,7 +9730,7 @@ void proto_register_lpp(void) {
         "INTEGER_M65536_65535", HFILL }},
     { &hf_lpp_cnavIo,
       { "cnavIo", "lpp.cnavIo",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_cnavIoDot,
       { "cnavIoDot", "lpp.cnavIoDot",

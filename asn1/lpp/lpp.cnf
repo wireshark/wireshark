@@ -30,10 +30,20 @@ HorizontalVelocity
 
 # Handle 64 bit constraint
 #.FN_PARS NavModelCNAV-KeplerianSet/cnavMo FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModelCNAV-KeplerianSet/cnavMo TYPE = FT_INT64
 #.FN_PARS NavModelCNAV-KeplerianSet/cnavE FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModelCNAV-KeplerianSet/cnavE TYPE = FT_UINT64
 #.FN_PARS NavModelCNAV-KeplerianSet/cnavOmega FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModelCNAV-KeplerianSet/cnavOmega TYPE = FT_INT64
 #.FN_PARS NavModelCNAV-KeplerianSet/cnavOMEGA0 FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModelCNAV-KeplerianSet/cnavOMEGA0 TYPE = FT_INT64
 #.FN_PARS NavModelCNAV-KeplerianSet/cnavIo FN_VARIANT = _64b
+#.TYPE_ATTR
+NavModelCNAV-KeplerianSet/cnavIo TYPE = FT_INT64
 
 #.FN_HDR RequestCapabilities
 
