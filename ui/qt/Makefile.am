@@ -76,6 +76,11 @@ SUFFIXES = .moc.cpp .qrc .rcc.cpp
 .qrc.rcc.cpp:
 	rcc -name `basename $< .qrc` -o $@ $<
 
+main_welcome.h: ui_main_welcome.h
+
+ui_main_welcome.h: main_welcome.ui
+	uic $< -o $@
+
 main_window.h: ui_main_window.h
 
 ui_main_window.h: main_window.ui
@@ -131,6 +136,7 @@ EXTRA_DIST = \
 	main.cpp			\
 	Makefile.common			\
 	Makefile_custom.common		\
+	main_welcome.ui			\
 	main_window.ui			\
 	display_filter_16.svg		\
 	gpl-template.txt
