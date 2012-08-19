@@ -213,7 +213,7 @@ function exit_error() {
 # Iterate over our capture files.
 PASS=0
 while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
-    PASS=`expr $PASS + 1`
+    let PASS=$PASS+1
     echo "Starting pass $PASS:"
     RUN=0
 
