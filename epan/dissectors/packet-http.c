@@ -645,7 +645,21 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	first_linelen = tvb_find_line_end(tvb, offset,
 	    tvb_ensure_length_remaining(tvb, offset), &next_offset,
-	    FALSE);
+	    TRUE);
+	
+	if (first_linelen == -1) {
+		/* No complete line was found in this segment, do
+		 * desegmentation if we're told to.
+		 */
+		if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
+		    http_desegment_headers, http_desegment_body)) {
+			/*
+			 * More data needed for desegmentation.
+			 */
+			return -1;
+		}
+	}
+
 	/*
 	 * Is the first line a request or response?
 	 */
