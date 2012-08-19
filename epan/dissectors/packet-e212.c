@@ -1151,7 +1151,7 @@ static const value_string mcc_mnc_codes[] = {
     {  302270, "Bragg Comunications" },
     {  302290, "Airtel Wireless" },
     {  302320, "DAVE Wireless" },
-    {  302240, "Execulink" },
+    {  302340, "Execulink" },
     {  302360, "Telus Mobility" },
     {  302370, "Microcell" },
     {  302380, "Dryden Mobility" },
