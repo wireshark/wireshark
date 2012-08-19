@@ -1181,6 +1181,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		 * number of bits necessary to represent the range.
 		 */
 		char *str;
+		int  str_index = 0;
 		int i, bit, length;
 		guint32 mask,mask2;
 		/* We only handle 32 bit integers */
@@ -1203,42 +1204,43 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 
 		/* prepare the string */
 		str=ep_alloc(256);
-		g_snprintf(str, 256, "%s: ", hfi->name);
+		str_index = g_snprintf(str, 256, "%s: ", hfi->name);
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < 255) str[str_index++] = ' ';
 			}
-			g_strlcat(str,".", 256);
+			if (str_index < 255) str[str_index++] = '.';
 		}
 		/* read the bits for the int */
 		for(i=0;i<num_bits;i++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < 255) str[str_index++] = ' ';
 			}
 			if(bit&&(!(bit%8))){
 				length+=1;
-				g_strlcat(str, " ", 256);
+				if (str_index < 255) str[str_index++] = ' ';
 			}
 			bit++;
 			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
 			val<<=1;
 			if(tmp){
 				val|=1;
-				g_strlcat(str, "1", 256);
+				if (str_index < 255) str[str_index++] = '1';
 			} else {
-				g_strlcat(str, "0", 256);
+				if (str_index < 255) str[str_index++] = '0';
 			}
 		}
 		for(;bit%8;bit++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < 255) str[str_index++] = ' ';
 			}
-			g_strlcat(str,".", 256);
+			if (str_index < 255) str[str_index++] = '.';
 		}
+		str[str_index] = '\0'; /* Terminate string */
 		val_start = (offset-num_bits)>>3; val_length = length;
 		val+=min;
 		if (display_internal_per_fields)
-			proto_tree_add_text(tree, tvb, val_start,val_length,"Range = %u Bitfield length %u, %s",range, num_bits, str);
+			proto_tree_add_text(tree, tvb, val_start,val_length,"Range = %u Bitfield length %u, %s", range, num_bits, str);
 	} else if(range==256){
 		/* 10.5.7.2 */
 
