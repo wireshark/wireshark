@@ -122,9 +122,9 @@ case `file $ws_bin` in
 esac
 
 # Set the version
-version=`grep '^AC_INIT' ../../configure.in | sed -e 's/.*, //' -e 's/)//'`
+version="@VERSION@"
 if [ -z "$version" ] ; then
-	echo "Cannot find VERSION in ../../configure.in"
+	echo "VERSION not set"
 	exit 1
 fi
 
@@ -142,19 +142,19 @@ img_name="$pkg_title.dmg"
 
 # Create temp directory with desired contents of the release volume.
 rm -rf "$tmp_dir"
-mkdir "$tmp_dir"
+mkdir "$tmp_dir" || exit 1
 
 echo -e "Copying files to temp directory"
 # Wireshark itself
 # Copy Wireshark.app
-cp -rf "$pkg_file" "$tmp_dir"/
+cp -rf "$pkg_file" "$tmp_dir"/ || exit 1
 # Link to Applications in order to drag and drop wireshark onto it
 #ln -sf /Applications "$tmp_dir"/
 # Copy the utilites
 #cp -rf "$utilities" "$tmp_dir"/
 #ln -sf /Library/StartupItems "$tmp_dir/$utilities"/
 # Copy the readme
-cp -rf  Read_me_first.rtf "$tmp_dir"/"Read me first.rtf"
+cp -rf  Read_me_first.rtf "$tmp_dir"/"Read me first.rtf" || exit 1
 
 # If the appearance settings are not to be modified we just copy them
 if [ ${set_ds_store} = "false" ]; then
@@ -162,14 +162,14 @@ if [ ${set_ds_store} = "false" ]; then
 	# window size, appearance, etc.  Most of this can be set
 	# with Apple script but involves user intervention so we
 	# just keep a copy of the correct settings and use that instead.
-	cp $ds_store_root "$tmp_dir/.DS_Store"
+	cp $ds_store_root "$tmp_dir/.DS_Store" || exit 1
 	auto_open_opt=-noautoopen
 fi
 
 # Create a new RW image from the temp directory.
 echo -e "Creating a temporary disk image"
 rm -f "$rw_name"
-/usr/bin/hdiutil create -srcfolder "$tmp_dir" -volname "$volume_name" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW "$rw_name"
+/usr/bin/hdiutil create -srcfolder "$tmp_dir" -volname "$volume_name" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW "$rw_name" || exit 1
 
 # We're finished with the temp directory, remove it.
 rm -rf "$tmp_dir"
@@ -224,7 +224,7 @@ if [ -e "$img_name" ]; then
 	echo "$img_name already exists."
 	rm -i "$img_name"
 fi
-/usr/bin/hdiutil convert "$rw_name" -format UDZO -imagekey zlib-level=9 -o "$img_name"
+/usr/bin/hdiutil convert "$rw_name" -format UDZO -imagekey zlib-level=9 -o "$img_name" || exit 1
 rm -f "$rw_name"
 
 exit 0

@@ -2141,6 +2141,7 @@ AC_OUTPUT(
   packaging/Makefile
   packaging/macosx/Info.plist
   packaging/macosx/Makefile
+  packaging/macosx/osx-dmg.sh
   packaging/nsis/Makefile
   packaging/rpm/Makefile
   packaging/rpm/SPECS/Makefile
