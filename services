@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-08-07
+# 2012-08-16
 # 
 # Experts
 # 
@@ -10133,7 +10133,8 @@ rsqlserver	4430/tcp	# REAL SQL Server              [Marco_Bambini]              
 rsqlserver	4430/udp	# REAL SQL Server              [Marco_Bambini]                                    [Marco_Bambini]                                           2008-08-28
 wspipe	4431/tcp	# adWISE Pipe                  [Heikki_E]                                         [Heikki_E]                                                2009-06-18
 # 4431        udp    Reserved
-# 4432               Unassigned
+l-acoustics	4432/tcp	# L-ACOUSTICS management       [L-ACOUSTICS]                                      [Christophe_Pignon]                                       2012-08-13
+l-acoustics	4432/udp	# L-ACOUSTICS management       [L-ACOUSTICS]                                      [Christophe_Pignon]                                       2012-08-13
 vop	4433/tcp	# Versile Object Protocol      [Versile_AS]                                       [Tore_Skaug]                                              2012-02-01
 # 4433        udp    Reserved
 # 4434-4440            Unassigned
@@ -13207,7 +13208,7 @@ senomix08	8059/tcp	# Senomix Timesheets Client [1 [Charles_O_Dale]              
 senomix08	8059/udp	# Senomix Timesheets Client [1 [Charles_O_Dale]                                   [Charles_O_Dale]                                          2006-07
 # year assignment]
 # 8060        tcp    Reserved
-aero	8060/udp	# Asymmetric Extended Route    [IESG]                                             [IETF_Chair]                                                                        [RFC-templin-aero-12]
+aero	8060/udp	# Asymmetric Extended Route    [IESG]                                             [IETF_Chair]                                                                        [RFC6706]
 # Optimization (AERO)
 # 8061-8073            Unassigned
 gadugadu	8074/tcp	# Gadu-Gadu                    [Marcin_Gozdalik]                                  [Marcin_Gozdalik]                                         2006-05
@@ -15119,7 +15120,12 @@ nilinkanalyst	25902/tcp	# NILinkAnalyst                [Roman_Oliynyk_2]        
 nilinkanalyst	25902/udp	# NILinkAnalyst                [Roman_Oliynyk_2]                                  [Roman_Oliynyk_2]                                         2007-08-30
 niprobe	25903/tcp	# NIProbe                      [Roman_Oliynyk]                                    [Roman_Oliynyk]
 niprobe	25903/udp	# NIProbe                      [Roman_Oliynyk]                                    [Roman_Oliynyk]
-# 25904-25999           Unassigned
+# 25904-25953           Unassigned
+bf-game	25954/udp	# Bitfighter game server       [Christopher_Eykamp]                               [Christopher_Eykamp]                                      2012-08-16
+# 25954       tcp    Reserved
+bf-master	25955/udp	# Bitfighter master server     [Christopher_Eykamp]                               [Christopher_Eykamp]                                      2012-08-16
+# 25955       tcp    Reserved
+# 25956-25999           Unassigned
 quake	26000/tcp	# quake                        [Yasunari_Gon_Yamasit]                             [Yasunari_Gon_Yamasit]
 quake	26000/udp	# quake                        [Yasunari_Gon_Yamasit]                             [Yasunari_Gon_Yamasit]
 # 26001-26132           Unassigned
@@ -15169,7 +15175,9 @@ tw-auth-key	27999/tcp	# TW Authentication/Key        [Alex_Duncan_2]            
 # Distribution and
 tw-auth-key	27999/udp	# Attribute Certificate        [Alex_Duncan_2]                                    [Alex_Duncan_2]
 # Services
-nxlmd	28000/tcp	# NX License Manager           [Anthony_Greatorex]                                [Anthony_Greatorex]                                       2004-11
+# Unauthorized
+nxlmd	28000/tcp	# NX License Manager           [Anthony_Greatorex]                                [Anthony_Greatorex]                                       2004-11                                                                    Use Known on
+# port 28000
 nxlmd	28000/udp	# NX License Manager           [Anthony_Greatorex]                                [Anthony_Greatorex]                                       2004-11
 pqsp	28001/tcp	# PQ Service                   [Peter_Laschtowitz]                                [Peter_Laschtowitz]                                       2009-09-15
 # 28001       udp    Reserved
@@ -17618,6 +17626,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Christopher_Cordray]                                     Christopher Cordray                             mailto:ccordray&sciencelogic.com                              2008-06-05
 # [Christopher_Davey]                                       Christopher Davey                               mailto:niallocl&quay.ie
 # [Christopher_Durham]                                      Christopher Durham                              mailto:chrisdu&sco.com
+# [Christopher_Eykamp]                                      Christopher Eykamp                              mailto:chris&eykamp.com                                       2012-08-16
 # [Christopher_Karper]                                      Christopher Karper                              mailto:ckarper&dev.tricerat.com
 # [Christopher_LILJENST]                                    Christopher LILJENSTOLPE                        mailto:cdl&asgaard.org                                        2008-04-14
 # [Christopher_Leong]                                       Christopher Leong                               mailto:leong&kolmod.mlo.dec.com
@@ -17625,6 +17634,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Christopher_Miller]                                      Christopher Miller                              mailto:Chris.Miller&versatrans.com                            2006-02
 # [Christopher_Miller_2]                                    Christopher Miller                              mailto:chris.miller&versatrans.com                            2008-01-14
 # [Christopher_R_Smith]                                     Christopher R. Smith                            mailto:csmith4&us.ibm.com                                     2004-11
+# [Christophe_Pignon]                                       Christophe Pignon         L-ACOUSTICS           mailto:christophe.pignon&l-acoustics.com                      2012-08-13
 # [Christopher_Tengi]                                       Christopher Tengi                               mailto:tengi&princeton.edu
 # [Christopher_Truxaw]                                      Christopher Truxaw                              mailto:ctruxaw&redsoftware.com                                2010-10-15
 # [Christopher_Wells]                                       Christopher Wells                               mailto:Christopher_Wells&3com.com
@@ -19334,6 +19344,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Kurt_Nissen]                                             Kurt Nissen                                     mailto:kn&proces-data.com                                     2004-02
 # [Kyle_Lussier]                                            Kyle Lussier                                    mailto:klussier&autonoc.com                                   2005-12
 # [Kyle_Unice]                                              Kyle Unice                                      mailto:kyle&midnighttech.com
+# [L-ACOUSTICS]                                                                       L-ACOUSTICS           mailto:christophe.pignon&l-acoustics.com                      2012-08-13
 # LJK Software,
 # [LJK]                                                                               Cambridge,            mailto:support&ljk.com
 # Massachusetts
