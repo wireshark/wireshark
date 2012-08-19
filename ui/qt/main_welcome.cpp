@@ -31,6 +31,7 @@
 
 #include "main_welcome.h"
 #include "ui_main_welcome.h"
+#include "tango_colors.h"
 
 #include "wireshark_application.h"
 #include "interface_tree.h"
@@ -66,7 +67,6 @@
 //    painter.drawRect(border);
 //}
 
-
 MainWelcome::MainWelcome(QWidget *parent) :
     QFrame(parent),
     welcome_ui_(new Ui::MainWelcome)
@@ -82,32 +82,42 @@ MainWelcome::MainWelcome(QWidget *parent) :
     iface_tree = welcome_ui_->interfaceTree;
     recent_files_ = welcome_ui_->recentList;
 
-    setStyleSheet(
-                "MainWelcome {"
-                "  background: palette(light);"
-                "  color: palette(dark);"
-                "  padding: 2em;"
-                " }"
-                "QListWidget {"
-                "  border: 0;"
-//                "  border: 1px dotted blue;"
-                "}"
-//                "QListWidget::focus {"
-//                "  border: 1px dotted palette(mid);"
-//                "  background-color: palette(midlight);"
-//                "}"
-                "QListWidget::item::hover {"
-                "  background-color: palette(highlight);"
-                "  color: palette(highlighted-text);"
-                "}"
-                "QTreeWidget {"
-                "  border: 0;"
-//                "  border: 1px dotted green;"
-                "}"
-//                "QTreeWidget::focus {"
-//                "  border: 1px dotted palette(mid);"
-//                "  background-color: palette(midlight);"
-//                "}"
+    setStyleSheet(QString(
+                      "MainWelcome {"
+                      "  padding: 2em;"
+                      " }"
+                      "QWidget {"
+                      "  background-color: white;"
+                      "  color: #%1;"
+                      " }"
+                      "QListWidget {"
+                      "  border: 0;"
+//                      "  border: 1px dotted blue;"
+                      "}"
+//                      "QListWidget::focus {"
+//                      "  border: 1px dotted palette(mid);"
+//                      "}"
+                      "QListWidget::item::hover {"
+                      "  background-color: #%3;"
+                      "  color: #%4;"
+                      "}"
+                      "QListWidget::item:selected {"
+                      "  background-color: #%2;"
+                      "  color: white;"
+                      "}"
+                      "QTreeWidget {"
+                      "  border: 0;"
+//                      "  border: 1px dotted green;"
+                      "}"
+//                      "QTreeWidget::focus {"
+//                      "  border: 1px dotted palette(mid);"
+//                      "  background-color: palette(midlight);"
+//                      "}"
+                      )
+                      .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Text color
+                      .arg(tango_sky_blue_2,  6, 16, QChar('0'))   // Selected background
+                      .arg(tango_aluminium_2, 6, 16, QChar('0'))   // Hover background
+                      .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Hover foreground
                 );
 
 #ifdef Q_WS_MAC
@@ -129,16 +139,12 @@ MainWelcome::MainWelcome(QWidget *parent) :
 //                "  background-color: palette(midlight);"
 //                "  background-color: palette(midlight);"
 //                "}"
-                "QListWidget::item:selected {"
-                "  background-color: palette(mid);"
-                "  color: palette(light);"
-                "}"
                 );
 
     recent_files_->setStyleSheet(
             "QListWidget::item {"
-            "  padding-top: 0.1em;"
-            "  padding-bottom: 0.1em;"
+            "  padding-top: 0.2em;"
+            "  padding-bottom: 0.2em;"
             "}"
             "QListWidget::item::first {"
             "  padding-top: 0;"
