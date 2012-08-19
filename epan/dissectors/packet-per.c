@@ -1208,7 +1208,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		}
 
 		/* prepare the string (max number of bits + quartet separators + field name + ": ") */
-		str_length = 256+64+strlen(hfi->name)+2;
+		str_length = 256+64+(int)strlen(hfi->name)+2;
 		str=ep_alloc(str_length+1);
 		str_index = g_snprintf(str, str_length+1, "%s: ", hfi->name);
 		for(bit=0;bit<((int)(offset&0x07));bit++){
@@ -1404,7 +1404,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		}
 
 		/* prepare the string (max number of bits + quartet separators + field name + ": ") */
-		str_length = 512+128+strlen(hfi->name)+2;
+		str_length = 512+128+(int)strlen(hfi->name)+2;
 		str = ep_alloc(str_length+1);
 		str_index = 0;
 		str_index = g_snprintf(str, str_length+1, "%s: ", hfi->name);
