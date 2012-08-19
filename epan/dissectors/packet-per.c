@@ -284,7 +284,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 	guint32 len;
 	proto_item *pi;
 	int num_bits;
-	int i, bit;
+	int i, bit, str_length, str_index;
 	gboolean tmp;
 
 	if(!length){
@@ -301,30 +301,34 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		guint32 val;
 
 		val = 0;
-		str=ep_alloc(256);
 
-		g_snprintf(str, 256, " ");
+		/* prepare the string (max number of bits + quartet separators + prepended space) */
+		str_length = 256+64+1;
+		str=ep_alloc(str_length+1);
+		str_index = 0;
+
+		str_length = g_snprintf(str, str_length+1, " ");
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
-			g_strlcat(str,".", 256);
+			if (str_index < str_length) str[str_index++] = '.';
 		}
 		/* read the bits for the int */
 		num_bits = 8;
 		for(i=0;i<num_bits;i++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
 			if(bit&&(!(bit%8))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
 			bit++;
 			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
 			val<<=1;
 			if(tmp){
 				val|=1;
-				g_strlcat(str, "1", 256);
+				if (str_index < str_length) str[str_index++] = '1';
 				if (i==0) { /* bit 8 is 1, so not a single byte length */
 					num_bits = 16;
 				}
@@ -333,9 +337,10 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 					return offset;
 				}
 			} else {
-				g_strlcat(str, "0", 256);
+				if (str_index < str_length) str[str_index++] = '0';
 			}
 		}
+		str[str_index] = '\0'; /* Terminate string */
 		if((val&0x80)==0 && num_bits==8){
 			*length = val;
 			if(hf_index!=-1){
@@ -1182,7 +1187,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		 */
 		char *str;
 		int  str_index = 0;
-		int i, bit, length;
+		int i, bit, length, str_length;
 		guint32 mask,mask2;
 		/* We only handle 32 bit integers */
 		mask  = 0x80000000;
@@ -1202,39 +1207,40 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 			num_bits=1;
 		}
 
-		/* prepare the string */
-		str=ep_alloc(256);
-		str_index = g_snprintf(str, 256, "%s: ", hfi->name);
+		/* prepare the string (max number of bits + quartet separators + field name + ": ") */
+		str_length = 256+64+strlen(hfi->name)+2;
+		str=ep_alloc(str_length+1);
+		str_index = g_snprintf(str, str_length+1, "%s: ", hfi->name);
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
-				if (str_index < 255) str[str_index++] = ' ';
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
-			if (str_index < 255) str[str_index++] = '.';
+			if (str_index < str_length) str[str_index++] = '.';
 		}
 		/* read the bits for the int */
 		for(i=0;i<num_bits;i++){
 			if(bit&&(!(bit%4))){
-				if (str_index < 255) str[str_index++] = ' ';
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
 			if(bit&&(!(bit%8))){
 				length+=1;
-				if (str_index < 255) str[str_index++] = ' ';
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
 			bit++;
 			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
 			val<<=1;
 			if(tmp){
 				val|=1;
-				if (str_index < 255) str[str_index++] = '1';
+				if (str_index < str_length) str[str_index++] = '1';
 			} else {
-				if (str_index < 255) str[str_index++] = '0';
+				if (str_index < str_length) str[str_index++] = '0';
 			}
 		}
 		for(;bit%8;bit++){
 			if(bit&&(!(bit%4))){
-				if (str_index < 255) str[str_index++] = ' ';
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
-			if (str_index < 255) str[str_index++] = '.';
+			if (str_index < str_length) str[str_index++] = '.';
 		}
 		str[str_index] = '\0'; /* Terminate string */
 		val_start = (offset-num_bits)>>3; val_length = length;
@@ -1377,7 +1383,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		 * number of bits necessary to represent the range.
 		 */
 		char *str;
-		int i, bit, length;
+		int i, bit, length, str_length, str_index;
 		guint64 mask,mask2;
 		/* We only handle 64 bit integers */
 		mask  = G_GINT64_CONSTANT(0x8000000000000000);
@@ -1397,40 +1403,43 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 			num_bits=1;
 		}
 
-		/* prepare the string */
-		str=ep_alloc(256);
-		g_snprintf(str, 256, "%s: ", hfi->name);
+		/* prepare the string (max number of bits + quartet separators + field name + ": ") */
+		str_length = 512+128+strlen(hfi->name)+2;
+		str = ep_alloc(str_length+1);
+		str_index = 0;
+		str_index = g_snprintf(str, str_length+1, "%s: ", hfi->name);
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
-			g_strlcat(str,".", 256);
+			if (str_index < str_length) str[str_index++] = '.';
 		}
 		/* read the bits for the int */
 		for(i=0;i<num_bits;i++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
 			if(bit&&(!(bit%8))){
 				length+=1;
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
 			bit++;
 			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
 			val<<=1;
 			if(tmp){
 				val|=1;
-				g_strlcat(str, "1", 256);
+				if (str_index < str_length) str[str_index++] = '1';
 			} else {
-				g_strlcat(str, "0", 256);
+				if (str_index < str_length) str[str_index++] = '0';
 			}
 		}
 		for(;bit%8;bit++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
-			g_strlcat(str,".", 256);
+			if (str_index < str_length) str[str_index++] = '.';
 		}
+		str[str_index] = '\0'; /* Terminate string */
 		val_start = (offset-num_bits)>>3; val_length = length;
 		val+=min;
 		if (display_internal_per_fields)
