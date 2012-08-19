@@ -43,7 +43,7 @@ if(NOT PROJECT_VERSION)
 		VERSIONLINE
 		REGEX "\\(wireshark, .*\\)"
 	)
-	string(REGEX REPLACE ".*\\(wireshark, (.*)\\).*"
+	string(REGEX REPLACE ".*\\(wireshark, ([^,)]*).*"
 		"\\1"
 		PROJECT_VERSION
 		${VERSIONLINE}
