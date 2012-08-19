@@ -26,11 +26,14 @@
 #include "proto_tree.h"
 #include "monospace_font.h"
 
+#include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
 
 #include <QApplication>
 #include <QHeaderView>
 #include <QTreeWidgetItemIterator>
+#include <QDesktopServices>
+#include <QUrl>
 
 QColor        expert_color_chat       ( 0x80, 0xb7, 0xf7 );        /* light blue */
 QColor        expert_color_note       ( 0xa0, 0xff, 0xff );        /* bright turquoise */
@@ -152,6 +155,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
             this, SLOT(updateSelectionStatus(QTreeWidgetItem*)));
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(expand(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(collapse(QModelIndex)));
+    connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
+            this, SLOT(itemDoubleClick(QTreeWidgetItem*, int)));
 }
 
 void ProtoTree::clear() {
@@ -312,4 +317,26 @@ void ProtoTree::collapseAll()
         tree_is_expanded[i] = FALSE;
     }
     QTreeWidget::collapseAll();
+}
+
+void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int column) {
+    Q_UNUSED(column);
+
+    gchar *url;
+    field_info *fi;
+
+    fi = item->data(0, Qt::UserRole).value<field_info *>();
+
+    if(fi->hfinfo->type == FT_FRAMENUM) {
+        emit goToFrame(fi->value.value.uinteger - 1);
+    }
+
+    if(FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type)) {
+        url = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, NULL);
+        if(url){
+//            browser_open_url(url);
+            QDesktopServices::openUrl(QUrl(url));
+            g_free(url);
+        }
+    }
 }

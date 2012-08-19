@@ -45,6 +45,7 @@ private:
 signals:
     void protoItemSelected(QString &);
     void protoItemSelected(bool);
+    void goToFrame(int);
 
 public slots:
     void updateSelectionStatus(QTreeWidgetItem*);
@@ -53,6 +54,7 @@ public slots:
     void expandSubtrees();
     void expandAll();
     void collapseAll();
+    void itemDoubleClick(QTreeWidgetItem *item, int column);
 };
 
 #endif // PROTO_TREE_H

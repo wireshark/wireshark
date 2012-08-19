@@ -48,9 +48,9 @@ protected:
     void selectionChanged (const QItemSelection & selected, const QItemSelection & deselected);
 
 private:
-    PacketListModel *m_packet_list_model;
-    ProtoTree *m_protoTree;
-    ByteViewTab *m_byteViewTab;
+    PacketListModel *packet_list_model_;
+    ProtoTree *proto_tree_;
+    ByteViewTab *byte_view_tab_;
 
 signals:
 
@@ -59,7 +59,7 @@ public slots:
     void goPreviousPacket();
     void goFirstPacket();
     void goLastPacket();
-
+    void goToPacket(int packet);
 };
 
 #endif // PACKET_LIST_H

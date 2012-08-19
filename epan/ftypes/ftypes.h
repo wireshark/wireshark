@@ -23,11 +23,15 @@
  */
 
 
-#ifndef FTYPES_H
-#define FTYPES_H
+#ifndef __FTYPES_H__
+#define __FTYPES_H__
 
 #include <glib.h>
 #include "../emem.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /* field types */
 enum ftenum {
@@ -369,4 +373,8 @@ fvalue_length(fvalue_t *fv);
 fvalue_t*
 fvalue_slice(fvalue_t *fv, drange *dr);
 
-#endif /* ftypes.h */
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __FTYPES_H__ */

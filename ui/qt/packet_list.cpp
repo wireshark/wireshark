@@ -250,26 +250,28 @@ PacketList::PacketList(QWidget *parent) :
     setUniformRowHeights(TRUE);
     setAccessibleName("Packet list");
 
-    m_packet_list_model = new PacketListModel(this, &cfile);
-    setModel(m_packet_list_model);
+    packet_list_model_ = new PacketListModel(this, &cfile);
+    setModel(packet_list_model_);
 
     g_assert(cur_packet_list == NULL);
     cur_packet_list = this;
 
-    m_protoTree = NULL;
-    m_byteViewTab = NULL;
+    proto_tree_ = NULL;
+    byte_view_tab_ = NULL;
 }
 
 void PacketList::setProtoTree (ProtoTree *protoTree) {
-    m_protoTree = protoTree;
+    proto_tree_ = protoTree;
+
+    connect(proto_tree_, SIGNAL(goToFrame(int)), this, SLOT(goToPacket(int)));
 }
 
 void PacketList::setByteViewTab (ByteViewTab *byteViewTab) {
-    m_byteViewTab = byteViewTab;
+    byte_view_tab_ = byteViewTab;
 }
 
 PacketListModel *PacketList::packetListModel() const {
-    return m_packet_list_model;
+    return packet_list_model_;
 }
 
 void PacketList::showEvent (QShowEvent *event) {
@@ -293,7 +295,7 @@ void PacketList::showEvent (QShowEvent *event) {
 void PacketList::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected) {
     QTreeView::selectionChanged(selected, deselected);
 
-    if (m_protoTree) {
+    if (proto_tree_) {
         int row = selected.first().top();
         cf_select_packet(&cfile, row);
 
@@ -301,39 +303,39 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
             return;
         }
 
-        m_protoTree->fillProtocolTree(cfile.edt->tree);
+        proto_tree_->fillProtocolTree(cfile.edt->tree);
     }
 
-    if (m_byteViewTab && cfile.edt) {
+    if (byte_view_tab_ && cfile.edt) {
         GSList *src_le;
         data_source *source;
 
         // Clear out existing tabs
-        while (m_byteViewTab->currentWidget()) {
-            delete m_byteViewTab->currentWidget();
+        while (byte_view_tab_->currentWidget()) {
+            delete byte_view_tab_->currentWidget();
         }
 
         for (src_le = cfile.edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
             source = (data_source *)src_le->data;
-            m_byteViewTab->addTab(get_data_source_name(source), source->tvb, cfile.edt->tree, m_protoTree, cfile.current_frame->flags.encoding);
+            byte_view_tab_->addTab(get_data_source_name(source), source->tvb, cfile.edt->tree, proto_tree_, cfile.current_frame->flags.encoding);
         }
     }
 
-    if (m_protoTree && m_byteViewTab) {
+    if (proto_tree_ && byte_view_tab_) {
         // Connect signals between the proto tree and byte views.
-        connect(m_protoTree, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
-                m_byteViewTab, SLOT(protoTreeItemChanged(QTreeWidgetItem*)));
+        connect(proto_tree_, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+                byte_view_tab_, SLOT(protoTreeItemChanged(QTreeWidgetItem*)));
     }
 }
 
 void PacketList::clear() {
     //    packet_history_clear();
     packetListModel()->clear();
-    m_protoTree->clear();
+    proto_tree_->clear();
 
     // Clear out existing tabs
-    while (m_byteViewTab->currentWidget()) {
-        delete m_byteViewTab->currentWidget();
+    while (byte_view_tab_->currentWidget()) {
+        delete byte_view_tab_->currentWidget();
     }
 
 //	/* XXX is this correct in all cases?
@@ -395,4 +397,8 @@ void PacketList::goFirstPacket(void) {
 
 void PacketList::goLastPacket(void) {
     setCurrentIndex(moveCursor(MoveEnd, Qt::NoModifier));
+}
+
+void PacketList::goToPacket(int packet) {
+    setCurrentIndex(packet_list_model_->index(packet, 0));
 }
