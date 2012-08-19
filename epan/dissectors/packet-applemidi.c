@@ -115,16 +115,6 @@ static dissector_handle_t	rtp_handle;
 
 static const char applemidi_unknown_command[]		= "unknown command: 0x%04x";
 
-
-static void free_encoding_name_str (void *ptr)
-{
-	encoding_name_and_rate_t *encoding_name_and_rate = (encoding_name_and_rate_t *)ptr;
-
-	if (encoding_name_and_rate->encoding_name) {
-		g_free(encoding_name_and_rate->encoding_name);
-	}
-}
-
 static void
 dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 command ) {
 
@@ -312,11 +302,11 @@ dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 	/* set dynamic payload-type 97 which is used by Apple for their RTP-MIDI implementation for this
 	   address/port-tuple to cause RTP-dissector to call the RTP-MIDI-dissector for payload-decoding */
 
-	encoding_name_and_rate = g_malloc( sizeof( encoding_name_and_rate_t ) );
-	rtp_dyn_payload = g_hash_table_new_full( g_int_hash, g_int_equal, g_free, free_encoding_name_str );
-	encoding_name_and_rate->encoding_name = g_strdup( "rtp-midi" );
+	encoding_name_and_rate = se_alloc( sizeof( encoding_name_and_rate_t ) );
+	rtp_dyn_payload = g_hash_table_new( g_int_hash, g_int_equal );
+	encoding_name_and_rate->encoding_name = se_strdup( "rtp-midi" );
 	encoding_name_and_rate->sample_rate = 10000;
-	key = g_malloc( sizeof( gint ) );
+	key = se_alloc( sizeof( gint ) );
 	*key = 97;
 	g_hash_table_insert( rtp_dyn_payload, key, encoding_name_and_rate );
         rtp_add_address( pinfo, &pinfo->src, pinfo->srcport, 0, APPLEMIDI_DISSECTOR_SHORTNAME,

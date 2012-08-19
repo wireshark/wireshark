@@ -467,15 +467,6 @@ static void update_unicast_addr(unicast_addr_t *req_addr, unicast_addr_t *ack_ad
   }
 }
 
-static void free_encoding_name_str (void *ptr)
-{
-  encoding_name_and_rate_t *encoding_name_and_rate = (encoding_name_and_rate_t *)ptr;
-
-  if (encoding_name_and_rate->encoding_name) {
-    g_free(encoding_name_and_rate->encoding_name);
-  }
-}
-
 static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_channel_lcl)
 {
 	gint *key;
@@ -496,11 +487,11 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 	/* (S)RTP, (S)RTCP */
 	if (upcoming_channel_lcl->rfc2198 > 0) {
-		encoding_name_and_rate_t *encoding_name_and_rate = g_malloc( sizeof(encoding_name_and_rate_t));
-		rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, free_encoding_name_str);
-		encoding_name_and_rate->encoding_name = g_strdup("red");
+		encoding_name_and_rate_t *encoding_name_and_rate = se_alloc( sizeof(encoding_name_and_rate_t));
+		rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
+		encoding_name_and_rate->encoding_name = se_strdup("red");
 		encoding_name_and_rate->sample_rate = 8000;
-		key = g_malloc(sizeof(gint));
+		key = se_alloc(sizeof(gint));
 		*key = upcoming_channel_lcl->rfc2198;
 		g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
 	}
@@ -1932,7 +1923,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 398 "../../asn1/h245/packet-h245-template.c"
+#line 389 "../../asn1/h245/packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
@@ -2433,7 +2424,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 403 "../../asn1/h245/packet-h245-template.c"
+#line 394 "../../asn1/h245/packet-h245-template.c"
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -14503,7 +14494,7 @@ static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 412 "../../asn1/h245/packet-h245-template.c"
+#line 403 "../../asn1/h245/packet-h245-template.c"
 
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -20197,7 +20188,7 @@ void proto_register_h245(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 493 "../../asn1/h245/packet-h245-template.c"
+#line 484 "../../asn1/h245/packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20700,7 +20691,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 500 "../../asn1/h245/packet-h245-template.c"
+#line 491 "../../asn1/h245/packet-h245-template.c"
   };
   module_t *h245_module;
 
