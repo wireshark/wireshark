@@ -89,6 +89,8 @@ static void file_select_file_type_cb(GtkWidget *w, gpointer data);
 static cf_write_status_t file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range);
 static int set_file_type_list(GtkWidget *combo_box, capture_file *cf,
                               gboolean must_support_comments);
+static gboolean test_file_close(capture_file *cf, gboolean from_quit,
+                                const char *before_what);
 
 #define E_FILE_TYPE_COMBO_BOX_KEY "file_type_combo_box"
 #define E_COMPRESSED_CB_KEY       "compressed_cb"
@@ -590,7 +592,7 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
  */
 
 static void
-file_open_cmd(GtkWidget *w _U_)
+file_open_cmd(capture_file *cf, GtkWidget *w _U_)
 {
   GString   *file_name = g_string_new("");
   GString   *display_filter = g_string_new("");
@@ -607,6 +609,8 @@ file_open_cmd(GtkWidget *w _U_)
     if (gtk_open_file(w, file_name, display_filter)) {
 #endif /* USE_WIN32_FILE_DIALOGS */
 
+      /* Only close the old file now that we know we want to open another one. */
+      cf_close(cf);
       /* apply our filter */
       if (dfilter_compile(display_filter->str, &rfcode)) {
         cf_set_rfcode(&cfile, rfcode);
@@ -663,8 +667,8 @@ void
 file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   /* If there's unsaved data, let the user save it first.
      If they cancel out of it, don't quit. */
-  if (do_file_close(&cfile, FALSE, " before opening a new capture file"))
-    file_open_cmd(widget);
+  if (test_file_close(&cfile, FALSE, " before opening a new capture file"))
+    file_open_cmd(&cfile, widget);
 }
 
 /* Merge existing with another file */
@@ -1005,8 +1009,11 @@ do_capture_stop(capture_file *cf)
 }
 #endif
 
+/* Returns true if the current file has been saved or if the user has chosen
+ * to discard it, ie if it is safe to continue with the call to close, and
+ * false otherwise. */
 gboolean
-do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
+test_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
 {
   GtkWidget *msg_dialog;
   gchar     *display_basename;
@@ -1135,8 +1142,6 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
         if (capture_in_progress)
           do_capture_stop(cf);
 #endif
-        /* Just close the file, discarding changes */
-        cf_close(cf);
         break;
 
       case GTK_RESPONSE_CANCEL:
@@ -1145,11 +1150,10 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
       default:
         /* Don't close the file (and don't stop any capture in progress). */
         return FALSE; /* file not closed */
-        break;
       }
     } else {
-      /* unchanged file, just close it */
-      cf_close(cf);
+      /* unchanged file, safe to close */
+      return TRUE;
     }
   } else {
     /* User asked not to be bothered by those prompts, just close it.
@@ -1160,9 +1164,19 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
     if (capture_in_progress)
       do_capture_stop(cf);
 #endif
-    cf_close(cf);
+    return TRUE;
   }
-  return TRUE; /* file closed */
+  return TRUE; /* shouldn't get here? */
+}
+
+gboolean
+do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
+{
+  if (test_file_close(cf, from_quit, before_what)) {
+    cf_close(cf);
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /* Close a file */
