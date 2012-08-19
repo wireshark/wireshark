@@ -1200,6 +1200,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
 
             case MAC_LTE_PAYLOAD_TAG:
                 /* Have reached data, so set payload length and get out of loop */
+                /* TODO: this is not correct if there is padding which isn't in frame */
                 p_mac_lte_info->length= tvb_length_remaining(tvb, offset);
                 continue;
 
@@ -3518,6 +3519,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         volatile guint16 data_length;
         int i;
         char buff[64];
+        gboolean rlc_called_for_sdu = FALSE;
 
         /* Break out if meet padding */
         if (lcids[n] == PADDING_LCID) {
@@ -3538,17 +3540,6 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                                   dlsch_lcid_vals,
                                                              "Unknown"),
                                              data_length);
-        /* Show bytes too.  There must be a nicer way of doing this! */
-        pdu_data = tvb_get_ptr(tvb, offset, pdu_lengths[n]);
-        for (i=0; i < data_length; i++) {
-            g_snprintf(buff+(i*2), 3, "%02x",  pdu_data[i]);
-            if (i >= 30) {
-                g_snprintf(buff+(i*2), 4, "...");
-                break;
-            }
-        }
-        proto_item_append_text(sdu_ti, "%s", buff);
-
 
         /* Look for Msg3 data so that it may be compared with later
            Contention Resolution body */
@@ -3586,6 +3577,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             /* Hide raw view of bytes */
             PROTO_ITEM_SET_HIDDEN(sdu_ti);
+            rlc_called_for_sdu = TRUE;
 
             call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
         }
@@ -3602,6 +3594,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 /* Hide raw view of bytes */
                 PROTO_ITEM_SET_HIDDEN(sdu_ti);
+                rlc_called_for_sdu = TRUE;
             }
         }
 
@@ -3653,8 +3646,22 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             if (rlc_channel_type != rlcRaw) {
                 /* Hide raw view of bytes */
                 PROTO_ITEM_SET_HIDDEN(sdu_ti);
+                rlc_called_for_sdu = TRUE;
             }
 
+        }
+
+        /* Show bytes too, if won't be hidden (slow). There must be a nicer way of doing this! */
+        if (!rlc_called_for_sdu) {
+            pdu_data = tvb_get_ptr(tvb, offset, pdu_lengths[n]);
+            for (i=0; i < data_length; i++) {
+                g_snprintf(buff+(i*2), 3, "%02x",  pdu_data[i]);
+                if (i >= 30) {
+                    g_snprintf(buff+(i*2), 4, "...");
+                    break;
+                }
+            }
+            proto_item_append_text(sdu_ti, "%s", buff);
         }
 
         offset += data_length;
@@ -4319,7 +4326,9 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
                                  tvb, 0, 0, p_mac_lte_info->rnti);
         PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_append_text(context_ti, " (RNTI=%u)", p_mac_lte_info->rnti);
     }
+
 
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti_type,
                              tvb, 0, 0, p_mac_lte_info->rntiType);
