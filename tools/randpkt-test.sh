@@ -108,27 +108,29 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
     echo "Pass $PASS:"
 
     for PKT_TYPE in $PKT_TYPES ; do
-	if [ $PASS -gt $MAX_PASSES ] ; then break ; fi # We caught a signal
-	echo -n "    $PKT_TYPE: "
+        if [ $PASS -gt $MAX_PASSES -a $MAX_PASSES -ge 1 ] ; then
+            break # We caught a signal
+        fi
+        echo -n "    $PKT_TYPE: "
 
-	DISSECTOR_BUG=0
+        DISSECTOR_BUG=0
 
-	"$RANDPKT" $RANDPKT_ARGS -t $PKT_TYPE $TMP_DIR/$TMP_FILE \
+        "$RANDPKT" $RANDPKT_ARGS -t $PKT_TYPE $TMP_DIR/$TMP_FILE \
             > /dev/null 2>&1
 
-	"$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
-		> /dev/null 2> $TMP_DIR/$ERR_FILE
-	RETVAL=$?
-	grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
-	    > /dev/null 2>&1 && DISSECTOR_BUG=1
-	if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
-	    RAND_FILE="randpkt-`$DATE +%Y-%m-%d`-$$.pcap"
-	    mv $TMP_DIR/$TMP_FILE $TMP_DIR/$RAND_FILE
-	    echo "  Output file: $TMP_DIR/$RAND_FILE"
+        "$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
+            > /dev/null 2> $TMP_DIR/$ERR_FILE
+        RETVAL=$?
+        grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
+            > /dev/null 2>&1 && DISSECTOR_BUG=1
+        if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
+            RAND_FILE="randpkt-`$DATE +%Y-%m-%d`-$$.pcap"
+            mv $TMP_DIR/$TMP_FILE $TMP_DIR/$RAND_FILE
+            echo "  Output file: $TMP_DIR/$RAND_FILE"
 
-	    exit_error
-	fi
-	echo " OK"
+            exit_error
+        fi
+        echo " OK"
         rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE
     done
 done
