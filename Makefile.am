@@ -1014,6 +1014,7 @@ packaging/macosx/COPYING.txt: COPYING
 osx-package: osx-app packaging/macosx/COPYING.txt
 	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
 		cd $(srcdir)/packaging/macosx ;  \
+		chmod +x ./osx-dmg.sh ; \
 		./osx-dmg.sh ; \
 	fi
 
