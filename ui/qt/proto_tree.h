@@ -30,6 +30,7 @@
 
 #include <QTreeWidget>
 
+Q_DECLARE_METATYPE(field_info *)
 
 class ProtoTree : public QTreeWidget
 {
@@ -47,7 +48,11 @@ signals:
 
 public slots:
     void updateSelectionStatus(QTreeWidgetItem*);
+    void expand(const QModelIndex & index);
+    void collapse(const QModelIndex & index);
     void expandSubtrees();
+    void expandAll();
+    void collapseAll();
 };
 
 #endif // PROTO_TREE_H

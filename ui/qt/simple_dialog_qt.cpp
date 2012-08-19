@@ -111,12 +111,12 @@ simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
 
 char *
 simple_dialog_primary_start(void) {
-    return "<span weight=\"bold\" size=\"larger\">";
+    return (char *) "";
 }
 
 char *
 simple_dialog_primary_end(void) {
-    return "</span>";
+    return (char *) "";
 }
 
 char *

@@ -621,10 +621,8 @@ void ByteViewText::mousePressEvent (QMouseEvent * event) {
         if (fi && m_protoTree) {
             // XXX - This should probably be a ProtoTree method.
             QTreeWidgetItemIterator iter(m_protoTree);
-            QVariant v;
             while (*iter) {
-                v = (*iter)->data(0, Qt::UserRole);
-                if (fi == (field_info *) v.value<void *>()) {
+                if (fi == (*iter)->data(0, Qt::UserRole).value<field_info *>()) {
                     g_log(NULL, G_LOG_LEVEL_DEBUG, "found %p", fi);
                     m_protoTree->setCurrentItem((*iter));
                 }

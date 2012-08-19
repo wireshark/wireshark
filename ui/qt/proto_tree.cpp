@@ -93,9 +93,12 @@ proto_tree_draw_node(proto_node *node, gpointer data)
         }
 
         if((fi->hfinfo->type == FT_FRAMENUM) ||
-           (FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type))) {
+                (FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type))) {
+            QFont font = item->font(0);
+
             item->setData(0, Qt::ForegroundRole, pal.link());
-            // XXX - Draw an underline?
+            font.setUnderline(true);
+            item->setData(0, Qt::FontRole, font);
         }
     }
 
@@ -120,12 +123,17 @@ proto_tree_draw_node(proto_node *node, gpointer data)
         item->setData(0, Qt::ForegroundRole, expert_color_foreground);
     }
 
-//    g_log(NULL, G_LOG_LEVEL_DEBUG, "new item %s", label_ptr);
     item->setText(0, label_ptr);
-    item->setData(0, Qt::UserRole, qVariantFromValue((void *) fi));
+    item->setData(0, Qt::UserRole, qVariantFromValue(fi));
 
     if (PROTO_ITEM_IS_GENERATED(node) || PROTO_ITEM_IS_HIDDEN(node)) {
         g_free(label_ptr);
+    }
+
+    if (tree_is_expanded[fi->tree_type]) {
+        item->setExpanded(true);
+    } else {
+        item->setExpanded(false);
     }
 
     if (!is_leaf) {
@@ -138,9 +146,12 @@ ProtoTree::ProtoTree(QWidget *parent) :
 {
     setAccessibleName(tr("Packet details"));
     setFont(get_monospace_font());
+    setUniformRowHeights(true);
 
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
             this, SLOT(updateSelectionStatus(QTreeWidgetItem*)));
+    connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(expand(QModelIndex)));
+    connect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(collapse(QModelIndex)));
 }
 
 void ProtoTree::clear() {
@@ -159,12 +170,10 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
 
     if (item) {
         field_info *fi;
-        QVariant v;
         QString itemInfo;
         int finfo_length;
 
-        v = item->data(0, Qt::UserRole);
-        fi = (field_info *) v.value<void *>();
+        fi = item->data(0, Qt::UserRole).value<field_info *>();
         if (!fi || !fi->hfinfo) return;
 
         if (fi->hfinfo->blurb != NULL && fi->hfinfo->blurb[0] != '\0') {
@@ -214,7 +223,49 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
     }
 }
 
-#include <QDebug>
+void ProtoTree::expand(const QModelIndex & index) {
+    field_info *fi;
+
+    fi = index.data(Qt::UserRole).value<field_info *>();
+    g_assert(fi);
+
+    if(prefs.gui_auto_scroll_on_expand) {
+        ScrollHint scroll_hint = PositionAtTop;
+        if (prefs.gui_auto_scroll_percentage > 66) {
+            scroll_hint = PositionAtBottom;
+        } else if (prefs.gui_auto_scroll_percentage >= 33) {
+            scroll_hint = PositionAtCenter;
+        }
+        scrollTo(index, scroll_hint);
+    }
+
+    /*
+     * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
+     * are thus presumably leaf nodes and cannot be expanded.
+     */
+    if (fi->tree_type != -1) {
+        g_assert(fi->tree_type >= 0 &&
+                 fi->tree_type < num_tree_types);
+        tree_is_expanded[fi->tree_type] = TRUE;
+    }
+}
+
+void ProtoTree::collapse(const QModelIndex & index) {
+    field_info *fi;
+
+    fi = index.data(Qt::UserRole).value<field_info *>();
+    g_assert(fi);
+
+    /*
+     * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
+     * are thus presumably leaf nodes and cannot be collapsed.
+     */
+    if (fi->tree_type != -1) {
+        g_assert(fi->tree_type >= 0 &&
+                 fi->tree_type < num_tree_types);
+        tree_is_expanded[fi->tree_type] = FALSE;
+    }
+}
 
 void ProtoTree::expandSubtrees()
 {
@@ -245,3 +296,20 @@ void ProtoTree::expandSubtrees()
     }
 }
 
+void ProtoTree::expandAll()
+{
+    int i;
+    for(i=0; i < num_tree_types; i++) {
+        tree_is_expanded[i] = TRUE;
+    }
+    QTreeWidget::expandAll();
+}
+
+void ProtoTree::collapseAll()
+{
+    int i;
+    for(i=0; i < num_tree_types; i++) {
+        tree_is_expanded[i] = FALSE;
+    }
+    QTreeWidget::collapseAll();
+}

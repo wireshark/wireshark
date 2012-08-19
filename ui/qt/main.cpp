@@ -132,9 +132,9 @@ int    airpcap_dll_ret_val = -1;
 
 GString *comp_info_str, *runtime_info_str;
 
-static gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
+//static gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
 
-static guint  tap_update_timer_id;
+//static guint  tap_update_timer_id;
 
 #ifdef _WIN32
 static gboolean has_console;	/* TRUE if app has console */

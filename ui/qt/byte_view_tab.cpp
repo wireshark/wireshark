@@ -61,8 +61,7 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
     if (current) {
         field_info *fi;
 
-        QVariant v = current->data(0, Qt::UserRole);
-        fi = (field_info *) v.value<void *>();
+        fi = current->data(0, Qt::UserRole).value<field_info *>();
 //        g_log(NULL, G_LOG_LEVEL_DEBUG, "fi selected %p", fi);
 
         int i = 0;
@@ -75,8 +74,7 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                     parent = parent->parent();
                 }
                 if (parent) {
-                    v = parent->data(0, Qt::UserRole);
-                    parent_fi = (field_info *) v.value<void *>();
+                    parent_fi = parent->data(0, Qt::UserRole).value<field_info *>();
                 }
                 if (parent_fi && parent_fi->ds_tvb == fi->ds_tvb) {
                     byteViewText->highlight(parent_fi->start, parent_fi->length, true);
