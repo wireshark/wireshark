@@ -2489,17 +2489,16 @@ static void rlc_lte_make_elmtlist(struct graph *g)
     /* Allocate all needed elements up-front */
     if (g->elists->elements == NULL) {
         get_data_control_counts(g, &data, &acks, &nacks);
+
+        /* Allocate elements for status */
         n = 2 + (5*acks) + (4*nacks);
         e0 = elements0 = (struct element *)g_malloc(n*sizeof(struct element));
-    } else {
-        e0 = elements0 = g->elists->elements;
-    }
 
-    if (g->elists->next->elements == NULL ) {
-        get_data_control_counts(g, &data, &acks, &nacks);
+        /* Allocate elements for data */
         n = 1 + (5*data);
         e1 = elements1 = (struct element *)g_malloc(n*sizeof(struct element));
     } else {
+        e0 = elements0 = g->elists->elements;
         e1 = elements1 = g->elists->next->elements;
     }
 
