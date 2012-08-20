@@ -22990,7 +22990,7 @@ void proto_register_gsm_map(void) {
         FT_UINT32, BASE_DEC, VALS(gsm_map_ms_DomainType_vals), 0,
         "DomainType", HFILL }},
     { &hf_gsm_map_ms_imei_01,
-      { "imei", "gsm_map.ms.imei",
+      { "imei", "gsm_map.ms.imei_null",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gsm_map_ms_ms_classmark,

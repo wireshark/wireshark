@@ -925,4 +925,9 @@ Ext-TeleserviceCode TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleserv
 Ext-BearerServiceCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
 ChargingCharacteristics  TYPE = FT_UINT16  DISPLAY = BASE_DEC  BITMASK = 0x0f00 STRINGS = VALS(chargingcharacteristics_values)
 RoutingInfo TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(gsm_map_ch_RoutingInfo_vals)
+
+#----------------------------------------------------------------------------------------
+#.FIELD_ATTR
+RequestedInfo/imei ABBREV = imei_null
+
 #.END
