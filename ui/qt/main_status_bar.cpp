@@ -155,7 +155,6 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 
     // XXX Add the comment icon
 
-    infoProgressHB->setMargin(0);
     infoProgressHB->setContentsMargins(0, 0, 0, 0);
 
     m_infoStatus.setTemporaryContext(STATUS_CTX_TEMPORARY);

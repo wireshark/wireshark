@@ -58,6 +58,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     main_ui_(new Ui::MainWindow)
 {
+    QMargins go_to_margins;
+
     cap_file_ = NULL;
     gbl_cur_main_window = this;
     main_ui_->setupUi(this);
@@ -85,6 +87,28 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->utilityToolBar->hide();
 
     main_ui_->goToFrame->hide();
+    go_to_margins = main_ui_->goToHB->contentsMargins();
+    go_to_margins.setTop(0);
+    go_to_margins.setBottom(0);
+    main_ui_->goToHB->setContentsMargins(go_to_margins);
+    // XXX For some reason the cursor is drawn funny with an input mask set
+    // https://bugreports.qt-project.org/browse/QTBUG-7174
+    main_ui_->goToFrame->setStyleSheet(
+                "QFrame {"
+                "  background: palette(window);"
+                "  padding-top: 0.1em;"
+                "  padding-bottom: 0.1em;"
+                "  border-bottom: 0.1em solid palette(shadow);"
+                "}"
+                "QLineEdit {"
+                "  max-width: 5em;"
+                "}"
+                );
+#if defined(Q_WS_MAC)
+    main_ui_->goToLineEdit.setAttribute(Qt::WA_MacSmallSize, true);
+    main_ui_->goToGo.setAttribute(Qt::WA_MacSmallSize, true);
+    main_ui_->goToCancel.setAttribute(Qt::WA_MacSmallSize, true);
+#endif
 
     splitter_v_ = new QSplitter(main_ui_->mainStack);
     splitter_v_->setObjectName(QString::fromUtf8("splitterV"));
