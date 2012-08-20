@@ -63,6 +63,10 @@ Wireshark Info
 
       <itemizedlist>
 
+        <listitem><para>
+	  The HTTP dissector does not reassemble headers when the first TCP segment does not contain a full header line.
+        </para></listitem>
+
 <!-- Sort by bug # -->
 <!--
         <listitem><para>
