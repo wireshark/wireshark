@@ -65,6 +65,8 @@ private:
     capture_file *cap_file_;
     PacketList *packet_list_;
 
+    QWidget *previous_focus_;
+
 signals:
     void showProgress(progdlg_t **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
 
@@ -80,6 +82,8 @@ private slots:
     void on_actionFileClose_triggered();
     void recentActionTriggered();
     void on_actionGoGoToPacket_triggered();
+    void resetPreviousFocus();
+
     void on_actionHelpWebsite_triggered();
     void on_actionHelpFAQ_triggered();
     void on_actionHelpAsk_triggered();

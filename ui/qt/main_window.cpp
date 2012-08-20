@@ -63,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
     cap_file_ = NULL;
     gbl_cur_main_window = this;
     main_ui_->setupUi(this);
+    previous_focus_ = NULL;
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     updateRecentFiles();
@@ -451,25 +452,34 @@ void MainWindow::on_actionGoGoToPacket_triggered() {
     if (packet_list_->model()->rowCount() < 1) {
         return;
     }
+    previous_focus_ = wsApp->focusWidget();
+    connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
     main_ui_->goToFrame->show();
     main_ui_->goToLineEdit->setFocus();
+}
+
+void MainWindow::resetPreviousFocus() {
+    previous_focus_ = NULL;
 }
 
 void MainWindow::on_goToCancel_clicked()
 {
     main_ui_->goToFrame->hide();
+    if (previous_focus_) {
+        disconnect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
+        previous_focus_->setFocus();
+        resetPreviousFocus();
+    }
 }
-
 
 void MainWindow::on_goToGo_clicked()
 {
     int packet_num = main_ui_->goToLineEdit->text().toInt();
 
-    main_ui_->goToFrame->hide();
-
     if (packet_num > 0) {
         packet_list_->goToPacket(packet_num);
     }
+    on_goToCancel_clicked();
 }
 
 void MainWindow::on_goToLineEdit_returnPressed()
