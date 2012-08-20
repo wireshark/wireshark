@@ -400,5 +400,7 @@ void PacketList::goLastPacket(void) {
 }
 
 void PacketList::goToPacket(int packet) {
-    setCurrentIndex(packet_list_model_->index(packet, 0));
+    if (packet > 0 && packet <= packet_list_model_->rowCount()) {
+        setCurrentIndex(packet_list_model_->index(packet - 1, 0));
+    }
 }

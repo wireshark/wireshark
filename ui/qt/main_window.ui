@@ -34,6 +34,46 @@
      <number>0</number>
     </property>
     <item row="0" column="0">
+     <widget class="QFrame" name="goToFrame">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="goToLineEdit">
+         <property name="inputMask">
+          <string>900000000; </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="goToGo">
+         <property name="text">
+          <string>Go to packet</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="goToCancel">
+         <property name="text">
+          <string>Cancel</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="0">
      <widget class="QStackedWidget" name="mainStack">
       <widget class="MainWelcome" name="welcomePage"/>
       <widget class="QWidget" name="packetPage"/>
@@ -114,6 +154,7 @@
     <property name="title">
      <string>Go</string>
     </property>
+    <addaction name="actionGoGoToPacket"/>
     <addaction name="separator"/>
     <addaction name="actionGoNextPacket"/>
     <addaction name="actionGoPreviousPacket"/>
@@ -439,6 +480,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Left</string>
+   </property>
+  </action>
+  <action name="actionGoGoToPacket">
+   <property name="text">
+    <string>Go to Packet...</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to specified packet</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
    </property>
   </action>
  </widget>

@@ -82,6 +82,10 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
     main_ui_->mainToolBar->addWidget(df_combo_box_);
 
+    main_ui_->utilityToolBar->hide();
+
+    main_ui_->goToFrame->hide();
+
     splitter_v_ = new QSplitter(main_ui_->mainStack);
     splitter_v_->setObjectName(QString::fromUtf8("splitterV"));
     splitter_v_->setOrientation(Qt::Vertical);
@@ -157,9 +161,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 
     // The user typed some text. Start filling in a filter.
     // XXX We need to install an event filter for the packet list and proto tree
-    if ((event->modifiers() == Qt::NoModifier || event->modifiers() == Qt::ShiftModifier) && event->text().length() > 0) {
-        QApplication::sendEvent(df_combo_box_, event);
-    }
+    // XXX Disabled for now. For some reason we crash here when pressing enter in "go to packet".
+//    if ((event->modifiers() == Qt::NoModifier || event->modifiers() == Qt::ShiftModifier) && event->text().length() > 0) {
+//        QApplication::sendEvent(df_combo_box_, event);
+//    }
 
     // Move up & down the packet list.
     if (event->key() == Qt::Key_F7) {
@@ -416,4 +421,34 @@ void MainWindow::recentActionTriggered() {
         QString cfPath = ra->data().toString();
         openRecentCaptureFile(cfPath);
     }
+}
+
+void MainWindow::on_actionGoGoToPacket_triggered() {
+    if (packet_list_->model()->rowCount() < 1) {
+        return;
+    }
+    main_ui_->goToFrame->show();
+    main_ui_->goToLineEdit->setFocus();
+}
+
+void MainWindow::on_goToCancel_clicked()
+{
+    main_ui_->goToFrame->hide();
+}
+
+
+void MainWindow::on_goToGo_clicked()
+{
+    int packet_num = main_ui_->goToLineEdit->text().toInt();
+
+    main_ui_->goToFrame->hide();
+
+    if (packet_num > 0) {
+        packet_list_->goToPacket(packet_num);
+    }
+}
+
+void MainWindow::on_goToLineEdit_returnPressed()
+{
+    on_goToGo_clicked();
 }
