@@ -88,7 +88,6 @@ static int hf_gsm_map_number_plan = -1;
 static int hf_gsm_map_isdn_address_digits = -1;
 static int hf_gsm_map_address_digits = -1;
 static int hf_gsm_map_servicecentreaddress_digits = -1;
-static int hf_gsm_map_imsi_digits = -1;
 static int hf_gsm_map_TBCD_digits = -1;
 static int hf_gsm_map_Ss_Status_unused = -1;
 static int hf_gsm_map_Ss_Status_q_bit = -1;
@@ -2325,12 +2324,8 @@ void proto_register_gsm_map(void) {
         { "ServiceCentreAddress digits", "gsm_map.servicecentreaddress_digits",
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
-      { &hf_gsm_map_imsi_digits,
-        { "IMSI digits", "gsm_map.imsi_digits",
-          FT_STRING, BASE_NONE, NULL, 0,
-          NULL, HFILL }},
       { &hf_gsm_map_TBCD_digits,
-        { "TBCD digits", "gsm_map.imsi_digits",
+        { "TBCD digits", "gsm_map.tbcd_digits",
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
       { &hf_gsm_map_Ss_Status_unused,
