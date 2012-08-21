@@ -106,9 +106,9 @@ MainWindow::MainWindow(QWidget *parent) :
                 "}"
                 );
 #if defined(Q_WS_MAC)
-    main_ui_->goToLineEdit.setAttribute(Qt::WA_MacSmallSize, true);
-    main_ui_->goToGo.setAttribute(Qt::WA_MacSmallSize, true);
-    main_ui_->goToCancel.setAttribute(Qt::WA_MacSmallSize, true);
+    main_ui_->goToLineEdit->setAttribute(Qt::WA_MacSmallSize, true);
+    main_ui_->goToGo->setAttribute(Qt::WA_MacSmallSize, true);
+    main_ui_->goToCancel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
     splitter_v_ = new QSplitter(main_ui_->mainStack);
