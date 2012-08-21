@@ -931,7 +931,7 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
-                    proto_item_append_text(seqnum_ti, " - OK");
+                    proto_item_append_string(seqnum_ti, " - OK");
 
                     /* Link to next SN in channel (if known) */
                     if (p->nextFrameNum != 0) {
@@ -1152,7 +1152,7 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                     tvb, 0, 0, TRUE);
                         PROTO_ITEM_SET_GENERATED(ti);
-                        proto_item_append_text(seqnum_ti, " - OK");
+                        proto_item_append_string(seqnum_ti, " - OK");
 
                         /* Link to next SN in channel (if known) */
                         if (p->nextFrameNum != 0) {
@@ -2316,7 +2316,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     write_pdu_label_and_info(top_ti, NULL, pinfo, (polling) ? " (P) " : "     ");
     if (polling) {
-        proto_item_append_text(am_header_ti, " (P) ");
+        proto_item_append_string(am_header_ti, " (P) ");
     }
 
     /* Framing Info */
