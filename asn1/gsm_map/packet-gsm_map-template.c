@@ -190,6 +190,7 @@ static dissector_table_t	map_prop_err_opcode_table; /* prorietary operation code
 static range_t *global_ssn_range;
 #define APPLICATON_CONTEXT_FROM_TRACE 0
 static gint pref_application_context_version = APPLICATON_CONTEXT_FROM_TRACE;
+static gboolean pref_ericsson_proprietary_ext = FALSE;
 
 /* Global variables */
 static guint32 opcode=0;
@@ -1117,10 +1118,17 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_gr_ForwardGroupCallSignallingArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 43: /*checkIMEI*/
-    offset=dissect_mc_message(tvb, offset, actx, tree,
-			      FALSE, dissect_gsm_map_IMEI, hf_gsm_map_ms_imei,
-			      FALSE, dissect_gsm_map_ms_CheckIMEI_Arg, -1,
-			      TRUE , NULL, -1); /* no [3] SEQUENCE */
+    if (pref_ericsson_proprietary_ext) {
+      offset=dissect_mc_message(tvb, offset, actx, tree,
+                    FALSE, dissect_gsm_map_IMEI, hf_gsm_map_ms_imei,
+                    FALSE, dissect_EricssonMAP_EnhancedCheckIMEI_Arg, -1,
+                    TRUE , NULL, -1); /* no [3] SEQUENCE */
+    } else {
+      offset=dissect_mc_message(tvb, offset, actx, tree,
+                    FALSE, dissect_gsm_map_IMEI, hf_gsm_map_ms_imei,
+                    FALSE, dissect_gsm_map_ms_CheckIMEI_Arg, -1,
+                    TRUE , NULL, -1); /* no [3] SEQUENCE */
+    }
     break;
   case 44: /*mt-forwardSM(v3) or ForwardSM(v1/v2)*/
     if (application_context_version == 3)
@@ -2648,4 +2656,8 @@ void proto_register_gsm_map(void) {
 				  "How to treat Application context",
 				  &pref_application_context_version, application_context_modes, APPLICATON_CONTEXT_FROM_TRACE);
 
+  prefs_register_bool_preference(gsm_map_module, "ericsson.proprietary.extensions",
+				  "Dissect Ericsson proprietary extensions",
+				  "When enabled, dissector will use the non 3GPP standard extensions from Ericsson (that can override the standard ones)",
+				  &pref_ericsson_proprietary_ext);
 }

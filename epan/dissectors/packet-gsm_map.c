@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-gsm_map.c                                                           */
-/* ../../tools/asn2wrs.py -b -c ./gsm_map.cnf -s ./packet-gsm_map-template -D . -O ../../epan/dissectors ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Errors.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn */
+/* ../../tools/asn2wrs.py -b -c ./gsm_map.cnf -s ./packet-gsm_map-template -D . -O ../../epan/dissectors ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Errors.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn Ericsson.asn */
 
 /* Input file: packet-gsm_map-template.c */
 
@@ -1662,6 +1662,14 @@ static int hf_gsm_ss_deferredLocationEventType = -1;  /* DeferredLocationEventTy
 static int hf_gsm_ss_areaEventInfo = -1;          /* AreaEventInfo */
 static int hf_gsm_ss_qoS = -1;                    /* LCS_QoS */
 
+/* --- Module EricssonMAP --- --- ---                                         */
+
+static int hf_EricssonMAP_imei = -1;              /* IMEI */
+static int hf_EricssonMAP_requestedEquipmentInfo = -1;  /* RequestedEquipmentInfo */
+static int hf_EricssonMAP_imsi = -1;              /* IMSI */
+static int hf_EricssonMAP_locationInformat = -1;  /* OCTET_STRING_SIZE_1_7 */
+static int hf_EricssonMAP_extensionContainer = -1;  /* ExtensionContainer */
+
 /*--- End of included file: packet-gsm_map-hf.c ---*/
 #line 151 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
@@ -2289,6 +2297,10 @@ static gint ett_gsm_ss_LCS_PeriodicLocationCancellationArg = -1;
 /* --- Module SS-Operations --- --- ---                                       */
 
 
+/* --- Module EricssonMAP --- --- ---                                         */
+
+static gint ett_EricssonMAP_EnhancedCheckIMEI_Arg = -1;
+
 /*--- End of included file: packet-gsm_map-ett.c ---*/
 #line 179 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
@@ -2305,6 +2317,7 @@ static dissector_table_t	map_prop_err_opcode_table; /* prorietary operation code
 static range_t *global_ssn_range;
 #define APPLICATON_CONTEXT_FROM_TRACE 0
 static gint pref_application_context_version = APPLICATON_CONTEXT_FROM_TRACE;
+static gboolean pref_ericsson_proprietary_ext = FALSE;
 
 /* Global variables */
 static guint32 opcode=0;
@@ -17835,8 +17848,39 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 /* --- Module SS-Operations --- --- ---                                       */
 
 
+/* --- Module EricssonMAP --- --- ---                                         */
+
+
+
+static int
+dissect_EricssonMAP_OCTET_STRING_SIZE_1_7(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EricssonMAP_EnhancedCheckIMEI_Arg_sequence[] = {
+  { &hf_EricssonMAP_imei    , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_IMEI },
+  { &hf_EricssonMAP_requestedEquipmentInfo, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_gsm_map_ms_RequestedEquipmentInfo },
+  { &hf_EricssonMAP_imsi    , BER_CLASS_PRI, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_EricssonMAP_locationInformat, BER_CLASS_PRI, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_EricssonMAP_OCTET_STRING_SIZE_1_7 },
+  { &hf_EricssonMAP_extensionContainer, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_gsm_map_ExtensionContainer },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_EricssonMAP_EnhancedCheckIMEI_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EricssonMAP_EnhancedCheckIMEI_Arg_sequence, hf_index, ett_EricssonMAP_EnhancedCheckIMEI_Arg);
+
+  return offset;
+}
+
+
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 824 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 825 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -18047,8 +18091,12 @@ const value_string gsm_map_opr_code_strings[] = {
 	{ 110, "lcs_LocationUpdate" },
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
+/* --- Module EricssonMAP --- --- ---                                         */
+
+/* Unknown or empty loop list OPERATION */
+
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 835 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 836 "../../asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -18252,8 +18300,12 @@ static const value_string gsm_map_err_code_string_vals[] = {
 	{ 110, "lcs_LocationUpdate" },
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
+/* --- Module EricssonMAP --- --- ---                                         */
+
+/* Unknown or empty loop list OPERATION */
+
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 839 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 840 "../../asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -18535,10 +18587,17 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_gr_ForwardGroupCallSignallingArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 43: /*checkIMEI*/
-    offset=dissect_mc_message(tvb, offset, actx, tree,
-			      FALSE, dissect_gsm_map_IMEI, hf_gsm_map_ms_imei,
-			      FALSE, dissect_gsm_map_ms_CheckIMEI_Arg, -1,
-			      TRUE , NULL, -1); /* no [3] SEQUENCE */
+    if (pref_ericsson_proprietary_ext) {
+      offset=dissect_mc_message(tvb, offset, actx, tree,
+                    FALSE, dissect_gsm_map_IMEI, hf_gsm_map_ms_imei,
+                    FALSE, dissect_EricssonMAP_EnhancedCheckIMEI_Arg, -1,
+                    TRUE , NULL, -1); /* no [3] SEQUENCE */
+    } else {
+      offset=dissect_mc_message(tvb, offset, actx, tree,
+                    FALSE, dissect_gsm_map_IMEI, hf_gsm_map_ms_imei,
+                    FALSE, dissect_gsm_map_ms_CheckIMEI_Arg, -1,
+                    TRUE , NULL, -1); /* no [3] SEQUENCE */
+    }
     break;
   case 44: /*mt-forwardSM(v3) or ForwardSM(v1/v2)*/
     if (application_context_version == 3)
@@ -25859,8 +25918,31 @@ void proto_register_gsm_map(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "LCS_QoS", HFILL }},
 
+/* --- Module EricssonMAP --- --- ---                                         */
+
+    { &hf_EricssonMAP_imei,
+      { "imei", "EricssonMAP.imei",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_EricssonMAP_requestedEquipmentInfo,
+      { "requestedEquipmentInfo", "EricssonMAP.requestedEquipmentInfo",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_EricssonMAP_imsi,
+      { "imsi", "EricssonMAP.imsi",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_EricssonMAP_locationInformat,
+      { "locationInformat", "EricssonMAP.locationInformat",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1_7", HFILL }},
+    { &hf_EricssonMAP_extensionContainer,
+      { "extensionContainer", "EricssonMAP.extensionContainer",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2570 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2578 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -26488,8 +26570,12 @@ void proto_register_gsm_map(void) {
 /* --- Module SS-Operations --- --- ---                                       */
 
 
+/* --- Module EricssonMAP --- --- ---                                         */
+
+    &ett_EricssonMAP_EnhancedCheckIMEI_Arg,
+
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2600 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2608 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static enum_val_t application_context_modes[] = {
@@ -26577,8 +26663,12 @@ void proto_register_gsm_map(void) {
 
 
 
+/* --- Module EricssonMAP --- --- ---                                         */
+
+
+
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2631 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2639 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
@@ -26599,4 +26689,8 @@ void proto_register_gsm_map(void) {
 				  "How to treat Application context",
 				  &pref_application_context_version, application_context_modes, APPLICATON_CONTEXT_FROM_TRACE);
 
+  prefs_register_bool_preference(gsm_map_module, "ericsson.proprietary.extensions",
+				  "Dissect Ericsson proprietary extensions",
+				  "When enabled, dissector will use the non 3GPP standard extensions from Ericsson (that can override the standard ones)",
+				  &pref_ericsson_proprietary_ext);
 }

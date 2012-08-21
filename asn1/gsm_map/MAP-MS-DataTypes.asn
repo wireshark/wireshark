@@ -16,6 +16,10 @@ BEGIN
 
 EXPORTS
 
+	-- WS modification: for Ericsson proprietary extensions
+	RequestedEquipmentInfo,
+	-- End WS modification
+
 	-- location registration types
 	UpdateLocationArg,
 	UpdateLocationRes,

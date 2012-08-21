@@ -55,6 +55,9 @@ SS_ASN_FILES = \
 	SS-DataTypes.asn \
 	SS-Operations.asn
 
+PROPRIETARY_ASN_FILES = \
+	Ericsson.asn
+
 ASN_FILE_LIST = \
 	MobileDomainDefinitions.asn \
 	MAP-ApplicationContexts.asn \
@@ -67,7 +70,8 @@ ASN_FILE_LIST = \
 	MAP-Errors.asn \
 	MAP-Protocol.asn \
 	GSMMAP.asn \
-	$(SS_ASN_FILES)
+	$(SS_ASN_FILES) \
+	$(PROPRIETARY_ASN_FILES)
 
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn

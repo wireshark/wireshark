@@ -1,0 +1,43 @@
+-- Ericsson proprietary extensions
+-- $Id$
+
+EricssonMAP{ 0 identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-Protocol (4) version13 (13) }
+
+DEFINITIONS
+
+IMPLICIT TAGS
+
+::=
+
+BEGIN
+
+IMPORTS
+
+	IMSI,
+	IMEI
+FROM MAP-CommonDataTypes {
+   itu-t identified-organization (4) etsi (0) mobileDomain (0)
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
+
+	RequestedEquipmentInfo
+FROM MAP-MS-DataTypes {
+   itu-t identified-organization (4) etsi (0) mobileDomain (0)
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version13 (13)}
+
+	ExtensionContainer
+FROM MAP-ExtensionDataTypes {
+   itu-t identified-organization (4) etsi (0) mobileDomain (0)
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
+;
+
+-- non 3GPP standard compliant extension used by Ericsson (see https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7648)
+EnhancedCheckIMEI-Arg ::= SEQUENCE {
+	imei			IMEI,
+	requestedEquipmentInfo	RequestedEquipmentInfo OPTIONAL,
+	imsi                    [PRIVATE 1] IMSI OPTIONAL,
+	locationInformat        [PRIVATE 3] OCTET STRING (SIZE (1..7)) OPTIONAL,
+	extensionContainer	ExtensionContainer	OPTIONAL,
+	...}
+
+END
+
