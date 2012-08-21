@@ -146,6 +146,10 @@ static int hf_gsm_map_locationnumber_npi = -1;
 static int hf_gsm_map_locationnumber_apri = -1;
 static int hf_gsm_map_locationnumber_screening_ind = -1;
 static int hf_gsm_map_locationnumber_digits = -1;
+static int hf_gsm_map_ericsson_locationInformation_rat = -1;
+static int hf_gsm_map_ericsson_locationInformation_lac = -1;
+static int hf_gsm_map_ericsson_locationInformation_ci = -1;
+static int hf_gsm_map_ericsson_locationInformation_sac = -1;
 
 #include "packet-gsm_map-hf.c"
 
@@ -174,6 +178,7 @@ static gint ett_gsm_map_GlobalCellId = -1;
 static gint ett_gsm_map_GeographicalInformation = -1;
 static gint ett_gsm_map_apn_str = -1;
 static gint ett_gsm_map_LocationNumber = -1;
+static gint ett_gsm_map_ericsson_locationInformation = -1;
 
 #include "packet-gsm_map-ett.c"
 
@@ -247,6 +252,13 @@ static const value_string gsm_map_disc_par_vals[] = {
   { 0, NULL }
 };
 
+static const value_string gsm_map_ericsson_locationInformation_rat_vals[] = {
+  { 0x0, "GSM" },
+  { 0x1, "UMTS" },
+  { 0x2, "LTE" },
+  { 0xf, "No information" },
+  { 0, NULL }
+};
 
 /* ITU-T Q.763 (12/1999)
  * 3.30 Location number
@@ -2573,6 +2585,22 @@ void proto_register_gsm_map(void) {
         { "Address digits", "gsm_map.locationnumber.digits",
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
+      { &hf_gsm_map_ericsson_locationInformation_rat,
+        { "RAT", "gsm_map.ericsson.locationInformation.rat",
+          FT_UINT8, BASE_DEC, VALS(gsm_map_ericsson_locationInformation_rat_vals), 0,
+          "Radio Access Technology", HFILL }},
+      { &hf_gsm_map_ericsson_locationInformation_lac,
+        { "LAC", "gsm_map.ericsson.locationInformation.lac",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0,
+          "Location Area Code", HFILL }},
+      { &hf_gsm_map_ericsson_locationInformation_ci,
+        { "CI", "gsm_map.ericsson.locationInformation.ci",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0,
+          "Cell Identity", HFILL }},
+      { &hf_gsm_map_ericsson_locationInformation_sac,
+        { "SAC", "gsm_map.ericsson.locationInformation.sac",
+          FT_UINT16, BASE_DEC_HEX, NULL, 0,
+          "Service Area Code", HFILL }},
 
 #include "packet-gsm_map-hfarr.c"
   };
@@ -2601,8 +2629,9 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_cbs_data_coding,
     &ett_gsm_map_GlobalCellId,
     &ett_gsm_map_GeographicalInformation,
-	&ett_gsm_map_apn_str,
-	&ett_gsm_map_LocationNumber,
+    &ett_gsm_map_apn_str,
+    &ett_gsm_map_LocationNumber,
+    &ett_gsm_map_ericsson_locationInformation,
 
 #include "packet-gsm_map-ettarr.c"
   };

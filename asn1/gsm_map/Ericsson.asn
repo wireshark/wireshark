@@ -35,7 +35,7 @@ EnhancedCheckIMEI-Arg ::= SEQUENCE {
 	imei			IMEI,
 	requestedEquipmentInfo	RequestedEquipmentInfo OPTIONAL,
 	imsi                    [PRIVATE 1] IMSI OPTIONAL,
-	locationInformat        [PRIVATE 3] OCTET STRING (SIZE (1..7)) OPTIONAL,
+	locationInformation     [PRIVATE 3] OCTET STRING (SIZE (1..7)) OPTIONAL,
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...}
 

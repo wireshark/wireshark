@@ -915,6 +915,31 @@ if (!actx->value_ptr)
  if ((na == 3) && (np==1))/*International Number & E164*/
 	dissect_e164_cc(tvb, tree, 1, TRUE);
 
+#.FN_BODY EnhancedCheckIMEI-Arg/locationInformation VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+  guint8 rat;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_ericsson_locationInformation);
+    rat = tvb_get_guint8(parameter_tvb, 0);
+    proto_tree_add_uint(subtree, hf_gsm_map_ericsson_locationInformation_rat, parameter_tvb, 0, 1, rat);
+    switch (rat) {
+      case 0:
+        /* GSM */
+        proto_tree_add_item(subtree, hf_gsm_map_ericsson_locationInformation_lac, parameter_tvb, 1, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_gsm_map_ericsson_locationInformation_ci, parameter_tvb, 3, 2, ENC_BIG_ENDIAN);
+        break;
+      case 1:
+        /* UMTS */
+        proto_tree_add_item(subtree, hf_gsm_map_ericsson_locationInformation_lac, parameter_tvb, 1, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_gsm_map_ericsson_locationInformation_sac, parameter_tvb, 3, 2, ENC_BIG_ENDIAN);
+        break;
+      default:
+        break;
+    }
+  }
+
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
