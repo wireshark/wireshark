@@ -613,9 +613,9 @@ static void write_pdu_label_and_info(proto_item *pdu_ti, proto_item *sub_ti,
 
     /* Add to indicated places */
     col_append_str(pinfo->cinfo, COL_INFO, info_buffer);
-    proto_item_append_text(pdu_ti, "%s", info_buffer);
+    proto_item_append_string(pdu_ti, info_buffer);
     if (sub_ti != NULL) {
-        proto_item_append_text(sub_ti, "%s", info_buffer);
+        proto_item_append_string(sub_ti, info_buffer);
     }
 }
 

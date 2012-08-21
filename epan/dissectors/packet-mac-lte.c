@@ -1293,8 +1293,11 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
 {
     #define MAX_INFO_BUFFER 256
     static char info_buffer[MAX_INFO_BUFFER];
-
     va_list ap;
+
+    if ((ti1 == NULL) && (ti2 == NULL) && (pinfo == NULL)) {
+        return;
+    }
 
     va_start(ap, format);
     g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
@@ -1305,10 +1308,10 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
         col_append_str(pinfo->cinfo, COL_INFO, info_buffer);
     }
     if (ti1 != NULL) {
-        proto_item_append_text(ti1, "%s", info_buffer);
+        proto_item_append_string(ti1, info_buffer);
     }
     if (ti2 != NULL) {
-        proto_item_append_text(ti2, "%s", info_buffer);
+        proto_item_append_string(ti2, info_buffer);
     }
 }
 
@@ -3661,7 +3664,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     break;
                 }
             }
-            proto_item_append_text(sdu_ti, "%s", buff);
+            proto_item_append_string(sdu_ti, buff);
         }
 
         offset += data_length;
@@ -4068,7 +4071,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                 break;
             }
         }
-        proto_item_append_text(sdu_ti, "%s", buff);
+        proto_item_append_string(sdu_ti, buff);
 
         offset += data_length;
     }
