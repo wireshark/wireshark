@@ -1121,7 +1121,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     if (pref_ericsson_proprietary_ext) {
       offset=dissect_mc_message(tvb, offset, actx, tree,
                     FALSE, dissect_gsm_map_IMEI, hf_gsm_map_ms_imei,
-                    FALSE, dissect_EricssonMAP_EnhancedCheckIMEI_Arg, -1,
+                    FALSE, dissect_gsm_map_ericsson_EnhancedCheckIMEI_Arg, -1,
                     TRUE , NULL, -1); /* no [3] SEQUENCE */
     } else {
       offset=dissect_mc_message(tvb, offset, actx, tree,
@@ -2570,7 +2570,7 @@ void proto_register_gsm_map(void) {
           FT_UINT8, BASE_DEC, VALS(gsm_map_screening_ind_vals), 0x03,
           NULL, HFILL }},
       { &hf_gsm_map_locationnumber_digits,
-        { "Address digits", "gsm_map._locationnumber.digits",
+        { "Address digits", "gsm_map.locationnumber.digits",
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 

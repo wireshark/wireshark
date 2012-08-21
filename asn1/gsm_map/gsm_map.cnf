@@ -37,6 +37,7 @@ MAP-ApplicationContexts         gsm_map
 SS-DataTypes					gsm_ss
 SS-Operations					gsm_ss
 DummyMAP						gsm_old
+EricssonMAP                     gsm_map.ericsson
 
 Remote-Operations-Information-Objects ROS
 
