@@ -2134,7 +2134,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* by the wiretap module                                             */
 
     /* Context Name */
-    context_name = tvb_get_const_stringz(tvb, offset, &context_length);
+    context_name = tvb_get_stringz(tvb, offset, &context_length);
     if (dct2000_tree) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_context, tvb,
                             offset, context_length, ENC_ASCII|ENC_NA);
@@ -2150,7 +2150,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset++;
 
     /* Timestamp in file */
-    timestamp_string = tvb_get_const_stringz(tvb, offset, &timestamp_length);
+    timestamp_string = tvb_get_stringz(tvb, offset, &timestamp_length);
     if (dct2000_tree) {
         /* TODO: this is *very* slow, but float version adds trailing digits when
                  displayed as a custom column... */
@@ -2162,7 +2162,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* DCT2000 protocol name */
-    protocol_name = tvb_get_const_stringz(tvb, offset, &protocol_length);
+    protocol_name = tvb_get_stringz(tvb, offset, &protocol_length);
     if (dct2000_tree) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_protocol, tvb,
                             offset, protocol_length, ENC_ASCII|ENC_NA);
@@ -2172,7 +2172,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* Protocol Variant */
-    variant_string = tvb_get_const_stringz(tvb, offset, &variant_length);
+    variant_string = tvb_get_stringz(tvb, offset, &variant_length);
     if (!is_comment) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
                             offset, variant_length, ENC_ASCII|ENC_NA);
@@ -2180,7 +2180,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += variant_length;
 
     /* Outhdr (shown as string) */
-    outhdr_string = tvb_get_const_stringz(tvb, offset, &outhdr_length);
+    outhdr_string = tvb_get_stringz(tvb, offset, &outhdr_length);
     if (!is_comment && (outhdr_length > 1)) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_outhdr, tvb,
                             offset, outhdr_length, ENC_ASCII|ENC_NA);
