@@ -1257,29 +1257,30 @@ write_stub_header(guint8 *frame_buffer, char *timestamp_string,
                   gchar *outhdr_name)
 {
     int stub_offset = 0;
+    gsize length;
 
-    g_strlcpy((char*)frame_buffer, context_name, MAX_CONTEXT_NAME+1);
-    stub_offset += (int)(strlen(context_name) + 1);
+    length = g_strlcpy((char*)frame_buffer, context_name, MAX_CONTEXT_NAME+1);
+    stub_offset += (int)(length + 1);
 
     /* Context port number */
     frame_buffer[stub_offset] = context_port;
     stub_offset++;
 
     /* Timestamp within file */
-    g_strlcpy((char*)&frame_buffer[stub_offset], timestamp_string, MAX_TIMESTAMP_LEN+1);
-    stub_offset += (int)(strlen(timestamp_string) + 1);
+    length = g_strlcpy((char*)&frame_buffer[stub_offset], timestamp_string, MAX_TIMESTAMP_LEN+1);
+    stub_offset += (int)(length + 1);
 
     /* Protocol name */
-    g_strlcpy((char*)&frame_buffer[stub_offset], protocol_name, MAX_PROTOCOL_NAME+1);
-    stub_offset += (int)(strlen(protocol_name) + 1);
+    length = g_strlcpy((char*)&frame_buffer[stub_offset], protocol_name, MAX_PROTOCOL_NAME+1);
+    stub_offset += (int)(length + 1);
 
     /* Protocol variant number (as string) */
-    g_strlcpy((void*)&frame_buffer[stub_offset], variant_name, MAX_VARIANT_DIGITS+1);
-    stub_offset += (int)(strlen(variant_name) + 1);
+    length = g_strlcpy((void*)&frame_buffer[stub_offset], variant_name, MAX_VARIANT_DIGITS+1);
+    stub_offset += (int)(length + 1);
 
     /* Outhdr */
-    g_strlcpy((char*)&frame_buffer[stub_offset], outhdr_name, MAX_OUTHDR_NAME+1);
-    stub_offset += (int)(strlen(outhdr_name) + 1);
+    length = g_strlcpy((char*)&frame_buffer[stub_offset], outhdr_name, MAX_OUTHDR_NAME+1);
+    stub_offset += (int)(length + 1);
 
     /* Direction */
     frame_buffer[stub_offset] = direction;
