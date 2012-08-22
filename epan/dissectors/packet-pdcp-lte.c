@@ -401,7 +401,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_lte_sequence_analysis_ok,
                                         tvb, 0, 0, TRUE);
             PROTO_ITEM_SET_GENERATED(ti);
-            proto_item_append_string(seqnum_ti, " - OK");
+            proto_item_append_text(seqnum_ti, " - OK");
 
             /* Link to next SN in channel (if known) */
             if (p->nextFrameNum != 0) {
@@ -632,7 +632,7 @@ static void write_pdu_label_and_info(proto_item *pdu_ti,
 
     /* Add to indicated places */
     col_append_str(pinfo->cinfo, COL_INFO, info_buffer);
-    proto_item_append_string(pdu_ti, info_buffer);
+    proto_item_append_text(pdu_ti, "%s", info_buffer);
 }
 
 
