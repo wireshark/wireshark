@@ -454,6 +454,7 @@ static int hf_camel_allAnnouncementsComplete = -1;  /* NULL */
 static int hf_camel_firstAnnouncementStarted = -1;  /* NULL */
 static int hf_camel_aChBillingChargingCharacteristics = -1;  /* AChBillingChargingCharacteristics */
 static int hf_camel_partyToCharge = -1;           /* SendingSideID */
+static int hf_camel_iTXcharging = -1;             /* BOOLEAN */
 static int hf_camel_correlationID = -1;           /* CorrelationID */
 static int hf_camel_iPSSPCapabilities = -1;       /* IPSSPCapabilities */
 static int hf_camel_gapCriteria = -1;             /* GapCriteria */
@@ -5184,6 +5185,7 @@ static const ber_sequence_t ApplyChargingArg_sequence[] = {
   { &hf_camel_partyToCharge , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_camel_SendingSideID },
   { &hf_camel_extensions    , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_Extensions },
   { &hf_camel_aChChargingAddress, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_camel_AChChargingAddress },
+  { &hf_camel_iTXcharging   , BER_CLASS_CON, 64, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_BOOLEAN },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -8927,6 +8929,10 @@ void proto_register_camel(void) {
       { "partyToCharge", "camel.partyToCharge",
         FT_UINT32, BASE_DEC, VALS(camel_SendingSideID_vals), 0,
         "SendingSideID", HFILL }},
+    { &hf_camel_iTXcharging,
+      { "iTXcharging", "camel.iTXcharging",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_camel_correlationID,
       { "correlationID", "camel.correlationID",
         FT_BYTES, BASE_NONE, NULL, 0,

@@ -211,7 +211,11 @@ ApplyChargingArg {PARAMETERS-BOUND : bound} ::= SEQUENCE {
 	extensions							[3] Extensions {bound}						OPTIONAL,
 	aChChargingAddress					[50] AChChargingAddress {bound}
 												DEFAULT legID:sendingSideID:leg1,
-	...
+	...,
+	-- WS modification Frensh National standard addition
+	-- https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7656
+	iTXcharging [64] BOOLEAN OPTIONAL
+	-- End WS
 	}
 
 -- The partyToCharge parameter indicates the party in the call to which the ApplyCharging operation
