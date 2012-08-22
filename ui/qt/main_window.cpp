@@ -184,9 +184,20 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
         return;
     }
 
+    if (wsApp->focusWidget() == main_ui_->goToLineEdit) {
+        if (event->modifiers() == Qt::NoModifier) {
+            if (event->key() == Qt::Key_Escape) {
+                on_goToCancel_clicked();
+            } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+                on_goToGo_clicked();
+            }
+        }
+        return; // goToLineEdit didn't want it and we don't either.
+    }
+
     // The user typed some text. Start filling in a filter.
     // XXX We need to install an event filter for the packet list and proto tree
-    // XXX Disabled for now. For some reason we crash here when pressing enter in "go to packet".
+    // XXX Disabled for now. For some reason we crash here when pressing enter or esc.
 //    if ((event->modifiers() == Qt::NoModifier || event->modifiers() == Qt::ShiftModifier) && event->text().length() > 0) {
 //        QApplication::sendEvent(df_combo_box_, event);
 //    }
