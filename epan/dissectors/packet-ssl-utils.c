@@ -2765,11 +2765,11 @@ Ssl_private_key_t *
 ssl_load_key(FILE* fp)
 {
     /* gnutls makes our work much harder, since we have to work internally with
-     * s-exp formatted data, but PEM loader exports only in "gnutls_datum"
+     * s-exp formatted data, but PEM loader exports only in "gnutls_datum_t"
      * format, and a datum -> s-exp convertion function does not exist.
      */
     gnutls_x509_privkey_t priv_key;
-    gnutls_datum          key;
+    gnutls_datum_t        key;
     gint                  size;
     guint                 bytes;
 
