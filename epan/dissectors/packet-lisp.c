@@ -319,11 +319,11 @@ dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint16      addr_len = 0;
     guint16      hop_afi;
-    guint16      hop_flags;
     const gchar *hop_str;
 
     hop_afi   = tvb_get_ntohs(tvb, offset); offset += 2;
-    hop_flags = tvb_get_ntohs(tvb, offset); offset += 2;
+    /* hop flags */
+    offset += 2;
     hop_str   = get_addr_str(tvb, offset, hop_afi, &addr_len);
 
     if (hop_str == NULL) {
@@ -1448,7 +1448,7 @@ dissect_lisp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
                     AFNUM_LCAF, afi);
         } else {
             lisp_lcaf_tree = proto_item_add_subtree(tir, ett_lisp_lcaf);
-            offset = dissect_lcaf(tvb, pinfo, lisp_tree, offset);
+            offset = dissect_lcaf(tvb, pinfo, lisp_lcaf_tree, offset);
         }
     }
 
