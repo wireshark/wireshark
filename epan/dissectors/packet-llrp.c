@@ -1684,8 +1684,6 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint       num;
     proto_item *ti;
     proto_tree *param_tree;
-    guint (*dissect_custom_parameter)(tvbuff_t *tvb,
-            packet_info *pinfo, proto_tree *tree, guint offset, guint param_end);
 
     while (((gint)(end - offset)) > 0)
     {
@@ -2208,10 +2206,9 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 PARAM_TREE_ADD(vendor_id, 4, ENC_BIG_ENDIAN);
                 switch(num) {
                 case LLRP_VENDOR_IMPINJ:
-                    dissect_custom_parameter = dissect_llrp_impinj_parameter;
+                    suboffset = dissect_llrp_impinj_parameter(tvb, pinfo, param_tree, suboffset, param_end);
                     break;
                 }
-                suboffset = dissect_custom_parameter(tvb, pinfo, param_tree, suboffset, param_end);
                 break;
             }
             /* Have we decoded exactly the number of bytes declared in the parameter? */
