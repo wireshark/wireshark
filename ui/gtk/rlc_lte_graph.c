@@ -962,6 +962,8 @@ static void graph_segment_list_free(struct graph *g)
 static void graph_element_lists_initialize(struct graph *g)
 {
     g->elists = (struct element_list *)g_malloc0(sizeof(struct element_list));
+    g->elists->elements = NULL;
+    g->elists->next = NULL;
 }
 
 static void graph_element_lists_make(struct graph *g)
@@ -2455,10 +2457,6 @@ static void graph_read_config(struct graph *g)
     /* Time origin should be shown as time in capture by default */
     g->style.flags = TIME_ORIGIN_CAP;
 
-    g->elists->next = (struct element_list *)g_malloc(sizeof(struct element_list));
-    g->elists->next->next = NULL;
-    g->elists->next->elements = NULL;
-
     g->y_axis->label = (const char ** )g_malloc(3 * sizeof(char * ));
     g->y_axis->label[0] = "Number";
     g->y_axis->label[1] = "Sequence";
@@ -2497,6 +2495,10 @@ static void rlc_lte_make_elmtlist(struct graph *g)
         /* Allocate elements for data */
         n = 1 + (5*data);
         e1 = elements1 = (struct element *)g_malloc(n*sizeof(struct element));
+
+        /* Allocate container for 2nd list of elements */
+        g->elists->next = (struct element_list *)g_malloc0(sizeof(struct element_list));
+
     } else {
         e0 = elements0 = g->elists->elements;
         e1 = elements1 = g->elists->next->elements;
