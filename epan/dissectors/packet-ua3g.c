@@ -155,7 +155,6 @@ extern e_ua_direction message_direction;
 #endif
 #define CS_SUPER_MSG_2          0x17
 #define CS_DEBUG_IN_LINE        0x18
-#define CS_UNSOLICITED_MSG      0x9F
 #define CS_NON_DIGIT_KEY_PUSHED 0x20    /* IP Phone */
 #define CS_VERSION_RESPONSE     0x21
 #define CS_I_M_HERE             0x22
@@ -169,6 +168,7 @@ extern e_ua_direction message_direction;
 #define CS_PERIPHERAL_CONTENT   0x2B    /* IP Phone */
 #define CS_TM_KEY_PUSHED        0x2D    /* IP Phone */
 #define CS_UA_DWL_PROTOCOL      0x50    /* Only UA NOE */
+#define CS_UNSOLICITED_MSG      0x9F
 
 /* System To Terminal Opcodes */
 static const value_string opcodes_vals_sys[] =
@@ -266,7 +266,6 @@ static const value_string opcodes_vals_term[] =
     {CS_IP_DEVICE_ROUTING    , "IP Device Routing"},
     {CS_SUPER_MSG_2          , "Super Message 2"},                      /* Same as CS To Terminal */
     {CS_DEBUG_IN_LINE        , "Debug Message"},
-    {CS_UNSOLICITED_MSG      , "Unsolicited Message"},
     {CS_NON_DIGIT_KEY_PUSHED , "Non-Digit Key Pushed"},                 /* IP Phone */
     {CS_VERSION_RESPONSE     , "Version Information"},
     {CS_I_M_HERE             , "I'm Here Response"},
@@ -280,6 +279,7 @@ static const value_string opcodes_vals_term[] =
     {CS_PERIPHERAL_CONTENT   , "Peripheral Content"},                   /* IP Phone - NOT EXPECTED */
     {CS_TM_KEY_PUSHED        , "TM Key Pushed"},                        /* IP Phone - NOT EXPECTED */
     {CS_UA_DWL_PROTOCOL      , "Download Protocol"},
+    {CS_UNSOLICITED_MSG      , "Unsolicited Message"},
     {0, NULL}
 };
 static value_string_ext opcodes_vals_term_ext = VALUE_STRING_EXT_INIT(opcodes_vals_term);
