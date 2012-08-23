@@ -23,8 +23,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* This dissector supports HDCP 2.x over TCP. For now, only the
-   authentication protocol messages are supported. */
+/*
+ * This dissector supports HDCP 2.x over TCP. For now, only the
+ * authentication protocol messages are supported.
+ *
+ * The specification of version 2 of the protocol can be found at
+ * http://www.digital-cp.com/files/static_page_files/2C1C0F30-0E09-E813-BFAB6BAAE8A76080/HDCP Interface Independent Adaptation Specification Rev2_0.pdf
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
