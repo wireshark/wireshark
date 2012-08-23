@@ -64,6 +64,7 @@ my @nofieldfilelist;
 my %unique;
 my @uniquefilelist;
 my @noregprotocolfilelist;
+my @periodinfilternamefilelist;
 
 my $showlinenoFlag = '';
 my $showautomatedFlag = '';
@@ -90,6 +91,7 @@ my $totalerrorcount = 0;
 my $errorfilecount = 0;
 my $onefield = 0;
 my $nofields = 0;
+my $noperiod = 0;
 my $noregprotocol = 1;
 my $automated = 0;
 my $more_tokens;
@@ -102,6 +104,8 @@ my $error = 0;
 sub checkprotoabbrev {
 	my $abbrev = "";
 	my $abbrevpos;
+	my $proto_abbrevpos1;
+	my $proto_abbrevpos2;
 	my $afterabbrev = "";
 	my $modprotabbrev = "";
 	my $errorline = 0;
@@ -126,6 +130,18 @@ sub checkprotoabbrev {
 			foreach (@protocols) {
 				if ($abbrev eq $_) {
 					$errorline = 0;
+				} elsif (index($_, ".") != -1) {
+				
+					#compare from start of string for each period found
+					$proto_abbrevpos1 = 0;
+					while ((($proto_abbrevpos2 = index($_, ".", $proto_abbrevpos1)) != -1) &&
+							($errorline == 1)) {
+						if ($abbrev eq substr($_, 0, $proto_abbrevpos2)) {
+							$errorline = 0;
+						}
+
+						$proto_abbrevpos1 = $proto_abbrevpos2+1;
+					}
 				}
 			}			
 		}
@@ -314,6 +330,7 @@ while (<>) {
 		$automated = 0;
 		$nofields = 0;
 		$onefield = 0;
+		$noperiod = 0;
 		$linenumber = 1;
 		%filters = ( );
 		@protocols = ( );
@@ -395,6 +412,10 @@ while (<>) {
 		} elsif (($state eq "s_proto_short_name") && ($restofline =~ /\s*\"([^\"]*)\"\s*(.*)/)) {
 			$more_tokens = 0;
 			$state = "s_proto_filter_name";
+			if ((index($1, ".") != -1) && ($noperiod == 0)) {
+				push(@periodinfilternamefilelist, "$currfile\n");
+				$noperiod = 1;
+			}
 			push(@protocols, $1);
 			$debug>1 && print "proto filter name: '$1'\n";
 		} elsif (($state eq "s_proto_short_name") && ($restofline =~ /\s*(([\w\d])+)\s*(.*)/)) {
@@ -504,6 +525,11 @@ if ($filecount > 1) {
 	}
 	print "\nNO FIELDS FILE LIST\n";
 	foreach (@nofieldfilelist) {
+		print $_;
+	}
+
+	print "\nPERIOD IN PROTO FILTER NAME FILE LIST\n";
+	foreach (@periodinfilternamefilelist) {
 		print $_;
 	}
 }
