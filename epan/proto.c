@@ -1567,7 +1567,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding == TRUE)
 				encoding = ENC_ASCII|ENC_LITTLE_ENDIAN;
-			n = get_uint_value(tree, tvb, start, length, encoding);
+			n = get_uint_value(tree, tvb, start, length, encoding & ~ENC_CHARENCODING_MASK);
 			proto_tree_set_string_tvb(new_fi, tvb, start + length, n,
 			    encoding);
 
