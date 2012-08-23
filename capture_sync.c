@@ -98,6 +98,7 @@
 #include "capture-wpcap.h"
 #endif
 
+#include "ui/pipe_input.h"
 #include "ui/ui_util.h"
 
 #include <wsutil/file_util.h>
