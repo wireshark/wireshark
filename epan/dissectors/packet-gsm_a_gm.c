@@ -4561,8 +4561,6 @@ static const value_string gsm_a_sm_cause_vals[] = {
 	{ 0x2d, "Syntactical errors in packet filter(s)" },
 	{ 0x2e, "PDP context without TFT already activated" },
 	{ 0x2f, "Multicast group membership time-out" },
-	{ 0x2c, "Semantic errors in packet filter(s)" },
-	{ 0x2d, "Syntactical errors in packet filter(s)" },
 	{ 0x30, "Request rejected, BCM violation" },
 	{ 0x32, "PDP type IPv4 only allowed" },
 	{ 0x33, "PDP type IPv6 only allowed" },
