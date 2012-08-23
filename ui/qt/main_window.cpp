@@ -69,10 +69,10 @@ MainWindow::MainWindow(QWidget *parent) :
     updateRecentFiles();
 
     df_combo_box_ = new DisplayFilterCombo();
-    const DisplayFilterEdit *dfEdit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
-    connect(dfEdit, SIGNAL(pushFilterSyntaxStatus(QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));
-    connect(dfEdit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
-    connect(dfEdit, SIGNAL(pushFilterSyntaxWarning(QString&)), main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
+    const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
+    connect(df_edit, SIGNAL(pushFilterSyntaxStatus(QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));
+    connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
+    connect(df_edit, SIGNAL(pushFilterSyntaxWarning(QString&)), main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
 
 #ifdef _WIN32
     // Qt <= 4.7 doesn't seem to style Windows toolbars. If we wanted to be really fancy we could use Blur Behind:
@@ -117,19 +117,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     packet_list_ = new PacketList(splitter_v_);
 
-    ProtoTree *protoTree = new ProtoTree(splitter_v_);
-    protoTree->setHeaderHidden(true);
+    ProtoTree *proto_tree = new ProtoTree(splitter_v_);
+    proto_tree->setHeaderHidden(true);
+    proto_tree->installEventFilter(this);
 
-    ByteViewTab *byteViewTab = new ByteViewTab(splitter_v_);
-    byteViewTab->setTabPosition(QTabWidget::South);
-    byteViewTab->setDocumentMode(true);
+    ByteViewTab *byte_view_tab = new ByteViewTab(splitter_v_);
+    byte_view_tab->setTabPosition(QTabWidget::South);
+    byte_view_tab->setDocumentMode(true);
 
-    packet_list_->setProtoTree(protoTree);
-    packet_list_->setByteViewTab(byteViewTab);
+    packet_list_->setProtoTree(proto_tree);
+    packet_list_->setByteViewTab(byte_view_tab);
+    packet_list_->installEventFilter(this);
 
     splitter_v_->addWidget(packet_list_);
-    splitter_v_->addWidget(protoTree);
-    splitter_v_->addWidget(byteViewTab);
+    splitter_v_->addWidget(proto_tree);
+    splitter_v_->addWidget(byte_view_tab);
 
     main_ui_->mainStack->addWidget(splitter_v_);
 
@@ -156,16 +158,16 @@ MainWindow::MainWindow(QWidget *parent) :
             packet_list_, SLOT(goLastPacket()));
 
     connect(main_ui_->actionViewExpandSubtrees, SIGNAL(triggered()),
-            protoTree, SLOT(expandSubtrees()));
+            proto_tree, SLOT(expandSubtrees()));
     connect(main_ui_->actionViewExpandAll, SIGNAL(triggered()),
-            protoTree, SLOT(expandAll()));
+            proto_tree, SLOT(expandAll()));
     connect(main_ui_->actionViewCollapseAll, SIGNAL(triggered()),
-            protoTree, SLOT(collapseAll()));
+            proto_tree, SLOT(collapseAll()));
 
-    connect(protoTree, SIGNAL(protoItemSelected(QString&)),
+    connect(proto_tree, SIGNAL(protoItemSelected(QString&)),
             main_ui_->statusBar, SLOT(pushFieldStatus(QString&)));
 
-    connect(protoTree, SIGNAL(protoItemSelected(bool)),
+    connect(proto_tree, SIGNAL(protoItemSelected(bool)),
             main_ui_->actionViewExpandSubtrees, SLOT(setEnabled(bool)));
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
@@ -174,6 +176,23 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete main_ui_;
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
+
+    // The user typed some text. Start filling in a filter.
+    // We may need to be more choosy here. We just need to catch events for the packet list,
+    // proto tree, and main welcome widgets.
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *kevt = static_cast<QKeyEvent *>(event);
+        if (kevt->text().length() > 0 && kevt->text()[0].isPrint()) {
+            df_combo_box_->lineEdit()->insert(kevt->text());
+            df_combo_box_->lineEdit()->setFocus();
+            return true;
+        }
+    }
+
+    return QObject::eventFilter(obj, event);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event) {
@@ -194,13 +213,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
         }
         return; // goToLineEdit didn't want it and we don't either.
     }
-
-    // The user typed some text. Start filling in a filter.
-    // XXX We need to install an event filter for the packet list and proto tree
-    // XXX Disabled for now. For some reason we crash here when pressing enter or esc.
-//    if ((event->modifiers() == Qt::NoModifier || event->modifiers() == Qt::ShiftModifier) && event->text().length() > 0) {
-//        QApplication::sendEvent(df_combo_box_, event);
-//    }
 
     // Move up & down the packet list.
     if (event->key() == Qt::Key_F7) {

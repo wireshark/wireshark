@@ -38,7 +38,7 @@ class PacketList : public QTreeView
 public:
     explicit PacketList(QWidget *parent = 0);
     PacketListModel *packetListModel() const;
-    void setProtoTree(ProtoTree *protoTree);
+    void setProtoTree(ProtoTree *proto_tree);
     void setByteViewTab(ByteViewTab *byteViewTab);
     void clear();
     void writeRecent(FILE *rf);

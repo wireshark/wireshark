@@ -30,6 +30,7 @@
 #include <epan/proto.h>
 
 #include "display_filter_edit.h"
+#include "tango_colors.h"
 
 #include "ui/utf8_entities.h"
 
@@ -82,17 +83,17 @@ UIMiniCancelButton::UIMiniCancelButton(QWidget *pParent /* = 0 */)
 // XXX - We need simplified (button- and dropdown-free) versions for use in dialogs and field-only checking.
 
 DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
-    QLineEdit(parent), m_plain(plain)
+    QLineEdit(parent), plain_(plain)
 {
-    m_fieldNameOnly = false;
-    m_syntaxState = Empty;
+    field_name_only_ = false;
+    syntax_state_ = Empty;
 
     setAccessibleName(tr("Display filter entry"));
 
-    if (m_plain) {
-        m_emptyFilterMessage = QString(tr("Enter a display filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
+    if (plain_) {
+        empty_filter_message_ = QString(tr("Enter a display filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
     } else {
-        m_emptyFilterMessage = QString(tr("Apply a display filter %1 <%2/>")).arg(UTF8_HORIZONTAL_ELLIPSIS)
+        empty_filter_message_ = QString(tr("Apply a display filter %1 <%2/>")).arg(UTF8_HORIZONTAL_ELLIPSIS)
     .arg(DEFAULT_MODIFIER);
     }
 
@@ -106,9 +107,9 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     // XXX - Move bookmark and apply buttons to the toolbar a la Firefox, Chrome & Safari?
     // XXX - Use native buttons on OS X?
 
-    m_bookmarkButton = new QToolButton(this);
-    m_bookmarkButton->setCursor(Qt::ArrowCursor);
-    m_bookmarkButton->setStyleSheet(QString(
+    bookmark_button_ = new QToolButton(this);
+    bookmark_button_->setCursor(Qt::ArrowCursor);
+    bookmark_button_->setStyleSheet(QString(
             "QToolButton { /* all types of tool button */"
             "  border 0 0 0 0;"
             "  border-right: %1px solid gray;"
@@ -132,13 +133,13 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
 //            "                                      stop: 0 #dadbde, stop: 1 #f6f7fa);"
 //            "}"
 
-            ).arg(m_plain ? 0 : 1)
+            ).arg(plain_ ? 0 : 1)
             );
-    connect(m_bookmarkButton, SIGNAL(clicked()), this, SLOT(showDisplayFilterDialog()));
+    connect(bookmark_button_, SIGNAL(clicked()), this, SLOT(showDisplayFilterDialog()));
 
-    m_clearButton = new QToolButton(this);
-    m_clearButton->setCursor(Qt::ArrowCursor);
-    m_clearButton->setStyleSheet(
+    clear_button_ = new QToolButton(this);
+    clear_button_->setCursor(Qt::ArrowCursor);
+    clear_button_->setStyleSheet(
             "QToolButton {"
             "  image: url(:/dfilter/dfilter_erase_normal.png);"
             "  border: none;"
@@ -151,15 +152,15 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
             "  image: url(:/dfilter/dfilter_erase_selected.png);"
             "}"
             );
-    m_clearButton->hide();
-    connect(m_clearButton, SIGNAL(clicked()), this, SLOT(clear()));
+    clear_button_->hide();
+    connect(clear_button_, SIGNAL(clicked()), this, SLOT(clear()));
     connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(checkFilter(const QString&)));
 
-    m_applyButton = NULL;
-    if (!m_plain) {
-        m_applyButton = new QToolButton(this);
-        m_applyButton->setCursor(Qt::ArrowCursor);
-        m_applyButton->setStyleSheet(
+    apply_button_ = NULL;
+    if (!plain_) {
+        apply_button_ = new QToolButton(this);
+        apply_button_->setCursor(Qt::ArrowCursor);
+        apply_button_->setStyleSheet(
                 "QToolButton { /* all types of tool button */"
                 "  border 0 0 0 0;"
                 "  border-top-right-radius: 3px;"
@@ -175,20 +176,20 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
                 "  image: url(:/dfilter/dfilter_apply_pressed.png);"
                 "}"
                 );
-        connect(m_applyButton, SIGNAL(clicked()), this, SLOT(applyDisplayFilter()));
+        connect(apply_button_, SIGNAL(clicked()), this, SLOT(applyDisplayFilter()));
         connect(this, SIGNAL(returnPressed()), this, SLOT(applyDisplayFilter()));
     }
 
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    QSize bksz = m_bookmarkButton->sizeHint();
-    QSize cbsz = m_clearButton->sizeHint();
+    QSize bksz = bookmark_button_->sizeHint();
+    QSize cbsz = clear_button_->sizeHint();
     QSize apsz;
-    if (m_applyButton) {
-        apsz = m_applyButton->sizeHint();
+    if (apply_button_) {
+        apsz = apply_button_->sizeHint();
     } else {
         apsz.setHeight(0); apsz.setWidth(0);
     }
-    m_syntaxStyleSheet = QString(
+    syntax_style_sheet_ = QString(
             "DisplayFilterEdit {"
             "  padding-left: %1px;"
             "  margin-left: %2px;"
@@ -197,22 +198,19 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
             "}"
 
             // Should the backgrounds fade away on the right?
-            // Tango "Scarlet Red"
             "DisplayFilterEdit[syntaxState=\"%4\"] {"
             "  color: white;"
-            "  background-color: rgba(239, 41, 41, 128);"
+            "  background-color: #%7;"
             "}"
 
-            // Tango "Butter"
             "DisplayFilterEdit[syntaxState=\"%5\"] {"
-            "  color: black;"
-            "  background-color: rgba(252, 233, 79, 128);"
+            "  color: #%8;"
+            "  background-color: #%9;"
             "}"
 
-            // Tango "Chameleon
             "DisplayFilterEdit[syntaxState=\"%6\"] {"
-            "  color: black;"
-            "  background-color: rgba(138, 226, 52, 128);"
+            "  color: #%8;"
+            "  background-color: #%10;"
             "}"
             )
             .arg(frameWidth + 1)
@@ -220,8 +218,13 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
             .arg(cbsz.width() + apsz.width() + frameWidth + 1)
             .arg(Invalid)
             .arg(Deprecated)
-            .arg(Valid);
-    setStyleSheet(m_syntaxStyleSheet);
+            .arg(Valid)
+            .arg(tango_scarlet_red_1, 6, 16, QChar('0'))   // Invalid
+            .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Deprecated/valid foreground
+            .arg(tango_butter_1, 6, 16, QChar('0'))   // Deprecated
+            .arg(tango_chameleon_1, 6, 16, QChar('0'))   // Valid
+            ;
+    setStyleSheet(syntax_style_sheet_);
 }
 
 void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
@@ -244,7 +247,7 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
         cr.setLeft(cr.left() + 2);
         cr.setRight(cr.right() - 2);
 
-        p.drawText(cr, Qt::AlignLeft|Qt::AlignVCenter, m_emptyFilterMessage);
+        p.drawText(cr, Qt::AlignLeft|Qt::AlignVCenter, empty_filter_message_);
     }
     // else check filter syntax and set the background accordingly
     // XXX - Should we add little warning/error icons as well?
@@ -252,18 +255,18 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
 
 void DisplayFilterEdit::resizeEvent(QResizeEvent *)
 {
-    QSize cbsz = m_clearButton->sizeHint();
+    QSize cbsz = clear_button_->sizeHint();
     QSize apsz;
-    if (m_applyButton) {
-        apsz = m_applyButton->sizeHint();
+    if (apply_button_) {
+        apsz = apply_button_->sizeHint();
     } else {
         apsz.setHeight(0); apsz.setWidth(0);
     }
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    m_clearButton->move(rect().right() - frameWidth - cbsz.width() - apsz.width(),
+    clear_button_->move(rect().right() - frameWidth - cbsz.width() - apsz.width(),
                       (rect().bottom() + 1 - cbsz.height())/2);
-    if (m_applyButton) {
-        m_applyButton->move(rect().right() - frameWidth - apsz.width(),
+    if (apply_button_) {
+        apply_button_->move(rect().right() - frameWidth - apsz.width(),
                           (rect().bottom() + 1 - apsz.height())/2);
     }
 }
@@ -274,22 +277,22 @@ void DisplayFilterEdit::checkFilter(const QString& text)
     GPtrArray *depr = NULL;
     guchar c;
 
-    m_clearButton->setVisible(!text.isEmpty());
+    clear_button_->setVisible(!text.isEmpty());
 
     popFilterSyntaxStatus();
 
-    if (m_fieldNameOnly && (c = proto_check_field_name(text.toUtf8().constData()))) {
-        m_syntaxState = Invalid;
+    if (field_name_only_ && (c = proto_check_field_name(text.toUtf8().constData()))) {
+        syntax_state_ = Invalid;
         emit pushFilterSyntaxStatus(QString().sprintf("Illegal character in field name: '%c'", c));
     } else if (dfilter_compile(text.toUtf8().constData(), &dfp)) {
         if (dfp != NULL) {
             depr = dfilter_deprecated_tokens(dfp);
         }
         if (text.length() < 1) {
-            m_syntaxState = Empty;
+            syntax_state_ = Empty;
         } else if (depr) {
             /* You keep using that word. I do not think it means what you think it means. */
-            m_syntaxState = Deprecated;
+            syntax_state_ = Deprecated;
             /*
              * We're being lazy and only printing the first "problem" token.
              * Would it be better to print all of them?
@@ -297,11 +300,11 @@ void DisplayFilterEdit::checkFilter(const QString& text)
             emit pushFilterSyntaxWarning(QString().sprintf("\"%s\" may have unexpected results (see the User's Guide)",
                                                           (const char *) g_ptr_array_index(depr, 0)));
         } else {
-            m_syntaxState = Valid;
+            syntax_state_ = Valid;
         }
         dfilter_free(dfp);
     } else {
-        m_syntaxState = Invalid;
+        syntax_state_ = Invalid;
         QString invalidMsg(tr("Invalid filter"));
         if (dfilter_error_msg) {
             invalidMsg.append(QString().sprintf(": %s", dfilter_error_msg));
@@ -309,9 +312,9 @@ void DisplayFilterEdit::checkFilter(const QString& text)
         emit pushFilterSyntaxStatus(invalidMsg);
     }
 
-    setStyleSheet(m_syntaxStyleSheet);
-    if (m_applyButton) {
-        m_applyButton->setEnabled(m_syntaxState == Empty || m_syntaxState == Valid);
+    setStyleSheet(syntax_style_sheet_);
+    if (apply_button_) {
+        apply_button_->setEnabled(syntax_state_ == Empty || syntax_state_ == Valid);
     }
 }
 
@@ -326,7 +329,7 @@ void DisplayFilterEdit::applyDisplayFilter()
     gchar *dftext = NULL;
     cf_status_t cf_status;
 
-    if (m_syntaxState != Valid && m_syntaxState != Empty) {
+    if (syntax_state_ != Valid && syntax_state_ != Empty) {
         return;
     }
 
@@ -336,8 +339,8 @@ void DisplayFilterEdit::applyDisplayFilter()
     g_free(dftext);
 
     if (cf_status == CF_OK) {
-        if (m_applyButton) {
-            m_applyButton->setEnabled(false);
+        if (apply_button_) {
+            apply_button_->setEnabled(false);
         }
         if (dfString.length() < 1) {
 //            gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_CLEAR_KEY), FALSE);

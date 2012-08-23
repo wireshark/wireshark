@@ -260,14 +260,14 @@ PacketList::PacketList(QWidget *parent) :
     byte_view_tab_ = NULL;
 }
 
-void PacketList::setProtoTree (ProtoTree *protoTree) {
-    proto_tree_ = protoTree;
+void PacketList::setProtoTree (ProtoTree *proto_tree) {
+    proto_tree_ = proto_tree;
 
     connect(proto_tree_, SIGNAL(goToFrame(int)), this, SLOT(goToPacket(int)));
 }
 
-void PacketList::setByteViewTab (ByteViewTab *byteViewTab) {
-    byte_view_tab_ = byteViewTab;
+void PacketList::setByteViewTab (ByteViewTab *byte_view_tab) {
+    byte_view_tab_ = byte_view_tab;
 }
 
 PacketListModel *PacketList::packetListModel() const {

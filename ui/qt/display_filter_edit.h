@@ -35,7 +35,7 @@ public:
     explicit DisplayFilterEdit(QWidget *parent = 0, bool plain = false);
     enum SyntaxState { Empty, Invalid, Deprecated, Valid };
     SyntaxState syntaxState() const
-    { return m_syntaxState; }
+    { return syntax_state_; }
 
 
 protected:
@@ -50,14 +50,14 @@ private slots:
     void applyDisplayFilter();
 
 private:
-    bool m_plain;
-    bool m_fieldNameOnly;
-    SyntaxState m_syntaxState;
-    QString m_emptyFilterMessage;
-    QString m_syntaxStyleSheet;
-    QToolButton *m_bookmarkButton;
-    QToolButton *m_clearButton;
-    QToolButton *m_applyButton;
+    bool plain_;
+    bool field_name_only_;
+    SyntaxState syntax_state_;
+    QString empty_filter_message_;
+    QString syntax_style_sheet_;
+    QToolButton *bookmark_button_;
+    QToolButton *clear_button_;
+    QToolButton *apply_button_;
 
 signals:
     void pushFilterSyntaxStatus(QString&);
