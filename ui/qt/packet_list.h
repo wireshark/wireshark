@@ -40,6 +40,7 @@ public:
     PacketListModel *packetListModel() const;
     void setProtoTree(ProtoTree *proto_tree);
     void setByteViewTab(ByteViewTab *byteViewTab);
+    void updateAll();
     void clear();
     void writeRecent(FILE *rf);
 

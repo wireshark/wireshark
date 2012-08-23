@@ -44,89 +44,15 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cfPtr) :
     cf = cfPtr;
 }
 
-gint PacketListModel::appendPacket(frame_data *fdata)
-{
-    PacketListRecord *record = new PacketListRecord(fdata);
-    gint pos = visibleRows.count() + 1;
-
-    physicalRows << record;
-
-    if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
-        beginInsertRows(QModelIndex(), pos, pos);
-        visibleRows << record;
-        endInsertRows();
-    } else {
-        pos = -1;
-    }
-    return pos;
-}
-
-frame_data *PacketListModel::getRowFdata(int row) {
-    if (row >= visibleRows.count())
-        return NULL;
-    PacketListRecord *record = visibleRows[row];
-    if (!record)
-        return NULL;
-    return record->getFdata();
-}
-
-
-QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
-                               int role) const
-{
-    if (orientation == Qt::Horizontal && section < cf->cinfo.num_cols) {
-        switch (role) {
-        case Qt::DisplayRole:
-            return cf->cinfo.col_title[section];
-        default:
-            break;
-        }
-    }
-
-    return QVariant();
-}
-
-guint PacketListModel::recreateVisibleRows()
-{
-    int pos = visibleRows.count() + 1;
-    PacketListRecord *record;
-
-    beginResetModel();
-    visibleRows.clear();
-    endResetModel();
-    beginInsertRows(QModelIndex(), pos, pos);
-    foreach (record, physicalRows) {
-        if (record->getFdata()->flags.passed_dfilter || record->getFdata()->flags.ref_time) {
-            visibleRows << record;
-        }
-    }
-    endInsertRows();
-    return visibleRows.count();
-}
-
-int PacketListModel::visibleIndexOf(frame_data *fdata) const
-{
-    int row = 0;
-    foreach (PacketListRecord *record, visibleRows) {
-        if (record->getFdata() == fdata) {
-            return row;
-        }
-        row++;
-    }
-
-    return -1;
-}
-
-
 // Packet list records have no children (for now, at least).
 QModelIndex PacketListModel::index(int row, int column, const QModelIndex &parent)
             const
 {
     Q_UNUSED(parent);
-    if (row >= visibleRows.count() || row < 0 || column >= cf->cinfo.num_cols)
+    if (row >= visible_rows_.count() || row < 0 || column >= cf->cinfo.num_cols)
         return QModelIndex();
 
-    PacketListRecord *record = visibleRows[row];
+    PacketListRecord *record = visible_rows_[row];
 
     return createIndex(row, column, record);
 }
@@ -138,12 +64,41 @@ QModelIndex PacketListModel::parent(const QModelIndex &index) const
     return QModelIndex();
 }
 
+guint PacketListModel::recreateVisibleRows()
+{
+    int pos = visible_rows_.count() + 1;
+    PacketListRecord *record;
+
+    beginResetModel();
+    visible_rows_.clear();
+    endResetModel();
+    beginInsertRows(QModelIndex(), pos, pos);
+    foreach (record, physical_rows_) {
+        if (record->getFdata()->flags.passed_dfilter || record->getFdata()->flags.ref_time) {
+            visible_rows_ << record;
+        }
+    }
+    endInsertRows();
+    return visible_rows_.count();
+}
+
+void PacketListModel::setColorEnabled(bool enable_color) {
+    enable_color_ = enable_color;
+}
+
+void PacketListModel::clear() {
+    beginResetModel();
+    physical_rows_.clear();
+    visible_rows_.clear();
+    endResetModel();
+}
+
 int PacketListModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.column() >= cf->cinfo.num_cols)
         return 0;
 
-    return visibleRows.count();
+    return visible_rows_.count();
 }
 
 int PacketListModel::columnCount(const QModelIndex &parent) const
@@ -213,7 +168,6 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     union wtap_pseudo_header pseudo_header; /* Packet pseudo_header */
     guint8 pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
     gboolean dissect_columns = TRUE; // XXX - Currently only a placeholder
-    gboolean dissect_color = TRUE; // XXX - Currently only a placeholder
 
     if (dissect_columns)
         cinfo = &cf->cinfo;
@@ -241,28 +195,28 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
             //            }
             //            record->columnized = TRUE;
         }
-        if (dissect_color) {
+        if (enable_color_) {
             fdata->color_filter = NULL;
             //            record->colorized = TRUE;
         }
         return QVariant();	/* error reading the frame */
     }
 
-    create_proto_tree = (color_filters_used() && dissect_color) ||
+    create_proto_tree = (color_filters_used() && enable_color_) ||
                         (have_custom_cols(cinfo) && dissect_columns);
 
     epan_dissect_init(&edt,
                       create_proto_tree,
                       FALSE /* proto_tree_visible */);
 
-    if (dissect_color)
+    if (enable_color_)
         color_filters_prime_edt(&edt);
     if (dissect_columns)
         col_custom_prime_edt(&edt, cinfo);
 
     epan_dissect_run(&edt, &pseudo_header, pd, fdata, cinfo);
 
-    if (dissect_color)
+    if (enable_color_)
         fdata->color_filter = color_filters_colorize_packet(&edt);
 
     if (dissect_columns) {
@@ -279,7 +233,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
 
     //    if (dissect_columns)
     //            record->columnized = TRUE;
-    //    if (dissect_color)
+    //    if (enable_color_)
     //            record->colorized = TRUE;
 
     epan_dissect_cleanup(&edt);
@@ -287,9 +241,56 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     return record->data(col_num, cinfo);
 }
 
-void PacketListModel::clear() {
-    beginResetModel();
-    physicalRows.clear();
-    visibleRows.clear();
-    endResetModel();
+QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
+                               int role) const
+{
+    if (orientation == Qt::Horizontal && section < cf->cinfo.num_cols) {
+        switch (role) {
+        case Qt::DisplayRole:
+            return cf->cinfo.col_title[section];
+        default:
+            break;
+        }
+    }
+
+    return QVariant();
+}
+
+gint PacketListModel::appendPacket(frame_data *fdata)
+{
+    PacketListRecord *record = new PacketListRecord(fdata);
+    gint pos = visible_rows_.count() + 1;
+
+    physical_rows_ << record;
+
+    if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
+        beginInsertRows(QModelIndex(), pos, pos);
+        visible_rows_ << record;
+        endInsertRows();
+    } else {
+        pos = -1;
+    }
+    return pos;
+}
+
+frame_data *PacketListModel::getRowFdata(int row) {
+    if (row >= visible_rows_.count())
+        return NULL;
+    PacketListRecord *record = visible_rows_[row];
+    if (!record)
+        return NULL;
+    return record->getFdata();
+}
+
+int PacketListModel::visibleIndexOf(frame_data *fdata) const
+{
+    int row = 0;
+    foreach (PacketListRecord *record, visible_rows_) {
+        if (record->getFdata() == fdata) {
+            return row;
+        }
+        row++;
+    }
+
+    return -1;
 }

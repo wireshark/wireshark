@@ -48,17 +48,18 @@ public:
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
+    guint recreateVisibleRows();
+    void setColorEnabled(bool enable_color);
+    void clear();
+
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                             int role = Qt::DisplayRole) const;
 
     gint appendPacket(frame_data *fdata);
     frame_data *getRowFdata(int row);
-    void clear();
-
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant headerData(int section, Qt::Orientation orientation,
-                             int role = Qt::DisplayRole) const;
-    guint recreateVisibleRows();
     int visibleIndexOf(frame_data *fdata) const;
 
 
@@ -68,11 +69,13 @@ public slots:
 
 private:
     capture_file *cf;
-    QList<QString> colNames;
-    QVector<PacketListRecord *> visibleRows;
-    QVector<PacketListRecord *> physicalRows;
-    QFont plFont;
-    int headerHeight;
+    QList<QString> col_names_;
+    QVector<PacketListRecord *> visible_rows_;
+    QVector<PacketListRecord *> physical_rows_;
+    QFont pl_font_;
+
+    int header_height_;
+    bool enable_color_;
 };
 
 #endif // PACKET_LIST_MODEL_H

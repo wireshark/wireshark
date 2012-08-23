@@ -43,18 +43,18 @@
 
 #include "ui/main_statusbar.h"
 #include "ui/recent.h"
+#include "ui/recent_utils.h"
 #include "ui/ui_util.h"
 
 #include <QTreeWidget>
 #include <QTabWidget>
 #include <QTextEdit>
-
-static gboolean enable_color;
+#include <QScrollBar>
 
 // If we ever add the ability to open multiple capture files we might be
 // able to use something like QMap<capture_file *, PacketList *> to match
 // capture files against packet lists and models.
-static PacketList *cur_packet_list = NULL;
+static PacketList *gbl_cur_packet_list = NULL;
 
 guint
 new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo)
@@ -62,7 +62,7 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
     Q_UNUSED(cinfo);
     Q_UNUSED(pinfo);
 
-    if (!cur_packet_list)
+    if (!gbl_cur_packet_list)
         return 0;
 
     /* fdata should be filled with the stuff we need
@@ -70,7 +70,7 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
      */
     guint visible_pos;
 
-    visible_pos = cur_packet_list->packetListModel()->appendPacket(fdata);
+    visible_pos = gbl_cur_packet_list->packetListModel()->appendPacket(fdata);
     return visible_pos;
 }
 
@@ -94,19 +94,19 @@ g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: new_packet_list_resize_column %d", col);
 void
 new_packet_list_select_first_row(void)
 {
-    if (!cur_packet_list)
+    if (!gbl_cur_packet_list)
         return;
-    cur_packet_list->goFirstPacket();
-    cur_packet_list->setFocus();
+    gbl_cur_packet_list->goFirstPacket();
+    gbl_cur_packet_list->setFocus();
 }
 
 void
 new_packet_list_select_last_row(void)
 {
-    if (!cur_packet_list)
+    if (!gbl_cur_packet_list)
         return;
-    cur_packet_list->goLastPacket();
-    cur_packet_list->setFocus();
+    gbl_cur_packet_list->goLastPacket();
+    gbl_cur_packet_list->setFocus();
 }
 
 /*
@@ -117,9 +117,9 @@ new_packet_list_select_last_row(void)
 gboolean
 new_packet_list_select_row_from_data(frame_data *fdata_needle)
 {
-    int row = cur_packet_list->packetListModel()->visibleIndexOf(fdata_needle);
+    int row = gbl_cur_packet_list->packetListModel()->visibleIndexOf(fdata_needle);
     if (row >= 0) {
-        cur_packet_list->setCurrentIndex(cur_packet_list->packetListModel()->index(row,0));
+        gbl_cur_packet_list->setCurrentIndex(gbl_cur_packet_list->packetListModel()->index(row,0));
         return TRUE;
     }
 
@@ -129,114 +129,88 @@ new_packet_list_select_row_from_data(frame_data *fdata_needle)
 gboolean
 new_packet_list_check_end(void)
 {
-        gboolean at_end = FALSE;
-//	GtkAdjustment *adj;
-
-        g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: new_packet_list_check_end");
-
-//	adj = gtk_tree_view_get_vadjustment(GTK_TREE_VIEW(packetlist->view));
-//	g_return_val_if_fail(adj != NULL, FALSE);
-
-//#if GTK_CHECK_VERSION(2,14,0)
-//	if (gtk_adjustment_get_value(adj) >= gtk_adjustment_get_upper(adj) - gtk_adjustment_get_page_size(adj)) {
-//#else
-//	if (adj->value >= adj->upper - adj->page_size) {
-//#endif
-//		at_end = TRUE;
-//	}
-//#ifdef HAVE_LIBPCAP
-//#if GTK_CHECK_VERSION(2,14,0)
-//	if (gtk_adjustment_get_value(adj) > 0 && at_end != last_at_end && at_end != auto_scroll_live) {
-//#else
-//	if (adj->value > 0 && at_end != last_at_end && at_end != auto_scroll_live) {
-//#endif
-//		menu_auto_scroll_live_changed(at_end);
-//	}
-//#endif
-//	last_at_end = at_end;
-        return at_end;
+    if (gbl_cur_packet_list) {
+        QScrollBar *sb = gbl_cur_packet_list->verticalScrollBar();
+        if (sb && sb->isVisible() && sb->value() == sb->maximum()) {
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 void
 new_packet_list_clear(void)
 {
-
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: new_packet_list_clear");
-
-    cur_packet_list->clear();
+    if (gbl_cur_packet_list) {
+        gbl_cur_packet_list->clear();
+    }
 }
 
 void
 new_packet_list_enable_color(gboolean enable)
 {
-    enable_color = enable;
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: new_packet_list_enable_color: %d", enable);
-
-    //	gtk_widget_queue_draw (packetlist->view);
+    if (gbl_cur_packet_list && gbl_cur_packet_list->packetListModel()) {
+        gbl_cur_packet_list->packetListModel()->setColorEnabled(enable);
+        gbl_cur_packet_list->update();
+    }
 }
 
 void
 new_packet_list_freeze(void)
 {
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: new_packet_list_freeze");
-//	/* So we don't lose the model by the time we want to thaw it */
-//	g_object_ref(packetlist);
-
-//	/* Detach view from model */
-//	gtk_tree_view_set_model(GTK_TREE_VIEW(packetlist->view), NULL);
+    if (gbl_cur_packet_list) {
+        gbl_cur_packet_list->setUpdatesEnabled(false);
+    }
 }
 
 void
 new_packet_list_thaw(void)
 {
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: new_packet_list_thaw");
-//	/* Apply model */
-//	gtk_tree_view_set_model( GTK_TREE_VIEW(packetlist->view), GTK_TREE_MODEL(packetlist));
+    if (gbl_cur_packet_list) {
+        gbl_cur_packet_list->setUpdatesEnabled(true);
+    }
 
-//	/* Remove extra reference added by new_packet_list_freeze() */
-//	g_object_unref(packetlist);
-
-        packets_bar_update();
+    packets_bar_update();
 }
 
 void
 new_packet_list_recreate_visible_rows(void)
 {
-    cur_packet_list->packetListModel()->recreateVisibleRows();
+    if (gbl_cur_packet_list && gbl_cur_packet_list->packetListModel()) {
+        gbl_cur_packet_list->packetListModel()->recreateVisibleRows();
+    }
 }
 
 frame_data *
 new_packet_list_get_row_data(gint row)
 {
-    if (!cur_packet_list)
-        return NULL;
-    return cur_packet_list->packetListModel()->getRowFdata(row);
+    if (gbl_cur_packet_list && gbl_cur_packet_list->packetListModel()) {
+        return gbl_cur_packet_list->packetListModel()->getRowFdata(row);
+    }
+    return NULL;
 }
 
 void
 new_packet_list_moveto_end(void)
 {
-    if (cur_packet_list)
-        cur_packet_list->goLastPacket();
+    if (gbl_cur_packet_list)
+        gbl_cur_packet_list->goLastPacket();
 }
 
 /* Redraw the packet list *and* currently-selected detail */
 void
 new_packet_list_queue_draw(void)
 {
-//    GtkTreeSelection *selection;
-//    GtkTreeIter iter;
-//    gint row;
+    if (gbl_cur_packet_list)
+        gbl_cur_packet_list->updateAll();
+}
 
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: new_packet_list_queue_draw");
-//    gtk_widget_queue_draw (packetlist->view);
+void
+new_packet_list_recent_write_all(FILE *rf) {
+    if (!gbl_cur_packet_list)
+        return;
 
-//    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
-//    if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
-//        return;
-//    row = row_number_from_iter(&iter);
-//    cf_select_packet(&cfile, row);
-    cf_select_packet(&cfile, 1);
+    gbl_cur_packet_list->writeRecent(rf);
 }
 
 #define MIN_COL_WIDTH_STR "...."
@@ -252,9 +226,11 @@ PacketList::PacketList(QWidget *parent) :
 
     packet_list_model_ = new PacketListModel(this, &cfile);
     setModel(packet_list_model_);
+    packet_list_model_->setColorEnabled(true); // We don't yet fetch color settings.
+//    packet_list_model_->setColorEnabled(recent.packet_list_colorize);
 
-    g_assert(cur_packet_list == NULL);
-    cur_packet_list = this;
+    g_assert(gbl_cur_packet_list == NULL);
+    gbl_cur_packet_list = this;
 
     proto_tree_ = NULL;
     byte_view_tab_ = NULL;
@@ -328,6 +304,15 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     }
 }
 
+// Redraw the packet list and detail
+void PacketList::updateAll() {
+    update();
+
+    if (selectedIndexes().length() > 0) {
+        cf_select_packet(&cfile, selectedIndexes()[0].row());
+    }
+}
+
 void PacketList::clear() {
     //    packet_history_clear();
     packetListModel()->clear();
@@ -338,17 +323,10 @@ void PacketList::clear() {
         delete byte_view_tab_->currentWidget();
     }
 
-//	/* XXX is this correct in all cases?
-//	 * Reset the sort column, use packetlist as model in case the list is frozen.
-//	 */
-    cur_packet_list->sortByColumn(0, Qt::AscendingOrder);
-}
-
-extern "C" void new_packet_list_recent_write_all(FILE *rf) {
-    if (!cur_packet_list)
-        return;
-
-    cur_packet_list->writeRecent(rf);
+    /* XXX is this correct in all cases?
+     * Reset the sort column, use packetlist as model in case the list is frozen.
+     */
+    gbl_cur_packet_list->sortByColumn(0, Qt::AscendingOrder);
 }
 
 void PacketList::writeRecent(FILE *rf) {
@@ -380,8 +358,6 @@ void PacketList::writeRecent(FILE *rf) {
     fprintf (rf, "\n");
 
 }
-
-#include <QDebug>
 
 void PacketList::goNextPacket(void) {
     setCurrentIndex(moveCursor(MoveDown, Qt::NoModifier));
