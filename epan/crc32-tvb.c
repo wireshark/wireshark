@@ -98,10 +98,7 @@ crc32_802_tvb(tvbuff_t *tvb, guint len)
 	c_crc = crc32_ccitt_tvb(tvb, len);
 
 	/* Byte reverse. */
-	c_crc = ((unsigned char)(c_crc>>0)<<24) |
-		((unsigned char)(c_crc>>8)<<16) |
-		((unsigned char)(c_crc>>16)<<8) |
-		((unsigned char)(c_crc>>24)<<0);
+	c_crc = GUINT32_SWAP_LE_BE(c_crc);
 
 	return ( c_crc );
 }
