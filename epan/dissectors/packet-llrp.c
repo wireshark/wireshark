@@ -1693,7 +1693,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         {
             type = tvb_get_ntohs(tvb, offset);
             len = tvb_get_ntohs(tvb, offset + 2);
-            
+
             param_end = offset + len;
 
             if (len < LLRP_TLV_LEN_MIN)
@@ -2383,7 +2383,7 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32     spec_id, vendor;
     proto_item *request_item, *antenna_item, *gpi_item, *gpo_item;
     guint (*dissect_custom_message)(tvbuff_t *tvb,
-            packet_info *pinfo, proto_tree *tree, guint offset);
+            packet_info *pinfo, proto_tree *tree, guint offset) = NULL;
 
     ends_with_parameters = FALSE;
     switch (type)
@@ -2562,7 +2562,8 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ends_with_parameters = TRUE;
                 break;
             }
-            offset = dissect_custom_message(tvb, pinfo, tree, offset);
+            if (dissect_custom_message)
+                offset = dissect_custom_message(tvb, pinfo, tree, offset);
             break;
         /* Some have no extra data expected */
         case LLRP_TYPE_KEEPALIVE:
