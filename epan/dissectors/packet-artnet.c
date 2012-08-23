@@ -609,12 +609,11 @@ static const value_string artnet_oem_code_vals[] = {
   { 0x8003, "Artistic Licence:No-Worries XT:Real time data record - playback" },
   { 0,      NULL }
 };
-
 value_string_ext artnet_oem_code_vals_ext = VALUE_STRING_EXT_INIT(artnet_oem_code_vals);
 
 static const value_string artnet_esta_man_vals[] = {
   { 0x0000, "ESTA" },
-  { 0x0000, "PLASA" },
+/* ???  { 0x0000, "PLASA" }, */
   { 0x0001, "GEE" },
   { 0x00A1, "Creative Lighting And Sound Systems Pty Ltd." },
   { 0x0101, "St. Anne Engineering GmbH" },

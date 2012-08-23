@@ -791,20 +791,20 @@ static const value_string gtp_val[] = {
 /*  15 */  {GTP_EXT_SEL_MODE,       "Selection mode"},
 
 /*  16 */  {GTP_EXT_16,             "Flow label data I"},
-/*  16 */  {GTP_EXT_FLOW_LABEL,     "Flow label data I"},
-/*  16 */  {GTP_EXT_TEID,           "Tunnel Endpoint Identifier Data I"},    /* 3G */
+/*  16 */  /* ??? {GTP_EXT_FLOW_LABEL,     "Flow label data I"}, */
+/*  16 */  /* ??? {GTP_EXT_TEID,           "Tunnel Endpoint Identifier Data I"}, */   /* 3G */
 
     {GTP_EXT_17,                    "Flow label signalling"},
-    {GTP_EXT_FLOW_SIG,              "Flow label signalling"},
-    {GTP_EXT_TEID_CP,               "Tunnel Endpoint Identifier Data Control Plane"}, /* 3G */
+/* ???    {GTP_EXT_FLOW_SIG,              "Flow label signalling"}, */
+/* ???    {GTP_EXT_TEID_CP,               "Tunnel Endpoint Identifier Data Control Plane"}, */ /* 3G */
 
     {GTP_EXT_18,                    "Flow label data II"},
-    {GTP_EXT_FLOW_II,               "Flow label data II"},
-    {GTP_EXT_TEID_II,               "Tunnel Endpoint Identifier Data II"},    /* 3G */
+/* ???    {GTP_EXT_FLOW_II,               "Flow label data II"}, */
+/* ???    {GTP_EXT_TEID_II,               "Tunnel Endpoint Identifier Data II"}, */   /* 3G */
 
     {GTP_EXT_19,                    "MS not reachable reason"},
-    {GTP_EXT_MS_REASON,             "MS not reachable reason"},
-    {GTP_EXT_TEAR_IND,              "Teardown ID"},  /* 3G */
+/* ???    {GTP_EXT_MS_REASON,             "MS not reachable reason"}, */
+/* ???    {GTP_EXT_TEAR_IND,              "Teardown ID"}, */ /* 3G */
 
     {GTP_EXT_NSAPI,                 "NSAPI"},   /* 3G */
     {GTP_EXT_RANAP_CAUSE,           "RANAP cause"},   /* 3G */

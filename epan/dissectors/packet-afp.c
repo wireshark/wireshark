@@ -496,10 +496,10 @@ static const value_string unicode_hint_vals[] = {
 	{  252,	"MacVT100" },
 	{  255,	"MacHFS" },
 	{  256,	"UnicodeDefault" },
-/* {  257,  "UnicodeV1_1" },  */
+/* ?? {  257,  "UnicodeV1_1" },  */
 	{  257,	"ISO10646_1993" },
 	{  259,	"UnicodeV2_0" },
-	{  259,	"UnicodeV2_1" },
+/* ?? {  259,  "UnicodeV2_1" }, */
 	{  260,	"UnicodeV3_0" },
 	{  513,	"ISOLatin1" },
 	{  514,	"ISOLatin2" },

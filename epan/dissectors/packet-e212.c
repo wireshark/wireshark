@@ -1105,7 +1105,7 @@ static const value_string mcc_mnc_codes[] = {
     {  272090, "Clever Communications Ltd." },
     {  274010, "Iceland Telecom Ltd." },
     {  274020, "P/F Kall" },
-    {  274020, "Og fjarskipti hf (Vodafone Iceland)" },
+/* ???   {  274020, "Og fjarskipti hf (Vodafone Iceland)" }, */
     {  274030, "Og fjarskipti hf (Vodafone Iceland)" },
     {  274040, "IMC Islande ehf" },
     {  274070, "IceCell ehf" },
@@ -1949,7 +1949,6 @@ static const value_string mcc_mnc_codes[] = {
     {  541050, "Digicel Vanuatu" },
     {  542010, "Vodafone (Fiji) Ltd" },
     {  542020, "Digicel (Fiji) Ltd" },
-    {  542020, "Digicel (Fiji) Ltd" },
     {  542030, "Telecom Fiji Ltd (CDMA)" },
     {  546010, "OPT Mobilis" },
     {  547020, "Digicel Tahiti" },
@@ -1974,7 +1973,7 @@ static const value_string mcc_mnc_codes[] = {
     {  607030, "Comium Services Ltd" },
     {  608010, "Sonatel" },
     {  608020, "Sentel GSM" },
-    {  608020, "Expresso Senegal" },
+/* ???   {  608020, "Expresso Senegal" }, */
     {  609010, "Mattel S.A." },
     {  609020, "Chinguitel S.A." },
     {  609100, "Mauritel Mobiles" },
@@ -2130,7 +2129,7 @@ static const value_string mcc_mnc_codes[] = {
     {  712010, "Instituto Costarricense de Electricidad - ICE" },
     {  714010, "Cable & Wireless Panama S.A." },
     {  714020, "BSC de Panama S.A." },
-    {  714020, "Telefonica Moviles Panama S.A." },
+/* ???    {  714020, "Telefonica Moviles Panama S.A." }, */
     {  714030, "Claro Panama, S.A." },
     {  714040, "Digicel (Panama), S.A." },
     {  716100, "TIM Peru" },
