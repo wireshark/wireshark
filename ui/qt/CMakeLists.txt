@@ -137,13 +137,6 @@ endif()
 
 add_definitions(${QT_DEFINITIONS})
 
-# Get rid of C-only compile flags
-remove_definitions(
-	-Wdeclaration-after-statement
-	-Wno-pointer-sign
-	-Wold-style-definition
-)
-
 add_library(qtui STATIC
 	${QTSHARK_SRC}
 	${QTSHARK_UI_SRC}

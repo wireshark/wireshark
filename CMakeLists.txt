@@ -115,7 +115,9 @@ set(WIRESHARK_C_FLAGS
 	-Wcast-align
 	-Wformat-security
 	-fexcess-precision=fast
+)
 
+set(WIRESHARK_C_ONLY_FLAGS
 	# The following are C only, not C++
 	-Wdeclaration-after-statement
 	-Wno-pointer-sign
@@ -150,6 +152,9 @@ set(WIRESHARK_EXTRA_C_FLAGS
 	# More cleanup needed for this on LP64
 	-Wshorten-64-to-32
 
+)
+
+set(WIRESHARK_EXTRA_C_ONLY_FLAGS
 	# The following are C only, not C++
 	-Wbad-function-cast
 	-Wc++-compat
@@ -162,6 +167,7 @@ set(WIRESHARK_EXTRA_C_FLAGS
 
 if(ENABLE_EXTRA_GCC_CHECKS)   # This overrides -Werror
 	set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_C_FLAGS})
+	set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_C_ONLY_FLAGS})
 endif()
 
 add_definitions(
@@ -180,10 +186,23 @@ foreach(THIS_FLAG ${WIRESHARK_C_FLAGS})
 	set(V WS_C_FLAG_VALID${C})
 	check_c_compiler_flag(${${F}} ${V})
 	if (${${V}})
-		add_definitions(${${F}})
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${${F}}")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${F}}")
 	endif()
 	math(EXPR C "${C} + 1")
 endforeach()
+# Continue increasing C from previous loop
+foreach(THIS_FLAG ${WIRESHARK_C_ONLY_FLAGS})
+	set(F WS_C_FLAG_${C})
+	set(${F} ${THIS_FLAG})
+	set(V WS_C_FLAG_VALID${C})
+	check_c_compiler_flag(${${F}} ${V})
+	if (${${V}})
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${${F}}")
+	endif()
+	math(EXPR C "${C} + 1")
+endforeach()
+message(STATUS "C-Flags: ${CMAKE_C_FLAGS}\nCXX-Flags: ${CMAKE_CXX_FLAGS}")
 
 if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_GCC_CHECKS)
 	check_c_compiler_flag(-Werror WERROR)
