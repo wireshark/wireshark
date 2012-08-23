@@ -303,7 +303,7 @@ static const value_string x11_keysym_vals_source[] = {
       { 0x2fd, "ubreve" },
       { 0x2fe, "scircumflex" },
 
-      { 0x3a2, "kappa" },
+/*      { 0x3a2, "kappa" }, */ /* "deprecated" */
       { 0x3a2, "kra" },
       { 0x3a3, "Rcedilla" },
       { 0x3a5, "Itilde" },
@@ -346,7 +346,7 @@ static const value_string x11_keysym_vals_source[] = {
       { 0x4a3, "kana_closingbracket" },
       { 0x4a4, "kana_comma" },
       { 0x4a5, "kana_conjunctive" },
-      { 0x4a5, "kana_middledot" },
+/*      { 0x4a5, "kana_middledot" }, */ /* "deprecated" */
       { 0x4a6, "kana_WO" },
       { 0x4a7, "kana_a" },
       { 0x4a8, "kana_i" },
@@ -357,7 +357,7 @@ static const value_string x11_keysym_vals_source[] = {
       { 0x4ad, "kana_yu" },
       { 0x4ae, "kana_yo" },
       { 0x4af, "kana_tsu" },
-      { 0x4af, "kana_tu" },
+/*      { 0x4af, "kana_tu" }, */ /* "deprecated" */
       { 0x4b0, "prolongedsound" },
       { 0x4b1, "kana_A" },
       { 0x4b2, "kana_I" },
@@ -376,9 +376,9 @@ static const value_string x11_keysym_vals_source[] = {
       { 0x4bf, "kana_SO" },
       { 0x4c0, "kana_TA" },
       { 0x4c1, "kana_CHI" },
-      { 0x4c1, "kana_TI" },
+/*      { 0x4c1, "kana_TI" }, */ /* "deprecated" */
       { 0x4c2, "kana_TSU" },
-      { 0x4c2, "kana_TU" },
+/*      { 0x4c2, "kana_TU" }, */ /* "deprecated" */
       { 0x4c3, "kana_TE" },
       { 0x4c4, "kana_TO" },
       { 0x4c5, "kana_NA" },
@@ -389,7 +389,7 @@ static const value_string x11_keysym_vals_source[] = {
       { 0x4ca, "kana_HA" },
       { 0x4cb, "kana_HI" },
       { 0x4cc, "kana_FU" },
-      { 0x4cc, "kana_HU" },
+/*      { 0x4cc, "kana_HU" }, */ /* "deprecated" */
       { 0x4cd, "kana_HE" },
       { 0x4ce, "kana_HO" },
       { 0x4cf, "kana_MA" },
@@ -447,7 +447,7 @@ static const value_string x11_keysym_vals_source[] = {
       { 0x5e5, "Arabic_meem" },
       { 0x5e6, "Arabic_noon" },
       { 0x5e7, "Arabic_ha" },
-      { 0x5e7, "Arabic_heh" },
+/*      { 0x5e7, "Arabic_heh" }, */ /* "deprecated" */
       { 0x5e8, "Arabic_waw" },
       { 0x5e9, "Arabic_alefmaksura" },
       { 0x5ea, "Arabic_yeh" },
@@ -464,45 +464,45 @@ static const value_string x11_keysym_vals_source[] = {
       { 0x6a2, "Macedonia_gje" },
       { 0x6a3, "Cyrillic_io" },
       { 0x6a4, "Ukrainian_ie" },
-      { 0x6a4, "Ukranian_je" },
+/*      { 0x6a4, "Ukranian_je" }, */ /* "deprecated" */
       { 0x6a5, "Macedonia_dse" },
       { 0x6a6, "Ukrainian_i" },
-      { 0x6a6, "Ukranian_i" },
+/*      { 0x6a6, "Ukranian_i" }, */ /* "deprecated" */
       { 0x6a7, "Ukrainian_yi" },
-      { 0x6a7, "Ukranian_yi" },
+/*      { 0x6a7, "Ukranian_yi" }, */ /* "deprecated" */
       { 0x6a8, "Cyrillic_je" },
-      { 0x6a8, "Serbian_je" },
+/*      { 0x6a8, "Serbian_je" }, */ /* "deprecated" */
       { 0x6a9, "Cyrillic_lje" },
-      { 0x6a9, "Serbian_lje" },
+/*      { 0x6a9, "Serbian_lje" }, */ /* 'deprecated" */
       { 0x6aa, "Cyrillic_nje" },
-      { 0x6aa, "Serbian_nje" },
+/*      { 0x6aa, "Serbian_nje" }, */ /* "deprecated" */
       { 0x6ab, "Serbian_tshe" },
       { 0x6ac, "Macedonia_kje" },
       { 0x6ae, "Byelorussian_shortu" },
       { 0x6af, "Cyrillic_dzhe" },
-      { 0x6af, "Serbian_dze" },
+/*      { 0x6af, "Serbian_dze" }, */ /* "deprecated" */
       { 0x6b0, "numerosign" },
       { 0x6b1, "Serbian_DJE" },
       { 0x6b2, "Macedonia_GJE" },
       { 0x6b3, "Cyrillic_IO" },
       { 0x6b4, "Ukrainian_IE" },
-      { 0x6b4, "Ukranian_JE" },
+/*      { 0x6b4, "Ukranian_JE" }, */ /* "deprecated" */
       { 0x6b5, "Macedonia_DSE" },
       { 0x6b6, "Ukrainian_I" },
-      { 0x6b6, "Ukranian_I" },
+/*      { 0x6b6, "Ukranian_I" }, */ /* "deprecated" */
       { 0x6b7, "Ukrainian_YI" },
-      { 0x6b7, "Ukranian_YI" },
+/*      { 0x6b7, "Ukranian_YI" }, */ /* "deprecated" */
       { 0x6b8, "Cyrillic_JE" },
-      { 0x6b8, "Serbian_JE" },
+/*      { 0x6b8, "Serbian_JE" }, */ /* "deprecated" */
       { 0x6b9, "Cyrillic_LJE" },
-      { 0x6b9, "Serbian_LJE" },
+/*      { 0x6b9, "Serbian_LJE" }, */ /* "deprecated" */
       { 0x6ba, "Cyrillic_NJE" },
-      { 0x6ba, "Serbian_NJE" },
+/*      { 0x6ba, "Serbian_NJE" }, */ /* "deprecated" */
       { 0x6bb, "Serbian_TSHE" },
       { 0x6bc, "Macedonia_KJE" },
       { 0x6be, "Byelorussian_SHORTU" },
       { 0x6bf, "Cyrillic_DZHE" },
-      { 0x6bf, "Serbian_DZE" },
+/*      { 0x6bf, "Serbian_DZE" }, */ /* "deprecated" */
       { 0x6c0, "Cyrillic_yu" },
       { 0x6c1, "Cyrillic_a" },
       { 0x6c2, "Cyrillic_be" },
@@ -601,7 +601,7 @@ static const value_string x11_keysym_vals_source[] = {
       { 0x7c9, "Greek_IOTA" },
       { 0x7ca, "Greek_KAPPA" },
       { 0x7cb, "Greek_LAMBDA" },
-      { 0x7cb, "Greek_LAMDA" },
+/*      { 0x7cb, "Greek_LAMDA" }, */ /* XXX: Dup */
       { 0x7cc, "Greek_MU" },
       { 0x7cd, "Greek_NU" },
       { 0x7ce, "Greek_XI" },
@@ -626,7 +626,7 @@ static const value_string x11_keysym_vals_source[] = {
       { 0x7e9, "Greek_iota" },
       { 0x7ea, "Greek_kappa" },
       { 0x7eb, "Greek_lambda" },
-      { 0x7eb, "Greek_lamda" },
+/*      { 0x7eb, "Greek_lamda" }, */ /* XXX: dup */
       { 0x7ec, "Greek_mu" },
       { 0x7ed, "Greek_nu" },
       { 0x7ee, "Greek_xi" },
@@ -824,19 +824,19 @@ static const value_string x11_keysym_vals_source[] = {
       { 0xcdf, "hebrew_doublelowline" },
       { 0xce0, "hebrew_aleph" },
       { 0xce1, "hebrew_bet" },
-      { 0xce1, "hebrew_beth" },
+/*      { 0xce1, "hebrew_beth" }, */ /* "deprecated" */
       { 0xce2, "hebrew_gimel" },
-      { 0xce2, "hebrew_gimmel" },
+/*      { 0xce2, "hebrew_gimmel" }, */ /* "deprecated" */
       { 0xce3, "hebrew_dalet" },
-      { 0xce3, "hebrew_daleth" },
+/*      { 0xce3, "hebrew_daleth" }, */ /* "deprecated" */
       { 0xce4, "hebrew_he" },
       { 0xce5, "hebrew_waw" },
       { 0xce6, "hebrew_zain" },
-      { 0xce6, "hebrew_zayin" },
+/*      { 0xce6, "hebrew_zayin" }, */ /* "deprecated" */
       { 0xce7, "hebrew_chet" },
-      { 0xce7, "hebrew_het" },
+/*      { 0xce7, "hebrew_het" }, */ /* "deprecated" */
       { 0xce8, "hebrew_tet" },
-      { 0xce8, "hebrew_teth" },
+/*      { 0xce8, "hebrew_teth" }, */ /* "deprecated" */
       { 0xce9, "hebrew_yod" },
       { 0xcea, "hebrew_finalkaph" },
       { 0xceb, "hebrew_kaph" },
@@ -846,20 +846,20 @@ static const value_string x11_keysym_vals_source[] = {
       { 0xcef, "hebrew_finalnun" },
       { 0xcf0, "hebrew_nun" },
       { 0xcf1, "hebrew_samech" },
-      { 0xcf1, "hebrew_samekh" },
+/*      { 0xcf1, "hebrew_samekh" }, */ /* "deprecated" */
       { 0xcf2, "hebrew_ayin" },
       { 0xcf3, "hebrew_finalpe" },
       { 0xcf4, "hebrew_pe" },
       { 0xcf5, "hebrew_finalzade" },
-      { 0xcf5, "hebrew_finalzadi" },
+/*      { 0xcf5, "hebrew_finalzadi" }, */ /* "deprecated" */
       { 0xcf6, "hebrew_zade" },
-      { 0xcf6, "hebrew_zadi" },
-      { 0xcf7, "hebrew_kuf" },
+/*      { 0xcf6, "hebrew_zadi" }, */ /* "deprecated" */
       { 0xcf7, "hebrew_qoph" },
+/*      { 0xcf7, "hebrew_kuf" }, */ /* "deprecated" */
       { 0xcf8, "hebrew_resh" },
       { 0xcf9, "hebrew_shin" },
-      { 0xcfa, "hebrew_taf" },
       { 0xcfa, "hebrew_taw" },
+/*      { 0xcfa, "hebrew_taf" }, */ /* "deprecated" */
 
       { 0xda1, "Thai_kokai" },
       { 0xda2, "Thai_khokhai" },
@@ -1220,21 +1220,21 @@ static const value_string x11_keysym_vals_source[] = {
       { 0xff34, "Hangul_Hanja" },
       { 0xff35, "Hangul_Jamo" },
       { 0xff36, "Hangul_Romaja" },
-      { 0xFF37, "Codeinput" },
+/*      { 0xFF37, "Codeinput" }, */ /* Dup */
       { 0xff37, "Hangul_Codeinput" },
-      { 0xFF37, "Kanji_Bangou" },
+/*      { 0xFF37, "Kanji_Bangou" }, */ /* Dup */
       { 0xff38, "Hangul_Jeonja" },
       { 0xff39, "Hangul_Banja" },
       { 0xff3a, "Hangul_PreHanja" },
       { 0xff3b, "Hangul_PostHanja" },
       { 0xff3c, "Hangul_SingleCandidate" },
-      { 0xFF3C, "SingleCandidate" },
+/*      { 0xFF3C, "SingleCandidate" }, */ /* Dup */
       { 0xff3d, "Hangul_MultipleCandidate" },
-      { 0xFF3D, "MultipleCandidate" },
-      { 0xFF3D, "Zen_Koho" },
+/*      { 0xFF3D, "MultipleCandidate" }, */ /* Dup */
+/*      { 0xFF3D, "Zen_Koho" }, */ /* Dup */
       { 0xff3e, "Hangul_PreviousCandidate" },
-      { 0xFF3E, "Mae_Koho" },
-      { 0xFF3E, "PreviousCandidate" },
+/*      { 0xFF3E, "Mae_Koho" }, */ /* Dup */
+/*      { 0xFF3E, "PreviousCandidate" }, */ /* Dup */
       { 0xff3f, "Hangul_Special" },
       { 0xFF50, "Home" },
       { 0xFF51, "Left" },
@@ -1242,9 +1242,9 @@ static const value_string x11_keysym_vals_source[] = {
       { 0xFF53, "Right" },
       { 0xFF54, "Down" },
       { 0xFF55, "Page_Up" },
-      { 0xFF55, "Prior" },
-      { 0xFF56, "Next" },
+/*      { 0xFF55, "Prior" }, */ /* Dup */
       { 0xFF56, "Page_Down" },
+/*      { 0xFF56, "Next" }, */ /* Dup */
       { 0xFF57, "End" },
       { 0xFF58, "Begin" },
       { 0xFF60, "Select" },
@@ -1258,14 +1258,16 @@ static const value_string x11_keysym_vals_source[] = {
       { 0xFF69, "Cancel" },
       { 0xFF6A, "Help" },
       { 0xFF6B, "Break" },
+      { 0xFF7E, "Mode_switch" },
+#if 0
       { 0xFF7E, "Arabic_switch" },
       { 0xFF7E, "Greek_switch" },
       { 0xFF7E, "Hangul_switch" },
       { 0xFF7E, "Hebrew_switch" },
       { 0xFF7E, "ISO_Group_Shift" },
       { 0xFF7E, "kana_switch" },
-      { 0xFF7E, "Mode_switch" },
       { 0xFF7E, "script_switch" },
+#endif
       { 0xFF7F, "Num_Lock" },
       { 0xFF80, "KP_Space" },
       { 0xFF89, "KP_Tab" },
@@ -1280,9 +1282,9 @@ static const value_string x11_keysym_vals_source[] = {
       { 0xFF98, "KP_Right" },
       { 0xFF99, "KP_Down" },
       { 0xFF9A, "KP_Page_Up" },
-      { 0xFF9A, "KP_Prior" },
-      { 0xFF9B, "KP_Next" },
+/*      { 0xFF9A, "KP_Prior" }, */ /* Dup */
       { 0xFF9B, "KP_Page_Down" },
+/*      { 0xFF9B, "KP_Next" }, */ /* Dup */
       { 0xFF9C, "KP_End" },
       { 0xFF9D, "KP_Begin" },
       { 0xFF9E, "KP_Insert" },
@@ -1315,55 +1317,55 @@ static const value_string x11_keysym_vals_source[] = {
       { 0xFFC6, "F9" },
       { 0xFFC7, "F10" },
       { 0xFFC8, "F11" },
-      { 0xFFC8, "L1" },
+/*      { 0xFFC8, "L1" }, */ /* Dup */
       { 0xFFC9, "F12" },
-      { 0xFFC9, "L2" },
+/*      { 0xFFC9, "L2" }, */ /* Dup */
       { 0xFFCA, "F13" },
-      { 0xFFCA, "L3" },
+/*      { 0xFFCA, "L3" }, */ /* Dup */
       { 0xFFCB, "F14" },
-      { 0xFFCB, "L4" },
+/*      { 0xFFCB, "L4" }, */ /* Dup */
       { 0xFFCC, "F15" },
-      { 0xFFCC, "L5" },
+/*      { 0xFFCC, "L5" }, */ /* Dup */
       { 0xFFCD, "F16" },
-      { 0xFFCD, "L6" },
+/*      { 0xFFCD, "L6" }, */ /* Dup */
       { 0xFFCE, "F17" },
-      { 0xFFCE, "L7" },
+/*      { 0xFFCE, "L7" }, */ /* Dup */
       { 0xFFCF, "F18" },
-      { 0xFFCF, "L8" },
+/*      { 0xFFCF, "L8" }, */ /* Dup */
       { 0xFFD0, "F19" },
-      { 0xFFD0, "L9" },
+/*      { 0xFFD0, "L9" }, */ /* Dup */
       { 0xFFD1, "F20" },
-      { 0xFFD1, "L10" },
+/*      { 0xFFD1, "L10" }, */ /* Dup */
       { 0xFFD2, "F21" },
-      { 0xFFD2, "R1" },
+/*      { 0xFFD2, "R1" }, */ /* Dup */
       { 0xFFD3, "F22" },
-      { 0xFFD3, "R2" },
+/*      { 0xFFD3, "R2" }, */ /* Dup */
       { 0xFFD4, "F23" },
-      { 0xFFD4, "R3" },
+/*      { 0xFFD4, "R3" }, */ /* Dup */
       { 0xFFD5, "F24" },
-      { 0xFFD5, "R4" },
+/*      { 0xFFD5, "R4" }, */ /* Dup */
       { 0xFFD6, "F25" },
-      { 0xFFD6, "R5" },
+/*      { 0xFFD6, "R5" }, */ /* Dup */
       { 0xFFD7, "F26" },
-      { 0xFFD7, "R6" },
+/*      { 0xFFD7, "R6" }, */ /* Dup */
       { 0xFFD8, "F27" },
-      { 0xFFD8, "R7" },
+/*      { 0xFFD8, "R7" }, */ /* Dup */
       { 0xFFD9, "F28" },
-      { 0xFFD9, "R8" },
+/*      { 0xFFD9, "R8" }, */ /* Dup */
       { 0xFFDA, "F29" },
-      { 0xFFDA, "R9" },
+/*      { 0xFFDA, "R9" }, */ /* Dup */
       { 0xFFDB, "F30" },
-      { 0xFFDB, "R10" },
+/*      { 0xFFDB, "R10" }, */ /* Dup */
       { 0xFFDC, "F31" },
-      { 0xFFDC, "R11" },
+/*      { 0xFFDC, "R11" }, */ /* Dup */
       { 0xFFDD, "F32" },
-      { 0xFFDD, "R12" },
+/*      { 0xFFDD, "R12" }, */ /* Dup */
       { 0xFFDE, "F33" },
-      { 0xFFDE, "R13" },
+/*      { 0xFFDE, "R13" }, */ /* Dup */
       { 0xFFDF, "F34" },
-      { 0xFFDF, "R14" },
+/*      { 0xFFDF, "R14" }, */ /* Dup */
       { 0xFFE0, "F35" },
-      { 0xFFE0, "R15" },
+/*      { 0xFFE0, "R15" }, */ /* Dup */
       { 0xFFE1, "Shift_L" },
       { 0xFFE2, "Shift_R" },
       { 0xFFE3, "Control_L" },
