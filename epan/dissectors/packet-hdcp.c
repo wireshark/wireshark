@@ -23,8 +23,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* This dissector supports HDCP (version 1) over I2C. For now, only the
-   most common protocol messages are recognized. */
+/*
+ * This dissector supports HDCP (version 1) over I2C. For now, only the
+ * most common protocol messages are recognized.
+ *
+ * The specification of the version 1 protocol can be found at
+ * http://www.digital-cp.com/files/static_page_files/5C3DC13B-9F6B-D82E-D77D8ACA08A448BF/HDCP Specification Rev1_4.pdf
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -94,7 +99,7 @@ static const value_string hdcp_addr[] = {
 static const value_string hdcp_reg[] = {
     { REG_BKSV, "B_ksv" },
     { REG_AKSV, "A_ksv" },
-    { REG_AN, "An" }, 
+    { REG_AN, "An" },
     { REG_BCAPS, "B_caps"},
     { REG_BSTATUS, "B_status"},
     { 0, NULL }
@@ -281,7 +286,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    }
                }
            }
-           
+
            if (!hdcp_trans || hdcp_trans->resp_frame!=PINFO_FD_NUM(pinfo)) {
                /* the packet isn't a response to a request from the
                 * transmitter; it must be a link verification */
