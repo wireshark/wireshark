@@ -381,7 +381,7 @@ static const value_string attribute_vals[] = {
     {  42, "aRepeaterHealthState" },
     {  43, "aRepeaterHealthText" },
     {  44, "aRepeaterHealthData" },
-    {  44, "aTransmitCollisions" },
+    {  45, "aTransmitCollisions" }, /* XXX: was: 44 */
     {  46, "aGroupID" },
     {  47, "aGroupPortCapacity" },
     {  48, "aPortMap" },
