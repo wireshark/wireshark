@@ -28,7 +28,7 @@
  * authentication protocol messages are supported.
  *
  * The specification of version 2 of the protocol can be found at
- * http://www.digital-cp.com/files/static_page_files/2C1C0F30-0E09-E813-BFAB6BAAE8A76080/HDCP Interface Independent Adaptation Specification Rev2_0.pdf
+ * http://www.digital-cp.com/files/static_page_files/DABB540C-1A4B-B294-D0008CB2D348FA19/HDCP Interface Independent Adaptation Specification Rev2_1.pdf
  */
 
 #ifdef HAVE_CONFIG_H
