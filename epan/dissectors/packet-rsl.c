@@ -521,7 +521,7 @@ static const value_string rsl_ie_type_vals[] = {
 /* 0x03 */    { RSL_IE_ACT_TYPE,        "Activation Type" },            /*  9.3.3 */
 /* 0x04 */    { RSL_IE_BS_POW,          "BS Power" },                   /*  9.3.4 */
 /* 0x05 */    { RSL_IE_CH_ID,           "Channel Identification" },     /*  9.3.5 */
-/* 0x06 */    { RSL_IE_ENC_INF,         "Channel Mode" },               /*  9.3.6 */
+/* 0x06 */    { RSL_IE_CH_MODE,         "Channel Mode" },               /*  9.3.6 */
 /* 0x07 */    { RSL_IE_ENC_INF,         "Encryption Information" },     /*  9.3.7 */
 /* 0x08 */    { RSL_IE_FRAME_NO,        "Frame Number" },               /*  9.3.8 */
 /* 0x09 */    { RSL_IE_HO_REF,          "Handover Reference" },         /*  9.3.9 */
