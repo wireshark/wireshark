@@ -246,12 +246,14 @@ PARTICULAR PURPOSE.]]>
     <section>
       <title>Toolchain Package Alternatives</title>
       <para>
-        The official Wireshark 1.6.x and 1.4.x releases are compiled using
-        Microsoft Visual C++ 2008 SP1. (The no longer supported 1.2.x release
-        was also compiled with Microsoft Visual C++ 2008 SP1). Other past releases, including the 1.0 branch,
+        The official Wireshark 1.8.x releases are compiled using
+        Microsoft Visual C++ 2010 SP1.
+        The official 1.2, 1.4, and 1.6 releases are and were compiled using        
+        Microsoft Visual C++ 2008 SP1.
+        Other past releases, including the 1.0 branch,
         were compiled using Microsoft Visual C++ 6.0. Using the release
         compilers is recommended for Wireshark development work. "Express
-        Edition" compilers such as Visual C++ 2008 Express Edition SP1 can be
+        Edition" compilers such as Visual C++ 2010 Express Edition SP1 can be
         used but any PortableApps or U3 packages you create will require the
         installation of a separate Visual C++ Redistributable package. See
         <quote><link linkend='msvc-runtime-redistributable' endterm='msvc-runtime-redistributable.title'/></quote>
