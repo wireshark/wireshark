@@ -150,6 +150,9 @@ static const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_RELEASE,                     "Release"},
   { MESSAGE_TYPE_SUSPEND,                     "Suspend"},
   { MESSAGE_TYPE_RESUME,                      "Resume"},
+
+  { 15,                                       "Reserved"},
+
   { MESSAGE_TYPE_REL_CMPL,                    "Release complete"},
   { MESSAGE_TYPE_CONT_CHECK_REQ,              "Continuity check request"},
   { MESSAGE_TYPE_RESET_CIRCUIT,               "Reset Circuit"},
@@ -204,7 +207,7 @@ static const value_string isup_message_type_value[] = {
   { 60,                                       "Reserved (used in B-ISUP)"},
   { 61,                                       "Reserved (used in B-ISUP)"},
 
-  { 63,                                       "Unknown"},
+  { 62,                                       "Unknown"},
   { 63,                                       "Unknown"},
 
   { MESSAGE_TYPE_LOOP_PREVENTION,             "Loop prevention"},
@@ -233,6 +236,9 @@ static const value_string french_isup_message_type_value[] = {
   { MESSAGE_TYPE_RELEASE,                     "Release"},
   { MESSAGE_TYPE_SUSPEND,                     "Suspend"},
   { MESSAGE_TYPE_RESUME,                      "Resume"},
+
+  { 15,                                       "Reserved"},
+
   { MESSAGE_TYPE_REL_CMPL,                    "Release complete"},
   { MESSAGE_TYPE_CONT_CHECK_REQ,              "Continuity check request"},
   { MESSAGE_TYPE_RESET_CIRCUIT,               "Reset Circuit"},
@@ -287,7 +293,7 @@ static const value_string french_isup_message_type_value[] = {
   { 60,                                       "Reserved (used in B-ISUP)"},
   { 61,                                       "Reserved (used in B-ISUP)"},
 
-  { 63,                                       "Unknown"},
+  { 62,                                       "Unknown"},
   { 63,                                       "Unknown"},
 
   { MESSAGE_TYPE_LOOP_PREVENTION,             "Loop prevention"},
@@ -319,6 +325,9 @@ static const value_string israeli_isup_message_type_value[] = {
   { MESSAGE_TYPE_RELEASE,                     "Release"},
   { MESSAGE_TYPE_SUSPEND,                     "Suspend"},
   { MESSAGE_TYPE_RESUME,                      "Resume"},
+
+  { 15,                                       "Reserved"},
+
   { MESSAGE_TYPE_REL_CMPL,                    "Release complete"},
   { MESSAGE_TYPE_CONT_CHECK_REQ,              "Continuity check request"},
   { MESSAGE_TYPE_RESET_CIRCUIT,               "Reset Circuit"},
@@ -373,7 +382,7 @@ static const value_string israeli_isup_message_type_value[] = {
   { 60,                                       "Reserved (used in B-ISUP)"},
   { 61,                                       "Reserved (used in B-ISUP)"},
 
-  { 63,                                       "Unknown"},
+  { 62,                                       "Unknown"},
   { 63,                                       "Unknown"},
 
   { MESSAGE_TYPE_LOOP_PREVENTION,             "Loop prevention"},
@@ -406,6 +415,9 @@ static const value_string russian_isup_message_type_value[] = {
   { MESSAGE_TYPE_RELEASE,                     "Release"},
   { MESSAGE_TYPE_SUSPEND,                     "Suspend"},
   { MESSAGE_TYPE_RESUME,                      "Resume"},
+
+  { 15,                                       "Reserved"},
+
   { MESSAGE_TYPE_REL_CMPL,                    "Release complete"},
   { MESSAGE_TYPE_CONT_CHECK_REQ,              "Continuity check request"},
   { MESSAGE_TYPE_RESET_CIRCUIT,               "Reset Circuit"},
@@ -460,7 +472,7 @@ static const value_string russian_isup_message_type_value[] = {
   { 60,                                       "Reserved (used in B-ISUP)"},
   { 61,                                       "Reserved (used in B-ISUP)"},
 
-  { 63,                                       "Unknown"},
+  { 62,                                       "Unknown"},
   { 63,                                       "Unknown"},
 
   { MESSAGE_TYPE_LOOP_PREVENTION,             "Loop prevention"},
@@ -549,6 +561,9 @@ static const value_string isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_RELEASE,                     "REL"},
   { MESSAGE_TYPE_SUSPEND,                     "SUS"},
   { MESSAGE_TYPE_RESUME,                      "RES"},
+
+  { 15,                                       "Reserved"},
+
   { MESSAGE_TYPE_REL_CMPL,                    "RLC"},
   { MESSAGE_TYPE_CONT_CHECK_REQ,              "CCR"},
   { MESSAGE_TYPE_RESET_CIRCUIT,               "RSC"},
@@ -603,7 +618,7 @@ static const value_string isup_message_type_value_acro[] = {
   { 60,                                       "Reserved"},
   { 61,                                       "Reserved"},
 
-  { 63,                                       "Unknown"},
+  { 62,                                       "Unknown"},
   { 63,                                       "Unknown"},
 
   { MESSAGE_TYPE_LOOP_PREVENTION,             "LOP"},
@@ -630,6 +645,9 @@ static const value_string french_isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_RELEASE,                     "REL"},
   { MESSAGE_TYPE_SUSPEND,                     "SUS"},
   { MESSAGE_TYPE_RESUME,                      "RES"},
+
+  { 15,                                       "Reserved"},
+
   { MESSAGE_TYPE_REL_CMPL,                    "RLC"},
   { MESSAGE_TYPE_CONT_CHECK_REQ,              "CCR"},
   { MESSAGE_TYPE_RESET_CIRCUIT,               "RSC"},
@@ -684,7 +702,7 @@ static const value_string french_isup_message_type_value_acro[] = {
   { 60,                                       "Reserved"},
   { 61,                                       "Reserved"},
 
-  { 63,                                       "Unknown"},
+  { 62,                                       "Unknown"},
   { 63,                                       "Unknown"},
 
   { MESSAGE_TYPE_LOOP_PREVENTION,             "LOP"},
@@ -713,6 +731,9 @@ static const value_string israeli_isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_RELEASE,                     "REL"},
   { MESSAGE_TYPE_SUSPEND,                     "SUS"},
   { MESSAGE_TYPE_RESUME,                      "RES"},
+
+  { 15,                                       "Reserved"},
+
   { MESSAGE_TYPE_REL_CMPL,                    "RLC"},
   { MESSAGE_TYPE_CONT_CHECK_REQ,              "CCR"},
   { MESSAGE_TYPE_RESET_CIRCUIT,               "RSC"},
@@ -767,7 +788,7 @@ static const value_string israeli_isup_message_type_value_acro[] = {
   { 60,                                       "Reserved"},
   { 61,                                       "Reserved"},
 
-  { 63,                                       "Unknown"},
+  { 62,                                       "Unknown"},
   { 63,                                       "Unknown"},
 
   { MESSAGE_TYPE_LOOP_PREVENTION,             "LOP"},
@@ -798,6 +819,9 @@ static const value_string russian_isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_RELEASE,                     "REL"},
   { MESSAGE_TYPE_SUSPEND,                     "SUS"},
   { MESSAGE_TYPE_RESUME,                      "RES"},
+
+  { 15,                                       "Reserved"},
+
   { MESSAGE_TYPE_REL_CMPL,                    "RLC"},
   { MESSAGE_TYPE_CONT_CHECK_REQ,              "CCR"},
   { MESSAGE_TYPE_RESET_CIRCUIT,               "RSC"},
@@ -852,7 +876,7 @@ static const value_string russian_isup_message_type_value_acro[] = {
   { 60,                                       "Reserved"},
   { 61,                                       "Reserved"},
 
-  { 63,                                       "Unknown"},
+  { 62,                                       "Unknown"},
   { 63,                                       "Unknown"},
 
   { MESSAGE_TYPE_LOOP_PREVENTION,             "LOP"},
