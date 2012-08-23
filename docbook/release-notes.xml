@@ -67,6 +67,10 @@ Wireshark Info
 	  The HTTP dissector does not reassemble headers when the first TCP segment does not contain a full header line.
         </para></listitem>
 
+        <listitem><para>
+	  HDCP2 uses the wrong protocol id.
+        </para></listitem>
+
 <!-- Sort by bug # -->
 <!--
         <listitem><para>
@@ -104,7 +108,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+HDCP2
 
     </para>
     </section>

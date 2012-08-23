@@ -78,6 +78,7 @@ static int hf_hdcp2_cert_rcv_id = -1;
 static int hf_hdcp2_cert_n = -1;
 static int hf_hdcp2_cert_e = -1;
 static int hf_hdcp2_cert_rcv_sig = -1;
+static int hf_hdcp2_e_kpub_km = -1;
 static int hf_hdcp2_e_kh_km = -1;
 static int hf_hdcp2_m = -1;
 static int hf_hdcp2_r_rx = -1;
@@ -103,15 +104,17 @@ static int hf_hdcp2_r_iv = -1;
 #define REG_BCAPS   0x40
 #define REG_BSTATUS 0x41
 
-#define ID_AKE_INIT          2
-#define ID_AKE_SEND_CERT     3
-#define ID_AKE_STORED_KM     5
-#define ID_AKE_SEND_RRX      6
-#define ID_AKE_SEND_H_PRIME  7
-#define ID_LC_INIT           9
-#define ID_LC_SEND_L_PRIME  10
-#define ID_SKE_SEND_EKS     11
-#define ID_MAX              31
+#define ID_AKE_INIT              2
+#define ID_AKE_SEND_CERT         3
+#define ID_AKE_NO_STORED_KM      4
+#define ID_AKE_STORED_KM         5
+#define ID_AKE_SEND_RRX          6
+#define ID_AKE_SEND_H_PRIME      7
+#define ID_AKE_SEND_PAIRING_INFO 8
+#define ID_LC_INIT               9
+#define ID_LC_SEND_L_PRIME      10
+#define ID_SKE_SEND_EKS         11
+#define ID_MAX                  31
 
 #define RCV_ID_LEN    5  /* all lengths are in bytes */
 #define N_LEN       128
@@ -142,14 +145,16 @@ static const value_string hdcp_reg[] = {
 };
 
 static const value_string hdcp_msg_id[] = {
-    { ID_AKE_INIT,         "AKE_Init" },
-    { ID_AKE_SEND_CERT,    "AKE_Send_Cert" },
-    { ID_AKE_STORED_KM,    "AKE_Stored_km" },
-    { ID_AKE_SEND_RRX,     "AKE_Send_rrx" },
-    { ID_AKE_SEND_H_PRIME, "AKE_Send_H_prime" },
-    { ID_LC_INIT,          "LC_Init" },
-    { ID_LC_SEND_L_PRIME,  "LC_Send_L_prime" },
-    { ID_SKE_SEND_EKS,     "SKE_Send_Eks" },
+    { ID_AKE_INIT,              "AKE_Init" },
+    { ID_AKE_SEND_CERT,         "AKE_Send_Cert" },
+    { ID_AKE_NO_STORED_KM,      "AKE_No_Stored_km" },
+    { ID_AKE_STORED_KM,         "AKE_Stored_km" },
+    { ID_AKE_SEND_RRX,          "AKE_Send_rrx" },
+    { ID_AKE_SEND_H_PRIME,      "AKE_Send_H_prime" },
+    { ID_AKE_SEND_PAIRING_INFO, "AKE_Send_Pairing_Info" },
+    { ID_LC_INIT,               "LC_Init" },
+    { ID_LC_SEND_L_PRIME,       "LC_Send_L_prime" },
+    { ID_SKE_SEND_EKS,          "SKE_Send_Eks" },
     { 0, NULL }
 };
 
@@ -161,14 +166,16 @@ typedef struct _msg_info_t {
 static GHashTable *msg_table = NULL;
 
 static const msg_info_t msg_info[] = {
-    { ID_AKE_INIT,          8 },
-    { ID_AKE_SEND_CERT,    1+CERT_RX_LEN },
-    { ID_AKE_STORED_KM,    32 },
-    { ID_AKE_SEND_RRX,      8 },
-    { ID_AKE_SEND_H_PRIME, 32 },
-    { ID_LC_INIT,           8 },
-    { ID_LC_SEND_L_PRIME,  32 },
-    { ID_SKE_SEND_EKS,     24 }
+    { ID_AKE_INIT,               8 },
+    { ID_AKE_SEND_CERT,        1+CERT_RX_LEN },
+    { ID_AKE_NO_STORED_KM,     128 },
+    { ID_AKE_STORED_KM,         32 },
+    { ID_AKE_SEND_RRX,           8 },
+    { ID_AKE_SEND_H_PRIME,      32 },
+    { ID_AKE_SEND_PAIRING_INFO, 16 },
+    { ID_LC_INIT,                8 },
+    { ID_LC_SEND_L_PRIME,       32 },
+    { ID_SKE_SEND_EKS,          24 }
 };
 
 
@@ -399,7 +406,7 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-        pi = proto_tree_add_protocol_format(tree, proto_hdcp,
+        pi = proto_tree_add_protocol_format(tree, proto_hdcp2,
                 tvb, 0, tvb_reported_length(tvb), "HDCPv2");
         hdcp_tree = proto_item_add_subtree(pi, ett_hdcp);
     }
@@ -440,6 +447,9 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (cert_tree)
                 ptvcursor_pop_subtree(cursor);
             break;
+        case ID_AKE_NO_STORED_KM:
+            ptvcursor_add(cursor, hf_hdcp2_e_kpub_km, 128, ENC_NA);
+            break;
         case ID_AKE_STORED_KM:
             ptvcursor_add(cursor, hf_hdcp2_e_kh_km, 16, ENC_NA);
             ptvcursor_add(cursor, hf_hdcp2_m, 16, ENC_NA);
@@ -449,6 +459,9 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case ID_AKE_SEND_H_PRIME:
             ptvcursor_add(cursor, hf_hdcp2_h_prime, 32, ENC_NA);
+            break;
+        case ID_AKE_SEND_PAIRING_INFO:
+            ptvcursor_add(cursor, hf_hdcp2_e_kh_km, 16, ENC_NA);
             break;
         case ID_LC_INIT:
             ptvcursor_add(cursor, hf_hdcp2_r_n, 8, ENC_BIG_ENDIAN);
@@ -555,6 +568,9 @@ proto_register_hdcp(void)
         { &hf_hdcp2_cert_rcv_sig,
             { "Receiver signature", "hdcp2.cert.rcv_sig", FT_BYTES,
                 BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_hdcp2_e_kpub_km,
+            { "E_kpub_km", "hdcp2.e_kpub_km", FT_BYTES, BASE_NONE,
+                NULL, 0, NULL, HFILL } },
         { &hf_hdcp2_e_kh_km,
             { "E_kh_km", "hdcp2.e_kh_km", FT_BYTES, BASE_NONE,
                 NULL, 0, NULL, HFILL } },
