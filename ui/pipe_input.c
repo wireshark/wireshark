@@ -32,6 +32,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <io.h>
 #endif
 
 #ifdef HAVE_LIBPCAP
