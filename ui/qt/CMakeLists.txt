@@ -124,8 +124,7 @@ QT4_WRAP_CPP(QTSHARK_MOC_SRC ${QTSHARK_H_SRC})
 # set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
 
 set(CLEAN_FILES
-	# It's too early to care about clean files
-	# ${QTSHARK_SRC}
+	${QTSHARK_SRC}
 )
 
 if (WERROR)
@@ -136,7 +135,14 @@ if (WERROR)
 	)
 endif()
 
-ADD_DEFINITIONS(${QT_DEFINITIONS})
+add_definitions(${QT_DEFINITIONS})
+
+# Get rid of C-only compile flags
+remove_definitions(
+	-Wdeclaration-after-statement
+	-Wno-pointer-sign
+	-Wold-style-definition
+)
 
 add_library(qtui STATIC
 	${QTSHARK_SRC}

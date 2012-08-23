@@ -323,7 +323,7 @@ void ByteViewText::highlight(int bstart, int blen, bool is_root) {
     int bend = bstart + blen;
     int per_line = 0;
     int per_one = 0;
-    int bits_per_one = 0;
+//    int bits_per_one = 0;
     int hex_offset, ascii_offset;
 
     int start_line, start_line_pos;
@@ -342,7 +342,7 @@ void ByteViewText::highlight(int bstart, int blen, bool is_root) {
 //    case BYTES_HEX:
         per_line = BYTES_PER_LINE;
         per_one  = 2+1;  /* "ff " */
-        bits_per_one = 4;
+//        bits_per_one = 4;
 //        break;
 //    case BYTES_BITS:
 //        per_line = BITS_PER_LINE;

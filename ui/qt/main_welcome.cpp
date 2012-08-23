@@ -75,11 +75,15 @@ MainWelcome::MainWelcome(QWidget *parent) :
 //    QGridLayout *grid = new QGridLayout(this);
 //    QVBoxLayout *column;
 //    QLabel *heading;
+#ifdef Q_WS_MAC
     InterfaceTree *iface_tree;
+#endif
 
     welcome_ui_->setupUi(this);
     task_list_ = welcome_ui_->taskList;
+#ifdef Q_WS_MAC
     iface_tree = welcome_ui_->interfaceTree;
+#endif
     recent_files_ = welcome_ui_->recentList;
 
     setStyleSheet(QString(

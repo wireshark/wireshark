@@ -623,7 +623,7 @@ int main(int argc, char *argv[])
     WiresharkApplication a(argc, argv);
     MainWindow *w;
 
-    char                *init_progfile_dir_error;
+//    char                *init_progfile_dir_error;
 //    char                *s;
     int                  opt;
 //    gboolean             arg_error = FALSE;
@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
 //    const gchar         *filter;
 
 #ifdef _WIN32
-    WSADATA 	       wsaData;
+    WSADATA	       wsaData;
 #endif  /* _WIN32 */
 
     char                *rf_path;
@@ -663,7 +663,7 @@ int main(int argc, char *argv[])
 //    guint                go_to_packet = 0;
 //    gboolean             jump_backwards = FALSE;
 //    dfilter_t           *jump_to_filter = NULL;
-    int                  optind_initial;
+//    int                  optind_initial;
     int                  status;
 
 
@@ -712,7 +712,7 @@ int main(int argc, char *argv[])
     /*
      * Attempt to get the pathname of the executable file.
      */
-    init_progfile_dir_error = init_progfile_dir(argv[0], main);
+    /* init_progfile_dir_error = */ init_progfile_dir(argv[0], main);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir());
 
     /* initialize the funnel mini-api */
@@ -810,7 +810,7 @@ int main(int argc, char *argv[])
        We thus ignore errors - *and* set "opterr" to 0 to suppress the
        error messages. */
     opterr = 0;
-    optind_initial = optind;
+    // optind_initial = optind;
     while ((opt = getopt(argc, argv, optstring)) != -1) {
         switch (opt) {
         case 'C':        /* Configuration Profile */
