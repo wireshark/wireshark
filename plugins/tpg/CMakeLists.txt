@@ -51,7 +51,6 @@ ADD_CUSTOM_COMMAND(
 	${_tpg}/tpg.yp
     DEPENDS
 	${_tpg}/tpg.yp
-	
 )
 
 ADD_CUSTOM_COMMAND(

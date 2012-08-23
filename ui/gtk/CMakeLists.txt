@@ -280,9 +280,3 @@ install(
 	PATTERN ".svn" EXCLUDE
 )
 
-#install(TARGETS ui
-#	LIBRARY DESTINATION lib
-#	RUNTIME DESTINATION lib
-#	ARCHIVE DESTINATION lib
-#)
-

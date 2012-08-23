@@ -30,14 +30,14 @@ install(PROGRAMS
 		wspython/register-dissector.py
 		wspython/wspy_dissector.py
 		wspython/wspy_libws.py
-	DESTINATION	
+	DESTINATION
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}/python/${CPACK_PACKAGE_VERSION}
 )
 
 
 install(DIRECTORY
 		wspython/wspy_dissectors
-	DESTINATION	
+	DESTINATION
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}/python/${CPACK_PACKAGE_VERSION}
 	PATTERN ".svn" EXCLUDE
 )
