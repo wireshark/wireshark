@@ -37,7 +37,7 @@
 #   pkg_format - Like "format", but used for the local package version.
 #
 # If run with the "-r" or "--set-release" argument the AC_INIT macro in
-# configure.in and the VERSION macro in config.nmake will have the
+# configure.ac and the VERSION macro in config.nmake will have the
 # pkg_format template appended to the version number. svnversion.h will
 # _not_ be generated if either argument is present.
 #
@@ -253,12 +253,12 @@ Fin
 
 # Read configure.in, then write it back out with an updated
 # "AC_INIT" line.
-sub update_configure_in
+sub update_configure_ac
 {
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $filepath = "$srcdir/configure.in";
+	my $filepath = "$srcdir/configure.ac";
 
 	return if (!$set_version && $package_string eq "");
 
@@ -441,7 +441,7 @@ sub update_lib_releases
 # Update distributed files that contain any version information
 sub update_versioned_files
 {
-	&update_configure_in;
+	&update_configure_ac;
 	&update_config_nmake;
 	&update_release_notes;
 	&update_debian_changelog;
@@ -573,11 +573,11 @@ make-version.pl [options] [source directory]
     --get-svn, -g              Print the SVN revision and source.
     --set-svn, -s              Set the information in svnversion.h
     --set-version, -v          Set the major, minor, and micro versions in
-                               configure.in, config.nmake, debian/changelog,
+                               configure.ac, config.nmake, debian/changelog,
 			       and docbook/release_notes.xml.
                                Resets the release information when used by
 			       itself.
-    --set-release, -r          Set the release information in configure.in
+    --set-release, -r          Set the release information in configure.ac
                                and config.nmake
     --package-version, -p      Deprecated. Same as --set-release.
 

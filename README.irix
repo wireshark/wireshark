@@ -36,7 +36,7 @@ PROBLEM #1
    BETTER SOLUTION:  Modify configure to support RPATH for more platforms
                      than Solaris.
 
-[NOTE: configure is generated from configure.in and acinclude.m4, and
+[NOTE: configure is generated from configure.ac and acinclude.m4, and
 all the linking stuff is done by libtool.  We don't recommend the
 LD_LIBRARY_PATH hack - perhaps we did so in the past, but we don't do so
 now.]

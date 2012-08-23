@@ -1,7 +1,7 @@
 /* $Id$ */
 /* config.h.win32.  Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
-/* config.h.in.  Generated automatically from configure.in by autoheader.  */
+/* config.h.in.  Generated automatically from configure.ac by autoheader.  */
 
 /* Generated Bison and Flex files test whether __STDC__ is defined
    in order to check whether to use ANSI C features such as "const".

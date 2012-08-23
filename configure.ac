@@ -1939,7 +1939,7 @@ AC_SUBST(wireshark_SUBDIRS)
 
 dnl
 dnl check whether plugins should be enabled and, if they should be,
-dnl check for plugins directory - stolen from Amanda's configure.in
+dnl check for plugins directory - stolen from Amanda's configure.ac
 dnl
 dnl we don't wish to expand ${libdir} yet
 plugindir='${libdir}/wireshark/plugins/${VERSION}'

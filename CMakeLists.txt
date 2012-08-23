@@ -36,10 +36,10 @@ endif(COMMAND cmake_policy)
 # set(PROJECT_VERSION "1.3.4-rc5")
 # set(PROJECT_VERSION "1.3.4rc5")
 # set(PROJECT_VERSION "1.3.4")
-# If not set, copy over Wireshark version from configure.in AC_INIT
+# If not set, copy over Wireshark version from configure.ac AC_INIT
 if(NOT PROJECT_VERSION)
 	file(STRINGS
-		${CMAKE_SOURCE_DIR}/configure.in
+		${CMAKE_SOURCE_DIR}/configure.ac
 		VERSIONLINE
 		REGEX "\\(wireshark, .*\\)"
 	)

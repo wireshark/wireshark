@@ -103,7 +103,7 @@ Hi,
 
 After much sweat and toil, I have managed to get gtk 1.2.6 to
 compile and not dump core under AIX.  The solutions were to
-(1) apply the attached patch to the configure.in in the glib-1.2.6
+(1) apply the attached patch to the configure.ac in the glib-1.2.6
 subdirectory
 
 (2)  In the file gtk+-1.2.6/gtk/Makefile, add a link flag -lgdk to link
@@ -129,8 +129,8 @@ Craig Rodrigues
 http://www.gis.net/~craigr    
 rodrigc@mediaone.net          
 
-*** configure.in.old    Thu Oct  7 17:27:43 1999
---- configure.in        Sun Nov  7 19:34:36 1999
+*** configure.ac.old    Thu Oct  7 17:27:43 1999
+--- configure.ac        Sun Nov  7 19:34:36 1999
 ***************
 *** 795,809 ****
 	  fi
