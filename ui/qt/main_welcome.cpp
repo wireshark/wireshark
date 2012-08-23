@@ -165,7 +165,6 @@ MainWelcome::MainWelcome(QWidget *parent) :
     updateRecentFiles();
 
     task_list_->setCurrentRow(0);
-
 }
 
 void MainWelcome::showTask() {
