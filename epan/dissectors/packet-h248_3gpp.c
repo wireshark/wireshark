@@ -32,7 +32,7 @@
 #include "packet-h248.h"
 #define PNAME  "H.248 3GPP"
 #define PSNAME "H2483GPP"
-#define PFNAME "h2483gpp"
+#define PFNAME "h248.3gpp"
 
 #include "packet-isup.h"
 

@@ -34,7 +34,7 @@
 
 #define PNAME  "H.248.7"
 #define PSNAME "H248AN"
-#define PFNAME "h248an"
+#define PFNAME "h248.an"
 
 static int proto_h248_an = -1;
 

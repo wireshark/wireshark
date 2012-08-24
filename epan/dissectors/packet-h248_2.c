@@ -35,7 +35,7 @@
 #include "packet-h248.h"
 #define PNAME  "H.248.2"
 #define PSNAME "H248_2"
-#define PFNAME "h248_2"
+#define PFNAME "h248.2"
 
 static int proto_h248_2 = -1;
 
