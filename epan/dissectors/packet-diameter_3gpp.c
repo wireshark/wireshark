@@ -1109,7 +1109,7 @@ proto_register_diameter_3gpp(void)
 	};
 
 	/* Required function calls to register the header fields and subtrees used */
-	proto_diameter_3gpp = proto_register_protocol("Diameter 3GPP","Diameter3GPP", "diameter3gpp");
+	proto_diameter_3gpp = proto_register_protocol("Diameter 3GPP","Diameter3GPP", "diameter.3gpp");
 	proto_register_field_array(proto_diameter_3gpp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
