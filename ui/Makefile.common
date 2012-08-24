@@ -43,7 +43,6 @@ GENERATOR_FILES =
 WIRESHARK_UI_SRC = \
 	alert_box.c	\
 	iface_lists.c	\
-	pipe_input.c	\
 	util.c
 
 noinst_HEADERS = \
@@ -52,7 +51,6 @@ noinst_HEADERS = \
 	last_open_dir.h		\
 	iface_lists.h		\
 	main_statusbar.h	\
-	pipe_input.h		\
 	progress_dlg.h		\
 	recent.h		\
 	recent_utils.h		\

@@ -722,7 +722,6 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		u3.c
 		ui/alert_box.c
 		ui/iface_lists.c
-		ui/pipe_input.c
 		ui/util.c
 		ws80211_utils.c
 		${SHARK_COMMON_CAPTURE_SRC}
