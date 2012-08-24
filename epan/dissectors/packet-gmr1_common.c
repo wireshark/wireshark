@@ -293,79 +293,79 @@ proto_register_gmr1_common(void)
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_spare1,
-		  { "Spare", "gmr1_common.cm2.spare1",
+		  { "Spare", "gmr1.common.cm2.spare1",
 		    FT_UINT8, BASE_DEC, NULL, 0x80,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_revision,
-		  { "Revision Level", "gmr1_common.cm2.revision",
+		  { "Revision Level", "gmr1.common.cm2.revision",
 		    FT_UINT8, BASE_DEC, VALS(com_cm2_revision_vals), 0x60,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_early_send,
-		  { "ES IND", "gmr1_common.cm2.early_send",
+		  { "ES IND", "gmr1.common.cm2.early_send",
 		    FT_UINT8, BASE_DEC, VALS(com_cm2_early_send_vals), 0x10,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_a5_1,
-		  { "A5/1", "gmr1_common.cm2.a5_1",
+		  { "A5/1", "gmr1.common.cm2.a5_1",
 		    FT_UINT8, BASE_DEC, VALS(com_cm2_a5_1_vals), 0x08,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_mes_type,
-		  { "MES terminal type", "gmr1_common.cm2.mes_type",
+		  { "MES terminal type", "gmr1.common.cm2.mes_type",
 		    FT_UINT8, BASE_DEC, VALS(com_cm2_mes_type_vals), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_spare2,
-		  { "Spare", "gmr1_common.cm2.spare2",
+		  { "Spare", "gmr1.common.cm2.spare2",
 		    FT_UINT8, BASE_DEC, NULL, 0xc0,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_ss_screen_ind,
-		  { "SS Screening Indicator", "gmr1_common.cm2.ss_screen_ind",
+		  { "SS Screening Indicator", "gmr1.common.cm2.ss_screen_ind",
 		    FT_UINT8, BASE_DEC, VALS(com_cm2_ss_screen_ind_vals), 0x30,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_sms_cap,
-		  { "SM capability", "gmr1_common.cm2.sms_cap",
+		  { "SM capability", "gmr1.common.cm2.sms_cap",
 		    FT_UINT8, BASE_DEC, VALS(com_cm2_sms_cap_vals), 0x08,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_spare3,
-		  { "Spare", "gmr1_common.cm2.spare3",
+		  { "Spare", "gmr1.common.cm2.spare3",
 		    FT_UINT8, BASE_DEC, NULL, 0x06,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_freq_cap,
-		  { "FC", "gmr1_common.cm2.freq_cap",
+		  { "FC", "gmr1.common.cm2.freq_cap",
 		    FT_UINT8, BASE_DEC, VALS(com_cm2_freq_cap_vals), 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_cm3_presence,
-		  { "CM3", "gmr1_common.cm2.cm3_presence",
+		  { "CM3", "gmr1.common.cm2.cm3_presence",
 		    FT_UINT8, BASE_DEC, VALS(com_cm3_presence_vals), 0x80,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_spare4,
-		  { "Spare", "gmr1_common.cm2.spare4",
+		  { "Spare", "gmr1.common.cm2.spare4",
 		    FT_UINT8, BASE_DEC, NULL, 0x7c,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_a5_3,
-		  { "A5/3", "gmr1_common.cm2.a5_3",
+		  { "A5/3", "gmr1.common.cm2.a5_3",
 		    FT_UINT8, BASE_DEC, VALS(com_cm2_a5_3_vals), 0x02,
 		    NULL, HFILL }
 		},
 		{ &hf_com_cm2_a5_2_gmr1,
-		  { "A5/2 GMR-1", "gmr1_common.cm2.a5_2_gmr1",
+		  { "A5/2 GMR-1", "gmr1.common.cm2.a5_2_gmr1",
 		    FT_UINT8, BASE_DEC, VALS(com_cm2_a5_2_gmr1_vals), 0x01,
 		    NULL, HFILL }
 		},
 	};
 
 	/* Register the protocol name and field description */
-	proto_gmr1_common = proto_register_protocol("GEO-Mobile Radio (1) Common", "GMR-1 Common", "gmr1_common");
+	proto_gmr1_common = proto_register_protocol("GEO-Mobile Radio (1) Common", "GMR-1 Common", "gmr1.common");
 
 	proto_register_field_array(proto_gmr1_common, hf, array_length(hf));
 }
