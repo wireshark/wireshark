@@ -156,10 +156,10 @@ proto_register_mpeg_audio(void)
 	static hf_register_info hf[] = {
 #include "packet-mpeg-audio-hfarr.c"
 		{ &hf_mpeg_audio_data,
-			{ "Data", "mpeg.audio.data",
+			{ "Data", "mpeg-audio.data",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_mpeg_audio_padbytes,
-			{ "Padding", "mpeg.audio.padbytes",
+			{ "Padding", "mpeg-audio.padbytes",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_id3v1,
@@ -175,7 +175,7 @@ proto_register_mpeg_audio(void)
 	};
 
 	proto_mpeg_audio = proto_register_protocol(
-			"Moving Picture Experts Group Audio", "MPEG Audio", "mpeg.audio");
+			"Moving Picture Experts Group Audio", "MPEG Audio", "mpeg-audio");
 	proto_register_field_array(proto_mpeg_audio, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
