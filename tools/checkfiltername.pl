@@ -86,6 +86,7 @@ my $filecount = 0;
 my $currfile = "";
 my $protabbrev = "";
 my $protabbrev_index;
+my $PFNAME_value = "";
 my $linenumber = 1;
 my $totalerrorcount = 0;
 my $errorfilecount = 0;
@@ -121,7 +122,7 @@ sub checkprotoabbrev {
 			$afterabbrev = substr($_[0], $abbrevpos+1, length($_[0])-$abbrevpos);
 			$afterabbrev = substr($afterabbrev, 0, length($abbrev));
 		}
-				
+
 		if ($abbrev ne $protabbrev) {
 			$errorline = 1;
 						
@@ -208,7 +209,7 @@ sub checkprotoabbrev {
 			}
 		}
 		
-		if (lc($abbrev) eq lc($afterabbrev)) {
+		if (($abbrev ne "") && (lc($abbrev) eq lc($afterabbrev))) {
 			if ($showlinenoFlag) {
 				push(@elements_dup, "$_[1] $_[0] duplicates PROTOABBREV of $abbrev\n");
 			} else {
@@ -326,6 +327,7 @@ while (<>) {
 		}
 		$protabbrev = substr($protabbrev, 0, $protabbrev_index);		
 
+		$PFNAME_value = "";
 		$noregprotocol = 1;
 		$automated = 0;
 		$nofields = 0;
@@ -388,6 +390,12 @@ while (<>) {
 	$restofline = $_;
 	$more_tokens = 1;
 	
+	#PFNAME is a popular #define for the proto filter name, so use it for testing	
+	if ($restofline =~ /#define\s*PFNAME\s*\"([^\"]*)\"/) {
+		$PFNAME_value = $1;
+		$debug>1 && print "PFNAME: '$1'\n";
+	}
+	
 	until ($more_tokens == 0) {
 		if ($restofline =~ /proto_register_protocol\s*\((.*)/) {
 			$noregprotocol = 0;
@@ -408,7 +416,16 @@ while (<>) {
 		} elsif (($state eq "s_proto_long_name") && ($restofline =~ /^(\s*(([\w\d])+)\s*,)\s*(.*)/)) {
 			$restofline = $4;
 			$state = "s_proto_short_name";
-			$debug>1 && print "proto short name: '$2'\n";
+			$debug>1 && print "proto short name: '$2'\n";			
+		} elsif (($state eq "s_proto_short_name") && ($restofline =~ /\s*PFNAME\s*(.*)/)) {
+			$more_tokens = 0;
+			$state = "s_proto_filter_name";
+			if ((index($PFNAME_value, ".") != -1) && ($noperiod == 0)) {
+				push(@periodinfilternamefilelist, "$currfile\n");
+				$noperiod = 1;
+			}
+			push(@protocols, $PFNAME_value);
+			$debug>1 && print "proto filter name: '$PFNAME_value'\n";
 		} elsif (($state eq "s_proto_short_name") && ($restofline =~ /\s*\"([^\"]*)\"\s*(.*)/)) {
 			$more_tokens = 0;
 			$state = "s_proto_filter_name";
