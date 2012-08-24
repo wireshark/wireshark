@@ -446,8 +446,6 @@ static value_string_ext openwire_opcode_vals_ext = VALUE_STRING_EXT_INIT(openwir
 #define OPENWIRE_TYPE_BIG_STRING      13
 
 static const value_string openwire_type_vals[] = {
-  { OPENWIRE_TYPE_THROWABLE,                 "Throwable" },
-  { OPENWIRE_TYPE_OBJECT_ARRAY,              "ObjectArray" },
   { OPENWIRE_TYPE_NULL,                      "Null" },
   { OPENWIRE_TYPE_BOOLEAN,                   "Boolean" },
   { OPENWIRE_TYPE_BYTE,                      "Byte" },
@@ -481,6 +479,8 @@ static const value_string openwire_type_vals[] = {
   { OPENWIRE_CONSUMER_ID,                    "ConsumerId" },
   { OPENWIRE_PRODUCER_ID,                    "ProducerId" },
   { OPENWIRE_BROKER_ID,                      "BrokerId" },
+  { OPENWIRE_TYPE_OBJECT_ARRAY,              "ObjectArray" },
+  { OPENWIRE_TYPE_THROWABLE,                 "Throwable" },
   { 0,                                        NULL }
 };
 
