@@ -285,6 +285,20 @@ _match_strval_ext_init(const guint32 val, const value_string_ext *a_vse)
  * 1 Binary search, the values MUST be in numerical order.
  * 2 The value used as an index(the value string MUST have all values between first and last defined in numerical order)
  */
+
+/* Note: The value_string 'value' is *unsigned*.
+ *
+ *   Special case:
+ *    { -3, -2, -1, 0, 1, 2 }                      will be treated as "ascending ordered" (altho not really such)
+ *                                                  thus allowing as a 'direct' search.
+ *
+ *   Note:
+ *    { -3, -2, 0, 1, 2 } and { -3, -2, -1, 0, 2 } will both be considered as "out-of-order with gaps"
+ *                                                  thus requiring a 'linear' search.
+ *    { 0, 1, 2, -3, -2 } and { 0, 2, -3, -2, -1 } will be considered "ascending ordered with gaps"
+ *                                                  thus allowing a 'binary' search.
+ */
+
   enum { VS_SEARCH = 0, VS_BIN_TREE, VS_INDEX } type = VS_INDEX;
 
   guint32 prev_value;
@@ -303,7 +317,8 @@ _match_strval_ext_init(const guint32 val, const value_string_ext *a_vse)
       type = VS_BIN_TREE;
     }
     /* XXX: Should check for dups ?? */
-    if ((type == VS_BIN_TREE) && (prev_value > vs_p[i].value)) {
+    if ((type == VS_BIN_TREE) &&
+        ((prev_value > vs_p[i].value) || (first_value > vs_p[i].value))) {
       type = VS_SEARCH;
       break;
     }

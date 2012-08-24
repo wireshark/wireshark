@@ -1895,15 +1895,23 @@ field would be set to NULL.
 
 -- Extended value strings
 You can also use an extended version of the value_string for faster lookups.
-It requires a value_string as input.
+It requires a value_string array as input.
 If all of a contiguous range of values from min to max are present in the array
-the value will be used as as a direct index into a value_string array.
+in ascending order the value will be used as as a direct index into a value_string array.
 
 If the values in the array are not contiguous (ie: there are "gaps"), but are
 in ascending order a binary search will be used.
 
 Note: "gaps" in a value_string array can be filled with "empty" entries eg:
 {value, "Unknown"} so that direct access to the array is is possible.
+
+Note: the value_string array values are *unsigned*; IOW: -1 is greater than 0.
+      So:
+      { -2, -1,  1,  2 }; wrong:   linear search will be used (note gap)
+      {  1,  2, -2, -1 }; correct: binary search will be used
+
+      As a special case:
+      { -2, -1,  0,  1,  2 }; OK: direct(indexed) access will be used (note no gap)
 
 The init macro (see below) will perform a check on the value string the first
 time it is used to determine which search algorithm fits and fall back to a
