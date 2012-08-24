@@ -194,7 +194,7 @@ static const value_string control_msg_vals[] = {
     {IMAGE_DATA_RES         , "IMAGE_DATA_RES"},
     {RESET_REQ              , "RESET_REQ"},
     {RESET_RES              , "RESET_RES"},
-    {I_AM_UP_RES            , "I_AM_UP_RES"},
+    {I_AM_UP_REQ            , "I_AM_UP_REQ"},
     {I_AM_UP_RES            , "I_AM_UP_RES"},
     {KEY_UPDATE_REQ         , "KEY_UPDATE_REQ"},
     {KEY_UPDATE_RES         , "KEY_UPDATE_RES"},
