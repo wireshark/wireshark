@@ -3886,9 +3886,10 @@ The arguments to tcp_dissect_pdus are:
 	might not be available, so don't refer to any data past that) - the
 	total length of the PDU, in bytes;
 
-	a routine that's passed a tvbuff pointer, packet_info pointer,
-	and proto_tree pointer, with the tvbuff containing a
-	possibly-reassembled PDU, and that should dissect that PDU.
+	a routine to dissect the pdu that's passed a tvbuff pointer,
+	packet_info pointer, and proto_tree pointer, with the tvbuff
+	containing a possibly-reassembled PDU.  (The "reported_length"
+	of the tvbuff will be the length of the PDU).
 
 2.7.2 Modifying the pinfo struct.
 
