@@ -1440,7 +1440,7 @@ proto_register_ehs(void)
           NULL, HFILL }
       },
       { &hf_ehs_sh_tdm_end_of_data_flag,
-        { "End of Data Flag", "ehs2tdm_end_of_data_flag.tdm_end_of_data_flag",
+        { "End of Data Flag", "ehs2.tdm_end_of_data_flag",
           FT_UINT8, BASE_DEC, VALS(ehs_secondary_header_tdm_end_of_data_flag), 0x18,
           NULL, HFILL }
       },

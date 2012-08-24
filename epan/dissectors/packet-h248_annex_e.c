@@ -1011,7 +1011,7 @@ void proto_register_h248_annex_e(void) {
 		{ &hf_h248_pkg_cg, { "Call Progress Tones Generator", "h248.pkg.cg", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_cg_sig_pt, { "Play Tone (pt)", "h248.pkg.cg.pt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
 		{ &hf_h248_pkg_cg_sig_pt_tl, {"Tone List", "h248.pkg.cg.pt.tl", FT_UINT16, BASE_DEC_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }}, 
-		{ &hf_h248_pkg_cg_sig_pt_ind, { "Inter-Signal Duration (ind)", "h248.pkg-cg.pt.ind", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_cg_sig_pt_ind, { "Inter-Signal Duration (ind)", "h248.pkg.cg.pt.ind", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_cg_sig_pt_btd, { "Tone Direction (btd)", "h248.pkg.cg.pt.btd", FT_UINT8, BASE_DEC, VALS(h248_pkg_cg_pt_btd_param_vals), 0, NULL, HFILL }}, 
 
 		{ &hf_h248_pkg_cg_sig_dt, { "Dial Tone (dt)", "h248.pkg.cg.dt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
