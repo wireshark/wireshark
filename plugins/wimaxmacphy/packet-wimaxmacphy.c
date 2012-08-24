@@ -367,7 +367,7 @@ static const value_string wimaxmacphy_message_type_vals[] =
     { 17,  "Reserved (OFDMA SS)"},
     { 0,    NULL}
 };
-#if 0 /* XXX: 'thsark -G values' gives warning on Windows' */
+#if 0 /* XXX: 'tshark -G values' gives warning on Windows' */
 static value_string_ext wimaxmacphy_message_type_vals_ext = VALUE_STRING_EXT_INIT(wimaxmacphy_message_type_vals);
 #endif
 
@@ -780,7 +780,7 @@ static const value_string wimaxmacphy_modulation_fec_code_type_vals[]=
     { 52, "64-QAM(LDPC) 5/6"},
     { 0,  NULL}
 };
-#if 0 /* XXX: 'thsark -G values' gives warning on Windows' */
+#if 0 /* XXX: 'tshark -G values' gives warning on Windows' */
 static value_string_ext wimaxmacphy_modulation_fec_code_type_vals_ext =
     VALUE_STRING_EXT_INIT(wimaxmacphy_modulation_fec_code_type_vals);
 #endif
