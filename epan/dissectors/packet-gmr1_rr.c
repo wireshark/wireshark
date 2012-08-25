@@ -80,6 +80,7 @@ enum gmr1_ie_rr_idx {
 	GMR1_IE_RR_BCCH_CARRIER,		/* [1] 11.5.2.55  */
 	GMR1_IE_RR_REJECT_CAUSE,		/* [1] 11.5.2.56  */
 	GMR1_IE_RR_GPS_TIMESTAMP,		/* [1] 11.5.2.57  */
+	GMR1_IE_RR_PWR_CTRL_PRM,		/* [1] 11.5.2.60  */
 	GMR1_IE_RR_TMSI_AVAIL_MSK,		/* [1] 11.5.2.62  */
 	GMR1_IE_RR_GPS_ALMANAC,			/* [1] 11.5.2.63  */
 	GMR1_IE_RR_MSC_ID,			/* [1] 11.5.2.100 */
@@ -115,6 +116,7 @@ const value_string gmr1_ie_rr_strings[] = {
 	{ 0, "BCCH Carrier Specification"},	/* [1] 11.5.2.55  */
 	{ 0, "Reject Cause" },			/* [1] 11.5.2.56  */
 	{ 0, "GPS timestamp" },			/* [1] 11.5.2.57  */
+	{ 0, "Power Control Params" },		/* [1] 11.5.2.60  */
 	{ 0, "TMSI Availability Mask" },	/* [1] 11.5.2.62  */
 	{ 0, "GPS Almanac Data" },		/* [1] 11.5.2.63  */
 	{ 0, "MSC ID" },			/* [1] 11.5.2.100 */
@@ -769,6 +771,17 @@ GMR1_IE_FUNC(gmr1_ie_rr_gps_timestamp)
 	return 2;
 }
 
+/* [1] 11.5.2.60 - Power Control Params */
+GMR1_IE_FUNC(gmr1_ie_rr_pwr_ctrl_prm)
+{
+	/* It's CSN1 encoded and we have no real world sample. Until we do,
+	 * we don't pollute the code with a bunch of untested stuff ... */
+
+	proto_tree_add_text(tree, tvb, offset, 5, "Power Control Parameters");
+
+	return 5;
+}
+
 /* [1] 11.5.2.62 - Availability Mask */
 GMR1_IE_FUNC(gmr1_ie_rr_tmsi_avail_msk)
 {
@@ -1158,6 +1171,7 @@ elem_fcn gmr1_ie_rr_func[NUM_GMR1_IE_RR] = {
 	gmr1_ie_rr_bcch_carrier,	/* BCCH Carrier */
 	gmr1_ie_rr_reject_cause,	/* Reject Cause */
 	gmr1_ie_rr_gps_timestamp,	/* GPS timestamp */
+	gmr1_ie_rr_pwr_ctrl_prm,	/* Power Control Params */
 	gmr1_ie_rr_tmsi_avail_msk,	/* TMSI Availability Mask */
 	gmr1_ie_rr_gps_almanac,		/* GPS Almanac Data */
 	gmr1_ie_rr_msc_id,		/* MSC ID */
@@ -1422,6 +1436,32 @@ GMR1_MSG_FUNC(gmr1_rr_msg_ciph_mode_complete)
 	GMR1_MSG_FUNC_END
 }
 
+/* [1] 10.1.2.1 - Assignment Command 1 */
+GMR1_MSG_FUNC(gmr1_rr_msg_ass_cmd_1)
+{
+	GMR1_MSG_FUNC_BEGIN
+
+	/* Channel Description			[1] 11.5.2.5	- M V 4 */
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_DESC, NULL);
+
+	/* 7D  Timing Offset			[1] 11.5.2.40	- O TV 3 */
+	ELEM_OPT_TV(0x7D, GMR1_IE_RR, GMR1_IE_RR_TIMING_OFS, NULL);
+
+	/* 7F  Frequency Offset			[1] 11.5.2.49	- O TV 3 */
+	ELEM_OPT_TV(0x7F, GMR1_IE_RR, GMR1_IE_RR_FREQ_OFS, NULL);
+
+	/* 63  Channel Mode			[1] 11.5.2.6	- O TV 2 */
+	ELEM_OPT_TV(0x63, GMR1_IE_RR, GMR1_IE_RR_CHAN_MODE, NULL);
+
+	/* 71  Power Control Parameters		[1] 11.5.2.60	- O TV 6 */
+	ELEM_OPT_TV(0x71, GMR1_IE_RR, GMR1_IE_RR_PWR_CTRL_PRM, NULL);
+
+	/* 9-  Cipher Mode Setting		[4] 10.5.2.9	- O TV 1 */
+	ELEM_OPT_TV_SHORT(0x90, GMR1_IE_RR, GMR1_IE_RR_CIPH_MODE_SETTING, NULL);
+
+	GMR1_MSG_FUNC_END
+}
+
 /* [1] 10.1.7 - Channel Release */
 GMR1_MSG_FUNC(gmr1_rr_msg_chan_release)
 {
@@ -1643,7 +1683,7 @@ static const gmr1_msg_func_t gmr1_msg_rr_func[NUM_GMR1_MSG_RR] = {
 	gmr1_rr_msg_ciph_mode_complete,	/* Ciphering Mode Complete */
 
 	/* Channel assignment/handover messages */
-	NULL,				/* Assignment Command 1 */
+	gmr1_rr_msg_ass_cmd_1,		/* Assignment Command 1 */
 	NULL,				/* Assignment Command 2 */
 	NULL,				/* Assignment Complete */
 	NULL,				/* Assignment Failure */
