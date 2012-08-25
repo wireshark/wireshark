@@ -104,7 +104,10 @@ static const value_string channel_status_vals[] = {
 	{ 0, NULL }
 };
 
-/* XXX: Note duplicate values in the following ?? */
+/* XXX: Note duplicate values in the following ??  */
+/*      dups after the first commented out since a */
+/*      linear search will always match the first  */
+/*      of the dups.                               */
 static const value_string message_code_vals[] = {
 	{ 0x0082, "SS -> GW: ASUP: Acknowledgment to NSUP" },
 	{ 0x0084, "SS -> GW: LNK: Link Active" },
@@ -607,7 +610,7 @@ static const value_string tag_enum_type[] = {
 	{ IPDC_TAG(0x76) + 0x01, "On" },
 	/* Constant Fax tone detection on/off */
 	{ IPDC_TAG(0x77) + 0x00, "Off" },
-	{ IPDC_TAG(0x77) + 0x00, "On (Default)" },
+	{ IPDC_TAG(0x77) + 0x01, "On (Default)" },
 	/* Constant Modem tone detection on/off */
 	{ IPDC_TAG(0x78) + 0x00, "Off" },
 	{ IPDC_TAG(0x78) + 0x01, "On (Default)" },
@@ -645,7 +648,7 @@ static const value_string tag_enum_type[] = {
 	{ IPDC_TAG(0xa7) + 0x01, "Any" },
 	{ IPDC_TAG(0xa7) + 0x02, "PAP (Default)" },
 	{ IPDC_TAG(0xa7) + 0x03, "CHAP" },
-	{ IPDC_TAG(0xa7) + 0x03, "MS-CHAP" },
+/* ???	{ IPDC_TAG(0xa7) + 0x03, "MS-CHAP" }, */
 	/* Link status */
 	{ IPDC_TAG(0xb0) + 0x00, "Successfully connected" },
 	{ IPDC_TAG(0xb0) + 0x01, "Not connected" },
@@ -675,11 +678,11 @@ static const value_string tag_enum_type[] = {
 	{ IPDC_TAG(0xc1) + 0x13, "Switzerland" },
 	{ IPDC_TAG(0xc1) + 0x14, "UK" },
 	{ IPDC_TAG(0xc1) + 0x15, "US" },
-	{ IPDC_TAG(0xc1) + 0x15, "Brazil" },
+/* ???	{ IPDC_TAG(0xc1) + 0x15, "Brazil" }, */
 	{ 0, NULL }
 };
-
 static value_string_ext tag_enum_type_ext = VALUE_STRING_EXT_INIT(tag_enum_type);
+
 static int proto_ipdc = -1;
 static int hf_ipdc_nr = -1;
 static int hf_ipdc_ns = -1;
