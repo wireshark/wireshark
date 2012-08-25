@@ -18,7 +18,7 @@
 FIND_PATH(LUA_INCLUDE_DIR lua.h
   HINTS
   $ENV{LUA_DIR}
-  PATH_SUFFIXES include/lua52 include/lua51 include/lua5.1 include/lua include
+  PATH_SUFFIXES include/lua52 include/lua5.2 include/lua51 include/lua5.1 include/lua include
   PATHS
   ~/Library/Frameworks
   /Library/Frameworks
