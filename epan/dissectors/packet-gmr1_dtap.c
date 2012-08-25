@@ -165,7 +165,7 @@ proto_register_gmr1_dtap(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the protocol name and field description */
-	proto_gmr1_dtap = proto_register_protocol("GEO-Mobile Radio (1) DTAP", "GMR-1 DTAP", "gmr1_dtap");
+	proto_gmr1_dtap = proto_register_protocol("GEO-Mobile Radio (1) DTAP", "GMR-1 DTAP", "gmr1.dtap");
 #if 0
 	proto_register_field_array(proto_gmr1_dtap, hf, array_length(hf));
 #endif
