@@ -229,6 +229,7 @@ enum {
 	GSMTAP_SUB_GMR1_BCCH,
 	GSMTAP_SUB_GMR1_CCCH,
 	GSMTAP_SUB_GMR1_LAPSAT,
+	GSMTAP_SUB_GMR1_RACH,
 
 	GSMTAP_SUB_MAX
 };
@@ -616,6 +617,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case GSMTAP_GMR1_TCH9 | GSMTAP_GMR1_FACCH:
 			sub_handle = GSMTAP_SUB_GMR1_LAPSAT;
 			break;
+		case GSMTAP_GMR1_RACH:
+			sub_handle = GSMTAP_SUB_GMR1_RACH;
+			break;
 		default:
 			sub_handle = GSMTAP_SUB_DATA;
 			break;
@@ -712,6 +716,7 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_GMR1_BCCH] = find_dissector("gmr1_bcch");
 	sub_handles[GSMTAP_SUB_GMR1_CCCH] = find_dissector("gmr1_ccch");
 	sub_handles[GSMTAP_SUB_GMR1_LAPSAT] = find_dissector("lapsat");
+	sub_handles[GSMTAP_SUB_GMR1_RACH] = find_dissector("gmr1_rach");
 	gsmtap_handle = create_dissector_handle(dissect_gsmtap, proto_gsmtap);
 	dissector_add_uint("udp.port", GSMTAP_UDP_PORT, gsmtap_handle);
 }
