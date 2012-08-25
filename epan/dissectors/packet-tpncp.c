@@ -140,7 +140,6 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
     guint16 g_ushort;
     gint8 g_char;
     guint8 g_uchar;
-    gchar *g_str = NULL;
     gint g_str_len, counter, bitshift, bitmask;
     tpncp_data_field_info *current_tpncp_data_field_info = NULL;
 
@@ -153,13 +152,9 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
             case 5: case 6: case 7: case 8:
                 if ((g_str_len = current_tpncp_data_field_info->tpncp_data_field_array_dim)) { /* add char array */
                     g_str_len = MIN(g_str_len, tvb_length_remaining(tvb, *offset));
-                    g_str = g_malloc(g_str_len);
-                    tvb_memcpy(tvb, g_str, *offset, g_str_len);
-                    g_str[g_str_len-1] = '\0';
-                    proto_tree_add_string(ltree, current_tpncp_data_field_info->tpncp_data_field_descr,
-                                          tvb, *offset, g_str_len, g_str);
+                    proto_tree_add_item(ltree, current_tpncp_data_field_info->tpncp_data_field_descr,
+                                          tvb, *offset, g_str_len, ENC_NA|ENC_ASCII);
                     (*offset) += g_str_len;
-                    g_free(g_str);
                 }
                 else { /* add single char */
                     g_uchar = tvb_get_guint8(tvb, *offset);

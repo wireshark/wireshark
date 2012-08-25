@@ -5844,7 +5844,7 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 
     if (valueEnd < valueStart)
     {
-        valueBuffer = g_malloc (1);
+        valueBuffer = ep_alloc (1);
         valueBuffer[0] = 0;
         valueEnd = valueStart;
     }

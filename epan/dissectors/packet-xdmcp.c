@@ -96,31 +96,15 @@ static gint ett_xdmcp_authorization_names = -1;
 static gint ett_xdmcp_connections = -1;
 static gint ett_xdmcp_connection = -1;
 
-/* Copied from packet-x11.c */
-static void stringCopy(char *dest, const char *source, int length)
-{
-  guchar c;
-  while(length--) {
-    c = *source++;
-    if (!isgraph(c) && c != ' ') c = '.';
-    *dest++ = c;
-  }
-  *dest++ = '\0';
-}
-
 static gint xdmcp_add_string(proto_tree *tree, gint hf,
 			     tvbuff_t *tvb, gint offset)
 {
-  const guint8 *p;
   char *str;
   guint len;
 
   len = tvb_get_ntohs(tvb, offset);
-  p = tvb_get_ptr(tvb, offset+2, len);
-  str = g_malloc(len+1);
-  stringCopy(str, (gchar*)p, len);
+  str = tvb_get_ephemeral_string(tvb, offset+2, len);
   proto_tree_add_string(tree, hf, tvb, offset, len+2, str);
-  g_free(str);
 
   return len+2;
 }
@@ -128,16 +112,12 @@ static gint xdmcp_add_string(proto_tree *tree, gint hf,
 static gint xdmcp_add_text(proto_tree *tree, const char *text,
 		     tvbuff_t *tvb, gint offset)
 {
-  const guint8 *p;
   char *str;
   guint len;
 
   len = tvb_get_ntohs(tvb, offset);
-  p = tvb_get_ptr(tvb, offset+2, len);
-  str = g_malloc(len+1);
-  stringCopy(str, (gchar*)p, len);
+  str = tvb_get_ephemeral_string(tvb, offset+2, len);
   proto_tree_add_text(tree, tvb, offset, len+2, "%s: %s", text, str);
-  g_free(str);
 
   return len+2;
 }

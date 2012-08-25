@@ -2078,24 +2078,10 @@ static void listOfSegment(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       }
 }
 
-/* XXX - the protocol tree code should handle non-printable characters.
-   Note that "non-printable characters" may depend on your locale.... */
-static void stringCopy(char *dest, const char *source, int length)
-{
-      guchar c;
-      while(length--) {
-            c = *source++;
-            if (!isgraph(c) && c != ' ') c = '.';
-            *dest++ = c;
-      }
-      *dest++ = '\0';
-}
-
 static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                           int hf_item, int length, guint byte_order)
 {
       char *s = NULL;
-      guint allocated = 0;
       proto_item *ti;
       proto_tree *tt;
       int i;
@@ -2114,11 +2100,7 @@ static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
       while(length--) {
             unsigned l = VALUE8(tvb, *offsetp);
-            if (allocated < (l + 1)) {
-                  s = ep_alloc(l + 1);
-                  allocated = l + 1;
-            }
-            stringCopy(s, (gchar *)tvb_get_ptr(tvb, *offsetp + 1, l), l); /* Nothing better for now. We need a better string handling API. */
+            s = tvb_get_ephemeral_string(tvb, *offsetp + 1, l);
             proto_tree_add_string_format(tt, hf_item, tvb, *offsetp, l + 1, s, "\"%s\"", s);
             *offsetp += l + 1;
       }
@@ -2141,8 +2123,7 @@ static int stringIsActuallyAn8BitString(tvbuff_t *tvb, int offset, unsigned leng
 static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
                                               int hf, int hf_bytes,
                                               int offset, unsigned length,
-                                              char **s, int *sLength,
-                                              guint byte_order)
+                                              char **s, guint byte_order)
 {
       int truncated = FALSE;
       unsigned l = length / 2;
@@ -2155,10 +2136,8 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
                   truncated = TRUE;
                   l = STRING16_MAX_DISPLAYED_LENGTH;
             }
-            if (*sLength < (int) l + 3) {
-                  *s = ep_alloc(l + 3);
-                  *sLength = l + 3;
-            }
+
+            *s = ep_alloc(l + 3);
             dp = *s;
             *dp++ = '"';
             if (truncated) l -= 3;
@@ -2184,7 +2163,6 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
 static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
     int sizeIs16, int next_offset, guint byte_order)
 {
-      int allocated = 0;
       char *s = NULL;
       proto_item *ti;
       proto_tree *tt;
@@ -2218,11 +2196,7 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                   proto_tree *ttt;
                   gint8 delta = VALUE8(tvb, *offsetp + 1);
                   if (sizeIs16) l += l;
-                  if ((unsigned) allocated < l + 1) {
-                        s = ep_alloc(l + 1);
-                        allocated = l + 1;
-                  }
-                  stringCopy(s, (gchar *)tvb_get_ptr(tvb, *offsetp + 2, l), l);
+                  s = tvb_get_ephemeral_string(tvb, *offsetp + 2, l);
                   tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, *offsetp, l + 2,
                                                        "textitem (string): delta = %d, \"%s\"",
                                                        delta, s);
@@ -2232,8 +2206,7 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                         string16_with_buffer_preallocated(tvb, ttt, hf_x11_textitem_string_string16,
                                                           hf_x11_textitem_string_string16_bytes,
                                                           *offsetp + 2, l,
-                                                          &s, &allocated,
-                                                          byte_order);
+                                                          &s, byte_order);
                   else
                         proto_tree_add_string_format(ttt, hf_x11_textitem_string_string8, tvb,
                                                      *offsetp + 2, l, s, "\"%s\"", s);
@@ -2493,13 +2466,7 @@ static void setOfPointerEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 static void string8(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     int hf, unsigned length)
 {
-      const guint8 *p;
-      char *s;
-
-      p = tvb_get_ptr(tvb, *offsetp, length);
-      s = ep_alloc(length + 1);
-      stringCopy(s, (gchar *)p, length);
-      proto_tree_add_string(t, hf, tvb, *offsetp, length, s);
+      proto_tree_add_item(t, hf, tvb, *offsetp, length, ENC_NA|ENC_ASCII);
       *offsetp += length;
 }
 
@@ -2509,11 +2476,10 @@ static void string16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
     int hf_bytes, unsigned length, guint byte_order)
 {
       char *s = NULL;
-      gint l = 0;
 
       length += length;
       string16_with_buffer_preallocated(tvb, t, hf, hf_bytes, *offsetp, length,
-                                        &s, &l, byte_order);
+                                        &s, byte_order);
 
       *offsetp += length;
 }
@@ -3217,8 +3183,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
                   /* necessary processing even if tree == NULL */
 
                   v16 = VALUE16(tvb, 4);
-                  name = se_alloc(v16 + 1);
-                  stringCopy(name, (gchar*)tvb_get_ptr(tvb, 8, v16), v16);
+                  name = tvb_get_ephemeral_string(tvb, 8, v16);
 
                   /* store string of extension, opcode will be set at reply */
                   i = 0;
