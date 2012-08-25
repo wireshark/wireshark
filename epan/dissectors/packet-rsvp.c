@@ -1067,11 +1067,11 @@ const value_string gmpls_protection_cap_str[] = {
     {  16, "Dedicated 1+1"},
     {  32, "Enhanced"},
     {  64, "Reserved"},
-    { 128,"Reserved"},
+    { 128, "Reserved"},
     {   0, NULL }
 };
 
-const value_string gmpls_sonet_signal_type_str[] = {
+static const value_string gmpls_sonet_signal_type_str[] = {
     {  1, "VT1.5 SPE / VC-11"},
     {  2, "VT2 SPE / VC-12"},
     {  3, "VT3 SPE"},
@@ -1100,7 +1100,7 @@ const value_string gmpls_sonet_signal_type_str[] = {
     { 23, "STS-192c SPE / VC-4-64c"},
     {  0, NULL}
 };
-static value_string_ext gmpls_sonet_signal_type_str_ext = VALUE_STRING_EXT_INIT(gmpls_sonet_signal_type_str);
+value_string_ext gmpls_sonet_signal_type_str_ext = VALUE_STRING_EXT_INIT(gmpls_sonet_signal_type_str);
 
 static const value_string ouni_guni_diversity_str[] = {
     { 1, "Node Diverse"},

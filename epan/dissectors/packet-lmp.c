@@ -1956,8 +1956,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			for (j = 0; j < (mylen - 8) / 4; j++) {
 			  proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+8+(j*4), 4,
 					      "%s: %d free timeslots",
-                                              val_to_str(tvb_get_guint8(tvb, offset2+l+8+(j*4)),
-                                                         gmpls_sonet_signal_type_str,
+                                              val_to_str_ext(tvb_get_guint8(tvb, offset2+l+8+(j*4)),
+                                                         &gmpls_sonet_signal_type_str_ext,
                                                          "Unknown Signal Type (%d)"),
 					      tvb_get_ntoh24(tvb, offset2+l+9+(j*4)));
 		    	}

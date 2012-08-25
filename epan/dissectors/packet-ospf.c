@@ -2196,9 +2196,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                     for (i = 0; i < (stlv_len - 4) / 4; i++) {
                         proto_tree_add_text(stlv_tree, tvb, stlv_offset+8+(i*4), 4,
                                             "%s: %d free timeslots",
-                                            val_to_str(tvb_get_guint8(tvb, stlv_offset+8+(i*4)),
-                                                       gmpls_sonet_signal_type_str,
-                                                       "Unknown Signal Type (%d)"),
+                                            val_to_str_ext(tvb_get_guint8(tvb, stlv_offset+8+(i*4)),
+                                                           &gmpls_sonet_signal_type_str_ext,
+                                                           "Unknown Signal Type (%d)"),
                                             tvb_get_ntoh24(tvb, stlv_offset + 9 + i*4));
                     }
 
