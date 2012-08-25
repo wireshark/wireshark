@@ -3490,12 +3490,12 @@ proto_register_gsm_a_common(void)
     static hf_register_info hf[] =
     {
     { &hf_gsm_a_common_elem_id,
-        { "Element ID", "gsm_a_common.elem_id",
+        { "Element ID", "gsm_a.common.elem_id",
         FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
     { &hf_gsm_a_l_ext,
-        { "ext",    "gsm_a_common.l_ext",
+        { "ext",    "gsm_a.l_ext",
         FT_UINT8, BASE_DEC, NULL, 0x80,
         NULL, HFILL }
     },

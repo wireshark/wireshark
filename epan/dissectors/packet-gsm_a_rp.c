@@ -533,12 +533,12 @@ proto_register_gsm_a_rp(void)
 	static hf_register_info hf[] =
 	{
 	{ &hf_gsm_a_rp_msg_type,
-		{ "RP Message Type",	"gsm_a_rp.msg_type",
+		{ "RP Message Type",	"gsm_a.rp.msg_type",
 		FT_UINT8, BASE_HEX, VALS(gsm_rp_msg_strings), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_rp_elem_id,
-		{ "Element ID",	"gsm_a_rp.elem_id",
+		{ "Element ID",	"gsm_a.rp.elem_id",
 		FT_UINT8, BASE_HEX, NULL, 0,
 		NULL, HFILL }
 	},
@@ -569,7 +569,7 @@ proto_register_gsm_a_rp(void)
 	/* Register the protocol name and description */
 
 	proto_a_rp =
-		proto_register_protocol("GSM A-I/F RP", "GSM RP", "gsm_a_rp");
+		proto_register_protocol("GSM A-I/F RP", "GSM RP", "gsm_a.rp");
 
 	proto_register_field_array(proto_a_rp, hf, array_length(hf));
 
