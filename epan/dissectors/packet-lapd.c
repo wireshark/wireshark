@@ -336,7 +336,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else { /* finished processing LAPD frame(s) */
 		if (NULL == p_get_proto_data(pinfo->fd, proto_lapd)) {
 			/* Per packet information */
-			lapd_ppi = g_malloc(sizeof(lapd_ppi_t));
+			lapd_ppi = se_alloc(sizeof(lapd_ppi_t));
 			lapd_ppi->has_crc = TRUE;
 			if (prev_byte_state)
 				fill_lapd_byte_state(&lapd_ppi->start_byte_state, prev_byte_state->state,
@@ -356,13 +356,13 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						fill_lapd_byte_state(convo_data->byte_state_a, state, full_byte, bit_offset, ones);
 					else {
 						if (!convo_data->byte_state_b)
-							convo_data->byte_state_b = g_malloc(sizeof(lapd_byte_state_t));
+							convo_data->byte_state_b = se_alloc(sizeof(lapd_byte_state_t));
 						fill_lapd_byte_state(convo_data->byte_state_b, state, full_byte, bit_offset, ones);
 					}
 				} else { /* lapd convo data has to be created */
-					lapd_byte_state = g_malloc(sizeof(lapd_byte_state_t));
+					lapd_byte_state = se_alloc(sizeof(lapd_byte_state_t));
 					fill_lapd_byte_state(lapd_byte_state, state, full_byte, bit_offset, ones);
-					convo_data = g_malloc(sizeof(lapd_convo_data_t));
+					convo_data = se_alloc(sizeof(lapd_convo_data_t));
 					COPY_ADDRESS(&convo_data->addr_a, &pinfo->src);
 					COPY_ADDRESS(&convo_data->addr_b, &pinfo->dst);
 					convo_data->port_a = pinfo->srcport;
