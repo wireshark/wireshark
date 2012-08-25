@@ -562,6 +562,7 @@ DISSECTOR_SRC = \
 	packet-gmr1_bcch.c	\
 	packet-gmr1_common.c	\
 	packet-gmr1_dtap.c	\
+	packet-gmr1_rach.c	\
 	packet-gmr1_rr.c	\
 	packet-gmrp.c		\
 	packet-gnutella.c	\
