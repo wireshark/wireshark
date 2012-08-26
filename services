@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-08-16
+# 2012-08-24
 # 
 # Experts
 # 
@@ -10951,25 +10951,31 @@ atmp	5150/tcp	# Ascend Tunnel Management     [Kory_Hamzeh]                      
 atmp	5150/udp	# Ascend Tunnel Management     [Kory_Hamzeh]                                      [Kory_Hamzeh]
 # Protocol
 # ESRI SDE Instance
-# 
-esri-sde	5151/tcp	# IANA assigned this           [Peter_Aronson]                                    [Peter_Aronson]
-# well-formed service name as
-# a replacement for
+# Unauthorized
+esri-sde	5151/tcp	# IANA assigned this           [Peter_Aronson]                                    [Peter_Aronson]                                                                                                                      Use Known on
+# well-formed service name as                                                                                                                                                                                          ports 5151
+# a replacement for                                                                                                                                                                                                    and 5152
 # "esri_sde".
 # This entry is an alias to "esri-sde". This entry is now
 esri_sde	5151/tcp	# ESRI SDE Instance            [Peter_Aronson]                                    [Peter_Aronson]                                                                                                                                    historic, not usable for use with many common service
 # discovery mechanisms.
 # ESRI SDE Remote Start
-# 
-esri-sde	5151/udp	# IANA assigned this           [Peter_Aronson]                                    [Peter_Aronson]
-# well-formed service name as
-# a replacement for
+# Unauthorized
+esri-sde	5151/udp	# IANA assigned this           [Peter_Aronson]                                    [Peter_Aronson]                                                                                                                      Use Known on
+# well-formed service name as                                                                                                                                                                                          ports 5151
+# a replacement for                                                                                                                                                                                                    and 5152
 # "esri_sde".
 # This entry is an alias to "esri-sde". This entry is now
 esri_sde	5151/udp	# ESRI SDE Remote Start        [Peter_Aronson]                                    [Peter_Aronson]                                                                                                                                    historic, not usable for use with many common service
 # discovery mechanisms.
-sde-discovery	5152/tcp	# ESRI SDE Instance Discovery  [Peter_Aronson]                                    [Peter_Aronson]
-sde-discovery	5152/udp	# ESRI SDE Instance Discovery  [Peter_Aronson]                                    [Peter_Aronson]
+# Unauthorized
+sde-discovery	5152/tcp	# ESRI SDE Instance Discovery  [Peter_Aronson]                                    [Peter_Aronson]                                                                                                                      Use Known on
+# ports 5151
+# and 5152
+# Unauthorized
+sde-discovery	5152/udp	# ESRI SDE Instance Discovery  [Peter_Aronson]                                    [Peter_Aronson]                                                                                                                      Use Known on
+# ports 5151
+# and 5152
 toruxserver	5153/tcp	# ToruX Game Server            [Josse_van_Dobben_de]                              [Josse_van_Dobben_de]                                     2009-07-01
 # 5153        udp    Reserved
 bzflag	5154/tcp	# BZFlag game server           [Tim_Riker]                                        [Tim_Riker]                                               2003-07
@@ -11048,7 +11054,10 @@ targus-getdata2	5202/tcp	# TARGUS GetData 2             [John_Keaveney]         
 targus-getdata2	5202/udp	# TARGUS GetData 2             [John_Keaveney]                                    [John_Keaveney]
 targus-getdata3	5203/tcp	# TARGUS GetData 3             [John_Keaveney]                                    [John_Keaveney]
 targus-getdata3	5203/udp	# TARGUS GetData 3             [John_Keaveney]                                    [John_Keaveney]
-# 5204-5220            Unassigned
+# 5204-5208            Unassigned
+nomad	5209/tcp	# Nomad Device Video Transfer  [Morega_System]                                    [Ashraf_Tahir]                                            2012-08-20
+# 5209        udp    Reserved
+# 5210-5220            Unassigned
 3exmp	5221/tcp	# 3eTI Extensible Management   [Bill_Rettig]                                      [Bill_Rettig]                                             2010-05-19
 # Protocol for OAMP
 # 5221        udp    Reserved
@@ -15158,7 +15167,11 @@ exonet	26489/tcp	# EXOnet                       [Urban_Fosseus]                 
 exonet	26489/udp	# EXOnet                       [Urban_Fosseus]                                    [Urban_Fosseus]                                           2008-12-24
 # 26490-26999           Unassigned
 # flex-lm         27000-27009           FLEX LM (1-10)               [Daniel_Birns]                                     [Daniel_Birns]
-# 27010-27344           Unassigned
+# Unauthorized
+# Use Known on
+# 27010-27344           Unassigned                                                                                                                                                                                                           ports 27017,
+# 27018 and
+# 27019
 imagepump	27345/tcp	# ImagePump                    [Richard_Minner]                                   [Richard_Minner]
 imagepump	27345/udp	# ImagePump                    [Richard_Minner]                                   [Richard_Minner]
 # 27346-27441           Unassigned
@@ -15181,7 +15194,11 @@ nxlmd	28000/tcp	# NX License Manager           [Anthony_Greatorex]              
 nxlmd	28000/udp	# NX License Manager           [Anthony_Greatorex]                                [Anthony_Greatorex]                                       2004-11
 pqsp	28001/tcp	# PQ Service                   [Peter_Laschtowitz]                                [Peter_Laschtowitz]                                       2009-09-15
 # 28001       udp    Reserved
-# 28002-28239           Unassigned
+# Unauthorized
+# Use Known on
+# 28002-28239           Unassigned                                                                                                                                                                                                           ports 28017,
+# 28018 and
+# 28019
 siemensgsm	28240/tcp	# Siemens GSM                  [David_Anuszewski]                                 [David_Anuszewski]                                        2004-11
 siemensgsm	28240/udp	# Siemens GSM                  [David_Anuszewski]                                 [David_Anuszewski]                                        2004-11
 # 28241-29117           Unassigned
@@ -16182,6 +16199,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # ii-konane                             Instant Interactive Konane   [Ricky_Sharp]                                      [Ricky_Sharp]                                                                                                                                      Defined TXT keys: None
 # ilynx                                 iLynX                        [iOS_Software]                                     [iOS_Software]                                                                                                                                     Defined TXT keys: None
 # imidi                                 iMidi                        [Robert_Grant]                                     [Robert_Grant]                                                                                                                                     Defined TXT keys: None
+# ims-ni                         tcp    Noise Inspector              [IMS_merilni_sistemi]                              [Metod_Celestina]                                         2012-08-24                                                                               Defined TXT keys: SN (serial number), SVER (software
+# version), HVER (hardware version), PVER (protocol version))
 # indigo-dvr                            Indigo Security Digital      [Haram_Lee]                                        [Haram_Lee]                                                                                                                                        Defined TXT keys: Proprietary
 # Video Recorders
 # infboard                       tcp    InfBoard interactive         [Eric_Sean_Conner]                                 [Eric_Sean_Conner]                                        2011-10-17                                                                               Defined TXT keys: Proprietary
@@ -17213,6 +17232,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ashit_Patel]                                             Ashit Patel                                     mailto:Ashit.Patel&eng.sun.com
 # [Ashley_Clarke]                                           Ashley Clarke                                   mailto:Ashley.clarke&vishaypg.com                             2010-06-17
 # [Ashok_Marwaha]                                           Ashok Marwaha
+# [Ashraf_Tahir]                                            Ashraf Tahir              Morega Systems Inc.   mailto:atahir&morega.com                                      2012-08-20
 # [Ashvin_Sanghvi]                                          Ashvin Sanghvi                                  mailto:AshvinS&microsoft.com
 # [Ashwani_Singhal]                                         Ashwani Singhal                                 mailto:Ashwani.Singhal&netscout.com                           2010-04-07
 # [Atomix_Productions]                                                                Atomix Productions    mailto:corporate&atomixproductions.com                        2011-10-12
@@ -18675,6 +18695,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ilya_Melamed]                                            Ilya Melamed                                    mailto:ilya77&gmail.com                                       2006-06
 # [ims_Info]                                                                          ims Info Management   mailto:ope&ims-info.ch                                        2011-10-20
 # Systems AG
+# [IMS_merilni_sistemi]                                                               IMS merilni sistemi   mailto:info&ims.si                                            2012-08-24
+# d.o.o.
 # [In_sik_Choi]                                             In-sik Choi                                     mailto:iscard&virusdesk.com                                   2002-02
 # [Inderpreet_Singh]                                        Inderpreet Singh                                mailto:isingh&chantrynetworks.com                             2003-06
 # [Ines_Homem_de_Melo]                                      Ines Homem de Melo                              mailto:sidinf&brfapesp.bitnet
@@ -19734,6 +19756,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Melinda_Tsao]                                            Melinda Tsao                                    mailto:melinda&tpe1.sercomm.com.tw
 # [Melinda_Tsao_2]                                          Melinda Tsao                                    mailto:melinda_tsao&mail.sercomm.com.tw
 # [Menno_Zweistra]                                          Menno Zweistra                                  mailto:m.zweistra&metatude.com
+# [Metod_Celestina]                                         Metod Celestina           IMS merilni sistemi   mailto:metod.celestina&ims.si                                 2012-08-24
+# d.o.o.
 # [Micha_Ben_Efraim]                                        Micha Ben-Efraim                                mailto:benmi07&ca.com                                         2008-01-07
 # [Micha_Ben_Efraim_2]                                      Micha Ben-Efraim                                mailto:micha&metalix.net                                      2011-01-31
 # [Micha_Ben_Efraim_3]                                      Micha Ben-Efraim                                mailto:micha.ben-efraim&ca.com                                2010-02-18
@@ -19926,6 +19950,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Montgomery_Zukowski]                                     Montgomery Zukowski                             mailto:monty&nextnorth.acs.ohio-state.edu
 # [Monty]                                                   Monty                                           mailto:monty&analytikerna.se
 # [Moon_Ho_Chung]                                           Moon Ho Chung                                   mailto:mchung&esps.com
+# [Morega_System]                                                                     Morega Systems Inc.   mailto:atahir&morega.com                                      2012-08-20
 # [Morgan_Doyle]                                            Morgan Doyle                                    mailto:morgan&mpt.ie
 # [Morgan_Jones]                                            Morgan Jones                                    mailto:mwj&cyasolutions.com
 # [Moritz_Schmale]                                          Moritz Schmale                                  mailto:narrow.m&gmail.com                                     2011-10-07
