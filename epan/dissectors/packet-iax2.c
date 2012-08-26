@@ -1189,10 +1189,10 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
         break;
 
       case IAX_IE_CALLED_NUMBER:
-        iax2_info->calledParty = g_strdup(tvb_format_text(tvb, offset+2, ies_len));
+        iax2_info->calledParty = ep_strdup(tvb_format_text(tvb, offset+2, ies_len));
         break;
       case IAX_IE_CALLING_NUMBER:
-        iax2_info->callingParty = g_strdup(tvb_format_text(tvb, offset+2, ies_len));
+        iax2_info->callingParty = ep_strdup(tvb_format_text(tvb, offset+2, ies_len));
         break;
 
       case IAX_IE_APPARENT_ADDR:
