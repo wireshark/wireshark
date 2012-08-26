@@ -9,7 +9,8 @@
  *
  * Monday, June 27, 2005
  * Support for the ICMP extensions for MPLS
- * (http://www.ietf.org/proceedings/01aug/I-D/draft-ietf-mpls-icmp-02.txt)
+ * (http://www.ietf.org/proceedings/01aug/I-D/draft-ietf-mpls-icmp-02.txt
+ *  which has been replaced by rfcs 4884 and 4950)
  * by   Maria-Luiza Crivat <luizacri@gmail.com>
  * &    Brice Augustin <bricecotte@gmail.com>
  *
