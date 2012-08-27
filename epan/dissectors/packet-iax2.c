@@ -501,6 +501,9 @@ typedef struct {
 } iax_circuit_key;
 
 /* tables */
+static GHashTable *iax_fid_table       = NULL;
+static GHashTable *iax_fragment_table  = NULL;
+
 static GHashTable *iax_circuit_hashtab = NULL;
 static guint circuitcount = 0;
 
@@ -651,8 +654,6 @@ typedef struct iax_call_data {
   /* the absolute start time of the call */
   nstime_t start_time;
 
-  GHashTable *fid_table;
-  GHashTable *fragment_table;
   iax_call_dirdata dirdata[2];
 } iax_call_data;
 
@@ -660,10 +661,14 @@ static void iax_init_hash( void )
 {
   if (iax_circuit_hashtab)
     g_hash_table_destroy(iax_circuit_hashtab);
-
   iax_circuit_hashtab = g_hash_table_new(iax_circuit_hash, iax_circuit_equal);
-
   circuitcount = 0;
+
+  if (iax_fid_table)
+    g_hash_table_destroy(iax_fid_table);
+  iax_fid_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+
+  fragment_table_init(&iax_fragment_table);
 }
 
 
@@ -943,11 +948,8 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
   call -> subdissector = NULL;
   call -> start_time = pinfo->fd->abs_ts;
   nstime_delta(&call -> start_time, &call -> start_time, &millisecond);
-  call -> fid_table = g_hash_table_new(g_direct_hash, g_direct_equal);
   init_dir_data(&call->dirdata[0]);
   init_dir_data(&call->dirdata[1]);
-  call->fragment_table = NULL;
-  fragment_table_init(&(call->fragment_table));
 
   iax2_new_circuit_for_call(circuit_id,pinfo->fd->num,call,FALSE);
 
@@ -2040,7 +2042,7 @@ static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
         calls = call_list_append (calls, scallno);
       }
       nframes++;
-	}
+    }
   }
   else {
     /* Trunk calls without timestamp */
@@ -2118,9 +2120,9 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
   dirdata = &(iax_call->dirdata[!!(iax_packet->reversed)]);
 
-  if((!pinfo->fd->flags.visited && dirdata->current_frag_bytes > 0) ||
-     (value = g_hash_table_lookup(iax_call->fid_table,
-                                  GUINT_TO_POINTER(pinfo->fd->num))) != NULL ) {
+  if((!pinfo->fd->flags.visited && (dirdata->current_frag_bytes > 0)) ||
+     ((value = g_hash_table_lookup(iax_fid_table, GUINT_TO_POINTER(pinfo->fd->num))) != NULL )) {
+
     /* then we are continuing an already-started pdu */
     guint32 fid;
     guint32 frag_len = tvb_reported_length( tvb );
@@ -2128,14 +2130,15 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
 #ifdef DEBUG_DESEGMENT
     g_debug("visited: %i; c_f_b: %u; hash: %u->%u", pinfo->fd->flags.visited?1:0,
-            dirdata->current_frag_bytes, pinfo->fd->num, fid);
+            dirdata->current_frag_bytes, pinfo->fd->num, dirdata->current_frag_id);
 #endif
 
     if(!pinfo->fd->flags.visited) {
       guint32 tot_len;
       fid = dirdata->current_frag_id;
       tot_len                      = dirdata->current_frag_minlen;
-      g_hash_table_insert( iax_call->fid_table, GUINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(fid) );
+      DISSECTOR_ASSERT(g_hash_table_lookup(iax_fid_table, GUINT_TO_POINTER(pinfo->fd->num)) == NULL);
+      g_hash_table_insert( iax_fid_table, GUINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(fid) );
       frag_offset                  = dirdata->current_frag_bytes;
       dirdata->current_frag_bytes += frag_len;
       complete                     = dirdata->current_frag_bytes > tot_len;
@@ -2152,7 +2155,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
     /* fragment_add checks for already-added */
     fd_head = fragment_add( tvb, 0, pinfo, fid,
-                            iax_call->fragment_table,
+                            iax_fragment_table,
                             frag_offset,
                             frag_len, !complete );
 
@@ -2172,7 +2175,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       if( pinfo->desegment_len &&
           pinfo->desegment_offset < old_len ) {
         /* oops, it wasn't actually complete */
-        fragment_set_partial_reassembly(pinfo, fid, iax_call->fragment_table);
+        fragment_set_partial_reassembly(pinfo, fid, iax_fragment_table);
         if(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
           /* only one more byte should be enough for a retry */
           dirdata->current_frag_minlen = fd_head->datalen + 1;
@@ -2240,7 +2243,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
     }
 
     fd_head = fragment_add(tvb, deseg_offset, pinfo, fid,
-                           iax_call->fragment_table,
+                           iax_fragment_table,
                            0, frag_len, TRUE );
 #ifdef DEBUG_DESEGMENT
     g_debug("Start offset of undissected bytes: %u; "
