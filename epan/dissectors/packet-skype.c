@@ -91,15 +91,15 @@ static int hf_skype_natrequest_dstip = -1;
 static int hf_skype_audio_unk1 = -1;
 /* Unknown_f */
 static int hf_skype_unknown_f_unk1 = -1;
+/* Unknown packet type */
+static int hf_skype_unknown_packet = -1;
 
 
 #define PROTO_SHORT_NAME "SKYPE"
 #define PROTO_LONG_NAME "SKYPE"
 
 #define PORT_SKYPE_UDP	0
-#if 0
 #define PORT_SKYPE_TCP	0
-#endif
 
 typedef enum {
 	SKYPE_TYPE_UNKNOWN_0 = 0,
@@ -123,6 +123,44 @@ static const value_string skype_type_vals[] = {
 
 	{ 0,	NULL }
 };
+
+
+static int
+dissect_skype_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *skype_tree = NULL;
+	guint32 offset = 0;
+	guint32 packet_length;
+	guint8 packet_type;
+
+	/* XXX: Just until we know how to decode skype over tcp */
+	packet_type = 255;
+
+	packet_length = tvb_length(tvb);
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type,
+		skype_type_vals, "Type 0x%1x"));
+
+	if (tree) {
+		/* Start of message dissection */
+		ti = proto_tree_add_item(tree, proto_skype, tvb, offset, -1,
+		    ENC_NA);
+		skype_tree = proto_item_add_subtree(ti, ett_skype);
+
+		/* Body dissection */
+		switch (packet_type) {
+
+		default:
+			proto_tree_add_item(skype_tree, hf_skype_unknown_packet, tvb, offset, -1,
+				ENC_NA);
+			offset = packet_length;
+			break;
+		}
+	}
+	return offset;
+}
 
 static int
 dissect_skype_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -245,13 +283,16 @@ dissect_skype_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = packet_length;
 			break;
 		default:
-			/* Should not happen: Unkown types filtered in test_skype */
+			proto_tree_add_item(skype_tree, hf_skype_unknown_packet, tvb, offset, -1,
+				ENC_NA);
+			offset = packet_length;
 			break;
 		}
 	}
 	return offset;
 }
 
+#if SKYPE_HEUR
 static gboolean
 test_skype_udp(tvbuff_t *tvb)
 {
@@ -260,7 +301,7 @@ test_skype_udp(tvbuff_t *tvb)
 	guint8 type = tvb_get_guint8(tvb, 2) & 0xF;
 	if ( length >= 3 &&
 		    ( type == 0   ||
-			/* FIXME: Extend this by minimum length per message type */
+			/* FIXME: Extend this by minimum or exact length per message type */
 		      type == 2   ||
 		      type == 3   ||
 		      type == 5   ||
@@ -274,25 +315,32 @@ test_skype_udp(tvbuff_t *tvb)
 	return FALSE;
 }
 
-#if 0
 static gboolean
 dissect_skype_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if ( !test_skype(tvb) ) {
-		return FALSE;
+	if (pinfo->ptype == PT_UDP) {
+		if ( !test_skype_udp(tvb) ) {
+			return FALSE;
+		}
+		dissect_skype_udp(tvb, pinfo, tree);
 	}
-	dissect_skype(tvb, pinfo, tree);
 	return TRUE;
 }
 #endif
 
 static int
-dissect_skype_udp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_skype_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if ( !test_skype_udp(tvb) ) {
-		return 0;
+	/*
+	 * Don't test for valid packet - we only end here when
+	 * the user did a decode-as.
+	 */
+	if (pinfo->ptype == PT_UDP) {
+		return dissect_skype_udp(tvb, pinfo, tree);
+	} else if (pinfo->ptype == PT_UDP) {
+		return dissect_skype_tcp(tvb, pinfo, tree);
 	}
-	return dissect_skype_udp(tvb, pinfo, tree);
+	return 0;
 }
 
 void
@@ -382,6 +430,11 @@ proto_register_skype(void)
 		{ "Unknown1",   "skype.unknown_f.unk1", FT_BYTES, BASE_NONE, NULL,
 			0x0, NULL, HFILL }},
 
+	/* Unknown packet */
+		{ &hf_skype_unknown_packet,
+		{ "Unknown Packet",   "skype.unknown_packet", FT_BYTES, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
+
 	};
 	static gint *ett[] = {
 		&ett_skype,
@@ -397,10 +450,11 @@ proto_reg_handoff_skype(void)
 {
 	dissector_handle_t skype_handle;
 
-	skype_handle = new_create_dissector_handle(dissect_skype_udp_static, proto_skype);
+	skype_handle = new_create_dissector_handle(dissect_skype_static, proto_skype);
+	dissector_add_uint("tcp.port", PORT_SKYPE_UDP, skype_handle);
 	dissector_add_uint("udp.port", PORT_SKYPE_UDP, skype_handle);
-#if 0
-	dissector_add_uint("tcp.port", PORT_SKYPE_TCP, skype_handle);
+#if SKYPE_HEUR
+	heur_dissector_add("tcp", dissect_skype_heur, proto_skype);
 	heur_dissector_add("udp", dissect_skype_heur, proto_skype);
 #endif
 
