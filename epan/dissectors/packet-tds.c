@@ -455,6 +455,7 @@ static int hf_tds7_sql_type_flags = -1;
 static int hf_tds7_reserved_flags = -1;
 static int hf_tds7_time_zone = -1;
 static int hf_tds7_collation = -1;
+static int hf_tds7_loginack_version = -1;
 
 static int hf_tds_all_headers = -1;
 static int hf_tds_all_headers_total_length = -1;
@@ -560,6 +561,10 @@ static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t data_handle;
 
+typedef struct {
+    gint tds7_version;
+} tds_conv_info_t;
+
 /* TDS protocol type preference */
 /*   XXX: This preference is used as a 'hint' for cases where interpretation is ambiguous */
 /*        Currently the hint is global                                                    */
@@ -587,7 +592,7 @@ static const enum_val_t tds_protocol_type_options[] = {
     {NULL, NULL, -1}
 };
 
-#define TDS_PROTO_PREF_NOT_SPECIFIED (tds_protocol_type == TDS_NOT_SPECIFIED)
+#define TDS_PROTO_PREF_NOT_SPECIFIED (tds_protocol_type == TDS_PROTOCOL_NOT_SPECIFIED)
 #define TDS_PROTO_PREF_TDS4 (tds_protocol_type == TDS_PROTOCOL_4)
 #define TDS_PROTO_PREF_TDS5 (tds_protocol_type == TDS_PROTOCOL_5)
 #define TDS_PROTO_PREF_TDS7_0 (tds_protocol_type == TDS_PROTOCOL_7_0)
@@ -595,6 +600,12 @@ static const enum_val_t tds_protocol_type_options[] = {
 #define TDS_PROTO_PREF_TDS7_2 (tds_protocol_type == TDS_PROTOCOL_7_2)
 #define TDS_PROTO_PREF_TDS7_3 (tds_protocol_type == TDS_PROTOCOL_7_3)
 #define TDS_PROTO_PREF_TDS7 (tds_protocol_type >= TDS_PROTOCOL_7_0 && tds_protocol_type <= TDS_PROTOCOL_7_3)
+
+#define TDS_PROTO_TDS4 TDS_PROTO_PREF_TDS4
+#define TDS_PROTO_TDS7 (TDS_PROTO_PREF_TDS7 || \
+                        (TDS_PROTO_PREF_NOT_SPECIFIED && (tds_info->tds7_version != TDS_PROTOCOL_NOT_SPECIFIED)))
+#define TDS_PROTO_TDS7_2_OR_GREATER ((tds_protocol_type >= TDS_PROTOCOL_7_2) || \
+                                     (TDS_PROTO_PREF_NOT_SPECIFIED && (tds_info->tds7_version >= TDS_PROTOCOL_7_2)))
 
 /* TDS "endian type" */
 /*   XXX: Assumption is that all TDS conversations being decoded in a particular capture */
@@ -609,7 +620,6 @@ static const enum_val_t tds_endian_type_options[] = {
     {"big_endian"   , "Big Endian"   , FALSE},
     {NULL, NULL, -1}
 };
-
 
 /* TCP port preferences for TDS decode */
 
@@ -813,6 +823,13 @@ tds_tvb_get_xxtohl(tvbuff_t *tvb, gint offset, gboolean tds_little_endian_flag) 
         return tvb_get_ntohl(tvb, offset);
 }
 
+static guint64
+tds_tvb_get_xxtoh64(tvbuff_t *tvb, gint offset, gboolean tds_little_endian_flag) {
+    if (tds_little_endian_flag)
+        return tvb_get_letoh64(tvb, offset);
+    else
+        return tvb_get_ntoh64(tvb, offset);
+}
 
 static int
 tds_token_is_fixed_size(guint8 token)
@@ -833,12 +850,17 @@ tds_token_is_fixed_size(guint8 token)
 
 
 static int
-tds_get_fixed_token_size(guint8 token)
+tds_get_fixed_token_size(guint8 token, tds_conv_info_t *tds_info)
 {
     switch(token) {
         case TDS_DONE_TOKEN:
         case TDS_DONEPROC_TOKEN:
         case TDS_DONEINPROC_TOKEN:
+            if (TDS_PROTO_TDS7_2_OR_GREATER) {
+                return 12;
+            } else {
+                return 8;
+            }
         case TDS_PROCID_TOKEN:
             return 8;
         case TDS_RET_STAT_TOKEN:
@@ -945,7 +967,7 @@ dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_
 
 
 static void
-dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint offset, len;
     gboolean is_unicode = TRUE;
@@ -960,8 +982,8 @@ dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_tds_all_headers(tvb, &offset, pinfo, query_tree);
     len = tvb_reported_length_remaining(tvb, offset);
 
-    if (TDS_PROTO_PREF_TDS4 ||
-        (!TDS_PROTO_PREF_TDS7 &&
+    if (TDS_PROTO_TDS4 ||
+        (!TDS_PROTO_TDS7 &&
          ((len < 2) || tvb_get_guint8(tvb, offset+1) != 0)))
         is_unicode = FALSE;
 
@@ -993,7 +1015,7 @@ dissect_tds5_lang_token(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree
 }
 
 static void
-dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint offset;
     guint pos;
@@ -1019,7 +1041,7 @@ dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         /* our token */
         token = tvb_get_guint8(tvb, pos);
         if (tds_token_is_fixed_size(token))
-            token_sz = tds_get_fixed_token_size(token) + 1;
+            token_sz = tds_get_fixed_token_size(token, tds_info) + 1;
         else
             token_sz = tds_get_variable_token_size(tvb, pos+1, token, &token_len_field_size,
                                                    &token_len_field_val);
@@ -1501,7 +1523,7 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
 }
 
 static void
-dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tree *tree)
+dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint16 msg_len;
     guint8 srvr_len, proc_len;
@@ -1561,24 +1583,43 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tre
         offset += proc_len;
     }
 
-    proto_tree_add_text(tree, tvb, offset, 2, "line number: %d", tds_tvb_get_xxtohs(tvb, offset, tds_little_endian));
+    if (TDS_PROTO_TDS7_2_OR_GREATER) {
+        proto_tree_add_text(tree, tvb, offset, 4, "line number: %d", tds_tvb_get_xxtohl(tvb, offset, tds_little_endian));
+    } else {
+        proto_tree_add_text(tree, tvb, offset, 2, "line number: %d", tds_tvb_get_xxtohs(tvb, offset, tds_little_endian));
+    }
 }
 
 static void
-dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *tree)
+dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint8 msg_len;
+    guint32 tds_version;
     char *msg;
     gboolean is_unicode = FALSE;
 
     proto_tree_add_text(tree, tvb, offset, 1, "Ack: %u", tvb_get_guint8(tvb, offset));
     offset +=1;
-    proto_tree_add_text(tree, tvb, offset, 1, "Major version (may be incorrect): %d", tvb_get_guint8(tvb, offset));
-    offset +=1;
-    proto_tree_add_text(tree, tvb, offset, 1, "Minor version (may be incorrect): %d", tvb_get_guint8(tvb, offset));
-    offset +=1;
-    proto_tree_add_text(tree, tvb, offset, 2, "zero usually");
-    offset +=2;
+    tds_version = tvb_get_ntohl(tvb, offset);
+    switch (tds_version) {
+        case 0x07000000:
+            tds_info->tds7_version = TDS_PROTOCOL_7_0;
+            break;
+        case 0x07010000:
+        case 0x71000001:
+            tds_info->tds7_version = TDS_PROTOCOL_7_1;
+            break;
+        case 0x72090002:
+            tds_info->tds7_version = TDS_PROTOCOL_7_2;
+            break;
+        case 0x730A0003:
+        case 0x730B0003:
+        default:
+            tds_info->tds7_version = TDS_PROTOCOL_7_3;
+            break;
+    }
+    proto_tree_add_uint(tree, hf_tds7_loginack_version, tvb, offset, 4, tds_version);
+    offset += 4;
 
     msg_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 1, "Text length: %u characters", msg_len);
@@ -1601,7 +1642,7 @@ dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_t
 }
 
 static int
-dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint16 num_columns, table_len;
     guint8 type, msg_len;
@@ -1615,8 +1656,13 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
     offset +=2;
     for(i=0; i != num_columns; i++) {
         proto_tree_add_text(tree, tvb, offset, 0, "Column %d", i + 1);
-        proto_tree_add_text(tree, tvb, offset, 2, "usertype: %d", tvb_get_letohs(tvb, offset));
-        offset +=2;
+        if (TDS_PROTO_TDS7_2_OR_GREATER) {
+            proto_tree_add_text(tree, tvb, offset, 4, "usertype: %d", tvb_get_letohl(tvb, offset));
+            offset +=4;
+        } else {
+            proto_tree_add_text(tree, tvb, offset, 2, "usertype: %d", tvb_get_letohs(tvb, offset));
+            offset +=2;
+        }
         proto_tree_add_text(tree, tvb, offset, 2, "flags: %d", tvb_get_letohs(tvb, offset));
         offset +=2;
         type  = tvb_get_guint8(tvb, offset);
@@ -1680,14 +1726,19 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static void
-dissect_tds_done_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_tds_done_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     proto_tree_add_text(tree, tvb, offset, 2, "Status flags");
     offset += 2;
     proto_tree_add_text(tree, tvb, offset, 2, "Operation");
     offset += 2;
-    proto_tree_add_text(tree, tvb, offset, 4, "row count: %u", tds_tvb_get_xxtohl(tvb, offset, tds_little_endian));
-    offset += 2;
+    if (TDS_PROTO_TDS7_2_OR_GREATER) { 
+        proto_tree_add_text(tree, tvb, offset, 8, "row count: %" G_GINT64_MODIFIER "u",
+                            tds_tvb_get_xxtoh64(tvb, offset, tds_little_endian));
+    } else {
+        proto_tree_add_text(tree, tvb, offset, 4, "row count: %u",
+                            tds_tvb_get_xxtohl(tvb, offset, tds_little_endian));
+    }
 }
 
 static guint8
@@ -2147,7 +2198,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     int offset = 0;
     proto_item *token_item;
@@ -2171,7 +2222,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* TODO Handle TDS_PARAMFMT, TDS_PARAMS [similar to TDS_RESULTS, TDS_ROW] */
         if (tds_token_is_fixed_size(token)) {
-            token_sz = tds_get_fixed_token_size(token) + 1;
+            token_sz = tds_get_fixed_token_size(token, tds_info) + 1;
         } else if (token == TDS_ROW_TOKEN) {
             /*
              * Rows are special; they have no size field and
@@ -2245,19 +2296,19 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             case TDS_ERR_TOKEN:
             case TDS_MSG_TOKEN:
-                dissect_tds_err_token(tvb, pos + 3, token_sz - 3, token_tree);
+                dissect_tds_err_token(tvb, pos + 3, token_sz - 3, token_tree, tds_info);
                 break;
 
             case TDS_DONE_TOKEN:
             case TDS_DONEPROC_TOKEN:
             case TDS_DONEINPROC_TOKEN:
-                dissect_tds_done_token(tvb, pos + 1, token_tree);
+                dissect_tds_done_token(tvb, pos + 1, token_tree, tds_info);
                 break;
             case TDS_LOGIN_ACK_TOKEN:
-                dissect_tds_login_ack_token(tvb, pos + 3, token_sz - 3, token_tree);
+                dissect_tds_login_ack_token(tvb, pos + 3, token_sz - 3, token_tree, tds_info);
                 break;
             case TDS7_RESULT_TOKEN:
-                pos = (dissect_tds7_results_token(tvb, pos + 1, token_tree)-1);
+                pos = (dissect_tds7_results_token(tvb, pos + 1, token_tree, tds_info)-1);
                 break;
         }
 
@@ -2281,6 +2332,16 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int len;
     fragment_data *fd_head;
     tvbuff_t *next_tvb;
+    conversation_t *conv;
+    tds_conv_info_t *tds_info;
+
+    conv = find_or_create_conversation(pinfo);
+    tds_info = (tds_conv_info_t*)conversation_get_proto_data(conv, proto_tds);
+    if (!tds_info) {
+        tds_info = se_new(tds_conv_info_t);
+        tds_info->tds7_version = TDS_PROTOCOL_NOT_SPECIFIED;
+        conversation_add_proto_data(conv, proto_tds, tds_info);
+    }
 
     type = tvb_get_guint8(tvb, offset);
     status = tvb_get_guint8(tvb, offset + 1);
@@ -2357,17 +2418,17 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
 
             case TDS_RESP_PKT:
-                dissect_tds_resp(next_tvb, pinfo, tds_tree);
+                dissect_tds_resp(next_tvb, pinfo, tds_tree, tds_info);
                 break;
 
             case TDS_LOGIN7_PKT:
                 dissect_tds7_login(next_tvb, pinfo, tds_tree);
                 break;
             case TDS_QUERY_PKT:
-                dissect_tds_query_packet(next_tvb, pinfo, tds_tree);
+                dissect_tds_query_packet(next_tvb, pinfo, tds_tree, tds_info);
                 break;
             case TDS_QUERY5_PKT:
-                dissect_tds_query5_packet(next_tvb, pinfo, tds_tree);
+                dissect_tds_query5_packet(next_tvb, pinfo, tds_tree, tds_info);
                 break;
             case TDS_SSPI_PKT:
                 dissect_tds_nt(next_tvb, pinfo, tds_tree, offset - 8, -1);
@@ -2410,13 +2471,13 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * split across segment boundaries?
              */
             if (length_remaining < 8) {
-		/*
-		 * Yes.  Tell the TCP dissector where the data for this message
-		 * starts in the data it handed us and that we need "some more
-		 * data."  Don't tell it exactly how many bytes we need because
-		 * if/when we ask for even more (after the header) that will
-		 * break reassembly.
-		 */
+                /*
+                 * Yes.  Tell the TCP dissector where the data for this message
+                 * starts in the data it handed us and that we need "some more
+                 * data."  Don't tell it exactly how many bytes we need because
+                 * if/when we ask for even more (after the header) that will
+                 * break reassembly.
+                 */
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                 return;
@@ -2812,6 +2873,11 @@ proto_register_tds(void)
         },
         { &hf_tds7_collation,
           { "Collation", "tds.7login.collation",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds7_loginack_version,
+          { "TDS version", "tds.7loginack.version",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
