@@ -1927,8 +1927,6 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             type = tvb_get_ntohs(tvb, offset);
             len = tvb_get_ntohs(tvb, offset + 2);
 
-            param_end = offset + len;
-
             if (len < LLRP_TLV_LEN_MIN)
                 real_len = LLRP_TLV_LEN_MIN;
             else if (len > tvb_reported_length_remaining(tvb, offset))
@@ -2522,43 +2520,59 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             switch (type)
             {
                 case LLRP_TV_ANTENNA_ID:
-                    PARAM_TREE_ADD_STAY(antenna_id, 2, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(antenna_id, 2, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_FIRST_SEEN_TIME_UTC:
                 case LLRP_TV_FIRST_SEEN_TIME_UPTIME:
                 case LLRP_TV_LAST_SEEN_TIME_UTC:
                 case LLRP_TV_LAST_SEEN_TIME_UPTIME:
-                    PARAM_TREE_ADD_STAY(microseconds, 8, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(microseconds, 8, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_PEAK_RSSI:
-                    PARAM_TREE_ADD_STAY(peak_rssi, 1, ENC_NA); break;
+                    PARAM_TREE_ADD_STAY(peak_rssi, 1, ENC_NA);
+                    break;
                 case LLRP_TV_CHANNEL_INDEX:
-                    PARAM_TREE_ADD_STAY(channel_idx, 2, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(channel_idx, 2, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_TAG_SEEN_COUNT:
-                    PARAM_TREE_ADD_STAY(tag_count, 2, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(tag_count, 2, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_RO_SPEC_ID:
-                    PARAM_TREE_ADD_STAY(rospec_id, 4, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(rospec_id, 4, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_INVENTORY_PARAM_SPEC_ID:
-                    PARAM_TREE_ADD_STAY(inventory_spec_id, 2, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(inventory_spec_id, 2, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_C1G2_CRC:
-                    PARAM_TREE_ADD_STAY(crc, 2, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(crc, 2, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_C1G2_PC:
-                    PARAM_TREE_ADD_STAY(pc_bits, 2, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(pc_bits, 2, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_EPC96:
-                    PARAM_TREE_ADD_STAY(epc, 96/8, ENC_NA); break;
+                    PARAM_TREE_ADD_STAY(epc, 96/8, ENC_NA);
+                    break;
                 case LLRP_TV_SPEC_INDEX:
-                    PARAM_TREE_ADD_STAY(spec_idx, 2, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(spec_idx, 2, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_CLIENT_REQ_OP_SPEC_RES:
-                    PARAM_TREE_ADD_STAY(opspec_id, 2, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(opspec_id, 2, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_ACCESS_SPEC_ID:
-                    PARAM_TREE_ADD_STAY(accessspec_id, 4, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(accessspec_id, 4, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_OP_SPEC_ID:
-                    PARAM_TREE_ADD_STAY(opspec_id, 2, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(opspec_id, 2, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_C1G2_SINGULATION_DET:
                     PARAM_TREE_ADD_STAY(num_coll, 2, ENC_BIG_ENDIAN);
-                    PARAM_TREE_ADD_STAY(num_empty, 2, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(num_empty, 2, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_C1G2_XPC_W1:
-                    PARAM_TREE_ADD_STAY(xpc_w1, 2, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(xpc_w1, 2, ENC_BIG_ENDIAN);
+                    break;
                 case LLRP_TV_C1G2_XPC_W2:
-                    PARAM_TREE_ADD_STAY(xpc_w2, 2, ENC_BIG_ENDIAN); break;
+                    PARAM_TREE_ADD_STAY(xpc_w2, 2, ENC_BIG_ENDIAN);
                     break;
             };
             /* Unlike for TLV's, real_len for TV's doesn't include the standard
