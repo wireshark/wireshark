@@ -6923,8 +6923,8 @@ proto_register_gsm_a_gm(void)
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_qos_reliability_cls,
-		  { "Reliability class", "gsm_a.qos.delay_cls",
-		    FT_UINT8, BASE_DEC, VALS(gsm_a_qos_delay_cls_vals), 0x07,
+		  { "Reliability class", "gsm_a.qos.reliability_cls",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_qos_reliability_vals), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_qos_traffic_cls,
