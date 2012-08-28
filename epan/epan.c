@@ -67,10 +67,6 @@
 #include <ares_version.h>
 #endif
 
-#ifdef HAVE_GEOIP
-#include "geoip_db.h"
-#endif
-
 /*
  * Refcount the edt:s and don't free ep memory until refcount = 0
  * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5284
