@@ -6121,7 +6121,7 @@ proto_register_ccp(void)
             { "Length", "ccp.opt.length", FT_UINT8, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_ccp_opt_oui,
-            { "OUI", "ccp.opt.oui", FT_BYTES, BASE_NONE,
+            { "OUI", "ccp.opt.oui", FT_UINT24, BASE_HEX,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_ccp_opt_subtype,
             { "Subtype", "ccp.opt.subtype", FT_UINT8, BASE_DEC_HEX,
