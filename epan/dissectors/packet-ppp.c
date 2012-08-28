@@ -5548,7 +5548,7 @@ proto_register_lcp(void)
             { "Length", "lcp.opt.length", FT_UINT8, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_lcp_opt_oui,
-            { "OUI", "lcp.opt.oui", FT_BYTES, BASE_NONE,
+            { "OUI", "lcp.opt.oui", FT_UINT24, BASE_HEX,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_lcp_opt_kind,
             { "Kind", "lcp.opt.kind", FT_UINT8, BASE_DEC_HEX,
