@@ -1802,7 +1802,7 @@ Some constraints are imposed on the header fields depending on the type
 'display, 'strings', and 'bitmask' fields, and all other non-integral
 types (i.e.. types that are _not_ FT_INT* and FT_UINT*) must use
 'BASE_NONE, NULL, 0x0' as values for the 'display', 'strings', 'bitmask'
-fields.  The reason is simply that the type itself implictly defines the
+fields.  The reason is simply that the type itself implicitly defines the
 nature of 'display', 'strings', 'bitmask'.
 
 display
@@ -1897,7 +1897,7 @@ field would be set to NULL.
 You can also use an extended version of the value_string for faster lookups.
 It requires a value_string array as input.
 If all of a contiguous range of values from min to max are present in the array
-in ascending order the value will be used as as a direct index into a value_string array.
+in ascending order the value will be used as a direct index into a value_string array.
 
 If the values in the array are not contiguous (ie: there are "gaps"), but are
 in ascending order a binary search will be used.
