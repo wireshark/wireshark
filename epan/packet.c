@@ -1240,12 +1240,11 @@ dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry)
 }
 
 gint
-dissector_compare_filter_name(gconstpointer* dissector_a, gconstpointer* dissector_b)
+dissector_compare_filter_name(gconstpointer dissector_a, gconstpointer dissector_b)
 {
-	dissector_handle_t	a = (dissector_handle_t)dissector_a,
-						b = (dissector_handle_t)dissector_b;
-	const char			*a_name,
-						*b_name;
+	dissector_handle_t a = (dissector_handle_t)dissector_a;
+	dissector_handle_t b = (dissector_handle_t)dissector_b;
+	const char *a_name, *b_name;
 	gint ret;
 
 	if (a->protocol == NULL)
@@ -1294,7 +1293,7 @@ dissector_add_handle(const char *name, dissector_handle_t handle)
 
 	/* Add it to the list. */
 	sub_dissectors->dissector_handles =
-		g_slist_insert_sorted(sub_dissectors->dissector_handles, (gpointer)handle, dissector_compare_filter_name);
+		g_slist_insert_sorted(sub_dissectors->dissector_handles, (gpointer)handle, (GCompareFunc)dissector_compare_filter_name);
 }
 
 dissector_handle_t
@@ -2154,3 +2153,16 @@ call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    tvb,pinfo,tree);
 	}
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

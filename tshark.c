@@ -462,7 +462,7 @@ find_protocol_name_func(const gchar *table _U_, gpointer handle, gpointer user_d
  */
 
 static gint
-compare_dissector_key_name(gconstpointer* dissector_a, gconstpointer* dissector_b)
+compare_dissector_key_name(gconstpointer dissector_a, gconstpointer dissector_b)
 {
   return strcmp((const char*)dissector_a, (const char*)dissector_b);
 }
@@ -477,7 +477,7 @@ fprint_all_layer_types(FILE *output)
 
 {
   prev_display_dissector_name = NULL;
-  dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)output, compare_dissector_key_name);
+  dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)output, (GCompareFunc)compare_dissector_key_name);
 }
 
 /*
