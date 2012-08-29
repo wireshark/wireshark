@@ -767,7 +767,7 @@ INT AirPDcapPacketProcess(
 
                 /* If index >= 1, then use the group key.  This will not work if the AP is using
                    more than one group key simultaneously.  I've not seen this in practice, however.
-                   Usually an AP will rotate between the two key index values of 1 and 2 whenever 
+                   Usually an AP will rotate between the two key index values of 1 and 2 whenever
                    it needs to change the group key to be used. */
                 if (AIRPDCAP_KEY_INDEX(data[offset+3])>=1){
 
@@ -1102,7 +1102,7 @@ AirPDcapWepMng(
     UINT8 useCache=FALSE;
     UCHAR *try_data;
     guint try_data_len = *decrypt_len;
-    
+
     try_data = (UCHAR *)ep_alloc(try_data_len);
 
     if (sa->key!=NULL)
@@ -1216,7 +1216,7 @@ AirPDcapRsna4WHandshake(
     }
 
     /* TODO timeouts? */
-    
+
     /* This saves the sa since we are reauthenticating which will overwrite our current sa GCS*/
     if(sa->handshake == 4) {
         tmp_sa=(AIRPDCAP_SEC_ASSOCIATION *)se_alloc(sizeof(AIRPDCAP_SEC_ASSOCIATION));
@@ -1852,7 +1852,7 @@ parse_key_string(gchar* input_string, guint8 key_type)
         }
 
         /*
-         * The first token is the key 
+         * The first token is the key
          */
         key = g_strdup(tokens[0]);
 
@@ -1933,7 +1933,7 @@ parse_key_string(gchar* input_string, guint8 key_type)
         res = hex_str_to_bytes(input_string, key_ba, FALSE);
 
         /* Two tokens means that the user should have entered a WPA-BIN key ... */
-        if(!res || ((key_ba->len) != WPA_PSK_KEY_CHAR_SIZE))
+        if(!res || ((key_ba->len) != WPA_PSK_KEY_SIZE))
         {
             g_byte_array_free(key_ba, TRUE);
 
@@ -1944,7 +1944,7 @@ parse_key_string(gchar* input_string, guint8 key_type)
         /* Key was correct!!! Create the new decryption_key_t ... */
         dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
 
-        dk->type = AIRPDCAP_KEY_TYPE_WPA_PMK;
+        dk->type = AIRPDCAP_KEY_TYPE_WPA_PSK;
         dk->key  = g_string_new(input_string);
         dk->bits = (guint) dk->key->len * 4;
         dk->ssid = NULL;
