@@ -178,7 +178,19 @@ cd glib-$GLIB_VERSION
 # script doesn't try to use pkg-config to get the appropriate
 # CFLAGS and LIBS.
 #
-LIBFFI_CFLAGS="-I/usr/include/ffi" LIBFFI_LIBS="-lffi" ./configure || exit 1
+# And, what's worse, at least with the version of Xcode that comes
+# with Leopard, /usr/include/ffi/fficonfig.h doesn't define MACOSX,
+# which causes the build of GLib to fail.  If we don't find
+# "#define.*MACOSX" in /usr/include/ffi/fficonfig.h, explictly
+# define it.
+#
+if grep -qs '#define.*MACOSX' /usr/include/ffi/fficonfig.h
+then
+	# It's defined, nothing to do
+	LIBFFI_CFLAGS="-I/usr/include/ffi" LIBFFI_LIBS="-lffi" ./configure || exit 1
+else
+	CFLAGS="-DMACOSX" LIBFFI_CFLAGS="-I/usr/include/ffi" LIBFFI_LIBS="-lffi" ./configure || exit 1
+fi
 make -j 3 || exit 1
 # Apply patch: we depend on libffi, but pkg-config doesn't get told.
 patch -p0 <../../macosx-support-lib-patches/glib-pkgconfig.patch || exit 1
