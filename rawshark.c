@@ -244,7 +244,7 @@ raw_pipe_open(const char *pipe_name)
 #ifndef _WIN32
     ws_statb64 pipe_stat;
 #else
-    char *pncopy, *pos;
+    char *pncopy, *pos = NULL;
     DWORD err;
     wchar_t *err_str;
     HANDLE hPipe = NULL;
