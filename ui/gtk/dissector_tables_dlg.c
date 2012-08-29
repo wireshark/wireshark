@@ -373,7 +373,7 @@ dissector_tables_dlg_init(void)
     g_signal_connect(dissector_tables_dlg_w, "destroy", G_CALLBACK(win_destroy_cb), NULL);
 
     /* Fill the table with data */
-    dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)&dis_tbl_trees);
+    dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)&dis_tbl_trees, NULL);
 
     dissector_all_heur_tables_foreach_table(display_heur_dissector_table_names, (gpointer)&dis_tbl_trees);
 
