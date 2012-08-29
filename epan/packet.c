@@ -1531,6 +1531,7 @@ dissector_all_tables_foreach_table (DATFunc_table func,
 		list = g_hash_table_get_keys(dissector_tables);
 		list = g_list_sort(list, compare_key_func);
 		g_list_foreach(list, dissector_all_tables_foreach_list_func, &info);
+		g_list_free(list);
 	}
 	else
 	{
