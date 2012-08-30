@@ -49,6 +49,7 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
+#include <epan/afn.h>
 
 static int proto_dns = -1;
 static int hf_dns_length = -1;
@@ -101,6 +102,12 @@ static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
 static int hf_dns_rr_opt_len = -1;
 static int hf_dns_rr_opt_data = -1;
+static int hf_dns_rr_opt_client_family = -1;
+static int hf_dns_rr_opt_client_netmask = -1;
+static int hf_dns_rr_opt_client_scope = -1;
+static int hf_dns_rr_opt_client_addr = -1;
+static int hf_dns_rr_opt_client_addr4 = -1;
+static int hf_dns_rr_opt_client_addr6 = -1;
 static int hf_dns_nsec3_algo = -1;
 static int hf_dns_nsec3_flags = -1;
 static int hf_dns_nsec3_flag_optout = -1;
@@ -294,6 +301,7 @@ typedef struct _dns_conv_info_t {
 #define O_UL             2              /* Update lease (on-hold, draft-sekar-dns-ul) */
 #define O_NSID           3              /* Name Server Identifier (RFC 5001) */
 #define O_OWNER          4              /* Owner, reserved (draft-cheshire-edns0-owner-option) */
+#define O_CLIENT_SUBNET  0x50fa         /* Client subnet (placeholder value, draft-vandergaast-edns-client-subnet) */
 
 static const true_false_string tfs_flags_response = {
   "Message is a response",
@@ -449,15 +457,21 @@ static const value_string tsigerror_vals[] = {
 #define THIP_ALGO_RSA          (2)
 #define THIP_ALGO_RESERVED     (0)
 
-/* RFC 3213 */
-#define TAPL_ADDR_FAMILY_IPV4   (1)
-#define TAPL_ADDR_FAMILY_IPV6   (2)
+/* RFC 3123 */
+#define TAPL_ADDR_FAMILY_IPV4   (AFNUM_INET)
+#define TAPL_ADDR_FAMILY_IPV6   (AFNUM_INET6)
 #define DNS_APL_NEGATION       (1<<7)
 #define DNS_APL_AFDLENGTH      (0x7F<<0)
 
 static const true_false_string tfs_dns_apl_negation = {
   "Yes (!)",
   "No (0)"
+};
+
+static const value_string afamily_vals[] = {
+  { AFNUM_INET,      "IPv4" },
+  { AFNUM_INET6,     "IPv6" },
+  { 0,               NULL  }
 };
 
 /* See RFC 1035 for all RR types for which no RFC is listed, except for
@@ -679,6 +693,7 @@ static const value_string edns0_opt_code_vals[] = {
   {O_UL,         "UL - Update lease"},
   {O_NSID,       "NSID - Name Server Identifier"},
   {O_OWNER,      "Owner (reserved)"},
+  {O_CLIENT_SUBNET, "Experimental - CSUBNET - Client subnet" },
   {0,            NULL}
  };
 
@@ -2258,6 +2273,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         if (rropt_len < optlen) {
           goto bad_rr;
         }
+
         rropt = proto_tree_add_item(rr_tree, hf_dns_rr_opt, tvb, cur_offset, 4 + optlen, ENC_NA);
         proto_item_append_text(rropt, ": %s", val_to_str(optcode, edns0_opt_code_vals, "Unknown (%d)"));
         rropt_tree = proto_item_add_subtree(rropt, ett_dns_opts);
@@ -2267,8 +2283,48 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         cur_offset += 2;
 
         proto_tree_add_item(rropt_tree, hf_dns_rr_opt_data, tvb, cur_offset, optlen, ENC_NA);
-        cur_offset += optlen;
-        rropt_len  -= optlen;
+        switch(optcode) {
+          case O_CLIENT_SUBNET:{
+            guint16 family;
+            union {
+              guint32 addr;
+              guint8 bytes[16];
+            } ip_addr = {0};
+
+            family = tvb_get_ntohs(tvb, cur_offset);
+            proto_tree_add_item(rropt_tree, hf_dns_rr_opt_client_family, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+            cur_offset += 2;
+            proto_tree_add_item(rropt_tree, hf_dns_rr_opt_client_netmask, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+            cur_offset += 1;
+            proto_tree_add_item(rropt_tree, hf_dns_rr_opt_client_scope, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+            cur_offset += 1;
+
+            tvb_memcpy(tvb, ip_addr.bytes, cur_offset, (optlen - 4));
+            switch(family) {
+              case AFNUM_INET:
+              proto_tree_add_ipv4(rropt_tree, hf_dns_rr_opt_client_addr4, tvb,
+                                  cur_offset, (optlen - 4), ip_addr.addr);
+              break;
+              case AFNUM_INET6:
+              proto_tree_add_ipv6(rropt_tree, hf_dns_rr_opt_client_addr6, tvb,
+                                  cur_offset, (optlen - 4), ip_addr.bytes);
+              break;
+              default:
+              proto_tree_add_item(rropt_tree, hf_dns_rr_opt_client_addr, tvb, cur_offset, (optlen - 4),
+                                  ENC_NA);
+
+              break;
+            }
+            cur_offset += (optlen - 4);
+            rropt_len  -= optlen;
+        }
+        break;
+          default:
+          cur_offset += optlen;
+          rropt_len  -= optlen;
+        break;
+        }
+
       }
     }
     break;
@@ -2945,10 +3001,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       guint8   afdpart_len;
       guint8  *addr_copy;
 
-      static const value_string apl_afamily_vals[] = {
-        { TAPL_ADDR_FAMILY_IPV4,      "IPv4" },
-        { TAPL_ADDR_FAMILY_IPV6,      "IPv6" },
-        { 0,                          NULL  }};
 
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
@@ -2961,7 +3013,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         }
         afamily = tvb_get_ntohs(tvb, cur_offset);
         proto_tree_add_text(rr_tree, tvb, cur_offset, 2,
-                            "Address Family: %s", val_to_str(afamily, apl_afamily_vals, "Unknown (0x%02X)"));
+                            "Address Family: %s", val_to_str(afamily, afamily_vals, "Unknown (0x%02X)"));
         cur_offset += 2;
         rr_len     -= 2;
 
@@ -2993,7 +3045,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         }
         tvb_memcpy(tvb, (guint8 *)addr_copy, cur_offset, afdpart_len);
         proto_tree_add_text(rr_tree, tvb, cur_offset, afdpart_len,
-                            "%s address: %s", val_to_str_const(afamily, apl_afamily_vals, "Unknown"),
+                            "%s address: %s", val_to_str_const(afamily, afamily_vals, "Unknown"),
                             (afamily == 0x02) ? ip6_to_str((const struct e_in6_addr *)addr_copy)
                             : ip_to_str(addr_copy) );
         cur_offset += afdpart_len;
@@ -3918,6 +3970,37 @@ proto_register_dns(void)
     { &hf_dns_rr_opt_data,
       { "Option Data", "dns.rr.opt.data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_opt_client_family,
+      { "Family", "dns.rr.opt.client.family",
+        FT_UINT16, BASE_DEC,
+        VALS(afamily_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_opt_client_netmask,
+      { "Source Netmask", "dns.rr.opt.client.netmask",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_opt_client_scope,
+      { "Scope Netmask", "dns.rr.opt.client.scope",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_opt_client_addr,
+      { "Client Subnet", "dns.rr.opt.client.addr",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_opt_client_addr4,
+      { "Client Subnet", "dns.rr.opt.client.addr4",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_opt_client_addr6,
+      { "Client Subnet", "dns.rr.opt.client.addr6",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_count_questions,
