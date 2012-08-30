@@ -1294,7 +1294,7 @@ static const value_string japan_isup_parameter_type_value[] = {
   { PARAM_TYPE_GENERIC_NR,                "Generic number"},
   { PARAM_TYPE_GENERIC_DIGITS,            "Generic digits (national use)"},
   { JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO,       "Carrier Information transfer"},      /* 241 F1 */
-  { JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT, "Additional party’s category"},       /* 243 F3 */
+  { JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT, "Additional party's category"},       /* 243 F3 */
   { JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO,   "Charge area information"},           /* 253 FD */
 
   { 0,                                 NULL}};
@@ -6924,7 +6924,7 @@ dissect_japan_isup_carrier_information(tvbuff_t *parameter_tvb, proto_tree *para
             */
 
             if(type_of_carrier_info==CARRIER_INFO_TYPE_OF_CARRIER_POIHIE){
-                // POI Hierarchy information
+                /* POI Hierarchy information */
                 offset++;
                 octet = tvb_get_guint8(parameter_tvb,offset);
                 proto_tree_add_uint(type_of_carrier_tree, hf_isup_carrier_info_poi_entry_HEI, parameter_tvb, 0, 1, octet);
@@ -10812,47 +10812,47 @@ proto_register_isup(void)
        NULL, HFILL }},
 
     { &hf_japan_isup_charging_info_nc_odd_digits,
-      {"NC ",  "isup.charg_area_info.nc_odd_digit",
+      {"NC",  "isup.charg_area_info.nc_odd_digit",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0x0F,
       NULL, HFILL }},
 
     { &hf_japan_isup_charging_info_nc_even_digits,
-      {"NC ",  "isup.charg_area_info.nc_even_digit",
+      {"NC", "isup.charg_area_info.nc_even_digit",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0xF0,
       NULL, HFILL }},
 
     { &hf_isup_charging_info_maca_odd_digits,
-      {"MA/CA ",  "isup.charg_area_info.maca_odd_digit",
+      {"MA/CA", "isup.charg_area_info.maca_odd_digit",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0x0F,
       NULL, HFILL }},
 
     { &hf_isup_charging_info_maca_even_digits,
-      {"MA/CA ",  "isup.charg_area_info.maca_even_digit",
+      {"MA/CA", "isup.charg_area_info.maca_even_digit",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0xF0,NULL, HFILL }},
 
     /* ADDITIONAL USER CATEGORY */
     { &hf_isup_add_user_cat_type_of_info,
-      {"Info Type ",  "isup.add_user_cat.type_of_info",
+      {"Info Type", "isup.add_user_cat.type_of_info",
       FT_UINT8, BASE_DEC, VALS(isup_add_user_cat_type_value), 0x00,
       NULL, HFILL }},
 
     { &hf_isup_add_user_cat_type1,
-      {" ",  "isup.add_user_cat.type1_info",
+      {"Type1 Info", "isup.add_user_cat.type1_info",
       FT_UINT8, BASE_DEC, VALS(isup_add_user_cat_type1_value), 0xFF,
       NULL, HFILL }},
 
     { &hf_isup_add_user_cat_type1_fixed,
-      {"Type 1 Fixed",  "isup.add_user_cat.type1_fixed_info",
+      {"Type 1 Fixed", "isup.add_user_cat.type1_fixed_info",
       FT_UINT8, BASE_DEC, VALS(isup_add_user_cat_type1_fixed_value), 0xFF,
       NULL, HFILL }},
 
     { &hf_isup_add_user_cat_type2,
-      {" ",  "isup.add_user_cat.type2_info",
+      {"Type2 Info", "isup.add_user_cat.type2_info",
       FT_UINT8, BASE_DEC, VALS(isup_add_user_cat_type2_value), 0xFF,
       NULL, HFILL }},
 
     { &hf_isup_add_user_cat_type3,
-      {" ",  "isup.add_user_cat.type3_info",
+      {"Type3 Info", "isup.add_user_cat.type3_info",
       FT_UINT8, BASE_DEC, NULL, 0xFF,
       NULL, HFILL }},
 
@@ -10879,32 +10879,32 @@ proto_register_isup(void)
       NULL,HFILL }},
 
     { &hf_isup_carrier_info_odd_no_digits,
-      {"CID ",  "isup.carrier_info.cid_odd_digit",
+      {"CID", "isup.carrier_info.cid_odd_digit",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0x0F,
       NULL, HFILL }},
 
     { &hf_isup_carrier_info_even_no_digits,
-      {"CID ",  "isup.carrier_info.cid_even_digit",
+      {"CID", "isup.carrier_info.cid_even_digit",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0xF0,
       NULL, HFILL }},
 
     { &hf_isup_carrier_info_ca_odd_no_digits,
-      {"CA ",  "isup.carrier_info.ca_odd_digit",
+      {"CA", "isup.carrier_info.ca_odd_digit",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0x0F,
       NULL, HFILL }},
 
     { &hf_isup_carrier_info_ca_even_no_digits,
-      {"CA ",  "isup.carrier_info.ca_even_digit",
+      {"CA", "isup.carrier_info.ca_even_digit",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0xF0,
       NULL, HFILL }},
 
     { &hf_isup_carrier_info_poi_exit_HEI,
-      {"Exit POI Hierarchy",  "isup.carrier_info_exit_hierarchy",
+      {"Exit POI Hierarchy", "isup.carrier_info_exit_hierarchy",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_poihie_value), 0x0F,
       NULL, HFILL }},
 
     { &hf_isup_carrier_info_poi_entry_HEI,
-      {"Entry POI Hierarchy",  "isup.carrier_info_entry_hierarchy",
+      {"Entry POI Hierarchy", "isup.carrier_info_entry_hierarchy",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_poihie_value), 0xF0,
       NULL, HFILL }}
   };
