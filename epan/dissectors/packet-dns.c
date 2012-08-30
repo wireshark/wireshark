@@ -3990,7 +3990,7 @@ proto_register_dns(void)
 
     { &hf_dns_rr_opt_client_addr,
       { "Client Subnet", "dns.rr.opt.client.addr",
-        FT_STRING, BASE_NONE, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_rr_opt_client_addr4,
