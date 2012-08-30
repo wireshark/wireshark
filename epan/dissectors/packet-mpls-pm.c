@@ -447,29 +447,22 @@ mpls_pm_build_cinfo(tvbuff_t *tvb, packet_info *pinfo, const char *str_pmt,
                     gboolean *class_specific,
                     guint32  *sid, guint8 *code)
 {
-    int     offset = 0;
-    guint32 sid3, sid2, sid1, sid0;
-
     col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MPLS PM (%s)", str_pmt);
     col_clear(pinfo->cinfo, COL_INFO);
 
-    *response = (tvb_get_guint8(tvb, offset) & 0x08) ? TRUE : FALSE;
-    *class_specific = (tvb_get_guint8(tvb, offset) & 0x04) ? TRUE : FALSE;
+    *response = (tvb_get_guint8(tvb, 0) & 0x08) ? TRUE : FALSE;
+    *class_specific = (tvb_get_guint8(tvb, 0) & 0x04) ? TRUE : FALSE;
     *query = !(*response);
-    *code = tvb_get_guint8(tvb, offset + 1);
+    *code = tvb_get_guint8(tvb, 1);
 
     if (!(*class_specific)) {
         /*
          * FF: when the T flag is set to 0 the DS field can be considered
          * part of the Session Identifier.
          */
-        *sid = tvb_get_ntohl(tvb, offset + 8);
+        *sid = tvb_get_ntohl(tvb, 8);
     } else {
-        sid3 = tvb_get_guint8(tvb, offset + 8);
-        sid2 = tvb_get_guint8(tvb, offset + 9);
-        sid1 = tvb_get_guint8(tvb, offset + 10);
-        sid0 = tvb_get_guint8(tvb, offset + 11) & 0xC0;
-        *sid = (sid0 >> 6)  | (sid1 << 8) | (sid2 << 16) | (sid3 << 24);
+        *sid = tvb_get_ntohl(tvb, 8) >> 6;
     }
 
     if (*query) {
