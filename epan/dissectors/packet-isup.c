@@ -2866,9 +2866,9 @@ static int hf_isup_israeli_time_indicator = -1;
 static int hf_isup_israeli_next_rate = -1;
 
 static int hf_isup_carrier_info_iec = -1;
-static int hf_isup_carrier_info_cat_of_carrier = -1;
-static int hf_isup_carrier_info_length_of_carrierX = -1;
-static int hf_isup_carrier_info_type_of_carrier_info = -1;
+/*static int hf_isup_carrier_info_cat_of_carrier = -1;*/
+/*static int hf_isup_carrier_info_length_of_carrierX = -1;*/
+/*static int hf_isup_carrier_info_type_of_carrier_info = -1;*/
 static int hf_isup_carrier_info_odd_no_digits = -1;
 static int hf_isup_carrier_info_even_no_digits = -1;
 static int hf_isup_carrier_info_ca_odd_no_digits = -1;
@@ -10862,7 +10862,7 @@ proto_register_isup(void)
       {"IEC Indicator","isup.carrier_info.iec",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_iec_indic_value), 0x00,
       NULL,HFILL }},
-
+#if 0 /* TODO: tools/checkhf.pl reported these as unused */
     { &hf_isup_carrier_info_cat_of_carrier,
       {"Category of Carrier","isup.carrier_info.cat_of_carrier",
       FT_UINT8, BASE_HEX, VALS(isup_carrier_info_category_value), 0x00,
@@ -10877,7 +10877,7 @@ proto_register_isup(void)
       {"Type of Carrier","isup.carrier_info.type_of_carrier",
       FT_UINT8, BASE_HEX, VALS(isup_carrier_info_type_of_carrier_value), 0x00,
       NULL,HFILL }},
-
+#endif
     { &hf_isup_carrier_info_odd_no_digits,
       {"CID", "isup.carrier_info.cid_odd_digit",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0x0F,
