@@ -66,6 +66,7 @@
 #define ISUP_FRENCH_VARIANT  1
 #define ISUP_ISRAELI_VARIANT 2
 #define ISUP_RUSSIAN_VARIANT 3
+#define ISUP_JAPAN_VARIANT   4
 
 static gint isup_standard = ITU_STANDARD;
 /* Preference standard or national ISUP variants */
@@ -485,6 +486,93 @@ static const value_string russian_isup_message_type_value[] = {
   { 0,                                  NULL}};
 static value_string_ext russian_isup_message_type_value_ext = VALUE_STRING_EXT_INIT(russian_isup_message_type_value);
 
+/* http://www.ttc.or.jp/jp/document_list/sum/sum_JT-Q763v21.1.pdf */
+#define MESSAGE_TYPE_JAPAN_CHARG_INF 254
+static const value_string japan_isup_message_type_value[] = {
+  { MESSAGE_TYPE_INITIAL_ADDR,                "Initial address"},
+  { MESSAGE_TYPE_SUBSEQ_ADDR,                 "Subsequent address"},
+  { MESSAGE_TYPE_INFO_REQ,                    "Information request (national use)"},
+  { MESSAGE_TYPE_INFO,                        "Information (national use)"},
+  { MESSAGE_TYPE_CONTINUITY,                  "Continuity"},
+  { MESSAGE_TYPE_ADDR_CMPL,                   "Address complete"},
+  { MESSAGE_TYPE_CONNECT,                     "Connect"},
+  { MESSAGE_TYPE_FORW_TRANS,                  "Forward transfer"},
+  { MESSAGE_TYPE_ANSWER,                      "Answer"},
+
+  { 0x0a,                                     "Reserved (used in 1984 version)"},
+  { 0x0b,                                     "Reserved (used in 1984 version)"},
+
+  { MESSAGE_TYPE_RELEASE,                     "Release"},
+  { MESSAGE_TYPE_SUSPEND,                     "Suspend"},
+  { MESSAGE_TYPE_RESUME,                      "Resume"},
+
+  { 15,                                       "Reserved"},
+
+  { MESSAGE_TYPE_REL_CMPL,                    "Release complete"},
+  { MESSAGE_TYPE_CONT_CHECK_REQ,              "Continuity check request"},
+  { MESSAGE_TYPE_RESET_CIRCUIT,               "Reset Circuit"},
+  { MESSAGE_TYPE_BLOCKING,                    "Blocking"},
+  { MESSAGE_TYPE_UNBLOCKING,                  "Unblocking"},
+  { MESSAGE_TYPE_BLOCK_ACK,                   "Blocking acknowledgement"},
+  { MESSAGE_TYPE_UNBLOCK_ACK,                 "Unblocking acknowledgment"},
+  { MESSAGE_TYPE_CIRC_GRP_RST,                "Circuit group reset"},
+  { MESSAGE_TYPE_CIRC_GRP_BLCK,               "Circuit group blocking"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL,               "Circuit group unblocking"},
+  { MESSAGE_TYPE_CIRC_GRP_BL_ACK,             "Circuit group blocking acknowledgement"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL_ACK,           "Circuit group unblocking acknowledgement"},
+
+  { 28,                                      "Reserved (used in 1988 version)"},
+  { 29,                                      "Reserved (used in 1988 version)"},
+  { 30,                                      "Reserved (used in 1988 version)"},
+
+  { MESSAGE_TYPE_FACILITY_REQ,                "Facility request"},
+  { MESSAGE_TYPE_FACILITY_ACC,                "Facility accepted"},
+  { MESSAGE_TYPE_FACILITY_REJ,                "Facility reject"},
+
+  { 34,                                      "Reserved (used in 1984 version)"},
+  { 35,                                      "Reserved (used in 1984 version)"},
+
+  { MESSAGE_TYPE_LOOP_BACK_ACK,               "Loop back acknowledgement (national use)"},
+
+  { 37,                                      "Reserved (used in 1984 version)"},
+  { 38,                                      "Reserved (used in 1984 version)"},
+  { 39,                                      "Reserved (used in 1984 version)"},
+
+  { MESSAGE_TYPE_PASS_ALONG,                  "Pass-along (national use)"},
+  { MESSAGE_TYPE_CIRC_GRP_RST_ACK,            "Circuit group reset acknowledgement"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY,                "Circuit group query (national use)"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY_RSP,            "Circuit group query response (national use)"},
+  { MESSAGE_TYPE_CALL_PROGRSS,                "Call progress"},
+  { MESSAGE_TYPE_USER2USER_INFO,              "User-to-user information"},
+  { MESSAGE_TYPE_UNEQUIPPED_CIC,              "Unequipped CIC (national use)"},
+  { MESSAGE_TYPE_CONFUSION,                   "Confusion"},
+  { MESSAGE_TYPE_OVERLOAD,                    "Overload (national use)"},
+  { MESSAGE_TYPE_CHARGE_INFO,                 "Charge information (national use)"},
+  { MESSAGE_TYPE_NETW_RESRC_MGMT,             "Network resource management"},
+  { MESSAGE_TYPE_FACILITY,                    "Facility"},
+  { MESSAGE_TYPE_USER_PART_TEST,              "User part test"},
+  { MESSAGE_TYPE_USER_PART_AVAIL,             "User part available"},
+  { MESSAGE_TYPE_IDENT_REQ,                   "Identification request"},
+  { MESSAGE_TYPE_IDENT_RSP,                   "Identification response"},
+  { MESSAGE_TYPE_SEGMENTATION,                "Segmentation"},
+
+  { 57,                                       "Reserved (used in B-ISUP)"},
+  { 58,                                       "Reserved (used in B-ISUP)"},
+  { 59,                                       "Reserved (used in B-ISUP)"},
+  { 60,                                       "Reserved (used in B-ISUP)"},
+  { 61,                                       "Reserved (used in B-ISUP)"},
+
+  { 62,                                       "Unknown"},
+  { 63,                                       "Unknown"},
+
+  { MESSAGE_TYPE_LOOP_PREVENTION,             "Loop prevention"},
+  { MESSAGE_TYPE_APPLICATION_TRANS,           "Application transport"},
+  { MESSAGE_TYPE_PRE_RELEASE_INFO,            "Pre-release information"},
+  { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,          "Subsequent Directory Number (national use)"},
+  { MESSAGE_TYPE_JAPAN_CHARG_INF,            "Charge information"},
+  { 0,                                  NULL}};
+static value_string_ext japan_isup_message_type_value_ext = VALUE_STRING_EXT_INIT(japan_isup_message_type_value);
+
 static const value_string ansi_isup_message_type_value[] = {
   { MESSAGE_TYPE_INITIAL_ADDR,                "Initial address"},
   { MESSAGE_TYPE_SUBSEQ_ADDR,                 "Subsequent address"},
@@ -888,6 +976,90 @@ static const value_string russian_isup_message_type_value_acro[] = {
   { 0,                                  NULL}};
 value_string_ext russian_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(russian_isup_message_type_value_acro);
 
+static const value_string japan_isup_message_type_value_acro[] = {
+  { MESSAGE_TYPE_INITIAL_ADDR,                "IAM"},
+  { MESSAGE_TYPE_SUBSEQ_ADDR,                 "SAM"},
+  { MESSAGE_TYPE_INFO_REQ,                    "INR"},
+  { MESSAGE_TYPE_INFO,                        "INF"},
+  { MESSAGE_TYPE_CONTINUITY,                  "COT"},
+  { MESSAGE_TYPE_ADDR_CMPL,                   "ACM"},
+  { MESSAGE_TYPE_CONNECT,                     "CON"},
+  { MESSAGE_TYPE_FORW_TRANS,                  "FOT"},
+  { MESSAGE_TYPE_ANSWER,                      "ANM"},
+
+  { 10,                                       "Reserved"},
+  { 11,                                       "Reserved"},
+
+  { MESSAGE_TYPE_RELEASE,                     "REL"},
+  { MESSAGE_TYPE_SUSPEND,                     "SUS"},
+  { MESSAGE_TYPE_RESUME,                      "RES"},
+
+  { 15,                                       "Reserved"},
+
+  { MESSAGE_TYPE_REL_CMPL,                    "RLC"},
+  { MESSAGE_TYPE_CONT_CHECK_REQ,              "CCR"},
+  { MESSAGE_TYPE_RESET_CIRCUIT,               "RSC"},
+  { MESSAGE_TYPE_BLOCKING,                    "BLO"},
+  { MESSAGE_TYPE_UNBLOCKING,                  "UBL"},
+  { MESSAGE_TYPE_BLOCK_ACK,                   "BLA"},
+  { MESSAGE_TYPE_UNBLOCK_ACK,                 "UBLA"},
+  { MESSAGE_TYPE_CIRC_GRP_RST,                "GRS"},
+  { MESSAGE_TYPE_CIRC_GRP_BLCK,               "CGB"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL,               "CGU"},
+  { MESSAGE_TYPE_CIRC_GRP_BL_ACK,             "CGBA"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL_ACK,           "CGUA"},
+
+  { 28,                                       "Reserved"},
+  { 29,                                       "Reserved"},
+  { 30,                                       "Reserved"},
+
+  { MESSAGE_TYPE_FACILITY_REQ,                "FAR"},
+  { MESSAGE_TYPE_FACILITY_ACC,                "FAA"},
+  { MESSAGE_TYPE_FACILITY_REJ,                "FRJ"},
+
+  { 34,                                       "Reserved"},
+  { 35,                                       "Reserved"},
+
+  { MESSAGE_TYPE_LOOP_BACK_ACK,               "LPA"},
+
+  { 37,                                       "Reserved"},
+  { 38,                                       "Reserved"},
+  { 39,                                       "Reserved"},
+
+  { MESSAGE_TYPE_PASS_ALONG,                  "PAM"},
+  { MESSAGE_TYPE_CIRC_GRP_RST_ACK,            "GRA"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY,                "CQM"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY_RSP,            "CQR"},
+  { MESSAGE_TYPE_CALL_PROGRSS,                "CPG"},
+  { MESSAGE_TYPE_USER2USER_INFO,              "UUI"},
+  { MESSAGE_TYPE_UNEQUIPPED_CIC,              "UCIC"},
+  { MESSAGE_TYPE_CONFUSION,                   "CFN"},
+  { MESSAGE_TYPE_OVERLOAD,                    "OLM"},
+  { MESSAGE_TYPE_CHARGE_INFO,                 "CRG"},
+  { MESSAGE_TYPE_NETW_RESRC_MGMT,             "NRM"},
+  { MESSAGE_TYPE_FACILITY,                    "FAC"},
+  { MESSAGE_TYPE_USER_PART_TEST,              "UPT"},
+  { MESSAGE_TYPE_USER_PART_AVAIL,             "UPA"},
+  { MESSAGE_TYPE_IDENT_REQ,                   "IDR"},
+  { MESSAGE_TYPE_IDENT_RSP,                   "IDS"},
+  { MESSAGE_TYPE_SEGMENTATION,                "SGM"},
+
+  { 57,                                       "Reserved"},
+  { 58,                                       "Reserved"},
+  { 59,                                       "Reserved"},
+  { 60,                                       "Reserved"},
+  { 61,                                       "Reserved"},
+
+  { 62,                                       "Unknown"},
+  { 63,                                       "Unknown"},
+
+  { MESSAGE_TYPE_LOOP_PREVENTION,             "LOP"},
+  { MESSAGE_TYPE_APPLICATION_TRANS,           "APM"},
+  { MESSAGE_TYPE_PRE_RELEASE_INFO,            "PRI"},
+  { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,          "SDN"},
+  { MESSAGE_TYPE_JAPAN_CHARG_INF,             "CHG"},  /* 254 */
+  { 0,                                  NULL}};
+value_string_ext japan_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(japan_isup_message_type_value_acro);
 
   /* Same as above but in acronym form (for the Info column) */
 static const value_string ansi_isup_message_type_value_acro[] = {
@@ -1033,6 +1205,100 @@ const value_string isup_parameter_type_value[] = {
   { PARAM_TYPE_GENERIC_DIGITS,            "Generic digits (national use)"},
   { 0,                                 NULL}};
 static value_string_ext isup_parameter_type_value_ext = VALUE_STRING_EXT_INIT(isup_parameter_type_value);
+
+#define JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO               241 /* F1 */
+#define JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT         243 /* F3 */
+#define JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO           253 /* FD */
+
+static const value_string japan_isup_parameter_type_value[] = {
+  { PARAM_TYPE_END_OF_OPT_PARAMS,         "End of optional parameters"},
+  { PARAM_TYPE_CALL_REF,                  "Call Reference (national use)"},
+  { PARAM_TYPE_TRANSM_MEDIUM_REQU,        "Transmission medium requirement"},
+  { PARAM_TYPE_ACC_TRANSP,                "Access transport"},
+  { PARAM_TYPE_CALLED_PARTY_NR,           "Called party number"},
+  { PARAM_TYPE_SUBSQT_NR,                 "Subsequent number"},
+  { PARAM_TYPE_NATURE_OF_CONN_IND,        "Nature of connection indicators"},
+  { PARAM_TYPE_FORW_CALL_IND,             "Forward call indicators"},
+  { PARAM_TYPE_OPT_FORW_CALL_IND,         "Optional forward call indicators"},
+  { PARAM_TYPE_CALLING_PRTY_CATEG,        "Calling party's category"},
+  { PARAM_TYPE_CALLING_PARTY_NR,          "Calling party number"},
+  { PARAM_TYPE_REDIRECTING_NR,            "Redirecting number"},
+  { PARAM_TYPE_REDIRECTION_NR,            "Redirection number"},
+  { PARAM_TYPE_CONNECTION_REQ,            "Connection request"},
+  { PARAM_TYPE_INFO_REQ_IND,              "Information request indicators (national use)"},
+  { PARAM_TYPE_INFO_IND,                  "Information indicators (national use)"},
+  { PARAM_TYPE_CONTINUITY_IND,            "Continuity request"},
+  { PARAM_TYPE_BACKW_CALL_IND,            "Backward call indicators"},
+  { PARAM_TYPE_CAUSE_INDICATORS,          "Cause indicators"},
+  { PARAM_TYPE_REDIRECTION_INFO,          "Redirection information"},
+  { PARAM_TYPE_CIRC_GRP_SV_MSG_TYPE,      "Circuit group supervision message type"},
+  { PARAM_TYPE_RANGE_AND_STATUS,          "Range and Status"},
+  { PARAM_TYPE_FACILITY_IND,              "Facility indicator"},
+  { PARAM_TYPE_CLSD_USR_GRP_ILOCK_CD,     "Closed user group interlock code"},
+  { PARAM_TYPE_USER_SERVICE_INFO,         "User service information"},
+  { PARAM_TYPE_SIGNALLING_POINT_CODE,     "Signalling point code (national use)"},
+  { PARAM_TYPE_USER_TO_USER_INFO,         "User-to-user information"},
+  { PARAM_TYPE_CONNECTED_NR,              "Connected number"},
+  { PARAM_TYPE_SUSP_RESUME_IND,           "Suspend/Resume indicators"},
+  { PARAM_TYPE_TRANSIT_NETW_SELECT,       "Transit network selection (national use)"},
+  { PARAM_TYPE_EVENT_INFO,                "Event information"},
+  { PARAM_TYPE_CIRC_ASSIGN_MAP,           "Circuit assignment map"},
+  { PARAM_TYPE_CIRC_STATE_IND,            "Circuit state indicator (national use)"},
+  { PARAM_TYPE_AUTO_CONG_LEVEL,           "Automatic congestion level"},
+  { PARAM_TYPE_ORIG_CALLED_NR,            "Original called number"},
+  { PARAM_TYPE_OPT_BACKW_CALL_IND,        "Backward call indicators"},
+  { PARAM_TYPE_USER_TO_USER_IND,          "User-to-user indicators"},
+  { PARAM_TYPE_ORIG_ISC_POINT_CODE,       "Origination ISC point code"},
+  { PARAM_TYPE_GENERIC_NOTIF_IND,         "Generic notification indicator"},
+  { PARAM_TYPE_CALL_HIST_INFO,            "Call history information"},
+  { PARAM_TYPE_ACC_DELIV_INFO,            "Access delivery information"},
+  { PARAM_TYPE_NETW_SPECIFIC_FACLTY,      "Network specific facility (national use)"},
+  { PARAM_TYPE_USER_SERVICE_INFO_PR,      "User service information prime"},
+  { PARAM_TYPE_PROPAG_DELAY_COUNTER,      "Propagation delay counter"},
+  { PARAM_TYPE_REMOTE_OPERATIONS,         "Remote operations (national use)"},
+  { PARAM_TYPE_SERVICE_ACTIVATION,        "Service activation"},
+  { PARAM_TYPE_USER_TELESERV_INFO,        "User teleservice information"},
+  { PARAM_TYPE_TRANSM_MEDIUM_USED,        "Transmission medium used"},
+  { PARAM_TYPE_CALL_DIV_INFO,             "Call diversion information"},
+  { PARAM_TYPE_ECHO_CTRL_INFO,            "Echo control information"},
+  { PARAM_TYPE_MSG_COMPAT_INFO,           "Message compatibility information"},
+  { PARAM_TYPE_PARAM_COMPAT_INFO,         "Parameter compatibility information"},
+  { PARAM_TYPE_MLPP_PRECEDENCE,           "MLPP precedence"},
+  { PARAM_TYPE_MCID_REQ_IND,              "MCID request indicators"},
+  { PARAM_TYPE_MCID_RSP_IND,              "MCID response indicators"},
+  { PARAM_TYPE_HOP_COUNTER,               "Hop counter"},
+  { PARAM_TYPE_TRANSM_MEDIUM_RQUR_PR,     "Transmission medium requirement prime"},
+  { PARAM_TYPE_LOCATION_NR,               "Location number"},
+  { PARAM_TYPE_REDIR_NR_RSTRCT,           "Redirection number restriction"},
+  { PARAM_TYPE_CALL_TRANS_REF,            "Call transfer reference"},
+  { PARAM_TYPE_LOOP_PREV_IND,             "Loop prevention indicators"},
+  { PARAM_TYPE_CALL_TRANS_NR,             "Call transfer number"},
+  { PARAM_TYPE_CCSS,                      "CCSS"},
+  { PARAM_TYPE_FORW_GVNS,                 "Forward GVNS"},
+  { PARAM_TYPE_BACKW_GVNS,                "Backward GVNS"},
+  { PARAM_TYPE_REDIRECT_CAPAB,            "Redirect capability (reserved for national use)"},
+  { PARAM_TYPE_NETW_MGMT_CTRL,            "Network management controls"},
+  { PARAM_TYPE_CORRELATION_ID,            "Correlation id"},
+  { PARAM_TYPE_SCF_ID,                    "SCF id"},
+  { PARAM_TYPE_CALL_DIV_TREAT_IND,        "Call diversion treatment indicators"},
+  { PARAM_TYPE_CALLED_IN_NR,              "Called IN number"},
+  { PARAM_TYPE_CALL_OFF_TREAT_IND,        "Call offering treatment indicators"},
+  { PARAM_TYPE_CHARGED_PARTY_IDENT,       "Charged party identification (national use)"},
+  { PARAM_TYPE_CONF_TREAT_IND,            "Conference treatment indicators"},
+  { PARAM_TYPE_DISPLAY_INFO,              "Display information"},
+  { PARAM_TYPE_UID_ACTION_IND,            "UID action indicators"},
+  { PARAM_TYPE_UID_CAPAB_IND,             "UID capability indicators"},
+  { PARAM_TYPE_REDIRECT_COUNTER,          "Redirect counter (reserved for national use)"},
+  { PARAM_TYPE_APPLICATON_TRANS,          "Application transport"},
+  { PARAM_TYPE_COLLECT_CALL_REQ,          "Collect call request"},
+  { PARAM_TYPE_GENERIC_NR,                "Generic number"},
+  { PARAM_TYPE_GENERIC_DIGITS,            "Generic digits (national use)"},
+  { JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO,       "Carrier Information transfer"},      /* 241 F1 */
+  { JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT, "Additional party’s category"},       /* 243 F3 */
+  { JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO,   "Charge area information"},           /* 253 FD */
+
+  { 0,                                 NULL}};
+static value_string_ext japan_isup_parameter_type_value_ext = VALUE_STRING_EXT_INIT(japan_isup_parameter_type_value);
 
 static const value_string ansi_isup_parameter_type_value[] = {
   { PARAM_TYPE_END_OF_OPT_PARAMS,         "End of optional parameters"},
@@ -1749,6 +2015,184 @@ static const value_string isup_calling_party_address_digit_value[] = {
 
 /*End of Called/Calling party address definitions */
 
+ /* Japan ISUP*/
+/*******************************/
+/*    CARRIER INFORMATION      */
+/*******************************/
+
+/*         IEC INDICATOR       */
+#define CARRIER_INFO_IEC_NO_TRANSFER                   0
+#define CARRIER_INFO_IEC_TRANSFER_FORW                 1
+#define CARRIER_INFO_IEC_TRANSFER_BACK                 2
+#define CARRIER_INFO_IEC_TRANSFER_BOTH_DIR             3
+static const value_string isup_carrier_info_iec_indic_value[] = {
+  { CARRIER_INFO_IEC_NO_TRANSFER, "No transfer"},
+  { CARRIER_INFO_IEC_TRANSFER_FORW,"Transfer in forward direction"},
+  { CARRIER_INFO_IEC_TRANSFER_BACK,"Transfer in backward direction"},
+  { CARRIER_INFO_IEC_TRANSFER_BOTH_DIR,"Transfer in both directions"},
+  { 0,NULL}};
+
+
+/*      CATEGORY OF CARRIER    */
+#define CARRIER_INFO_CATEGORY_SCPC               0xFA
+#define CARRIER_INFO_CATEGORY_OLEC               0xFB
+#define CARRIER_INFO_CATEGORY_TLEC               0xFC
+#define CARRIER_INFO_CATEGORY_CIEC               0xFD
+#define CARRIER_INFO_CATEGORY_IEC                0xFE
+#define CARRIER_INFO_CATEGORY_SPARE              0xFF
+static const value_string isup_carrier_info_category_value[] = {
+  { CARRIER_INFO_CATEGORY_SCPC, "(Service Control Point Carrier)"},
+  { CARRIER_INFO_CATEGORY_OLEC, "(Originating Local Exchange Carrier)"},
+  { CARRIER_INFO_CATEGORY_TLEC, "(Terminating Local Exchange Carrier)"},
+  { CARRIER_INFO_CATEGORY_CIEC, "(Chosen Inter|Exchange Carrier)"},
+  { CARRIER_INFO_CATEGORY_IEC, "(Inter|Exchange Carrier)"},
+  { CARRIER_INFO_CATEGORY_SPARE, "Spare"},
+  { 0,NULL}};
+static value_string_ext isup_carrier_info_category_vals_ext = VALUE_STRING_EXT_INIT(isup_carrier_info_category_value);
+
+/* TYPE OF CARRIER INFORMATION */
+#define CARRIER_INFO_TYPE_OF_CARRIER_POIHIE      0xFC
+#define CARRIER_INFO_TYPE_OF_CARRIER_POICA       0xFD
+#define CARRIER_INFO_TYPE_OF_CARRIER_CARID       0xFE
+#define CARRIER_INFO_TYPE_OF_CARRIER_SPARE       0xFF
+static const value_string isup_carrier_info_type_of_carrier_value[] = {
+  { CARRIER_INFO_TYPE_OF_CARRIER_POIHIE, "POI Hierarchy information"},
+  { CARRIER_INFO_TYPE_OF_CARRIER_POICA, "POI|CA information (Charge Area)"},
+  { CARRIER_INFO_TYPE_OF_CARRIER_CARID, "Carrier identification (ID) code"},
+  { CARRIER_INFO_TYPE_OF_CARRIER_SPARE, "Spare"},
+  { 0,NULL}};
+static value_string_ext isup_carrier_info_type_of_carrier_vals_ext = VALUE_STRING_EXT_INIT(isup_carrier_info_type_of_carrier_value);
+
+/* POI/HIE */
+#define CARRIER_INFO_POIHIE_NOINDIC              0
+#define CARRIER_INFO_POIHIE_HIE1                 1
+#define CARRIER_INFO_POIHIE_HIE2                 2
+static const value_string isup_carrier_info_poihie_value[] = {
+  { CARRIER_INFO_POIHIE_NOINDIC, "No indication"},
+  { CARRIER_INFO_POIHIE_HIE1, "Hierarchy level 1"},
+  { CARRIER_INFO_POIHIE_HIE2, "Hierarchy level 2"},
+  { 0,NULL}};
+
+/* POICA */
+/* ODD/EVEN */
+#define CARRIER_INFO_CA_OE_0                  0
+#define CARRIER_INFO_CA_OE_1                  1
+static const value_string isup_carrier_info_poica_oe_value[] = {
+  { CARRIER_INFO_CA_OE_0, "Reserved"},
+  { CARRIER_INFO_CA_OE_1, "Odd number of charge area digits"},
+  { 0,NULL}};
+
+/* CARID */
+/* ODD/EVEN */
+#define CARRIER_INFO_CARID_OE_0                  0
+#define CARRIER_INFO_CARID_OE_1                  1
+static const value_string isup_carrier_info_carid_oe_value[] = {
+  { CARRIER_INFO_CARID_OE_0, "Even number of ID code digits"},
+  { CARRIER_INFO_CARID_OE_1, "Odd number of ID code digits"},
+  { 0,NULL}};
+
+/* CARRIER INFORMATION DIGITS */
+#define CARRIER_INFO_DIGIT_0                  0
+#define CARRIER_INFO_DIGIT_1                  1
+#define CARRIER_INFO_DIGIT_2                  2
+#define CARRIER_INFO_DIGIT_3                  3
+#define CARRIER_INFO_DIGIT_4                  4
+#define CARRIER_INFO_DIGIT_5                  5
+#define CARRIER_INFO_DIGIT_6                  6
+#define CARRIER_INFO_DIGIT_7                  7
+#define CARRIER_INFO_DIGIT_8                  8
+#define CARRIER_INFO_DIGIT_9                  9
+static const value_string isup_carrier_info_digits_value[] = {
+  { CARRIER_INFO_DIGIT_0, "Digit 0"},
+  { CARRIER_INFO_DIGIT_1, "Digit 1"},
+  { CARRIER_INFO_DIGIT_2, "Digit 2"},
+  { CARRIER_INFO_DIGIT_3, "Digit 3"},
+  { CARRIER_INFO_DIGIT_4, "Digit 4"},
+  { CARRIER_INFO_DIGIT_5, "Digit 5"},
+  { CARRIER_INFO_DIGIT_6, "Digit 6"},
+  { CARRIER_INFO_DIGIT_7, "Digit 7"},
+  { CARRIER_INFO_DIGIT_8, "Digit 8"},
+  { CARRIER_INFO_DIGIT_9, "Digit 9"},
+  { 0,NULL}};
+
+/*******************************/
+/*    CHARGE AREA INFORMATION  */
+/*******************************/
+/* ODD/EVEN */
+#define CHARGE_AREA_INFO_OE_0                  0
+#define CHARGE_AREA_INFO_OE_1                  1
+static const value_string isup_charge_area_info_oe_value[] = {
+  { CHARGE_AREA_INFO_OE_0, "Even number of Charge Area digits"},
+  { CHARGE_AREA_INFO_OE_1, "Odd number of Charge Area code digits"},
+  { 0,NULL}};
+
+#define CHARGE_AREA_NAT_INFO_MA                0
+#define CHARGE_AREA_NAT_INFO_CA                1
+static const value_string isup_charge_area_info_nat_of_info_value[] = {
+  { CHARGE_AREA_NAT_INFO_MA, "MA code (and optionally NC)"},
+  { CHARGE_AREA_NAT_INFO_CA, "CA code"},
+  { 0,NULL}};
+
+/*******************************/
+/*    ADDITIONAL USER CATEGORY */
+/*******************************/
+#define ADD_USER_CAT_TYPE3                     0xFB
+#define ADD_USER_CAT_TYPE2                     0xFC
+#define ADD_USER_CAT_TYPE1                     0xFD
+#define ADD_USER_CAT_TYPE1_FIXED               0xFE
+static const value_string isup_add_user_cat_type_value[] = {
+  { ADD_USER_CAT_TYPE3, "Type 3 mobile service information"},
+  { ADD_USER_CAT_TYPE2, "Type 2 mobile service information"},
+  { ADD_USER_CAT_TYPE1, "Type 1 mobile service information"},
+  { ADD_USER_CAT_TYPE1_FIXED, "Type 1 fixed user information"},
+  { 0,NULL}};
+
+#define ADD_USER_CAT_TYPE1_FIXED_SPARE            0
+#define ADD_USER_CAT_TYPE1_FIXED_TRAIN            1
+#define ADD_USER_CAT_TYPE1_FIXED_PINK             2
+static const value_string isup_add_user_cat_type1_fixed_value[] = {
+  { ADD_USER_CAT_TYPE1_FIXED_SPARE,"Spare"},
+  { ADD_USER_CAT_TYPE1_FIXED_TRAIN,"Train payphone"},
+  { ADD_USER_CAT_TYPE1_FIXED_PINK, "Pink (non|NTT payphone)"},
+  { 0,NULL}};
+
+#define ADD_USER_CAT_TYPE1_SPARE                  0
+#define ADD_USER_CAT_TYPE1_CELL                   1
+#define ADD_USER_CAT_TYPE1_MARITIME               2
+#define ADD_USER_CAT_TYPE1_AIRPLANE               3
+#define ADD_USER_CAT_TYPE1_PAGING                 4
+#define ADD_USER_CAT_TYPE1_PHS                    5
+static const value_string isup_add_user_cat_type1_value[] = {
+  { ADD_USER_CAT_TYPE1_SPARE,"Spare"},
+  { ADD_USER_CAT_TYPE1_CELL,"Cellular telephone service"},
+  { ADD_USER_CAT_TYPE1_MARITIME, "Maritime telephone service"},
+  { ADD_USER_CAT_TYPE1_AIRPLANE, "Airplane telephone service"},
+  { ADD_USER_CAT_TYPE1_PAGING, "Paging service"},
+  { ADD_USER_CAT_TYPE1_PHS, "PHS service"},
+  { 0,NULL}};
+
+#define ADD_USER_CAT_TYPE2_SPARE                  0
+#define ADD_USER_CAT_TYPE2_HICAP                  1
+#define ADD_USER_CAT_TYPE2_TACS                   2
+#define ADD_USER_CAT_TYPE2_PDC800                 3
+#define ADD_USER_CAT_TYPE2_PDC1500                4
+#define ADD_USER_CAT_TYPE2_STARSAT                5
+#define ADD_USER_CAT_TYPE2_CDMA1                  6
+#define ADD_USER_CAT_TYPE2_IRID                   7
+#define ADD_USER_CAT_TYPE2_IMT                    8
+#define ADD_USER_CAT_TYPE2_PHS                    9
+static const value_string isup_add_user_cat_type2_value[] = {
+  { ADD_USER_CAT_TYPE2_SPARE,"Spare"},
+  { ADD_USER_CAT_TYPE2_HICAP,"HiCap method (analog)"},
+  { ADD_USER_CAT_TYPE2_TACS, "N/J|TACS"},
+  { ADD_USER_CAT_TYPE2_PDC800, "PDC 800 MHz"},
+  { ADD_USER_CAT_TYPE2_PDC1500, "PDC 1500 MHz"},
+  { ADD_USER_CAT_TYPE2_STARSAT, "N|STAR satellite"},
+  { ADD_USER_CAT_TYPE2_CDMA1, "cdmaOne 800 MHz"},
+  { ADD_USER_CAT_TYPE2_IRID, "Iridium satellite"},
+  { ADD_USER_CAT_TYPE2_IMT, "IMT|2000"},
+  { ADD_USER_CAT_TYPE2_PHS, "PHS (fixed network dependent)"},
+  { 0,NULL}};
 
 static const true_false_string isup_calling_party_address_request_ind_value = {
   "calling party address requested",
@@ -2421,11 +2865,34 @@ static int hf_isup_israeli_current_rate = -1;
 static int hf_isup_israeli_time_indicator = -1;
 static int hf_isup_israeli_next_rate = -1;
 
+static int hf_isup_carrier_info_iec = -1;
+static int hf_isup_carrier_info_cat_of_carrier = -1;
+static int hf_isup_carrier_info_length_of_carrierX = -1;
+static int hf_isup_carrier_info_type_of_carrier_info = -1;
+static int hf_isup_carrier_info_odd_no_digits = -1;
+static int hf_isup_carrier_info_even_no_digits = -1;
+static int hf_isup_carrier_info_ca_odd_no_digits = -1;
+static int hf_isup_carrier_info_ca_even_no_digits = -1;
+static int hf_isup_carrier_info_poi_entry_HEI = -1;
+static int hf_isup_carrier_info_poi_exit_HEI = -1;
+
+static int hf_japan_isup_charge_area_nat_of_info_value = -1;
+static int hf_japan_isup_charging_info_nc_odd_digits = -1;
+static int hf_japan_isup_charging_info_nc_even_digits = -1;
+static int hf_isup_charging_info_maca_odd_digits = -1;
+static int hf_isup_charging_info_maca_even_digits = -1;
+
+static int hf_isup_add_user_cat_type_of_info=-1;
+static int hf_isup_add_user_cat_type1=-1;
+static int hf_isup_add_user_cat_type1_fixed=-1;
+static int hf_isup_add_user_cat_type2=-1;
+static int hf_isup_add_user_cat_type3=-1;
 
 /* Initialize the subtree pointers */
 static gint ett_isup                            = -1;
 static gint ett_isup_parameter                  = -1;
 static gint ett_isup_address_digits             = -1;
+static gint ett_isup_carrier_info               = -1;
 static gint ett_isup_pass_along_message         = -1;
 static gint ett_isup_circuit_state_ind          = -1;
 static gint ett_bat_ase                         = -1;
@@ -6343,6 +6810,435 @@ dissect_isup_unknown_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_it
 }
 /* ------------------------------------------------------------------ */
 
+/* Japan ISUP */
+
+/* ------------------------------------------------------------------
+  Dissector Parameter Optional .Carrier Information
+
+
+   8     7     6     5     4     3     2    1
++-----------------------------------------------+
+|                 spare             |    IEC    |  1
+|                                   | indicator |
++-----------------------------------------------+
+|         Category of carrier 1                 |  2
+|                                               |
++-----------------------------------------------+
+|         Length of carrier 1 information       |  3
+|                                               |
++-----------------------------------------------+
+|         Carrier 1 information / octet 1       |  4
+|                                               |
++-----------------------------------------------+
+ .                    .                         .
+ .                    .                         .
+ .                    .                         .
++-----------------------------------------------+
+|         Carrier 1 information / octet n       |  3+n
+|                                               |
++-----------------------------------------------+
+ .                                              .
+ */
+static void
+dissect_japan_isup_carrier_information(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+    proto_item *catagory_of_carrier;
+    proto_tree *carrier_info_tree;
+
+    proto_item *digits_item;
+    proto_tree *digits_tree;
+
+    proto_item *type_of_carrier;
+    proto_tree *type_of_carrier_tree;
+
+    guint8 octet;
+    guint8 odd_even;
+    guint8 type_of_carrier_info;
+    guint8 carrier_info_length;
+    guint8 carrierX_end_index;
+
+    gint offset=0;
+    gint length=0;
+
+    gint num_octets_with_digits=0;
+
+    gint digit_index=0;
+    char cid_number[MAXDIGITS + 1]="";
+    char ca_number[MAXDIGITS + 1]="";
+
+    /*Octet 1 : IEC Indicator*/
+    octet = tvb_get_guint8(parameter_tvb, 0);
+    proto_tree_add_uint(parameter_tree, hf_isup_carrier_info_iec, parameter_tvb, 0, 1, octet);
+
+
+    length = tvb_length_remaining(parameter_tvb, 2);
+    if (length == 0) {
+      proto_tree_add_text(parameter_tree, parameter_tvb, offset, 0, "Carrier Information (empty)");
+      proto_item_set_text(parameter_item, "Carrier Information (empty)");
+      return;
+    }
+
+    offset = 1;
+
+    /* Lets loop through the Carrier Information*/
+
+    while(length > 0){
+
+        catagory_of_carrier = proto_tree_add_text(parameter_tree, parameter_tvb,offset, -1,"Category of Carrier:");
+        carrier_info_tree = proto_item_add_subtree(catagory_of_carrier, ett_isup_carrier_info);
+
+        /*Octet 2 : Category of Carrier*/
+        octet = tvb_get_guint8(parameter_tvb, offset);
+        /*proto_tree_add_uint(carrier_info_tree, hf_isup_carrier_info_cat_of_carrier, parameter_tvb, 0, 1, octet);*/
+        proto_item_set_text(catagory_of_carrier, "%s (%u)", val_to_str_ext_const(octet, &isup_carrier_info_category_vals_ext, "spare"),octet );
+
+
+        /*Octet 3 : Length of Category Information No.x*/
+        offset++;
+        carrierX_end_index = tvb_get_guint8(parameter_tvb, offset)+offset;
+
+        while(offset<carrierX_end_index){
+
+            type_of_carrier = proto_tree_add_text(carrier_info_tree, parameter_tvb,offset, -1,"Type of Carrier:");
+            type_of_carrier_tree = proto_item_add_subtree(type_of_carrier, ett_isup_carrier_info);
+
+            /* Type of Carrier Information*/
+            offset++;
+            type_of_carrier_info = tvb_get_guint8(parameter_tvb, offset);
+            /*proto_tree_add_uint(type_of_carrier_tree, hf_isup_carrier_info_type_of_carrier_info, parameter_tvb, 0, 1, type_of_carrier_info);*/
+            proto_item_set_text(type_of_carrier, "%s (%u)", val_to_str_ext_const(type_of_carrier_info, &isup_carrier_info_type_of_carrier_vals_ext, "spare"),type_of_carrier_info );
+
+
+            /* Carrier Information Length */
+            offset++;
+            carrier_info_length = tvb_get_guint8(parameter_tvb, offset);
+
+            /* POI Hierarchy information
+
+               8     7     6     5     4     3     2    1
+            +-----------------------|-----------------------+
+            |  Entry POI Hierarchy  |  Exit POI Hierarchy   |  1
+            |                       |                       |
+            \-----------------------------------------------|
+
+            */
+
+            if(type_of_carrier_info==CARRIER_INFO_TYPE_OF_CARRIER_POIHIE){
+                // POI Hierarchy information
+                offset++;
+                octet = tvb_get_guint8(parameter_tvb,offset);
+                proto_tree_add_uint(type_of_carrier_tree, hf_isup_carrier_info_poi_entry_HEI, parameter_tvb, 0, 1, octet);
+                proto_tree_add_uint(type_of_carrier_tree, hf_isup_carrier_info_poi_exit_HEI, parameter_tvb, 0, 1, octet);
+            }
+
+            /* POI|CA information (Charge Area)
+
+               8     7     6     5     4     3     2     1
+            +-----|-----------------------------------------+
+            |Odd/ |                Spare                    |  1
+            |even |                                         |
+            +-----------------------------------------------+
+            |   2nd CA code digit   |   1st CA code digit   |  2
+            |                       |                       |
+            +-----------------------+-----------------------+
+             .                      .                       .
+         .                      .                       .
+         .                      .                       .
+            +-----------------------+-----------------------+
+            |         Filler        |   5|th CA code digit  |  m
+            |                       |                       |
+            \-----------------------------------------------|
+            */
+            if(type_of_carrier_info==CARRIER_INFO_TYPE_OF_CARRIER_POICA){
+
+                digits_item = proto_tree_add_text(type_of_carrier_tree, parameter_tvb,offset, -1,"Charge Area:");
+                digits_tree = proto_item_add_subtree(digits_item, ett_isup_address_digits);
+
+                /* Odd.Even Indicator*/
+                offset++;
+                odd_even = tvb_get_guint8(parameter_tvb,offset);
+                proto_tree_add_boolean(digits_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, odd_even);
+
+                /* Number of Octets containing digits*/
+                num_octets_with_digits = carrier_info_length - 1;
+
+                /* Lets now load up the digits.*/
+                /* If the odd indicator is set... drop the Filler from the last octet.*/
+                /* This loop also loads up ca_number with the digits for display*/
+                digit_index=0;
+                while(num_octets_with_digits>0){
+                    offset++;
+                    octet = tvb_get_guint8(parameter_tvb,offset);
+                    proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_odd_no_digits, parameter_tvb, 0, 1, octet);
+                    ca_number[digit_index++] = number_to_char(octet & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+                    if(num_octets_with_digits==1){
+                        if(odd_even==0){
+                            proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_even_no_digits, parameter_tvb, 0, 1, octet);
+                            ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+                        }
+                    }
+                    else{
+                        proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_even_no_digits, parameter_tvb, 0, 1, octet);
+                        ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+                    }
+
+                    num_octets_with_digits --;
+                }
+                ca_number[digit_index++] = '\0';
+                proto_item_set_text(digits_item, "Charge Area Number : %s", ca_number);
+
+            }
+
+            /* Carrier Identification Code
+             8     7     6     5     4     3     2     1
+            +-----|-----------------------------------------+
+            |Odd/ |                Spare                    |  1
+            |even |                                         |
+            +-----------------------------------------------+
+            |   2nd ID code digit   |   1st ID code digit   |  2
+            |                       |                       |
+            +-----------------------+-----------------------+
+         .                      .                       .
+         .                      .                       .
+         .                      .                       .
+            +-----------------------+-----------------------+
+            | Filler (if necessary) |   n|th ID code digit  |  m
+            |                       |                       |
+            \-----------------------------------------------|
+            */
+
+            if(type_of_carrier_info==CARRIER_INFO_TYPE_OF_CARRIER_CARID){
+                digits_item = proto_tree_add_text(type_of_carrier_tree, parameter_tvb,offset, -1,"Carrier ID Code:");
+                digits_tree = proto_item_add_subtree(digits_item, ett_isup_address_digits);
+
+                offset++;
+                /* Odd.Even Indicator*/
+                odd_even = tvb_get_guint8(parameter_tvb,offset);
+                proto_tree_add_boolean(digits_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, odd_even);
+
+                /* Number of Octets containing digits*/
+                num_octets_with_digits = carrier_info_length - 1;
+
+                /* Lets now load up the digits.*/
+                /* If the odd indicator is set... drop the Filler from the last octet.*/
+                /* This loop also loads up cid_number with the digits for display*/
+                digit_index=0;
+                while(num_octets_with_digits>0){
+                    offset++;
+                    octet = tvb_get_guint8(parameter_tvb,offset);
+                    proto_tree_add_uint(digits_tree, hf_isup_carrier_info_odd_no_digits, parameter_tvb, 0, 1, octet);
+                    cid_number[digit_index++] = number_to_char(octet & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+                    if(num_octets_with_digits==1){
+                        if(odd_even==0){
+                            proto_tree_add_uint(digits_tree, hf_isup_carrier_info_even_no_digits, parameter_tvb, 0, 1, octet);
+                            cid_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+                        }
+                    }
+                    else{
+                        proto_tree_add_uint(digits_tree, hf_isup_carrier_info_even_no_digits, parameter_tvb, 0, 1, octet);
+                        cid_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+                    }
+                    num_octets_with_digits --;
+                }
+                cid_number[digit_index++] = '\0';
+                proto_item_set_text(digits_item, "Carrier ID Code : %s", cid_number);
+            }
+        }
+
+        offset++;
+        length = tvb_length_remaining(parameter_tvb, offset);
+    }
+
+    /* Write to top of tree */
+    proto_item_set_text(parameter_item, "Carrier Information");
+
+}
+
+
+/* ----------------------------------------------------
+  Dissector Parameter Optional .Additional User Information
+
+   8     7     6     5     4     3     2    1
++-----------------------------------------------+
+|     Type of additional user/service           |  1
+|     information (1)                           |
++-----------------------------------------------+
+|     Additional user/service information (1)   |  2
+|                                               |
++-----------------------------------------------+
+ .                                              .
+ .                                              .
+ .                                              .
++-----------------------------------------------+
+|      Type of additional user/service          |  2n|1
+|      information (n)                          |
++-----------------------------------------------+
+|      Additional user/service information (n)  |  2n
+|                                               |
+\------------------------------------------------
+*/
+
+static void
+dissect_isup_add_user_cat(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+    guint8 octet;
+
+    gint offset=0;
+    gint length=0;
+
+    length = tvb_length_remaining(parameter_tvb, offset);
+
+    while(length>0){
+        /*Octet 1 : Indicator*/
+        octet = tvb_get_guint8(parameter_tvb, offset);
+        proto_tree_add_uint(parameter_tree, hf_isup_add_user_cat_type_of_info, parameter_tvb, 0, 1, octet);
+
+        if(octet==ADD_USER_CAT_TYPE1){
+            offset++;
+            octet = tvb_get_guint8(parameter_tvb, offset);
+            proto_tree_add_uint(parameter_tree, hf_isup_add_user_cat_type1, parameter_tvb, 0, 1, octet);
+        }
+        if(octet==ADD_USER_CAT_TYPE1_FIXED){
+            offset++;
+            octet = tvb_get_guint8(parameter_tvb, offset);
+            proto_tree_add_uint(parameter_tree, hf_isup_add_user_cat_type1_fixed, parameter_tvb, 0, 1, octet);
+        }
+        if(octet==ADD_USER_CAT_TYPE2){
+            offset++;
+            octet = tvb_get_guint8(parameter_tvb, offset);
+            proto_tree_add_uint(parameter_tree, hf_isup_add_user_cat_type2, parameter_tvb, 0, 1, octet);
+        }
+        if(octet==ADD_USER_CAT_TYPE3){
+            offset++;
+            octet = tvb_get_guint8(parameter_tvb, offset);
+            proto_tree_add_uint(parameter_tree, hf_isup_add_user_cat_type3, parameter_tvb, 0, 1, octet);
+        }
+        offset++;
+        length = tvb_length_remaining(parameter_tvb, offset);
+    }
+
+    /* Write to top of tree */
+    proto_item_set_text(parameter_item, "Additional User Category");
+}
+
+
+/* ----------------------------------------------------
+  Dissector Parameter Optional .Charge Area Information
+
+  8     7     6     5     4     3     2     1
++-----+-----------------------------------------+
+|Odd/ |     Nature of information indicator     |  1
+|even |                                         |
++-----------------------------------------------+
+| 2nd NC digit          | 1st NC digit          |  2 ||
+|                       |                       |     | see
++-----------------------+-----------------------+     | Note
+|  4th NC digit         | 3rd NC digit          |  3 ||
+|                       |                       |
++-----------------------+-----------------------+
+| 2nd MA/CA code digit  | 1st MA/CA code digit  |  4
+|                       |                       |
++-----------------------+-----------------------+
+ .                      .                       .
+ .                      .                       .
+ .                      .                       .
++-----------------------+-----------------------+
+| Filler (if necessary) | nth MA/CA code digit  |  m
+|                       |                       |
+\-----------------------------------------------|
+*/
+static void
+dissect_isup_charge_area_info(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+    proto_item *digits_item;
+    proto_tree *digits_tree;
+
+    guint8 octet;
+
+    gint nat_of_info_indic =0;
+    gint length=0;
+    gint offset=0;
+    gint odd_even=0;
+    gint digit_index=0;
+
+    char ca_number[MAXDIGITS + 1]="";
+
+    /*Octet 1 : Indicator*/
+    octet = tvb_get_guint8(parameter_tvb, 0);
+    nat_of_info_indic = octet & 0x7F;
+    odd_even = octet & 0x80;
+    proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, octet);
+    proto_tree_add_uint(parameter_tree, hf_japan_isup_charge_area_nat_of_info_value, parameter_tvb, 0, 1, octet);
+
+    offset=1;
+    length = tvb_length_remaining(parameter_tvb, offset);
+
+    /*Only CA code digits.*/
+    if(nat_of_info_indic==CHARGE_AREA_NAT_INFO_CA){
+        digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,offset, -1,"Charge Area:");
+        digits_tree = proto_item_add_subtree(digits_item, ett_isup_address_digits);
+
+        while(length>0){
+            octet = tvb_get_guint8(parameter_tvb,offset);
+            proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_odd_no_digits, parameter_tvb, 0, 1, octet);
+            ca_number[digit_index++] = number_to_char(octet & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+            if(length==1){
+                if(odd_even==0){
+                    proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_even_no_digits, parameter_tvb, 0, 1, octet);
+                    ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+                }
+            }
+            else{
+                proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_even_no_digits, parameter_tvb, 0, 1, octet);
+                ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+            }
+            offset++;
+            length --;
+        }
+        ca_number[digit_index++] = '\0';
+        proto_item_set_text(digits_item, "Charge Area : %s", ca_number);
+    }
+    /*Only MA code digits.*/
+    if(nat_of_info_indic==CHARGE_AREA_NAT_INFO_MA){
+        digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,offset, -1,"Message Area:");
+        digits_tree = proto_item_add_subtree(digits_item, ett_isup_address_digits);
+
+        /* First two octets contains*/
+        /* four NC digits*/
+        octet = tvb_get_guint8(parameter_tvb,offset);
+        proto_tree_add_uint(digits_tree, hf_japan_isup_charging_info_nc_odd_digits, parameter_tvb, 0, 1, octet);
+        proto_tree_add_uint(digits_tree, hf_japan_isup_charging_info_nc_even_digits, parameter_tvb, 0, 1, octet);
+        octet++;
+        octet = tvb_get_guint8(parameter_tvb,offset);
+        proto_tree_add_uint(digits_tree, hf_japan_isup_charging_info_nc_odd_digits, parameter_tvb, 0, 1, octet);
+        proto_tree_add_uint(digits_tree, hf_japan_isup_charging_info_nc_even_digits, parameter_tvb, 0, 1, octet);
+        octet++;
+
+        /* Now loop through MA/CA digits.*/
+        length = tvb_length_remaining(parameter_tvb, offset);
+
+        while(length>0){
+            octet = tvb_get_guint8(parameter_tvb,offset);
+            proto_tree_add_uint(digits_tree, hf_isup_charging_info_maca_odd_digits, parameter_tvb, 0, 1, octet);
+            if(length==1){
+                if(odd_even==0){
+                    proto_tree_add_uint(digits_tree, hf_isup_charging_info_maca_even_digits, parameter_tvb, 0, 1, octet);
+                }
+            }
+            else{
+                proto_tree_add_uint(digits_tree, hf_isup_charging_info_maca_even_digits, parameter_tvb, 0, 1, octet);
+            }
+            offset++;
+            length --;
+        }
+
+    }
+
+    /* Write to top of tree */
+    proto_item_set_text(parameter_item, "Charge Area Information");
+}
+/* END Japan ISUP */
+
 /* ------------------------------------------------------------------
   Dissector all optional parameters
 */
@@ -6370,11 +7266,24 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
                                            "Parameter: type %u",
                                            parameter_type);
       parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
-      proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, optional_parameters_tvb, offset, PARAMETER_TYPE_LENGTH,
+      /* Handle national extensions here */
+      switch(itu_isup_variant) {
+        case ISUP_JAPAN_VARIANT:
+            proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, optional_parameters_tvb, offset, PARAMETER_TYPE_LENGTH,
+                                 parameter_type,
+                                 "Optional Parameter: %u (%s)",
+                                 parameter_type,
+                                 val_to_str_ext_const(parameter_type, &japan_isup_parameter_type_value_ext,"unknown"));
+            break;
+        default:
+            proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, optional_parameters_tvb, offset, PARAMETER_TYPE_LENGTH,
                                  parameter_type,
                                  "Optional Parameter: %u (%s)",
                                  parameter_type,
                                  val_to_str_ext_const(parameter_type, &isup_parameter_type_value_ext,"unknown"));
+            break;
+
+      }
       offset += PARAMETER_TYPE_LENGTH;
 
       octet = tvb_get_guint8(optional_parameters_tvb,offset);
@@ -6634,7 +7543,27 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
             break;
 
           default:
-            dissect_isup_unknown_parameter(parameter_tvb, parameter_item);
+            switch(itu_isup_variant) {
+            case ISUP_JAPAN_VARIANT:
+                switch (parameter_type) {
+                case JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO:
+                    dissect_japan_isup_carrier_information(parameter_tvb, parameter_tree, parameter_item);
+                    break;
+                case JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT:
+                    dissect_isup_add_user_cat(parameter_tvb, parameter_tree, parameter_item);
+                    break;
+                case JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO:
+                    dissect_isup_charge_area_info(parameter_tvb, parameter_tree, parameter_item);
+                    break;
+                default:
+                    dissect_isup_unknown_parameter(parameter_tvb, parameter_item);
+                    break;
+                }
+                break;
+            default:
+                dissect_isup_unknown_parameter(parameter_tvb, parameter_item);
+                break;
+            }
             break;
         }
 
@@ -7957,6 +8886,7 @@ dissect_israeli_traffic_change_message(tvbuff_t *message_tvb, proto_tree *isup_t
     return offset;
 }
 
+
 /* ------------------------------------------------------------------ */
 static void
 dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree, guint8 itu_isup_variant)
@@ -8272,6 +9202,12 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
                                  val_to_str_ext_const(message_type, &russian_isup_message_type_value_ext, "reserved"),
                                  message_type);
       break;
+  case ISUP_JAPAN_VARIANT:
+      proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
+                                 "Message type: %s (%u)",
+                                 val_to_str_ext_const(message_type, &japan_isup_message_type_value_ext, "reserved"),
+                                 message_type);
+      break;
   }
 
   offset +=  MESSAGE_TYPE_LENGTH;
@@ -8546,7 +9482,24 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
               break;
           }
           break;
-      }
+        case ISUP_JAPAN_VARIANT:
+          switch (message_type) {
+            case MESSAGE_TYPE_JAPAN_CHARG_INF:
+              /* TODO: Add dissection here */
+              bufferlength = tvb_length_remaining(message_tvb, offset);
+              if (bufferlength != 0)
+                proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength,
+                                    "Not dissected yet");
+              break;
+            default:
+              bufferlength = tvb_length_remaining(message_tvb, offset);
+              if (bufferlength != 0)
+                proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength,
+                                    "Unknown Message type (possibly reserved/used in former ISUP version)");
+              break;
+          }
+          break;
+      } /* switch(itu_isup_variant) */
       break;
   }
 
@@ -8636,6 +9589,10 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case ISUP_RUSSIAN_VARIANT:
           col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(Russian)");
           used_value_string_ext = &russian_isup_message_type_value_acro_ext;
+          break;
+        case ISUP_JAPAN_VARIANT:
+          col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(Japan)");
+          used_value_string_ext = &japan_isup_message_type_value_acro_ext;
           break;
         default:
           col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ITU)");
@@ -9845,6 +10802,111 @@ proto_register_isup(void)
       { "Next Rate",  "isup.israeli.next_ratej",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
+    /* Japan ISUP */
+
+    /* CHARGE AREA INFORMATION */
+
+    { &hf_japan_isup_charge_area_nat_of_info_value,
+      {"Nature of Information indicator",  "isup.charg_area_info.oddeven_indic",
+       FT_UINT8, BASE_DEC, VALS(isup_charge_area_info_nat_of_info_value), 0x7F,
+       NULL, HFILL }},
+
+    { &hf_japan_isup_charging_info_nc_odd_digits,
+      {"NC ",  "isup.charg_area_info.nc_odd_digit",
+      FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0x0F,
+      NULL, HFILL }},
+
+    { &hf_japan_isup_charging_info_nc_even_digits,
+      {"NC ",  "isup.charg_area_info.nc_even_digit",
+      FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0xF0,
+      NULL, HFILL }},
+
+    { &hf_isup_charging_info_maca_odd_digits,
+      {"MA/CA ",  "isup.charg_area_info.maca_odd_digit",
+      FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0x0F,
+      NULL, HFILL }},
+
+    { &hf_isup_charging_info_maca_even_digits,
+      {"MA/CA ",  "isup.charg_area_info.maca_even_digit",
+      FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0xF0,NULL, HFILL }},
+
+    /* ADDITIONAL USER CATEGORY */
+    { &hf_isup_add_user_cat_type_of_info,
+      {"Info Type ",  "isup.add_user_cat.type_of_info",
+      FT_UINT8, BASE_DEC, VALS(isup_add_user_cat_type_value), 0x00,
+      NULL, HFILL }},
+
+    { &hf_isup_add_user_cat_type1,
+      {" ",  "isup.add_user_cat.type1_info",
+      FT_UINT8, BASE_DEC, VALS(isup_add_user_cat_type1_value), 0xFF,
+      NULL, HFILL }},
+
+    { &hf_isup_add_user_cat_type1_fixed,
+      {"Type 1 Fixed",  "isup.add_user_cat.type1_fixed_info",
+      FT_UINT8, BASE_DEC, VALS(isup_add_user_cat_type1_fixed_value), 0xFF,
+      NULL, HFILL }},
+
+    { &hf_isup_add_user_cat_type2,
+      {" ",  "isup.add_user_cat.type2_info",
+      FT_UINT8, BASE_DEC, VALS(isup_add_user_cat_type2_value), 0xFF,
+      NULL, HFILL }},
+
+    { &hf_isup_add_user_cat_type3,
+      {" ",  "isup.add_user_cat.type3_info",
+      FT_UINT8, BASE_DEC, NULL, 0xFF,
+      NULL, HFILL }},
+
+    /* CARRIER INFORMATION */
+
+    { &hf_isup_carrier_info_iec,
+      {"IEC Indicator","isup.carrier_info.iec",
+      FT_UINT8, BASE_DEC, VALS(isup_carrier_info_iec_indic_value), 0x00,
+      NULL,HFILL }},
+
+    { &hf_isup_carrier_info_cat_of_carrier,
+      {"Category of Carrier","isup.carrier_info.cat_of_carrier",
+      FT_UINT8, BASE_HEX, VALS(isup_carrier_info_category_value), 0x00,
+      NULL,HFILL }},
+
+    { &hf_isup_carrier_info_length_of_carrierX,
+      {"Length of Category Information","isup.carrier_info.length_of_cat",
+      FT_UINT8, BASE_DEC, NULL, 0xFF,
+      NULL,HFILL }},
+
+    { &hf_isup_carrier_info_type_of_carrier_info,
+      {"Type of Carrier","isup.carrier_info.type_of_carrier",
+      FT_UINT8, BASE_HEX, VALS(isup_carrier_info_type_of_carrier_value), 0x00,
+      NULL,HFILL }},
+
+    { &hf_isup_carrier_info_odd_no_digits,
+      {"CID ",  "isup.carrier_info.cid_odd_digit",
+      FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0x0F,
+      NULL, HFILL }},
+
+    { &hf_isup_carrier_info_even_no_digits,
+      {"CID ",  "isup.carrier_info.cid_even_digit",
+      FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0xF0,
+      NULL, HFILL }},
+
+    { &hf_isup_carrier_info_ca_odd_no_digits,
+      {"CA ",  "isup.carrier_info.ca_odd_digit",
+      FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0x0F,
+      NULL, HFILL }},
+
+    { &hf_isup_carrier_info_ca_even_no_digits,
+      {"CA ",  "isup.carrier_info.ca_even_digit",
+      FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0xF0,
+      NULL, HFILL }},
+
+    { &hf_isup_carrier_info_poi_exit_HEI,
+      {"Exit POI Hierarchy",  "isup.carrier_info_exit_hierarchy",
+      FT_UINT8, BASE_DEC, VALS(isup_carrier_info_poihie_value), 0x0F,
+      NULL, HFILL }},
+
+    { &hf_isup_carrier_info_poi_entry_HEI,
+      {"Entry POI Hierarchy",  "isup.carrier_info_entry_hierarchy",
+      FT_UINT8, BASE_DEC, VALS(isup_carrier_info_poihie_value), 0xF0,
+      NULL, HFILL }}
   };
 
 /* Setup protocol subtree array */
@@ -9852,6 +10914,7 @@ proto_register_isup(void)
     &ett_isup,
     &ett_isup_parameter,
     &ett_isup_address_digits,
+    &ett_isup_carrier_info,
     &ett_isup_pass_along_message,
     &ett_isup_circuit_state_ind,
     &ett_bat_ase,
@@ -9865,9 +10928,10 @@ proto_register_isup(void)
 
   static enum_val_t isup_variants[] = {
     {"ITU Standard",              "ITU Standard",              ISUP_ITU_STANDARD_VARIANT},
-    {"French national Standard",  "French national Standard",  ISUP_FRENCH_VARIANT},
-    {"Israeli national Standard", "Israeli national Standard", ISUP_ISRAELI_VARIANT},
-    {"Russian national Standard", "Russian national Standard", ISUP_RUSSIAN_VARIANT},
+    {"French National Standard",  "French National Standard",  ISUP_FRENCH_VARIANT},
+    {"Israeli National Standard", "Israeli National Standard", ISUP_ISRAELI_VARIANT},
+    {"Russian National Standard", "Russian National Standard", ISUP_RUSSIAN_VARIANT},
+    {"Japan National Standard",   "Japan National Standard",   ISUP_JAPAN_VARIANT},
     {NULL, NULL, -1}
   };
 
