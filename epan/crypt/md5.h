@@ -1,6 +1,7 @@
 /* $Id$ */
 /* 
  * Copyright (C) 2003-2005 Benny Prijono <benny@prijono.org>
+ * Copyright (C) 2012      C Elston, Katalix Systems Ltd <celston@katalix.com>
  *
  * MD5 code from pjlib-util http://www.pjsip.org
  *
@@ -17,6 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 
+ *  2012-08-21 - C Elston - Split md5_hmac function to allow incremental usage.
+ *
  */
 #ifndef __MD5_H__ /**@todo Should this be _CRYPT_MD5_H__ ?*/
 #define __MD5_H__
@@ -61,8 +65,22 @@ void md5_append( md5_state_t *pms,
  */
 void md5_finish(md5_state_t *pms, guint8 digest[16]);
 
+typedef struct md5_hmac_state_s
+{
+    md5_state_t ctx;
+    guint8 k_opad[65];
+} md5_hmac_state_t;
 
-void md5_hmac(const guint8* text, size_t text_len, const guint8* key, size_t key_len, guint8 digest[16]);
+void md5_hmac_init(md5_hmac_state_t *hctx,
+                   const guint8* key, size_t key_len);
+
+void md5_hmac_append(md5_hmac_state_t *hctx,
+                     const guint8* text, size_t text_len);
+
+void md5_hmac_finish(md5_hmac_state_t *hctx, guint8 digest[16]);
+
+void md5_hmac(const guint8* text, size_t text_len, const guint8* key,
+              size_t key_len, guint8 digest[16]);
 
 /*
  * @}

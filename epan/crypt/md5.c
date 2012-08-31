@@ -1,6 +1,7 @@
 /* $Id$ */
 /*
  * Copyright (C) 2003-2006 Benny Prijono <benny@prijono.org>
+ * Copyright (C) 2012      C Elston, Katalix Systems Ltd <celston@katalix.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,6 +20,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * 
+ *  2012-08-21 - C Elston - Split md5_hmac function to allow incremental usage.
+ *
  */
 
 
@@ -280,85 +284,81 @@ static void MD5Transform(guint32 buf[4], guint32 const in[16])
     buf[3] += d;
 }
 
-
-#define MD5_CTX md5_state_t
-#define MD5Init md5_init
-#define MD5Update md5_append
-#define MD5Final(c,s) md5_finish((s), (c))
-
 /* from RFC 2104 HMAC  Appendix -- Sample Code */
 
-/*
- ** Function: hmac_md5
- */
+void md5_hmac_init(md5_hmac_state_t *hctx, const guint8* key, size_t key_len)
+{
+    guint8 k_ipad[65];    /* inner padding - * key XORd with ipad */
+    guint8 tk[16];
+    int i;
 
-void md5_hmac(const guint8* text, size_t text_len, const guint8* key, size_t key_len, guint8 digest[16]) {
-	MD5_CTX context;
-	guint8 k_ipad[65];    /* inner padding -
-		* key XORd with ipad
-		*/
-	guint8 k_opad[65];    /* outer padding -
-		* key XORd with opad
-		*/
-	guint8 tk[16];
-	int i;
-	/* if key is longer than 64 bytes reset it to key=MD5(key) */
-	if (key_len > 64) {
+    /* if key is longer than 64 bytes reset it to key=MD5(key) */
+    if (key_len > 64) {
+        md5_state_t tctx;
 
-		MD5_CTX      tctx;
+        md5_init(&tctx);
+        md5_append(&tctx, key, key_len);
+        md5_finish(&tctx, tk);
 
-		MD5Init(&tctx);
-		MD5Update(&tctx, key, key_len);
-		MD5Final(tk, &tctx);
+        key = tk;
+        key_len = 16;
+    }
 
-		key = tk;
-		key_len = 16;
-	}
+    /*
+     * the HMAC_MD5 transform looks like:
+     *
+     * MD5(K XOR opad, MD5(K XOR ipad, text))
+     *
+     * where K is an n byte key
+     * ipad is the byte 0x36 repeated 64 times
+     * opad is the byte 0x5c repeated 64 times
+     * and text is the data being protected
+     */
 
-	/*
-	 * the HMAC_MD5 transform looks like:
-	 *
-	 * MD5(K XOR opad, MD5(K XOR ipad, text))
-	 *
-	 * where K is an n byte key
-	 * ipad is the byte 0x36 repeated 64 times
+    /* start out by storing key in pads */
+    memset(k_ipad, 0, sizeof(k_ipad));
+    memset(hctx->k_opad, 0, sizeof(hctx->k_opad));
+    memcpy(k_ipad, key, key_len);
+    memcpy(hctx->k_opad, key, key_len);
 
+    /* XOR key with ipad and opad values */
+    for (i=0; i<64; i++) {
+        k_ipad[i] ^= 0x36;
+        hctx->k_opad[i] ^= 0x5c;
+    }
 
+    /*
+     * perform inner MD5
+     */
+    md5_init(&hctx->ctx);                   /* init context for 1st  pass */
+    md5_append(&hctx->ctx, k_ipad, 64);     /* start with inner pad */
+}
 
-	 Krawczyk, et. al.            Informational                      [Page 8]
+void md5_hmac_append(md5_hmac_state_t *hctx, const guint8* text, size_t text_len)
+{
+    md5_append(&hctx->ctx, text, text_len);
+}
 
-	 RFC 2104                          HMAC                     February 1997
+void md5_hmac_finish(md5_hmac_state_t *hctx, guint8 digest[16])
+{
+    md5_state_t context;
 
+    md5_finish(&hctx->ctx, digest);          /* finish up 1st pass */
 
-	 * opad is the byte 0x5c repeated 64 times
-	 * and text is the data being protected
-	 */
+    /*
+     * perform outer MD5
+     */
+    md5_init(&context);                     /* init context for 2nd pass */
+    md5_append(&context, hctx->k_opad, 64); /* start with outer pad */
+    md5_append(&context, digest, 16);       /* then results of 1st hash */
+    md5_finish(&context, digest);           /* finish up 2nd pass */
+}
 
-	/* start out by storing key in pads */
-	memset(k_ipad, 0, sizeof(k_ipad));
-	memset(k_opad, 0, sizeof(k_opad));
-	memcpy(k_ipad, key, key_len);
-	memcpy(k_opad, key, key_len);
+void md5_hmac(const guint8* text, size_t text_len, const guint8* key, size_t key_len, guint8 digest[16])
+{
+    md5_hmac_state_t hctx;
 
-	/* XOR key with ipad and opad values */
-	for (i=0; i<64; i++) {
-		k_ipad[i] ^= 0x36;
-		k_opad[i] ^= 0x5c;
-	}
-	/*
-	 * perform inner MD5
-	 */
-	MD5Init(&context);                   /* init context for 1st  pass */
-	MD5Update(&context, k_ipad, 64);      /* start with inner pad */
-	MD5Update(&context, text, text_len); /* then text of datagram */
-	MD5Final(digest, &context);          /* finish up 1st pass */
-	/*
-	 * perform outer MD5
-	 */
-	MD5Init(&context);                   /* init context for 2nd
-		* pass */
-	MD5Update(&context, k_opad, 64);     /* start with outer pad */
-	MD5Update(&context, digest, 16);     /* then results of 1st
-		* hash */
-	MD5Final(digest, &context);          /* finish up 2nd pass */
+    md5_hmac_init(&hctx, key, key_len);
+    md5_hmac_append(&hctx, text, text_len);
+    md5_hmac_finish(&hctx, digest);
 }
