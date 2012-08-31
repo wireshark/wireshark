@@ -457,6 +457,11 @@ void MainWindow::openRecentCaptureFile(QString &cfPath)
     main_ui_->statusBar->showExpert();
 }
 
+void MainWindow::on_actionFileOpen_triggered() {
+    openRecentCaptureFile();
+}
+
+
 void MainWindow::on_actionFileClose_triggered() {
     cf_close(&cfile);
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
@@ -470,6 +475,7 @@ void MainWindow::recentActionTriggered() {
         openRecentCaptureFile(cfPath);
     }
 }
+
 
 void MainWindow::on_actionGoGoToPacket_triggered() {
     if (packet_list_->model()->rowCount() < 1) {

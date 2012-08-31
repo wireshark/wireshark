@@ -80,6 +80,7 @@ public slots:
 private slots:
     void updateRecentFiles();
     void openRecentCaptureFile(QString& cfPath = *new QString());
+    void on_actionFileOpen_triggered();
     void on_actionFileClose_triggered();
     void recentActionTriggered();
     void on_actionGoGoToPacket_triggered();
