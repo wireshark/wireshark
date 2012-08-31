@@ -65,6 +65,11 @@
 #include <epan/ipproto.h>
 #include <epan/sminmpec.h>
 #include <epan/prefs.h>
+#include <epan/conversation.h>
+#include <epan/crypt/md5.h>
+#include <epan/crypt/sha1.h>
+#include <epan/expert.h>
+#include <epan/proto.h>
 
 static int proto_l2tp = -1;
 static int hf_l2tp_type = -1;
@@ -603,6 +608,196 @@ static dissector_handle_t mp2t_handle;
 static dissector_handle_t ehdlc_handle;
 static dissector_handle_t data_handle;
 
+static dissector_handle_t l2tp_udp_handle;
+static dissector_handle_t l2tp_ip_handle;
+
+#define L2TP_HMAC_MD5  0
+#define L2TP_HMAC_SHA1 1
+#define L2TP_HMAC_MD5_KEY_LEN 16
+#define L2TP_HMAC_MD5_DIGEST_LEN 16
+#define L2TP_HMAC_SHA1_DIGEST_LEN 20
+
+typedef struct l2tp_conversation_data {
+    guint8 *rq_nonce;
+    int rq_nonce_len;
+    address lac;
+    guint8 *rp_nonce;
+    int rp_nonce_len;
+    address lns;
+    gchar* shared_key_secret;
+    guint8 shared_key[L2TP_HMAC_MD5_KEY_LEN];
+} l2tp_conversation_data_t;
+
+static const gchar* shared_secret = "";
+
+static void update_shared_key(l2tp_conversation_data_t *pdata)
+{
+    /* If there's no shared key in the conversation context, or the secret has been changed */
+    if (pdata->shared_key_secret == NULL || strcmp(shared_secret, pdata->shared_key_secret) != 0) {
+        /* For secret specification, see RFC 3931 pg 37 */
+        guint8 data = 2;
+        md5_hmac(&data, 1, shared_secret, strlen(shared_secret), pdata->shared_key);
+        pdata->shared_key_secret = se_strdup(shared_secret);
+    }
+}
+
+static void md5_hmac_digest(l2tp_conversation_data_t *pdata,
+                            tvbuff_t *tvb,
+                            int length,
+                            int idx,
+                            int avp_len,
+                            int msg_type,
+                            packet_info *pinfo,
+                            guint8 digest[20])
+{
+    guint8 zero[L2TP_HMAC_MD5_DIGEST_LEN];
+    md5_hmac_state_t ms;
+    int remainder;
+
+    md5_hmac_init(&ms, pdata->shared_key, L2TP_HMAC_MD5_KEY_LEN);
+
+    if (msg_type != MESSAGE_TYPE_SCCRQ) {
+        if (ADDRESSES_EQUAL(&pdata->lac, &pinfo->src)) {
+            md5_hmac_append(&ms, pdata->rq_nonce, pdata->rq_nonce_len);
+            md5_hmac_append(&ms, pdata->rp_nonce, pdata->rp_nonce_len);
+        } else {
+            md5_hmac_append(&ms, pdata->rp_nonce, pdata->rp_nonce_len);
+            md5_hmac_append(&ms, pdata->rq_nonce, pdata->rq_nonce_len);
+        }
+    }
+
+    md5_hmac_append(&ms, tvb_get_ptr(tvb, 0, idx + 1), idx + 1);
+    /* Message digest is calculated with an empty message digest field */
+    memset(zero, 0, L2TP_HMAC_MD5_DIGEST_LEN);
+    md5_hmac_append(&ms, zero, avp_len - 1);
+    remainder = length - (idx + avp_len);
+    md5_hmac_append(&ms, tvb_get_ptr(tvb, idx + avp_len, remainder), remainder);
+    md5_hmac_finish(&ms, digest);
+}
+
+static void sha1_hmac_digest(l2tp_conversation_data_t *pdata,
+                             tvbuff_t *tvb,
+                             int length,
+                             int idx,
+                             int avp_len,
+                             int msg_type,
+                             packet_info *pinfo,
+                             guint8 digest[20])
+{
+    guint8 zero[L2TP_HMAC_SHA1_DIGEST_LEN];
+    sha1_hmac_context ms;
+    int remainder;
+
+    sha1_hmac_starts(&ms, pdata->shared_key, L2TP_HMAC_MD5_KEY_LEN);
+
+    if (msg_type != MESSAGE_TYPE_SCCRQ) {
+        if (ADDRESSES_EQUAL(&pdata->lac, &pinfo->src)) {
+            sha1_hmac_update(&ms, pdata->rq_nonce, pdata->rq_nonce_len);
+            sha1_hmac_update(&ms, pdata->rp_nonce, pdata->rp_nonce_len);
+        } else {
+            sha1_hmac_update(&ms, pdata->rp_nonce, pdata->rp_nonce_len);
+            sha1_hmac_update(&ms, pdata->rq_nonce, pdata->rq_nonce_len);
+        }
+    }
+
+    sha1_hmac_update(&ms, tvb_get_ptr(tvb, 0, idx + 1), idx + 1);
+    /* Message digest is calculated with an empty message digest field */
+    memset(zero, 0, L2TP_HMAC_SHA1_DIGEST_LEN);
+    sha1_hmac_update(&ms, zero, avp_len - 1);
+    remainder = length - (idx + avp_len);
+    sha1_hmac_update(&ms, tvb_get_ptr(tvb, idx + avp_len, remainder), remainder);
+    sha1_hmac_finish(&ms, digest);
+}
+
+static int check_control_digest(conversation_t *conversation,
+                                tvbuff_t *tvb,
+                                int length,
+                                int idx,
+                                int avp_len,
+                                int msg_type,
+                                packet_info *pinfo)
+{
+    l2tp_conversation_data_t *pdata = NULL;
+    guint8 digest[L2TP_HMAC_SHA1_DIGEST_LEN];
+
+    if (!conversation)
+        return 1;
+
+    pdata = (l2tp_conversation_data_t *)conversation_get_proto_data(conversation, proto_l2tp);
+    if (!pdata)
+        return 1;
+
+    if (!pdata->rq_nonce || !pdata->rp_nonce)
+        return 1;
+
+    update_shared_key(pdata);
+
+    switch (tvb_get_guint8(tvb, idx)) {
+        case L2TP_HMAC_MD5:
+            md5_hmac_digest(pdata, tvb, length, idx, avp_len, msg_type, pinfo, digest);
+            break;
+        case L2TP_HMAC_SHA1:
+            sha1_hmac_digest(pdata, tvb, length, idx, avp_len, msg_type, pinfo, digest);
+            break;
+        default:
+            return 1;
+            break;
+    }
+
+    if (memcmp(digest, tvb_get_ptr(tvb, idx + 1, avp_len - 1), avp_len - 1) != 0)
+        return -1;
+
+    return 0;
+}
+
+static void store_cma_nonce(conversation_t *conversation,
+                            tvbuff_t *tvb,
+                            int offset,
+                            int length,
+                            int msg_type,
+                            packet_info *pinfo)
+{
+    l2tp_conversation_data_t *pdata = NULL;
+    guint8 *nonce = NULL;
+
+    if (!conversation)
+        return;
+
+    pdata = (l2tp_conversation_data_t *)conversation_get_proto_data(conversation, proto_l2tp);
+
+    if (!pdata) {
+        pdata = se_alloc(sizeof(l2tp_conversation_data_t));
+        pdata->shared_key_secret = pdata->rq_nonce = pdata->rp_nonce = NULL;
+        conversation_add_proto_data(conversation, proto_l2tp, (void *)pdata);
+    }
+    
+    switch (msg_type) {
+        case MESSAGE_TYPE_SCCRQ:
+            if (!pdata->rq_nonce) {
+                pdata->rq_nonce = se_alloc(length);
+                pdata->rq_nonce_len = length;
+                nonce = pdata->rq_nonce;
+                SE_COPY_ADDRESS(&pdata->lac, &pinfo->src)
+            }
+            break;
+        case MESSAGE_TYPE_SCCRP:
+            if (!pdata->rp_nonce) {
+                pdata->rp_nonce = se_alloc(length);
+                pdata->rp_nonce_len = length;
+                nonce = pdata->rp_nonce;
+                SE_COPY_ADDRESS(&pdata->lns, &pinfo->src)
+            }
+            break;
+        default:
+            break;
+    }
+
+    if (nonce)
+        tvb_memcpy(tvb, (void *)nonce, offset, length);
+    
+    return;
+}
+
 /*
  * Processes AVPs for Control Messages all versions and transports
  */
@@ -610,12 +805,13 @@ static void process_control_avps(tvbuff_t *tvb,
                                  packet_info *pinfo,
                                  proto_tree *l2tp_tree,
                                  int idx,
-                                 int length)
+                                 int length,
+                                 conversation_t *conversation)
 {
     proto_tree *l2tp_lcp_avp_tree, *l2tp_avp_tree, *l2tp_avp_tree_sub;
     proto_item *tf, *te;
 
-    int         msg_type;
+    int         msg_type  = 0;
     gboolean    isStopCcn = FALSE;
     int         avp_type;
     guint32     avp_vendor_id;
@@ -1228,10 +1424,19 @@ static void process_control_avps(tvbuff_t *tvb,
             break;
 
         case MESSAGE_DIGEST:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
+        {
+            int ret;
+            proto_item *item;
+
+            item = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
                                 "Message Digest: %s",
                                 tvb_bytes_to_str(tvb, idx, avp_len));
+
+            ret = check_control_digest(conversation, tvb, length, idx, avp_len, msg_type, pinfo);
+            if (ret < 0)
+                expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_WARN, "Incorrect Digest");
             break;
+        }
         case ROUTER_ID:
             proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
                                 "Router ID: %u",
@@ -1312,6 +1517,7 @@ static void process_control_avps(tvbuff_t *tvb,
             proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
                                 "Nonce: %s",
                                 tvb_bytes_to_str(tvb, idx, avp_len));
+            store_cma_nonce(conversation, tvb, idx, avp_len, msg_type, pinfo);
             break;
         case TX_CONNECT_SPEED_V3:
         {
@@ -1589,7 +1795,7 @@ process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * to then call process_control_avps after dissecting the control.
  */
 static void
-process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int baseIdx)
+process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int baseIdx, conversation_t *conversation)
 {
     proto_tree *l2tp_tree = NULL, *ctrl_tree;
     proto_item *l2tp_item = NULL, *ti;
@@ -1714,7 +1920,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
         return;
     }
 
-    process_control_avps(tvb, pinfo, l2tp_tree, idx, length+baseIdx);
+    process_control_avps(tvb, pinfo, l2tp_tree, idx, length+baseIdx, conversation);
 }
 
 /*
@@ -1738,6 +1944,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16     msg_type;
     guint16     control;
     tvbuff_t   *next_tvb;
+    conversation_t *conversation = NULL;
 
     /*
      * Don't accept packets that aren't for an L2TP version we know,
@@ -1757,6 +1964,20 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return 0;
     }
 
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
+                         pinfo->srcport, pinfo->destport, NO_PORT_B);
+
+    if (conversation == NULL) {
+        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
+                             pinfo->srcport, pinfo->destport, 0);
+    }
+
+    if ((conversation == NULL) || (conversation->dissector_handle != l2tp_udp_handle)) {
+        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
+                        pinfo->srcport, 0, NO_PORT2);
+        conversation_set_dissector(conversation, l2tp_udp_handle);
+    }
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TP");
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1769,7 +1990,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TPv3");
         if (CONTROL_BIT(control)) {
             /* Call to process l2tp v3 control message */
-            process_l2tpv3_control(tvb, pinfo, tree, 0);
+            process_l2tpv3_control(tvb, pinfo, tree, 0, conversation);
         }
         else {
             /* Call to process l2tp v3 data message */
@@ -1924,7 +2145,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (LENGTH_BIT(control))
-        process_control_avps(tvb, pinfo, l2tp_tree, idx, length);
+        process_control_avps(tvb, pinfo, l2tp_tree, idx, length, conversation);
 
     return tvb_length(tvb);
 }
@@ -1951,7 +2172,7 @@ dissect_l2tp_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (sid == 0) {
         /* This is control message */
         /* Call to process l2tp v3 control message */
-        process_l2tpv3_control(tvb, pinfo, tree, 4);
+        process_l2tpv3_control(tvb, pinfo, tree, 4, NULL); /* TODO: IP conversation */
     }
     else {
         /* Call to process l2tp v3 data message */
@@ -2169,14 +2390,14 @@ proto_register_l2tp(void)
                                    l2tpv3_protocols,
                                    FALSE);
 
+    prefs_register_string_preference(l2tp_module,"shared_secret","Shared Secret",
+                                   "Shared secret used for control message digest authentication",
+                                   &shared_secret);
 }
 
 void
 proto_reg_handoff_l2tp(void)
 {
-    dissector_handle_t l2tp_udp_handle;
-    dissector_handle_t l2tp_ip_handle;
-
     l2tp_udp_handle = new_create_dissector_handle(dissect_l2tp_udp, proto_l2tp);
     dissector_add_uint("udp.port", UDP_PORT_L2TP, l2tp_udp_handle);
 
