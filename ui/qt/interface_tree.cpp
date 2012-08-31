@@ -123,7 +123,6 @@ InterfaceTree::~InterfaceTree() {
 void InterfaceTree::hideEvent(QHideEvent *evt) {
     Q_UNUSED(evt);
 
-    qDebug() << "==== stat cache stop";
     stat_timer_->stop();
     if (stat_cache_) {
         capture_stat_stop(stat_cache_);
@@ -145,7 +144,6 @@ void InterfaceTree::updateStatistics(void) {
     if (!stat_cache_) {
         // Start gathering statistics using dumpcap
         // We crash (on OS X at least) if we try to do this from ::showEvent.
-        qDebug() << "==== stat cache start";
         stat_cache_ = capture_stat_start(&global_capture_opts);
     }
     if (!stat_cache_) return;
