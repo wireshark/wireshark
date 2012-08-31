@@ -4,6 +4,7 @@
  *  $Id$
  *
  *  Copyright (C) 2001-2003  Christophe Devine
+ *  Copyright (C) 2012       Chris Elston, Katalix Systems Ltd <celston@katalix.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +23,8 @@
  *  Changed to use guint instead of uint 2004 by Anders Broman
  *	Original code found at http://www.cr0.net:8040/code/crypto/sha1/
  *  References: http://www.ietf.org/rfc/rfc3174.txt?number=3174
+ *  
+ *  2012-08-21 - C Elston - Split sha1_hmac function to allow incremental usage.
  */
 
 #include <string.h>
@@ -286,47 +289,51 @@ void sha1_finish( sha1_context *ctx, guint8 digest[20] )
     PUT_UINT32( ctx->state[4], digest, 16 );
 }
 
-
-/*
- ** Function: hmac_sha1
- */
-/*
- * Output HMAC-SHA-1(key,buf)
- */
-void sha1_hmac( const guint8 *key, guint32 keylen, const guint8 *buf, guint32 buflen,
-                guint8 digest[20] )
+void sha1_hmac_starts( sha1_hmac_context *hctx, const guint8 *key, guint32 keylen )
 {
     guint32 i;
-    sha1_context ctx;
     guint8 k_ipad[64];
-    guint8 k_opad[64];
-    guint8 tmpbuf[20];
 
     memset( k_ipad, 0x36, 64 );
-    memset( k_opad, 0x5C, 64 );
+    memset( hctx->k_opad, 0x5C, 64 );
 
     for( i = 0; i < keylen; i++ )
     {
         if( i >= 64 ) break;
 
         k_ipad[i] ^= key[i];
-        k_opad[i] ^= key[i];
+        hctx->k_opad[i] ^= key[i];
     }
 
-    sha1_starts( &ctx );
-    sha1_update( &ctx, k_ipad, 64 );
-    sha1_update( &ctx, buf, buflen );
-    sha1_finish( &ctx, tmpbuf );
+    sha1_starts( &hctx->ctx );
+    sha1_update( &hctx->ctx, k_ipad, 64 );
+}
 
-    sha1_starts( &ctx );
-    sha1_update( &ctx, k_opad, 64 );
-    sha1_update( &ctx, tmpbuf, 20 );
-    sha1_finish( &ctx, digest );
+void sha1_hmac_update( sha1_hmac_context *hctx, const guint8 *buf, guint32 buflen )
+{
+    sha1_update( &hctx->ctx, buf, buflen );
+}
 
-    memset( k_ipad, 0, 64 );
-    memset( k_opad, 0, 64 );
-    memset( tmpbuf, 0, 20 );
-    memset( &ctx, 0, sizeof( sha1_context ) );
+void sha1_hmac_finish( sha1_hmac_context *hctx, guint8 digest[20] )
+{
+    guint8 tmpbuf[20];
+
+    sha1_finish( &hctx->ctx, tmpbuf );
+
+    sha1_starts( &hctx->ctx );
+    sha1_update( &hctx->ctx, hctx->k_opad, 64 );
+    sha1_update( &hctx->ctx, tmpbuf, 20 );
+    sha1_finish( &hctx->ctx, digest );
+}
+
+void sha1_hmac( const guint8 *key, guint32 keylen, const guint8 *buf, guint32 buflen,
+                guint8 digest[20] )
+{
+    sha1_hmac_context hctx;
+
+    sha1_hmac_starts( &hctx, key, keylen );
+    sha1_hmac_update( &hctx, buf, buflen );
+    sha1_hmac_finish( &hctx, digest );
 }
 
 #ifdef TEST
