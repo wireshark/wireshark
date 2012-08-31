@@ -239,12 +239,12 @@ void MainWindow::setPipeInputHandler(gint source, gpointer user_data, int *child
        /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
 
     if (pipe_timer_) {
-        disconnect(pipe_timer_, SIGNAL(timeout), this, SLOT(pipeTimeout));
+        disconnect(pipe_timer_, SIGNAL(timeout()), this, SLOT(pipeTimeout()));
         delete pipe_timer_;
     }
 
     pipe_timer_ = new QTimer(this);
-    connect(pipe_timer_, SIGNAL(timeout), this, SLOT(pipeTimeout));
+    connect(pipe_timer_, SIGNAL(timeout()), this, SLOT(pipeTimeout()));
     pipe_timer_->start(200);
 #else
     if (pipe_notifier_) {
