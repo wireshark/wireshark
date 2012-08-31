@@ -245,6 +245,7 @@ void MainWindow::setPipeInputHandler(gint source, gpointer user_data, int *child
 
     pipe_timer_ = new QTimer(this);
     connect(pipe_timer_, SIGNAL(timeout()), this, SLOT(pipeTimeout()));
+    connect(pipe_timer_, SIGNAL(destroyed()), this, SLOT(pipeNotifierDestroyed()));
     pipe_timer_->start(200);
 #else
     if (pipe_notifier_) {
@@ -877,12 +878,13 @@ void MainWindow::pipeTimeout() {
         if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
 
             /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: data avail");*/
-//            pipe_timer_->stop();
 
             /* And call the real handler */
             if (!pipe_input_cb_(pipe_source_, pipe_user_data_)) {
                 g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
                 /* pipe closed, return false so that the old timer is not run again */
+                delete pipe_timer_;
+                return;
             }
         }
         else {
@@ -897,7 +899,9 @@ void MainWindow::pipeTimeout() {
 }
 
 void MainWindow::pipeActivated(int source) {
-#ifndef _WIN32
+#ifdef _WIN32
+    Q_UNUSED(source);
+#else
     g_assert(source == pipe_source_);
 
     pipe_notifier_->setEnabled(false);
@@ -910,7 +914,9 @@ void MainWindow::pipeActivated(int source) {
 }
 
 void MainWindow::pipeNotifierDestroyed() {
-#ifndef _WIN32
+#ifdef _WIN32
+    pipe_timer_ = NULL;
+#else
     pipe_notifier_ = NULL;
 #endif // _WIN32
 }
