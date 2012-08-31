@@ -239,12 +239,12 @@ void MainWindow::setPipeInputHandler(gint source, gpointer user_data, int *child
        /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
 
     if (pipe_timer_) {
-        disconnect(pipe_timer_, SIGNAL(timeout)), this, SLOT(pipeTimeout)));
+        disconnect(pipe_timer_, SIGNAL(timeout), this, SLOT(pipeTimeout));
         delete pipe_timer_;
     }
 
     pipe_timer_ = new QTimer(this);
-    connect(pipe_timer_, SIGNAL(timeout)), this, SLOT(pipeTimeout)));
+    connect(pipe_timer_, SIGNAL(timeout), this, SLOT(pipeTimeout));
     pipe_timer_->start(200);
 #else
     if (pipe_notifier_) {
@@ -849,13 +849,12 @@ void MainWindow::startCapture() {
 }
 
 // Copied from ui/gtk/gui_utils.c
-#ifdef _WIN32
 void MainWindow::pipeTimeout() {
+#ifdef _WIN32
     HANDLE handle;
     DWORD avail = 0;
     gboolean result, result1;
     DWORD childstatus;
-    pipe_input_t *pipe_input = data;
     gint iterations = 0;
 
 
@@ -884,7 +883,6 @@ void MainWindow::pipeTimeout() {
             if (!pipe_input_cb_(pipe_source_, pipe_user_data_)) {
                 g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
                 /* pipe closed, return false so that the old timer is not run again */
-                return FALSE;
             }
         }
         else {
@@ -895,9 +893,11 @@ void MainWindow::pipeTimeout() {
 
         iterations++;
     }
+#endif // _WIN32
 }
-#else
+
 void MainWindow::pipeActivated(int source) {
+#ifndef _WIN32
     g_assert(source == pipe_source_);
 
     pipe_notifier_->setEnabled(false);
@@ -906,13 +906,14 @@ void MainWindow::pipeActivated(int source) {
     } else {
         delete pipe_notifier_;
     }
+#endif // _WIN32
 }
 
 void MainWindow::pipeNotifierDestroyed() {
+#ifndef _WIN32
     pipe_notifier_ = NULL;
+#endif // _WIN32
 }
-
-#endif
 
 void MainWindow::stopCapture() {
 //#ifdef HAVE_AIRPCAP

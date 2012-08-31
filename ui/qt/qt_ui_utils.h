@@ -42,17 +42,17 @@ extern "C" {
 #define RECENT_KEY_CAPTURE_FILE   "recent.capture_file"
 #define RECENT_KEY_REMOTE_HOST "recent.remote_host"
 
-/* Type of capture source */
-typedef enum {
-    CAPTURE_IFLOCAL,        /**< Local network interface */
-    CAPTURE_IFREMOTE        /**< Remote network interface */
-} capture_source;
+///* Type of capture source */
+//typedef enum {
+//    CAPTURE_IFLOCAL,        /**< Local network interface */
+//    CAPTURE_IFREMOTE        /**< Remote network interface */
+//} capture_source;
 
-/* Type of RPCAPD Authentication */
-typedef enum {
-    CAPTURE_AUTH_NULL,      /**< No authentication */
-    CAPTURE_AUTH_PWD        /**< User/password authentication */
-} capture_auth;
+///* Type of RPCAPD Authentication */
+//typedef enum {
+//    CAPTURE_AUTH_NULL,      /**< No authentication */
+//    CAPTURE_AUTH_PWD        /**< User/password authentication */
+//} capture_auth;
 
 struct remote_host_t {
     gchar *remote_host;          /**< Host name or network address for remote capturing */

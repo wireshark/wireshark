@@ -128,12 +128,9 @@ public slots:
 
 private slots:
     void startCapture();
-#ifdef _WIN32
     void pipeTimeout();
-#else
     void pipeActivated(int source);
     void pipeNotifierDestroyed();
-#endif
     void stopCapture();
 
     void updateRecentFiles();

@@ -30,6 +30,8 @@
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 
+#include "capture_opts.h"
+
 #include <epan/prefs.h>
 
 #include <QHash>
