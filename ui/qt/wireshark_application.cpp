@@ -23,15 +23,11 @@
 
 #include "wireshark_application.h"
 
-#include "config.h"
-
-#include "glib.h"
-
 #include <epan/prefs.h>
 
 #include "qt_ui_utils.h"
 
-#include "file.h"
+#include "capture.h"
 #include "log.h"
 #include "recent_file_status.h"
 
@@ -188,6 +184,51 @@ void WiresharkApplication::refreshRecentFiles(void) {
     }
 }
 
+void WiresharkApplication::captureCallback(int event, capture_options * capture_opts)
+{
+    switch(event) {
+    case(capture_cb_capture_prepared):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
+        emit captureCapturePrepared(capture_opts);
+        break;
+    case(capture_cb_capture_update_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
+        emit captureCaptureUpdateStarted(capture_opts);
+        break;
+    case(capture_cb_capture_update_continue):
+        /*g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");*/
+        break;
+    case(capture_cb_capture_update_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
+        emit captureCaptureUpdateFinished(capture_opts);
+        break;
+    case(capture_cb_capture_fixed_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed started");
+        emit captureCaptureFixedStarted(capture_opts);
+        break;
+    case(capture_cb_capture_fixed_continue):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed continue");
+        break;
+    case(capture_cb_capture_fixed_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");
+        emit captureCaptureFixedFinished(capture_opts);
+        break;
+    case(capture_cb_capture_stopping):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
+        /* Beware: this state won't be called, if the capture child
+         * closes the capturing on it's own! */
+        emit captureCaptureStopping(capture_opts);
+        break;
+    case(capture_cb_capture_failed):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture failed");
+        emit captureCaptureFailed(capture_opts);
+        break;
+    default:
+        g_warning("main_capture_callback: event %u unknown", event);
+        g_assert_not_reached();
+    }
+}
+
 void WiresharkApplication::captureFileCallback(int event, void * data)
 {
     capture_file *cf = (capture_file *) data;
@@ -294,9 +335,9 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     }
 #endif // Q_WS_WIN
 
-    recentTimer = new QTimer(this);
-    connect(recentTimer, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
-    recentTimer->start(2000);
+    recent_timer_ = new QTimer(this);
+    connect(recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
+    recent_timer_->start(2000);
 }
 
 QList<recent_item_status *> WiresharkApplication::recent_item_list() const {

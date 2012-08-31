@@ -32,8 +32,21 @@
 
 #include "file.h"
 
+#include "ui/ui_util.h"
+
+#ifdef HAVE_LIBPCAP
+#include "capture_opts.h"
+#endif
+
 #include <QMainWindow>
 #include <QSplitter>
+
+#ifdef _WIN32
+# include <QTimer>
+#else
+# include <QSocketNotifier>
+#endif
+
 #include "main_welcome.h"
 #include "packet_list.h"
 #include "display_filter_combo.h"
@@ -52,37 +65,83 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void setPipeInputHandler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void closeEvent (QCloseEvent *event);
 
 private:
     Ui::MainWindow *main_ui_;
     QMenu *open_recent_menu_;
-    QSplitter *splitter_v_;
+    QSplitter *packet_splitter_;
     MainWelcome *main_welcome_;
     DisplayFilterCombo *df_combo_box_;
     capture_file *cap_file_;
     PacketList *packet_list_;
-
     QWidget *previous_focus_;
+    bool capture_stopping_;
+
+    // Pipe input
+    gint                pipe_source_;
+    gpointer            pipe_user_data_;
+    int                 *pipe_child_process_;
+    pipe_input_cb_t     pipe_input_cb_;
+#ifdef _WIN32
+    QTimer *pipe_timer_;
+#else
+    QSocketNotifier *pipe_notifier_;
+#endif
+
+    void openCaptureFile(QString& cfPath = *new QString());
+    void saveCapture(capture_file *cf, bool close_capture);
+    bool testCaptureFileClose(capture_file *cf, bool from_quit = false, QString& before_what = *new QString());
+    void captureStop(capture_file *cf);
+
+    void setMenusForCaptureFile(bool force_disable = false);
+    void setMenusForCaptureInProgress(bool capture_in_progress = false);
+    void setMenusForCaptureStopping();
+    // xxx set_menus_for_captured_packets
+    // xxx set_menus_for_selected_packet
+    void updateForUnsavedChanges();
+    void setForCaptureInProgress(gboolean capture_in_progress = false);
 
 signals:
     void showProgress(progdlg_t **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
 
 public slots:
+#ifdef HAVE_LIBPCAP
+    void captureCapturePrepared(capture_options *capture_opts);
+    void captureCaptureUpdateStarted(capture_options *capture_opts);
+    void captureCaptureUpdateFinished(capture_options *capture_opts);
+    void captureCaptureFixedStarted(capture_options *capture_opts);
+    void captureCaptureFixedFinished(capture_options *capture_opts);
+    void captureCaptureStopping(capture_options *capture_opts);
+    void captureCaptureFailed(capture_options *capture_opts);
+#endif
+
     void captureFileReadStarted(const capture_file *cf);
     void captureFileReadFinished(const capture_file *cf);
     void captureFileClosing(const capture_file *cf);
     void captureFileClosed(const capture_file *cf);
 
 private slots:
+    void startCapture();
+#ifdef _WIN32
+    void pipeTimeout();
+#else
+    void pipeActivated(int source);
+    void pipeNotifierDestroyed();
+#endif
+    void stopCapture();
+
     void updateRecentFiles();
+    void recentActionTriggered();
     void openRecentCaptureFile(QString& cfPath = *new QString());
+
     void on_actionFileOpen_triggered();
     void on_actionFileClose_triggered();
-    void recentActionTriggered();
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();
 
@@ -95,6 +154,8 @@ private slots:
     void on_goToCancel_clicked();
     void on_goToGo_clicked();
     void on_goToLineEdit_returnPressed();
+    void on_actionStartCapture_triggered();
+    void on_actionStopCapture_triggered();
 };
 
 

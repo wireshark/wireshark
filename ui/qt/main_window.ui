@@ -103,10 +103,33 @@
      </property>
      <addaction name="actionDummyNoFilesFound"/>
     </widget>
+    <widget class="QMenu" name="menuFile_Set">
+     <property name="title">
+      <string>File Set</string>
+     </property>
+     <addaction name="actionList_Files"/>
+     <addaction name="actionNext_File"/>
+     <addaction name="actionPrevious_File"/>
+    </widget>
     <addaction name="actionFileOpen"/>
     <addaction name="menuOpenRecentCaptureFile"/>
-    <addaction name="separator"/>
+    <addaction name="actionFileMerge"/>
+    <addaction name="actionFileImport"/>
     <addaction name="actionFileClose"/>
+    <addaction name="separator"/>
+    <addaction name="actionFileSave"/>
+    <addaction name="actionFileSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="menuFile_Set"/>
+    <addaction name="separator"/>
+    <addaction name="actionFileExportPackets"/>
+    <addaction name="actionFileExportPacketDissections"/>
+    <addaction name="actionFileExportPacketBytes"/>
+    <addaction name="actionFileExportSSLSessionKeys"/>
+    <addaction name="actionFileExportObjects"/>
+    <addaction name="separator"/>
+    <addaction name="actionFilePrint"/>
+    <addaction name="separator"/>
     <addaction name="actionFileQuit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -118,9 +141,13 @@
     <property name="title">
      <string>Capture</string>
     </property>
-    <addaction name="actionInterfaces"/>
+    <addaction name="actionCaptureInterfaces"/>
+    <addaction name="actionCaptureOptions"/>
     <addaction name="actionStartCapture"/>
     <addaction name="actionStopCapture"/>
+    <addaction name="actionCaptureRestart"/>
+    <addaction name="actionCaptureCaptureFilters"/>
+    <addaction name="actionCaptureRefreshInterfaces"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -172,6 +199,8 @@
     <addaction name="actionViewExpandSubtrees"/>
     <addaction name="actionViewExpandAll"/>
     <addaction name="actionViewCollapseAll"/>
+    <addaction name="separator"/>
+    <addaction name="actionViewReload"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -246,9 +275,15 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actionInterfaces">
+  <action name="actionCaptureInterfaces">
    <property name="text">
-    <string>Interfaces</string>
+    <string>&amp;Interfaces...</string>
+   </property>
+   <property name="toolTip">
+    <string>Show interface details</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
    </property>
   </action>
   <action name="actionStartCapture">
@@ -261,13 +296,13 @@
      <normalon>:/toolbar/main/capture_start_active_24.png</normalon>:/toolbar/main/capture_start_24.png</iconset>
    </property>
    <property name="text">
-    <string>Start</string>
+    <string>&amp;Start</string>
    </property>
    <property name="toolTip">
     <string>Start capturing packets</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+K</string>
+    <string>Ctrl+E</string>
    </property>
   </action>
   <action name="actionStopCapture">
@@ -276,10 +311,13 @@
      <normaloff>:/toolbar/main/capture_stop_24.png</normaloff>:/toolbar/main/capture_stop_24.png</iconset>
    </property>
    <property name="text">
-    <string>Stop</string>
+    <string>S&amp;top</string>
    </property>
    <property name="toolTip">
     <string>Stop capturing packets</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
    </property>
   </action>
   <action name="actionFileClose">
@@ -501,6 +539,147 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionFileMerge">
+   <property name="text">
+    <string>&amp;Merge...</string>
+   </property>
+   <property name="toolTip">
+    <string>Merge one or more files</string>
+   </property>
+  </action>
+  <action name="actionFileImport">
+   <property name="text">
+    <string>&amp;Import...</string>
+   </property>
+   <property name="toolTip">
+    <string>Import a file</string>
+   </property>
+  </action>
+  <action name="actionFileSave">
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the current file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionFileSaveAs">
+   <property name="text">
+    <string>Save &amp;As...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save as a different file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionFileExportPackets">
+   <property name="text">
+    <string>Export Packets...</string>
+   </property>
+   <property name="toolTip">
+    <string>Export specified packets</string>
+   </property>
+  </action>
+  <action name="actionFileExportPacketDissections">
+   <property name="text">
+    <string>Export Packet Dissections...</string>
+   </property>
+  </action>
+  <action name="actionFileExportPacketBytes">
+   <property name="text">
+    <string>Export Packet &amp;Bytes...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="actionFileExportSSLSessionKeys">
+   <property name="text">
+    <string>Export SSL Session Keys...</string>
+   </property>
+  </action>
+  <action name="actionFileExportObjects">
+   <property name="text">
+    <string>Export Objects...</string>
+   </property>
+  </action>
+  <action name="actionFilePrint">
+   <property name="text">
+    <string>&amp;Print...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionList_Files">
+   <property name="text">
+    <string>List Files</string>
+   </property>
+  </action>
+  <action name="actionNext_File">
+   <property name="text">
+    <string>Next File</string>
+   </property>
+  </action>
+  <action name="actionPrevious_File">
+   <property name="text">
+    <string>Previous File</string>
+   </property>
+  </action>
+  <action name="actionViewReload">
+   <property name="text">
+    <string>&amp;Reload</string>
+   </property>
+   <property name="toolTip">
+    <string>Reload the current file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionCaptureOptions">
+   <property name="text">
+    <string>&amp;Options...</string>
+   </property>
+   <property name="toolTip">
+    <string>Capture options</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionCaptureCaptureFilters">
+   <property name="text">
+    <string>Capture &amp;Filters...</string>
+   </property>
+   <property name="toolTip">
+    <string>Capture filters</string>
+   </property>
+  </action>
+  <action name="actionCaptureRefreshInterfaces">
+   <property name="text">
+    <string>Refresh Interfaces</string>
+   </property>
+   <property name="toolTip">
+    <string>Refresh interfaces</string>
+   </property>
+  </action>
+  <action name="actionCaptureRestart">
+   <property name="text">
+    <string>&amp;Restart</string>
+   </property>
+   <property name="toolTip">
+    <string>Restart current capture</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

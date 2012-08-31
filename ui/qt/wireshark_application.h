@@ -28,6 +28,7 @@
 
 #include <glib.h>
 
+#include "capture_opts.h"
 #include "file.h"
 
 #include <QApplication>
@@ -55,13 +56,27 @@ public:
     explicit WiresharkApplication(int &argc,  char **argv);
     QList<recent_item_status *> recent_item_list() const;
     void addRecentItem(const QString &filename, qint64 size, bool accessible);
+#ifdef HAVE_LIBPCAP
+    void captureCallback(int event, capture_options * capture_opts);
+#endif
     void captureFileCallback(int event, void * data);
 
 private:
-    QTimer *recentTimer;
+    QTimer *recent_timer_;
 
 signals:
     void updateRecentItemStatus(const QString &filename, qint64 size, bool accessible);
+
+#ifdef HAVE_LIBPCAP
+    // XXX It might make more sense to move these to main.cpp or main_window.cpp or their own class.
+    void captureCapturePrepared(capture_options *capture_opts);
+    void captureCaptureUpdateStarted(capture_options *capture_opts);
+    void captureCaptureUpdateFinished(capture_options *capture_opts);
+    void captureCaptureFixedStarted(capture_options *capture_opts);
+    void captureCaptureFixedFinished(capture_options *capture_opts);
+    void captureCaptureStopping(capture_options *capture_opts);
+    void captureCaptureFailed(capture_options *capture_opts);
+#endif
 
     void captureFileReadStarted(const capture_file *cf);
     void captureFileReadFinished(const capture_file *cf);

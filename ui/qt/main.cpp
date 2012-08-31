@@ -142,6 +142,7 @@ static gboolean console_wait;	/* "Press any key..." */
 //static void destroy_console(void);
 static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
 #endif
+
 static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
 
@@ -151,40 +152,11 @@ void create_console(void);
 extern capture_options global_capture_opts;
 #endif
 
-// Copied from ui/gtk/gui_utils.c
-void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
+static void
+main_capture_callback(gint event, capture_options *capture_opts, gpointer user_data )
 {
-    Q_UNUSED(source);
     Q_UNUSED(user_data);
-    Q_UNUSED(child_process);
-    Q_UNUSED(input_cb);
-
-//    static pipe_input_t pipe_input;
-
-//    pipe_input.source        = source;
-//    pipe_input.child_process = child_process;
-//    pipe_input.user_data     = user_data;
-//    pipe_input.input_cb      = input_cb;
-
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: pipe_input_set_handler");
-//#ifdef _WIN32
-//    /* Tricky to use pipes in win9x, as no concept of wait.  NT can
-//       do this but that doesn't cover all win32 platforms.  GTK can do
-//       this but doesn't seem to work over processes.  Attempt to do
-//       something similar here, start a timer and check for data on every
-//       timeout. */
-//    /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
-//    pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
-//#else
-//    pipe_input.channel = g_io_channel_unix_new(source);
-//    g_io_channel_set_encoding(pipe_input.channel, NULL, NULL);
-//    pipe_input.pipe_input_id = g_io_add_watch_full(pipe_input.channel,
-//                                                   G_PRIORITY_HIGH,
-//                                                   G_IO_IN|G_IO_ERR|G_IO_HUP,
-//                                                   pipe_input_cb,
-//                                                   &pipe_input,
-//                                                   NULL);
-//#endif
+    wsApp->captureCallback(event, capture_opts);
 }
 
 static void
@@ -515,7 +487,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 {
     Q_UNUSED(user_data);
     QString level;
-    QDateTime qt = QDateTime::currentDateTime();
+    QString hmsz = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
 
 // xxx qtshark: We want all of the messages for now.
 //    /* ignore log message, if log_level isn't interesting based
@@ -550,13 +522,11 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
             level = "Dbg ";
             break;
         default:
-            level = "unknown log_level %u";
-            level.arg(log_level);
-            qDebug() << level;
+            qDebug("%s unknown log_level %u", hmsz.toUtf8().constData(), log_level);
             g_assert_not_reached();
         }
 
-        qDebug() << qt.toString() << log_domain << " " << level << message;
+        qDebug("%s %s %s %s", hmsz.toUtf8().constData(), log_domain, level.toUtf8().constData(), message);
     }
 
 // xxx based from ../gtk/main.c:get_gtk_compiled_info
@@ -879,6 +849,9 @@ int main(int argc, char *argv[])
         }
     }
 
+#ifdef HAVE_LIBPCAP
+  capture_callback_add(main_capture_callback, NULL);
+#endif
     cf_callback_add(main_cf_callback, NULL);
 
     /* Arrange that if we have no console window, and a GLib message logging
@@ -1145,6 +1118,7 @@ int main(int argc, char *argv[])
     w = new(MainWindow);
     w->show();
 
+    g_main_loop_new(NULL, FALSE);
     return a.exec();
 }
 

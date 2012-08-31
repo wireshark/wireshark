@@ -49,8 +49,8 @@ protected:
     void showEvent(QShowEvent *evt);
 
 private:
-    if_stat_cache_t *m_statCache;
-    QTimer *m_statTimer;
+    if_stat_cache_t *stat_cache_;
+    QTimer *stat_timer_;
 
 signals:
 

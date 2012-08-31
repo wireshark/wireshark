@@ -50,9 +50,9 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     setColumnCount(2);
     setAccessibleName(tr("Welcome screen list"));
 
-    m_statCache = NULL;
-    m_statTimer = new QTimer(this);
-    connect(m_statTimer, SIGNAL(timeout()), this, SLOT(updateStatistics()));
+    stat_cache_ = NULL;
+    stat_timer_ = new QTimer(this);
+    connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
 
     setItemDelegateForColumn(1, new SparkLineDelegate());
 
@@ -104,9 +104,9 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
 InterfaceTree::~InterfaceTree() {
     QTreeWidgetItemIterator iter(this);
 
-    if (m_statCache) {
-      capture_stat_stop(m_statCache);
-      m_statCache = NULL;
+    if (stat_cache_) {
+      capture_stat_stop(stat_cache_);
+      stat_cache_ = NULL;
     }
 
     while (*iter) {
@@ -119,20 +119,22 @@ InterfaceTree::~InterfaceTree() {
     }
 }
 
+#include <QDebug>
 void InterfaceTree::hideEvent(QHideEvent *evt) {
     Q_UNUSED(evt);
 
-    m_statTimer->stop();
-    if (m_statCache) {
-        capture_stat_stop(m_statCache);
-        m_statCache = NULL;
+    qDebug() << "==== stat cache stop";
+    stat_timer_->stop();
+    if (stat_cache_) {
+        capture_stat_stop(stat_cache_);
+        stat_cache_ = NULL;
     }
 }
 
 void InterfaceTree::showEvent(QShowEvent *evt) {
     Q_UNUSED(evt);
 
-    m_statTimer->start(1000);
+    stat_timer_->start(1000);
 }
 
 void InterfaceTree::updateStatistics(void) {
@@ -140,12 +142,13 @@ void InterfaceTree::updateStatistics(void) {
     guint diff, if_idx;
     struct pcap_stat stats;
 
-    if (!m_statCache) {
+    if (!stat_cache_) {
         // Start gathering statistics using dumpcap
         // We crash (on OS X at least) if we try to do this from ::showEvent.
-        m_statCache = capture_stat_start(&global_capture_opts);
+        qDebug() << "==== stat cache start";
+        stat_cache_ = capture_stat_start(&global_capture_opts);
     }
-    if (!m_statCache) return;
+    if (!stat_cache_) return;
 
     QTreeWidgetItemIterator iter(this);
     while (*iter) {
@@ -158,7 +161,7 @@ void InterfaceTree::updateStatistics(void) {
                 continue;
 
             diff = 0;
-            if (capture_stats(m_statCache, device.name, &stats)) {
+            if (capture_stats(stat_cache_, device.name, &stats)) {
                 if ((int)(stats.ps_recv - device.last_packets) >= 0) {
                     diff = stats.ps_recv - device.last_packets;
                 }
