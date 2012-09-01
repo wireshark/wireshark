@@ -712,6 +712,10 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         else {
             g_snprintf(dst_addr, 32, "0x%04x", packet->dst16);
         }
+        /* Provide address hints to higher layers that need it. */
+        if (ieee_hints) {
+            ieee_hints->dst16 = packet->dst16;
+        }
 
         SET_ADDRESS(&pinfo->dl_dst, AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
         SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);

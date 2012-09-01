@@ -57,6 +57,8 @@
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-icmp.h"    /* same transaction_t used both both v4 and v6 */
+#include "packet-ieee802154.h"
+#include "packet-6lowpan.h"
 
 /*
  * The information used comes from:
@@ -2056,16 +2058,19 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             break;
             case ND_OPT_6LOWPAN_CONTEXT: /* 6LoWPAN Context (TBD2 Pending IANA...) */
             {
+                ieee802154_hints_t *hints;
                 /* 6lowpan-ND */
+                guint8 context_id;
                 guint8 context_len;
                 struct e_in6_addr context_prefix;
-
+                
                 /* Context Length */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_context_length, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
                 context_len = tvb_get_guint8(tvb, opt_offset);
                 opt_offset += 1;
 
                 /*  Flags & CID */
+                context_id = tvb_get_guint8(tvb, opt_offset) & ND_OPT_6CO_FLAG_CID;
                 ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_flag, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
                 flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_flag_6lowpan);
                 proto_tree_add_item(flag_tree, hf_icmpv6_opt_6co_flag_c, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
@@ -2080,20 +2085,21 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 /* Lifetime */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_valid_lifetime, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
                 opt_offset += 2;
-
+                
                 /* Context */
+                memset(&context_prefix.bytes, 0, sizeof(context_prefix));
                 switch(opt_len){
                     case 8: /* Default Option Length without context prefix */
                         proto_item_append_text(ti, " ::/%d", context_len);
                         break;
                     case 16:
-                        memset(&context_prefix, 0, sizeof(context_prefix));
                         tvb_memcpy(tvb, (guint8 *)&context_prefix.bytes, opt_offset, 8);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_6co_context_prefix, tvb, opt_offset, 8, context_prefix.bytes);
                         proto_item_append_text(ti, " %s/%d", ip6_to_str(&context_prefix), context_len);
                         opt_offset += 8;
                         break;
                     case 24:
+                        tvb_memcpy(tvb, (guint8 *)&context_prefix.bytes, opt_offset, 16);
                         proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_context_prefix, tvb, opt_offset, 16, ENC_NA);
                         proto_item_append_text(ti, " %s/%d", tvb_ip6_to_str(tvb, opt_offset), context_len);
                         opt_offset += 16;
@@ -2101,6 +2107,12 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     default:
                         expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR, "Invalid Option Length");
                         break;
+                }
+                /* Update the 6LoWPAN dissectors with new context information. */
+                hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
+                        proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
+                if ((opt_len <= 24) && hints) {
+                    lowpan_context_insert(context_id, hints->src_pan, context_len, &context_prefix, pinfo->fd->num);
                 }
             }
             break;

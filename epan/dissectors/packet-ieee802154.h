@@ -237,6 +237,7 @@ typedef struct {
 typedef struct {
     guint16             src_pan;
     guint16             src16;
+    guint16             dst16;
     ieee802154_map_rec *map_rec;
 } ieee802154_hints_t;
 

@@ -56,6 +56,7 @@
 #include <epan/in_cksum.h>
 #include "packet-ipv6.h"
 #include "packet-ieee802154.h"
+#include "packet-6lowpan.h"
 
 /* Definitions for 6lowpan packet disassembly structures and routines */
 
@@ -239,6 +240,11 @@ static int hf_6lowpan_iphc_flag_dam = -1;
 static int hf_6lowpan_iphc_sci = -1;
 static int hf_6lowpan_iphc_dci = -1;
 
+static int hf_6lowpan_iphc_sctx_prefix = -1;
+static int hf_6lowpan_iphc_sctx_origin = -1;
+static int hf_6lowpan_iphc_dctx_prefix = -1;
+static int hf_6lowpan_iphc_dctx_origin = -1;
+
 /* NHC IPv6 extension header fields. */
 static int hf_6lowpan_nhc_ext_eid = -1;
 static int hf_6lowpan_nhc_ext_nh = -1;
@@ -407,18 +413,34 @@ static const fragment_items lowpan_frag_items = {
 
 static GHashTable *lowpan_fragment_table = NULL;
 static GHashTable *lowpan_reassembled_table = NULL;
+static GHashTable *lowpan_context_table = NULL;
 
-/* Link-Local prefix used by 6LoWPAN (FF80::) */
+/* Link-Local prefix used by 6LoWPAN (FF80::/10) */
 static const guint8 lowpan_llprefix[8] = {
     0xfe, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-/* 6LoWPAN context table preferences. */
-#define LOWPAN_CONTEXT_COUNT        16
-#define LOWPAN_CONTEXT_DEFAULT      0
-#define LOWPAN_CONTEXT_LINK_LOCAL   LOWPAN_CONTEXT_COUNT                    /* An internal context used for the link-local prefix. */
-static struct e_in6_addr    lowpan_context_table[LOWPAN_CONTEXT_COUNT+1];   /* The 17-th context stores the link-local prefix. */
-static const gchar *        lowpan_context_prefs[LOWPAN_CONTEXT_COUNT];     /* Array of strings set by the preferences. */
+/* Context hash table map key. */
+typedef struct {
+    guint16 pan;    /* PAN Identifier */
+    guint8  cid;    /* Context Identifier */
+} lowpan_context_key;
+
+/* Context hash table map data. */
+typedef struct {
+    guint   frame;  /* Frame where the context was discovered. */
+    guint8  plen;   /* Prefix length. */
+    struct e_in6_addr prefix;   /* Compression context. */
+} lowpan_context_data;
+
+/* 6LoWPAN contexts. */
+#define LOWPAN_CONTEXT_MAX              16
+#define LOWPAN_CONTEXT_DEFAULT          0
+#define LOWPAN_CONTEXT_LINK_LOCAL       LOWPAN_CONTEXT_MAX
+#define LOWPAN_CONTEXT_LINK_LOCAL_BITS  10
+static lowpan_context_data  lowpan_context_local;
+static lowpan_context_data  lowpan_context_default;
+static const gchar *        lowpan_context_prefs[LOWPAN_CONTEXT_MAX];
 
 /* Helper macro to convert a bit offset/length into a byte count. */
 #define BITS_TO_BYTE_LEN(bitoff, bitlen)    ((bitlen)?(((bitlen) + ((bitoff)&0x07) + 7) >> 3):(0))
@@ -465,6 +487,163 @@ static void         lowpan_addr16_to_ifcid  (guint16 addr, guint8 *ifcid);
 static tvbuff_t *   lowpan_reassemble_ipv6  (tvbuff_t *tvb, struct ip6_hdr * ipv6, struct lowpan_nhdr * nhdr_list);
 static guint8       lowpan_parse_nhc_proto  (tvbuff_t *tvb, gint offset);
 
+/* Context table helpers */
+static guint        lowpan_context_hash     (gconstpointer key);
+static gboolean     lowpan_context_equal    (gconstpointer a, gconstpointer b);
+static lowpan_context_data *lowpan_context_find(guint8 cid, guint16 pan);
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      lowpan_pfxcpy
+ *  DESCRIPTION
+ *      A version of memcpy that takes a length in bits. If the 
+ *      length is not byte-aligned, the final byte will be
+ *      manipulated so that only the desired number of bits are
+ *      copied.
+ *  PARAMETERS
+ *      dst             ; Destination.
+ *      src             ; Source.
+ *      bits            ; Number of bits to copy.
+ *  RETURNS
+ *      void            ;
+ *---------------------------------------------------------------
+ */
+static void
+lowpan_pfxcpy(void *dst, const void *src, size_t bits)
+{
+    memcpy(dst, src, bits>>3);
+    if (bits & 0x7) {
+        guint8 mask = ((0xff00) >> (bits & 0x7));
+        guint8 last = ((guint8 *)src)[bits>>3] & mask;
+        ((guint8 *)dst)[bits>>3] &= ~mask;
+        ((guint8 *)dst)[bits>>3] |= last;
+    }
+} /* lowpan_pfxcpy */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      lowpan_context_hash
+ *  DESCRIPTION
+ *      Context table hash function.
+ *  PARAMETERS
+ *      key             ; Pointer to a lowpan_context_key type.
+ *  RETURNS
+ *      guint           ; The hashed key value.
+ *---------------------------------------------------------------
+ */
+static guint
+lowpan_context_hash(gconstpointer key)
+{
+    return (((lowpan_context_key *)key)->cid) | (((lowpan_context_key *)key)->pan << 8);
+} /* lowpan_context_hash */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      lowpan_context_equal
+ *  DESCRIPTION
+ *      Context table equals function.
+ *  PARAMETERS
+ *      key             ; Pointer to a lowpan_context_key type.
+ *  RETURNS
+ *      gboolean        ; 
+ *---------------------------------------------------------------
+ */
+static gboolean
+lowpan_context_equal(gconstpointer a, gconstpointer b)
+{
+    return (((lowpan_context_key *)a)->pan == ((lowpan_context_key *)b)->pan) &&
+           (((lowpan_context_key *)a)->cid == ((lowpan_context_key *)b)->cid);
+} /* lowpan_context_equal */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      lowpan_context_find
+ *  DESCRIPTION
+ *      Context table lookup function.
+ *  PARAMETERS
+ *      cid             ; Context identifier.
+ *      pan             ; PAN identifier.
+ *  RETURNS
+ *      lowpan_context_data *; 
+ *---------------------------------------------------------------
+ */
+static lowpan_context_data *
+lowpan_context_find(guint8 cid, guint16 pan)
+{
+    lowpan_context_key  key;
+    lowpan_context_data *data;
+    
+    /* Check for the internal link-local context. */
+    if (cid == LOWPAN_CONTEXT_LINK_LOCAL) return &lowpan_context_local;
+    
+    /* Lookup the context from the table. */
+    key.pan = pan;
+    key.cid = cid;
+    data = g_hash_table_lookup(lowpan_context_table, &key);
+    if (data) return data;
+    
+    /* If we didn't find a match, try again with the broadcast PAN. */
+    if (pan != IEEE802154_BCAST_PAN) {
+        key.pan = IEEE802154_BCAST_PAN;
+        data = g_hash_table_lookup(lowpan_context_table, &key);
+        if (data) return data;
+    }
+    
+    /* If the lookup failed, return the default context (::/0) */
+    return &lowpan_context_default;
+} /* lowpan_context_find */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      lowpan_context_insert
+ *  DESCRIPTION
+ *      Context table insert function.
+ *  PARAMETERS
+ *      cid             ; Context identifier.
+ *      pan             ; PAN identifier.
+ *      plen            ; Prefix length.
+ *      prefix          ; Compression prefix.
+ *      frame           ; Frame number.
+ *  RETURNS
+ *      void            ; 
+ *---------------------------------------------------------------
+ */
+void
+lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen, struct e_in6_addr *prefix, guint frame)
+{
+    lowpan_context_key  key;
+    lowpan_context_data *data;
+    gpointer            pkey;
+    gpointer            pdata;
+    
+    /* Sanity! */
+    if (plen > 128) return;
+    if (!prefix) return;
+    
+    /* Search the context table for an existing entry. */
+    key.pan = pan;
+    key.cid = cid;
+    if (g_hash_table_lookup_extended(lowpan_context_table, &key, &pkey, &pdata)) {
+        /* Context already exists. */
+        data = pdata;
+        if ( (data->plen == plen) && (memcmp(&data->prefix, prefix, (plen+7)/8) == 0) ) {
+            /* Context already exists with no change. */
+            return;
+        }
+    }
+    else {
+        pkey = se_memdup(&key, sizeof(key));
+    }
+    
+    /* Create a new context */
+    data = se_alloc(sizeof(lowpan_context_data));
+    data->frame = frame;
+    data->plen = plen;
+    memset(&data->prefix, 0, sizeof(struct e_in6_addr)); /* Ensure zero paddeding */
+    lowpan_pfxcpy(&data->prefix, prefix, plen);
+    g_hash_table_insert(lowpan_context_table, pkey, data);
+} /* lowpan_context_insert */
+
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      lowpan_addr16_to_ifcid
@@ -509,8 +688,8 @@ lowpan_addr16_to_ifcid(guint16 addr, guint8 *ifcid)
 static gboolean
 lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
 {
-    ieee802154_packet * packet = (ieee802154_packet *)pinfo->private_data;
-
+    ieee802154_hints_t  *hints;
+    
     /* Check the link-layer address field. */
     if (pinfo->dl_src.type == AT_EUI64) {
         memcpy(ifcid, pinfo->dl_src.data, LOWPAN_IFC_ID_LEN);
@@ -518,23 +697,17 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         ifcid[0] ^= 0x02;
         return TRUE;
     }
-
-    /* Derive the IID from the IEEE 802.15.4 packet structure. */
-    if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
-        guint64     addr;
-        addr = pntoh64(&packet->src64);
-        memcpy(ifcid, &addr, LOWPAN_IFC_ID_LEN);
-        /* RFC2464: Invert the U/L bit when using an EUI64 address. */
-        ifcid[0] ^= 0x02;
+    
+    /* Lookup the IEEE 802.15.4 addressing hints. */
+    hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
+                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
+    if (hints) {
+        lowpan_addr16_to_ifcid(hints->src16, ifcid);
         return TRUE;
+    } else {
+        /* Failed to find a link-layer source address. */
+        return FALSE;
     }
-    if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        lowpan_addr16_to_ifcid(packet->src16, ifcid);
-        return TRUE;
-    }
-
-    /* Failed to find a link-layer source address. */
-    return FALSE;
 } /* lowpan_dlsrc_to_ifcid */
 
 /*FUNCTION:------------------------------------------------------
@@ -554,7 +727,7 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
 static gboolean
 lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
 {
-    ieee802154_packet * packet = (ieee802154_packet *)pinfo->private_data;
+    ieee802154_hints_t  *hints;
 
     /* Check the link-layer address field. */
     if (pinfo->dl_dst.type == AT_EUI64) {
@@ -563,23 +736,17 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         ifcid[0] ^= 0x02;
         return TRUE;
     }
-
-    /* Derive the IID from the IEEE 802.15.4 packet structure. */
-    if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
-        guint64     addr;
-        addr = pntoh64(&packet->dst64);
-        memcpy(ifcid, &addr, LOWPAN_IFC_ID_LEN);
-        /* RFC2464: Invert the U/L bit when using an EUI64 address. */
-        ifcid[0] ^= 0x02;
+    
+    /* Lookup the IEEE 802.15.4 addressing hints. */
+    hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
+                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
+    if (hints) {
+        lowpan_addr16_to_ifcid(hints->dst16, ifcid);
         return TRUE;
+    } else {
+        /* Failed to find a link-layer destination address. */
+        return FALSE;
     }
-    if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        lowpan_addr16_to_ifcid(packet->dst16, ifcid);
-        return TRUE;
-    }
-
-    /* Failed to find a link-layer source address. */
-    return FALSE;
 } /* lowpan_dldst_to_ifcid */
 
 /*FUNCTION:------------------------------------------------------
@@ -1177,6 +1344,8 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
 static tvbuff_t *
 dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size, guint8 *siid, guint8 *diid)
 {
+    ieee802154_hints_t  *hints;
+    guint16             hint_panid;
     gint                offset = 0;
     gint                length = 0;
     proto_tree *        iphc_tree = NULL;
@@ -1189,15 +1358,22 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     guint8              iphc_src_mode;
     guint8              iphc_dst_mode;
     guint8              iphc_ctx = 0;
-    /* Default contexts to use for address decompression. */
+    /* Contexts to use for address decompression. */
     gint                iphc_sci = LOWPAN_CONTEXT_DEFAULT;
     gint                iphc_dci = LOWPAN_CONTEXT_DEFAULT;
+    lowpan_context_data *sctx;
+    lowpan_context_data *dctx;
     /* IPv6 header */
     guint8              ipv6_class = 0;
     struct ip6_hdr      ipv6;
     tvbuff_t *          ipv6_tvb;
     /* Next header chain */
-    struct lowpan_nhdr *nhdr_list;
+    struct lowpan_nhdr  *nhdr_list;
+    
+    /* Lookup the IEEE 802.15.4 addressing hints. */
+    hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
+                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
+    hint_panid = (hints) ? (hints->src_pan) : (IEEE802154_BCAST_PAN);
 
     /* Create a tree for the IPHC header. */
     if (tree) {
@@ -1252,6 +1428,13 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     if (!(iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP)) {
         iphc_dci = LOWPAN_CONTEXT_LINK_LOCAL;
     }
+    /* Lookup the contexts. */
+    /*
+     * Don't display their origin until after we decompress the address in case
+     * the address modes indicate that we should use a different context. 
+     */
+    sctx = lowpan_context_find(iphc_sci, hint_panid);
+    dctx = lowpan_context_find(iphc_dci, hint_panid);
 
     /*=====================================================
      * Parse Traffic Class and Flow Label
@@ -1335,25 +1518,26 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
      * Parse and decompress the source address.
      *=====================================================
      */
-    /* Copy the address from the context table. */
-    memcpy(&ipv6.ip6_src, &lowpan_context_table[iphc_sci], sizeof(ipv6.ip6_src));
+    length = 0;
+    memset(&ipv6.ip6_src, 0, sizeof(ipv6.ip6_src));
     /* (SAC=1 && SAM=00) -> the unspecified address (::). */
     if ((iphc_flags & LOWPAN_IPHC_FLAG_SRC_COMP) && (iphc_src_mode == LOWPAN_IPHC_ADDR_SRC_UNSPEC)) {
-        length = 0;
-        memset(&ipv6.ip6_src, 0, sizeof(ipv6.ip6_src));
+        sctx = &lowpan_context_default;
     }
     /* The IID is derived from the encapsulating layer. */
     else if (iphc_src_mode == LOWPAN_IPHC_ADDR_COMPRESSED) {
-        length = 0;
         memcpy(&ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - LOWPAN_IFC_ID_LEN], siid, LOWPAN_IFC_ID_LEN);
     }
     /* Full Address inline. */
     else if (iphc_src_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
+        if (!(iphc_flags & LOWPAN_IPHC_FLAG_SRC_COMP)) sctx = &lowpan_context_default;
         length = sizeof(ipv6.ip6_src);
+        tvb_memcpy(tvb, &ipv6.ip6_src, offset, length);
     }
     /* 64-bits inline. */
     else if (iphc_src_mode == LOWPAN_IPHC_ADDR_64BIT_INLINE) {
         length = sizeof(guint64);
+        tvb_memcpy(tvb, &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - length], offset, length);
     }
     /* 16-bits inline. */
     else if (iphc_src_mode == LOWPAN_IPHC_ADDR_16BIT_INLINE) {
@@ -1361,17 +1545,27 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         /* Format becomes ff:fe00:xxxx */
         ipv6.ip6_src.bytes[11] = 0xff;
         ipv6.ip6_src.bytes[12] = 0xfe;
+        tvb_memcpy(tvb, &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - length], offset, length);
 
     }
-    if (length) {
-        tvb_memcpy(tvb, &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - length], offset, length);
-    }
+    /* Copy the context bits. */
+    lowpan_pfxcpy(&ipv6.ip6_src, &sctx->prefix, sctx->plen);
     /* Update the IID of the encapsulating layer. */
     siid = &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - LOWPAN_IFC_ID_LEN];
 
     /* Display the source IPv6 address. */
     if (tree) {
         proto_tree_add_ipv6(tree, hf_6lowpan_source, tvb, offset, length, (guint8 *)&ipv6.ip6_src);
+    }
+    /* Add information about where the context came from. */
+    /* TODO: We should display the prefix length too. */
+    if (tree && sctx->plen) {
+        ti = proto_tree_add_ipv6(iphc_tree, hf_6lowpan_iphc_sctx_prefix, tvb, 0, 0, (guint8 *)&sctx->prefix);
+        PROTO_ITEM_SET_GENERATED(ti);
+        if ( sctx->frame ) {
+            ti = proto_tree_add_uint(iphc_tree, hf_6lowpan_iphc_sctx_origin, tvb, 0, 0, sctx->frame);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
     }
     offset += length;
     /*
@@ -1384,10 +1578,10 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
      * Parse and decompress a multicast address.
      *=====================================================
      */
+    length = 0;
+    memset(&ipv6.ip6_dst, 0, sizeof(ipv6.ip6_dst));
     /* Stateless multicast compression. */
     if ((iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP) && !(iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP)) {
-        length = 0;
-        memset(&ipv6.ip6_dst, 0, sizeof(ipv6.ip6_dst));
         if (iphc_dst_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
             length = sizeof(ipv6.ip6_dst);
             tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
@@ -1421,14 +1615,18 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     }
     /* Stateful multicast compression. */
     else if ((iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP) && (iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP)) {
-        length = 0;
-        memset(&ipv6.ip6_dst, 0, sizeof(ipv6.ip6_dst));
         if (iphc_dst_mode == LOWPAN_IPHC_MCAST_STATEFUL_48BIT) {
-            /* RFC 3306 unicast-prefix based multicast address. */
+            /* RFC 3306 unicast-prefix based multicast address of the form:
+             *      ffXX:XXLL:PPPP:PPPP:PPPP:PPPP:XXXX:XXXX
+             * XX = inline byte.
+             * LL = prefix/context length (up to 64-bits).
+             * PP = prefix/context byte.
+             */
             ipv6.ip6_dst.bytes[0] = 0xff;
             ipv6.ip6_dst.bytes[1] = tvb_get_guint8(tvb, offset + (length++));
             ipv6.ip6_dst.bytes[2] = tvb_get_guint8(tvb, offset + (length++));
-            /* TODO: Recover the stuff derived from context. */
+            ipv6.ip6_dst.bytes[3] = (dctx->plen > 64) ? (64) : (dctx->plen);
+            memcpy(&ipv6.ip6_dst.bytes[4], &dctx->prefix, 8);
             ipv6.ip6_dst.bytes[12] = tvb_get_guint8(tvb, offset + (length++));
             ipv6.ip6_dst.bytes[13] = tvb_get_guint8(tvb, offset + (length++));
             ipv6.ip6_dst.bytes[14] = tvb_get_guint8(tvb, offset + (length++));
@@ -1446,27 +1644,26 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
      *=====================================================
      */
     else {
-        /* Copy the address from the context table. */
-        length = 0;
-        memcpy(&ipv6.ip6_dst, &lowpan_context_table[iphc_dci], sizeof(ipv6.ip6_dst));
         /* (DAC=1 && DAM=00) -> reserved value. */
-        if ((iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP) && (iphc_dst_mode == 0)) {
+        if ((iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP) && (iphc_dst_mode == LOWPAN_IPHC_ADDR_FULL_INLINE)) {
             /* Illegal destination address compression mode. */
             expert_add_info_format(pinfo, ti_dam, PI_MALFORMED, PI_ERROR, "Illegal destination address mode");
             return NULL;
         }
         /* The IID is derived from the link-layer source. */
         else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_COMPRESSED) {
-            length = 0;
             memcpy(&ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - LOWPAN_IFC_ID_LEN], diid, LOWPAN_IFC_ID_LEN);
         }
         /* Full Address inline. */
         else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
+            dctx = &lowpan_context_default;
             length = sizeof(ipv6.ip6_dst);
+            tvb_memcpy(tvb, &ipv6.ip6_dst, offset, length);
         }
         /* 64-bits inline. */
         else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_64BIT_INLINE) {
             length = sizeof(guint64);
+            tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
         }
         /* 16-bits inline. */
         else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_16BIT_INLINE) {
@@ -1474,10 +1671,10 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
             /* Format becomes ff:fe00:xxxx */
             ipv6.ip6_dst.bytes[11] = 0xff;
             ipv6.ip6_dst.bytes[12] = 0xfe;
-        }
-        if (length) {
             tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
         }
+        /* Copy the context bits. */
+        lowpan_pfxcpy(&ipv6.ip6_dst, &dctx->prefix, dctx->plen);
         /* Update the interface id of the encapsulating layer. */
         diid = &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - LOWPAN_IFC_ID_LEN];
     }
@@ -1485,6 +1682,16 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     /* Display the destination IPv6 address. */
     if (tree) {
         proto_tree_add_ipv6(tree, hf_6lowpan_dest, tvb, offset, length, (guint8 *)&ipv6.ip6_dst);
+    }
+    /* Add information about where the context came from. */
+    /* TODO: We should display the prefix length too. */
+    if (tree && dctx->plen) {
+        ti = proto_tree_add_ipv6(iphc_tree, hf_6lowpan_iphc_dctx_prefix, tvb, 0, 0, (guint8 *)&dctx->prefix);
+        PROTO_ITEM_SET_GENERATED(ti);
+        if ( dctx->frame ) {
+            ti = proto_tree_add_uint(iphc_tree, hf_6lowpan_iphc_dctx_origin, tvb, 0, 0, dctx->frame);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
     }
     offset += length;
     /*
@@ -2357,6 +2564,20 @@ proto_register_6lowpan(void)
           { "Destination context identifier", "6lowpan.iphc.dci",
             FT_UINT8, BASE_HEX, NULL, LOWPAN_IPHC_FLAG_DCI, NULL, HFILL }},
 
+        /* Context information fields. */
+        { &hf_6lowpan_iphc_sctx_prefix,
+        { "Source context",                   "6lowpan.iphc.sctx.prefix", FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_6lowpan_iphc_sctx_origin,
+        { "Origin",                           "6lowpan.iphc.sctx.origin", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_6lowpan_iphc_dctx_prefix,
+        { "Destination context",              "6lowpan.iphc.dctx.prefix", FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_6lowpan_iphc_dctx_origin,
+        { "Origin",                           "6lowpan.iphc.dctx.origin", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         /* NHC IPv6 extension header fields. */
         { &hf_6lowpan_nhc_ext_eid,
           { "Header ID",                      "6lowpan.nhc.ext.eid",
@@ -2516,7 +2737,6 @@ proto_register_6lowpan(void)
 
     int         i;
     module_t    *prefs_module;
-    static gchar init_context_str[] = "2002:db8::ff:fe00:0";
 
     proto_6lowpan = proto_register_protocol("IPv6 over IEEE 802.15.4", "6LoWPAN", "6lowpan");
     proto_register_field_array(proto_6lowpan, hf, array_length(hf));
@@ -2528,26 +2748,12 @@ proto_register_6lowpan(void)
     /* Register the dissector init function */
     register_init_routine(proto_init_6lowpan);
 
-    /* Initialize the context table. */
-    memset(lowpan_context_table, 0, sizeof(lowpan_context_table));
+    /* Initialize the context preferences. */
     memset((gchar*)lowpan_context_prefs, 0, sizeof(lowpan_context_prefs));
-
-    /* Initialize the link-local prefix. */
-    lowpan_context_table[LOWPAN_CONTEXT_LINK_LOCAL].bytes[0] = 0xfe;
-    lowpan_context_table[LOWPAN_CONTEXT_LINK_LOCAL].bytes[1] = 0x80;
-
-    /* Initialize the default values of the context table. */
-    lowpan_context_prefs[LOWPAN_CONTEXT_DEFAULT] = init_context_str;
-    lowpan_context_table[LOWPAN_CONTEXT_DEFAULT].bytes[0] = 0x20;
-    lowpan_context_table[LOWPAN_CONTEXT_DEFAULT].bytes[1] = 0x02;
-    lowpan_context_table[LOWPAN_CONTEXT_DEFAULT].bytes[2] = 0x0d;
-    lowpan_context_table[LOWPAN_CONTEXT_DEFAULT].bytes[3] = 0xb8;
-    lowpan_context_table[LOWPAN_CONTEXT_DEFAULT].bytes[11] = 0xff;
-    lowpan_context_table[LOWPAN_CONTEXT_DEFAULT].bytes[12] = 0xfe;
 
     /* Register preferences. */
     prefs_module = prefs_register_protocol(proto_6lowpan, prefs_6lowpan_apply);
-    for (i = 0; i < LOWPAN_CONTEXT_COUNT; i++) {
+    for (i = 0; i < LOWPAN_CONTEXT_MAX; i++) {
         char *pref_name, *pref_title;
 
         /*
@@ -2579,8 +2785,23 @@ proto_register_6lowpan(void)
 static void
 proto_init_6lowpan(void)
 {
+    /* Initialize the fragment reassembly table. */
     fragment_table_init(&lowpan_fragment_table);
     reassembled_table_init(&lowpan_reassembled_table);
+    
+    /* Initialize the context table. */
+    if (lowpan_context_table)
+        g_hash_table_destroy(lowpan_context_table);
+    lowpan_context_table = g_hash_table_new(lowpan_context_hash, lowpan_context_equal);
+    
+    
+    /* Initialize the link-local context. */
+    lowpan_context_local.frame = 0;
+    lowpan_context_local.plen = LOWPAN_CONTEXT_LINK_LOCAL_BITS;
+    memcpy(&lowpan_context_local.prefix, lowpan_llprefix, sizeof(lowpan_llprefix));
+    
+    /* Reload static contexts from our preferences. */
+    prefs_6lowpan_apply();
 } /* proto_init_6lowpan */
 
 /*FUNCTION:------------------------------------------------------
@@ -2598,13 +2819,14 @@ proto_init_6lowpan(void)
 void
 prefs_6lowpan_apply(void)
 {
-    int     i;
+    int                 i;
+    struct e_in6_addr   prefix;
 
-    for (i = 0; i < LOWPAN_CONTEXT_COUNT; i++) {
-        if (!(lowpan_context_prefs[i]) || (inet_pton(AF_INET6, lowpan_context_prefs[i], &lowpan_context_table[i]) != 1)) {
-            /* Missing, or invalid IPv6 address, clear the context. */
-            memset(&lowpan_context_table[i], 0, sizeof(struct e_in6_addr));
-        }
+    for (i = 0; i < LOWPAN_CONTEXT_MAX; i++) {
+        if (!lowpan_context_prefs[i]) continue;
+        if (inet_pton(AF_INET6, lowpan_context_prefs[i], &prefix) != 1) continue;
+        /* Set the prefix */
+        lowpan_context_insert(i, IEEE802154_BCAST_PAN, 64, &prefix, 0);
     } /* for */
 } /* prefs_6lowpan_apply */
 
