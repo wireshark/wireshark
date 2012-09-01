@@ -1189,6 +1189,7 @@ DIRTY_DISSECTOR_SRC = \
 #
 DISSECTOR_INCLUDES =	\
 	$(PIDL_DISSECTOR_INCLUDES)	\
+	packet-6lowpan.h	\
 	packet-acp133.h	\
 	packet-acse.h	\
 	packet-actrace.h	\
