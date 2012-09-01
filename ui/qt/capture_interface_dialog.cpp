@@ -60,13 +60,14 @@ capture_remote_combo_add_recent(gchar *s)
   if (valp == NULL)
     return FALSE;
 
+  if (strlen((const gchar*) valp->data) == 0)
+    /* Empty remote host */
+    return FALSE;
+
   rh = (remote_host_t *) g_malloc (sizeof (remote_host_t));
 
   /* First value is the host */
   rh->remote_host = g_strdup ((const gchar *) valp->data);
-  if (strlen(rh->remote_host) == 0)
-    /* Empty remote host */
-    return FALSE;
   rh->auth_type = CAPTURE_AUTH_NULL;
   valp = valp->next;
 
