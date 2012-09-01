@@ -1458,7 +1458,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	else if (response_code == 0xfe && tvb_reported_length_remaining(tvb, offset) < 9) {
 
-		proto_tree_add_item(tree, hf_mysql_eof, tvb, offset, 1, ENC_NA);
+		ti = proto_tree_add_item(tree, hf_mysql_eof, tvb, offset, 1, ENC_NA);
 
 		offset += 1;
 
@@ -1488,6 +1488,8 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		} else {
 			/* This should be an unreachable case */
 			conn_data->state= REQUEST;
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+				"EOF Marker found while connection in wrong state.");
 		}
 	}
 
