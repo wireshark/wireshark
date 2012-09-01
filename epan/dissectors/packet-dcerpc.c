@@ -1968,6 +1968,7 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, guint8 
                 offset = (*(fnct))(tvb, offset, pinfo, tnpd->tree, drep);
                 if (tnpd->callback)
                     tnpd->callback(pinfo, tnpd->tree, tnpd->item, tvb, old_offset, offset, tnpd->callback_args);
+                proto_item_set_len(tnpd->item, offset - old_offset);
                 break;
             }
         }

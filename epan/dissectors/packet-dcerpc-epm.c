@@ -481,7 +481,7 @@ epm_dissect_tower (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              guint8 *drep)
 {
-    guint32 len;
+    guint3264 len;
     dcerpc_info *di;
 
     di=pinfo->private_data;
@@ -491,7 +491,7 @@ epm_dissect_tower (tvbuff_t *tvb, int offset,
 
     /* first one is the header of the conformant array, second one is the
        length field */
-    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+    offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_tower_length, &len);
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_tower_length, NULL);
