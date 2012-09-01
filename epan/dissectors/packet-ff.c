@@ -12941,7 +12941,7 @@ dissect_ff_msg_hdr(tvbuff_t *tvb,
 
 
 
-static void
+static int
 dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *sub_tree	= NULL;
@@ -12956,13 +12956,18 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint32 trailer_len = 0;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FF");
-
 	Options	= tvb_get_guint8(tvb, 1);
 	ProtocolAndType	= tvb_get_guint8(tvb, 2);
 	Service	= tvb_get_guint8(tvb, 3);
 	FDAAddress	= tvb_get_ntohl(tvb, 4);
 	length = tvb_get_ntohl(tvb, 8);
+
+	/* Make sure the length field is valid */
+	if ((length > (guint32)tvb_reported_length_remaining(tvb, 0)) ||
+		(length < 12))
+		return 0;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FF");
 
 	if(tree) {
 		ti = proto_tree_add_item(tree, proto_ff, tvb, offset, length, ENC_NA);
@@ -13012,7 +13017,7 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*offset += trailer_len;*/
 	}
 
-	return;
+	return tvb_length(tvb);
 }
 
 
@@ -13025,7 +13030,7 @@ get_ff_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 
 
-static void
+static int
 dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 /*
@@ -13044,36 +13049,30 @@ dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *
  */
 
+	/* Make sure we at least have the header */
+	if (!tvb_bytes_exist(tvb, 0, 12))
+		return 0;
+
+	/* Make sure the Message Length at least includes the header size */
+	if (tvb_get_ntohl(tvb, 8) < 12)
+		return 0;
+
 	tcp_dissect_pdus(tvb, pinfo, tree, ff_desegment,
 		12, get_ff_pdu_len, dissect_ff);
 
-	return;
+	return tvb_length(tvb);
 }
 
 
 
-static void
+static int
 dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	conversation_t *conversation	= NULL;
+	/* Make sure at least the header is there */
+	if ((guint32)tvb_reported_length(tvb) < 12)
+		return 0;
 
-	if(pinfo->destport == UDP_PORT_FF_FMS) {
-		conversation =
-			find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-				PT_UDP, pinfo->srcport, 0, NO_PORT_B);
-
-		if(!conversation ||
-			(conversation->dissector_handle != ff_udp_handle)) {
-
-			conversation =
-				conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-					PT_UDP, pinfo->srcport, 0, NO_PORT2);
-
-			conversation_set_dissector(conversation, ff_udp_handle);
-		}
-	}
-
-	dissect_ff(tvb, pinfo, tree);
+	return dissect_ff(tvb, pinfo, tree);
 }
 
 
@@ -16809,8 +16808,8 @@ proto_reg_handoff_ff(void)
 	/*
 	 * 4.8. Using UDP and TCP
 	 */
-	ff_udp_handle = create_dissector_handle(dissect_ff_udp, proto_ff);
-	ff_tcp_handle = create_dissector_handle(dissect_ff_tcp, proto_ff);
+	ff_udp_handle = new_create_dissector_handle(dissect_ff_udp, proto_ff);
+	ff_tcp_handle = new_create_dissector_handle(dissect_ff_tcp, proto_ff);
 
 	/*
 	 * 4.8.4.2. Use
