@@ -165,16 +165,26 @@ static const value_string auth_vals[] = {
 #define OSPF_V3_LSTYPE_INTER_AREA_ROUTER     0x2004
 #define OSPF_V3_LSTYPE_AS_EXTERNAL           0x4005
 #define OSPF_V3_LSTYPE_GROUP_MEMBERSHIP      0x2006
-#define OSPF_V3_LSTYPE_TYPE_7                0x2007
+#define OSPF_V3_LSTYPE_NSSA                  0x2007
 #define OSPF_V3_LSTYPE_LINK                  0x0008
 #define OSPF_V3_LSTYPE_INTRA_AREA_PREFIX     0x2009
-/* The Opaque RI LSA has a type "12" for OSPFv3 */
 #define OSPF_V3_LSTYPE_OPAQUE_RI             0x800c
 
 /* Opaque LSA types */
 #define OSPF_LSTYPE_OP_LINKLOCAL 9
 #define OSPF_LSTYPE_OP_AREALOCAL 10
 #define OSPF_LSTYPE_OP_ASWIDE    11
+
+#define OSPF_V3_LSA_FUNCTION_CODE_ROUTER            1
+#define OSPF_V3_LSA_FUNCTION_CODE_NETWORK           2
+#define OSPF_V3_LSA_FUNCTION_CODE_INTER_AREA_PREFIX 3
+#define OSPF_V3_LSA_FUNCTION_CODE_INTER_AREA_ROUTER 4
+#define OSPF_V3_LSA_FUNCTION_CODE_AS_EXTERNAL       5
+#define OSPF_V3_LSA_FUNCTION_CODE_GROUP_MEMBERSHIP  6
+#define OSPF_V3_LSA_FUNCTION_CODE_NSSA              7
+#define OSPF_V3_LSA_FUNCTION_CODE_LINK              8
+#define OSPF_V3_LSA_FUNCTION_CODE_INTRA_AREA_PREFIX 9
+#define OSPF_V3_LSA_FUNCTION_CODE_OPAQUE_RI         12
 
 #define OSPF_LINK_PTP           1
 #define OSPF_LINK_TRANSIT       2
@@ -196,7 +206,6 @@ static const value_string auth_vals[] = {
    advertized in the first TLV. (RFC4970) */
 #define OSPF_LSA_OPAQUE_RI      4
 #define OSPF_LSA_UNKNOWN        11
-#define OSPF_V3_LSA_OPAQUE_RI   12
 #define OSPF_RESTART_REASON_UNKNOWN   0
 #define OSPF_RESTART_REASON_SWRESTART 1
 #define OSPF_RESTART_REASON_SWRELOAD  2
@@ -263,7 +272,7 @@ static const value_string v3_ls_type_vals[] = {
     {OSPF_V3_LSTYPE_INTER_AREA_ROUTER,    "Inter-Area-Router-LSA"        },
     {OSPF_V3_LSTYPE_AS_EXTERNAL,          "AS-External-LSA"              },
     {OSPF_V3_LSTYPE_GROUP_MEMBERSHIP,     "Group-Membership-LSA"         },
-    {OSPF_V3_LSTYPE_TYPE_7,               "Type-LSA"                     },
+    {OSPF_V3_LSTYPE_NSSA,                 "NSSA-LSA"                     },
     {OSPF_V3_LSTYPE_LINK,                 "Link-LSA"                     },
     {OSPF_V3_LSTYPE_INTRA_AREA_PREFIX,    "Intra-Area-Prefix-LSA"        },
     {OSPF_V3_LSTYPE_OPAQUE_RI,            "Router Information Opaque-LSA"},
@@ -632,6 +641,20 @@ enum {
     OSPFF_LS_EXTATTR,
     OSPFF_LS_OPAQUE,
 
+    OSPFF_V3_LS_TYPE,
+
+    OSPFF_V3_LS_MIN,
+    OSPFF_V3_LS_ROUTER,
+    OSPFF_V3_LS_NETWORK,
+    OSPFF_V3_LS_INTER_AREA_PREFIX,
+    OSPFF_V3_LS_INTER_AREA_ROUTER,
+    OSPFF_V3_LS_AS_EXTERNAL,
+    OSPFF_V3_LS_GROUP_MEMBERSHIP,
+    OSPFF_V3_LS_NSSA,
+    OSPFF_V3_LS_LINK,
+    OSPFF_V3_LS_INTRA_AREA_PREFIX,
+    OSPFF_V3_LS_OPAQUE_RI,
+
     OSPFF_SRC_ROUTER,
     OSPFF_ADV_ROUTER,
     OSPFF_LS_MPLS,
@@ -760,6 +783,20 @@ static gint ospf_ls_type_to_filter (guint8 ls_type)
     else if (ls_type >= OSPF_LSTYPE_OP_LINKLOCAL &&
              ls_type <= OSPF_LSTYPE_OP_ASWIDE)
         return OSPFF_LS_OPAQUE;
+    else
+        return -1;
+}
+
+static gint ospf_v3_ls_type_to_filter (guint16 ls_type)
+{
+    guint16 function_code;
+
+    function_code = ls_type & 0x1fff;
+    if (function_code >= OSPF_V3_LSA_FUNCTION_CODE_ROUTER &&
+        function_code <= OSPF_V3_LSA_FUNCTION_CODE_INTRA_AREA_PREFIX)
+        return OSPFF_V3_LS_MIN + function_code;
+    else if (function_code == OSPF_V3_LSA_FUNCTION_CODE_OPAQUE_RI)
+        return OSPFF_V3_LS_OPAQUE_RI;
     else
         return -1;
 }
@@ -1655,7 +1692,6 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
 {
     proto_tree *ospf_lsr_tree;
     proto_item *ti;
-    guint32 ls_type;
     guint16 reserved;
     int orig_offset = offset;
 
@@ -1676,10 +1712,8 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
             reserved = tvb_get_ntohs(tvb, offset);
             proto_tree_add_text(ospf_lsr_tree, tvb, offset, 2,
                                 (reserved == 0 ? "Reserved: %u" :  "Reserved: %u [incorrect, should be 0]"), reserved);
-            ls_type = tvb_get_ntohs(tvb, offset+2);
-            proto_tree_add_text(ospf_lsr_tree, tvb, offset+2, 2, "LS Type: %s (0x%04x)",
-                                val_to_str_const(ls_type, v3_ls_type_vals, "Unknown"),
-                                ls_type);
+            proto_tree_add_item(ospf_lsr_tree, hf_ospf_filter[OSPFF_V3_LS_TYPE],
+                                tvb, offset + 2, 2, ENC_BIG_ENDIAN);
             break;
         }
 
@@ -2817,7 +2851,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
                     gboolean disassemble_body, guint8 address_family)
 {
     proto_tree *ospf_lsa_tree;
-    proto_item *ti;
+    proto_item *ti, *hidden_item;
 
     guint16              ls_type;
     guint16              ls_length;
@@ -2858,8 +2892,14 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     proto_tree_add_text(ospf_lsa_tree, tvb, offset, 2, "Do Not Age: %s",
                         (tvb_get_ntohs(tvb, offset) & OSPF_DNA_LSA) ? "True" : "False");
 
-    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 2, 2, "LSA Type: 0x%04x (%s)",
-                        ls_type, val_to_str_const(ls_type, v3_ls_type_vals,"Unknown"));
+    proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_V3_LS_TYPE], tvb,
+                        offset + 2, 2, ENC_BIG_ENDIAN);
+    if (ospf_v3_ls_type_to_filter(ls_type) != -1) {
+        hidden_item = proto_tree_add_item(ospf_lsa_tree,
+                                          hf_ospf_filter[ospf_v3_ls_type_to_filter(ls_type)], tvb,
+                                          offset + 2, 2, ENC_BIG_ENDIAN);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+    }
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Link State ID: %s",
                         tvb_ip_to_str(tvb, offset + 4));
@@ -3040,7 +3080,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         break;
 
 
-    case OSPF_V3_LSTYPE_TYPE_7:
+    case OSPF_V3_LSTYPE_NSSA:
     case OSPF_V3_LSTYPE_AS_EXTERNAL:
 
         /* flags */
@@ -3278,7 +3318,7 @@ proto_register_ospf(void)
 
         /* LS Types */
         {&hf_ospf_filter[OSPFF_LS_TYPE],
-         { "Link-State Advertisement Type", "ospf.lsa", FT_UINT8, BASE_DEC,
+         { "LS Type", "ospf.lsa", FT_UINT8, BASE_DEC,
            VALS(ls_type_vals), 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_LS_OPAQUE_TYPE],
          { "Link State ID Opaque Type", "ospf.lsid_opaque_type", FT_UINT8, BASE_DEC,
@@ -3315,6 +3355,42 @@ proto_register_ospf(void)
         {&hf_ospf_filter[OSPFF_LS_OPAQUE],
          { "Opaque LSA", "ospf.lsa.opaque", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
+
+        /* OSPFv3 LS Types */
+        {&hf_ospf_filter[OSPFF_V3_LS_TYPE],
+         { "LS Type", "ospf.v3.lsa", FT_UINT16, BASE_HEX,
+           VALS(v3_ls_type_vals), 0x0, NULL, HFILL }},
+
+        {&hf_ospf_filter[OSPFF_V3_LS_ROUTER],
+         { "Router-LSA", "ospf.v3.lsa.router", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_V3_LS_NETWORK],
+         { "Network-LSA", "ospf.v3.lsa.network", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_V3_LS_INTER_AREA_PREFIX],
+         { "Inter-Area-Prefix-LSA", "ospf.v3.lsa.interprefix", FT_BOOLEAN, BASE_NONE,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_V3_LS_INTER_AREA_ROUTER],
+         { "Inter-Area-Router-LSA", "ospf.v3.lsa.interrouter", FT_BOOLEAN, BASE_NONE,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_V3_LS_AS_EXTERNAL],
+         { "AS-External-LSA", "ospf.v3.lsa.asext", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_V3_LS_GROUP_MEMBERSHIP],
+         { "Group-Membership-LSA", "ospf.v3.lsa.member", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_V3_LS_NSSA],
+         { "NSSA-LSA", "ospf.v3.lsa.nssa", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_V3_LS_LINK],
+         { "Link-LSA", "ospf.v3.lsa.link", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_V3_LS_INTRA_AREA_PREFIX],
+         { "Intra-Area-Prefix-LSA", "ospf.v3.lsa.intraprefix", FT_BOOLEAN, BASE_NONE,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_V3_LS_OPAQUE_RI],
+         { "Router Information Opaque-LSA", "ospf.v3.lsa.opaque", FT_BOOLEAN, BASE_NONE,
+           NULL, 0x0, NULL, HFILL }},
 
         /* Other interesting OSPF values */
         {&hf_ospf_filter[OSPFF_SRC_ROUTER],
