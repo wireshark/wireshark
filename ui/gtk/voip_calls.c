@@ -2328,8 +2328,11 @@ static void mgcpCallerID(gchar *signalStr, gchar **callerId)
 static void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
 {
 	gchar *tmpStr;
-	gchar resultStr[50];
+	gchar *resultStr;
 	gint i,j;
+
+	/* start with 1 for the null-terminator */
+	guint resultStrLen = 1;
 
 	/* if there is no signalStr, just return false */
 	if (signalStr == NULL) return;
@@ -2341,6 +2344,7 @@ static void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
 			case '0' : case '1' : case '2' : case '3' : case '4' :
 			case '5' : case '6' : case '7' : case '8' : case '9' :
 			case '#' : case '*' :
+				resultStrLen++;
 				break;
 			default:
 				tmpStr[i] = '?';
@@ -2348,20 +2352,23 @@ static void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
 		}
 	}
 
-	for (i = 0, j = 0; tmpStr[i] && i<50; i++) {
+	if (resultStrLen == 1) {
+		g_free(tmpStr);
+		return;
+	}
+
+	resultStr = g_malloc(resultStrLen);
+
+	for (i = 0, j = 0; tmpStr[i]; i++) {
 		if (tmpStr[i] != '?')
 			resultStr[j++] = tmpStr[i];
 	}
 	resultStr[j] = '\0';
 
-	if (*resultStr == '\0') {
-		g_free(tmpStr);
-		return;
-	}
-
 	g_free(*dialedDigits);
-	*dialedDigits = g_strdup(resultStr);
 	g_free(tmpStr);
+	
+	*dialedDigits = resultStr;
 
 	return;
 }
@@ -4132,3 +4139,17 @@ remove_tap_listener_prot__calls(void)
 	have_prot__tap_listener=FALSE;
 }
 */
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
