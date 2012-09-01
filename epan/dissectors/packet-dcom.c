@@ -2014,7 +2014,7 @@ dissect_dcom_CUSTOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	}
 
 	/* append info to subtree header */
-	//proto_item_append_text(sub_item, ": ActivationPropertiesIn");
+	/* proto_item_append_text(sub_item, ": ActivationPropertiesIn"); */
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
 	return offset;
