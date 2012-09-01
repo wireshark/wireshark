@@ -1607,13 +1607,13 @@ on_advanced_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
             airpcap_if_selected->led = TRUE;
             airpcap_if_close(ad);
         }
-    }
 
-    /* reload the configuration!!! Configuration has not been saved but
-        the corresponding structure has been modified probably...*/
-    if (!airpcap_if_selected->saved)
-    {
-        airpcap_load_selected_if_configuration(airpcap_if_selected);
+        /* reload the configuration!!! Configuration has not been saved but
+           the corresponding structure has been modified probably...*/
+        if (!airpcap_if_selected->saved)
+        {
+            airpcap_load_selected_if_configuration(airpcap_if_selected);
+        }
     }
 
     gtk_widget_destroy(airpcap_advanced_w);
@@ -2365,9 +2365,6 @@ on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     GtkListStore *key_list_store;
 
     guint n_adapters = 0;
-    guint n_wireshark_keys = 0;
-    guint n_driver_keys = 0;
-    guint n_curr_adapter_keys = 0;
     guint i = 0;
 
     GList* wireshark_keys=NULL;
@@ -2386,13 +2383,11 @@ on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
 
     /* Retrieve Wireshark keys */
     wireshark_keys = get_wireshark_keys();
-    n_wireshark_keys = g_list_length(wireshark_keys);
 
     merged_list = merge_key_list(wireshark_keys,NULL);
 
     /* Retrieve AirPcap driver's keys */
     driver_keys = get_airpcap_driver_keys();
-    n_driver_keys = g_list_length(driver_keys);
 
     merged_list = merge_key_list(merged_list,driver_keys);
 
@@ -2401,7 +2396,6 @@ on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     {
         curr_adapter = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
         current_adapter_keys = get_airpcap_device_keys(curr_adapter);
-        n_curr_adapter_keys = g_list_length(current_adapter_keys);
 
         merged_list_tmp = merged_list;
         merged_list = merge_key_list(merged_list_tmp,current_adapter_keys);
@@ -2482,9 +2476,6 @@ on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     GtkListStore *key_list_store;
 
     guint n_adapters = 0;
-    guint n_wireshark_keys = 0;
-    guint n_driver_keys = 0;
-    guint n_curr_adapter_keys = 0;
     guint i = 0;
 
     GList* wireshark_keys=NULL;
@@ -2502,11 +2493,9 @@ on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     n_adapters = g_list_length(airpcap_if_list);
 
     wireshark_keys = get_wireshark_keys();
-    n_wireshark_keys = g_list_length(wireshark_keys);
 
     /* Retrieve AirPcap driver's keys */
     driver_keys = get_airpcap_driver_keys();
-    n_driver_keys = g_list_length(driver_keys);
 
     merged_list = merge_key_list(merged_list,driver_keys);
 
@@ -2515,7 +2504,6 @@ on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     {
         curr_adapter = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
         current_adapter_keys = get_airpcap_device_keys(curr_adapter);
-        n_curr_adapter_keys = g_list_length(current_adapter_keys);
 
         merged_list_tmp = merged_list;
         merged_list = merge_key_list(merged_list_tmp,current_adapter_keys);
