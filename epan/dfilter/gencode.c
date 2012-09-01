@@ -171,78 +171,78 @@ dfw_append_mk_range(dfwork_t *dfw, stnode_t *node)
 static int
 dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 {
-    GSList *params;
-    int i, num_params, reg;
-    dfvm_value_t **jmps;
+	GSList *params;
+	int i, num_params, reg;
+	dfvm_value_t **jmps;
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*val1, *val2, *val;
 
-    params = sttype_function_params(node);
-    num_params = g_slist_length(params);
+	params = sttype_function_params(node);
+	num_params = g_slist_length(params);
 
-    /* Array to hold the instructions that need to jump to
-     * an instruction if they fail. */
-    jmps = (dfvm_value_t **)g_malloc(num_params * sizeof(dfvm_value_t*));
+	/* Array to hold the instructions that need to jump to
+	 * an instruction if they fail. */
+	jmps = (dfvm_value_t **)g_malloc(num_params * sizeof(dfvm_value_t*));
 
-    /* Create the new DFVM instruction */
-    insn = dfvm_insn_new(CALL_FUNCTION);
+	/* Create the new DFVM instruction */
+	insn = dfvm_insn_new(CALL_FUNCTION);
 
-    val1 = dfvm_value_new(FUNCTION_DEF);
-    val1->value.funcdef = sttype_function_funcdef(node);
-    insn->arg1 = val1;
+	val1 = dfvm_value_new(FUNCTION_DEF);
+	val1->value.funcdef = sttype_function_funcdef(node);
+	insn->arg1 = val1;
 	val2 = dfvm_value_new(REGISTER);
 	val2->value.numeric = dfw->next_register++;
-    insn->arg2 = val2;
-    insn->arg3 = NULL;
-    insn->arg4 = NULL;
+	insn->arg2 = val2;
+	insn->arg3 = NULL;
+	insn->arg4 = NULL;
 
-    i = 0;
-    while (params) {
-        jmps[i] = NULL;
-        reg = gen_entity(dfw, (stnode_t *)params->data, &jmps[i]);
+	i = 0;
+	while (params) {
+		jmps[i] = NULL;
+		reg = gen_entity(dfw, (stnode_t *)params->data, &jmps[i]);
 
-        val = dfvm_value_new(REGISTER);
-        val->value.numeric = reg;
+		val = dfvm_value_new(REGISTER);
+		val->value.numeric = reg;
 
-        switch(i) {
-            case 0:
-                insn->arg3 = val;
-                break;
-            case 1:
-                insn->arg4 = val;
-                break;
-            default:
-                g_assert_not_reached();
-        }
+		switch(i) {
+			case 0:
+				insn->arg3 = val;
+				break;
+			case 1:
+				insn->arg4 = val;
+				break;
+			default:
+				g_assert_not_reached();
+		}
 
-        params = params->next;
-        i++;
-    }
+		params = params->next;
+		i++;
+	}
 
 	dfw_append_insn(dfw, insn);
 
-    /* If any of our parameters failed, send them to
-     * our own failure instruction. This *has* to be done
-     * after we caled dfw_append_insn above so that
-     * we know what the next DFVM insruction is, via
-     * dfw->next_insn_id */
-    for (i = 0; i < num_params; i++) {
-        if (jmps[i]) {
-            jmps[i]->value.numeric = dfw->next_insn_id;
-        }
-    }
+	/* If any of our parameters failed, send them to
+	 * our own failure instruction. This *has* to be done
+	 * after we caled dfw_append_insn above so that
+	 * we know what the next DFVM insruction is, via
+	 * dfw->next_insn_id */
+	for (i = 0; i < num_params; i++) {
+		if (jmps[i]) {
+			jmps[i]->value.numeric = dfw->next_insn_id;
+		}
+	}
 
-    /* We need another instruction to jump to another exit
-     * place, if the call() of our function failed for some reaosn */
-    insn = dfvm_insn_new(IF_FALSE_GOTO);
-    g_assert(p_jmp);
-    *p_jmp = dfvm_value_new(INSN_NUMBER);
-    insn->arg1 = *p_jmp;
-    dfw_append_insn(dfw, insn);
+	/* We need another instruction to jump to another exit
+	 * place, if the call() of our function failed for some reaosn */
+	insn = dfvm_insn_new(IF_FALSE_GOTO);
+	g_assert(p_jmp);
+	*p_jmp = dfvm_value_new(INSN_NUMBER);
+	insn->arg1 = *p_jmp;
+	dfw_append_insn(dfw, insn);
 
-    g_free(jmps);
+	g_free(jmps);
 
-    return val2->value.numeric;
+	return val2->value.numeric;
 }
 
 
@@ -286,10 +286,10 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_ar
 static int
 gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 {
-	sttype_id_t	e_type;
-	dfvm_insn_t	*insn;
-	header_field_info	*hfinfo;
-    int reg = -1;
+	sttype_id_t       e_type;
+	dfvm_insn_t       *insn;
+	header_field_info *hfinfo;
+	int reg = -1;
 	e_type = stnode_type_id(st_arg);
 
 	if (e_type == STTYPE_FIELD) {
@@ -297,7 +297,7 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 		reg = dfw_append_read_tree(dfw, hfinfo);
 
 		insn = dfvm_insn_new(IF_FALSE_GOTO);
-        g_assert(p_jmp);
+		g_assert(p_jmp);
 		*p_jmp = dfvm_value_new(INSN_NUMBER);
 		insn->arg1 = *p_jmp;
 		dfw_append_insn(dfw, insn);
@@ -309,13 +309,13 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 		reg = dfw_append_mk_range(dfw, st_arg);
 	}
 	else if (e_type == STTYPE_FUNCTION) {
-        reg = dfw_append_function(dfw, st_arg, p_jmp);
-    }
+		reg = dfw_append_function(dfw, st_arg, p_jmp);
+	}
 	else {
-        printf("sttype_id is %u\n", e_type);
+		printf("sttype_id is %u\n", e_type);
 		g_assert_not_reached();
 	}
-    return reg;
+	return reg;
 }
 
 
@@ -463,69 +463,69 @@ dfw_gencode(dfwork_t *dfw)
 
 	for (id = 0, prev = NULL; id < length; prev = insn, id++) {
 		insn = (dfvm_insn_t	*)g_ptr_array_index(dfw->insns, id);
-                arg1 = insn->arg1;
-                if (insn->op == IF_TRUE_GOTO || insn->op == IF_FALSE_GOTO) {
-                    dfvm_opcode_t revert = (insn->op == IF_FALSE_GOTO)?IF_TRUE_GOTO:IF_FALSE_GOTO;
-                    id1 = arg1->value.numeric;
-                    do {
-                      insn1 = (dfvm_insn_t*)g_ptr_array_index(dfw->insns, id1);
-                      if (insn1->op == revert) {
-                        /* this one is always false and the branch is not taken*/
-                        id1 = id1 +1;
-                        continue;
-                      }
-                      else if (insn1->op == READ_TREE && prev && prev->op == READ_TREE &&
-                                prev->arg2->value.numeric == insn1->arg2->value.numeric) {
-                        /* hack if it's the same register it's the same field
-                         * and it returns the same value
-                        */
-                        id1 = id1 +1;
-                        continue;
-                      }
-                      else if (insn1->op != insn->op) {
-                        /* bail out */
-                        arg1 = insn->arg1;
-                        arg1->value.numeric = id1;
-                        break;
-                      }
-                      arg1 = insn1->arg1;
-                      id1 = arg1->value.numeric;
-                    } while (1);
-                }
+		arg1 = insn->arg1;
+		if (insn->op == IF_TRUE_GOTO || insn->op == IF_FALSE_GOTO) {
+			dfvm_opcode_t revert = (insn->op == IF_FALSE_GOTO)?IF_TRUE_GOTO:IF_FALSE_GOTO;
+			id1 = arg1->value.numeric;
+			do {
+				insn1 = (dfvm_insn_t*)g_ptr_array_index(dfw->insns, id1);
+				if (insn1->op == revert) {
+					/* this one is always false and the branch is not taken*/
+					id1 = id1 +1;
+					continue;
+				}
+				else if (insn1->op == READ_TREE && prev && prev->op == READ_TREE &&
+						prev->arg2->value.numeric == insn1->arg2->value.numeric) {
+					/* hack if it's the same register it's the same field
+					 * and it returns the same value
+					 */
+					id1 = id1 +1;
+					continue;
+				}
+				else if (insn1->op != insn->op) {
+					/* bail out */
+					arg1 = insn->arg1;
+					arg1->value.numeric = id1;
+					break;
+				}
+				arg1 = insn1->arg1;
+				id1 = arg1->value.numeric;
+			} while (1);
+		}
 	}
 
 	/* move constants after registers*/
-        if (dfw->first_constant == -1) {
-            /* NONE */
-            dfw->first_constant = dfw->next_register;
-            return;
-        }
+	if (dfw->first_constant == -1) {
+		/* NONE */
+		dfw->first_constant = dfw->next_register;
+		return;
+	}
 
 	id = -dfw->first_constant -1;
         dfw->first_constant = dfw->next_register;
         dfw->next_register += id;
 
-        length = dfw->consts->len;
+	length = dfw->consts->len;
 	for (id = 0; id < length; id++) {
 		insn = (dfvm_insn_t	*)g_ptr_array_index(dfw->consts, id);
 		if (insn->arg2 && insn->arg2->type == REGISTER && (int)insn->arg2->value.numeric < 0 )
-		  insn->arg2->value.numeric = dfw->first_constant - insn->arg2->value.numeric -1;
+			insn->arg2->value.numeric = dfw->first_constant - insn->arg2->value.numeric -1;
 	}
 
-        length = dfw->insns->len;
+	length = dfw->insns->len;
 	for (id = 0; id < length; id++) {
 		insn = (dfvm_insn_t	*)g_ptr_array_index(dfw->insns, id);
 		if (insn->arg1 && insn->arg1->type == REGISTER && (int)insn->arg1->value.numeric < 0 )
-		  insn->arg1->value.numeric = dfw->first_constant - insn->arg1->value.numeric -1;
+			insn->arg1->value.numeric = dfw->first_constant - insn->arg1->value.numeric -1;
 
 		if (insn->arg2 && insn->arg2->type == REGISTER && (int)insn->arg2->value.numeric < 0 )
-		  insn->arg2->value.numeric = dfw->first_constant - insn->arg2->value.numeric -1;
+			insn->arg2->value.numeric = dfw->first_constant - insn->arg2->value.numeric -1;
 
 		if (insn->arg3 && insn->arg3->type == REGISTER && (int)insn->arg3->value.numeric < 0 )
-		  insn->arg3->value.numeric = dfw->first_constant - insn->arg3->value.numeric -1;
+			insn->arg3->value.numeric = dfw->first_constant - insn->arg3->value.numeric -1;
 
 		if (insn->arg4 && insn->arg4->type == REGISTER && (int)insn->arg4->value.numeric < 0 )
-		  insn->arg4->value.numeric = dfw->first_constant - insn->arg4->value.numeric -1;
+			insn->arg4->value.numeric = dfw->first_constant - insn->arg4->value.numeric -1;
 	}
 
 
@@ -534,36 +534,49 @@ dfw_gencode(dfwork_t *dfw)
 
 
 typedef struct {
-    int i;
-    int *fields;
+	int i;
+	int *fields;
 } hash_key_iterator;
 
 static void
 get_hash_key(gpointer key, gpointer value _U_, gpointer user_data)
 {
-    int field_id = GPOINTER_TO_INT(key);
-    hash_key_iterator *hki = (hash_key_iterator *)user_data;
+	int field_id = GPOINTER_TO_INT(key);
+	hash_key_iterator *hki = (hash_key_iterator *)user_data;
 
-    hki->fields[hki->i] = field_id;
-    hki->i++;
+	hki->fields[hki->i] = field_id;
+	hki->i++;
 }
 
 int*
 dfw_interesting_fields(dfwork_t *dfw, int *caller_num_fields)
 {
-    int num_fields = g_hash_table_size(dfw->interesting_fields);
+	int num_fields = g_hash_table_size(dfw->interesting_fields);
 
-    hash_key_iterator hki;
+	hash_key_iterator hki;
 
-    if (num_fields == 0) {
-        *caller_num_fields = 0;
-        return NULL;
-    }
+	if (num_fields == 0) {
+		*caller_num_fields = 0;
+		return NULL;
+	}
 
-    hki.fields = g_new(int, num_fields);
-    hki.i = 0;
+	hki.fields = g_new(int, num_fields);
+	hki.i = 0;
 
-    g_hash_table_foreach(dfw->interesting_fields, get_hash_key, &hki);
-    *caller_num_fields = num_fields;
-    return hki.fields;
+	g_hash_table_foreach(dfw->interesting_fields, get_hash_key, &hki);
+	*caller_num_fields = num_fields;
+	return hki.fields;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
