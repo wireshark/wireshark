@@ -674,7 +674,7 @@ void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
 // Capture callbacks
 
 #ifdef HAVE_LIBPCAP
-void MainWindow::captureCapturePrepared(capture_options *capture_opts) {
+void MainWindow::captureCapturePrepared(capture_options * /*capture_opts*/) {
     qDebug() << "FIX captureCapturePrepared";
 //    main_capture_set_main_window_title(capture_opts);
 
@@ -692,11 +692,11 @@ void MainWindow::captureCapturePrepared(capture_options *capture_opts) {
 //    main_set_for_capture_file(FALSE);
     main_ui_->mainStack->setCurrentWidget(packet_splitter_);
 }
-void MainWindow::captureCaptureUpdateStarted(capture_options *capture_opts) {
+void MainWindow::captureCaptureUpdateStarted(capture_options * /*capture_opts*/) {
     qDebug() << "captureCaptureUpdateStarted";
     setForCaptureInProgress(true);
 }
-void MainWindow::captureCaptureUpdateFinished(capture_options *capture_opts) {
+void MainWindow::captureCaptureUpdateFinished(capture_options * /*capture_opts*/) {
     qDebug() << "captureCaptureUpdateFinished";
 
     /* The capture isn't stopping any more - it's stopped. */
