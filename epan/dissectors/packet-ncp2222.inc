@@ -11081,7 +11081,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[2].voffset = foffset;
             pvalues[2].hfname= hf_nds_eid;
             foffset = foffset+pvalues[2].vlength;
-            resolve_eid = TRUE;
             global_eid = pvalues[2].vvalue;
             pvalues[3].vtype = VTYPE_STRING;
             pvalues[3].vdesc = "New RDN: %s";
