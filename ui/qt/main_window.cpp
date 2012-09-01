@@ -77,8 +77,8 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_(new Ui::MainWindow),
     df_combo_box_(new DisplayFilterCombo()),
     cap_file_(NULL),
-    capture_stopping_(false),
     previous_focus_(NULL),
+    capture_stopping_(false),
 #ifdef _WIN32
     pipe_timer_(NULL)
 #else
