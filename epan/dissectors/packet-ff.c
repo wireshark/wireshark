@@ -13011,8 +13011,6 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset, trailer_len, sub_tree, Options);
 		/*offset += trailer_len;*/
 	}
-
-	return;
 }
 
 
@@ -13025,7 +13023,7 @@ get_ff_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 
 
-static void
+static int
 dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 /*
@@ -13044,36 +13042,40 @@ dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *
  */
 
+	/* Make sure we at least have the header */
+	if (!tvb_bytes_exist(tvb, 0, 12))
+		return 0;
+
+	/* Make sure the Message Length at least includes the header size */
+	if (tvb_get_ntohl(tvb, 8) < 12)
+		return 0;
+
 	tcp_dissect_pdus(tvb, pinfo, tree, ff_desegment,
 		12, get_ff_pdu_len, dissect_ff);
 
-	return;
+	return tvb_length(tvb);
 }
 
 
 
-static void
+static int
 dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	conversation_t *conversation	= NULL;
+	guint32 length;
 
-	if(pinfo->destport == UDP_PORT_FF_FMS) {
-		conversation =
-			find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-				PT_UDP, pinfo->srcport, 0, NO_PORT_B);
+	/* Make sure at least the header is there */
+	if ((guint32)tvb_reported_length(tvb) < 12)
+		return 0;
 
-		if(!conversation ||
-			(conversation->dissector_handle != ff_udp_handle)) {
+	length = tvb_get_ntohl(tvb, 8);
 
-			conversation =
-				conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-					PT_UDP, pinfo->srcport, 0, NO_PORT2);
-
-			conversation_set_dissector(conversation, ff_udp_handle);
-		}
-	}
+	/* Make sure the length field is valid */
+	if ((length > (guint32)tvb_reported_length_remaining(tvb, 0)) ||
+		(length < 12))
+		return 0;
 
 	dissect_ff(tvb, pinfo, tree);
+	return tvb_length(tvb);
 }
 
 
@@ -16809,8 +16811,8 @@ proto_reg_handoff_ff(void)
 	/*
 	 * 4.8. Using UDP and TCP
 	 */
-	ff_udp_handle = create_dissector_handle(dissect_ff_udp, proto_ff);
-	ff_tcp_handle = create_dissector_handle(dissect_ff_tcp, proto_ff);
+	ff_udp_handle = new_create_dissector_handle(dissect_ff_udp, proto_ff);
+	ff_tcp_handle = new_create_dissector_handle(dissect_ff_tcp, proto_ff);
 
 	/*
 	 * 4.8.4.2. Use
