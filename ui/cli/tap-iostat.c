@@ -1291,6 +1291,8 @@ iostat_init(const char *optarg, void* userdata _U_)
     case TS_UTC_WITH_DATE:
         fprintf(stderr, "\ntshark: invalid -t operand. io,stat only supports -t <r|a|ad>\n");
         exit(1);
+	default:
+		break;
     }
     
 	io = (io_stat_t *) g_malloc(sizeof(io_stat_t));
