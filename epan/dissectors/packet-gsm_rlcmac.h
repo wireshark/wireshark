@@ -37,6 +37,8 @@
 #define POST_PACKED
 #endif
 
+#define GSM_RLC_MAC_MAGIC_NUMBER  0x67707273
+
 typedef guint8 TFI_t;
 
 typedef guint8 N32_t;
@@ -4794,6 +4796,108 @@ typedef struct
 /* End Packet Pause */
 
 
+/* < Payload Type Data MAC Header content > */
+typedef struct
+{
+  guint8 TFI;
+  guint8 Countdown_Value;
+  guint8 SI;
+  guint8 R;
+} UL_Data_Mac_Header_t;
+
+typedef struct
+{
+  UL_Data_Mac_Header_t UL_Data_Mac_Header;
+  guint8 Spare;
+  guint8 PI;
+  guint8 TFI;
+  guint8 TI;
+  guint8 BSN;
+  guint64 E;
+} UL_Data_Block_GPRS_t;
+
+typedef struct
+{
+   guint8 MESSAGE_TYPE;
+   guint8 CTRL_ACK;
+}UL_Packet_Control_Ack_11_t;
+
+typedef struct
+{
+   guint8 MESSAGE_TYPE;
+   guint8 TN_RRBP;
+   guint8 CTRL_ACK;
+}UL_Packet_Control_Ack_TN_RRBP_11_t;
+
+typedef struct
+{
+   guint8 MESSAGE_TYPE;
+   guint8 CTRL_ACK;
+}UL_Packet_Control_Ack_8_t;
+
+typedef struct
+{
+   guint8 MESSAGE_TYPE;
+   guint8 TN_RRBP;
+   guint8 CTRL_ACK;
+}UL_Packet_Control_Ack_TN_RRBP_8_t;
+
+typedef struct
+{
+  guint8 Payload_Type;
+  guint8 RRBP;
+  guint8 S_P;
+  guint8 USF;
+} DL_Data_Mac_Header_t;
+
+typedef struct
+{
+  DL_Data_Mac_Header_t DL_Data_Mac_Header;
+  guint8 Power_Reduction;
+  guint8 TFI;
+  guint8 FBI;
+  guint8 BSN;
+  guint8 E;
+} DL_Data_Block_GPRS_t;
+
+typedef struct
+{
+  guint8 TFI;
+  guint8 RRBP;
+  guint8 ES_P;
+  guint8 USF;
+  guint8 BSN1;
+  guint8 BSN2;
+  guint8 Power_Reduction;
+  guint8 SPB;
+  guint8 CPS;
+  guint8 PI;
+} DL_Data_Block_EGPRS_Header_t;
+
+typedef DL_Data_Block_EGPRS_Header_t DL_Data_Block_EGPRS_Header_Type1_t;
+typedef DL_Data_Block_EGPRS_Header_t DL_Data_Block_EGPRS_Header_Type2_t;
+typedef DL_Data_Block_EGPRS_Header_t DL_Data_Block_EGPRS_Header_Type3_t;
+
+typedef struct
+{
+  guint8 TFI;
+  guint8 Countdown_Value;
+  guint8 SI;
+  guint8 R;
+  guint8 BSN1;
+  guint8 BSN2;
+  guint8 PI;
+  guint8 RSB;
+  guint8 SPB;
+  guint8 CPS;
+  guint8 SPARE1;
+  guint8 SPARE2;
+} UL_Data_Block_EGPRS_Header_t;
+
+typedef UL_Data_Block_EGPRS_Header_t UL_Data_Block_EGPRS_Header_Type1_t;
+typedef UL_Data_Block_EGPRS_Header_t UL_Data_Block_EGPRS_Header_Type2_t;
+typedef UL_Data_Block_EGPRS_Header_t UL_Data_Block_EGPRS_Header_Type3_t;
+
 /*
 < NC Measurement Parameters struct > ::=
                                         < NETWORK_CONTROL_ORDER : bit (2) >
@@ -4876,12 +4980,33 @@ Table 25 (concluded): PACKET CELL CHANGE ORDER message content
 #define MT_PACKET_SI_STATUS                    0x0D
 #define MT_ENHANCED_MEASUREMENT_REPORT         0x04
 
+typedef enum
+{
+    RLCMAC_PRACH = 0x20,
+    RLCMAC_CS1 = 0x21,
+    RLCMAC_CS2 = 0x22,
+    RLCMAC_CS3 = 0x23,
+    RLCMAC_CS4 = 0x24,
+    RLCMAC_MCS0 = 0x30,
+    RLCMAC_MCS1 = 0x31,
+    RLCMAC_MCS2 = 0x32,
+    RLCMAC_MCS3 = 0x33,
+    RLCMAC_MCS4 = 0x34,
+    RLCMAC_MCS5 = 0x35,
+    RLCMAC_MCS6 = 0x36,
+    RLCMAC_MCS7 = 0x37,
+    RLCMAC_MCS8 = 0x38,
+    RLCMAC_MCS9 = 0x39,
+}RLCMAC_GPRS_CS_t;
+
 /* < Downlink RLC/MAC control message > */
 typedef struct
 {
   union
   {
     guint8                                MESSAGE_TYPE;
+    DL_Data_Block_GPRS_t                  DL_Data_Block_GPRS;
+    DL_Data_Block_EGPRS_Header_t          DL_Data_Block_EGPRS_Header;
     Packet_Access_Reject_t                Packet_Access_Reject;
     Packet_Cell_Change_Order_t            Packet_Cell_Change_Order;
     Packet_Cell_Change_Continue_t         Packet_Cell_Change_Continue;
@@ -4909,13 +5034,8 @@ typedef struct
     PSI13_t                               PSI13;
   } u;
 
-  /* NrOfBits is placed after union to avoid unnecessary code changes when addressing the union members
-   * NrOfBits serves dual purpose:
-   * 1. before unpacking it will hold the max number of bits for the CSN.1 unpacking function
-   * 2. after successful unpacking it will hold the number of bits unpacked from a message.
-   *   This will be needed for some EGPRS messages to compute the length of included variable bitmap
-   */
-  gint16 NrOfBits;
+  RLCMAC_GPRS_CS_t coding_scheme;
+  guint            flags;
 } RlcMacDownlink_t;
 
 typedef gint16 MSGGPRS_Status_t;
@@ -4939,9 +5059,45 @@ typedef struct
     Additional_MS_Rad_Access_Cap_t        Additional_MS_Rad_Access_Cap;
     Packet_Cell_Change_Notification_t     Packet_Cell_Change_Notification;
     Packet_SI_Status_t                    Packet_SI_Status;
+    UL_Data_Block_GPRS_t                  UL_Data_Block_GPRS;
+    UL_Data_Block_EGPRS_Header_t          UL_Data_Block_EGPRS_Header;
+    UL_Packet_Control_Ack_11_t            UL_Packet_Control_Ack_11;
+    UL_Packet_Control_Ack_TN_RRBP_11_t    UL_Packet_Control_Ack_TN_RRBP_11;
+    UL_Packet_Control_Ack_8_t             UL_Packet_Control_Ack_8;
+    UL_Packet_Control_Ack_TN_RRBP_8_t     UL_Packet_Control_Ack_TN_RRBP_8;
   } u;
-  gint16 NrOfBits;
+  RLCMAC_GPRS_CS_t coding_scheme;
+  guint            flags;
 } RlcMacUplink_t;
+
+typedef struct
+{
+   guint8 bsn1;
+   guint8 bsn2;
+   guint8 pi;
+}egprs_ul_header_info_t;
+
+typedef struct
+{
+   guint8 bsn1;
+   guint8 bsn2;
+}egprs_dl_header_info_t;
+
+typedef struct
+{
+   guint            magic;
+   RLCMAC_GPRS_CS_t coding_scheme;
+   guint            frame_number;
+#define GSM_RLC_MAC_EGPRS_BLOCK1 0x01
+#define GSM_RLC_MAC_EGPRS_BLOCK2 0x02
+#define GSM_RLC_MAC_EGPRS_FANR_FLAG 0x08
+   guint            flags;
+   union
+   {
+      egprs_ul_header_info_t egprs_ul_header_info;
+      egprs_dl_header_info_t egprs_dl_header_info;
+   }u;
+} RlcMacPrivateData_t;
 
 
 #if 0
@@ -5078,5 +5234,9 @@ typedef struct
 
 extern gint f_k(gint k, gint *w, gint range);
 
+extern const guint16 gsm_rlcmac_gprs_block_length[];
+extern const guint16 gsm_rlcmac_egprs_dl_header_block_length[];
+extern const guint16 gsm_rlcmac_egprs_ul_header_block_length[];
+extern const guint8 gsm_rlcmac_egprs_data_block_length[];
 
 #endif /* __PACKET_GSM_RLCMAC_H__ */
