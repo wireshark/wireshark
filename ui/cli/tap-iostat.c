@@ -617,19 +617,13 @@ iostat_draw(void *arg)
     else
         invl_col_w = (2*dur_mag) + (2*invl_prec) + 10;
 
-    /* Update the width of the time interval column (in fact the date) */ 
-    switch (timestamp_get_type()) {
-    case TS_ABSOLUTE:
-      invl_col_w=12;
-      break;
-    case TS_ABSOLUTE_WITH_DATE:
-      invl_col_w=23;
-      break;
-    default:
-      break;
-    }
-    invl_col_w = MAX(invl_col_w, 12);
-    borderlen = MAX(borderlen, invl_col_w);
+    /* Update the width of the time interval column for "-t ad" */ 
+    if (timestamp_get_type()==TS_ABSOLUTE_WITH_DATE) 
+        invl_col_w = MAX(invl_col_w, 23);
+	else
+		invl_col_w = MAX(invl_col_w, 12);
+
+	borderlen = MAX(borderlen, invl_col_w);
 
     /* Calc the total width of each row in the stats table and build the printf format string for each
     *  column based on its field type, width, and name length.
@@ -694,7 +688,7 @@ iostat_draw(void *arg)
                     *  CALC_TYPE_LOAD was already converted in iostat_packet() ) */
                     if (type==CALC_TYPE_LOAD) {
                         iot->max_vals[j] /= interval;
-                    } else {
+                    } else if (type != CALC_TYPE_AVG) {
                         iot->max_vals[j] = (iot->max_vals[j] + 500000000) / NANOSECS_PER_SEC;
                     }
                     val_mag = magnitude(iot->max_vals[j], 15);
@@ -886,23 +880,24 @@ iostat_draw(void *arg)
         printf("%s|", filler_s);
     }
     
-    printf("\n| Interval");
+	k = 11;
     switch (timestamp_get_type()) {
     case TS_ABSOLUTE:
-      printf("\n| Time    ");
-      break;
+        printf("\n| Time    ");
+        break;
     case TS_ABSOLUTE_WITH_DATE:
-      printf("\n| Date    ");
-      break;
+        printf("\n| Date and time");
+		k = 16;
+        break;
     case TS_RELATIVE:
     case TS_NOT_SET:
-      printf("\n| Interval");
-      break;
+        printf("\n| Interval");
+        break;
     default:
-      break;
+        break;
     }
 
-    spaces_s = &spaces[borderlen-(invl_col_w-11)];
+	spaces_s = &spaces[borderlen-(invl_col_w-k)];
     printf("%s|", spaces_s);
 
     /* Display the stat label in each column */
@@ -1287,8 +1282,18 @@ iostat_init(const char *optarg, void* userdata _U_)
         fprintf(stderr, "\ntshark: invalid \"-z io,stat,<interval>[,<filter>]\" argument\n");
         exit(1);
     }
+
+    switch (timestamp_get_type()) {
+    case TS_DELTA:
+    case TS_DELTA_DIS:
+    case TS_EPOCH:
+    case TS_UTC:
+    case TS_UTC_WITH_DATE:
+        fprintf(stderr, "\ntshark: invalid -t operand. io,stat only supports -t <r|a|ad>\n");
+        exit(1);
+    }
     
-    io = (io_stat_t *) g_malloc(sizeof(io_stat_t));
+	io = (io_stat_t *) g_malloc(sizeof(io_stat_t));
 
     /* If interval is 0, calculate statistics over the whole file by setting the interval to
     *  G_MAXINT32 */
