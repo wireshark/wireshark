@@ -327,6 +327,8 @@ static int hf_scsi_block_limits_oug             = -1;
 static int hf_scsi_block_limits_ugavalid        = -1;
 static int hf_scsi_block_limits_uga             = -1;
 static int hf_scsi_block_limits_mwsl            = -1;
+static int hf_scsi_prevent_allow_flags          = -1;
+static int hf_scsi_prevent_allow_prevent        = -1;
 
 static gint ett_scsi = -1;
 static gint ett_scsi_page = -1;
@@ -346,6 +348,7 @@ static gint ett_scsi_fragments = -1;
 static gint ett_scsi_fragment = -1;
 static gint ett_persresv_control = -1;
 static gint ett_scsi_lun = -1;
+static gint ett_scsi_prevent_allow = -1;
 
 static int scsi_tap = -1;
 
@@ -4006,16 +4009,23 @@ dissect_spc_preventallowmediaremoval(tvbuff_t *tvb, packet_info *pinfo _U_, prot
                                      guint offset, gboolean isreq, gboolean iscdb,
                                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
-
-    if (!tree)
-        return;
-
     if (isreq && iscdb) {
-        flags = tvb_get_guint8(tvb, offset+3);
-        proto_tree_add_text(tree, tvb, offset+3, 1,
-                            "Persistent: %u, Prevent: %u",
-                            flags & 0x02, flags & 0x01);
+        static const int *prevent_allow_fields[] = {
+            &hf_scsi_prevent_allow_prevent,
+            NULL
+        };
+        guint8 flags;
+
+        proto_tree_add_bitmask(tree, tvb, offset + 3, hf_scsi_prevent_allow_flags,
+            ett_scsi_prevent_allow, prevent_allow_fields, ENC_BIG_ENDIAN);
+
+        flags = tvb_get_guint8(tvb, offset + 3);
+        if (flags & 0x01) {
+            col_append_str(pinfo->cinfo, COL_INFO, " PREVENT");
+	} else {
+            col_append_str(pinfo->cinfo, COL_INFO, " ALLOW");
+        }
+
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
                                ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
@@ -5840,6 +5850,12 @@ proto_register_scsi(void)
         { &hf_scsi_lun_address_mode,
           { "Address Mode", "scsi.lun.address_mode", FT_UINT8, BASE_DEC,
           VALS(scsi_lun_address_mode_vals), 0xc0, "Addressing mode for the LUN", HFILL }},
+	{ &hf_scsi_prevent_allow_flags,
+          {"Prevent Allow Flags", "scsi.prevent_allow.flags", FT_UINT8, BASE_HEX, NULL, 0,
+           NULL, HFILL}},
+        { &hf_scsi_prevent_allow_prevent,
+          { "PREVENT", "scsi.prevent_allow.prevent", FT_BOOLEAN, 8,
+            NULL, 0x01, NULL, HFILL}},
     };
 
     /* Setup protocol subtree array */
@@ -5861,7 +5877,8 @@ proto_register_scsi(void)
         &ett_scsi_fragments,
         &ett_scsi_fragment,
         &ett_persresv_control,
-        &ett_scsi_lun
+        &ett_scsi_lun,
+        &ett_scsi_prevent_allow
     };
     module_t *scsi_module;
 
