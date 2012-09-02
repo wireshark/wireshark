@@ -184,12 +184,22 @@ static int hf_scsi_mmc_adip_device_manuf_id = -1;
 static int hf_scsi_mmc_adip_media_type_id = -1;
 static int hf_scsi_mmc_adip_product_revision_number = -1;
 static int hf_scsi_mmc_adip_number_of_physical_info = -1;
+static int hf_scsi_mmc_gesn_polled = -1;
+static int hf_scsi_mmc_notification_flags = -1;
+static int hf_scsi_mmc_gesn_device_busy = -1;
+static int hf_scsi_mmc_gesn_multi_initiator = -1;
+static int hf_scsi_mmc_gesn_media = -1;
+static int hf_scsi_mmc_gesn_external_request = -1;
+static int hf_scsi_mmc_gesn_power_mgmt = -1;
+static int hf_scsi_mmc_gesn_operational_change = -1;
 
+static gint ett_scsi_mmc_profile   = -1;
+static gint ett_scsi_notifications = -1;
 
-
-static gint ett_scsi_mmc_profile = -1;
-
-
+static const true_false_string scsi_gesn_path = {
+    "POLLED operation requested",
+    "ASYNCHRONOUS operation requested"
+};
 static const true_false_string scsi_track_path = {
     "Opposite Track Path",
     "Parallel Track Path"
@@ -980,20 +990,24 @@ dissect_mmc4_geteventstatusnotification (tvbuff_t *tvb, packet_info *pinfo _U_, 
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
-
     if (tree && isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "Polled: %u",
-                             flags & 0x01);
+        static const int *notification_fields[] = {
+            &hf_scsi_mmc_gesn_device_busy,
+            &hf_scsi_mmc_gesn_multi_initiator,
+            &hf_scsi_mmc_gesn_media,
+            &hf_scsi_mmc_gesn_external_request,
+            &hf_scsi_mmc_gesn_power_mgmt,
+            &hf_scsi_mmc_gesn_operational_change,
+            NULL
+        }
+;
+        proto_tree_add_item (tree, hf_scsi_mmc_gesn_polled, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        flags = tvb_get_guint8 (tvb, offset+3);
-        proto_tree_add_text (tree, tvb, offset+3, 1,
-                             "Notification Class Request: %u",
-                             flags);
+        proto_tree_add_bitmask(tree, tvb, offset + 3, hf_scsi_mmc_notification_flags,
+            ett_scsi_notifications, notification_fields, ENC_BIG_ENDIAN);
 
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
@@ -1913,12 +1927,36 @@ proto_register_scsi_mmc(void)
         { &hf_scsi_mmc_disc_track_path,
           { "Track Path", "scsi_mmc.disk.track_path", FT_BOOLEAN, 8,
             TFS(&scsi_track_path), 0x10, NULL, HFILL}},
-
+	{ &hf_scsi_mmc_gesn_polled,
+          { "Polled", "scsi_mmc.gesn.polled", FT_BOOLEAN, 8,
+            TFS(&scsi_gesn_path), 0x01, NULL, HFILL}},
+        { &hf_scsi_mmc_notification_flags,
+          {"Notification Class Request", "scsi_mmc.notification.flags", FT_UINT8, BASE_HEX, NULL, 0,
+           NULL, HFILL}},
+	{ &hf_scsi_mmc_gesn_device_busy,
+          { "DEVICE BUSY", "scsi_mmc.gesn.device_busy", FT_BOOLEAN, 8,
+            NULL, 0x40, NULL, HFILL}},
+        { &hf_scsi_mmc_gesn_multi_initiator,
+          { "MULTI_INITIATOR", "scsi_mmc.gesn.multi_initiator", FT_BOOLEAN, 8,
+            NULL, 0x20, NULL, HFILL}},
+        { &hf_scsi_mmc_gesn_media,
+          { "MEDIA", "scsi_mmc.gesn.media", FT_BOOLEAN, 8,
+            NULL, 0x10, NULL, HFILL}},
+        { &hf_scsi_mmc_gesn_external_request,
+          { "EXTERNAL_REQUEST", "scsi_mmc.gesn.external_request", FT_BOOLEAN, 8,
+            NULL, 0x08, NULL, HFILL}},
+        { &hf_scsi_mmc_gesn_power_mgmt,
+          { "POWER_MANAGEMENT", "scsi_mmc.gesn.power_management", FT_BOOLEAN, 8,
+            NULL, 0x04, NULL, HFILL}},
+        { &hf_scsi_mmc_gesn_operational_change,
+          { "OPERATIONAL_CHANGE", "scsi_mmc.gesn.operational_change", FT_BOOLEAN, 8,
+            NULL, 0x02, NULL, HFILL}},
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_scsi_mmc_profile,
+        &ett_scsi_notifications,
     };
 
     /* Register the protocol name and description */
