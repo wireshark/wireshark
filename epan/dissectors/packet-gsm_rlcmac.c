@@ -126,7 +126,8 @@ static int hf_ul_message_type_3 = -1;
 static int hf_ul_message_type_6 = -1;
 static int hf_ul_message_type_9 = -1;
 static int hf_tlli = -1;
-static int hf_contention_resolution_tlli = -1;
+/* static int hf_contention_resolution_tlli = -1;
+ * Not Used ??? */
 static int hf_tfi = -1;
 static int hf_page_mode = -1;
 static int hf_bsn = -1;
@@ -6164,6 +6165,7 @@ CSN_DESCR_END  (PSI13_t)
 /*< End Packet System Information Type 13 message content >*/
 
 
+#if 0 /* Not used ??? */
 
 typedef const char* MT_Strings_t;
 
@@ -6276,6 +6278,7 @@ MT_UL_TextGet(guint8 mt)
   }
 }
 
+#endif
 
 /* SI1_RestOctet_t */
 
@@ -7052,7 +7055,7 @@ static guint16 dissect_egprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pr
 }
 
 static void
-dissect_ul_rlc_control_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMacUplink_t *data, guint16 initial_bit_offset, guint16 bit_length)
+dissect_ul_rlc_control_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMacUplink_t *data, guint16 bit_length)
 {
   csnStream_t      ar;
   proto_item   *ti;
@@ -7155,7 +7158,7 @@ dissect_ul_rlc_control_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static void 
-dissect_dl_rlc_control_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMacDownlink_t *data, guint16 initial_bit_offset, guint16 bit_length)
+dissect_dl_rlc_control_message(tvbuff_t *tvb, proto_tree *tree, RlcMacDownlink_t *data, guint16 initial_bit_offset, guint16 bit_length)
 {
   csnStream_t  ar;
   proto_item   *ti = NULL;
@@ -7422,7 +7425,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
                proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_d, tvb, 23, 1, ENC_BIG_ENDIAN);
            }
        }
-       dissect_dl_rlc_control_message(tvb, pinfo, rlcmac_tree, data, bit_offset, bit_length);
+       dissect_dl_rlc_control_message(tvb, rlcmac_tree, data, bit_offset, bit_length);
    }
    else
    {
@@ -7432,7 +7435,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
 }
 
 static void 
-dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMacDownlink_t *data, egprs_dl_header_info_t *egprs_dl_header_info)
+dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMacDownlink_t *data)
 {
    if (data->flags & GSM_RLC_MAC_EGPRS_FANR_FLAG)
    {
@@ -7502,7 +7505,7 @@ dissect_ul_pacch_access_burst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                        "GPRS UL PACCH ACCESS BURST");
    rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
-   if ((bit_length > 8) && (tvb_get_bits8(tvb, 0, 9) == 0x1F9))
+   if ((bit_length > 8) && (tvb_get_bits16(tvb, 0, 9, ENC_BIG_ENDIAN) == 0x1F9))
    {
       csnStreamInit(&ar, 0, bit_length);
       csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(UL_Packet_Control_Ack_11_t), tvb, &data->u.UL_Packet_Control_Ack_11, ett_gsm_rlcmac);
@@ -7602,7 +7605,7 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
    }
    else if (data->coding_scheme == RLCMAC_CS1)
    {
-      dissect_ul_rlc_control_message(tvb, pinfo, tree, data, bit_offset, bit_length);
+      dissect_ul_rlc_control_message(tvb, pinfo, tree, data, bit_length);
    }
    else
    {
@@ -7611,7 +7614,7 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
    }
 }
 static void 
-dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMacUplink_t *data, egprs_ul_header_info_t *egprs_ul_header_info)
+dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMacUplink_t *data)
 {
    if (data->flags & GSM_RLC_MAC_EGPRS_FANR_FLAG)
    {
@@ -7820,7 +7823,7 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
           else
           {
-             dissect_egprs_dl_header_block(tvb, pinfo, tree, data, &((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info);            
+             dissect_egprs_dl_header_block(tvb, pinfo, tree, data);
           }
           break;
 
@@ -7886,7 +7889,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            }
            else
            {
-              dissect_egprs_ul_header_block(tvb, pinfo, tree, data, &((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info);            
+              dissect_egprs_ul_header_block(tvb, pinfo, tree, data);
            }
             break;
 
