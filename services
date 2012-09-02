@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-08-24
+# 2012-08-31
 # 
 # Experts
 # 
@@ -2127,7 +2127,7 @@ blackjack	1025/tcp	# network blackjack
 blackjack	1025/udp	# network blackjack
 cap	1026/tcp	# Calendar Access Protocol     [Doug_Royer]                                       [Doug_Royer]                                              2010-12-09
 cap	1026/udp	# Calendar Access Protocol     [Doug_Royer]                                       [Doug_Royer]                                              2010-12-09
-6a44	1027/udp	# IPv6 Behind NAT44 CPEs       [IESG]                                             [IETF_Chair]                                              2012-08-02                [draft-despres-6a44-02]
+6a44	1027/udp	# IPv6 Behind NAT44 CPEs       [IESG]                                             [IETF_Chair]                                              2012-08-02                [RFC-despres-6a44-02]
 # 1027        tcp    Reserved
 # 1028               Deprecated                                                                                                                                             2004-02
 solid-mux	1029/tcp	# Solid Mux Server             [Anders_Borg]                                      [Anders_Borg]                                             2004-11
@@ -12313,7 +12313,11 @@ mgcs-mfp-port	6509/tcp	# MGCS-MFP Port                [Minoru_Ozaki]            
 mgcs-mfp-port	6509/udp	# MGCS-MFP Port                [Minoru_Ozaki]                                     [Minoru_Ozaki]
 mcer-port	6510/tcp	# MCER Port                    [Portnoy_Boxman]                                   [Portnoy_Boxman]
 mcer-port	6510/udp	# MCER Port                    [Portnoy_Boxman]                                   [Portnoy_Boxman]
-# 6511-6512            Unassigned
+# 6511        tcp    Reserved
+# Datagram Congestion Control
+dccp-udp	6511/udp	# Protocol Encapsulation for   [IESG]                                             [IETF_Chair]                                                                        [RFC-ietf-dccp-udpencap-10]
+# NAT Traversal
+# 6512-6512            Unassigned
 netconf-tls	6513/tcp	# NETCONF over TLS                                                                                                                                                    [RFC5539]
 # 6513        udp    Reserved
 syslog-tls	6514/tcp	# Syslog over TLS                                                                                                                                                     [RFC5425]
@@ -13997,7 +14001,7 @@ sapv1	9875/udp	# Session Announcement v1                                        
 sd	9876/tcp	# Session Director             [Van_Jacobson]                                     [Van_Jacobson]
 # 9877               Unassigned
 # The KX509 Kerberized                                                                                                                                                                                                               Historically, this service has been referred to as
-kca-service	9878/udp	# Certificate Issuance         [IESG]                                             [IETF_Chair]                                              2012-07-12                [RFC-hotz-kx509-06]                                            "kca_service", but this service name does not meet the
+kca-service	9878/udp	# Certificate Issuance         [IESG]                                             [IETF_Chair]                                              2012-07-12                [RFC6717]                                                      "kca_service", but this service name does not meet the
 # Protocol in Use in 2012                                                                                                                                                                                                            registry requirements.
 # 9878        tcp    Reserved
 # 9879-9887            Unassigned
@@ -15530,7 +15534,16 @@ pmcdproxy	44322/udp	# PCP server (pmcd) proxy      [Ken_McDonell]               
 pcp	44323/udp	# Port Control Protocol        [Dan_Wing]                                         [Dan_Wing]                                                2011-01-11
 # UNAUTHORIZED
 # USE: Ports
-# 44324-44543           Unassigned                                                                                                                                                                                                           44515 & 44516
+# 44324-44443           Unassigned                                                                                                                                                                                                           44515 & 44516
+# used by NI
+# Device
+# Protocol
+cognex-dataman	44444/tcp	# Cognex DataMan Management    [Cognex]                                           [Mario_Joussen]                                           2012-08-28
+# Protocol
+# 44444       udp    Reserved
+# UNAUTHORIZED
+# USE: Ports
+# 44445-44543           Unassigned                                                                                                                                                                                                           44515 & 44516
 # used by NI
 # Device
 # Protocol
@@ -16091,6 +16104,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # glasspadserver                        GlassPadServer Data Exchange [Emmanuel_Merali]                                  [Emmanuel_Merali]                                                                                                                                  Defined TXT keys: guid
 # Protocol
 # glrdrvmon                             OpenGL Driver Monitor        [Dave_Springer]                                    [Dave_Springer]                                                                                                                                    Defined TXT keys: None
+# goorstop                       tcp    For iOS Application named    [Charlie_Kim]                                      [Charlie_Kim]                                             2012-08-28                                                                               Defined TXT keys: None
+# GoOrStop
 # gpnp                                  Grid Plug and Play           [David_Brower]                                     [David_Brower]                                                                                                                                     Defined TXT keys: None
 # grillezvous                           Roxio ToastAnywhere(tm)                                                                                                                                                                                                            Defined TXT keys: AppID=<application id> KeyHash=<application
 # Recorder Sharing                                                                                                                                                                                                                   license key hash>
@@ -16540,6 +16555,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # recipe-box                     tcp    The Recipe Box Exchange      [Corpus_Collusion]                                 [Kathy_Tafel]                                             2011-08-23                                                                               Defined TXT keys: txtvers
 # recipe-sharing                 tcp    Recipe Sharing Protocol      [Daniel_G_Taylor]                                  [Daniel_G_Taylor]                                         2007-11                                                                                  Defined TXT keys:
 # [http://www.recipemanager.org/rsp/rsp10draft.html#dnssd]
+# recolive-cc                    tcp    Remote Camera Control        [RecoLive_S`arl]                                   [Gabriele_Mondada]                                        2012-08-29                                                                               Defined TXT keys: txtvers, cid, nbd, cap
+# recolive-cc                    udp    Remote Camera Control        [RecoLive_S`arl]                                   [Gabriele_Mondada]                                        2012-08-29                                                                               Defined TXT keys: txtvers, cid, nbd, cap
 # Remote Device Control                                                                                                                                                                                                              Defined TXT keys: txtvers=<TXT record version tag>
 # remote                                Protocol                     [Gregory_Dudek]                                    [Gregory_Dudek]                                                                                                                                    protovers=<protocol vesion number> forground=<primary device
 # or system> version=<firmware/instrument controller version>
@@ -17543,6 +17560,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Charles_Wright]                                          Charles Wright                                  mailto:cpwright&villagenet.com
 # [Charlie_Hava]                                            Charlie Hava                                    mailto:charlieh&aks.com
 # [Charlie_Hundre]                                          Charlie Hundre                                  mailto:charlie&rdsrv.reco.com.tw
+# [Charlie_Kim]                                             Charlie Kim                                     mailto:charlie.bea.utiful&gmail.com                           2012-08-28
 # [Charlie_Limoges]                                         Charlie Limoges                                 mailto:Charlie.Limoges&gdc4s.com
 # [Chatziandreoglou_Chr]                                    Chatziandreoglou Christos                       mailto:chatzi&xan.forthnet.gr                                 2003-10
 # [Chaz_McGarvey]                                           Chaz McGarvey                                   mailto:chaz&brokenzipper.com
@@ -17696,6 +17714,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Inc.
 # [CloudFlare]                                                                        CloudFlare, Inc.      mailto:help&cloudflare.com                                    2012-03-09
 # [Cnaan_Aviv]                                              Cnaan Aviv                                      mailto:cnaan&gammasite.com
+# [Cognex]                                                                            Cognex Corporation    mailto:contactus&cognex.com                                   2012-08-28
 # [Coleman_Brumley]                                         Coleman Brumley                                 mailto:cbrumley&polarsoft.biz                                 2011-02-10
 # [Colin_Barry]                                             Colin Barry                                     mailto:cbarry&gbahn.com
 # [Colin_Caughie]                                           Colin Caughie                                   mailto:cfc&indigo-avs.com
@@ -18366,6 +18385,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Gabi_Kalmar]                                             Gabi Kalmar                                     mailto:kalga01&cai.com
 # [Gabriel_Kalmar]                                          Gabriel Kalmar                                  mailto:kalga01&ca.com                                         2008-03-06
 # [Gabriel_Levy]                                            Gabriel Levy                                    mailto:glevy&riverbed.com                                     2008-08-29
+# [Gabriele_Mondada]                                        Gabriele Mondada          RecoLive S`arl        mailto:gmondada&recolive.com                                  2012-08-29
 # [Gal_Cucuy]                                               Gal Cucuy                                       mailto:galc&cyber-ark.com                                     2002-03
 # [Galaxy4D]                                                                          Galaxy4D Online Game  mailto:admin&galaxy4d.com                                     2012-06-18
 # Engine
@@ -19544,6 +19564,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Marie_France_Dubreui]                                    Marie-France Dubreuil                           mailto:Marie-France.Dubreuil&evidian.com                      2002-11
 # [Marie_Pierre_Belange]                                    Marie-Pierre Belanger                           mailto:belanger_marie&emc.com
 # [Mario_Bonin]                                             Mario Bonin                                     mailto:boninm&microtempus.com
+# [Mario_Joussen]                                           Mario Joussen             Cognex Corporation    mailto:mario.joussen&cognex.com                               2012-08-28
 # [Mario_Leboute]                                           Mario Leboute                                   mailto:leboute&pro.via-rs.com.br
 # [Mario_Poerner]                                           Mario Poerner             Mediatap GbR          mailto:mario.poerner&googlemail.com                           2011-10-11
 # [Maris_Bormanis]                                          Maris Bormanis                                  mailto:info&febooti.com                                       2011-06-10
@@ -20430,6 +20451,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Raymond_J_Young]                                         Raymond J. Young                                mailto:Raymond.Young&ca.com                                   2002-04
 # [Razmik_Abnous]                                           Razmik Abnous                                   mailto:abnous&documentum.com
 # [RealNetworks]                                            RealNetworks                                    mailto:macplayer&real.com
+# [RecoLive_S`arl]                                                                    RecoLive S`arl        mailto:info&recolive.com                                      2012-08-29
 # [Reed_Copsey_Jr]                                          Reed Copsey Jr.                                 mailto:reedc&ctech.com
 # [Reed_Hedges]                                             Reed Hedges                                     mailto:reed&interreality.org
 # [Rehan_Mahmood]                                           Rehan Mahmood                                   mailto:rehan&matrixmultimedia.co.uk                           2009-03-18
