@@ -2804,7 +2804,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                     {
                         len_sms = (int)strlen(utf8_text);
                         num_labels = len_sms / MAX_SMS_FRAG_LEN;
-                        num_labels += len_sms % MAX_SMS_FRAG_LEN ? 1 : 0;
+                        num_labels += (len_sms % MAX_SMS_FRAG_LEN) ? 1 : 0;
                         for(i = 0; i < num_labels;i++) {
                             if(i * MAX_SMS_FRAG_LEN < len_sms) {
                                 /* set '\0' to byte number 134 text_node MAX size*/
