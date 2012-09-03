@@ -1060,4 +1060,15 @@ proto_reg_handoff_dsmcc(void)
 	data_handle = find_dissector("data");
 }
 
-
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 noexpandtab:
+ * :indentSize=4:tabSize=4:noTabs=false:
+ */

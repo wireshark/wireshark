@@ -361,3 +361,16 @@ proto_register_mpeg_sect(void)
 								 FT_UINT8, BASE_HEX);
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 noexpandtab:
+ * :indentSize=4:tabSize=4:noTabs=false:
+ */

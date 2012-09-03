@@ -3845,3 +3845,16 @@ proto_register_mpeg_descriptor(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 noexpandtab:
+ * :indentSize=4:tabSize=4:noTabs=false:
+ */
