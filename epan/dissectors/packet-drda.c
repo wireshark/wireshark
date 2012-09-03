@@ -55,6 +55,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include "packet-tcp.h"
 
 static int proto_drda = -1;
@@ -696,6 +697,10 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         iCommand = tvb_get_ntohs(tvb, offset + 8);
         iLength = tvb_get_ntohs(tvb, offset + 0);
+        if (iLength < 10) {
+            expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Invalid length detected (%u): should be at least 10 bytes long", iLength);
+            break;
+        }
         /* iCommandEnd is the length of the packet up to the end of the current command */
         iCommandEnd += iLength;
 
