@@ -1138,8 +1138,6 @@ get_uint_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const 
 					 : tvb_get_ntohl(tvb, offset);
 		}
 		report_type_length_mismatch(tree, "an unsigned integer", length, length_error);
-		value = encoding ? tvb_get_letohl(tvb, offset)
-				 : tvb_get_ntohl(tvb, offset);
 		break;
 	}
 	return value;
@@ -1191,9 +1189,7 @@ get_int_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const g
 			value = encoding ? tvb_get_letohl(tvb, offset)
 					 : tvb_get_ntohl(tvb, offset);
 		}
-		report_type_length_mismatch(tree, "an unsigned integer", length, length_error);
-		value = encoding ? tvb_get_letohl(tvb, offset)
-				 : tvb_get_ntohl(tvb, offset);
+		report_type_length_mismatch(tree, "a signed integer", length, length_error);
 		break;
 	}
 	return value;
