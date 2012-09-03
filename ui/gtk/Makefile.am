@@ -81,7 +81,7 @@ libgtkui_dirty_a_SOURCES = \
 libgtkui_dirty_a_DEPENDENCIES =
 
 # Common headers
-AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) $(LIBGNUTLS_CFLAGS) $(PORTAUDIO_INCLUDES)
+AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(PORTAUDIO_INCLUDES)
 
 
 doxygen:
