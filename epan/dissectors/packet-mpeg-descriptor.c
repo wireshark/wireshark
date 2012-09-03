@@ -3064,7 +3064,7 @@ proto_register_mpeg_descriptor(void)
 		} },
 
 		{ &hf_mpeg_descr_service_provider, {
-			"Service Provided Name", "mpeg_descr.svc.provider_name",
+			"Service Provider Name", "mpeg_descr.svc.provider_name",
 			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
