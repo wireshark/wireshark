@@ -213,7 +213,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
     if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
       last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
-      register_frame_end_routine (x509if_frame_end);
+      register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
       g_snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s", name, fmt);
 
@@ -335,7 +335,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
   rdn_one_value = FALSE;
   top_of_rdn = tree;
   last_rdn = ep_alloc(MAX_DN_STR_LEN); *last_rdn = '\0';
-  register_frame_end_routine (x509if_frame_end);
+  register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
   %(DEFAULT_BODY)s
 
@@ -377,7 +377,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
   dn_one_rdn = FALSE; /* reset */
   last_dn = ep_alloc(MAX_DN_STR_LEN); *last_dn = '\0';
   top_of_dn = NULL;
-  register_frame_end_routine (x509if_frame_end);
+  register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
 
   %(DEFAULT_BODY)s
@@ -408,7 +408,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
 
 	ava_hf_index = hf_index;
 	last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
-	register_frame_end_routine (x509if_frame_end);
+	register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
 	%(DEFAULT_BODY)s
 
@@ -416,7 +416,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
 
 #.FN_BODY Attribute
 	doing_attr = TRUE;
-	register_frame_end_routine (x509if_frame_end);
+	register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
 	%(DEFAULT_BODY)s
 #.END

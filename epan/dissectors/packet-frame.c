@@ -98,17 +98,15 @@ static const value_string p2p_dirs[] = {
 
 dissector_table_t wtap_encap_dissector_table;
 
-static GSList *frame_end_routines = NULL;
-
 /*
  * Routine used to register frame end routine.  The routine should only
  * be registered when the dissector is used in the frame, not in the
  * proto_register_XXX function.
  */
 void
-register_frame_end_routine(void (*func)(void))
+register_frame_end_routine(packet_info *pinfo, void (*func)(void))
 {
-	frame_end_routines = g_slist_append(frame_end_routines, (gpointer)func);
+	pinfo->frame_end_routines = g_slist_append(pinfo->frame_end_routines, (gpointer)func);
 }
 
 typedef void (*void_func_t)(void);
@@ -477,10 +475,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	tap_queue_packet(frame_tap, pinfo, NULL);
 
 
-	if (frame_end_routines) {
-		g_slist_foreach(frame_end_routines, &call_frame_end_routine, NULL);
-		g_slist_free(frame_end_routines);
-		frame_end_routines = NULL;
+	if (pinfo->frame_end_routines) {
+		g_slist_foreach(pinfo->frame_end_routines, &call_frame_end_routine, NULL);
+		g_slist_free(pinfo->frame_end_routines);
+		pinfo->frame_end_routines = NULL;
 	}
 }
 

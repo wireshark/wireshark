@@ -897,7 +897,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
       /* Indicate RPCAP in the info column */
       col_prepend_fence_fstr (pinfo->cinfo, COL_INFO, "Remote | ");
       info_added = TRUE;
-      register_frame_end_routine(rpcap_frame_end);
+      register_frame_end_routine(pinfo, rpcap_frame_end);
     }
   } else {
     if (linktype == WTAP_ENCAP_UNKNOWN) {

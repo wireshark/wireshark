@@ -510,7 +510,7 @@ int
 dissect_x509if_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 418 "../../asn1/x509if/x509if.cnf"
 	doing_attr = TRUE;
-	register_frame_end_routine (x509if_frame_end);
+	register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Attribute_sequence, hf_index, ett_x509if_Attribute);
@@ -669,7 +669,7 @@ dissect_x509if_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 	ava_hf_index = hf_index;
 	last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
-	register_frame_end_routine (x509if_frame_end);
+	register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AttributeValueAssertion_sequence, hf_index, ett_x509if_AttributeValueAssertion);
@@ -751,7 +751,7 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
     if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
       last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
-      register_frame_end_routine (x509if_frame_end);
+      register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
       g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s", name, fmt);
 
@@ -916,7 +916,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
   rdn_one_value = FALSE;
   top_of_rdn = tree;
   last_rdn = ep_alloc(MAX_DN_STR_LEN); *last_rdn = '\0';
-  register_frame_end_routine (x509if_frame_end);
+  register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
     offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  RelativeDistinguishedName_set_of, hf_index, ett_x509if_RelativeDistinguishedName);
@@ -978,7 +978,7 @@ dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   dn_one_rdn = FALSE; /* reset */
   last_dn = ep_alloc(MAX_DN_STR_LEN); *last_dn = '\0';
   top_of_dn = NULL;
-  register_frame_end_routine (x509if_frame_end);
+  register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
 
     offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,

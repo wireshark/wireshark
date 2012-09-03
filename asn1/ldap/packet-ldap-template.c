@@ -1079,7 +1079,7 @@ static void
 		col_set_fence(pinfo->cinfo, COL_INFO);
 	} else {
 		col_clear(pinfo->cinfo, COL_INFO);
-		register_frame_end_routine (ldap_frame_end);
+		register_frame_end_routine (pinfo, ldap_frame_end);
 		ldap_found_in_frame = TRUE;
 	}
 

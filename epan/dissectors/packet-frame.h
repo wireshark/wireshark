@@ -42,7 +42,7 @@ show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
  * proto_register_XXX function.
  */
 void
-register_frame_end_routine(void (*func)(void));
+register_frame_end_routine(packet_info *pinfo, void (*func)(void));
 
 /*
  * "Protocol" used for "malformed frame" errors (other than

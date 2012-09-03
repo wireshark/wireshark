@@ -2667,7 +2667,7 @@ new_ud_msg(packet_info *pinfo, guint32 msg_type _U_)
   m->data.ud.calling_gt = NULL;
   m->data.ud.called_gt = NULL;
 
-  register_frame_end_routine(reset_sccp_assoc);
+  register_frame_end_routine(pinfo, reset_sccp_assoc);
   return m;
 }
 

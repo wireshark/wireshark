@@ -850,7 +850,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       }
       if (!fragment) {
         cotp_dst_ref++;
-        register_frame_end_routine(cotp_frame_end);
+        register_frame_end_routine(pinfo, cotp_frame_end);
       }
       break;
 

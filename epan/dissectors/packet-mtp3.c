@@ -729,7 +729,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* Register a frame-end routine to ensure mtp3_standard is set
 	     * back, even if an exception is thrown.
 	     */
-	    register_frame_end_routine(reset_mtp3_standard);
+	    register_frame_end_routine(pinfo, reset_mtp3_standard);
 	}
 	PROTO_ITEM_SET_GENERATED(gen_item);
     }

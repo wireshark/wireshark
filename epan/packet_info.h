@@ -204,6 +204,8 @@ typedef struct _packet_info {
                              */
   int link_dir;		    /* 3GPP messages are sometime different UP link(UL) or Downlink(DL) */
   GSList* dependent_frames;	/* A list of frames which this one depends on */
+
+  GSList *frame_end_routines;
 } packet_info;
 
 /* For old code that hasn't yet been changed. */

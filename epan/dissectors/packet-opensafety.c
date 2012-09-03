@@ -1323,7 +1323,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
 
     /* registering frame end routine, to prevent a malformed dissection preventing
      * further dissector calls (see bug #6950) */
-    register_frame_end_routine(reset_dissector);
+    register_frame_end_routine(pinfo, reset_dissector);
 
     length = tvb_length(message_tvb);
     /* Minimum package length is 11 */
@@ -1946,7 +1946,7 @@ proto_reg_handoff_opensafety(void)
 
         /* registering frame end routine, to prevent a malformed dissection preventing
          * further dissector calls (see bug #6950) */
-        register_frame_end_routine(reset_dissector);
+        /* register_frame_end_routine(reset_dissector); */
     }
 
 }
