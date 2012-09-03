@@ -29,6 +29,8 @@ if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS = -Werror
 endif
 
+AM_CPPFLAGS = $(LIBGCRYPT_CFLAGS)
+
 noinst_LTLIBRARIES = libairpdcap.la
 
 CLEANFILES = \
@@ -48,7 +50,7 @@ libairpdcap_la_SOURCES =	\
 EXTRA_DIST = \
 	Custom.common \
 	Makefile.common	\
-	Makefile.nmake 
+	Makefile.nmake
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
