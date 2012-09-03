@@ -103,6 +103,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
 
   GtkWidget *vbox;
   GtkWidget *view;
+  GtkWidget *scroll;
   GtkWidget *bbox;
   GtkWidget *ok_bt, *cancel_bt, *help_bt;
   GtkTextBuffer *buffer = NULL;
@@ -121,6 +122,14 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   view = gtk_text_view_new ();
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+  gtk_widget_show (view);
+
+  scroll = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
+                  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_container_add(GTK_CONTAINER(scroll), view);
+  gtk_widget_show(scroll);
+  gtk_box_pack_start(GTK_BOX (vbox), scroll, TRUE, TRUE, 0);
 
   /* Get the comment */
   opt_comment = new_packet_list_get_packet_comment();
@@ -131,8 +140,6 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
     gtk_text_buffer_set_text (buffer, buf_str, -1);
     g_free(buf_str);
   }
-  gtk_box_pack_start(GTK_BOX (vbox), view, TRUE, TRUE, 0);
-  gtk_widget_show (view);
 
   /* Button row. */
   bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
@@ -171,6 +178,7 @@ edit_capture_dlg_launch (void)
 
   GtkWidget *vbox;
   GtkWidget *view;
+  GtkWidget *scroll;
   GtkWidget *bbox;
   GtkWidget *ok_bt, *cancel_bt, *help_bt;
   GtkTextBuffer *buffer = NULL;
@@ -198,6 +206,14 @@ edit_capture_dlg_launch (void)
   view = gtk_text_view_new ();
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+  gtk_widget_show (view);
+
+  scroll = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
+                  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_container_add(GTK_CONTAINER(scroll), view);
+  gtk_widget_show(scroll);
+  gtk_box_pack_start(GTK_BOX (vbox), scroll, TRUE, TRUE, 0);
 
   /* Get the comment */
   comment_str = cf_read_shb_comment(&cfile);
@@ -208,8 +224,6 @@ edit_capture_dlg_launch (void)
     gtk_text_buffer_set_text (buffer, buf_str, -1);
     g_free(buf_str);
   }
-  gtk_box_pack_start(GTK_BOX (vbox), view, TRUE, TRUE, 0);
-  gtk_widget_show (view);
 
   /* Button row. */
   bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
