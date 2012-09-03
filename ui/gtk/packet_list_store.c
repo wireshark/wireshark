@@ -360,8 +360,6 @@ packet_list_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
 	/* We simply store a pointer to our custom record in the iter */
 	iter->stamp = packet_list->stamp;
 	iter->user_data = record;
-	iter->user_data2 = NULL;
-	iter->user_data3 = NULL;
 
 	return TRUE;
 }
@@ -637,25 +635,6 @@ new_packet_list_store_clear(PacketList *packet_list)
 #endif
 }
 
-static void
-packet_list_row_inserted(PacketList *packet_list, guint pos)
-{
-	GtkTreeIter iter;
-	GtkTreePath *path;
-
-	/* Inform the tree view and other interested objects (such as tree row
-	 * references) that we have inserted a new row and where it was
-	 * inserted. */
-	path = gtk_tree_path_new();
-	gtk_tree_path_append_index(path, pos);
-
-	packet_list_get_iter(GTK_TREE_MODEL(packet_list), &iter, path);
-
-	gtk_tree_model_row_inserted(GTK_TREE_MODEL(packet_list), path, &iter);
-
-	gtk_tree_path_free(path);
-}
-
 gint
 packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 {
@@ -689,8 +668,19 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 	 * Issue a row_inserted signal if the model is connected
 	 * and the row is visible.
 	 */
-	if((model)&&(newrecord->visible_pos!=-1))
-		packet_list_row_inserted(packet_list, newrecord->visible_pos);
+	if((model)&&(newrecord->visible_pos!=-1)) {
+		GtkTreeIter iter;
+		GtkTreePath *path;
+
+		path = gtk_tree_path_new();
+		gtk_tree_path_append_index(path, newrecord->visible_pos);
+
+		iter.stamp = packet_list->stamp;
+		iter.user_data = newrecord;
+
+		gtk_tree_model_row_inserted(GTK_TREE_MODEL(packet_list), path, &iter);
+		gtk_tree_path_free(path);
+	}
 
 	/* XXXX If the model is connected and sort column != frame_num we should
 	 * probably resort.
