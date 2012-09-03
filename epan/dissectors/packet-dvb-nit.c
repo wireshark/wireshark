@@ -86,17 +86,15 @@ dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint16     tsid;
 
-	proto_item *ti = NULL;
-	proto_tree *dvb_nit_tree = NULL;
+	proto_item *ti;
+	proto_tree *dvb_nit_tree;
 	proto_item *tsi;
 	proto_tree *dvb_nit_ts_tree;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Network Information Table (NIT)");
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_dvb_nit, tvb, offset, -1, ENC_NA);
-		dvb_nit_tree = proto_item_add_subtree(ti, ett_dvb_nit);
-	}
+	ti = proto_tree_add_item(tree, proto_dvb_nit, tvb, offset, -1, ENC_NA);
+	dvb_nit_tree = proto_item_add_subtree(ti, ett_dvb_nit);
 
 	offset += packet_mpeg_sect_header(tvb, offset, dvb_nit_tree, NULL, NULL);
 

@@ -63,17 +63,15 @@ dissect_mpeg_ca(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint offset = 0, length = 0;
 
-	proto_item *ti = NULL;
-	proto_tree *mpeg_ca_tree = NULL;
+	proto_item *ti;
+	proto_tree *mpeg_ca_tree;
 
 	/* The TVB should start right after the section_length in the Section packet */
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Conditional Access Table (CA)");
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_mpeg_ca, tvb, offset, -1, ENC_NA);
-		mpeg_ca_tree = proto_item_add_subtree(ti, ett_mpeg_ca);
-	}
+	ti = proto_tree_add_item(tree, proto_mpeg_ca, tvb, offset, -1, ENC_NA);
+	mpeg_ca_tree = proto_item_add_subtree(ti, ett_mpeg_ca);
 
 	offset += packet_mpeg_sect_header(tvb, offset, mpeg_ca_tree, &length, NULL);
 	length -= 4;

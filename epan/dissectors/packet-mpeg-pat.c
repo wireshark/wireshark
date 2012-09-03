@@ -71,10 +71,10 @@ dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint offset = 0, length = 0;
 	guint16 prog_num = 0, prog_pid;
 
-	proto_item *ti = NULL;
-	proto_tree *mpeg_pat_tree = NULL;
-	proto_item *pi = NULL;
-	proto_tree *mpeg_pat_prog_tree = NULL;
+	proto_item *ti;
+	proto_tree *mpeg_pat_tree;
+	proto_item *pi;
+	proto_tree *mpeg_pat_prog_tree;
 
 	/* The TVB should start right after the section_length in the Section packet */
 

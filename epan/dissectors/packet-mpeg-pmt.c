@@ -127,8 +127,8 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint   descriptor_end, prog_info_len, es_info_len;
 	guint16 pid;
 
-	proto_item *ti = NULL;
-	proto_tree *mpeg_pmt_tree = NULL;
+	proto_item *ti;
+	proto_tree *mpeg_pmt_tree;
 	proto_item *si;
 	proto_tree *mpeg_pmt_stream_tree;
 
@@ -136,10 +136,8 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Program Map Table (PMT)");
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_mpeg_pmt, tvb, offset, -1, ENC_NA);
-		mpeg_pmt_tree = proto_item_add_subtree(ti, ett_mpeg_pmt);
-	}
+	ti = proto_tree_add_item(tree, proto_mpeg_pmt, tvb, offset, -1, ENC_NA);
+	mpeg_pmt_tree = proto_item_add_subtree(ti, ett_mpeg_pmt);
 
 	offset += packet_mpeg_sect_header(tvb, offset, mpeg_pmt_tree, &length, NULL);
 	length -= 4;
