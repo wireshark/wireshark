@@ -471,6 +471,7 @@ typedef struct {
     gboolean     fake_protocols;
     gint         count;
     struct _packet_info *pinfo;
+    field_info  *fi_tmp;
 } tree_data_t;
 
 /** Each proto_tree, proto_item is one of these. */

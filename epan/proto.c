@@ -270,7 +270,6 @@ static GList *protocols = NULL;
 static struct ws_memory_slab field_info_slab =
 	WS_MEMORY_SLAB_INIT(field_info, 128);
 
-static field_info *field_info_tmp = NULL;
 #define FIELD_INFO_NEW(fi)					\
 	fi = sl_alloc(&field_info_slab)
 #define FIELD_INFO_FREE(fi)					\
@@ -579,6 +578,8 @@ free_node_tree_data(tree_data_t *tree_data)
 		/* And then destroy the hash. */
 		g_hash_table_destroy(tree_data->interesting_hfids);
 	}
+	if (tree_data->fi_tmp)
+		FIELD_INFO_FREE(tree_data->fi_tmp);
 
 	/* And finally the tree_data_t itself. */
 	g_free(tree_data);
@@ -1079,14 +1080,15 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 /* We could probably get away with changing is_error to a minimum length value. */
 static void
 report_type_length_mismatch(proto_tree *tree, const gchar *descr, int length, gboolean is_error) {
-	field_info *fi_save = field_info_tmp;
+	tree_data_t *tree_data = PTREE_DATA(tree);
+	field_info *fi_save = tree_data->fi_tmp;
 
 	/* Keep the current item from getting freed by proto_tree_new_item. */
-	field_info_tmp = NULL;
+	tree_data->fi_tmp = NULL;
 
 	expert_add_info_format(NULL, tree, PI_MALFORMED, is_error ? PI_ERROR : PI_WARN, "Trying to fetch %s with length %d", descr, length);
 
-	field_info_tmp = fi_save;
+	tree_data->fi_tmp = fi_save;
 
 	if (is_error) {
 		THROW(ReportedBoundsError);
@@ -1233,6 +1235,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		    tvbuff_t *tvb, gint start, gint length,
 		    const guint encoding_arg)
 {
+	tree_data_t *tree_data = PTREE_DATA(tree);
 	guint	    encoding = encoding_arg;
 	proto_item *pi;
 	guint32	    value, n;
@@ -1248,22 +1251,18 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	 * store it in a temp so that if we come here again we can reclaim
 	 * the field_info without leaking memory.
 	 */
-	/* XXX this only keeps track of one field_info struct,
-	   if we ever go multithreaded for calls to this function
-	   we have to change this code to use per thread variable.
-	*/
-	if (field_info_tmp) {
+	if (tree_data->fi_tmp) {
 		/* oops, last one we got must have been lost due
 		 * to an exception.
 		 * good thing we saved it, now we can reverse the
 		 * memory leak and reclaim it.
 		 */
-		FIELD_INFO_FREE(field_info_tmp);
+		FIELD_INFO_FREE(tree_data->fi_tmp);
 	}
 	/* we might throw an exception, keep track of this one
 	 * across the "dangerous" section below.
 	*/
-	field_info_tmp = new_fi;
+	tree_data->fi_tmp = new_fi;
 
 	switch (new_fi->hfinfo->type) {
 		case FT_NONE:
@@ -1752,12 +1751,14 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 	/* Don't add new node to proto_tree until now so that any exceptions
 	 * raised by a tvbuff access method doesn't leave junk in the proto_tree. */
+	/* XXX. wouldn't be better to add this item to tree, with some special flag (FI_EXCEPTION?)
+	 *      to know which item caused exception? */
 	pi = proto_tree_add_node(tree, new_fi);
 
 	/* we did not raise an exception so we dont have to remember this
 	 * field_info struct any more.
 	 */
-	field_info_tmp = NULL;
+	tree_data->fi_tmp = NULL;
 
 	/* If the proto_tree wants to keep a record of this finfo
 	 * for quick lookup, then record it. */
@@ -4289,6 +4290,8 @@ proto_tree_create_root(packet_info *pinfo)
 
 	/* Keep track of the number of children */
 	pnode->tree_data->count = 0;
+
+	pnode->tree_data->fi_tmp = NULL;
 
 	return (proto_tree *)pnode;
 }
