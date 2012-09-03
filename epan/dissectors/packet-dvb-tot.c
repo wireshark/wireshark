@@ -60,9 +60,6 @@ dissect_dvb_tot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Time Offset Table (TOT)");
 
-	if (!tree)
-		return;
-
 	ti = proto_tree_add_item(tree, proto_dvb_tot, tvb, offset, -1, ENC_NA);
 	dvb_tot_tree = proto_item_add_subtree(ti, ett_dvb_tot);
 
@@ -86,7 +83,8 @@ dissect_dvb_tot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while (offset < descriptor_end)
 		offset += proto_mpeg_descriptor_dissect(tvb, offset, dvb_tot_tree);
 
-	packet_mpeg_sect_crc(tvb, pinfo, dvb_tot_tree, 0, offset);
+	offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_tot_tree, 0, offset);
+	proto_item_set_len(ti, offset);
 }
 
 

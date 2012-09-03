@@ -52,9 +52,6 @@ dissect_dvb_tdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Time and Date Table (TDT)");
 
-	if (!tree)
-		return;
-
 	ti = proto_tree_add_item(tree, proto_dvb_tdt, tvb, offset, -1, ENC_NA);
 	dvb_tdt_tree = proto_item_add_subtree(ti, ett_dvb_tdt);
 
@@ -66,6 +63,9 @@ dissect_dvb_tdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_time_format(dvb_tdt_tree, hf_dvb_tdt_utc_time, tvb, offset, 5, &utc_time,
 			"UTC Time : %s UTC", abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
 	}
+	offset += 5;
+
+	proto_item_set_len(ti, offset);
 }
 
 

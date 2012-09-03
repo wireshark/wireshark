@@ -104,16 +104,13 @@ dissect_dvb_bat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint offset = 0, length = 0, descriptor_end = 0, ts_loop_end = 0;
 	guint16 ts_id = 0, descriptor_len = 0, ts_loop_len = 0;
 
-	proto_item *ti = NULL;
-	proto_tree *dvb_bat_tree = NULL;
-	proto_item *tsi = NULL;
-	proto_tree *transport_stream_tree = NULL;
+	proto_item *ti;
+	proto_tree *dvb_bat_tree;
+	proto_item *tsi;
+	proto_tree *transport_stream_tree;
 
 	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Bouquet Association Table (BAT)");
-
-	if (!tree)
-		return;
 
 	ti = proto_tree_add_item(tree, proto_dvb_bat, tvb, offset, -1, ENC_NA);
 	dvb_bat_tree = proto_item_add_subtree(ti, ett_dvb_bat);
@@ -172,7 +169,8 @@ dissect_dvb_bat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += proto_mpeg_descriptor_dissect(tvb, offset, transport_stream_tree);
 	}
 
-	packet_mpeg_sect_crc(tvb, pinfo, dvb_bat_tree, 0, offset);
+	offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_bat_tree, 0, offset);
+	proto_item_set_len(ti, offset);
 }
 
 

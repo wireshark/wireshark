@@ -102,7 +102,7 @@ dissect_dvb_sdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 	guint       offset = 0, length = 0;
-        guint       descriptor_len, descriptor_end;
+	guint       descriptor_len, descriptor_end;
 	guint16     svc_id;
 
 	proto_item *ti;
@@ -113,9 +113,6 @@ dissect_dvb_sdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* The TVB should start right after the section_length in the Section packet */
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Service Description Table (SDT)");
-
-	if (!tree)
-		return;
 
 	ti = proto_tree_add_item(tree, proto_dvb_sdt, tvb, offset, -1, ENC_NA);
 	dvb_sdt_tree = proto_item_add_subtree(ti, ett_dvb_sdt);
@@ -174,7 +171,8 @@ dissect_dvb_sdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	}
 
-	packet_mpeg_sect_crc(tvb, pinfo, dvb_sdt_tree, 0, offset);
+	offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_sdt_tree, 0, offset);
+	proto_item_set_len(ti, offset);
 }
 
 
