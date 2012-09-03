@@ -1317,6 +1317,10 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	frame_data *fdata;
 	gchar *cell_text;
 
+	gboolean color_on;
+	GdkColor fg_gdk;
+	GdkColor bg_gdk;
+
 	gtk_tree_model_get(model, iter, 
 			col_num, &cell_text, 
 			/* The last column is reserved for frame_data */
@@ -1325,36 +1329,32 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 
 	g_assert(cell_text);
 
-	if((fdata->color_filter)||(fdata->flags.marked)||(fdata->flags.ignored)){
-		gboolean color_on = enable_color;
-		GdkColor fg_gdk;
-		GdkColor bg_gdk;
-		if(fdata->flags.ignored){
-			color_t_to_gdkcolor(&fg_gdk, &prefs.gui_ignored_fg);
-			color_t_to_gdkcolor(&bg_gdk, &prefs.gui_ignored_bg);
-			color_on = TRUE;
-		}else if(fdata->flags.marked){
-			color_t_to_gdkcolor(&fg_gdk, &prefs.gui_marked_fg);
-			color_t_to_gdkcolor(&bg_gdk, &prefs.gui_marked_bg);
-			color_on = TRUE;
-		}else{
-			color_t fg_color_t;
-			color_t bg_color_t;
-			const color_filter_t *color_filter = fdata->color_filter;
+	if (fdata->flags.ignored) {
+		color_t_to_gdkcolor(&fg_gdk, &prefs.gui_ignored_fg);
+		color_t_to_gdkcolor(&bg_gdk, &prefs.gui_ignored_bg);
+		color_on = TRUE;
+	} else if (fdata->flags.marked) {
+		color_t_to_gdkcolor(&fg_gdk, &prefs.gui_marked_fg);
+		color_t_to_gdkcolor(&bg_gdk, &prefs.gui_marked_bg);
+		color_on = TRUE;
+	} else if (fdata->color_filter) {
+		const color_filter_t *color_filter = fdata->color_filter;
 
-			fg_color_t = color_filter->fg_color;
-			bg_color_t = color_filter->bg_color;
-			color_t_to_gdkcolor(&fg_gdk, &fg_color_t);
-			color_t_to_gdkcolor(&bg_gdk, &bg_color_t);
-		}
+		color_t_to_gdkcolor(&fg_gdk, &color_filter->fg_color);
+		color_t_to_gdkcolor(&bg_gdk, &color_filter->bg_color);
+		color_on = enable_color;
+	} else
+		color_on = FALSE;
+
+	if (color_on) {
 		g_object_set(renderer,
 			 "text", cell_text,
 			 "foreground-gdk", &fg_gdk,
-			 "foreground-set", color_on,
+			 "foreground-set", TRUE,
 			 "background-gdk", &bg_gdk,
-			 "background-set", color_on,
+			 "background-set", TRUE,
 			 NULL);
-	}else{
+	} else {
 		g_object_set(renderer,
 			 "text", cell_text,
 			 "foreground-set", FALSE,
