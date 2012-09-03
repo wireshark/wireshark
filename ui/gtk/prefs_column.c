@@ -90,7 +90,7 @@ visible_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer data)
     cfmt->visible = TRUE;
 
   gtk_list_store_set(GTK_LIST_STORE(model), &iter, VISIBLE_COLUMN, cfmt->visible, -1);
-  cfile.cinfo.columns_changed = TRUE;
+  cfile.columns_changed = TRUE;
 
   gtk_tree_path_free(path);
 } /* visible_toggled */
@@ -410,7 +410,7 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data) {
     gtk_tree_view_set_cursor(column_l, path, title_column, TRUE);
     gtk_tree_path_free(path);
 
-    cfile.cinfo.columns_changed = TRUE;
+    cfile.columns_changed = TRUE;
 }
 
 
@@ -473,7 +473,7 @@ column_list_delete_cb(GtkWidget *w _U_, gpointer data) {
 
         g_signal_handler_unblock  (model, column_row_deleted_handler_id);
 
-        cfile.cinfo.columns_changed = TRUE;
+        cfile.columns_changed = TRUE;
     }
 }
 
@@ -498,7 +498,7 @@ column_title_changed_cb(GtkCellRendererText *cell _U_, const gchar *str_path, co
     }
 
     gtk_tree_path_free (path);
-    cfile.cinfo.columns_changed = TRUE;
+    cfile.columns_changed = TRUE;
     return TRUE;
 }
 
@@ -645,7 +645,7 @@ column_menu_changed_cb(GtkWidget *w, gpointer data) {
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, FORMAT_COLUMN, fmt, -1);
     g_free(fmt);
     cfmt->fmt = cur_cb_fmt;
-    cfile.cinfo.columns_changed = TRUE;
+    cfile.columns_changed = TRUE;
 }
 
 
@@ -691,7 +691,7 @@ column_field_changed_cb(GtkEditable *te, gpointer data) {
     g_free(fmt);
     g_free(cfmt->custom_field);
     cfmt->custom_field = field;
-    cfile.cinfo.columns_changed = TRUE;
+    cfile.columns_changed = TRUE;
 }
 
 
@@ -737,7 +737,7 @@ column_occurrence_changed_cb(GtkEditable *te, gpointer data) {
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, FORMAT_COLUMN, fmt, -1);
     g_free(fmt);
     cfmt->custom_occurrence = occurrence;
-    cfile.cinfo.columns_changed = TRUE;
+    cfile.columns_changed = TRUE;
 }
 
 
@@ -783,7 +783,7 @@ column_dnd_row_deleted_cb(GtkTreeModel *model, GtkTreePath *path _U_, gpointer d
     }
 
     prefs.col_list = new_col_list;
-    cfile.cinfo.columns_changed = TRUE;
+    cfile.columns_changed = TRUE;
 }
 
 
@@ -796,9 +796,9 @@ void
 column_prefs_apply(GtkWidget *w _U_)
 {
     /* Redraw the packet list if the columns were changed */
-    if(cfile.cinfo.columns_changed) {
+    if(cfile.columns_changed) {
         new_packet_list_recreate();
-        cfile.cinfo.columns_changed = FALSE; /* Reset value */
+        cfile.columns_changed = FALSE; /* Reset value */
     }
 }
 

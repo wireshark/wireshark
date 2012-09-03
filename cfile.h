@@ -111,6 +111,7 @@ typedef struct _capture_file {
   guint32      first_displayed; /* Frame number of first frame displayed */
   guint32      last_displayed;  /* Frame number of last frame displayed */
   column_info  cinfo;           /* Column formatting information */
+  gboolean     columns_changed; /**< Have the columns been changed in the prefs? */
   frame_data  *current_frame;   /* Frame data for current frame */
   gint         current_row;     /* Row number for current frame */
   epan_dissect_t *edt;          /* Protocol dissection for currently selected packet */

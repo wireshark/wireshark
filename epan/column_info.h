@@ -61,7 +61,6 @@ typedef struct _column_info {
   int                *col_fence;            /**< Stuff in column buffer before this index is immutable */
   col_expr_t          col_expr;             /**< Column expressions and values */
   gboolean            writable;             /**< writable or not @todo Are we still writing to the columns? */
-  gboolean            columns_changed;      /**< Have the columns been changed in the prefs? */
 } column_info;
 
 /**

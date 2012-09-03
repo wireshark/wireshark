@@ -199,7 +199,7 @@ gui_prefs_show(void)
 	font_changed = FALSE;
 
 	/* The columns haven't been changed yet */
-	cfile.cinfo.columns_changed = FALSE;
+	cfile.columns_changed = FALSE;
 
 	/* Main vertical box */
 	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 7, FALSE);
