@@ -204,27 +204,27 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	case SCSI_DEV_SBC:
 		rs->prog="SBC (disk)";
 		rs->cdbnames=scsi_sbc_vals;
-		hf_name="scsi.sbc.opcode";
+		hf_name="scsi_sbc.opcode";
 		break;
 	case SCSI_DEV_SSC:
 		rs->prog="SSC (tape)";
 		rs->cdbnames=scsi_ssc_vals;
-		hf_name="scsi.ssc.opcode";
+		hf_name="scsi_ssc.opcode";
 		break;
 	case SCSI_DEV_CDROM:
 		rs->prog="MMC (cd/dvd)";
 		rs->cdbnames=scsi_mmc_vals;
-		hf_name="scsi.mmc.opcode";
+		hf_name="scsi_mmc.opcode";
 		break;
 	case SCSI_DEV_SMC:
 		rs->prog="SMC (tape robot)";
 		rs->cdbnames=scsi_smc_vals;
-		hf_name="scsi.smc.opcode";
+		hf_name="scsi_smc.opcode";
 		break;
 	case SCSI_DEV_OSD:
 		rs->prog="OSD (object based)";
 		rs->cdbnames=scsi_osd_vals;
-		hf_name="scsi.osd.opcode";
+		hf_name="scsi_osd.opcode";
 		break;
 	}
 
