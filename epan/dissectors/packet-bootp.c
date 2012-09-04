@@ -375,6 +375,9 @@ static int hf_bootp_option_civic_location_ca_value = -1;		/* 99 */
 static int hf_bootp_option_netinfo_parent_server_address = -1;		/* 112 */
 static int hf_bootp_option_netinfo_parent_server_tag = -1;		/* 113 */
 static int hf_bootp_option_dhcp_auto_configuration = -1;		/* 116 */
+static int hf_bootp_option_sip_server_enc = -1;					/* 120 */
+static int hf_bootp_option_sip_server_name = -1;				/* 120 */
+static int hf_bootp_option_sip_server_address = -1;				/* 120 */
 static int hf_bootp_option_cl_dss_id_option = -1;			/* 123 CL */
 static int hf_bootp_option_cl_dss_id_len = -1;				/* 123 CL */
 static int hf_bootp_option_cl_dss_id = -1;				/* 123 CL */
@@ -827,6 +830,11 @@ static const value_string cl_dss_id_type_vals[] = {
 	{0, NULL }
 };
 
+static const value_string sip_server_enc_vals[] = {
+	{0, "Fully Qualified Domain Name" },
+	{1, "IPv4 Address" },
+	{0, NULL }
+};
 /* bootp options administration */
 #define BOOTP_OPT_NUM	256
 
@@ -954,7 +962,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 117 */ { "Name Service Search [TODO:RFC2937]",	opaque, NULL },
 /* 118 */ { "Subnet Selection Option",			ipv4_list, &hf_bootp_option_subnet_selection_option },
 /* 119 */ { "Domain Search [TODO:RFC3397]",		opaque, NULL },
-/* 120 */ { "SIP Servers [TODO:RFC3361]",		opaque, NULL },
+/* 120 */ { "SIP Servers",		special, NULL },
 /* 121 */ { "Classless Static Route",			special, NULL},
 /* 122 */ { "CableLabs Client Configuration [TODO:RFC3495]",	opaque, NULL },
 /* 123 */ { "Coordinate-based Location Configuration",	special, NULL},
@@ -2063,6 +2071,59 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					optleft = 0;
 					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Error with CAType");
 				}
+			}
+		}
+		break;
+
+	case 120:   /* SIP Servers (RFC 3361) */
+		{
+			guint8 enc;
+			optend = optoff + optlen;
+			enc = tvb_get_guint8(tvb, optoff);
+			proto_tree_add_uint(v_tree, hf_bootp_option_sip_server_enc, tvb, optoff++, 1, enc);
+			switch (enc) {
+			case 0:
+				{
+				guint8 *string, name_len;
+				gint len, tmp;
+				if (optlen < 3) {
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't >= 3");
+					break;
+				}
+				while (optoff < optend) {
+					name_len = tvb_get_guint8(tvb, optoff);
+					string = tvb_get_ephemeral_stringz(tvb, optoff+1, &len);
+					while (name_len < (len-1)) {
+						tmp = name_len;
+						name_len = name_len + string[tmp] + 1;
+						string[tmp] = '.';
+					}
+					proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, optoff, len+1, string);
+					optoff += len+1;
+					if (optoff > optend) {
+						expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length goes beyond option end");
+						break;
+					}
+				}
+				}
+				break;
+			case 1:
+				if (optlen < 5) {
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't >= 5");
+					break;
+				}
+				while (optoff < optend) {
+					if ((optend-optoff) < 4) {
+						expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't a multiple of 4");
+						break;
+					}
+					proto_tree_add_item(v_tree, hf_bootp_option_sip_server_address, tvb, optoff, 4, ENC_BIG_ENDIAN);
+					optoff += 4;
+				}
+				break;
+			default:
+				proto_tree_add_item(v_tree, hf_bootp_option_value, tvb, optoff, (optend - optoff), ENC_NA);
+				break;
 			}
 		}
 		break;
@@ -6190,6 +6251,21 @@ proto_register_bootp(void)
 		  { "DHCP Auto-Configuration", "bootp.option.dhcp_auto_configuration",
 		    FT_UINT8, BASE_DEC, VALS(dhcp_autoconfig), 0x0,
 		    "Option 116: DHCP Auto-Configuration", HFILL }},
+
+		{ &hf_bootp_option_sip_server_enc,
+		  { "SIP Server Encoding", "bootp.option.sip_server.encoding",
+		    FT_UINT8, BASE_DEC, VALS(sip_server_enc_vals), 0x0,
+		    "Option 120: SIP Server encoding", HFILL }},
+
+		{ &hf_bootp_option_sip_server_name,
+		  { "SIP Server Name", "bootp.option.sip_server.name",
+		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    "Option 120: SIP Server Name", HFILL }},
+
+		{ &hf_bootp_option_sip_server_address,
+		  { "SIP Server Address", "bootp.option.sip_server.address",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    "Option 120: SIP Server Address", HFILL }},
 
 		{ &hf_bootp_option_cl_dss_id_option,
 		  { "DSS_ID Type", "bootp.option.cl_dss_id.option",
