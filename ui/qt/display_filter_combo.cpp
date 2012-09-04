@@ -114,3 +114,16 @@ extern "C" void cfilter_combo_recent_write_all(FILE *rf) {
         fprintf (rf, RECENT_KEY_CAPTURE_FILTER ": %s\n", cfilter.toUtf8().constData());
     }
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

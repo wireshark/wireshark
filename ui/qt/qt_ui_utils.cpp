@@ -156,3 +156,16 @@ window_geom_recent_write_all(gpointer rf)
 
     g_hash_table_foreach(window_geom_hash, write_recent_geom, rf);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

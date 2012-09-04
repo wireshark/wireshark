@@ -161,3 +161,16 @@ progdlg_t * ProgressBar::show(bool animate, bool terminate_is_stop, gboolean *st
     QProgressBar::show();
     return &m_dlg;
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

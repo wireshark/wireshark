@@ -62,3 +62,16 @@ extern QFont get_monospace_font(void);
 extern int get_monospace_text_size(const char *str, bool regular);
 
 #endif // MONOSPACE_FONT_H
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
