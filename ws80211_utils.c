@@ -177,7 +177,6 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 
 	struct nlattr *nl_band;
 	struct nlattr *nl_freq;
-	struct nlattr *nl_cmd;
 	struct nlattr *nl_mode;
 	int bandidx = 1;
 	int rem_band, rem_freq, rem_mode;
@@ -243,14 +242,19 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 		}
 	}
 
-	/* Can frequency be set? */
+	/* Can frequency be set? Only newer versions of cfg80211 supports this */
+#ifdef HAVE_NL80211_CMD_SET_CHANNEL
 	if (tb_msg[NL80211_ATTR_SUPPORTED_COMMANDS]) {
 		int cmd;
+		struct nlattr *nl_cmd;
 		nla_for_each_nested(nl_cmd, tb_msg[NL80211_ATTR_SUPPORTED_COMMANDS], cmd) {
 			if(nla_get_u32(nl_cmd) == NL80211_CMD_SET_CHANNEL)
 				iface->can_set_freq = TRUE;
 		}
 	}
+#else
+	iface->can_set_freq = TRUE;
+#endif
 	g_array_append_val(cookie->interfaces, iface);
 
 	return NL_SKIP;
@@ -539,8 +543,14 @@ int ws80211_set_freq(const char *name, int freq, int chan_type)
 
 	devidx = if_nametoindex(name);
 
+#ifdef HAVE_NL80211_CMD_SET_CHANNEL
 	genlmsg_put(msg, 0, 0, nl_state.nl80211_id, 0,
 		    0, NL80211_CMD_SET_CHANNEL, 0);
+#else
+	genlmsg_put(msg, 0, 0, nl_state.nl80211_id, 0,
+		    0, NL80211_CMD_SET_WIPHY, 0);
+#endif
+
 	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, devidx);
 	NLA_PUT_U32(msg, NL80211_ATTR_WIPHY_FREQ, freq);
 

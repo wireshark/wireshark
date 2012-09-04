@@ -254,6 +254,13 @@ elif (test "${have_libnl1}" = "yes"); then
 	enable_airpcap=no
 fi
 
+AC_MSG_CHECKING([for NL80211_SET_CHANNEL])
+  AC_TRY_COMPILE([#include <linux/nl80211.h>],
+    [enum nl80211_commands x = NL80211_CMD_SET_CHANNEL;],
+    [AC_MSG_RESULT(yes) AC_DEFINE(HAVE_NL80211_CMD_SET_CHANNEL, 1, [SET_CHANNEL is supported])],
+    [AC_MSG_RESULT(no)])
+
+
 AC_ARG_WITH([gtk3],
   AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
                   [use GTK+ 3.0 instead of 2.0 @<:@default=no@:>@]),
