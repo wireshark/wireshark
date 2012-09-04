@@ -549,6 +549,7 @@ DISSECTOR_SRC = \
 	packet-g723.c		\
 	packet-gadu-gadu.c	\
 	packet-gdsdb.c		\
+	packet-ged125.c		\
 	packet-gift.c		\
 	packet-giop.c		\
 	packet-git.c		\
