@@ -1,6 +1,7 @@
 /* packet-ax25.c
  *
  * Routines for Amateur Packet Radio protocol dissection
+ * AX.25 frames
  * Copyright 2005,2006,2007,2008,2009,2010,2012 R.W. Stearn <richard@rns-stearn.demon.co.uk>
  *
  * $Id$
@@ -69,9 +70,6 @@
 #define AX25_ADDR_LEN		7  /* length of an AX.25 address */
 #define AX25_HEADER_SIZE	15 /* length of src_addr + dst_addr + cntl */
 #define AX25_MAX_DIGIS		8
-
-#define I_FRAME( control )  ( ( control & 0x01) == 0 )
-#define UI_FRAME( control ) ( ( ( control & 0x03) == 3 ) && ( ( ( ( ( control >> 5 ) & 0x07) << 2) | ( ( control >> 2 ) & 0x03) ) == 0 ) )
 
 /* Forward declaration we need below */
 void proto_reg_handoff_ax25(void);
@@ -145,8 +143,6 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	proto_item *ti;
 	proto_tree *ax25_tree;
 	int offset;
-	int control_offset;
-	int hdr_len;
 	int via_index;
 	char *info_buffer;
 	/* char v2cmdresp; */
@@ -170,25 +166,35 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 	col_clear( pinfo->cinfo, COL_INFO );
 
-	/* protocol offset for an AX.25 packet */
 	/* start at the dst addr */
 	offset = 0;
+	/* create display subtree for the protocol */
+	ti = proto_tree_add_protocol_format( parent_tree, proto_ax25, tvb, offset, -1, "AX.25");
+	ax25_tree = proto_item_add_subtree( ti, ett_ax25 );
 
 	dst_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
+	proto_tree_add_ax25( ax25_tree, hf_ax25_dst, tvb, offset, AX25_ADDR_LEN, dst_addr );
 	SET_ADDRESS( &pinfo->dl_dst,	AT_AX25, AX25_ADDR_LEN, dst_addr );
 	SET_ADDRESS( &pinfo->dst,	AT_AX25, AX25_ADDR_LEN, dst_addr );
 	dst_ssid = *(dst_addr + 6);
-	offset += AX25_ADDR_LEN; /* step over dst addr point at src addr */
+
+	/* step over dst addr point at src addr */
+	offset += AX25_ADDR_LEN;
 
 	src_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
+	proto_tree_add_ax25( ax25_tree, hf_ax25_src, tvb, offset, AX25_ADDR_LEN, src_addr );
 	SET_ADDRESS( &pinfo->dl_src,	AT_AX25, AX25_ADDR_LEN, src_addr );
 	SET_ADDRESS( &pinfo->src,	AT_AX25, AX25_ADDR_LEN, src_addr );
 	src_ssid = *(src_addr + 6);
-	offset += AX25_ADDR_LEN; /* step over src addr point at either 1st via addr or control byte */
 
-	/* step over any vias */
-	while ( ( tvb_get_guint8( tvb, offset - 1 ) & 0x01 ) == 0 )
-		offset += AX25_ADDR_LEN; /* step over a via addr */
+	/* step over src addr point at either 1st via addr or control byte */
+	offset += AX25_ADDR_LEN;
+
+	proto_item_append_text( ti, ", Src: %s (%s), Dst: %s (%s)",
+		get_ax25_name( src_addr ),
+		ax25_to_str( src_addr ),
+		get_ax25_name( dst_addr ),
+		ax25_to_str( dst_addr ) );
 
 	/* decode the cmd/resp field */
 	/* v2cmdresp = '.'; */
@@ -210,37 +216,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 			is_response = FALSE;
 			break;
 		}
-
-	/* decode the control field */
-	control_offset = offset;
-	control  = tvb_get_guint8( tvb, control_offset );
-
-	/* start at the dst addr */
-	offset = 0;
-	/* create display subtree for the protocol */
-	hdr_len = AX25_HEADER_SIZE;
-	if ( I_FRAME( control ) || UI_FRAME( control ) )
-		hdr_len += 1;
-
-	ti = proto_tree_add_protocol_format( parent_tree, proto_ax25, tvb, offset, hdr_len,
-		"AX.25, Src: %s (%s), Dst: %s (%s), Ver: %s",
-		get_ax25_name( src_addr ),
-		ax25_to_str( src_addr ),
-		get_ax25_name( dst_addr ),
-		ax25_to_str( dst_addr ),
-		ax25_version
-		);
-
-	ax25_tree = proto_item_add_subtree( ti, ett_ax25 );
-
-	proto_tree_add_ax25( ax25_tree, hf_ax25_dst, tvb, offset, AX25_ADDR_LEN, dst_addr );
-
-	/* step over dst addr point at src addr */
-	offset += AX25_ADDR_LEN;
-	proto_tree_add_ax25( ax25_tree, hf_ax25_src, tvb, offset, AX25_ADDR_LEN, src_addr );
-
-	/* step over src addr point at either 1st via addr or control byte */
-	offset += AX25_ADDR_LEN;
+	proto_item_append_text( ti, ", Ver: %s", ax25_version );
 
 	/* handle the vias, if any */
 	via_index = 0;
@@ -256,23 +232,25 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 		offset += AX25_ADDR_LEN;
 		}
 
-	dissect_xdlc_control(	tvb,
-				control_offset,
-				pinfo,
-				ax25_tree,
-				hf_ax25_ctl,
-				ett_ax25_ctl,
-				&ax25_cf_items,
-				NULL,
-				NULL,
-				NULL,
-				is_response,
-				FALSE,
-				FALSE );
+	/* XXX - next-to-last argument should be TRUE if modulo 128 operation */
+	control = dissect_xdlc_control(	tvb,
+					offset,
+					pinfo,
+					ax25_tree,
+					hf_ax25_ctl,
+					ett_ax25_ctl,
+					&ax25_cf_items,
+					NULL,
+					NULL,
+					NULL,
+					is_response,
+					FALSE,
+					FALSE );
+	/* XXX - second argument should be TRUE if modulo 128 operation */
+	offset += XDLC_CONTROL_LEN(control, FALSE); /* step over control field */
 
-	if ( I_FRAME( control ) || UI_FRAME( control ) )
+	if ( XDLC_IS_INFORMATION( control ) )
 		{
-		offset += 1; /* step over control byte point at pid */
 
 		pid      = tvb_get_guint8( tvb, offset );
 		col_append_fstr( pinfo->cinfo, COL_INFO, ", %s", val_to_str(pid, pid_vals, "Unknown (0x%02x)") );
@@ -282,9 +260,11 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 		offset += 1; /* step over pid to the 1st byte of the payload */
 
+		proto_item_set_end(ti, tvb, offset);
+
 		saved_private_data = pinfo->private_data;
 
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (!dissector_try_uint(ax25_dissector_table, pid, next_tvb, pinfo, parent_tree))
 			{
@@ -293,6 +273,8 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 		pinfo->private_data = saved_private_data;
 		}
+	else
+		proto_item_set_end(ti, tvb, offset);
 }
 
 void
@@ -408,9 +390,9 @@ proto_register_ax25(void)
 			"", HFILL }
 		},
 		{ &hf_ax25_pid,
-			{ "Packet ID",			"ax25.pid",
+			{ "Protocol ID",		"ax25.pid",
 			FT_UINT8, BASE_HEX, VALS(pid_vals), 0x0,
-			"Packet identifier", HFILL }
+			"Protocol identifier", HFILL }
 		},
 	};
 
@@ -475,7 +457,7 @@ capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld)
 	control = pd[ l_offset ];
 
 	/* decode the pid field (if appropriate) */
-	if ( I_FRAME( control ) || UI_FRAME( control ) )
+	if ( XDLC_IS_INFORMATION( control ) )
 		{
 		l_offset += 1; /* step over control byte point at pid */
 		pid = pd[ l_offset ];
