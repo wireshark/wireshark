@@ -43,7 +43,7 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/new_packet_list.h"
+#include "ui/gtk/packet_list.h"
 #include "ui/gtk/packet_panes.h"
 #include "ui/gtk/main_toolbar.h"
 #include "ui/gtk/font_utils.h"

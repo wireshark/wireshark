@@ -1,4 +1,4 @@
-/* new_packet_list.c
+/* packet_list.c
  * Routines to implement a new GTK2 packet list using our custom model
  * Copyright 2008-2009, Stephen Fisher (see AUTHORS file)
  * Co-authors Anders Broman, Kovarththanan Rajaratnam and Stig Bjorlykke.
@@ -52,7 +52,7 @@
 
 #include "gui_utils.h"
 #include "packet_list_store.h"
-#include "ui/gtk/new_packet_list.h"
+#include "ui/gtk/packet_list.h"
 #include "globals.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/font_utils.h"

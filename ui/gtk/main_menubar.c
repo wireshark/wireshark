@@ -112,7 +112,7 @@
 #include "ui/gtk/time_shift_dlg.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
 
-#include "ui/gtk/new_packet_list.h"
+#include "ui/gtk/packet_list.h"
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"

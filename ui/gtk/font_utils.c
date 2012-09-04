@@ -48,7 +48,7 @@
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/packet_panes.h"
 #include "ui/gtk/follow_tcp.h"
-#include "ui/gtk/new_packet_list.h"
+#include "ui/gtk/packet_list.h"
 
 
 static PangoFontDescription *m_r_font;

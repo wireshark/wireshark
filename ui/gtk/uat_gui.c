@@ -69,7 +69,7 @@
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/uat_gui.h"
-#include "ui/gtk/new_packet_list.h"
+#include "ui/gtk/packet_list.h"
 #include "ui/gtk/old-gtk-compat.h"
 
 # define BUTTON_SIZE_X -1

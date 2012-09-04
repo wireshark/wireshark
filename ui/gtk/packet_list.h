@@ -1,4 +1,4 @@
-/* new_packet_list.h
+/* packet_list.h
  *
  * $Id$
  *

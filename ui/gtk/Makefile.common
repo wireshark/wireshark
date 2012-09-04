@@ -109,9 +109,9 @@ WIRESHARK_GTK_SRC = \
 	main_toolbar.c	\
 	main_welcome.c		\
 	mcast_stream.c	\
-	new_packet_list.c	\
 	packet_history.c	\
 	packet_list_store.c	\
+	packet_list.c	\
 	packet_win.c	\
 	pixmap_save.c	\
 	plugins_dlg.c	\
@@ -308,10 +308,10 @@ noinst_HEADERS = \
 	mcast_stream_dlg.h \
 	mtp3_stat.h	\
 	network_icons.h	\
-	new_packet_list.h \
 	old-gtk-compat.h	\
 	packet_history.h	\
 	packet_list_store.h	\
+	packet_list.h \
 	packet_win.h	\
 	pipe_icon.h	\
 	pixmap_save.h	\
@@ -332,7 +332,7 @@ noinst_HEADERS = \
 	range_utils.h \
 	remote_icons.h	\
 	rtp_analysis.h	\
-	rtp_player.h 	\
+	rtp_player.h	\
 	rtp_stream.h	\
 	rtp_stream_dlg.h \
 	sat.h		\

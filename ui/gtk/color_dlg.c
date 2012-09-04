@@ -52,7 +52,7 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/color_edit_dlg.h"
-#include "ui/gtk/new_packet_list.h"
+#include "ui/gtk/packet_list.h"
 
 
 #define BUTTON_SIZE_X -1

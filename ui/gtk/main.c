@@ -174,7 +174,7 @@
 #include "ui/gtk/prefs_column.h"
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/proto_help.h"
-#include "ui/gtk/new_packet_list.h"
+#include "ui/gtk/packet_list.h"
 #include "ui/gtk/filter_expression_save_dlg.h"
 
 #include "ui/gtk/old-gtk-compat.h"

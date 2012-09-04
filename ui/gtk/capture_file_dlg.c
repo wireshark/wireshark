@@ -61,7 +61,7 @@
 #include "ui/gtk/drag_and_drop.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/color_dlg.h"
-#include "ui/gtk/new_packet_list.h"
+#include "ui/gtk/packet_list.h"
 #ifdef HAVE_LIBPCAP
 #include "ui/gtk/capture_dlg.h"
 #endif

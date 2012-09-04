@@ -59,7 +59,7 @@
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/packet_history.h"
-#include "ui/gtk/new_packet_list.h"
+#include "ui/gtk/packet_list.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 

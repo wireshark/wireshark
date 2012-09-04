@@ -80,7 +80,7 @@
 #include "color.h"
 #include "color_filters.h"
 #include "color_dlg.h"
-#include "new_packet_list.h"
+#include "packet_list.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 

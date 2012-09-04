@@ -36,7 +36,7 @@
       main [ label="main window" URL="\ref main.h"];
       menu [ label="menubar" URL="\ref menus.h"];
       toolbar [ label="toolbar" URL="\ref main_toolbar.h"];
-      packet_list [ label="packet list pane" URL="\ref new_packet_list.h"];
+      packet_list [ label="packet list pane" URL="\ref packet_list.h"];
       proto_draw [ label="packet details & bytes panes" URL="\ref main_proto_draw.h"];
       recent [ label="recent user settings" URL="\ref recent.h"];
       main -> menu [ arrowhead="open", style="solid" ];
