@@ -527,7 +527,7 @@ OperationalStatus_funk(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint
 		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_NOTE, "Degraded call processing" );
 	else if(value <= 127 && value >= 64  ) /*64-127*/
 		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_NOTE, "Conditions prevent call processing" );
-	else if(value < 0 && value >127) /*error*/
+	else if(value > 127) /*error*/
 		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Error: Invalid message" );
 
 	*offset+=4;
@@ -560,7 +560,6 @@ trunk_funk_without_status(tvbuff_t* tvb, proto_tree* z_tree, gint* offset, const
 static void 
 trunk_funk(tvbuff_t* tvb, proto_tree* tree, gint* offset, const gint size)
 {
-	guint32 value = 0;
 	guint16 count = 0;
 
 	/* 1023 max trunks, the trunk loop(counting from 0 from 1023 is 1024)*/
@@ -973,7 +972,7 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 }
 
 static guint 
-get_ged125_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset)
+get_ged125_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset _U_)
 {
 	return tvb_get_ntohl(tvb, 0) + 8;
 }
@@ -1065,7 +1064,7 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 		value = tvb_get_ntohl(tvb, offset);
 		ti = proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
-		if ((value < 0) || (value > 65535))
+		if (value > 65535)
 			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "TrunkGroupID must be between 0-65535");
 
 		value = tvb_get_ntohl(tvb, offset);
@@ -1729,7 +1728,7 @@ proto_register_ged125 (void)
 	proto_ged125 = proto_register_protocol ("Cisco GED-125 Protocol", "GED125", "ged125");
 	proto_register_field_array (proto_ged125, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
-	register_dissector("ged125", dissect_ged125, proto_ged125);
+	new_register_dissector("ged125", dissect_ged125, proto_ged125);
 
 	ged125_module = prefs_register_protocol(proto_ged125, NULL);
 
@@ -1752,7 +1751,7 @@ proto_reg_handoff_ged125(void)
 
 	if(!ged125_initialized)
 	{
-		ged125_handle = create_dissector_handle(dissect_ged125, proto_ged125);
+		ged125_handle = new_create_dissector_handle(dissect_ged125, proto_ged125);
 		ged125_initialized = TRUE;
 	} 
 
