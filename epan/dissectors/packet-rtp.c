@@ -526,7 +526,7 @@ static const value_string rtp_payload_type_short_vals[] =
 	{ 93,				"Unassigned" },
 	{ 94,				"Unassigned" },
 	{ 95,				"Unassigned" },
- 	/* Short RTP types */
+	/* Short RTP types */
 	{ PT_UNDF_96,	"RTPType-96" },
 	{ PT_UNDF_97,	"RTPType-97" },
 	{ PT_UNDF_98,	"RTPType-98" },
@@ -692,8 +692,8 @@ static gboolean
 dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean check_destport)
 {
 	guint8       octet1;
- 	unsigned int version;
- 	unsigned int offset = 0;
+	unsigned int version;
+	unsigned int offset = 0;
 
 	/* This is a heuristic dissector, which means we get all the UDP
 	 * traffic not sent to a known dissector and not claimed by
@@ -1532,13 +1532,13 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				 */
 				if (hdr_extension_id == 0xBEDE) {
 					dissect_rtp_hext_rfc5215_onebyte (newtvb, pinfo, rtp_hext_tree);
- 				}
+				}
 				else if ((hdr_extension_id & 0xFFF0) == 0x1000) {
 					dissect_rtp_hext_rfc5215_twobytes(tvb,
 						offset - 4, hdr_extension_id, newtvb,
 						pinfo, rtp_hext_tree);
 				}
-			 	else {
+				else {
 					hdrext_offset = offset;
 					for ( i = 0; i < hdr_extension; i++ ) {
 						if ( tree ) proto_tree_add_uint( rtp_hext_tree, hf_rtp_hdr_ext, tvb, hdrext_offset, 4, tvb_get_ntohl( tvb, hdrext_offset ) );
