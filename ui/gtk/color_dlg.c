@@ -783,7 +783,7 @@ create_new_color_filter(GtkButton *button, const char *filter)
 
   /* Use the default background and foreground colors as the colors. */
 #if GTK_CHECK_VERSION(3,0,0)
-  context = gtk_widget_get_style_context (new_packet_list_get_widget());
+  context = gtk_widget_get_style_context (packet_list_get_widget());
   gtk_style_context_get (context, GTK_STATE_FLAG_NORMAL,
                        "background-color", &rgba_bg_color,
                        NULL);
@@ -796,7 +796,7 @@ create_new_color_filter(GtkButton *button, const char *filter)
   gdk_rgba_free (rgba_fg_color);
 
 #else
-  style = gtk_widget_get_style(new_packet_list_get_widget());
+  style = gtk_widget_get_style(packet_list_get_widget());
   gdkcolor_to_color_t(&bg_color, &style->base[GTK_STATE_NORMAL]);
   gdkcolor_to_color_t(&fg_color, &style->text[GTK_STATE_NORMAL]);
 #endif
@@ -1041,7 +1041,7 @@ color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
   color_filters_apply(color_filter_tmp_list, color_filter_edit_list);
 
   /* colorize list */
-  new_packet_list_colorize_packets();
+  packet_list_colorize_packets();
 }
 
 /* User pressed the "Save" button: save the color filters to the

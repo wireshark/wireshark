@@ -63,23 +63,23 @@ extern void pipe_input_set_handler(gint source, gpointer user_data, int *child_p
 
 /* packet_list.c */
 
-void new_packet_list_clear(void);
-void new_packet_list_freeze(void);
-void new_packet_list_recreate_visible_rows(void);
-void new_packet_list_thaw(void);
-void new_packet_list_next(void);
-void new_packet_list_prev(void);
-guint new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo);
-frame_data * new_packet_list_get_row_data(gint row);
-void new_packet_list_set_selected_row(gint row);
-void new_packet_list_enable_color(gboolean enable);
-void new_packet_list_queue_draw(void);
-void new_packet_list_select_first_row(void);
-void new_packet_list_select_last_row(void);
-void new_packet_list_moveto_end(void);
-gboolean new_packet_list_check_end(void);
-gboolean new_packet_list_select_row_from_data(frame_data *fdata_needle);
-void new_packet_list_resize_column(gint col);
+void packet_list_clear(void);
+void packet_list_freeze(void);
+void packet_list_recreate_visible_rows(void);
+void packet_list_thaw(void);
+void packet_list_next(void);
+void packet_list_prev(void);
+guint packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo);
+frame_data * packet_list_get_row_data(gint row);
+void packet_list_set_selected_row(gint row);
+void packet_list_enable_color(gboolean enable);
+void packet_list_queue_draw(void);
+void packet_list_select_first_row(void);
+void packet_list_select_last_row(void);
+void packet_list_moveto_end(void);
+gboolean packet_list_check_end(void);
+gboolean packet_list_select_row_from_data(frame_data *fdata_needle);
+void packet_list_resize_column(gint col);
 
 #ifdef __cplusplus
 }

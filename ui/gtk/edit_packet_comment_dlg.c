@@ -66,7 +66,7 @@ pkt_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
 
   /*g_warning("The new comment is '%s'",new_packet_comment);*/
 
-  new_packet_list_update_packet_comment(new_packet_comment);
+  packet_list_update_packet_comment(new_packet_comment);
 
   window_destroy(edit_or_add_pkt_comment_dlg);
 
@@ -132,7 +132,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   gtk_box_pack_start(GTK_BOX (vbox), scroll, TRUE, TRUE, 0);
 
   /* Get the comment */
-  opt_comment = new_packet_list_get_packet_comment();
+  opt_comment = packet_list_get_packet_comment();
   /*g_warning("Fetched comment '%s'",opt_comment);*/
 
   if(opt_comment){

@@ -23,7 +23,7 @@
  */
 
 /* Uncomment to track some statistics (const strings, etc.) */
-/* #define NEW_PACKET_LIST_STATISTICS */
+/* #define PACKET_LIST_STATISTICS */
 
 #ifndef __PACKET_LIST_STORE_H__
 #define __PACKET_LIST_STORE_H__
@@ -80,7 +80,7 @@ struct _PacketList
 	/** Random integer to check whether an iter belongs to our model. */
 	gint stamp;
 
-#ifdef NEW_PACKET_LIST_STATISTICS
+#ifdef PACKET_LIST_STATISTICS
 	/** Statistics */
 	guint const_strings;
 #endif
@@ -93,9 +93,9 @@ struct _PacketListClass
 };
 
 GType packet_list_list_get_type(void);
-PacketList *new_packet_list_new(void);
-void new_packet_list_store_clear(PacketList *packet_list);
-guint packet_list_recreate_visible_rows(PacketList *packet_list);
+PacketList *packet_list_new(void);
+void packet_list_store_clear(PacketList *packet_list);
+guint packet_list_recreate_visible_rows_list(PacketList *packet_list);
 gint packet_list_append_record(PacketList *packet_list, frame_data *fdata);
 gboolean packet_list_do_packet_list_dissect_and_cache_all(PacketList *packet_list, gint sort_col_id);
 void packet_list_reset_colorized(PacketList *packet_list);

@@ -797,7 +797,7 @@ column_prefs_apply(GtkWidget *w _U_)
 {
     /* Redraw the packet list if the columns were changed */
     if(cfile.columns_changed) {
-        new_packet_list_recreate();
+        packet_list_recreate();
         cfile.columns_changed = FALSE; /* Reset value */
     }
 }

@@ -90,8 +90,8 @@ static gulong column_changed_handler_id;
 
 static GtkWidget *create_view_and_model(void);
 static void scroll_to_and_select_iter(GtkTreeModel *model, GtkTreeSelection *selection, GtkTreeIter *iter);
-static void new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_);
-static void new_packet_list_double_click_cb(GtkTreeView *treeview,
+static void packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_);
+static void packet_list_double_click_cb(GtkTreeView *treeview,
 					    GtkTreePath *path _U_,
 					    GtkTreeViewColumn *col _U_,
 					    gpointer userdata _U_);
@@ -103,10 +103,10 @@ static void show_cell_data_func(GtkTreeViewColumn *col,
 static gint row_number_from_iter(GtkTreeIter *iter);
 static void scroll_to_current(void);
 
-void new_packet_list_set_sel_browse(gboolean val, gboolean force_set);
+void packet_list_set_sel_browse(gboolean val, gboolean force_set);
 
 GtkWidget *
-new_packet_list_create(void)
+packet_list_create(void)
 {
 	GtkWidget *view, *scrollwin;
 
@@ -114,7 +114,7 @@ new_packet_list_create(void)
 
 	view = create_view_and_model();
 
-	new_packet_list_set_sel_browse(prefs.gui_plist_sel_browse, FALSE);
+	packet_list_set_sel_browse(prefs.gui_plist_sel_browse, FALSE);
 
 	gtk_container_add(GTK_CONTAINER(scrollwin), view);
 
@@ -125,7 +125,7 @@ new_packet_list_create(void)
 
 /** @todo XXX - implement a smarter solution for recreating the packet list */
 void
-new_packet_list_recreate(void)
+packet_list_recreate(void)
 {
 	g_signal_handler_block(packetlist->view, column_changed_handler_id);
 	gtk_widget_destroy(pkt_scrollw);
@@ -134,7 +134,7 @@ new_packet_list_recreate(void)
 
 	build_column_format_array(&cfile.cinfo, prefs.num_cols, FALSE);
 
-	pkt_scrollw = new_packet_list_create();
+	pkt_scrollw = packet_list_create();
 	gtk_widget_show_all(pkt_scrollw);
 
 	main_widgets_rearrange();
@@ -144,7 +144,7 @@ new_packet_list_recreate(void)
 }
 
 guint
-new_packet_list_append(column_info *cinfo _U_, frame_data *fdata, packet_info *pinfo _U_)
+packet_list_append(column_info *cinfo _U_, frame_data *fdata, packet_info *pinfo _U_)
 {
 	/* fdata should be filled with the stuff we need
 	 * strings are built at display time.
@@ -281,10 +281,10 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 	rebuild_visible_columns_menu ();
 
 	if (recreate) {
-		new_packet_list_recreate();
+		packet_list_recreate();
 	}
 
-	new_packet_list_resize_column (col_id);
+	packet_list_resize_column (col_id);
 	window_destroy(GTK_WIDGET(parent_w));
 }
 
@@ -445,7 +445,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
  *  is not completed (i.e., stopped), then the sort request is aborted.
  */
 static void
-new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType order, gboolean sort_indicator)
+packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType order, gboolean sort_indicator)
 {
 	GtkTreeViewColumn *prev_col;
 
@@ -477,7 +477,7 @@ new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType or
  * having empty sorting arrow widgets in the column header.
  */
 static void
-new_packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U_)
+packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U_)
 {
 	GtkSortType order = gtk_tree_view_column_get_sort_order (col);
 	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
@@ -486,11 +486,11 @@ new_packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U
 		return;
 
 	if (!gtk_tree_view_column_get_sort_indicator(col)) {
-		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING, TRUE);
+		packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING, TRUE);
 	} else if (order == GTK_SORT_ASCENDING) {
-		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING, TRUE);
+		packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING, TRUE);
 	} else {
-		new_packet_list_sort_column (0, NULL, GTK_SORT_ASCENDING, FALSE);
+		packet_list_sort_column (0, NULL, GTK_SORT_ASCENDING, FALSE);
 	}
 }
 
@@ -523,7 +523,7 @@ get_xalign_value (gchar xalign, gboolean right_justify)
 }
 
 static void
-new_packet_list_xalign_column (gint col_id, GtkTreeViewColumn *col, gchar xalign)
+packet_list_xalign_column (gint col_id, GtkTreeViewColumn *col, gchar xalign)
 {
 	GList *renderers = gtk_cell_layout_get_cells (GTK_CELL_LAYOUT(col));
 	gboolean right_justify = right_justify_column(col_id);
@@ -550,7 +550,7 @@ new_packet_list_xalign_column (gint col_id, GtkTreeViewColumn *col, gchar xalign
 }
 
 static void
-new_packet_list_set_visible_column (gint col_id, GtkTreeViewColumn *col, gboolean visible)
+packet_list_set_visible_column (gint col_id, GtkTreeViewColumn *col, gboolean visible)
 {
 	gtk_tree_view_column_set_visible(col, visible);
 	set_column_visible(col_id, visible);
@@ -564,16 +564,16 @@ new_packet_list_set_visible_column (gint col_id, GtkTreeViewColumn *col, gboolea
 }
 
 void
-new_packet_list_toggle_visible_column (gint col_id)
+packet_list_toggle_visible_column (gint col_id)
 {
 	GtkTreeViewColumn *col =
 	  gtk_tree_view_get_column(GTK_TREE_VIEW(packetlist->view), col_id);
 
-	new_packet_list_set_visible_column (col_id, col, get_column_visible(col_id) ? FALSE : TRUE);
+	packet_list_set_visible_column (col_id, col, get_column_visible(col_id) ? FALSE : TRUE);
 }
 
 void
-new_packet_list_set_all_columns_visible (void)
+packet_list_set_all_columns_visible (void)
 {
 	GtkTreeViewColumn *col;
 	int col_id;
@@ -593,7 +593,7 @@ new_packet_list_set_all_columns_visible (void)
 }
 
 static void
-new_packet_list_remove_column (gint col_id, GtkTreeViewColumn *col _U_)
+packet_list_remove_column (gint col_id, GtkTreeViewColumn *col _U_)
 {
 	column_prefs_remove(col_id);
 
@@ -601,11 +601,11 @@ new_packet_list_remove_column (gint col_id, GtkTreeViewColumn *col _U_)
 		prefs_main_write();
 	}
 
-	new_packet_list_recreate();
+	packet_list_recreate();
 }
 
 static void
-new_packet_list_toggle_resolved (GtkWidget *w, gint col_id)
+packet_list_toggle_resolved (GtkWidget *w, gint col_id)
 {
 	/* We have to check for skip-update because we get an emit in menus_set_column_resolved() */
 	if (g_object_get_data(G_OBJECT(w), "skip-update") == NULL) {
@@ -615,12 +615,12 @@ new_packet_list_toggle_resolved (GtkWidget *w, gint col_id)
 			prefs_main_write();
 		}
 
-		new_packet_list_recreate();
+		packet_list_recreate();
 	}
 }
 
 void
-new_packet_list_column_menu_cb (GtkWidget *w, gpointer user_data _U_, COLUMN_SELECTED_E action)
+packet_list_column_menu_cb (GtkWidget *w, gpointer user_data _U_, COLUMN_SELECTED_E action)
 {
 	GtkTreeViewColumn *col = (GtkTreeViewColumn *)
 	  g_object_get_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COLUMN_KEY);
@@ -628,40 +628,40 @@ new_packet_list_column_menu_cb (GtkWidget *w, gpointer user_data _U_, COLUMN_SEL
 
 	switch (action) {
 	case COLUMN_SELECTED_SORT_ASCENDING:
-		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING, TRUE);
+		packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING, TRUE);
 		break;
 	case COLUMN_SELECTED_SORT_DESCENDING:
-		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING, TRUE);
+		packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING, TRUE);
 		break;
 	case COLUMN_SELECTED_SORT_NONE:
-		new_packet_list_sort_column (0, NULL, GTK_SORT_ASCENDING, FALSE);
+		packet_list_sort_column (0, NULL, GTK_SORT_ASCENDING, FALSE);
 		break;
 	case COLUMN_SELECTED_TOGGLE_RESOLVED:
-		new_packet_list_toggle_resolved (w, col_id);
+		packet_list_toggle_resolved (w, col_id);
 		break;
 	case COLUMN_SELECTED_ALIGN_LEFT:
-		new_packet_list_xalign_column (col_id, col, COLUMN_XALIGN_LEFT);
+		packet_list_xalign_column (col_id, col, COLUMN_XALIGN_LEFT);
 		break;
 	case COLUMN_SELECTED_ALIGN_CENTER:
-		new_packet_list_xalign_column (col_id, col, COLUMN_XALIGN_CENTER);
+		packet_list_xalign_column (col_id, col, COLUMN_XALIGN_CENTER);
 		break;
 	case COLUMN_SELECTED_ALIGN_RIGHT:
-		new_packet_list_xalign_column (col_id, col, COLUMN_XALIGN_RIGHT);
+		packet_list_xalign_column (col_id, col, COLUMN_XALIGN_RIGHT);
 		break;
 	case COLUMN_SELECTED_ALIGN_DEFAULT:
-		new_packet_list_xalign_column (col_id, col, COLUMN_XALIGN_DEFAULT);
+		packet_list_xalign_column (col_id, col, COLUMN_XALIGN_DEFAULT);
 		break;
 	case COLUMN_SELECTED_RESIZE:
-		new_packet_list_resize_column (col_id);
+		packet_list_resize_column (col_id);
 		break;
 	case COLUMN_SELECTED_CHANGE:
 		col_details_edit_dlg (col_id, col);
 		break;
 	case COLUMN_SELECTED_HIDE:
-		new_packet_list_set_visible_column (col_id, col, FALSE);
+		packet_list_set_visible_column (col_id, col, FALSE);
 		break;
 	case COLUMN_SELECTED_REMOVE:
-		new_packet_list_remove_column (col_id, col);
+		packet_list_remove_column (col_id, col);
 		break;
 	default:
 		g_assert_not_reached();
@@ -670,7 +670,7 @@ new_packet_list_column_menu_cb (GtkWidget *w, gpointer user_data _U_, COLUMN_SEL
 }
 
 static gboolean
-new_packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
+packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	GtkWidget *col = (GtkWidget *) data;
 	GtkWidget *menu = g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY);
@@ -718,7 +718,7 @@ column_dnd_changed_cb(GtkTreeView *tree_view, gpointer data _U_)
 		prefs_main_write();
 	}
 
-	new_packet_list_recreate();
+	packet_list_recreate();
 }
 
 static GtkWidget *
@@ -733,16 +733,16 @@ create_view_and_model(void)
 	gint col_min_width;
 	gchar *escaped_title;
 
-	packetlist = new_packet_list_new();
+	packetlist = packet_list_new();
 
 	packetlist->view = tree_view_new(GTK_TREE_MODEL(packetlist));
 
 	gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(packetlist->view),
 						TRUE);
 	g_signal_connect(packetlist->view, "cursor-changed",
-			 G_CALLBACK(new_packet_list_select_cb), NULL);
+			 G_CALLBACK(packet_list_select_cb), NULL);
 	g_signal_connect(packetlist->view, "row-activated",
-			 G_CALLBACK(new_packet_list_double_click_cb), NULL);
+			 G_CALLBACK(packet_list_double_click_cb), NULL);
 	g_signal_connect(packetlist->view, "button_press_event", G_CALLBACK(popup_menu_handler),
 				   g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
 	column_changed_handler_id = g_signal_connect(packetlist->view, "columns-changed", G_CALLBACK(column_dnd_changed_cb), NULL);
@@ -802,7 +802,7 @@ create_view_and_model(void)
 		gtk_tree_view_column_set_reorderable(col, TRUE); /* XXX - Should this be saved in the prefs? */
 
 		g_object_set_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY, GINT_TO_POINTER(i));
-		g_signal_connect(col, "clicked", G_CALLBACK(new_packet_list_column_clicked_cb), NULL);
+		g_signal_connect(col, "clicked", G_CALLBACK(packet_list_column_clicked_cb), NULL);
 
 		/*
 		 * The column can't be adjusted to a size smaller than this
@@ -839,7 +839,7 @@ create_view_and_model(void)
 		gtk_widget_set_tooltip_text(gtk_tree_view_column_get_button(col), tooltip_text);
 		g_free(tooltip_text);
 		g_signal_connect(gtk_tree_view_column_get_button(col), "button_press_event",
-				 G_CALLBACK(new_packet_list_column_button_pressed_cb), col);
+				 G_CALLBACK(packet_list_column_button_pressed_cb), col);
 
 		if (i == 0) {  /* Default sort on first column */
 			g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COLUMN_KEY, col);
@@ -853,7 +853,7 @@ create_view_and_model(void)
 }
 
 static frame_data *
-new_packet_list_get_record(GtkTreeModel *model, GtkTreeIter *iter)
+packet_list_get_record(GtkTreeModel *model, GtkTreeIter *iter)
 {
 	frame_data *fdata;
 	/* The last column is reserved for frame_data */
@@ -868,20 +868,20 @@ new_packet_list_get_record(GtkTreeModel *model, GtkTreeIter *iter)
 }
 
 void
-new_packet_list_clear(void)
+packet_list_clear(void)
 {
 	packet_history_clear();
 
-	new_packet_list_store_clear(packetlist);
+	packet_list_store_clear(packetlist);
 	gtk_widget_queue_draw(packetlist->view);
 	/* XXX is this correct in all cases?
 	 * Reset the sort column, use packetlist as model in case the list is frozen.
 	 */
-	new_packet_list_sort_column(0, NULL, GTK_SORT_ASCENDING, FALSE);
+	packet_list_sort_column(0, NULL, GTK_SORT_ASCENDING, FALSE);
 }
 
 void
-new_packet_list_freeze(void)
+packet_list_freeze(void)
 {
 	/* So we don't lose the model by the time we want to thaw it */
 	g_object_ref(packetlist);
@@ -891,24 +891,24 @@ new_packet_list_freeze(void)
 }
 
 void
-new_packet_list_thaw(void)
+packet_list_thaw(void)
 {
 	/* Apply model */
 	gtk_tree_view_set_model( GTK_TREE_VIEW(packetlist->view), GTK_TREE_MODEL(packetlist));
 
-	/* Remove extra reference added by new_packet_list_freeze() */
+	/* Remove extra reference added by packet_list_freeze() */
 	g_object_unref(packetlist);
 
 	packets_bar_update();
 }
 
 void
-new_packet_list_recreate_visible_rows(void)
+packet_list_recreate_visible_rows(void)
 {
-	packet_list_recreate_visible_rows(packetlist);
+	packet_list_recreate_visible_rows_list(packetlist);
 }
 
-void new_packet_list_resize_column(gint col)
+void packet_list_resize_column(gint col)
 {
 	GtkTreeViewColumn *column;
 	gint col_width;
@@ -924,7 +924,7 @@ void new_packet_list_resize_column(gint col)
 }
 
 static void
-new_packet_list_resize_columns(void)
+packet_list_resize_columns(void)
 {
 	gint		progbar_loop_max;
 	gint		progbar_loop_var;
@@ -932,13 +932,13 @@ new_packet_list_resize_columns(void)
 	progbar_loop_max = cfile.cinfo.num_cols;
 
 	for (progbar_loop_var = 0; progbar_loop_var < progbar_loop_max; ++progbar_loop_var)
-		new_packet_list_resize_column(progbar_loop_var);
+		packet_list_resize_column(progbar_loop_var);
 }
 
 void
-new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_)
+packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-	new_packet_list_resize_columns();
+	packet_list_resize_columns();
 }
 
 static void
@@ -962,7 +962,7 @@ scroll_to_current(void)
 }
 
 void
-new_packet_list_next(void)
+packet_list_next(void)
 {
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
@@ -985,7 +985,7 @@ new_packet_list_next(void)
 }
 
 void
-new_packet_list_prev(void)
+packet_list_prev(void)
 {
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
@@ -1034,7 +1034,7 @@ scroll_to_and_select_iter(GtkTreeModel *model, GtkTreeSelection *selection, GtkT
 			0.5,	/* row_align determines where the row is placed, 0.5 means center */
 			0); 	/* The horizontal alignment of the column */
 
-	/* "cursor-changed" signal triggers new_packet_list_select_cb() */
+	/* "cursor-changed" signal triggers packet_list_select_cb() */
 	/*  which will update the middle and bottom panes.              */
 	gtk_tree_view_set_cursor(GTK_TREE_VIEW(packetlist->view),
 			path,
@@ -1045,7 +1045,7 @@ scroll_to_and_select_iter(GtkTreeModel *model, GtkTreeSelection *selection, GtkT
 }
 
 void
-new_packet_list_select_first_row(void)
+packet_list_select_first_row(void)
 {
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeIter iter;
@@ -1058,7 +1058,7 @@ new_packet_list_select_first_row(void)
 }
 
 void
-new_packet_list_select_last_row(void)
+packet_list_select_last_row(void)
 {
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeIter iter;
@@ -1076,7 +1076,7 @@ new_packet_list_select_last_row(void)
 }
 
 void
-new_packet_list_moveto_end(void)
+packet_list_moveto_end(void)
 {
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeIter iter;
@@ -1105,7 +1105,7 @@ new_packet_list_moveto_end(void)
 }
 
 gboolean
-new_packet_list_check_end(void)
+packet_list_check_end(void)
 {
 	gboolean at_end = FALSE;
 	GtkAdjustment *adj;
@@ -1135,7 +1135,7 @@ new_packet_list_check_end(void)
  * row, return FALSE, otherwise return TRUE.
  */
 gboolean
-new_packet_list_select_row_from_data(frame_data *fdata_needle)
+packet_list_select_row_from_data(frame_data *fdata_needle)
 {
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeIter iter;
@@ -1149,7 +1149,7 @@ new_packet_list_select_row_from_data(frame_data *fdata_needle)
 	do {
 		frame_data *fdata;
 
-		fdata = new_packet_list_get_record(model, &iter);
+		fdata = packet_list_get_record(model, &iter);
 
 		if(fdata == fdata_needle) {
 			scroll_to_and_select_iter(model, NULL, &iter);
@@ -1162,7 +1162,7 @@ new_packet_list_select_row_from_data(frame_data *fdata_needle)
 }
 
 void
-new_packet_list_set_selected_row(gint row)
+packet_list_set_selected_row(gint row)
 {
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeIter iter;
@@ -1178,7 +1178,7 @@ new_packet_list_set_selected_row(gint row)
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	gtk_tree_selection_select_iter (selection, &iter);
 
-	/* "cursor-changed" signal triggers new_packet_list_select_cb() */
+	/* "cursor-changed" signal triggers packet_list_select_cb() */
 	/*  which will update the middle and bottom panes.              */
 	gtk_tree_view_set_cursor(GTK_TREE_VIEW(packetlist->view),
 			path,
@@ -1209,7 +1209,7 @@ row_number_from_iter(GtkTreeIter *iter)
 }
 
 static void
-new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
+packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 {
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
@@ -1245,14 +1245,14 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 }
 
 static void
-new_packet_list_double_click_cb(GtkTreeView *treeview, GtkTreePath *path _U_,
+packet_list_double_click_cb(GtkTreeView *treeview, GtkTreePath *path _U_,
 				GtkTreeViewColumn *col _U_, gpointer userdata _U_)
 {
 	new_packet_window(GTK_WIDGET(treeview), FALSE);
 }
 
 gboolean
-new_packet_list_get_event_row_column(GdkEventButton *event_button,
+packet_list_get_event_row_column(GdkEventButton *event_button,
 				     gint *physical_row, gint *row, gint *column)
 {
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
@@ -1277,7 +1277,7 @@ new_packet_list_get_event_row_column(GdkEventButton *event_button,
 		gtk_tree_path_free(path);
 
 		/* Fetch physical row */
-		fdata = new_packet_list_get_record(model, &iter);
+		fdata = packet_list_get_record(model, &iter);
 		*physical_row = fdata->num;
 
 		/* Fetch column */
@@ -1293,7 +1293,7 @@ new_packet_list_get_event_row_column(GdkEventButton *event_button,
 }
 
 frame_data *
-new_packet_list_get_row_data(gint row)
+packet_list_get_row_data(gint row)
 {
 	GtkTreePath *path = gtk_tree_path_new();
 	GtkTreeIter iter;
@@ -1302,7 +1302,7 @@ new_packet_list_get_row_data(gint row)
 	gtk_tree_path_append_index(path, row-1);
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(packetlist), &iter, path);
 
-	fdata = new_packet_list_get_record(GTK_TREE_MODEL(packetlist), &iter);
+	fdata = packet_list_get_record(GTK_TREE_MODEL(packetlist), &iter);
 
 	gtk_tree_path_free(path);
 
@@ -1365,7 +1365,7 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 }
 
 void
-new_packet_list_enable_color(gboolean enable)
+packet_list_enable_color(gboolean enable)
 {
 	enable_color = enable;
 	gtk_widget_queue_draw (packetlist->view);
@@ -1373,7 +1373,7 @@ new_packet_list_enable_color(gboolean enable)
 
 /* Redraw the packet list *and* currently-selected detail */
 void
-new_packet_list_queue_draw(void)
+packet_list_queue_draw(void)
 {
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
@@ -1390,7 +1390,7 @@ new_packet_list_queue_draw(void)
 
 /* Set the selection mode of the packet list window. */
 void
-new_packet_list_set_sel_browse(gboolean val, gboolean force_set)
+packet_list_set_sel_browse(gboolean val, gboolean force_set)
 {
 	GtkSelectionMode new_mode;
 	/* initialize with a mode we don't use, so that the mode == new_mode
@@ -1429,7 +1429,7 @@ new_packet_list_set_sel_browse(gboolean val, gboolean force_set)
 }
 
 void
-new_packet_list_set_font(PangoFontDescription *font)
+packet_list_set_font(PangoFontDescription *font)
 {
 #if GTK_CHECK_VERSION(3,0,0)
     gtk_widget_override_font(packetlist->view, font);
@@ -1444,7 +1444,7 @@ static void
 mark_frames_ready(void)
 {
 	packets_bar_update();
-	new_packet_list_queue_draw();
+	packet_list_queue_draw();
 }
 
 static void
@@ -1457,7 +1457,7 @@ set_frame_mark(gboolean set, frame_data *fdata)
 }
 
 void
-new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
+packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
@@ -1469,7 +1469,7 @@ new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
 		return;
 
-	fdata = new_packet_list_get_record(model, &iter);
+	fdata = packet_list_get_record(model, &iter);
 
 	set_frame_mark(!fdata->flags.marked, fdata);
 	mark_frames_ready();
@@ -1489,14 +1489,14 @@ mark_all_displayed_frames(gboolean set)
 }
 
 void
-new_packet_list_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+packet_list_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	mark_all_displayed_frames(TRUE);
 	mark_frames_ready();
 }
 
 void
-new_packet_list_unmark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+packet_list_unmark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	mark_all_displayed_frames(FALSE);
 	mark_frames_ready();
@@ -1516,7 +1516,7 @@ toggle_mark_all_displayed_frames(void)
 }
 
 void
-new_packet_list_toggle_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+packet_list_toggle_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	toggle_mark_all_displayed_frames();
 	mark_frames_ready();
@@ -1533,7 +1533,7 @@ set_frame_ignore(gboolean set, frame_data *fdata)
 }
 
 void
-new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
+packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
@@ -1545,7 +1545,7 @@ new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
 		return;
 
-	fdata = new_packet_list_get_record(model, &iter);
+	fdata = packet_list_get_record(model, &iter);
 	set_frame_ignore(!fdata->flags.ignored, fdata);
 	redissect_packets();
 }
@@ -1566,7 +1566,7 @@ ignore_all_displayed_frames(gboolean set)
 }
 
 void
-new_packet_list_ignore_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+packet_list_ignore_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	if(cfile.displayed_count < cfile.count){
 		frame_data *fdata;
@@ -1597,7 +1597,7 @@ unignore_all_frames(void)
 }
 
 void
-new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	unignore_all_frames();
 }
@@ -1618,14 +1618,14 @@ untime_reference_all_frames(void)
 }
 
 void
-new_packet_list_untime_reference_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+packet_list_untime_reference_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	untime_reference_all_frames();
 }
 
 
 guint
-new_packet_list_get_column_id (gint col_num)
+packet_list_get_column_id (gint col_num)
 {
 	GtkTreeViewColumn *column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), col_num);
 	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(column), E_MPACKET_LIST_COL_KEY));
@@ -1634,7 +1634,7 @@ new_packet_list_get_column_id (gint col_num)
 }
 
 void
-new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
+packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 {
 	gint col;
 	gchar *celltext;
@@ -1664,7 +1664,7 @@ new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 				}
 			}
 
-			gtk_tree_model_get(model, &iter, new_packet_list_get_column_id(col), &celltext, -1);
+			gtk_tree_model_get(model, &iter, packet_list_get_column_id(col), &celltext, -1);
 			g_string_append(text,celltext);
 			g_free(celltext);
 
@@ -1678,7 +1678,7 @@ new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 }
 
 gchar *
-new_packet_list_get_packet_comment(void)
+packet_list_get_packet_comment(void)
 {
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
@@ -1690,13 +1690,13 @@ new_packet_list_get_packet_comment(void)
 	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
 		return NULL;
 
-	fdata = new_packet_list_get_record(model, &iter);
+	fdata = packet_list_get_record(model, &iter);
 
 	return fdata->opt_comment;
 }
 
 void
-new_packet_list_update_packet_comment(gchar *new_packet_comment)
+packet_list_update_packet_comment(gchar *new_packet_comment)
 {
 
 	GtkTreeModel *model;
@@ -1709,7 +1709,7 @@ new_packet_list_update_packet_comment(gchar *new_packet_comment)
 	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
 		return;
 
-	fdata = new_packet_list_get_record(model, &iter);
+	fdata = packet_list_get_record(model, &iter);
 
 	/* Check if the comment has changed */
 	if (fdata->opt_comment) {
@@ -1731,12 +1731,12 @@ new_packet_list_update_packet_comment(gchar *new_packet_comment)
 	/* Update the main window, as we now have unsaved changes. */
 	main_update_for_unsaved_changes(&cfile);
 
-	new_packet_list_queue_draw();
+	packet_list_queue_draw();
 
 }
 
 void
-new_packet_list_recent_write_all(FILE *rf)
+packet_list_recent_write_all(FILE *rf)
 {
 	gint col, width, num_cols, col_fmt;
 	GtkTreeViewColumn *tree_column;
@@ -1770,7 +1770,7 @@ new_packet_list_recent_write_all(FILE *rf)
 }
 
 GtkWidget *
-new_packet_list_get_widget(void)
+packet_list_get_widget(void)
 {
 	g_assert(packetlist);
 	g_assert(packetlist->view);
@@ -1778,7 +1778,7 @@ new_packet_list_get_widget(void)
 }
 
 void
-new_packet_list_colorize_packets(void)
+packet_list_colorize_packets(void)
 {
 	packet_list_reset_colorized(packetlist);
 	gtk_widget_queue_draw (packetlist->view);

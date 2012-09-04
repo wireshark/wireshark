@@ -161,12 +161,12 @@ goto_bottom_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 goto_next_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    new_packet_list_next();
+    packet_list_next();
 }
 
 void
 goto_previous_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    new_packet_list_prev();
+    packet_list_prev();
 }
 

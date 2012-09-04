@@ -677,8 +677,8 @@ file_merge_cmd(GtkWidget *w)
 {
 #ifdef USE_WIN32_FILE_DIALOGS
   win32_merge_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
-  new_packet_list_freeze();
-  new_packet_list_thaw();
+  packet_list_freeze();
+  packet_list_thaw();
 #else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget     *file_merge_w;
   GtkWidget     *main_hb, *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *filter_hbox,
@@ -1387,7 +1387,7 @@ do_file_save(capture_file *cf, gboolean dont_reopen)
            If we discarded comments, redraw the packet list to reflect
            any packets that no longer have comments. */
         if (discard_comments)
-          new_packet_list_queue_draw();
+          packet_list_queue_draw();
         break;
 
       case CF_WRITE_ERROR:
@@ -1628,7 +1628,7 @@ do_file_save_as(capture_file *cf, gboolean must_support_comments,
                          cf, must_support_comments, dont_reopen)) {
     /* They discarded comments, so redraw the packet details window
        to reflect any packets that no longer have comments. */
-    new_packet_list_queue_draw();
+    packet_list_queue_draw();
   }
 #else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget     *file_save_as_w;
@@ -1747,7 +1747,7 @@ do_file_save_as(capture_file *cf, gboolean must_support_comments,
          If we discarded comments, redraw the packet list to reflect
          any packets that no longer have comments. */
       if (discard_comments)
-        new_packet_list_queue_draw();
+        packet_list_queue_draw();
       return;
 
     case CF_WRITE_ERROR:

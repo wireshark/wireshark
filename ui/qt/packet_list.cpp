@@ -57,7 +57,7 @@
 static PacketList *gbl_cur_packet_list = NULL;
 
 guint
-new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo)
+packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo)
 {
     Q_UNUSED(cinfo);
     Q_UNUSED(pinfo);
@@ -75,13 +75,13 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 }
 
 // Copied from ui/gtk/packet_list.c
-void new_packet_list_resize_column(gint col)
+void packet_list_resize_column(gint col)
 {
     // xxx qtshark
 //    gint col_width;
 //    const gchar *long_str;
 
-g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: new_packet_list_resize_column %d", col);
+g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: packet_list_resize_column %d", col);
 //    long_str = packet_list_get_widest_column_string(packetlist, col);
 //    if(!long_str || strcmp("",long_str)==0)
 //        /* If we get an empty string leave the width unchanged */
@@ -92,7 +92,7 @@ g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: new_packet_list_resize_column %d", col);
 }
 
 void
-new_packet_list_select_first_row(void)
+packet_list_select_first_row(void)
 {
     if (!gbl_cur_packet_list)
         return;
@@ -101,7 +101,7 @@ new_packet_list_select_first_row(void)
 }
 
 void
-new_packet_list_select_last_row(void)
+packet_list_select_last_row(void)
 {
     if (!gbl_cur_packet_list)
         return;
@@ -115,7 +115,7 @@ new_packet_list_select_last_row(void)
  * row, return FALSE, otherwise return TRUE.
  */
 gboolean
-new_packet_list_select_row_from_data(frame_data *fdata_needle)
+packet_list_select_row_from_data(frame_data *fdata_needle)
 {
     int row = gbl_cur_packet_list->packetListModel()->visibleIndexOf(fdata_needle);
     if (row >= 0) {
@@ -127,7 +127,7 @@ new_packet_list_select_row_from_data(frame_data *fdata_needle)
 }
 
 gboolean
-new_packet_list_check_end(void)
+packet_list_check_end(void)
 {
     if (gbl_cur_packet_list) {
         QScrollBar *sb = gbl_cur_packet_list->verticalScrollBar();
@@ -139,7 +139,7 @@ new_packet_list_check_end(void)
 }
 
 void
-new_packet_list_clear(void)
+packet_list_clear(void)
 {
     if (gbl_cur_packet_list) {
         gbl_cur_packet_list->clear();
@@ -147,7 +147,7 @@ new_packet_list_clear(void)
 }
 
 void
-new_packet_list_enable_color(gboolean enable)
+packet_list_enable_color(gboolean enable)
 {
     if (gbl_cur_packet_list && gbl_cur_packet_list->packetListModel()) {
         gbl_cur_packet_list->packetListModel()->setColorEnabled(enable);
@@ -156,7 +156,7 @@ new_packet_list_enable_color(gboolean enable)
 }
 
 void
-new_packet_list_freeze(void)
+packet_list_freeze(void)
 {
     if (gbl_cur_packet_list) {
         gbl_cur_packet_list->setUpdatesEnabled(false);
@@ -164,7 +164,7 @@ new_packet_list_freeze(void)
 }
 
 void
-new_packet_list_thaw(void)
+packet_list_thaw(void)
 {
     if (gbl_cur_packet_list) {
         gbl_cur_packet_list->setUpdatesEnabled(true);
@@ -174,7 +174,7 @@ new_packet_list_thaw(void)
 }
 
 void
-new_packet_list_recreate_visible_rows(void)
+packet_list_recreate_visible_rows(void)
 {
     if (gbl_cur_packet_list && gbl_cur_packet_list->packetListModel()) {
         gbl_cur_packet_list->packetListModel()->recreateVisibleRows();
@@ -182,7 +182,7 @@ new_packet_list_recreate_visible_rows(void)
 }
 
 frame_data *
-new_packet_list_get_row_data(gint row)
+packet_list_get_row_data(gint row)
 {
     if (gbl_cur_packet_list && gbl_cur_packet_list->packetListModel()) {
         return gbl_cur_packet_list->packetListModel()->getRowFdata(row);
@@ -191,7 +191,7 @@ new_packet_list_get_row_data(gint row)
 }
 
 void
-new_packet_list_moveto_end(void)
+packet_list_moveto_end(void)
 {
     if (gbl_cur_packet_list)
         gbl_cur_packet_list->goLastPacket();
@@ -199,14 +199,14 @@ new_packet_list_moveto_end(void)
 
 /* Redraw the packet list *and* currently-selected detail */
 void
-new_packet_list_queue_draw(void)
+packet_list_queue_draw(void)
 {
     if (gbl_cur_packet_list)
         gbl_cur_packet_list->updateAll();
 }
 
 void
-new_packet_list_recent_write_all(FILE *rf) {
+packet_list_recent_write_all(FILE *rf) {
     if (!gbl_cur_packet_list)
         return;
 

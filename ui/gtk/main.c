@@ -365,7 +365,7 @@ colorize_selected_ptree_cb(GtkWidget *w _U_, gpointer data _U_, guint8 filt_nr)
             } else {
                 color_filters_set_tmp(filt_nr,filter, FALSE);
             }
-            new_packet_list_colorize_packets();
+            packet_list_colorize_packets();
         }
     }
 }
@@ -535,12 +535,12 @@ GList *
 get_ip_address_list_from_packet_list_row(gpointer data)
 {
     gint    row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
-    gint    column = new_packet_list_get_column_id (GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY)));
+    gint    column = packet_list_get_column_id (GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY)));
     gint    col;
     frame_data *fdata;
     GList      *addr_list = NULL;
 
-    fdata = (frame_data *) new_packet_list_get_row_data(row);
+    fdata = (frame_data *) packet_list_get_row_data(row);
 
     if (fdata != NULL) {
         epan_dissect_t edt;
@@ -576,11 +576,11 @@ static gchar *
 get_filter_from_packet_list_row_and_column(gpointer data)
 {
     gint    row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
-    gint    column = new_packet_list_get_column_id (GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY)));
+    gint    column = packet_list_get_column_id (GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY)));
     frame_data *fdata;
     gchar      *buf=NULL;
 
-    fdata = (frame_data *) new_packet_list_get_row_data(row);
+    fdata = (frame_data *) packet_list_get_row_data(row);
 
     if (fdata != NULL) {
         epan_dissect_t edt;
@@ -709,12 +709,12 @@ set_frame_reftime(gboolean set, frame_data *frame, gint row) {
     }
     cf_reftime_packets(&cfile);
     if (!frame->flags.ref_time && !frame->flags.passed_dfilter) {
-        new_packet_list_freeze();
+        packet_list_freeze();
         cfile.displayed_count--;
-        new_packet_list_recreate_visible_rows();
-        new_packet_list_thaw();
+        packet_list_recreate_visible_rows();
+        packet_list_thaw();
     }
-    new_packet_list_queue_draw();
+    packet_list_queue_draw();
 }
 
 
@@ -725,7 +725,7 @@ static void reftime_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_
         timestamp_set_type(TS_RELATIVE);
         recent.gui_time_format  = TS_RELATIVE;
         cf_timestamp_auto_precision(&cfile);
-        new_packet_list_queue_draw();
+        packet_list_queue_draw();
         break;
     case(ESD_BTN_NO):
         break;
@@ -895,7 +895,7 @@ void apply_as_custom_column_cb (GtkWidget *widget _U_, gpointer data _U_)
         column_prefs_add_custom(COL_CUSTOM, cfile.finfo_selected->hfinfo->name,
                                 cfile.finfo_selected->hfinfo->abbrev,0);
         /* Recreate the packet list according to new preferences */
-        new_packet_list_recreate ();
+        packet_list_recreate ();
         if (!prefs.gui_use_pref_save) {
             prefs_main_write();
         }
@@ -1426,7 +1426,7 @@ main_colorize_changed(gboolean packet_list_colorize)
   if(packet_list_colorize != recent.packet_list_colorize) {
       recent.packet_list_colorize = packet_list_colorize;
       color_filters_enable(packet_list_colorize);
-      new_packet_list_colorize_packets();
+      packet_list_colorize_packets();
   }
 }
 
@@ -3713,10 +3713,10 @@ static gboolean
 top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_data _U_)
 {
     if (event->keyval == GDK_F8) {
-        new_packet_list_next();
+        packet_list_next();
         return TRUE;
     } else if (event->keyval == GDK_F7) {
-        new_packet_list_prev();
+        packet_list_prev();
         return TRUE;
     } else if (event->state & NO_SHIFT_MOD_MASK) {
         return FALSE; /* Skip control, alt, and other modifiers */
@@ -3782,7 +3782,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
     filter_tb = filter_toolbar_new();
 
     /* Packet list */
-    pkt_scrollw = new_packet_list_create();
+    pkt_scrollw = packet_list_create();
     gtk_widget_set_size_request(pkt_scrollw, -1, pl_size);
     gtk_widget_show_all(pkt_scrollw);
 
@@ -3972,7 +3972,7 @@ void change_configuration_profile (const gchar *profile_name)
     welcome_if_panel_reload();
 
     /* Recreate the packet list according to new preferences */
-    new_packet_list_recreate ();
+    packet_list_recreate ();
     cfile.columns_changed = FALSE; /* Reset value */
     user_font_apply();
 

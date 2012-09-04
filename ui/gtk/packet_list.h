@@ -22,8 +22,8 @@
  * USA.
  */
 
-#ifndef __NEW_PACKET_LIST_H__
-#define __NEW_PACKET_LIST_H__
+#ifndef __PACKET_LIST_H__
+#define __PACKET_LIST_H__
 
 #include <gtk/gtk.h>
 
@@ -47,77 +47,77 @@ typedef enum {
 } COLUMN_SELECTED_E;
 
 /** Create the packet list */
-GtkWidget *new_packet_list_create(void);
+GtkWidget *packet_list_create(void);
 /** Recreate the packetr list */
-void new_packet_list_recreate(void);
-void new_packet_list_toggle_visible_column (gint col_id);
-void new_packet_list_set_all_columns_visible (void);
-void new_packet_list_column_menu_cb (GtkWidget *w, gpointer data, COLUMN_SELECTED_E action);
-void new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_);
-gboolean new_packet_list_get_event_row_column(GdkEventButton *event_button, gint *physical_row, gint *row, gint *column);
-guint new_packet_list_get_column_id (gint col_num);
+void packet_list_recreate(void);
+void packet_list_toggle_visible_column (gint col_id);
+void packet_list_set_all_columns_visible (void);
+void packet_list_column_menu_cb (GtkWidget *w, gpointer data, COLUMN_SELECTED_E action);
+void packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_);
+gboolean packet_list_get_event_row_column(GdkEventButton *event_button, gint *physical_row, gint *row, gint *column);
+guint packet_list_get_column_id (gint col_num);
 
 /** Set the font of the packet list window.
  *
  * @param font new font
  */
-extern void new_packet_list_set_font(PangoFontDescription *font);
+extern void packet_list_set_font(PangoFontDescription *font);
 
 /** Mark the currently selected packet.
  *
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void new_packet_list_mark_frame_cb(GtkWidget *widget, gpointer data);
+extern void packet_list_mark_frame_cb(GtkWidget *widget, gpointer data);
 
 /** Toggle Mark on all displayed packets.
  *
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void new_packet_list_toggle_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+extern void packet_list_toggle_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Mark all displayed packets.
  *
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void new_packet_list_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+extern void packet_list_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** UnMark all packets in the capture.
  *
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void new_packet_list_unmark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+extern void packet_list_unmark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Ignore the currently selected packet.
  *
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void new_packet_list_ignore_frame_cb(GtkWidget *widget, gpointer data);
+extern void packet_list_ignore_frame_cb(GtkWidget *widget, gpointer data);
 
 /** Ignore/Unignore all displayed packets.
  *
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void new_packet_list_ignore_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+extern void packet_list_ignore_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Un-ignore all packets in the list.
  *
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+extern void packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Un-Time Reference all packets in the capture.
  *
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void new_packet_list_untime_reference_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+extern void packet_list_untime_reference_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Different modes of copying summary data */
 typedef enum {
@@ -131,13 +131,13 @@ typedef enum {
  *  @param data Not used.
  *  @param copy_type Mode in which to copy data (e.g. tab-separated, CSV)
  */
-void new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type);
+void packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type);
 
-gchar *new_packet_list_get_packet_comment(void);
-void new_packet_list_update_packet_comment(gchar *new_packet_comment);
+gchar *packet_list_get_packet_comment(void);
+void packet_list_update_packet_comment(gchar *new_packet_comment);
 
-GtkWidget * new_packet_list_get_widget(void);
-void new_packet_list_colorize_packets(void);
+GtkWidget * packet_list_get_widget(void);
+void packet_list_colorize_packets(void);
 
 /** Set the selection mode of the packet list window.
  *
@@ -145,6 +145,6 @@ void new_packet_list_colorize_packets(void);
  * @param force_set TRUE to force setting of the selection mode even if it
  *                  was already set (used within packet_list_recreate).
  */
-extern void new_packet_list_set_sel_browse(gboolean val, gboolean force_set);
+extern void packet_list_set_sel_browse(gboolean val, gboolean force_set);
 
-#endif /* __NEW_PACKET_LIST_H__ */
+#endif /* __PACKET_LIST_H__ */

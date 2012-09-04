@@ -101,7 +101,7 @@ extern void window_geom_recent_write_all(gpointer rf);
  *
  *  @param rf recent file handle from caller
  */
-extern void new_packet_list_recent_write_all(FILE *rf);
+extern void packet_list_recent_write_all(FILE *rf);
 
 #ifdef __cplusplus
 }

@@ -244,7 +244,7 @@ cf_timestamp_auto_precision(capture_file *cf)
      "command-line-specified" format. */
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     if (col_has_time_fmt(&cf->cinfo, i)) {
-      new_packet_list_resize_column(i);
+      packet_list_resize_column(i);
     }
   }
 }
@@ -341,7 +341,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   /* Adjust timestamp precision if auto is selected, col width will be adjusted */
   cf_timestamp_auto_precision(cf);
   /* XXX needed ? */
-  new_packet_list_queue_draw();
+  packet_list_queue_draw();
   fileset_file_opened(fname);
 
   if (cf->cd_t == WTAP_FILE_BER) {
@@ -433,9 +433,9 @@ cf_reset_state(capture_file *cf)
   cf->linktypes = NULL;
 
   /* Clear the packet list. */
-  new_packet_list_freeze();
-  new_packet_list_clear();
-  new_packet_list_thaw();
+  packet_list_freeze();
+  packet_list_clear();
+  packet_list_thaw();
 
   cf->f_datalen = 0;
   nstime_set_zero(&cf->elapsed_time);
@@ -564,7 +564,7 @@ cf_read(capture_file *cf, gboolean reloading)
   progbar_val = 0.0f;
 
   /* The packet list window will be empty until the file is completly loaded */
-  new_packet_list_freeze();
+  packet_list_freeze();
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
@@ -672,7 +672,7 @@ cf_read(capture_file *cf, gboolean reloading)
   cf->current_frame = frame_data_sequence_find(cf->frames, cf->first_displayed);
   cf->current_row = 0;
 
-  new_packet_list_thaw();
+  packet_list_thaw();
   if (reloading)
     cf_callback_invoke(cf_cb_file_reload_finished, cf);
   else
@@ -681,7 +681,7 @@ cf_read(capture_file *cf, gboolean reloading)
   /* If we have any displayed packets to select, select the first of those
      packets by making the first row the selected row. */
   if (cf->first_displayed != 0) {
-    new_packet_list_select_first_row();
+    packet_list_select_first_row();
   }
 
   if (stop_flag) {
@@ -787,9 +787,9 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
   *err = 0;
 
-  new_packet_list_check_end();
+  packet_list_check_end();
   /* Don't freeze/thaw the list when doing live capture */
-  /*new_packet_list_freeze();*/
+  /*packet_list_freeze();*/
 
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: %u new: %u", cf->count, to_read);*/
 
@@ -840,17 +840,17 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
     cf->count, cf->state, *err);*/
 
   /* Don't freeze/thaw the list when doing live capture */
-  /*new_packet_list_thaw();*/
+  /*packet_list_thaw();*/
   /* With the new packet list the first packet
    * isn't automatically selected.
    */
   if (!cf->current_frame)
-    new_packet_list_select_first_row();
+    packet_list_select_first_row();
 
   /* moving to the end of the packet list - if the user requested so and
      we have some new packets. */
   if (newly_displayed_packets && auto_scroll_live && cf->count != 0)
-      new_packet_list_moveto_end();
+      packet_list_moveto_end();
 
   if (cf->state == FILE_READ_ABORTED) {
     /* Well, the user decided to exit Wireshark.  Return CF_READ_ABORTED
@@ -903,9 +903,9 @@ cf_finish_tail(capture_file *cf, int *err)
     return CF_READ_ERROR;
   }
 
-  new_packet_list_check_end();
+  packet_list_check_end();
   /* Don't freeze/thaw the list when doing live capture */
-  /*new_packet_list_freeze();*/
+  /*packet_list_freeze();*/
 
   while ((wtap_read(cf->wth, err, &err_info, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
@@ -923,7 +923,7 @@ cf_finish_tail(capture_file *cf, int *err)
   }
 
   /* Don't freeze/thaw the list when doing live capture */
-  /*new_packet_list_thaw();*/
+  /*packet_list_thaw();*/
 
   if (cf->state == FILE_READ_ABORTED) {
     /* Well, the user decided to abort the read.  We're only called
@@ -936,7 +936,7 @@ cf_finish_tail(capture_file *cf, int *err)
   }
 
   if (auto_scroll_live && cf->count != 0)
-    new_packet_list_moveto_end();
+    packet_list_moveto_end();
 
   /* We're done reading sequentially through the file. */
   cf->state = FILE_READ_DONE;
@@ -1145,7 +1145,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   if (add_to_packet_list) {
     /* We fill the needed columns from new_packet_list */
-      row = new_packet_list_append(cinfo, fdata, &edt.pi);
+      row = packet_list_append(cinfo, fdata, &edt.pi);
   }
 
   if (fdata->flags.passed_dfilter || fdata->flags.ref_time)
@@ -1799,7 +1799,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
-  new_packet_list_freeze();
+  packet_list_freeze();
 
   if (redissect) {
     /* We need to re-initialize all the state information that protocols
@@ -1818,7 +1818,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
     /* We need to redissect the packets so we have to discard our old
      * packet list store. */
-    new_packet_list_clear();
+    packet_list_clear();
     add_to_packet_list = TRUE;
   }
 
@@ -1991,12 +1991,12 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
   /* Unfreeze the packet list. */
   if (!add_to_packet_list)
-    new_packet_list_recreate_visible_rows();
+    packet_list_recreate_visible_rows();
 
   /* Compute the time it took to filter the file */
   compute_elapsed(&start_time);
 
-  new_packet_list_thaw();
+  packet_list_thaw();
 
   if (selected_frame_num == -1) {
     /* The selected frame didn't pass the filter. */
@@ -2044,9 +2044,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     /* Set to invalid to force update of packet list and packet details */
     cf->current_row = -1;
     if (selected_frame_num == 0) {
-      new_packet_list_select_first_row();
+      packet_list_select_first_row();
     }else{
-      if (!new_packet_list_select_row_from_data(selected_frame)) {
+      if (!packet_list_select_row_from_data(selected_frame)) {
         /* We didn't find a row corresponding to this frame.
            This means that the frame isn't being displayed currently,
            so we can't select it. */
@@ -3566,7 +3566,7 @@ find_packet(capture_file *cf,
   if (new_fd != NULL) {
     /* Find and select */
     cf->search_in_progress = TRUE;
-    found = new_packet_list_select_row_from_data(new_fd);
+    found = packet_list_select_row_from_data(new_fd);
     cf->search_in_progress = FALSE;
     cf->search_pos = 0; /* Reset the position */
     if (!found) {
@@ -3602,7 +3602,7 @@ cf_goto_frame(capture_file *cf, guint fnumber)
     return FALSE;   /* we failed to go to that packet */
   }
 
-  if (!new_packet_list_select_row_from_data(fdata)) {
+  if (!packet_list_select_row_from_data(fdata)) {
     /* We didn't find a row corresponding to this frame.
        This means that the frame isn't being displayed currently,
        so we can't select it. */
@@ -3618,7 +3618,7 @@ gboolean
 cf_goto_top_frame(void)
 {
   /* Find and select */
-  new_packet_list_select_first_row();
+  packet_list_select_first_row();
   return TRUE;  /* we got to that packet */
 }
 
@@ -3626,7 +3626,7 @@ gboolean
 cf_goto_bottom_frame(void)
 {
   /* Find and select */
-  new_packet_list_select_last_row();
+  packet_list_select_last_row();
   return TRUE;  /* we got to that packet */
 }
 
@@ -3660,7 +3660,7 @@ cf_select_packet(capture_file *cf, int row)
   frame_data     *fdata;
 
   /* Get the frame data struct pointer for this frame */
-  fdata = new_packet_list_get_row_data(row);
+  fdata = packet_list_get_row_data(row);
 
   if (fdata == NULL) {
     /* XXX - if a GtkCList's selection mode is GTK_SELECTION_BROWSE, when

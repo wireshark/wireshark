@@ -620,7 +620,7 @@ action_timeshift(GtkWindow *parent_w)
       continue;	/* Shouldn't happen */
     modify_time_perform(fd, neg, &offset, SHIFT_KEEPOFFSET);
   }
-  new_packet_list_queue_draw();
+  packet_list_queue_draw();
   
   return(0);
 }
@@ -754,7 +754,7 @@ action_settime(GtkWindow *parent_w)
     modify_time_perform(fd, SHIFT_POS, &difftime, SHIFT_SETTOZERO);
   }
 
-  new_packet_list_queue_draw();
+  packet_list_queue_draw();
 }
 
 /*
@@ -892,7 +892,7 @@ action_adjtime(GtkWindow *parent_w _U_)
     modify_time_perform(fd, SHIFT_POS, &d3t, SHIFT_SETTOZERO);
   }
 
-  new_packet_list_queue_draw();
+  packet_list_queue_draw();
 }
 
 static void
@@ -913,7 +913,7 @@ action_undo(GtkWindow *parent_w _U_)
       continue;	/* Shouldn't happen */
     modify_time_perform(fd, SHIFT_NEG, &nulltime, SHIFT_SETTOZERO);
   }
-  new_packet_list_queue_draw();
+  packet_list_queue_draw();
 }
 
 static void

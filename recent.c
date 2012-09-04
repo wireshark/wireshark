@@ -382,7 +382,7 @@ write_profile_recent(void)
 
   fprintf(rf, "\n# Packet list column pixel widths.\n");
   fprintf(rf, "# Each pair of strings consists of a column format and its pixel width.\n");
-  new_packet_list_recent_write_all(rf);
+  packet_list_recent_write_all(rf);
 
   if (get_last_open_dir() != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");

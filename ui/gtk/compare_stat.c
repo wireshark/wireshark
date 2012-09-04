@@ -606,7 +606,7 @@ comparestat_draw(void *arg)
 		g_string_printf(filter_str, "%s %s %s %s", "eth.dst==", ep_address_to_str(&cs->eth_dst), "|| eth.dst==", ep_address_to_str(&cs->eth_src));
 	}
 	color_filters_set_tmp(COLOR_N, filter_str->str, FALSE);
-	new_packet_list_colorize_packets();
+	packet_list_colorize_packets();
 	/* Variance */
 	cs->stats.variance=compare_variance;
 

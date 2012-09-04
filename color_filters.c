@@ -411,7 +411,7 @@ tmp_color_filters_used(void)
 void
 color_filters_enable(gboolean enable)
 {
-	new_packet_list_enable_color(enable);
+	packet_list_enable_color(enable);
 }
 
 

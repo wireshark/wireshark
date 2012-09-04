@@ -376,7 +376,7 @@ toolbar_new(void)
 	GTK_STOCK_ZOOM_100, "Zoom 100%", view_zoom_100_cb, NULL);
 
     toolbar_item(resize_columns_button, main_tb,
-    WIRESHARK_STOCK_RESIZE_COLUMNS, "Resize All Columns", new_packet_list_resize_columns_cb, NULL);
+    WIRESHARK_STOCK_RESIZE_COLUMNS, "Resize All Columns", packet_list_resize_columns_cb, NULL);
 
     toolbar_append_separator(main_tb);
 

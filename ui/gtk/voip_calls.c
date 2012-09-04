@@ -358,7 +358,7 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo _U_, packet_info *
 	gboolean inserted;
 
 	new_gai = g_malloc(sizeof(graph_analysis_item_t));
-	new_gai->fd = new_packet_list_get_row_data(frame_num);
+	new_gai->fd = packet_list_get_row_data(frame_num);
 	COPY_ADDRESS(&(new_gai->src_addr),src_addr);
 	COPY_ADDRESS(&(new_gai->dst_addr),dst_addr);
 

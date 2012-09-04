@@ -718,7 +718,7 @@ static void uat_down_cb(GtkButton *button _U_, gpointer u) {
 static void uat_apply_changes(uat_t *uat) {
 	if(uat->flags & UAT_AFFECTS_FIELDS) {
 		/* Recreate list with new fields and redissect packets */
-		new_packet_list_recreate ();
+		packet_list_recreate ();
 	} else {
 		if(uat->flags & UAT_AFFECTS_DISSECTION) {
 			/* Just redissect packets if we have any */

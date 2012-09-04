@@ -272,7 +272,7 @@ packet_list_init(PacketList *packet_list)
 	}
 	packet_list->n_text_cols = j;
 
-#ifdef NEW_PACKET_LIST_STATISTICS
+#ifdef PACKET_LIST_STATISTICS
 	packet_list->const_strings = 0;
 #endif
 }
@@ -576,7 +576,7 @@ packet_list_iter_parent(GtkTreeModel *tree_model _U_, GtkTreeIter *iter _U_,
 }
 
 PacketList *
-new_packet_list_new(void)
+packet_list_new(void)
 {
 	PacketList *newpacketlist;
 
@@ -605,7 +605,7 @@ packet_list_row_deleted(PacketList *packet_list, guint pos)
 #endif
 
 void
-new_packet_list_store_clear(PacketList *packet_list)
+packet_list_store_clear(PacketList *packet_list)
 {
 	g_return_if_fail(packet_list != NULL);
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
@@ -629,7 +629,7 @@ new_packet_list_store_clear(PacketList *packet_list)
 	/* Generate new number */
 	packet_list->stamp = g_random_int();
 
-#ifdef NEW_PACKET_LIST_STATISTICS
+#ifdef PACKET_LIST_STATISTICS
 	g_warning("Const strings: %u", packet_list->const_strings);
 	packet_list->const_strings = 0;
 #endif
@@ -738,7 +738,7 @@ packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gin
 				/* This is a constant string, so we don't have to copy it */
 				record->col_text[text_col] = (gchar *) cinfo->col_data[col];
 				record->col_text_len[text_col] = (gushort) col_text_len;
-#ifdef NEW_PACKET_LIST_STATISTICS
+#ifdef PACKET_LIST_STATISTICS
 				++packet_list->const_strings;
 #endif
 				break;
@@ -753,7 +753,7 @@ packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gin
 			record->col_text_len[text_col] = (gushort) col_text_len;
 			if (!record->col_text_len[text_col]) {
 				record->col_text[text_col] = "";
-#ifdef NEW_PACKET_LIST_STATISTICS
+#ifdef PACKET_LIST_STATISTICS
 				++packet_list->const_strings;
 #endif
 				break;
@@ -1099,7 +1099,7 @@ packet_list_resort(PacketList *packet_list)
 }
 
 guint
-packet_list_recreate_visible_rows(PacketList *packet_list)
+packet_list_recreate_visible_rows_list(PacketList *packet_list)
 {
 	guint phy_idx;
 	guint vis_idx;
