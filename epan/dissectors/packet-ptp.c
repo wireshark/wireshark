@@ -719,6 +719,17 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_AN_TLV_TYPE_OFFSET                                    0
 #define PTP_V2_AN_TLV_LENGTHFIELD_OFFSET                             2
 
+/* PTP_V2_TLV_TYPE_ORGANIZATION_EXTENSION field offsets */
+#define PTP_V2_AN_TLV_OE_ORGANIZATIONID_OFFSET                       4
+#define PTP_V2_AN_TLV_OE_ORGANIZATIONSUBTYPE_OFFSET                  7
+#define PTP_V2_AN_TLV_OE_DATAFIELD_OFFSET                           10
+
+/* PTPv2 IEEE_C37_238 TLV (organization extension subtype) field offsets */
+#define PTP_V2_AN_TLV_OE_IEEEC37238TLV_GMID_OFFSET                  10
+#define PTP_V2_AN_TLV_OE_IEEEC37238TLV_GMINACCURACY_OFFSET          12
+#define PTP_V2_AN_TLV_OE_IEEEC37238TLV_NWINACCURACY_OFFSET          16
+#define PTP_V2_AN_TLV_OE_IEEEC37238TLV_RESERVED_OFFSET              20
+
 /* PTP_V2_TLV_TYPE_ALTERNATE_TIME_OFFSET_INDICATOR field offsets */
 #define PTP_V2_AN_TLV_ATOI_KEYFIELD_OFFSET                           4
 #define PTP_V2_AN_TLV_ATOI_CURRENTOFFSET_OFFSET                      5
@@ -908,6 +919,12 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_MM_CLOCKIDENTITY                         PTP_V2_MM_TLV_DATAFIELD_OFFSET + 10
 #define PTP_V2_MM_DOMAINNUMBER                          PTP_V2_MM_TLV_DATAFIELD_OFFSET + 18
 #define PTP_V2_MM_RESERVED2                             PTP_V2_MM_TLV_DATAFIELD_OFFSET + 19
+
+/* Organization IDs for PTPv2 Organization Extension */
+#define PTP_V2_OE_ORG_ID_IEEE_C37_238                   0x1C129D /* Defined in IEEE Std C37.238-2011 */
+
+/* Subtypes for the PTP_V2_OE_ORG_ID_IEEE_C37_238 organization ID */
+#define PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV    1        /* Defined in IEEE Std C37.238-2011 */
 
 #define PTP_V2_TRANSPORTSPECIFIC_V1COMPATIBILITY_BITMASK              0x10
 
@@ -1193,6 +1210,16 @@ static const value_string ptp2_managementErrorId_vals[] = {
     {0,     NULL}
 };
 
+static const value_string ptp2_organizationExtensionOrgId_vals[] = {
+    {PTP_V2_OE_ORG_ID_IEEE_C37_238,  "IEEE C37.238"},
+    {0,                              NULL}
+};
+
+static const value_string ptp2_org_iee_c37_238_subtype_vals[] = {
+    {PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV,  "IEEE_C37_238 TLV"},
+    {0,                                             NULL}
+};
+
 /**********************************************************/
 /* Initialize the protocol and registered fields          */
 /**********************************************************/
@@ -1243,6 +1270,15 @@ static int hf_ptp_v2_an_priority2 = -1;
 /* Fields for PTP_Announce TLVs */
 static int hf_ptp_v2_an_tlv_tlvtype = -1;
 static int hf_ptp_v2_an_tlv_lengthfield = -1;
+/* Fields for the ORGANIZATION_EXTENSION TLV */
+static int hf_ptp_v2_oe_tlv_organizationid = -1;
+static int hf_ptp_v2_oe_tlv_organizationsubtype = -1;
+static int hf_ptp_v2_oe_tlv_datafield = -1;
+/* Fields for IEEE_C37_238 TLV (OE TLV subtype) */
+static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmasterid = -1;
+static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmastertimeinaccuracy = -1;
+static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_networktimeinaccuracy = -1;
+static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_reserved = -1;
 /* Fields for the ALTERNATE_TIME_OFFSET_INDICATOR TLV */
 static int hf_ptp_v2_atoi_tlv_keyfield = -1;
 static int hf_ptp_v2_atoi_tlv_currentoffset = -1;
@@ -2469,7 +2505,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     hf_ptp_v2_an_timesource, tvb, PTP_V2_AN_TIMESOURCE_OFFSET, 1, ENC_BIG_ENDIAN);
 
                 tlv_total_length = 0;
-				/* XXX It seems like at least 4 bytes must reamain to have a tlv_type and tlv_length */
+                /* XXX It seems like at least 4 bytes must reamain to have a tlv_type and tlv_length */
                 while (tvb_reported_length_remaining(tvb, PTP_V2_AN_TLV_OFFSET + tlv_total_length) >= 4)
                 {
                     /* There are TLV's to be processed */
@@ -2504,6 +2540,103 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     switch (tlv_type)
                     {
+                        case PTP_V2_TLV_TYPE_ORGANIZATION_EXTENSION:
+                        {
+                            guint32 org_id;
+                            guint32 subtype;
+
+                            proto_tree_add_item(ptp_tlv_tree,
+                                                hf_ptp_v2_oe_tlv_organizationid,
+                                                tvb,
+                                                PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONID_OFFSET,
+                                                3,
+                                                ENC_BIG_ENDIAN);
+
+                            org_id = tvb_get_ntoh24(tvb, PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONID_OFFSET);
+                            subtype = tvb_get_ntoh24(tvb, PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONSUBTYPE_OFFSET);
+
+                            switch (org_id)
+                            {
+                                case PTP_V2_OE_ORG_ID_IEEE_C37_238:
+                                {
+                                    proto_tree_add_uint_format_value(ptp_tlv_tree,
+                                                                     hf_ptp_v2_oe_tlv_organizationsubtype,
+                                                                     tvb,
+                                                                     PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONSUBTYPE_OFFSET,
+                                                                     3,
+                                                                     subtype,
+                                                                     "%s (0x%06x)",
+                                                                      val_to_str(subtype,
+                                                                                 ptp2_org_iee_c37_238_subtype_vals,
+                                                                                 "Unknown"),
+                                                                     subtype);
+
+                                    switch (subtype)
+                                    {
+                                        case PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV:
+                                        {
+                                            proto_tree_add_item(ptp_tlv_tree,
+                                                                hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmasterid,
+                                                                tvb,
+                                                                PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_IEEEC37238TLV_GMID_OFFSET,
+                                                                2,
+                                                                ENC_BIG_ENDIAN);
+                                            proto_tree_add_item(ptp_tlv_tree,
+                                                                hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmastertimeinaccuracy,
+                                                                tvb,
+                                                                PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_IEEEC37238TLV_GMINACCURACY_OFFSET,
+                                                                4,
+                                                                ENC_BIG_ENDIAN);
+                                            proto_tree_add_item(ptp_tlv_tree,
+                                                                hf_ptp_v2_oe_tlv_subtype_c37238tlv_networktimeinaccuracy,
+                                                                tvb,
+                                                                PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_IEEEC37238TLV_NWINACCURACY_OFFSET,
+                                                                4,
+                                                                ENC_BIG_ENDIAN);
+                                            proto_tree_add_item(ptp_tlv_tree,
+                                                                hf_ptp_v2_oe_tlv_subtype_c37238tlv_reserved,
+                                                                tvb,
+                                                                PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_IEEEC37238TLV_RESERVED_OFFSET,
+                                                                2,
+                                                                ENC_NA);
+                                            break;
+                                        }
+                                        default:
+                                        {
+                                            proto_tree_add_item(ptp_tlv_tree,
+                                                                hf_ptp_v2_oe_tlv_datafield,
+                                                                tvb,
+                                                                PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_DATAFIELD_OFFSET,
+                                                                tlv_length - 6,
+                                                                ENC_NA);
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                }
+                                default:
+                                {
+                                    proto_tree_add_uint_format_value(ptp_tlv_tree,
+                                                                     hf_ptp_v2_oe_tlv_organizationsubtype,
+                                                                     tvb,
+                                                                     PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONSUBTYPE_OFFSET,
+                                                                     3,
+                                                                     subtype,
+                                                                     "Unknown (0x%06x)",
+                                                                     subtype);
+
+
+                                    proto_tree_add_item(ptp_tlv_tree,
+                                                        hf_ptp_v2_oe_tlv_datafield,
+                                                        tvb,
+                                                        PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_DATAFIELD_OFFSET,
+                                                        tlv_length - 6,
+                                                        ENC_NA);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
                         case PTP_V2_TLV_TYPE_ALTERNATE_TIME_OFFSET_INDICATOR:
                         {
                             proto_tree_add_item(ptp_tlv_tree,
@@ -4695,6 +4828,43 @@ proto_register_ptp(void)
         { &hf_ptp_v2_an_tlv_lengthfield,
           { "lengthField", "ptp.v2.an.lengthField",
             FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        /*Fields for ORGANIZATION_EXTENSION TLV */
+        { &hf_ptp_v2_oe_tlv_organizationid,
+          { "organizationId", "ptp.v2.an.oe.organizationId",
+            FT_UINT24, BASE_HEX, VALS(ptp2_organizationExtensionOrgId_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_organizationsubtype,
+          { "organizationSubType", "ptp.v2.an.oe.organizationSubType",
+            FT_UINT24, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_datafield,
+          { "dataField", "ptp.v2.an.oe.dataField",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        /*Fields for IEEE_C37_238 TLV (OE TLV subtype) */
+        { &hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmasterid,
+          { "grandmasterID", "ptp.v2.an.oe.grandmasterID",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmastertimeinaccuracy,
+          { "grandmasterTimeInaccuracy (nanoseconds)", "ptp.v2.an.oe.grandmasterTimeInaccuracy",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_c37238tlv_networktimeinaccuracy,
+          { "networkTimeInaccuracy (nanoseconds)", "ptp.v2.an.oe.networkTimeInaccuracy",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_c37238tlv_reserved,
+          { "reserved", "ptp.v2.an.oe.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         /*Fields for ALTERNATE_TIME_OFFSET_INDICATOR TLV */
