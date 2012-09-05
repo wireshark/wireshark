@@ -219,7 +219,7 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip, guint16 *ftp_p
              */
             *ftp_port = ((port[0] & 0xFF)<<8) | (port[1] & 0xFF);
             *ftp_ip = g_htonl((ip_address[0] << 24) | (ip_address[1] <<16) | (ip_address[2] <<8) | ip_address[3]);
-            *pasv_offset = p - args; 
+            *pasv_offset = (guint32)(p - args); 
             *ftp_port_len = (port[0] < 10 ? 1 : (port[0] < 100 ? 2 : 3 )) + 1 + 
                             (port[1] < 10 ? 1 : (port[1] < 100 ? 2 : 3 ));
             *ftp_ip_len = (ip_address[0] < 10 ? 1 : (ip_address[0] < 100 ? 2 : 3)) + 1 + 
