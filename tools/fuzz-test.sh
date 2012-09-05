@@ -201,7 +201,7 @@ function exit_error() {
         svn log -l 1 >> $TMP_DIR/$ERR_FILE
     elif [ -d .git ] ; then
         echo -e "\nGit commit" >> $TMP_DIR/$ERR_FILE
-        svn log -l 1 >> $TMP_DIR/$ERR_FILE
+        git log -1 >> $TMP_DIR/$ERR_FILE
     fi
 
     echo -e "stderr follows:\n"
