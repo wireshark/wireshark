@@ -341,6 +341,7 @@ static const value_string l2_sublayer_vals[] = {
     { 0, NULL }
 };
 
+/* Result Code values for the StopCCN message */
 static const value_string result_code_stopccn_vals[] = {
     { 0, "Reserved", },
     { 1, "General request to clear control connection", },
@@ -354,6 +355,7 @@ static const value_string result_code_stopccn_vals[] = {
     { 0, NULL }
 };
 
+/* Result Code values for the CDN message */
 static const value_string result_code_cdn_vals[] = {
     {  0, "Reserved", },
     {  1, "Session disconnected due to loss of carrier or circuit disconnect", },
@@ -372,18 +374,21 @@ static const value_string result_code_cdn_vals[] = {
     { 14, "Session not established due to unsupported PW type", },
     { 15, "Session not established, sequencing required without valid L2-Specific Sublayer", },
     { 16, "Finite state machine error or timeout", },
-    { 17, "FR PVC was deleted permanently (no longer provisioned) ", },      /* [RFC4591] */
-    { 18, "FR PVC has been INACTIVE for an extended period of time", },      /* [RFC4591] */
-    { 19, "Mismatched FR Header Length", },                                  /* [RFC4591] */
-    { 20, "HDLC Link was deleted permanently (no longer provisioned)", },    /* [RFC4349] */
-    { 21, "HDLC Link has been INACTIVE for an extended period of time", },   /* [RFC4349] */
+    { 17, "FR PVC was deleted permanently (no longer provisioned) ", },         /* [RFC4591] */
+    { 18, "FR PVC has been INACTIVE for an extended period of time", },         /* [RFC4591] */
+    { 19, "Mismatched FR Header Length", },                                     /* [RFC4591] */
+    { 20, "HDLC Link was deleted permanently (no longer provisioned)", },       /* [RFC4349] */
+    { 21, "HDLC Link has been INACTIVE for an extended period of time", },      /* [RFC4349] */
     { 22, "Session not established due to other LCCE can not support the OAM Cell Emulation", },    /* [RFC4454] */
-    { 23, "Mismatching interface MTU", },                                    /* [RFC4667] */
-    { 24, "Attempt to connect to non-existent forwarder", },                 /* [RFC4667] */
-    { 25, "Attempt to connect to unauthorized forwarder", },                 /* [RFC4667] */
-    { 26, "Loop Detected", },                                                /* [draft-ietf-l2tpext-tunnel-switching-06.txt] */
-
-
+    { 23, "Mismatching interface MTU", },                                       /* [RFC4667] */
+    { 24, "Attempt to connect to non-existent forwarder", },                    /* [RFC4667] */
+    { 25, "Attempt to connect to unauthorized forwarder", },                    /* [RFC4667] */
+    { 26, "Loop Detected", },                                                   /* [draft-ietf-l2tpext-tunnel-switching-06.txt] */
+    { 27, "Attachment Circuit bound to different PE", },                        /* [RFC6074]  */
+    { 28, "Attachment Circuit bound to different remote Attachment Circuit", }, /* [RFC6074]  */
+    { 29, "Unassigned", }, 
+    { 30, "Return code to indicate connection was refused because of TDM PW parameters. The error code indicates the problem.", }, /* [RFC5611]  */
+    { 31, "Sequencing not supported", },                                        /* [RFC6073]  */
     { 0, NULL }
 };
 
@@ -462,7 +467,7 @@ static const value_string error_code_vals[] = {
 #define  TX_CONNECT_SPEED_V3          74
 #define  RX_CONNECT_SPEED_V3          75
 
-#define NUM_AVP_TYPES                 96
+#define NUM_AVP_TYPES                 102
 static const value_string avp_type_vals[] = {
     { CONTROL_MESSAGE,              "Control Message" },
     { RESULT_ERROR_CODE,            "Result-Error Code" },
@@ -542,7 +547,12 @@ static const value_string avp_type_vals[] = {
     { 93,                           "Tunnel Switching Aggregator ID AVP" },             /*[draft-ietf-l2tpext-tunnel-switching-06.txt] */
     { 94,                           "Maximum Receive Unit (MRU) AVP" },                 /*[RFC4623] */
     { 95,                           "Maximum Reassembled Receive Unit (MRRU) AVP" },    /*[RFC4623] */
-
+    { 96,                           "VCCV Capability AVP" },                            /*[RFC5085] */
+    { 97,                           "Connect Speed Update AVP" },                       /*[RFC5515] */
+    { 98,                           "Connect Speed Update Enable AVP" },                /*[RFC5515] */
+    { 99,                           "TDM Pseudowire AVP" },                             /*[RFC5611] */
+    { 100,                          "RTP AVP" },                                        /*[RFC5611] */
+    { 101,                          "PW Switching Point AVP" },                         /*[RFC6073] */ 
     { 0,                         NULL }
 };
 
@@ -590,6 +600,15 @@ static const value_string pw_types_vals[] = {
     { 0x000B,  "IP Transport" },
     { 0x000C,  "MPEG-TS Payload Type (MPTPW)" },
     { 0x000D,  "Packet Streaming Protocol (PSPPW)" },
+	/* 0x000E-0x0010 Unassigned */
+    { 0x0011,  "Structure-agnostic E1 circuit" },       /* [RFC5611] */  
+    { 0x0012,  "Structure-agnostic T1 (DS1) circuit" }, /* [RFC5611]   */
+    { 0x0013,  "Structure-agnostic E3 circuit" },       /* [RFC5611]   */
+    { 0x0014,  "Structure-agnostic T3 (DS3) circuit" }, /* [RFC5611]   */
+    { 0x0015,  "CESoPSN basic mode" },                  /* [RFC5611]   */
+    { 0x0016,  "Unassigned" },
+    { 0x0017,  "CESoPSN TDM with CAS" },                /* [RFC5611]  */
+
     { 0,  NULL },
 };
 
