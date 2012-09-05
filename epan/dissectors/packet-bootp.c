@@ -2093,6 +2093,10 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				while (optoff < optend) {
 					name_len = tvb_get_guint8(tvb, optoff);
 					string = tvb_get_ephemeral_stringz(tvb, optoff+1, &len);
+					if ((optoff+len+1) > optend) {
+						expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length goes beyond option end");
+						break;
+					}
 					while (name_len < (len-1)) {
 						tmp = name_len;
 						name_len = name_len + string[tmp] + 1;
@@ -2100,10 +2104,6 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					}
 					proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, optoff, len+1, string);
 					optoff += len+1;
-					if (optoff > optend) {
-						expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length goes beyond option end");
-						break;
-					}
 				}
 				}
 				break;
