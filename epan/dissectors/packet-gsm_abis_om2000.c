@@ -554,7 +554,7 @@ dissect_tss_mo_state(tvbuff_t *tvb, gint offset, proto_tree *tree)
 		offset++;
 	}
 
-	return offset;
+	return 4;
 }
 
 
@@ -928,8 +928,7 @@ dissect_om2k_attrs(tvbuff_t *tvb, gint offset, proto_tree *tree)
 			offset += dissect_om2k_attr_unkn(tvb, offset, 4, iei, tree);
 			break;
 		case 0x9d: /* TSs MO State */
-			dissect_tss_mo_state(tvb, offset, tree);
-			offset += 4;
+			offset += dissect_tss_mo_state(tvb, offset, tree);
 			break;
 		case 0x9e:
 		case 0x9f:
