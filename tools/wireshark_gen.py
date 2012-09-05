@@ -1670,7 +1670,7 @@ void proto_register_giop_@dissector_name@(void) {
     template_op_delegate_code = """\
 if (strcmp(operation, "@opname@") == 0
     && (!idlname || strcmp(idlname, \"@interface@\") == 0)) {
-   process_RequestOperation();  /* fill-up Request_Operation field & info column */
+   process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
    tree = start_dissecting(tvb, pinfo, ptree, offset);
    decode_@sname@(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
    return TRUE;
@@ -2047,17 +2047,25 @@ start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offs
     return tree;
 }
 
+static void
+process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, MessageHeader *header, gchar *operation)
+{
+    proto_item *pi;
+    if(header->message_type == Reply) {
+        /* fill-up info column */
+        col_append_fstr(pinfo->cinfo, COL_INFO, " op = %s",operation);
+    };
+    /* fill-up the field */
+    pi=proto_tree_add_string_format_value(ptree,hf_operationrequest,tvb,0,0,operation," %s",operation);
+    PROTO_ITEM_SET_GENERATED(pi);
+}
+
 static gboolean
 dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname)
 {
 
     gboolean stream_is_big_endian;                        /* big endianess */
     proto_tree *tree _U_;
-#define process_RequestOperation(){ \\
-		proto_item *pi; \\
-     	if(header->message_type == Reply){ col_append_fstr(pinfo->cinfo, COL_INFO, " op = %s",operation); }; /* fill-up info column */ \\
-	    pi=proto_tree_add_string_format_value(ptree,hf_operationrequest,tvb,0,0,operation," %s",operation);PROTO_ITEM_SET_GENERATED(pi); /* fill-up the field */ \\
-   };
 
     stream_is_big_endian = is_big_endian(header);         /* get endianess  */
 

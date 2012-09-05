@@ -93314,17 +93314,25 @@ start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offs
     return tree;
 }
 
+static void
+process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, MessageHeader *header, gchar *operation)
+{
+    proto_item *pi;
+    if(header->message_type == Reply) {
+        /* fill-up info column */
+        col_append_fstr(pinfo->cinfo, COL_INFO, " op = %s",operation);
+    };
+    /* fill-up the field */
+    pi=proto_tree_add_string_format_value(ptree,hf_operationrequest,tvb,0,0,operation," %s",operation);
+    PROTO_ITEM_SET_GENERATED(pi);
+}
+
 static gboolean
 dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname)
 {
 
     gboolean stream_is_big_endian;                        /* big endianess */
     proto_tree *tree _U_;
-#define process_RequestOperation(){ \
-		proto_item *pi; \
-     	if(header->message_type == Reply){ col_append_fstr(pinfo->cinfo, COL_INFO, " op = %s",operation); }; /* fill-up info column */ \
-	    pi=proto_tree_add_string_format_value(ptree,hf_operationrequest,tvb,0,0,operation," %s",operation);PROTO_ITEM_SET_GENERATED(pi); /* fill-up the field */ \
-   };
 
     stream_is_big_endian = is_big_endian(header);         /* get endianess  */
 
@@ -93343,7 +93351,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setCallback") == 0
             && (!idlname || strcmp(idlname, "org/csapi/IpService") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_IpService_setCallback(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93351,7 +93359,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setCallbackWithSessionID") == 0
             && (!idlname || strcmp(idlname, "org/csapi/IpService") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_IpService_setCallbackWithSessionID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93359,7 +93367,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "initiateAuthentication") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpInitial") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpInitial_initiateAuthentication(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93367,7 +93375,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "initiateAuthenticationWithVersion") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpInitial") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpInitial_initiateAuthenticationWithVersion(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93375,7 +93383,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "requestAccess") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAuthentication") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAuthentication_requestAccess(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93383,7 +93391,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "terminateAccess") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpClientAccess") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93391,7 +93399,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "obtainInterface") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAccess") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_obtainInterface(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93399,7 +93407,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "obtainInterfaceWithCallback") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAccess") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_obtainInterfaceWithCallback(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93407,7 +93415,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "endAccess") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAccess") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_endAccess(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93415,7 +93423,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listInterfaces") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAccess") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_listInterfaces(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93423,7 +93431,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "releaseInterface") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAccess") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_releaseInterface(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93431,7 +93439,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "selectSigningAlgorithm") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAccess") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_selectSigningAlgorithm(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93439,7 +93447,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "terminateAccess") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAccess") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93447,7 +93455,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "relinquishInterface") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAccess") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93455,7 +93463,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "authenticate") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpClientAPILevelAuthentication") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93463,7 +93471,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "abortAuthentication") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpClientAPILevelAuthentication") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_abortAuthentication(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93471,7 +93479,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "authenticationSucceeded") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpClientAPILevelAuthentication") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticationSucceeded(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93479,7 +93487,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "challenge") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpClientAPILevelAuthentication") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93487,7 +93495,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "selectEncryptionMethod") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAPILevelAuthentication") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_selectEncryptionMethod(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93495,7 +93503,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "authenticate") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAPILevelAuthentication") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93503,7 +93511,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "abortAuthentication") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAPILevelAuthentication") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_abortAuthentication(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93511,7 +93519,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "authenticationSucceeded") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAPILevelAuthentication") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticationSucceeded(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93519,7 +93527,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "selectAuthenticationMechanism") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAPILevelAuthentication") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_selectAuthenticationMechanism(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93527,7 +93535,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "challenge") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_access/trust_and_security/IpAPILevelAuthentication") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93535,7 +93543,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reportNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/notification/IpAppEventNotification") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_notification_IpAppEventNotification_reportNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93543,7 +93551,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "notificationTerminated") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/notification/IpAppEventNotification") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_notification_IpAppEventNotification_notificationTerminated(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93551,7 +93559,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/notification/IpEventNotification") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_notification_IpEventNotification_createNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93559,7 +93567,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/notification/IpEventNotification") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_notification_IpEventNotification_destroyNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93567,7 +93575,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "activityTestRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93575,7 +93583,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "appActivityTestReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_appActivityTestReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93583,7 +93591,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "fwFaultReportInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwFaultReportInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93591,7 +93599,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "fwFaultRecoveryInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwFaultRecoveryInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93599,7 +93607,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "svcUnavailableInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcUnavailableInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93607,7 +93615,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "genFaultStatsRecordRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93615,7 +93623,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "fwUnavailableInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwUnavailableInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93623,7 +93631,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "activityTestErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93631,7 +93639,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "genFaultStatsRecordErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93639,7 +93647,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "appUnavailableInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_appUnavailableInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93647,7 +93655,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "genFaultStatsRecordReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93655,7 +93663,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "svcAvailStatusInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcAvailStatusInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93663,7 +93671,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatisticsRecordRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93671,7 +93679,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatisticsRecordErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93679,7 +93687,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatisticsRecordReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93687,7 +93695,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "fwAvailStatusInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwAvailStatusInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93695,7 +93703,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryAppLoadReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryAppLoadReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93703,7 +93711,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryLoadRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93711,7 +93719,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryLoadErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93719,7 +93727,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "loadLevelNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_loadLevelNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93727,7 +93735,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "resumeNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_resumeNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93735,7 +93743,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "suspendNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_suspendNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93743,7 +93751,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createLoadLevelNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_createLoadLevelNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93751,7 +93759,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyLoadLevelNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_destroyLoadLevelNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93759,7 +93767,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryAppLoadStatsReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryAppLoadStatsReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93767,7 +93775,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryLoadStatsRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93775,7 +93783,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryLoadStatsErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93783,7 +93791,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reportLoad") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpLoadManager_reportLoad(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93791,7 +93799,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryLoadReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93799,7 +93807,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryAppLoadRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93807,7 +93815,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryAppLoadErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93815,7 +93823,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createLoadLevelNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpLoadManager_createLoadLevelNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93823,7 +93831,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyLoadLevelNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpLoadManager_destroyLoadLevelNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93831,7 +93839,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "resumeNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpLoadManager_resumeNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93839,7 +93847,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "suspendNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpLoadManager_suspendNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93847,7 +93855,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryLoadStatsReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93855,7 +93863,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryAppLoadStatsRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93863,7 +93871,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryAppLoadStatsErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93871,7 +93879,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "systemDateTimeQuery") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppOAM") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppOAM_systemDateTimeQuery(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93879,7 +93887,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "systemDateTimeQuery") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpOAM") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpOAM_systemDateTimeQuery(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93887,7 +93895,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "activityTestReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpFaultManager_activityTestReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93895,7 +93903,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "appActivityTestRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93903,7 +93911,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "svcUnavailableInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpFaultManager_svcUnavailableInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93911,7 +93919,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "genFaultStatsRecordReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93919,7 +93927,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "appActivityTestErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93927,7 +93935,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "appUnavailableInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appUnavailableInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93935,7 +93943,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "genFaultStatsRecordRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93943,7 +93951,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "genFaultStatsRecordErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93951,7 +93959,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "appAvailStatusInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appAvailStatusInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93959,7 +93967,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatisticsRecordReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93967,7 +93975,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatisticsRecordRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93975,7 +93983,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatisticsRecordErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93983,7 +93991,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "enableHeartBeat") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpHeartBeatMgmt") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpHeartBeatMgmt_enableHeartBeat(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93991,7 +93999,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disableHeartBeat") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpHeartBeatMgmt") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpHeartBeatMgmt_disableHeartBeat(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -93999,7 +94007,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "changeInterval") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpHeartBeatMgmt") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpHeartBeatMgmt_changeInterval(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94007,7 +94015,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "pulse") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppHeartBeat") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppHeartBeat_pulse(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94015,7 +94023,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "pulse") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpHeartBeat") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpHeartBeat_pulse(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94023,7 +94031,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "enableAppHeartBeat") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppHeartBeatMgmt") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppHeartBeatMgmt_enableAppHeartBeat(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94031,7 +94039,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disableAppHeartBeat") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppHeartBeatMgmt") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppHeartBeatMgmt_disableAppHeartBeat(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94039,7 +94047,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "changeInterval") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/integrity/IpAppHeartBeatMgmt") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_integrity_IpAppHeartBeatMgmt_changeInterval(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94047,7 +94055,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listServiceTypes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/discovery/IpServiceDiscovery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listServiceTypes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94055,7 +94063,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "describeServiceType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/discovery/IpServiceDiscovery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_describeServiceType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94063,7 +94071,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "discoverService") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/discovery/IpServiceDiscovery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94071,7 +94079,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listSubscribedServices") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/discovery/IpServiceDiscovery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listSubscribedServices(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94079,7 +94087,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "signServiceAgreement") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/service_agreement/IpAppServiceAgreementManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_signServiceAgreement(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94087,7 +94095,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "terminateServiceAgreement") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/service_agreement/IpAppServiceAgreementManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_terminateServiceAgreement(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94095,7 +94103,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "signServiceAgreement") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/service_agreement/IpServiceAgreementManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagement_signServiceAgreement(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94103,7 +94111,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "terminateServiceAgreement") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/service_agreement/IpServiceAgreementManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagement_terminateServiceAgreement(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94111,7 +94119,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "selectService") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/service_agreement/IpServiceAgreementManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagement_selectService(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94119,7 +94127,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "initiateSignServiceAgreement") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_application/service_agreement/IpServiceAgreementManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagement_initiateSignServiceAgreement(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94127,7 +94135,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createServiceProfile") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceProfileManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_createServiceProfile(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94135,7 +94143,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "modifyServiceProfile") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceProfileManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_modifyServiceProfile(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94143,7 +94151,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteServiceProfile") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceProfileManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_deleteServiceProfile(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94151,7 +94159,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "assign") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceProfileManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_assign(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94159,7 +94167,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deassign") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceProfileManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_deassign(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94167,7 +94175,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "requestConflictInfo") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceProfileManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_requestConflictInfo(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94175,7 +94183,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listServiceProfiles") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceProfileInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listServiceProfiles(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94183,7 +94191,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "describeServiceProfile") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceProfileInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_describeServiceProfile(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94191,7 +94199,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listAssignedMembers") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceProfileInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listAssignedMembers(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94199,7 +94207,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createServiceContract") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceContractManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractManagement_createServiceContract(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94207,7 +94215,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "modifyServiceContract") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceContractManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractManagement_modifyServiceContract(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94215,7 +94223,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteServiceContract") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceContractManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractManagement_deleteServiceContract(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94223,7 +94231,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "describeServiceContract") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceContractInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_describeServiceContract(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94231,7 +94239,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listServiceContracts") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceContractInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceContracts(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94239,7 +94247,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listServiceProfiles") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpServiceContractInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceProfiles(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94247,7 +94255,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "modifyEntOpAccount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpEntOpAccountManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountManagement_modifyEntOpAccount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94255,7 +94263,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteEntOpAccount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpEntOpAccountManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountManagement_deleteEntOpAccount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94263,7 +94271,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "describeEntOpAccount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpEntOpAccountInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountInfoQuery_describeEntOpAccount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94271,7 +94279,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createClientApp") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_createClientApp(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94279,7 +94287,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "modifyClientApp") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_modifyClientApp(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94287,7 +94295,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteClientApp") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_deleteClientApp(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94295,7 +94303,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createSAG") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_createSAG(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94303,7 +94311,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "modifySAG") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_modifySAG(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94311,7 +94319,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteSAG") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_deleteSAG(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94319,7 +94327,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "addSAGMembers") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_addSAGMembers(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94327,7 +94335,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeSAGMembers") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_removeSAGMembers(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94335,7 +94343,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "requestConflictInfo") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_requestConflictInfo(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94343,7 +94351,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "describeClientApp") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_describeClientApp(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94351,7 +94359,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listClientApps") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientApps(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94359,7 +94367,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "describeSAG") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_describeSAG(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94367,7 +94375,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listSAGs") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGs(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94375,7 +94383,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listSAGMembers") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGMembers(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94383,7 +94391,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listClientAppMembership") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/service_subscription/IpClientAppInfoQuery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientAppMembership(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94391,7 +94399,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reportNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/notification/IpClientEventNotification") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_notification_IpClientEventNotification_reportNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94399,7 +94407,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "notificationTerminated") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/notification/IpClientEventNotification") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_notification_IpClientEventNotification_notificationTerminated(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94407,7 +94415,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/notification/IpEventNotification") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_notification_IpEventNotification_createNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94415,7 +94423,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_enterprise_operator/notification/IpEventNotification") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_enterprise_operator_notification_IpEventNotification_destroyNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94423,7 +94431,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listServiceTypes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/discovery/IpFwServiceDiscovery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listServiceTypes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94431,7 +94439,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "describeServiceType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/discovery/IpFwServiceDiscovery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_describeServiceType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94439,7 +94447,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "discoverService") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/discovery/IpFwServiceDiscovery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94447,7 +94455,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listRegisteredServices") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/discovery/IpFwServiceDiscovery") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listRegisteredServices(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94455,7 +94463,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createServiceManager") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/service_lifecycle/IpServiceInstanceLifecycleManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManager_createServiceManager(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94463,7 +94471,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyServiceManager") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/service_lifecycle/IpServiceInstanceLifecycleManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManager_destroyServiceManager(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94471,7 +94479,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "registerService") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/service_registration/IpFwServiceRegistration") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerService(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94479,7 +94487,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "announceServiceAvailability") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/service_registration/IpFwServiceRegistration") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_announceServiceAvailability(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94487,7 +94495,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "unregisterService") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/service_registration/IpFwServiceRegistration") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_unregisterService(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94495,7 +94503,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "describeService") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/service_registration/IpFwServiceRegistration") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_describeService(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94503,7 +94511,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "unannounceService") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/service_registration/IpFwServiceRegistration") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_unannounceService(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94511,7 +94519,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "registerServiceSubType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/service_registration/IpFwServiceRegistration") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94519,7 +94527,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "querySvcLoadReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_querySvcLoadReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94527,7 +94535,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryLoadRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94535,7 +94543,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryLoadErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94543,7 +94551,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "loadLevelNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_loadLevelNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94551,7 +94559,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "suspendNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_suspendNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94559,7 +94567,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "resumeNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_resumeNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94567,7 +94575,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createLoadLevelNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_createLoadLevelNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94575,7 +94583,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyLoadLevelNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_destroyLoadLevelNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94583,7 +94591,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "querySvcLoadStatsReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_querySvcLoadStatsReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94591,7 +94599,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryLoadStatsRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94599,7 +94607,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryLoadStatsErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94607,7 +94615,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reportLoad") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_reportLoad(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94615,7 +94623,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryLoadReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94623,7 +94631,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "querySvcLoadRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94631,7 +94639,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "querySvcLoadErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94639,7 +94647,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createLoadLevelNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_createLoadLevelNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94647,7 +94655,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyLoadLevelNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_destroyLoadLevelNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94655,7 +94663,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "suspendNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_suspendNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94663,7 +94671,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "resumeNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_resumeNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94671,7 +94679,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryLoadStatsReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadStatsReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94679,7 +94687,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "querySvcLoadStatsRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94687,7 +94695,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "querySvcLoadStatsErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwLoadManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94695,7 +94703,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "activityTestRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94703,7 +94711,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "svcActivityTestReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_svcActivityTestReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94711,7 +94719,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "fwFaultReportInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwFaultReportInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94719,7 +94727,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "fwFaultRecoveryInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwFaultRecoveryInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94727,7 +94735,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "fwUnavailableInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwUnavailableInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94735,7 +94743,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "svcUnavailableInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_svcUnavailableInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94743,7 +94751,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "appUnavailableInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_appUnavailableInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94751,7 +94759,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "genFaultStatsRecordRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94759,7 +94767,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "activityTestErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94767,7 +94775,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "genFaultStatsRecordErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94775,7 +94783,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "genFaultStatsRecordReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94783,7 +94791,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatsRecordReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatsRecordReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94791,7 +94799,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "appAvailStatusInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_appAvailStatusInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94799,7 +94807,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatisticsRecordRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94807,7 +94815,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatisticsRecordErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94815,7 +94823,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatisticsRecordReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94823,7 +94831,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "fwAvailStatusInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwAvailStatusInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94831,7 +94839,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "activityTestReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_activityTestReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94839,7 +94847,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "svcActivityTestRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94847,7 +94855,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "appUnavailableInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_appUnavailableInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94855,7 +94863,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "genFaultStatsRecordReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94863,7 +94871,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "svcUnavailableInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcUnavailableInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94871,7 +94879,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "svcActivityTestErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94879,7 +94887,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "genFaultStatsRecordRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94887,7 +94895,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "genFaultStatsRecordErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94895,7 +94903,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatsRecordRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatsRecordRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94903,7 +94911,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatsRecordErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatsRecordErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94911,7 +94919,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "svcAvailStatusInd") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcAvailStatusInd(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94919,7 +94927,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatisticsRecordReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94927,7 +94935,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatisticsRecordRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94935,7 +94943,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateFaultStatisticsRecordErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwFaultManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94943,7 +94951,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "systemDateTimeQuery") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcOAM") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcOAM_systemDateTimeQuery(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94951,7 +94959,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "systemDateTimeQuery") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwOAM") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwOAM_systemDateTimeQuery(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94959,7 +94967,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "enableHeartBeat") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwHeartBeatMgmt") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwHeartBeatMgmt_enableHeartBeat(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94967,7 +94975,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disableHeartBeat") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwHeartBeatMgmt") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwHeartBeatMgmt_disableHeartBeat(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94975,7 +94983,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "changeInterval") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwHeartBeatMgmt") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwHeartBeatMgmt_changeInterval(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94983,7 +94991,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "pulse") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcHeartBeat") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcHeartBeat_pulse(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94991,7 +94999,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "pulse") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpFwHeartBeat") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpFwHeartBeat_pulse(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -94999,7 +95007,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "enableSvcHeartBeat") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcHeartBeatMgmt") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcHeartBeatMgmt_enableSvcHeartBeat(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95007,7 +95015,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disableSvcHeartBeat") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcHeartBeatMgmt") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcHeartBeatMgmt_disableSvcHeartBeat(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95015,7 +95023,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "changeInterval") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/integrity/IpSvcHeartBeatMgmt") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_integrity_IpSvcHeartBeatMgmt_changeInterval(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95023,7 +95031,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/notification/IpFwEventNotification") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_notification_IpFwEventNotification_createNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95031,7 +95039,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/notification/IpFwEventNotification") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_notification_IpFwEventNotification_destroyNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95039,7 +95047,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reportNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/notification/IpSvcEventNotification") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_notification_IpSvcEventNotification_reportNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95047,7 +95055,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "notificationTerminated") == 0
             && (!idlname || strcmp(idlname, "org/csapi/fw/fw_service/notification/IpSvcEventNotification") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_fw_fw_service_notification_IpSvcEventNotification_notificationTerminated(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95055,7 +95063,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "routeRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCall_routeRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95063,7 +95071,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "routeErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCall_routeErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95071,7 +95079,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getCallInfoRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCall_getCallInfoRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95079,7 +95087,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getCallInfoErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCall_getCallInfoErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95087,7 +95095,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseCallRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCall_superviseCallRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95095,7 +95103,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseCallErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCall_superviseCallErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95103,7 +95111,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callFaultDetected") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCall_callFaultDetected(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95111,7 +95119,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMoreDialledDigitsRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95119,7 +95127,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMoreDialledDigitsErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95127,7 +95135,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callEnded") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCall_callEnded(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95135,7 +95143,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "routeReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCall_routeReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95143,7 +95151,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "release") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCall_release(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95151,7 +95159,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deassignCall") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCall_deassignCall(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95159,7 +95167,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getCallInfoReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCall_getCallInfoReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95167,7 +95175,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setCallChargePlan") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCall_setCallChargePlan(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95175,7 +95183,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setAdviceOfCharge") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCall_setAdviceOfCharge(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95183,7 +95191,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMoreDialledDigitsReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCall_getMoreDialledDigitsReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95191,7 +95199,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseCallReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCall_superviseCallReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95199,7 +95207,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "continueProcessing") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCall_continueProcessing(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95207,7 +95215,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callAborted") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCallControlManager_callAborted(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95215,7 +95223,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callEventNotify") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCallControlManager_callEventNotify(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95223,7 +95231,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callNotificationInterrupted") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCallControlManager_callNotificationInterrupted(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95231,7 +95239,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callNotificationContinued") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCallControlManager_callNotificationContinued(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95239,7 +95247,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callOverloadEncountered") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCallControlManager_callOverloadEncountered(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95247,7 +95255,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callOverloadCeased") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCallControlManager_callOverloadCeased(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95255,7 +95263,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "abortMultipleCalls") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpAppCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95263,7 +95271,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createCall") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCallControlManager_createCall(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95271,7 +95279,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "enableCallNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCallControlManager_enableCallNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95279,7 +95287,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disableCallNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCallControlManager_disableCallNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95287,7 +95295,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setCallLoadControl") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCallControlManager_setCallLoadControl(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95295,7 +95303,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "changeCallNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCallControlManager_changeCallNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95303,7 +95311,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getCriteria") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/gccs/IpCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_gccs_IpCallControlManager_getCriteria(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95311,7 +95319,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "eventReportRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppCallLeg_eventReportRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95319,7 +95327,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "eventReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppCallLeg_eventReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95327,7 +95335,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "attachMediaRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppCallLeg_attachMediaRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95335,7 +95343,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "attachMediaErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppCallLeg_attachMediaErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95343,7 +95351,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "detachMediaRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppCallLeg_detachMediaRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95351,7 +95359,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "detachMediaErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppCallLeg_detachMediaErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95359,7 +95367,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInfoRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppCallLeg_getInfoRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95367,7 +95375,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInfoErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppCallLeg_getInfoErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95375,7 +95383,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "routeErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppCallLeg_routeErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95383,7 +95391,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppCallLeg_superviseRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95391,7 +95399,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppCallLeg_superviseErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95399,7 +95407,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callLegEnded") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppCallLeg_callLegEnded(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95407,7 +95415,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createCall") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_createCall(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95415,7 +95423,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_createNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95423,7 +95431,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_destroyNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95431,7 +95439,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "changeNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_changeNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95439,7 +95447,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_getNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95447,7 +95455,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setCallLoadControl") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_setCallLoadControl(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95455,7 +95463,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "enableNotifications") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_enableNotifications(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95463,7 +95471,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disableNotifications") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_disableNotifications(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95471,7 +95479,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getNextNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_getNextNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95479,7 +95487,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "routeReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_routeReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95487,7 +95495,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "eventReportReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_eventReportReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95495,7 +95503,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "release") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_release(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95503,7 +95511,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInfoReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_getInfoReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95511,7 +95519,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getCall") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_getCall(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95519,7 +95527,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "attachMediaReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_attachMediaReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95527,7 +95535,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "detachMediaReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_detachMediaReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95535,7 +95543,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getCurrentDestinationAddress") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_getCurrentDestinationAddress(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95543,7 +95551,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "continueProcessing") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_continueProcessing(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95551,7 +95559,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setChargePlan") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_setChargePlan(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95559,7 +95567,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setAdviceOfCharge") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_setAdviceOfCharge(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95567,7 +95575,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_superviseReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95575,7 +95583,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deassign") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_deassign(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95583,7 +95591,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getProperties") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_getProperties(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95591,7 +95599,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setProperties") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpCallLeg_setProperties(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95599,7 +95607,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInfoRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_getInfoRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95607,7 +95615,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInfoErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_getInfoErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95615,7 +95623,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95623,7 +95631,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95631,7 +95639,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callEnded") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_callEnded(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95639,7 +95647,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createAndRouteCallLegErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_createAndRouteCallLegErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95647,7 +95655,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getCallLegs") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95655,7 +95663,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createCallLeg") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCall_createCallLeg(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95663,7 +95671,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createAndRouteCallLegReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95671,7 +95679,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "release") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCall_release(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95679,7 +95687,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deassignCall") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCall_deassignCall(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95687,7 +95695,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInfoReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCall_getInfoReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95695,7 +95703,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setChargePlan") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCall_setChargePlan(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95703,7 +95711,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setAdviceOfCharge") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCall_setAdviceOfCharge(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95711,7 +95719,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpMultiPartyCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpMultiPartyCall_superviseReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95719,7 +95727,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reportNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95727,7 +95735,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callAborted") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callAborted(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95735,7 +95743,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "managerInterrupted") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_managerInterrupted(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95743,7 +95751,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "managerResumed") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_managerResumed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95751,7 +95759,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callOverloadEncountered") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callOverloadEncountered(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95759,7 +95767,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "callOverloadCeased") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callOverloadCeased(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95767,7 +95775,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "abortMultipleCalls") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mpccs/IpAppMultiPartyCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95775,7 +95783,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseVolumeRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpAppMultiMediaCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95783,7 +95791,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseVolumeErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpAppMultiMediaCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95791,7 +95799,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "mediaStreamMonitorRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpAppMultiMediaCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95799,7 +95807,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "subtract") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpMultiMediaStream") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpMultiMediaStream_subtract(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95807,7 +95815,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "mediaStreamAllow") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpMultiMediaCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95815,7 +95823,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "mediaStreamMonitorReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpMultiMediaCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95823,7 +95831,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMediaStreams") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpMultiMediaCallLeg") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95831,7 +95839,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseVolumeReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpMultiMediaCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpMultiMediaCall_superviseVolumeReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95839,7 +95847,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reportMediaNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpAppMultiMediaCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95847,7 +95855,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createMediaNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpMultiMediaCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_createMediaNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95855,7 +95863,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyMediaNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpMultiMediaCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_destroyMediaNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95863,7 +95871,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "changeMediaNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpMultiMediaCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_changeMediaNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95871,7 +95879,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMediaNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/mmccs/IpMultiMediaCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_getMediaNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95879,7 +95887,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "chairSelection") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpAppSubConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpAppSubConfCall_chairSelection(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95887,7 +95895,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "floorRequest") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpAppSubConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpAppSubConfCall_floorRequest(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95895,7 +95903,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "partyJoined") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpAppConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpAppConfCall_partyJoined(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95903,7 +95911,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "leaveMonitorRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpAppConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpAppConfCall_leaveMonitorRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95911,7 +95919,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createConference") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpConfCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpConfCallControlManager_createConference(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95919,7 +95927,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "checkResources") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpConfCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpConfCallControlManager_checkResources(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95927,7 +95935,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reserveResources") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpConfCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpConfCallControlManager_reserveResources(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95935,7 +95943,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "freeResources") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpConfCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpConfCallControlManager_freeResources(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95943,7 +95951,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "conferenceCreated") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpAppConfCallControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpAppConfCallControlManager_conferenceCreated(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95951,7 +95959,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "splitSubConference") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpSubConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpSubConfCall_splitSubConference(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95959,7 +95967,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "mergeSubConference") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpSubConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpSubConfCall_mergeSubConference(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95967,7 +95975,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "moveCallLeg") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpSubConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpSubConfCall_moveCallLeg(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95975,7 +95983,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "inspectVideo") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpSubConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpSubConfCall_inspectVideo(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95983,7 +95991,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "inspectVideoCancel") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpSubConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpSubConfCall_inspectVideoCancel(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95991,7 +95999,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "appointSpeaker") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpSubConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpSubConfCall_appointSpeaker(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -95999,7 +96007,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "chairSelection") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpSubConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpSubConfCall_chairSelection(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96007,7 +96015,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "changeConferencePolicy") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpSubConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpSubConfCall_changeConferencePolicy(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96015,7 +96023,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getSubConferences") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpConfCall_getSubConferences(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96023,7 +96031,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createSubConference") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpConfCall_createSubConference(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96031,7 +96039,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "leaveMonitorReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpConfCall_leaveMonitorReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96039,7 +96047,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getConferenceAddress") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cc/cccs/IpConfCall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cc_cccs_IpConfCall_getConferenceAddress(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96047,7 +96055,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "sendInfoRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUI") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUI_sendInfoRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96055,7 +96063,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "sendInfoErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUI") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUI_sendInfoErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96063,7 +96071,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "sendInfoAndCollectRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUI") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUI_sendInfoAndCollectRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96071,7 +96079,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "sendInfoAndCollectErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUI") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUI_sendInfoAndCollectErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96079,7 +96087,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "userInteractionFaultDetected") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUI") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUI_userInteractionFaultDetected(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96087,7 +96095,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "recordMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUICall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUICall_recordMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96095,7 +96103,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "recordMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUICall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUICall_recordMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96103,7 +96111,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUICall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUICall_deleteMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96111,7 +96119,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUICall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUICall_deleteMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96119,7 +96127,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "abortActionRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUICall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUICall_abortActionRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96127,7 +96135,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "abortActionErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUICall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUICall_abortActionErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96135,7 +96143,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUICall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUICall_getMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96143,7 +96151,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUICall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUICall_getMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96151,7 +96159,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "userInteractionAborted") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIManager_userInteractionAborted(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96159,7 +96167,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "userInteractionNotificationInterrupted") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIManager_userInteractionNotificationInterrupted(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96167,7 +96175,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "userInteractionNotificationContinued") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIManager_userInteractionNotificationContinued(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96175,7 +96183,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reportEventNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIManager_reportEventNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96183,7 +96191,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "abortMultipleUserInteractions") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIManager_abortMultipleUserInteractions(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96191,7 +96199,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "sendInfoReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUI") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUI_sendInfoReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96199,7 +96207,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "sendInfoAndCollectReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUI") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUI_sendInfoAndCollectReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96207,7 +96215,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "release") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUI") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUI_release(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96215,7 +96223,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setOriginatingAddress") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUI") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUI_setOriginatingAddress(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96223,7 +96231,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getOriginatingAddress") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUI") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUI_getOriginatingAddress(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96231,7 +96239,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "recordMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUICall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUICall_recordMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96239,7 +96247,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUICall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUICall_deleteMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96247,7 +96255,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "abortActionReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUICall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUICall_abortActionReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96255,7 +96263,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUICall") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUICall_getMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96263,7 +96271,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createUI") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUIManager_createUI(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96271,7 +96279,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createUICall") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUIManager_createUICall(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96279,7 +96287,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUIManager_createNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96287,7 +96295,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUIManager_destroyNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96295,7 +96303,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "changeNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUIManager_changeNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96303,7 +96311,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUIManager_getNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96311,7 +96319,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "enableNotifications") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUIManager_enableNotifications(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96319,7 +96327,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disableNotifications") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUIManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUIManager_disableNotifications(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96327,7 +96335,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIAdminManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIAdminManager_getMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96335,7 +96343,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIAdminManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIAdminManager_getMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96343,7 +96351,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIAdminManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIAdminManager_deleteMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96351,7 +96359,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIAdminManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIAdminManager_deleteMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96359,7 +96367,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "putMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIAdminManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIAdminManager_putMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96367,7 +96375,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "putMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIAdminManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIAdminManager_putMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96375,7 +96383,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageListRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIAdminManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIAdminManager_getMessageListRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96383,7 +96391,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageListErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpAppUIAdminManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpAppUIAdminManager_getMessageListErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96391,7 +96399,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUIAdminManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUIAdminManager_getMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96399,7 +96407,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "putMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUIAdminManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUIAdminManager_putMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96407,7 +96415,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUIAdminManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUIAdminManager_deleteMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96415,7 +96423,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageListReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/ui/IpUIAdminManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_ui_IpUIAdminManager_getMessageListReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96423,7 +96431,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "locationReportRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpAppUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpAppUserLocation_locationReportRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96431,7 +96439,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "locationReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpAppUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpAppUserLocation_locationReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96439,7 +96447,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extendedLocationReportRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpAppUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96447,7 +96455,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extendedLocationReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpAppUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96455,7 +96463,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "periodicLocationReport") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpAppUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96463,7 +96471,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "periodicLocationReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpAppUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96471,7 +96479,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "locationReportReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpUserLocation_locationReportReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96479,7 +96487,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extendedLocationReportReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96487,7 +96495,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "periodicLocationReportingStartReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96495,7 +96503,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "periodicLocationReportingStop") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStop(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96503,7 +96511,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getNextPeriodicLocationRequest") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpUserLocation_getNextPeriodicLocationRequest(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96511,7 +96519,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredLocationReport") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpAppTriggeredUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReport(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96519,7 +96527,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredLocationReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpAppTriggeredUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96527,7 +96535,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredLocationReportingStartReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpTriggeredUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96535,7 +96543,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredLocationReportingStop") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpTriggeredUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStop(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96543,7 +96551,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getNextTriggeredLocationRequest") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ul/IpTriggeredUserLocation") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ul_IpTriggeredUserLocation_getNextTriggeredLocationRequest(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96551,7 +96559,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "locationReportRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpAppUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96559,7 +96567,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "locationReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpAppUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96567,7 +96575,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "periodicLocationReport") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpAppUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96575,7 +96583,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "periodicLocationReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpAppUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96583,7 +96591,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredLocationReport") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpAppUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReport(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96591,7 +96599,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredLocationReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpAppUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96599,7 +96607,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "locationReportReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96607,7 +96615,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "periodicLocationReportingStartReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96615,7 +96623,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "periodicLocationReportingStop") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStop(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96623,7 +96631,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredLocationReportingStartReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96631,7 +96639,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredLocationReportingStop") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStop(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96639,7 +96647,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getNextPeriodicLocationRequest") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpUserLocationCamel_getNextPeriodicLocationRequest(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96647,7 +96655,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getNextTriggeredLocationRequest") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ulc/IpUserLocationCamel") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ulc_IpUserLocationCamel_getNextTriggeredLocationRequest(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96655,7 +96663,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "emergencyLocationReport") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ule/IpAppUserLocationEmergency") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReport(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96663,7 +96671,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "emergencyLocationReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ule/IpAppUserLocationEmergency") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96671,7 +96679,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "emergencyLocationReportReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ule/IpUserLocationEmergency") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ule_IpUserLocationEmergency_emergencyLocationReportReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96679,7 +96687,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "subscribeEmergencyLocationReports") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ule/IpUserLocationEmergency") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ule_IpUserLocationEmergency_subscribeEmergencyLocationReports(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96687,7 +96695,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "unSubscribeEmergencyLocationReports") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ule/IpUserLocationEmergency") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ule_IpUserLocationEmergency_unSubscribeEmergencyLocationReports(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96695,7 +96703,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "statusReportRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpAppUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpAppUserStatus_statusReportRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96703,7 +96711,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "statusReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpAppUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpAppUserStatus_statusReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96711,7 +96719,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredStatusReport") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpAppUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReport(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96719,7 +96727,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredStatusReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpAppUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96727,7 +96735,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extendedStatusReportRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpAppUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96735,7 +96743,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extendedStatusReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpAppUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96743,7 +96751,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extTriggeredStatusReport") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpAppUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReport(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96751,7 +96759,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extTriggeredStatusReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpAppUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96759,7 +96767,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "statusReportReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpUserStatus_statusReportReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96767,7 +96775,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredStatusReportingStartReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96775,7 +96783,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredStatusReportingStop") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStop(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96783,7 +96791,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getNextTriggeredStatusRequest") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpUserStatus_getNextTriggeredStatusRequest(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96791,7 +96799,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extendedStatusReportReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96799,7 +96807,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extTriggeredStatusReportingStartReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96807,7 +96815,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extTriggeredStatusReportingStop") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/us/IpUserStatus") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStop(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96815,7 +96823,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredBindingRequestNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ub/IpAppUserBinding") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96823,7 +96831,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredBindingRequestNotificationStartErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ub/IpAppUserBinding") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotificationStartErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96831,7 +96839,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredBindingRequestNotificationStartReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ub/IpUserBinding") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96839,7 +96847,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredBindingRequestNotificationStop") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mm/ub/IpUserBinding") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStop(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96847,7 +96855,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getTerminalCapabilities") == 0
             && (!idlname || strcmp(idlname, "org/csapi/termcap/IpTerminalCapabilities") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_termcap_IpTerminalCapabilities_getTerminalCapabilities(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96855,7 +96863,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredTerminalCapabilityReport") == 0
             && (!idlname || strcmp(idlname, "org/csapi/termcap/IpAppExtendedTerminalCapabilities") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96863,7 +96871,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredTerminalCapabilityReportErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/termcap/IpAppExtendedTerminalCapabilities") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96871,7 +96879,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredTerminalCapabilityStartReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/termcap/IpExtendedTerminalCapabilities") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStartReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96879,7 +96887,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "triggeredTerminalCapabilityStop") == 0
             && (!idlname || strcmp(idlname, "org/csapi/termcap/IpExtendedTerminalCapabilities") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStop(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96887,7 +96895,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "connectRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpAppDataSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpAppDataSession_connectRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96895,7 +96903,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "connectErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpAppDataSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpAppDataSession_connectErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96903,7 +96911,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseDataSessionRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpAppDataSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpAppDataSession_superviseDataSessionRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96911,7 +96919,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseDataSessionErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpAppDataSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpAppDataSession_superviseDataSessionErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96919,7 +96927,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "dataSessionFaultDetected") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpAppDataSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpAppDataSession_dataSessionFaultDetected(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96927,7 +96935,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "dataSessionAborted") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpAppDataSessionControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpAppDataSessionControlManager_dataSessionAborted(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96935,7 +96943,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reportNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpAppDataSessionControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpAppDataSessionControlManager_reportNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96943,7 +96951,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "dataSessionNotificationContinued") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpAppDataSessionControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpAppDataSessionControlManager_dataSessionNotificationContinued(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96951,7 +96959,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "dataSessionNotificationInterrupted") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpAppDataSessionControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpAppDataSessionControlManager_dataSessionNotificationInterrupted(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96959,7 +96967,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "abortMultipleDataSessions") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpAppDataSessionControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96967,7 +96975,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "connectReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSession_connectReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96975,7 +96983,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "release") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSession_release(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96983,7 +96991,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "superviseDataSessionReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSession_superviseDataSessionReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96991,7 +96999,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setDataSessionChargePlan") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSession_setDataSessionChargePlan(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -96999,7 +97007,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setAdviceOfCharge") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSession_setAdviceOfCharge(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97007,7 +97015,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deassignDataSession") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSession_deassignDataSession(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97015,7 +97023,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "continueProcessing") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSession_continueProcessing(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97023,7 +97031,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSessionControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSessionControlManager_createNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97031,7 +97039,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSessionControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSessionControlManager_destroyNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97039,7 +97047,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "changeNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSessionControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSessionControlManager_changeNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97047,7 +97055,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "enableNotifications") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSessionControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSessionControlManager_enableNotifications(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97055,7 +97063,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disableNotifications") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSessionControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSessionControlManager_disableNotifications(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97063,7 +97071,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getNotifications") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSessionControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSessionControlManager_getNotifications(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97071,7 +97079,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createNotifications") == 0
             && (!idlname || strcmp(idlname, "org/csapi/dsc/IpDataSessionControlManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_dsc_IpDataSessionControlManager_createNotifications(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97079,7 +97087,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "openMailbox") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMessagingManager_openMailbox(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97087,7 +97095,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "enableMessagingNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMessagingManager_enableMessagingNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97095,7 +97103,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disableMessagingNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMessagingManager_disableMessagingNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97103,7 +97111,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "mailboxTerminated") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpAppMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpAppMessagingManager_mailboxTerminated(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97111,7 +97119,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "mailboxFaultDetected") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpAppMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpAppMessagingManager_mailboxFaultDetected(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97119,7 +97127,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "messagingEventNotify") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpAppMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpAppMessagingManager_messagingEventNotify(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97127,7 +97135,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "messagingNotificationTerminated") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpAppMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpAppMessagingManager_messagingNotificationTerminated(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97135,7 +97143,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "close") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailbox_close(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97143,7 +97151,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "lock") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailbox_lock(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97151,7 +97159,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "unlock") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailbox_unlock(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97159,7 +97167,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInfoAmount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailbox_getInfoAmount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97167,7 +97175,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInfoProperties") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailbox_getInfoProperties(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97175,7 +97183,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setInfoProperties") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailbox_setInfoProperties(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97183,7 +97191,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "openFolder") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailbox_openFolder(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97191,7 +97199,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createFolder") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailbox_createFolder(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97199,7 +97207,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "remove") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailbox_remove(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97207,7 +97215,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInfoAmount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMessage") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMessage_getInfoAmount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97215,7 +97223,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInfoProperties") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMessage") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMessage_getInfoProperties(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97223,7 +97231,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setInfoProperties") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMessage") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMessage_setInfoProperties(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97231,7 +97239,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "remove") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMessage") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMessage_remove(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97239,7 +97247,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getContent") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMessage") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMessage_getContent(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97247,7 +97255,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInfoAmount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailboxFolder") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailboxFolder_getInfoAmount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97255,7 +97263,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInfoProperties") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailboxFolder") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailboxFolder_getInfoProperties(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97263,7 +97271,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setInfoProperties") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailboxFolder") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailboxFolder_setInfoProperties(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97271,7 +97279,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "putMessage") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailboxFolder") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailboxFolder_putMessage(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97279,7 +97287,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessage") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailboxFolder") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailboxFolder_getMessage(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97287,7 +97295,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "close") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailboxFolder") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailboxFolder_close(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97295,7 +97303,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "remove") == 0
             && (!idlname || strcmp(idlname, "org/csapi/gms/IpMailboxFolder") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_gms_IpMailboxFolder_remove(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97303,7 +97311,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getVPrPID") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpVPrP") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpVPrP_getVPrPID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97311,7 +97319,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getSlaID") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpVPrP") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpVPrP_getSlaID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97319,7 +97327,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getStatus") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpVPrP") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpVPrP_getStatus(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97327,7 +97335,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getProvisionedQoSInfo") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpVPrP") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpVPrP_getProvisionedQoSInfo(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97335,7 +97343,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getValidityInfo") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpVPrP") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpVPrP_getValidityInfo(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97343,7 +97351,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getPipeQoSInfo") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpVPrP") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpVPrP_getPipeQoSInfo(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97351,7 +97359,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getDsCodepoint") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpVPrP") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpVPrP_getDsCodepoint(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97359,7 +97367,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getVPrPList") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpVPrN") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpVPrN_getVPrPList(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97367,7 +97375,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getVPrP") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpVPrN") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpVPrN_getVPrP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97375,7 +97383,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createVPrP") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpVPrN") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpVPrN_createVPrP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97383,7 +97391,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteVPrP") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpVPrN") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpVPrN_deleteVPrP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97391,7 +97399,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getTemplate") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpQoSMenu") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpQoSMenu_getTemplate(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97399,7 +97407,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getTemplateList") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpQoSMenu") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpQoSMenu_getTemplateList(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97407,7 +97415,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getQoSMenu") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpConnectivityManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpConnectivityManager_getQoSMenu(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97415,7 +97423,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getEnterpriseNetwork") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpConnectivityManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpConnectivityManager_getEnterpriseNetwork(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97423,7 +97431,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getTemplateType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpQoSTemplate") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpQoSTemplate_getTemplateType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97431,7 +97439,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getDescription") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpQoSTemplate") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpQoSTemplate_getDescription(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97439,7 +97447,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setSlaID") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpQoSTemplate") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpQoSTemplate_setSlaID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97447,7 +97455,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getPipeQoSInfo") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpQoSTemplate") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpQoSTemplate_getPipeQoSInfo(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97455,7 +97463,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setPipeQoSInfo") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpQoSTemplate") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpQoSTemplate_setPipeQoSInfo(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97463,7 +97471,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getValidityInfo") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpQoSTemplate") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpQoSTemplate_getValidityInfo(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97471,7 +97479,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setValidityInfo") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpQoSTemplate") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpQoSTemplate_setValidityInfo(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97479,7 +97487,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setProvisionedQoSInfo") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpQoSTemplate") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpQoSTemplate_setProvisionedQoSInfo(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97487,7 +97495,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getProvisionedQoSInfo") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpQoSTemplate") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpQoSTemplate_getProvisionedQoSInfo(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97495,7 +97503,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getDsCodepoint") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpQoSTemplate") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpQoSTemplate_getDsCodepoint(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97503,7 +97511,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getSiteList") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpEnterpriseNetwork") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpEnterpriseNetwork_getSiteList(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97511,7 +97519,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getVPrN") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpEnterpriseNetwork") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpEnterpriseNetwork_getVPrN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97519,7 +97527,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getSite") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpEnterpriseNetwork") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpEnterpriseNetwork_getSite(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97527,7 +97535,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getSAPList") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpEnterpriseNetworkSite") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpEnterpriseNetworkSite_getSAPList(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97535,7 +97543,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getSiteID") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpEnterpriseNetworkSite") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpEnterpriseNetworkSite_getSiteID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97543,7 +97551,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getSiteLocation") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpEnterpriseNetworkSite") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpEnterpriseNetworkSite_getSiteLocation(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97551,7 +97559,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getSiteDescription") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpEnterpriseNetworkSite") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpEnterpriseNetworkSite_getSiteDescription(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97559,7 +97567,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getIPSubnet") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpEnterpriseNetworkSite") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpEnterpriseNetworkSite_getIPSubnet(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97567,7 +97575,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getSAPIPSubnet") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cm/IpEnterpriseNetworkSite") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cm_IpEnterpriseNetworkSite_getSAPIPSubnet(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97575,7 +97583,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reportNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_reportNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97583,7 +97591,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryBalanceRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_queryBalanceRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97591,7 +97599,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryBalanceErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_queryBalanceErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97599,7 +97607,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "retrieveTransactionHistoryRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97607,7 +97615,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "retrieveTransactionHistoryErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97615,7 +97623,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryBalanceExpiryDateRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97623,7 +97631,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryBalanceExpiryDateErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97631,7 +97639,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "updateBalanceRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_updateBalanceRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97639,7 +97647,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "updateBalanceErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_updateBalanceErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97647,7 +97655,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createVoucherRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_createVoucherRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97655,7 +97663,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createVoucherErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_createVoucherErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97663,7 +97671,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyVoucherRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_destroyVoucherRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97671,7 +97679,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyVoucherErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_destroyVoucherErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97679,7 +97687,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryVoucherRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_queryVoucherRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97687,7 +97695,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryVoucherErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_queryVoucherErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97695,7 +97703,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryUserVouchersRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_queryUserVouchersRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97703,7 +97711,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryUserVouchersErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAppAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAppAccountManager_queryUserVouchersErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97711,7 +97719,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_createNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97719,7 +97727,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_destroyNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97727,7 +97735,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryBalanceReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_queryBalanceReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97735,7 +97743,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "changeNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_changeNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97743,7 +97751,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_getNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97751,7 +97759,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "retrieveTransactionHistoryReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_retrieveTransactionHistoryReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97759,7 +97767,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "enableNotifications") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_enableNotifications(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97767,7 +97775,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disableNotifications") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_disableNotifications(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97775,7 +97783,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryBalanceExpiryDateReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97783,7 +97791,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "updateBalanceReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_updateBalanceReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97791,7 +97799,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createVoucherReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_createVoucherReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97799,7 +97807,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyVoucherReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_destroyVoucherReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97807,7 +97815,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryVoucherReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_queryVoucherReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97815,7 +97823,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryUserVouchersReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/am/IpAccountManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_am_IpAccountManager_queryUserVouchersReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97823,7 +97831,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "creditAmountErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_creditAmountErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97831,7 +97839,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "creditAmountRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_creditAmountRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97839,7 +97847,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "creditUnitErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_creditUnitErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97847,7 +97855,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "creditUnitRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_creditUnitRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97855,7 +97863,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "debitAmountErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_debitAmountErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97863,7 +97871,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "debitAmountRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_debitAmountRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97871,7 +97879,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "debitUnitErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_debitUnitErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97879,7 +97887,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "debitUnitRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_debitUnitRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97887,7 +97895,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "directCreditAmountErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_directCreditAmountErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97895,7 +97903,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "directCreditAmountRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_directCreditAmountRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97903,7 +97911,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "directCreditUnitErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_directCreditUnitErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97911,7 +97919,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "directCreditUnitRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_directCreditUnitRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97919,7 +97927,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "directDebitAmountErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_directDebitAmountErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97927,7 +97935,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "directDebitAmountRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_directDebitAmountRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97935,7 +97943,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "directDebitUnitErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_directDebitUnitErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97943,7 +97951,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "directDebitUnitRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_directDebitUnitRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97951,7 +97959,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extendLifeTimeErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_extendLifeTimeErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97959,7 +97967,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extendLifeTimeRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_extendLifeTimeRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97967,7 +97975,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "rateErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_rateErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97975,7 +97983,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "rateRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_rateRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97983,7 +97991,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reserveAmountErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_reserveAmountErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97991,7 +97999,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reserveAmountRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_reserveAmountRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -97999,7 +98007,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reserveUnitErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_reserveUnitErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98007,7 +98015,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reserveUnitRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_reserveUnitRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98015,7 +98023,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "sessionEnded") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingSession_sessionEnded(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98023,7 +98031,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "creditAmountReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_creditAmountReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98031,7 +98039,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "creditUnitReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_creditUnitReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98039,7 +98047,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "debitAmountReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_debitAmountReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98047,7 +98055,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "debitUnitReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_debitUnitReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98055,7 +98063,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "directCreditAmountReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_directCreditAmountReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98063,7 +98071,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "directCreditUnitReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_directCreditUnitReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98071,7 +98079,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "directDebitAmountReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_directDebitAmountReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98079,7 +98087,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "directDebitUnitReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_directDebitUnitReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98087,7 +98095,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "extendLifeTimeReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_extendLifeTimeReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98095,7 +98103,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAmountLeft") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_getAmountLeft(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98103,7 +98111,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getLifeTimeLeft") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_getLifeTimeLeft(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98111,7 +98119,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getUnitLeft") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_getUnitLeft(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98119,7 +98127,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "rateReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_rateReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98127,7 +98135,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "release") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_release(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98135,7 +98143,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reserveAmountReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_reserveAmountReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98143,7 +98151,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reserveUnitReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingSession") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingSession_reserveUnitReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98151,7 +98159,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "sessionAborted") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingManager_sessionAborted(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98159,7 +98167,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "abortMultipleChargingSessions") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpAppChargingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98167,7 +98175,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createChargingSession") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingManager_createChargingSession(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98175,7 +98183,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createSplitChargingSession") == 0
             && (!idlname || strcmp(idlname, "org/csapi/cs/IpChargingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_cs_IpChargingManager_createSplitChargingSession(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98183,7 +98191,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reportNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/evaluation/IpAppPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_evaluation_IpAppPolicyDomain_reportNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98191,7 +98199,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "evalPolicyRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/evaluation/IpAppPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98199,7 +98207,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "evalPolicyErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/evaluation/IpAppPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98207,7 +98215,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "evalPolicy") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/evaluation/IpPolicyEvalManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98215,7 +98223,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "evalPolicyReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/evaluation/IpPolicyEvalManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98223,7 +98231,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "abortEvalPolicyReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/evaluation/IpPolicyEvalManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_evaluation_IpPolicyEvalManager_abortEvalPolicyReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98231,7 +98239,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "generateEvent") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/evaluation/IpPolicyEvalManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98239,7 +98247,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/evaluation/IpPolicyEvalManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98247,7 +98255,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/evaluation/IpPolicyEvalManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98255,7 +98263,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAttribute") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicy") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicy_getAttribute(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98263,7 +98271,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setAttribute") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicy") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicy_setAttribute(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98271,7 +98279,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicy") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicy_getAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98279,7 +98287,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicy") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicy_setAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98287,7 +98295,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getList") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyIterator") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyIterator_getList(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98295,7 +98303,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getParentRepository") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_getParentRepository(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98303,7 +98311,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createRepository") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_createRepository(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98311,7 +98319,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRepository") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_getRepository(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98319,7 +98327,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeRepository") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_removeRepository(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98327,7 +98335,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRepositoryCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_getRepositoryCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98335,7 +98343,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRepositoryIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_getRepositoryIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98343,7 +98351,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createCondition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_createCondition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98351,7 +98359,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getCondition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_getCondition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98359,7 +98367,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeCondition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_removeCondition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98367,7 +98375,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getConditionCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_getConditionCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98375,7 +98383,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getConditionIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_getConditionIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98383,7 +98391,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createAction") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_createAction(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98391,7 +98399,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAction") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_getAction(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98399,7 +98407,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeAction") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_removeAction(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98407,7 +98415,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getActionCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_getActionCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98415,7 +98423,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getActionIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRepository") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRepository_getActionIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98423,7 +98431,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getParentGroup") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_getParentGroup(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98431,7 +98439,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getParentDomain") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_getParentDomain(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98439,7 +98447,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createCondition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_createCondition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98447,7 +98455,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getCondition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_getCondition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98455,7 +98463,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeCondition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_removeCondition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98463,7 +98471,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getConditionCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_getConditionCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98471,7 +98479,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getConditionIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_getConditionIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98479,7 +98487,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createAction") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_createAction(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98487,7 +98495,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAction") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_getAction(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98495,7 +98503,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeAction") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_removeAction(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98503,7 +98511,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getActionCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_getActionCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98511,7 +98519,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getActionIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_getActionIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98519,7 +98527,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setValidityPeriodConditionByName") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_setValidityPeriodConditionByName(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98527,7 +98535,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setValidityPeriodCondition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_setValidityPeriodCondition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98535,7 +98543,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getValidityPeriodCondition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_getValidityPeriodCondition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98543,7 +98551,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "unsetValidityPeriodCondition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_unsetValidityPeriodCondition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98551,7 +98559,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setConditionList") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_setConditionList(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98559,7 +98567,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getConditionList") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_getConditionList(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98567,7 +98575,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setActionList") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_setActionList(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98575,7 +98583,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getActionList") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyRule") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyRule_getActionList(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98583,7 +98591,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createDomain") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_createDomain(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98591,7 +98599,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getDomain") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_getDomain(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98599,7 +98607,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeDomain") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_removeDomain(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98607,7 +98615,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getDomainCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_getDomainCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98615,7 +98623,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getDomainIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_getDomainIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98623,7 +98631,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "findMatchingDomains") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98631,7 +98639,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createRepository") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_createRepository(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98639,7 +98647,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRepository") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_getRepository(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98647,7 +98655,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeRepository") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_removeRepository(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98655,7 +98663,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRepositoryCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_getRepositoryCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98663,7 +98671,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRepositoryIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_getRepositoryIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98671,7 +98679,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "startTransaction") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_startTransaction(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98679,7 +98687,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "commitTransaction") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_commitTransaction(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98687,7 +98695,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "abortTransaction") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyManager_abortTransaction(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98695,7 +98703,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getParentDomain") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyGroup") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyGroup_getParentDomain(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98703,7 +98711,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getParentGroup") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyGroup") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyGroup_getParentGroup(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98711,7 +98719,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createGroup") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyGroup") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyGroup_createGroup(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98719,7 +98727,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getGroup") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyGroup") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyGroup_getGroup(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98727,7 +98735,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeGroup") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyGroup") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyGroup_removeGroup(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98735,7 +98743,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getGroupCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyGroup") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyGroup_getGroupCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98743,7 +98751,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getGroupIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyGroup") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyGroup_getGroupIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98751,7 +98759,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createRule") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyGroup") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyGroup_createRule(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98759,7 +98767,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRule") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyGroup") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyGroup_getRule(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98767,7 +98775,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeRule") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyGroup") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyGroup_removeRule(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98775,7 +98783,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRuleCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyGroup") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyGroup_getRuleCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98783,7 +98791,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRuleIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyGroup") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyGroup_getRuleIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98791,7 +98799,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setRequiredAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyEventDefinition") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_setRequiredAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98799,7 +98807,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setOptionalAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyEventDefinition") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_setOptionalAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98807,7 +98815,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRequiredAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyEventDefinition") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_getRequiredAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98815,7 +98823,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getOptionalAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyEventDefinition") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_getOptionalAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98823,7 +98831,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getParentDomain") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyEventDefinition") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_getParentDomain(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98831,7 +98839,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getParentRepository") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyCondition") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyCondition_getParentRepository(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98839,7 +98847,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getParentRule") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyCondition") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyCondition_getParentRule(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98847,7 +98855,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getParentRepository") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyAction") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyAction_getParentRepository(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98855,7 +98863,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getParentRule") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyAction") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyAction_getParentRule(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98863,7 +98871,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setInputVariables") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicySignature") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicySignature_setInputVariables(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98871,7 +98879,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setOutputVariables") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicySignature") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicySignature_setOutputVariables(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98879,7 +98887,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getInputVariables") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicySignature") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicySignature_getInputVariables(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98887,7 +98895,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getOutputVariables") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicySignature") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicySignature_getOutputVariables(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98895,7 +98903,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setGroupNames") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicySignature") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicySignature_setGroupNames(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98903,7 +98911,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setPolicyRoles") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicySignature") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicySignature_setPolicyRoles(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98911,7 +98919,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getGroupNames") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicySignature") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicySignature_getGroupNames(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98919,7 +98927,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getPolicyRoles") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicySignature") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicySignature_getPolicyRoles(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98927,7 +98935,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getParentDomain") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicySignature") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicySignature_getParentDomain(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98935,7 +98943,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getParentDomain") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getParentDomain(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98943,7 +98951,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createDomain") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_createDomain(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98951,7 +98959,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getDomain") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getDomain(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98959,7 +98967,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeDomain") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_removeDomain(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98967,7 +98975,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getDomainCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getDomainCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98975,7 +98983,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getDomainIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getDomainIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98983,7 +98991,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createGroup") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_createGroup(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98991,7 +98999,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getGroup") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getGroup(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -98999,7 +99007,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeGroup") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_removeGroup(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99007,7 +99015,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getGroupCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getGroupCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99015,7 +99023,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getGroupIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getGroupIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99023,7 +99031,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createRule") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_createRule(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99031,7 +99039,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRule") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getRule(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99039,7 +99047,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeRule") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_removeRule(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99047,7 +99055,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRuleCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getRuleCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99055,7 +99063,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getRuleIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getRuleIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99063,7 +99071,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createEventDefinition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99071,7 +99079,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getEventDefinition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getEventDefinition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99079,7 +99087,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeEventDefinition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_removeEventDefinition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99087,7 +99095,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getEventDefinitionCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getEventDefinitionCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99095,7 +99103,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getEventDefinitionIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getEventDefinitionIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99103,7 +99111,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createVariableSet") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_createVariableSet(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99111,7 +99119,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getVariableSet") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSet(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99119,7 +99127,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeVariableSet") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_removeVariableSet(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99127,7 +99135,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getVariableSetCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSetCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99135,7 +99143,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getVariableSetIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSetIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99143,7 +99151,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createVariable") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_createVariable(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99151,7 +99159,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setVariableValue") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_setVariableValue(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99159,7 +99167,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getVariableType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99167,7 +99175,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getVariableValue") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableValue(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99175,7 +99183,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getVariable") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariable(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99183,7 +99191,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeVariable") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_removeVariable(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99191,7 +99199,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createSignature") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_createSignature(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99199,7 +99207,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getSignature") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getSignature(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99207,7 +99215,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeSignature") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_removeSignature(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99215,7 +99223,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getSignatureCount") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getSignatureCount(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99223,7 +99231,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getSignatureIterator") == 0
             && (!idlname || strcmp(idlname, "org/csapi/policy/provisioning/IpPolicyDomain") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_policy_provisioning_IpPolicyDomain_getSignatureIterator(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99231,7 +99239,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createIdentity") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99239,7 +99247,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteIdentity") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99247,7 +99255,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "isIdentity") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99255,7 +99263,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createGroupIdentity") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99263,7 +99271,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteGroupIdentity") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99271,7 +99279,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "addToGroup") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99279,7 +99287,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeFromGroup") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99287,7 +99295,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listMembers") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99295,7 +99303,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "isGroupIdentity") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99303,7 +99311,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listGroupMembership") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99311,7 +99319,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "addAlias") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99319,7 +99327,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeAliases") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99327,7 +99335,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listAliases") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99335,7 +99343,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "lookupByAlias") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99343,7 +99351,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "associateTypes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99351,7 +99359,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disassociateTypes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99359,7 +99367,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listTypesOfIdentity") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99367,7 +99375,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "hasType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99375,7 +99383,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getIdentityAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99383,7 +99391,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setIdentityAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99391,7 +99399,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createAgent") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99399,7 +99407,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteAgent") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99407,7 +99415,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "isAgent") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99415,7 +99423,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "enableCapabilities") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99423,7 +99431,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disableCapabilities") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99431,7 +99439,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listEnabledCapabilities") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99439,7 +99447,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listAllCapabilities") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99447,7 +99455,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "isCapableOf") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99455,7 +99463,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "associateTypes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99463,7 +99471,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disassociateTypes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99471,7 +99479,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listTypesOfAgent") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99479,7 +99487,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "hasType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99487,7 +99495,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAgentAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99495,7 +99503,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setAgentAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99503,7 +99511,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "assignAgent") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentAssignment") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99511,7 +99519,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "unassignAgent") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentAssignment") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99519,7 +99527,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listAssignedAgents") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentAssignment") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99527,7 +99535,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listAssociatedIdentitiesOfAgent") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentAssignment") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99535,7 +99543,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listAssignedAgentsByCapability") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentAssignment") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99543,7 +99551,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listCapabilitiesOfIdentity") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentAssignment") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99551,7 +99559,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "isIdentityCapableOf") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentAssignment") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99559,7 +99567,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createIdentityAttribute") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityAttribute(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99567,7 +99575,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteIdentityAttribute") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttribute(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99575,7 +99583,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getIdentityAttributeDefinition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttributeDefinition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99583,7 +99591,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listAllIdentityAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99591,7 +99599,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createIdentityType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99599,7 +99607,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteIdentityType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99607,7 +99615,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listIdentityTypes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99615,7 +99623,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "addIdentityTypeAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99623,7 +99631,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeIdentityTypeAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99631,7 +99639,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listIdentityTypeAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMIdentityTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99639,7 +99647,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createAgentAttribute") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentAttribute(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99647,7 +99655,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteAgentAttribute") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99655,7 +99663,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAgentAttributeDefinition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefinition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99663,7 +99671,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listAllAgentAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99671,7 +99679,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createAgentType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99679,7 +99687,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteAgentType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99687,7 +99695,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listAgentTypes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99695,7 +99703,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "addAgentTypeAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99703,7 +99711,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeAgentTypeAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99711,7 +99719,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listAgentTypeAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMAgentTypeManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99719,7 +99727,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createCapabilityAttribute") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapabilityAttribute(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99727,7 +99735,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteCapabilityAttribute") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttribute(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99735,7 +99743,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getCapabilityAttributeDefinition") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttributeDefinition(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99743,7 +99751,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listAllCapabilityAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99751,7 +99759,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createCapability") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99759,7 +99767,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteCapability") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99767,7 +99775,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listCapabilities") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99775,7 +99783,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "addCapabilityAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99783,7 +99791,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "removeCapabilityAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99791,7 +99799,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listCapabilityAttributes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99799,7 +99807,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "assignCapabilitiesToType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99807,7 +99815,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "unassignCapabilitiesFromType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99815,7 +99823,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listCapabilitiesOfType") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMCapabilityManagement") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99823,7 +99831,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAuthToken") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMProvisioningManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99831,7 +99839,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "obtainInterface") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMProvisioningManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_obtainInterface(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99839,7 +99847,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAccessControl") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMProvisioningManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99847,7 +99855,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setAccessControl") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/provisioning/IpPAMProvisioningManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_setAccessControl(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99855,7 +99863,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setIdentityPresence") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMIdentityPresence") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99863,7 +99871,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setIdentityPresenceExpiration") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMIdentityPresence") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99871,7 +99879,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getIdentityPresence") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMIdentityPresence") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99879,7 +99887,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setAgentPresence") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMAgentPresence") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99887,7 +99895,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setCapabilityPresence") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMAgentPresence") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99895,7 +99903,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setAgentPresenceExpiration") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMAgentPresence") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99903,7 +99911,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setCapabilityPresenceExpiration") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMAgentPresence") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99911,7 +99919,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAgentPresence") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMAgentPresence") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99919,7 +99927,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getCapabilityPresence") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMAgentPresence") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99927,7 +99935,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "computeAvailability") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpAppPAMPreferenceCheck") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99935,7 +99943,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAvailability") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMAvailability") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMAvailability_getAvailability(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99943,7 +99951,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getPreference") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMAvailability") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMAvailability_getPreference(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99951,7 +99959,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setPreference") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMAvailability") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMAvailability_setPreference(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99959,7 +99967,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAuthToken") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMPresenceAvailabilityManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99967,7 +99975,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "obtainInterface") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMPresenceAvailabilityManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_obtainInterface(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99975,7 +99983,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAccessControl") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMPresenceAvailabilityManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99983,7 +99991,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setAccessControl") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMPresenceAvailabilityManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_setAccessControl(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99991,7 +99999,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "activateService") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMPresenceAvailabilityManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -99999,7 +100007,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deactivateService") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMPresenceAvailabilityManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100007,7 +100015,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "isActiveIdentity") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/access/IpPAMPresenceAvailabilityManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100015,7 +100023,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "eventNotify") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpAppPAMEventHandler") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100023,7 +100031,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "eventNotifyErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpAppPAMEventHandler") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpAppPAMEventHandler_eventNotifyErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100031,7 +100039,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "isRegistered") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpPAMEventHandler") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpPAMEventHandler_isRegistered(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100039,7 +100047,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "registerAppInterface") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpPAMEventHandler") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100047,7 +100055,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "registerForEvent") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpPAMEventHandler") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpPAMEventHandler_registerForEvent(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100055,7 +100063,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deregisterAppInterface") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpPAMEventHandler") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100063,7 +100071,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deregisterFromEvent") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpPAMEventHandler") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100071,7 +100079,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAuthToken") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpPAMEventManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpPAMEventManager_getAuthToken(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100079,7 +100087,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "obtainInterface") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpPAMEventManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpPAMEventManager_obtainInterface(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100087,7 +100095,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getAccessControl") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpPAMEventManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpPAMEventManager_getAccessControl(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100095,7 +100103,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setAccessControl") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpPAMEventManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpPAMEventManager_setAccessControl(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100103,7 +100111,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "activateService") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpPAMEventManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpPAMEventManager_activateService(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100111,7 +100119,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deactivateService") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpPAMEventManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpPAMEventManager_deactivateService(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100119,7 +100127,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "isActiveIdentity") == 0
             && (!idlname || strcmp(idlname, "org/csapi/pam/event/IpPAMEventManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100127,7 +100135,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "mailboxTerminated") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_mailboxTerminated(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100135,7 +100143,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "reportNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100143,7 +100151,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "notificationsInterrupted") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_notificationsInterrupted(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100151,7 +100159,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "notificationsResumed") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_notificationsResumed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100159,7 +100167,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "multiMediaMessagingTerminated") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_multiMediaMessagingTerminated(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100167,7 +100175,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "terminateMultipleMailboxes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMailboxes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100175,7 +100183,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "terminateMultipleMultiMediaMessagingSessions") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMultiMediaMessagingSessions(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100183,7 +100191,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "openMailbox") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMultiMediaMessagingManager_openMailbox(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100191,7 +100199,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "openMultiMediaMessaging") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMultiMediaMessagingManager_openMultiMediaMessaging(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100199,7 +100207,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100207,7 +100215,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "destroyNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMultiMediaMessagingManager_destroyNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100215,7 +100223,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "changeNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100223,7 +100231,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getNextNotification") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMultiMediaMessagingManager_getNextNotification(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100231,7 +100239,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "enableNotifications") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMultiMediaMessagingManager_enableNotifications(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100239,7 +100247,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "disableNotifications") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMultiMediaMessagingManager") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMultiMediaMessagingManager_disableNotifications(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100247,7 +100255,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createFolderRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_createFolderRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100255,7 +100263,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createFolderErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_createFolderErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100263,7 +100271,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getFoldersRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getFoldersRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100271,7 +100279,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getFoldersErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getFoldersErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100279,7 +100287,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteFolderRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_deleteFolderRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100287,7 +100295,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteFolderErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_deleteFolderErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100295,7 +100303,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "copyFolderRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_copyFolderRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100303,7 +100311,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "copyFolderErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_copyFolderErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100311,7 +100319,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "moveFolderRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_moveFolderRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100319,7 +100327,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "moveFolderErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_moveFolderErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100327,7 +100335,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "putMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_putMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100335,7 +100343,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "putMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_putMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100343,7 +100351,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "copyMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_copyMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100351,7 +100359,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "copyMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_copyMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100359,7 +100367,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "moveMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_moveMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100367,7 +100375,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "moveMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_moveMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100375,7 +100383,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_deleteMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100383,7 +100391,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_deleteMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100391,7 +100399,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listMessagesRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_listMessagesRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100399,7 +100407,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listMessagesErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_listMessagesErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100407,7 +100415,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listMessageBodyPartsRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100415,7 +100423,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listMessageBodyPartsErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100423,7 +100431,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageBodyPartsRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100431,7 +100439,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageBodyPartsErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100439,7 +100447,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageHeadersRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100447,7 +100455,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageHeadersErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100455,7 +100463,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageContentRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getMessageContentRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100463,7 +100471,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageContentErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getMessageContentErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100471,7 +100479,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getFullMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getFullMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100479,7 +100487,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getFullMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getFullMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100487,7 +100495,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMailboxInfoPropertiesRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100495,7 +100503,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getFolderInfoPropertiesRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100503,7 +100511,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageInfoPropertiesRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100511,7 +100519,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setMessageInfoPropertiesRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100519,7 +100527,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setMessageInfoPropertiesErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100527,7 +100535,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMailboxInfoPropertiesErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100535,7 +100543,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getFolderInfoPropertiesErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100543,7 +100551,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageInfoPropertiesErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100551,7 +100559,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "close") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_close(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100559,7 +100567,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "createFolderReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_createFolderReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100567,7 +100575,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getFoldersReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_getFoldersReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100575,7 +100583,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteFolderReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_deleteFolderReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100583,7 +100591,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "copyFolderReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_copyFolderReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100591,7 +100599,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "moveFolderReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_moveFolderReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100599,7 +100607,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "putMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_putMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100607,7 +100615,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "copyMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_copyMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100615,7 +100623,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "moveMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_moveMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100623,7 +100631,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "deleteMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_deleteMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100631,7 +100639,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listMessagesReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_listMessagesReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100639,7 +100647,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "listMessageBodyPartsReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100647,7 +100655,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageBodyPartsReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100655,7 +100663,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageHeadersReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_getMessageHeadersReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100663,7 +100671,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageContentReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_getMessageContentReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100671,7 +100679,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getFullMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_getFullMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100679,7 +100687,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMailboxInfoPropertiesReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_getMailboxInfoPropertiesReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100687,7 +100695,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getFolderInfoPropertiesReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_getFolderInfoPropertiesReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100695,7 +100703,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "getMessageInfoPropertiesReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_getMessageInfoPropertiesReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100703,7 +100711,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "setMessageInfoPropertiesReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMailbox") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100711,7 +100719,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "sendMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessaging") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100719,7 +100727,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "sendMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessaging") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100727,7 +100735,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "cancelMessageRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessaging") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100735,7 +100743,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "cancelMessageErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessaging") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100743,7 +100751,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryStatusRes") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessaging") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100751,7 +100759,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryStatusErr") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessaging") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100759,7 +100767,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "messageStatusReport") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessaging") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessaging_messageStatusReport(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100767,7 +100775,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "messageReceived") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpAppMultiMediaMessaging") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100775,7 +100783,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "sendMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMultiMediaMessaging") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100783,7 +100791,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "cancelMessageReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMultiMediaMessaging") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMultiMediaMessaging_cancelMessageReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100791,7 +100799,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "queryStatusReq") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMultiMediaMessaging") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMultiMediaMessaging_queryStatusReq(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -100799,7 +100807,7 @@ dissect_parlay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset
 
         if (strcmp(operation, "close") == 0
             && (!idlname || strcmp(idlname, "org/csapi/mmm/IpMultiMediaMessaging") == 0)) {
-           process_RequestOperation();  /* fill-up Request_Operation field & info column */
+           process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_org_csapi_mmm_IpMultiMediaMessaging_close(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
