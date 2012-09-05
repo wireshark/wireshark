@@ -1457,7 +1457,8 @@ iostat_init(const char *optarg _U_, void* userdata _U_)
 	io_stat_reset(io);
 
 	error_string=enable_graph(&io->graphs[0], NULL, NULL);
-	g_assert((error_string == NULL) && "Can't attach io_stat tap !");
+	/* Can't attach io_stat tap ! */
+	g_assert(error_string == NULL);
 #if 0
 	if(error_string){
 

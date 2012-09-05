@@ -3588,7 +3588,8 @@ static gboolean process_node(proto_node *ptree_node, header_field_info *hfinform
 
 	finfo = PNODE_FINFO(ptree_node);
 
-	g_assert(finfo && "Caller passed top of the protocol tree. Expected child node");
+	/* Caller passed top of the protocol tree. Expected child node */
+	g_assert(finfo);
 
 	if (hfinformation==(finfo->hfinfo)) {
 		hfssrc = proto_registrar_get_byname(proto_field);

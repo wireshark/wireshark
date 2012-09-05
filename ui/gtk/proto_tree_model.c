@@ -195,7 +195,8 @@ proto_tree_model_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint col
 	node = iter->user_data;
 	fi = PNODE_FINFO(node);
 
-	g_assert(fi && "dissection with an invisible proto tree?");
+	/* dissection with an invisible proto tree? */
+	g_assert(fi);
 
 	switch (column) {
 		case 0:

@@ -167,7 +167,8 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	gchar		*label_ptr;
 
-	g_assert(fi && "dissection with an invisible proto tree?");
+	/* dissection with an invisible proto tree? */
+	g_assert(fi);
 
 	/* Don't print invisible entries. */
 	if (PROTO_ITEM_IS_HIDDEN(node))
@@ -296,7 +297,8 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 	int		i;
 	gboolean wrap_in_fake_protocol;
 
-	g_assert(fi && "dissection with an invisible proto tree?");
+	/* dissection with an invisible proto tree? */
+	g_assert(fi);
 
 	/* Will wrap up top-level field items inside a fake protocol wrapper to
 	   preserve the PDML schema */
@@ -1553,7 +1555,8 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
     call_data = (write_field_data_t *)data;
     fi = PNODE_FINFO(node);
 
-    g_assert(fi && "dissection with an invisible proto tree?");
+    /* dissection with an invisible proto tree? */
+    g_assert(fi);
 
     field_index = g_hash_table_lookup(call_data->fields->field_indicies, fi->hfinfo->abbrev);
     if(NULL != field_index) {

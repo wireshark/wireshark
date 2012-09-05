@@ -51,7 +51,8 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     gchar        *label_ptr;
     gboolean      is_leaf;
 
-    g_assert(fi && "dissection with an invisible proto tree?");
+    /* dissection with an invisible proto tree? */
+    g_assert(fi);
 
     if (PROTO_ITEM_IS_HIDDEN(node) && !prefs.display_hidden_proto_items)
         return;

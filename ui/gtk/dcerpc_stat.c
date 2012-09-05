@@ -434,7 +434,8 @@ dcerpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
 	g_signal_handlers_disconnect_by_func(vers_combo_box, G_CALLBACK(dcerpcstat_version_select), NULL );
 	ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(vers_combo_box));
 
-	g_assert((k != NULL) && "dcerpc_stat: invalid selection"); /* Somehow selected top level ?? */
+	/* dcerpc_stat: invalid selection... somehow selected top level ?? */
+	g_assert(k != NULL);
 	dcerpc_uuid_program = &(k->uuid);
 
 	/* re-create version menu */
