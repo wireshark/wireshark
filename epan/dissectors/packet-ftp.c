@@ -177,7 +177,8 @@ static value_string_ext response_table_ext = VALUE_STRING_EXT_INIT(response_tabl
  * the address and port number.
  */
 static gboolean
-parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip, guint16 *ftp_port)
+parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip, guint16 *ftp_port,
+    guint32 *pasv_offset, guint *ftp_ip_len, guint *ftp_port_len)
 {
     char     *args;
     char     *p;
@@ -218,6 +219,13 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip, guint16 *ftp_p
              */
             *ftp_port = ((port[0] & 0xFF)<<8) | (port[1] & 0xFF);
             *ftp_ip = g_htonl((ip_address[0] << 24) | (ip_address[1] <<16) | (ip_address[2] <<8) | ip_address[3]);
+            *pasv_offset = p - args; 
+            *ftp_port_len = (port[0] < 10 ? 1 : (port[0] < 100 ? 2 : 3 )) + 1 + 
+                            (port[1] < 10 ? 1 : (port[1] < 100 ? 2 : 3 ));
+            *ftp_ip_len = (ip_address[0] < 10 ? 1 : (ip_address[0] < 100 ? 2 : 3)) + 1 + 
+                          (ip_address[1] < 10 ? 1 : (ip_address[1] < 100 ? 2 : 3)) + 1 + 
+                          (ip_address[2] < 10 ? 1 : (ip_address[2] < 100 ? 2 : 3)) + 1 +
+                          (ip_address[3] < 10 ? 1 : (ip_address[3] < 100 ? 2 : 3));
             ret = TRUE;
             break;
         }
@@ -315,11 +323,14 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean        is_epasv_response = FALSE;
     gint            next_offset;
     int             linelen;
-    int             tokenlen;
+    int             tokenlen          = 0;
     const guchar   *next_token;
     guint32         pasv_ip;
+    guint32         pasv_offset;
     guint32         ftp_ip;
+    guint32         ftp_ip_len;
     guint16         ftp_port;
+    guint32         ftp_port_len;
     address         ftp_ip_address;
     gboolean        ftp_nat;
     conversation_t *conversation;
@@ -481,13 +492,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * If this is a PORT request or a PASV response, handle it.
      */
     if (is_port_request) {
-        if (parse_port_pasv(line, linelen, &ftp_ip, &ftp_port)) {
+        if (parse_port_pasv(line, linelen, &ftp_ip, &ftp_port, &pasv_offset, &ftp_ip_len, &ftp_port_len)) {
             if (tree) {
                 proto_tree_add_ipv4(reqresp_tree,
-                    hf_ftp_active_ip, tvb, 0, 0,
+                    hf_ftp_active_ip, tvb, pasv_offset + (tokenlen+1) , ftp_ip_len,
                     ftp_ip);
                 proto_tree_add_uint(reqresp_tree,
-                    hf_ftp_active_port, tvb, 0, 0,
+                    hf_ftp_active_port, tvb, pasv_offset + 1 + (tokenlen+1) + ftp_ip_len, ftp_port_len,
                     ftp_port);
             }
             SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4, (const guint8 *)&ftp_ip);
@@ -509,12 +520,12 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * This frame contains a PASV response; set up a
              * conversation for the data.
              */
-            if (parse_port_pasv(line, linelen, &pasv_ip, &ftp_port)) {
+            if (parse_port_pasv(line, linelen, &pasv_ip, &ftp_port, &pasv_offset, &ftp_ip_len, &ftp_port_len)) {
                 if (tree) {
                     proto_tree_add_ipv4(reqresp_tree,
-                        hf_ftp_pasv_ip, tvb, 0, 0, pasv_ip);
+                        hf_ftp_pasv_ip, tvb, pasv_offset + 4, ftp_ip_len, pasv_ip);
                     proto_tree_add_uint(reqresp_tree,
-                        hf_ftp_pasv_port, tvb, 0, 0,
+                        hf_ftp_pasv_port, tvb, pasv_offset + 4 + 1 + ftp_ip_len, ftp_port_len,
                         ftp_port);
                 }
                 SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4,
