@@ -326,12 +326,12 @@ win32 {
 
     CONFIG(debug, debug|release) {
         EXTRA_BINFILES += \
-            $$QMAKE_LIBDIR_QT/QtCored4.dll \
-            $$QMAKE_LIBDIR_QT/QtGuid4.dll
+            $$[QT_INSTALL_BINS]/QtCored4.dll \
+            $$[QT_INSTALL_BINS]/QtGuid4.dll
     } else:CONFIG(release, debug|release) {
         EXTRA_BINFILES += \
-            $$QMAKE_LIBDIR_QT/QtCore4.dll \
-            $$QMAKE_LIBDIR_QT/QtGui4.dll
+            $$[QT_INSTALL_BINS]/QtCore4.dll \
+            $$[QT_INSTALL_BINS]/QtGui4.dll
     }
 
     EXTRA_BINFILES += \
