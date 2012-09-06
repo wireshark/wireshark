@@ -4222,7 +4222,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
         break;
     }
 
-    if ((type == 3) && (rel_ind >= 8)) {
+    if ((type == 3) && (rel_ind == 8)) {
         /* Release 8 or higher P-GW QoS profile */
         offset++;
         arp = wrapped_tvb_get_guint8(tvb, offset, 2);
@@ -8463,7 +8463,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_qos_version,
          { "Version", "gtp.qos_version",
-           FT_UINT8, BASE_DEC, NULL, 0,
+           FT_UINT8, BASE_HEX, NULL, 0,
            "Version of the QoS Profile", HFILL}
         },
         {&hf_gtp_qos_spare1,
