@@ -877,7 +877,6 @@ static void process_control_avps(tvbuff_t *tvb,
     guint32     avp_vendor_id;
     guint16     avp_len;
     guint16     ver_len_hidden;
-    int         rhcode    = 10;
     tvbuff_t   *next_tvb;
     guint16     result_code;
     guint16     error_code;
