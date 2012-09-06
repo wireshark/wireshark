@@ -386,7 +386,7 @@ static const value_string result_code_cdn_vals[] = {
     { 26, "Loop Detected", },                                                   /* [draft-ietf-l2tpext-tunnel-switching-06.txt] */
     { 27, "Attachment Circuit bound to different PE", },                        /* [RFC6074]  */
     { 28, "Attachment Circuit bound to different remote Attachment Circuit", }, /* [RFC6074]  */
-    { 29, "Unassigned", }, 
+    { 29, "Unassigned", },
     { 30, "Return code to indicate connection was refused because of TDM PW parameters. The error code indicates the problem.", }, /* [RFC5611]  */
     { 31, "Sequencing not supported", },                                        /* [RFC6073]  */
     { 0, NULL }
@@ -552,7 +552,7 @@ static const value_string avp_type_vals[] = {
     { 98,                           "Connect Speed Update Enable AVP" },                /*[RFC5515] */
     { 99,                           "TDM Pseudowire AVP" },                             /*[RFC5611] */
     { 100,                          "RTP AVP" },                                        /*[RFC5611] */
-    { 101,                          "PW Switching Point AVP" },                         /*[RFC6073] */ 
+    { 101,                          "PW Switching Point AVP" },                         /*[RFC6073] */
     { 0,                         NULL }
 };
 
@@ -601,7 +601,7 @@ static const value_string pw_types_vals[] = {
     { 0x000C,  "MPEG-TS Payload Type (MPTPW)" },
     { 0x000D,  "Packet Streaming Protocol (PSPPW)" },
 	/* 0x000E-0x0010 Unassigned */
-    { 0x0011,  "Structure-agnostic E1 circuit" },       /* [RFC5611] */  
+    { 0x0011,  "Structure-agnostic E1 circuit" },       /* [RFC5611] */
     { 0x0012,  "Structure-agnostic T1 (DS1) circuit" }, /* [RFC5611]   */
     { 0x0013,  "Structure-agnostic E3 circuit" },       /* [RFC5611]   */
     { 0x0014,  "Structure-agnostic T3 (DS3) circuit" }, /* [RFC5611]   */
@@ -832,7 +832,7 @@ static void store_cma_nonce(l2tpv3_tunnel_t *tunnel,
 
     if (nonce)
         tvb_memcpy(tvb, (void *)nonce, offset, length);
-    
+
     return;
 }
 
@@ -854,7 +854,7 @@ static void store_ccid(l2tpv3_tunnel_t *tunnel,
         default:
             break;
     }
-    
+
     return;
 }
 
@@ -868,7 +868,7 @@ static void process_control_avps(tvbuff_t *tvb,
                                  int length,
                                  l2tpv3_tunnel_t *tunnel)
 {
-    proto_tree *l2tp_lcp_avp_tree, *l2tp_avp_tree, *l2tp_avp_tree_sub;
+    proto_tree *l2tp_lcp_avp_tree, *l2tp_avp_tree = NULL, *l2tp_avp_tree_sub;
     proto_item *tf, *te;
 
     int         msg_type  = 0;
@@ -893,7 +893,7 @@ static void process_control_avps(tvbuff_t *tvb,
         avp_type        = tvb_get_ntohs(tvb, idx + 4);
 
         if (avp_len < 6) {
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 0,
+            proto_tree_add_text(l2tp_avp_tree ? l2tp_avp_tree : l2tp_tree, tvb, idx, 0,
                                 "AVP length must be >= 6");
             return;
         }
@@ -1843,7 +1843,7 @@ process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Call process_l2tpv3_data from Session ID (offset in idx of 0) */
     process_l2tpv3_data(tvb, pinfo, tree, l2tp_tree, l2tp_item, &idx);
 }
- 
+
 static l2tpv3_tunnel_t *find_tunnel_from_packet_info(l2tpv3_conversation_t *l2tp_conv,
                                                      packet_info *pinfo, guint32 ccid)
 {
@@ -1859,7 +1859,7 @@ static l2tpv3_tunnel_t *find_tunnel_from_packet_info(l2tpv3_conversation_t *l2tp
 
         if (ADDRESSES_EQUAL(&pinfo->dst, &tunnel->lcce2) && (ccid == tunnel->lcce2_id))
             return tunnel;
-        
+
         iterator = g_slist_next(iterator);
     }
 
@@ -1880,7 +1880,7 @@ static l2tpv3_tunnel_t *find_tunnel_from_existing(l2tpv3_tunnel_t *existing)
 
            if (ADDRESSES_EQUAL(&existing->lcce2, &tunnel->lcce2) && (existing->lcce2_id == tunnel->lcce2_id))
             return tunnel;
-    
+
         iterator = g_slist_next(iterator);
     }
 
