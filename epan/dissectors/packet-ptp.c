@@ -2559,17 +2559,12 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             {
                                 case PTP_V2_OE_ORG_ID_IEEE_C37_238:
                                 {
-                                    proto_tree_add_uint_format_value(ptp_tlv_tree,
-                                                                     hf_ptp_v2_oe_tlv_organizationsubtype,
-                                                                     tvb,
-                                                                     PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONSUBTYPE_OFFSET,
-                                                                     3,
-                                                                     subtype,
-                                                                     "%s (0x%06x)",
-                                                                      val_to_str(subtype,
-                                                                                 ptp2_org_iee_c37_238_subtype_vals,
-                                                                                 "Unknown"),
-                                                                     subtype);
+                                    proto_tree_add_item(ptp_tlv_tree,
+                                                        hf_ptp_v2_oe_tlv_organizationsubtype,
+                                                        tvb,
+                                                        PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONSUBTYPE_OFFSET,
+                                                        3,
+                                                        ENC_BIG_ENDIAN);
 
                                     switch (subtype)
                                     {
@@ -2616,15 +2611,12 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 }
                                 default:
                                 {
-                                    proto_tree_add_uint_format_value(ptp_tlv_tree,
-                                                                     hf_ptp_v2_oe_tlv_organizationsubtype,
-                                                                     tvb,
-                                                                     PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONSUBTYPE_OFFSET,
-                                                                     3,
-                                                                     subtype,
-                                                                     "Unknown (0x%06x)",
-                                                                     subtype);
-
+                                    proto_tree_add_item(ptp_tlv_tree,
+                                                        hf_ptp_v2_oe_tlv_organizationsubtype,
+                                                        tvb,
+                                                        PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONSUBTYPE_OFFSET,
+                                                        3,
+                                                        ENC_BIG_ENDIAN);
 
                                     proto_tree_add_item(ptp_tlv_tree,
                                                         hf_ptp_v2_oe_tlv_datafield,
@@ -4838,7 +4830,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_oe_tlv_organizationsubtype,
           { "organizationSubType", "ptp.v2.an.oe.organizationSubType",
-            FT_UINT24, BASE_HEX, NULL, 0x00,
+            FT_UINT24, BASE_HEX, VALS(ptp2_org_iee_c37_238_subtype_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_datafield,
