@@ -893,9 +893,9 @@ static void process_control_avps(tvbuff_t *tvb,
         avp_vendor_id   = tvb_get_ntohs(tvb, idx + 2);
         avp_type        = tvb_get_ntohs(tvb, idx + 4);
 
-        if (avp_len < 1) {
-            proto_tree_add_text(l2tp_tree, tvb, idx, 0,
-                                "AVP length must be >= 1");
+        if (avp_len < 6) {
+            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 0,
+                                "AVP length must be >= 6");
             return;
         }
 
@@ -918,24 +918,15 @@ static void process_control_avps(tvbuff_t *tvb,
 
         l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
-        proto_tree_add_boolean_format(l2tp_avp_tree,hf_l2tp_avp_mandatory, tvb, idx, 1,
-                                      rhcode, "Mandatory: %s",
-                                      (MANDATORY_BIT(ver_len_hidden)) ? "True" : "False" );
-        proto_tree_add_boolean_format(l2tp_avp_tree,hf_l2tp_avp_hidden, tvb, idx, 1,
-                                      rhcode, "Hidden: %s",
-                                      (HIDDEN_BIT(ver_len_hidden)) ? "True" : "False" );
-        proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_avp_length, tvb, idx, 2,
-                                   rhcode, "Length: %u", avp_len);
-        if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, idx, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, idx, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_length, tvb, idx, 2, ENC_BIG_ENDIAN);
+
+		if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
             idx += avp_len;
             continue;
         }
 
-        if (avp_len < 6) {
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 0,
-                                "AVP length must be >= 6");
-            return;
-        }
         idx += 2;
         avp_len -= 2;
 
@@ -2410,19 +2401,19 @@ proto_register_l2tp(void)
 
         { &hf_l2tp_offset,
           { "Offset","l2tp.offset", FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Number of octest past the L2TP header at which thepayload data starts.", HFILL }},
+            "Number of octest past the L2TP header at which the payload data starts.", HFILL }},
 
         { &hf_l2tp_avp_mandatory,
-          { "Mandatory", "l2tp.avp.mandatory", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "Mandatory AVP", HFILL }},
+          { "Mandatory", "l2tp.avp.mandatory", FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }},
 
         { &hf_l2tp_avp_hidden,
-          { "Hidden", "l2tp.avp.hidden", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "Hidden AVP", HFILL }},
+          { "Hidden", "l2tp.avp.hidden", FT_BOOLEAN, 16, NULL, 0x4000,
+            NULL, HFILL }},
 
         { &hf_l2tp_avp_length,
-          { "Length", "l2tp.avp.length", FT_UINT16, BASE_DEC, NULL, 0,
-            "AVP Length", HFILL }},
+          { "Length", "l2tp.avp.length", FT_UINT16, BASE_DEC, NULL, 0x03ff,
+            NULL, HFILL }},
 
         { &hf_l2tp_avp_vendor_id,
           { "Vendor ID", "l2tp.avp.vendor_id", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0,
