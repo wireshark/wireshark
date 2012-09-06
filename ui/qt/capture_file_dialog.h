@@ -60,31 +60,23 @@ class CaptureFileDialog : public QFileDialog
     Q_OBJECT
 public:
     explicit CaptureFileDialog(QWidget *parent = NULL, QString &display_filter = *new QString());
-    int selectedFileType();
     int mergeType();
+#if !defined(Q_WS_WIN)
+    int selectedFileType();
+#endif // Q_WS_WIN
 
 private:
-#if !defined(Q_WS_WIN)
-    void addDisplayFilterEdit();
-    void addResolutionControls(QVBoxLayout &v_box);
     void addMergeControls(QVBoxLayout &v_box);
+    void addDisplayFilterEdit();
     void addPreview(QVBoxLayout &v_box);
-
     QString fileType(int ft, bool extension_globs = true);
     QStringList buildFileOpenTypeList(void);
-    QStringList buildFileSaveAsTypeList(capture_file *cf, bool must_support_comments);
-#endif // Q_WS_WIN
 
     QVBoxLayout left_v_box_;
     QVBoxLayout right_v_box_;
 
-    DisplayFilterEdit* display_filter_edit_;
     QString &display_filter_;
-
-    QCheckBox mac_res_;
-    QCheckBox transport_res_;
-    QCheckBox network_res_;
-    QCheckBox external_res_;
+    DisplayFilterEdit* display_filter_edit_;
 
     QLabel preview_format_;
     QLabel preview_size_;
@@ -99,6 +91,17 @@ private:
 
     QHash<QString, int>type_hash_;
 
+#if !defined(Q_WS_WIN)
+    void addResolutionControls(QVBoxLayout &v_box);
+
+    QStringList buildFileSaveAsTypeList(capture_file *cf, bool must_support_comments);
+
+    QCheckBox mac_res_;
+    QCheckBox transport_res_;
+    QCheckBox network_res_;
+    QCheckBox external_res_;
+#endif // Q_WS_WIN
+
 signals:
 
 public slots:
@@ -108,9 +111,7 @@ public slots:
     int merge(QString &file_name);
 
 private slots:
-#if !defined(Q_WS_WIN)
     void preview(const QString & path);
-#endif // Q_WS_WIN
 };
 
 #endif // CAPTURE_FILE_DIALOG_H

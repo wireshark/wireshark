@@ -34,7 +34,8 @@
 #ifdef Q_WS_WIN
 #include <windows.h>
 #include "ui/win32/file_dlg_win32.h"
-#else
+#endif
+
 #include <errno.h>
 #include "../../epan/addr_resolv.h"
 #include "../../epan/prefs.h"
@@ -47,7 +48,6 @@
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QFileInfo>
-#endif
 
 #include <QDebug>
 
@@ -146,78 +146,6 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &display_filter) :
 #endif
 }
 
-int CaptureFileDialog::selectedFileType() {
-    return type_hash_.value(selectedNameFilter(), -1);
-}
-
-int CaptureFileDialog::mergeType() {
-    if (merge_prepend_.isChecked())
-        return -1;
-    else if (merge_append_.isChecked())
-        return 1;
-
-    return 0;
-}
-
-// Windows
-#ifdef Q_WS_WIN
-int CaptureFileDialog::open() {
-    GString *file_name = g_string_new(m_fileName.toUtf8().constData());
-    GString *display_filter = g_string_new(m_displayFilter.toUtf8().constData());
-    gboolean wof_status;
-
-    wof_status = win32_open_file(parentWidget()->effectiveWinId(), file_name, display_filter);
-    m_fileName.clear();
-    m_fileName.append(QString::fromUtf8(file_name->str));
-    m_displayFilter.clear();
-    m_displayFilter.append(QString::fromUtf8(display_filter->str));
-
-    g_string_free(file_name, TRUE);
-    g_string_free(display_filter, TRUE);
-
-    return (int) wof_status;
-}
-
-#else // not Q_WS_WINDOWS
-
-void CaptureFileDialog::addDisplayFilterEdit() {
-
-}
-
-void CaptureFileDialog::addResolutionControls(QVBoxLayout &v_box) {
-    mac_res_.setText(tr("&MAC name resolution"));
-    mac_res_.setChecked(gbl_resolv_flags.mac_name);
-    v_box.addWidget(&mac_res_);
-
-    transport_res_.setText(tr("&Transport name resolution"));
-    transport_res_.setChecked(gbl_resolv_flags.transport_name);
-    v_box.addWidget(&transport_res_);
-
-    network_res_.setText(tr("&Network name resolution"));
-    network_res_.setChecked(gbl_resolv_flags.network_name);
-    v_box.addWidget(&network_res_);
-
-    external_res_.setText(tr("&External name resolver"));
-    external_res_.setChecked(gbl_resolv_flags.use_external_net_name_resolver);
-    v_box.addWidget(&external_res_);
-}
-
-void CaptureFileDialog::addMergeControls(QVBoxLayout &v_box) {
-
-    merge_prepend_.setText("Prepend packets");
-    merge_prepend_.setToolTip("Insert packets from the selected file before the current file. Packet timestamps will be ignored.");
-    v_box.addWidget(&merge_prepend_);
-
-    merge_chrono_.setText("Merge chronologically");
-    merge_chrono_.setToolTip("Insert packets in chronological order.");
-    merge_chrono_.setChecked(true);
-    v_box.addWidget(&merge_chrono_);
-
-    merge_append_.setText("Append packets");
-    merge_append_.setToolTip("Insert packets from the selected file after the current file. Packet timestamps will be ignored.");
-    v_box.addWidget(&merge_append_);
-}
-
 void CaptureFileDialog::addPreview(QVBoxLayout &v_box) {
     QGridLayout *preview_grid = new QGridLayout();
     QLabel *lbl;
@@ -258,44 +186,26 @@ void CaptureFileDialog::addPreview(QVBoxLayout &v_box) {
     preview("");
 }
 
+void CaptureFileDialog::addMergeControls(QVBoxLayout &v_box) {
+
+    merge_prepend_.setText("Prepend packets");
+    merge_prepend_.setToolTip("Insert packets from the selected file before the current file. Packet timestamps will be ignored.");
+    v_box.addWidget(&merge_prepend_);
+
+    merge_chrono_.setText("Merge chronologically");
+    merge_chrono_.setToolTip("Insert packets in chronological order.");
+    merge_chrono_.setChecked(true);
+    v_box.addWidget(&merge_chrono_);
+
+    merge_append_.setText("Append packets");
+    merge_append_.setToolTip("Insert packets from the selected file after the current file. Packet timestamps will be ignored.");
+    v_box.addWidget(&merge_append_);
+}
 
 // You have to use open, merge, saveAs, or exportPackets. We should
 // probably just make each type a subclass.
 int CaptureFileDialog::exec() {
     return QDialog::Rejected;
-}
-
-int CaptureFileDialog::open(QString &file_name) {
-    setWindowTitle(tr("Wireshark: Open Capture File"));
-    setNameFilters(buildFileOpenTypeList());
-    setFileMode(QFileDialog::ExistingFile);
-
-    file_name.clear();
-    display_filter_.clear();
-
-    addResolutionControls(left_v_box_);
-    addPreview(right_v_box_);
-
-    // Grow the dialog to account for the extra widgets.
-    resize(width(), height() + left_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
-
-    if (!file_name.isEmpty()) {
-        selectFile(file_name);
-    }
-
-    if (QFileDialog::exec() && selectedFiles().length() > 0) {
-        file_name.append(selectedFiles()[0]);
-        display_filter_.append(display_filter_edit_->text());
-
-        gbl_resolv_flags.mac_name = mac_res_.isChecked();
-        gbl_resolv_flags.transport_name = transport_res_.isChecked();
-        gbl_resolv_flags.network_name = network_res_.isChecked();
-        gbl_resolv_flags.use_external_net_name_resolver = external_res_.isChecked();
-
-        return QDialog::Accepted;
-    } else {
-        return QDialog::Rejected;
-    }
 }
 
 int CaptureFileDialog::merge(QString &file_name) {
@@ -378,6 +288,94 @@ QStringList CaptureFileDialog::buildFileOpenTypeList() {
     return filters;
 }
 
+
+// Windows
+#ifdef Q_WS_WIN
+int CaptureFileDialog::open(QString &file_name) {
+    GString *fname = g_string_new(file_name.toUtf8().constData());
+    GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
+    gboolean wof_status;
+
+    wof_status = win32_open_file(parentWidget()->effectiveWinId(), fname, dfilter);
+    file_name.append(QString::fromUtf8(fname->str));
+    display_filter_.clear();
+    display_filter_.append(QString::fromUtf8(dfilter->str));
+
+    g_string_free(fname, TRUE);
+    g_string_free(dfilter, TRUE);
+
+    return (int) wof_status;
+}
+
+int CaptureFileDialog::mergeType() {
+    if (merge_prepend_.isChecked())
+        return -1;
+    else if (merge_append_.isChecked())
+        return 1;
+
+    return 0;
+}
+
+#else // not Q_WS_WINDOWS
+int CaptureFileDialog::selectedFileType() {
+    return type_hash_.value(selectedNameFilter(), -1);
+}
+
+void CaptureFileDialog::addDisplayFilterEdit() {
+
+}
+
+void CaptureFileDialog::addResolutionControls(QVBoxLayout &v_box) {
+    mac_res_.setText(tr("&MAC name resolution"));
+    mac_res_.setChecked(gbl_resolv_flags.mac_name);
+    v_box.addWidget(&mac_res_);
+
+    transport_res_.setText(tr("&Transport name resolution"));
+    transport_res_.setChecked(gbl_resolv_flags.transport_name);
+    v_box.addWidget(&transport_res_);
+
+    network_res_.setText(tr("&Network name resolution"));
+    network_res_.setChecked(gbl_resolv_flags.network_name);
+    v_box.addWidget(&network_res_);
+
+    external_res_.setText(tr("&External name resolver"));
+    external_res_.setChecked(gbl_resolv_flags.use_external_net_name_resolver);
+    v_box.addWidget(&external_res_);
+}
+
+int CaptureFileDialog::open(QString &file_name) {
+    setWindowTitle(tr("Wireshark: Open Capture File"));
+    setNameFilters(buildFileOpenTypeList());
+    setFileMode(QFileDialog::ExistingFile);
+
+    file_name.clear();
+    display_filter_.clear();
+
+    addResolutionControls(left_v_box_);
+    addPreview(right_v_box_);
+
+    // Grow the dialog to account for the extra widgets.
+    resize(width(), height() + left_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
+
+    if (!file_name.isEmpty()) {
+        selectFile(file_name);
+    }
+
+    if (QFileDialog::exec() && selectedFiles().length() > 0) {
+        file_name.append(selectedFiles()[0]);
+        display_filter_.append(display_filter_edit_->text());
+
+        gbl_resolv_flags.mac_name = mac_res_.isChecked();
+        gbl_resolv_flags.transport_name = transport_res_.isChecked();
+        gbl_resolv_flags.network_name = network_res_.isChecked();
+        gbl_resolv_flags.use_external_net_name_resolver = external_res_.isChecked();
+
+        return QDialog::Accepted;
+    } else {
+        return QDialog::Rejected;
+    }
+}
+
 QStringList CaptureFileDialog::buildFileSaveAsTypeList(capture_file *cf, bool must_support_comments) {
     QStringList filters;
     GArray *savable_file_types;
@@ -410,6 +408,7 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(capture_file *cf, bool mu
 
     return filters;
 }
+#endif // Q_WS_WINDOWS
 
 /* do a preview run on the currently selected capture file */
 void CaptureFileDialog::preview(const QString & path)
@@ -541,30 +540,6 @@ void CaptureFileDialog::preview(const QString & path)
 
     wtap_close(wth);
 }
-
-#endif // Q_WS_WINDOWS
-
-#if 0
-static QStringList
-build_file_save_type_list(GArray *savable_file_types) {
-    QStringList filters = new QStringList;
-    guint i;
-    int   ft;
-
-    /* Get only the file types as which we can save this file. */
-    if (savable_file_types != NULL) {
-        /* OK, we have at least one file type we can save this file as.
-           (If we didn't, we shouldn't have gotten here in the first
-           place.)  Add them all to the filter list.  */
-        for (i = 0; i < savable_file_types->len; i++) {
-            ft = g_array_index(savable_file_types, int, i);
-            append_file_type(filters, ft);
-        }
-    }
-
-    return filters;
-}
-#endif
 
 /*
  * Editor modelines
