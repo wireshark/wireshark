@@ -161,7 +161,7 @@ title Command Prompt (VC++ 2010)]]>
         and enables the Wireshark build process to determine your
         current source code revision. You can download the setup
         from
-        <ulink url="http://subversion.tigris.org/" /> and simply
+        <ulink url="http://subversion.apache.org/" /> and simply
         install it.</para>
       </section>
       <section>
@@ -171,7 +171,7 @@ title Command Prompt (VC++ 2010)]]>
         <xref linkend="ChSrcObtain" />), it's recommended to use
         TortoiseSVN for your everyday work. You can download the
         setup from
-        <ulink url="http://tortoisesvn.tigris.org/" /> and simply
+        <ulink url="http://subversion.apache.org/" /> and simply
         install it.</para>
       </section>
     </section>
