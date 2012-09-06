@@ -885,7 +885,6 @@ file_merge_cmd(GtkWidget *w)
       g_free(tmpname);
       return;
     }
-    g_free(tmpname);
 
     /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
        it closed the previous capture file, and thus destroyed any
@@ -906,6 +905,7 @@ file_merge_cmd(GtkWidget *w)
          capture file has been closed - just free the capture file name
          string and return (without changing the last containing
          directory). */
+      g_free(tmpname);
       return;
     }
 
@@ -914,6 +914,7 @@ file_merge_cmd(GtkWidget *w)
        "get_dirname()" does write over its argument. */
     s = get_dirname(tmpname);
     set_last_open_dir(s);
+    g_free(tmpname);
     return;
   }
 #endif /* USE_WIN32_FILE_DIALOGS */
