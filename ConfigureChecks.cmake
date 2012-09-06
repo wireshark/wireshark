@@ -75,3 +75,8 @@ check_function_exists("mprotect"         HAVE_MPROTECT)
 check_function_exists("mkdtemp"          HAVE_MKDTEMP)
 check_function_exists("mkstemp"          HAVE_MKSTEMP)
 check_function_exists("sysconf"          HAVE_SYSCONF)
+
+#Symbols
+include(CheckSymbolExists)
+check_symbol_exists(NL80211_CMD_SET_CHANNEL "linux/nl80211.h" HAVE_NL80211_CMD_SET_CHANNEL)
+

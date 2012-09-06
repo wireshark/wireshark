@@ -1,50 +1,70 @@
 #
 # $Id$
 #
-# - Find libnl
-# Find the native LIBNL includes and library
+# - Find netlink
+# Find the native netlink includes and library
 #
-#  LIBNL_INCLUDE_DIRS - where to find libnl.h, etc.
-#  LIBNL_LIBRARIES    - List of libraries when using libnl3.
-#  LIBNL_FOUND        - True if libnl found.
+#  NL_INCLUDE_DIRS - where to find libnl.h, etc.
+#  NL_LIBRARIES    - List of libraries when using libnl3.
+#  NL_FOUND        - True if libnl found.
 
-FIND_PATH(
-    LIBNL_INCLUDE_DIR
-  NAMES
-    netlink/netlink.h
-  PATHS
-    /opt/local/include
-    /sw/include
-    /usr/include
-    /usr/local/include
-  PATH_SUFFIXES
-    libnl3
+SET( SEARCHPATHS
+    /opt/local
+    /sw
+    /usr
+    /usr/local
 )
 
-SET(LIBNL_NAMES nl-3)
-FIND_LIBRARY(LIBNL_LIBRARY NAMES ${LIBNL_NAMES} )
-FIND_LIBRARY(LIBNLGENL_LIBRARY NAMES nl-genl-3 )
-FIND_LIBRARY(LIBNLROUTE_LIBRARY NAMES nl-route-3 )
+FIND_PATH( NL_INCLUDE_DIR
+  PATH_SUFFIXES
+    include/libnl3
+  NAMES
+    netlink/version.h netlink/netlink.h
+  PATHS
+    $(SEARCHPATHS)
+)
 
-IF(NOT LIBNL_FOUND)
-  FIND_PATH(LIBNL_INCLUDE_DIR netlink/netlink.h /usr/include/)
-  SET(LIBNL_NAMES nl)
-  FIND_LIBRARY(LIBNL_LIBRARY NAMES ${LIBNL_NAMES} )
-  FIND_LIBRARY(LIBNLGENL_LIBRARY NAMES nl-genl )
-  FIND_LIBRARY(LIBNLROUTE_LIBRARY NAMES nl-route )
-ENDIF()
+FIND_LIBRARY( NL_LIBRARY
+  NAMES
+    nl-3 nl
+  PATH_SUFFIXES
+    lib64 lib
+  PATHS
+    $(SEARCHPATHS)
+)
 
-# handle the QUIETLY and REQUIRED arguments and set LIBNL_FOUND to TRUE if
+FIND_LIBRARY( NLGENL_LIBRARY
+  NAMES
+    nl-genl-3 nl-genl
+  PATH_SUFFIXES
+    lib64 lib
+  PATHS
+    $(SEARCHPATHS)
+)
+
+FIND_LIBRARY( NLROUTE_LIBRARY
+  NAMES
+    nl-route-3 nl-route
+  PATH_SUFFIXES
+    lib64 lib
+  PATHS
+    $(SEARCHPATHS)
+)
+
+# handle the QUIETLY and REQUIRED arguments and set NL_FOUND to TRUE if
 # all listed variables are TRUE
 INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(LIBNL DEFAULT_MSG LIBNL_LIBRARY LIBNL_INCLUDE_DIRS)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(NL DEFAULT_MSG NL_LIBRARY NL_INCLUDE_DIR)
 
-IF(LIBNL_FOUND)
-  SET( LIBNL_LIBRARIES ${LIBNL_LIBRARY} ${LIBNLGENL_LIBRARY} ${LIBNLROUTE_LIBRARY})
-  SET( LIBNL_INCLUDE_DIRS ${LIBNL_INCLUDE_DIR})
+IF(NL_FOUND)
+  SET( NL_LIBRARIES ${NLGENL_LIBRARY} ${NLROUTE_LIBRARY} ${NL_LIBRARY} )
+  SET( NL_INCLUDE_DIRS ${NL_INCLUDE_DIR})
+# FIXME: Differentiate between libnl versions
+  SET( HAVE_LIBNL3 1 )
 ELSE()
-  SET( LIBNL_LIBRARIES )
-  SET( LIBNL_INCLUDE_DIRS )
+  SET( NL_LIBRARIES )
+  SET( NL_INCLUDE_DIRS )
 ENDIF()
 
-MARK_AS_ADVANCED( LIBNL_LIBRARIES LIBNL_INCLUDE_DIRS )
+MARK_AS_ADVANCED( NL_LIBRARIES NL_INCLUDE_DIRS )
+

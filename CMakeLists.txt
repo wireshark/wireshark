@@ -740,7 +740,7 @@ if(BUILD_wireshark AND GTK_FOUND)
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_SERVICES_LIBRARY}
 		${APPLE_COCOA_LIBRARY}
-		${LIBNL_LIBRARIES}
+		${NL_LIBRARIES}
 	)
 	# qtshark and wireshark share wireshark_FILES
 
@@ -761,6 +761,7 @@ if(BUILD_qtshark AND QT_FOUND)
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_SERVICES_LIBRARY}
 		${APPLE_COCOA_LIBRARY}
+		${NL_LIBRARIES}
 	)
 	# qtshark and wireshark share wireshark_FILES
 
@@ -936,7 +937,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		${GTHREAD2_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${APPLE_COCOA_LIBRARY}
-		${LIBNL_LIBRARIES}
+		${NL_LIBRARIES}
 	)
 	set(dumpcap_FILES
 		svnversion.h

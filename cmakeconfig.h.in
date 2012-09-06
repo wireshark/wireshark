@@ -63,6 +63,15 @@
 /* Define to use the libnl library */
 #cmakedefine HAVE_LIBNL 1
 
+/* Define to use the libnl library */
+#cmakedefine HAVE_LIBNL1 1
+
+/* Define to use the libnl library */
+#cmakedefine HAVE_LIBNL2 1
+
+/* Define to use the libnl library */
+#cmakedefine HAVE_LIBNL3 1
+
 /* Define to use C ares library */
 #cmakedefine HAVE_C_ARES 1
 
@@ -315,6 +324,9 @@
 
 /* Define if strptime.h needs to be included */
 #cmakedefine NEED_STRPTIME_H 1
+
+/* Define if linux/nl80211.h defines NL80211_CMD_SET_CHANNEL */
+#cmakedefine HAVE_NL80211_CMD_SET_CHANNEL 1
 
 /* Name of package */
 #cmakedefine PACKAGE
