@@ -2466,10 +2466,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* In 802.1AS there is no origin timestamp in an Announce Message */
                 if(!(ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK)){
 
-                    timeStamp = tvb_get_ntohl(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET);
-                    timeStamp = timeStamp << 16;
-                    timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET+4);
-
                     proto_tree_add_item(ptp_tree, hf_ptp_v2_an_origintimestamp_seconds, tvb,
                         PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
 
@@ -2701,9 +2697,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             case PTP_V2_SYNC_MESSAGE:
             case PTP_V2_DELAY_REQ_MESSAGE:{
-                timeStamp = tvb_get_ntohl(tvb, PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET);
-                timeStamp = timeStamp << 16;
-                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET+4);
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_sdr_origintimestamp_seconds, tvb,
                     PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
@@ -2718,10 +2711,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint16     tlv_length;
                 proto_item *tlv_ti;
                 proto_tree *ptp_tlv_tree;
-
-                timeStamp = tvb_get_ntohl(tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET);
-                timeStamp = timeStamp << 16;
-                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET+4);
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_seconds, tvb,
                     PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
@@ -2807,9 +2796,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             case PTP_V2_DELAY_RESP_MESSAGE:{
-                timeStamp = tvb_get_ntohl(tvb, PTP_V2_DR_RECEIVETIMESTAMPSECONDS_OFFSET);
-                timeStamp = timeStamp << 16;
-                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_DR_RECEIVETIMESTAMPSECONDS_OFFSET+4);
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_dr_receivetimestamp_seconds, tvb,
                     PTP_V2_DR_RECEIVETIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
@@ -2830,10 +2816,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* In 802.1AS there is no origin timestamp in a Pdelay_Req Message */
                 if(!(ptp_v2_transport_specific & PTP_V2_TRANSPORTSPECIFIC_ASPACKET_BITMASK)){
 
-                    timeStamp = tvb_get_ntohl(tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET);
-                    timeStamp = timeStamp << 16;
-                    timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET+4);
-
                     proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrq_origintimestamp_seconds, tvb,
                         PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
 
@@ -2845,9 +2827,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             case PTP_V2_PATH_DELAY_RESP_MESSAGE:{
-                timeStamp = tvb_get_ntohl(tvb, PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET);
-                timeStamp = timeStamp << 16;
-                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET+4);
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestreceipttimestamp_seconds, tvb,
                     PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
@@ -2865,9 +2844,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             case PTP_V2_PATH_DELAY_FOLLOWUP_MESSAGE:{
-                timeStamp = tvb_get_ntohl(tvb, PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET);
-                timeStamp = timeStamp << 16;
-                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET+4);
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdfu_responseorigintimestamp_seconds, tvb,
                     PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
@@ -3203,10 +3179,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         Offset, 2, ENC_BIG_ENDIAN);
                                     Offset +=2;
 
-                                    timeStamp = tvb_get_ntohl(tvb, Offset);
-                                    timeStamp = timeStamp << 16;
-                                    timeStamp = timeStamp | tvb_get_ntohs(tvb, Offset+4);
-
                                     proto_tree_add_item(ptpError_subtree, hf_ptp_v2_mm_faultTime_s, tvb,
                                                 Offset, 6, ENC_BIG_ENDIAN);
 
@@ -3492,9 +3464,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             }
                             case PTP_V2_MM_ID_TIME:
                             {
-                                timeStamp = tvb_get_ntohl(tvb, Offset);
-                                timeStamp = timeStamp << 16;
-                                timeStamp = timeStamp | tvb_get_ntohs(tvb, Offset+4);
 
                                 proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_currentTime_s, tvb,
                                             Offset, 6, ENC_BIG_ENDIAN);
