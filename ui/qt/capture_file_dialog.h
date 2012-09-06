@@ -26,6 +26,9 @@
 
 #include "display_filter_edit.h"
 
+#include "packet_list_record.h"
+#include "cfile.h"
+
 #include <QFileDialog>
 
 class CaptureFileDialog : public QFileDialog
@@ -56,35 +59,53 @@ class CaptureFileDialog : public QFileDialog
 
     Q_OBJECT
 public:
-    explicit CaptureFileDialog(QWidget *parent, QString &fileName, QString &displayFilter);
+    explicit CaptureFileDialog(QWidget *parent = NULL, QString &display_filter = *new QString());
+    int selectedFileType();
+    int mergeType();
 
 private:
 #if !defined(Q_WS_WIN)
-    void append_file_type(QStringList &filters, int ft);
-    QStringList build_file_open_type_list(void);
+    void addDisplayFilterEdit();
+    void addResolutionControls(QVBoxLayout &v_box);
+    void addMergeControls(QVBoxLayout &v_box);
+    void addPreview(QVBoxLayout &v_box);
+
+    QString fileType(int ft, bool extension_globs = true);
+    QStringList buildFileOpenTypeList(void);
+    QStringList buildFileSaveAsTypeList(capture_file *cf, bool must_support_comments);
 #endif // Q_WS_WIN
 
-    QString &m_fileName;
-    QString &m_displayFilter;
-    QCheckBox m_macRes;
-    QCheckBox m_transportRes;
-    QCheckBox m_networkRes;
-    QCheckBox m_externalRes;
+    QVBoxLayout left_v_box_;
+    QVBoxLayout right_v_box_;
 
-    QLabel m_previewFormat;
-    QLabel m_previewSize;
-    QLabel m_previewPackets;
-    QLabel m_previewFirst;
-    QLabel m_previewElapsed;
-    QList<QLabel *> m_previewLabels;
+    DisplayFilterEdit* display_filter_edit_;
+    QString &display_filter_;
 
-    DisplayFilterEdit* m_displayFilterEdit;
+    QCheckBox mac_res_;
+    QCheckBox transport_res_;
+    QCheckBox network_res_;
+    QCheckBox external_res_;
+
+    QLabel preview_format_;
+    QLabel preview_size_;
+    QLabel preview_packets_;
+    QLabel preview_first_;
+    QLabel preview_elapsed_;
+    QList<QLabel *> preview_labels_;
+
+    QRadioButton merge_prepend_;
+    QRadioButton merge_chrono_;
+    QRadioButton merge_append_;
+
+    QHash<QString, int>type_hash_;
 
 signals:
 
 public slots:
 
     int exec();
+    int open(QString &file_name);
+    int merge(QString &file_name);
 
 private slots:
 #if !defined(Q_WS_WIN)

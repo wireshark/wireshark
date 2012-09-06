@@ -316,10 +316,10 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     }
 }
 
-void MainWindow::openCaptureFile(QString &cfPath)
+void MainWindow::openCaptureFile(QString &cf_path)
 {
-    QString fileName = "";
-    QString displayFilter = "";
+    QString file_name = "";
+    QString display_filter = "";
     dfilter_t *rfcode = NULL;
     int err;
 
@@ -329,11 +329,31 @@ void MainWindow::openCaptureFile(QString &cfPath)
 
     for (;;) {
 
-        if (cfPath.isEmpty()) {
-            CaptureFileDialog cfDlg(this, fileName, displayFilter);
+        if (cf_path.isEmpty()) {
+            CaptureFileDialog open_dlg(this, display_filter);
 
-            if (cfDlg.exec()) {
-                if (dfilter_compile(displayFilter.toUtf8().constData(), &rfcode)) {
+            switch (prefs.gui_fileopen_style) {
+
+            case FO_STYLE_LAST_OPENED:
+                /* The user has specified that we should start out in the last directory
+                   we looked in.  If we've already opened a file, use its containing
+                   directory, if we could determine it, as the directory, otherwise
+                   use the "last opened" directory saved in the preferences file if
+                   there was one. */
+                /* This is now the default behaviour in file_selection_new() */
+                break;
+
+            case FO_STYLE_SPECIFIED:
+                /* The user has specified that we should always start out in a
+                   specified directory; if they've specified that directory,
+                   start out by showing the files in that dir. */
+                if (prefs.gui_fileopen_dir[0] != '\0')
+                    open_dlg.setDirectory(prefs.gui_fileopen_dir);
+                break;
+            }
+
+            if (open_dlg.open(file_name)) {
+                if (dfilter_compile(display_filter.toUtf8().constData(), &rfcode)) {
                     cf_set_rfcode(&cfile, rfcode);
                 } else {
                     /* Not valid.  Tell the user, and go back and run the file
@@ -341,31 +361,30 @@ void MainWindow::openCaptureFile(QString &cfPath)
                     //bad_dfilter_alert_box(top_level, display_filter->str);
                     QMessageBox::warning(this, tr("Invalid Display Filter"),
                                          QString("The filter expression ") +
-                                         displayFilter +
+                                         display_filter +
                                          QString(" isn't a valid display filter. (") +
                                          dfilter_error_msg + QString(")."),
                                          QMessageBox::Ok);
                     continue;
                 }
-                cfPath = fileName;
+                cf_path = file_name;
             } else {
                 return;
             }
         }
 
         /* Try to open the capture file. */
-        if (cf_open(&cfile, cfPath.toUtf8().constData(), FALSE, &err) != CF_OK) {
+        if (cf_open(&cfile, cf_path.toUtf8().constData(), FALSE, &err) != CF_OK) {
             /* We couldn't open it; don't dismiss the open dialog box,
                just leave it around so that the user can, after they
                dismiss the alert box popped up for the open error,
                try again. */
             if (rfcode != NULL)
                 dfilter_free(rfcode);
-            cfPath.clear();
+            cf_path.clear();
             continue;
         }
 
-        cap_file_ = &cfile;
         cfile.window = this;
 
         switch (cf_read(&cfile, FALSE)) {
@@ -388,10 +407,182 @@ void MainWindow::openCaptureFile(QString &cfPath)
         break;
     }
     // get_dirname overwrites its path. Hopefully this isn't a problem.
-    set_last_open_dir(get_dirname(cfPath.toUtf8().data()));
-    df_combo_box_->setEditText(displayFilter);
+    set_last_open_dir(get_dirname(cf_path.toUtf8().data()));
+    df_combo_box_->setEditText(display_filter);
 
     main_ui_->statusBar->showExpert();
+}
+
+void MainWindow::mergeCaptureFile()
+{
+    QString file_name = "";
+    QString display_filter = "";
+    dfilter_t *rfcode = NULL;
+    int err;
+
+    if (!cap_file_)
+        return;
+
+    if (prefs.gui_ask_unsaved) {
+        if (cap_file_->is_tempfile || cap_file_->unsaved_changes) {
+            QMessageBox msg_dialog;
+            gchar *display_basename;
+            int response;
+
+            msg_dialog.setIcon(QMessageBox::Question);
+            /* This is a temporary capture file or has unsaved changes; ask the
+               user whether to save the capture. */
+            if (cap_file_->is_tempfile) {
+                msg_dialog.setText("Save packets before merging?");
+                msg_dialog.setInformativeText("A temporary capture file can't be merged.");
+            } else {
+                /*
+                 * Format the message.
+                 */
+                display_basename = g_filename_display_basename(cap_file_->filename);
+                msg_dialog.setText(QString("Save changes in \"%1\" before merging?").arg(display_basename));
+                g_free(display_basename);
+                msg_dialog.setInformativeText("Changes must be saved before the files can be merged.");
+            }
+
+            msg_dialog.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+            msg_dialog.setDefaultButton(QMessageBox::Save);
+
+            response = msg_dialog.exec();
+
+            switch (response) {
+
+            case QMessageBox::Save:
+                /* Save the file but don't close it */
+                saveCapture(cap_file_, FALSE);
+                break;
+
+            case QMessageBox::Cancel:
+            default:
+                /* Don't do the merge. */
+                return;
+            }
+        }
+    }
+
+    for (;;) {
+        CaptureFileDialog merge_dlg(this, display_filter);
+        int file_type;
+        cf_status_t  merge_status;
+        char        *in_filenames[2];
+        char        *tmpname;
+
+        switch (prefs.gui_fileopen_style) {
+
+        case FO_STYLE_LAST_OPENED:
+            /* The user has specified that we should start out in the last directory
+           we looked in.  If we've already opened a file, use its containing
+           directory, if we could determine it, as the directory, otherwise
+           use the "last opened" directory saved in the preferences file if
+           there was one. */
+            /* This is now the default behaviour in file_selection_new() */
+            break;
+
+        case FO_STYLE_SPECIFIED:
+            /* The user has specified that we should always start out in a
+           specified directory; if they've specified that directory,
+           start out by showing the files in that dir. */
+            if (prefs.gui_fileopen_dir[0] != '\0')
+                merge_dlg.setDirectory(prefs.gui_fileopen_dir);
+            break;
+        }
+
+        if (merge_dlg.merge(file_name)) {
+            if (dfilter_compile(display_filter.toUtf8().constData(), &rfcode)) {
+                cf_set_rfcode(cap_file_, rfcode);
+            } else {
+                /* Not valid.  Tell the user, and go back and run the file
+                   selection box again once they dismiss the alert. */
+                //bad_dfilter_alert_box(top_level, display_filter->str);
+                QMessageBox::warning(this, tr("Invalid Display Filter"),
+                                     QString("The filter expression ") +
+                                     display_filter +
+                                     QString(" isn't a valid display filter. (") +
+                                     dfilter_error_msg + QString(")."),
+                                     QMessageBox::Ok);
+                continue;
+            }
+        } else {
+            return;
+        }
+
+        file_type = cap_file_->cd_t;
+
+        /* Try to merge or append the two files */
+        tmpname = NULL;
+        if (merge_dlg.mergeType() == 0) {
+            /* chronological order */
+            in_filenames[0] = cap_file_->filename;
+            in_filenames[1] = file_name.toUtf8().data();
+            merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, FALSE);
+        } else if (merge_dlg.mergeType() <= 0) {
+            /* prepend file */
+            in_filenames[0] = file_name.toUtf8().data();
+            in_filenames[1] = cap_file_->filename;
+            merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, TRUE);
+        } else {
+            /* append file */
+            in_filenames[0] = cap_file_->filename;
+            in_filenames[1] = file_name.toUtf8().data();
+            merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, TRUE);
+        }
+
+        if (merge_status != CF_OK) {
+            if (rfcode != NULL)
+                dfilter_free(rfcode);
+            g_free(tmpname);
+            continue;
+        }
+
+        cf_close(cap_file_);
+
+        /* Try to open the merged capture file. */
+        if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
+            /* We couldn't open it; fail. */
+            if (rfcode != NULL)
+                dfilter_free(rfcode);
+            g_free(tmpname);
+            return;
+        }
+
+        /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
+           it closed the previous capture file, and thus destroyed any
+           previous read filter attached to "cf"). */
+        cfile.rfcode = rfcode;
+
+        switch (cf_read(&cfile, FALSE)) {
+
+        case CF_READ_OK:
+        case CF_READ_ERROR:
+            /* Just because we got an error, that doesn't mean we were unable
+             to read any of the file; we handle what we could get from the
+             file. */
+            break;
+
+        case CF_READ_ABORTED:
+            /* The user bailed out of re-reading the capture file; the
+             capture file has been closed - just free the capture file name
+             string and return (without changing the last containing
+             directory). */
+            g_free(tmpname);
+            return;
+        }
+
+        /* Save the name of the containing directory specified in the path name,
+           if any; we can write over cf_merged_name, which is a good thing, given that
+           "get_dirname()" does write over its argument. */
+        set_last_open_dir(get_dirname(tmpname));
+        g_free(tmpname);
+        df_combo_box_->setEditText(display_filter);
+        main_ui_->statusBar->showExpert();
+        return;
+    }
+
 }
 
 void MainWindow::saveCapture(capture_file *cf, bool close_capture) {
@@ -432,7 +623,7 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
             if (cf->is_tempfile) {
 
                 msg_dialog.setText("You have unsaved packets");
-                msg_dialog.setDetailedText("They will be lost if you don't save them.");
+                msg_dialog.setInformativeText("They will be lost if you don't save them.");
 
                 if (capture_in_progress) {
                     question.append("Do you want to stop the capture and save the captured packets");
@@ -450,7 +641,7 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
                 if (capture_in_progress) {
                     question.append("Do you want to stop the capture and save the captured packets");
                     question.append(before_what).append("?");
-                    msg_dialog.setDetailedText("Your captured packets will be lost if you don't save them.");
+                    msg_dialog.setInformativeText("Your captured packets will be lost if you don't save them.");
                 } else {
                     gchar *display_basename = g_filename_display_basename(cf->filename);
                     question.append(QString("Do you want to save the changes you've made to the capture file \"%1\"%2?")
@@ -458,7 +649,7 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
                                     .arg(before_what)
                                     );
                     g_free(display_basename);
-                    msg_dialog.setDetailedText("Your changes will be lost if you don't save them.");
+                    msg_dialog.setInformativeText("Your changes will be lost if you don't save them.");
                 }
             }
 
@@ -674,7 +865,7 @@ void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
 // Capture callbacks
 
 #ifdef HAVE_LIBPCAP
-void MainWindow::captureCapturePrepared(capture_options * /*capture_opts*/) {
+void MainWindow::captureCapturePrepared(capture_options *capture_opts) {
     qDebug() << "FIX captureCapturePrepared";
 //    main_capture_set_main_window_title(capture_opts);
 
@@ -691,13 +882,16 @@ void MainWindow::captureCapturePrepared(capture_options * /*capture_opts*/) {
 //    /* Don't set up main window for a capture file. */
 //    main_set_for_capture_file(FALSE);
     main_ui_->mainStack->setCurrentWidget(packet_splitter_);
+    cap_file_ = (capture_file *) capture_opts->cf;
 }
-void MainWindow::captureCaptureUpdateStarted(capture_options * /*capture_opts*/) {
+void MainWindow::captureCaptureUpdateStarted(capture_options *capture_opts) {
+    Q_UNUSED(capture_opts);
+
     qDebug() << "captureCaptureUpdateStarted";
     setForCaptureInProgress(true);
 }
-void MainWindow::captureCaptureUpdateFinished(capture_options * /*capture_opts*/) {
-    qDebug() << "captureCaptureUpdateFinished";
+void MainWindow::captureCaptureUpdateFinished(capture_options *capture_opts) {
+    Q_UNUSED(capture_opts);
 
     /* The capture isn't stopping any more - it's stopped. */
     capture_stopping_ = false;
@@ -1007,6 +1201,11 @@ void MainWindow::openRecentCaptureFile(QString &cfPath)
 void MainWindow::on_actionFileOpen_triggered()
 {
     openCaptureFile();
+}
+
+void MainWindow::on_actionFileMerge_triggered()
+{
+    mergeCaptureFile();
 }
 
 void MainWindow::on_actionFileClose_triggered() {

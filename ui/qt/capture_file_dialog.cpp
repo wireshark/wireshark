@@ -33,8 +33,6 @@
 
 #ifdef Q_WS_WIN
 #include <windows.h>
-#include "packet_list_record.h"
-#include "cfile.h"
 #include "ui/win32/file_dlg_win32.h"
 #else
 #include <errno.h>
@@ -121,98 +119,49 @@ extern void topic_cb(gpointer *widget, int topic) {
 // End stub routines
 #endif // Q_WS_WIN
 
-CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &fileName, QString &displayFilter) :
-    QFileDialog(parent), m_fileName(fileName), m_displayFilter(displayFilter)
+CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &display_filter) :
+    QFileDialog(parent), display_filter_(display_filter)
 {
 #if !defined(Q_WS_WIN)
-    setWindowTitle(tr("Wireshark: Open Capture File"));
-    setNameFilters(build_file_open_type_list());
-    setFileMode(QFileDialog::ExistingFile);
-
-    if (!m_fileName.isEmpty()) {
-        selectFile(m_fileName);
-    }
 
     // Add extra widgets
     // http://qt-project.org/faq/answer/how_can_i_add_widgets_to_my_qfiledialog_instance
     setOption(QFileDialog::DontUseNativeDialog, true);
-    QGridLayout *fdGrid = qobject_cast<QGridLayout*>(layout());
-    QHBoxLayout *hBox = new QHBoxLayout();
-    QVBoxLayout *controlsBox = new QVBoxLayout();
-    QGridLayout *previewGrid = new QGridLayout();
-    QLabel *lbl;
+    QGridLayout *fd_grid = qobject_cast<QGridLayout*>(layout());
+    QHBoxLayout *h_box = new QHBoxLayout();
 
-    fdGrid->addWidget(new QLabel(tr("Display Filter:")), fdGrid->rowCount(), 0, 1, 1);
+    fd_grid->addWidget(new QLabel(tr("Display Filter:")), fd_grid->rowCount(), 0, 1, 1);
 
-    m_displayFilterEdit = new DisplayFilterEdit(this, true);
-    m_displayFilterEdit->setText(m_displayFilter);
-    fdGrid->addWidget(m_displayFilterEdit, fdGrid->rowCount() - 1, 1, 1, 1);
+    display_filter_edit_ = new DisplayFilterEdit(this, true);
+    display_filter_edit_->setText(display_filter_);
+    fd_grid->addWidget(display_filter_edit_, fd_grid->rowCount() - 1, 1, 1, 1);
 
-    fdGrid->addLayout(hBox, fdGrid->rowCount(), 1, 1, -1);
+    fd_grid->addLayout(h_box, fd_grid->rowCount(), 1, 1, -1);
 
-    // Filter and resolution controls
-    hBox->addLayout(controlsBox);
+    // Left and right boxes for controls and preview
+    h_box->addLayout(&left_v_box_);
+    h_box->addLayout(&right_v_box_);
 
-    m_macRes.setText(tr("&MAC name resolution"));
-    m_macRes.setChecked(gbl_resolv_flags.mac_name);
-    controlsBox->addWidget(&m_macRes);
-
-    m_transportRes.setText(tr("&Transport name resolution"));
-    m_transportRes.setChecked(gbl_resolv_flags.transport_name);
-    controlsBox->addWidget(&m_transportRes);
-
-    m_networkRes.setText(tr("&Network name resolution"));
-    m_networkRes.setChecked(gbl_resolv_flags.network_name);
-    controlsBox->addWidget(&m_networkRes);
-
-    m_externalRes.setText(tr("&External name resolver"));
-    m_externalRes.setChecked(gbl_resolv_flags.use_external_net_name_resolver);
-    controlsBox->addWidget(&m_externalRes);
-
-    // Preview
-    hBox->addLayout(previewGrid);
-
-    previewGrid->setColumnStretch(0, 0);
-    previewGrid->setColumnStretch(1, 10);
-
-    lbl = new QLabel("Format:");
-    previewGrid->addWidget(lbl, 0, 0);
-    previewGrid->addWidget(&m_previewFormat, 0, 1);
-    m_previewLabels << lbl << &m_previewFormat;
-
-    lbl = new QLabel("Size:");
-    previewGrid->addWidget(lbl, 1, 0);
-    previewGrid->addWidget(&m_previewSize, 1, 1);
-    m_previewLabels << lbl << &m_previewSize;
-
-    lbl = new QLabel("Packets:");
-    previewGrid->addWidget(lbl, 2, 0);
-    previewGrid->addWidget(&m_previewPackets, 2, 1);
-    m_previewLabels << lbl << &m_previewPackets;
-
-    lbl = new QLabel("First Packet:");
-    previewGrid->addWidget(lbl, 3, 0);
-    previewGrid->addWidget(&m_previewFirst, 3, 1);
-    m_previewLabels << lbl << &m_previewFirst;
-
-    lbl = new QLabel("Elapsed Time:");
-    previewGrid->addWidget(lbl, 4, 0);
-    previewGrid->addWidget(&m_previewElapsed, 4, 1);
-    m_previewLabels << lbl << &m_previewElapsed;
-
-    // Grow the dialog to account for the extra widgets.
-    resize(width(), height() + hBox->minimumSize().height() + m_displayFilterEdit->minimumSize().height());
-
-    connect(this, SIGNAL(currentChanged(const QString &)), this, SLOT(preview(const QString &)));
-
-    preview("");
 
 #endif
 }
 
+int CaptureFileDialog::selectedFileType() {
+    return type_hash_.value(selectedNameFilter(), -1);
+}
+
+int CaptureFileDialog::mergeType() {
+    if (merge_prepend_.isChecked())
+        return -1;
+    else if (merge_append_.isChecked())
+        return 1;
+
+    return 0;
+}
+
 // Windows
 #ifdef Q_WS_WIN
-int CaptureFileDialog::exec() {
+int CaptureFileDialog::open() {
     GString *file_name = g_string_new(m_fileName.toUtf8().constData());
     GString *display_filter = g_string_new(m_displayFilter.toUtf8().constData());
     gboolean wof_status;
@@ -230,18 +179,118 @@ int CaptureFileDialog::exec() {
 }
 
 #else // not Q_WS_WINDOWS
+
+void CaptureFileDialog::addDisplayFilterEdit() {
+
+}
+
+void CaptureFileDialog::addResolutionControls(QVBoxLayout &v_box) {
+    mac_res_.setText(tr("&MAC name resolution"));
+    mac_res_.setChecked(gbl_resolv_flags.mac_name);
+    v_box.addWidget(&mac_res_);
+
+    transport_res_.setText(tr("&Transport name resolution"));
+    transport_res_.setChecked(gbl_resolv_flags.transport_name);
+    v_box.addWidget(&transport_res_);
+
+    network_res_.setText(tr("&Network name resolution"));
+    network_res_.setChecked(gbl_resolv_flags.network_name);
+    v_box.addWidget(&network_res_);
+
+    external_res_.setText(tr("&External name resolver"));
+    external_res_.setChecked(gbl_resolv_flags.use_external_net_name_resolver);
+    v_box.addWidget(&external_res_);
+}
+
+void CaptureFileDialog::addMergeControls(QVBoxLayout &v_box) {
+
+    merge_prepend_.setText("Prepend packets");
+    merge_prepend_.setToolTip("Insert packets from the selected file before the current file. Packet timestamps will be ignored.");
+    v_box.addWidget(&merge_prepend_);
+
+    merge_chrono_.setText("Merge chronologically");
+    merge_chrono_.setToolTip("Insert packets in chronological order.");
+    merge_chrono_.setChecked(true);
+    v_box.addWidget(&merge_chrono_);
+
+    merge_append_.setText("Append packets");
+    merge_append_.setToolTip("Insert packets from the selected file after the current file. Packet timestamps will be ignored.");
+    v_box.addWidget(&merge_append_);
+}
+
+void CaptureFileDialog::addPreview(QVBoxLayout &v_box) {
+    QGridLayout *preview_grid = new QGridLayout();
+    QLabel *lbl;
+
+    preview_labels_.clear();
+    v_box.addLayout(preview_grid);
+
+    preview_grid->setColumnStretch(0, 0);
+    preview_grid->setColumnStretch(1, 10);
+
+    lbl = new QLabel("Format:");
+    preview_grid->addWidget(lbl, 0, 0);
+    preview_grid->addWidget(&preview_format_, 0, 1);
+    preview_labels_ << lbl << &preview_format_;
+
+    lbl = new QLabel("Size:");
+    preview_grid->addWidget(lbl, 1, 0);
+    preview_grid->addWidget(&preview_size_, 1, 1);
+    preview_labels_ << lbl << &preview_size_;
+
+    lbl = new QLabel("Packets:");
+    preview_grid->addWidget(lbl, 2, 0);
+    preview_grid->addWidget(&preview_packets_, 2, 1);
+    preview_labels_ << lbl << &preview_packets_;
+
+    lbl = new QLabel("First Packet:");
+    preview_grid->addWidget(lbl, 3, 0);
+    preview_grid->addWidget(&preview_first_, 3, 1);
+    preview_labels_ << lbl << &preview_first_;
+
+    lbl = new QLabel("Elapsed Time:");
+    preview_grid->addWidget(lbl, 4, 0);
+    preview_grid->addWidget(&preview_elapsed_, 4, 1);
+    preview_labels_ << lbl << &preview_elapsed_;
+
+    connect(this, SIGNAL(currentChanged(const QString &)), this, SLOT(preview(const QString &)));
+
+    preview("");
+}
+
+
+// You have to use open, merge, saveAs, or exportPackets. We should
+// probably just make each type a subclass.
 int CaptureFileDialog::exec() {
-    m_fileName.clear();
-    m_displayFilter.clear();
+    return QDialog::Rejected;
+}
+
+int CaptureFileDialog::open(QString &file_name) {
+    setWindowTitle(tr("Wireshark: Open Capture File"));
+    setNameFilters(buildFileOpenTypeList());
+    setFileMode(QFileDialog::ExistingFile);
+
+    file_name.clear();
+    display_filter_.clear();
+
+    addResolutionControls(left_v_box_);
+    addPreview(right_v_box_);
+
+    // Grow the dialog to account for the extra widgets.
+    resize(width(), height() + left_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
+
+    if (!file_name.isEmpty()) {
+        selectFile(file_name);
+    }
 
     if (QFileDialog::exec() && selectedFiles().length() > 0) {
-        m_fileName.append(selectedFiles()[0]);
-        m_displayFilter.append(m_displayFilterEdit->text());
+        file_name.append(selectedFiles()[0]);
+        display_filter_.append(display_filter_edit_->text());
 
-        gbl_resolv_flags.mac_name = m_macRes.isChecked();
-        gbl_resolv_flags.transport_name = m_transportRes.isChecked();
-        gbl_resolv_flags.network_name = m_networkRes.isChecked();
-        gbl_resolv_flags.use_external_net_name_resolver = m_externalRes.isChecked();
+        gbl_resolv_flags.mac_name = mac_res_.isChecked();
+        gbl_resolv_flags.transport_name = transport_res_.isChecked();
+        gbl_resolv_flags.network_name = network_res_.isChecked();
+        gbl_resolv_flags.use_external_net_name_resolver = external_res_.isChecked();
 
         return QDialog::Accepted;
     } else {
@@ -249,14 +298,42 @@ int CaptureFileDialog::exec() {
     }
 }
 
-void CaptureFileDialog::append_file_type(QStringList &filters, int ft)
+int CaptureFileDialog::merge(QString &file_name) {
+    setWindowTitle(tr("Wireshark: Merge Capture File"));
+    setNameFilters(buildFileOpenTypeList());
+    setFileMode(QFileDialog::ExistingFile);
+
+    file_name.clear();
+    display_filter_.clear();
+
+    addMergeControls(left_v_box_);
+    addPreview(right_v_box_);
+
+    // Grow the dialog to account for the extra widgets.
+    resize(width(), height() + right_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
+
+    if (QFileDialog::exec() && selectedFiles().length() > 0) {
+        file_name.append(selectedFiles()[0]);
+        display_filter_.append(display_filter_edit_->text());
+
+        return QDialog::Accepted;
+    } else {
+        return QDialog::Rejected;
+    }
+}
+
+QString CaptureFileDialog::fileType(int ft, bool extension_globs)
 {
     QString filter;
-    bool first;
     GSList *extensions_list, *extension;
 
     filter = wtap_file_type_string(ft);
+
+    if (!extension_globs)
+        return filter;
+
     filter += " (";
+
     extensions_list = wtap_get_file_extensions_list(ft, TRUE);
     if (extensions_list == NULL) {
         /* This file type doesn't have any particular extension
@@ -269,27 +346,23 @@ void CaptureFileDialog::append_file_type(QStringList &filters, int ft)
            filter += "*.*";
     } else {
         /* Construct the list of patterns. */
-        first = true;
         for (extension = extensions_list; extension != NULL;
              extension = g_slist_next(extension)) {
-            /* XXX - the documentation says the separator is a blank */
-            if (!first)
-                filter += ';';
+            if (!filter.endsWith('('))
+                filter += ' ';
             filter += "*.";
             filter += (char *)extension->data;
-            first = false;
         }
         wtap_free_file_extensions_list(extensions_list);
     }
     filter += ')';
-    filters += filter;
+    return filter;
     /* XXX - does QStringList's destructor destroy the strings in the list? */
 }
 
-QStringList CaptureFileDialog::build_file_open_type_list(void) {
-    QStringList filters;	/* XXX - new? */
+QStringList CaptureFileDialog::buildFileOpenTypeList() {
+    QStringList filters;
     int   ft;
-
 
     /* Add the "All Files" entry. */
     filters << QString(tr("All Files (*.*)"));
@@ -299,7 +372,40 @@ QStringList CaptureFileDialog::build_file_open_type_list(void) {
         if (ft == WTAP_FILE_UNKNOWN)
             continue;  /* not a real file type */
 
-        append_file_type(filters, ft);
+        filters << fileType(ft);
+    }
+
+    return filters;
+}
+
+QStringList CaptureFileDialog::buildFileSaveAsTypeList(capture_file *cf, bool must_support_comments) {
+    QStringList filters;
+    GArray *savable_file_types;
+    guint i;
+    int ft;
+    int default_ft = -1;
+
+    type_hash_.clear();
+    savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes);
+
+    if (savable_file_types != NULL) {
+        QString file_type;
+        /* OK, we have at least one file type we can save this file as.
+           (If we didn't, we shouldn't have gotten here in the first
+           place.)  Add them all to the combo box.  */
+        for (i = 0; i < savable_file_types->len; i++) {
+            ft = g_array_index(savable_file_types, int, i);
+            if (must_support_comments) {
+                if (ft != WTAP_FILE_PCAPNG)
+                    continue;
+            }
+            if (default_ft == -1)
+                default_ft = ft; /* first file type is the default */
+            file_type = fileType(ft, false);
+            filters << file_type;
+            type_hash_[file_type] = ft;
+        }
+        g_array_free(savable_file_types, TRUE);
     }
 
     return filters;
@@ -326,45 +432,45 @@ void CaptureFileDialog::preview(const QString & path)
 
     // Follow the same steps as ui/win32/file_dlg_win32.c
 
-    foreach (QLabel *lbl, m_previewLabels) {
+    foreach (QLabel *lbl, preview_labels_) {
         lbl->setEnabled(false);
     }
 
-    m_previewFormat.setText(tr("-"));
-    m_previewSize.setText(tr("-"));
-    m_previewPackets.setText(tr("-"));
-    m_previewFirst.setText(tr("-"));
-    m_previewElapsed.setText(tr("-"));
+    preview_format_.setText(tr("-"));
+    preview_size_.setText(tr("-"));
+    preview_packets_.setText(tr("-"));
+    preview_first_.setText(tr("-"));
+    preview_elapsed_.setText(tr("-"));
 
     if (path.length() < 1) {
         return;
     }
 
     if (test_for_directory(path.toUtf8().data()) == EISDIR) {
-        m_previewFormat.setText(tr("directory"));
+        preview_format_.setText(tr("directory"));
         return;
     }
 
     wth = wtap_open_offline(path.toUtf8().data(), &err, &err_info, TRUE);
     if (wth == NULL) {
         if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
-            m_previewFormat.setText(tr("unknown file format"));
+            preview_format_.setText(tr("unknown file format"));
         } else {
-            m_previewFormat.setText(tr("error opening file"));
+            preview_format_.setText(tr("error opening file"));
         }
         return;
     }
 
     // Success!
-    foreach (QLabel *lbl, m_previewLabels) {
+    foreach (QLabel *lbl, preview_labels_) {
         lbl->setEnabled(true);
     }
 
     // Format
-    m_previewFormat.setText(QString::fromUtf8(wtap_file_type_string(wtap_file_type(wth))));
+    preview_format_.setText(QString::fromUtf8(wtap_file_type_string(wtap_file_type(wth))));
 
     // Size
-    m_previewSize.setText(QString("%1 bytes").arg(wtap_file_size(wth, &err)));
+    preview_size_.setText(QString("%1 bytes").arg(wtap_file_size(wth, &err)));
 
     time(&time_preview);
     while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
@@ -393,22 +499,22 @@ void CaptureFileDialog::preview(const QString & path)
     }
 
     if(err != 0) {
-        m_previewPackets.setText(QString("error after reading %1 packets").arg(packets));
+        preview_packets_.setText(QString("error after reading %1 packets").arg(packets));
         return;
     }
 
     // Packet count
     if(timed_out) {
-        m_previewPackets.setText(QString("more than %1 (preview timeout)").arg(packets));
+        preview_packets_.setText(QString("more than %1 (preview timeout)").arg(packets));
     } else {
-        m_previewPackets.setText(QString("%1").arg(packets));
+        preview_packets_.setText(QString("%1").arg(packets));
     }
 
     // First packet
     ti_time = (long)start_time;
     ti_tm = localtime( &ti_time );
     if(ti_tm) {
-        m_previewFirst.setText(QString().sprintf(
+        preview_first_.setText(QString().sprintf(
                  "%04d-%02d-%02d %02d:%02d:%02d",
                  ti_tm->tm_year + 1900,
                  ti_tm->tm_mon + 1,
@@ -418,18 +524,18 @@ void CaptureFileDialog::preview(const QString & path)
                  ti_tm->tm_sec
                  ));
     } else {
-        m_previewFirst.setText(tr("?"));
+        preview_first_.setText(tr("?"));
     }
 
     // Elapsed time
     elapsed_time = (unsigned int)(stop_time-start_time);
     if(timed_out) {
-        m_previewElapsed.setText(tr("unknown"));
+        preview_elapsed_.setText(tr("unknown"));
     } else if(elapsed_time/86400) {
-        m_previewElapsed.setText(QString().sprintf("%02u days %02u:%02u:%02u",
+        preview_elapsed_.setText(QString().sprintf("%02u days %02u:%02u:%02u",
                 elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60));
     } else {
-        m_previewElapsed.setText(QString().sprintf("%02u:%02u:%02u",
+        preview_elapsed_.setText(QString().sprintf("%02u:%02u:%02u",
                 elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60));
     }
 

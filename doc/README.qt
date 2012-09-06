@@ -132,6 +132,15 @@ DO NOT simply port things over. Every feature, window, and element should be
 re-thought. For example, should the user have to navigate two dialogs to get
 HTTP request statistics?
 
+2.1 Changes
+
+- The display filter entry has been significantly reworked.
+
+- The welcome screen has been reworked. The interface list includes sparklines
+
+- "Go to packet" pops up a text entry in the main window instead of a separate dialog.
+
+
 3. Translations (i18n)
 For make your own translation of QtShark ! it is easy !
 
@@ -139,7 +148,7 @@ For make your own translation of QtShark ! it is easy !
 - Launch "lupdate QtShark.pro" to generate/update your translation file
 - Translate with Qt Linguist
 - Launch "lrelease QtShark.pro" to create/update qtshark_xx.qm file
-- Attach your modification ("svn diff") in Wireshark Bug Tracker 
+- Attach your modification ("svn diff") in Wireshark Bug Tracker
 
-More information about Qt Linguist 
+More information about Qt Linguist
 http://qt-project.org/doc/qt-4.8/linguist-manual.html
