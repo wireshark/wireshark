@@ -2459,7 +2459,13 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                 &hf_ldp_tlv_intparam_vccv_cctype_ttl1 ,
                 &hf_ldp_tlv_intparam_vccv_cvtype_icmpping ,
                 &hf_ldp_tlv_intparam_vccv_cvtype_lspping ,
-                &hf_ldp_tlv_intparam_vccv_cvtype_bfd
+                &hf_ldp_tlv_intparam_vccv_cvtype_bfd,
+                &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2,
+                &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3,
+                &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4,
+                &hf_ldp_tlv_fec_vc_intparam_flowlabel_t,
+                &hf_ldp_tlv_fec_vc_intparam_flowlabel_r,
+                &hf_ldp_tlv_fec_vc_intparam_flowlabel_res
             };
             int vc_len = length;
             offset += 4;
@@ -3568,25 +3574,25 @@ proto_register_ldp(void)
           { "BFD IP/UDP-encapsulated, for PW Fault Detection only", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd1", FT_BOOLEAN, 8,
             NULL, 0x04, "VC FEC Interface Param VCCV CV Type BFD IP/UDP-encapsulated, for PW Fault Detection only", HFILL }},
 
-	{ &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2,
+        { &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2,
           { "BFD IP/UDP-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd2", FT_BOOLEAN, 8,
             NULL, 0x08, "VC FEC Interface Param VCCV CV Type BFD IP/UDP-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", HFILL }},
 
-	{ &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3,
+        { &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3,
           { "BFD BFD PW-ACH-encapsulated, for PW Fault Detection only", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd3", FT_BOOLEAN, 8,
             NULL, 0x10, "VC FEC Interface Param VCCV CV Type BFD PW-ACH-encapsulated, for PW Fault Detection only", HFILL }},
 
-	{ &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4,
+        { &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4,
           { "BFD BFD PW-ACH-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd4", FT_BOOLEAN, 8,
             NULL, 0x20, "VC FEC Interface Param VCCV CV Type BFD PW-ACH-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", HFILL }},
 
-	{ &hf_ldp_tlv_fec_vc_intparam_flowlabel_t,
+        { &hf_ldp_tlv_fec_vc_intparam_flowlabel_t,
           { "Flow Label Transmit bit", "ldp.msg.tlv.fec.vc.intparam.flowlabel.t", FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL}},
 
-	{ &hf_ldp_tlv_fec_vc_intparam_flowlabel_r,
+        { &hf_ldp_tlv_fec_vc_intparam_flowlabel_r,
           { "Flow Label Receive bit", "ldp.msg.tlv.fec.vc.intparam.flowlabel.r", FT_UINT8, BASE_DEC, NULL, 0x40, NULL, HFILL}},
 
-    { &hf_ldp_tlv_fec_vc_intparam_flowlabel_res,
+        { &hf_ldp_tlv_fec_vc_intparam_flowlabel_res,
           { "Flow Label Reserved", "ldp.msg.tlv.fec.vc.intparam.flowlabel.res", FT_UINT16, BASE_HEX, NULL, 0x3FFF, NULL, HFILL}},
 
         { &hf_ldp_tlv_lspid_act_flg,
