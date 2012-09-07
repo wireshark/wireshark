@@ -728,7 +728,8 @@ int erf_populate_interfaces(wtap *wth)
   memset(&int_data, 0, sizeof(int_data)); /* Zero all fields */
 
   int_data.wtap_encap = WTAP_ENCAP_ERF;
-  int_data.time_units_per_second = (1LL<<32); /* ERF format resolution is 2^-32, capture resolution is unknown */
+  /* int_data.time_units_per_second = (1LL<<32);  ERF format resolution is 2^-32, capture resolution is unknown */
+  int_data.time_units_per_second = 1000000000; /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
   int_data.link_type = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_ERF);
   int_data.snap_len = 65535; /* ERF max length */
   int_data.opt_comment = NULL;
@@ -737,7 +738,8 @@ int erf_populate_interfaces(wtap *wth)
   /* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
   /* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
   int_data.if_speed = 0; /* Unknown */
-  int_data.if_tsresol = 0xa0; /* ERF format resolution is 2^-32 = 0xa0, capture resolution is unknown */
+  /* int_data.if_tsresol = 0xa0;  ERF format resolution is 2^-32 = 0xa0, capture resolution is unknown */
+  int_data.if_tsresol = 0x09; /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
   /* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
   int_data.if_filter_str = NULL;
   int_data.bpf_filter_len = 0;
@@ -748,7 +750,7 @@ int erf_populate_interfaces(wtap *wth)
   /* Interface statistics */
   int_data.num_stat_entries = 0;
   int_data.interface_statistics = NULL;
-  
+
   /* Preemptively create interface entries for 4 interfaces, since this is the max number in ERF */
   for (i=0; i<4; i++) {
     int_data.if_name = g_strdup_printf("Port %c", 'A'+i);
