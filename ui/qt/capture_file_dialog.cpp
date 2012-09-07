@@ -307,15 +307,6 @@ int CaptureFileDialog::open(QString &file_name) {
     return (int) wof_status;
 }
 
-int CaptureFileDialog::mergeType() {
-    if (merge_prepend_.isChecked())
-        return -1;
-    else if (merge_append_.isChecked())
-        return 1;
-
-    return 0;
-}
-
 #else // not Q_WS_WINDOWS
 int CaptureFileDialog::selectedFileType() {
     return type_hash_.value(selectedNameFilter(), -1);
@@ -409,6 +400,15 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(capture_file *cf, bool mu
     return filters;
 }
 #endif // Q_WS_WINDOWS
+
+int CaptureFileDialog::mergeType() {
+    if (merge_prepend_.isChecked())
+        return -1;
+    else if (merge_append_.isChecked())
+        return 1;
+
+    return 0;
+}
 
 /* do a preview run on the currently selected capture file */
 void CaptureFileDialog::preview(const QString & path)
