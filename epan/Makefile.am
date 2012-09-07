@@ -35,7 +35,7 @@ wslua_dir =
 wslua_dist_dir = wslua
 endif           # HAVE_LIBLUA
 
-if !HAVE_LIBPY
+if HAVE_LIBPY
 wspython_lib = wspython/libwspython.la
 wspython_dir = wspython
 wspython_dist_dir =
