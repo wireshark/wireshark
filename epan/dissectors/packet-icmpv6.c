@@ -87,8 +87,8 @@
  * RFC 6550: RPL: IPv6 Routing Protocol for Low power and Lossy Networks
  * RFC 6554: An IPv6 Routing Header for Source Routes with RPL
  * draft-irtf-rrg-ilnp-icmpv6-06: ICMP Locator Update message for ILNPv6
- * draft-ietf-6lowpan-nd-19: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
- * http://www.iana.org/assignments/icmpv6-parameters (last updated 2012-07-18)
+ * draft-ietf-6lowpan-nd-21: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
+ * http://www.iana.org/assignments/icmpv6-parameters (last updated 2012-08-27)
  */
 
 static int proto_icmpv6 = -1;
@@ -543,8 +543,8 @@ static dissector_handle_t data_handle;
 #define ICMP6_FMIPV6_MESSAGES           154
 #define ICMP6_RPL_CONTROL               155
 #define ICMP6_ILNPV6                    156 /* Pending IANA assignment */
-#define ICMP6_6LOWPANND_DAR             158 /* Pending IANA assignment */
-#define ICMP6_6LOWPANND_DAC             157 /* Pending IANA assignment */
+#define ICMP6_6LOWPANND_DAR             157
+#define ICMP6_6LOWPANND_DAC             158
 
 
 static const value_string icmpv6_type_val[] = {
@@ -584,8 +584,8 @@ static const value_string icmpv6_type_val[] = {
     { ICMP6_FMIPV6_MESSAGES,       "FMIPv6" },                                          /* [RFC5568] */
     { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* [RFC6550] */
     { ICMP6_ILNPV6,                "Locator Update"},                                   /* draft-irtf-rrg-ilnp-icmpv6-06.txt Pending IANA */
-    { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* draft-ietf-6lowpan-nd-19.txt Pending IANA */
-    { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* draft-ietf-6lowpan-nd-19.txt Pending IANA */
+    { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* draft-ietf-6lowpan-nd-21.txt Pending IANA */
+    { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* draft-ietf-6lowpan-nd-21.txt Pending IANA */
     { 200,                         "Private experimentation" },                         /* [RFC4443] */
     { 201,                         "Private experimentation" },                         /* [RFC4443] */
     { 255,                         "Reserved for expansion of ICMPv6 informational messages" }, /* [RFC4443] */
@@ -808,10 +808,9 @@ static const true_false_string tfs_ni_flag_a = {
 #define ND_OPT_MOBILE_NODE_ID           30
 #define ND_OPT_DNS_SEARCH_LIST          31
 #define ND_OPT_PROXY_SIGNATURE          32
-/* draft-6lowpan-nd types, pending IANA assignment */
-#define ND_OPT_ADDR_REGISTRATION        131 /* Conflict with RFC6106.. */
-#define ND_OPT_6LOWPAN_CONTEXT          132 /* Conflict with draft-ietf-csi-proxy-send-05.txt.. */
-#define ND_OPT_AUTH_BORDER_ROUTER       33
+#define ND_OPT_ADDR_REGISTRATION        33
+#define ND_OPT_6LOWPAN_CONTEXT          34
+#define ND_OPT_AUTH_BORDER_ROUTER       35
 
 static const value_string option_vals[] = {
 /*  1 */   { ND_OPT_SOURCE_LINKADDR,           "Source link-layer address" },
@@ -845,10 +844,10 @@ static const value_string option_vals[] = {
 /* 30 */   { ND_OPT_MOBILE_NODE_ID,            "Mobile Node Identifier Option" },          /* [RFC5271] */
 /* 31 */   { ND_OPT_DNS_SEARCH_LIST,           "DNS Search List Option" },                 /* [RFC6106] */
 /* 32 */   { ND_OPT_PROXY_SIGNATURE,           "Proxy Signature (PS)" },                   /* [RFC6496] */
-/* 31 */   { ND_OPT_ADDR_REGISTRATION,         "Address Registration Option" },            /* [draft-ietf-6lowpan-nd-19.txt] */
-/* 32 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [draft-ietf-6lowpan-nd-19.txt] */
-/* 33 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authoritative Border Router" },              /* [draft-ietf-6lowpan-nd-19.txt] */
-/* 34-137  Unassigned */
+/* 33 */   { ND_OPT_ADDR_REGISTRATION,         "Address Registration Option" },            /* [draft-ietf-6lowpan-nd-21.txt] */
+/* 34 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [draft-ietf-6lowpan-nd-21.txt] */
+/* 35 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authoritative Border Router" },              /* [draft-ietf-6lowpan-nd-21.txt] */
+/* 36-137  Unassigned */
    { 138,                              "CARD Request" },                           /* [RFC4065] */
    { 139,                              "CARD Reply" },                             /* [RFC4065] */
 /* 140-252 Unassigned */
