@@ -36,6 +36,14 @@
   * To dissect EGPRS blocks, the gsm_rlcmac_ul or gsm_rlcmac_dl dissector should be
   * called 1, 2 or 3 times, for the header block and then each available data block, 
   * with the flags in pinfo->private_data indicating which block is to be dissected.
+  *
+  *   - The EGPRS Header Block occupies 4, 5 or 6 octets, the last octet is right-aligned
+  *     (as viewed in wireshark) with any null bits at the high bits of the last octet.
+  *   - Each EGPRS Data Block has 6 padding bits at the front, so there are then 2 data bits 
+  *     followed by the rest of the data block (which is implicitly octet aligned).
+  *   - Either or both of the possible EGPRS Data Blocks may have been received
+  *     with bad CRC and this should be marked in the flags field to allow
+  *     upper layer decoding to ignore bad data blocks
   * 
   * see packet-gsmtap.c for an example of the use of this dissector.
   */
@@ -59,40 +67,26 @@ typedef struct
 }length_indicator_t;
 
 /* local constant tables */
-const guint16 gsm_rlcmac_gprs_block_length[] = {
+const guint8 gsm_rlcmac_gprs_cs_to_block_length[] = {
    23, /* CS1 */
    33, /* CS2 */
    39, /* CS3 */
    53  /* CS4 */
 };
 
-const guint16 gsm_rlcmac_egprs_dl_header_block_length[] = {
-   4,/* MCS0 */
-   4,
-   4,
-   4,
-   4,
-   4,
-   4,
-   5,
-   5,
-   5 /* MCS9 */
+const guint8 gsm_rlcmac_egprs_header_type_to_dl_header_block_length[] = {
+   5, /* RLCMAC_HDR_TYPE_1 */
+   4, /* RLCMAC_HDR_TYPE_2 */
+   4  /* RLCMAC_HDR_TYPE_3 */
 };
 
-const guint16 gsm_rlcmac_egprs_ul_header_block_length[] = {
-   4,/* MCS0 */
-   4,
-   4,
-   4,
-   4,
-   5,
-   5,
-   6,
-   6,
-   6 /* MCS9 */
+const guint8 gsm_rlcmac_egprs_header_type_to_ul_header_block_length[] = {
+   6, /* RLCMAC_HDR_TYPE_1 */
+   5, /* RLCMAC_HDR_TYPE_2 */
+   4  /* RLCMAC_HDR_TYPE_3 */
 };
 
-const guint8 gsm_rlcmac_egprs_data_block_length[] = {
+const guint8 gsm_rlcmac_egprs_mcs_to_data_block_length[] = {
    0,/* MCS0 */
    23,
    29,
@@ -138,7 +132,9 @@ static int hf_pi= -1;
 static int hf_ti= -1;
 static int hf_rsb= -1;
 static int hf_spb= -1;
-static int hf_cps= -1;
+static int hf_cps1= -1;
+static int hf_cps2= -1;
+static int hf_cps3= -1;
 static int hf_me = -1;
 
 
@@ -1340,7 +1336,69 @@ static dissector_handle_t data_handle;
 
 
 #define GPRS_CS_OFFSET(cS) ((cS)- RLCMAC_CS1)
-#define EGPRS_MCS_OFFSET(mCS) ((mCS)- RLCMAC_MCS0)
+#define EGPRS_HEADER_TYPE_OFFSET(hT) ((hT)- RLCMAC_HDR_TYPE_1)
+
+static const guint8 egprs_Header_type1_coding_puncturing_scheme_to_mcs[] = {
+   9 /* 0x00, "(MCS-9/P1 ; MCS-9/P1)" */,            
+   9 /* 0x01, "(MCS-9/P1 ; MCS-9/P2)" */,
+   9 /* 0x02, "(MCS-9/P1 ; MCS-9/P3)" */,            
+   9 /* 0x03, "reserved" */,            
+   9 /* 0x04, "(MCS-9/P2 ; MCS-9/P1)" */,
+   9 /* 0x05, "(MCS-9/P2 ; MCS-9/P2)" */,            
+   9 /* 0x06, "(MCS-9/P2 ; MCS-9/P3)" */,
+   9 /* 0x07, "reserved" */,            
+   9 /* 0x08, "(MCS-9/P3 ; MCS-9/P1)" */,            
+   9 /* 0x09, "(MCS-9/P3 ; MCS-9/P2)" */,
+   9 /* 0x0A, "(MCS-9/P3 ; MCS-9/P3)" */,            
+   8 /* 0x0B, "(MCS-8/P1 ; MCS-8/P1)" */,            
+   8 /* 0x0C, "(MCS-8/P1 ; MCS-8/P2)" */,            
+   8 /* 0x0D, "(MCS-8/P1 ; MCS-8/P3)" */,            
+   8 /* 0x0E, "(MCS-8/P2 ; MCS-8/P1)" */,            
+   8 /* 0x0F, "(MCS-8/P2 ; MCS-8/P2)" */,            
+   8 /* 0x10, "(MCS-8/P2 ; MCS-8/P3)" */,            
+   8 /* 0x11, "(MCS-8/P3 ; MCS-8/P1)" */,            
+   8 /* 0x12, "(MCS-8/P3 ; MCS-8/P2)" */,            
+   8 /* 0x13, "(MCS-8/P3 ; MCS-8/P3)" */,            
+   7 /* 0x14, "(MCS-7/P1 ; MCS-7/P1)" */,            
+   7 /* 0x15, "(MCS-7/P1 ; MCS-7/P2)" */,            
+   7 /* 0x16, "(MCS-7/P1 ; MCS-7/P3)" */,            
+   7 /* 0x17, "(MCS-7/P2 ; MCS-7/P1)" */,            
+   7 /* 0x18, "(MCS-7/P2 ; MCS-7/P2)" */,            
+   7 /* 0x19, "(MCS-7/P2 ; MCS-7/P3)" */,            
+   7 /* 0x1A, "(MCS-7/P3 ; MCS-7/P1)" */,            
+   7 /* 0x1B, "(MCS-7/P3 ; MCS-7/P2)" */,            
+   7 /* 0x1C, "(MCS-7/P3 ; MCS-7/P3)" */,            
+};
+
+static const guint8 egprs_Header_type2_coding_puncturing_scheme_to_mcs[] = {
+   6 /* {0x00, "MCS-6/P1"} */,            
+   6 /* {0x01, "MCS-6/P2"} */,
+   6 /* {0x02, "MCS-6/P1 with 6 octet padding"} */,            
+   6 /* {0x03, "MCS-6/P2 with 6 octet padding "} */,
+   5 /* {0x04, "MCS-5/P1"} */,            
+   5 /* {0x05, "MCS-5/P2"} */,
+   5 /* {0x06, "MCS-6/P1 with 10 octet padding "} */,            
+   5 /* {0x07, "MCS-6/P2 with 10 octet padding "} */,
+};
+
+static const guint8 egprs_Header_type3_coding_puncturing_scheme_to_mcs[] = {
+   4 /* {0x00, "MCS-4/P1"} */,            
+   4 /* {0x01, "MCS-4/P2"} */,
+   4 /* {0x02, "MCS-4/P3"} */,            
+   3 /* {0x03, "MCS-3/P1"} */,            
+   3 /* {0x04, "MCS-3/P2"} */,
+   3 /* {0x05, "MCS-3/P3"} */,            
+   3 /* {0x06, "MCS-3/P1 with padding"} */,            
+   3 /* {0x07, "MCS-3/P2 with padding"} */,
+   3 /* {0x08, "MCS-3/P3 with padding"} */,            
+   2 /* {0x09, "MCS-2/P1"} */,
+   2 /* {0x0A, "MCS-2/P2"} */,
+   1 /* {0x0B, "MCS-1/P1"} */,
+   1 /* {0x0C, "MCS-1/P2"} */,
+   2 /* {0x0D, "MCS-2/P1 with padding"} */,            
+   2 /* {0x0E, "MCS-2/P2 with padding"} */,
+   0 /* {0x0F, "MCS-0"} */,            
+};
 
 static crumb_spec_t bits_spec_ul_bsn1[] = {
     {10, 6},
@@ -1365,7 +1423,7 @@ static crumb_spec_t bits_spec_ul_type2_cps[] = {
     {0,  0}
 };
 static crumb_spec_t bits_spec_ul_type3_cps[] = {
-    {13, 2},
+    {14, 2},
     {0,  2},
     {0,  0}
 };
@@ -1383,14 +1441,14 @@ static crumb_spec_t bits_spec_dl_type1_bsn2[] = {
 };
 
 static crumb_spec_t bits_spec_dl_type2_bsn[] = {
-    {19, 1},
+    {23, 1},
     {8,  8},
     {0,  2},
     {0,  0}
 };
 
 static crumb_spec_t bits_spec_dl_type3_bsn[] = {
-    {22, 1},
+    {23, 1},
     {8,  8},
     {0,  2},
     {0,  0}
@@ -1956,7 +2014,7 @@ CSN_DESCR_END  (PBCCH_Not_present_t)
 static const
 CSN_ChoiceElement_t SI13_PBCCH_Description_Channel[] =
 {/* this one is used in SI13*/
-  {2, 0x00, 0, M_NULL(PBCCH_Description_t, u.dummy)},/*Default to BCCH carrier*/
+  {2, 0x00, 0, M_NULL(PBCCH_Description_t, u.dummy, 0)},/*Default to BCCH carrier*/
   {2, 0x01, 0, M_UINT(PBCCH_Description_t, u.ARFCN, 10, &hf_pbcch_description_arfcn)},
   {1, 0x01, 0, M_UINT(PBCCH_Description_t, u.MAIO, 6, &hf_pbcch_description_maio)},
 };
@@ -4620,7 +4678,7 @@ CSN_DESCR_END          (PriorityAndEUTRAN_ParametersDescription_PMO_t)
 
 static const
 CSN_DESCR_BEGIN        (Delete_All_Stored_Individual_Priorities_t)
-  M_NULL               (Delete_All_Stored_Individual_Priorities_t, dummy),
+  M_NULL               (Delete_All_Stored_Individual_Priorities_t, dummy, 0),
 CSN_DESCR_END          (Delete_All_Stored_Individual_Priorities_t)
 
 static const
@@ -6365,7 +6423,7 @@ CSN_DESCR_BEGIN  (SI6_RestOctet_t)
 CSN_DESCR_END    (SI6_RestOctet_t)
 
 CSN_DESCR_BEGIN  (UL_Data_Mac_Header_t)
-  M_UINT         (UL_Data_Mac_Header_t,  TFI,  2, &hf_globalfi_t_uplink_tfi),
+  M_UINT         (UL_Data_Mac_Header_t,  Payload_Type,  2, &hf_payload_type),
   M_UINT         (UL_Data_Mac_Header_t,  Countdown_Value,  4, &hf_countdown_value),
   M_UINT         (UL_Data_Mac_Header_t,  SI,  1, &hf_ul_data_si),
   M_UINT         (UL_Data_Mac_Header_t,  R,  1, &hf_ul_retry_bit),
@@ -6397,7 +6455,8 @@ CSN_DESCR_BEGIN  (UL_Data_Block_EGPRS_Header_Type1_t)
   M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, SPARE1, 1, &hf_ul_data_spare),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, PI, 1, &hf_pi),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, RSB, 1, &hf_rsb),
-  M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, CPS, 5, &hf_cps),
+  M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, CPS, 5, &hf_cps1),
+  M_NULL         (UL_Data_Block_EGPRS_Header_Type1_t, dummy, 2),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, SPARE2, 6, &hf_ul_data_spare),
 CSN_DESCR_END    (UL_Data_Block_EGPRS_Header_Type1_t)
 
@@ -6410,13 +6469,14 @@ CSN_DESCR_BEGIN  (UL_Data_Block_EGPRS_Header_Type2_t)
   M_SPLIT_BITS   (UL_Data_Block_EGPRS_Header_Type2_t, BSN1, bits_spec_ul_bsn1, 11, &hf_bsn),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type2_t, BSN1, bits_spec_ul_bsn1, 1, &hf_bsn),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type2_t, TFI, bits_spec_ul_tfi, 0, &hf_tfi),
-  M_SPLIT_BITS   (UL_Data_Block_EGPRS_Header_Type2_t, CPS, bits_spec_ul_type2_cps, 5, &hf_cps),
-  M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type2_t, CPS, bits_spec_ul_type2_cps, 1, &hf_cps),
+  M_SPLIT_BITS   (UL_Data_Block_EGPRS_Header_Type2_t, CPS, bits_spec_ul_type2_cps, 5, &hf_cps2),
+  M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type2_t, CPS, bits_spec_ul_type2_cps, 1, &hf_cps2),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type2_t, BSN1, bits_spec_ul_bsn1, 0, &hf_bsn),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type2_t, SPARE1, 5, &hf_ul_data_spare),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type2_t, PI, 1, &hf_pi),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type2_t, RSB, 1, &hf_rsb),
-  M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type2_t, CPS, bits_spec_ul_type2_cps, 0, &hf_cps),
+  M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type2_t, CPS, bits_spec_ul_type2_cps, 0, &hf_cps2),
+  M_NULL         (UL_Data_Block_EGPRS_Header_Type1_t, dummy, 3),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type2_t, SPARE2, 5, &hf_ul_data_spare),
 CSN_DESCR_END    (UL_Data_Block_EGPRS_Header_Type2_t)
 
@@ -6429,14 +6489,15 @@ CSN_DESCR_BEGIN  (UL_Data_Block_EGPRS_Header_Type3_t)
   M_SPLIT_BITS   (UL_Data_Block_EGPRS_Header_Type3_t, BSN1, bits_spec_ul_bsn1, 11, &hf_bsn),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type3_t, BSN1, bits_spec_ul_bsn1, 1, &hf_bsn),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type3_t, TFI, bits_spec_ul_tfi, 0, &hf_tfi),
-  M_SPLIT_BITS   (UL_Data_Block_EGPRS_Header_Type3_t, CPS, bits_spec_ul_type3_cps, 4, &hf_cps),
-  M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type3_t, CPS, bits_spec_ul_type3_cps, 1, &hf_cps),
+  M_SPLIT_BITS   (UL_Data_Block_EGPRS_Header_Type3_t, CPS, bits_spec_ul_type3_cps, 4, &hf_cps3),
+  M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type3_t, CPS, bits_spec_ul_type3_cps, 1, &hf_cps3),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type3_t, BSN1, bits_spec_ul_bsn1, 0, &hf_bsn),
+  M_NULL         (UL_Data_Block_EGPRS_Header_Type1_t, dummy, 1),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type3_t, SPARE1, 1, &hf_ul_data_spare),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type3_t, PI, 1, &hf_pi),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type3_t, RSB, 1, &hf_rsb),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type3_t, SPB, 2, &hf_spb),
-  M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type3_t, CPS, bits_spec_ul_type3_cps, 0, &hf_cps),
+  M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type3_t, CPS, bits_spec_ul_type3_cps, 0, &hf_cps3),
 CSN_DESCR_END    (UL_Data_Block_EGPRS_Header_Type3_t)
 
 CSN_DESCR_BEGIN  (UL_Packet_Control_Ack_11_t)
@@ -6492,7 +6553,7 @@ CSN_DESCR_BEGIN  (DL_Data_Block_EGPRS_Header_Type1_t)
   M_SPLIT_BITS   (DL_Data_Block_EGPRS_Header_Type1_t, BSN2, bits_spec_dl_type1_bsn2, 11, &hf_bsn2),
   M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type1_t, BSN2, bits_spec_dl_type1_bsn2, 1, &hf_bsn2),
   M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type1_t, BSN1, bits_spec_dl_type1_bsn1, 0, &hf_bsn),
-  M_UINT         (DL_Data_Block_EGPRS_Header_Type1_t, CPS, 5, &hf_cps),
+  M_UINT         (DL_Data_Block_EGPRS_Header_Type1_t, CPS, 5, &hf_cps1),
   M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type1_t, BSN2, bits_spec_dl_type1_bsn2, 0, &hf_bsn2),
 CSN_DESCR_END    (DL_Data_Block_EGPRS_Header_Type1_t)
 
@@ -6507,7 +6568,8 @@ CSN_DESCR_BEGIN  (DL_Data_Block_EGPRS_Header_Type2_t)
   M_UINT         (DL_Data_Block_EGPRS_Header_Type2_t, Power_Reduction, 2, &hf_dl_ctrl_pr),
   M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type2_t, TFI, bits_spec_dl_tfi, 0, &hf_tfi),
   M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type2_t, BSN1, bits_spec_dl_type2_bsn, 1, &hf_bsn),
-  M_UINT         (DL_Data_Block_EGPRS_Header_Type2_t, CPS, 3, &hf_cps),
+  M_NULL         (UL_Data_Block_EGPRS_Header_Type1_t, dummy, 4),
+  M_UINT         (DL_Data_Block_EGPRS_Header_Type2_t, CPS, 3, &hf_cps2),
   M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type2_t, BSN1, bits_spec_dl_type2_bsn, 0, &hf_bsn),
 CSN_DESCR_END    (DL_Data_Block_EGPRS_Header_Type2_t)
 
@@ -6522,8 +6584,9 @@ CSN_DESCR_BEGIN  (DL_Data_Block_EGPRS_Header_Type3_t)
   M_UINT         (DL_Data_Block_EGPRS_Header_Type3_t, Power_Reduction, 2, &hf_dl_ctrl_pr),
   M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type3_t, TFI, bits_spec_dl_tfi, 0, &hf_tfi),
   M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type3_t, BSN1, bits_spec_dl_type3_bsn, 1, &hf_bsn),
+  M_NULL         (UL_Data_Block_EGPRS_Header_Type1_t, dummy, 1),
   M_UINT         (DL_Data_Block_EGPRS_Header_Type3_t, SPB, 2, &hf_spb),
-  M_UINT         (DL_Data_Block_EGPRS_Header_Type3_t, CPS, 4, &hf_cps),
+  M_UINT         (DL_Data_Block_EGPRS_Header_Type3_t, CPS, 4, &hf_cps3),
   M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type3_t, BSN1, bits_spec_dl_type3_bsn, 0, &hf_bsn),
 CSN_DESCR_END    (DL_Data_Block_EGPRS_Header_Type3_t)
 
@@ -6814,6 +6877,72 @@ static const value_string egprs_modulation_channel_coding_scheme_vals[] = {
     {0x0F, "reserved"},            
     {0, NULL }
 };
+
+static const value_string egprs_Header_type1_coding_puncturing_scheme_vals[] = {
+    {0x00, "(MCS-9/P1 ; MCS-9/P1)"},            
+    {0x01, "(MCS-9/P1 ; MCS-9/P2)"},
+    {0x02, "(MCS-9/P1 ; MCS-9/P3)"},            
+    {0x04, "(MCS-9/P2 ; MCS-9/P1)"},
+    {0x05, "(MCS-9/P2 ; MCS-9/P2)"},            
+    {0x06, "(MCS-9/P2 ; MCS-9/P3)"},
+    {0x08, "(MCS-9/P3 ; MCS-9/P1)"},            
+    {0x09, "(MCS-9/P3 ; MCS-9/P2)"},
+    {0x0A, "(MCS-9/P3 ; MCS-9/P3)"},            
+    {0x0B, "(MCS-8/P1 ; MCS-8/P1)"},            
+    {0x0C, "(MCS-8/P1 ; MCS-8/P2)"},            
+    {0x0D, "(MCS-8/P1 ; MCS-8/P3)"},            
+    {0x0E, "(MCS-8/P2 ; MCS-8/P1)"},            
+    {0x0F, "(MCS-8/P2 ; MCS-8/P2)"},            
+    {0x10, "(MCS-8/P2 ; MCS-8/P3)"},            
+    {0x11, "(MCS-8/P3 ; MCS-8/P1)"},            
+    {0x12, "(MCS-8/P3 ; MCS-8/P2)"},            
+    {0x13, "(MCS-8/P3 ; MCS-8/P3)"},            
+    {0x14, "(MCS-7/P1 ; MCS-7/P1"},            
+    {0x15, "(MCS-7/P1 ; MCS-7/P2)"},            
+    {0x16, "(MCS-7/P1 ; MCS-7/P3)"},            
+    {0x17, "(MCS-7/P2 ; MCS-7/P1)"},            
+    {0x18, "(MCS-7/P2 ; MCS-7/P2)"},            
+    {0x19, "(MCS-7/P2 ; MCS-7/P3)"},            
+    {0x1A, "(MCS-7/P3 ; MCS-7/P1)"},            
+    {0x1B, "(MCS-7/P3 ; MCS-7/P2)"},            
+    {0x1C, "(MCS-7/P3 ; MCS-7/P3)"},            
+    {0, NULL }
+};
+static value_string_ext egprs_Header_type1_coding_puncturing_scheme_vals_ext = VALUE_STRING_EXT_INIT(egprs_Header_type1_coding_puncturing_scheme_vals);
+
+static const value_string egprs_Header_type2_coding_puncturing_scheme_vals[] = {
+    {0x00, "MCS-6/P1"},            
+    {0x01, "MCS-6/P2"},
+    {0x02, "MCS-6/P1 with 6 octet padding"},            
+    {0x03, "MCS-6/P2 with 6 octet padding "},
+    {0x04, "MCS-5/P1"},            
+    {0x05, "MCS-5/P2"},
+    {0x06, "MCS-6/P1 with 10 octet padding "},            
+    {0x07, "MCS-6/P2 with 10 octet padding "},
+    {0, NULL }
+};
+static value_string_ext egprs_Header_type2_coding_puncturing_scheme_vals_ext = VALUE_STRING_EXT_INIT(egprs_Header_type2_coding_puncturing_scheme_vals);
+
+static const value_string egprs_Header_type3_coding_puncturing_scheme_vals[] = {
+    {0x00, "MCS-4/P1"},            
+    {0x01, "MCS-4/P2"},
+    {0x02, "MCS-4/P3"},            
+    {0x03, "MCS-3/P1"},            
+    {0x04, "MCS-3/P2"},
+    {0x05, "MCS-3/P3"},            
+    {0x06, "MCS-3/P1 with padding"},            
+    {0x07, "MCS-3/P2 with padding"},
+    {0x08, "MCS-3/P3 with padding"},            
+    {0x09, "MCS-2/P1"},
+    {0x0A, "MCS-2/P2"},
+    {0x0B, "MCS-1/P1"},
+    {0x0C, "MCS-1/P2"},
+    {0x0D, "MCS-2/P1 with padding"},            
+    {0x0E, "MCS-2/P2 with padding"},
+    {0x0F, "MCS-0"},            
+    {0, NULL }
+};
+static value_string_ext egprs_Header_type3_coding_puncturing_scheme_vals_ext = VALUE_STRING_EXT_INIT(egprs_Header_type3_coding_puncturing_scheme_vals);
 
 static guint8 construct_gprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 initial_offset, guint8 *li_count, length_indicator_t *li_array, guint64 *e)
 {
@@ -7322,15 +7451,16 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
    guint8 rbsn = tvb_get_bits8(tvb, 8, 1);
    guint8 fs   = tvb_get_bits8(tvb, 14, 1);
    guint8 ac   = tvb_get_bits8(tvb, 15, 1);
+
+   col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "GPRS DL");
    if(payload_type == PAYLOAD_TYPE_DATA)
    {
        guint64 e;
 
        col_add_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
-       col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "GPRS DL DATA");
        ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1, 
                                            "GPRS DL DATA (CS%d)",
-                                            data->coding_scheme & 0x0F);
+                                            data->block_format & 0x0F);
        rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
        csnStreamInit(&ar, 0, bit_length);
@@ -7373,7 +7503,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
        return;
    }
    /* We can decode the message */
-   else if (data->coding_scheme == RLCMAC_CS1)
+   else if (data->block_format == RLCMAC_CS1)
    {
        /* First print the message type and create a tree item */
        bit_offset = 8;
@@ -7430,7 +7560,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
    else
    {
       proto_tree_add_text(rlcmac_tree,tvb, bit_offset >> 3, -1, "GPRS block with invalid coding scheme (%d) for RLC Control",
-                          data->coding_scheme);
+                          data->block_format);
    }
 }
 
@@ -7453,41 +7583,44 @@ dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
       col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "EGPRS DL:HEADER");
       /* Dissect the MAC header */
       ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, 0, -1, 
-                                          "GSM RLC/MAC: EGPRS DL HEADER (MCS%d)", 
-                                          data->coding_scheme & 0x0F);
+                                          "GSM RLC/MAC: EGPRS DL HEADER");
       rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
+
+      ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = 0;
    
       csnStreamInit(&ar, 0, bit_length);
-      switch(data->coding_scheme)
+      switch(data->block_format)
       {
-         case RLCMAC_MCS1:
-         case RLCMAC_MCS2:
-         case RLCMAC_MCS3:
-         case RLCMAC_MCS4:
+         case RLCMAC_HDR_TYPE_3:
             csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(DL_Data_Block_EGPRS_Header_Type3_t), tvb, &data->u.DL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-           break;
+            if (data->u.DL_Data_Block_EGPRS_Header.CPS < array_length(egprs_Header_type3_coding_puncturing_scheme_vals))
+            {
+               ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type3_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
+            }
+            break;
    
-         case RLCMAC_MCS5:
-         case RLCMAC_MCS6:
+         case RLCMAC_HDR_TYPE_2:
             csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(DL_Data_Block_EGPRS_Header_Type2_t), tvb, &data->u.DL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
+            if (data->u.DL_Data_Block_EGPRS_Header.CPS < array_length(egprs_Header_type2_coding_puncturing_scheme_vals))
+            {
+              ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type2_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
+            }
              break;
    
-         case RLCMAC_MCS7:
-         case RLCMAC_MCS8:
-         case RLCMAC_MCS9:
+         case RLCMAC_HDR_TYPE_1:
             csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(DL_Data_Block_EGPRS_Header_Type1_t), tvb, &data->u.DL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-             break;
+            if (data->u.DL_Data_Block_EGPRS_Header.CPS < array_length(egprs_Header_type1_coding_puncturing_scheme_vals))
+            {
+                ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type1_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
+            }
+            break;
    
          default:
-            DISSECTOR_ASSERT_NOT_REACHED();
+               proto_tree_add_text(tree, tvb, 0, -1, "EGPRS Header Type not handled (yet)");
             break;
       }
-      if ((pinfo->private_data != NULL) && 
-          (((RlcMacPrivateData_t *)(pinfo->private_data))->magic == GSM_RLC_MAC_MAGIC_NUMBER))
-      {
-         ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info.bsn1 = data->u.DL_Data_Block_EGPRS_Header.BSN1;
-         ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info.bsn2 = data->u.DL_Data_Block_EGPRS_Header.BSN2;
-      }
+      ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info.bsn1 = data->u.DL_Data_Block_EGPRS_Header.BSN1;
+      ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info.bsn2 = data->u.DL_Data_Block_EGPRS_Header.BSN2;
    }
 }
 
@@ -7546,14 +7679,14 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
    guint8 li_count = array_length(li_array);
 
    col_add_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
-   col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "GPRS UL DATA");
+   col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "GPRS UL");
    if(payload_type == PAYLOAD_TYPE_DATA)
    {
       guint64 e;
 
       ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1, 
                                           "GPRS UL DATA (CS%d)", 
-                                          data->coding_scheme & 0x0F);
+                                          data->block_format & 0x0F);
       rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
       data->u.UL_Data_Block_GPRS.TI = 0;
       data->u.UL_Data_Block_GPRS.PI = 0;
@@ -7575,7 +7708,7 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
       /* the next fields are present according to earlier flags */
       if(data->u.UL_Data_Block_GPRS.TI)
       {
-           proto_tree_add_bits_item(rlcmac_tree, hf_tlli, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
+           proto_tree_add_bits_item(rlcmac_tree, hf_tlli, tvb, bit_offset, 32, ENC_BIG_ENDIAN);
            bit_offset += 32;
       }
       if(data->u.UL_Data_Block_GPRS.PI)
@@ -7603,14 +7736,14 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
        proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1, "Payload Type: RESERVED (3)");
        col_append_sep_str(pinfo->cinfo, COL_INFO, ":",  "GSM RLC/MAC RESERVED MESSAGE TYPE");
    }
-   else if (data->coding_scheme == RLCMAC_CS1)
+   else if (data->block_format == RLCMAC_CS1)
    {
       dissect_ul_rlc_control_message(tvb, pinfo, tree, data, bit_length);
    }
    else
    {
       proto_tree_add_text(rlcmac_tree,tvb, bit_offset >> 3, -1, "GPRS UL block with Coding Scheme CS%d and incompatible payload type", 
-                          data->coding_scheme &0x0F);
+                          data->block_format &0x0F);
    }
 }
 static void 
@@ -7631,44 +7764,46 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
       col_add_str(pinfo->cinfo, COL_PROTOCOL,  "GSM RLC/MAC");
       col_append_sep_str(pinfo->cinfo, COL_INFO, ":",  "EGPRS UL:HEADER");
        ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1, 
-                                           "GSM RLC/MAC: EGPRS UL HEADER (MCS%d)", 
-                                           data->coding_scheme & 0x0F);
+                                           "GSM RLC/MAC: EGPRS UL HEADER");
        rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
        data->u.UL_Data_Block_EGPRS_Header.PI = 0;
+       ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = 0;
        csnStreamInit(&ar, 0, bit_length);
-       switch(data->coding_scheme)
+       switch(data->block_format)
        {
-          case RLCMAC_MCS1:
-          case RLCMAC_MCS2:
-          case RLCMAC_MCS3:
-          case RLCMAC_MCS4:
+          case RLCMAC_HDR_TYPE_3:
              csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(UL_Data_Block_EGPRS_Header_Type3_t), tvb, &data->u.UL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-            break;
+             if (data->u.UL_Data_Block_EGPRS_Header.CPS < array_length(egprs_Header_type3_coding_puncturing_scheme_vals))
+             {
+                ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type3_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
+             }
+             break;
    
-          case RLCMAC_MCS5:
-          case RLCMAC_MCS6:
+          case RLCMAC_HDR_TYPE_2:
              csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(UL_Data_Block_EGPRS_Header_Type2_t), tvb, &data->u.UL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-              break;
+             if (data->u.UL_Data_Block_EGPRS_Header.CPS < array_length(egprs_Header_type2_coding_puncturing_scheme_vals))
+             {
+                ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type2_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
+             }
+             break;
    
-          case RLCMAC_MCS7:
-          case RLCMAC_MCS8:
-          case RLCMAC_MCS9:
+          case RLCMAC_HDR_TYPE_1:
              csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(UL_Data_Block_EGPRS_Header_Type1_t), tvb, &data->u.UL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-              break;
+             if (data->u.UL_Data_Block_EGPRS_Header.CPS < array_length(egprs_Header_type1_coding_puncturing_scheme_vals))
+             {
+                ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type1_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
+             }
+             break;
    
           default:
-             DISSECTOR_ASSERT_NOT_REACHED();
+             proto_tree_add_text(tree, tvb, 0, -1, "EGPRS Header Type not handled (yet)");
              break;
        }
        bit_offset = ar.bit_offset;
 
-       if ((pinfo->private_data != NULL) && 
-           (((RlcMacPrivateData_t *)(pinfo->private_data))->magic == GSM_RLC_MAC_MAGIC_NUMBER))
-       {
-          ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.pi = data->u.UL_Data_Block_EGPRS_Header.PI;
-          ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn1 = data->u.UL_Data_Block_EGPRS_Header.BSN1;
-          ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn2 = data->u.UL_Data_Block_EGPRS_Header.BSN2;
-       }
+       ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.pi = data->u.UL_Data_Block_EGPRS_Header.PI;
+       ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn1 = data->u.UL_Data_Block_EGPRS_Header.BSN1;
+       ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn2 = data->u.UL_Data_Block_EGPRS_Header.BSN2;
    }
 }
 
@@ -7678,7 +7813,6 @@ dissect_egprs_ul_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    proto_item   *ti = NULL;
    proto_tree *data_tree = NULL;
    guint8 offset = 0;
-   guint8 length = gsm_rlcmac_egprs_data_block_length[EGPRS_MCS_OFFSET(data->coding_scheme)];
    length_indicator_t li_array[20];
    guint8 li_count = array_length(li_array);
    guint64 e, tlli_i;
@@ -7688,8 +7822,8 @@ dissect_egprs_ul_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
    col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "DATA BLOCK");
    ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, offset, -1, 
-                                       "GSM RLC/MAC: EGPRS UL DATA (MCS%d) BLOCK %d (BSN %d)",
-                                       data->coding_scheme & 0x0F, (data->flags & GSM_RLC_MAC_EGPRS_BLOCK2)?2:1,
+                                       "GSM RLC/MAC: EGPRS UL DATA BLOCK %d (BSN %d)",
+                                       (data->flags & GSM_RLC_MAC_EGPRS_BLOCK2)?2:1,
                                        block_number);
    data_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac_data);
 
@@ -7723,8 +7857,8 @@ dissect_egprs_ul_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    if (e)
    {
       /* dissect the data segments */
-      dissect_egprs_data_segments(tvb, pinfo, data_tree, offset, length, 
-                                          li_count, li_array);
+      dissect_egprs_data_segments(tvb, pinfo, data_tree, offset, 
+                                  tvb_length(tvb), li_count, li_array);
    }
    else
    {
@@ -7743,16 +7877,20 @@ dissect_egprs_dl_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8 li_count = array_length(li_array);
     guint64 fbi, e;
 
-    block_number = (data->flags & GSM_RLC_MAC_EGPRS_BLOCK2)?(egprs_dl_header_info->bsn1 + egprs_dl_header_info->bsn2) % 1024:egprs_dl_header_info->bsn1;
+    block_number = egprs_dl_header_info->bsn1;
+    if (data->flags & GSM_RLC_MAC_EGPRS_BLOCK2)
+    {
+       block_number = (block_number + egprs_dl_header_info->bsn2) % 1024;
+    }
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "DATA BLOCK");
     ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, offset, -1, 
-                                        "GSM RLC/MAC: EGPRS DL DATA (MCS%d) BLOCK %d (BSN %d)",
-                                        data->coding_scheme & 0x0F, (data->flags & GSM_RLC_MAC_EGPRS_BLOCK2)?2:1, 
+                                        "GSM RLC/MAC: EGPRS DL DATA BLOCK %d (BSN %d)",
+                                        (data->flags & GSM_RLC_MAC_EGPRS_BLOCK2)?2:1, 
                                         block_number);
     data_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac_data);
 
-    /* we assume that there are 6 padding bits in the first octet of each data block, 
+    /* we assume that there are 6 null bits in the first octet of each data block, 
        to give octet alignment of the main body of the block.  
        This alignment should be guaranteed by the transport-protocol dissector that called this one */
 
@@ -7770,8 +7908,7 @@ dissect_egprs_dl_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
        /* dissect the data segments */
        dissect_egprs_data_segments(tvb, pinfo, data_tree, offset, 
-                                   gsm_rlcmac_egprs_data_block_length[EGPRS_MCS_OFFSET(data->coding_scheme)], 
-                                   li_count, li_array);
+                                   tvb_length(tvb), li_count, li_array);
     }
     else
     {
@@ -7790,16 +7927,16 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((pinfo->private_data != NULL) && (((RlcMacPrivateData_t *)(pinfo->private_data))->magic == GSM_RLC_MAC_MAGIC_NUMBER))
     {
        /* the transport protocol dissector has provided a data structure that contains (at least) the Coding Scheme */
-	   data->coding_scheme = ((RlcMacPrivateData_t *)pinfo->private_data)->coding_scheme;
+	   data->block_format = ((RlcMacPrivateData_t *)pinfo->private_data)->block_format;
        data->flags = ((RlcMacPrivateData_t *)(pinfo->private_data))->flags;
     }
     else
     {
-       data->coding_scheme = RLCMAC_CS1;
+       data->block_format = RLCMAC_CS1;
        data->flags = 0;
     }
 
-    switch(data->coding_scheme)
+    switch(data->block_format)
     {
        case RLCMAC_CS1:
        case RLCMAC_CS2:
@@ -7808,15 +7945,9 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          dissect_dl_gprs_block(tvb, pinfo, tree, data);
          break;
 
-       case RLCMAC_MCS1:
-       case RLCMAC_MCS2:
-       case RLCMAC_MCS3:
-       case RLCMAC_MCS4:
-       case RLCMAC_MCS5:
-       case RLCMAC_MCS6:
-       case RLCMAC_MCS7:
-       case RLCMAC_MCS8:
-       case RLCMAC_MCS9:
+       case RLCMAC_HDR_TYPE_1:
+       case RLCMAC_HDR_TYPE_2:
+       case RLCMAC_HDR_TYPE_3:
           if (data->flags & (GSM_RLC_MAC_EGPRS_BLOCK1 | GSM_RLC_MAC_EGPRS_BLOCK2))
           {
              dissect_egprs_dl_data_block(tvb, pinfo, tree, data, &((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info);            
@@ -7828,7 +7959,7 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           break;
 
        default:
-          proto_tree_add_text(tree, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", data->coding_scheme);
+          proto_tree_add_text(tree, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", data->block_format);
           break;
     }
 }
@@ -7846,22 +7977,22 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((pinfo->private_data != NULL) && (((RlcMacPrivateData_t *)(pinfo->private_data))->magic == GSM_RLC_MAC_MAGIC_NUMBER))
     {
        /* the transport protocol dissector has provided a data structure that contains (at least) the Coding Scheme */
-       data->coding_scheme = ((RlcMacPrivateData_t *)pinfo->private_data)->coding_scheme;
+       data->block_format = ((RlcMacPrivateData_t *)pinfo->private_data)->block_format;
        data->flags = ((RlcMacPrivateData_t *)(pinfo->private_data))->flags;
     }
 	else if (tvb_length(tvb) < 3)
 	{
        /* assume that little packets are PACCH */
-       data->coding_scheme = RLCMAC_PRACH;
+       data->block_format = RLCMAC_PRACH;
        data->flags = 0;
 	}
     else
     {
-       data->coding_scheme = RLCMAC_CS1;
+       data->block_format = RLCMAC_CS1;
        data->flags = 0;
     }
     
-    switch(data->coding_scheme)
+    switch(data->block_format)
     {
        case RLCMAC_PRACH:
           dissect_ul_pacch_access_burst(tvb, pinfo, tree, data);
@@ -7874,15 +8005,9 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           dissect_ul_gprs_block(tvb, pinfo, tree, data);
           break;
 
-        case RLCMAC_MCS1:
-        case RLCMAC_MCS2:
-        case RLCMAC_MCS3:
-        case RLCMAC_MCS4:
-        case RLCMAC_MCS5:
-        case RLCMAC_MCS6:
-        case RLCMAC_MCS7:
-        case RLCMAC_MCS8:
-        case RLCMAC_MCS9:
+       case RLCMAC_HDR_TYPE_1:
+       case RLCMAC_HDR_TYPE_2:
+       case RLCMAC_HDR_TYPE_3:
            if (data->flags & (GSM_RLC_MAC_EGPRS_BLOCK1 | GSM_RLC_MAC_EGPRS_BLOCK2))
            {
               dissect_egprs_ul_data_block(tvb, pinfo, tree, data, &((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info);            
@@ -7894,7 +8019,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
        default:
-          proto_tree_add_text(tree, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", data->coding_scheme);
+          proto_tree_add_text(tree, tvb, 0, -1, "GSM RLCMAC unknown coding scheme (%d)", data->block_format);
           break;
     }
 }
@@ -7922,7 +8047,7 @@ proto_register_gsm_rlcmac(void)
        }
      },
      { &hf_bsn2,
-       { "Block Sequence Number 2",        "gsm_rlcmac.bsn2",
+       { "Block Sequence Number 2 offset", "gsm_rlcmac.bsn2",
          FT_UINT32, BASE_DEC, NULL, 0x0,
          NULL, HFILL
        }
@@ -7963,9 +8088,21 @@ proto_register_gsm_rlcmac(void)
          NULL, HFILL
        }
      },
-     { &hf_cps,
+     { &hf_cps1,
        { "Coding and Puncturing scheme",        "gsm_rlcmac.cps",
-         FT_UINT8, BASE_DEC, NULL, 0x0,
+         FT_UINT8, BASE_HEX|BASE_EXT_STRING, &egprs_Header_type1_coding_puncturing_scheme_vals_ext, 0x0,
+         NULL, HFILL
+       }
+     },
+     { &hf_cps2,
+       { "Coding and Puncturing scheme",        "gsm_rlcmac.cps",
+         FT_UINT8, BASE_HEX|BASE_EXT_STRING, &egprs_Header_type2_coding_puncturing_scheme_vals_ext, 0x0,
+         NULL, HFILL
+       }
+     },
+     { &hf_cps3,
+       { "Coding and Puncturing scheme",        "gsm_rlcmac.cps",
+         FT_UINT8, BASE_HEX|BASE_EXT_STRING, &egprs_Header_type3_coding_puncturing_scheme_vals_ext, 0x0,
          NULL, HFILL
        }
      },

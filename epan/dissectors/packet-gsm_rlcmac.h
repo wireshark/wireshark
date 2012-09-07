@@ -4799,7 +4799,7 @@ typedef struct
 /* < Payload Type Data MAC Header content > */
 typedef struct
 {
-  guint8 TFI;
+  guint8 Payload_Type;
   guint8 Countdown_Value;
   guint8 SI;
   guint8 R;
@@ -4892,6 +4892,7 @@ typedef struct
   guint8 CPS;
   guint8 SPARE1;
   guint8 SPARE2;
+  guint8 dummy;
 } UL_Data_Block_EGPRS_Header_t;
 
 typedef UL_Data_Block_EGPRS_Header_t UL_Data_Block_EGPRS_Header_Type1_t;
@@ -4987,17 +4988,17 @@ typedef enum
     RLCMAC_CS2 = 0x22,
     RLCMAC_CS3 = 0x23,
     RLCMAC_CS4 = 0x24,
-    RLCMAC_MCS0 = 0x30,
-    RLCMAC_MCS1 = 0x31,
-    RLCMAC_MCS2 = 0x32,
-    RLCMAC_MCS3 = 0x33,
-    RLCMAC_MCS4 = 0x34,
-    RLCMAC_MCS5 = 0x35,
-    RLCMAC_MCS6 = 0x36,
-    RLCMAC_MCS7 = 0x37,
-    RLCMAC_MCS8 = 0x38,
-    RLCMAC_MCS9 = 0x39,
-}RLCMAC_GPRS_CS_t;
+    RLCMAC_HDR_TYPE_1 = 0x31,
+    RLCMAC_HDR_TYPE_2 = 0x32,
+    RLCMAC_HDR_TYPE_3 = 0x33,
+    RLCMAC_HDR_TYPE_4 = 0x34,
+    RLCMAC_HDR_TYPE_5 = 0x35,
+    RLCMAC_HDR_TYPE_6 = 0x36,
+    RLCMAC_HDR_TYPE_7 = 0x37,
+    RLCMAC_HDR_TYPE_8 = 0x38,
+    RLCMAC_HDR_TYPE_9 = 0x39,
+	RLCMAC_HDR_TYPE_10 = 0x3a,
+}RLCMAC_block_format_t;
 
 /* < Downlink RLC/MAC control message > */
 typedef struct
@@ -5034,7 +5035,7 @@ typedef struct
     PSI13_t                               PSI13;
   } u;
 
-  RLCMAC_GPRS_CS_t coding_scheme;
+  RLCMAC_block_format_t block_format;
   guint            flags;
 } RlcMacDownlink_t;
 
@@ -5066,7 +5067,7 @@ typedef struct
     UL_Packet_Control_Ack_8_t             UL_Packet_Control_Ack_8;
     UL_Packet_Control_Ack_TN_RRBP_8_t     UL_Packet_Control_Ack_TN_RRBP_8;
   } u;
-  RLCMAC_GPRS_CS_t coding_scheme;
+  RLCMAC_block_format_t block_format;
   guint            flags;
 } RlcMacUplink_t;
 
@@ -5086,7 +5087,8 @@ typedef struct
 typedef struct
 {
    guint            magic;
-   RLCMAC_GPRS_CS_t coding_scheme;
+   RLCMAC_block_format_t block_format;
+   guint8           mcs;
    guint            frame_number;
 #define GSM_RLC_MAC_EGPRS_BLOCK1 0x01
 #define GSM_RLC_MAC_EGPRS_BLOCK2 0x02
@@ -5234,9 +5236,9 @@ typedef struct
 
 extern gint f_k(gint k, gint *w, gint range);
 
-extern const guint16 gsm_rlcmac_gprs_block_length[];
-extern const guint16 gsm_rlcmac_egprs_dl_header_block_length[];
-extern const guint16 gsm_rlcmac_egprs_ul_header_block_length[];
-extern const guint8 gsm_rlcmac_egprs_data_block_length[];
+extern const guint8 gsm_rlcmac_gprs_cs_to_block_length[];
+extern const guint8 gsm_rlcmac_egprs_header_type_to_dl_header_block_length[];
+extern const guint8 gsm_rlcmac_egprs_header_type_to_ul_header_block_length[];
+extern const guint8 gsm_rlcmac_egprs_mcs_to_data_block_length[];
 
 #endif /* __PACKET_GSM_RLCMAC_H__ */

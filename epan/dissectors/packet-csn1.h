@@ -631,8 +631,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 #define M_PADDING_BITS(_STRUCT)\
         {CSN_PADDING_BITS, 0, {0}, 0, TRUE, "Padding", {(StreamSerializeFcn_t)0}}
 
-#define M_NULL(_STRUCT, _MEMBER)\
-        {CSN_NULL, 0, {0}, offsetof(_STRUCT, _MEMBER), FALSE, #_MEMBER, {(StreamSerializeFcn_t)0}}
+#define M_NULL(_STRUCT, _MEMBER, _SKIP_BITS)\
+        {CSN_NULL, _SKIP_BITS, {0}, offsetof(_STRUCT, _MEMBER), FALSE, #_MEMBER, {(StreamSerializeFcn_t)0}}
 
 #define M_THIS_EXIST(_STRUCT)\
         {CSN_EXIST, 0, {0}, offsetof(_STRUCT, Exist), FALSE, "Exist", {(StreamSerializeFcn_t)0}}

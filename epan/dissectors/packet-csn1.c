@@ -222,6 +222,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
       case CSN_NULL:
       { /* Empty member! */
+        bit_offset += pDescr->i;
         pDescr++;
         break;
       }
@@ -776,6 +777,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
           case CSN_NULL:
           { /* Empty member! */
+            bit_offset += pDescr->i;
             pDescr++;
             break;
           }
