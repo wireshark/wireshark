@@ -354,6 +354,8 @@ static const fragment_items eap_tls_frag_items = {
   &hf_eap_tls_fragment_count,
   NULL,
   &hf_eap_tls_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   "fragments"
 };
 

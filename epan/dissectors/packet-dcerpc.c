@@ -610,6 +610,8 @@ static const fragment_items dcerpc_frag_items = {
     &hf_dcerpc_fragment_count,
     NULL,
     &hf_dcerpc_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "fragments"
 };
 

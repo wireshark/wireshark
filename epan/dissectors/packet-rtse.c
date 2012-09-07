@@ -154,6 +154,8 @@ static const fragment_items rtse_frag_items = {
 	&hf_rtse_reassembled_in,
 	/* Reassembled length field */
 	&hf_rtse_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	/* Tag */
 	"RTSE fragments"
 };
@@ -205,7 +207,7 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 		dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
 	}
 
-	/*XXX until we change the #.REGISTER signature for _PDU()s 
+	/*XXX until we change the #.REGISTER signature for _PDU()s
 	 * into new_dissector_t   we have to do this kludge with
 	 * manually step past the content in the ANY type.
 	 */
@@ -280,7 +282,7 @@ dissect_rtse_T_open(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 			oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id);
 		break;
 	}
-	
+
 	if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
 		oid = "applicationProtocol.12";
 
@@ -508,7 +510,7 @@ static int
 dissect_rtse_RefuseReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 148 "../../asn1/rtse/rtse.cnf"
   int reason = -1;
- 
+
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &reason);
 
@@ -540,7 +542,7 @@ dissect_rtse_T_userDataRJ(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 			oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id);
 		break;
 	}
-	
+
 	if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
 		oid = "applicationProtocol.12";
 
@@ -642,7 +644,7 @@ static int
 dissect_rtse_AbortReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 164 "../../asn1/rtse/rtse.cnf"
   int reason = -1;
- 
+
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &reason);
 
@@ -763,7 +765,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error:can't get application context from ACSE dissector.");
-		} 
+		}
 		return  ;
 	} else {
 		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
@@ -773,22 +775,22 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTSE");
   	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (rtse_reassemble && 
+	if (rtse_reassemble &&
 	    ((session->spdu_type == SES_DATA_TRANSFER) ||
 	     (session->spdu_type == SES_MAJOR_SYNC_POINT))) {
 		/* Use conversation index as fragment id */
-		conversation  = find_conversation (pinfo->fd->num, 
-						   &pinfo->src, &pinfo->dst, pinfo->ptype, 
+		conversation  = find_conversation (pinfo->fd->num,
+						   &pinfo->src, &pinfo->dst, pinfo->ptype,
 						   pinfo->srcport, pinfo->destport, 0);
-		if (conversation != NULL) { 
+		if (conversation != NULL) {
 			rtse_id = conversation->index;
-		} 
+		}
 		session->rtse_reassemble = TRUE;
 	}
 	if (rtse_reassemble && session->spdu_type == SES_MAJOR_SYNC_POINT) {
 		frag_msg = fragment_end_seq_next (pinfo, rtse_id, rtse_segment_table,
 						  rtse_reassembled_table);
-		next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled RTSE", 
+		next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled RTSE",
 						     frag_msg, &rtse_frag_items, NULL, parent_tree);
 	}
 	if(parent_tree){
@@ -803,7 +805,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			fragment_length = tvb_length_remaining (data_tvb, 0);
 			proto_item_append_text(asn1_ctx.created_item, " (%u byte%s)", fragment_length,
       	                              plurality(fragment_length, "", "s"));
-			frag_msg = fragment_add_seq_next (data_tvb, 0, pinfo, 
+			frag_msg = fragment_add_seq_next (data_tvb, 0, pinfo,
 							  rtse_id, rtse_segment_table,
 							  rtse_reassembled_table, fragment_length, TRUE);
 			if (frag_msg && pinfo->fd->num != frag_msg->reassembled_in) {
@@ -830,7 +832,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 		pinfo->fragmented = FALSE;
 		data_handled = TRUE;
-	} 
+	}
 
 	if (!data_handled) {
 		while (tvb_reported_length_remaining(tvb, offset) > 0){

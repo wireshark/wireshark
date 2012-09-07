@@ -230,6 +230,8 @@ static const fragment_items sm_frag_items = {
     &hf_gsm_sms_ud_reassembled_in,
     /* Reassembled length field */
     &hf_gsm_sms_ud_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     /* Tag */
     "Short Message fragments"
 };

@@ -407,6 +407,8 @@ static const fragment_items lowpan_frag_items = {
     &hf_6lowpan_reassembled_in,
     /* Reassembled length field */
     &hf_6lowpan_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     /* Tag */
     "6LoWPAN fragments"
 };
@@ -496,7 +498,7 @@ static lowpan_context_data *lowpan_context_find(guint8 cid, guint16 pan);
  *  NAME
  *      lowpan_pfxcpy
  *  DESCRIPTION
- *      A version of memcpy that takes a length in bits. If the 
+ *      A version of memcpy that takes a length in bits. If the
  *      length is not byte-aligned, the final byte will be
  *      manipulated so that only the desired number of bits are
  *      copied.
@@ -545,7 +547,7 @@ lowpan_context_hash(gconstpointer key)
  *  PARAMETERS
  *      key             ; Pointer to a lowpan_context_key type.
  *  RETURNS
- *      gboolean        ; 
+ *      gboolean        ;
  *---------------------------------------------------------------
  */
 static gboolean
@@ -564,7 +566,7 @@ lowpan_context_equal(gconstpointer a, gconstpointer b)
  *      cid             ; Context identifier.
  *      pan             ; PAN identifier.
  *  RETURNS
- *      lowpan_context_data *; 
+ *      lowpan_context_data *;
  *---------------------------------------------------------------
  */
 static lowpan_context_data *
@@ -572,23 +574,23 @@ lowpan_context_find(guint8 cid, guint16 pan)
 {
     lowpan_context_key  key;
     lowpan_context_data *data;
-    
+
     /* Check for the internal link-local context. */
     if (cid == LOWPAN_CONTEXT_LINK_LOCAL) return &lowpan_context_local;
-    
+
     /* Lookup the context from the table. */
     key.pan = pan;
     key.cid = cid;
     data = g_hash_table_lookup(lowpan_context_table, &key);
     if (data) return data;
-    
+
     /* If we didn't find a match, try again with the broadcast PAN. */
     if (pan != IEEE802154_BCAST_PAN) {
         key.pan = IEEE802154_BCAST_PAN;
         data = g_hash_table_lookup(lowpan_context_table, &key);
         if (data) return data;
     }
-    
+
     /* If the lookup failed, return the default context (::/0) */
     return &lowpan_context_default;
 } /* lowpan_context_find */
@@ -605,7 +607,7 @@ lowpan_context_find(guint8 cid, guint16 pan)
  *      prefix          ; Compression prefix.
  *      frame           ; Frame number.
  *  RETURNS
- *      void            ; 
+ *      void            ;
  *---------------------------------------------------------------
  */
 void
@@ -615,11 +617,11 @@ lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen, struct e_in6_addr *p
     lowpan_context_data *data;
     gpointer            pkey;
     gpointer            pdata;
-    
+
     /* Sanity! */
     if (plen > 128) return;
     if (!prefix) return;
-    
+
     /* Search the context table for an existing entry. */
     key.pan = pan;
     key.cid = cid;
@@ -634,7 +636,7 @@ lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen, struct e_in6_addr *p
     else {
         pkey = se_memdup(&key, sizeof(key));
     }
-    
+
     /* Create a new context */
     data = se_alloc(sizeof(lowpan_context_data));
     data->frame = frame;
@@ -689,7 +691,7 @@ static gboolean
 lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
 {
     ieee802154_hints_t  *hints;
-    
+
     /* Check the link-layer address field. */
     if (pinfo->dl_src.type == AT_EUI64) {
         memcpy(ifcid, pinfo->dl_src.data, LOWPAN_IFC_ID_LEN);
@@ -697,7 +699,7 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         ifcid[0] ^= 0x02;
         return TRUE;
     }
-    
+
     /* Lookup the IEEE 802.15.4 addressing hints. */
     hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
                 proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
@@ -736,7 +738,7 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         ifcid[0] ^= 0x02;
         return TRUE;
     }
-    
+
     /* Lookup the IEEE 802.15.4 addressing hints. */
     hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
                 proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
@@ -1369,7 +1371,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     tvbuff_t *          ipv6_tvb;
     /* Next header chain */
     struct lowpan_nhdr  *nhdr_list;
-    
+
     /* Lookup the IEEE 802.15.4 addressing hints. */
     hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
                 proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
@@ -1431,7 +1433,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     /* Lookup the contexts. */
     /*
      * Don't display their origin until after we decompress the address in case
-     * the address modes indicate that we should use a different context. 
+     * the address modes indicate that we should use a different context.
      */
     sctx = lowpan_context_find(iphc_sci, hint_panid);
     dctx = lowpan_context_find(iphc_dci, hint_panid);
@@ -2765,7 +2767,7 @@ proto_register_6lowpan(void)
          */
         pref_name = g_strdup_printf("context%d", i);
         pref_title = g_strdup_printf("Context %d", i);
-        prefs_register_string_preference(prefs_module, pref_name, pref_title, 
+        prefs_register_string_preference(prefs_module, pref_name, pref_title,
             "IPv6 prefix to use for stateful address decompression.",
             &lowpan_context_prefs[i]);
     }
@@ -2788,18 +2790,18 @@ proto_init_6lowpan(void)
     /* Initialize the fragment reassembly table. */
     fragment_table_init(&lowpan_fragment_table);
     reassembled_table_init(&lowpan_reassembled_table);
-    
+
     /* Initialize the context table. */
     if (lowpan_context_table)
         g_hash_table_destroy(lowpan_context_table);
     lowpan_context_table = g_hash_table_new(lowpan_context_hash, lowpan_context_equal);
-    
-    
+
+
     /* Initialize the link-local context. */
     lowpan_context_local.frame = 0;
     lowpan_context_local.plen = LOWPAN_CONTEXT_LINK_LOCAL_BITS;
     memcpy(&lowpan_context_local.prefix, lowpan_llprefix, sizeof(lowpan_llprefix));
-    
+
     /* Reload static contexts from our preferences. */
     prefs_6lowpan_apply();
 } /* proto_init_6lowpan */

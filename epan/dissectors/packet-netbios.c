@@ -134,6 +134,8 @@ static const fragment_items netbios_frag_items = {
 	&hf_netb_fragment_count,
 	NULL,
 	&hf_netb_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	"fragments"
 };
 

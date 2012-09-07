@@ -113,6 +113,8 @@ static const fragment_items cbch_frag_items = {
     &hf_cbch_fragment_count,
     &hf_cbch_reassembled_in,
     &hf_cbch_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "blocks"
 };
 

@@ -225,6 +225,8 @@ static const fragment_items p_mul_frag_items = {
   &hf_msg_reassembled_in,
   /* Reassembled length field */
   &hf_msg_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   /* Tag */
   "Message fragments"
 };

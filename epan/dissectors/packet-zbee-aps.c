@@ -166,6 +166,8 @@ static const fragment_items zbee_aps_frag_items = {
     &hf_zbee_aps_reassembled_in,
     /* Reassembled length field */
     &hf_zbee_aps_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     /* Tag */
     "APS Message fragments"
 };

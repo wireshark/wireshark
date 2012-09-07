@@ -2711,6 +2711,8 @@ static const fragment_items frag_items = {
   &hf_ieee80211_fragment_count,
   &hf_ieee80211_reassembled_in,
   &hf_ieee80211_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   "fragments"
 };
 
@@ -4102,6 +4104,8 @@ static const fragment_items gas_resp_frag_items = {
   &hf_ieee80211_gas_resp_fragment_count,
   &hf_ieee80211_gas_resp_reassembled_in,
   &hf_ieee80211_gas_resp_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   "GAS Response fragments"
 };
 
@@ -7475,7 +7479,7 @@ dissect_frame_control(proto_tree * tree, tvbuff_t * tvb, gboolean wlan_broken_fc
 }
 
 static void
-dissect_vendor_ie_ht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
+dissect_vendor_ie_ht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     guint offset, proto_item *item, proto_item *ti_len, gint tag_len)
 {
 

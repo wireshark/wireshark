@@ -282,6 +282,8 @@ static const fragment_items octet_string_frag_items = {
     &hf_ber_reassembled_in,
     /* Reassembled length field */
     &hf_ber_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     /* Tag */
     "OCTET STRING fragments"
 };

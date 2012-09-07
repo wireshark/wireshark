@@ -111,6 +111,8 @@ static const fragment_items idmp_frag_items = {
     &hf_idmp_reassembled_in,
     /* Reassembled length field */
     &hf_idmp_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     /* Tag */
     "IDMP fragments"
 };

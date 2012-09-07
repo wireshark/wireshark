@@ -146,6 +146,7 @@ static int hf_tcp_pdu_size = -1;
 static int hf_tcp_pdu_last_frame = -1;
 static int hf_tcp_reassembled_in = -1;
 static int hf_tcp_reassembled_length = -1;
+static int hf_tcp_reassembled_data = -1;
 static int hf_tcp_segments = -1;
 static int hf_tcp_segment = -1;
 static int hf_tcp_segment_overlap = -1;
@@ -402,6 +403,7 @@ static const fragment_items tcp_segment_items = {
     &hf_tcp_segment_count,
     &hf_tcp_reassembled_in,
     &hf_tcp_reassembled_length,
+    &hf_tcp_reassembled_data,
     "Segments"
 };
 
@@ -5051,6 +5053,10 @@ proto_register_tcp(void)
         { &hf_tcp_reassembled_length,
         { "Reassembled TCP length", "tcp.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
             "The total length of the reassembled payload", HFILL }},
+
+        { &hf_tcp_reassembled_data,
+        { "Reassembled TCP Data", "tcp.reassembled.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+            "The reassembled payload", HFILL }},
 
         { &hf_tcp_option_kind,
           { "Kind", "tcp.option_kind", FT_UINT8,

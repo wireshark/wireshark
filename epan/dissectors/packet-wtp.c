@@ -218,6 +218,8 @@ static const fragment_items wtp_frag_items = {
     &hf_wtp_fragment_count,
     &hf_wtp_reassembled_in,
     &hf_wtp_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "fragments"
 };
 

@@ -280,6 +280,8 @@ static const fragment_items ndmp_frag_items = {
        &hf_ndmp_reassembled_in,
        /* Reassembled length field */
        &hf_ndmp_reassembled_length,
+       /* Reassembled data field */
+       NULL,
        /* Tag */
        "NDMP fragments"
 };

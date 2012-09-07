@@ -100,6 +100,8 @@ static const fragment_items pop_data_frag_items = {
   &hf_pop_data_reassembled_in,
   /* Reassembled length field */
   &hf_pop_data_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   /* Tag */
   "DATA fragments"
 };

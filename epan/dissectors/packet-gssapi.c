@@ -94,6 +94,8 @@ static const fragment_items gssapi_frag_items = {
 	&hf_gssapi_segment_count,
 	NULL,
 	&hf_gssapi_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	"fragments"
 };
 

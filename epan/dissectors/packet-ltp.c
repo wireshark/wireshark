@@ -197,6 +197,8 @@ static const fragment_items ltp_frag_items = {
     &hf_ltp_reassembled_in,
     /*Reassembled length field*/
     &hf_ltp_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     /*Tag*/
     "LTP fragments"
 };

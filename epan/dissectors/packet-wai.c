@@ -182,6 +182,8 @@ static const fragment_items wai_frag_items = {
     &hf_wai_reassembled_in,
     /* Reassembled length field */
     &hf_wai_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     /* Tag */
     "Message fragments"
 };

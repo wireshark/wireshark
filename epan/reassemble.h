@@ -289,25 +289,29 @@ fragment_get_reassembled_id(const packet_info *pinfo, const guint32 id, GHashTab
 extern unsigned char *
 fragment_delete(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table);
 
-/* hf_fragment, hf_fragment_error, and hf_reassembled_in should be
-   FT_FRAMENUM, the others should be FT_BOOLEAN
-*/
+/* This struct holds references to all the tree and field handles used when
+ * displaying the reassembled fragment tree in the packet details view. A
+ * dissector will populate this structure with its own tree and field handles
+ * and then invoke show_fragement_tree to have those items added to the packet
+ * details tree.
+ */
 typedef struct _fragment_items {
-	gint	*ett_fragment;
-	gint	*ett_fragments;
+    gint       *ett_fragment;
+    gint       *ett_fragments;
 
-	int	*hf_fragments;
-	int	*hf_fragment;
-	int	*hf_fragment_overlap;
-	int	*hf_fragment_overlap_conflict;
-	int	*hf_fragment_multiple_tails;
-	int	*hf_fragment_too_long_fragment;
-	int	*hf_fragment_error;
-	int     *hf_fragment_count;
-	int	*hf_reassembled_in;
-	int	*hf_reassembled_length;
+    int        *hf_fragments;                  /* FT_BOOLEAN  */
+    int        *hf_fragment;                   /* FT_FRAMENUM */
+    int        *hf_fragment_overlap;           /* FT_BOOLEAN  */
+    int        *hf_fragment_overlap_conflict;  /* FT_BOOLEAN  */
+    int        *hf_fragment_multiple_tails;    /* FT_BOOLEAN  */
+    int        *hf_fragment_too_long_fragment; /* FT_BOOLEAN  */
+    int        *hf_fragment_error;             /* FT_FRAMENUM */
+    int        *hf_fragment_count;             /* FT_UINT32   */
+    int        *hf_reassembled_in;             /* FT_FRAMENUM */
+    int        *hf_reassembled_length;         /* FT_UINT32   */
+    int        *hf_reassembled_data;           /* FT_BYTES    */
 
-	const char	*tag;
+    const char *tag;
 } fragment_items;
 
 extern tvbuff_t *

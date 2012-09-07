@@ -108,6 +108,8 @@ static const fragment_items smtp_data_frag_items = {
   &hf_smtp_data_reassembled_in,
   /* Reassembled length field */
   &hf_smtp_data_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   /* Tag */
   "DATA fragments"
 };
@@ -607,7 +609,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           } else if (session_state->auth_state == SMTP_AUTH_STATE_PASSWORD_REQ) {
               session_state->auth_state = SMTP_AUTH_STATE_PASSWORD_RSP;
               session_state->password_frame = pinfo->fd->num;
-          } 
+          }
           else {
 
             /*
@@ -740,7 +742,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             proto_tree_add_string(smtp_tree, hf_smtp_username, tvb,
                                   loffset, linelen, decrypt);
-            col_append_str(pinfo->cinfo, COL_INFO, decrypt);           
+            col_append_str(pinfo->cinfo, COL_INFO, decrypt);
         } else if (session_state->password_frame == pinfo->fd->num) {
             if (decrypt == NULL) {
                 /* This line wasn't already decrypted through the state machine */
@@ -868,7 +870,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             if (code == 334) {
-                switch(session_state->auth_state) 
+                switch(session_state->auth_state)
                 {
                 case SMTP_AUTH_STATE_START:
                     session_state->auth_state = SMTP_AUTH_STATE_USERNAME_REQ;

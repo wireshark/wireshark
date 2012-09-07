@@ -244,6 +244,8 @@ static const fragment_items lapsat_frag_items = {
 	&hf_lapsat_reassembled_in,
 	/* Reassembled length field */
 	&hf_lapsat_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	/* Tag */
 	"fragments"
 };

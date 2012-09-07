@@ -289,6 +289,8 @@ static const fragment_items rpc_frag_items = {
 	&hf_rpc_fragment_count,
 	NULL,
 	&hf_rpc_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	"fragments"
 };
 

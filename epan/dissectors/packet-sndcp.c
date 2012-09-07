@@ -91,6 +91,8 @@ static const fragment_items npdu_frag_items = {
     &hf_npdu_fragment_count,
     &hf_npdu_reassembled_in,
     &hf_npdu_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "fragments"
 };
 

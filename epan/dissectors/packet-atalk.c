@@ -353,6 +353,8 @@ static const fragment_items atp_frag_items = {
   &hf_atp_segment_count,
   &hf_atp_reassembled_in,
   &hf_atp_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   "segments"
 };
 

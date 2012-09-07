@@ -220,6 +220,8 @@ static const fragment_items tipc_msg_frag_items = {
 	&hf_tipc_msg_reassembled_in,
 	/* Reassembled length field */
 	&hf_tipc_msg_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	/* Tag */
 	"TIPC Message fragments"
 };

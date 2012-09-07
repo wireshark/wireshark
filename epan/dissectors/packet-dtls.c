@@ -206,6 +206,8 @@ static const fragment_items dtls_frag_items = {
   &hf_dtls_reassembled_in,
   /* Reassembled length field */
   &hf_dtls_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   /* Tag */
   "Message fragments"
 };

@@ -285,6 +285,8 @@ static gint ett_msg_fragments = -1;
     &hf_msg_reassembled_in,
     /* Reassembled length field */
     &hf_msg_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     /* Tag */
     "Message fragments"
     };

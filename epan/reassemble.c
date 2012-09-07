@@ -2085,6 +2085,12 @@ show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
 		PROTO_ITEM_SET_GENERATED(fli);
 	}
 
+	if (fit->hf_reassembled_data) {
+		proto_item *fli = proto_tree_add_item(ft, *(fit->hf_reassembled_data),
+						      tvb, 0, tvb_length(tvb), ENC_NA);
+		PROTO_ITEM_SET_GENERATED(fli);
+	}
+
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);
 }
 

@@ -546,6 +546,8 @@ static const fragment_items tds_frag_items = {
     &hf_tds_fragment_count,
     &hf_tds_reassembled_in,
     &hf_tds_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "fragments"
 };
 
@@ -1732,7 +1734,7 @@ dissect_tds_done_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_i
     offset += 2;
     proto_tree_add_text(tree, tvb, offset, 2, "Operation");
     offset += 2;
-    if (TDS_PROTO_TDS7_2_OR_GREATER) { 
+    if (TDS_PROTO_TDS7_2_OR_GREATER) {
         proto_tree_add_text(tree, tvb, offset, 8, "row count: %" G_GINT64_MODIFIER "u",
                             tds_tvb_get_xxtoh64(tvb, offset, tds_little_endian));
     } else {

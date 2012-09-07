@@ -122,6 +122,8 @@ static const fragment_items dcp_frag_items = {
   &hf_edcp_reassembled_in,
 /* Reassembled length field */
   &hf_edcp_reassembled_length,
+/* Reassembled data field */
+  NULL,
 /* Tag */
   "Message fragments"
 };

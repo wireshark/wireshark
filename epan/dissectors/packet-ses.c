@@ -204,6 +204,8 @@ static const fragment_items ses_frag_items = {
   &hf_ses_reassembled_in,
   /* Reassembled length field */
   &hf_ses_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   /* Tag */
   "SES segments"
 };

@@ -4038,6 +4038,8 @@ static const fragment_items ndps_frag_items = {
     &hf_ndps_segment_count,
     NULL,
     &hf_ndps_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "segments"
 };
 

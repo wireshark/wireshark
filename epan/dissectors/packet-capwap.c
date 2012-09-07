@@ -281,6 +281,8 @@ static const fragment_items capwap_frag_items = {
   &hf_msg_reassembled_in,
   /* Reassembled length field */
   &hf_msg_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   /* Tag */
   "Message fragments"
 };
@@ -1375,7 +1377,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (global_capwap_reassemble && fragment_is)
 	{
 		const int len_rem = tvb_length_remaining(tvb, offset);
-		if (len_rem <= 0) 
+		if (len_rem <= 0)
 			return offset;
 
 		pinfo->fragmented = TRUE;

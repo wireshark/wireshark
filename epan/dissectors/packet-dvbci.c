@@ -1007,6 +1007,8 @@ static const fragment_items tpdu_frag_items = {
 
     &hf_dvbci_l_reass_in,
     &hf_dvbci_l_reass_len,
+    /* Reassembled data field */
+    NULL,
     "Tpdu fragments"
 };
 static const fragment_items spdu_frag_items = {
@@ -1024,6 +1026,8 @@ static const fragment_items spdu_frag_items = {
 
     &hf_dvbci_t_reass_in,
     &hf_dvbci_t_reass_len,
+    /* Reassembled data field */
+    NULL,
     "Spdu fragments"
 };
 
@@ -1619,7 +1623,7 @@ store_lsc_msg_dissector(circuit_t *circuit, guint8 ip_proto, guint16 port)
     circuit_set_dissector(circuit, msg_handle);
 }
 
- 
+
 /* dissect a connection_descriptor for the lsc resource
    returns its length or -1 for error */
 static gint

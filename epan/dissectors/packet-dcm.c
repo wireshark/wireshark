@@ -370,6 +370,8 @@ static const fragment_items dcm_pdv_fragment_items = {
     &hf_dcm_pdv_fragment_count,
     &hf_dcm_pdv_reassembled_in,
     &hf_dcm_pdv_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     /* Tag */
     "Message fragments"
 };

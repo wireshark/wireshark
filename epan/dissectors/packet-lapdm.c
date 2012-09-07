@@ -198,6 +198,8 @@ static const fragment_items lapdm_frag_items = {
     &hf_lapdm_reassembled_in,
     /* Reassembled length field */
     &hf_lapdm_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     /* Tag */
     "fragments"
 };

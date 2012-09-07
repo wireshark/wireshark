@@ -251,6 +251,8 @@ static const fragment_items x25_frag_items = {
 	&hf_x25_segment_count,
 	NULL,
 	&hf_x25_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	"segments"
 };
 

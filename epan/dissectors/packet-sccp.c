@@ -734,6 +734,8 @@ static const fragment_items sccp_xudt_msg_frag_items = {
   &hf_sccp_xudt_msg_reassembled_in,
   /* Reassembled length field */
   &hf_sccp_xudt_msg_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   /* Tag */
   "SCCP XUDT Message fragments"
 };

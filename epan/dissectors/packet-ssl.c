@@ -320,6 +320,8 @@ static const fragment_items ssl_segment_items = {
     &hf_ssl_segment_count,
     &hf_ssl_reassembled_in,
     &hf_ssl_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "Segments"
 };
 

@@ -90,6 +90,8 @@ static const fragment_items smb_pipe_frag_items = {
 	&hf_pipe_fragment_count,
 	NULL,
 	&hf_pipe_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	"fragments"
 };
 

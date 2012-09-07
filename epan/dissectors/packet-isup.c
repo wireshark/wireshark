@@ -2929,6 +2929,8 @@ static const fragment_items isup_apm_msg_frag_items = {
   &hf_isup_apm_msg_reassembled_in,
   /* Reassembled length field */
   &hf_isup_apm_msg_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   /* Tag */
   "ISUP APM Message fragments"
 };

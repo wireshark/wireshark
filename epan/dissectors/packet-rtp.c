@@ -128,6 +128,8 @@ static const fragment_items rtp_fragment_items = {
 	&hf_rtp_fragment_count,
 	&hf_rtp_reassembled_in,
 	&hf_rtp_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	"RTP fragments"
 };
 
@@ -1182,7 +1184,7 @@ dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
 
 		subtvb = tvb_new_subset(tvb, ext_offset, ext_length, ext_length);
 		if (!dissector_try_uint (rtp_hdr_ext_rfc5285_dissector_table, ext_id, subtvb, pinfo, rtp_hext_rfc5285_tree)) {
-			if (rtp_hext_tree) 
+			if (rtp_hext_tree)
 				proto_tree_add_item(rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_data, subtvb, 0, ext_length, ENC_NA );
 		}
 

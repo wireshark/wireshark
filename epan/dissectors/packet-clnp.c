@@ -84,6 +84,8 @@ static const fragment_items clnp_frag_items = {
   &hf_clnp_segment_count,
   &hf_clnp_reassembled_in,
   &hf_clnp_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   "segments"
 };
 

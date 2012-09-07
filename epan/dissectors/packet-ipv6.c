@@ -182,6 +182,7 @@ static int hf_ipv6_fragment_error               = -1;
 static int hf_ipv6_fragment_count               = -1;
 static int hf_ipv6_reassembled_in               = -1;
 static int hf_ipv6_reassembled_length           = -1;
+static int hf_ipv6_reassembled_data             = -1;
 
 static int hf_ipv6_mipv6_home_address           = -1;
 
@@ -292,6 +293,7 @@ static const fragment_items ipv6_frag_items = {
         &hf_ipv6_fragment_count,
         &hf_ipv6_reassembled_in,
         &hf_ipv6_reassembled_length,
+        &hf_ipv6_reassembled_data,
         "IPv6 fragments"
 };
 
@@ -2545,6 +2547,10 @@ proto_register_ipv6(void)
                                 FT_UINT32, BASE_DEC, NULL, 0x0,
                                 "The total length of the reassembled payload", HFILL }},
 
+    { &hf_ipv6_reassembled_data,
+      { "Reassembled IPv6 data", "ipv6.reassembled.data",
+                                FT_UINT32, BASE_DEC, NULL, 0x0,
+                                "The reassembled payload", HFILL }},
     /* RPL Routing Header */
     { &hf_ipv6_routing_hdr_rpl_cmprI,
       { "Compressed Internal Octets (CmprI)", "ipv6.routing_hdr.rpl.cmprI",

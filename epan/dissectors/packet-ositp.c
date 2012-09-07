@@ -102,6 +102,8 @@ static const fragment_items cotp_frag_items = {
 	&hf_cotp_segment_count,
 	&hf_cotp_reassembled_in,
 	&hf_cotp_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	"segments"
 };
 

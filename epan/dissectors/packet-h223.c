@@ -138,6 +138,8 @@ static const fragment_items h223_mux_frag_items _U_ = {
     &hf_h223_mux_fragment_count,
     &hf_h223_mux_reassembled_in,
     &hf_h223_mux_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "fragments"
 };
 
@@ -154,6 +156,8 @@ static const fragment_items h223_al_frag_items = {
     &hf_h223_al_fragment_count,
     &hf_h223_al_reassembled_in,
     &hf_h223_al_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "fragments"
 };
 

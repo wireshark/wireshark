@@ -136,6 +136,8 @@ static const fragment_items q931_frag_items = {
 	&hf_q931_segment_count,
 	&hf_q931_reassembled_in,
 	&hf_q931_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	"segments"
 };
 

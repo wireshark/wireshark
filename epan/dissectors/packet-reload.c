@@ -656,6 +656,8 @@ static const fragment_items reload_frag_items = {
   &hf_reload_fragment_count,
   &hf_reload_reassembled_in,
   &hf_reload_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   "RELOAD fragments"
 };
 

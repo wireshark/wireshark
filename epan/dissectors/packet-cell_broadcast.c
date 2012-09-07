@@ -157,6 +157,8 @@ static const fragment_items gsm_page_items = {
     &hf_gsm_cbs_page_count,
     &hf_gsm_cbs_message_reassembled_in,
     &hf_gsm_cbs_message_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "pages"
 };
 

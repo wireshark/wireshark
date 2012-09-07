@@ -1097,6 +1097,8 @@ static const fragment_items dnp3_frag_items = {
   &hf_dnp3_fragment_count,
   &hf_dnp3_fragment_reassembled_in,
   &hf_dnp3_fragment_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   "DNP 3.0 fragments"
 };
 
@@ -2237,7 +2239,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             proto_tree_add_time(object_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
             data_pos += 6;
             proto_item_set_len(point_item, data_pos - offset);
-            
+
             if (al_obj == AL_OBJ_TDCTO) {
               /* Copy the time object to the CTO for any other relative time objects in this response */
               nstime_copy(al_cto, &al_abstime);
@@ -2489,9 +2491,9 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree   *al_tree = NULL, *field_tree = NULL, *robj_tree = NULL;
   const gchar  *func_code_str;
   nstime_t      al_cto;
-  
+
   nstime_set_zero (&al_cto);
-  
+
   data_len = tvb_length(tvb);
 
   /* Handle the control byte and function code */
@@ -3545,7 +3547,7 @@ proto_register_dnp3(void)
 /* Register the protocol name and description */
   proto_dnp3 = proto_register_protocol("Distributed Network Protocol 3.0",
                    "DNP 3.0", "dnp3");
-                   
+
 /* Register the dissector so it may be used as a User DLT payload protocol */
   new_register_dissector("dnp3.udp", dissect_dnp3_udp, proto_dnp3);
 
@@ -3571,7 +3573,7 @@ proto_reg_handoff_dnp3(void)
   /* register as heuristic dissector for both TCP and UDP */
   heur_dissector_add("tcp", dissect_dnp3_tcp, proto_dnp3);
   heur_dissector_add("udp", dissect_dnp3_udp, proto_dnp3);
- 
+
   dnp3_tcp_handle = new_create_dissector_handle(dissect_dnp3_tcp, proto_dnp3);
   dnp3_udp_handle = new_create_dissector_handle(dissect_dnp3_udp, proto_dnp3);
   dissector_add_uint("tcp.port", TCP_PORT_DNP, dnp3_tcp_handle);

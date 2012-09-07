@@ -78,6 +78,8 @@ static const fragment_items nds_frag_items = {
     &hf_nds_segment_count,
     NULL,
     &hf_nds_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "segments"
 };
 

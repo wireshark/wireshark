@@ -192,6 +192,8 @@ static const fragment_items iax2_fragment_items = {
   &hf_iax2_fragment_count,
   &hf_iax2_reassembled_in,
   &hf_iax2_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   "iax2 fragments"
 };
 

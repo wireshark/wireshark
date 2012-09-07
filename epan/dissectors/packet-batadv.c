@@ -513,6 +513,8 @@ static const fragment_items msg_frag_items = {
 	/* Reassembled in field */
 	&hf_msg_reassembled_in,
 	&hf_msg_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	/* Tag */
 	"Message fragments"
 };

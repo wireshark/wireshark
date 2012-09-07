@@ -819,6 +819,8 @@ static const fragment_items smb_frag_items = {
 	&hf_smb_segment_count,
 	NULL,
 	&hf_smb_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	"segments"
 };
 

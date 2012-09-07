@@ -88,6 +88,8 @@ static const fragment_items btobex_frag_items = {
     &hf_btobex_fragment_count,
     &hf_btobex_reassembled_in,
     &hf_btobex_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "fragments"
 };
 

@@ -390,6 +390,8 @@ static const fragment_items scsi_frag_items = {
     &hf_scsi_fragment_count,
     &hf_scsi_reassembled_in,
     &hf_scsi_reassembled_length,
+    /* Reassembled data field */
+    NULL,
     "fragments"
 };
 
@@ -490,7 +492,7 @@ static const value_string scsi_evpd_pagecode_val[] = {
     {SCSI_EVPD_DEVSERNUM, "Unit Serial Number Page"},
     {SCSI_EVPD_OPER,      "Implemented Operating Definition Page"},
     {SCSI_EVPD_ASCIIOPER, "ASCII Implemented Operating Definition Page"},
-    {SCSI_EVPD_DEVID,     "Device Identification Page"}, 
+    {SCSI_EVPD_DEVID,     "Device Identification Page"},
     {SCSI_EVPD_BLKLIMITS, "Block Limits Page"},
     {SCSI_EVPD_LBP,        "Logical Block Provisioning Page"},
     {0, NULL},
@@ -3561,7 +3563,7 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
     if (spf) {
         proto_tree_add_item(tree, hf_scsi_spc_subpagecode, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_scsi_modepage_plen, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-    } else { 
+    } else {
         proto_tree_add_item(tree, hf_scsi_modepage_plen, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
     }
 

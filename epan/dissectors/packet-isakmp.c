@@ -392,6 +392,8 @@ static const fragment_items isakmp_frag_items = {
   &hf_isakmp_reassembled_in,
   /* Reassembled length field */
   &hf_isakmp_reassembled_length,
+  /* Reassembled data field */
+  NULL,
   /* Tag */
   "Message fragments"
 };
