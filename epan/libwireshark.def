@@ -1256,3 +1256,12 @@ xml_escape
 xml_get_attrib
 xml_get_cdata
 xml_get_tag
+py_dissect
+py_dissector_name
+py_dissector_register
+py_dissector_args
+py_create_dissector_handle
+hf_register_info_create
+hf_register_info_destroy
+hf_register_info_add
+hf_register_info_print
