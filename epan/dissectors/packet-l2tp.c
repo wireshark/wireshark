@@ -859,6 +859,144 @@ static void store_ccid(l2tpv3_tunnel_t *tunnel,
 }
 
 /*
+ * Dissect CISCO AVP:s
+ */
+static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+
+    int offset = 0;
+    int         avp_type;
+    guint32     avp_vendor_id;
+    guint16     avp_len;
+    guint16     ver_len_hidden;
+	proto_item *tf, *te;
+	proto_tree *l2tp_avp_tree, *l2tp_avp_tree_sub;
+    guint32     bits;
+
+    ver_len_hidden  = tvb_get_ntohs(tvb, offset);
+    avp_len         = AVP_LENGTH(ver_len_hidden);
+    avp_vendor_id   = tvb_get_ntohs(tvb, offset + 2);
+    avp_type        = tvb_get_ntohs(tvb, offset + 4);
+
+    tf =  proto_tree_add_text(tree, tvb, offset,
+                              avp_len, "Vendor %s: %s AVP",
+                              val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
+                              val_to_str(avp_type, cisco_avp_type_vals, "Unknown (%u)"));
+
+
+    l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
+
+    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+	if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
+        offset += avp_len;
+        return offset;
+    }
+
+    offset += 2;
+    avp_len -= 2;
+
+    proto_tree_add_uint(l2tp_avp_tree, hf_l2tp_cisco_avp_type,
+                        tvb, offset, 2, avp_type);
+    offset += 2;
+    avp_len -= 2;
+
+    switch (avp_type) {
+    case CISCO_ASSIGNED_CONNECTION_ID:
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 4,
+                            "Assigned Control Connection ID: %u",
+                            tvb_get_ntohl(tvb, offset));
+        break;
+
+    case CISCO_PW_CAPABILITY_LIST:
+        te = proto_tree_add_text(l2tp_avp_tree, tvb, offset, avp_len,
+                                    "Pseudowire Capabilities List");
+        l2tp_avp_tree_sub = proto_item_add_subtree(te, ett_l2tp_avp_sub);
+        while (avp_len >= 2) {
+            int pw_type = tvb_get_ntohs(tvb, offset);
+
+            proto_tree_add_text(l2tp_avp_tree_sub, tvb, offset,
+                                2, "PW Type: (%u) %s",
+                                pw_type,
+                                val_to_str(pw_type, pw_types_vals,
+                                            "Unknown (0x%04x)"));
+            offset += 2;
+            avp_len -= 2;
+        }
+        break;
+
+    case CISCO_LOCAL_SESSION_ID:
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 4,
+                            "Local Session ID: %u",
+                            tvb_get_ntohl(tvb, offset));
+        break;
+    case CISCO_REMOTE_SESSION_ID:
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 4,
+                            "Remote Session ID: %u",
+                            tvb_get_ntohl(tvb, offset));
+        break;
+    case CISCO_ASSIGNED_COOKIE:
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset, avp_len,
+                            "Assigned Cookie: %s",
+                            tvb_bytes_to_str(tvb, offset, avp_len));
+        break;
+    case CISCO_REMOTE_END_ID:
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset, avp_len,
+                            "Remote End ID: %s",
+                            tvb_format_text(tvb, offset, avp_len));
+        break;
+    case CISCO_PW_TYPE:
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 2,
+                            "Pseudowire Type: %u - %s",
+                            tvb_get_ntohs(tvb, offset),
+                            val_to_str(tvb_get_ntohs(tvb, offset),
+                                        pw_types_vals, "Unknown (0x%04x)"));
+        break;
+    case CISCO_CIRCUIT_STATUS:
+        bits = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 2,
+                            "Circuit Status: %s",
+                            (CIRCUIT_STATUS_BIT(bits)) ? "Up" : "Down");
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 2,
+                            "Circuit Type: %s",
+                            (CIRCUIT_TYPE_BIT(bits)) ? "New" : "Existing");
+        break;
+    case CISCO_SESSION_TIE_BREAKER:
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_tie_breaker,
+                            tvb, offset, 8, ENC_BIG_ENDIAN);
+        break;
+    case CISCO_DRAFT_AVP_VERSION:
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 2,
+                            "Draft AVP Version: %u",
+                            tvb_get_ntohs(tvb, offset));
+        break;
+    case CISCO_MESSAGE_DIGEST:
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset, avp_len,
+                            "Message Digest: %s",
+                            tvb_bytes_to_str(tvb, offset, avp_len));
+        break;
+    case CISCO_AUTH_NONCE:
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset, avp_len,
+                            "Nonce: %s",
+                            tvb_bytes_to_str(tvb, offset, avp_len));
+        break;
+    case CISCO_INTERFACE_MTU:
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset, avp_len,
+                            "Interface MTU: %u",
+                            tvb_get_ntohs(tvb, offset));
+        break;
+
+    default:
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset,
+                            avp_len, "Vendor-Specific AVP");
+        break;
+    }
+    offset += avp_len;
+
+	return offset;
+}
+/*
  * Processes AVPs for Control Messages all versions and transports
  */
 static void process_control_avps(tvbuff_t *tvb,
@@ -877,7 +1015,7 @@ static void process_control_avps(tvbuff_t *tvb,
     guint32     avp_vendor_id;
     guint16     avp_len;
     guint16     ver_len_hidden;
-    tvbuff_t   *next_tvb;
+    tvbuff_t   *next_tvb, *avp_tvb;
     guint16     result_code;
     guint16     error_code;
     guint32     bits;
@@ -893,27 +1031,49 @@ static void process_control_avps(tvbuff_t *tvb,
         avp_type        = tvb_get_ntohs(tvb, idx + 4);
 
         if (avp_len < 6) {
-            proto_tree_add_text(l2tp_avp_tree ? l2tp_avp_tree : l2tp_tree, tvb, idx, 0,
-                                "AVP length must be >= 6");
+            proto_tree_add_text(l2tp_avp_tree ? l2tp_avp_tree : l2tp_tree, tvb, idx, 2,
+                                "AVP length must be >= 6, got %u", avp_len);
             return;
         }
 
-        if (avp_vendor_id == VENDOR_IETF) {
-            tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
-                                      avp_len, "%s AVP",
-                                      val_to_str(avp_type, avp_type_vals, "Unknown (%u)"));
-        } else if (avp_vendor_id == VENDOR_CISCO) {      /* Vendor-Specific AVP */
-            tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
-                                      avp_len, "Vendor %s: %s AVP",
-                                      val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
-                                      val_to_str(avp_type, cisco_avp_type_vals, "Unknown (%u)"));
-        } else {        /* Vendor-Specific AVP */
-            tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
+        if (avp_vendor_id != VENDOR_IETF) {
+            if (avp_vendor_id == VENDOR_CISCO) {      /* Vendor-Specific AVP */
+
+                avp_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
+                dissect_l2tp_cisco_avps(avp_tvb, pinfo, l2tp_tree);
+                idx += avp_len;
+                continue;
+
+            } else {        
+                /* Vendor-Specific AVP */
+                tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
                                       avp_len, "Vendor %s AVP Type %u",
                                       val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
                                       avp_type);
+
+                l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
+
+                proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, idx, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, idx, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_length, tvb, idx, 2, ENC_BIG_ENDIAN);
+
+                if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
+                    idx += avp_len;
+                    continue;
+                }
+                idx += 2;
+                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2, "Type: %u", avp_type);
+                idx += 2;
+                proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len, "Vendor-Specific AVP");
+                idx += avp_len;
+                continue;
+            }
         }
 
+        /* IETF AVP:s */
+        tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
+                                  avp_len, "%s AVP",
+                                  val_to_str(avp_type, avp_type_vals, "Unknown (%u)"));
 
         l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
@@ -944,121 +1104,6 @@ static void process_control_avps(tvbuff_t *tvb,
                                 tvb, idx, 2, ENC_BIG_ENDIAN);
             idx += 2;
             avp_len -= 2;
-        }
-
-        if (avp_vendor_id == VENDOR_CISCO) {
-            proto_tree_add_uint(l2tp_avp_tree, hf_l2tp_cisco_avp_type,
-                                tvb, idx, 2, avp_type);
-            idx += 2;
-            avp_len -= 2;
-
-            /* For the time being, we don't decode any Vendor-
-               specific AVP. */
-            switch (avp_type) {
-            case CISCO_ASSIGNED_CONNECTION_ID:
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                    "Assigned Control Connection ID: %u",
-                                    tvb_get_ntohl(tvb, idx));
-                break;
-
-            case CISCO_PW_CAPABILITY_LIST:
-                te = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                         "Pseudowire Capabilities List");
-                l2tp_avp_tree_sub = proto_item_add_subtree(te, ett_l2tp_avp_sub);
-                while (avp_len >= 2) {
-                    int pw_type = tvb_get_ntohs(tvb, idx);
-
-                    proto_tree_add_text(l2tp_avp_tree_sub, tvb, idx,
-                                        2, "PW Type: (%u) %s",
-                                        pw_type,
-                                        val_to_str(pw_type, pw_types_vals,
-                                                   "Unknown (0x%04x)"));
-                    idx += 2;
-                    avp_len -= 2;
-                }
-                break;
-
-            case CISCO_LOCAL_SESSION_ID:
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                    "Local Session ID: %u",
-                                    tvb_get_ntohl(tvb, idx));
-                break;
-            case CISCO_REMOTE_SESSION_ID:
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                    "Remote Session ID: %u",
-                                    tvb_get_ntohl(tvb, idx));
-                break;
-            case CISCO_ASSIGNED_COOKIE:
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                    "Assigned Cookie: %s",
-                                    tvb_bytes_to_str(tvb, idx, avp_len));
-                break;
-            case CISCO_REMOTE_END_ID:
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                    "Remote End ID: %s",
-                                    tvb_format_text(tvb, idx, avp_len));
-                break;
-            case CISCO_PW_TYPE:
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                    "Pseudowire Type: %u - %s",
-                                    tvb_get_ntohs(tvb, idx),
-                                    val_to_str(tvb_get_ntohs(tvb, idx),
-                                               pw_types_vals, "Unknown (0x%04x)"));
-                break;
-            case CISCO_CIRCUIT_STATUS:
-                bits = tvb_get_ntohs(tvb, idx);
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                    "Circuit Status: %s",
-                                    (CIRCUIT_STATUS_BIT(bits)) ? "Up" : "Down");
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                    "Circuit Type: %s",
-                                    (CIRCUIT_TYPE_BIT(bits)) ? "New" : "Existing");
-                break;
-            case CISCO_SESSION_TIE_BREAKER:
-                proto_tree_add_item(l2tp_avp_tree, hf_l2tp_tie_breaker,
-                                    tvb, idx, 8, ENC_BIG_ENDIAN);
-                break;
-            case CISCO_DRAFT_AVP_VERSION:
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                    "Draft AVP Version: %u",
-                                    tvb_get_ntohs(tvb, idx));
-                break;
-            case CISCO_MESSAGE_DIGEST:
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                    "Message Digest: %s",
-                                    tvb_bytes_to_str(tvb, idx, avp_len));
-                break;
-            case CISCO_AUTH_NONCE:
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                    "Nonce: %s",
-                                    tvb_bytes_to_str(tvb, idx, avp_len));
-                break;
-            case CISCO_INTERFACE_MTU:
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                    "Interface MTU: %u",
-                                    tvb_get_ntohs(tvb, idx));
-                break;
-
-            default:
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx,
-                                    avp_len, "Vendor-Specific AVP");
-                break;
-            }
-            idx += avp_len;
-            continue;
-        } else if (avp_vendor_id != VENDOR_IETF) {
-            if (avp_len >= 2) {
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                    "Type: %u", avp_type);
-                idx += 2;
-                avp_len -= 2;
-                if (avp_len > 0) {
-                    proto_tree_add_text(l2tp_avp_tree, tvb, idx,
-                                        avp_len, "Vendor-Specific AVP");
-                }
-            }
-            idx += avp_len;
-            continue;
         }
 
         proto_tree_add_uint(l2tp_avp_tree, hf_l2tp_avp_type,
