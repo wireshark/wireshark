@@ -861,7 +861,7 @@ static void store_ccid(l2tpv3_tunnel_t *tunnel,
 /*
  * Dissect CISCO AVP:s
  */
-static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
 
     int offset = 0;
     int         avp_type;
