@@ -822,11 +822,6 @@ dissector_delete_uint(const char *name, const guint32 pattern,
 		 */
 		g_hash_table_remove(sub_dissectors->hash_table,
 				    GUINT_TO_POINTER(pattern));
-
-		/*
-		 * Now free up the entry.
-		 */
-		g_free(dtbl_entry);
 	}
 }
 
@@ -893,7 +888,6 @@ dissector_reset_uint(const char *name, const guint32 pattern)
 	} else {
 		g_hash_table_remove(sub_dissectors->hash_table,
 				    GUINT_TO_POINTER(pattern));
-		g_free(dtbl_entry);
 	}
 }
 
@@ -1086,11 +1080,6 @@ dissector_delete_string(const char *name, const gchar *pattern,
 		 * Found - remove it.
 		 */
 		g_hash_table_remove(sub_dissectors->hash_table, pattern);
-
-		/*
-		 * Now free up the entry.
-		 */
-		g_free(dtbl_entry);
 	}
 }
 
@@ -1157,7 +1146,6 @@ dissector_reset_string(const char *name, const gchar *pattern)
 		dtbl_entry->current = dtbl_entry->initial;
 	} else {
 		g_hash_table_remove(sub_dissectors->hash_table, pattern);
-		g_free(dtbl_entry);
 	}
 }
 
@@ -1568,14 +1556,18 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 		 * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
 		 * so we use "g_direct_hash()" and "g_direct_equal()".
 		 */
-		sub_dissectors->hash_table = g_hash_table_new( g_direct_hash,
-							       g_direct_equal );
+		sub_dissectors->hash_table = g_hash_table_new_full( g_direct_hash,
+							       g_direct_equal,
+							       NULL,
+							       &g_free );
 		break;
 
 	case FT_STRING:
 	case FT_STRINGZ:
-		sub_dissectors->hash_table = g_hash_table_new( g_str_hash,
-							       g_str_equal );
+		sub_dissectors->hash_table = g_hash_table_new_full( g_str_hash,
+							       g_str_equal,
+							       NULL,
+							       &g_free );
 		break;
 
 	default:
