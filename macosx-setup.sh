@@ -292,7 +292,19 @@ gtk_dir=`expr $GTK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
 curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.xz
 xzcat gtk+-$GTK_VERSION.tar.xz | tar xf - || exit 1
 cd gtk+-$GTK_VERSION
-./configure || exit 1
+#
+# GTK+ 2.24.10, at least, doesn't build on Mountain Lion with the CUPS
+# printing backend - either the CUPS API changed incompatibly or the
+# backend was depending on non-API implementation details.
+#
+# Configure it out for now.
+#
+if [ $MACOSX_VERSION -ge "12" ]
+then
+	./configure --disable-cups || exit 1
+else
+	./configure || exit 1
+fi
 make -j 3 || exit 1
 $DO_MAKE_INSTALL || exit 1
 cd ..
@@ -437,6 +449,21 @@ then
 	tar xf GeoIP-$GEOIP_VERSION.tar.gz || exit 1
 	cd GeoIP-$GEOIP_VERSION
 	./configure || exit 1
+	#
+	# Grr.  Their man pages "helpfully" have an ISO 8859-1
+	# copyright symbol in the copyright notice, but OS X's
+	# default character encoding is UTF-8.  sed on Mountain
+	# Lion barfs at the "illegal character sequence" represented
+	# by an ISO 8859-1 copyright symbol, as it's not a valid
+	# UTF-8 sequence.
+	#
+	# iconv the relevant man pages into UTF-8.
+	#
+	for i in geoipupdate.1.in geoiplookup6.1.in geoiplookup.1.in
+	do
+		iconv -f iso8859-1 -t utf-8 man/"$i" >man/"$i".tmp &&
+		    mv man/"$i".tmp man/"$i"
+	done
 	make -j 3 || exit 1
 	$DO_MAKE_INSTALL || exit 1
 	cd ..
