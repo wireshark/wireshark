@@ -52,7 +52,7 @@
 #endif
 
 #ifdef HAVE_OS_X_FRAMEWORKS
-#include <CoreServices/CoreServices.h>
+#include <CoreFoundation/CoreFoundation.h>
 #endif
 
 #ifdef HAVE_LIBCAP
@@ -179,6 +179,129 @@ typedef void (WINAPI *nativesi_func_ptr)(LPSYSTEM_INFO);
 #endif
 
 /*
+ * Handles the rather elaborate process of getting OS version information
+ * from OS X (we want the OS X version, not the Darwin version, the latter
+ * being easy to get with uname()).
+ */
+#ifdef HAVE_OS_X_FRAMEWORKS
+
+/*
+ * Fetch a string, as a UTF-8 C string, from a dictionary, given a key.
+ */
+static char *
+get_string_from_dictionary(CFPropertyListRef dict, CFStringRef key)
+{
+	CFStringRef cfstring;
+	CFIndex string_len;
+	char *string;
+
+	cfstring = CFDictionaryGetValue(dict, key);
+	if (cfstring == NULL)
+		return NULL;
+	if (CFGetTypeID(cfstring) != CFStringGetTypeID()) {
+		/* It isn't a string.  Punt. */
+		return NULL;
+	}
+	string_len = CFStringGetMaximumSizeForEncoding(CFStringGetLength(cfstring),
+	    kCFStringEncodingUTF8);
+	string = malloc(string_len + 1);
+	if (string == NULL) {
+		return NULL;
+	}
+	if (!CFStringGetCString(cfstring, string, string_len + 1,
+	    kCFStringEncodingUTF8)) {
+		free(string);
+		return NULL;
+	}
+	return string;
+}
+
+/*
+ * Get the OS X version information, and append it to the GString.
+ * Return TRUE if we succeed, FALSE if we fail.
+ */
+static gboolean
+get_os_x_version_info(GString *str)
+{
+	static const char system_version_plist_path[] =
+	    "/System/Library/CoreServices/SystemVersion.plist";
+	CFURLRef system_version_plist_file_url;
+	CFReadStreamRef system_version_plist_stream;
+	CFDictionaryRef system_version_dict;
+	char *string;
+
+	/*
+	 * On OS X, report the OS X version number as the OS, and put
+	 * the Darwin information in parentheses.
+	 *
+	 * Alas, Gestalt() is deprecated in Mountain Lion, so the build
+	 * fails if you treat deprecation warnings as fatal.  I don't
+	 * know of any replacement API, so we fall back on reading
+	 * /System/Library/CoreServices/SystemVersion.plist
+	 * and using ProductUserVisibleVersion.  We also get the build
+	 * version from ProductBuildVersion.
+	 *
+	 * XXX - on OS X Server, do we need to read the server plist in
+	 * /System/Library/CoreServices/ServerVersion.plist - i.e., if
+	 * it exists, use it rather than SystemVersion.plist?
+	 */
+	system_version_plist_file_url = CFURLCreateFromFileSystemRepresentation(NULL,
+	    system_version_plist_path, sizeof system_version_plist_path - 1,
+	    false);
+	if (system_version_plist_file_url == NULL)
+		return FALSE;
+	system_version_plist_stream = CFReadStreamCreateWithFile(NULL,
+	    system_version_plist_file_url);
+	CFRelease(system_version_plist_file_url);
+	if (system_version_plist_stream == NULL)
+		return FALSE;
+	if (!CFReadStreamOpen(system_version_plist_stream)) {
+		CFRelease(system_version_plist_stream);
+		return FALSE;
+	}
+	system_version_dict = CFPropertyListCreateWithStream(NULL,
+	    system_version_plist_stream, 0, kCFPropertyListImmutable,
+	    NULL, NULL);
+	if (system_version_dict == NULL)
+		return FALSE;
+	if (CFGetTypeID(system_version_dict) != CFDictionaryGetTypeID()) {
+		/* This is *supposed* to be a dictionary.  Punt. */
+		CFRelease(system_version_dict);
+		CFReadStreamClose(system_version_plist_stream);
+		CFRelease(system_version_plist_stream);
+		return FALSE;
+	}
+	/* Get the OS version string. */
+	string = get_string_from_dictionary(system_version_dict,
+	    CFSTR("ProductUserVisibleVersion"));
+	if (string == NULL) {
+		CFRelease(system_version_dict);
+		CFReadStreamClose(system_version_plist_stream);
+		CFRelease(system_version_plist_stream);
+		return FALSE;
+	}
+	g_string_append_printf(str, "OS X %s", string);
+	free(string);
+
+	/* Get the build string */
+	string = get_string_from_dictionary(system_version_dict,
+	    CFSTR("ProductBuildVersion"));
+	if (string == NULL) {
+		CFRelease(system_version_dict);
+		CFReadStreamClose(system_version_plist_stream);
+		CFRelease(system_version_plist_stream);
+		return FALSE;
+	}
+	g_string_append_printf(str, ", build %s", string);
+	free(string);
+	CFRelease(system_version_dict);
+	CFReadStreamClose(system_version_plist_stream);
+	CFRelease(system_version_plist_stream);
+	return TRUE;
+}
+#endif
+
+/*
  * Get the OS version, and append it to the GString
  */
 void get_os_version_info(GString *str)
@@ -189,9 +312,6 @@ void get_os_version_info(GString *str)
 	nativesi_func_ptr nativesi_func;
 #elif defined(HAVE_SYS_UTSNAME_H)
 	struct utsname name;
-#endif
-#if HAVE_OS_X_FRAMEWORKS
-	SInt32 macosx_ver, macosx_major_ver, macosx_minor_ver, macosx_bugfix_ver;
 #endif
 
 #if defined(_WIN32)
@@ -389,33 +509,16 @@ void get_os_version_info(GString *str)
 #ifdef HAVE_OS_X_FRAMEWORKS
 		/*
 		 * On Mac OS X, report the Mac OS X version number as
-		 * the OS, and put the Darwin information in parentheses.
-		 *
-		 * XXX - can we get the build name?  There's no API to
-		 * get it; it's currently in
-		 * /System/Library/CoreServices/SystemVersion.plist
-		 * but there's no guarantee that it will continue to
-		 * be there.
+		 * the OS version if we can, and put the Darwin information
+		 * in parentheses.
 		 */
-		Gestalt(gestaltSystemVersion, &macosx_ver);
-
-		/* The following functions are only available in Mac OS 10.4+ */
-		if(macosx_ver >= 0x1040) {
-			Gestalt(gestaltSystemVersionMajor, &macosx_major_ver);
-			Gestalt(gestaltSystemVersionMinor, &macosx_minor_ver);
-			Gestalt(gestaltSystemVersionBugFix, &macosx_bugfix_ver);
-
-			g_string_append_printf(str, "Mac OS %ld.%ld.%ld",
-					  (long)macosx_major_ver,
-					  (long)macosx_minor_ver,
-					  (long)macosx_bugfix_ver);
+		if (get_os_x_version_info(str)) {
+			/* Success - append the Darwin information. */
+			g_string_append_printf(str, " (%s %s)", name.sysname, name.release);
 		} else {
-			g_string_append_printf(str, "Mac OS X < 10.4 [%lx]",
-					  (long)macosx_ver);
-			/* See Apple's Gestalt Manager Reference for meanings
-			 * of the macosx_ver values. */
+			/* Failure - just use the Darwin information. */
+			g_string_append_printf(str, "%s %s", name.sysname, name.release);
 		}
-		g_string_append_printf(str, " (%s %s)", name.sysname, name.release);
 #else /* HAVE_OS_X_FRAMEWORKS */
 		/*
 		 * XXX - on Linux, are there any APIs to get the distribution
