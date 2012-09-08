@@ -204,13 +204,10 @@ get_string_from_dictionary(CFPropertyListRef dict, CFStringRef key)
 	}
 	string_len = CFStringGetMaximumSizeForEncoding(CFStringGetLength(cfstring),
 	    kCFStringEncodingUTF8);
-	string = malloc(string_len + 1);
-	if (string == NULL) {
-		return NULL;
-	}
+	string = g_malloc(string_len + 1);
 	if (!CFStringGetCString(cfstring, string, string_len + 1,
 	    kCFStringEncodingUTF8)) {
-		free(string);
+		g_free(string);
 		return NULL;
 	}
 	return string;
@@ -287,7 +284,7 @@ get_os_x_version_info(GString *str)
 		return FALSE;
 	}
 	g_string_append_printf(str, "OS X %s", string);
-	free(string);
+	g_free(string);
 
 	/* Get the build string */
 	string = get_string_from_dictionary(system_version_dict,
@@ -299,7 +296,7 @@ get_os_x_version_info(GString *str)
 		return FALSE;
 	}
 	g_string_append_printf(str, ", build %s", string);
-	free(string);
+	g_free(string);
 	CFRelease(system_version_dict);
 	CFReadStreamClose(system_version_plist_stream);
 	CFRelease(system_version_plist_stream);
