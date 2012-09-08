@@ -60,6 +60,9 @@ wslua_plugin *wslua_plugin_list = NULL;
 /* linked list of all plugins */
 plugin *plugin_list = NULL;
 
+static void register_all_wiretap_modules(void);
+static void register_all_codecs(void);
+
 /*
  * add a new plugin to the list
  * returns :
@@ -475,7 +478,7 @@ register_all_plugin_tap_listeners(void)
     }
 }
 
-void
+static void
 register_all_wiretap_modules(void)
 {
     plugin *pt_plug;
@@ -491,7 +494,7 @@ register_all_wiretap_modules(void)
     }
 }
 
-void
+static void
 register_all_codecs(void)
 {
     plugin *pt_plug;

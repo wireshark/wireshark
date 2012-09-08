@@ -52,8 +52,6 @@ extern void init_plugins(void);
 extern void register_all_plugin_registrations(void);
 extern void register_all_plugin_handoffs(void);
 extern void register_all_plugin_tap_listeners(void);
-extern void register_all_wiretap_modules(void);
-extern void register_all_codecs(void);
 extern void plugins_dump_all(void);
 
 typedef struct _wslua_plugin {

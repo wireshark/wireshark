@@ -910,7 +910,6 @@ reassembled_table_init
 register_all_plugin_tap_listeners
 register_all_protocols
 register_all_protocol_handoffs
-register_all_wiretap_modules
 register_ber_oid_dissector
 register_ber_oid_dissector_handle
 register_ber_oid_syntax
