@@ -499,28 +499,6 @@ if test "x$GCC" = "xyes" ; then
 		CXXFLAGS="$CXXFLAGS -Wno-return-type"
 		AC_MSG_RESULT(GCC on Solaris - added -Wno-return-type -DFUNCPROTO=15)
 		;;
-	darwin*)
-		#
-		# See comments above about Apple's lovely C compiler.
-		#
-		# NOTE: to AC_PROG_CC, "GCC" means "any compiler that
-		# defines __GNUC__"; clang defines __GNUC__, so that
-		# means we think clang is GCC.
-		#
-		# clang whines about -no-cpp-precomp being unused
-		# so we check whether this is really clang, and
-		# only add -no-cpp-precomp if it's not.
-		#
-		if test "x$CC" != "xclang" ; then
-			CFLAGS="-no-cpp-precomp $CFLAGS"
-			AC_MSG_RESULT(Apple GCC - added -no-cpp-precomp)
-		else
-			#
-			# Clang, clang, clang went the trolley....
-			#
-			AC_MSG_RESULT(none needed)
-		fi
-		;;
 	*)
 		AC_MSG_RESULT(none needed)
 		;;
@@ -543,32 +521,6 @@ else
 		CFLAGS="-Ae +O2 $CFLAGS"
 		CXXFLAGS="+O2 $CFLAGS"
 		AC_MSG_RESULT(HP ANSI C compiler - added -Ae +O2)
-		;;
-	darwin*)
-		#
-		# It may be called "cc", but it's really a GCC derivative
-		# with a problematic special precompiler and precompiled
-		# headers; turn off the special precompiler, as some
-		# apparently-legal code won't compile with its precompiled
-		# headers.
-		#
-		# On the other hand, if it's called "clang", it's not a
-		# GCC derivative, and it whines if you pass it
-		# -no-cpp-precomp.
-		#
-		# XXX - is there any version of autoconf we support
-		# where it uses another way to decide if the compiler
-		# is GCC or not?
-		#
-		if test "x$CC" != "xclang" ; then
-			CFLAGS="-no-cpp-precomp $CFLAGS"
-			AC_MSG_RESULT(Apple CC - added -no-cpp-precomp)
-		else
-			#
-			# Clang, clang, clang went the trolley....
-			#
-			AC_MSG_RESULT(none needed)
-		fi
 		;;
 	*)
 		AC_MSG_RESULT(none needed)
