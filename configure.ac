@@ -640,19 +640,15 @@ darwin*)
 #       include <CoreFoundation/CFString.h>
 #       include <CoreFoundation/CFURL.h>
 #       include <ApplicationServices/ApplicationServices.h>
-#	include <CoreServices/CoreServices.h>
 	   ],
 	   [
 	CFStringRef url_CFString;
 	CFURLRef url_CFURL;
 	OSStatus status;
-	long os_version;
 
 	url_CFString = CFStringCreateWithCString(NULL, "", kCFStringEncodingASCII);
 	url_CFURL = CFURLCreateWithString(NULL, url_CFString, NULL);
 	status = LSOpenCFURLRef(url_CFURL, NULL);
-
-	Gestalt(gestaltSystemVersion, &os_version);
 	   ],
 	   ac_cv_can_use_osx_frameworks=yes,
 	   ac_cv_can_use_osx_frameworks=no,
@@ -662,6 +658,17 @@ darwin*)
 		CORESERVICES_FRAMEWORKS="$ac_coreservices_frameworks"
 		LAUNCHSERVICES_FRAMEWORKS="$ac_launchservices_frameworks"
 		AC_MSG_RESULT(yes)
+
+		#
+		# OK, so we have the OS X frameworks; do they include
+		# CFPropertyListCreateWithStream, or do we have
+		# to fall back on CFPropertyListCreateFromStream?
+		# (They only differ in the error return, which we
+		# don't care about.  And, no, we shouldn't just
+		# use CFPropertyListCreateFromStream, because it's
+		# deprecated in newer releases.)
+		#
+		AC_CHECK_FUNCS(CFPropertyListCreateWithStream)
 	else
 		AC_MSG_RESULT(no)
 	fi

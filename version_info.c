@@ -259,9 +259,15 @@ get_os_x_version_info(GString *str)
 		CFRelease(system_version_plist_stream);
 		return FALSE;
 	}
+#ifdef HAVE_CFPROPERTYLISTCREATEWITHSTREAM
 	system_version_dict = CFPropertyListCreateWithStream(NULL,
 	    system_version_plist_stream, 0, kCFPropertyListImmutable,
 	    NULL, NULL);
+#else
+	system_version_dict = CFPropertyListCreateFromStream(NULL,
+	    system_version_plist_stream, 0, kCFPropertyListImmutable,
+	    NULL, NULL);
+#endif
 	if (system_version_dict == NULL)
 		return FALSE;
 	if (CFGetTypeID(system_version_dict) != CFDictionaryGetTypeID()) {
