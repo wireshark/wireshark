@@ -274,7 +274,7 @@ typedef struct _loop_data {
     int            err;                   /* if non-zero, error seen while capturing */
     gint           packet_count;          /* Number of packets we have already captured */
     gint           packet_max;            /* Number of packets we're supposed to capture - 0 means infinite */
-    gint           inpkts_to_sync_pipe;   /* Packets not already send out to the sync_pipe */
+    guint          inpkts_to_sync_pipe;   /* Packets not already send out to the sync_pipe */
 #ifdef SIGINFO
     gboolean       report_packet_count;   /* Set by SIGINFO handler; print packet count */
 #endif
@@ -361,7 +361,7 @@ static void capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fna
 static void WS_MSVC_NORETURN exit_main(int err) G_GNUC_NORETURN;
 
 static void report_new_capture_file(const char *filename);
-static void report_packet_count(int packet_count);
+static void report_packet_count(unsigned int packet_count);
 static void report_packet_drops(guint32 received, guint32 drops, gchar *name);
 static void report_capture_error(const char *error_msg, const char *secondary_error_msg);
 static void report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg);
@@ -4849,13 +4849,13 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
 
 static void
-report_packet_count(int packet_count)
+report_packet_count(unsigned int packet_count)
 {
     char tmp[SP_DECISIZE+1+1];
-    static int count = 0;
+    static unsigned int count = 0;
 
     if(capture_child) {
-        g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
+        g_snprintf(tmp, sizeof(tmp), "%u", packet_count);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets: %s", tmp);
         pipe_write_block(2, SP_PACKET_COUNT, tmp);
     } else {
