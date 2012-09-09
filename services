@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-08-31
+# 2012-09-07
 # 
 # Experts
 # 
@@ -6765,9 +6765,9 @@ h248-binary	2945/udp	# H248 Binary                  [Tom_Taylor_2]              
 h248-binary	2945/sctp	# Megaco/H.248 binary          [Tom_Taylor_3]                                     [Tom_Taylor_3]                                            2006-09
 fjsvmpor	2946/tcp	# FJSVmpor                     [Naoki_Hayashi]                                    [Naoki_Hayashi]
 fjsvmpor	2946/udp	# FJSVmpor                     [Naoki_Hayashi]                                    [Naoki_Hayashi]
-gpsd	2947/tcp	# GPS Daemon request/response  [Eric_S_Raymond]                                   [Eric_S_Raymond]                                          2010-04-19
+gpsd	2947/tcp	# GPS Daemon request/response  [Eric_S_Raymond]                                   [Eric_S_Raymond]                                                       2010-04-19
 # protocol
-gpsd	2947/udp	# GPS Daemon request/response  [Eric_S_Raymond]                                   [Eric_S_Raymond]                                          2010-04-19
+gpsd	2947/udp	# GPS Daemon request/response  [Eric_S_Raymond]                                   [Eric_S_Raymond]                                                       2010-04-19
 # protocol
 wap-push	2948/tcp	# WAP PUSH
 wap-push	2948/udp	# WAP PUSH
@@ -11865,7 +11865,10 @@ xtlserv	6116/tcp	# XicTools License Manager     [Stephen_R_Whiteley]            
 # 6116        udp    Reserved
 daylitetouch	6117/tcp	# Daylite Touch Sync           [Brent_Gulanowski]                                 [Brent_Gulanowski]                                        2009-08-26
 # 6117        udp    Reserved
-# 6118-6120            Unassigned
+tipc	6118/udp	# Transparent Inter Process    [Ericsson]                                         [Erik_Hugne]                                              2012-09-05
+# Communication
+# 6118        tcp    Reserved
+# 6119-6120            Unassigned
 spdy	6121/tcp	# SPDY for a faster web        [Matthew_Lloyd]                                    [Matthew_Lloyd]                                           2010-04-26
 # 6121        udp    Reserved
 bex-webadmin	6122/tcp	# Backup Express Web Server    [Chi_Shih_Chang]                                   [Chi_Shih_Chang]                                          2008-03-19
@@ -16768,6 +16771,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Protocol
 # tera-mp                               Terascala Maintenance        [Mike_Nuss]                                        [Mike_Nuss]                                                                                                                                        Defined TXT keys: Proprietary
 # Protocol
+# test-ok                        tcp    Test Controller Card         [TEST-OK_BV]                                       [Jeroen_Ommering]                                         2012-09-05                                                                               Defined TXT keys: TEST-OK Test Controller Card TCCxxxx
 # tf-redeye                             ThinkFlood RedEye IR bridge  [Matt_Eagar]                                       [Matt_Eagar]                                                                                                                                       Defined TXT keys: None
 # thumbwrestling                        tinkerbuilt Thumb Wrestling  [Jamie_Halmick]                                    [Jamie_Halmick]                                                                                                                                    Defined TXT keys: None
 # game
@@ -16808,6 +16812,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Service
 # tunage                                Tunage Media Control Service [Matt_Patenaude]                                   [Matt_Patenaude]                                                                                                                                   Defined TXT keys: None
 # tuneranger                            TuneRanger                   [Acertant]                                         [Acertant]                                                                                                                                         Defined TXT keys: None
+# twinlevel                      tcp    detect sanitary product      [Oblamatik_AG]                                     [Simon_Ensslen]                                           2012-09-05                                                                               Defined TXT keys: None
 # TZ-Software remote procedure
 # tzrpc                          tcp    call based synchronization   [Thomas_Zwick]                                     [Thomas_Zwick]                                            2011-10-12                                                                               Defined TXT keys: Proprietary
 # protocol
@@ -18271,7 +18276,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Eric_Wilde]                                              Eric Wilde                                      mailto:eric&funk.com
 # [Erica_Liu]                                               Erica Liu                                       mailto:liue&isolation.com
 # [Ericko_Shimada]                                          Ericko Shimada                                  mailto:eriko&kel.fujitsu.co.jp
+# [Ericsson]                                                                          Ericsson              mailto:erik.hugne&ericsson.com                                2012-09-05
 # [Erik_Blume]                                              Erik Blume                                      mailto:erikb&caciasl.com
+# [Erik_Hugne]                                              Erik Hugne                Ericsson              mailto:erik.hugne&ericsson.com                                2012-09-05
 # [Erik_Kragh_Jensen]                                       Erik Kragh Jensen                               mailto:kragh&inet.uni2.dk
 # [Erik_Mueller]                                            Erik Mueller                                    mailto:erik&signiform.com
 # [Erik_Rogers]                                             Erik Rogers                                     mailto:erik&avatron.com
@@ -18925,6 +18932,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Jeremy_Maiden]                                           Jeremy Maiden                                   mailto:jeremy&komarr.demon.co.uk
 # [Jeremy_McClintock]                                       Jeremy McClintock                               mailto:jeremy&tridsys.com                                     2005-08
 # [Jeremy_Siegel]                                           Jeremy Siegel                                   mailto:jzs&nsd.3com.com
+# [Jeroen_Ommering]                                         Jeroen Ommering           TEST-OK B.V.          mailto:jeroen.ommering&test-ok.nl                             2012-09-05
 # [Jeroen_Massar]                                           Jeroen Massar                                   mailto:jeroen&unfix.org                                       2005-08
 # [Jeroen_Massar_2]                                         Jeroen Massar                                   mailto:jma&zurich.ibm.com                                     2008-08-21
 # [Jeroen_Massar_3]                                         Jeroen Massar                                   mailto:jeroen&unfix.org
@@ -20087,6 +20095,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [OC]                                                                                OC                    mailto:ocs&ocs.cz
 # [Object_Matrix]                                                                     Object Matrix         mailto:support&object-matrix.com
 # [Objective_Decision]                                                                Objective Decision    mailto:od4contact&objective-decision.com
+# [Oblamatik_AG]                                                                      Oblamatik AG          mailto:info&oblamatik.ch                                      2012-09-05
 # [Odo_Maletzki]                                            Odo Maletzki                                    mailto:Odo.Maletzki&ioag.de
 # [Oishi_Toshiaki]                                          Oishi Toshiaki            SEIKO EPSON           mailto:Oishi.Toshiaki&exc.epson.co.jp                         2002-02
 # Corporation
@@ -20451,7 +20460,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Raymond_J_Young]                                         Raymond J. Young                                mailto:Raymond.Young&ca.com                                   2002-04
 # [Razmik_Abnous]                                           Razmik Abnous                                   mailto:abnous&documentum.com
 # [RealNetworks]                                            RealNetworks                                    mailto:macplayer&real.com
-# [RecoLive_S`arl]                                                                    RecoLive S`arl        mailto:info&recolive.com                                      2012-08-29
+# [RecoLive_S`arl]                                                                    RecoLive S`arl        mailto:recoinfo&recolive.com                                  2012-09-07
 # [Reed_Copsey_Jr]                                          Reed Copsey Jr.                                 mailto:reedc&ctech.com
 # [Reed_Hedges]                                             Reed Hedges                                     mailto:reed&interreality.org
 # [Rehan_Mahmood]                                           Rehan Mahmood                                   mailto:rehan&matrixmultimedia.co.uk                           2009-03-18
@@ -20893,6 +20902,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Simon_Butcher]                                           Simon Butcher                                   mailto:simonb&alien.net.au
 # [Simon_Chinnick]                                          Simon Chinnick                                  mailto:support&cogsys.co.uk
 # [Simon_Edwards]                                           Simon Edwards
+# [Simon_Ensslen]                                           Simon Ensslen             Oblamatik AG          mailto:s.ensslen&oblamatik.ch                                 2012-09-05
 # [Simon_Haertel]                                           Simon Haertel                                   mailto:simonhaertel&web.de
 # [Simon_Hovell]                                            Simon Hovell                                    mailto:simonh&brandcomms.com
 # [Simon_J_Gerraty]                                         Simon J. Gerraty                                mailto:sjg&quick.com.au
@@ -21163,6 +21173,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Terry_Lim]                                               Terry Lim                                       mailto:tkl&pentek.com
 # [Terry_Smyth]                                             Terry Smyth                                     mailto:terry&sgluk.com                                        2004-11
 # [Terumasa_Yoneda]                                         Terumasa Yoneda                                 mailto:yonedat&pfu.co.jp
+# [TEST-OK_BV]                                                                        TEST-OK B.V.          mailto:jeroen.ommering&test-ok.nl                             2012-09-05
 # [Tetsuharu_Hanada]                                        Tetsuharu Hanada                                mailto:hanada&pfu.fujitsu.com
 # [Tetsuya_Shioda]                                          Tetsuya Shioda                                  mailto:tetsuya&saint.nm.fujitsu.co.jp
 # [Tex_Hull]                                                Tex Hull                                        mailto:tex&spss.com
