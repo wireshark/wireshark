@@ -1375,248 +1375,6 @@ static value_string_ext impinj_gpo_mode_ext = VALUE_STRING_EXT_INIT(impinj_gpo_m
 #define LLRP_HEADER_LENGTH  10
 #define LLRP_NO_LIMIT        0
 
-/* Parameter list header field construction */
-
-#define HF_LLRP_PARAMETER_LIST   \
-    HF_PARAM(num_gpi, "Number of GPI ports",  FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(num_gpo, "Number of GPO ports",  FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(microseconds, "Microseconds",    FT_UINT64, BASE_DEC, NULL, 0) \
-    HF_PARAM(max_supported_antenna, "Max number of antenna supported", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(can_set_antenna_prop, "Can set antenna properties", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x8000) \
-    HF_PARAM(has_utc_clock, "Has UTC clock capabilities", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x4000) \
-    HF_PARAM(device_manufacturer, "Device manufacturer name", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(model, "Model name", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(firmware_version, "Reader firmware version", FT_UINT_STRING, BASE_NONE, NULL, 0) \
-    HF_PARAM(max_receive_sense, "Maximum sensitivity value", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(index, "Index", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(receive_sense, "Receive sensitivity value", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(receive_sense_index_min, "Receive sensitivity index min", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(receive_sense_index_max, "Receive sensitivity index max", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(num_protocols, "Number of protocols", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(protocol_id, "Protocol ID", FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(protocol_id), 0) \
-    HF_PARAM(can_do_survey, "Can do RF survey", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(can_report_buffer_warning, "Can report buffer fill warning", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40) \
-    HF_PARAM(support_client_opspec, "Support client request OpSpec", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20) \
-    HF_PARAM(can_stateaware, "Can do tag inventory state aware singulation", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10) \
-    HF_PARAM(support_holding, "Support event and report holding", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08) \
-    HF_PARAM(max_priority_supported, "Max priority level supported", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(client_opspec_timeout, "Client request OpSpec timeout", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(max_num_rospec, "Maximum number of ROSpecs", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(max_num_spec_per_rospec, "Maximum number of spec per ROSpec", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(max_num_inventory_per_aispec, "Maximum number of Inventory Spec per AISpec", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(max_num_accessspec, "Maximum number of AccessSpec", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(max_num_opspec_per_accressspec, "Maximum number of OpSpec per AccessSpec", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(country_code, "Contry code", FT_UINT16, BASE_DEC, NULL, 0) /* TODO add translation */ \
-    HF_PARAM(comm_standard, "Communication standard", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &comm_standard_ext, 0) \
-    HF_PARAM(transmit_power, "Transmit power value", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(hopping, "Hopping", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(hop_table_id, "Hop table ID", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(rfu, "Reserved for future use", FT_BYTES, BASE_NONE, NULL, 0) \
-    HF_PARAM(num_hops, "Number of hops", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(frequency, "Frequency", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(num_freqs, "Number of frequencies", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(min_freq, "Minimum frequency", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(max_freq, "Maximum frequency", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(rospec_id, "ROSpec ID", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(priority, "Priority", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(cur_state, "Current state", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(rospec_start_trig_type, "ROSpec start trigger type", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(offset, "Offset", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(period, "Period", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(gpi_event, "GPI event", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(timeout, "Timeout", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(rospec_stop_trig_type, "ROSpec stop trigger type", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(duration_trig, "Duration trigger value", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(antenna_count, "Antenna count", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(antenna, "Antenna ID", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(aispec_stop_trig_type, "AISpec stop trigger type", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(trig_type, "Trigger type", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(number_of_tags, "Number of tags", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(number_of_attempts, "Number of attempts", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(t, "T", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(inventory_spec_id, "Inventory parameter spec id", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(start_freq, "Start frequency", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(stop_freq, "Stop frequency", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(stop_trig_type, "Stop trigger type", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(n_4, "N", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(duration, "Duration", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(accessspec_id, "AccessSpec ID", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(access_cur_state, "Current state", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(access_stop_trig_type, "AccessSpec Stop trigger", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(operation_count, "Operation count value", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(opspec_id, "OpSpec ID", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(conf_value, "Configuration value", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(id_type, "ID type", FT_UINT8, BASE_DEC, VALS(id_type), 0) \
-    HF_PARAM(reader_id, "Reader ID", FT_UINT_BYTES, BASE_NONE, NULL, 0) \
-    HF_PARAM(gpo_data, "GPO data", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(keepalive_trig_type, "KeepAlive trigger type", FT_UINT8, BASE_DEC, VALS(keepalive_type), 0) \
-    HF_PARAM(time_iterval, "Time interval", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(antenna_connected, "Antenna connected", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(antenna_gain, "Antenna gain", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(receiver_sense, "Receiver sensitivity", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(channel_idx, "Channel index", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(gpi_config, "GPI config", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(gpi_state, "GPI state", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(hold_events_and_reports, "Hold events and reports upon reconnect", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(ro_report_trig, "RO report trigger", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(n_2, "N", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(enable_rospec_id, "Enable ROSpec ID", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x8000) \
-    HF_PARAM(enable_spec_idx, "Enable spec index", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x4000) \
-    HF_PARAM(enable_inv_spec_id, "Enable inventory spec ID", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x2000) \
-    HF_PARAM(enable_antenna_id, "Enable antenna ID", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x1000) \
-    HF_PARAM(enable_channel_idx, "Enable channel index", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0800) \
-    HF_PARAM(enable_peak_rssi, "Enable peak RSSI", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0400) \
-    HF_PARAM(enable_first_seen, "Enable first seen timestamp", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0200) \
-    HF_PARAM(enable_last_seen, "Enable last seen timestamp", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100) \
-    HF_PARAM(enable_seen_count, "Enable tag seen count", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0080) \
-    HF_PARAM(enable_accessspec_id, "Enable AccessSpec ID", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0040) \
-    HF_PARAM(access_report_trig, "Access report trigger", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(length_bits, "Bit field length (bits)", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(epc, "EPC", FT_BYTES, BASE_NONE, NULL, 0) \
-    HF_PARAM(spec_idx, "Spec index", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(peak_rssi, "Peak RSSI", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(tag_count, "Tag count", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(bandwidth, "Bandwidth", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(average_rssi, "Average RSSI", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(notif_state, "Notification state", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(event_type, "Event type", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &event_type_ext, 0) \
-    HF_PARAM(next_chan_idx, "Next channel index", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(roevent_type, "Event type", FT_UINT8, BASE_DEC, VALS(roevent_type), 0) \
-    HF_PARAM(prem_rospec_id, "Preempting ROSpec ID", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(buffer_full_percentage, "Report Buffer percentage full", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(message, "Message", FT_UINT_STRING, BASE_NONE, NULL, 0) \
-    HF_PARAM(rfevent_type, "Event type", FT_UINT8, BASE_DEC, VALS(rfevent_type), 0) \
-    HF_PARAM(aievent_type, "Event type", FT_UINT8, BASE_DEC, VALS(aievent_type), 0) \
-    HF_PARAM(antenna_event_type, "Event type", FT_UINT8, BASE_DEC, VALS(antenna_event_type), 0) \
-    HF_PARAM(conn_status, "Status", FT_UINT16, BASE_DEC, VALS(connection_status), 0) \
-    HF_PARAM(loop_count, "Loop count", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(status_code, "Status code", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &status_code_ext, 0) \
-    HF_PARAM(error_desc, "Error Description", FT_UINT_STRING, BASE_NONE, NULL, 0) \
-    HF_PARAM(field_num, "Field number", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(error_code, "Error code", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &status_code_ext, 0) \
-    HF_PARAM(parameter_type, "Parameter type", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &tlv_type_ext, 0) \
-    HF_PARAM(can_support_block_erase, "Can support block erase", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(can_support_block_write, "Can support block write", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40) \
-    HF_PARAM(can_support_block_permalock, "Can support block permalock", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20) \
-    HF_PARAM(can_support_tag_recomm, "Can support tag recommisioning", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10) \
-    HF_PARAM(can_support_UMI_method2, "Can support UMI method 2", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08) \
-    HF_PARAM(can_support_XPC, "Can support XPC", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04) \
-    HF_PARAM(max_num_filter_per_query, "Maximum number of select filters per query", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(mode_ident, "Mode identifier", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(DR, "DR", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(hag_conformance, "EPC HAG T&C Conformance", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40) \
-    HF_PARAM(mod, "M", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(flm, "Forward link modulation", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(m, "Spectral mask indicator", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(bdr, "BDR", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(pie, "PIE", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(min_tari, "Minimum tari", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(max_tari, "Maximum tari", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(step_tari, "Tari step", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(inventory_state_aware, "Tag inventory state aware", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(trunc, "T", FT_UINT8, BASE_DEC, NULL, 0xC0) \
-    HF_PARAM(mb, "MB", FT_UINT8, BASE_DEC, NULL, 0xC0) \
-    HF_PARAM(pointer, "Pointer", FT_UINT16, BASE_DEC_HEX, NULL, 0) \
-    HF_PARAM(tag_mask, "Tag mask", FT_BYTES, BASE_NONE, NULL, 0) \
-    HF_PARAM(aware_filter_target, "Target", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(aware_filter_action, "Action", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(unaware_filter_action, "Action", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(mode_idx, "Mode index", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(tari, "Tari", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(session, "Session", FT_UINT8, BASE_DEC, NULL, 0xC0) \
-    HF_PARAM(tag_population, "Tag population", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(tag_transit_time, "Tag tranzit time", FT_UINT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(sing_i, "I", FT_BOOLEAN, 8, TFS(&tfs_state_a_b), 0x80) \
-    HF_PARAM(sing_s, "S", FT_BOOLEAN, 8, TFS(&tfs_sl), 0x40) \
-    HF_PARAM(sing_a, "S_All", FT_BOOLEAN, 8, TFS(&tfs_all_no), 0x20) \
-    HF_PARAM(match, "Match", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20) \
-    HF_PARAM(tag_data, "Tag data", FT_BYTES, BASE_NONE, NULL, 0) \
-    HF_PARAM(access_pass, "Access password", FT_UINT32, BASE_DEC_HEX, NULL, 0) \
-    HF_PARAM(word_pointer, "Word pointer", FT_UINT16, BASE_DEC_HEX, NULL, 0) \
-    HF_PARAM(word_count, "Word count", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(write_data, "Write data", FT_BYTES, BASE_NONE, NULL, 0) \
-    HF_PARAM(kill_pass, "Killpassword", FT_UINT32, BASE_DEC_HEX, NULL, 0) \
-    HF_PARAM(kill_3, "3", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04) \
-    HF_PARAM(kill_2, "2", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02) \
-    HF_PARAM(kill_l, "L", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01) \
-    HF_PARAM(privilege, "Privilege", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(data_field, "Data field", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(block_pointer, "Block pointer", FT_UINT16, BASE_DEC_HEX, NULL, 0) \
-    HF_PARAM(block_mask, "Block mask", FT_BYTES, BASE_NONE, NULL, 0) \
-    HF_PARAM(length_words, "Field Length (words)", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(block_range, "Block range", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(enable_crc, "Enable CRC", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(enable_pc, "Enable PC bits", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40) \
-    HF_PARAM(enable_xpc, "Enable XPC bits", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20) \
-    HF_PARAM(pc_bits, "PC bits", FT_UINT16, BASE_HEX, NULL, 0) \
-    HF_PARAM(xpc_w1, "XPC-W1", FT_UINT16, BASE_HEX, NULL, 0) \
-    HF_PARAM(xpc_w2, "XPC-W2", FT_UINT16, BASE_HEX, NULL, 0) \
-    HF_PARAM(crc, "CRC", FT_UINT16, BASE_HEX, NULL, 0) \
-    HF_PARAM(num_coll, "Number of collisions", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(num_empty, "Number of empty slots", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(access_result, "Result", FT_UINT8, BASE_DEC, NULL, 0) \
-    HF_PARAM(read_data, "Read data", FT_BYTES, BASE_NONE, NULL, 0) \
-    HF_PARAM(num_words_written, "Number of words written", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(permlock_status, "Read data", FT_BYTES, BASE_NONE, NULL, 0) \
-    HF_PARAM(vendor_id, "Vendor ID", FT_UINT32, BASE_DEC, VALS(llrp_vendors), 0) \
-    HF_PARAM(impinj_param_type, "Impinj parameter subtype", FT_UINT32, BASE_DEC | BASE_EXT_STRING, &impinj_param_type_ext, 0) \
-    HF_PARAM(save_config, "Save configuration", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80) \
-    HF_PARAM(impinj_req_data, "Requested data", FT_UINT32, BASE_DEC | BASE_EXT_STRING, &impinj_req_data_ext, 0) \
-    HF_PARAM(impinj_reg_region, "Regulatory region", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &impinj_reg_region_ext, 0) \
-    HF_PARAM(impinj_search_mode, "Inventory search mode", FT_UINT16, BASE_DEC, VALS(impinj_search_mode), 0) \
-    HF_PARAM(impinj_en_tag_dir, "Enable tag direction", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x8000) \
-    HF_PARAM(impinj_antenna_conf, "Antenna configuration", FT_UINT16, BASE_DEC, VALS(impinj_ant_conf), 0) \
-    HF_PARAM(decision_time, "Decision timestamp", FT_UINT64, BASE_DEC, NULL, 0) \
-    HF_PARAM(impinj_tag_dir, "Tag direction", FT_UINT16, BASE_DEC, VALS(impinj_tag_dir), 0) \
-    HF_PARAM(confidence, "Confidence", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(impinj_fix_freq_mode, "Fixed frequency mode", FT_UINT16, BASE_DEC, VALS(impinj_fix_freq_mode), 0) \
-    HF_PARAM(num_channels, "Number of channels", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(channel, "Channel", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(impinj_reduce_power_mode, "Recuced power mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0) \
-    HF_PARAM(impinj_low_duty_mode, "Low duty cycle mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0) \
-    HF_PARAM(empty_field_timeout, "Empty field timeout", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(field_ping_interval, "Field ping interval", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(model_name, "Model name", FT_UINT_STRING, BASE_NONE, NULL, 0) \
-    HF_PARAM(serial_number, "Serial number", FT_UINT_STRING, BASE_NONE, NULL, 0) \
-    HF_PARAM(soft_ver, "Softwave version", FT_UINT_STRING, BASE_NONE, NULL, 0) \
-    HF_PARAM(firm_ver, "Firmware version", FT_UINT_STRING, BASE_NONE, NULL, 0) \
-    HF_PARAM(fpga_ver, "FPGA version", FT_UINT_STRING, BASE_NONE, NULL, 0) \
-    HF_PARAM(pcba_ver, "PCBA version", FT_UINT_STRING, BASE_NONE, NULL, 0) \
-    HF_PARAM(height_thresh, "Height threshold", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(zero_motion_thresh, "Zero motion threshold", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(board_manufacturer, "Board manufacturer", FT_UINT_STRING, BASE_NONE, NULL, 0) \
-    HF_PARAM(fw_ver_hex, "Firmware version", FT_UINT_BYTES, BASE_NONE, NULL, 0) \
-    HF_PARAM(hw_ver_hex, "Hardware version", FT_UINT_BYTES, BASE_NONE, NULL, 0) \
-    HF_PARAM(gpi_debounce, "GPI debounce timer Msec", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(temperature, "Temperature", FT_INT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(impinj_link_monitor_mode, "Link monitor mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0) \
-    HF_PARAM(link_down_thresh, "Link down threshold", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(impinj_report_buff_mode, "Report buffer mode", FT_UINT16, BASE_DEC, VALS(impinj_report_buff_mode), 0) \
-    HF_PARAM(permalock_result, "Result", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &impinj_permalock_result_ext, 0) \
-    HF_PARAM(block_permalock_result, "Result", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &impinj_block_permalock_result_ext, 0) \
-    HF_PARAM(impinj_data_profile, "Data profile", FT_UINT8, BASE_DEC, VALS(impinj_data_profile), 0) \
-    HF_PARAM(impinj_access_range, "Access range", FT_UINT8, BASE_DEC, VALS(impinj_access_range), 0) \
-    HF_PARAM(impinj_persistence, "Persistence", FT_UINT8, BASE_DEC, VALS(impinj_persistence), 0) \
-    HF_PARAM(set_qt_config_result, "Result", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &impinj_set_qt_config_result_ext, 0) \
-    HF_PARAM(get_qt_config_result, "Result", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &impinj_get_qt_config_result_ext, 0) \
-    HF_PARAM(impinj_serialized_tid_mode, "Serialized TID Mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0) \
-    HF_PARAM(impinj_rf_phase_mode, "RF phase angle mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0) \
-    HF_PARAM(impinj_peak_rssi_mode, "Peak RSSI mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0) \
-    HF_PARAM(impinj_gps_coordinates_mode, "GPS coordinates mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0) \
-    HF_PARAM(impinj_tid, "TID", FT_UINT_BYTES, BASE_NONE, NULL, 0) \
-    HF_PARAM(phase_angle, "Phase angle", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(rssi, "RSSI", FT_INT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(latitude, "Latitude", FT_INT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(longitude, "Longitude", FT_INT32, BASE_DEC, NULL, 0) \
-    HF_PARAM(gga_sentence, "GGA sentence", FT_UINT_STRING, BASE_NONE, NULL, 0) \
-    HF_PARAM(rmc_sentence, "RMC sentence", FT_UINT_STRING, BASE_NONE, NULL, 0) \
-    HF_PARAM(impinj_optim_read_mode, "Optimized read mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0) \
-    HF_PARAM(impinj_rf_doppler_mode, "RF doppler frequency mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0) \
-    HF_PARAM(retry_count, "Retry count", FT_UINT16, BASE_DEC, NULL, 0) \
-    HF_PARAM(impinj_access_spec_ordering, "AccessSpec ordering", FT_UINT16, BASE_DEC, VALS(impinj_access_spec_ordering), 0) \
-    HF_PARAM(impinj_gpo_mode, "GPO mode", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &impinj_gpo_mode_ext, 0) \
-    HF_PARAM(gpo_pulse_dur, "GPO pulse duration", FT_UINT32, BASE_DEC, NULL, 0) \
-
 static guint
 dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint offset, const guint end);
@@ -2982,10 +2740,959 @@ proto_register_llrp(void)
         { "Parameter", "llrp.param", FT_NONE, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
-#define HF_PARAM(name, desc, ft, enc, trans, bit) {&hf_llrp_##name, \
-                                                  {desc, "llrp.param." #name, ft, enc, trans, bit, NULL, HFILL }},
-        HF_LLRP_PARAMETER_LIST
-#undef HF_PARAM
+        { &hf_llrp_num_gpi,
+        { "Number of GPI ports", "llrp.param.num_gpi", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_num_gpo,
+        { "Number of GPO ports", "llrp.param.num_gpo", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_microseconds,
+        { "Microseconds", "llrp.param.microseconds", FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_max_supported_antenna,
+        { "Max number of antenna supported", "llrp.param.max_supported_antenna", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_can_set_antenna_prop,
+        { "Can set antenna properties", "llrp.param.can_set_antenna_prop", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x8000,
+          NULL, HFILL }},
+
+        { &hf_llrp_has_utc_clock,
+        { "Has UTC clock capabilities", "llrp.param.has_utc_clock", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x4000,
+          NULL, HFILL }},
+
+        { &hf_llrp_device_manufacturer,
+        { "Device manufacturer name", "llrp.param.device_manufacturer", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_model,
+        { "Model name", "llrp.param.model", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_firmware_version,
+        { "Reader firmware version", "llrp.param.firmware_version", FT_UINT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_max_receive_sense,
+        { "Maximum sensitivity value", "llrp.param.max_receive_sense", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_index,
+        { "Index", "llrp.param.index", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_receive_sense,
+        { "Receive sensitivity value", "llrp.param.receive_sense", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_receive_sense_index_min,
+        { "Receive sensitivity index min", "llrp.param.receive_sense_index_min", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_receive_sense_index_max,
+        { "Receive sensitivity index max", "llrp.param.receive_sense_index_max", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_num_protocols,
+        { "Number of protocols", "llrp.param.num_protocols", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_protocol_id,
+        { "Protocol ID", "llrp.param.protocol_id", FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(protocol_id), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_can_do_survey,
+        { "Can do RF survey", "llrp.param.can_do_survey", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_can_report_buffer_warning,
+        { "Can report buffer fill warning", "llrp.param.can_report_buffer_warning", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+          NULL, HFILL }},
+
+        { &hf_llrp_support_client_opspec,
+        { "Support client request OpSpec", "llrp.param.support_client_opspec", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+          NULL, HFILL }},
+
+        { &hf_llrp_can_stateaware,
+        { "Can do tag inventory state aware singulation", "llrp.param.can_stateaware", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+          NULL, HFILL }},
+
+        { &hf_llrp_support_holding,
+        { "Support event and report holding", "llrp.param.support_holding", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+          NULL, HFILL }},
+
+        { &hf_llrp_max_priority_supported,
+        { "Max priority level supported", "llrp.param.max_priority_supported", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_client_opspec_timeout,
+        { "Client request OpSpec timeout", "llrp.param.client_opspec_timeout", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_max_num_rospec,
+        { "Maximum number of ROSpecs", "llrp.param.max_num_rospec", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_max_num_spec_per_rospec,
+        { "Maximum number of spec per ROSpec", "llrp.param.max_num_spec_per_rospec", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_max_num_inventory_per_aispec,
+        { "Maximum number of Inventory Spec per AISpec", "llrp.param.max_num_inventory_per_aispec", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_max_num_accessspec,
+        { "Maximum number of AccessSpec", "llrp.param.max_num_accessspec", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_max_num_opspec_per_accressspec,
+        { "Maximum number of OpSpec per AccessSpec", "llrp.param.max_num_opspec_per_accressspec", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        /* TODO add translation */
+        { &hf_llrp_country_code,
+        { "Contry code", "llrp.param.country_code", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_comm_standard,
+        { "Communication standard", "llrp.param.comm_standard", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &comm_standard_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_transmit_power,
+        { "Transmit power value", "llrp.param.transmit_power", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_hopping,
+        { "Hopping", "llrp.param.hopping", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_hop_table_id,
+        { "Hop table ID", "llrp.param.hop_table_id", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_rfu,
+        { "Reserved for future use", "llrp.param.rfu", FT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_num_hops,
+        { "Number of hops", "llrp.param.num_hops", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_frequency,
+        { "Frequency", "llrp.param.frequency", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_num_freqs,
+        { "Number of frequencies", "llrp.param.num_freqs", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_min_freq,
+        { "Minimum frequency", "llrp.param.min_freq", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_max_freq,
+        { "Maximum frequency", "llrp.param.max_freq", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_rospec_id,
+        { "ROSpec ID", "llrp.param.rospec_id", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_priority,
+        { "Priority", "llrp.param.priority", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_cur_state,
+        { "Current state", "llrp.param.cur_state", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_rospec_start_trig_type,
+        { "ROSpec start trigger type", "llrp.param.rospec_start_trig_type", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_offset,
+        { "Offset", "llrp.param.offset", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_period,
+        { "Period", "llrp.param.period", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_gpi_event,
+        { "GPI event", "llrp.param.gpi_event", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_timeout,
+        { "Timeout", "llrp.param.timeout", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_rospec_stop_trig_type,
+        { "ROSpec stop trigger type", "llrp.param.rospec_stop_trig_type", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_duration_trig,
+        { "Duration trigger value", "llrp.param.duration_trig", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_antenna_count,
+        { "Antenna count", "llrp.param.antenna_count", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_antenna,
+        { "Antenna ID", "llrp.param.antenna", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_aispec_stop_trig_type,
+        { "AISpec stop trigger type", "llrp.param.aispec_stop_trig_type", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_trig_type,
+        { "Trigger type", "llrp.param.trig_type", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_number_of_tags,
+        { "Number of tags", "llrp.param.number_of_tags", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_number_of_attempts,
+        { "Number of attempts", "llrp.param.number_of_attempts", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_t,
+        { "T", "llrp.param.t", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_inventory_spec_id,
+        { "Inventory parameter spec id", "llrp.param.inventory_spec_id", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_start_freq,
+        { "Start frequency", "llrp.param.start_freq", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_stop_freq,
+        { "Stop frequency", "llrp.param.stop_freq", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_stop_trig_type,
+        { "Stop trigger type", "llrp.param.stop_trig_type", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_n_4,
+        { "N", "llrp.param.n_4", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_duration,
+        { "Duration", "llrp.param.duration", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_accessspec_id,
+        { "AccessSpec ID", "llrp.param.accessspec_id", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_access_cur_state,
+        { "Current state", "llrp.param.access_cur_state", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_access_stop_trig_type,
+        { "AccessSpec Stop trigger", "llrp.param.access_stop_trig_type", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_operation_count,
+        { "Operation count value", "llrp.param.operation_count", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_opspec_id,
+        { "OpSpec ID", "llrp.param.opspec_id", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_conf_value,
+        { "Configuration value", "llrp.param.conf_value", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_id_type,
+        { "ID type", "llrp.param.id_type", FT_UINT8, BASE_DEC, VALS(id_type), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_reader_id,
+        { "Reader ID", "llrp.param.reader_id", FT_UINT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_gpo_data,
+        { "GPO data", "llrp.param.gpo_data", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_keepalive_trig_type,
+        { "KeepAlive trigger type", "llrp.param.keepalive_trig_type", FT_UINT8, BASE_DEC, VALS(keepalive_type), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_time_iterval,
+        { "Time interval", "llrp.param.time_iterval", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_antenna_connected,
+        { "Antenna connected", "llrp.param.antenna_connected", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_antenna_gain,
+        { "Antenna gain", "llrp.param.antenna_gain", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_receiver_sense,
+        { "Receiver sensitivity", "llrp.param.receiver_sense", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_channel_idx,
+        { "Channel index", "llrp.param.channel_idx", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_gpi_config,
+        { "GPI config", "llrp.param.gpi_config", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_gpi_state,
+        { "GPI state", "llrp.param.gpi_state", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_hold_events_and_reports,
+        { "Hold events and reports upon reconnect", "llrp.param.hold_events_and_reports", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_ro_report_trig,
+        { "RO report trigger", "llrp.param.ro_report_trig", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_n_2,
+        { "N", "llrp.param.n_2", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_rospec_id,
+        { "Enable ROSpec ID", "llrp.param.enable_rospec_id", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x8000,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_spec_idx,
+        { "Enable spec index", "llrp.param.enable_spec_idx", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x4000,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_inv_spec_id,
+        { "Enable inventory spec ID", "llrp.param.enable_inv_spec_id", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x2000,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_antenna_id,
+        { "Enable antenna ID", "llrp.param.enable_antenna_id", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x1000,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_channel_idx,
+        { "Enable channel index", "llrp.param.enable_channel_idx", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0800,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_peak_rssi,
+        { "Enable peak RSSI", "llrp.param.enable_peak_rssi", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0400,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_first_seen,
+        { "Enable first seen timestamp", "llrp.param.enable_first_seen", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0200,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_last_seen,
+        { "Enable last seen timestamp", "llrp.param.enable_last_seen", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_seen_count,
+        { "Enable tag seen count", "llrp.param.enable_seen_count", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0080,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_accessspec_id,
+        { "Enable AccessSpec ID", "llrp.param.enable_accessspec_id", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0040,
+          NULL, HFILL }},
+
+        { &hf_llrp_access_report_trig,
+        { "Access report trigger", "llrp.param.access_report_trig", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_length_bits,
+        { "Bit field length (bits)", "llrp.param.length_bits", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_epc,
+        { "EPC", "llrp.param.epc", FT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_spec_idx,
+        { "Spec index", "llrp.param.spec_idx", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_peak_rssi,
+        { "Peak RSSI", "llrp.param.peak_rssi", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_tag_count,
+        { "Tag count", "llrp.param.tag_count", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_bandwidth,
+        { "Bandwidth", "llrp.param.bandwidth", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_average_rssi,
+        { "Average RSSI", "llrp.param.average_rssi", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_notif_state,
+        { "Notification state", "llrp.param.notif_state", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_event_type,
+        { "Event type", "llrp.param.event_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &event_type_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_next_chan_idx,
+        { "Next channel index", "llrp.param.next_chan_idx", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_roevent_type,
+        { "Event type", "llrp.param.roevent_type", FT_UINT8, BASE_DEC, VALS(roevent_type), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_prem_rospec_id,
+        { "Preempting ROSpec ID", "llrp.param.prem_rospec_id", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_buffer_full_percentage,
+        { "Report Buffer percentage full", "llrp.param.buffer_full_percentage", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_message,
+        { "Message", "llrp.param.message", FT_UINT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_rfevent_type,
+        { "Event type", "llrp.param.rfevent_type", FT_UINT8, BASE_DEC, VALS(rfevent_type), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_aievent_type,
+        { "Event type", "llrp.param.aievent_type", FT_UINT8, BASE_DEC, VALS(aievent_type), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_antenna_event_type,
+        { "Event type", "llrp.param.antenna_event_type", FT_UINT8, BASE_DEC, VALS(antenna_event_type), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_conn_status,
+        { "Status", "llrp.param.conn_status", FT_UINT16, BASE_DEC, VALS(connection_status), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_loop_count,
+        { "Loop count", "llrp.param.loop_count", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_status_code,
+        { "Status code", "llrp.param.status_code", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &status_code_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_error_desc,
+        { "Error Description", "llrp.param.error_desc", FT_UINT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_field_num,
+        { "Field number", "llrp.param.field_num", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_error_code,
+        { "Error code", "llrp.param.error_code", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &status_code_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_parameter_type,
+        { "Parameter type", "llrp.param.parameter_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &tlv_type_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_can_support_block_erase,
+        { "Can support block erase", "llrp.param.can_support_block_erase", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_can_support_block_write,
+        { "Can support block write", "llrp.param.can_support_block_write", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+          NULL, HFILL }},
+
+        { &hf_llrp_can_support_block_permalock,
+        { "Can support block permalock", "llrp.param.can_support_block_permalock", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+          NULL, HFILL }},
+
+        { &hf_llrp_can_support_tag_recomm,
+        { "Can support tag recommisioning", "llrp.param.can_support_tag_recomm", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+          NULL, HFILL }},
+
+        { &hf_llrp_can_support_UMI_method2,
+        { "Can support UMI method 2", "llrp.param.can_support_UMI_method2", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+          NULL, HFILL }},
+
+        { &hf_llrp_can_support_XPC,
+        { "Can support XPC", "llrp.param.can_support_XPC", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+          NULL, HFILL }},
+
+        { &hf_llrp_max_num_filter_per_query,
+        { "Maximum number of select filters per query", "llrp.param.max_num_filter_per_query", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_mode_ident,
+        { "Mode identifier", "llrp.param.mode_ident", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_DR,
+        { "DR", "llrp.param.DR", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_hag_conformance,
+        { "EPC HAG T&C Conformance", "llrp.param.hag_conformance", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+          NULL, HFILL }},
+
+        { &hf_llrp_mod,
+        { "M", "llrp.param.mod", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_flm,
+        { "Forward link modulation", "llrp.param.flm", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_m,
+        { "Spectral mask indicator", "llrp.param.m", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_bdr,
+        { "BDR", "llrp.param.bdr", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_pie,
+        { "PIE", "llrp.param.pie", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_min_tari,
+        { "Minimum tari", "llrp.param.min_tari", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_max_tari,
+        { "Maximum tari", "llrp.param.max_tari", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_step_tari,
+        { "Tari step", "llrp.param.step_tari", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_inventory_state_aware,
+        { "Tag inventory state aware", "llrp.param.inventory_state_aware", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_trunc,
+        { "T", "llrp.param.trunc", FT_UINT8, BASE_DEC, NULL, 0xC0,
+          NULL, HFILL }},
+
+        { &hf_llrp_mb,
+        { "MB", "llrp.param.mb", FT_UINT8, BASE_DEC, NULL, 0xC0,
+          NULL, HFILL }},
+
+        { &hf_llrp_pointer,
+        { "Pointer", "llrp.param.pointer", FT_UINT16, BASE_DEC_HEX, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_tag_mask,
+        { "Tag mask", "llrp.param.tag_mask", FT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_aware_filter_target,
+        { "Target", "llrp.param.aware_filter_target", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_aware_filter_action,
+        { "Action", "llrp.param.aware_filter_action", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_unaware_filter_action,
+        { "Action", "llrp.param.unaware_filter_action", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_mode_idx,
+        { "Mode index", "llrp.param.mode_idx", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_tari,
+        { "Tari", "llrp.param.tari", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_session,
+        { "Session", "llrp.param.session", FT_UINT8, BASE_DEC, NULL, 0xC0,
+          NULL, HFILL }},
+
+        { &hf_llrp_tag_population,
+        { "Tag population", "llrp.param.tag_population", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_tag_transit_time,
+        { "Tag tranzit time", "llrp.param.tag_transit_time", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_sing_i,
+        { "I", "llrp.param.sing_i", FT_BOOLEAN, 8, TFS(&tfs_state_a_b), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_sing_s,
+        { "S", "llrp.param.sing_s", FT_BOOLEAN, 8, TFS(&tfs_sl), 0x40,
+          NULL, HFILL }},
+
+        { &hf_llrp_sing_a,
+        { "S_All", "llrp.param.sing_a", FT_BOOLEAN, 8, TFS(&tfs_all_no), 0x20,
+          NULL, HFILL }},
+
+        { &hf_llrp_match,
+        { "Match", "llrp.param.match", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+          NULL, HFILL }},
+
+        { &hf_llrp_tag_data,
+        { "Tag data", "llrp.param.tag_data", FT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_access_pass,
+        { "Access password", "llrp.param.access_pass", FT_UINT32, BASE_DEC_HEX, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_word_pointer,
+        { "Word pointer", "llrp.param.word_pointer", FT_UINT16, BASE_DEC_HEX, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_word_count,
+        { "Word count", "llrp.param.word_count", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_write_data,
+        { "Write data", "llrp.param.write_data", FT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_kill_pass,
+        { "Killpassword", "llrp.param.kill_pass", FT_UINT32, BASE_DEC_HEX, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_kill_3,
+        { "3", "llrp.param.kill_3", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+          NULL, HFILL }},
+
+        { &hf_llrp_kill_2,
+        { "2", "llrp.param.kill_2", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+          NULL, HFILL }},
+
+        { &hf_llrp_kill_l,
+        { "L", "llrp.param.kill_l", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+          NULL, HFILL }},
+
+        { &hf_llrp_privilege,
+        { "Privilege", "llrp.param.privilege", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_data_field,
+        { "Data field", "llrp.param.data_field", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_block_pointer,
+        { "Block pointer", "llrp.param.block_pointer", FT_UINT16, BASE_DEC_HEX, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_block_mask,
+        { "Block mask", "llrp.param.block_mask", FT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_length_words,
+        { "Field Length (words)", "llrp.param.length_words", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_block_range,
+        { "Block range", "llrp.param.block_range", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_crc,
+        { "Enable CRC", "llrp.param.enable_crc", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_pc,
+        { "Enable PC bits", "llrp.param.enable_pc", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+          NULL, HFILL }},
+
+        { &hf_llrp_enable_xpc,
+        { "Enable XPC bits", "llrp.param.enable_xpc", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+          NULL, HFILL }},
+
+        { &hf_llrp_pc_bits,
+        { "PC bits", "llrp.param.pc_bits", FT_UINT16, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_xpc_w1,
+        { "XPC-W1", "llrp.param.xpc_w1", FT_UINT16, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_xpc_w2,
+        { "XPC-W2", "llrp.param.xpc_w2", FT_UINT16, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_crc,
+        { "CRC", "llrp.param.crc", FT_UINT16, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_num_coll,
+        { "Number of collisions", "llrp.param.num_coll", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_num_empty,
+        { "Number of empty slots", "llrp.param.num_empty", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_access_result,
+        { "Result", "llrp.param.access_result", FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_read_data,
+        { "Read data", "llrp.param.read_data", FT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_num_words_written,
+        { "Number of words written", "llrp.param.num_words_written", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_permlock_status,
+        { "Read data", "llrp.param.permlock_status", FT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_vendor_id,
+        { "Vendor ID", "llrp.param.vendor_id", FT_UINT32, BASE_DEC, VALS(llrp_vendors), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_param_type,
+        { "Impinj parameter subtype", "llrp.param.impinj_param_type", FT_UINT32, BASE_DEC | BASE_EXT_STRING, &impinj_param_type_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_save_config,
+        { "Save configuration", "llrp.param.save_config", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_req_data,
+        { "Requested data", "llrp.param.impinj_req_data", FT_UINT32, BASE_DEC | BASE_EXT_STRING, &impinj_req_data_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_reg_region,
+        { "Regulatory region", "llrp.param.impinj_reg_region", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &impinj_reg_region_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_search_mode,
+        { "Inventory search mode", "llrp.param.impinj_search_mode", FT_UINT16, BASE_DEC, VALS(impinj_search_mode), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_en_tag_dir,
+        { "Enable tag direction", "llrp.param.impinj_en_tag_dir", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x8000,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_antenna_conf,
+        { "Antenna configuration", "llrp.param.impinj_antenna_conf", FT_UINT16, BASE_DEC, VALS(impinj_ant_conf), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_decision_time,
+        { "Decision timestamp", "llrp.param.decision_time", FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_tag_dir,
+        { "Tag direction", "llrp.param.impinj_tag_dir", FT_UINT16, BASE_DEC, VALS(impinj_tag_dir), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_confidence,
+        { "Confidence", "llrp.param.confidence", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_fix_freq_mode,
+        { "Fixed frequency mode", "llrp.param.impinj_fix_freq_mode", FT_UINT16, BASE_DEC, VALS(impinj_fix_freq_mode), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_num_channels,
+        { "Number of channels", "llrp.param.num_channels", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_channel,
+        { "Channel", "llrp.param.channel", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_reduce_power_mode,
+        { "Recuced power mode", "llrp.param.impinj_reduce_power_mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_low_duty_mode,
+        { "Low duty cycle mode", "llrp.param.impinj_low_duty_mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_empty_field_timeout,
+        { "Empty field timeout", "llrp.param.empty_field_timeout", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_field_ping_interval,
+        { "Field ping interval", "llrp.param.field_ping_interval", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_model_name,
+        { "Model name", "llrp.param.model_name", FT_UINT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_serial_number,
+        { "Serial number", "llrp.param.serial_number", FT_UINT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_soft_ver,
+        { "Softwave version", "llrp.param.soft_ver", FT_UINT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_firm_ver,
+        { "Firmware version", "llrp.param.firm_ver", FT_UINT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_fpga_ver,
+        { "FPGA version", "llrp.param.fpga_ver", FT_UINT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_pcba_ver,
+        { "PCBA version", "llrp.param.pcba_ver", FT_UINT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_height_thresh,
+        { "Height threshold", "llrp.param.height_thresh", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_zero_motion_thresh,
+        { "Zero motion threshold", "llrp.param.zero_motion_thresh", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_board_manufacturer,
+        { "Board manufacturer", "llrp.param.board_manufacturer", FT_UINT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_fw_ver_hex,
+        { "Firmware version", "llrp.param.fw_ver_hex", FT_UINT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_hw_ver_hex,
+        { "Hardware version", "llrp.param.hw_ver_hex", FT_UINT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_gpi_debounce,
+        { "GPI debounce timer Msec", "llrp.param.gpi_debounce", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_temperature,
+        { "Temperature", "llrp.param.temperature", FT_INT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_link_monitor_mode,
+        { "Link monitor mode", "llrp.param.impinj_link_monitor_mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_link_down_thresh,
+        { "Link down threshold", "llrp.param.link_down_thresh", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_report_buff_mode,
+        { "Report buffer mode", "llrp.param.impinj_report_buff_mode", FT_UINT16, BASE_DEC, VALS(impinj_report_buff_mode), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_permalock_result,
+        { "Result", "llrp.param.permalock_result", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &impinj_permalock_result_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_block_permalock_result,
+        { "Result", "llrp.param.block_permalock_result", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &impinj_block_permalock_result_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_data_profile,
+        { "Data profile", "llrp.param.impinj_data_profile", FT_UINT8, BASE_DEC, VALS(impinj_data_profile), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_access_range,
+        { "Access range", "llrp.param.impinj_access_range", FT_UINT8, BASE_DEC, VALS(impinj_access_range), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_persistence,
+        { "Persistence", "llrp.param.impinj_persistence", FT_UINT8, BASE_DEC, VALS(impinj_persistence), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_set_qt_config_result,
+        { "Result", "llrp.param.set_qt_config_result", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &impinj_set_qt_config_result_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_get_qt_config_result,
+        { "Result", "llrp.param.get_qt_config_result", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &impinj_get_qt_config_result_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_serialized_tid_mode,
+        { "Serialized TID Mode", "llrp.param.impinj_serialized_tid_mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_rf_phase_mode,
+        { "RF phase angle mode", "llrp.param.impinj_rf_phase_mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_peak_rssi_mode,
+        { "Peak RSSI mode", "llrp.param.impinj_peak_rssi_mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_gps_coordinates_mode,
+        { "GPS coordinates mode", "llrp.param.impinj_gps_coordinates_mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_tid,
+        { "TID", "llrp.param.impinj_tid", FT_UINT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_phase_angle,
+        { "Phase angle", "llrp.param.phase_angle", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_rssi,
+        { "RSSI", "llrp.param.rssi", FT_INT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_latitude,
+        { "Latitude", "llrp.param.latitude", FT_INT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_longitude,
+        { "Longitude", "llrp.param.longitude", FT_INT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_gga_sentence,
+        { "GGA sentence", "llrp.param.gga_sentence", FT_UINT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_rmc_sentence,
+        { "RMC sentence", "llrp.param.rmc_sentence", FT_UINT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_optim_read_mode,
+        { "Optimized read mode", "llrp.param.impinj_optim_read_mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_rf_doppler_mode,
+        { "RF doppler frequency mode", "llrp.param.impinj_rf_doppler_mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_retry_count,
+        { "Retry count", "llrp.param.retry_count", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_access_spec_ordering,
+        { "AccessSpec ordering", "llrp.param.impinj_access_spec_ordering", FT_UINT16, BASE_DEC, VALS(impinj_access_spec_ordering), 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_impinj_gpo_mode,
+        { "GPO mode", "llrp.param.impinj_gpo_mode", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &impinj_gpo_mode_ext, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_gpo_pulse_dur,
+        { "GPO pulse duration", "llrp.param.gpo_pulse_dur", FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
     };
 
     /* Setup protocol subtree array */
