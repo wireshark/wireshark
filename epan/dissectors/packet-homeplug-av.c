@@ -494,7 +494,6 @@ static gint ett_homeplug_av_tone_map_req         = -1;
 static gint ett_homeplug_av_tone_map_cnf         = -1;
 static gint ett_homeplug_av_tone_map_carrier     = -1;
 
-#define HOMEPLUG_AV_MIN_FRAME_SIZE		46	/* 60 - Ethernet SADDR + DADDR + Ethertype */
 #define HOMEPLUG_AV_MMHDR_LEN			3	/* MM version (1) + MM type (2) */
 
 #define HOMEPLUG_AV_PUBLIC_FRAG_COUNT_MASK	0x0F
@@ -2859,10 +2858,8 @@ dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    cursor = ptvcursor_new(homeplug_av_tree, tvb, 0);
 
-   /* Check if we have enough data to process a complete frame */
-   if (check_tvb_length(cursor, HOMEPLUG_AV_MIN_FRAME_SIZE) != TVB_LEN_SHORTEST &&
-       /* Check if we have enough data to process the header */
-       check_tvb_length(cursor, HOMEPLUG_AV_MMHDR_LEN) != TVB_LEN_SHORTEST) {
+   /* Check if we have enough data to process the header */
+   if (check_tvb_length(cursor, HOMEPLUG_AV_MMHDR_LEN) != TVB_LEN_SHORTEST) {
 
       homeplug_av_mmtype = dissect_homeplug_av_mmhdr(cursor);
 
