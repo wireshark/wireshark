@@ -823,7 +823,7 @@ main(int argc, char *argv[])
   guint32 snaplen = 0;                  /* No limit               */
   int choplen = 0;                      /* No chop                */
   wtap_dumper *pdh = NULL;
-  int count = 1;
+  unsigned int count = 1;
   unsigned duplicate_count = 0;
   gint64 data_offset;
   struct wtap_pkthdr snap_phdr;
