@@ -470,11 +470,8 @@ static int hf_single_block_allocation_timeslot_number;
 static int hf_dtm_dynamic_allocation_extended_dynamic_allocation;
 static int hf_dtm_dynamic_allocation_rlc_data_blocks_granted;
 static int hf_dtm_single_block_allocation_timeslot_number;
-static int hf_h110qi_t_tqi;
-static int hf_packetuplinkid_tqi;
 static int hf_compact_reducedma_bitmaplength;
 static int hf_multiblock_allocation_timeslot_number;
-static int hf_multiblock_allocation_number_of_radio_blocks_allocated;
 static int hf_pua_egprs_00_arac_retransmission_request;
 
 /*< Packet Downlink Assignment message content > */
@@ -6337,7 +6334,7 @@ static const value_string ul_rlc_message_type_vals[] = {
 
 static value_string_ext ul_rlc_message_type_vals_ext = VALUE_STRING_EXT_INIT(ul_rlc_message_type_vals);
 
-static const true_false_string retry_vals[] = {
+static const true_false_string retry_vals = {
     "MS sent channel request message twice or more",
     "MS sent channel request message once"
 };
