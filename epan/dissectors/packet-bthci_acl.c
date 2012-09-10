@@ -1,6 +1,6 @@
 /* TODO mix direction bit into the chandle tree lookup   so we can handle when fragments sent in both directions simultaneously on the same chandle */
 
-/* packet-btacl_acl.c
+/* packet-bthci_acl.c
  * Routines for the Bluetooth ACL dissection
  * Copyright 2002, Christoph Scholz <scholz@cs.uni-bonn.de>
  *  From: http://affix.sourceforge.net/archive/ethereal_affix-3.patch
@@ -42,17 +42,17 @@
 #include <packet-bthci_acl.h>
 
 /* Initialize the protocol and registered fields */
-static int proto_btacl = -1;
-static int hf_btacl_chandle = -1;
-static int hf_btacl_pb_flag = -1;
-static int hf_btacl_bc_flag = -1;
-static int hf_btacl_length = -1;
-static int hf_btacl_data = -1;
-static int hf_btacl_continuation_to = -1;
-static int hf_btacl_reassembled_in = -1;
+static int proto_bthci_acl = -1;
+static int hf_bthci_acl_chandle = -1;
+static int hf_bthci_acl_pb_flag = -1;
+static int hf_bthci_acl_bc_flag = -1;
+static int hf_bthci_acl_length = -1;
+static int hf_bthci_acl_data = -1;
+static int hf_bthci_acl_continuation_to = -1;
+static int hf_bthci_acl_reassembled_in = -1;
 
 /* Initialize the subtree pointers */
-static gint ett_btacl = -1;
+static gint ett_bthci_acl = -1;
 
 static dissector_handle_t btl2cap_handle = NULL;
 
@@ -90,10 +90,10 @@ static const value_string bc_flag_vals[] = {
 
 /* Code to actually dissect the packets */
 static void
-dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item       *ti                    = NULL;
-    proto_tree       *btacl_tree            = NULL;
+    proto_item       *ti                        = NULL;
+    proto_tree       *bthci_acl_tree            = NULL;
     guint16           flags, length;
     gboolean          fragmented;
     int               offset                = 0;
@@ -106,15 +106,15 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_ACL");
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_btacl, tvb, offset, -1, ENC_NA);
-        btacl_tree = proto_item_add_subtree(ti, ett_btacl);
+        ti = proto_tree_add_item(tree, proto_bthci_acl, tvb, offset, -1, ENC_NA);
+        bthci_acl_tree = proto_item_add_subtree(ti, ett_bthci_acl);
     }
 
     flags   = tvb_get_letohs(tvb, offset);
     pb_flag = (flags & 0x3000) >> 12;
-    proto_tree_add_item(btacl_tree, hf_btacl_chandle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btacl_tree, hf_btacl_pb_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btacl_tree, hf_btacl_bc_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_chandle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_pb_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_bc_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     acl_data            = ep_alloc(sizeof(bthci_acl_data_t));
@@ -131,7 +131,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     length = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(btacl_tree, hf_btacl_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
     /* determine if packet is fragmented */
@@ -185,7 +185,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             if (mfp != NULL && mfp->last_frame) {
                 proto_item *item;
-                item = proto_tree_add_uint(btacl_tree, hf_btacl_reassembled_in, tvb, 0, 0, mfp->last_frame);
+                item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_reassembled_in, tvb, 0, 0, mfp->last_frame);
                 PROTO_ITEM_SET_GENERATED(item);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
             }
@@ -204,7 +204,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             if (mfp) {
                 proto_item *item;
-                item = proto_tree_add_uint(btacl_tree, hf_btacl_continuation_to, tvb, 0, 0, mfp->first_frame);
+                item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_continuation_to, tvb, 0, 0, mfp->first_frame);
                 PROTO_ITEM_SET_GENERATED(item);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " [Continuation to #%u]", mfp->first_frame);
             }
@@ -224,43 +224,43 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 void
-proto_register_btacl(void)
+proto_register_bthci_acl(void)
 {
 
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
-        { &hf_btacl_chandle,
-          { "Connection Handle",           "bthci_acl.chandle",
+        { &hf_bthci_acl_chandle,
+          { "Connection Handle",                             "bthci_acl.chandle",
             FT_UINT16, BASE_HEX, NULL, 0x0FFF,
             NULL, HFILL }
         },
-        { &hf_btacl_pb_flag,
-          { "PB Flag",           "bthci_acl.pb_flag",
+        { &hf_bthci_acl_pb_flag,
+          { "PB Flag",                                       "bthci_acl.pb_flag",
             FT_UINT16, BASE_DEC, VALS(pb_flag_vals), 0x3000,
             "Packet Boundary Flag", HFILL }
         },
-        { &hf_btacl_bc_flag,
-          { "BC Flag",           "bthci_acl.bc_flag",
+        { &hf_bthci_acl_bc_flag,
+          { "BC Flag",                                       "bthci_acl.bc_flag",
             FT_UINT16, BASE_DEC, VALS(bc_flag_vals), 0xC000,
             "Broadcast Flag", HFILL }
         },
-        { &hf_btacl_length,
-          { "Data Total Length",           "bthci_acl.length",
+        { &hf_bthci_acl_length,
+          { "Data Total Length",                             "bthci_acl.length",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_btacl_data,
-          { "Data",           "bthci_acl.data",
+        { &hf_bthci_acl_data,
+          { "Data",                                          "bthci_acl.data",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_btacl_continuation_to,
-          { "This is a continuation to the PDU in frame",     "bthci_acl.continuation_to",
+        { &hf_bthci_acl_continuation_to,
+          { "This is a continuation to the PDU in frame",    "bthci_acl.continuation_to",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "This is a continuation to the PDU in frame #", HFILL }
         },
-        { &hf_btacl_reassembled_in,
-          { "This PDU is reassembled in frame",       "bthci_acl.reassembled_in",
+        { &hf_bthci_acl_reassembled_in,
+          { "This PDU is reassembled in frame",              "bthci_acl.reassembled_in",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "This PDU is reassembled in frame #", HFILL }
         },
@@ -268,21 +268,21 @@ proto_register_btacl(void)
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-        &ett_btacl,
+        &ett_bthci_acl,
     };
-    module_t *btacl_module;
+    module_t *bthci_acl_module;
 
     /* Register the protocol name and description */
-    proto_btacl = proto_register_protocol("Bluetooth HCI ACL Packet", "HCI_ACL", "bthci_acl");
-    register_dissector("bthci_acl", dissect_btacl, proto_btacl);
+    proto_bthci_acl = proto_register_protocol("Bluetooth HCI ACL Packet", "HCI_ACL", "bthci_acl");
+    register_dissector("bthci_acl", dissect_bthci_acl, proto_bthci_acl);
 
     /* Required function calls to register the header fields and subtrees used */
-    proto_register_field_array(proto_btacl, hf, array_length(hf));
+    proto_register_field_array(proto_bthci_acl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register configuration preferences */
-    btacl_module = prefs_register_protocol(proto_btacl, NULL);
-    prefs_register_bool_preference(btacl_module, "btacl_reassembly",
+    bthci_acl_module = prefs_register_protocol(proto_bthci_acl, NULL);
+    prefs_register_bool_preference(bthci_acl_module, "hci_acl_reassembly",
         "Reassemble ACL Fragments",
         "Whether the ACL dissector should reassemble fragmented PDUs",
         &acl_reassembly);
@@ -292,7 +292,7 @@ proto_register_btacl(void)
 
 
 void
-proto_reg_handoff_btacl(void)
+proto_reg_handoff_bthci_acl(void)
 {
     dissector_handle_t bthci_acl_handle;
 
