@@ -1692,7 +1692,7 @@ my $commentAndStringRegex = qr{ (?: $DoubleQuotedStr | $SingleQuotedStr | $CComm
 my $StaticRegex             = qr/ static \s+                                                            /xs;
 my $ConstRegex              = qr/ const  \s+                                                            /xs;
 my $Static_andor_ConstRegex = qr/ (?: $StaticRegex $ConstRegex | $StaticRegex | $ConstRegex)            /xs;
-my $ValueStringRegex        = qr/ $Static_andor_ConstRegex (value|string|range)_string \ + [^;*]+ = [^;]+ [{] [^;]+ ;  /xs;
+my $ValueStringRegex        = qr/ $Static_andor_ConstRegex (?:value|string|range)_string \ + [^;*]+ = [^;]+ [{] [^;]+ ;  /xs;
 
 #
 # MAIN
@@ -1822,7 +1822,7 @@ while ($_ = $ARGV[0])
                         # XXX_string array definition found; check if NULL terminated
                         my $vs = my $vsx = $1;
                         if ($debug_flag) {
-                                $vsx =~ / ( .+ (value|string|range)_string [^=]+ ) = /xo;
+                                $vsx =~ / ( .+ (?:value|string|range)_string [^=]+ ) = /xo;
                                 printf STDERR "==> %-35.35s: %s\n", $filename, $1;
                                 printf STDERR "%s\n", $vs;
                         }
@@ -1831,12 +1831,12 @@ while ($_ = $ARGV[0])
                         #  "Don't put a comma after the last tuple of an initializer of an array"
                         # However: since this usage is present in some number of cases, we'll allow for now
                         if ($vs !~ / , NULL [}] ,? [}] ; $/xo) {
-                                $vsx =~ /( (value|string|range)_string [^=]+ ) = /xo;
-                                printf STDERR "Error: %-35.35s: {0, NULL} is required as the last XXX_string array entry: %s\n", $filename, $1;
+                                $vsx =~ /( (?:value|string|range)_string [^=]+ ) = /xo;
+                                printf STDERR "Error: %-35.35s: {..., NULL} is required as the last XXX_string array entry: %s\n", $filename, $1;
                                 $errorCount++;
                         }
-                        if ($vs !~ / (static)? const (value|string|range)_string /xo)  {
-                                $vsx =~ /( (value|string|range)_string [^=]+ ) = /xo;
+                        if ($vs !~ / (static)? const (?:value|string|range)_string /xo)  {
+                                $vsx =~ /( (?:value|string|range)_string [^=]+ ) = /xo;
                                 printf STDERR "Error: %-35.35s: Missing 'const': %s\n", $filename, $1;
                                 $errorCount++;
                         }
