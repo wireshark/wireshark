@@ -8,48 +8,55 @@
 #  NL_LIBRARIES    - List of libraries when using libnl3.
 #  NL_FOUND        - True if libnl found.
 
-SET( SEARCHPATHS
-    /opt/local
-    /sw
-    /usr
-    /usr/local
-)
+IF (NL_LIBRARIES AND NL_INCLUDE_DIRS )
+  # in cache already
+  SET(NL_FOUND TRUE)
+ELSE (NL_LIBRARIES AND NL_INCLUDE_DIRS )
 
-FIND_PATH( NL_INCLUDE_DIR
-  PATH_SUFFIXES
-    include/libnl3
-  NAMES
-    netlink/version.h netlink/netlink.h
-  PATHS
-    $(SEARCHPATHS)
-)
+  SET( SEARCHPATHS
+      /opt/local
+      /sw
+      /usr
+      /usr/local
+  )
 
-FIND_LIBRARY( NL_LIBRARY
-  NAMES
-    nl-3 nl
-  PATH_SUFFIXES
-    lib64 lib
-  PATHS
-    $(SEARCHPATHS)
-)
+  FIND_PATH( NL_INCLUDE_DIR
+    PATH_SUFFIXES
+      include/libnl3
+    NAMES
+      netlink/version.h netlink/netlink.h
+    PATHS
+      $(SEARCHPATHS)
+  )
 
-FIND_LIBRARY( NLGENL_LIBRARY
-  NAMES
-    nl-genl-3 nl-genl
-  PATH_SUFFIXES
-    lib64 lib
-  PATHS
-    $(SEARCHPATHS)
-)
+  FIND_LIBRARY( NL_LIBRARY
+    NAMES
+      nl-3 nl
+    PATH_SUFFIXES
+      lib64 lib
+    PATHS
+      $(SEARCHPATHS)
+  )
 
-FIND_LIBRARY( NLROUTE_LIBRARY
-  NAMES
-    nl-route-3 nl-route
-  PATH_SUFFIXES
-    lib64 lib
-  PATHS
-    $(SEARCHPATHS)
-)
+  FIND_LIBRARY( NLGENL_LIBRARY
+    NAMES
+      nl-genl-3 nl-genl
+    PATH_SUFFIXES
+      lib64 lib
+    PATHS
+      $(SEARCHPATHS)
+  )
+
+  FIND_LIBRARY( NLROUTE_LIBRARY
+    NAMES
+      nl-route-3 nl-route
+    PATH_SUFFIXES
+      lib64 lib
+    PATHS
+      $(SEARCHPATHS)
+  )
+
+ENDIF(NL_LIBRARIES AND NL_INCLUDE_DIRS)
 
 # handle the QUIETLY and REQUIRED arguments and set NL_FOUND to TRUE if
 # all listed variables are TRUE
