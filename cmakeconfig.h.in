@@ -328,6 +328,9 @@
 /* Define if linux/nl80211.h defines NL80211_CMD_SET_CHANNEL */
 #cmakedefine HAVE_NL80211_CMD_SET_CHANNEL 1
 
+/* Define if linux/nl80211.h is new enough */
+#cmakedefine HAVE_NL80211 1
+
 /* Name of package */
 #cmakedefine PACKAGE
 

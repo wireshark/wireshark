@@ -89,5 +89,15 @@ check_c_source_compiles(
 	}"
 	HAVE_NL80211_CMD_SET_CHANNEL
 )
-
+check_c_source_compiles(
+	"#include <linux/nl80211.h>
+	int main() {
+		int x = NL80211_FREQUENCY_ATTR_MAX_TX_POWER;
+		x = NL80211_ATTR_SUPPORTED_IFTYPES;
+		x = NL80211_ATTR_SUPPORTED_COMMANDS;
+		x = NL80211_ATTR_WIPHY_FREQ;
+		x = NL80211_CHAN_NO_HT;
+	}"
+	HAVE_NL80211
+)
 
