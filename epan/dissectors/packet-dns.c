@@ -116,6 +116,10 @@ static int hf_dns_nsec3_salt_length = -1;
 static int hf_dns_nsec3_salt_value = -1;
 static int hf_dns_nsec3_hash_length = -1;
 static int hf_dns_nsec3_hash_value = -1;
+static int hf_dns_tlsa_certificate_usage = -1;
+static int hf_dns_tlsa_selector = -1;
+static int hf_dns_tlsa_matching_type = -1;
+static int hf_dns_tlsa_certificate_association_data = -1;
 static int hf_dns_tsig_error = -1;
 static int hf_dns_tsig_fudge = -1;
 static int hf_dns_tsig_mac_size = -1;
@@ -252,7 +256,7 @@ typedef struct _dns_conv_info_t {
 #define T_DHCID         49              /* DHCID RR (RFC 4701) */
 #define T_NSEC3         50              /* Next secure hash (RFC 5155) */
 #define T_NSEC3PARAM    51              /* NSEC3 parameters (RFC 5155) */
-#define T_TLSA          52              /* TLSA */
+#define T_TLSA          52              /* TLSA (RFC 6698) */
 #define T_HIP           55              /* Host Identity Protocol (HIP) RR (RFC 5205) */
 #define T_NINFO         56              /* NINFO */
 #define T_RKEY          57              /* RKEY */
@@ -629,7 +633,7 @@ dns_type_description (guint type)
     "DHCP Information",                     /* RFC 4701 */
     "Next secured hash",                    /* RFC 5155 */
     "NSEC3 parameters",                     /* RFC 5155 */
-    "TLSA",
+    "TLSA",                                 /* RFC 6698 */
     NULL,
     NULL,
     "Host Identity Protocol",               /* RFC 5205 */
@@ -696,6 +700,44 @@ static const value_string edns0_opt_code_vals[] = {
   {O_CLIENT_SUBNET, "Experimental - CSUBNET - Client subnet" },
   {0,            NULL}
  };
+/* DNS-Based Authentication of Named Entities (DANE) Parameters
+   http://www.iana.org/assignments/dane-parameters (last updated 2012-08-14)
+ */
+/* TLSA Certificate Usages */
+#define TLSA_CU_CA 0
+#define TLSA_CU_SC 1
+#define TLSA_CU_TA 2
+#define TLSA_CU_DI 3
+
+static const value_string tlsa_certificate_usage_vals[] = {
+  {TLSA_CU_CA, "CA constraint"},
+  {TLSA_CU_SC, "Service certificate constraint"},
+  {TLSA_CU_TA, "Trust anchor assertion"},
+  {TLSA_CU_DI, "Domain-issued certificate"},
+  {0,            NULL}
+};
+
+/* TLSA Selectors */
+#define TLSA_S_FC 0
+#define TLSA_S_SPKI 1
+
+static const value_string tlsa_selector_vals[] = {
+  {TLSA_S_FC, "Full certificate"},
+  {TLSA_S_SPKI, "SubjectPublicKeyInfo"},
+  {0,            NULL}
+};
+
+/* TLSA Matching Types */
+#define TLSA_MT_NHU 0
+#define TLSA_MT_S256 1
+#define TLSA_MT_S512 2
+
+static const value_string tlsa_matching_type_vals[] = {
+  {TLSA_MT_NHU, "No Hash Used"},
+  {TLSA_MT_S256, "SHA-256"},
+  {TLSA_MT_S512, "SHA-512"},
+  {0,            NULL}
+};
 
 static const value_string dns_classes[] = {
   {C_IN,   "IN"},
@@ -2140,6 +2182,27 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset ++;
       proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, ENC_NA);
+
+    }
+    break;
+
+    case T_TLSA: /* DNS-Based Authentication of Named Entities (52) */
+    {
+      int     rr_len = data_len;
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      proto_tree_add_item(rr_tree, hf_dns_tlsa_certificate_usage, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset ++;
+      rr_len --;
+      proto_tree_add_item(rr_tree, hf_dns_tlsa_selector, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset ++;
+      rr_len --;
+      proto_tree_add_item(rr_tree, hf_dns_tlsa_matching_type, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset ++;
+      rr_len --;
+      proto_tree_add_item(rr_tree, hf_dns_tlsa_certificate_association_data, tvb, cur_offset, rr_len, ENC_BIG_ENDIAN);
 
     }
     break;
@@ -4072,6 +4135,26 @@ proto_register_dns(void)
       { "Next hashed owner", "dns.nsec3.hash_value",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+
+    { &hf_dns_tlsa_certificate_usage,
+      { "Certificate Usage", "dns.tlsa.certificate_usage",
+        FT_UINT8, BASE_DEC, VALS(tlsa_certificate_usage_vals), 0,
+        "Specifies the provided association that will be used to match the certificate presented in the TLS handshake", HFILL }},
+
+    { &hf_dns_tlsa_selector,
+      { "Selector", "dns.tlsa.selector",
+        FT_UINT8, BASE_DEC, VALS(tlsa_selector_vals), 0,
+        "Specifies which part of the TLS certificate presented by the server will be matched against the association data", HFILL }},
+
+    { &hf_dns_tlsa_matching_type,
+      { "Matching Type", "dns.tlsa.matching_type",
+        FT_UINT8, BASE_DEC, VALS(tlsa_matching_type_vals), 0,
+        "Specifies how the certificate association is presented", HFILL }},
+
+    { &hf_dns_tlsa_certificate_association_data,
+      { "Certificate Association Data", "dns.tlsa.certificate_association_data",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "The data refers to the certificate in the association", HFILL }},
 
     { &hf_dns_tsig_original_id,
       { "Original Id", "dns.tsig.original_id",
