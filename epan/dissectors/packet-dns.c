@@ -97,6 +97,13 @@ static int hf_dns_rr_ttl = -1;
 static int hf_dns_rr_len = -1;
 static int hf_dns_rr_addr = -1;
 static int hf_dns_rr_primaryname = -1;
+static int hf_dns_soa_mname = -1;
+static int hf_dns_soa_rname = -1;
+static int hf_dns_soa_serial_number = -1;
+static int hf_dns_soa_refresh_interval = -1;
+static int hf_dns_soa_retry_interval = -1;
+static int hf_dns_soa_expire_limit = -1;
+static int hf_dns_soa_minimum_ttl = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -1459,17 +1466,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_SOA:
+    case T_SOA: /* Start Of Authority zone (6) */
     {
       const guchar *mname;
       int           mname_len;
       const guchar *rname;
       int           rname_len;
-      guint32       serial;
-      guint32       refresh;
-      guint32       retry;
-      guint32       expire;
-      guint32       minimum;
+      proto_item    *ti_soa;
 
       /* XXX Fix data length */
       mname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &mname);
@@ -1478,40 +1481,32 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       }
       proto_item_append_text(trr, ", mname %s", name_out);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, mname_len, "Primary name server: %s",
-                          name_out);
+      proto_tree_add_string(rr_tree, hf_dns_soa_mname, tvb, cur_offset, mname_len, name_out);
       cur_offset += mname_len;
 
       /* XXX Fix data length */
       rname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &rname);
       name_out = format_text(rname, strlen(rname));
-      proto_tree_add_text(rr_tree, tvb, cur_offset, rname_len, "Responsible authority's mailbox: %s",
-                          name_out);
+      proto_tree_add_string(rr_tree, hf_dns_soa_rname, tvb, cur_offset, rname_len, name_out);
       cur_offset += rname_len;
 
-      serial = tvb_get_ntohl(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Serial number: %u",
-                          serial);
+      proto_tree_add_item(rr_tree, hf_dns_soa_serial_number, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
 
-      refresh = tvb_get_ntohl(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Refresh interval: %s",
-                          time_secs_to_str(refresh));
+      ti_soa = proto_tree_add_item(rr_tree, hf_dns_soa_refresh_interval, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(ti_soa, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
 
-      retry = tvb_get_ntohl(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Retry interval: %s",
-                          time_secs_to_str(retry));
+      ti_soa = proto_tree_add_item(rr_tree, hf_dns_soa_retry_interval, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(ti_soa, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
 
-      expire = tvb_get_ntohl(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Expiration limit: %s",
-                          time_secs_to_str(expire));
+      ti_soa = proto_tree_add_item(rr_tree, hf_dns_soa_expire_limit, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(ti_soa, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
 
-      minimum = tvb_get_ntohl(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Minimum TTL: %s",
-                          time_secs_to_str(minimum));
+      ti_soa = proto_tree_add_item(rr_tree, hf_dns_soa_minimum_ttl, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(ti_soa, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
 
     }
     break;
@@ -4007,6 +4002,42 @@ proto_register_dns(void)
       { "Primaryname", "dns.resp.primaryname",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Response Primary Name", HFILL }},
+
+    { &hf_dns_soa_mname,
+      { "Primary name server", "dns.soa.mname",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_soa_rname,
+      { "Responsible authority's mailbox", "dns.soa.rname",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_soa_serial_number,
+      { "Serial Number", "dns.soa.serial_number",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_soa_refresh_interval,
+      { "Refresh Interval", "dns.soa.refresh_interval",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_soa_retry_interval,
+      { "Retry Interval", "dns.soa.retry_interval",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_soa_expire_limit,
+      { "Expire limit", "dns.soa.expire_limit",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_soa_minimum_ttl,
+      { "Minimum TTL", "dns.soa.mininum_ttl",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
 
     { &hf_dns_rr_ns,
       { "Name Server", "dns.resp.ns",
