@@ -1913,10 +1913,12 @@ proto_mpeg_descriptor_dissect_terrestrial_delivery(tvbuff_t *tvb, guint offset, 
 static int hf_mpeg_descr_private_data_specifier_id = -1;
 
 #define PRIVATE_DATA_SPECIFIER_RESERVED   0x00000000
+#define PRIVATE_DATA_SPECIFIER_NORDIG     0x00000029
 #define PRIVATE_DATA_SPECIFIER_CIPLUS_LLP 0x00000040
 
 static const value_string mpeg_descr_data_specifier_id_vals[] = {
 	{ PRIVATE_DATA_SPECIFIER_RESERVED,   "reserved" },
+	{ PRIVATE_DATA_SPECIFIER_NORDIG,     "NorDig" },
 	{ PRIVATE_DATA_SPECIFIER_CIPLUS_LLP, "CI+ LLP" },
 	/* See dvbservices.com for complete and current list */
 
@@ -2683,7 +2685,7 @@ proto_mpeg_descriptor_loop_dissect(tvbuff_t *tvb, guint offset, guint loop_len, 
 
 		 /* the default descriptor function takes precedence
 			however, if it does not know the current descriptor, we search for a context-specific subfunction
-		    this subfunction gets to see the entire descriptor, including tag and len */
+			this subfunction gets to see the entire descriptor, including tag and len */
 		if (match_strval(tag, mpeg_descriptor_tag_vals)) {
 			desc_len = proto_mpeg_descriptor_dissect(tvb, offset, tree);
 		}
