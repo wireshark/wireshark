@@ -666,7 +666,7 @@ dissect_q932_ros_ROS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 /*--- PDUs ---*/
 
-static int dissect_ROS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ROS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -679,10 +679,10 @@ static int dissect_ROS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 #line 62 "../../asn1/q932-ros/packet-q932-ros-template.c"
 
 /*--- dissect_q932_ros -----------------------------------------------------*/
-static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   rose_ctx_tmp = get_rose_ctx(pinfo->private_data);
   DISSECTOR_ASSERT(rose_ctx_tmp);
-  return dissect_ROS_PDU(tvb, pinfo, tree);
+  return dissect_ROS_PDU(tvb, pinfo, tree, NULL);
 }
 
 /*--- proto_register_q932_ros -----------------------------------------------*/

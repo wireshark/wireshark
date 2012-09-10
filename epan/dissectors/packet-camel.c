@@ -6597,28 +6597,28 @@ dissect_camel_ROS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 /*--- PDUs ---*/
 
-static int dissect_PAR_cancelFailed_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_cancelFailed_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_PAR_cancelFailed(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_PAR_cancelFailed_PDU);
   return offset;
 }
-static int dissect_PAR_requestedInfoError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_requestedInfoError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_PAR_requestedInfoError(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_PAR_requestedInfoError_PDU);
   return offset;
 }
-static int dissect_UnavailableNetworkResource_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_UnavailableNetworkResource_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_UnavailableNetworkResource(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_UnavailableNetworkResource_PDU);
   return offset;
 }
-static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -6630,357 +6630,357 @@ static void dissect_CAP_GPRS_ReferenceNumber_PDU(tvbuff_t *tvb _U_, packet_info 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_camel_CAP_GPRS_ReferenceNumber(FALSE, tvb, 0, &asn1_ctx, tree, hf_camel_CAP_GPRS_ReferenceNumber_PDU);
 }
-static int dissect_PlayAnnouncementArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PlayAnnouncementArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_PlayAnnouncementArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_PlayAnnouncementArg_PDU);
   return offset;
 }
-static int dissect_PromptAndCollectUserInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PromptAndCollectUserInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_PromptAndCollectUserInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_PromptAndCollectUserInformationArg_PDU);
   return offset;
 }
-static int dissect_ReceivedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ReceivedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ReceivedInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ReceivedInformationArg_PDU);
   return offset;
 }
-static int dissect_SpecializedResourceReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SpecializedResourceReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_SpecializedResourceReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_SpecializedResourceReportArg_PDU);
   return offset;
 }
-static int dissect_ApplyChargingArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ApplyChargingArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ApplyChargingArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ApplyChargingArg_PDU);
   return offset;
 }
-static int dissect_ApplyChargingReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ApplyChargingReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ApplyChargingReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ApplyChargingReportArg_PDU);
   return offset;
 }
-static int dissect_AssistRequestInstructionsArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AssistRequestInstructionsArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_AssistRequestInstructionsArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_AssistRequestInstructionsArg_PDU);
   return offset;
 }
-static int dissect_CallGapArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CallGapArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_CallGapArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CallGapArg_PDU);
   return offset;
 }
-static int dissect_CallInformationReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CallInformationReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_CallInformationReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CallInformationReportArg_PDU);
   return offset;
 }
-static int dissect_CallInformationRequestArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CallInformationRequestArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_CallInformationRequestArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CallInformationRequestArg_PDU);
   return offset;
 }
-static int dissect_CancelArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CancelArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_CancelArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CancelArg_PDU);
   return offset;
 }
-static int dissect_CollectInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CollectInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_CollectInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CollectInformationArg_PDU);
   return offset;
 }
-static int dissect_ConnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ConnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ConnectArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ConnectArg_PDU);
   return offset;
 }
-static int dissect_ConnectToResourceArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ConnectToResourceArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ConnectToResourceArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ConnectToResourceArg_PDU);
   return offset;
 }
-static int dissect_ContinueWithArgumentArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ContinueWithArgumentArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ContinueWithArgumentArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ContinueWithArgumentArg_PDU);
   return offset;
 }
-static int dissect_DisconnectForwardConnectionWithArgumentArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_DisconnectForwardConnectionWithArgumentArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_DisconnectForwardConnectionWithArgumentArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_DisconnectForwardConnectionWithArgumentArg_PDU);
   return offset;
 }
-static int dissect_DisconnectLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_DisconnectLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_DisconnectLegArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_DisconnectLegArg_PDU);
   return offset;
 }
-static int dissect_EntityReleasedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EntityReleasedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_EntityReleasedArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_EntityReleasedArg_PDU);
   return offset;
 }
-static int dissect_EstablishTemporaryConnectionArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EstablishTemporaryConnectionArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_EstablishTemporaryConnectionArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_EstablishTemporaryConnectionArg_PDU);
   return offset;
 }
-static int dissect_EventReportBCSMArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EventReportBCSMArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_EventReportBCSMArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_EventReportBCSMArg_PDU);
   return offset;
 }
-static int dissect_FurnishChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_FurnishChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_FurnishChargingInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_FurnishChargingInformationArg_PDU);
   return offset;
 }
-static int dissect_InitialDPArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_InitialDPArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_InitialDPArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_InitialDPArg_PDU);
   return offset;
 }
-static int dissect_InitiateCallAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_InitiateCallAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_InitiateCallAttemptArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_InitiateCallAttemptArg_PDU);
   return offset;
 }
-static int dissect_InitiateCallAttemptRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_InitiateCallAttemptRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_InitiateCallAttemptRes(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_InitiateCallAttemptRes_PDU);
   return offset;
 }
-static int dissect_MoveLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MoveLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_MoveLegArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_MoveLegArg_PDU);
   return offset;
 }
-static int dissect_PlayToneArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PlayToneArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_PlayToneArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_PlayToneArg_PDU);
   return offset;
 }
-static int dissect_ReleaseCallArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ReleaseCallArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ReleaseCallArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ReleaseCallArg_PDU);
   return offset;
 }
-static int dissect_RequestReportBCSMEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestReportBCSMEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_RequestReportBCSMEventArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_RequestReportBCSMEventArg_PDU);
   return offset;
 }
-static int dissect_ResetTimerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ResetTimerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ResetTimerArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ResetTimerArg_PDU);
   return offset;
 }
-static int dissect_SendChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SendChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_SendChargingInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_SendChargingInformationArg_PDU);
   return offset;
 }
-static int dissect_SplitLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SplitLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_SplitLegArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_SplitLegArg_PDU);
   return offset;
 }
-static int dissect_ApplyChargingGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ApplyChargingGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ApplyChargingGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ApplyChargingGPRSArg_PDU);
   return offset;
 }
-static int dissect_ApplyChargingReportGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ApplyChargingReportGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ApplyChargingReportGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ApplyChargingReportGPRSArg_PDU);
   return offset;
 }
-static int dissect_CancelGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CancelGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_CancelGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CancelGPRSArg_PDU);
   return offset;
 }
-static int dissect_ConnectGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ConnectGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ConnectGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ConnectGPRSArg_PDU);
   return offset;
 }
-static int dissect_ContinueGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ContinueGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ContinueGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ContinueGPRSArg_PDU);
   return offset;
 }
-static int dissect_EntityReleasedGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EntityReleasedGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_EntityReleasedGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_EntityReleasedGPRSArg_PDU);
   return offset;
 }
-static int dissect_EventReportGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EventReportGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_EventReportGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_EventReportGPRSArg_PDU);
   return offset;
 }
-static int dissect_FurnishChargingInformationGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_FurnishChargingInformationGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_FurnishChargingInformationGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_FurnishChargingInformationGPRSArg_PDU);
   return offset;
 }
-static int dissect_InitialDPGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_InitialDPGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_InitialDPGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_InitialDPGPRSArg_PDU);
   return offset;
 }
-static int dissect_ReleaseGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ReleaseGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ReleaseGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ReleaseGPRSArg_PDU);
   return offset;
 }
-static int dissect_RequestReportGPRSEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestReportGPRSEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_RequestReportGPRSEventArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_RequestReportGPRSEventArg_PDU);
   return offset;
 }
-static int dissect_ResetTimerGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ResetTimerGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ResetTimerGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ResetTimerGPRSArg_PDU);
   return offset;
 }
-static int dissect_SendChargingInformationGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SendChargingInformationGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_SendChargingInformationGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_SendChargingInformationGPRSArg_PDU);
   return offset;
 }
-static int dissect_ConnectSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ConnectSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ConnectSMSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ConnectSMSArg_PDU);
   return offset;
 }
-static int dissect_EventReportSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EventReportSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_EventReportSMSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_EventReportSMSArg_PDU);
   return offset;
 }
-static int dissect_FurnishChargingInformationSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_FurnishChargingInformationSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_FurnishChargingInformationSMSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_FurnishChargingInformationSMSArg_PDU);
   return offset;
 }
-static int dissect_InitialDPSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_InitialDPSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_InitialDPSMSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_InitialDPSMSArg_PDU);
   return offset;
 }
-static int dissect_ReleaseSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ReleaseSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_ReleaseSMSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ReleaseSMSArg_PDU);
   return offset;
 }
-static int dissect_RequestReportSMSEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestReportSMSEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_camel_RequestReportSMSEventArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_RequestReportSMSEventArg_PDU);
   return offset;
 }
-static int dissect_ResetTimerSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ResetTimerSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -7006,151 +7006,151 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 
   switch(opcode){
     case opcode_playAnnouncement:  /* playAnnouncement */
-      offset= dissect_PlayAnnouncementArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_PlayAnnouncementArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_promptAndCollectUserInformation:  /* promptAndCollectUserInformation */
-      offset= dissect_PromptAndCollectUserInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_PromptAndCollectUserInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_specializedResourceReport:  /* specializedResourceReport */
-      offset= dissect_SpecializedResourceReportArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SpecializedResourceReportArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_applyCharging:  /* applyCharging */
-      offset= dissect_ApplyChargingArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ApplyChargingArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_applyChargingReport:  /* applyChargingReport */
-      offset= dissect_ApplyChargingReportArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ApplyChargingReportArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_assistRequestInstructions:  /* assistRequestInstructions */
-      offset= dissect_AssistRequestInstructionsArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_AssistRequestInstructionsArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_callGap:  /* callGap */
-      offset= dissect_CallGapArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CallGapArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_callInformationReport:  /* callInformationReport */
-      offset= dissect_CallInformationReportArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CallInformationReportArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_callInformationRequest:  /* callInformationRequest */
-      offset= dissect_CallInformationRequestArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CallInformationRequestArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_cancel:  /* cancel */
-      offset= dissect_CancelArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CancelArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_collectInformation:  /* collectInformation */
-      offset= dissect_CollectInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CollectInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_connect:  /* connect */
-      offset= dissect_ConnectArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ConnectArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_connectToResource:  /* connectToResource */
-      offset= dissect_ConnectToResourceArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ConnectToResourceArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_continueWithArgument:  /* continueWithArgument */
-      offset= dissect_ContinueWithArgumentArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ContinueWithArgumentArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_dFCWithArgument:  /* disconnectForwardConnectionWithArgument */
-      offset= dissect_DisconnectForwardConnectionWithArgumentArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_DisconnectForwardConnectionWithArgumentArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_disconnectLeg:  /* disconnectLeg */
-      offset= dissect_DisconnectLegArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_DisconnectLegArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_entityReleased:  /* entityReleased */
-      offset= dissect_EntityReleasedArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_EntityReleasedArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_establishTemporaryConnection:  /* establishTemporaryConnection */
-      offset= dissect_EstablishTemporaryConnectionArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_EstablishTemporaryConnectionArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_eventReportBCSM:  /* eventReportBCSM */
-      offset= dissect_EventReportBCSMArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_EventReportBCSMArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_furnishChargingInformation:  /* furnishChargingInformation */
-      offset= dissect_FurnishChargingInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_FurnishChargingInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_initialDP:  /* initialDP */
-      offset= dissect_InitialDPArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_InitialDPArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_initiateCallAttempt:  /* initiateCallAttempt */
-      offset= dissect_InitiateCallAttemptArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_InitiateCallAttemptArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_moveLeg:  /* moveLeg */
-      offset= dissect_MoveLegArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_MoveLegArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_playTone:  /* playTone */
-      offset= dissect_PlayToneArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_PlayToneArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_releaseCall:  /* releaseCall */
-      offset= dissect_ReleaseCallArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ReleaseCallArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_requestReportBCSMEvent:  /* requestReportBCSMEvent */
-      offset= dissect_RequestReportBCSMEventArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_RequestReportBCSMEventArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_resetTimer:  /* resetTimer */
-      offset= dissect_ResetTimerArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ResetTimerArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_sendChargingInformation:  /* sendChargingInformation */
-      offset= dissect_SendChargingInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SendChargingInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_splitLeg:  /* splitLeg */
-      offset= dissect_SplitLegArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SplitLegArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_applyChargingGPRS:  /* applyChargingGPRS */
-      offset= dissect_ApplyChargingGPRSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ApplyChargingGPRSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_applyChargingReportGPRS:  /* applyChargingReportGPRS */
-      offset= dissect_ApplyChargingReportGPRSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ApplyChargingReportGPRSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_cancelGPRS:  /* cancelGPRS */
-      offset= dissect_CancelGPRSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CancelGPRSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_connectGPRS:  /* connectGPRS */
-      offset= dissect_ConnectGPRSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ConnectGPRSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_continueGPRS:  /* continueGPRS */
-      offset= dissect_ContinueGPRSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ContinueGPRSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_entityReleasedGPRS:  /* entityReleasedGPRS */
-      offset= dissect_EntityReleasedGPRSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_EntityReleasedGPRSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_eventReportGPRS:  /* eventReportGPRS */
-      offset= dissect_EventReportGPRSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_EventReportGPRSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_furnishChargingInformationGPRS:  /* furnishChargingInformationGPRS */
-      offset= dissect_FurnishChargingInformationGPRSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_FurnishChargingInformationGPRSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_initialDPGPRS:  /* initialDPGPRS */
-      offset= dissect_InitialDPGPRSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_InitialDPGPRSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_releaseGPRS:  /* releaseGPRS */
-      offset= dissect_ReleaseGPRSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ReleaseGPRSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_requestReportGPRSEvent:  /* requestReportGPRSEvent */
-      offset= dissect_RequestReportGPRSEventArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_RequestReportGPRSEventArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_resetTimerGPRS:  /* resetTimerGPRS */
-      offset= dissect_ResetTimerGPRSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ResetTimerGPRSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_sendChargingInformationGPRS:  /* sendChargingInformationGPRS */
-      offset= dissect_SendChargingInformationGPRSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SendChargingInformationGPRSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_connectSMS:  /* connectSMS */
-      offset= dissect_ConnectSMSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ConnectSMSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_eventReportSMS:  /* eventReportSMS */
-      offset= dissect_EventReportSMSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_EventReportSMSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_furnishChargingInformationSMS:  /* furnishChargingInformationSMS */
-      offset= dissect_FurnishChargingInformationSMSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_FurnishChargingInformationSMSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_initialDPSMS:  /* initialDPSMS */
-      offset= dissect_InitialDPSMSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_InitialDPSMSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_releaseSMS:  /* releaseSMS */
-      offset= dissect_ReleaseSMSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ReleaseSMSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_requestReportSMSEvent:  /* requestReportSMSEvent */
-      offset= dissect_RequestReportSMSEventArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_RequestReportSMSEventArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_resetTimerSMS:  /* resetTimerSMS */
-      offset= dissect_ResetTimerSMSArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ResetTimerSMSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     default:
       cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
@@ -7168,10 +7168,10 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 
   switch(opcode){
     case opcode_promptAndCollectUserInformation:  /* promptAndCollectUserInformation */
-	  offset= dissect_ReceivedInformationArg_PDU(tvb, actx->pinfo , tree);
+	  offset= dissect_ReceivedInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_initiateCallAttempt:  /* initiateCallAttempt */
-	  offset= dissect_InitiateCallAttemptRes_PDU(tvb, actx->pinfo , tree);
+	  offset= dissect_InitiateCallAttemptRes_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
@@ -7187,16 +7187,16 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
   switch(errorCode) {
     case errcode_cancelFailed:  /* cancelFailed */
-      dissect_PAR_cancelFailed_PDU(tvb, actx->pinfo , tree);
+      dissect_PAR_cancelFailed_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_requestedInfoError:  /* requestedInfoError */
-      dissect_PAR_requestedInfoError_PDU(tvb, actx->pinfo , tree);
+      dissect_PAR_requestedInfoError_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_systemFailure:  /* systemFailure */
-      dissect_UnavailableNetworkResource_PDU(tvb, actx->pinfo , tree);
+      dissect_UnavailableNetworkResource_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_taskRefused:  /* taskRefused */
-      dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree);
+      dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");

@@ -958,7 +958,7 @@ dissect_t38_UDPTLPacket(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 /*--- PDUs ---*/
 
-static int dissect_IFPPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_IFPPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -966,7 +966,7 @@ static int dissect_IFPPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -1125,7 +1125,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_append_str(pinfo->cinfo, COL_INFO, "UDP: UDPTLPacket ");
 
-	offset = dissect_UDPTLPacket_PDU(tvb, pinfo, tr);
+	offset = dissect_UDPTLPacket_PDU(tvb, pinfo, tr, NULL);
 
 	if (tvb_length_remaining(tvb,offset)>0){
 		if (tr){
@@ -1169,7 +1169,7 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while(tvb_length_remaining(tvb,offset)>0)
 	{
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
-		offset += dissect_IFPPacket_PDU(next_tvb, pinfo, tr);
+		offset += dissect_IFPPacket_PDU(next_tvb, pinfo, tr, NULL);
 		ifp_packet_number++;
 
 		if(tvb_length_remaining(tvb,offset)>0){

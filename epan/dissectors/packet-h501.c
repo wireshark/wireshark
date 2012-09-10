@@ -2506,7 +2506,7 @@ dissect_h501_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 /*--- PDUs ---*/
 
-static int dissect_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -2520,7 +2520,7 @@ static int dissect_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 #line 64 "../../asn1/h501/packet-h501-template.c"
 
 static int
-dissect_h501_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_h501_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item  *ti = NULL;
   proto_tree  *h501_tree = NULL;
@@ -2530,18 +2530,18 @@ dissect_h501_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item(tree, proto_h501, tvb, 0, -1, ENC_NA);
   h501_tree = proto_item_add_subtree(ti, ett_h501);
 
-  return dissect_Message_PDU(tvb, pinfo, h501_tree);
+  return dissect_Message_PDU(tvb, pinfo, h501_tree, NULL);
 }
 
 static int
-dissect_h501_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_h501_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   dissect_tpkt_encap(tvb, pinfo, tree, FALSE, h501_pdu_handle);
   return tvb_length(tvb);
 }
 
 static int
-dissect_h501_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_h501_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   dissect_tpkt_encap(tvb, pinfo, tree, h501_desegment_tcp, h501_pdu_handle);
   return tvb_length(tvb);

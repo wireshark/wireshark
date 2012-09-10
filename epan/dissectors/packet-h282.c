@@ -4378,7 +4378,7 @@ dissect_h282_RDCPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 /*--- PDUs ---*/
 
-static int dissect_NonCollapsingCapabilities_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_NonCollapsingCapabilities_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -4386,7 +4386,7 @@ static int dissect_NonCollapsingCapabilities_PDU(tvbuff_t *tvb _U_, packet_info 
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_RDCPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RDCPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -4400,7 +4400,7 @@ static int dissect_RDCPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 #line 54 "../../asn1/h282/packet-h282-template.c"
 
 static int
-dissect_h282(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_h282(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item  *ti = NULL;
   proto_tree  *h282_tree = NULL;
@@ -4410,7 +4410,7 @@ dissect_h282(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item(tree, proto_h282, tvb, 0, -1, ENC_NA);
   h282_tree = proto_item_add_subtree(ti, ett_h282);
 
-  return dissect_RDCPDU_PDU(tvb, pinfo, h282_tree);
+  return dissect_RDCPDU_PDU(tvb, pinfo, h282_tree, NULL);
 }
 
 /*--- proto_register_h282 ----------------------------------------------*/

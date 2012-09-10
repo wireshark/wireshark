@@ -549,7 +549,7 @@ dissect_h460_2_NumberPortabilityInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 /*--- PDUs ---*/
 
-static int dissect_h460_2_NumberPortabilityInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_2_NumberPortabilityInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -658,7 +658,7 @@ dissect_h460_3_CircuitStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 /*--- PDUs ---*/
 
-static int dissect_h460_3_CircuitStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_3_CircuitStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -883,7 +883,7 @@ dissect_h460_4_CountryInternationalNetworkCallOriginationIdentification(tvbuff_t
 
 /*--- PDUs ---*/
 
-static int dissect_h460_4_CallPriorityInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_4_CallPriorityInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -891,7 +891,7 @@ static int dissect_h460_4_CallPriorityInfo_PDU(tvbuff_t *tvb _U_, packet_info *p
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_h460_4_CountryInternationalNetworkCallOriginationIdentification_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_4_CountryInternationalNetworkCallOriginationIdentification_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -1357,7 +1357,7 @@ dissect_h460_9_ExtendedRTPMetrics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 /*--- PDUs ---*/
 
-static int dissect_h460_9_QosMonitoringReportData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_9_QosMonitoringReportData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -1365,7 +1365,7 @@ static int dissect_h460_9_QosMonitoringReportData_PDU(tvbuff_t *tvb _U_, packet_
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_h460_9_ExtendedRTPMetrics_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_9_ExtendedRTPMetrics_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -1414,7 +1414,7 @@ dissect_h460_10_CallPartyCategoryInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 /*--- PDUs ---*/
 
-static int dissect_h460_10_CallPartyCategoryInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_10_CallPartyCategoryInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -1559,7 +1559,7 @@ dissect_h460_14_MLPPInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 /*--- PDUs ---*/
 
-static int dissect_h460_14_MLPPInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_14_MLPPInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -1743,7 +1743,7 @@ dissect_h460_15_SignallingChannelData(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 /*--- PDUs ---*/
 
-static int dissect_h460_15_SignallingChannelData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_15_SignallingChannelData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -1786,7 +1786,7 @@ dissect_h460_18_LRQKeepAliveData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 /*--- PDUs ---*/
 
-static int dissect_h460_18_IncomingCallIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_18_IncomingCallIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -1794,7 +1794,7 @@ static int dissect_h460_18_IncomingCallIndication_PDU(tvbuff_t *tvb _U_, packet_
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_h460_18_LRQKeepAliveData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_18_LRQKeepAliveData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -1847,7 +1847,7 @@ dissect_h460_19_TraversalParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 /*--- PDUs ---*/
 
-static int dissect_h460_19_TraversalParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_19_TraversalParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -1955,7 +1955,7 @@ dissect_h460_21_CapabilityAdvertisement(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 /*--- PDUs ---*/
 
-static int dissect_h460_21_CapabilityAdvertisement_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_h460_21_CapabilityAdvertisement_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -1968,8 +1968,8 @@ static int dissect_h460_21_CapabilityAdvertisement_PDU(tvbuff_t *tvb _U_, packet
 /*--- End of included file: packet-h460-fn.c ---*/
 #line 58 "../../asn1/h460/packet-h460-template.c"
 
-static int 
-dissect_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   int offset = 0;
 
   if (q931_ie_handle) {
@@ -1980,7 +1980,7 @@ dissect_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 static int 
-dissect_ras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_ras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   int offset = 0;
 
   if (h225_ras_handle) {
@@ -2130,7 +2130,7 @@ static h460_feature_t *find_ftr(const gchar *key) {
 
 /*--- dissect_h460_name -------------------------------------------*/
 static int
-dissect_h460_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree) {
+dissect_h460_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   int offset = 0;
   asn1_ctx_t *actx;
   h460_feature_t *ftr;

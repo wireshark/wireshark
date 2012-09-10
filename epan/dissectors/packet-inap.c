@@ -8309,672 +8309,672 @@ dissect_inap_ROS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 /*--- PDUs ---*/
 
-static int dissect_ActivateServiceFilteringArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ActivateServiceFilteringArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ActivateServiceFilteringArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ActivateServiceFilteringArg_PDU);
   return offset;
 }
-static int dissect_AnalysedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AnalysedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_AnalysedInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_AnalysedInformationArg_PDU);
   return offset;
 }
-static int dissect_AnalyseInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AnalyseInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_AnalyseInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_AnalyseInformationArg_PDU);
   return offset;
 }
-static int dissect_ApplyChargingArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ApplyChargingArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ApplyChargingArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ApplyChargingArg_PDU);
   return offset;
 }
-static int dissect_ApplyChargingReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ApplyChargingReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ApplyChargingReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ApplyChargingReportArg_PDU);
   return offset;
 }
-static int dissect_AssistRequestInstructionsArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AssistRequestInstructionsArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_AssistRequestInstructionsArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_AssistRequestInstructionsArg_PDU);
   return offset;
 }
-static int dissect_AuthorizeTerminationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AuthorizeTerminationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_AuthorizeTerminationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_AuthorizeTerminationArg_PDU);
   return offset;
 }
-static int dissect_CallFilteringArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CallFilteringArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_CallFilteringArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CallFilteringArg_PDU);
   return offset;
 }
-static int dissect_CallGapArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CallGapArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_CallGapArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CallGapArg_PDU);
   return offset;
 }
-static int dissect_CallInformationReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CallInformationReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_CallInformationReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CallInformationReportArg_PDU);
   return offset;
 }
-static int dissect_CallInformationRequestArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CallInformationRequestArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_CallInformationRequestArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CallInformationRequestArg_PDU);
   return offset;
 }
-static int dissect_CancelArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CancelArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_CancelArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CancelArg_PDU);
   return offset;
 }
-static int dissect_CancelStatusReportRequestArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CancelStatusReportRequestArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_CancelStatusReportRequestArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CancelStatusReportRequestArg_PDU);
   return offset;
 }
-static int dissect_CollectedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CollectedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_CollectedInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CollectedInformationArg_PDU);
   return offset;
 }
-static int dissect_CollectInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CollectInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_CollectInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CollectInformationArg_PDU);
   return offset;
 }
-static int dissect_ConnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ConnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ConnectArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ConnectArg_PDU);
   return offset;
 }
-static int dissect_ConnectToResourceArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ConnectToResourceArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ConnectToResourceArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ConnectToResourceArg_PDU);
   return offset;
 }
-static int dissect_ContinueWithArgumentArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ContinueWithArgumentArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ContinueWithArgumentArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ContinueWithArgumentArg_PDU);
   return offset;
 }
-static int dissect_CreateCallSegmentAssociationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CreateCallSegmentAssociationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_CreateCallSegmentAssociationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CreateCallSegmentAssociationArg_PDU);
   return offset;
 }
-static int dissect_CreateCallSegmentAssociationResultArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CreateCallSegmentAssociationResultArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_CreateCallSegmentAssociationResultArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CreateCallSegmentAssociationResultArg_PDU);
   return offset;
 }
-static int dissect_CreateOrRemoveTriggerDataArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CreateOrRemoveTriggerDataArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_CreateOrRemoveTriggerDataArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CreateOrRemoveTriggerDataArg_PDU);
   return offset;
 }
-static int dissect_CreateOrRemoveTriggerDataResultArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CreateOrRemoveTriggerDataResultArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_CreateOrRemoveTriggerDataResultArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CreateOrRemoveTriggerDataResultArg_PDU);
   return offset;
 }
-static int dissect_DisconnectForwardConnectionWithArgumentArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_DisconnectForwardConnectionWithArgumentArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_DisconnectForwardConnectionWithArgumentArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_DisconnectForwardConnectionWithArgumentArg_PDU);
   return offset;
 }
-static int dissect_DisconnectLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_DisconnectLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_DisconnectLegArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_DisconnectLegArg_PDU);
   return offset;
 }
-static int dissect_EntityReleasedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EntityReleasedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_EntityReleasedArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_EntityReleasedArg_PDU);
   return offset;
 }
-static int dissect_EstablishTemporaryConnectionArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EstablishTemporaryConnectionArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_EstablishTemporaryConnectionArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_EstablishTemporaryConnectionArg_PDU);
   return offset;
 }
-static int dissect_EventNotificationChargingArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EventNotificationChargingArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_EventNotificationChargingArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_EventNotificationChargingArg_PDU);
   return offset;
 }
-static int dissect_EventReportBCSMArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EventReportBCSMArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_EventReportBCSMArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_EventReportBCSMArg_PDU);
   return offset;
 }
-static int dissect_EventReportFacilityArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EventReportFacilityArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_EventReportFacilityArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_EventReportFacilityArg_PDU);
   return offset;
 }
-static int dissect_FacilitySelectedAndAvailableArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_FacilitySelectedAndAvailableArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_FacilitySelectedAndAvailableArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_FacilitySelectedAndAvailableArg_PDU);
   return offset;
 }
-static int dissect_FurnishChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_FurnishChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_FurnishChargingInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_FurnishChargingInformationArg_PDU);
   return offset;
 }
-static int dissect_HoldCallInNetworkArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_HoldCallInNetworkArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_HoldCallInNetworkArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_HoldCallInNetworkArg_PDU);
   return offset;
 }
-static int dissect_InitialDPArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_InitialDPArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_InitialDPArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_InitialDPArg_PDU);
   return offset;
 }
-static int dissect_InitiateCallAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_InitiateCallAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_InitiateCallAttemptArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_InitiateCallAttemptArg_PDU);
   return offset;
 }
-static int dissect_ManageTriggerDataArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ManageTriggerDataArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ManageTriggerDataArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ManageTriggerDataArg_PDU);
   return offset;
 }
-static int dissect_ManageTriggerDataResultArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ManageTriggerDataResultArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ManageTriggerDataResultArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ManageTriggerDataResultArg_PDU);
   return offset;
 }
-static int dissect_MergeCallSegmentsArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MergeCallSegmentsArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_MergeCallSegmentsArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_MergeCallSegmentsArg_PDU);
   return offset;
 }
-static int dissect_MonitorRouteReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MonitorRouteReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_MonitorRouteReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_MonitorRouteReportArg_PDU);
   return offset;
 }
-static int dissect_MonitorRouteRequestArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MonitorRouteRequestArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_MonitorRouteRequestArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_MonitorRouteRequestArg_PDU);
   return offset;
 }
-static int dissect_MoveCallSegmentsArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MoveCallSegmentsArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_MoveCallSegmentsArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_MoveCallSegmentsArg_PDU);
   return offset;
 }
-static int dissect_MoveLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MoveLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_MoveLegArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_MoveLegArg_PDU);
   return offset;
 }
-static int dissect_OAbandonArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_OAbandonArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_OAbandonArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_OAbandonArg_PDU);
   return offset;
 }
-static int dissect_OAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_OAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_OAnswerArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_OAnswerArg_PDU);
   return offset;
 }
-static int dissect_OCalledPartyBusyArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_OCalledPartyBusyArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_OCalledPartyBusyArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_OCalledPartyBusyArg_PDU);
   return offset;
 }
-static int dissect_ODisconnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ODisconnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ODisconnectArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ODisconnectArg_PDU);
   return offset;
 }
-static int dissect_MidCallArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MidCallArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_MidCallArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_MidCallArg_PDU);
   return offset;
 }
-static int dissect_ONoAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ONoAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ONoAnswerArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ONoAnswerArg_PDU);
   return offset;
 }
-static int dissect_OriginationAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_OriginationAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_OriginationAttemptArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_OriginationAttemptArg_PDU);
   return offset;
 }
-static int dissect_OriginationAttemptAuthorizedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_OriginationAttemptAuthorizedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_OriginationAttemptAuthorizedArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_OriginationAttemptAuthorizedArg_PDU);
   return offset;
 }
-static int dissect_OSuspendedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_OSuspendedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_OSuspendedArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_OSuspendedArg_PDU);
   return offset;
 }
-static int dissect_ReconnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ReconnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ReconnectArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ReconnectArg_PDU);
   return offset;
 }
-static int dissect_ReleaseCallArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ReleaseCallArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ReleaseCallArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ReleaseCallArg_PDU);
   return offset;
 }
-static int dissect_ReportUTSIArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ReportUTSIArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ReportUTSIArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ReportUTSIArg_PDU);
   return offset;
 }
-static int dissect_RequestCurrentStatusReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestCurrentStatusReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_RequestCurrentStatusReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestCurrentStatusReportArg_PDU);
   return offset;
 }
-static int dissect_RequestCurrentStatusReportResultArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestCurrentStatusReportResultArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_RequestCurrentStatusReportResultArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestCurrentStatusReportResultArg_PDU);
   return offset;
 }
-static int dissect_RequestEveryStatusChangeReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestEveryStatusChangeReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_RequestEveryStatusChangeReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestEveryStatusChangeReportArg_PDU);
   return offset;
 }
-static int dissect_RequestFirstStatusMatchReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestFirstStatusMatchReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_RequestFirstStatusMatchReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestFirstStatusMatchReportArg_PDU);
   return offset;
 }
-static int dissect_RequestNotificationChargingEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestNotificationChargingEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_RequestNotificationChargingEventArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestNotificationChargingEventArg_PDU);
   return offset;
 }
-static int dissect_RequestReportBCSMEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestReportBCSMEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_RequestReportBCSMEventArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestReportBCSMEventArg_PDU);
   return offset;
 }
-static int dissect_RequestReportFacilityEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestReportFacilityEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_RequestReportFacilityEventArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestReportFacilityEventArg_PDU);
   return offset;
 }
-static int dissect_RequestReportUTSIArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestReportUTSIArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_RequestReportUTSIArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestReportUTSIArg_PDU);
   return offset;
 }
-static int dissect_ResetTimerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ResetTimerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ResetTimerArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ResetTimerArg_PDU);
   return offset;
 }
-static int dissect_RouteSelectFailureArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RouteSelectFailureArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_RouteSelectFailureArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RouteSelectFailureArg_PDU);
   return offset;
 }
-static int dissect_SelectFacilityArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SelectFacilityArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_SelectFacilityArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SelectFacilityArg_PDU);
   return offset;
 }
-static int dissect_SelectRouteArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SelectRouteArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_SelectRouteArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SelectRouteArg_PDU);
   return offset;
 }
-static int dissect_SendChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SendChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_SendChargingInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SendChargingInformationArg_PDU);
   return offset;
 }
-static int dissect_SendFacilityInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SendFacilityInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_SendFacilityInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SendFacilityInformationArg_PDU);
   return offset;
 }
-static int dissect_SendSTUIArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SendSTUIArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_SendSTUIArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SendSTUIArg_PDU);
   return offset;
 }
-static int dissect_ServiceFilteringResponseArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ServiceFilteringResponseArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ServiceFilteringResponseArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ServiceFilteringResponseArg_PDU);
   return offset;
 }
-static int dissect_SetServiceProfileArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SetServiceProfileArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_SetServiceProfileArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SetServiceProfileArg_PDU);
   return offset;
 }
-static int dissect_SplitLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SplitLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_SplitLegArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SplitLegArg_PDU);
   return offset;
 }
-static int dissect_StatusReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_StatusReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_StatusReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_StatusReportArg_PDU);
   return offset;
 }
-static int dissect_TAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_TAnswerArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TAnswerArg_PDU);
   return offset;
 }
-static int dissect_TBusyArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TBusyArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_TBusyArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TBusyArg_PDU);
   return offset;
 }
-static int dissect_TDisconnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TDisconnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_TDisconnectArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TDisconnectArg_PDU);
   return offset;
 }
-static int dissect_TermAttemptAuthorizedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TermAttemptAuthorizedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_TermAttemptAuthorizedArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TermAttemptAuthorizedArg_PDU);
   return offset;
 }
-static int dissect_TerminationAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TerminationAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_TerminationAttemptArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TerminationAttemptArg_PDU);
   return offset;
 }
-static int dissect_TNoAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TNoAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_TNoAnswerArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TNoAnswerArg_PDU);
   return offset;
 }
-static int dissect_TSuspendedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TSuspendedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_TSuspendedArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TSuspendedArg_PDU);
   return offset;
 }
-static int dissect_PlayAnnouncementArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PlayAnnouncementArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_PlayAnnouncementArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_PlayAnnouncementArg_PDU);
   return offset;
 }
-static int dissect_PromptAndCollectUserInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PromptAndCollectUserInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_PromptAndCollectUserInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_PromptAndCollectUserInformationArg_PDU);
   return offset;
 }
-static int dissect_ReceivedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ReceivedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ReceivedInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ReceivedInformationArg_PDU);
   return offset;
 }
-static int dissect_PromptAndReceiveMessageArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PromptAndReceiveMessageArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_PromptAndReceiveMessageArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_PromptAndReceiveMessageArg_PDU);
   return offset;
 }
-static int dissect_MessageReceivedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MessageReceivedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_MessageReceivedArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_MessageReceivedArg_PDU);
   return offset;
 }
-static int dissect_ScriptCloseArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ScriptCloseArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ScriptCloseArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ScriptCloseArg_PDU);
   return offset;
 }
-static int dissect_ScriptEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ScriptEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ScriptEventArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ScriptEventArg_PDU);
   return offset;
 }
-static int dissect_ScriptInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ScriptInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ScriptInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ScriptInformationArg_PDU);
   return offset;
 }
-static int dissect_ScriptRunArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ScriptRunArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ScriptRunArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ScriptRunArg_PDU);
   return offset;
 }
-static int dissect_SpecializedResourceReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SpecializedResourceReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_SpecializedResourceReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SpecializedResourceReportArg_PDU);
   return offset;
 }
-static int dissect_SRFCallGapArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SRFCallGapArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_SRFCallGapArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SRFCallGapArg_PDU);
   return offset;
 }
-static int dissect_PAR_cancelFailed_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_cancelFailed_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_PAR_cancelFailed(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_PAR_cancelFailed_PDU);
   return offset;
 }
-static int dissect_PAR_requestedInfoError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_requestedInfoError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_PAR_requestedInfoError(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_PAR_requestedInfoError_PDU);
   return offset;
 }
-static int dissect_ScfTaskRefusedParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ScfTaskRefusedParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ScfTaskRefusedParameter(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ScfTaskRefusedParameter_PDU);
   return offset;
 }
-static int dissect_ReferralParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ReferralParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_ReferralParameter(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ReferralParameter_PDU);
   return offset;
 }
-static int dissect_UnavailableNetworkResource_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_UnavailableNetworkResource_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_inap_UnavailableNetworkResource(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_UnavailableNetworkResource_PDU);
   return offset;
 }
-static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -9014,259 +9014,259 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 
   switch(opcode){
     case opcode_activateServiceFiltering:  /* activateServiceFiltering */
-      offset= dissect_ActivateServiceFilteringArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ActivateServiceFilteringArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_analysedInformation:  /* analysedInformation */
-      offset= dissect_AnalysedInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_AnalysedInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_analyseInformation:  /* analyseInformation */
-      offset= dissect_AnalyseInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_AnalyseInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_applyCharging:  /* applyCharging */
-      offset= dissect_ApplyChargingArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ApplyChargingArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_applyChargingReport:  /* applyChargingReport */
-      offset= dissect_ApplyChargingReportArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ApplyChargingReportArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_assistRequestInstructions:  /* assistRequestInstructions */
-      offset= dissect_AssistRequestInstructionsArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_AssistRequestInstructionsArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_authorizeTermination:  /* authorizeTermination */
-      offset= dissect_AuthorizeTerminationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_AuthorizeTerminationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_callFiltering:  /* callFiltering */
-      offset= dissect_CallFilteringArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CallFilteringArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_callGap:  /* callGap */
-      offset= dissect_CallGapArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CallGapArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_callInformationReport:  /* callInformationReport */
-      offset= dissect_CallInformationReportArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CallInformationReportArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_callInformationRequest:  /* callInformationRequest */
-      offset= dissect_CallInformationRequestArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CallInformationRequestArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_cancel:  /* cancel */
-      offset= dissect_CancelArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CancelArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_cancelStatusReportRequest:  /* cancelStatusReportRequest */
-      offset= dissect_CancelStatusReportRequestArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CancelStatusReportRequestArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_collectedInformation:  /* collectedInformation */
-      offset= dissect_CollectedInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CollectedInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_collectInformation:  /* collectInformation */
-      offset= dissect_CollectInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CollectInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_connect:  /* connect */
-      offset= dissect_ConnectArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ConnectArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_connectToResource:  /* connectToResource */
-      offset= dissect_ConnectToResourceArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ConnectToResourceArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_continueWithArgument:  /* continueWithArgument */
-      offset= dissect_ContinueWithArgumentArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ContinueWithArgumentArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_createCallSegmentAssociation:  /* createCallSegmentAssociation */
-      offset= dissect_CreateCallSegmentAssociationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CreateCallSegmentAssociationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_createOrRemoveTriggerData:  /* createOrRemoveTriggerData */
-      offset= dissect_CreateOrRemoveTriggerDataArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_CreateOrRemoveTriggerDataArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_dFCWithArgument:  /* disconnectForwardConnectionWithArgument */
-      offset= dissect_DisconnectForwardConnectionWithArgumentArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_DisconnectForwardConnectionWithArgumentArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_disconnectLeg:  /* disconnectLeg */
-      offset= dissect_DisconnectLegArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_DisconnectLegArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_entityReleased:  /* entityReleased */
-      offset= dissect_EntityReleasedArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_EntityReleasedArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_establishTemporaryConnection:  /* establishTemporaryConnection */
-      offset= dissect_EstablishTemporaryConnectionArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_EstablishTemporaryConnectionArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_eventNotificationCharging:  /* eventNotificationCharging */
-      offset= dissect_EventNotificationChargingArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_EventNotificationChargingArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_eventReportBCSM:  /* eventReportBCSM */
-      offset= dissect_EventReportBCSMArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_EventReportBCSMArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_eventReportFacility:  /* eventReportFacility */
-      offset= dissect_EventReportFacilityArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_EventReportFacilityArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_facilitySelectedAndAvailable:  /* facilitySelectedAndAvailable */
-      offset= dissect_FacilitySelectedAndAvailableArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_FacilitySelectedAndAvailableArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_furnishChargingInformation:  /* furnishChargingInformation */
-      offset= dissect_FurnishChargingInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_FurnishChargingInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_holdCallInNetwork:  /* holdCallInNetwork */
-      offset= dissect_HoldCallInNetworkArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_HoldCallInNetworkArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_initialDP:  /* initialDP */
-      offset= dissect_InitialDPArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_InitialDPArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_initiateCallAttempt:  /* initiateCallAttempt */
-      offset= dissect_InitiateCallAttemptArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_InitiateCallAttemptArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_manageTriggerData:  /* manageTriggerData */
-      offset= dissect_ManageTriggerDataArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ManageTriggerDataArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_mergeCallSegments:  /* mergeCallSegments */
-      offset= dissect_MergeCallSegmentsArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_MergeCallSegmentsArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_monitorRouteReport:  /* monitorRouteReport */
-      offset= dissect_MonitorRouteReportArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_MonitorRouteReportArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_monitorRouteRequest:  /* monitorRouteRequest */
-      offset= dissect_MonitorRouteRequestArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_MonitorRouteRequestArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_moveCallSegments:  /* moveCallSegments */
-      offset= dissect_MoveCallSegmentsArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_MoveCallSegmentsArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_moveLeg:  /* moveLeg */
-      offset= dissect_MoveLegArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_MoveLegArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_oAbandon:  /* oAbandon */
-      offset= dissect_OAbandonArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_OAbandonArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_oAnswer:  /* oAnswer */
-      offset= dissect_OAnswerArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_OAnswerArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_oCalledPartyBusy:  /* oCalledPartyBusy */
-      offset= dissect_OCalledPartyBusyArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_OCalledPartyBusyArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_oDisconnect:  /* oDisconnect */
-      offset= dissect_ODisconnectArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ODisconnectArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_oMidCall:  /* oMidCall */
-      offset= dissect_MidCallArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_MidCallArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_oNoAnswer:  /* oNoAnswer */
-      offset= dissect_ONoAnswerArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ONoAnswerArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_originationAttempt:  /* originationAttempt */
-      offset= dissect_OriginationAttemptArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_OriginationAttemptArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_originationAttemptAuthorized:  /* originationAttemptAuthorized */
-      offset= dissect_OriginationAttemptAuthorizedArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_OriginationAttemptAuthorizedArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_oSuspended:  /* oSuspended */
-      offset= dissect_OSuspendedArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_OSuspendedArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_reconnect:  /* reconnect */
-      offset= dissect_ReconnectArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ReconnectArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_releaseCall:  /* releaseCall */
-      offset= dissect_ReleaseCallArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ReleaseCallArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_reportUTSI:  /* reportUTSI */
-      offset= dissect_ReportUTSIArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ReportUTSIArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_requestCurrentStatusReport:  /* requestCurrentStatusReport */
-      offset= dissect_RequestCurrentStatusReportArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_RequestCurrentStatusReportArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_requestEveryStatusChangeReport:  /* requestEveryStatusChangeReport */
-      offset= dissect_RequestEveryStatusChangeReportArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_RequestEveryStatusChangeReportArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_requestFirstStatusMatchReport:  /* requestFirstStatusMatchReport */
-      offset= dissect_RequestFirstStatusMatchReportArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_RequestFirstStatusMatchReportArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_requestNotificationChargingEvent:  /* requestNotificationChargingEvent */
-      offset= dissect_RequestNotificationChargingEventArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_RequestNotificationChargingEventArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_requestReportBCSMEvent:  /* requestReportBCSMEvent */
-      offset= dissect_RequestReportBCSMEventArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_RequestReportBCSMEventArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_requestReportFacilityEvent:  /* requestReportFacilityEvent */
-      offset= dissect_RequestReportFacilityEventArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_RequestReportFacilityEventArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_requestReportUTSI:  /* requestReportUTSI */
-      offset= dissect_RequestReportUTSIArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_RequestReportUTSIArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_resetTimer:  /* resetTimer */
-      offset= dissect_ResetTimerArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ResetTimerArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_routeSelectFailure:  /* routeSelectFailure */
-      offset= dissect_RouteSelectFailureArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_RouteSelectFailureArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_selectFacility:  /* selectFacility */
-      offset= dissect_SelectFacilityArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SelectFacilityArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_selectRoute:  /* selectRoute */
-      offset= dissect_SelectRouteArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SelectRouteArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_sendChargingInformation:  /* sendChargingInformation */
-      offset= dissect_SendChargingInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SendChargingInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_sendFacilityInformation:  /* sendFacilityInformation */
-      offset= dissect_SendFacilityInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SendFacilityInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_sendSTUI:  /* sendSTUI */
-      offset= dissect_SendSTUIArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SendSTUIArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_serviceFilteringResponse:  /* serviceFilteringResponse */
-      offset= dissect_ServiceFilteringResponseArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ServiceFilteringResponseArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_setServiceProfile:  /* setServiceProfile */
-      offset= dissect_SetServiceProfileArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SetServiceProfileArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_splitLeg:  /* splitLeg */
-      offset= dissect_SplitLegArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SplitLegArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_statusReport:  /* statusReport */
-      offset= dissect_StatusReportArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_StatusReportArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_tAnswer:  /* tAnswer */
-      offset= dissect_TAnswerArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_TAnswerArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_tBusy:  /* tBusy */
-      offset= dissect_TBusyArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_TBusyArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_tDisconnect:  /* tDisconnect */
-      offset= dissect_TDisconnectArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_TDisconnectArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_termAttemptAuthorized:  /* termAttemptAuthorized */
-      offset= dissect_TermAttemptAuthorizedArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_TermAttemptAuthorizedArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_terminationAttempt:  /* terminationAttempt */
-      offset= dissect_TerminationAttemptArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_TerminationAttemptArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_tMidCall:  /* tMidCall */
-      offset= dissect_MidCallArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_MidCallArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_tNoAnswer:  /* tNoAnswer */
-      offset= dissect_TNoAnswerArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_TNoAnswerArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_tSuspended:  /* tSuspended */
-      offset= dissect_TSuspendedArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_TSuspendedArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_playAnnouncement:  /* playAnnouncement */
-      offset= dissect_PlayAnnouncementArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_PlayAnnouncementArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_promptAndCollectUserInformation:  /* promptAndCollectUserInformation */
-      offset= dissect_PromptAndCollectUserInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_PromptAndCollectUserInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_promptAndReceiveMessage:  /* promptAndReceiveMessage */
-      offset= dissect_PromptAndReceiveMessageArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_PromptAndReceiveMessageArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_scriptClose:  /* scriptClose */
-      offset= dissect_ScriptCloseArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ScriptCloseArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_scriptEvent:  /* scriptEvent */
-      offset= dissect_ScriptEventArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ScriptEventArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_scriptInformation:  /* scriptInformation */
-      offset= dissect_ScriptInformationArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ScriptInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_scriptRun:  /* scriptRun */
-      offset= dissect_ScriptRunArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_ScriptRunArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_specializedResourceReport:  /* specializedResourceReport */
-      offset= dissect_SpecializedResourceReportArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SpecializedResourceReportArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_srfCallGap:  /* sRFCallGap */
-      offset= dissect_SRFCallGapArg_PDU(tvb, actx->pinfo , tree);
+      offset= dissect_SRFCallGapArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     default:
       cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
@@ -9284,22 +9284,22 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 
   switch(opcode){
     case opcode_createCallSegmentAssociation:  /* createCallSegmentAssociation */
-	  offset= dissect_CreateCallSegmentAssociationResultArg_PDU(tvb, actx->pinfo , tree);
+	  offset= dissect_CreateCallSegmentAssociationResultArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_createOrRemoveTriggerData:  /* createOrRemoveTriggerData */
-	  offset= dissect_CreateOrRemoveTriggerDataResultArg_PDU(tvb, actx->pinfo , tree);
+	  offset= dissect_CreateOrRemoveTriggerDataResultArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_manageTriggerData:  /* manageTriggerData */
-	  offset= dissect_ManageTriggerDataResultArg_PDU(tvb, actx->pinfo , tree);
+	  offset= dissect_ManageTriggerDataResultArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_requestCurrentStatusReport:  /* requestCurrentStatusReport */
-	  offset= dissect_RequestCurrentStatusReportResultArg_PDU(tvb, actx->pinfo , tree);
+	  offset= dissect_RequestCurrentStatusReportResultArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_promptAndCollectUserInformation:  /* promptAndCollectUserInformation */
-	  offset= dissect_ReceivedInformationArg_PDU(tvb, actx->pinfo , tree);
+	  offset= dissect_ReceivedInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_promptAndReceiveMessage:  /* promptAndReceiveMessage */
-	  offset= dissect_MessageReceivedArg_PDU(tvb, actx->pinfo , tree);
+	  offset= dissect_MessageReceivedArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
@@ -9315,22 +9315,22 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
   switch(errorCode) {
     case errcode_cancelFailed:  /* cancelFailed */
-      dissect_PAR_cancelFailed_PDU(tvb, actx->pinfo , tree);
+      dissect_PAR_cancelFailed_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_requestedInfoError:  /* requestedInfoError */
-      dissect_PAR_requestedInfoError_PDU(tvb, actx->pinfo , tree);
+      dissect_PAR_requestedInfoError_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_scfTaskRefused:  /* scfTaskRefused */
-      dissect_ScfTaskRefusedParameter_PDU(tvb, actx->pinfo , tree);
+      dissect_ScfTaskRefusedParameter_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_scfReferral:  /* scfReferral */
-      dissect_ReferralParameter_PDU(tvb, actx->pinfo , tree);
+      dissect_ReferralParameter_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_systemFailure:  /* systemFailure */
-      dissect_UnavailableNetworkResource_PDU(tvb, actx->pinfo , tree);
+      dissect_UnavailableNetworkResource_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_taskRefused:  /* taskRefused */
-      dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree);
+      dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");

@@ -830,7 +830,7 @@ dissect_charging_ase_ChargingMessageType(gboolean implicit_tag _U_, tvbuff_t *tv
 
 /*--- PDUs ---*/
 
-int dissect_charging_ase_ChargingMessageType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+int dissect_charging_ase_ChargingMessageType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -853,7 +853,7 @@ dissect_charging_ase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(tvb_length(tvb)>0)
     {
-        dissect_charging_ase_ChargingMessageType_PDU(tvb , pinfo, tr);
+        dissect_charging_ase_ChargingMessageType_PDU(tvb , pinfo, tr, NULL);
     }
 }
 

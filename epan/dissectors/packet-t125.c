@@ -375,7 +375,7 @@ dissect_t125_ConnectMCSPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 /*--- PDUs ---*/
 
-static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -388,7 +388,7 @@ static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 #line 61 "../../asn1/t125/packet-t125-template.c"
 
 static int
-dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
+dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
@@ -407,7 +407,7 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
 
   if ( (ber_class==BER_CLASS_APP) && (tag>=101) && (tag<=104) ){
-    dissect_ConnectMCSPDU_PDU(tvb, pinfo, tree);
+    dissect_ConnectMCSPDU_PDU(tvb, pinfo, tree, NULL);
   } else  {
     t124_set_top_tree(top_tree);
     dissect_DomainMCSPDU_PDU(tvb, pinfo, tree);
@@ -417,7 +417,7 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 }
 
 static gboolean
-dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
+dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
   gint8 ber_class;
   gboolean pc;
@@ -438,7 +438,7 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree
   if ( ((ber_class==BER_CLASS_APP) && ((tag>=101) && (tag<=104))) ||
        (choice_index <=42)) {
 
-    dissect_t125(tvb, pinfo, parent_tree);
+    dissect_t125(tvb, pinfo, parent_tree, NULL);
 
     return TRUE;
   }
