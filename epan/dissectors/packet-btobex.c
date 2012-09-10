@@ -289,7 +289,7 @@ display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, char **data)
     }
     *p = '\0';
 
-    if (!is_ascii_str(str, len/2)) {
+    if (!is_ascii_str((const guint8 *) str, len / 2)) {
         *str = '\0';
     }
 
