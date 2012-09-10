@@ -537,7 +537,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned i
 
             if (keycode) {
                 if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, keycode_vals_ext, "Unknown"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, &keycode_vals_ext, "Unknown"));
                 shortcut_helper = 1;
             }
 
@@ -547,7 +547,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned i
 
             if (keycode) {
                 if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, keycode_vals_ext, "Unknown"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, &keycode_vals_ext, "Unknown"));
                 shortcut_helper = 1;
             }
 
@@ -557,7 +557,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned i
 
             if (keycode) {
                 if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, keycode_vals_ext, "Unknown"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, &keycode_vals_ext, "Unknown"));
                 shortcut_helper = 1;
             }
 
@@ -567,7 +567,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned i
 
             if (keycode) {
                 if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, keycode_vals_ext, "Unknown"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, &keycode_vals_ext, "Unknown"));
                 shortcut_helper = 1;
             }
 
@@ -577,7 +577,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned i
 
             if (keycode) {
                 if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, keycode_vals_ext, "Unknown"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, &keycode_vals_ext, "Unknown"));
                 shortcut_helper = 1;
             }
 
@@ -587,7 +587,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned i
 
             if (keycode) {
                 if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, " + ");
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, keycode_vals_ext, "Unknown"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(keycode, &keycode_vals_ext, "Unknown"));
                 shortcut_helper = 1;
             }
 
