@@ -758,6 +758,7 @@ decode_show_cb (GtkWidget *w _U_, gpointer user_data _U_)
                                                       renderer, "text",
                                                       column, NULL);
         gtk_tree_view_column_set_sizing(tc, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+        gtk_tree_view_column_set_resizable(tc, TRUE);
         gtk_tree_view_append_column(list, tc);
     }
 
