@@ -31,5 +31,6 @@
 #include <epan/packet.h>
 
 guint proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree);
+guint proto_mpeg_descriptor_loop_dissect(tvbuff_t *tvb, guint offset, guint loop_len, proto_tree *tree);
 
 #endif

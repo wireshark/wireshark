@@ -1912,6 +1912,17 @@ proto_mpeg_descriptor_dissect_terrestrial_delivery(tvbuff_t *tvb, guint offset, 
 /* 0x5F Private Data Specifier */
 static int hf_mpeg_descr_private_data_specifier_id = -1;
 
+#define PRIVATE_DATA_SPECIFIER_RESERVED   0x00000000
+#define PRIVATE_DATA_SPECIFIER_CIPLUS_LLP 0x00000040
+
+static const value_string mpeg_descr_data_specifier_id_vals[] = {
+	{ PRIVATE_DATA_SPECIFIER_RESERVED,   "reserved" },
+	{ PRIVATE_DATA_SPECIFIER_CIPLUS_LLP, "CI+ LLP" },
+	/* See dvbservices.com for complete and current list */
+
+	{ 0, NULL }
+};
+
 static void
 proto_mpeg_descriptor_dissect_private_data_specifier(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
@@ -2399,6 +2410,97 @@ proto_mpeg_descriptor_dissect_rcs_content(tvbuff_t *tvb, guint offset, guint8 le
 	}
 }
 
+/* Private descriptors
+   these functions replace proto_mpeg_descriptor_dissect(), they get to see the whole descriptor */
+
+/* 0xCB CI+ Content Label Descriptor */
+static int hf_mpeg_descr_ciplus_cl_cb_min = -1;
+static int hf_mpeg_descr_ciplus_cl_cb_max = -1;
+static int hf_mpeg_descr_ciplus_cl_lang = -1;
+static int hf_mpeg_descr_ciplus_cl_label = -1;
+
+/* 0xCC CI+ Service Descriptor */
+static int hf_mpeg_descr_ciplus_svc_id = -1;
+static int hf_mpeg_descr_ciplus_svc_type = -1;
+static int hf_mpeg_descr_ciplus_svc_visible = -1;
+static int hf_mpeg_descr_ciplus_svc_selectable = -1;
+static int hf_mpeg_descr_ciplus_svc_lcn = -1;
+static int hf_mpeg_descr_ciplus_svc_prov_name = -1;
+static int hf_mpeg_descr_ciplus_svc_name = -1;
+
+static const value_string mpeg_descriptor_ciplus_tag_vals[] = {
+	/* From CI+ 1.3.1 */
+	{ 0xCB, "CI+ Content Label Descriptor" },
+	{ 0xCC, "CI+ Service Descriptor" },
+	{ 0x00, NULL}
+};
+
+static guint
+proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+	guint        offset_start;
+	guint8       tag, len;
+	const gchar *tag_str;
+	proto_item  *di;
+	proto_tree  *descriptor_tree;
+	guint8       str_len_byte;
+
+	offset_start=offset;
+
+	tag = tvb_get_guint8(tvb, offset);
+	tag_str = match_strval(tag, mpeg_descriptor_ciplus_tag_vals);
+	if (!tag_str)
+		return 0;
+
+	di = proto_tree_add_text(tree, tvb, offset_start, -1, "CI+ private descriptor Tag=0x%02x", tag);
+	descriptor_tree = proto_item_add_subtree(di, ett_mpeg_descriptor);
+
+	proto_tree_add_uint_format(descriptor_tree, hf_mpeg_descriptor_tag, tvb, offset, 1, tag, "Descriptor Tag: %s (0x%x)", tag_str, tag);
+	offset++;
+
+	len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(descriptor_tree, hf_mpeg_descriptor_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	if (tag==0xCB) {
+		proto_tree_add_item(tree, hf_mpeg_descr_ciplus_cl_cb_min, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+
+		proto_tree_add_item(tree, hf_mpeg_descr_ciplus_cl_cb_max, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+
+		proto_tree_add_item(tree, hf_mpeg_descr_ciplus_cl_lang, tvb, offset, 3, ENC_BIG_ENDIAN);
+		offset += 3;
+
+		proto_tree_add_item(tree, hf_mpeg_descr_ciplus_cl_label, tvb, offset, len-offset, ENC_BIG_ENDIAN);
+		offset += len-offset;
+	}
+	else if (tag==0xCC) {
+		proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+
+		proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_visible, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_selectable, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_lcn, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		str_len_byte = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_prov_name, tvb, offset, 1, ENC_ASCII|ENC_NA);
+		offset += 1+str_len_byte;
+
+		str_len_byte = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_name, tvb, offset, 1, ENC_ASCII|ENC_NA);
+		offset += 1+str_len_byte;
+	}
+
+	proto_item_set_len(di, offset-offset_start);
+	return offset-offset_start;
+}
+
+
 /* Common dissector */
 
 guint
@@ -2554,6 +2656,57 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	}
 
 	return len + 2;
+}
+
+
+/* dissect a descriptor loop consisting of one or more descriptors
+   take into account the contexts defined a private data specifier descriptors */
+guint
+proto_mpeg_descriptor_loop_dissect(tvbuff_t *tvb, guint offset, guint loop_len, proto_tree *tree)
+{
+	/* we use the reserved value to indicate that no private context is active */
+	guint32  private_data_specifier = PRIVATE_DATA_SPECIFIER_RESERVED;
+	guint    offset_start;
+	guint    desc_len;
+	guint8   tag;
+
+	offset_start = offset;
+
+	while (offset-offset_start < loop_len) {
+		/* don't increment offset in our pre-checks */
+		tag = tvb_get_guint8(tvb, offset);
+		if (tag==0x5F) {
+			/* we have a private data specifier descriptor: get the private data specifier */
+			/* offset+1 is length byte, offset+2 is start of payload */
+			private_data_specifier = tvb_get_ntohl(tvb, offset+2);
+		}
+
+		 /* the default descriptor function takes precedence
+			however, if it does not know the current descriptor, we search for a context-specific subfunction
+		    this subfunction gets to see the entire descriptor, including tag and len */
+		if (match_strval(tag, mpeg_descriptor_tag_vals)) {
+			desc_len = proto_mpeg_descriptor_dissect(tvb, offset, tree);
+		}
+		else {
+			switch (private_data_specifier) {
+				case PRIVATE_DATA_SPECIFIER_CIPLUS_LLP:
+					desc_len = proto_mpeg_descriptor_dissect_private_ciplus(tvb, offset, tree);
+					break;
+				default:
+					desc_len = 0;
+					break;
+			}
+			if (desc_len==0) {
+				/* either there was no subfunction or it could not handle the descriptor
+				   fall back to the default (which will dissect it as unknown) */
+				desc_len = proto_mpeg_descriptor_dissect(tvb, offset, tree);
+			}
+		}
+
+		offset += desc_len;
+	}
+
+	return offset-offset_start;
 }
 
 
@@ -3502,7 +3655,7 @@ proto_register_mpeg_descriptor(void)
 		/* 0x5F Private Data Specifier */
 		{ &hf_mpeg_descr_private_data_specifier_id, {
 			"Private Data Specifier", "mpeg_descr.private_data_specifier.id",
-			FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
+			FT_UINT32, BASE_HEX, VALS(mpeg_descr_data_specifier_id_vals), 0, NULL, HFILL
 		} },
 
 		/* 0x64 Data Broadcast Descriptor */
@@ -3825,6 +3978,63 @@ proto_register_mpeg_descriptor(void)
 		{ &hf_mpeg_descr_rcs_content_table_id, {
 			"Table ID", "mpeg_descr.rcs_content.tid",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		/* 0xCB CI+ Content Label Descriptor */
+		{ &hf_mpeg_descr_ciplus_cl_cb_min, {
+		   "Content byte minimum value", "mpeg_descr.ciplus_content_label.content_byte_min",
+		   FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ciplus_cl_cb_max, {
+		   "Content byte maximum value", "mpeg_descr.ciplus_content_label.content_byte_max",
+		   FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ciplus_cl_lang, {
+		 "ISO 639 language code", "mpeg_descr.ciplus_content_label.lang_code",
+		 FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ciplus_cl_label, {
+		  "Content label", "mpeg_descr.ciplus_content_label.label",
+		  FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		/* 0xCC CI+ Service Descriptor */
+		{ &hf_mpeg_descr_ciplus_svc_id, {
+			"Service ID", "mpeg_descr.ciplus_svc.id",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+		
+		{ &hf_mpeg_descr_ciplus_svc_type, {
+			"Service type", "mpeg_descr.ciplus_svc.type",
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_service_type_vals_ext, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ciplus_svc_visible, {
+			"Visible Service Flag", "mpeg_descr.ciplus_svc.visible",
+			FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL
+		} },
+			
+		{ &hf_mpeg_descr_ciplus_svc_selectable, {
+			"Selectable Service Flag", "mpeg_descr.ciplus_svc.selectable",
+			FT_UINT16, BASE_HEX, NULL, 0x4000, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ciplus_svc_lcn, {
+			"Logical Channel Number", "mpeg_descr.ciplus_svc.lcn",
+			FT_UINT16, BASE_HEX, NULL, 0x3FFF, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ciplus_svc_prov_name, {
+			"Service Provider Name", "mpeg_descr.ciplus_svc.provider_name",
+			FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ciplus_svc_name, {
+			"Service Name", "mpeg_descr.ciplus_svc.name",
+			FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
 		} }
 	};
 
