@@ -76,7 +76,18 @@ check_function_exists("mkdtemp"          HAVE_MKDTEMP)
 check_function_exists("mkstemp"          HAVE_MKSTEMP)
 check_function_exists("sysconf"          HAVE_SYSCONF)
 
-#Symbols
-include(CheckSymbolExists)
-check_symbol_exists(NL80211_CMD_SET_CHANNEL "linux/nl80211.h" HAVE_NL80211_CMD_SET_CHANNEL)
+#Symbols but NOT enums or types
+#include(CheckSymbolExists)
+#check_symbol_exists(NL80211_CMD_SET_CHANNEL "linux/nl80211.h" HAVE_NL80211_CMD_SET_CHANNEL)
+
+# Check for stuff that isn't testable via the tests above
+#include(CheckCSourceCompiles)
+check_c_source_compiles(
+	"#include <linux/nl80211.h>
+	int main() {
+		enum nl80211_commands x = NL80211_CMD_SET_CHANNEL;
+	}"
+	HAVE_NL80211_CMD_SET_CHANNEL
+)
+
 
