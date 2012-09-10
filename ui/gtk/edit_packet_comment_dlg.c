@@ -40,6 +40,7 @@
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/dlg_utils.h"
+#include "ui/gtk/expert_comp_dlg.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
@@ -67,6 +68,7 @@ pkt_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
   /*g_warning("The new comment is '%s'",new_packet_comment);*/
 
   packet_list_update_packet_comment(new_packet_comment);
+  expert_comp_packet_comment_updated();
 
   window_destroy(edit_or_add_pkt_comment_dlg);
 

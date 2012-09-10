@@ -26,5 +26,6 @@
 #define __EXPERT_COMP_DLG_H__
 
 void expert_comp_dlg_launch(void);
+void expert_comp_packet_comment_updated(void);
 
 #endif /* __EXPERT_COMP_DLG_H__ */

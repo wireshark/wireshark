@@ -962,3 +962,9 @@ register_tap_listener_expert_comp(void)
     register_stat_cmd_arg("expert_comp", expert_comp_init,NULL);
 }
 
+void
+expert_comp_packet_comment_updated(void)
+{
+    if (expert_comp_dlg_w)
+        cf_retap_packets(&cfile);
+}
