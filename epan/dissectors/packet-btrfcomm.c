@@ -1088,7 +1088,7 @@ proto_register_btdun(void)
     proto_btdun = proto_register_protocol("Bluetooth DUN Packet", "BTDUN", "btdun");
 
     /* Required function calls to register the header fields and subtrees used */
-    proto_register_field_array(proto_bthf, hf, array_length(hf));
+    proto_register_field_array(proto_btdun, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -1154,7 +1154,7 @@ proto_register_btspp(void)
     proto_btspp = proto_register_protocol("Bluetooth SPP Packet", "BTSPP", "btspp");
 
     /* Required function calls to register the header fields and subtrees used */
-    proto_register_field_array(proto_bthf, hf, array_length(hf));
+    proto_register_field_array(proto_btspp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
 
