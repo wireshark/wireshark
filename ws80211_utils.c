@@ -33,7 +33,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "ws80211_utils.h"
 
-#ifdef HAVE_LIBNL
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211
 #include <strings.h>
 #include <errno.h>
 #include <unistd.h>
@@ -705,4 +705,4 @@ gchar *ws80211_chan_type_to_str(int type _U_)
 {
 	return NULL;
 }
-#endif /* HAVE_LIBNL */
+#endif /* HAVE_LIBNL && HAVE_NL80211 */

@@ -254,6 +254,16 @@ elif (test "${have_libnl1}" = "yes"); then
 	enable_airpcap=no
 fi
 
+AC_MSG_CHECKING([if nl80211.h is new enough])
+  AC_TRY_COMPILE([#include <linux/nl80211.h>],
+    [int x = NL80211_FREQUENCY_ATTR_MAX_TX_POWER;
+	x = NL80211_ATTR_SUPPORTED_IFTYPES;
+	x = NL80211_ATTR_SUPPORTED_COMMANDS;
+	x = NL80211_ATTR_WIPHY_FREQ;
+	x = NL80211_CHAN_NO_HT;],
+    [AC_MSG_RESULT(yes) AC_DEFINE(HAVE_NL80211, 1, [nl80211.h is new ehough])],
+    [AC_MSG_RESULT(no)])
+
 AC_MSG_CHECKING([for NL80211_SET_CHANNEL])
   AC_TRY_COMPILE([#include <linux/nl80211.h>],
     [enum nl80211_commands x = NL80211_CMD_SET_CHANNEL;],
