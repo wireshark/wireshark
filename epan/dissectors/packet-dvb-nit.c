@@ -82,7 +82,7 @@ dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 	guint       offset = 0;
-	guint       ts_desc_len, descriptor_end, ts_end;
+	guint       ts_desc_len, desc_loop_len, ts_end;
 
 	guint16     tsid;
 
@@ -114,11 +114,10 @@ dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved2,                  tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_network_descriptors_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-	descriptor_end = offset + (tvb_get_ntohs(tvb, offset) & DVB_NIT_NETWORK_DESCRIPTORS_LENGTH_MASK);
+	desc_loop_len = tvb_get_ntohs(tvb, offset) & DVB_NIT_NETWORK_DESCRIPTORS_LENGTH_MASK;
 	offset += 2;
 
-	while (offset < descriptor_end)
-		offset += proto_mpeg_descriptor_dissect(tvb, offset, dvb_nit_tree);
+	offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, desc_loop_len, dvb_nit_tree);
 
 	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved3,                    tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_transport_stream_loop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -140,12 +139,10 @@ dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_reserved4,                    tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_transport_descriptors_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-		descriptor_end = offset + (tvb_get_ntohs(tvb, offset) & DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK);
+		desc_loop_len = tvb_get_ntohs(tvb, offset) & DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK;
 		offset += 2;
 
-		while (offset < descriptor_end)
-			offset += proto_mpeg_descriptor_dissect(tvb, offset, dvb_nit_ts_tree);
-
+		offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, desc_loop_len, dvb_nit_ts_tree);
 	}
 
 	offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_nit_tree, 0, offset);
