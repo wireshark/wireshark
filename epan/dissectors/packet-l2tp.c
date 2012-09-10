@@ -897,8 +897,11 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     offset += 2;
     avp_len -= 2;
 
-    proto_tree_add_uint(l2tp_avp_tree, hf_l2tp_cisco_avp_type,
-                        tvb, offset, 2, avp_type);
+    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_vendor_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    avp_len -= 2;
+
+    proto_tree_add_uint(l2tp_avp_tree, hf_l2tp_cisco_avp_type, tvb, offset, 2, avp_type);
     offset += 2;
     avp_len -= 2;
 
@@ -1559,10 +1562,14 @@ static void process_control_avps(tvbuff_t *tvb,
         case LOCAL_SESSION_ID:
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_local_session_id,
                                 tvb, idx, 4, ENC_BIG_ENDIAN);
+            col_append_fstr(pinfo->cinfo,COL_INFO, ", LSID: %2u",
+                          tvb_get_ntohl(tvb, idx));
             break;
         case REMOTE_SESSION_ID:
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_remote_session_id,
                                 tvb, idx, 4, ENC_BIG_ENDIAN);
+            col_append_fstr(pinfo->cinfo,COL_INFO, ", RSID: %2u",
+                            tvb_get_ntohl(tvb, idx));
             break;
         case ASSIGNED_COOKIE:
             proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
