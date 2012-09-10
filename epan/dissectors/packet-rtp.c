@@ -749,13 +749,13 @@ dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gbo
 }
 
 static gboolean
-dissect_rtp_heur_udp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_rtp_heur_udp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
 	return dissect_rtp_heur_common(tvb, pinfo, tree, TRUE);
 }
 
 static gboolean
-dissect_rtp_heur_stun( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_rtp_heur_stun( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
 	return dissect_rtp_heur_common(tvb, pinfo, tree, FALSE);
 }

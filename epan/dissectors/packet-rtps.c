@@ -649,9 +649,6 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,gint offset,guint8 flags,
                         gboolean little_endian,int next_submsg_offset,
                         proto_tree *rtps_submessage_tree);
 
-/* The main packet dissector */
-static gboolean dissect_rtps(tvbuff_t *, packet_info *, proto_tree *);
-
 
 /***************************************************************************/
 /* Inline macros */
@@ -5544,7 +5541,9 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
  */
 static gboolean dissect_rtps(tvbuff_t *tvb,
                         packet_info *pinfo,
-                        proto_tree *tree) {
+                        proto_tree *tree,
+                        void *data _U_) 
+{
   proto_item       *ti = NULL;
   proto_tree       *rtps_tree=NULL;
   gint             offset = 0;

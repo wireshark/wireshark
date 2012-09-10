@@ -395,7 +395,7 @@ static void NetIdFormater(tvbuff_t *tvb, guint offset, char *szText, gint nMax)
 
 
 /*ams*/
-static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    proto_item *ti, *anItem;
    proto_tree *ams_tree = NULL, *ams_adstree, *ams_statetree;

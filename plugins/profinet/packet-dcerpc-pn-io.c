@@ -8738,7 +8738,7 @@ dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
         data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
 
         /*dissect_dcerpc_uint16(tvb, offset, pinfo, data_tree, drep,hf_pn_io_packedframe_SFCRC, &u16SFCRC);*/
-        if(!(dissect_CSF_SDU_heur(tvb, pinfo, data_tree) == FALSE))
+        if(!(dissect_CSF_SDU_heur(tvb, pinfo, data_tree, NULL) == FALSE))
             return(tvb_length(tvb));
         /* XXX - dissect the remaining data */
         /* this will be one or more DataItems followed by an optional GAP and RTCPadding */
@@ -8854,8 +8854,8 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
 
 /* possibly dissect a PN-IO related PN-RT packet */
 static gboolean
-dissect_PNIO_heur(tvbuff_t *tvb,
-    packet_info *pinfo, proto_tree *tree)
+dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    void *data _U_)
 {
     guint8  drep_data = 0;
     guint8  *drep = &drep_data;

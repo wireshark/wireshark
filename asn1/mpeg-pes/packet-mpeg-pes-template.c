@@ -389,7 +389,7 @@ static void
 dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static gboolean
-dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	int prefix;
 	int stream;
@@ -446,7 +446,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 64 * 8;
 
 		es = tvb_new_subset_remaining(tvb, offset / 8);
-		dissect_mpeg_pes(es, pinfo, tree);
+		dissect_mpeg_pes(es, pinfo, tree, NULL);
 	} else if (stream == STREAM_SEQUENCE_EXTENSION) {
 		tvbuff_t *es;
 
@@ -454,7 +454,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tree, hf_mpeg_video_sequence_extension);
 
 		es = tvb_new_subset_remaining(tvb, offset / 8);
-		dissect_mpeg_pes(es, pinfo, tree);
+		dissect_mpeg_pes(es, pinfo, tree, NULL);
 	} else if (stream == STREAM_GOP) {
 		tvbuff_t *es;
 
@@ -462,7 +462,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tree, hf_mpeg_video_group_of_pictures);
 
 		es = tvb_new_subset_remaining(tvb, offset / 8);
-		dissect_mpeg_pes(es, pinfo, tree);
+		dissect_mpeg_pes(es, pinfo, tree, NULL);
 	} else if (stream == STREAM_PACK) {
 		if (tvb_get_guint8(tvb, offset / 8) >> 6 == 1) {
 			dissect_mpeg_pes_pack_header(tvb, offset, pinfo, tree);
@@ -527,7 +527,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			es = tvb_new_subset(tvb, offset / 8, -1, length / 8);
 			if (tvb_get_ntoh24(es, 0) == PES_PREFIX)
-				dissect_mpeg_pes(es, pinfo, tree);
+				dissect_mpeg_pes(es, pinfo, tree, NULL);
 			else if (tvb_get_guint8(es, 0) == 0xff)
 				dissect_mpeg(es, pinfo, tree);
 			else

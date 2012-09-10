@@ -757,7 +757,7 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 }
 
 static gint
-dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_tree *subtree = NULL;
     proto_item *ti = NULL;
@@ -855,9 +855,9 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static gboolean
-dissect_jfif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_jfif_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_jfif(tvb, pinfo, tree) > 0;
+    return dissect_jfif(tvb, pinfo, tree, NULL) > 0;
 }
 
 /****************** Register the protocol with Wireshark ******************/

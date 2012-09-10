@@ -1180,7 +1180,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 #define PAD(x)      { proto_tree_add_item(pap_tree, hf_pap_pad, tvb, offset,  x, ENC_NA); offset += x; }
 
 static int
-dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   int         offset   = 0;
   guint8      fn;
@@ -1312,7 +1312,7 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo)
 
 
 static int
-dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   struct aspinfo *aspinfo;
   int             offset   = 0;

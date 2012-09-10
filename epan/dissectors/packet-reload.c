@@ -4351,7 +4351,7 @@ dissect_reload_message_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static gboolean
-dissect_reload_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_reload_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if (dissect_reload_message(tvb, pinfo, tree) == 0) {
     /*

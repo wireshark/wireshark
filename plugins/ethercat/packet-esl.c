@@ -260,7 +260,7 @@ void modify_times(tvbuff_t *tvb, gint offset, packet_info *pinfo)
 }
 
 static gboolean
-dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     static gboolean  in_heur    = FALSE;
     gboolean         result;

@@ -56,7 +56,7 @@ static gboolean info_is_set;
 #include "packet-h283-fn.c"
 
 static int
-dissect_h283_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_h283_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item  *ti = NULL;
   proto_tree  *h283_tree = NULL;
@@ -68,7 +68,7 @@ dissect_h283_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item(tree, proto_h283, tvb, 0, -1, ENC_NA);
   h283_tree = proto_item_add_subtree(ti, ett_h283);
 
-  return dissect_LCTPDU_PDU(tvb, pinfo, h283_tree);
+  return dissect_LCTPDU_PDU(tvb, pinfo, h283_tree, NULL);
 }
 
 /*--- proto_register_h283 ----------------------------------------------*/

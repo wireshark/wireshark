@@ -264,7 +264,7 @@ dissect_unreliable_packet (proto_tree *clique_rm_tree, guint8 type,
 
 
 static gboolean
-dissect_clique_rm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_clique_rm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint8 version = 0;
   guint8 type = 0;

@@ -902,7 +902,7 @@ dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 
 /* main dissector */
 static int
-dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 	guint32 offset, len;
 	proto_item *ti;
 	proto_tree *xtp_tree, *xtp_cmd_tree, *xtp_subtree;

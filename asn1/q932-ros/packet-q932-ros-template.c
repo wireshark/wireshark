@@ -61,10 +61,10 @@ static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 #include "packet-q932-ros-fn.c" 
 
 /*--- dissect_q932_ros -----------------------------------------------------*/
-static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   rose_ctx_tmp = get_rose_ctx(pinfo->private_data);
   DISSECTOR_ASSERT(rose_ctx_tmp);
-  return dissect_ROS_PDU(tvb, pinfo, tree);
+  return dissect_ROS_PDU(tvb, pinfo, tree, NULL);
 }
 
 /*--- proto_register_q932_ros -----------------------------------------------*/

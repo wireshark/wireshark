@@ -93,7 +93,7 @@ static const range_string nickname_strings[] = {
 
 /* Trill Dissector */
 static int
-dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
   proto_item *ti ;
   proto_tree *trill_tree ;

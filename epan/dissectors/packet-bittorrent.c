@@ -828,7 +828,7 @@ void dissect_bittorrent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static
 gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
-                                 proto_tree *tree)
+                                 proto_tree *tree, void *data _U_)
 {
    conversation_t *conversation;
 

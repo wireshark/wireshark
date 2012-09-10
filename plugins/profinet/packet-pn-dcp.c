@@ -905,8 +905,8 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
 
 /* possibly dissect a PN-RT packet (frame ID must be in the appropriate range) */
 static gboolean
-dissect_PNDCP_Data_heur(tvbuff_t *tvb, 
-    packet_info *pinfo, proto_tree *tree)
+dissect_PNDCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    void *data _U_)
 {
     guint16 u16FrameID;
     proto_item *item = NULL;

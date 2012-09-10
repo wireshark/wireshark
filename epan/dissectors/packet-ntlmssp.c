@@ -1928,7 +1928,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 #endif
 
 static int
-dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   volatile int          offset              = 0;
   proto_tree *volatile  ntlmssp_tree        = NULL;
@@ -2206,11 +2206,9 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_ntlmssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_ntlmssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-
   if (tvb_memeql(tvb, 0, "NTLMSSP", 8) == 0) {
-
     dissect_ntlmssp(tvb, pinfo, parent_tree);
     return TRUE;
   }
@@ -2393,7 +2391,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
 /* Used when NTLMSSP is done over DCE/RPC because in this case verifier and real payload are not contigious*/
 static int
-dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *tree)
+dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *tree, void *data _U_)
 {
   volatile int          offset       = 0;
   proto_tree *volatile  ntlmssp_tree = NULL;
@@ -2454,7 +2452,7 @@ dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *
  * But in fact this function could be merged with wrap_dissect_ntlmssp_verf because it's only used there
  */
 static int
-dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   volatile int          offset       = 0;
   proto_tree *volatile  ntlmssp_tree = NULL;
@@ -2534,7 +2532,7 @@ wrap_dissect_ntlmssp_payload_only(tvbuff_t *tvb, tvbuff_t *auth_tvb _U_,
   data_tvb = tvb_new_subset(
     tvb, offset, tvb_length_remaining(tvb, offset),
     tvb_length_remaining(tvb, offset));
-  dissect_ntlmssp_payload_only(data_tvb, pinfo, NULL);
+  dissect_ntlmssp_payload_only(data_tvb, pinfo, NULL, NULL);
   return pinfo->gssapi_decrypted_tvb;
 }
 
@@ -2700,7 +2698,7 @@ wrap_dissect_ntlmssp_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
   auth_tvb = tvb_new_subset(
     tvb, offset, tvb_length_remaining(tvb, offset),
     tvb_length_remaining(tvb, offset));
-  return dissect_ntlmssp_verf(auth_tvb, pinfo, tree);
+  return dissect_ntlmssp_verf(auth_tvb, pinfo, tree, NULL);
 }
 
 static dcerpc_auth_subdissector_fns ntlmssp_sign_fns = {

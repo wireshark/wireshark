@@ -429,7 +429,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static int
-dissect_reload_framing_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_reload_framing_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return dissect_reload_framing_message(tvb, pinfo, tree);
 }
@@ -449,7 +449,7 @@ dissect_reload_framing_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_reload_framing_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_reload_framing_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if (dissect_reload_framing_message(tvb, pinfo, tree) == 0) {
     /*

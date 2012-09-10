@@ -378,7 +378,7 @@ dissect_discphysicalchanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _
 }
 
 static int
-dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int         offset         = 0;
     proto_tree *btamp_tree     = NULL;

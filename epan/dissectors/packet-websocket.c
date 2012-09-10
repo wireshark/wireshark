@@ -264,7 +264,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree
   return offset;
 }
 static int
-dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
   proto_item *ti, *ti_len;

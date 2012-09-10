@@ -603,7 +603,7 @@ dissect_starteam_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static gboolean
-dissect_starteam_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_starteam_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if(tvb_length(tvb) >= 32){
     gint iOffsetLengths = -1;

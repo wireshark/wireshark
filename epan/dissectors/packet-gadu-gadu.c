@@ -1893,7 +1893,7 @@ get_gadu_gadu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_gadu_gadu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_gadu_gadu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (pinfo->srcport == pinfo->match_uint && pinfo->destport != pinfo->match_uint)
 		pinfo->p2p_dir = P2P_DIR_RECV;

@@ -226,7 +226,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->private_data = current_frame;  /* pass XML structure to the dissector calling XML */
 }
 
-static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 	if (tvbparse_peek(tvbparse_init(tvb,0,-1,NULL,want_ignore), want_heur)) {
 		dissect_xml(tvb, pinfo, tree);
 		return TRUE;

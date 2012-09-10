@@ -1756,7 +1756,7 @@ de_bssgp_ran_information_request_app_cont(tvbuff_t *tvb, proto_tree *tree, packe
              * 3GPP TS 25.413
              */
             new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-            curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree);
+            curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree, NULL);
             break;
         default :
             proto_tree_add_text(tree, tvb, curr_offset, len, "Unknown RIM Application Identity");
@@ -1886,14 +1886,14 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
                      * Source Cell ID) as defined in 3GPP TS 25.413
                      */
                     new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-                    curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree);
+                    curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree, NULL);
                     break;
                 case 2:
                     /* If the RAT discriminator field indicates E-UTRAN, this field is encoded as the E-UTRAN CGI IE as
                      * defined in 3GPP TS 36.413
                      */
                     new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-                    curr_offset = curr_offset + dissect_s1ap_Global_ENB_ID_PDU(new_tvb, gpinfo, tree);
+                    curr_offset = curr_offset + dissect_s1ap_Global_ENB_ID_PDU(new_tvb, gpinfo, tree, NULL);
                     break;
                 default:
                     break;
@@ -1907,7 +1907,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
              * (UTRAN Source Cell ID) as defined in 3GPP TS 25.413
              */
             new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-            curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree);
+            curr_offset = curr_offset + dissect_ranap_SourceCellID_PDU(new_tvb, gpinfo, tree, NULL);
             /* Octet (m+1)-n UTRA SI Container
              * UTRA SI Container: This field contains System Information Container valid for the reporting cell
              * encoded as defined in TS 25.331
@@ -2009,7 +2009,7 @@ de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
              * The "SON Transfer Cause" field is encoded as the SON Transfer Cause IE as defined in 3GPP TS 36.413
              */
             new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-            curr_offset = curr_offset + dissect_s1ap_SONtransferCause_PDU(new_tvb, gpinfo, tree);
+            curr_offset = curr_offset + dissect_s1ap_SONtransferCause_PDU(new_tvb, gpinfo, tree, NULL);
             /* Erroneous Application Container including IEI and LI */
             proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset), "Erroneous Application Container including IEI and LI");
             break;
@@ -2252,7 +2252,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
             curr_offset = curr_offset+ de_emm_trac_area_id(tvb, tree, pinfo, curr_offset, 5, add_string, string_len);
             /* Octets 9-n contain the Global eNB ID (see 3GPP TS 36.413 [36]) of the eNodeB. */
             new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-            dissect_s1ap_Global_ENB_ID_PDU(new_tvb, gpinfo, tree);
+            dissect_s1ap_Global_ENB_ID_PDU(new_tvb, gpinfo, tree, NULL);
             break;
         default:
             proto_tree_add_text(tree, tvb, curr_offset, 3, "Unknown RIM Routing Address discriminator");
@@ -2843,7 +2843,7 @@ de_bssgp_inter_rat_ho_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
      * Inter RAT Handover Information coded as specified in 3GPP
      * Technical Specification 25.331
      */
-    dissect_rrc_InterRATHandoverInfo_PDU(new_tvb, gpinfo, tree);
+    dissect_rrc_InterRATHandoverInfo_PDU(new_tvb, gpinfo, tree, NULL);
 
     return(len);
 }
@@ -3087,7 +3087,7 @@ de_bssgp_enb_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 
     /* Octets 8-n contain the Global eNB ID (see 3GPP TS 36.413) of the eNodeB. */
     new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
-    dissect_s1ap_Global_ENB_ID_PDU(new_tvb, gpinfo, tree);
+    dissect_s1ap_Global_ENB_ID_PDU(new_tvb, gpinfo, tree, NULL);
 
     return(len);
 }
@@ -3109,7 +3109,7 @@ de_bssgp_e_utran_inter_rat_ho_info(tvbuff_t *tvb, proto_tree *tree, packet_info 
      * significant bit of the first octet of the octet string contains bit 8 of
      * the first octet of the IE.
      */
-    dissect_lte_rrc_UE_EUTRA_Capability_PDU(new_tvb, gpinfo, tree);
+    dissect_lte_rrc_UE_EUTRA_Capability_PDU(new_tvb, gpinfo, tree, NULL);
 
     return(len);
 }
@@ -3177,7 +3177,7 @@ de_bssgp_son_transfer_app_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     /* SON Transfer Application Identity: This field is encoded as the SON Transfer Application Identity IE
      * as defined in 3GPP TS 36.413
      */
-    dissect_s1ap_SONtransferApplicationIdentity_PDU(tvb, gpinfo, tree);
+    dissect_s1ap_SONtransferApplicationIdentity_PDU(tvb, gpinfo, tree, NULL);
 
     return(len);
 }

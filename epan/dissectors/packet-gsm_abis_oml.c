@@ -1809,7 +1809,7 @@ dissect_oml_manuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
-dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
 	proto_tree *oml_tree;

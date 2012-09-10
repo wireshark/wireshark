@@ -60,7 +60,7 @@ static gint ett_turnchannel = -1;
 
 static int
 dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
-			    proto_tree *tree)
+			    proto_tree *tree, void *data _U_)
 {
   	guint   len;
 	guint16 channel_id;
@@ -126,7 +126,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_turnchannel_message_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_turnchannel_message(tvb, pinfo, tree);
+	dissect_turnchannel_message(tvb, pinfo, tree, NULL);
 }
 
 
@@ -145,7 +145,7 @@ dissect_turnchannel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static gboolean
-dissect_turnchannel_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_turnchannel_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   	guint   len;
 	guint16 channel_id;
@@ -168,7 +168,7 @@ dissect_turnchannel_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  return FALSE;
 	}
 
-	return dissect_turnchannel_message(tvb, pinfo, tree);
+	return dissect_turnchannel_message(tvb, pinfo, tree, NULL);
 }
 
 void

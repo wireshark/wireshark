@@ -59,7 +59,6 @@ static int unistim_tap = -1;
 
 void proto_reg_handoff_unistim(void);
 static void dissect_payload(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset, packet_info *pinfo);
-static int dissect_unistim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static gint dissect_broadcast_switch(proto_tree *msg_tree,
                                      tvbuff_t *tvb,gint offset,guint msg_len);
@@ -184,7 +183,7 @@ static const value_string command_address[]={
 };
 
 static int
-dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
+dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_){
    gint offset=0;
    proto_item *ti= NULL;
    proto_item *ti1= NULL;

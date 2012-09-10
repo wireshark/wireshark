@@ -392,7 +392,7 @@ test_glbp(tvbuff_t *tvb, packet_info *pinfo)
 }
 
 static int
-dissect_glbp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_glbp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if ( !test_glbp(tvb, pinfo) ) {
     return 0;

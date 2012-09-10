@@ -852,7 +852,7 @@ get_tns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint8 type;
 

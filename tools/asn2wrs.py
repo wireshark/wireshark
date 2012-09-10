@@ -1540,9 +1540,10 @@ class EthCtx:
       out += 'static '
     if (is_new):
       out += 'int '
+      out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);\n'
     else:
       out += 'void '
-    out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);\n'
+      out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);\n'
     return out
 
   #--- eth_output_hf ----------------------------------------------------------
@@ -1721,9 +1722,10 @@ class EthCtx:
         out += 'static '
       if (is_new):
         out += 'int '
+        out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {\n'
       else:
         out += 'void '
-      out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {\n'
+        out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {\n'
       if (is_new):
         out += '  int offset = 0;\n'
         off_par = 'offset'

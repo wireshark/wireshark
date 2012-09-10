@@ -13024,7 +13024,7 @@ get_ff_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 
 static int
-dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 /*
  *
@@ -13059,7 +13059,7 @@ dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static int
-dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint32 length;
 

@@ -260,7 +260,7 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static gboolean
-dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint16 val;
 	int offset = 0;

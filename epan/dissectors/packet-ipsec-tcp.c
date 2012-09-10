@@ -107,7 +107,7 @@ packet_is_tcpencap(tvbuff_t *tvb, packet_info *pinfo, guint32 offset)
  * as supported by the cisco vpn3000 concentrator series
  */
 static int
-dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree *tcpencap_tree = NULL;
 	proto_tree *tcpencap_unknown_tree = NULL;

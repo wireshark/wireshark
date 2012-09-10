@@ -5072,7 +5072,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
  * NOTE: I don't know if these heuristics are sufficient.  Time will tell ...
  */
 static gboolean
-dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
     /*
      * In some cases, the 0x03 normally in byte 3 is escaped so we must look

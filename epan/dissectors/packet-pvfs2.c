@@ -259,7 +259,7 @@ static guint get_pvfs_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_pvfs_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_pvfs_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint32 magic_nr, mode;
 	guint64 size;

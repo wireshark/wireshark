@@ -568,7 +568,7 @@ verify_password(tvbuff_t *tvb, const char *password)
 #endif
 
 static int
-dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
 	proto_tree *njack_tree;
@@ -654,22 +654,22 @@ test_njack(tvbuff_t *tvb)
 }
 
 static gboolean
-dissect_njack_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_njack_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if ( !test_njack(tvb) ) {
 		return FALSE;
 	}
-	dissect_njack(tvb, pinfo, tree);
+	dissect_njack(tvb, pinfo, tree, NULL);
 	return TRUE;
 }
 
 static int
-dissect_njack_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_njack_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if ( !test_njack(tvb) ) {
 		return 0;
 	}
-	return dissect_njack(tvb, pinfo, tree);
+	return dissect_njack(tvb, pinfo, tree, NULL);
 }
 
 void

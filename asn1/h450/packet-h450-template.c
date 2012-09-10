@@ -113,7 +113,7 @@ static const h450_err_t *get_err(gint32 errcode) {
 
 /*--- dissect_h450_arg ------------------------------------------------------*/
 static int   
-dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   proto_item *hidden_item;
   int offset;
   rose_ctx_t *rctx;
@@ -143,7 +143,7 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   if (op_ptr->arg_pdu && (tvb_length_remaining(tvb, offset) > 0))
-    offset = op_ptr->arg_pdu(tvb, pinfo, tree);
+    offset = op_ptr->arg_pdu(tvb, pinfo, tree, NULL);
   else 
     if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(tree, tvb, offset, -1, "UNSUPPORTED ARGUMENT TYPE (H.450)");
@@ -155,7 +155,7 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /*--- dissect_h450_res ------------------------------------------------------*/
 static int   
-dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   proto_item *hidden_item;
   int offset;
   rose_ctx_t *rctx;
@@ -185,7 +185,7 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   if (op_ptr->res_pdu && (tvb_length_remaining(tvb, offset) > 0))
-    offset = op_ptr->res_pdu(tvb, pinfo, tree);
+    offset = op_ptr->res_pdu(tvb, pinfo, tree, NULL);
   else 
     if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(tree, tvb, offset, -1, "UNSUPPORTED RESULT TYPE (H.450)");
@@ -197,7 +197,7 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /*--- dissect_h450_err ------------------------------------------------------*/
 static int   
-dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   proto_item *hidden_item;
   int offset;
   rose_ctx_t *rctx;
@@ -227,7 +227,7 @@ dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   if (err_ptr->err_pdu && (tvb_length_remaining(tvb, offset) > 0))
-    offset = err_ptr->err_pdu(tvb, pinfo, tree);
+    offset = err_ptr->err_pdu(tvb, pinfo, tree, NULL);
   else 
     if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(tree, tvb, offset, -1, "UNSUPPORTED ERROR TYPE (H.450)");

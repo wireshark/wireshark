@@ -1094,7 +1094,7 @@ dissect_xmcp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_xmcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_xmcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /* See if this looks like a real XMCP packet */
   if (tvb_length(tvb) < XMCP_HDR_LEN) {

@@ -106,7 +106,7 @@ static const value_string controlpackettypenames[] = {
 
 
 static int
-dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *mactelnet_item;
     proto_tree *mactelnet_tree;

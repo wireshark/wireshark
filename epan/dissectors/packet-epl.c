@@ -476,9 +476,6 @@ static gint dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t
 
 static const gchar* decode_epl_address(guchar adr);
 
-static gint dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-
 /* Initialize the protocol and registered fields */
 static gint proto_epl            = -1;
 static gint hf_epl_mtyp          = -1;
@@ -662,7 +659,7 @@ gboolean show_soc_flags = FALSE;
 
 /* Code to actually dissect the packets */
 static int
-dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8 epl_mtyp, epl_src, epl_dest;
     const  gchar *src_str, *dest_str;

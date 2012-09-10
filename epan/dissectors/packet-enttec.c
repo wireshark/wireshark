@@ -342,7 +342,7 @@ dissect_enttec_reset(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
 }
 
 static int
-dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gint offset = 0;
 	guint32 head = 0;

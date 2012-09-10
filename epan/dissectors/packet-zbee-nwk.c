@@ -299,7 +299,7 @@ zbee_get_bit_field(guint input, guint mask)
  *---------------------------------------------------------------
  */
 static gboolean
-dissect_zbee_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     ieee802154_packet   *packet = (ieee802154_packet *)pinfo->private_data;
 

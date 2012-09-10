@@ -628,7 +628,7 @@ get_cmpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset)
 
 
 static int
-dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint total_length, command_id, tvb_len;
 	/* Check that there's enough data */

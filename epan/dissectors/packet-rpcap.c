@@ -1111,7 +1111,7 @@ get_rpcap_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 
 static gboolean
-dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if (check_rpcap_heur (tvb, TRUE)) {
     /* This is probably a rpcap tcp package */
@@ -1126,7 +1126,7 @@ dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static gboolean
-dissect_rpcap_heur_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rpcap_heur_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if (check_rpcap_heur (tvb, FALSE)) {
     /* This is probably a rpcap udp package */

@@ -1310,7 +1310,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * [TS 25.331], not including IEI and length, if present
 		 */
 		new_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
-		dissect_rrc_InterRATHandoverInfo_PDU(new_tvb, pinfo, urr_ie_tree);
+		dissect_rrc_InterRATHandoverInfo_PDU(new_tvb, pinfo, urr_ie_tree, NULL);
 		break;
 	case 65:
 		/* 11.2.65 Classmark Enquiry Mask
@@ -1702,7 +1702,7 @@ dissect_uma_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
 	int		offset = 0;

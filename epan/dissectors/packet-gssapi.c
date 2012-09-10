@@ -520,7 +520,7 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_gssapi_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_gssapi_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	return dissect_gssapi_work(tvb, pinfo, tree, TRUE);
 }
@@ -611,7 +611,7 @@ wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	auth_tvb = tvb_new_subset_remaining(tvb, offset);
 
-	return dissect_gssapi_verf(auth_tvb, pinfo, tree);
+	return dissect_gssapi_verf(auth_tvb, pinfo, tree, NULL);
 }
 
 tvbuff_t *

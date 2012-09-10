@@ -219,7 +219,7 @@ static const true_false_string png_chunk_stc = {
 
 
 static gint
-dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	proto_tree *tree = NULL;
 	proto_item *ti;
@@ -426,9 +426,9 @@ proto_register_png(void)
 	new_register_dissector("png", dissect_png, proto_png);
 }
 
-static gboolean dissect_png_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean dissect_png_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	return dissect_png(tvb, pinfo, tree) > 0;
+	return dissect_png(tvb, pinfo, tree, NULL) > 0;
 }
 
 void

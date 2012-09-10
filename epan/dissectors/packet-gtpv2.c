@@ -1948,7 +1948,7 @@ static const value_string geographic_location_type_vals[] = {
 };
 
 static int
-dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int   offset = 0;
     guint length;
@@ -3767,7 +3767,7 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         case 3:
             /* E-UTRAN transparent container */
             tvb_new = tvb_new_subset_remaining(tvb, offset);
-            dissect_s1ap_ENB_StatusTransfer_TransparentContainer_PDU(tvb_new, pinfo, tree);
+            dissect_s1ap_ENB_StatusTransfer_TransparentContainer_PDU(tvb_new, pinfo, tree, NULL);
             return;
         default:
             break;
@@ -3922,7 +3922,7 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
          * "Target RNC-ID" (numerical value of 0x20) shall not be included (value in octet 5 specifies the target type).
          */
         tvb_new = tvb_new_subset_remaining(tvb, offset);
-        dissect_ranap_TargetRNC_ID_PDU(tvb_new, pinfo, tree);
+        dissect_ranap_TargetRNC_ID_PDU(tvb_new, pinfo, tree, NULL);
         return;
         break;
     case 1:

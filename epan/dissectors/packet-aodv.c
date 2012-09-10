@@ -752,7 +752,7 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
-dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti        = NULL;
     proto_tree *aodv_tree = NULL;

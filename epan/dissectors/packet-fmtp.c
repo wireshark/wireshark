@@ -134,7 +134,7 @@ get_fmtp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static gboolean
-dissect_fmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_fmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /*
      * Check that packet looks like FMTP before going further

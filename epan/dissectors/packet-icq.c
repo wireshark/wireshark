@@ -1696,7 +1696,7 @@ static void dissect_icqv5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_icq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_icq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   int version;
 

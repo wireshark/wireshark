@@ -521,7 +521,7 @@ static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 /*------------------------- Packet Dissecting Code-------------------------*/
-static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   proto_item *ti;
   proto_tree *olsr_tree;
 

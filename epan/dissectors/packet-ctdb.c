@@ -971,7 +971,7 @@ dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 }
 
 static gboolean
-dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	proto_tree *tree=NULL;
 	proto_item *item=NULL;

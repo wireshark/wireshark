@@ -3736,7 +3736,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
     }
 }
 static gboolean
-heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     struct fp_info *p_fp_info;
 

@@ -83,7 +83,7 @@ static gint ett_wol_macblock = -1;
 
 /* Code to actually dissect the packets */
 static int
-dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint         len;
     gint          offset;

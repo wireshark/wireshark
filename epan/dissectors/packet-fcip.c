@@ -525,7 +525,7 @@ dissect_fcip_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_fcip_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_fcip_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     return (dissect_fcip (tvb, pinfo, tree, TRUE));
 }

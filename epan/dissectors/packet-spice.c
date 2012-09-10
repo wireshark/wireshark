@@ -3051,7 +3051,7 @@ dissect_spice_link_server_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversatio
 }
 
 static int
-dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
     conversation_t       *conversation;
@@ -3453,11 +3453,11 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-test_spice_protocol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+test_spice_protocol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
     if (tvb_reported_length(tvb) >= 4 && tvb_get_ntohl(tvb, 0) == SPICE_MAGIC) {
-        dissect_spice(tvb, pinfo, tree);
+        dissect_spice(tvb, pinfo, tree, NULL);
         return TRUE;
     }
     return FALSE;

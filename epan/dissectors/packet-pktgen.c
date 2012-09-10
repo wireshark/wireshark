@@ -57,7 +57,7 @@ static gint ett_pktgen = -1;
 static dissector_handle_t data_handle;
 
 /* entry point */
-static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti = NULL;
     proto_item *tmp = NULL;

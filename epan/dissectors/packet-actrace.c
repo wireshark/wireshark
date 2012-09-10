@@ -448,7 +448,7 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 /************************************************************************
  * dissect_actrace - The dissector for the AudioCodes Trace prtocol
  ************************************************************************/
-static int dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree *actrace_tree;
 	proto_item *ti;

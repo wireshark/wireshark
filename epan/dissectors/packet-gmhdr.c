@@ -216,7 +216,7 @@ dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_gmtimestamp_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_gmtimestamp_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_tree *ti;
   guint tvblen, trailer_len = 18;
@@ -272,7 +272,7 @@ dissect_gmtimestamp_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static int
-dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_tree *ti;
   guint tvblen, length;

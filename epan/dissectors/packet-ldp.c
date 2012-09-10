@@ -2675,7 +2675,7 @@ dissect_ldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /*
      * Make sure the first PDU has a version number of 1;
@@ -2909,7 +2909,7 @@ dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, guint offset, proto_tree 
 }
 
 static int
-dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     volatile gboolean   first = TRUE;
     volatile int        offset = 0;

@@ -148,7 +148,7 @@ dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
 
 gboolean
-dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_) {
 
   guint tot_len;
 

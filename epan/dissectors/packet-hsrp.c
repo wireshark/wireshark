@@ -325,7 +325,7 @@ static const value_string hsrp2_md5_algorithm_vals[] = {
 };
 
 static int
-dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	tvbuff_t   *next_tvb;
         gchar dst[16];

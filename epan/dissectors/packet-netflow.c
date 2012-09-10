@@ -1585,7 +1585,7 @@ pen_to_type_hf_list (guint32 pen) {
 }
 
 static int
-dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_tree     *netflow_tree = NULL;
     proto_tree     *ti;

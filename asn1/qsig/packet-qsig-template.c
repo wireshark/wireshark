@@ -371,7 +371,7 @@ static const qsig_err_t *get_err(gint32 errcode) {
 
 /*--- dissect_qsig_arg ------------------------------------------------------*/
 static int
-dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   int offset;
   rose_ctx_t *rctx;
   gint32 opcode = 0, service;
@@ -415,7 +415,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (p) proto_item_append_text(ti_tmp, " - %s", p);
 
   if (op_ptr->arg_pdu)
-    offset = op_ptr->arg_pdu(tvb, pinfo, qsig_tree);
+    offset = op_ptr->arg_pdu(tvb, pinfo, qsig_tree, NULL);
   else
     if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED ARGUMENT TYPE (QSIG)");
@@ -427,7 +427,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /*--- dissect_qsig_res -------------------------------------------------------*/
 static int
-dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   gint offset;
   rose_ctx_t *rctx;
   gint32 opcode, service;
@@ -466,7 +466,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (p) proto_item_append_text(ti_tmp, " - %s", p);
 
   if (op_ptr->res_pdu)
-    offset = op_ptr->res_pdu(tvb, pinfo, qsig_tree);
+    offset = op_ptr->res_pdu(tvb, pinfo, qsig_tree, NULL);
   else
     if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED RESULT TYPE (QSIG)");
@@ -478,7 +478,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /*--- dissect_qsig_err ------------------------------------------------------*/
 static int
-dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   int offset;
   rose_ctx_t *rctx;
   gint32 errcode;
@@ -512,7 +512,7 @@ dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   if (err_ptr->err_pdu)
-    offset = err_ptr->err_pdu(tvb, pinfo, qsig_tree);
+    offset = err_ptr->err_pdu(tvb, pinfo, qsig_tree, NULL);
   else
     if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED ERROR TYPE (QSIG)");

@@ -65,7 +65,7 @@ static const value_string sync_type_vals[] = {
 };
 
 static int
-dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *sync_tree;

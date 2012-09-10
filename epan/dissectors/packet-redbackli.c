@@ -177,7 +177,7 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #define MIN_REDBACKLI_SIZE	(3*REDBACKLI_INTSIZE+REDBACKLI_EOHSIZE)
 
 static gboolean
-redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gint		len, offset=0;
 	gboolean	eoh=FALSE;

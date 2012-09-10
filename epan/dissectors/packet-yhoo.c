@@ -176,7 +176,7 @@ static const value_string yhoo_msgtype_vals[] = {
 };
 
 static gboolean
-dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree      *yhoo_tree, *ti;
 	int		 offset = 0;

@@ -812,7 +812,7 @@ static gboolean global_pdcp_lte_heur = FALSE;
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
-                                     proto_tree *tree)
+                                     proto_tree *tree, void *data _U_)
 {
     gint                  offset                 = 0;
     struct pdcp_lte_info *p_pdcp_lte_info;

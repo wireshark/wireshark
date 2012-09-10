@@ -69,7 +69,7 @@ static gint ett_netmon_802_11_op_mode = -1;
 static dissector_handle_t ieee80211_handle;
 
 static int
-dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_tree *wlan_tree, *opmode_tree;
   proto_item *ti;

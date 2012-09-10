@@ -309,7 +309,7 @@ check_epmd(tvbuff_t *tvb) {
 }
 
 static int
-dissect_epmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_epmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     proto_tree *epmd_tree;
     proto_item *ti;
 

@@ -85,7 +85,7 @@ static const value_string cmd_code_vals[] = {
   { 0, NULL }
 };
 
-static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_tree *bjnp_tree;
   proto_item *ti;

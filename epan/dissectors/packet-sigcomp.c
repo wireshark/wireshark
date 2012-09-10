@@ -358,7 +358,7 @@ sigcomp_init_protocol(void)
  */
 
 static int
-dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data _U_)
 {
     proto_item  *ti;
     proto_tree  *sigcomp_tree;
@@ -507,7 +507,7 @@ try_again:
 }
 /* Code to actually dissect the packets */
 static int
-dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *ti;
     proto_tree  *sigcomp_tree;
@@ -516,7 +516,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* If we got called from SIP this might be over TCP */
     if ( pinfo->ptype == PT_TCP )
-        return dissect_sigcomp_tcp(tvb, pinfo, tree);
+        return dissect_sigcomp_tcp(tvb, pinfo, tree, NULL);
 
     /* Is this a SigComp message or not ? */
     octet = tvb_get_guint8(tvb, offset);

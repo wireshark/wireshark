@@ -1646,7 +1646,7 @@ dissect_spnego_krb5_cfx_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinf
  * getting it accepted.
  */
 static int
-dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -1706,7 +1706,7 @@ dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 /* Spnego stuff from here */
 
 static int
-dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *item;
 	proto_tree *subtree;

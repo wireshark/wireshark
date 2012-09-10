@@ -132,7 +132,7 @@ static dissector_handle_t xml_handle;
 /* AVP Code: 15 3GPP-SGSN-IPv6-Address */
 /* AVP Code: 917 MBMS-GGSN-IPv6-Address */
 static int
-dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	int offset = 0;
 
@@ -152,7 +152,7 @@ dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
  */
 
 static int
-dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	int offset = 0, i;
@@ -174,7 +174,7 @@ dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto
  */
 
 static int
-dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	proto_tree *sub_tree;
@@ -207,7 +207,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
  * in IETF RFC 3327 [17].
  */
 static int
-dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	proto_tree *sub_tree;
@@ -239,7 +239,7 @@ dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  * defined in IETF RFC 3261.
  */
 static int
-dissect_diameter_3gpp_contact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_contact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	int offset = 0;
@@ -252,7 +252,7 @@ dissect_diameter_3gpp_contact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
 /* AVP Code: 701 MSISDN */
 static int
-dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	proto_tree *sub_tree;
@@ -281,7 +281,7 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
  * IMS Cx Dx AVPS 3GPP TS 29.229
  */
 static int
-dissect_diameter_3gpp_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	guint8		word[6];
 	int length = tvb_length(tvb);
@@ -305,7 +305,7 @@ dissect_diameter_3gpp_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  * AVP Code: 704 Service-Indication
  */
 static int
-dissect_diameter_3gpp_service_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_service_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	int offset = 0, i;
@@ -323,7 +323,7 @@ dissect_diameter_3gpp_service_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 /* AVP Code: 900 TMGI */
 static int
-dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	proto_tree *sub_tree;
@@ -349,7 +349,7 @@ dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 /* AVP Code: 918 MBMS-BMSC-SSM-IP-Address */
 static int
-dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	int offset = 0;
 
@@ -362,7 +362,7 @@ dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 /* AVP Code: 913 MBMS-Required-QoS */
 static int
-dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 
 	int offset = 0;
 	guint length;
@@ -388,7 +388,7 @@ dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb, packet_info *pinfo, proto
 /* AVP Code: 926 MBMS-BMSC-SSM-UDP-Port */
 /* AVP Code: 927 MBMS-GW-UDP-Port */
 static int
-dissect_diameter_3gpp_udp_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_diameter_3gpp_udp_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	int offset = 0;
 
@@ -402,7 +402,7 @@ dissect_diameter_3gpp_udp_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 /* AVP Code: 929 MBMS-Data-Transfer-Start */
 /* AVP Code: 930 MBMS-Data-Transfer-Stop */
 static int
-dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	int offset = 0;
 	const gchar *time_str;
@@ -416,7 +416,7 @@ dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer(tvbuff_t *tvb, packet_info 
 
 /* AVP Code: 1405 ULR-Flags */
 static int
-dissect_diameter_3gpp_ulr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_ulr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	proto_tree *sub_tree;
@@ -450,7 +450,7 @@ dissect_diameter_3gpp_ulr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1406 ULA-Flags */
 static int
-dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	proto_tree *sub_tree;
@@ -472,7 +472,7 @@ dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1421 DSR-Flags */
 static int
-dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	proto_tree *sub_tree;
@@ -524,7 +524,7 @@ dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1422 DSA-Flags */
 static int
-dissect_diameter_3gpp_dsa_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_dsa_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	proto_tree *sub_tree;
@@ -546,7 +546,7 @@ dissect_diameter_3gpp_dsa_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1441 IDA-Flags */
 static int
-dissect_diameter_3gpp_ida_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_ida_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	proto_tree *sub_tree;
@@ -568,7 +568,7 @@ dissect_diameter_3gpp_ida_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1442 PUA-Flags */
 static int
-dissect_diameter_3gpp_pua_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_pua_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	proto_tree *sub_tree;
@@ -593,7 +593,7 @@ dissect_diameter_3gpp_pua_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1443 NOR-Flags */
 static int
-dissect_diameter_3gpp_nor_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_nor_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	proto_tree *sub_tree;
@@ -627,7 +627,7 @@ dissect_diameter_3gpp_nor_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1490 IDR-Flags */
 static int
-dissect_diameter_3gpp_idr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+dissect_diameter_3gpp_idr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
 	proto_item* item;
 	proto_tree *sub_tree;

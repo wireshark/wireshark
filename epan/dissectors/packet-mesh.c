@@ -42,7 +42,7 @@ static gint ett_mesh = -1;
 
 /* Code to actually dissect the packets */
 static int
-dissect_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *ti;

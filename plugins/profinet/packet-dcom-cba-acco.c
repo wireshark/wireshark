@@ -3137,8 +3137,8 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 
 
 static gboolean
-dissect_CBA_Connection_Data_heur(tvbuff_t *tvb,
-	packet_info *pinfo, proto_tree *tree)
+dissect_CBA_Connection_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    void *data _U_)
 {
 	guint8  u8Version;
 	guint8  u8Flags;

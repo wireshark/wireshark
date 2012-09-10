@@ -85,7 +85,7 @@ static const value_string rmcp_class_vals[] = {
 };
 
 static int
-dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree	*rmcp_tree = NULL, *field_tree;
 	proto_item	*ti, *tf;
@@ -154,7 +154,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree	*rsp_tree = NULL/*, *field_tree*/;
 	proto_item	*ti/*, *tf*/;
@@ -177,7 +177,7 @@ dissect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * This is only valid for session ID equals 0
 	 */
 	next_tvb = tvb_new_subset_remaining(tvb, 8);
-	dissect_rmcp(next_tvb, pinfo, tree);
+	dissect_rmcp(next_tvb, pinfo, tree, NULL);
 
 	return tvb_length(tvb);
 }

@@ -129,7 +129,7 @@ static const value_string setup_request_names_vals[] = {
  * and FALSE othervise.
  */
 static gint
-dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gboolean is_request;
     usb_conv_info_t *usb_conv_info;

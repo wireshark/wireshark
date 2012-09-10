@@ -1728,7 +1728,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static gint
-dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	conversation_t  *conversation;
 	int offset;

@@ -1343,7 +1343,7 @@ dissect_sprt_data(tvbuff_t *tvb,
 }
 
 static int
-dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
@@ -1478,7 +1478,7 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* heuristic dissector */
 static gboolean
-dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8 octet, extension_bit, reserved_bit, payload_type;
     guint16 word, tc, seqnum;
@@ -1511,7 +1511,7 @@ dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((tc == 0 || tc == 3) && (seqnum != 0)) /* seqnum only applies if tc is 1 or 2 */
         return FALSE;
 
-    dissect_sprt(tvb, pinfo, tree);
+    dissect_sprt(tvb, pinfo, tree, NULL);
     return TRUE;
 }
 

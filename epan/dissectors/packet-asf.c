@@ -149,7 +149,7 @@ static void dissect_asf_payload_integrity(tvbuff_t *tvb, proto_tree *tree,
 	gint offset, gint len);
 
 static int
-dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree *asf_tree = NULL;
 	proto_item *ti;

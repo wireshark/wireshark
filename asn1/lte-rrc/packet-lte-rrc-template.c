@@ -172,9 +172,9 @@ static gint ett_lte_rrc_absTimeInfo = -1;
 static gint ett_lte_rrc_nas_SecurityParam = -1;
 
 /* Forward declarations */
-static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
-static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
-int dissect_lte_rrc_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
+static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+int dissect_lte_rrc_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_1_val = {
   "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; PDSCH transmission mode 5; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 & 2-2 - Supported",
@@ -1685,7 +1685,7 @@ dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
 		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-		dissect_DL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
+		dissect_DL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 	}
 }
 
@@ -1701,7 +1701,7 @@ dissect_lte_rrc_DL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
 		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-		dissect_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
+		dissect_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 	}
 }
 
@@ -1718,7 +1718,7 @@ dissect_lte_rrc_UL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
 		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-		dissect_UL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
+		dissect_UL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 	}
 }
 
@@ -1734,7 +1734,7 @@ dissect_lte_rrc_UL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
 		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-		dissect_UL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
+		dissect_UL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 	}
 }
 
@@ -1750,7 +1750,7 @@ dissect_lte_rrc_BCCH_BCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
 		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-		dissect_BCCH_BCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
+		dissect_BCCH_BCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 	}
 }
 
@@ -1766,7 +1766,7 @@ dissect_lte_rrc_BCCH_DL_SCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
 		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-		dissect_BCCH_DL_SCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
+		dissect_BCCH_DL_SCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 	}
 }
 

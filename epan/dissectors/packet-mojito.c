@@ -634,7 +634,7 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree           *mojito_tree, *opcode_tree;
 	proto_item           *ti, *opcode_item;
@@ -703,7 +703,7 @@ dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return tvb_length(tvb);
 }
 
-static gboolean dissect_mojito_heuristic (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean dissect_mojito_heuristic (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	/*
 	  Test the overall length to make sure its at least 61 bytes (the header)
@@ -715,7 +715,7 @@ static gboolean dissect_mojito_heuristic (tvbuff_t *tvb, packet_info *pinfo, pro
 	    (tvb_get_guint8(tvb, 16) == 68) &&
 	    ((tvb_get_letohl(tvb, 19) + 23) == tvb_reported_length(tvb)))
 	{
-		dissect_mojito(tvb, pinfo, tree);
+		dissect_mojito(tvb, pinfo, tree, NULL);
 		return TRUE;
 	}
 

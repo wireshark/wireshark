@@ -805,7 +805,7 @@ dissect_drda_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static gboolean
-dissect_drda_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_drda_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conversation_t * conversation;
     if (tvb_length(tvb) >= 10)

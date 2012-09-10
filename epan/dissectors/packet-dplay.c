@@ -35,7 +35,6 @@
 #include <string.h>
 
 /* function declarations */
-static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint dissect_type1a_message(proto_tree *tree, tvbuff_t *tvb, gint offset);
 
@@ -1154,7 +1153,7 @@ static void dissect_dplay_player_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     }
 }
-static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8 signature[] = {'p','l','a','y'};
     guint32 dplay_id, token;

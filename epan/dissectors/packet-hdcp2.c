@@ -123,7 +123,7 @@ static const msg_info_t msg_info[] = {
 
 
 static int
-dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     msg_info_t *mi;
     proto_item *pi;

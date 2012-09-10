@@ -2002,7 +2002,7 @@ get_tipc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 /* triggers the dissection of TIPC-over-TCP */
 static int
-dissect_tipc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_tipc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	tcp_dissect_pdus(tvb, pinfo, parent_tree, tipc_tcp_desegment, 4, get_tipc_pdu_len,
 			dissect_tipc);

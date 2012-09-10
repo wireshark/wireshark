@@ -593,7 +593,7 @@ dissect_dsmcc_un(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gboolean
-dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in)
+dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *data _U_)
 {
 	proto_item *pi;
 	proto_tree *tree;
@@ -701,7 +701,7 @@ static void
 dissect_dsmcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSM-CC");
-	dissect_dsmcc_ts(tvb, pinfo, tree);
+	dissect_dsmcc_ts(tvb, pinfo, tree, NULL);
 }
 
 void

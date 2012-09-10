@@ -2360,7 +2360,7 @@ huawei_sm_result_notify_resp(proto_tree *tree, tvbuff_t *tvb)
  *      has a 'well-known' or 'reserved' status
  */
 static gboolean
-dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint        command_id;            /* SMPP command         */
     guint        command_status;        /* Status code          */

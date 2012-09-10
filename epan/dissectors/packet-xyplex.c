@@ -58,7 +58,7 @@ static const value_string xyplex_reg_vals[] = {
 };
 
 static int
-dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree	*xyplex_tree = NULL;
 	proto_item	*ti;

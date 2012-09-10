@@ -346,7 +346,7 @@ static int get_content_item_length(tvbuff_t *tvb, int offset)
 
 
 static gboolean
-dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (tvb_length(tvb) < 4) {
 		return FALSE;

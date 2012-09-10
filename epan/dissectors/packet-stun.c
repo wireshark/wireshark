@@ -1011,7 +1011,7 @@ case EVEN_PORT:
 }
 
 static int
-dissect_stun_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_stun_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	return dissect_stun_message(tvb, pinfo, tree, FALSE);
 }
@@ -1030,7 +1030,7 @@ dissect_stun_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_stun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_stun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (dissect_stun_message(tvb, pinfo, tree, TRUE) == 0) {
 		/*

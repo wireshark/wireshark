@@ -120,7 +120,7 @@ static const value_string mpeg_pmt_stream_type_vals[] = {
 static value_string_ext mpeg_pmt_stream_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_pmt_stream_type_vals);
 
 static int
-dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
 	guint   offset = 0, length = 0;

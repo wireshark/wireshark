@@ -808,7 +808,7 @@ dissect_url_entry_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
 /* Packet dissection routine called by tcp & udp when port 427 detected */
 
 static int
-dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int         offset = 0;
     proto_item  *ti, *tf;
@@ -1429,7 +1429,7 @@ dissect_srvloc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_item(tree, proto_srvloc, tvb, 0, -1, ENC_NA);
         srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
     }
-    dissect_srvloc(tvb, pinfo, srvloc_tree);
+    dissect_srvloc(tvb, pinfo, srvloc_tree, NULL);
 }
 
 static void

@@ -280,7 +280,7 @@ static gboolean dissect_wccp2_alt_assignment_info(tvbuff_t *tvb, int offset,
     int length, packet_info *pinfo, proto_tree *info_tree, proto_item *info_item);
 
 static int
-dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	int offset = 0;
 	proto_tree *wccp_tree = NULL;

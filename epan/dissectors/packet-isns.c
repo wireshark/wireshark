@@ -702,7 +702,7 @@ get_isns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint length = tvb_length(tvb);
     guint16 isns_protocol_version;
@@ -733,7 +733,7 @@ dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_isns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_isns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint length = tvb_length(tvb);
     guint16 isns_protocol_version;

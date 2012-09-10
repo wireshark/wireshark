@@ -1459,7 +1459,7 @@ dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 
 /* Code to actually dissect the packets */
 static int
-dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Set up structures we will need to add the protocol subtree and manage it */
     proto_item *ti;

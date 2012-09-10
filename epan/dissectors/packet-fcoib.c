@@ -158,7 +158,7 @@ manual_addr_match(packet_info *pinfo) {
 }
 
 static gboolean
-dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint        crc_offset;
     gint        eof_offset;

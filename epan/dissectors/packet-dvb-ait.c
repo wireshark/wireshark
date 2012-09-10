@@ -133,7 +133,7 @@ dissect_dvb_ait_descriptor(tvbuff_t *tvb, guint offset,
 
  
 static int
-dissect_dvb_ait(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dvb_ait(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint        offset=0;
     proto_item *ait_tree_ti = NULL, *app_tree_ti = NULL;

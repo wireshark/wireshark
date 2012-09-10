@@ -940,7 +940,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 }
 
 static int
-dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
     proto_item *it;

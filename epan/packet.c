@@ -412,7 +412,7 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 
 	if (handle->is_new) {
 		EP_CHECK_CANARY(("before calling handle->dissector.new for %s",handle->name));
-		ret = (*handle->dissector.new)(tvb, pinfo, tree);
+		ret = (*handle->dissector.new)(tvb, pinfo, tree, NULL);
 		EP_CHECK_CANARY(("after calling handle->dissector.new for %s",handle->name));
 	} else {
 		EP_CHECK_CANARY(("before calling handle->dissector.old for %s",handle->name));
@@ -1764,7 +1764,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 		}
 		EP_CHECK_CANARY(("before calling heuristic dissector for protocol: %s",
 				 proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol))));
-		if ((*hdtbl_entry->dissector)(tvb, pinfo, tree)) {
+		if ((*hdtbl_entry->dissector)(tvb, pinfo, tree, NULL)) {
 			EP_CHECK_CANARY(("after heuristic dissector for protocol: %s has accepted and dissected packet",
 					 proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol))));
 			status = TRUE;

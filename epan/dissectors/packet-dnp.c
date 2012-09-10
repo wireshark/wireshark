@@ -3046,7 +3046,7 @@ get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static gboolean
-dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   gint length = tvb_length(tvb);
 
@@ -3063,7 +3063,7 @@ dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   gint length = tvb_length(tvb);
   /* Check for a dnp packet.  It should begin with 0x0564 */

@@ -4544,7 +4544,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
 
 /* Diameter 3GPP AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
 static int
-dissect_diameter_3gpp_qosprofile(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+dissect_diameter_3gpp_qosprofile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
     decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
     return tvb_length(tvb);
@@ -5939,7 +5939,7 @@ decode_gtp_mbms_prot_conf_opt(tvbuff_t * tvb, int offset, packet_info * pinfo _U
  */
 /* Used for Diameter */
 static int
-dissect_gtp_mbms_ses_dur(tvbuff_t * tvb _U_, packet_info * pinfo _U_, proto_tree * tree _U_)
+dissect_gtp_mbms_ses_dur(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void *data _U_)
 {
 
     int offset = 0;
@@ -5992,7 +5992,7 @@ decode_gtp_mbms_ses_dur(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pro
  * MBMS Service Area
  */
 static int
-dissect_gtp_3gpp_mbms_service_area(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+dissect_gtp_3gpp_mbms_service_area(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
     int    offset = 0;
     guint8 no_of_mbms_sa_codes;
@@ -6042,7 +6042,7 @@ decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
     next_tvb = tvb_new_subset(tvb, offset, length-3, length-3);
-    dissect_gtp_3gpp_mbms_service_area(next_tvb, pinfo,ext_tree);
+    dissect_gtp_3gpp_mbms_service_area(next_tvb, pinfo, ext_tree, NULL);
 
     return 3 + length;
 
@@ -6295,7 +6295,7 @@ decode_gtp_mbms_ses_id_rep_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U
  */
 /* Used for Diameter */
 static int
-dissect_gtp_mbms_time_to_data_tr(tvbuff_t * tvb _U_, packet_info * pinfo _U_, proto_tree * tree _U_)
+dissect_gtp_mbms_time_to_data_tr(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void *data _U_)
 {
 
     int    offset = 0;
@@ -7612,9 +7612,9 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
             /* XXX this is for release 6, may not work for higher releases */
             if(format==1) {
                 if(rel_id == 6){
-                    dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree);
+                    dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree, NULL);
                 }else if(rel_id == 8){
-                    dissect_gprscdr_GPRSRecord_PDU(next_tvb, pinfo, cdr_dr_tree);
+                    dissect_gprscdr_GPRSRecord_PDU(next_tvb, pinfo, cdr_dr_tree, NULL);
                 }
             } else {
                 /* Do we have a dissector regestering for this data format? */

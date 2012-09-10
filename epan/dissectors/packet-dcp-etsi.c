@@ -39,7 +39,6 @@
 
 /* forward reference */
 
-static gboolean dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 static void dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 static void dissect_pft (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 static void dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
@@ -147,7 +146,7 @@ dcp_init_protocol(void)
 static void
  */
 static gboolean
-dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
   guint8 *sync;
   proto_tree *dcp_tree = NULL;

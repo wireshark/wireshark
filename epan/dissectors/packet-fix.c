@@ -426,7 +426,7 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Code to actually dissect the packets */
 static gboolean
-dissect_fix_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_fix_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conversation_t *conv;
 

@@ -54,7 +54,7 @@ void proto_reg_handoff_kismet(void);
 void proto_register_kismet(void);
 
 static gboolean
-dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
 	gboolean is_request;
 	gboolean is_continuation;

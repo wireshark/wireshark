@@ -74,7 +74,7 @@ static gboolean laplink_desegment = TRUE;
 
 /* Code to actually dissect the packets - UDP */
 static gint
-dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	int offset = 0;
 	proto_item *ti;

@@ -222,7 +222,7 @@ static const value_string names_protocol[] = {
 static int
 dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int
-dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
 
 
 static int
@@ -407,12 +407,12 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 }
 
 static int
-dissect_dtpt_conversation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dtpt_conversation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint		offset = 0;
 
 	/* First try to decode it as "normal" DTPT packets. */
-	offset = dissect_dtpt(tvb, pinfo, tree);
+	offset = dissect_dtpt(tvb, pinfo, tree, NULL);
 
 	if (offset == 0) {
 		/* No, maybe it was a DTPT data packet. */
@@ -693,7 +693,7 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree	*dtpt_tree = NULL;
 	proto_item	*dtpt_item = NULL;

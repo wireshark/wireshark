@@ -229,7 +229,7 @@ add_message(tvbuff_t * tvb, gint offset, proto_tree * tree, emem_strbuf_t * info
 
 /* Code to actually dissect the packets */
 static gint
-dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
 	proto_item *ti;
 	proto_tree *armagetronad_tree;

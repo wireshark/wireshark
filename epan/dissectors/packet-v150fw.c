@@ -36,8 +36,6 @@
 
 #include <epan/packet.h>
 
-static int dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /* Initialize the protocol & registered fields
  * Look familiar?  This is in the same format as an NTE (named telephone event) from RFC 2833:
  */
@@ -308,7 +306,7 @@ dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
 #endif
 
 static int
-dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;

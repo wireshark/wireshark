@@ -1722,7 +1722,7 @@ add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
  */
 
 static gboolean
-dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conversation_t *conversation;
 

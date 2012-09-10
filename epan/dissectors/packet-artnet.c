@@ -4382,7 +4382,7 @@ proto_register_artnet(void) {
 
 /* Heuristic dissector */
 static gboolean
-dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   static const char artnet_packet_id[] = "Art-Net\0";
 

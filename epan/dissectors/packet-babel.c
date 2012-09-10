@@ -184,7 +184,7 @@ network_address(int ae, const unsigned char *a, unsigned int len,
 }
 
 static int
-dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_babel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     unsigned char v4_prefix[16] = {0}, v6_prefix[16] = {0};

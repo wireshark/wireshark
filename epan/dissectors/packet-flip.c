@@ -340,7 +340,7 @@ is_payload_rtcp(tvbuff_t *tvb)
 
 /* Protocol dissection */
 static int
-dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *item;
     proto_item *ti;

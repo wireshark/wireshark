@@ -193,7 +193,7 @@ static gint dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 		gint offset);
 
 static gint
-dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gint offset = 0;
 

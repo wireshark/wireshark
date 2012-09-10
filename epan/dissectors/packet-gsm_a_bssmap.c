@@ -1964,7 +1964,7 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     else if ((cell_discriminator & 0x0f) < 13) {
 
         /* UMTS or CDMA 2000 */
-        dissect_rrc_HandoverToUTRANCommand_PDU(l3_tvb, g_pinfo, g_tree);
+        dissect_rrc_HandoverToUTRANCommand_PDU(l3_tvb, g_pinfo, g_tree, NULL);
     }
     else{
         proto_tree_add_text(tree, l3_tvb, curr_offset, len, "Unrecognised Cell Discriminator %x",cell_discriminator);
@@ -3217,7 +3217,7 @@ be_src_rnc_to_tar_rnc_umts(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
      * RANAP specification 3GPP TS 25.413, excluding RANAP tag
      */
     container_tvb = tvb_new_subset(tvb, curr_offset, len, len);
-    dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(container_tvb, g_pinfo , tree);
+    dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(container_tvb, g_pinfo, tree, NULL);
 
     return(len);
 }
@@ -3334,7 +3334,7 @@ be_inter_sys_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     new_tvb = tvb_new_subset(tvb, offset, len, len);
 
     if (new_tvb) {
-        dissect_ranap_InterSystemInformation_TransparentContainer_PDU(new_tvb, pinfo, tree);
+        dissect_ranap_InterSystemInformation_TransparentContainer_PDU(new_tvb, pinfo, tree, NULL);
     }
 
     return(len);
@@ -4513,7 +4513,7 @@ be_fe_inter_rat_handover_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 
     /* Octets 3-n are encoded as Inter RAT Handover Info as defined in 3GPP TS 25.331 */
     container_tvb = tvb_new_subset(tvb, offset, len, len);
-    dissect_rrc_InterRATHandoverInfo_PDU(container_tvb, g_pinfo , tree);
+    dissect_rrc_InterRATHandoverInfo_PDU(container_tvb, g_pinfo, tree, NULL);
 
     return len;
 }

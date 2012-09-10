@@ -66,7 +66,7 @@ static gint ett_tivoconnect = -1;
 
 /* Code to actually dissect the packets */
 static int
-dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* parsing variables */
     gchar * string = NULL;

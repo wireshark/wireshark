@@ -1530,7 +1530,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
 }
 
 static gboolean
-dissect_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
+dissect_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree , void *data _U_ )
 {
     gboolean        result     = FALSE;
     guint8          firstByte;
@@ -1559,7 +1559,7 @@ dissect_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *
 
 
 static gboolean
-dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
+dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree , void *data _U_ )
 {
     gboolean        result     = FALSE;
     guint8          firstByte;
@@ -1592,7 +1592,7 @@ dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree 
 }
 
 static gboolean
-dissect_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
+dissect_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree , void *data _U_ )
 {
     gboolean        result     = FALSE;
 
@@ -1611,7 +1611,7 @@ dissect_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
 }
 
 static gboolean
-dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
+dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree, void *data _U_ )
 {
     /* When Modbus/TCP get's dissected, openSAFETY would be sorted as a child protocol. Although,
      * this behaviour is technically correct, it differs from other implemented IEM protocol handlers.
@@ -1621,7 +1621,7 @@ dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
 }
 
 static gboolean
-dissect_opensafety_udpdata(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
+dissect_opensafety_udpdata(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree , void *data _U_ )
 {
 	gboolean       result   = FALSE;
 	static guint32 frameNum = 0;

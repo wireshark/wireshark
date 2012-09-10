@@ -204,7 +204,7 @@ static const value_string dcc_floodop_vals[] = {
 };
 
 static gboolean
-dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree      *dcc_tree, *dcc_optree, *dcc_opnumtree, *ti;
 	proto_tree *dcc_tracetree;

@@ -168,7 +168,7 @@ dissect_fractalgeneratorprotocol_message(tvbuff_t *message_tvb, packet_info *pin
 }
 
 static int
-dissect_fractalgeneratorprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
+dissect_fractalgeneratorprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *fractalgeneratorprotocol_item;
   proto_tree *fractalgeneratorprotocol_tree;

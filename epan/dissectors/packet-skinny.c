@@ -2940,7 +2940,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Code to actually dissect the packets */
 static gboolean
-dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /* The general structure of a packet: {IP-Header|TCP-Header|n*SKINNY}
    * SKINNY-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}

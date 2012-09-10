@@ -81,7 +81,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   switch(opcode){
 #.TABLE2_BODY OPERATION.&ArgumentType
     case %(&operationCode)s:  /* %(_ident)s */
-      offset= %(_argument_pdu)s(tvb, actx->pinfo , tree);
+      offset= %(_argument_pdu)s(tvb, actx->pinfo , tree , NULL);
       break;
 #.TABLE2_FTR
     default:
@@ -101,7 +101,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   switch(opcode){
 #.TABLE2_BODY OPERATION.&ResultType
     case %(&operationCode)s:  /* %(_ident)s */
-	  offset= %(_result_pdu)s(tvb, actx->pinfo , tree);
+	  offset= %(_result_pdu)s(tvb, actx->pinfo , tree , NULL);
       break;
 #.TABLE2_FTR
   default:
@@ -119,7 +119,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
   switch(errorCode) {
 #.TABLE2_BODY ERROR.&ParameterType
     case %(&errorCode)s:  /* %(_ident)s */
-      %(_parameter_pdu)s(tvb, actx->pinfo , tree);
+      %(_parameter_pdu)s(tvb, actx->pinfo , tree , NULL);
       break;
 #.TABLE2_FTR
   default:

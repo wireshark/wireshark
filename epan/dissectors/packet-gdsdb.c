@@ -1235,7 +1235,7 @@ static int (*gdsdb_handle_opcode[])(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 };
 
 static int
-dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
 	proto_tree *gdsdb_tree;

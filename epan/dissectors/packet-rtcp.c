@@ -573,8 +573,6 @@ static void dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
 
 /* Heuristic dissection */
 static gboolean global_rtcp_heur = FALSE;
-static gboolean dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree );
 
 /* Displaying set info */
 static gboolean global_rtcp_show_setup_info = TRUE;
@@ -672,7 +670,7 @@ void rtcp_add_address( packet_info *pinfo,
 }
 
 static gboolean
-dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
     unsigned int offset = 0;
     unsigned int first_byte;

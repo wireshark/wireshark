@@ -66,7 +66,7 @@ static gint ett_lanforge = -1;
 static dissector_handle_t data_handle;
 
 /* entry point */
-static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_item *tmp;

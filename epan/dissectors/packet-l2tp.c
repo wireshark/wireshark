@@ -2113,7 +2113,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
  * based on the control bit.
  */
 static int
-dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_tree *l2tp_tree = NULL, *ctrl_tree;
     proto_item *l2tp_item = NULL, *ti;

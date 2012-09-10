@@ -2079,7 +2079,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 } /* end of dissect_enip_pdu() */
 
 static int
-dissect_enip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_enip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    guint16  encap_cmd;
 
@@ -2097,7 +2097,7 @@ dissect_enip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    guint16  encap_cmd;
 
@@ -2139,7 +2139,7 @@ dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static gboolean
-dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    proto_item *ti;
    proto_tree *dlr_tree = NULL;

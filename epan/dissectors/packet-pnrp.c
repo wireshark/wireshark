@@ -335,7 +335,7 @@ static gint ett_pnrp_message_signatureStructure = -1;
 
 
 /* Do actual dissection work */
-static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Variable declaration */
     gint offset;

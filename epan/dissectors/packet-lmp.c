@@ -652,7 +652,7 @@ static int lmp_class_to_subtree(int class)
  */
 
 static int
-dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
     proto_tree *lmp_tree = NULL, *ti, *ti2;

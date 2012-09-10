@@ -531,7 +531,7 @@ static const usb_setup_dissector_table_t setup_dissectors[] = {
  * and FALSE otherwise.
  */
 static gint
-dissect_usb_hub_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_usb_hub_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gboolean is_request;
 	usb_conv_info_t *usb_conv_info;

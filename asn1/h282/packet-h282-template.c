@@ -53,7 +53,7 @@ static int ett_h282 = -1;
 #include "packet-h282-fn.c"
 
 static int
-dissect_h282(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_h282(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item  *ti = NULL;
   proto_tree  *h282_tree = NULL;
@@ -63,7 +63,7 @@ dissect_h282(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item(tree, proto_h282, tvb, 0, -1, ENC_NA);
   h282_tree = proto_item_add_subtree(ti, ett_h282);
 
-  return dissect_RDCPDU_PDU(tvb, pinfo, h282_tree);
+  return dissect_RDCPDU_PDU(tvb, pinfo, h282_tree, NULL);
 }
 
 /*--- proto_register_h282 ----------------------------------------------*/

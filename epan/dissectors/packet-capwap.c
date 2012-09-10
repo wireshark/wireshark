@@ -1335,7 +1335,7 @@ dissect_capwap_preamble(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint of
 
 /* Code to actually dissect the packets */
 static int
-dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;

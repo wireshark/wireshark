@@ -529,7 +529,7 @@ dissect_ifcp_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_ifcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ifcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if(!ifcp_header_test(tvb, 0)){
 		return FALSE;

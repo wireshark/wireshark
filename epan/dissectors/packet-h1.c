@@ -93,7 +93,7 @@ static gint ett_org = -1;
 static gint ett_response = -1;
 static gint ett_empty = -1;
 
-static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   tvbuff_t *next_tvb;
 

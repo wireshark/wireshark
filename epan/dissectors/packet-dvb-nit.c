@@ -78,7 +78,7 @@ static const value_string dvb_nit_cur_next_vals[] = {
 
 
 static int
-dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
 	guint       offset = 0;

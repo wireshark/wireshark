@@ -403,7 +403,7 @@ proto_reg_handoff_pflog(void)
 }
 
 static int
-dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   tvbuff_t *next_tvb;
   proto_tree *pflog_tree = NULL;

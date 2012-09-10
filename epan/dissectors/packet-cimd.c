@@ -794,7 +794,7 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * a CIMD MSU here.
  */
 static gboolean
-dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   int    etxp;
   guint8 opcode = 0;            /* Operation code */

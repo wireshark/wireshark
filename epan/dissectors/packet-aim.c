@@ -1482,7 +1482,7 @@ dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Code to actually dissect the packets */
 static int
-dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	/* check, if this is really an AIM packet, they start with 0x2a */
 	/* XXX - I've seen some stuff starting with 0x5a followed by 0x2a */

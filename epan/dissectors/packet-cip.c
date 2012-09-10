@@ -3394,7 +3394,7 @@ dissect_cip_generic_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int 
 } /* End of dissect_cip_generic_data() */
 
 static int
-dissect_cip_class_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cip_class_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    proto_item *ti;
    proto_tree *class_tree;
@@ -4708,7 +4708,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 } /* End of dissect_cip_cm_data() */
 
 static int
-dissect_cip_class_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cip_class_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    proto_item *ti;
    proto_tree *class_tree;
@@ -4915,7 +4915,7 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 } /* End of dissect_cip_mb_data() */
 
 static int
-dissect_cip_class_mb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cip_class_mb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    proto_item *ti;
    proto_tree *class_tree;
@@ -5268,7 +5268,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
 } /* End of dissect_cip_cco_data() */
 
 static int
-dissect_cip_class_cco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cip_class_cco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    proto_item *ti;
    proto_tree *class_tree;
@@ -5283,7 +5283,7 @@ dissect_cip_class_cco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_class_cco_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_class_cco_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    unsigned char service, service_code, ioilen, segment;
    cip_req_info_t* preq_info;
@@ -5559,7 +5559,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
 
 
 static int
-dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    enip_request_info_t *enip_info;
    cip_req_info_t *preq_info;

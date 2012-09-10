@@ -631,7 +631,7 @@ get_integer_value(tvbuff_t *tvb, guint offset, guint *byte_count)
 
 /* Code to actually dissect the packets */
 static gboolean
-dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8	 pdut;
 

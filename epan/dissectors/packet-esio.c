@@ -115,7 +115,7 @@ is_esio_pdu(tvbuff_t *tvb)
 
 /*Dissect the telegram*/
 static int
-dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */

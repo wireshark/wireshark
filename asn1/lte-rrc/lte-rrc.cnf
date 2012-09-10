@@ -122,11 +122,11 @@ if(ue_eutra_cap_tvb){
 	switch(lte_rrc_rat_type_value){
 	case RAT_Type_eutra:
 		/* eutra */
-		dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_eutra_cap_tvb, actx->pinfo, tree);
+		dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_eutra_cap_tvb, actx->pinfo, tree, NULL);
 		break;
 	case RAT_Type_utra:
 		/* utra */
-		dissect_rrc_InterRATHandoverInfo_PDU(ue_eutra_cap_tvb, actx->pinfo, tree);
+		dissect_rrc_InterRATHandoverInfo_PDU(ue_eutra_cap_tvb, actx->pinfo, tree, NULL);
 		break;
 	case RAT_Type_geran_cs:
 		/* geran-cs */
@@ -754,21 +754,21 @@ if(ue_eutra_cap_tvb){
   tvbuff_t *ellipsoid_point_tvb = NULL;
 %(DEFAULT_BODY)s
   if (ellipsoid_point_tvb) {
-    dissect_lpp_Ellipsoid_Point_PDU(ellipsoid_point_tvb, actx->pinfo, tree); 
+    dissect_lpp_Ellipsoid_Point_PDU(ellipsoid_point_tvb, actx->pinfo, tree, NULL);
   }
 
 #.FN_BODY LocationInfo-r10/locationCoordinates-r10/ellipsoidPointWithAltitude-r10 VAL_PTR = &ellipsoid_point_with_alt_tvb
   tvbuff_t *ellipsoid_point_with_alt_tvb = NULL;
 %(DEFAULT_BODY)s
   if (ellipsoid_point_with_alt_tvb) {
-    dissect_lpp_EllipsoidPointWithAltitude_PDU(ellipsoid_point_with_alt_tvb, actx->pinfo, tree); 
+    dissect_lpp_EllipsoidPointWithAltitude_PDU(ellipsoid_point_with_alt_tvb, actx->pinfo, tree, NULL);
   }
 
 #.FN_BODY LocationInfo-r10/horizontalVelocity-r10 VAL_PTR = &horizontal_velocity_tvb
   tvbuff_t *horizontal_velocity_tvb = NULL;
 %(DEFAULT_BODY)s
   if (horizontal_velocity_tvb) {
-    dissect_lpp_HorizontalVelocity_PDU(horizontal_velocity_tvb, actx->pinfo, tree); 
+    dissect_lpp_HorizontalVelocity_PDU(horizontal_velocity_tvb, actx->pinfo, tree, NULL);
   }
 
 #.FN_BODY LocationInfo-r10/gnss-TOD-msec-r10 VAL_PTR = &gnss_tod_msec_tvb

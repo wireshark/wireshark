@@ -1082,7 +1082,7 @@ static const true_false_string boolean_member_polling = {
 /* CODE */
 
 static int
-dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *ti = NULL;
     proto_tree  *omron_tree = NULL;

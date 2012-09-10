@@ -2364,7 +2364,7 @@ dissect_bthci_evt_inq_result(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
 /* Code to actually dissect the packets */
 static int
-dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *bthci_evt_tree = NULL;

@@ -333,7 +333,7 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
 }
 
 static int
-dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   conversation_t *conversation;
 

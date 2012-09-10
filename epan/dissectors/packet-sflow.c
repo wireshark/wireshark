@@ -2654,8 +2654,8 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
 /* Code to actually dissect the packets */
 static int
-dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-
+dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item                   *ti;
     proto_tree                   *sflow_245_tree;

@@ -413,7 +413,7 @@ dissect_npmp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *npmp
 
 
 static int
-dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
+dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *npmp_item;
   proto_tree *npmp_tree;

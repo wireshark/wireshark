@@ -173,7 +173,7 @@ static const range_string mid_meanings[] = {
 
 /* Code to actually dissect the packets */
 static int
-dissect_ib_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ib_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int local_offset = 0;
     proto_item *SDP_header_item = NULL;

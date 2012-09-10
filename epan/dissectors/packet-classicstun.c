@@ -209,7 +209,7 @@ static const value_string attributes_family[] = {
 };
 
 static int
-dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
     proto_item                *ti;
@@ -548,9 +548,9 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static gboolean
-dissect_classicstun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_classicstun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    if (dissect_classicstun(tvb, pinfo, tree) == 0)
+    if (dissect_classicstun(tvb, pinfo, tree, NULL) == 0)
         return FALSE;
 
     return TRUE;

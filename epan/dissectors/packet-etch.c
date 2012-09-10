@@ -764,7 +764,7 @@ get_etch_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
  * main dissector function for the etch protocol
  */
 static int
-dissect_etch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_etch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   if (tvb_length(tvb) < 4) {
     /* Too small for an etch packet. */

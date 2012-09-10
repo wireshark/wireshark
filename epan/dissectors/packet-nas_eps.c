@@ -408,7 +408,7 @@ de_eps_cmn_add_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     switch (eps_nas_gen_msg_cont_type) {
         case 1:
             /* LPP */
-            dissect_lcsap_Correlation_ID_PDU(new_tvb, pinfo, sub_tree);
+            dissect_lcsap_Correlation_ID_PDU(new_tvb, pinfo, sub_tree, NULL);
             break;
         default:
             break;
@@ -1966,7 +1966,7 @@ de_emm_lcs_client_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
      * in subclause 17.7.13 of 3GPP TS 29.002 [15B](GSM MAP).
      */
     new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
-    dissect_gsm_map_lcs_LCS_ClientID_PDU( new_tvb, gpinfo, tree );
+    dissect_gsm_map_lcs_LCS_ClientID_PDU( new_tvb, gpinfo, tree, NULL );
 
     return(len);
 }

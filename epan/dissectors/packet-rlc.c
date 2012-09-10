@@ -2572,7 +2572,7 @@ dissect_rlc_dch_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static gboolean
-dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint        offset             = 0;
     fp_info    *fpi;

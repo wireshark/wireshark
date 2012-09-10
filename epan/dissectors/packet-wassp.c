@@ -1018,7 +1018,7 @@ dissect_wassp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 
 static int
-dissect_wassp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_wassp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if ( !test_wassp(tvb) ) {
 		return 0;

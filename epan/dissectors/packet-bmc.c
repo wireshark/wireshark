@@ -85,7 +85,7 @@ static gint ett_bmc = -1;
 static gint ett_bmc_message_description = -1;
 
 static int
-dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8      message_type;
     guint8     *p_rev, *reversing_buffer;

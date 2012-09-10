@@ -531,7 +531,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /* Stronger confirmation of DTLS packet is provided by verifying the
    * payload length against the remainder of the UDP packet size. */

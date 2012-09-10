@@ -216,7 +216,7 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 }
 
 static int
-dissect_banana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_banana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     guint8 byte = 0;
     gint offset = 0, old_offset;
     proto_item *ti;

@@ -4368,7 +4368,7 @@ dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
 
 
 static int
-dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint         packet_len, offset = 0, offset_ver, offset_evt, offset_len_field;
     guint8       version, event;

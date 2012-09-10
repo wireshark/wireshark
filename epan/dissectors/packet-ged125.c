@@ -1273,7 +1273,7 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 }
 
 static int 
-dissect_ged125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ged125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 { 
 	gint size;
 	guint32 message_type;

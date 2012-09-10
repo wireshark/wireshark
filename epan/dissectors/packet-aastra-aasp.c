@@ -383,7 +383,7 @@ static guint searchNext(tvbuff_t *tvb, guint begin, guint end)
  * AASP-over-SIP
  */
 static int
-dissect_aasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_aasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti; proto_tree *aasp_tree; guint n;

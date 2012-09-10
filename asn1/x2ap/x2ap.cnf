@@ -94,7 +94,7 @@ ProtocolIE-ContainerPairList
 	if (!parameter_tvb)
 		return offset;
 	  
-     dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, tree);
+     dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, tree, NULL);
 	
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(x2ap_ProtocolIE_ID_vals)
@@ -137,7 +137,7 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(x2ap_Prot
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
-  dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, tree);
+  dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, tree, NULL);
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode

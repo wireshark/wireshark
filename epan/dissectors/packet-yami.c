@@ -501,7 +501,7 @@ get_yami_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_yami(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_yami(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, yami_desegment, FRAME_HEADER_LEN, get_yami_message_len, dissect_yami_pdu);
 	return tvb_length(tvb);

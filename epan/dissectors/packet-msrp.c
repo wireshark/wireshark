@@ -143,7 +143,7 @@ static gboolean global_msrp_raw_text = TRUE;
  * http://www.iana.org/assignments/media-types/index.html */
 static dissector_table_t media_type_dissector_table;
 
-static int dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
 
 /* Displaying conversation setup info */
@@ -418,7 +418,7 @@ find_end_line(tvbuff_t *tvb, gint start)
 }
 
 static gboolean
-dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conversation_t* conversation;
 
@@ -438,7 +438,7 @@ dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 conversation_set_dissector(conversation, msrp_handle);
             }
         }
-        dissect_msrp(tvb, pinfo, tree);
+        dissect_msrp(tvb, pinfo, tree, NULL);
         return TRUE;
     }
     return FALSE;
@@ -446,7 +446,7 @@ dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Code to actually dissect the packets */
 static int
-dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint offset = 0;
     gint next_offset = 0;

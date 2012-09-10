@@ -119,7 +119,7 @@ static gint ett_sebek = -1;
  * proto_tree - resolved protocol tree
  */
 static int
-dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree      *sebek_tree;
 	proto_item	*ti;

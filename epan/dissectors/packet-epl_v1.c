@@ -340,7 +340,7 @@ dissect_epl_v1_asnd(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 
 /* Code to actually dissect the packets */
 static int
-dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint8  epl_v1_service, epl_v1_dest, epl_v1_src, epl_v1_ainv_ch, epl_v1_asnd_ch;
 	gint    offset;

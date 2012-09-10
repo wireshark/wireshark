@@ -810,7 +810,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
     return new_off;
 }
 
-static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int cur_off = 0, dvb_s2_modeadapt_len = -1;
 

@@ -117,7 +117,7 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Code to actually dissect the packets */
 static int
-dissect_moldudp64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_moldudp64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *moldudp64_tree;

@@ -113,7 +113,7 @@ typedef void (*dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
  *	we need more data (e.g., from subsequent TCP segments) to
  *	dissect the entire PDU.
  */
-typedef int (*new_dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
+typedef int (*new_dissector_t)(tvbuff_t *, packet_info *, proto_tree *, void *);
 
 /** Type of a heuristic dissector, used in heur_dissector_add().
  *
@@ -123,7 +123,7 @@ typedef int (*new_dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
  * @return TRUE if the packet was recognized by the sub-dissector (stop dissection here)
  */
 typedef gboolean (*heur_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree);
+	proto_tree *tree, void *);
 
 typedef void (*DATFunc) (const gchar *table_name, ftenum_t selector_type,
     gpointer key, gpointer value, gpointer user_data);

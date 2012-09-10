@@ -118,12 +118,12 @@ static dissector_handle_t eth_dissector ;
 #define FP_HEADER_SIZE (16)
 
 
-static int dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
+static int dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ );
 void proto_reg_handoff_fabricpath(void);
 
 
 static gboolean
-dissect_fp_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_fp_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
   guint16 type = 0;
@@ -135,7 +135,7 @@ dissect_fp_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   type = tvb_get_ntohs (tvb, 12);
 
   if (type == ETHERTYPE_DCE) {
-    dissect_fp (tvb, pinfo, tree);
+    dissect_fp (tvb, pinfo, tree, NULL);
     return TRUE;
   } else {
     return FALSE;
@@ -194,7 +194,7 @@ fp_add_hmac (tvbuff_t *tvb, proto_tree *tree, int offset) {
 }
 /* FabricPath MiM Dissector */
 static int
-dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
   proto_item   *ti ;
   proto_tree   *fp_tree ;

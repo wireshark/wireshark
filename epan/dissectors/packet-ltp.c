@@ -625,7 +625,7 @@ dissect_trailer_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int tr
 
 
 static int
-dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti = NULL;
 	proto_tree *ltp_tree = NULL;

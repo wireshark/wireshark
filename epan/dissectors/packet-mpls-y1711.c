@@ -100,7 +100,7 @@ static const value_string y1711_defect_type_vals[] = {
 };
 
 static int
-dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     struct mplsinfo *mplsinfo        = pinfo->private_data;
     int              offset          = 0;

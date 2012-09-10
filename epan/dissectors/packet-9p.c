@@ -206,7 +206,7 @@ static void dissect_9P_dm(tvbuff_t * tvb,  proto_item * tree,int offset,int iscr
 static void dissect_9P_qid(tvbuff_t * tvb,  proto_tree * tree,int offset);
 
 /* Dissect 9P messages*/
-static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
 	guint32 /*ninesz,*/tmp,i;
 	guint16 tmp16;

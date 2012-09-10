@@ -300,7 +300,7 @@ static void dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       offset += plen;
    }
 }
-static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    int tvb_len = tvb_length(tvb);
    int len = 0;

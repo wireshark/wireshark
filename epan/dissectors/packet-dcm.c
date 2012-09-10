@@ -3697,11 +3697,8 @@ static dcm_state_pctx_t*    dcm_state_pctx_get	(dcm_state_assoc_t *assoc, guint8
 static dcm_state_pdv_t*	    dcm_state_pdv_new	(dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset);
 static dcm_state_pdv_t*	    dcm_state_pdv_get	(dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset, gboolean create);
 
-/* Following three functions by purpose only return int, since we request data consolidation */
-static int  dissect_dcm_static	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /* ToDo: The heuristic one should actually return true/false only */
-static int  dissect_dcm_heuristic   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int  dissect_dcm_heuristic   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static int  dissect_dcm_main	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_port_static);
 
 /* And from here on, only use unsigned 32 bit values. Offset is always positive number in respect to the tvb buffer start */
@@ -6558,14 +6555,14 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 
 /* Call back functions used to register */
 static int
-dissect_dcm_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dcm_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Less checking on ports that match */
     return dissect_dcm_main(tvb, pinfo, tree, TRUE);
 }
 
 static int
-dissect_dcm_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dcm_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Only decode conversations, which include an Association Request */
     /* This will be potentially called for every packet */

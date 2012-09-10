@@ -1988,7 +1988,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 
 /* Code to actually dissect the packets */
 static int
-dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint8 octet;
 	int len;
@@ -2028,7 +2028,7 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	int offset = 0;
 	int len;
@@ -2055,7 +2055,7 @@ dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	return dissect_sip_common(tvb, 0, pinfo, tree, FALSE, FALSE) > 0;
 }

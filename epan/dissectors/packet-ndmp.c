@@ -3500,7 +3500,7 @@ check_if_ndmp(tvbuff_t *tvb, packet_info *pinfo)
  *  At this point we may have either an NDMP PDU or an NDMP PDU fragment.
  */
 static int
-dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	/* If we are doing defragmentation, don't check more than the record mark here,
 	 * because if this is a continuation of a fragmented NDMP PDU there won't be a
@@ -3527,7 +3527,7 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  as the protocol dissector for this conversation.
  */
 static int
-dissect_ndmp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ndmp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (tvb_length(tvb) < 28)
 		return 0;

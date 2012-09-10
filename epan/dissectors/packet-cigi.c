@@ -41,8 +41,6 @@
 /* Forward declaration */
 void proto_reg_handoff_cigi(void);
 static gboolean packet_is_cigi(tvbuff_t*);
-static gboolean dissect_cigi_heur(tvbuff_t*, packet_info*, proto_tree*);
-static int dissect_cigi(tvbuff_t*, packet_info*, proto_tree*);
 static void dissect_cigi_pdu(tvbuff_t*, packet_info*, proto_tree*);
 static void cigi_add_tree(tvbuff_t*, proto_tree*);
 static gint cigi_add_data(tvbuff_t*, proto_tree*, gint);
@@ -2586,7 +2584,7 @@ packet_is_cigi(tvbuff_t *tvb)
  * The heuristic dissector
  */
 static gboolean
-dissect_cigi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cigi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Does this look like CIGI? */
     if ( !packet_is_cigi(tvb) ) {
@@ -2600,7 +2598,7 @@ dissect_cigi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * The non-heuristic dissector.
  */
 static int
-dissect_cigi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cigi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Make sure this looks like CIGI */
     if ( !packet_is_cigi(tvb) ) {

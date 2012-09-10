@@ -3233,7 +3233,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
  * Q.931-over-TPKT-over-TCP.
  */
 static gboolean
-dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	int lv_tpkt_len;
 
@@ -3305,7 +3305,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_q931_tpkt_heur(tvb, pinfo, tree);
+	dissect_q931_tpkt_heur(tvb, pinfo, tree, NULL);
 }
 
 static void

@@ -324,14 +324,14 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 				Intra E-UTRAN handover Source eNB to Target eNB
 				Transparent Container 36.413
 		 	*/
-			dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+			dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 			break;
 			case 1:
 			/* ltetoutran
 				Source RNC to Target RNC
 				Transparent Container 25.413
 			*/
-			dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+			dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 			break;
 			case 2:
 			/* ltetogeran
@@ -378,14 +378,14 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 				Intra E-UTRAN handover Target eNB to Source eNB
 				Transparent Container 36.413
 		 	*/
-			dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+			dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 			break;
 			case 1:
 			/* ltetoutran
 				Target RNC to Source RNC
 				Transparent Container 25.413
 			*/
-			dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+			dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 			break;
 			case 2:
 			/* ltetogeran
@@ -457,11 +457,11 @@ if (g_s1ap_dissect_container) {
 	switch(message_type){
 		case INITIATING_MESSAGE:
 		/* 9.2.1.7 Source eNB to Target eNB Transparent Container */
-			dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree);
+			dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 			break;
 		case SUCCESSFUL_OUTCOME:
 		/* 9.2.1.7 Source eNB to Target eNB Transparent Container */
-			dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, subtree);
+			dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 			break;
 		default:
 			break;
@@ -481,7 +481,7 @@ if (g_s1ap_dissect_container) {
 
 if (g_s1ap_dissect_container) {
         subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioCapability);
-        dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree);
+        dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 }
 
 # 9.2.3.24 RIM Information

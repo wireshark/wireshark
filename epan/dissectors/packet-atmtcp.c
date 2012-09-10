@@ -55,7 +55,7 @@ static dissector_handle_t data_handle;
 #define ATMTCP_CTRL_CLOSE       2       /* request/reply */
 
 static int
-dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
     proto_item *ti;

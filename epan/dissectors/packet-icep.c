@@ -1119,7 +1119,7 @@ static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 /* entry point */
-static gboolean dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	DBG0("triggered\n");
 
@@ -1136,7 +1136,7 @@ static gboolean dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	return TRUE;
 }
 
-static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	DBG0("triggered\n");
 

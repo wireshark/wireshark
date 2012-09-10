@@ -464,7 +464,7 @@ test_tapa_tunnel(tvbuff_t *tvb)
 }
 
 static int
-dissect_tapa_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_tapa_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (test_tapa_discover(tvb)) {
 		return dissect_tapa_discover(tvb, pinfo, tree);

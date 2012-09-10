@@ -609,7 +609,7 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 }
 
 static int
-dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint8      eap_code;
   guint16     eap_len;

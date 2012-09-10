@@ -329,7 +329,7 @@ dissect_skype_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 
 static int
-dissect_skype_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_skype_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	/*
 	 * Don't test for valid packet - we only end here when

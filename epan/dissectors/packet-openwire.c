@@ -1382,7 +1382,7 @@ dissect_openwire_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static gboolean
-dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conversation_t *conversation;
     gboolean        detected = FALSE;

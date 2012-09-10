@@ -18144,7 +18144,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 }
 
 static gboolean
-dissect_smb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_smb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	/* must check that this really is a smb packet */
 	if (tvb_length(tvb) < 4)

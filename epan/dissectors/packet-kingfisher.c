@@ -320,7 +320,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
 
 static gboolean
-dissect_kingfisher_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_kingfisher_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gboolean was_kingfisher;
 
@@ -343,7 +343,7 @@ dissect_kingfisher_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_kingfisher_conv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_kingfisher_conv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     return dissect_kingfisher(tvb, pinfo, tree, TRUE);
 }

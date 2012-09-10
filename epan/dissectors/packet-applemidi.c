@@ -283,7 +283,7 @@ dissect_applemidi( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 }
 
 static gboolean
-dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
+dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ ) {
 
 	guint16		 command;
 	conversation_t	*p_conv;

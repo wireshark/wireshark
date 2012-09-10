@@ -3870,7 +3870,7 @@ static const value_string rsl_ipacc_rtp_csd_fmt_ir_vals[] = {
 };
 
 static int
-dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *rsl_tree;

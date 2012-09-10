@@ -161,7 +161,7 @@ static const char* dis_proto_name_short = "DIS";
 
 /* Main dissector routine to be invoked for a DIS PDU.
  */
-static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *dis_tree = 0;
     proto_item *dis_node = 0;

@@ -3121,7 +3121,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
 
 
 static int
-dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_tree         *icmp6_tree = NULL, *flag_tree = NULL;
     proto_item         *ti         = NULL, *hidden_item, *checksum_item = NULL, *code_item = NULL, *ti_flag = NULL;

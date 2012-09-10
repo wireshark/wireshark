@@ -954,7 +954,7 @@ dissect_sdp_service_search_response(proto_tree *t, tvbuff_t *tvb, int offset)
 
 
 static int
-dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *st;

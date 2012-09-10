@@ -485,7 +485,7 @@ dissect_dbus_body(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offse
 }
 
 static int
-dissect_dbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree *dbus_tree = NULL;
 	dbus_info_t dinfo;
@@ -566,11 +566,11 @@ get_dbus_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static void
 dissect_dbus_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_dbus(tvb, pinfo, tree);
+	dissect_dbus(tvb, pinfo, tree, NULL);
 }
 
 static int
-dissect_dbus_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dbus_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, dbus_desegment, DBUS_HEADER_LEN, get_dbus_message_len, dissect_dbus_pdu);
 	return tvb_length(tvb);

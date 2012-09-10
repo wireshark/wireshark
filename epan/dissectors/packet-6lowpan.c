@@ -469,7 +469,6 @@ struct lowpan_nhdr {
 /* Dissector prototypes */
 static void         proto_init_6lowpan          (void);
 static void         prefs_6lowpan_apply         (void);
-static gboolean     dissect_6lowpan_heur        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void         dissect_6lowpan             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static tvbuff_t *   dissect_6lowpan_ipv6        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static tvbuff_t *   dissect_6lowpan_hc1         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size, guint8 *siid, guint8 *diid);
@@ -864,7 +863,7 @@ lowpan_parse_nhc_proto(tvbuff_t *tvb, gint offset)
  *---------------------------------------------------------------
  */
 static gboolean
-dissect_6lowpan_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_6lowpan_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Check for valid patterns. */
     do {

@@ -80,7 +80,7 @@ static dissector_handle_t data_handle;
 
 /* Code to actually dissect the packets */
 static int
-dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint        offset = 0;
     guint8      flags;

@@ -703,7 +703,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
 }
 
 static int
-dissect_cip_class_s_supervisor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cip_class_s_supervisor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    proto_item *ti;
    proto_tree *class_tree;
@@ -1280,7 +1280,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
 }
 
 static int
-dissect_cip_class_s_validator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cip_class_s_validator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    proto_item *ti;
    proto_tree *class_tree;
@@ -1295,7 +1295,7 @@ dissect_cip_class_s_validator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static gboolean
-dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    unsigned char   service, service_code, ioilen, segment;
    cip_req_info_t* preq_info;

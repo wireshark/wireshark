@@ -130,7 +130,7 @@ find_dir_tokens(tvbuff_t *tvb, gint name_start, gint *sel_start, gint *host_star
 /* Dissect the packets */
 
 static int
-dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     proto_item *ti;
     proto_tree *gopher_tree, *dir_tree = NULL;
     gboolean client = is_client(pinfo);

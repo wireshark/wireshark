@@ -87,8 +87,8 @@ static gint ett_rlm = -1;
 static dissector_handle_t lapd_handle;
 
 static gboolean
-dissect_udp_lapd(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree) {
-
+dissect_udp_lapd(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void *data _U_)
+{
 	if (pinfo->srcport < 3001 || pinfo->srcport > 3015
 		|| pinfo->destport < 3001 || pinfo->destport > 3015
 		|| pinfo->destport != pinfo->srcport)
@@ -114,7 +114,7 @@ dissect_udp_lapd(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree) {
 
 /* Code to actually dissect the packets */
 static gboolean
-dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
 	proto_tree *rlm_tree;

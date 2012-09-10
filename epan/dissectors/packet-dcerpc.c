@@ -4555,7 +4555,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * transports
  */
 static gboolean
-dissect_dcerpc_cn_pk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dcerpc_cn_pk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /*
      * Only one PDU per transport packet, and only one transport
@@ -4659,21 +4659,21 @@ dissect_dcerpc_cn_bs_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_dcerpc_cn_bs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dcerpc_cn_bs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     pinfo->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
     return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree);
 }
 
 static gboolean
-dissect_dcerpc_cn_smbpipe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dcerpc_cn_smbpipe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     pinfo->dcetransporttype = DCE_CN_TRANSPORT_SMBPIPE;
     return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree);
 }
 
 static gboolean
-dissect_dcerpc_cn_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dcerpc_cn_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     pinfo->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
     return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree);
@@ -5147,7 +5147,7 @@ dissect_dcerpc_dg_ping_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * DCERPC dissector for connectionless calls
  */
 static gboolean
-dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item            *ti             = NULL;
     proto_item            *tf             = NULL;

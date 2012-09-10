@@ -197,19 +197,15 @@ typedef struct jxta_stream_conversation_data jxta_stream_conversation_data;
 /**
 *   Prototypes
 **/
-static gboolean dissect_jxta_UDP_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-static gboolean dissect_jxta_TCP_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-static gboolean dissect_jxta_SCTP_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-
-static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
+static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data);
+static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data);
 static jxta_stream_conversation_data *get_tpt_conversation(packet_info * pinfo);
 static conversation_t *get_peer_conversation(packet_info * pinfo, jxta_stream_conversation_data* tpt_conv_data, gboolean create);
 
 static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, address * found_addr, gboolean initiator);
 static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint64 * content_length,
                                         gchar ** content_type);
-static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
+static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data);
 static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint ns_count,
                                         const gchar ** namespaces);
 static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint ns_count,
@@ -226,7 +222,7 @@ void proto_reg_handoff_jxta(void);
 *   @param  tree The protocol tree.
 *   @return TRUE if the tvb contained JXTA data which was dissected otherwise FALSE
 **/
-static gboolean dissect_jxta_UDP_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static gboolean dissect_jxta_UDP_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
     /* This is a heuristic dissector, which means we get all the UDP
      * traffic not sent to a known dissector and not claimed by
@@ -242,7 +238,7 @@ static gboolean dissect_jxta_UDP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
 
     save_desegment_offset = pinfo->desegment_offset;
     save_desegment_len = pinfo->desegment_len;
-    ret = dissect_jxta_udp(tvb, pinfo, tree);
+    ret = dissect_jxta_udp(tvb, pinfo, tree, NULL);
 
     /* g_message( "%d Heuristic UDP Dissection : %d", pinfo->fd->num, ret ); */
 
@@ -280,7 +276,7 @@ static gboolean dissect_jxta_UDP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
 *   @param  tree The protocol tree.
 *   @return TRUE if the tvb contained JXTA data which was dissected otherwise FALSE
 **/
-static gboolean dissect_jxta_TCP_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static gboolean dissect_jxta_TCP_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
     /* This is a heuristic dissector, which means we get all the TCP
      * traffic not sent to a known dissector and not claimed by
@@ -292,7 +288,7 @@ static gboolean dissect_jxta_TCP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
 
     save_desegment_offset = pinfo->desegment_offset;
     save_desegment_len = pinfo->desegment_len;
-    ret = dissect_jxta_stream(tvb, pinfo, tree);
+    ret = dissect_jxta_stream(tvb, pinfo, tree, NULL);
 
     /* g_message( "%d Heuristic TCP Dissection : %d", pinfo->fd->num, ret ); */
 
@@ -340,7 +336,7 @@ static gboolean dissect_jxta_TCP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
 *   @param  tree The protocol tree.
 *   @return TRUE if the tvb contained JXTA data which was dissected otherwise FALSE
 **/
-static gboolean dissect_jxta_SCTP_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static gboolean dissect_jxta_SCTP_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
     /* This is a heuristic dissector, which means we get all the SCTP
      * traffic not sent to a known dissector and not claimed by
@@ -352,7 +348,7 @@ static gboolean dissect_jxta_SCTP_heur(tvbuff_t * tvb, packet_info * pinfo, prot
 
     save_desegment_offset = pinfo->desegment_offset;
     save_desegment_len = pinfo->desegment_len;
-    ret = dissect_jxta_stream(tvb, pinfo, tree);
+    ret = dissect_jxta_stream(tvb, pinfo, tree, NULL);
 
     /* g_message( "%d Heuristic SCTP Dissection : %d", pinfo->fd->num, ret ); */
 
@@ -398,7 +394,7 @@ static gboolean dissect_jxta_SCTP_heur(tvbuff_t * tvb, packet_info * pinfo, prot
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
-static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
     guint offset = 0;
     guint available;
@@ -511,7 +507,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
-static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
     guint offset = 0;
     guint available = tvb_reported_length_remaining(tvb, offset);
@@ -1124,7 +1120,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
-static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
     gint complete_messages = 0;
     guint offset = 0;

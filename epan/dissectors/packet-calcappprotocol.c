@@ -106,7 +106,7 @@ dissect_calcappprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
 
 static int
-dissect_calcappprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
+dissect_calcappprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *calcappprotocol_item;
   proto_tree *calcappprotocol_tree;

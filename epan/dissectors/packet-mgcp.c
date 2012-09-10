@@ -328,7 +328,7 @@ static guint mgcp_call_hash(gconstpointer k)
 /************************************************************************
  * dissect_mgcp - The dissector for the Media Gateway Control Protocol
  ************************************************************************/
-static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gint sectionlen;
 	guint32 num_messages;
@@ -425,7 +425,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /************************************************************************
  * dissect_tpkt_mgcp - The dissector for the ASCII TPKT Media Gateway Control Protocol
  ************************************************************************/
-static int dissect_tpkt_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_tpkt_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint16 ascii_tpkt;
 	int     offset = 0;
@@ -441,7 +441,7 @@ static int dissect_tpkt_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		 * It's not a ASCII TPKT packet
 		 * in MGCP
 		 */
-		offset = dissect_mgcp(tvb, pinfo, tree);
+		offset = dissect_mgcp(tvb, pinfo, tree, NULL);
 	}
 	else
 	{

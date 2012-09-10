@@ -111,7 +111,7 @@ void proto_register_mms(void) {
 
 
 static gboolean
-dissect_mms_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_mms_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	/* must check that this really is an mms packet */
 	int offset = 0;

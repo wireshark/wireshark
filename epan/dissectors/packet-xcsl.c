@@ -273,7 +273,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 
 /* This function determines whether the first 4 octets equals to xcsl and the fifth is an ; or - */
-static gboolean dissect_xcsl_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static gboolean dissect_xcsl_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 
     gint offset = 0;
     guint8 *protocol;

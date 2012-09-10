@@ -59,7 +59,7 @@ static const char *responseType_id;
 
 
 static int
-dissect_ocsp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_ocsp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -81,7 +81,7 @@ dissect_ocsp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 
 static int
-dissect_ocsp_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_ocsp_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;

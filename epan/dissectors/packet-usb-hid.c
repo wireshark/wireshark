@@ -750,7 +750,7 @@ static const value_string usb_hid_report_type_vals[] = {
  * and FALSE otherwise.
  */
 static gint
-dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gboolean is_request;
 	usb_conv_info_t *usb_conv_info;

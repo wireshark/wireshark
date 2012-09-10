@@ -654,7 +654,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  */
 /* Called either as a "new-style" or a heuristic dissector */
 static int
-dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
        guint16 pana_res;

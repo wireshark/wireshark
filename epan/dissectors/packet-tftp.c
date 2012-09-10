@@ -325,7 +325,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 }
 
 static gboolean
-dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /* Used to dissect TFTP packets where one can not assume
      that the TFTP is the only protocol used by that port, and

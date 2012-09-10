@@ -56,8 +56,8 @@ static dissector_handle_t h225_ras_handle = NULL;
 
 #include "packet-h460-fn.c"
 
-static int 
-dissect_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   int offset = 0;
 
   if (q931_ie_handle) {
@@ -68,7 +68,7 @@ dissect_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 static int 
-dissect_ras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_ras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   int offset = 0;
 
   if (h225_ras_handle) {
@@ -218,7 +218,7 @@ static h460_feature_t *find_ftr(const gchar *key) {
 
 /*--- dissect_h460_name -------------------------------------------*/
 static int
-dissect_h460_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree) {
+dissect_h460_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   int offset = 0;
   asn1_ctx_t *actx;
   h460_feature_t *ftr;

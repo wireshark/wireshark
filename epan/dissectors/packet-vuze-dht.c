@@ -1017,7 +1017,7 @@ dissect_vuze_dht_request_key_block(tvbuff_t *tvb, packet_info _U_*pinfo, proto_t
 }
 
 static int
-dissect_vuze_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_vuze_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   proto_tree *sub_tree;

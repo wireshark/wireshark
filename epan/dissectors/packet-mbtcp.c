@@ -371,7 +371,7 @@ get_mbtcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Make sure there's at least enough data to determine its a Modbus packet */
     if (!tvb_bytes_exist(tvb, 0, 8))
@@ -395,7 +395,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_mbudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mbudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Make sure there's at least enough data to determine its a Modbus packet */
     if (!tvb_bytes_exist(tvb, 0, 8))
@@ -446,7 +446,7 @@ dissect_mbtcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 f
 
 /* Code to actually dissect the packets */
 static int
-dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_tree    *modbus_tree, *group_tree, *event_tree,
                   *event_item_tree, *device_objects_tree,

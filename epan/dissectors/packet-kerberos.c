@@ -4579,8 +4579,6 @@ dissect_krb5_ERROR(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 
 
 
-static gint dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo,
-                                 proto_tree *tree);
 static void dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *tree);
 static gint dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo,
@@ -4605,7 +4603,7 @@ kerberos_output_keytype(void)
 }
 
 static gint
-dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Some weird kerberos implementation apparently do krb4 on the krb5 port.
        Since all (except weirdo transarc krb4 stuff) use

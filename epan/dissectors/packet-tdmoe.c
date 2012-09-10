@@ -54,7 +54,7 @@ static gint ett_tdmoe_flags = -1;
 static dissector_handle_t data_handle;
 
 static int
-dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
 	proto_tree *tdmoe_tree;

@@ -114,7 +114,7 @@ static const value_string oicq_command_vals[] = {
  * proto_tree - resolved protocol tree
  */
 static int
-dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree      *oicq_tree;
 	proto_item	*ti;

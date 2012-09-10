@@ -825,9 +825,6 @@ static void dissect_RTPS_DATA(tvbuff_t *, gint, guint8, gboolean, int,
                 proto_tree *, char *, guint16, int);
 #undef DECLARE_DISSECTOR_SUBMESSAGE
 
-/* The main packet dissector */
-static gboolean dissect_rtps(tvbuff_t *, packet_info *, proto_tree *);
-
 
 /***************************************************************************/
 /* Inline macros                                                           */
@@ -8462,7 +8459,9 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
  */
 static gboolean dissect_rtps(tvbuff_t *tvb,
                         packet_info *pinfo,
-                        proto_tree *tree) {
+                        proto_tree *tree,
+                        void *data _U_)
+{
   proto_item       *ti = NULL;
   proto_tree       *rtps_tree = NULL;
   gint             offset = 0;

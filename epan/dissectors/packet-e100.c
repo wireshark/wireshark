@@ -65,7 +65,7 @@ static guint e100_encap_len = 28;
 
 
 static int
-dissect_e100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_e100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int ret_val = 0;
     tvbuff_t *next_tvb = NULL;

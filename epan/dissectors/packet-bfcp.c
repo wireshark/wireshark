@@ -122,7 +122,7 @@ static const value_string map_bfcp_request_status[] = {
 #define BFCP_OFFSET_PAYLOAD               12
 
 /* Code to actually dissect BFCP packets */
-static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint8       first_byte;
 	guint8       primitive;

@@ -107,7 +107,7 @@ static const value_string opcode_short_names[] = {
 };
 
 static int
-dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint16 packet_type, packet_opcode, packet_plsize;
   emem_strbuf_t *info;

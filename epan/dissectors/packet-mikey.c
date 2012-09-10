@@ -1230,7 +1230,7 @@ dissect_payload(enum payload_t payload, mikey_t *mikey, tvbuff_t *tvb, packet_in
 
 /* MIKEY dissector */
 static int
-dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti = NULL;
 	proto_tree *mikey_tree = NULL;

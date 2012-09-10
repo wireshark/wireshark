@@ -195,7 +195,7 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 					col_append_str(pinfo->cinfo, COL_INFO, suffix);
 			}
 
-			(*opdissector)(tvb, pinfo, ros_tree);
+			(*opdissector)(tvb, pinfo, ros_tree, NULL);
 
 			return TRUE;
 		}

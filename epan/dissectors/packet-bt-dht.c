@@ -429,7 +429,7 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 }
 
 static int
-dissect_bt_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_bt_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-DHT");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -439,7 +439,7 @@ dissect_bt_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static
 gboolean dissect_bt_dht_heur (tvbuff_t *tvb, packet_info *pinfo,
-                                        proto_tree *tree)
+                                        proto_tree *tree, void *data _U_)
 {
   /* try dissecting */
   /* XXX: This is a very weak heuristic; so: heuristic dissection is disabled by default */
@@ -450,7 +450,7 @@ gboolean dissect_bt_dht_heur (tvbuff_t *tvb, packet_info *pinfo,
     conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, bt_dht_handle);
 
-    dissect_bt_dht(tvb, pinfo, tree);
+    dissect_bt_dht(tvb, pinfo, tree, NULL);
     return TRUE;
    }
    return FALSE;

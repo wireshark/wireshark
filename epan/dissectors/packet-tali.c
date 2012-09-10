@@ -144,7 +144,7 @@ dissect_tali(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *	it is a 'well-known' operation
  */
 static gboolean
-dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   char opcode[TALI_OPCODE_LENGTH]; /* TALI opcode */
 

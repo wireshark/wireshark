@@ -131,7 +131,7 @@ static gint ett_brp_fltype = -1;
 static guint global_brp_port = 0;
 
 static int
-dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
     proto_item *brp_item    = NULL;

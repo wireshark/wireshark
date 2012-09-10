@@ -2418,7 +2418,7 @@ dissect_eigrp_multi_protocol_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
 }
 
 /**
- *@fn int dissect_eigrp (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
+ *@fn int dissect_eigrp (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, void *data)
  *
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
@@ -2445,7 +2445,7 @@ static guint16 ip_checksum(const guint8 *ptr, int len)
     return in_cksum(&cksum_vec[0], 1);
 }
 static int
-dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *eigrp_tree        = NULL, *tlv_tree;

@@ -308,7 +308,7 @@ dissect_cpfi_footer(tvbuff_t *tvb, proto_tree *tree)
 
 /* CPFI */
 static int
-dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   tvbuff_t *header_tvb, *body_tvb, *footer_tvb;
   proto_item *cpfi_item = NULL;

@@ -76,7 +76,7 @@ static const value_string oipf_ciplus_dat_id[] = {
 
 
 static int
-dissect_oipf_ciplus(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_oipf_ciplus(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     gint        msg_len;
     proto_item *ti;

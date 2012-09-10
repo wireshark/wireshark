@@ -273,7 +273,7 @@ dissect_mndp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 
 static int
-dissect_mndp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mndp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if ( !test_mndp(tvb) ) {
 		return 0;

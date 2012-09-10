@@ -2479,7 +2479,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
-                                     proto_tree *tree)
+                                     proto_tree *tree, void *data _U_)
 {
     gint                 offset = 0;
     struct rlc_lte_info  *p_rlc_lte_info;

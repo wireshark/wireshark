@@ -62,7 +62,7 @@ static gint ett_vssmonitoring = -1;
 static gboolean vssmonitoring_use_heuristics = TRUE;
 
 static int
-dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_tree    *ti = NULL;
   proto_tree    *vssmonitoring_tree = NULL;

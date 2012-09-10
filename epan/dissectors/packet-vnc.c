@@ -774,7 +774,7 @@ vnc_is_client_or_server_version_message(tvbuff_t *tvb, packet_info *pinfo, proto
 }
 
 static gboolean test_vnc_protocol(tvbuff_t *tvb, packet_info *pinfo,
-				  proto_tree *tree)
+				  proto_tree *tree, void *data _U_)
 {
 	conversation_t *conversation;
 

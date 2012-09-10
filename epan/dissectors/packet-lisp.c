@@ -1508,7 +1508,7 @@ dissect_lisp_ecm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree
  */
 
 static int
-dissect_lisp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_lisp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8 type;
 

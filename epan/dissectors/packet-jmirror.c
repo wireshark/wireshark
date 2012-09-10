@@ -107,7 +107,7 @@ get_heuristic_handle(tvbuff_t *tvb)
 
 /* Heuristic UDP dissector called by Wireshark looking for embedded IPv4, IPv6 or L2TP/HDLC Jmirror packets */
 static int
-dissect_jmirror(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_jmirror(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	int offset = 0;
 	dissector_handle_t dissector_handle;

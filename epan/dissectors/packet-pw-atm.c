@@ -1372,7 +1372,7 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
  * This function is also used to dissect 3rd byte of CW in AAL5 PDU mode.
  */
 static int
-dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
 	pwatm_private_data_t * pd;
 	gboolean               is_enough_data;
@@ -1624,7 +1624,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
 static int
-dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
 	gboolean is_enough_data;
 	int      dissect_size;

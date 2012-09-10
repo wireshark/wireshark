@@ -726,8 +726,8 @@ dissect_PNPTCP_DelayPDU(tvbuff_t *tvb, int offset,
 
 /* possibly dissect a PN-RT packet (frame ID must be in the appropriate range) */
 static gboolean
-dissect_PNPTCP_Data_heur(tvbuff_t *tvb,
-	packet_info *pinfo, proto_tree *tree)
+dissect_PNPTCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    void *data _U_)
 {
     guint16 u16FrameID;
     proto_item *item = NULL;

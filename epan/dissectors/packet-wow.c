@@ -143,7 +143,7 @@ static guint get_wow_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 
 
 static gboolean
-dissect_wow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_wow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gint8 size_field_offset = -1;
 	guint8 cmd;

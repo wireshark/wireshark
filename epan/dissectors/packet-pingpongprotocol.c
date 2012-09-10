@@ -140,7 +140,7 @@ dissect_pingpongprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, prot
 }
 
 static int
-dissect_pingpongprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
+dissect_pingpongprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *pingpongprotocol_item;
   proto_tree *pingpongprotocol_tree;

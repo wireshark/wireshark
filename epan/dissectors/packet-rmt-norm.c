@@ -642,7 +642,7 @@ static void dissect_norm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_norm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_norm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint8 byte1;
 	if (!global_norm_heur)

@@ -104,7 +104,7 @@ static const value_string cmp_pdu_types[] = {
 };
 
 
-static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	tvbuff_t   *next_tvb;
 	guint32    pdu_len;
@@ -201,7 +201,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 
 static void dissect_cmp_tcp_pdu_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	dissect_cmp_tcp_pdu(tvb, pinfo, parent_tree);
+	dissect_cmp_tcp_pdu(tvb, pinfo, parent_tree, NULL);
 }
 
 static guint get_cmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -218,8 +218,8 @@ static guint get_cmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 
 /* CMP over TCP: RFC2510 section 5.2 and "Transport Protocols for CMP" draft */
-	static int
-dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	guint32 pdu_len;
 	guint8 pdu_type;
@@ -275,8 +275,8 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 }
 
 
-	static int
-dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;

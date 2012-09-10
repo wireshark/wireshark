@@ -2388,7 +2388,7 @@ static guint dissect_wimaxmacphy_phy_rxcdma_indication(tvbuff_t *tvb, guint offs
 }
 
 static int
-dissect_wimaxmacphy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_wimaxmacphy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_tree *wimaxmacphy_tree, *primitive_tree;

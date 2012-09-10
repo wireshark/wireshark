@@ -89,7 +89,7 @@ static const value_string vals_ddtp_status[] = {
 };
 
 static int
-dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_tree *ddtp_tree = NULL;
     proto_item *ti;

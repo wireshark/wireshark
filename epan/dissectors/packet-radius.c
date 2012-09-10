@@ -1346,7 +1346,7 @@ is_radius(tvbuff_t *tvb)
 static void register_radius_fields(const char*);
 
 static int
-dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree *radius_tree = NULL;
 	proto_tree *avptree = NULL;

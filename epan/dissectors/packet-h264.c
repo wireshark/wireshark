@@ -1948,7 +1948,7 @@ static const int *profile_fields[] = {
 };
 
 static int
-dissect_h264_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_h264_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
 
@@ -1965,7 +1965,7 @@ static const int *AdditionalModesSupported_fields[] = {
 };
 
 static int
-dissect_h264_par_AdditionalModesSupported(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_h264_par_AdditionalModesSupported(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
 
@@ -1986,7 +1986,7 @@ static const int *ProfileIOP_fields[] = {
 
 
 static int
-dissect_h264_ProfileIOP(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_h264_ProfileIOP(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
 
@@ -2018,7 +2018,7 @@ static const value_string h264_par_level_values[] = {
 };
 
 static int
-dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_)
+dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
     int          offset = 0;
     guint16      lvl;
@@ -2038,7 +2038,7 @@ dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_)
 }
 
 static int
-dissect_h264_par_DecoderConfigurationInformation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
+dissect_h264_par_DecoderConfigurationInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     asn1_ctx_t *actx;
 

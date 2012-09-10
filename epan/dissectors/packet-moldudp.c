@@ -119,7 +119,7 @@ dissect_moldudp_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Code to actually dissect the packets */
 static int
-dissect_moldudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_moldudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *moldudp_tree;

@@ -252,7 +252,7 @@ dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (tvb_length(tvb) >= 36)
 	{

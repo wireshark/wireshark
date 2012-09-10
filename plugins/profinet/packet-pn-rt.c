@@ -205,8 +205,8 @@ static gboolean IsDFP_Frame(tvbuff_t *tvb)
 
 /* possibly dissect a CSF_SDU related PN-RT packet */
 gboolean
-dissect_CSF_SDU_heur(tvbuff_t *tvb,
-    packet_info *pinfo, proto_tree *tree)
+dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    void *data _U_)
 {
     guint16 u16FrameID;
     guint16 u16SFCRC16;
@@ -299,8 +299,8 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb,
 
 /* possibly dissect a FRAG_PDU related PN-RT packet */
 static gboolean
-dissect_FRAG_PDU_heur(tvbuff_t *tvb,
-    packet_info *pinfo, proto_tree *tree)
+dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    void *data _U_)
 {
     guint16 u16FrameID;
     int offset = 0;

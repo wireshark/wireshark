@@ -212,7 +212,7 @@ dissect_componentstatusprotocol_message(tvbuff_t *message_tvb, packet_info *pinf
 
 
 static int
-dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
+dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *componentstatusprotocol_item;
   proto_tree *componentstatusprotocol_tree;

@@ -222,7 +222,7 @@ static const value_string slimp3_mpg_control[] = {
 
 #define MAX_LCD_STR_LEN 128
 static int
-dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     const char		*opcode_str;
     proto_tree		*slimp3_tree = NULL;

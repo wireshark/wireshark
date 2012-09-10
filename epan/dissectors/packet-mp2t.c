@@ -1262,7 +1262,7 @@ dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 }
 
 static gboolean
-heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
 	guint offset = 0;
 

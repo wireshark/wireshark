@@ -1721,12 +1721,12 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
   return found_ositp ? offset : 0;
 } /* dissect_ositp_internal */
 
-static gint dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return dissect_ositp_internal(tvb, pinfo, tree, FALSE);
 }
 
-static gint dissect_ositp_inactive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint dissect_ositp_inactive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return dissect_ositp_internal(tvb, pinfo, tree, TRUE);
 }

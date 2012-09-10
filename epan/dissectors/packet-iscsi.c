@@ -2450,7 +2450,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
    We still check that the PDU header looks sane though.
 */
 static int
-dissect_iscsi_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_iscsi_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     return dissect_iscsi(tvb, pinfo, tree, FALSE);
 }
 
@@ -2460,7 +2460,7 @@ dissect_iscsi_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    false positives.
 */
 static gboolean
-dissect_iscsi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_iscsi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     guint32 available_bytes = tvb_length(tvb);
 
     /* quick check to see if the packet is long enough to contain the

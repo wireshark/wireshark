@@ -1087,7 +1087,7 @@ dissect_GDSHR(tvbuff_t *tvb, packet_info *pinfo,
    called. */
 
 static int
-dissect_adwin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_adwin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti, *ti2;
 	proto_tree *adwin_tree, *adwin_debug_tree;

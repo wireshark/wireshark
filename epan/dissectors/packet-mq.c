@@ -2422,7 +2422,7 @@ dissect_mq_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint iProto)
+dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint iProto, void *data _U_)
 {
     if (tvb_length(tvb) >= 28)
     {
@@ -2449,21 +2449,21 @@ dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint iProto
 }
 
 static gboolean
-dissect_mq_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mq_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_TCP);
+    return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_TCP, NULL);
 }
 
 static gboolean
-dissect_mq_heur_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mq_heur_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_NETBIOS);
+    return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_NETBIOS, NULL);
 }
 
 static gboolean
-dissect_mq_heur_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mq_heur_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_HTTP);
+    return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_HTTP, NULL);
 }
 
 static void

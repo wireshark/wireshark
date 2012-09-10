@@ -1218,7 +1218,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
-                                     proto_tree *tree)
+                                     proto_tree *tree, void *data _U_)
 {
     gint                 offset = 0;
     struct mac_lte_info  *p_mac_lte_info;

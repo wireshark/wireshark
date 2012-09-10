@@ -450,7 +450,7 @@ dissect_rx_flags(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *parent_tree, 
 }
 
 static int
-dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	proto_tree *tree;
 	proto_item *item;

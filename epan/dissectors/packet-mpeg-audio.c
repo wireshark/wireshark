@@ -543,7 +543,7 @@ dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	int magic;
 

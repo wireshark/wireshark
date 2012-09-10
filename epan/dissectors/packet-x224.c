@@ -179,7 +179,7 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 }
 
 static int
-dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	proto_tree *tree = NULL;
 	proto_item *item = NULL;

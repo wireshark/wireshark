@@ -61,7 +61,7 @@ dissect_charging_ase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(tvb_length(tvb)>0)
     {
-        dissect_charging_ase_ChargingMessageType_PDU(tvb , pinfo, tr);
+        dissect_charging_ase_ChargingMessageType_PDU(tvb , pinfo, tr, NULL);
     }
 }
 

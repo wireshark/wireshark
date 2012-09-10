@@ -353,7 +353,7 @@ dissect_credssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 }
 
 static gboolean
-dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
   asn1_ctx_t asn1_ctx;
   int offset = 0;

@@ -428,7 +428,7 @@ static const value_string length_mapping[] = {
 
 /*  Depending on the packet type, the appropriate dissector is called. */
 static int
-dissect_adwin_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_adwin_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
 	proto_tree *adwin_config_tree;

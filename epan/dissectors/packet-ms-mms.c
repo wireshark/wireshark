@@ -283,8 +283,6 @@ static const value_string server_to_client_error_vals[] =
 void proto_register_msmms(void);
 void proto_reg_handoff_msmms_command(void);
 
-static gint dissect_msmms_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -317,7 +315,7 @@ static void msmms_data_add_address(packet_info *pinfo, address *addr, port_type 
 /****************************/
 /* Main dissection function */
 /****************************/
-static gint dissect_msmms_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint dissect_msmms_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Work out what type of packet this is and dissect it as such */
 

@@ -2922,7 +2922,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gboolean
-dissect_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	return dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, FALSE, 0,
 	    TRUE);
@@ -3751,7 +3751,7 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gboolean
-dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	switch (dissect_rpc_tcp_common(tvb, pinfo, tree, TRUE)) {
 

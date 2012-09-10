@@ -319,7 +319,7 @@ compare_avps (gconstpointer  a, gconstpointer  b)
 /* Special decoding of some AVP:s */
 
 static int
-dissect_diameter_vendor_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_diameter_vendor_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	int offset = 0;
 
@@ -330,7 +330,7 @@ dissect_diameter_vendor_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 static int
-dissect_diameter_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_diameter_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gboolean save_writable;
 
@@ -346,7 +346,7 @@ dissect_diameter_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 /* From RFC 3162 section 2.3 */
 static int
-dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	guint8 prefix_len, prefix_len_bytes;
 
@@ -1084,7 +1084,7 @@ check_diameter(tvbuff_t *tvb)
 /************************************************/
 /* Main dissection function                     */
 static int
-dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (!check_diameter(tvb))
 		return 0;

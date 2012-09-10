@@ -2133,7 +2133,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static gboolean
-dissect_bssap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_bssap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Is it a BSSAP/BSAP packet?
      *    If octet_1 == 0x00 and octet_2 == length(tvb) - 2
