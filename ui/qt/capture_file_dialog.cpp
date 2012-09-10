@@ -143,7 +143,9 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &display_filter) :
     h_box->addLayout(&right_v_box_);
 
 
-#endif
+#else // Q_WS_WIN
+    merge_type_ = 0;
+#endif // Q_WS_WIN
 }
 
 void CaptureFileDialog::addPreview(QVBoxLayout &v_box) {
@@ -206,30 +208,6 @@ void CaptureFileDialog::addMergeControls(QVBoxLayout &v_box) {
 // probably just make each type a subclass.
 int CaptureFileDialog::exec() {
     return QDialog::Rejected;
-}
-
-int CaptureFileDialog::merge(QString &file_name) {
-    setWindowTitle(tr("Wireshark: Merge Capture File"));
-    setNameFilters(buildFileOpenTypeList());
-    setFileMode(QFileDialog::ExistingFile);
-
-    file_name.clear();
-    display_filter_.clear();
-
-    addMergeControls(left_v_box_);
-    addPreview(right_v_box_);
-
-    // Grow the dialog to account for the extra widgets.
-    resize(width(), height() + right_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
-
-    if (QFileDialog::exec() && selectedFiles().length() > 0) {
-        file_name.append(selectedFiles()[0]);
-        display_filter_.append(display_filter_edit_->text());
-
-        return QDialog::Accepted;
-    } else {
-        return QDialog::Rejected;
-    }
 }
 
 QString CaptureFileDialog::fileType(int ft, bool extension_globs)
@@ -307,6 +285,26 @@ int CaptureFileDialog::open(QString &file_name) {
     return (int) wof_status;
 }
 
+int CaptureFileDialog::merge(QString &file_name) {
+    GString *fname = g_string_new(file_name.toUtf8().constData());
+    GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
+    gboolean wmf_status;
+
+    wmf_status = win32_merge_file(parentWidget()->effectiveWinId(), fname, dfilter, &merge_type_);
+    file_name.append(QString::fromUtf8(fname->str));
+    display_filter_.clear();
+    display_filter_.append(QString::fromUtf8(dfilter->str));
+
+    g_string_free(fname, TRUE);
+    g_string_free(dfilter, TRUE);
+
+    return (int) wmf_status;
+}
+
+int CaptureFileDialog::mergeType() {
+    return merge_type_;
+}
+
 #else // not Q_WS_WINDOWS
 int CaptureFileDialog::selectedFileType() {
     return type_hash_.value(selectedNameFilter(), -1);
@@ -367,6 +365,30 @@ int CaptureFileDialog::open(QString &file_name) {
     }
 }
 
+int CaptureFileDialog::merge(QString &file_name) {
+    setWindowTitle(tr("Wireshark: Merge Capture File"));
+    setNameFilters(buildFileOpenTypeList());
+    setFileMode(QFileDialog::ExistingFile);
+
+    file_name.clear();
+    display_filter_.clear();
+
+    addMergeControls(left_v_box_);
+    addPreview(right_v_box_);
+
+    // Grow the dialog to account for the extra widgets.
+    resize(width(), height() + right_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
+
+    if (QFileDialog::exec() && selectedFiles().length() > 0) {
+        file_name.append(selectedFiles()[0]);
+        display_filter_.append(display_filter_edit_->text());
+
+        return QDialog::Accepted;
+    } else {
+        return QDialog::Rejected;
+    }
+}
+
 QStringList CaptureFileDialog::buildFileSaveAsTypeList(capture_file *cf, bool must_support_comments) {
     QStringList filters;
     GArray *savable_file_types;
@@ -399,7 +421,6 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(capture_file *cf, bool mu
 
     return filters;
 }
-#endif // Q_WS_WINDOWS
 
 int CaptureFileDialog::mergeType() {
     if (merge_prepend_.isChecked())
@@ -409,6 +430,8 @@ int CaptureFileDialog::mergeType() {
 
     return 0;
 }
+#endif // Q_WS_WINDOWS
+
 
 /* do a preview run on the currently selected capture file */
 void CaptureFileDialog::preview(const QString & path)

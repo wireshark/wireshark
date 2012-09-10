@@ -100,6 +100,8 @@ private:
     QCheckBox transport_res_;
     QCheckBox network_res_;
     QCheckBox external_res_;
+#else // Q_WS_WIN
+    int merge_type_;
 #endif // Q_WS_WIN
 
 signals:
