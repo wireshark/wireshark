@@ -940,7 +940,7 @@ void MainWindow::captureCaptureFailed(capture_options *capture_opts) {
 // Callbacks from cfile.c via WiresharkApplication::captureFileCallback
 
 void MainWindow::captureFileReadStarted(const capture_file *cf) {
-    if (cf != cap_file_) return;
+    cap_file_ = (capture_file *) cf;
 //    tap_param_dlg_update();
 
     /* Set up main window for a capture file. */
