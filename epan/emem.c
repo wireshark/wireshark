@@ -703,8 +703,8 @@ emem_create_chunk_gp(size_t size)
 	buf_end = npc->buf + size;
 
 	/* Align our guard pages on page-sized boundaries */
-	prot1 = (char *) ((((int) npc->buf + pagesize - 1) / pagesize) * pagesize);
-	prot2 = (char *) ((((int) buf_end - (1 * pagesize)) / pagesize) * pagesize);
+	prot1 = (char *) ((((long long) npc->buf + pagesize - 1) / pagesize) * pagesize);
+	prot2 = (char *) ((((long long) buf_end - (1 * pagesize)) / pagesize) * pagesize);
 
 	ret = VirtualProtect(prot1, pagesize, PAGE_NOACCESS, &oldprot);
 	g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
