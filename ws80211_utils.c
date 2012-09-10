@@ -33,7 +33,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "ws80211_utils.h"
 
-#if defined(HAVE_LIBNL) && defined(HAVE_NL80211
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
 #include <strings.h>
 #include <errno.h>
 #include <unistd.h>
