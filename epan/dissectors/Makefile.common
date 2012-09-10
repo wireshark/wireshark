@@ -315,6 +315,7 @@ DISSECTOR_SRC = \
 	packet-bthci_cmd.c	\
 	packet-bthci_evt.c	\
 	packet-bthci_sco.c	\
+	packet-bthid.c		\
 	packet-btl2cap.c	\
 	packet-btobex.c		\
 	packet-btrfcomm.c	\

@@ -395,6 +395,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bthci_cmd.c
 	dissectors/packet-bthci_evt.c
 	dissectors/packet-bthci_sco.c
+	dissectors/packet-bthid.c
 	dissectors/packet-btl2cap.c
 	dissectors/packet-btobex.c
 	dissectors/packet-btrfcomm.c
