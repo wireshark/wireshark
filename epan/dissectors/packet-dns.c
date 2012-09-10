@@ -105,6 +105,9 @@ static int hf_dns_soa_retry_interval = -1;
 static int hf_dns_soa_expire_limit = -1;
 static int hf_dns_soa_minimum_ttl = -1;
 static int hf_dns_ptr_domain_name = -1;
+static int hf_dns_wks_address = -1;
+static int hf_dns_wks_protocol = -1;
+static int hf_dns_wks_bits = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -1529,7 +1532,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_WKS:
+    case T_WKS: /* well known service (11) */
     {
       int            rr_len   = data_len;
       const char    *wks_addr;
@@ -1538,6 +1541,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int            mask;
       int            port_num;
       int            i;
+      proto_item     *ti_wks;
       emem_strbuf_t *bitnames = ep_strbuf_new_label(NULL);
 
       if (rr_len < 4) {
@@ -1548,16 +1552,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         col_append_fstr(cinfo, COL_INFO, " %s", wks_addr);
       }
       proto_item_append_text(trr, ", addr %s", wks_addr);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Addr: %s", wks_addr);
+      proto_tree_add_item(rr_tree, hf_dns_wks_address, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
       if (rr_len < 1) {
         goto bad_rr;
       }
+      proto_tree_add_item(rr_tree, hf_dns_wks_protocol, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       protocol = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Protocol: %s",
-                          ipprotostr(protocol));
       cur_offset += 1;
       rr_len     -= 1;
 
@@ -1590,8 +1593,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             mask >>= 1;
             port_num++;
           }
-          proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-                              "Bits: 0x%02x (%s)", bits, bitnames->str);
+
+          ti_wks = proto_tree_add_item(rr_tree, hf_dns_wks_bits, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+          proto_item_append_text(ti_wks, " (%s)", bitnames->str);
         } else {
           port_num += 8;
         }
@@ -4041,6 +4045,21 @@ proto_register_dns(void)
     { &hf_dns_ptr_domain_name,
       { "Domain Name", "dns.ptr.domain_name",
         FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_wks_address,
+      { "Address", "dns.wks.address",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_wks_protocol,
+      { "Protocol", "dns.wks.protocol",
+        FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_wks_bits,
+      { "Bits", "dns.wks.bits",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_rr_ns,
