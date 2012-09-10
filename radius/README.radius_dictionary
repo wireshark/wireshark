@@ -1,7 +1,7 @@
 [Dec-01-2010]
  Commented out global VSA:s from dictionary.ascend to avoid name clashes with IANA assigned VSA:s
  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5455
- 
+
 [Jul-09-2009]
 
 As of the above date the dictionary files in this directory are those from the FreeRadius 2.1.6 [May-18-2009] release
@@ -32,7 +32,7 @@ with the following changes:
       PacketCable(TM) 1.5 Specification: Event Messages [PKT-SP-EM1.5-I03-070412]
       PacketCable(TM) Specification: Multimedia Specification [PKT-SP-MM-I04-080522]
    - Added additional comments and changes related to Wireshark use of this file.
- 
+
 5. dictionary.microsoft
    - FreeRadius v 2.1.6 dictionary.microsoft plus additions based upon
      Wireshark commit SVN #17706.
@@ -70,3 +70,5 @@ with the following changes:
 	http://pda.etsi.org/exchangefolder/ts_129061v080300p.pdf
  	 (ETSI TS 129 061 V8.3.0 (2009-06))
 
+11. dictionary.eltex
+   - New dictionary from Taras Kotov via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5415
