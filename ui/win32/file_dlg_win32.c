@@ -140,7 +140,7 @@ static TCHAR *build_file_save_type_list(GArray *savable_file_types,
 
 static int            filetype;
 static packet_range_t g_range;
-static merge_action_e merge_action;
+static merge_action_e g_merge_action;
 static print_args_t   print_args;
 /* XXX - The reason g_sf_hwnd exists is so that we can call
  *       range_update_dynamics() from anywhere; it's currently
@@ -154,7 +154,7 @@ static print_args_t   print_args;
  *       being opened/saved/etc.).
  */
 static HWND  g_sf_hwnd = NULL;
-static char *dfilter_str = NULL;
+static char *g_dfilter_str = NULL;
 
 /*
  * According to http://msdn.microsoft.com/en-us/library/bb776913.aspx
@@ -180,7 +180,10 @@ win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
     }
 
     if (display_filter->len > 0) {
-        dfilter_str = g_strdup(display_filter->str);
+        g_dfilter_str = g_strdup(display_filter->str);
+    } else if (g_dfilter_str) {
+        g_free(g_dfilter_str);
+        g_dfilter_str = NULL;
     }
 
     /* Remarks on OPENFILENAME_SIZE_VERSION_400:
@@ -250,13 +253,13 @@ win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
 
     if (gofn_ok) {
         g_string_printf(file_name, "%s", utf_16to8(file_name_w));
-        g_string_printf(display_filter, "%s", dfilter_str ? dfilter_str : "");
+        g_string_printf(display_filter, "%s", g_dfilter_str ? g_dfilter_str : "");
     }
 
     g_free( (void *) ofn->lpstrFilter);
     g_free( (void *) ofn);
-    g_free(dfilter_str);
-    dfilter_str = NULL;
+    g_free(g_dfilter_str);
+    g_dfilter_str = NULL;
     return gofn_ok;
 }
 
@@ -711,20 +714,29 @@ win32_export_specified_packets_file(HWND h_wnd) {
 }
 
 
-void
-win32_merge_file (HWND h_wnd) {
+gboolean
+win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *merge_type) {
     OPENFILENAME *ofn;
-    TCHAR       file_name[MAX_PATH] = _T("");
-    char       *dirname;
-    cf_status_t merge_status = CF_ERROR;
-    char       *in_filenames[2];
-    int         err;
-    char       *tmpname;
-    dfilter_t  *dfp;
-    int         ofnsize;
+    TCHAR         file_name_w[MAX_PATH] = _T("");
+    int           ofnsize;
+    gboolean gofn_ok;
 #if (_MSC_VER >= 1500)
     OSVERSIONINFO osvi;
 #endif
+
+    if (!file_name || !display_filter || !merge_type)
+        return FALSE;
+
+    if (file_name->len > 0) {
+        StringCchCopy(file_name_w, MAX_PATH, utf_8to16(file_name->str));
+    }
+
+    if (display_filter->len > 0) {
+        g_dfilter_str = g_strdup(display_filter->str);
+    } else if (g_dfilter_str) {
+        g_free(g_dfilter_str);
+        g_dfilter_str = NULL;
+    }
 
     /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
@@ -752,7 +764,7 @@ win32_merge_file (HWND h_wnd) {
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
     ofn->nFilterIndex = FILE_MERGE_DEFAULT;
-    ofn->lpstrFile = file_name;
+    ofn->lpstrFile = file_name_w;
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
@@ -769,73 +781,32 @@ win32_merge_file (HWND h_wnd) {
     ofn->lpfnHook = merge_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_MERGEFILENAME_TEMPLATE");
 
-    if (GetOpenFileName(ofn)) {
-        filetype = cfile.cd_t;
-        g_free( (void *) ofn->lpstrFilter);
-        g_free( (void *) ofn);
+    gofn_ok = GetOpenFileName(ofn);
 
-        /* merge or append the two files */
+    if (gofn_ok) {
+        g_string_printf(file_name, "%s", utf_16to8(file_name_w));
+        g_string_printf(display_filter, "%s", g_dfilter_str ? g_dfilter_str : "");
 
-        tmpname = NULL;
-        switch (merge_action) {
+        switch (g_merge_action) {
             case merge_append:
-                /* append file */
-                in_filenames[0] = cfile.filename;
-                in_filenames[1] = utf_16to8(file_name);
-                merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, TRUE);
+                *merge_type = 1;
                 break;
             case merge_chrono:
-                /* chonological order */
-                in_filenames[0] = cfile.filename;
-                in_filenames[1] = utf_16to8(file_name);
-                merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, FALSE);
+                *merge_type = 0;
                 break;
             case merge_prepend:
-                /* prepend file */
-                in_filenames[0] = utf_16to8(file_name);
-                in_filenames[1] = cfile.filename;
-                merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, TRUE);
+                *merge_type = -1;
                 break;
             default:
                 g_assert_not_reached();
         }
-
-        if(merge_status != CF_OK) {
-            /* merge failed */
-            g_free(tmpname);
-            return;
-        }
-
-        cf_close(&cfile);
-
-        /* Try to open the merged capture file. */
-        if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
-            /* We couldn't open it; don't dismiss the open dialog box,
-               just leave it around so that the user can, after they
-               dismiss the alert box popped up for the open error,
-               try again. */
-            return;
-        }
-
-        /* apply our filter */
-        if (dfilter_compile(dfilter_str, &dfp)) {
-            cf_set_rfcode(&cfile, dfp);
-        }
-
-        switch (cf_read(&cfile, FALSE)) {
-            case CF_READ_OK:
-            case CF_READ_ERROR:
-                dirname = get_dirname(utf_16to8(file_name));
-                set_last_open_dir(dirname);
-                menu_name_resolution_changed();
-                break;
-            case CF_READ_ABORTED:
-                break;
-        }
-    } else {
-        g_free( (void *) ofn->lpstrFilter);
-        g_free( (void *) ofn);
     }
+
+    g_free( (void *) ofn->lpstrFilter);
+    g_free( (void *) ofn);
+    g_free(g_dfilter_str);
+    g_dfilter_str = NULL;
+    return gofn_ok;
 }
 
 void
@@ -1610,9 +1581,9 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     switch(msg) {
         case WM_INITDIALOG:
             /* Retain the filter text, and fill it in. */
-            if(dfilter_str != NULL) {
+            if(g_dfilter_str != NULL) {
                 cur_ctrl = GetDlgItem(of_hwnd, EWFD_FILTER_EDIT);
-                SetWindowText(cur_ctrl, utf_8to16(dfilter_str));
+                SetWindowText(cur_ctrl, utf_8to16(g_dfilter_str));
             }
 
             /* Fill in our resolution values */
@@ -1632,9 +1603,9 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                 case CDN_FILEOK:
                     /* Fetch the read filter */
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_FILTER_EDIT);
-                    if (dfilter_str)
-                        g_free(dfilter_str);
-                    dfilter_str = filter_tb_get(cur_ctrl);
+                    if (g_dfilter_str)
+                        g_free(g_dfilter_str);
+                    g_dfilter_str = filter_tb_get(cur_ctrl);
 
                     /* Fetch our resolution values */
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
@@ -2330,15 +2301,15 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     switch(msg) {
         case WM_INITDIALOG:
             /* Retain the filter text, and fill it in. */
-            if(dfilter_str != NULL) {
+            if(g_dfilter_str != NULL) {
                 cur_ctrl = GetDlgItem(mf_hwnd, EWFD_FILTER_EDIT);
-                SetWindowText(cur_ctrl, utf_8to16(dfilter_str));
+                SetWindowText(cur_ctrl, utf_8to16(g_dfilter_str));
             }
 
-            /* Append by default */
-            cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_PREPEND_BTN);
+            /* Chrono by default */
+            cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_CHRONO_BTN);
             SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
-            merge_action = merge_append;
+            g_merge_action = merge_append;
 
             preview_set_file_info(mf_hwnd, NULL);
             break;
@@ -2347,17 +2318,17 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                 case CDN_FILEOK:
                     /* Fetch the read filter */
                     cur_ctrl = GetDlgItem(mf_hwnd, EWFD_FILTER_EDIT);
-                    if (dfilter_str)
-                        g_free(dfilter_str);
-                    dfilter_str = filter_tb_get(cur_ctrl);
+                    if (g_dfilter_str)
+                        g_free(g_dfilter_str);
+                    g_dfilter_str = filter_tb_get(cur_ctrl);
 
                     cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_CHRONO_BTN);
                     if(SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-                        merge_action = merge_chrono;
+                        g_merge_action = merge_chrono;
                     } else {
                         cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_PREPEND_BTN);
                         if(SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-                            merge_action = merge_prepend;
+                            g_merge_action = merge_prepend;
                         }
                     }
 

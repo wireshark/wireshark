@@ -69,7 +69,7 @@ void win32_export_specified_packets_file(HWND h_wnd);
  *
  * @param h_wnd HWND of the parent window.
  */
-void win32_merge_file (HWND h_wnd);
+gboolean win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *merge_type);
 
 /** Open the "Export" dialog box.
  *
