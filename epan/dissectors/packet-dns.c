@@ -104,6 +104,7 @@ static int hf_dns_soa_refresh_interval = -1;
 static int hf_dns_soa_retry_interval = -1;
 static int hf_dns_soa_expire_limit = -1;
 static int hf_dns_soa_minimum_ttl = -1;
+static int hf_dns_ptr_domain_name = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -1511,7 +1512,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_PTR:
+    case T_PTR:  /* Domain Name Pointer (12) */
     {
       const guchar *pname;
       int           pname_len;
@@ -1523,8 +1524,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       }
       proto_item_append_text(trr, ", %s", name_out);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, pname_len, "Domain name: %s",
-                          name_out);
+      proto_tree_add_string(rr_tree, hf_dns_ptr_domain_name, tvb, cur_offset, pname_len, name_out);
 
     }
     break;
@@ -4038,6 +4038,10 @@ proto_register_dns(void)
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_dns_ptr_domain_name,
+      { "Domain Name", "dns.ptr.domain_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_dns_rr_ns,
       { "Name Server", "dns.resp.ns",
