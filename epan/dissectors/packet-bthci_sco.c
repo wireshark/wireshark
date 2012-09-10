@@ -36,53 +36,53 @@
 #include <packet-hci_h4.h>
 
 /* Initialize the protocol and registered fields */
-static int proto_btsco = -1;
-static int hf_btsco_chandle = -1;
-static int hf_btsco_length = -1;
-static int hf_btsco_data = -1;
+static int proto_bthci_sco = -1;
+static int hf_bthci_sco_chandle = -1;
+static int hf_bthci_sco_length = -1;
+static int hf_bthci_sco_data = -1;
 
 /* Initialize the subtree pointers */
-static gint ett_btsco = -1;
+static gint ett_bthci_sco = -1;
 
 
 /* Code to actually dissect the packets */
 static void
-dissect_btsco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *ti;
-    proto_tree *btsco_tree;
+    proto_tree *bthci_sco_tree;
     int         offset = 0;
 
-    ti = proto_tree_add_item(tree, proto_btsco, tvb, offset, -1, ENC_NA);
-    btsco_tree = proto_item_add_subtree(ti, ett_btsco);
+    ti = proto_tree_add_item(tree, proto_bthci_sco, tvb, offset, -1, ENC_NA);
+    bthci_sco_tree = proto_item_add_subtree(ti, ett_bthci_sco);
 
 
-    proto_tree_add_item(btsco_tree, hf_btsco_chandle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_chandle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
-    proto_tree_add_item(btsco_tree, hf_btsco_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
-    proto_tree_add_item(btsco_tree, hf_btsco_data, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_data, tvb, offset, -1, ENC_NA);
 }
 
 
 void
-proto_register_btsco(void)
+proto_register_bthci_sco(void)
 {
     static hf_register_info hf[] = {
-        { &hf_btsco_chandle,
+        { &hf_bthci_sco_chandle,
             { "Connection Handle",           "bthci_sco.chandle",
             FT_UINT16, BASE_HEX, NULL, 0x0FFF,
             NULL, HFILL }
         },
-        { &hf_btsco_length,
+        { &hf_bthci_sco_length,
             { "Data Total Length",           "bthci_sco.length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_btsco_data,
-            { "Data",           "bthci_sco.data",
+        { &hf_bthci_sco_data,
+            { "Data",                        "bthci_sco.data",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -90,21 +90,21 @@ proto_register_btsco(void)
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-      &ett_btsco,
+      &ett_bthci_sco,
     };
 
     /* Register the protocol name and description */
-    proto_btsco = proto_register_protocol("Bluetooth HCI SCO Packet", "HCI_SCO", "bthci_sco");
-    register_dissector("bthci_sco", dissect_btsco, proto_btsco);
+    proto_bthci_sco = proto_register_protocol("Bluetooth HCI SCO Packet", "HCI_SCO", "bthci_sco");
+    register_dissector("bthci_sco", dissect_bthci_sco, proto_bthci_sco);
 
     /* Required function calls to register the header fields and subtrees used */
-    proto_register_field_array(proto_btsco, hf, array_length(hf));
+    proto_register_field_array(proto_bthci_sco, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
 
 
 void
-proto_reg_handoff_btsco(void)
+proto_reg_handoff_bthci_sco(void)
 {
     dissector_handle_t bthci_sco_handle;
 
