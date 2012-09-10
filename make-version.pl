@@ -182,6 +182,33 @@ sub read_svn_info {
 		}
 		close (CFGNMAKE);
 	}
+	if ($revision == 0) {
+
+		# Try git...
+		eval {
+			use warnings "all";
+			no warnings "all";
+			$svn_info_cmd = "(cd $srcdir; git log --format='commit: %h%ndate: %ad' -n 1 --date=iso)";
+			$line = qx{$svn_info_cmd};
+			if (defined($line)) {
+				if ($line =~ /date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
+					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
+				}
+				if ($line =~ /commit: (\S+)/) {
+					$revision = $1;
+				}
+			}
+			$svn_info_cmd = "(cd $srcdir; git branch)";
+			$line = qx{$svn_info_cmd};
+			if (defined($line)) {
+				if ($line =~ /\* (\S+)/) {
+					$repo_path = $1;
+				}
+			}
+			1;
+			};
+	}
+
 
 	# 'svn info' failed or the user really wants us to dig around in .svn/entries
 	if ($do_hack) {
