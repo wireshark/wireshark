@@ -20,7 +20,7 @@ RTABapdu
 			oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id);
 		break;
 	}
-	
+
 	if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
 		oid = "applicationProtocol.12";
 
@@ -65,7 +65,7 @@ RTABapdu
 			oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id);
 		break;
 	}
-	
+
 	if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
 		oid = "applicationProtocol.12";
 
@@ -146,7 +146,7 @@ RTABapdu
 
 #.FN_BODY RefuseReason
   int reason = -1;
- 
+
   %(DEFAULT_BODY)s
 
   if(reason != -1)
@@ -162,7 +162,7 @@ RTABapdu
 
 #.FN_BODY AbortReason
   int reason = -1;
- 
+
   %(DEFAULT_BODY)s
 
   if(reason != -1)

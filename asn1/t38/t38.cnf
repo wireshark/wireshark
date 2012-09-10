@@ -213,8 +213,8 @@ VAL_PTR=&Data_Field_field_type_value
 
             if (!frag_msg) { /* Not last packet of reassembled */
                 if (Data_Field_field_type_value == 0) {
-                    col_append_fstr(actx->pinfo->cinfo, COL_INFO," (HDLC fragment %u)", 
-                                                                     seq_number + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter 
+                    col_append_fstr(actx->pinfo->cinfo, COL_INFO," (HDLC fragment %u)",
+                                                                     seq_number + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter
                                                                        - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
                 } else {
                     col_append_fstr(actx->pinfo->cinfo, COL_INFO," (t4-data fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);

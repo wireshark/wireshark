@@ -36,10 +36,10 @@
  * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2002-Amd1/T38.html (Pre-Corrigendum=FALSE)
  */
 
-/* TO DO:  
- * - TCP desegmentation is currently not supported for T.38 IFP directly over TCP. 
+/* TO DO:
+ * - TCP desegmentation is currently not supported for T.38 IFP directly over TCP.
  * - H.245 dissectors should be updated to start conversations for T.38 similar to RTP.
- * - Sometimes the last octet is not high-lighted when selecting something in the tree. Bug in PER dissector? 
+ * - Sometimes the last octet is not high-lighted when selecting something in the tree. Bug in PER dissector?
  * - Add support for RTP payload audio/t38 (draft-jones-avt-audio-t38-03.txt), i.e. T38 in RTP packets.
  */
 
@@ -66,7 +66,7 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 
-#define PORT_T38 6004  
+#define PORT_T38 6004
 static guint global_t38_tcp_port = PORT_T38;
 static guint global_t38_udp_port = PORT_T38;
 
@@ -78,7 +78,7 @@ static gboolean use_pre_corrigendum_asn1_specification = TRUE;
 /* dissect packets that looks like RTP version 2 packets as RTP     */
 /* instead of as T.38. This may result in that some T.38 UPTL       */
 /* packets with sequence number values higher than 32767 may be     */
-/* shown as RTP packets.                                            */ 
+/* shown as RTP packets.                                            */
 static gboolean dissect_possible_rtpv2_packets_as_rtp = FALSE;
 
 
@@ -169,6 +169,8 @@ static const fragment_items data_frag_items = {
 	&hf_t38_reassembled_in,
 	/* Reassembled length field */
 	&hf_t38_reassembled_length,
+	/* Reassembled data field */
+	NULL,
 	/* Tag */
 	"Data fragments"
 };
@@ -382,7 +384,7 @@ force_reassemble_seq(packet_info *pinfo, guint32 id,
 	fd_head->reassembled_in=pinfo->fd->num;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (t4-data Reassembled: %d pack lost, %d pack burst lost)", packet_lost, burst_lost);
-	
+
 	p_t38_packet_conv_info->packet_lost = packet_lost;
 	p_t38_packet_conv_info->burst_lost = burst_lost;
 
@@ -415,11 +417,11 @@ init_t38_info_conv(packet_info *pinfo)
 	t38_info->frame_num_first_t4_data = 0;
 
 
-	/* 
+	/*
 		p_t38_packet_conv hold the conversation info in each of the packets.
 		p_t38_conv hold the conversation info used to reassemble the HDLC packets, and also the Setup info (e.g SDP)
-		If we already have p_t38_packet_conv in the packet, it means we already reassembled the HDLC packets, so we don't 
-		need to use p_t38_conv 
+		If we already have p_t38_packet_conv in the packet, it means we already reassembled the HDLC packets, so we don't
+		need to use p_t38_conv
 	*/
 	p_t38_packet_conv = NULL;
 	p_t38_conv = NULL;
@@ -608,10 +610,10 @@ dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if(t38_tpkt_usage == T38_TPKT_ALWAYS){
 		dissect_tpkt_encap(tvb,pinfo,tree,t38_tpkt_reassembly,t38_tcp_pdu_handle);
-	} 
+	}
 	else if((t38_tpkt_usage == T38_TPKT_NEVER) || (is_tpkt(tvb,1) == -1)){
 		dissect_t38_tcp_pdu(tvb, pinfo, tree);
-	} 
+	}
 	else {
 		dissect_tpkt_encap(tvb,pinfo,tree,t38_tpkt_reassembly,t38_tcp_pdu_handle);
 	}
@@ -625,13 +627,13 @@ dissect_t38(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_t38_tcp(tvb, pinfo, tree);
 	}
 	else if(pinfo->ipproto == IP_PROTO_UDP)
-	{   
+	{
 		dissect_t38_udp(tvb, pinfo, tree);
 	}
 }
 
 /* Look for conversation info and display any setup info found */
-void 
+void
 show_setup_info(tvbuff_t *tvb, proto_tree *tree, t38_conv *p_t38_conversation)
 {
 	proto_tree *t38_setup_tree;
@@ -694,7 +696,7 @@ proto_register_t38(void)
 			FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 		{&hf_t38_fragment_multiple_tails,
 			{"Message has multiple tail fragments",
-			"t38.fragment.multiple_tails", 
+			"t38.fragment.multiple_tails",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 		{&hf_t38_fragment_too_long_fragment,
 			{"Message fragment too long", "t38.fragment.too_long_fragment",
@@ -753,7 +755,7 @@ proto_register_t38(void)
 	prefs_register_uint_preference(t38_module, "udp.port",
 		"T.38 UDP Port",
 		"Set the UDP port for T.38 messages",
-		10, &global_t38_udp_port);	
+		10, &global_t38_udp_port);
 	prefs_register_bool_preference(t38_module, "reassembly",
 		"Reassemble T.38 PDUs over TPKT over TCP",
 		"Whether the dissector should reassemble T.38 PDUs spanning multiple TCP segments "

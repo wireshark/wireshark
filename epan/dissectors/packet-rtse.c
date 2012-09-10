@@ -734,7 +734,7 @@ dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-rtse-fn.c ---*/
-#line 185 "../../asn1/rtse/packet-rtse-template.c"
+#line 187 "../../asn1/rtse/packet-rtse-template.c"
 
 /*
 * Dissect RTSE PDUs inside a PPDU.
@@ -1005,7 +1005,7 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 355 "../../asn1/rtse/packet-rtse-template.c"
+#line 357 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1027,7 +1027,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 364 "../../asn1/rtse/packet-rtse-template.c"
+#line 366 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   module_t *rtse_module;

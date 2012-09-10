@@ -3688,7 +3688,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2205 "../../asn1/snmp/packet-snmp-template.c"
+#line 2203 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3728,7 +3728,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2221 "../../asn1/snmp/packet-snmp-template.c"
+#line 2219 "../../asn1/snmp/packet-snmp-template.c"
   };
   module_t *snmp_module;
 

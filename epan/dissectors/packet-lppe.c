@@ -3129,7 +3129,7 @@ dissect_lppe_T_networkTimeReference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static const per_sequence_t OMA_LPPe_ScheduledLocation_Capabilities_sequence[] = {
   { &hf_lppe_minimumWindow  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_1_1024 },
-  { &hf_lppe_gnssTimeReference, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_ID_Bitmap },
+  { &hf_lppe_gnssTimeReference, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_GNSS_ID_Bitmap },
   { &hf_lppe_networkTimeReference, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_T_networkTimeReference },
   { NULL, 0, 0, NULL }
 };
@@ -3414,11 +3414,11 @@ dissect_lppe_OMA_LPPe_AGNSS_NavModelSupport(tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_GenericAssistDataSupportElement_sequence[] = {
-  { &hf_lppe_gnss_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_ID },
+  { &hf_lppe_gnss_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_ID },
   { &hf_lppe_mechnanicsSupport, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_MechanicsSupport },
   { &hf_lppe_dcbSupport     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_DCBsupport },
   { &hf_lppe_navModelAccuracyModelDegradationSupport, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_NavModelAccuracyModelDegradationSupport },
-  { &hf_lppe_ccpAssistanceSuppport, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_SignalIDs },
+  { &hf_lppe_ccpAssistanceSuppport, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_GNSS_SignalIDs },
   { &hf_lppe_navModelSupport, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_NavModelSupport },
   { NULL, 0, 0, NULL }
 };
@@ -3508,8 +3508,8 @@ dissect_lppe_T_haGNSSantennaInformationSupport(tvbuff_t *tvb _U_, int offset _U_
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_HAgnssPerGNSSsupport_sequence[] = {
-  { &hf_lppe_gnss_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_ID },
-  { &hf_lppe_haGNSSsignalSupport, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SignalIDs },
+  { &hf_lppe_gnss_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_ID },
+  { &hf_lppe_haGNSSsignalSupport, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SignalIDs },
   { NULL, 0, 0, NULL }
 };
 
@@ -4097,7 +4097,7 @@ dissect_lppe_INTEGER_1_2881(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 static const per_sequence_t OMA_LPPe_ValidityPeriod_sequence[] = {
-  { &hf_lppe_beginTime      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SystemTime },
+  { &hf_lppe_beginTime      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SystemTime },
   { &hf_lppe_beginTimeAlt   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_0_2881 },
   { &hf_lppe_duration_01    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_1_2881 },
   { NULL, 0, 0, NULL }
@@ -4297,7 +4297,7 @@ dissect_lppe_OMA_LPPe_ReferencePointAssistanceReq(tvbuff_t *tvb _U_, int offset 
 
 
 static const per_sequence_t OMA_LPPe_CommonIEsRequestAssistanceData_sequence[] = {
-  { &hf_lppe_approximate_location, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
+  { &hf_lppe_approximate_location, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
   { &hf_lppe_assistanceContainerRequestList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AssistanceContainerRequestList },
   { &hf_lppe_requestPeriodicADwithUpdate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_RequestPeriodicADwithUpdate },
   { &hf_lppe_segmentedADpreference, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_T_segmentedADpreference },
@@ -4362,7 +4362,7 @@ dissect_lppe_OMA_LPPe_Duration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static const per_sequence_t T_staticModels_01_sequence[] = {
   { &hf_lppe_ionoreq        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_T_ionoreq },
-  { &hf_lppe_requestBeginTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_SystemTime },
+  { &hf_lppe_requestBeginTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_GNSS_SystemTime },
   { &hf_lppe_duration_03    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_Duration },
   { NULL, 0, 0, NULL }
 };
@@ -4450,7 +4450,7 @@ dissect_lppe_T_troposphereModelReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static const per_sequence_t OMA_LPPe_AGNSS_TroposphereModelReq_sequence[] = {
   { &hf_lppe_troposphereModelReq_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_T_troposphereModelReq },
   { &hf_lppe_supportForMultipleGridPoints, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BOOLEAN },
-  { &hf_lppe_requestBeginTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_SystemTime },
+  { &hf_lppe_requestBeginTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_GNSS_SystemTime },
   { &hf_lppe_duration_03    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_Duration },
   { NULL, 0, 0, NULL }
 };
@@ -4465,7 +4465,7 @@ dissect_lppe_OMA_LPPe_AGNSS_TroposphereModelReq(tvbuff_t *tvb _U_, int offset _U
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_AltitudeAssistanceReq_sequence[] = {
-  { &hf_lppe_requestBeginTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_SystemTime },
+  { &hf_lppe_requestBeginTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_GNSS_SystemTime },
   { &hf_lppe_duration_03    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_Duration },
   { NULL, 0, 0, NULL }
 };
@@ -4738,7 +4738,7 @@ dissect_lppe_T_pd_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 static const per_sequence_t T_reference_01_sequence[] = {
-  { &hf_lppe_signal         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SignalID },
+  { &hf_lppe_signal         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SignalID },
   { &hf_lppe_pd_02          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_T_pd_02 },
   { NULL, 0, 0, NULL }
 };
@@ -4780,7 +4780,7 @@ dissect_lppe_OMA_LPPe_AGNSS_NavModelDegradationModelReq(tvbuff_t *tvb _U_, int o
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_CCPassistGenericReq_sequence[] = {
-  { &hf_lppe_ccpAssist_SignalsReq, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SignalIDs },
+  { &hf_lppe_ccpAssist_SignalsReq, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SignalIDs },
   { NULL, 0, 0, NULL }
 };
 
@@ -4822,7 +4822,7 @@ dissect_lppe_OMA_LPPe_AGNSS_NavigationModelReq(tvbuff_t *tvb _U_, int offset _U_
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_GenericAssistDataReqElement_sequence[] = {
-  { &hf_lppe_gnss_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_ID },
+  { &hf_lppe_gnss_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_ID },
   { &hf_lppe_waIonoSurfaceReq, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_WaIonoSurfaceRequest },
   { &hf_lppe_mechanicsReq   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_MechanicsReq },
   { &hf_lppe_dcbReq         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_DCBreq },
@@ -4882,8 +4882,8 @@ dissect_lppe_INTEGER_0_503(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static const per_sequence_t T_lteCell_sequence[] = {
   { &hf_lppe_physCellId     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_0_503 },
-  { &hf_lppe_eARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_ARFCN_ValueEUTRA },
-  { &hf_lppe_ecgi           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_CellGlobalIdEUTRA_AndUTRA },
+  { &hf_lppe_eARFCN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_ARFCN_ValueEUTRA },
+  { &hf_lppe_ecgi           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_CellGlobalIdEUTRA_AndUTRA },
   { NULL, 0, 0, NULL }
 };
 
@@ -5700,8 +5700,8 @@ static const value_string lppe_T_referencePointGeographicLocation_vals[] = {
 };
 
 static const per_choice_t T_referencePointGeographicLocation_choice[] = {
-  {   0, &hf_lppe_location3D     , ASN1_EXTENSION_ROOT    , dissect_lpp_EllipsoidPointWithAltitude },
-  {   1, &hf_lppe_location3DwithUncertainty, ASN1_EXTENSION_ROOT    , dissect_lpp_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
+  {   0, &hf_lppe_location3D     , ASN1_EXTENSION_ROOT    , dissect_LPP_PDU_Definitions_EllipsoidPointWithAltitude },
+  {   1, &hf_lppe_location3DwithUncertainty, ASN1_EXTENSION_ROOT    , dissect_LPP_PDU_Definitions_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
   {   2, &hf_lppe_locationwithhighaccuracy, ASN1_EXTENSION_ROOT    , dissect_lppe_OMA_LPPe_HighAccuracy3Dposition },
   { 0, NULL, 0, NULL }
 };
@@ -6452,7 +6452,7 @@ dissect_lppe_T_staticModels(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static const per_sequence_t OMA_LPPe_AGNSS_WideAreaIonoSurfaceControlParametersProvide_sequence[] = {
   { &hf_lppe_duration_03    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_Duration },
   { &hf_lppe_rate           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_1_64 },
-  { &hf_lppe_referencePosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_Ellipsoid_Point },
+  { &hf_lppe_referencePosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_Ellipsoid_Point },
   { &hf_lppe_validityArea   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_ValidityArea },
   { NULL, 0, 0, NULL }
 };
@@ -6621,7 +6621,7 @@ dissect_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalTroposphereDelayTimeElemen
 static const per_sequence_t OMA_LPPe_AGNSS_LocalTroposphereDelayAreaElement_sequence[] = {
   { &hf_lppe_validityArea   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_ValidityArea },
   { &hf_lppe_refAltitude    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_M1000_8192 },
-  { &hf_lppe_gradientReferencePosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_Ellipsoid_Point },
+  { &hf_lppe_gradientReferencePosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_Ellipsoid_Point },
   { &hf_lppe_delayList      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalTroposphereDelayTimeElement },
   { NULL, 0, 0, NULL }
 };
@@ -6729,7 +6729,7 @@ dissect_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalSurfaceParametersTimeEleme
 static const per_sequence_t OMA_LPPe_AGNSS_LocalSurfaceParametersAreaElement_sequence[] = {
   { &hf_lppe_validityArea   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_ValidityArea },
   { &hf_lppe_refAltitude    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_M1000_8192 },
-  { &hf_lppe_gradientReferencePosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_Ellipsoid_Point },
+  { &hf_lppe_gradientReferencePosition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_Ellipsoid_Point },
   { &hf_lppe_parameterList  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalSurfaceParametersTimeElement },
   { NULL, 0, 0, NULL }
 };
@@ -6806,7 +6806,7 @@ dissect_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_PressureAssistanceElement(tvbu
 
 static const per_sequence_t OMA_LPPe_AGNSS_AltitudeAssistanceAreaElement_sequence[] = {
   { &hf_lppe_validityArea   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_ValidityArea },
-  { &hf_lppe_gradientReferencePosition_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
+  { &hf_lppe_gradientReferencePosition_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
   { &hf_lppe_refAltitude    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_M1000_8192 },
   { &hf_lppe_pressureAssistanceList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_PressureAssistanceElement },
   { NULL, 0, 0, NULL }
@@ -6860,7 +6860,7 @@ dissect_lppe_OMA_LPPe_AGNSS_SolarRadiation(tvbuff_t *tvb _U_, int offset _U_, as
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_CCPprovideCommonParameters_sequence[] = {
-  { &hf_lppe_ccpReferenceTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SystemTime },
+  { &hf_lppe_ccpReferenceTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SystemTime },
   { NULL, 0, 0, NULL }
 };
 
@@ -6874,8 +6874,8 @@ dissect_lppe_OMA_LPPe_AGNSS_CCPprovideCommonParameters(tvbuff_t *tvb _U_, int of
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_CCPsignalSupport_sequence[] = {
-  { &hf_lppe_gnss           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_ID },
-  { &hf_lppe_signals        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SignalIDs },
+  { &hf_lppe_gnss           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_ID },
+  { &hf_lppe_signals        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SignalIDs },
   { NULL, 0, 0, NULL }
 };
 
@@ -7064,7 +7064,7 @@ dissect_lppe_INTEGER_M4096_4095(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_WideAreaIonoSurfacePerSVelement_sequence[] = {
-  { &hf_lppe_svID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_SV_ID },
+  { &hf_lppe_svID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_SV_ID },
   { &hf_lppe_a0             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_0_8191 },
   { &hf_lppe_e1             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_M4096_4095 },
   { &hf_lppe_n1             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_M4096_4095 },
@@ -7192,7 +7192,7 @@ dissect_lppe_T_svInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_MechanicsElement_sequence[] = {
-  { &hf_lppe_svid           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_SV_ID },
+  { &hf_lppe_svid           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_SV_ID },
   { &hf_lppe_mass           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_1_4095 },
   { &hf_lppe_effectiveReflectivityArea, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_1_511 },
   { &hf_lppe_pco            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_PCOelement },
@@ -7241,7 +7241,7 @@ dissect_lppe_T_pd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
 
 static const per_sequence_t T_reference_sequence[] = {
-  { &hf_lppe_signal         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SignalID },
+  { &hf_lppe_signal         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SignalID },
   { &hf_lppe_pd             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_T_pd },
   { NULL, 0, 0, NULL }
 };
@@ -7273,7 +7273,7 @@ dissect_lppe_T_pd_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_DCBelement_sequence[] = {
-  { &hf_lppe_signal         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SignalID },
+  { &hf_lppe_signal         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SignalID },
   { &hf_lppe_pd_01          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_T_pd_01 },
   { &hf_lppe_dcb            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_M4096_4095 },
   { NULL, 0, 0, NULL }
@@ -7303,7 +7303,7 @@ dissect_lppe_OMA_LPPe_AGNSS_DCBlist(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_DCBlistElement_sequence[] = {
-  { &hf_lppe_svid           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_SV_ID },
+  { &hf_lppe_svid           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_SV_ID },
   { &hf_lppe_reference      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_T_reference },
   { &hf_lppe_dcbList        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_AGNSS_DCBlist },
   { NULL, 0, 0, NULL }
@@ -7383,7 +7383,7 @@ dissect_lppe_OMA_LPPe_AGNSS_OrbitModelDegradationModel(tvbuff_t *tvb _U_, int of
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_NavModelDegradationModelElement_sequence[] = {
-  { &hf_lppe_svid           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_SV_ID },
+  { &hf_lppe_svid           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_SV_ID },
   { &hf_lppe_clockDegradationModel, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_AGNSS_ClockModelDegradationModel },
   { &hf_lppe_orbitDegradationModel, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_AGNSS_OrbitModelDegradationModel },
   { NULL, 0, 0, NULL }
@@ -7455,7 +7455,7 @@ dissect_lppe_OMA_LPPe_AGNSS_CodePhaseError(tvbuff_t *tvb _U_, int offset _U_, as
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_CCPperSVelement_sequence[] = {
-  { &hf_lppe_svID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_SV_ID },
+  { &hf_lppe_svID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_SV_ID },
   { &hf_lppe_integerCodePhase, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_0_255 },
   { &hf_lppe_codePhase      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_0_14989622 },
   { &hf_lppe_codePhaseError , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_CodePhaseError },
@@ -7489,7 +7489,7 @@ dissect_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_AGNSS_CCPperSVelement(tvbuff_t *tvb 
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_CCPperSignalElement_sequence[] = {
-  { &hf_lppe_signal_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SignalID },
+  { &hf_lppe_signal_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SignalID },
   { &hf_lppe_ccpPerSVlist   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_AGNSS_CCPperSVelement },
   { NULL, 0, 0, NULL }
 };
@@ -7557,7 +7557,7 @@ dissect_lppe_INTEGER_1_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static const per_sequence_t T_fixedInterval_sequence[] = {
-  { &hf_lppe_beginTime      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SystemTime },
+  { &hf_lppe_beginTime      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SystemTime },
   { &hf_lppe_interval       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_1_30 },
   { NULL, 0, 0, NULL }
 };
@@ -7709,7 +7709,7 @@ dissect_lppe_T_rateRecord(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_NavModel_PVTelement_sequence[] = {
-  { &hf_lppe_svID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_SV_ID },
+  { &hf_lppe_svID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_SV_ID },
   { &hf_lppe_svClockOffset  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_AGNSS_NavModel_BigNumber },
   { &hf_lppe_ecefPositionX  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_AGNSS_NavModel_BigNumber },
   { &hf_lppe_ecefPositionY  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_AGNSS_NavModel_BigNumber },
@@ -7743,7 +7743,7 @@ dissect_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_AGNSS_NavModel_PVTelement(tvbuff_t *
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_NavModel_CoordinateBasedElement_sequence[] = {
-  { &hf_lppe_time_of_record , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_SystemTime },
+  { &hf_lppe_time_of_record , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_GNSS_SystemTime },
   { &hf_lppe_svIdList       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_AGNSS_NavModel_PVTelement },
   { NULL, 0, 0, NULL }
 };
@@ -7803,7 +7803,7 @@ dissect_lppe_OMA_LPPe_AGNSS_NavModelList(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_GenericAssistDataElement_sequence[] = {
-  { &hf_lppe_gnss_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_ID },
+  { &hf_lppe_gnss_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_ID },
   { &hf_lppe_wideAreaIonoSurfacePerSVlist, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfacePerSVlist },
   { &hf_lppe_mechanicsForAllSVs, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_MechanicsForAllSVs },
   { &hf_lppe_dcbsForAllSVs  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_DCBsForAllSVs },
@@ -8109,7 +8109,7 @@ dissect_lppe_OMA_LPPe_OTDOA_PositionCalculationInfoRef(tvbuff_t *tvb _U_, int of
 
 
 static const per_sequence_t OMA_LPPe_OTDOA_ReferenceCellInfo_sequence[] = {
-  { &hf_lppe_referenceCellInfo, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_OTDOA_ReferenceCellInfo },
+  { &hf_lppe_referenceCellInfo, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_OTDOA_ReferenceCellInfo },
   { &hf_lppe_positionCalculationInfoRef, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_OTDOA_PositionCalculationInfoRef },
   { NULL, 0, 0, NULL }
 };
@@ -8171,7 +8171,7 @@ dissect_lppe_T_rtdInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 
 static const per_sequence_t OMA_LPPe_OTDOA_CellData_sequence[] = {
-  { &hf_lppe_otdoa_NeighbourCellInfoElement, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_OTDOA_NeighbourCellInfoElement },
+  { &hf_lppe_otdoa_NeighbourCellInfoElement, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_OTDOA_NeighbourCellInfoElement },
   { &hf_lppe_rtdInfo        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_T_rtdInfo },
   { NULL, 0, 0, NULL }
 };
@@ -8435,8 +8435,8 @@ static const value_string lppe_T_btsPosition_vals[] = {
 };
 
 static const per_choice_t T_btsPosition_choice[] = {
-  {   0, &hf_lppe_ellipsoidPoint , ASN1_EXTENSION_ROOT    , dissect_lpp_Ellipsoid_Point },
-  {   1, &hf_lppe_ellipsoidPointWithAltitudeAndUncertaintyEllipsoid, ASN1_EXTENSION_ROOT    , dissect_lpp_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
+  {   0, &hf_lppe_ellipsoidPoint , ASN1_EXTENSION_ROOT    , dissect_LPP_PDU_Definitions_Ellipsoid_Point },
+  {   1, &hf_lppe_ellipsoidPointWithAltitudeAndUncertaintyEllipsoid, ASN1_EXTENSION_ROOT    , dissect_LPP_PDU_Definitions_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
   { 0, NULL, 0, NULL }
 };
 
@@ -8903,8 +8903,8 @@ dissect_lppe_T_modeSpecificInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 static const per_sequence_t OMA_LPPe_UTRA_FrequencyInfoFDD_sequence[] = {
-  { &hf_lppe_uarfcn_UL      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueUTRA },
-  { &hf_lppe_uarfcn_DL      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_ARFCN_ValueUTRA },
+  { &hf_lppe_uarfcn_UL      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_ARFCN_ValueUTRA },
+  { &hf_lppe_uarfcn_DL      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_ARFCN_ValueUTRA },
   { NULL, 0, 0, NULL }
 };
 
@@ -8918,7 +8918,7 @@ dissect_lppe_OMA_LPPe_UTRA_FrequencyInfoFDD(tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static const per_sequence_t OMA_LPPe_UTRA_FrequencyInfoTDD_sequence[] = {
-  { &hf_lppe_uarfcn_Nt      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_ARFCN_ValueUTRA },
+  { &hf_lppe_uarfcn_Nt      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_ARFCN_ValueUTRA },
   { NULL, 0, 0, NULL }
 };
 
@@ -8974,8 +8974,8 @@ static const value_string lppe_T_cellPosition_vals[] = {
 };
 
 static const per_choice_t T_cellPosition_choice[] = {
-  {   0, &hf_lppe_ellipsoidPoint , ASN1_EXTENSION_ROOT    , dissect_lpp_Ellipsoid_Point },
-  {   1, &hf_lppe_ellipsoidPointWithAltitude, ASN1_EXTENSION_ROOT    , dissect_lpp_EllipsoidPointWithAltitude },
+  {   0, &hf_lppe_ellipsoidPoint , ASN1_EXTENSION_ROOT    , dissect_LPP_PDU_Definitions_Ellipsoid_Point },
+  {   1, &hf_lppe_ellipsoidPointWithAltitude, ASN1_EXTENSION_ROOT    , dissect_LPP_PDU_Definitions_EllipsoidPointWithAltitude },
   { 0, NULL, 0, NULL }
 };
 
@@ -9703,7 +9703,7 @@ dissect_lppe_INTEGER_0_100(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static const per_sequence_t OMA_LPPe_ECID_LTE_CellData_sequence[] = {
   { &hf_lppe_physCellId     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_0_503 },
   { &hf_lppe_cellIdentity_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_BIT_STRING_SIZE_28 },
-  { &hf_lppe_dl_CarrierFreq , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_ARFCN_ValueEUTRA },
+  { &hf_lppe_dl_CarrierFreq , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_ARFCN_ValueEUTRA },
   { &hf_lppe_rs_transmit_power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_M127_128 },
   { &hf_lppe_antennaPortConfig, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_T_antennaPortConfig },
   { &hf_lppe_antenna_gain   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_M127_128 },
@@ -10390,7 +10390,7 @@ dissect_lppe_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static const per_sequence_t T_fdd_05_sequence[] = {
   { &hf_lppe_primaryCPICH_Scrambling_Code, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_OTDOA_UTRA_PrimaryScramblingCode },
   { &hf_lppe_primaryCPICH_Tx_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_M127_128 },
-  { &hf_lppe_uarfcn_dl      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_ARFCN_ValueUTRA },
+  { &hf_lppe_uarfcn_dl      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_ARFCN_ValueUTRA },
   { NULL, 0, 0, NULL }
 };
 
@@ -10406,7 +10406,7 @@ dissect_lppe_T_fdd_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static const per_sequence_t T_tdd_05_sequence[] = {
   { &hf_lppe_cellParametersID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_OMA_LPPe_OTDOA_UTRA_CellParametersID },
   { &hf_lppe_primaryCCPCH_Tx_Power, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_M127_128 },
-  { &hf_lppe_uarfcn_nt      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_ARFCN_ValueUTRA },
+  { &hf_lppe_uarfcn_nt      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_ARFCN_ValueUTRA },
   { NULL, 0, 0, NULL }
 };
 
@@ -11876,8 +11876,8 @@ dissect_lppe_OMA_LPPe_LocalPositionRequest(tvbuff_t *tvb _U_, int offset _U_, as
 
 
 static const per_sequence_t OMA_LPPe_ScheduledLocation_Request_sequence[] = {
-  { &hf_lppe_gnssTime       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_SystemTime },
-  { &hf_lppe_networkTime    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_NetworkTime },
+  { &hf_lppe_gnssTime       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_GNSS_SystemTime },
+  { &hf_lppe_networkTime    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_NetworkTime },
   { &hf_lppe_relativeTime   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_1_1024 },
   { &hf_lppe_windowSize     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_1_1024 },
   { NULL, 0, 0, NULL }
@@ -11975,8 +11975,8 @@ dissect_lppe_T_antennaInformationReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_HAgnssSignalReqElement_sequence[] = {
-  { &hf_lppe_gnssID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_ID },
-  { &hf_lppe_signals        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SignalIDs },
+  { &hf_lppe_gnssID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_ID },
+  { &hf_lppe_signals        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SignalIDs },
   { NULL, 0, 0, NULL }
 };
 
@@ -12703,8 +12703,8 @@ static const value_string lppe_OMA_LPPe_TimeStamp_vals[] = {
 };
 
 static const per_choice_t OMA_LPPe_TimeStamp_choice[] = {
-  {   0, &hf_lppe_gnssTime       , ASN1_EXTENSION_ROOT    , dissect_lpp_GNSS_SystemTime },
-  {   1, &hf_lppe_networkTime    , ASN1_EXTENSION_ROOT    , dissect_lpp_NetworkTime },
+  {   0, &hf_lppe_gnssTime       , ASN1_EXTENSION_ROOT    , dissect_LPP_PDU_Definitions_GNSS_SystemTime },
+  {   1, &hf_lppe_networkTime    , ASN1_EXTENSION_ROOT    , dissect_LPP_PDU_Definitions_NetworkTime },
   {   2, &hf_lppe_relativeTime_02, ASN1_EXTENSION_ROOT    , dissect_lppe_INTEGER_0_1024 },
   { 0, NULL, 0, NULL }
 };
@@ -12803,7 +12803,7 @@ dissect_lppe_INTEGER_0_536870911(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 
 static const per_sequence_t OMA_LPPe_HAgnssPerSVelement_sequence[] = {
-  { &hf_lppe_svID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_SV_ID },
+  { &hf_lppe_svID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_SV_ID },
   { &hf_lppe_integerCodePhase, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_0_255 },
   { &hf_lppe_codePhase      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_0_14989622 },
   { &hf_lppe_codePhaseRMSError, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_0_63 },
@@ -12839,7 +12839,7 @@ dissect_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_HAgnssPerSVelement(tvbuff_t *tvb _U_
 
 
 static const per_sequence_t OMA_LPPe_HAgnssPerSignalElement_sequence[] = {
-  { &hf_lppe_signal_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SignalID },
+  { &hf_lppe_signal_ID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SignalID },
   { &hf_lppe_haGNSSperSVlist, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_HAgnssPerSVelement },
   { NULL, 0, 0, NULL }
 };
@@ -12868,7 +12868,7 @@ dissect_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_HAgnssPerSignalElement(tvbuff_t *tvb 
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_HAgnssMeasurementElement_sequence[] = {
-  { &hf_lppe_gnss_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_ID },
+  { &hf_lppe_gnss_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_ID },
   { &hf_lppe_haGNSSperSignalList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_HAgnssPerSignalElement },
   { NULL, 0, 0, NULL }
 };
@@ -12897,8 +12897,8 @@ dissect_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_HAgnssMeasurementElement(tvbuf
 
 
 static const per_sequence_t T_measurements_sequence[] = {
-  { &hf_lppe_position       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
-  { &hf_lppe_referenceTime  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SystemTime },
+  { &hf_lppe_position       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
+  { &hf_lppe_referenceTime  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SystemTime },
   { &hf_lppe_localPressure  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_T_localPressure },
   { &hf_lppe_antennaOrientation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_Orientation },
   { &hf_lppe_signalMeasurements, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_HAgnssMeasurementElement },
@@ -12993,8 +12993,8 @@ dissect_lppe_OMA_LPPe_AGNSS_TECAtZenith(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_IonosphereMeasurements_sequence[] = {
-  { &hf_lppe_gnssTime       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SystemTime },
-  { &hf_lppe_position       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
+  { &hf_lppe_gnssTime       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SystemTime },
+  { &hf_lppe_position       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
   { &hf_lppe_tecPerSV       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_TECPerSV },
   { &hf_lppe_tecAtZenith    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_TECAtZenith },
   { NULL, 0, 0, NULL }
@@ -13025,8 +13025,8 @@ dissect_lppe_T_temperatureMeasurement(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_LocalSurfaceMeasurements_sequence[] = {
-  { &hf_lppe_gnssTime       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_GNSS_SystemTime },
-  { &hf_lppe_position       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
+  { &hf_lppe_gnssTime       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_GNSS_SystemTime },
+  { &hf_lppe_position       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid },
   { &hf_lppe_pressure       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_M1024_1023 },
   { &hf_lppe_pressureUncertainty, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_0_127 },
   { &hf_lppe_temperatureMeasurement, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_T_temperatureMeasurement },
@@ -13043,7 +13043,7 @@ dissect_lppe_OMA_LPPe_AGNSS_LocalSurfaceMeasurements(tvbuff_t *tvb _U_, int offs
 
 
 static const per_sequence_t OMA_LPPe_AGNSS_ProvideLocationInformation_sequence[] = {
-  { &hf_lppe_highAccuracyReferenceTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_GNSS_SystemTime },
+  { &hf_lppe_highAccuracyReferenceTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_GNSS_SystemTime },
   { &hf_lppe_highAccuracyMeasurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_HAgnssProvide },
   { &hf_lppe_ionosphereMeasurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_IonosphereMeasurements },
   { &hf_lppe_localSurfaceMeasurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_AGNSS_LocalSurfaceMeasurements },
@@ -13063,7 +13063,7 @@ dissect_lppe_OMA_LPPe_AGNSS_ProvideLocationInformation(tvbuff_t *tvb _U_, int of
 static const per_sequence_t OMA_LPPe_OTDOA_LocationInformation_sequence[] = {
   { &hf_lppe_systemFrameNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BIT_STRING_SIZE_10 },
   { &hf_lppe_physCellId     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_0_503 },
-  { &hf_lppe_cellGlobalId   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_CellGlobalIdEUTRA_AndUTRA },
+  { &hf_lppe_cellGlobalId   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_CellGlobalIdEUTRA_AndUTRA },
   { NULL, 0, 0, NULL }
 };
 
@@ -13464,7 +13464,7 @@ dissect_lppe_T_fdd_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static const per_sequence_t T_tdd_04_sequence[] = {
   { &hf_lppe_cellAndChannelIdentity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_OTDOA_UTRA_CellAndChannelIdentity },
-  { &hf_lppe_uarfcn         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueUTRA },
+  { &hf_lppe_uarfcn         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_LPP_PDU_Definitions_ARFCN_ValueUTRA },
   { NULL, 0, 0, NULL }
 };
 
@@ -13579,7 +13579,7 @@ dissect_lppe_T_nonUniqueCellID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static const per_sequence_t OMA_LPPe_OTDOA_UTRA_TimeStampData_sequence[] = {
   { &hf_lppe_sfn            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_INTEGER_0_4095 },
-  { &hf_lppe_utraCellGlobalID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_CellGlobalIdEUTRA_AndUTRA },
+  { &hf_lppe_utraCellGlobalID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_CellGlobalIdEUTRA_AndUTRA },
   { &hf_lppe_frequencyInfo  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_UTRA_FrequencyInfo },
   { &hf_lppe_nonUniqueCellID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_T_nonUniqueCellID },
   { NULL, 0, 0, NULL }
@@ -13611,7 +13611,7 @@ dissect_lppe_OMA_LPPe_OTDOA_UTRA_ProvideLocationInformation(tvbuff_t *tvb _U_, i
 
 
 static const per_sequence_t OMA_LPPe_ECID_LTE_LocationInformation_sequence[] = {
-  { &hf_lppe_lpp_ECID_SignalMeasurementInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_ECID_SignalMeasurementInformation },
+  { &hf_lppe_lpp_ECID_SignalMeasurementInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_ECID_SignalMeasurementInformation },
   { NULL, 0, 0, NULL }
 };
 
@@ -13700,7 +13700,7 @@ dissect_lppe_OMA_LPPe_NMR_GERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 static const per_sequence_t OMA_LPPe_ECID_GSM_LocationInformation_sequence[] = {
-  { &hf_lppe_cellGlobalIdGERAN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_CellGlobalIdGERAN },
+  { &hf_lppe_cellGlobalIdGERAN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_CellGlobalIdGERAN },
   { &hf_lppe_rxLevel        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_0_63 },
   { &hf_lppe_tA             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_0_255 },
   { &hf_lppe_nMR_GERAN      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_NMR_GERAN },
@@ -13976,7 +13976,7 @@ dissect_lppe_OMA_LPPe_ECID_UTRA_UTRATimingAdvance(tvbuff_t *tvb _U_, int offset 
 
 
 static const per_sequence_t OMA_LPPe_ECID_UTRA_LocationInformation_sequence[] = {
-  { &hf_lppe_cellGlobalIdUTRA, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_CellGlobalIdEUTRA_AndUTRA },
+  { &hf_lppe_cellGlobalIdUTRA, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_LPP_PDU_Definitions_CellGlobalIdEUTRA_AndUTRA },
   { &hf_lppe_frequencyInfo  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_UTRA_FrequencyInfo },
   { &hf_lppe_primaryScramblingCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_OTDOA_UTRA_PrimaryScramblingCode },
   { &hf_lppe_measuredResultsList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_OMA_LPPe_ECID_UTRA_MeasuredResultsList },
@@ -17722,7 +17722,7 @@ void proto_register_lppe(void) {
         "INTEGER_0_503", HFILL }},
     { &hf_lppe_eARFCN,
       { "eARFCN", "lppe.eARFCN",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ARFCN_ValueEUTRA", HFILL }},
     { &hf_lppe_ecgi,
       { "ecgi", "lppe.ecgi",
@@ -18234,7 +18234,7 @@ void proto_register_lppe(void) {
         "T_tdd_04", HFILL }},
     { &hf_lppe_uarfcn,
       { "uarfcn", "lppe.uarfcn",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ARFCN_ValueUTRA", HFILL }},
     { &hf_lppe_sfn_sfn_ObsTimeDifference2,
       { "sfn-sfn-ObsTimeDifference2", "lppe.sfn_sfn_ObsTimeDifference2",
@@ -18390,7 +18390,7 @@ void proto_register_lppe(void) {
         "BIT_STRING_SIZE_28", HFILL }},
     { &hf_lppe_dl_CarrierFreq,
       { "dl-CarrierFreq", "lppe.dl_CarrierFreq",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ARFCN_ValueEUTRA", HFILL }},
     { &hf_lppe_rs_transmit_power,
       { "rs-transmit-power", "lppe.rs_transmit_power",
@@ -18806,7 +18806,7 @@ void proto_register_lppe(void) {
         "INTEGER_M127_128", HFILL }},
     { &hf_lppe_uarfcn_dl,
       { "uarfcn-dl", "lppe.uarfcn_dl",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ARFCN_ValueUTRA", HFILL }},
     { &hf_lppe_tdd_05,
       { "tdd", "lppe.tdd",
@@ -18818,7 +18818,7 @@ void proto_register_lppe(void) {
         "INTEGER_M127_128", HFILL }},
     { &hf_lppe_uarfcn_nt,
       { "uarfcn-nt", "lppe.uarfcn_nt",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ARFCN_ValueUTRA", HFILL }},
     { &hf_lppe_nBrequestedAD,
       { "nBrequestedAD", "lppe.nBrequestedAD",
@@ -18882,15 +18882,15 @@ void proto_register_lppe(void) {
         "OMA_LPPe_UTRA_FrequencyInfoTDD", HFILL }},
     { &hf_lppe_uarfcn_UL,
       { "uarfcn-UL", "lppe.uarfcn_UL",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ARFCN_ValueUTRA", HFILL }},
     { &hf_lppe_uarfcn_DL,
       { "uarfcn-DL", "lppe.uarfcn_DL",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ARFCN_ValueUTRA", HFILL }},
     { &hf_lppe_uarfcn_Nt,
       { "uarfcn-Nt", "lppe.uarfcn_Nt",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ARFCN_ValueUTRA", HFILL }},
     { &hf_lppe_OMA_LPPe_ECID_UTRA_MeasuredResultsList_item,
       { "OMA-LPPe-ECID-UTRA-MeasuredResults", "lppe.OMA_LPPe_ECID_UTRA_MeasuredResults",

@@ -6582,7 +6582,7 @@ guint node_b_com_context_id;
 
 static GTree * edch_flow_port_map = NULL;
 
-/*Stuff for mapping NodeB-Comuncation Context ID to CRNC Comuncation Context ID*/
+/*Stuff for mapping NodeB-Comuncation Context ID to CRNC Communication Context ID*/
 typedef struct com_ctxt_{
 		/*guint	nodeb_context;*/
 		guint	crnc_context;
