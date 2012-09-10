@@ -703,11 +703,11 @@ gtk_merge_file(GtkWidget *w, GString *file_name, GString *display_filter, int *m
   if (file_name->len > 0) {
     gchar *dirname = g_path_get_dirname(file_name->str);
 
-    file_selection_set_current_folder(file_open_w, dirname);
+    file_selection_set_current_folder(file_merge_w, dirname);
     g_free(dirname);
   } else {
     switch (prefs.gui_fileopen_style) {
-  
+
     case FO_STYLE_LAST_OPENED:
       /* The user has specified that we should start out in the last directory
          we looked in.  If we've already opened a file, use its containing
@@ -716,7 +716,7 @@ gtk_merge_file(GtkWidget *w, GString *file_name, GString *display_filter, int *m
          there was one. */
       /* This is now the default behaviour in file_selection_new() */
       break;
-  
+
     case FO_STYLE_SPECIFIED:
       /* The user has specified that we should always start out in a
          specified directory; if they've specified that directory,
@@ -797,8 +797,8 @@ gtk_merge_file(GtkWidget *w, GString *file_name, GString *display_filter, int *m
 
   g_object_set_data(G_OBJECT(file_merge_w), E_DFILTER_TE_KEY,
                     g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY));
-  
-    cf_name = file_selection_run(file_open_w);
+
+    cf_name = file_selection_run(file_merge_w);
   if (cf_name == NULL) {
     /* User cancelled or closed the dialog. */
     return FALSE;
@@ -817,7 +817,7 @@ gtk_merge_file(GtkWidget *w, GString *file_name, GString *display_filter, int *m
   }
 
   /* We've crossed the Rubicon; get rid of the file selection box. */
-  window_destroy(GTK_WIDGET(file_open_w));
+  window_destroy(GTK_WIDGET(file_merge_w));
 
   return TRUE;
 }
@@ -864,9 +864,9 @@ file_merge_cmd(GtkWidget *w _U_)
         bad_dfilter_alert_box(top_level, display_filter->str);
         continue;
       }
-  
+
       file_type = cfile.cd_t;
-  
+
       /* Try to merge or append the two files */
       tmpname = NULL;
       if (merge_type == 0) {
@@ -885,7 +885,7 @@ file_merge_cmd(GtkWidget *w _U_)
         in_filenames[1] = file_name->str;
         merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, TRUE);
       }
-  
+
       if (merge_status != CF_OK) {
         if (rfcode != NULL)
           dfilter_free(rfcode);
@@ -894,9 +894,9 @@ file_merge_cmd(GtkWidget *w _U_)
         g_string_free(display_filter, TRUE);
         continue;
       }
-  
+
       cf_close(&cfile);
-  
+
       /* Try to open the merged capture file. */
       if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
         /* We couldn't open it; fail. */
@@ -907,21 +907,21 @@ file_merge_cmd(GtkWidget *w _U_)
         g_string_free(display_filter, TRUE);
         return;
       }
-  
+
       /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
          it closed the previous capture file, and thus destroyed any
          previous read filter attached to "cf"). */
       cfile.rfcode = rfcode;
-  
+
       switch (cf_read(&cfile, FALSE)) {
-  
+
       case CF_READ_OK:
       case CF_READ_ERROR:
         /* Just because we got an error, that doesn't mean we were unable
            to read any of the file; we handle what we could get from the
            file. */
         break;
-  
+
       case CF_READ_ABORTED:
         /* The user bailed out of re-reading the capture file; the
            capture file has been closed - just free the capture file name
@@ -933,7 +933,7 @@ file_merge_cmd(GtkWidget *w _U_)
         return;
       }
     }
-  
+
     /* Save the name of the containing directory specified in the path name,
        if any; we can write over cf_merged_name, which is a good thing, given that
        "get_dirname()" does write over its argument. */
