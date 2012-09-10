@@ -120,7 +120,7 @@ my %APIs = (
                 'freopen',
                 # Misc
                 'tmpnam',       # use mkstemp
-		'_snwprintf'	# use StringCchPrintf
+                '_snwprintf'    # use StringCchPrintf
                 ] },
 
         # APIs that SHOULD NOT be used in Wireshark (any more)
@@ -1319,8 +1319,8 @@ sub checkAddTextCalls($$)
         my $okay_add_text_count = 0;
         my $add_xxx_count = 0;
 
-	# The 3 loops here are slow, but trying a single loop with capturing
-	# parenthesis is even slower!
+        # The 3 loops here are slow, but trying a single loop with capturing
+        # parenthesis is even slower!
 
         # First count how many proto_tree_add_text() calls there are in total
         while (${$fileContentsRef} =~ m/ \W* proto_tree_add_text \W* \( /gox) {
@@ -1419,33 +1419,33 @@ sub check_proto_tree_add_XXX_encoding($$)
 
         @items = (${$fileContentsRef} =~ m/ (proto_tree_add_[_a-z0-9]+) \( ([^;]*) \) \s* ; /xsg);
 
-	while (@items) {
-		my ($func) = @items;
-		shift @items;
-		my ($args) = @items;
-		shift @items;
+        while (@items) {
+                my ($func) = @items;
+                shift @items;
+                my ($args) = @items;
+                shift @items;
 
-		# Remove anything inside parenthesis in the arguments so we
-		# don't get false positives when someone calls
-		# proto_tree_add_XXX(..., tvb_YYY(..., ENC_ZZZ))
-		$args =~ s/\(.*\)//g;
+                # Remove anything inside parenthesis in the arguments so we
+                # don't get false positives when someone calls
+                # proto_tree_add_XXX(..., tvb_YYY(..., ENC_ZZZ))
+                $args =~ s/\(.*\)//g;
 
-		if ($args =~ /,\s*ENC_/xos) {
-			if (!($func =~ /proto_tree_add_(item|bitmask|bits_item|bits_ret_val)/xos)
-			   ) {
-				print STDERR "Error: ".$filename." uses $func with ENC_*.\n";
-				$errorCount++;
+                if ($args =~ /,\s*ENC_/xos) {
+                        if (!($func =~ /proto_tree_add_(item|bitmask|bits_item|bits_ret_val)/xos)
+                           ) {
+                                print STDERR "Error: ".$filename." uses $func with ENC_*.\n";
+                                $errorCount++;
 
-				# Print out the function args to make it easier
-				# to find the offending code.  But first make
-				# it readable by eliminating extra white space.
-				$args =~ s/\s+/ /g;
-				print STDERR "\tArgs: " . $args . "\n";
-			}
-		}
-	}
+                                # Print out the function args to make it easier
+                                # to find the offending code.  But first make
+                                # it readable by eliminating extra white space.
+                                $args =~ s/\s+/ /g;
+                                print STDERR "\tArgs: " . $args . "\n";
+                        }
+                }
+        }
 
-	return $errorCount;
+        return $errorCount;
 }
 
 
@@ -1692,7 +1692,7 @@ my $commentAndStringRegex = qr{ (?: $DoubleQuotedStr | $SingleQuotedStr | $CComm
 my $StaticRegex             = qr/ static \s+                                                            /xs;
 my $ConstRegex              = qr/ const  \s+                                                            /xs;
 my $Static_andor_ConstRegex = qr/ (?: $StaticRegex $ConstRegex | $StaticRegex | $ConstRegex)            /xs;
-my $ValueStringRegex        = qr/ $Static_andor_ConstRegex value_string \ + [^;*]+ = [^;]+ [{] [^;]+ ;  /xs;
+my $ValueStringRegex        = qr/ $Static_andor_ConstRegex (value|string|range)_string \ + [^;*]+ = [^;]+ [{] [^;]+ ;  /xs;
 
 #
 # MAIN
@@ -1810,17 +1810,19 @@ while ($_ = $ARGV[0])
                 checkAddTextCalls(\$fileContents, $filename);
         }
 
-	$errorCount += check_proto_tree_add_XXX_encoding(\$fileContents, $filename);
+        $errorCount += check_proto_tree_add_XXX_encoding(\$fileContents, $filename);
 
-        # Brute force check for value_string arrays which are missing {0, NULL} as the final (terminating) array entry
+        # Brute force check for value_string (and string_string or range_string) arrays
+        # which are missing {0, NULL} as the final (terminating) array entry
         if ($check_value_string_array_null_termination) {
                 #  Assumption: definition is of form (pseudo-Regex):
-                #    " (static const|static|const) value_string .+ = { .+ ;" (possibly over multiple lines)
+                #    " (static const|static|const) (value|string|range)_string .+ = { .+ ;"
+                #  (possibly over multiple lines)
                 while ($fileContents =~ / ( $ValueStringRegex ) /xsog) {
-                        # value_string array definition found; check if NULL terminated
+                        # XXX_string array definition found; check if NULL terminated
                         my $vs = my $vsx = $1;
                         if ($debug_flag) {
-                                $vsx =~ / ( .+ value_string [^=]+ ) = /xo;
+                                $vsx =~ / ( .+ (value|string|range)_string [^=]+ ) = /xo;
                                 printf STDERR "==> %-35.35s: %s\n", $filename, $1;
                                 printf STDERR "%s\n", $vs;
                         }
@@ -1829,12 +1831,12 @@ while ($_ = $ARGV[0])
                         #  "Don't put a comma after the last tuple of an initializer of an array"
                         # However: since this usage is present in some number of cases, we'll allow for now
                         if ($vs !~ / , NULL [}] ,? [}] ; $/xo) {
-                                $vsx =~ /( value_string [^=]+ ) = /xo;
-                                printf STDERR "Error: %-35.35s: {0, NULL} is required as the last value_string array entry: %s\n", $filename, $1;
+                                $vsx =~ /( (value|string|range)_string [^=]+ ) = /xo;
+                                printf STDERR "Error: %-35.35s: {0, NULL} is required as the last XXX_string array entry: %s\n", $filename, $1;
                                 $errorCount++;
                         }
-                        if ($vs !~ / (static)? const value_string /xo)  {
-                                $vsx =~ /( value_string [^=]+ ) = /xo;
+                        if ($vs !~ / (static)? const (value|string|range)_string /xo)  {
+                                $vsx =~ /( (value|string|range)_string [^=]+ ) = /xo;
                                 printf STDERR "Error: %-35.35s: Missing 'const': %s\n", $filename, $1;
                                 $errorCount++;
                         }
