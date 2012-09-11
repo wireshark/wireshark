@@ -23,6 +23,7 @@
 	<!ENTITY mobileipv6	SYSTEM "mobileipv6.xml">
 	<!ENTITY Cisco		SYSTEM "Cisco.xml">
 	<!ENTITY Vodafone	SYSTEM "Vodafone.xml">
+	<!ENTITY AlcatelLucent	SYSTEM "AlcatelLucent.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -194,6 +195,7 @@
 		<vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
 		<vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
 		<vendor vendor-id="Tango" code="13421" name="Tango Telecom Limited"/>
+		<vendor vendor-id="ALU" code="637" name="ALU Network"/>
 		<!-- *********************** End Vendors ************************** -->
 
 
@@ -1606,7 +1608,7 @@
 		<!-- ******************* DIAMETER BASE PROTOCOL AVPS ************************ -->
 		<!-- ************************************************************************ -->
 		<avp name="Unassigned" code="256" mandatory="may">
-		  <type type-name="OctetString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Host-IP-Address" code="257" mandatory="must" protected="may" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="IPAddress"/>
@@ -3870,28 +3872,68 @@
 			<type type-name="Enumerated"/>
 			<enum name="SEND_TO_UE"  code="0"/>
 		</avp>
-		<avp name="Flow-Direction" code="1073" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Charging-Correlation-Indicator" code="1073" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="CHARGING_IDENTIFIER_REQUIRED"	code="0"/>
+		</avp>
+		<avp name="QoS-Rule-Base-Name" code="1074" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Routing-Rule-Remove" code="1075" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Routing-Rule-Identifier"/>
+			</grouped>
+		</avp>
+		<avp name="Routing-Rule-Definition" code="1076" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Routing-Rule-Identifier"/>
+				<gavp name="Routing-Filter"/>
+				<gavp name="Precedence"/>
+				<gavp name="Routing-IP-Address"/>
+			</grouped>
+		</avp>
+		<avp name="Routing-Rule-Identifier" code="1077" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Routing-Filter" code="1078" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Flow-Description"/>
+				<gavp name="Flow-Direction"/>
+				<gavp name="ToS-Traffic-Class"/>
+				<gavp name="Security-Parameter-Index"/>
+				<gavp name="Security-Parameter-Index"/>
+				<gavp name="Flow-Label"/>
+			</grouped>
+		</avp>
+		<avp name="Routing-IP-Address" code="1079" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="Flow-Direction" code="1080" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="UNSPECIFIED"	code="0"/>
 			<enum name="DOWNLINK"		code="1"/>
 			<enum name="UPLINK"		code="2"/>
 			<enum name="BIDIRECTIONAL"	code="3"/>
 		</avp>
-		<avp name="QoS-Rule-Base-Name" code="1074" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-		  <type type-name="UTF8String"/>
+		<avp name="Routing-Rule-Install" code="1081" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Routing-Rule-Definition"/>
+			</grouped>
+		</avp>
+		<avp name="Maximum-Bandwidth" code="1082" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Max-Supported-Bandwidth-UL"/>
+				<gavp name="Max-Supported-Bandwidth-DL"/>
+			</grouped>
+		</avp>
+		<avp name="Max-Supported-Bandwidth-DL" code="1083" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Max-Supported-Bandwidth-UL" code="1084" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
 		</avp>
 
-		<!--
-		1075 Routing-Rule-Remove Grouped
-		1076 Routing-Rule-Definition Grouped
-		1077 Routing-Rule-Identifier OctetString
-		1078 Routing-Filter Grouped
-		1079 Routing-IP-Address Address
-		1080 Flow-Direction Enumerated
-		1081 Routing-Rule-Install Grouped
-		-->
-
-		<!-- Note: The AVP codes from 1072 to 1099 are reserved for TS 29.212 -->
+		<!-- Note: The AVP codes from 1085 to 1099 are reserved for TS 29.212 -->
 
 		<!-- ETSI TS 129 140 V6.3.0 (2005-12) -->
 		<avp name="Served-User-Identity" code="1100" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
@@ -6130,5 +6172,6 @@
 	&Ericsson;
 	&mobileipv6;
 	&Cisco;
-	&Vodafone;
+  &Vodafone;
+  &AlcatelLucent;
 </dictionary>
