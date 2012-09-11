@@ -5176,7 +5176,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 if (! found_match) {
                     if (! dissector_try_heuristic(heur_subdissector_list,
-                                tmp_tvb, pinfo, tree)) {
+                                tmp_tvb, pinfo, tree, NULL)) {
                         guint8* save_private_data = pinfo->private_data;
 
                         pinfo->match_string = contentTypeStr;
@@ -5271,7 +5271,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 if (! found_match) {
                     if (! dissector_try_heuristic(heur_subdissector_list,
-                                tmp_tvb, pinfo, tree)) {
+                                tmp_tvb, pinfo, tree, NULL)) {
                         guint8* save_private_data = pinfo->private_data;
 
                         pinfo->match_string = contentTypeStr;
@@ -5355,7 +5355,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 if (! found_match) {
                     if (! dissector_try_heuristic(heur_subdissector_list,
-                                tmp_tvb, pinfo, tree)) {
+                                tmp_tvb, pinfo, tree, NULL)) {
                         guint8* save_private_data = pinfo->private_data;
 
                         pinfo->match_string = contentTypeStr;
@@ -5956,7 +5956,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
         }
         if (! found_match) {
             if (! dissector_try_heuristic(heur_subdissector_list,
-                        tmp_tvb, pinfo, mpart_tree)) {
+                        tmp_tvb, pinfo, mpart_tree, NULL)) {
                 guint8* save_private_data = pinfo->private_data;
 
                 pinfo->match_string = contentTypeStr;

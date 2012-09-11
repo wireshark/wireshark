@@ -1558,7 +1558,7 @@ call_tipc_v2_data_subdissectors(tvbuff_t *data_tvb, packet_info *pinfo, guint32 
 		/* check for heuristic dissectors if specified in the
 		 * preferences to try them first */
 		if (try_heuristic_first) {
-			if (dissector_try_heuristic(tipc_heur_subdissector_list, data_tvb, pinfo, top_tree))
+			if (dissector_try_heuristic(tipc_heur_subdissector_list, data_tvb, pinfo, top_tree, NULL))
 				return;
 		}
 		/* This triggers if a dissectors if
@@ -1602,7 +1602,7 @@ call_tipc_v2_data_subdissectors(tvbuff_t *data_tvb, packet_info *pinfo, guint32 
 		/* check for heuristic dissectors if specified in the
 		 * preferences not to try them first */
 		if (!try_heuristic_first) {
-			if (dissector_try_heuristic(tipc_heur_subdissector_list, data_tvb, pinfo, top_tree))
+			if (dissector_try_heuristic(tipc_heur_subdissector_list, data_tvb, pinfo, top_tree, NULL))
 				return;
 		}
 	}

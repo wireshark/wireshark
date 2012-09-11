@@ -8867,7 +8867,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * give that protocol a chance to make a heuristic dissection, before we continue
      * to dissect it as a normal PNIO packet.
      */
-    if (dissector_try_heuristic(heur_pn_subdissector_list, tvb, pinfo, tree))
+    if (dissector_try_heuristic(heur_pn_subdissector_list, tvb, pinfo, tree, NULL))
       return FALSE;
 
     /* the sub tvb will NOT contain the frame_id here! */

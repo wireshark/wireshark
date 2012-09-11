@@ -693,7 +693,7 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      * give that protocol a chance to make a heuristic dissection, before we continue
      * to dissect it as a normal EPL packet.
      */
-    if (dissector_try_heuristic(heur_epl_subdissector_list, tvb, pinfo, tree))
+    if (dissector_try_heuristic(heur_epl_subdissector_list, tvb, pinfo, tree, NULL))
       return TRUE;
 
     /* Get message type */

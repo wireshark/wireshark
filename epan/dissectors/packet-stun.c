@@ -369,7 +369,7 @@ dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	next_tvb = tvb_new_subset_remaining(tvb, CHANNEL_DATA_HDR_LEN);
 
-	if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree)) {
+	if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
 		call_dissector_only(data_handle, next_tvb, pinfo, tree);
 	}
 
@@ -930,7 +930,7 @@ case EVEN_PORT:
 
 					next_tvb = tvb_new_subset(tvb, offset, att_length, att_length);
 
-					if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, att_tree)) {
+					if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, att_tree, NULL)) {
 						call_dissector_only(data_handle, next_tvb, pinfo, att_tree);
 					}
 

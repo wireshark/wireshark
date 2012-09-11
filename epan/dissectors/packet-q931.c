@@ -2504,7 +2504,7 @@ dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len
 	case Q931_PROTOCOL_DISCRIMINATOR_USER:
 		next_tvb = tvb_new_subset(tvb, offset, len, len);
 		proto_tree_add_text(tree, tvb, offset, len, "User information: %d octets", len);
-		if (!dissector_try_heuristic(q931_user_heur_subdissector_list, next_tvb, pinfo, tree)) {
+		if (!dissector_try_heuristic(q931_user_heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
 		call_dissector_only(data_handle, next_tvb, pinfo, tree);
 		}
 		break;

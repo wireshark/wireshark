@@ -2537,7 +2537,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Try the heuristic dissectors. */
     if (dissector_try_heuristic(x25_heur_subdissector_list, next_tvb, pinfo,
-				tree)) {
+				tree, NULL)) {
 	pinfo->private_data = saved_private_data;
 	return;
     }

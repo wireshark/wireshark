@@ -2335,7 +2335,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* try heuristic subdissector list to see if there are any takers */
-  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree)) {
+  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, NULL)) {
     return;
   }
 

@@ -1705,8 +1705,8 @@ heur_dissector_set_enabled(const char *name, heur_dissector_t dissector, const i
 }
 
 gboolean
-dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
-			tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
+			packet_info *pinfo, proto_tree *tree, void *data)
 {
 	gboolean           status;
 	const char        *saved_proto;
@@ -1764,7 +1764,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 		}
 		EP_CHECK_CANARY(("before calling heuristic dissector for protocol: %s",
 				 proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol))));
-		if ((*hdtbl_entry->dissector)(tvb, pinfo, tree, NULL)) {
+		if ((*hdtbl_entry->dissector)(tvb, pinfo, tree, data)) {
 			EP_CHECK_CANARY(("after heuristic dissector for protocol: %s has accepted and dissected packet",
 					 proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol))));
 			status = TRUE;

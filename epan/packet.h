@@ -296,10 +296,11 @@ extern void dissector_all_heur_tables_foreach_table (DATFunc_heur_table func,
  * @param tvb the tv_buff with the (remaining) packet data
  * @param pinfo the packet info of this packet (additional info)
  * @param tree the protocol tree to be build or NULL
+ * @param data parameter to pass to subdissector
  * @return TRUE if the packet was recognized by the sub-dissector (stop dissection here)
  */
 extern gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
-    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
 /** Add a sub-dissector to a heuristic dissector list.
  *  Call this in the proto_handoff function of the sub-dissector.

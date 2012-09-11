@@ -246,7 +246,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
    * a first look before we assume that it's actually an
    * Ethernet packet.
    */
-  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, parent_tree))
+  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, parent_tree, NULL))
     return;
 
   if (ehdr->type <= IEEE_802_3_MAX_LEN) {
@@ -589,7 +589,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
        we actually have a trailer.  */
     if (tvb_reported_length(real_trailer_tvb) != 0) {
       if (dissector_try_heuristic(eth_trailer_subdissector_list, 
-                                   real_trailer_tvb, pinfo, tree) ) {
+                                   real_trailer_tvb, pinfo, tree, NULL) ) {
         /* If we're not sure that there is a FCS, all trailer data
            has been given to the ethernet-trailer dissector, so 
            stop dissecting here */

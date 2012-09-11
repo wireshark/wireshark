@@ -1312,7 +1312,7 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
         ssl_debug_printf("dissect_ssl3_record found association %p\n", (void *)association);
 
       if (dissector_try_heuristic(ssl_heur_subdissector_list, next_tvb,
-				  pinfo, proto_tree_get_root(tree))) {
+				  pinfo, proto_tree_get_root(tree), NULL)) {
       } else {
         call_dissector(association->handle, next_tvb, pinfo, proto_tree_get_root(tree));
       }

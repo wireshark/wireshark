@@ -501,7 +501,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
       }
       if (dissector_try_heuristic(clnp_heur_subdissector_list, next_tvb,
-                                  pinfo, tree)) {
+                                  pinfo, tree, NULL)) {
           pinfo->fragmented = save_fragmented;
           return;       /* yes, it appears to be one of the protocols in the heuristic list */
       }

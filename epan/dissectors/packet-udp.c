@@ -242,7 +242,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   if (try_heuristic_first) {
     /* do lookup with the heuristic subdissector table */
-    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
+    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL))
       return;
   }
 
@@ -278,7 +278,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   if (!try_heuristic_first) {
     /* do lookup with the heuristic subdissector table */
-    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
+    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL))
       return;
   }
 

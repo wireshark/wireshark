@@ -2273,7 +2273,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 pd_save = pinfo->private_data;
                                 pinfo->private_data = &mqinfo;
                                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                                if (!dissector_try_heuristic(mq_heur_subdissector_list, next_tvb, pinfo, tree))
+                                if (!dissector_try_heuristic(mq_heur_subdissector_list, next_tvb, pinfo, tree, NULL))
                                     call_dissector(data_handle, next_tvb, pinfo, tree);
                                 pinfo->private_data = pd_save;
                             }

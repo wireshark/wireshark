@@ -1305,7 +1305,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * dissect the payload - try the heuristic subdissectors.
 			 */
 			dissected = dissector_try_heuristic(heur_subdissector_list,
-							    next_tvb, pinfo, tree);
+							    next_tvb, pinfo, tree, NULL);
 		}
 
 		if (dissected) {

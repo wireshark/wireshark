@@ -73,7 +73,7 @@ dissect_mime_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		comp_tvb = tvb_new_child_real_data(tvb, whole_file->str, (guint) whole_file->len, (gint) whole_file->len);
 		add_new_data_source(pinfo, comp_tvb, "Whole file");
 
-		if (!dissector_try_heuristic(heur_subdissector_list, comp_tvb, pinfo, tree)) {
+		if (!dissector_try_heuristic(heur_subdissector_list, comp_tvb, pinfo, tree, NULL)) {
 			proto_item_append_text(item, " (Unhandled)");
 			call_dissector(data_handle, comp_tvb, pinfo, tree);
 		}

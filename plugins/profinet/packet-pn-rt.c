@@ -665,7 +665,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     next_tvb = tvb_new_subset(tvb, 2, data_len, data_len);
 
     /* ask heuristics, if some sub-dissector is interested in this packet payload */
-    if(!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree)) {
+    if(!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
         /*col_set_str(pinfo->cinfo, COL_INFO, "Unknown");*/
 
         /* Oh, well, we don't know this; dissect it as data. */

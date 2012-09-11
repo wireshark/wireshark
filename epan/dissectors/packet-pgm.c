@@ -795,7 +795,7 @@ decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return;
 
   /* do lookup with the heuristic subdissector table */
-  if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
+  if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL))
 	return;
 
   /* Oh, well, we don't know this; dissect it as data. */

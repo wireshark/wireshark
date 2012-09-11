@@ -995,7 +995,7 @@ static heur_dissector_list_t heur_subdissector_list;
 static void
 dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree)) {
+    if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, NULL)) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG");
 	col_clear(pinfo->cinfo, COL_INFO);
 	if (tree)

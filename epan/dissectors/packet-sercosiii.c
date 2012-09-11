@@ -1191,7 +1191,7 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * give that protocol a chance to make a heuristic dissection, before we continue
    * to dissect it as a normal SercosIII packet.
    */
-  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree))
+  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, NULL))
     return;
 
   /* check what we got on our hand */

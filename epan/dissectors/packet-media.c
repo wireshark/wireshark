@@ -49,7 +49,7 @@ dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree)
     proto_item *ti;
     proto_tree *media_tree = 0;
 
-    if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree)) {
+    if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, NULL)) {
         return;
     }
 

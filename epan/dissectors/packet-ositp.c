@@ -972,7 +972,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   if (uses_inactive_subset) {
     if (dissector_try_heuristic(cotp_is_heur_subdissector_list, next_tvb,
-				pinfo, tree)) {
+				pinfo, tree, NULL)) {
       *subdissector_found = TRUE;
     } else {
       /* Fill in other Dissectors using inactive subset here */
@@ -988,7 +988,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     if ( (!cotp_reassemble) ||
 	 ((cotp_reassemble) && (!fragment))) {
       if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb,
-				  pinfo, tree)) {
+				  pinfo, tree, NULL)) {
         *subdissector_found = TRUE;
       } else {
         call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -1243,7 +1243,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   next_tvb = tvb_new_subset_remaining(tvb, offset);
   if (!uses_inactive_subset){
     if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb,
-				pinfo, tree)) {
+				pinfo, tree, NULL)) {
       *subdissector_found = TRUE;
     } else {
       call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -1592,7 +1592,7 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   next_tvb = tvb_new_subset_remaining(tvb, offset);
 
   if (dissector_try_heuristic(cltp_heur_subdissector_list, next_tvb,
-			  pinfo, tree)) {
+			  pinfo, tree, NULL)) {
     *subdissector_found = TRUE;
   } else {
     call_dissector(data_handle,next_tvb, pinfo, tree);

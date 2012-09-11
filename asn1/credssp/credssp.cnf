@@ -49,7 +49,7 @@ TSRequest
 
 	if(token_tvb != NULL)
 		      dissector_try_heuristic(credssp_heur_subdissector_list, 
-		      token_tvb, actx->pinfo, proto_tree_get_root(tree));
+		      token_tvb, actx->pinfo, proto_tree_get_root(tree), NULL);
 
 
 #.END

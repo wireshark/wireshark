@@ -120,7 +120,7 @@ dissect_credssp_T_negoToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 	if(token_tvb != NULL)
 		      dissector_try_heuristic(credssp_heur_subdissector_list, 
-		      token_tvb, actx->pinfo, proto_tree_get_root(tree));
+		      token_tvb, actx->pinfo, proto_tree_get_root(tree), NULL);
 
 
 

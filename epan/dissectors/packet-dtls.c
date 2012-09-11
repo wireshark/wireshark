@@ -958,7 +958,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
         }
         else {
           /* try heuristic subdissectors */
-          dissected = dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, top_tree);
+          dissected = dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, top_tree, NULL);
         }
         if (dissected)
           break;

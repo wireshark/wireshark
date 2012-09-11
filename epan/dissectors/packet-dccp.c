@@ -212,7 +212,7 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (try_heuristic_first) {
         /* do lookup with the heuristic subdissector table */
         if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo,
-                                    tree)) {
+                                    tree, NULL)) {
             return;
         }
     }
@@ -256,7 +256,7 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (!try_heuristic_first) {
         /* do lookup with the heuristic subdissector table */
         if (dissector_try_heuristic(heur_subdissector_list, next_tvb,
-                                    pinfo, tree)) {
+                                    pinfo, tree, NULL)) {
             return;
         }
     }

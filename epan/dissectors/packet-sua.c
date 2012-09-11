@@ -2224,7 +2224,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
        !dissector_try_uint(sccp_ssn_dissector_table, source_ssn, data_tvb, pinfo, tree)))
     {
 		/* try heuristic subdissector list to see if there are any takers */
-		if (dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, tree)) {
+		if (dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, tree, NULL)) {
 			return;
 		}
       /* No sub-dissection occured, treat it as raw data */

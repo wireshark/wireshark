@@ -2114,7 +2114,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             pinfo->usb_conv_info = usb_conv_info;
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            if (try_heuristics && dissector_try_heuristic(heur_bulk_subdissector_list, next_tvb, pinfo, parent)) {
+            if (try_heuristics && dissector_try_heuristic(heur_bulk_subdissector_list, next_tvb, pinfo, parent, NULL)) {
                 return;
             }
             else if(dissector_try_uint(usb_bulk_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
@@ -2145,7 +2145,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             pinfo->usb_conv_info = usb_conv_info;
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            if (try_heuristics && dissector_try_heuristic(heur_interrupt_subdissector_list, next_tvb, pinfo, parent)) {
+            if (try_heuristics && dissector_try_heuristic(heur_interrupt_subdissector_list, next_tvb, pinfo, parent, NULL)) {
                 return;
             }
             else if(dissector_try_uint(usb_interrupt_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
@@ -2253,7 +2253,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
                     /* Try to find a class specific dissector */
                     next_tvb = tvb_new_subset_remaining(tvb, offset);
-                    if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, setup_tree)) {
+                    if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, setup_tree, NULL)) {
                         return;
                     }
                     if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, setup_tree)){
@@ -2296,7 +2296,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 tvbuff_t *next_tvb;
 
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, parent)) {
+                if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, parent, NULL)) {
                     return;
                 }
                 if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
@@ -2352,7 +2352,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             if(usb_trans_info){
                 /* Try to find a class specific dissector */
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, parent)) {
+                if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, parent, NULL)) {
                     return;
                 }
                 if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
