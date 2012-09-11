@@ -1102,7 +1102,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		if (conv_data->upgrade != NULL &&
 		    g_ascii_strcasecmp(conv_data->upgrade, "WebSocket") == 0) {
-			call_dissector_only(websocket_handle, next_tvb, pinfo, tree);
+			call_dissector_only(websocket_handle, next_tvb, pinfo, tree, NULL);
 			goto body_dissected;
 		}
 		/*
@@ -1293,7 +1293,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			 * We have a subdissector - call it.
 			 */
-			dissected = call_dissector_only(handle, next_tvb, pinfo, tree);
+			dissected = call_dissector_only(handle, next_tvb, pinfo, tree, NULL);
 			if (!dissected)
 				expert_add_info_format(pinfo, http_tree, PI_MALFORMED, PI_NOTE,
 						       "HTTP body subdissector failed, trying heuristic subdissector");

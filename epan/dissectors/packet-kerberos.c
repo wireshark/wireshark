@@ -4616,7 +4616,7 @@ dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         if(krb4_handle){
             gboolean res;
 
-            res=call_dissector_only(krb4_handle, tvb, pinfo, tree);
+            res=call_dissector_only(krb4_handle, tvb, pinfo, tree, NULL);
             return res;
         }else{
             return 0;

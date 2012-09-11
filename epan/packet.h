@@ -383,7 +383,7 @@ extern int call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
  *   it and return the length of the tvbuff pointed to by the argument.
  */
 extern int call_dissector_only(dissector_handle_t handle, tvbuff_t *tvb,
-    packet_info *pinfo, proto_tree *tree);
+    packet_info *pinfo, proto_tree *tree, void *data);
 
 /* Do all one-time initialization. */
 extern void dissect_init(void);

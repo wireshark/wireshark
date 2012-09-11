@@ -1115,7 +1115,7 @@ static void call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet
 {
     /* Call it (catch exceptions so that stats will be updated) */
     TRY {
-        call_dissector_only(handle, tvb, pinfo, tree);
+        call_dissector_only(handle, tvb, pinfo, tree, NULL);
     }
     CATCH_ALL {
     }
@@ -1808,7 +1808,7 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Call it (catch exceptions so that stats will be updated) */
         TRY {
-            call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+            call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree, NULL);
         }
         CATCH_ALL {
         }
@@ -1918,7 +1918,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     /* Call it (catch exceptions so that stats will be updated) */
     TRY {
-        call_dissector_only(protocol_handle, srb_tvb, pinfo, tree);
+        call_dissector_only(protocol_handle, srb_tvb, pinfo, tree, NULL);
     }
     CATCH_ALL {
     }

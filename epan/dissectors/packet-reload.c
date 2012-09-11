@@ -3589,7 +3589,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
               proto_tree_add_item(config_data_tree, hf_reload_length_uint24, tvb, offset+local_offset, 3, ENC_BIG_ENDIAN);
               call_dissector_only(xml_handle,
                                   tvb_new_subset(tvb, offset+local_offset+3, config_length, length-offset-local_offset-3),
-                                  pinfo, config_data_tree);
+                                  pinfo, config_data_tree, NULL);
             }
           }
 

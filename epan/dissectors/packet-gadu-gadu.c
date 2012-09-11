@@ -1357,7 +1357,7 @@ dissect_gadu_gadu_userlist_xml_compressed(tvbuff_t *tvb, packet_info *pinfo, pro
 		add_new_data_source(pinfo, uncomp_tvb, "Uncompressed userlist");
 
 		/* XXX add DTD (pinfo->match_string) */
-		call_dissector_only(xml_handle, uncomp_tvb, pinfo, tree);
+		call_dissector_only(xml_handle, uncomp_tvb, pinfo, tree, NULL);
 	} else
 		proto_tree_add_text(tree, tvb, offset, remain, "Userlist XML data: [Error: Decompression failed] (or no libz)");
 
@@ -1605,7 +1605,7 @@ dissect_gadu_gadu_xml_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	xml_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	/* XXX add DTD (pinfo->match_string) */
-	ret = call_dissector_only(xml_handle, xml_tvb, pinfo, tree);
+	ret = call_dissector_only(xml_handle, xml_tvb, pinfo, tree, NULL);
 
 	return offset + ret;
 }

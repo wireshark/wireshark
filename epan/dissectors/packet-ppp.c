@@ -4557,7 +4557,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (!dissector_try_uint(ppp_subdissector_table, PPP_IP, next_tvb, pinfo,
         info_tree)) {
-        call_dissector_only(data_handle, next_tvb, pinfo, info_tree);
+        call_dissector_only(data_handle, next_tvb, pinfo, info_tree, NULL);
     }
 }
 

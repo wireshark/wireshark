@@ -954,7 +954,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
           ssl_debug_printf("dissect_dtls_record found association %p\n", (void *)association);
           ssl_print_text_data("decrypted app data",appl_data->plain_data.data, appl_data->plain_data.data_len);
 
-          dissected = call_dissector_only(association->handle, next_tvb, pinfo, top_tree);
+          dissected = call_dissector_only(association->handle, next_tvb, pinfo, top_tree, NULL);
         }
         else {
           /* try heuristic subdissectors */

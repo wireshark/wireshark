@@ -1048,7 +1048,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     /* We always want to see this in the info column */
                     col_set_writable(pinfo->cinfo, TRUE);
 
-                    call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree);
+                    call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree, NULL);
 
                     /* Restore to whatever it was */
                     col_set_writable(pinfo->cinfo, was_writable);
@@ -1238,13 +1238,13 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
                     switch (tvb_get_guint8(tvb, offset) & 0xf0) {
                         case 0x40:
-                            call_dissector_only(ip_handle, payload_tvb, pinfo, pdcp_tree);
+                            call_dissector_only(ip_handle, payload_tvb, pinfo, pdcp_tree, NULL);
                             break;
                         case 0x60:
-                            call_dissector_only(ipv6_handle, payload_tvb, pinfo, pdcp_tree);
+                            call_dissector_only(ipv6_handle, payload_tvb, pinfo, pdcp_tree, NULL);
                             break;
                         default:
-                            call_dissector_only(data_handle, payload_tvb, pinfo, pdcp_tree);
+                            call_dissector_only(data_handle, payload_tvb, pinfo, pdcp_tree, NULL);
                             break;
                     }
 
@@ -1269,7 +1269,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                                                tvb_length_remaining(tvb, offset),
                                                                tvb_length_remaining(tvb, offset));
 
-                        call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree);
+                        call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree, NULL);
                     }
                     else {
                          /* Just show data */

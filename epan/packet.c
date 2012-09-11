@@ -398,7 +398,7 @@ struct dissector_handle {
  */
 static int
 call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
-			      packet_info *pinfo, proto_tree *tree)
+			      packet_info *pinfo, proto_tree *tree, void *data)
 {
 	const char *saved_proto;
 	int         ret;
@@ -412,7 +412,7 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 
 	if (handle->is_new) {
 		EP_CHECK_CANARY(("before calling handle->dissector.new for %s",handle->name));
-		ret = (*handle->dissector.new)(tvb, pinfo, tree, NULL);
+		ret = (*handle->dissector.new)(tvb, pinfo, tree, data);
 		EP_CHECK_CANARY(("after calling handle->dissector.new for %s",handle->name));
 	} else {
 		EP_CHECK_CANARY(("before calling handle->dissector.old for %s",handle->name));
@@ -445,11 +445,11 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 
 static int
 call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
-			  packet_info *pinfo_arg, proto_tree *tree);
+			  packet_info *pinfo_arg, proto_tree *tree, void *);
 
 static int
-call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
-		    packet_info *pinfo_arg, proto_tree *tree, gboolean add_proto_name)
+call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo_arg,
+		    proto_tree *tree, gboolean add_proto_name, void *data)
 {
  	packet_info *pinfo = pinfo_arg;
 	const char  *saved_proto;
@@ -502,12 +502,12 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	}
 
 	if (pinfo->flags.in_error_pkt) {
-		ret = call_dissector_work_error(handle, tvb, pinfo, tree);
+		ret = call_dissector_work_error(handle, tvb, pinfo, tree, data);
 	} else {
 		/*
  		 * Just call the subdissector.
  		 */
-		ret = call_dissector_through_handle(handle, tvb, pinfo, tree);
+		ret = call_dissector_through_handle(handle, tvb, pinfo, tree, data);
 	}
 	if (ret == 0) {
 		/*
@@ -527,7 +527,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 
 static int
 call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
-			  packet_info *pinfo_arg, proto_tree *tree)
+			  packet_info *pinfo_arg, proto_tree *tree, void *data)
 {
 	packet_info  *pinfo = pinfo_arg;
 	const char   *saved_proto;
@@ -572,7 +572,7 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 
 	/* Dissect the contained packet. */
 	TRY {
-		ret = call_dissector_through_handle(handle, tvb,pinfo, tree);
+		ret = call_dissector_through_handle(handle, tvb,pinfo, tree, data);
 	}
 	CATCH(BoundsError) {
 		/*
@@ -926,7 +926,7 @@ dissector_try_uint_new(dissector_table_t sub_dissectors, const guint32 uint_val,
 		 */
 		saved_match_uint  = pinfo->match_uint;
 		pinfo->match_uint = uint_val;
-		ret = call_dissector_work(handle, tvb, pinfo, tree, add_proto_name);
+		ret = call_dissector_work(handle, tvb, pinfo, tree, add_proto_name, NULL);
 		pinfo->match_uint = saved_match_uint;
 
 		/*
@@ -1185,7 +1185,7 @@ dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 		 */
 		saved_match_string = pinfo->match_string;
 		pinfo->match_string = string;
-		ret = call_dissector_work(handle, tvb, pinfo, tree, TRUE);
+		ret = call_dissector_work(handle, tvb, pinfo, tree, TRUE, NULL);
 		pinfo->match_string = saved_match_string;
 
 		/*
@@ -2015,12 +2015,12 @@ new_register_dissector(const char *name, new_dissector_t dissector, const int pr
  */
 int
 call_dissector_only(dissector_handle_t handle, tvbuff_t *tvb,
-		    packet_info *pinfo, proto_tree *tree)
+		    packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int ret;
 
 	g_assert(handle != NULL);
-	ret = call_dissector_work(handle, tvb, pinfo, tree, TRUE);
+	ret = call_dissector_work(handle, tvb, pinfo, tree, TRUE, data);
 	return ret;
 }
 
@@ -2033,7 +2033,7 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 {
 	int ret;
 
-	ret = call_dissector_only(handle, tvb, pinfo, tree);
+	ret = call_dissector_only(handle, tvb, pinfo, tree, NULL);
 	if (ret == 0) {
 		/*
 		 * The protocol was disabled, or the dissector rejected
@@ -2041,7 +2041,7 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 		 */
 		g_assert(data_handle != NULL);
 		g_assert(data_handle->protocol != NULL);
-		call_dissector_work(data_handle, tvb, pinfo, tree, TRUE);
+		call_dissector_work(data_handle, tvb, pinfo, tree, TRUE, NULL);
 		return tvb_length(tvb);
 	}
 	return ret;
@@ -2142,7 +2142,7 @@ call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	for(i = 0; i < num_of_postdissectors; i++) {
 		call_dissector_only((dissector_handle_t) g_ptr_array_index(post_dissectors,i),
-				    tvb,pinfo,tree);
+				    tvb,pinfo,tree, NULL);
 	}
 }
 

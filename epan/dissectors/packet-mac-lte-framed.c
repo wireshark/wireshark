@@ -88,7 +88,7 @@ static void dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Create tvb that starts at actual MAC PDU */
     mac_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
-    call_dissector_only(mac_lte_handle, mac_tvb, pinfo, tree);
+    call_dissector_only(mac_lte_handle, mac_tvb, pinfo, tree, NULL);
 }
 
 void proto_register_mac_lte_framed(void)

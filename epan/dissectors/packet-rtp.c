@@ -712,20 +712,20 @@ dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gbo
 	if (version == 0) {
 		if (!(tvb_memeql(tvb, 4, "ZRTP", 4)))
 		{
-			call_dissector_only(zrtp_handle, tvb, pinfo, tree);
+			call_dissector_only(zrtp_handle, tvb, pinfo, tree, NULL);
 			return TRUE;
 		} else {
 			switch (global_rtp_version0_type) {
 			case RTP0_CLASSICSTUN:
-				return call_dissector_only(classicstun_heur_handle, tvb, pinfo, tree);
+				return call_dissector_only(classicstun_heur_handle, tvb, pinfo, tree, NULL);
 
 			case RTP0_T38:
 				/* XXX: Should really be calling a heuristic dissector for T38 ??? */
-				call_dissector_only(t38_handle, tvb, pinfo, tree);
+				call_dissector_only(t38_handle, tvb, pinfo, tree, NULL);
 				return TRUE;
 
 			case RTP0_SPRT:
-				call_dissector_only(sprt_handle, tvb, pinfo, tree);
+				call_dissector_only(sprt_handle, tvb, pinfo, tree, NULL);
 				return TRUE;
 
 			case RTP0_INVALID:

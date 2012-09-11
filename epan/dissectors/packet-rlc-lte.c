@@ -788,7 +788,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
         protocol_handle = find_dissector("pdcp-lte");
 
         TRY {
-            call_dissector_only(protocol_handle, pdcp_tvb, pinfo, tree);
+            call_dissector_only(protocol_handle, pdcp_tvb, pinfo, tree, NULL);
         }
         CATCH_ALL {
         }
@@ -1856,7 +1856,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
 
         /* Call it (catch exceptions) */
         TRY {
-            call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+            call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree, NULL);
         }
         CATCH_ALL {
         }

@@ -332,7 +332,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Can not find reload dissector");
       return tvb_length(tvb);
     }
-    call_dissector_only(reload_handle, next_tvb, pinfo, tree);
+    call_dissector_only(reload_handle, next_tvb, pinfo, tree, NULL);
   }
   break;
 

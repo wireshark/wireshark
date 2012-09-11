@@ -2036,7 +2036,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
 
     if(0 == dissected) {
         /* display it as raw data */
-        dissected = call_dissector_only(data_handle, tvb, pinfo, tree);
+        dissected = call_dissector_only(data_handle, tvb, pinfo, tree, NULL);
     }
 
     return dissected;

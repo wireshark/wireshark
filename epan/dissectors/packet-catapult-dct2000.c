@@ -835,7 +835,7 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
         /* Call UMTS RLC dissector */
         if (rlc_umts_handle != 0) {
             rlc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
-            call_dissector_only(rlc_umts_handle, rlc_tvb, pinfo, tree);
+            call_dissector_only(rlc_umts_handle, rlc_tvb, pinfo, tree, NULL);
         }
     }
 }
@@ -1034,7 +1034,7 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
     /* Send to RRC dissector, if got here, have sub-dissector and some data left */
     if ((protocol_handle != NULL) && (tvb_length_remaining(tvb, offset) > 0)) {
         rrc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
-        call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+        call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree, NULL);
     }
 }
 
@@ -1097,7 +1097,7 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
     protocol_handle = find_dissector("lapb");
     if ((protocol_handle != NULL) && (tvb_length_remaining(tvb, offset) > 0)) {
         ccpri_tvb = tvb_new_subset(tvb, offset, length, length);
-        call_dissector_only(protocol_handle, ccpri_tvb, pinfo, tree);
+        call_dissector_only(protocol_handle, ccpri_tvb, pinfo, tree, NULL);
     }
 }
 
@@ -1292,7 +1292,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
 
             /* Call PDCP LTE dissector */
             pdcp_lte_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
-            call_dissector_only(pdcp_lte_handle, pdcp_lte_tvb, pinfo, tree);
+            call_dissector_only(pdcp_lte_handle, pdcp_lte_tvb, pinfo, tree, NULL);
 
             break;
 
@@ -2085,7 +2085,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
 
     /* Call MAC dissector */
     mac_lte_tvb = tvb_new_subset(tvb, 0, 0, 0);
-    call_dissector_only(mac_lte_handle, mac_lte_tvb, pinfo, tree);
+    call_dissector_only(mac_lte_handle, mac_lte_tvb, pinfo, tree, NULL);
 }
 
 
@@ -2865,7 +2865,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (protocol_handle != 0) {
         /* Dissect the remainder of the frame using chosen protocol handle */
         next_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
-        sub_dissector_result = call_dissector_only(protocol_handle, next_tvb, pinfo, tree);
+        sub_dissector_result = call_dissector_only(protocol_handle, next_tvb, pinfo, tree, NULL);
     }
 
 
