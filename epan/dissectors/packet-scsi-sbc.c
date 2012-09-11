@@ -1296,6 +1296,8 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	switch(service_action){
 	case SERVICE_READ_CAPACITY16:
+	        col_append_str(pinfo->cinfo, COL_INFO, " READCAPACITY16");
+
         	proto_tree_add_text (tree, tvb, offset, 1,
                              "Service Action: %s",
                              val_to_str (service_action,
@@ -1312,6 +1314,7 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 		break;
 	case SERVICE_READ_LONG16:
+	        col_append_str(pinfo->cinfo, COL_INFO, " READ_LONG16");
         	proto_tree_add_text (tree, tvb, offset, 1,
                              "Service Action: %s",
                              val_to_str (service_action,
@@ -1339,6 +1342,8 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 		break;
 	case SERVICE_GET_LBA_STATUS:
+	        col_append_str(pinfo->cinfo, COL_INFO, " GET_LBA_STATUS");
+
         	proto_tree_add_text (tree, tvb, offset, 1,
                              "Service Action: %s",
                              val_to_str (service_action,
