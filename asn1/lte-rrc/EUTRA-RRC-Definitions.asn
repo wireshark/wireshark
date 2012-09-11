@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V10.6.0 (2012-06)
+-- 3GPP TS 36.331 V11.0.0 (2012-06)
 -- $Id$
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -1585,7 +1585,7 @@ SystemInformationBlockType5 ::=		SEQUENCE {
 }
 
 SystemInformationBlockType5-v8h0-IEs ::=	SEQUENCE {
-	interFreqCarrierFreqList-v8h0 SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v8h0				OPTIONAL,	-- Need OP
+	interFreqCarrierFreqList-v8h0 SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v8h0				 OPTIONAL,	-- Need OP
 	nonCriticalExtension			SEQUENCE {}							OPTIONAL	-- Need OP
 }
 
@@ -2923,10 +2923,10 @@ NextHopChainingCount ::=					INTEGER (0..7)
 
 SecurityAlgorithmConfig ::=			SEQUENCE {
 	cipheringAlgorithm					ENUMERATED {
-											eea0, eea1, eea2, spare5, spare4, spare3,
+											eea0, eea1, eea2, eea3-v11xy, spare4, spare3,
 											spare2, spare1, ...},
 	integrityProtAlgorithm				ENUMERATED {
-											eia0-v920, eia1, eia2, spare5, spare4, spare3,
+											eia0-v920, eia1, eia2, eia3-v11xy, spare4, spare3,
 											spare2, spare1, ...}
 }
 

@@ -9,7 +9,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V10.6.0 Release 10) packet dissection
+ * (3GPP TS 36.331 V11.0.0 Release 11) packet dissection
  * Copyright 2008, Vincent Helfre
  *
  * $Id$
@@ -17725,7 +17725,7 @@ static const value_string lte_rrc_T_cipheringAlgorithm_vals[] = {
   {   0, "eea0" },
   {   1, "eea1" },
   {   2, "eea2" },
-  {   3, "spare5" },
+  {   3, "eea3-v11xy" },
   {   4, "spare4" },
   {   5, "spare3" },
   {   6, "spare2" },
@@ -17747,7 +17747,7 @@ static const value_string lte_rrc_T_integrityProtAlgorithm_vals[] = {
   {   0, "eia0-v920" },
   {   1, "eia1" },
   {   2, "eia2" },
-  {   3, "spare5" },
+  {   3, "eia3-v11xy" },
   {   4, "spare4" },
   {   5, "spare3" },
   {   6, "spare2" },
