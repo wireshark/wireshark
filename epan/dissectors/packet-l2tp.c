@@ -143,11 +143,14 @@ static gint ett_l2tp_lcp = -1;
 static gint ett_l2tp_l2_spec = -1;
 
 static enum_val_t l2tpv3_cookies[] = {
+    {"detect",  "Detect",              -1},
     {"cookie0", "None",                 0},
     {"cookie4", "4 Byte Cookie",        4},
     {"cookie8", "8 Byte Cookie",        8},
     {NULL, NULL, 0}
 };
+
+#define L2TPv3_COOKIE_DEFAULT       0 
 
 #define L2TPv3_PROTOCOL_ETH         0
 #define L2TPv3_PROTOCOL_CHDLC       1
@@ -159,8 +162,12 @@ static enum_val_t l2tpv3_cookies[] = {
 #define L2TPv3_PROTOCOL_LAPD        7
 #define L2TPv3_PROTOCOL_DOCSIS_DMPT 8
 #define L2TPv3_PROTOCOL_ERICSSON    9
+#define L2TPv3_PROTOCOL_MAX         (L2TPv3_PROTOCOL_ERICSSON + 1)
+
+#define L2TPv3_PROTOCOL_DEFAULT     L2TPv3_PROTOCOL_CHDLC
 
 static enum_val_t l2tpv3_protocols[] = {
+    {"detect",      "Detect",        -1},
     {"eth",         "Ethernet",      L2TPv3_PROTOCOL_ETH},
     {"chdlc",       "Cisco HDLC",    L2TPv3_PROTOCOL_CHDLC},
     {"fr",          "Frame Relay",   L2TPv3_PROTOCOL_FR},
@@ -179,8 +186,10 @@ static enum_val_t l2tpv3_protocols[] = {
 #define L2TPv3_L2_SPECIFIC_ATM          2
 #define L2TPv3_L2_SPECIFIC_LAPD         3
 #define L2TPv3_L2_SPECIFIC_DOCSIS_DMPT  4
+#define L2TPv3_L2_SPECIFIC_MAX          (L2TPv3_L2_SPECIFIC_DOCSIS_DMPT + 1)
 
 static enum_val_t l2tpv3_l2_specifics[] = {
+    {"detect",  "Detect",               -1},
     {"none",    "None",                 L2TPv3_L2_SPECIFIC_NONE},
     {"default", "Default L2-Specific",  L2TPv3_L2_SPECIFIC_DEFAULT},
     {"atm",     "ATM-Specific",         L2TPv3_L2_SPECIFIC_ATM},
@@ -189,9 +198,9 @@ static enum_val_t l2tpv3_l2_specifics[] = {
     {NULL, NULL, 0}
 };
 
-static gint l2tpv3_cookie = 4;
-static gint l2tpv3_protocol = L2TPv3_PROTOCOL_CHDLC;
-static gint l2tpv3_l2_specific = L2TPv3_L2_SPECIFIC_DEFAULT;
+static gint l2tpv3_cookie = -1;
+static gint l2tpv3_protocol = -1;
+static gint l2tpv3_l2_specific = -1;
 
 #define MESSAGE_TYPE_SCCRQ         1
 #define MESSAGE_TYPE_SCCRP         2
@@ -637,18 +646,16 @@ static dissector_handle_t l2tp_ip_handle;
 #define L2TP_HMAC_SHA1_DIGEST_LEN 20
 
 typedef struct l2tpv3_conversation {
-    address    lcce1;
-    guint16    lcce1_port;
-    address    lcce2;
-    guint16    lcce2_port;
-    port_type  pt;
-    GSList    *tunnels;
+    address               lcce1;
+    guint16               lcce1_port;
+    address               lcce2;
+    guint16               lcce2_port;
+    port_type             pt;
+    struct l2tpv3_tunnel *tunnel;
 } l2tpv3_conversation_t;
 
 typedef struct l2tpv3_tunnel {
     l2tpv3_conversation_t *conv;
-
-    gint     cma_enabled;
 
     address  lcce1;
     guint32  lcce1_id;
@@ -662,7 +669,22 @@ typedef struct l2tpv3_tunnel {
 
     gchar   *shared_key_secret;
     guint8   shared_key[L2TP_HMAC_MD5_KEY_LEN];
+
+    GSList  *sessions;
 } l2tpv3_tunnel_t;
+
+typedef struct lcce_settings {
+    guint32 id;
+    gint    cookie_len;
+    gint    l2_specific;
+} lcce_settings_t;
+
+typedef struct l2tpv3_session {
+    lcce_settings_t lcce1;
+    lcce_settings_t lcce2;
+
+    gint    pw_type;
+} l2tpv3_session_t;
 
 static const gchar* shared_secret = "";
 
@@ -858,6 +880,273 @@ static void store_ccid(l2tpv3_tunnel_t *tunnel,
     return;
 }
 
+static l2tpv3_session_t *find_session(l2tpv3_tunnel_t *tunnel,
+                                      guint32 lcce1_id,
+                                      guint32 lcce2_id)
+{
+    l2tpv3_session_t *session = NULL;
+    GSList *iterator;
+
+    iterator = tunnel->sessions;
+    while (iterator) {
+        session = iterator->data;
+
+        if ((session->lcce1.id == lcce1_id) ||
+            (session->lcce2.id == lcce2_id)) {
+                return session;
+        }
+        
+        iterator = g_slist_next(iterator);
+    }
+
+    return NULL;
+}
+
+static void init_session(l2tpv3_session_t *session)
+{
+    session->lcce1.cookie_len = session->lcce2.cookie_len = -1;
+    session->lcce1.l2_specific = session->lcce2.l2_specific = -1;
+    session->pw_type = -1;
+}
+
+static l2tpv3_session_t *alloc_session(void)
+{
+    l2tpv3_session_t *session = ep_alloc0(sizeof(l2tpv3_session_t));
+    init_session(session);
+
+    return session;
+}
+
+static l2tpv3_session_t *store_lsession_id(l2tpv3_session_t *_session,
+                                         tvbuff_t *tvb,
+                                         int offset,
+                                         int msg_type)
+{
+    l2tpv3_session_t *session = _session;
+
+    switch (msg_type) {
+        case MESSAGE_TYPE_ICRQ:
+        case MESSAGE_TYPE_OCRQ:
+        case MESSAGE_TYPE_ICRP:
+        case MESSAGE_TYPE_OCRP:
+            break;
+        default:
+            return session;
+    }
+
+    if (session == NULL)
+        session = alloc_session();
+
+    switch (msg_type) {
+        case MESSAGE_TYPE_ICRQ:
+        case MESSAGE_TYPE_OCRQ:
+            session->lcce1.id = tvb_get_ntohl(tvb, offset);
+            break;
+        case MESSAGE_TYPE_ICRP:
+        case MESSAGE_TYPE_OCRP:
+            session->lcce2.id = tvb_get_ntohl(tvb, offset);
+            break;
+    }
+
+    return session;
+}
+
+static l2tpv3_session_t *store_rsession_id(l2tpv3_session_t *_session,
+                                         tvbuff_t *tvb,
+                                         int offset,
+                                         int msg_type)
+{
+    l2tpv3_session_t *session = _session;
+
+    switch (msg_type) {
+        case MESSAGE_TYPE_ICRP:
+        case MESSAGE_TYPE_OCRP:
+            break;
+        default:
+            return session;
+    }
+
+    if (session == NULL)
+        session = alloc_session();
+
+    session->lcce1.id = tvb_get_ntohl(tvb, offset);
+
+    return session;
+}
+
+static l2tpv3_session_t *store_cookie_len(l2tpv3_session_t *_session,
+                                        int len,
+                                        int msg_type)
+{
+    l2tpv3_session_t *session = _session;
+
+    switch (msg_type) {
+        case MESSAGE_TYPE_ICRQ:
+        case MESSAGE_TYPE_OCRQ:
+        case MESSAGE_TYPE_ICRP:
+        case MESSAGE_TYPE_OCRP:
+            break;
+        default:
+            return session;
+    }
+
+    if (session == NULL)
+        session = alloc_session();
+
+    switch (msg_type) {
+        case MESSAGE_TYPE_ICRQ:
+        case MESSAGE_TYPE_OCRQ:
+            session->lcce1.cookie_len = len;
+            break;
+        case MESSAGE_TYPE_ICRP:
+        case MESSAGE_TYPE_OCRP:
+            session->lcce2.cookie_len = len;
+            break;
+    }
+
+    return session;
+}
+
+static l2tpv3_session_t *store_pw_type(l2tpv3_session_t *_session,
+                                     tvbuff_t *tvb,
+                                     int offset,
+                                     int msg_type)
+{
+    l2tpv3_session_t *session = _session;
+    gint result = l2tpv3_protocol;
+    guint16 pw_type;
+ 
+    switch (msg_type) {
+        case MESSAGE_TYPE_ICRQ:
+        case MESSAGE_TYPE_OCRQ:
+            break;
+        default:
+            return session;
+    } 
+ 
+    if (session == NULL)
+        session = alloc_session();
+ 
+    pw_type = tvb_get_ntohs(tvb, offset);
+    switch (pw_type) {
+        case 0x0007:
+            result = L2TPv3_PROTOCOL_PPP; break;
+        case 0x0005:
+            result = L2TPv3_PROTOCOL_ETH; break;
+        case 0x0006:
+            result = L2TPv3_PROTOCOL_CHDLC; break;
+        case 0x0002:
+            result = L2TPv3_PROTOCOL_AAL5; break;
+        case 0x0001:
+            result = L2TPv3_PROTOCOL_FR; break;
+        default:
+            break;
+    }
+ 
+    session->pw_type = result;
+ 
+    return session;
+}
+
+static l2tpv3_session_t *store_l2_sublayer(l2tpv3_session_t *_session,
+                                           tvbuff_t *tvb,
+                                           int offset,
+                                           int msg_type)
+{
+    l2tpv3_session_t *session = _session;
+    gint result = l2tpv3_l2_specific;
+    guint16 l2_sublayer;
+ 
+    switch (msg_type) {
+        case MESSAGE_TYPE_ICRQ:
+        case MESSAGE_TYPE_OCRQ:
+        case MESSAGE_TYPE_ICCN:
+        case MESSAGE_TYPE_OCCN:
+        case MESSAGE_TYPE_ICRP:
+        case MESSAGE_TYPE_OCRP:
+            break;
+        default:
+            return session;
+    } 
+ 
+    if (session == NULL)
+        session = alloc_session();
+ 
+    l2_sublayer = tvb_get_ntohs(tvb, offset);
+    switch (l2_sublayer) {
+       case 0x0000:
+           result = L2TPv3_L2_SPECIFIC_NONE; break;
+       case 0x0001:
+           result = L2TPv3_L2_SPECIFIC_DEFAULT; break;
+       case 0x0002:
+           result = L2TPv3_L2_SPECIFIC_ATM; break;
+       case 0x0003:
+           result = L2TPv3_L2_SPECIFIC_DOCSIS_DMPT; break;
+       default:
+           break;
+    }
+
+    switch (msg_type) {
+        case MESSAGE_TYPE_ICRQ:
+        case MESSAGE_TYPE_OCRQ:
+        case MESSAGE_TYPE_ICCN:
+        case MESSAGE_TYPE_OCCN:
+            session->lcce1.l2_specific = result;
+        case MESSAGE_TYPE_ICRP:
+        case MESSAGE_TYPE_OCRP:
+            session->lcce2.l2_specific = result;
+            break;
+    } 
+ 
+    return session;
+}
+
+static void update_session(l2tpv3_tunnel_t *tunnel, l2tpv3_session_t *session)
+{
+    l2tpv3_session_t *existing = NULL;
+
+    if (tunnel == NULL || session == NULL)
+        return;
+
+    if (session->lcce1.id == 0 && session->lcce2.id == 0)
+        return;
+
+    existing = find_session(tunnel, session->lcce1.id, session->lcce2.id);
+    if (!existing) {
+        existing = se_alloc0(sizeof(l2tpv3_session_t));
+        init_session(existing);
+    }
+
+    if (session->lcce1.id != 0)
+        existing->lcce1.id = session->lcce1.id;
+
+    if (session->lcce2.id != 0)
+        existing->lcce2.id = session->lcce2.id;
+
+    if (session->lcce1.cookie_len != -1)
+        existing->lcce1.cookie_len = session->lcce1.cookie_len;
+
+    if (session->lcce2.cookie_len != -1)
+        existing->lcce2.cookie_len = session->lcce2.cookie_len;
+
+    if (session->lcce1.l2_specific != -1)
+        existing->lcce1.l2_specific = session->lcce1.l2_specific;
+
+    if (session->lcce2.l2_specific != -1)
+        existing->lcce2.l2_specific = session->lcce2.l2_specific;
+
+    if (session->pw_type != -1)
+        existing->pw_type = session->pw_type;
+
+    if (tunnel->sessions == NULL) {
+        tunnel->sessions = g_slist_append(tunnel->sessions, existing);
+        list_heads = g_slist_append(list_heads, tunnel->sessions);
+    } else {
+        tunnel->sessions = g_slist_append(tunnel->sessions, existing);
+    }
+}
+
+
 /*
  * Dissect CISCO AVP:s
  */
@@ -1026,6 +1315,8 @@ static void process_control_avps(tvbuff_t *tvb,
     int         digest_idx = 0;
     guint16     digest_avp_len = 0;
     proto_item *digest_item = NULL;
+
+    l2tpv3_session_t *session = NULL;
 
     while (idx < length) {    /* Process AVP's */
         ver_len_hidden  = tvb_get_ntohs(tvb, idx);
@@ -1564,17 +1855,20 @@ static void process_control_avps(tvbuff_t *tvb,
                                 tvb, idx, 4, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo,COL_INFO, ", LSID: %2u",
                           tvb_get_ntohl(tvb, idx));
+            session = store_lsession_id(session, tvb, idx, msg_type);
             break;
         case REMOTE_SESSION_ID:
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_remote_session_id,
                                 tvb, idx, 4, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo,COL_INFO, ", RSID: %2u",
                             tvb_get_ntohl(tvb, idx));
+            session = store_rsession_id(session, tvb, idx, msg_type);
             break;
         case ASSIGNED_COOKIE:
             proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
                                 "Assigned Cookie: %s",
                                 tvb_bytes_to_str(tvb, idx, avp_len));
+            session = store_cookie_len(session, avp_len, msg_type);
             break;
         case REMOTE_END_ID:
             proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
@@ -1587,12 +1881,14 @@ static void process_control_avps(tvbuff_t *tvb,
                                 tvb_get_ntohs(tvb, idx),
                                 val_to_str(tvb_get_ntohs(tvb, idx),
                                            pw_types_vals, "Unknown (0x%04x)"));
+            session = store_pw_type(session, tvb, idx, msg_type);
             break;
         case L2_SPECIFIC_SUBLAYER:
             proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
                                 "Layer2 Specific Sublayer: %s",
                                 val_to_str(tvb_get_ntohs(tvb, idx),
                                            l2_sublayer_vals, "Invalid (%u)"));
+            session = store_l2_sublayer(session, tvb, idx, msg_type);
             break;
         case DATA_SEQUENCING:
             proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
@@ -1672,6 +1968,8 @@ static void process_control_avps(tvbuff_t *tvb,
         if (check_control_digest(tunnel, tvb, length, digest_idx, digest_avp_len, msg_type, pinfo) < 0)
             expert_add_info_format(pinfo, digest_item, PI_CHECKSUM, PI_WARN, "Incorrect Digest");
     }
+
+    update_session(tunnel, session);
 }
 
 /*
@@ -1681,7 +1979,8 @@ static void process_control_avps(tvbuff_t *tvb,
  */
 static void
 process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                    proto_tree *l2tp_tree, proto_item *l2tp_item, int *pIdx)
+                    proto_tree *l2tp_tree, proto_item *l2tp_item, int *pIdx,
+                    l2tpv3_tunnel_t *tunnel)
 {
     int         idx         = *pIdx;
     int         sid;
@@ -1689,10 +1988,46 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *l2_specific = NULL;
     proto_item *ti          = NULL;
     tvbuff_t   *next_tvb;
+    gint        cookie_len  = l2tpv3_cookie;
+    gint        l2_spec     = l2tpv3_l2_specific;
+    gint        pw_type     = l2tpv3_protocol;
+
+    lcce_settings_t  *lcce      = NULL;
+    l2tpv3_session_t *session   = NULL;
 
     /* Get Session ID */
     sid = tvb_get_ntohl(tvb, idx);
     idx += 4;
+
+    if (tunnel) {
+        if (ADDRESSES_EQUAL(&tunnel->lcce1, &pinfo->dst)) {
+            session = find_session(tunnel, sid, 0);
+            if (session)
+                lcce = &session->lcce1;
+        } else {
+            session = find_session(tunnel, 0, sid);
+            if (session)
+                lcce = &session->lcce2;
+        }
+    }
+
+    if (lcce) {
+        if (l2_spec == -1)
+            l2_spec = lcce->l2_specific;
+        if (cookie_len == -1)
+            cookie_len = lcce->cookie_len;
+        if (pw_type == -1)
+            pw_type = session->pw_type;
+    }
+
+    if (l2_spec == -1)
+        l2_spec = L2TPv3_L2_SPECIFIC_NONE;
+
+    if (pw_type == -1)
+        pw_type = L2TPv3_PROTOCOL_DEFAULT;
+
+    if (cookie_len == -1)
+        cookie_len = L2TPv3_COOKIE_DEFAULT;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_fstr(pinfo->cinfo,COL_INFO,
@@ -1705,82 +2040,82 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_set_len(l2tp_item, idx);
         if (!(tvb_offset_exists(tvb, idx)))
             return;
-        if (l2tpv3_cookie != 0)
-            proto_tree_add_item(l2tp_tree, hf_l2tp_cookie, tvb, idx, l2tpv3_cookie, ENC_NA);
+        if (cookie_len != 0)
+            proto_tree_add_item(l2tp_tree, hf_l2tp_cookie, tvb, idx, cookie_len, ENC_NA);
     }
 
-    switch(l2tpv3_l2_specific){
+    switch(l2_spec){
     case L2TPv3_L2_SPECIFIC_DEFAULT:
         if (tree) {
             ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_def,
-                                     tvb, idx + l2tpv3_cookie, 4, ENC_NA);
+                                     tvb, idx + cookie_len, 4, ENC_NA);
             l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
-            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + l2tpv3_cookie,
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + cookie_len,
                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-                                idx + l2tpv3_cookie + 1, 3, ENC_BIG_ENDIAN);
+                                idx + cookie_len + 1, 3, ENC_BIG_ENDIAN);
         }
-        next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie + 4);
+        next_tvb = tvb_new_subset_remaining(tvb, idx + cookie_len + 4);
         break;
     case L2TPv3_L2_SPECIFIC_DOCSIS_DMPT:
         if (tree) {
             ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_docsis_dmpt,
-                                     tvb, idx + l2tpv3_cookie, 4, ENC_NA);
+                                     tvb, idx + cookie_len, 4, ENC_NA);
             l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_v, tvb,
-                                idx + l2tpv3_cookie,1, ENC_BIG_ENDIAN);
+                                idx + cookie_len,1, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb,
-                                idx + l2tpv3_cookie,1, ENC_BIG_ENDIAN);
+                                idx + cookie_len,1, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_flow_id, tvb,
-                                idx + l2tpv3_cookie,1, ENC_BIG_ENDIAN);
+                                idx + cookie_len,1, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-                                idx + l2tpv3_cookie + 2,2, ENC_BIG_ENDIAN);
+                                idx + cookie_len + 2,2, ENC_BIG_ENDIAN);
         }
-        next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie + 4);
+        next_tvb = tvb_new_subset_remaining(tvb, idx + cookie_len + 4);
         break;
     case L2TPv3_L2_SPECIFIC_ATM:
         if (tree) {
             ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_atm,
-                                     tvb, idx + l2tpv3_cookie, 4, ENC_NA);
+                                     tvb, idx + cookie_len, 4, ENC_NA);
             l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
-            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + l2tpv3_cookie,
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + cookie_len,
                                 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_t, tvb, idx + l2tpv3_cookie,
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_t, tvb, idx + cookie_len,
                                 1, ENC_BIG_ENDIAN);
             /*
              * As per RFC 4454, the T bit specifies whether
              * we're transporting an OAM cell or an AAL5 frame.
              */
-            oam_cell = tvb_get_guint8(tvb, idx + l2tpv3_cookie) & 0x08;
-            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_g, tvb, idx + l2tpv3_cookie,
+            oam_cell = tvb_get_guint8(tvb, idx + cookie_len) & 0x08;
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_g, tvb, idx + cookie_len,
                                 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_c, tvb, idx + l2tpv3_cookie,
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_c, tvb, idx + cookie_len,
                                 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_u, tvb, idx + l2tpv3_cookie,
+            proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_u, tvb, idx + cookie_len,
                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-                                idx + l2tpv3_cookie + 1, 3, ENC_BIG_ENDIAN);
+                                idx + cookie_len + 1, 3, ENC_BIG_ENDIAN);
         }
-        next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie + 4);
+        next_tvb = tvb_new_subset_remaining(tvb, idx + cookie_len + 4);
         break;
     case L2TPv3_L2_SPECIFIC_LAPD:
         if (tree)
-            proto_tree_add_text(tree, tvb, idx + l2tpv3_cookie + 4, 3,"LAPD info");
-        next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie+4+3);
+            proto_tree_add_text(tree, tvb, idx + cookie_len + 4, 3,"LAPD info");
+        next_tvb = tvb_new_subset_remaining(tvb, idx + cookie_len+4+3);
         break;
     case L2TPv3_L2_SPECIFIC_NONE:
     default:
-        next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie);
+        next_tvb = tvb_new_subset_remaining(tvb, idx + cookie_len);
         break;
     }
 
-    switch(l2tpv3_protocol){
+    switch(pw_type){
     case L2TPv3_PROTOCOL_ETH:
         call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
         break;
@@ -1831,7 +2166,8 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * from the common part (Session ID)
  */
 static void
-process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                        l2tpv3_conversation_t *l2tp_conv)
 {
     proto_tree *l2tp_tree = NULL, *ctrl_tree;
     proto_item *l2tp_item = NULL, *ti;
@@ -1864,7 +2200,7 @@ process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Call process_l2tpv3_data from Session ID (offset in idx of 4) */
-    process_l2tpv3_data(tvb, pinfo, tree, l2tp_tree, l2tp_item, &idx);
+    process_l2tpv3_data(tvb, pinfo, tree, l2tp_tree, l2tp_item, &idx, l2tp_conv->tunnel);
 }
 
 /*
@@ -1872,7 +2208,8 @@ process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * from the common part (Session ID)
  */
 static void
-process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                       l2tpv3_conversation_t *l2tp_conv)
 {
     proto_tree *l2tp_tree = NULL;
     proto_item *l2tp_item = NULL;
@@ -1893,50 +2230,7 @@ process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Call process_l2tpv3_data from Session ID (offset in idx of 0) */
-    process_l2tpv3_data(tvb, pinfo, tree, l2tp_tree, l2tp_item, &idx);
-}
-
-static l2tpv3_tunnel_t *find_tunnel_from_packet_info(l2tpv3_conversation_t *l2tp_conv,
-                                                     packet_info *pinfo, guint32 ccid)
-{
-    l2tpv3_tunnel_t *tunnel = NULL;
-    GSList *iterator;
-
-    iterator = l2tp_conv->tunnels;
-    while (iterator) {
-        tunnel = iterator->data;
-
-        if (ADDRESSES_EQUAL(&pinfo->dst, &tunnel->lcce1) && (ccid == tunnel->lcce1_id))
-            return tunnel;
-
-        if (ADDRESSES_EQUAL(&pinfo->dst, &tunnel->lcce2) && (ccid == tunnel->lcce2_id))
-            return tunnel;
-
-        iterator = g_slist_next(iterator);
-    }
-
-    return NULL;
-}
-
-static l2tpv3_tunnel_t *find_tunnel_from_existing(l2tpv3_tunnel_t *existing)
-{
-    l2tpv3_tunnel_t *tunnel = NULL;
-    GSList *iterator;
-
-    iterator = existing->conv->tunnels;
-    while (iterator) {
-        tunnel = iterator->data;
-
-        if (ADDRESSES_EQUAL(&existing->lcce1, &tunnel->lcce1) && (existing->lcce1_id == tunnel->lcce1_id))
-            return tunnel;
-
-           if (ADDRESSES_EQUAL(&existing->lcce2, &tunnel->lcce2) && (existing->lcce2_id == tunnel->lcce2_id))
-            return tunnel;
-
-        iterator = g_slist_next(iterator);
-    }
-
-    return NULL;
+    process_l2tpv3_data(tvb, pinfo, tree, l2tp_tree, l2tp_item, &idx, l2tp_conv->tunnel);
 }
 
 /*
@@ -2088,21 +2382,14 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     }
 
     if (tunnel == NULL) {
-        tunnel = find_tunnel_from_packet_info(l2tp_conv, pinfo, ccid);
+        tunnel = l2tp_conv->tunnel;
     }
 
     process_control_avps(tvb, pinfo, l2tp_tree, idx, length+baseIdx, tunnel);
 
-    if (tunnel == &tmp_tunnel && find_tunnel_from_existing(tunnel) == NULL) {
-        tunnel = se_alloc0(sizeof(l2tpv3_tunnel_t));
-        memcpy(tunnel, &tmp_tunnel, sizeof(l2tpv3_tunnel_t));
-
-        if (l2tp_conv->tunnels == NULL) {
-            l2tp_conv->tunnels = g_slist_append(l2tp_conv->tunnels, tunnel);
-            list_heads = g_slist_append(list_heads, l2tp_conv->tunnels);
-        } else {
-            l2tp_conv->tunnels = g_slist_append(l2tp_conv->tunnels, tunnel);
-        }
+    if (tunnel == &tmp_tunnel && l2tp_conv->tunnel == NULL) {
+        l2tp_conv->tunnel = se_alloc0(sizeof(l2tpv3_tunnel_t));
+        memcpy(l2tp_conv->tunnel, &tmp_tunnel, sizeof(l2tpv3_tunnel_t));
     }
 }
 
@@ -2185,7 +2472,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         }
         else {
             /* Call to process l2tp v3 data message */
-            process_l2tpv3_data_udp(tvb, pinfo, tree);
+            process_l2tpv3_data_udp(tvb, pinfo, tree, l2tp_conv);
         }
         return tvb_length(tvb);
     }
@@ -2379,7 +2666,7 @@ dissect_l2tp_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else {
         /* Call to process l2tp v3 data message */
-        process_l2tpv3_data_ip(tvb, pinfo, tree);
+        process_l2tpv3_data_ip(tvb, pinfo, tree, l2tp_conv);
     }
 
     return;
