@@ -1284,10 +1284,6 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
     guint32 block_len;
     guint64 len, tot_len;
     const char *un;
-    static const int *pmi_fields[] = {
-        &hf_scsi_sbc_pmi,
-	NULL
-    };
 
     if (!tree)
         return;
@@ -1305,18 +1301,10 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                              val_to_str (service_action,
                                          service_action_vals,
                                          "Unknown (0x%02x)"));
-		offset++;
-
-        	proto_tree_add_text (tree, tvb, offset, 8,
-                             "Logical Block Address: %" G_GINT64_MODIFIER "u",
-                              tvb_get_ntoh64 (tvb, offset));
-        	offset += 8;
+        	offset += 9;
 
 	        proto_tree_add_item (tree, hf_scsi_sbc_alloclen32, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-
-		proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_pmi_flags, ett_scsi_pmi, pmi_fields, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 5;
 
 		proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
 			ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
