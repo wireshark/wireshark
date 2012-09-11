@@ -897,7 +897,8 @@ dissector_reset_uint(const char *name, const guint32 pattern)
 
 gboolean
 dissector_try_uint_new(dissector_table_t sub_dissectors, const guint32 uint_val,
-		       tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name)
+		       tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
+		       const gboolean add_proto_name, void *data)
 {
 	dtbl_entry_t            *dtbl_entry;
 	struct dissector_handle *handle;
@@ -926,7 +927,7 @@ dissector_try_uint_new(dissector_table_t sub_dissectors, const guint32 uint_val,
 		 */
 		saved_match_uint  = pinfo->match_uint;
 		pinfo->match_uint = uint_val;
-		ret = call_dissector_work(handle, tvb, pinfo, tree, add_proto_name, NULL);
+		ret = call_dissector_work(handle, tvb, pinfo, tree, add_proto_name, data);
 		pinfo->match_uint = saved_match_uint;
 
 		/*
@@ -952,7 +953,7 @@ dissector_try_uint(dissector_table_t sub_dissectors, const guint32 uint_val,
 		   tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-	return dissector_try_uint_new(sub_dissectors, uint_val, tvb, pinfo, tree, TRUE);
+	return dissector_try_uint_new(sub_dissectors, uint_val, tvb, pinfo, tree, TRUE, NULL);
 }
 
 /* Look for a given value in a given uint dissector table and, if found,

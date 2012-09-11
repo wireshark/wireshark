@@ -216,11 +216,11 @@ extern gboolean dissector_try_uint(dissector_table_t sub_dissectors,
    call the dissector with the arguments supplied, and return TRUE,
    otherwise return FALSE. */
 extern gboolean dissector_try_uint_new(dissector_table_t sub_dissectors,
-	const guint32 uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name);
+	const guint32 uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name, void *data);
 
 /* For old code that hasn't yet been changed. */
 #define dissector_try_port_new(sub_dissectors, uint_val, tvb, pinfo, tree, add_proto_name) \
-	dissector_try_uint_new(sub_dissectors, uint_val, tvb, pinfo, tree, add_proto_name)
+	dissector_try_uint_new(sub_dissectors, uint_val, tvb, pinfo, tree, add_proto_name, NULL)
 
 /* Look for a given value in a given uint dissector table and, if found,
    return the dissector handle for that value. */
