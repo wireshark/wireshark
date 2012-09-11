@@ -1,7 +1,6 @@
 /* packet-btrfcomm.c
  * Routines for Bluetooth RFCOMM protocol dissection
  * and RFCOMM based profile dissection:
- *    - Handsfree Profile (HFP)
  *    - Dial-Up Networking (DUN) Profile
  *    - Serial Port Profile (SPP)
  *
@@ -78,7 +77,6 @@ static int hf_msc_l = -1;
 
 static int hf_fcs = -1;
 
-static int hf_at_cmd = -1;
 static int hf_dun_at_cmd = -1;
 static int hf_data = -1;
 
@@ -93,7 +91,6 @@ static int hf_mcc_pn_zeros_padding = -1;
 
 /* Initialize the protocol and registered fields */
 static int proto_btrfcomm = -1;
-static int proto_bthf = -1;
 static int proto_btdun = -1;
 static int proto_btspp = -1;
 
@@ -108,7 +105,6 @@ static gint ett_ctrl_pn_v24 = -1;
 static gint ett_dlci = -1;
 static gint ett_mcc_dlci = -1;
 
-static gint ett_bthf = -1;
 static gint ett_btdun = -1;
 static gint ett_btspp = -1;
 
@@ -967,62 +963,6 @@ proto_reg_handoff_btrfcomm(void)
        helps us determine the type of rfcomm payload, i.e. which service is
        using the channels so we know which sub-dissector to call */
     register_tap_listener("btsdp", NULL, NULL, TL_IS_DISSECTOR_HELPER, NULL, btrfcomm_sdp_tap_packet, NULL);
-}
-
-/* Bluetooth Handsfree (HF) profile dissection */
-static void
-dissect_bthf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    proto_item *ti;
-    proto_tree *st;
-
-    guint length = tvb_length(tvb);
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HANDSFREE");
-
-    ti = proto_tree_add_item(tree, proto_bthf, tvb, 0, -1, ENC_NA);
-    st = proto_item_add_subtree(ti, ett_bthf);
-
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s \"%s\"",
-                 (pinfo->p2p_dir == P2P_DIR_SENT) ? "Sent" : "Rcvd",
-                 tvb_format_text(tvb, 0, length));
-
-    proto_tree_add_item(st, hf_at_cmd, tvb, 0, -1, ENC_ASCII|ENC_NA);
-}
-
-void
-proto_register_bthf(void)
-{
-    static hf_register_info hf[] = {
-        { &hf_at_cmd,
-          { "AT Cmd", "bthf.atcmd",
-            FT_STRING, BASE_NONE, NULL, 0,
-            "AT Command", HFILL}
-        },
-    };
-
-    /* Setup protocol subtree array */
-    static gint *ett[] = {
-        &ett_bthf,
-    };
-
-    proto_bthf = proto_register_protocol("Bluetooth Handsfree Packet", "BTHF", "bthf");
-
-    /* Required function calls to register the header fields and subtrees used */
-    proto_register_field_array(proto_bthf, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
-}
-
-void
-proto_reg_handoff_bthf(void)
-{
-    dissector_handle_t bthf_handle;
-
-    bthf_handle = create_dissector_handle(dissect_bthf, proto_bthf);
-
-    dissector_add_uint("btrfcomm.service", BTSDP_HFP_SERVICE_UUID, bthf_handle);
-    dissector_add_uint("btrfcomm.service", BTSDP_HFP_GW_SERVICE_UUID, bthf_handle);
-    dissector_add_handle("btrfcomm.channel", bthf_handle);
 }
 
 /* Bluetooth Dial-Up Networking (DUN) profile dissection */
