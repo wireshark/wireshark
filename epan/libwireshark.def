@@ -43,6 +43,7 @@ bytes_to_str_punct
 bytestring_to_str
 call_ber_oid_callback
 call_dissector
+call_dissector_with_data
 call_dissector_only
 camel_opr_code_strings          DATA
 camelSRTtype_naming             DATA

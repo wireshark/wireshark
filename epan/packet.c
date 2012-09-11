@@ -2028,12 +2028,12 @@ call_dissector_only(dissector_handle_t handle, tvbuff_t *tvb,
  * dissector.
  */
 int
-call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
-	       packet_info *pinfo, proto_tree *tree)
+call_dissector_with_data(dissector_handle_t handle, tvbuff_t *tvb,
+	                 packet_info *pinfo, proto_tree *tree, void *data)
 {
 	int ret;
 
-	ret = call_dissector_only(handle, tvb, pinfo, tree, NULL);
+	ret = call_dissector_only(handle, tvb, pinfo, tree, data);
 	if (ret == 0) {
 		/*
 		 * The protocol was disabled, or the dissector rejected
@@ -2045,6 +2045,13 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 		return tvb_length(tvb);
 	}
 	return ret;
+}
+
+int
+call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
+	       packet_info *pinfo, proto_tree *tree)
+{
+	return call_dissector_with_data(handle, tvb, pinfo, tree, NULL);
 }
 
 /*

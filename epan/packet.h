@@ -362,11 +362,14 @@ extern dissector_handle_t new_create_dissector_handle(new_dissector_t dissector,
  *   @param  tvb The buffer to dissect.
  *   @param  pinfo Packet Info.
  *   @param  tree The protocol tree.
+ *   @param  data parameter to pass to dissector
  *   @return  If the protocol for that handle isn't enabled call the data
  *   dissector. Otherwise, if the handle refers to a new-style
  *   dissector, call the dissector and return its return value, otherwise call
  *   it and return the length of the tvbuff pointed to by the argument.
  */
+extern int call_dissector_with_data(dissector_handle_t handle, tvbuff_t *tvb,
+    packet_info *pinfo, proto_tree *tree, void *data);
 extern int call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
 
@@ -377,6 +380,7 @@ extern int call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
  *   @param  tvb The buffer to dissect.
  *   @param  pinfo Packet Info.
  *   @param  tree The protocol tree.
+ *   @param  data parameter to pass to dissector
  *   @return  If the protocol for that handle isn't enabled, return 0 without
  *   calling the dissector. Otherwise, if the handle refers to a new-style
  *   dissector, call the dissector and return its return value, otherwise call
