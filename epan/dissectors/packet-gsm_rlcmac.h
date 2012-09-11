@@ -2484,32 +2484,39 @@ typedef struct
 
 typedef struct
 {
-  guint8 MSCR;
-  guint8 SGSNR;
-  guint8 BandIndicator;
+  guint8 LB_MS_TXPWR_MAX_CCH;
+} PSI1_AdditionsR6_t;
+
+typedef struct
+{
+  guint8             MSCR;
+  guint8             SGSNR;
+  guint8             BandIndicator;
+  gboolean           Exist_AdditionsR6;
+  PSI1_AdditionsR6_t AdditionsR6;
 } PSI1_AdditionsR99_t;
 
 typedef struct
 {
-  guint8                             MESSAGE_TYPE;
+  guint8                            MESSAGE_TYPE;
 
-  guint8                             PAGE_MODE;
-  guint8                             PBCCH_CHANGE_MARK;
-  guint8                             PSI_CHANGE_FIELD;
-  guint8                             PSI1_REPEAT_PERIOD;
-  guint8                             PSI_COUNT_LR;
+  guint8                            PAGE_MODE;
+  guint8                            PBCCH_CHANGE_MARK;
+  guint8                            PSI_CHANGE_FIELD;
+  guint8                            PSI1_REPEAT_PERIOD;
+  guint8                            PSI_COUNT_LR;
 
-  guint8                             Exist_PSI_COUNT_HR;
-  guint8                             PSI_COUNT_HR;
+  guint8                            Exist_PSI_COUNT_HR;
+  guint8                            PSI_COUNT_HR;
 
-  guint8                             MEASUREMENT_ORDER;
+  guint8                            MEASUREMENT_ORDER;
   GPRS_Cell_Options_t               GPRS_Cell_Options;
   PRACH_Control_t                   PRACH_Control;
   PCCCH_Organization_t              PCCCH_Organization;
   Global_Power_Control_Parameters_t Global_Power_Control_Parameters;
-  guint8                             PSI_STATUS_IND;
+  guint8                            PSI_STATUS_IND;
 
-  gboolean                           Exist_AdditionsR99;
+  gboolean                          Exist_AdditionsR99;
   PSI1_AdditionsR99_t               AdditionsR99;
 } PSI1_t;
 

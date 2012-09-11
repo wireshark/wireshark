@@ -264,6 +264,8 @@ static int hf_type_of_ack;
 
 /*< SI 13 Rest Octets >*/
 static int hf_gprs_cell_options_nmo;
+static int hf_gprs_cell_options_t3168;
+static int hf_gprs_cell_options_t3192;
 static int hf_gprs_cell_options_drx_timer_max;
 static int hf_gprs_cell_options_access_burst_type;
 static int hf_gprs_cell_options_control_ack_type;
@@ -849,6 +851,7 @@ static int hf_packet_system_info_type1_measurement_order;
 static int hf_packet_system_info_type1_psi_status_ind;
 static int hf_packet_system_info_type1_mscr;
 static int hf_packet_system_info_type1_band_indicator;
+static int hf_packet_system_info_type1_lb_ms_txpwr_max_ccch;
 static int hf_pccch_org_bs_pcc_rel;
 static int hf_pccch_org_pbcch_blks;
 static int hf_pccch_org_pag_blks_res;
@@ -1632,8 +1635,8 @@ CSN_DESCR_END   (Extension_Bits_t)
 static const
 CSN_DESCR_BEGIN(GPRS_Cell_Options_t)
   M_UINT       (GPRS_Cell_Options_t,  NMO,  2, &hf_gprs_cell_options_nmo),
-  M_UINT_OFFSET(GPRS_Cell_Options_t, T3168, 3, 1),
-  M_UINT_OFFSET(GPRS_Cell_Options_t, T3192, 3, 1),
+  M_UINT       (GPRS_Cell_Options_t, T3168, 3, &hf_gprs_cell_options_t3168),
+  M_UINT       (GPRS_Cell_Options_t, T3192, 3, &hf_gprs_cell_options_t3192),
   M_UINT       (GPRS_Cell_Options_t,  DRX_TIMER_MAX,  3, &hf_gprs_cell_options_drx_timer_max),
   M_BIT        (GPRS_Cell_Options_t,  ACCESS_BURST_TYPE, &hf_gprs_cell_options_access_burst_type),
   M_BIT        (GPRS_Cell_Options_t,  CONTROL_ACK_TYPE, &hf_gprs_cell_options_control_ack_type),
@@ -5429,11 +5432,18 @@ CSN_DESCR_END         (Packet_Pause_t)
 
 /*< Packet System Information Type 1 message content >*/
 static const
-CSN_DESCR_BEGIN(PSI1_AdditionsR99_t)
-  M_UINT       (PSI1_AdditionsR99_t,  MSCR,  1, &hf_packet_system_info_type1_mscr),
-  M_UINT       (PSI1_AdditionsR99_t,  SGSNR, 1, &hf_sgsnr),
-  M_UINT       (PSI1_AdditionsR99_t,  BandIndicator,  1, &hf_packet_system_info_type1_band_indicator),
-CSN_DESCR_END  (PSI1_AdditionsR99_t)
+CSN_DESCR_BEGIN(PSI1_AdditionsR6_t)
+  M_UINT       (PSI1_AdditionsR6_t, LB_MS_TXPWR_MAX_CCH, 5, &hf_packet_system_info_type1_lb_ms_txpwr_max_ccch),
+CSN_DESCR_END  (PSI1_AdditionsR6_t)
+
+static const
+CSN_DESCR_BEGIN        (PSI1_AdditionsR99_t)
+  M_UINT               (PSI1_AdditionsR99_t, MSCR,  1, &hf_packet_system_info_type1_mscr),
+  M_UINT               (PSI1_AdditionsR99_t, SGSNR,  1, &hf_sgsnr),
+  M_UINT               (PSI1_AdditionsR99_t, BandIndicator,  1, &hf_packet_system_info_type1_band_indicator),
+  M_NEXT_EXIST_OR_NULL (PSI1_AdditionsR99_t, Exist_AdditionsR6, 1),
+  M_TYPE               (PSI1_AdditionsR99_t, AdditionsR6, PSI1_AdditionsR6_t),
+CSN_DESCR_END          (PSI1_AdditionsR99_t)
 
 static const
 CSN_DESCR_BEGIN(PCCCH_Organization_t)
@@ -5446,26 +5456,26 @@ CSN_DESCR_END  (PCCCH_Organization_t)
 
 static const
 CSN_DESCR_BEGIN(PSI1_t)
-  M_UINT       (PSI1_t, MESSAGE_TYPE, 6, &hf_dl_message_type),
-  M_UINT       (PSI1_t, PAGE_MODE, 2, &hf_page_mode),
+  M_UINT               (PSI1_t, MESSAGE_TYPE, 6, &hf_dl_message_type),
+  M_UINT               (PSI1_t, PAGE_MODE, 2, &hf_page_mode),
 
-  M_UINT       (PSI1_t, PBCCH_CHANGE_MARK,  3, &hf_packet_system_info_type1_pbcch_change_mark),
-  M_UINT       (PSI1_t, PSI_CHANGE_FIELD,  4, &hf_packet_system_info_type1_psi_change_field),
-  M_UINT       (PSI1_t, PSI1_REPEAT_PERIOD,  4, &hf_packet_system_info_type1_psi1_repeat_period),
-  M_UINT       (PSI1_t, PSI_COUNT_LR,  6, &hf_packet_system_info_type1_psi_count_lr),
+  M_UINT               (PSI1_t, PBCCH_CHANGE_MARK,  3, &hf_packet_system_info_type1_pbcch_change_mark),
+  M_UINT               (PSI1_t, PSI_CHANGE_FIELD,  4, &hf_packet_system_info_type1_psi_change_field),
+  M_UINT               (PSI1_t, PSI1_REPEAT_PERIOD,  4, &hf_packet_system_info_type1_psi1_repeat_period),
+  M_UINT               (PSI1_t, PSI_COUNT_LR,  6, &hf_packet_system_info_type1_psi_count_lr),
 
-  M_NEXT_EXIST (PSI1_t, Exist_PSI_COUNT_HR, 1),
-  M_UINT       (PSI1_t, PSI_COUNT_HR,  4, &hf_packet_system_info_type1_psi_count_hr),
+  M_NEXT_EXIST         (PSI1_t, Exist_PSI_COUNT_HR, 1),
+  M_UINT               (PSI1_t, PSI_COUNT_HR,  4, &hf_packet_system_info_type1_psi_count_hr),
 
-  M_UINT       (PSI1_t, MEASUREMENT_ORDER,  1, &hf_packet_system_info_type1_measurement_order),
-  M_TYPE       (PSI1_t, GPRS_Cell_Options, GPRS_Cell_Options_t),
-  M_TYPE       (PSI1_t, PRACH_Control, PRACH_Control_t),
-  M_TYPE       (PSI1_t, PCCCH_Organization, PCCCH_Organization_t),
-  M_TYPE       (PSI1_t, Global_Power_Control_Parameters, Global_Power_Control_Parameters_t),
-  M_UINT       (PSI1_t, PSI_STATUS_IND,  1, &hf_packet_system_info_type1_psi_status_ind),
+  M_UINT               (PSI1_t, MEASUREMENT_ORDER,  1, &hf_packet_system_info_type1_measurement_order),
+  M_TYPE               (PSI1_t, GPRS_Cell_Options, GPRS_Cell_Options_t),
+  M_TYPE               (PSI1_t, PRACH_Control, PRACH_Control_t),
+  M_TYPE               (PSI1_t, PCCCH_Organization, PCCCH_Organization_t),
+  M_TYPE               (PSI1_t, Global_Power_Control_Parameters, Global_Power_Control_Parameters_t),
+  M_UINT               (PSI1_t, PSI_STATUS_IND,  1, &hf_packet_system_info_type1_psi_status_ind),
 
-  M_NEXT_EXIST (PSI1_t, Exist_AdditionsR99, 1),
-  M_TYPE       (PSI1_t,  AdditionsR99, PSI1_AdditionsR99_t),
+  M_NEXT_EXIST_OR_NULL (PSI1_t, Exist_AdditionsR99, 1),
+  M_TYPE               (PSI1_t, AdditionsR99, PSI1_AdditionsR99_t),
 
   M_PADDING_BITS(PSI1_t),
 CSN_DESCR_END  (PSI1_t)
@@ -6603,6 +6613,83 @@ static const value_string egprs_Header_type3_coding_puncturing_scheme_vals[] = {
     {0, NULL }
 };
 static value_string_ext egprs_Header_type3_coding_puncturing_scheme_vals_ext = VALUE_STRING_EXT_INIT(egprs_Header_type3_coding_puncturing_scheme_vals);
+
+static const value_string gsm_rlcmac_psi_change_field_vals[] = {
+  { 0, "Update of unspecified PSI message(s)"},
+  { 1, "Unknown"},
+  { 2, "PSI2 updated"},
+  { 3, "PSI3/PSI3bis/PSI3ter/PSI3quater updated"},
+  { 4, "Unknown"},
+  { 5, "PSI5 updated"},
+  { 6, "PSI6 updated"},
+  { 7, "PSI7 updated"},
+  { 8, "PSI8 updated"},
+  { 9, "Update of unknown SI message type"},
+  {10, "Update of unknown SI message type"},
+  {11, "Update of unknown SI message type"},
+  {12, "Update of unknown SI message type"},
+  {13, "Update of unknown SI message type"},
+  {14, "Update of unknown SI message type"},
+  {15, "Update of unknown SI message type"},
+  { 0, NULL}
+};
+
+static const value_string gsm_rlcmac_val_plus_1_vals[] = {
+  { 0, "1"},
+  { 1, "2"},
+  { 2, "3"},
+  { 3, "4"},
+  { 4, "5"},
+  { 5, "6"},
+  { 6, "7"},
+  { 7, "8"},
+  { 8, "9"},
+  { 9, "10"},
+  {10, "11"},
+  {11, "12"},
+  {12, "13"},
+  {13, "14"},
+  {14, "15"},
+  {15, "16"},
+  { 0, NULL}
+};
+
+static const true_false_string gsm_rlcmac_psi1_measurement_order_value = {
+  "MS shall send measurement reports for cell re-selection",
+  "MS performs cell re-selection in both packet idle and transfert mode and shall not send any measurement reports to the network"
+};
+
+static const value_string gsm_rlcmac_nmo_vals[] = {
+  { 0, "Network Mode of Operation I"},
+  { 1, "Network Mode of Operation II"},
+  { 2, "Network Mode of Operation III"},
+  { 3, "Reserved"},
+  { 0, NULL}
+};
+
+static const value_string gsm_rlcmac_t3168_vals[] = {
+  { 0, "500 ms"},
+  { 1, "1000 ms"},
+  { 2, "1500 ms"},
+  { 3, "2000 ms"},
+  { 4, "2500 ms"},
+  { 5, "3000 ms"},
+  { 6, "3500 ms"},
+  { 7, "4000 ms"},
+  { 0, NULL}
+};
+
+static const value_string gsm_rlcmac_t3192_vals[] = {
+  { 0, "500 ms"},
+  { 1, "1000 ms"},
+  { 2, "1500 ms"},
+  { 3, "0 ms"},
+  { 4, "80 ms"},
+  { 5, "120 ms"},
+  { 6, "160 ms"},
+  { 7, "200 ms"},
+  { 0, NULL}
+};
 
 static guint8 construct_gprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 initial_offset, guint8 *li_count, length_indicator_t *li_array, guint64 *e)
 {
@@ -8439,7 +8526,19 @@ proto_register_gsm_rlcmac(void)
 /*< SI 13 Rest Octets >*/
     { &hf_gprs_cell_options_nmo,
       { "NMO",        "gsm_rlcmac.dl.gprs_cell_options_nmo",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, VALS(gsm_rlcmac_nmo_vals), 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_gprs_cell_options_t3168,
+      { "T3168", "gsm_rlcmac.dl.gprs_cell_options_t3168",
+        FT_UINT8, BASE_DEC, VALS(gsm_rlcmac_t3168_vals), 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_gprs_cell_options_t3192,
+      { "T3192", "gsm_rlcmac.dl.gprs_cell_options_t3192",
+        FT_UINT8, BASE_DEC, VALS(gsm_rlcmac_t3192_vals), 0x0,
         NULL, HFILL
       }
     },
@@ -8523,7 +8622,7 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_pbcch_present_psi1_repeat_period,
       { "PSI1_REPEAT_PERIOD",        "gsm_rlcmac.dl.pbcch_present_psi1_repeat_period",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, VALS(gsm_rlcmac_val_plus_1_vals), 0x0,
         NULL, HFILL
       }
     },
@@ -9686,7 +9785,7 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_location_repeat_psi1_repeat_period,
       { "PSI1_REPEAT_PERIOD",        "gsm_rlcmac.dl.psi1_repeat_period",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, VALS(gsm_rlcmac_val_plus_1_vals), 0x0,
         NULL, HFILL
       }
     },
@@ -11608,13 +11707,13 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_packet_system_info_type1_psi_change_field,
       { "PSI_CHANGE_FIELD",        "gsm_rlcmac.dl.psi1_psi_change_field",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, VALS(gsm_rlcmac_psi_change_field_vals), 0x0,
         NULL, HFILL
       }
     },
     { &hf_packet_system_info_type1_psi1_repeat_period,
       { "PSI1_REPEAT_PERIOD",        "gsm_rlcmac.dl.psi1_psi1_repeat_period",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, VALS(gsm_rlcmac_val_plus_1_vals), 0x0,
         NULL, HFILL
       }
     },
@@ -11626,13 +11725,13 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_packet_system_info_type1_psi_count_hr,
       { "PSI_COUNT_HR",        "gsm_rlcmac.dl.psi1_psi_count_hr",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, VALS(gsm_rlcmac_val_plus_1_vals), 0x0,
         NULL, HFILL
       }
     },
     { &hf_packet_system_info_type1_measurement_order,
       { "MEASUREMENT_ORDER",        "gsm_rlcmac.dl.psi1_measurement_order",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, TFS(&gsm_rlcmac_psi1_measurement_order_value), 0x0,
         NULL, HFILL
       }
     },
@@ -11650,6 +11749,12 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_packet_system_info_type1_band_indicator,
       { "BAND_INDICATOR",        "gsm_rlcmac.dl.psi1_band_indicator",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type1_lb_ms_txpwr_max_ccch,
+      { "LB_MS_TXPWR_MAX_CCCH", "gsm_rlcmac.dl.psi1_lb_ms_txpwr_max_ccch",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
