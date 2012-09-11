@@ -79,7 +79,6 @@ static int hf_scsi_sbc_wrverify_xferlen		= -1;
 static int hf_scsi_sbc_wrverify_lba64		= -1;
 static int hf_scsi_sbc_wrverify_xferlen32	= -1;
 static int hf_scsi_sbc_readcapacity_flags	= -1;
-static int hf_scsi_sbc_readcapacity_lba		= -1;
 static int hf_scsi_sbc_readdefdata_flags	= -1;
 static int hf_scsi_sbc_reassignblks_flags	= -1;
 static int hf_scsi_sbc_read_flags		= -1;
@@ -97,8 +96,6 @@ static int hf_scsi_sbc_rdprotect		= -1;
 static int hf_scsi_sbc_dpo			= -1;
 static int hf_scsi_sbc_fua			= -1;
 static int hf_scsi_sbc_fua_nv			= -1;
-static int hf_scsi_sbc_pmi_flags		= -1;
-static int hf_scsi_sbc_pmi			= -1;
 static int hf_scsi_sbc_blocksize		= -1;
 static int hf_scsi_sbc_returned_lba		= -1;
 static int hf_scsi_sbc_req_plist		= -1;
@@ -150,7 +147,6 @@ static gint ett_scsi_xdread			= -1;
 static gint ett_scsi_xdwrite			= -1;
 static gint ett_scsi_xdwriteread		= -1;
 static gint ett_scsi_xpwrite			= -1;
-static gint ett_scsi_pmi			= -1;
 static gint ett_scsi_defectdata			= -1;
 static gint ett_scsi_corrct			= -1;
 static gint ett_scsi_reassign_blocks		= -1;
@@ -999,18 +995,11 @@ dissect_sbc_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 {
     guint32 len, block_len, tot_len;
     const char *un;
-    static const int *pmi_fields[] = {
-        &hf_scsi_sbc_pmi,
-	NULL
-    };
 
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_sbc_readcapacity_lba, tvb, offset+1, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_bitmask(tree, tvb, offset+7, hf_scsi_sbc_pmi_flags,
-            ett_scsi_pmi, pmi_fields, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
@@ -1861,9 +1850,6 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_readcapacity_flags,
           {"Flags", "scsi_sbc.readcapacity.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
-        { &hf_scsi_sbc_readcapacity_lba,
-          {"Logical Block Address", "scsi_sbc.readcapacity.lba", FT_UINT32, BASE_DEC,
-           NULL, 0x0, NULL, HFILL}},
         { &hf_scsi_sbc_readdefdata_flags,
           {"Flags", "scsi_sbc.readdefdata.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
            HFILL}},
@@ -1915,12 +1901,6 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_fua_nv,
           {"FUA_NV", "scsi_sbc.fua_nv", FT_BOOLEAN, 8,
            TFS(&fua_nv_tfs), 0x02, "ForceUnitAccess_NonVolatile: Whether to allow reading from non-volatile cache or not", HFILL}},
-        { &hf_scsi_sbc_pmi,
-          {"PMI", "scsi_sbc.pmi", FT_BOOLEAN, 8,
-           TFS(&pmi_tfs), 0x01, "Partial Medium Indicator", HFILL}},
-        { &hf_scsi_sbc_pmi_flags,
-          {"PMI Flags", "scsi_sbc.pmi_flags", FT_UINT8, BASE_HEX,
-           NULL, 0, NULL, HFILL}},
         { &hf_scsi_sbc_blocksize,
           {"Block size in bytes", "scsi_sbc.blocksize", FT_UINT32, BASE_DEC,
            NULL, 0, NULL, HFILL}},
@@ -2063,7 +2043,6 @@ proto_register_scsi_sbc(void)
 	static gint *ett[] = {
 		&ett_scsi_format_unit,
 		&ett_scsi_prefetch,
-		&ett_scsi_pmi,
 		&ett_scsi_rdwr,
 		&ett_scsi_xdread,
 		&ett_scsi_xdwrite,
