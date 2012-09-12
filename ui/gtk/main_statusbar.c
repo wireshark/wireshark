@@ -471,6 +471,9 @@ profile_bar_new(void)
     profile_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(profile_bar), "profile");
     gtk_widget_set_tooltip_text(profile_bar_event, "Click to change configuration profile");
     profile_bar_update();
+#if !GTK_CHECK_VERSION(3,0,0)
+    gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(profile_bar), FALSE);
+#endif
 
     gtk_widget_show(profile_bar);
     gtk_widget_show(profile_bar_event);
