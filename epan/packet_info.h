@@ -46,116 +46,116 @@
 #define MAX_NUMBER_OF_PPIDS     2
 
 typedef struct _packet_info {
-  const char *current_proto;	/* name of protocol currently being dissected */
-  column_info *cinfo;		/* Column formatting information */
+  const char *current_proto;		/**< name of protocol currently being dissected */
+  column_info *cinfo;				/**< Column formatting information */
   frame_data *fd;
   union wtap_pseudo_header *pseudo_header;
-  GSList *data_src;		/* Frame data sources */
-  address dl_src;		/* link-layer source address */
-  address dl_dst;		/* link-layer destination address */
-  address net_src;		/* network-layer source address */
-  address net_dst;		/* network-layer destination address */
-  address src;			/* source address (net if present, DL otherwise )*/
-  address dst;			/* destination address (net if present, DL otherwise )*/
-  guint32 ethertype;		/* Ethernet Type Code, if this is an Ethernet packet */
-  guint32 ipproto;		/* IP protocol, if this is an IP packet */
-  guint32 ipxptype;		/* IPX packet type, if this is an IPX packet */
-  guint32 mpls_label;		/* last mpls label in label stack, if this is a MPLS packet */
-  circuit_type ctype;		/* type of circuit, for protocols with a VC identifier */
-  guint32 circuit_id;		/* circuit ID, for protocols with a VC identifier */
-  const char *noreassembly_reason;  /* reason why reassembly wasn't done, if any */
-  gboolean fragmented;		/* TRUE if the protocol is only a fragment */
+  GSList *data_src;					/**< Frame data sources */
+  address dl_src;					/**< link-layer source address */
+  address dl_dst;					/**< link-layer destination address */
+  address net_src;					/**< network-layer source address */
+  address net_dst;					/**< network-layer destination address */
+  address src;						/**< source address (net if present, DL otherwise )*/
+  address dst;						/**< destination address (net if present, DL otherwise )*/
+  guint32 ethertype;				/**< Ethernet Type Code, if this is an Ethernet packet */
+  guint32 ipproto;					/**< IP protocol, if this is an IP packet */
+  guint32 ipxptype;					/**< IPX packet type, if this is an IPX packet */
+  guint32 mpls_label;				/**< last mpls label in label stack, if this is a MPLS packet */
+  circuit_type ctype;				/**< type of circuit, for protocols with a VC identifier */
+  guint32 circuit_id;				/**< circuit ID, for protocols with a VC identifier */
+  const char *noreassembly_reason;  /**< reason why reassembly wasn't done, if any */
+  gboolean fragmented;				/**< TRUE if the protocol is only a fragment */
   struct {
-    guint32 in_error_pkt:1;	/* TRUE if we're inside an {ICMP,CLNP,...} error packet */
-    guint32 in_gre_pkt:1;	/* TRUE if we're encapsulated inside a GRE packet */
+    guint32 in_error_pkt:1;			/**< TRUE if we're inside an {ICMP,CLNP,...} error packet */
+    guint32 in_gre_pkt:1;			/**< TRUE if we're encapsulated inside a GRE packet */
   } flags;
-  port_type ptype;		/* type of the following two port numbers */
-  guint32 srcport;		/* source port */
-  guint32 destport;		/* destination port */
-  guint32 match_uint;           /* matched uint for calling subdissector from table */
-  const char *match_string;	/* matched string for calling subdissector from table */
-  guint16 can_desegment;	/* >0 if this segment could be desegmented.
-				   A dissector that can offer this API (e.g.
-				   TCP) sets can_desegment=2, then
-				   can_desegment is decremented by 1 each time
-				   we pass to the next subdissector. Thus only
-				   the dissector immediately above the
-				   protocol which sets the flag can use it*/
-  guint16 saved_can_desegment;	/* Value of can_desegment before current
-				   dissector was called.  Supplied so that
-				   dissectors for proxy protocols such as
-				   SOCKS can restore it, allowing the
-				   dissectors that they call to use the
-				   TCP dissector's desegmentation (SOCKS
-				   just retransmits TCP segments once it's
-				   finished setting things up, so the TCP
-				   desegmentor can desegment its payload). */
-  int desegment_offset;		/* offset to stuff needing desegmentation */
+  port_type ptype;					/**< type of the following two port numbers */
+  guint32 srcport;					/**< source port */
+  guint32 destport;					/**< destination port */
+  guint32 match_uint;				/**< matched uint for calling subdissector from table */
+  const char *match_string;			/**< matched string for calling subdissector from table */
+  guint16 can_desegment;			/**< >0 if this segment could be desegmented.
+										 A dissector that can offer this API (e.g.
+										 TCP) sets can_desegment=2, then
+										 can_desegment is decremented by 1 each time
+										 we pass to the next subdissector. Thus only
+										 the dissector immediately above the
+										 protocol which sets the flag can use it*/
+  guint16 saved_can_desegment;		/**< Value of can_desegment before current
+										 dissector was called.  Supplied so that
+										 dissectors for proxy protocols such as
+										 SOCKS can restore it, allowing the
+										 dissectors that they call to use the
+										 TCP dissector's desegmentation (SOCKS
+										 just retransmits TCP segments once it's
+										 finished setting things up, so the TCP
+										 desegmentor can desegment its payload). */
+  int desegment_offset;				/**< offset to stuff needing desegmentation */
 #define DESEGMENT_ONE_MORE_SEGMENT 0x0fffffff
 #define DESEGMENT_UNTIL_FIN        0x0ffffffe
-  guint32 desegment_len;	/* requested desegmentation additional length
-				   or
-				   DESEGMENT_ONE_MORE_SEGMENT:
-				     Desegment one more full segment
-				     (warning! only partially implemented)
-				   DESEGMENT_UNTIL_FIN:
-				     Desgment all data for this tcp session
-				     until the FIN segment.
-				*/
-  guint16 want_pdu_tracking;	/* >0 if the subdissector has specified
-				   a value in 'bytes_until_next_pdu'.
-				   When a dissector detects that the next PDU
-				   will start beyond the start of the next
-				   segment, it can set this value to 2
-				   and 'bytes_until_next_pdu' to the number of
-				   bytes beyond the next segment where the
-				   next PDU starts.
+  guint32 desegment_len;			/**< requested desegmentation additional length
+									   or
+									   DESEGMENT_ONE_MORE_SEGMENT:
+										 Desegment one more full segment
+										 (warning! only partially implemented)
+									   DESEGMENT_UNTIL_FIN:
+										 Desgment all data for this tcp session
+										 until the FIN segment.
+									*/
+  guint16 want_pdu_tracking;	/**< >0 if the subdissector has specified
+								   a value in 'bytes_until_next_pdu'.
+								   When a dissector detects that the next PDU
+								   will start beyond the start of the next
+								   segment, it can set this value to 2
+								   and 'bytes_until_next_pdu' to the number of
+								   bytes beyond the next segment where the
+								   next PDU starts.
 
-				   If the protocol dissector below this
-				   one is capable of PDU tracking it can
-				   use this hint to detect PDUs that starts
-				   unaligned to the segment boundaries.
-				   The TCP dissector is using this hint from
-				   (some) protocols to detect when a new PDU
-				   starts in the middle of a tcp segment.
+								   If the protocol dissector below this
+								   one is capable of PDU tracking it can
+								   use this hint to detect PDUs that starts
+								   unaligned to the segment boundaries.
+								   The TCP dissector is using this hint from
+								   (some) protocols to detect when a new PDU
+								   starts in the middle of a tcp segment.
 
-				   There is intelligence in the glue between
-				   dissector layers to make sure that this
-				   request is only passed down to the protocol
-				   immediately below the current one and not
-				   any further.
-				*/
+								   There is intelligence in the glue between
+								   dissector layers to make sure that this
+								   request is only passed down to the protocol
+								   immediately below the current one and not
+								   any further.
+								*/
   guint32 bytes_until_next_pdu;
 
 
-  int     iplen;                /* total length of IP packet */
-  int     iphdrlen;             /* length of IP header */
-  guint8  ip_ttl;               /* IP time to live */
-  int	  p2p_dir;              /* Packet was captured as an
+  int     iplen;                /**< total length of IP packet */
+  int     iphdrlen;             /**< length of IP header */
+  guint8  ip_ttl;               /**< IP time to live */
+  int	  p2p_dir;              /**< Packet was captured as an
                                        outbound (P2P_DIR_SENT)
                                        inbound (P2P_DIR_RECV)
                                        unknown (P2P_DIR_UNKNOWN) */
-  guint16 oxid;                 /* next 2 fields reqd to identify fibre */
-  guint16 rxid;                 /* channel conversations */
-  guint8  r_ctl;                /* R_CTL field in Fibre Channel Protocol */
-  guint8  sof_eof;              /* FC's SOF/EOF encoding passed to FC decoder
+  guint16 oxid;                 /**< next 2 fields reqd to identify fibre */
+  guint16 rxid;                 /**< channel conversations */
+  guint8  r_ctl;                /**< R_CTL field in Fibre Channel Protocol */
+  guint8  sof_eof;              /**< FC's SOF/EOF encoding passed to FC decoder
                                  * Bit 7 set if Last frame in sequence
                                  * Bit 6 set if invalid frame content
                                  * Bit 2 set if SOFf
                                  * Bit 1 set if first frame in sequence
                                  */
-  guint16 src_idx;              /* Source port index (Cisco MDS-specific) */
-  guint16 dst_idx;              /* Dest port index (Cisco MDS-specific) */
-  guint16 vsan;                 /* Fibre channel/Cisco MDS-specific */
+  guint16 src_idx;              /**< Source port index (Cisco MDS-specific) */
+  guint16 dst_idx;              /**< Dest port index (Cisco MDS-specific) */
+  guint16 vsan;                 /**< Fibre channel/Cisco MDS-specific */
 
   /* Extra data for DCERPC handling and tracking of context ids */
-  guint16 dcectxid;             /* Context ID (DCERPC-specific) */
-  int     dcetransporttype;     /* Transport type
+  guint16 dcectxid;             /**< Context ID (DCERPC-specific) */
+  int     dcetransporttype;     /**< Transport type
                                  * Value -1 means "not a DCERPC packet"
                                  */
-  guint16 dcetransportsalt;	/* fid: if transporttype==DCE_CN_TRANSPORT_SMBPIPE */
+  guint16 dcetransportsalt;		/**< fid: if transporttype==DCE_CN_TRANSPORT_SMBPIPE */
 
-  /* Extra data for handling of decryption of GSSAPI wrapped tvbuffs.
+  /**< Extra data for handling of decryption of GSSAPI wrapped tvbuffs.
      Caller sets decrypt_gssapi_tvb if this service is requested.
      If gssapi_encrypted_tvb is NULL, then the rest of the tvb data following
      the gssapi blob itself is decrypted othervise the gssapi_encrypted_tvb
@@ -173,42 +173,47 @@ typedef struct _packet_info {
   tvbuff_t *gssapi_decrypted_tvb;
   gboolean gssapi_data_encrypted;
 
-  guint32 ppid;  /* SCTP PPI of current DATA chunk */
-/* This is a valid PPID, but we use it to mark the end of the list */
+  guint32 ppid;					/**< SCTP PPI of current DATA chunk */
+/** This is a valid PPID, but we use it to mark the end of the list */
 #define LAST_PPID 0xffffffff
-  guint32 ppids[MAX_NUMBER_OF_PPIDS]; /* The first NUMBER_OF_PPIDS PPIDS which are present
+  guint32 ppids[MAX_NUMBER_OF_PPIDS]; /**< The first NUMBER_OF_PPIDS PPIDS which are present
                                        * in the SCTP packet
                                        */
-  void    *private_data;	/* pointer to data passed from one dissector to another */
-  GHashTable *private_table;	/* a hash table passed from one dissector to another */
+  void    *private_data;		/**< pointer to data passed from one dissector to another */
+  GHashTable *private_table;	/**< a hash table passed from one dissector to another */
   /* TODO: Use emem_strbuf_t instead */
-  GString *layer_names; 	/* layers of each protocol */
+  GString *layer_names; 		/**< layers of each protocol */
   guint16 link_number;
-  guint8  annex_a_used;
-  guint16 profinet_type; 	/* the type of PROFINET packet (0: not a PROFINET packet) */
-  void *profinet_conv; 	    /* the PROFINET conversation data (NULL: not a PROFINET packet) */
+  guint8  annex_a_used;			/**< used in packet-mtp2.c 
+								 * defined in wtap.h
+								 * MTP2_ANNEX_A_NOT_USED      0
+								 * MTP2_ANNEX_A_USED          1
+								 * MTP2_ANNEX_A_USED_UNKNOWN  2
+								 */
+  guint16 profinet_type; 		/**< the type of PROFINET packet (0: not a PROFINET packet) */
+  void *profinet_conv; 			/**< the PROFINET conversation data (NULL: not a PROFINET packet) */
   void *usb_conv_info;
-  void *tcp_tree;		/* proto_tree for the tcp layer */
+  void *tcp_tree;				/**< proto_tree for the tcp layer */
 
   const char *dcerpc_procedure_name;	/* Used by PIDL to store the name of the current dcerpc procedure */
 
   struct _sccp_msg_info_t* sccp_info;
-  guint16 clnp_srcref;      /* clnp/cotp source reference (can't use srcport, this would confuse tpkt) */
-  guint16 clnp_dstref;      /* clnp/cotp destination reference (can't use dstport, this would confuse tpkt) */
+  guint16 clnp_srcref;			/**< clnp/cotp source reference (can't use srcport, this would confuse tpkt) */
+  guint16 clnp_dstref;			/**< clnp/cotp destination reference (can't use dstport, this would confuse tpkt) */
 
-  guint16 zbee_cluster_id;  /* ZigBee cluster ID, an application-specific message identifier that
-                             * happens to be included in the transport (APS) layer header.
-                             */
-  guint8 zbee_stack_vers;   /* ZigBee stack version number, present in the ZigBee network layer, but
-                             * impacts the packet format at all layers of the ZigBee stack.
-                             */
-  int link_dir;		    /* 3GPP messages are sometime different UP link(UL) or Downlink(DL) */
-  GSList* dependent_frames;	/* A list of frames which this one depends on */
+  guint16 zbee_cluster_id;		/**< ZigBee cluster ID, an application-specific message identifier that
+								 * happens to be included in the transport (APS) layer header.
+								 */
+  guint8 zbee_stack_vers;		/**< ZigBee stack version number, present in the ZigBee network layer, but
+                                 * impacts the packet format at all layers of the ZigBee stack.
+								 */
+  int link_dir;					/**< 3GPP messages are sometime different UP link(UL) or Downlink(DL) */
+  GSList* dependent_frames;		/**< A list of frames which this one depends on */
 
   GSList *frame_end_routines;
 } packet_info;
 
-/* For old code that hasn't yet been changed. */
+/**< For old code that hasn't yet been changed. */
 #define match_port	match_uint
 
 #endif /* __PACKET_INFO_H__ */
