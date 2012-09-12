@@ -885,7 +885,6 @@ static int hf_packet_non_gprs_cell_opt_ext_len;
 static int hf_packet_system_info_type3_change_mark;
 static int hf_packet_system_info_type3_bis_count;
 
-static int hf_packet_scell_param_cell_bar_access_2;
 static int hf_exc_acc;
 static int hf_packet_scell_param_gprs_rxlev_access_min;
 static int hf_packet_scell_param_gprs_ms_txpwr_max_cch;
@@ -6394,7 +6393,7 @@ static const true_false_string s_p_vals = {
 };
 
 static const true_false_string fbi_vals = {
-    "Current Block is not last RLC data block in TBF",
+    "Current Block is last RLC data block in TBF",
     "Current Block is not last RLC data block in TBF"
 };
 
