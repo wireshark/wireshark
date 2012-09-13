@@ -192,15 +192,16 @@ static int hf_scsi_ascq                         = -1;
 static int hf_scsi_fru                          = -1;
 static int hf_scsi_sksv                         = -1;
 static int hf_scsi_inq_reladrflags              = -1;
-static int hf_scsi_inq_sync                     = -1;
 static int hf_scsi_inq_reladr                   = -1;
 static int hf_scsi_inq_linked                   = -1;
+static int hf_scsi_inq_trandis                  = -1;
 static int hf_scsi_inq_cmdque                   = -1;
 static int hf_scsi_inq_bqueflags                = -1;
 static int hf_scsi_inq_bque                     = -1;
 static int hf_scsi_inq_encserv                  = -1;
 static int hf_scsi_inq_multip                   = -1;
 static int hf_scsi_inq_mchngr                   = -1;
+static int hf_scsi_inq_ackreqq                  = -1;
 static int hf_scsi_inq_sccsflags                = -1;
 static int hf_scsi_inq_sccs                     = -1;
 static int hf_scsi_inq_acc                      = -1;
@@ -2228,7 +2229,7 @@ dissect_scsi_cmddt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 #define SCSI_INQ_ACAFLAGS_HISUP     0x10
 
 static const value_string inq_rdf_vals[] = {
-    { 2, "SPC-2/SPC-3" },
+    { 2, "SPC-2/SPC-3/SPC-4" },
     { 0, NULL }
 };
 
@@ -2246,54 +2247,38 @@ static const value_string inq_tpgs_vals[] = {
     { 0, NULL }
 };
 
-/* This dissects byte 5 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
+/* This dissects byte 5 of the SPC/SPC-2/SPC-3/SPC-4 standard INQ data */
 static int
-dissect_spc_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+dissect_spc_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *tree, int version)
 {
-    guint8      flags;
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    static const int *sccs_fields_spc2[] = {
+        &hf_scsi_inq_sccs,
+        NULL
+    };
+    static const int *sccs_fields_spc3[] = {
+        &hf_scsi_inq_sccs,
+        &hf_scsi_inq_acc,
+        &hf_scsi_inq_tpgs,
+        &hf_scsi_inq_tpc,
+        &hf_scsi_inq_protect,
+        NULL
+    };
 
-    if (parent_tree) {
-        item = proto_tree_add_item(parent_tree, hf_scsi_inq_sccsflags, tvb, offset, 1, ENC_BIG_ENDIAN);
-        tree = proto_item_add_subtree(item, ett_scsi_inq_sccsflags);
+    switch (version) {
+    case 3: /* SPC */
+        break;
+    case 4: /* SPC-2 */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_sccsflags, ett_scsi_inq_sccsflags,  sccs_fields_spc2, ENC_BIG_ENDIAN);
+	break;
+    case 5: /* SPC-3 */
+    case 6: /* SPC-4 */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_sccsflags, ett_scsi_inq_sccsflags,  sccs_fields_spc3, ENC_BIG_ENDIAN);
+	break;
+    default: /* including version 0 : claims conformance to no standard */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_sccsflags, ett_scsi_inq_sccsflags,  sccs_fields_spc3, ENC_BIG_ENDIAN);
     }
 
-    flags = tvb_get_guint8(tvb, offset);
-
-    /* SCCS (introduced in SPC-2) */
-    proto_tree_add_boolean(tree, hf_scsi_inq_sccs, tvb, offset, 1, flags);
-    if (flags&SCSI_INQ_SCCSFLAGS_SCCS) {
-        proto_item_append_text(item, "  SCCS");
-    }
-    flags&=(~SCSI_INQ_SCCSFLAGS_SCCS);
-
-    /* ACC (introduced in SPC-3) */
-    proto_tree_add_boolean(tree, hf_scsi_inq_acc, tvb, offset, 1, flags);
-    if (flags&SCSI_INQ_SCCSFLAGS_ACC) {
-        proto_item_append_text(item, "  ACC");
-    }
-    flags&=(~SCSI_INQ_SCCSFLAGS_ACC);
-
-    /* TPGS (introduced in SPC-3) */
-    proto_tree_add_item(tree, hf_scsi_inq_tpgs, tvb, offset, 1, ENC_BIG_ENDIAN);
-    flags&=0xcf;
-
-    /* TPC (introduced in SPC-3) */
-    proto_tree_add_boolean(tree, hf_scsi_inq_tpc, tvb, offset, 1, flags);
-    if (flags&SCSI_INQ_SCCSFLAGS_TPC) {
-        proto_item_append_text(item, "  3PC");
-    }
-    flags&=(~SCSI_INQ_SCCSFLAGS_TPC);
-
-    /* Protect (introduced in SPC-3) */
-    proto_tree_add_boolean(tree, hf_scsi_inq_protect, tvb, offset, 1, flags);
-    if (flags&SCSI_INQ_SCCSFLAGS_PROTECT) {
-        proto_item_append_text(item, "  PROTECT");
-    }
-    flags&=(~SCSI_INQ_SCCSFLAGS_PROTECT);
-
-    offset+=1;
+    offset += 1;
     return offset;
 }
 
@@ -2302,101 +2287,102 @@ dissect_spc_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 #define SCSI_INQ_BQUEFLAGS_ENCSERV  0x40
 #define SCSI_INQ_BQUEFLAGS_MULTIP   0x10
 #define SCSI_INQ_BQUEFLAGS_MCHNGR   0x08
+#define SCSI_INQ_BQUEFLAGS_ACKREQQ  0x04
 
-/* This dissects byte 6 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
+/* This dissects byte 6 of the SPC/SPC-2/SPC-3/SPC-4 standard INQ data */
 static int
-dissect_spc_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+dissect_spc_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *tree, int version)
 {
-    guint8      flags;
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    static const int *bqe_fields_spc[] = {
+        &hf_scsi_inq_encserv,
+        &hf_scsi_inq_multip,
+        &hf_scsi_inq_mchngr,
+        &hf_scsi_inq_ackreqq,
+        NULL
+    };
+    static const int *bqe_fields_spc2[] = {
+        &hf_scsi_inq_bque,
+        &hf_scsi_inq_encserv,
+        &hf_scsi_inq_multip,
+        &hf_scsi_inq_mchngr,
+        NULL
+    };
+    static const int *bqe_fields_spc4[] = {
+        &hf_scsi_inq_bque,
+        &hf_scsi_inq_encserv,
+        &hf_scsi_inq_multip,
+        NULL
+    };
 
-    if (parent_tree) {
-        item = proto_tree_add_item(parent_tree, hf_scsi_inq_bqueflags, tvb, offset, 1, ENC_BIG_ENDIAN);
-        tree = proto_item_add_subtree(item, ett_scsi_inq_bqueflags);
+    switch (version) {
+    case 3: /* SPC */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_bqueflags, ett_scsi_inq_bqueflags,  bqe_fields_spc, ENC_BIG_ENDIAN);
+        break;
+    case 4: /* SPC-2 */
+    case 5: /* SPC-3 */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_bqueflags, ett_scsi_inq_bqueflags,  bqe_fields_spc2, ENC_BIG_ENDIAN);
+        break;
+    case 6: /* SPC-4 */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_bqueflags, ett_scsi_inq_bqueflags,  bqe_fields_spc4, ENC_BIG_ENDIAN);
+        break;
+    default: /* including version 0 : claims conformance to no standard */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_bqueflags, ett_scsi_inq_bqueflags,  bqe_fields_spc4, ENC_BIG_ENDIAN);
+        break;
     }
-
-    flags = tvb_get_guint8(tvb, offset);
-
-    /* BQUE (introduced in SPC-2) */
-    proto_tree_add_boolean(tree, hf_scsi_inq_bque, tvb, offset, 1, flags);
-    if (flags&SCSI_INQ_BQUEFLAGS_BQUE) {
-        proto_item_append_text(item, "  BQue");
-    }
-    flags&=(~SCSI_INQ_BQUEFLAGS_BQUE);
-
-    /* EncServ */
-    proto_tree_add_boolean(tree, hf_scsi_inq_encserv, tvb, offset, 1, flags);
-    if (flags&SCSI_INQ_BQUEFLAGS_ENCSERV) {
-        proto_item_append_text(item, "  EncServ");
-    }
-    flags&=(~SCSI_INQ_BQUEFLAGS_ENCSERV);
-
-    /* MultiP */
-    proto_tree_add_boolean(tree, hf_scsi_inq_multip, tvb, offset, 1, flags);
-    if (flags&SCSI_INQ_BQUEFLAGS_MULTIP) {
-        proto_item_append_text(item, "  MultiP");
-    }
-    flags&=(~SCSI_INQ_BQUEFLAGS_MULTIP);
-
-    /* MChngr */
-    proto_tree_add_boolean(tree, hf_scsi_inq_mchngr, tvb, offset, 1, flags);
-    if (flags&SCSI_INQ_BQUEFLAGS_MCHNGR) {
-        proto_item_append_text(item, "  MChngr");
-    }
-    flags&=(~SCSI_INQ_BQUEFLAGS_MCHNGR);
 
     offset+=1;
     return offset;
 }
 
 #define SCSI_INQ_RELADRFLAGS_RELADR     0x80
-#define SCSI_INQ_RELADRFLAGS_SYNC       0x10
 #define SCSI_INQ_RELADRFLAGS_LINKED     0x08
+#define SCSI_INQ_RELADRFLAGS_TRANDIS    0x04
 #define SCSI_INQ_RELADRFLAGS_CMDQUE     0x02
 
-/* This dissects byte 7 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
+/* This dissects byte 7 of the SPC/SPC-2/SPC-3/SPC-4 standard INQ data */
 static int
-dissect_spc_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+dissect_spc_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *tree, int version)
 {
-    guint8      flags;
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    static const int *reladr_fields_spc[] = {
+        &hf_scsi_inq_reladr,
+        &hf_scsi_inq_linked,
+        &hf_scsi_inq_trandis,
+        &hf_scsi_inq_cmdque,
+        NULL
+    };
+    static const int *reladr_fields_spc2[] = {
+        &hf_scsi_inq_reladr,
+        &hf_scsi_inq_linked,
+        &hf_scsi_inq_cmdque,
+        NULL
+    };
+    static const int *reladr_fields_spc3[] = {
+        &hf_scsi_inq_linked,
+        &hf_scsi_inq_cmdque,
+        NULL
+    };
+    static const int *reladr_fields_spc4[] = {
+        &hf_scsi_inq_cmdque,
+        NULL
+    };
 
-    if (parent_tree) {
-        item = proto_tree_add_item(parent_tree, hf_scsi_inq_reladrflags, tvb, offset, 1, ENC_BIG_ENDIAN);
-        tree = proto_item_add_subtree(item, ett_scsi_inq_reladrflags);
+
+    switch (version) {
+    case 3: /* SPC */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_reladrflags, ett_scsi_inq_reladrflags,  reladr_fields_spc, ENC_BIG_ENDIAN);
+        break;
+    case 4: /* SPC-2 */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_reladrflags, ett_scsi_inq_reladrflags,  reladr_fields_spc2, ENC_BIG_ENDIAN);
+        break;
+    case 5: /* SPC-3 */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_reladrflags, ett_scsi_inq_reladrflags,  reladr_fields_spc3, ENC_BIG_ENDIAN);
+        break;
+    case 6: /* SPC-4 */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_reladrflags, ett_scsi_inq_reladrflags,  reladr_fields_spc4, ENC_BIG_ENDIAN);
+        break;
+    default: /* including version 0 : claims conformance to no standard */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_reladrflags, ett_scsi_inq_reladrflags,  reladr_fields_spc4, ENC_BIG_ENDIAN);
     }
-
-    flags = tvb_get_guint8(tvb, offset);
-
-    /* RelAdr (obsolete in SPC-3 and later) */
-    proto_tree_add_boolean(tree, hf_scsi_inq_reladr, tvb, offset, 1, flags);
-    if (flags&SCSI_INQ_RELADRFLAGS_RELADR) {
-        proto_item_append_text(item, "  RelAdr");
-    }
-    flags&=(~SCSI_INQ_RELADRFLAGS_RELADR);
-
-    /* Sync */
-    proto_tree_add_boolean(tree, hf_scsi_inq_sync, tvb, offset, 1, flags);
-    if (flags&SCSI_INQ_RELADRFLAGS_SYNC) {
-        proto_item_append_text(item, "  Sync");
-    }
-    flags&=(~SCSI_INQ_RELADRFLAGS_SYNC);
-
-    /* Linked */
-    proto_tree_add_boolean(tree, hf_scsi_inq_linked, tvb, offset, 1, flags);
-    if (flags&SCSI_INQ_RELADRFLAGS_LINKED) {
-        proto_item_append_text(item, "  Linked");
-    }
-    flags&=(~SCSI_INQ_RELADRFLAGS_LINKED);
-
-    /* CmdQue */
-    proto_tree_add_boolean(tree, hf_scsi_inq_cmdque, tvb, offset, 1, flags);
-    if (flags&SCSI_INQ_RELADRFLAGS_CMDQUE) {
-        proto_item_append_text(item, "  CmdQue");
-    }
-    flags&=(~SCSI_INQ_RELADRFLAGS_CMDQUE);
 
     offset+=1;
     return offset;
@@ -2408,7 +2394,7 @@ dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo,
                     gboolean iscdb, guint32 payload_len,
                     scsi_task_data_t *cdata)
 {
-    guint8             flags, i;
+    guint8             flags, i, version;
     tvbuff_t *volatile tvb_v    = tvb;
     volatile guint     offset_v = offset;
 
@@ -2425,9 +2411,22 @@ dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo,
         &hf_scsi_inq_devtype,
         NULL
     };
-    static const int *aca_fields[] = {
-        &hf_scsi_inq_aerc,      /* obsolete in spc3 and forward */
+    static const int *aca_fields_spc[] = {
+        &hf_scsi_inq_aerc,  /* obsolete in spc3 and forward */
         &hf_scsi_inq_trmtsk,/* obsolete in spc2 and forward */
+        &hf_scsi_inq_normaca,
+        &hf_scsi_inq_hisup,
+        &hf_scsi_inq_rdf,
+        NULL
+    };
+    static const int *aca_fields_spc2[] = {
+        &hf_scsi_inq_aerc,      /* obsolete in spc3 and forward */
+        &hf_scsi_inq_normaca,
+        &hf_scsi_inq_hisup,
+        &hf_scsi_inq_rdf,
+        NULL
+    };
+    static const int *aca_fields_spc3[] = {
         &hf_scsi_inq_normaca,
         &hf_scsi_inq_hisup,
         &hf_scsi_inq_rdf,
@@ -2502,11 +2501,25 @@ dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo,
         offset_v+=1;
 
         /* Version */
+	version = tvb_get_guint8(tvb, offset_v);
         proto_tree_add_item(tree, hf_scsi_inq_version, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
         offset_v+=1;
 
         /* aca flags */
-        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields, ENC_BIG_ENDIAN);
+	switch (version) {
+	case 3: /* SPC */
+	        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields_spc, ENC_BIG_ENDIAN);
+		break;
+	case 4: /* SPC-2 */
+	        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields_spc2, ENC_BIG_ENDIAN);
+		break;
+	case 5: /* SPC-3 */
+	case 6: /* SPC-4 */
+	        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields_spc3, ENC_BIG_ENDIAN);
+		break;
+	default: /* including version 0 : claims conformance to no standard */
+	        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields_spc3, ENC_BIG_ENDIAN);
+	}
         offset_v+=1;
 
         /* Additional Length */
@@ -2515,13 +2528,13 @@ dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo,
         offset_v+=1;
 
         /* sccs flags */
-        offset_v = dissect_spc_inq_sccsflags(tvb_v, offset_v, tree);
+        offset_v = dissect_spc_inq_sccsflags(tvb_v, offset_v, tree, version);
 
         /* bque flags */
-        offset_v = dissect_spc_inq_bqueflags(tvb_v, offset_v, tree);
+        offset_v = dissect_spc_inq_bqueflags(tvb_v, offset_v, tree, version);
 
         /* reladdr flags */
-        offset_v = dissect_spc_inq_reladrflags(tvb_v, offset_v, tree);
+        offset_v = dissect_spc_inq_reladrflags(tvb_v, offset_v, tree, version);
 
         /* vendor id */
         proto_tree_add_item(tree, hf_scsi_inq_vendor_id, tvb_v, offset_v, 8, ENC_ASCII|ENC_NA);
@@ -5348,11 +5361,11 @@ proto_register_scsi(void)
         { &hf_scsi_inq_reladr,
           {"RelAdr", "scsi.inquiry.reladr", FT_BOOLEAN, 8, TFS(&reladr_tfs), SCSI_INQ_RELADRFLAGS_RELADR,
            NULL, HFILL}},
-        { &hf_scsi_inq_sync,
-          {"Sync", "scsi.inquiry.sync", FT_BOOLEAN, 8, TFS(&sync_tfs), SCSI_INQ_RELADRFLAGS_SYNC,
-           NULL, HFILL}},
         { &hf_scsi_inq_linked,
           {"Linked", "scsi.inquiry.linked", FT_BOOLEAN, 8, TFS(&linked_tfs), SCSI_INQ_RELADRFLAGS_LINKED,
+           NULL, HFILL}},
+        { &hf_scsi_inq_trandis,
+          {"TranDis", "scsi.inquiry.trandis", FT_BOOLEAN, 8, NULL, SCSI_INQ_RELADRFLAGS_TRANDIS,
            NULL, HFILL}},
         { &hf_scsi_inq_cmdque,
           {"CmdQue", "scsi.inquiry.cmdque", FT_BOOLEAN, 8, TFS(&cmdque_tfs), SCSI_INQ_RELADRFLAGS_CMDQUE,
@@ -5371,6 +5384,9 @@ proto_register_scsi(void)
            NULL, HFILL}},
         { &hf_scsi_inq_mchngr,
           {"MChngr", "scsi.inquiry.mchngr", FT_BOOLEAN, 8, TFS(&mchngr_tfs), SCSI_INQ_BQUEFLAGS_MCHNGR,
+           NULL, HFILL}},
+        { &hf_scsi_inq_ackreqq,
+          {"ACKREQQ", "scsi.inquiry.ackreqq", FT_BOOLEAN, 8, NULL, SCSI_INQ_BQUEFLAGS_ACKREQQ,
            NULL, HFILL}},
         { &hf_scsi_inq_sccsflags,
           {"Inquiry SCCS Flags", "scsi.inquiry.sccsflags", FT_UINT8, BASE_HEX, NULL, 0,
