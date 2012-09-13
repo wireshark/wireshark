@@ -18,7 +18,7 @@ EXE=../../tshark.exe ../../editcap.exe \
 !IFDEF GTK_DIR
 	../../wireshark.exe \
 !ENDIF
-	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe WinPcap_$(PCAP_VERSION).exe
+	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe $(WIRESHARK_LIB_DIR)\WinPcap_$(PCAP_VERSION).exe
 DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll ../../wsutil/libwsutil.dll
 DOC=../../doc/ws.css				\
 	../../doc/capinfos.html 		\
@@ -96,6 +96,7 @@ NSIS_FLAGS=\
 	/DMSVC_VARIANT=$(MSVC_VARIANT) \
 	/DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
 	/DWIRESHARK_LIB_DIR=$(WIRESHARK_LIB_DIR) \
+	/DPCAP_VERSION=$(PCAP_VERSION) \
 !IFDEF MSVCR_DLL
 	/DMSVCR_DLL="$(MSVCR_DLL)" \
 !ENDIF

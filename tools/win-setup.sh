@@ -177,19 +177,21 @@ case "$1" in
 		err_exit "Can't download $DOWNLOAD_PREFIX/$PACKAGE_PATH"
 	cd "$DEST_SUBDIR" || err_exit "Can't find $DEST_SUBDIR"
 	echo "Extracting '$DEST_PATH/$PACKAGE' into '$DEST_PATH/$DEST_SUBDIR'"
-	unzip -oq "$DEST_PATH/$PACKAGE" ||
-		err_exit "Couldn't unpack '$DEST_PATH/$PACKAGE'"
-	echo "Verifying that the DLLs and EXEs in $DEST_SUBDIR are executable."
-	# XX: Note that find will check *all* dlls/exes in DEST_SUBDIR and below
-	#     which may be more than those just unzipped depending upon DEST_SUBDIR.
-	#     This may cause extra repeated checks but will do no harm.
-	for i in $(/usr/bin/find . \( -name '*\.dll' -o -name '*\.exe' \)) ; do
-		if [ ! -x "$i" ] ; then
-			echo "Changing file permissions (add executable bit) to:"
-			echo "$i"
-			chmod a+x "$i"
-		fi
-	done
+        if [[ "$PACKAGE" == *.zip ]] ; then
+            unzip -oq "$DEST_PATH/$PACKAGE" ||
+                    err_exit "Couldn't unpack '$DEST_PATH/$PACKAGE'"
+            echo "Verifying that the DLLs and EXEs in $DEST_SUBDIR are executable."
+            # XX: Note that find will check *all* dlls/exes in DEST_SUBDIR and below
+            #     which may be more than those just unzipped depending upon DEST_SUBDIR.
+            #     This may cause extra repeated checks but will do no harm.
+            for i in $(/usr/bin/find . \( -name '*\.dll' -o -name '*\.exe' \)) ; do
+                    if [ ! -x "$i" ] ; then
+                            echo "Changing file permissions (add executable bit) to:"
+                            echo "$i"
+                            chmod a+x "$i"
+                    fi
+            done
+        fi
 	;;
 --settag)
 	if [ -z "$2" ] ; then

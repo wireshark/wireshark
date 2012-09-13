@@ -12,7 +12,6 @@ EXTRA_DIST = \
 	VersionCompare.nsh \
 	AdditionalTasksPage.ini \
 	WinPcapPage.ini \
-	WinPcap_4_1_2.exe \
 	Makefile.nmake \
 	Custom.nmake \
 	custom_plugins.txt	\
