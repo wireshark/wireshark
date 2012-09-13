@@ -1228,8 +1228,11 @@ install-all: install-generated-files
 !ENDIF
 	cd $(INSTALL_DIR)
 	peflags --dynamicbase=true --nxcompat=true *.dll
+!IF "$(GTK_INST_VERSION)" == "3.4"
+!ELSE
 	peflags --dynamicbase=true --nxcompat=true lib/gtk-2.0/*/engines/*.dll
 	peflags --dynamicbase=true --nxcompat=true lib/gtk-2.0/modules/*.dll
+!ENDIF
 	cd ..
 
 checkapi_local:
