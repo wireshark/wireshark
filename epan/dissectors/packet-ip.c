@@ -2409,7 +2409,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 }
 
 static gboolean
-dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	int length, tot_length;
 	guint8 oct, version, ihl;
@@ -2440,7 +2440,7 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	}
 	tot_length = tvb_get_ntohs(tvb,2);
 
-	if(tot_length != tvb_reported_length(tvb)){
+	if(tot_length != (int)tvb_reported_length(tvb)){
 		return FALSE;
 	}
 
