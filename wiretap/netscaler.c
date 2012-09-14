@@ -261,6 +261,28 @@ typedef struct  nspr_pktracefull_v24
 } nspr_pktracefull_v24_t;
 #define nspr_pktracefull_v24_s  (sizeof(nspr_pktracefull_v24_t) - 4)
 
+/* New full packet trace structure v25 for vm info tracing */
+typedef struct  nspr_pktracefull_v25
+{
+    NSPR_HEADER3B_V22(fp);  /* long performance header */
+    guint8 fp_DevNo;   /* Network Device (NIC) number */
+    guint8 fp_AbsTimeHr[8];  /*High resolution absolute time in nanosec*/
+    guint8 fp_PcbDevNo[4];    /* PCB devno */
+    guint8 fp_lPcbDevNo[4];   /* link PCB devno */
+    guint8 fp_VlanTag[2]; /* vlan tag */
+    guint8 fp_Coreid[2]; /* coreid of the packet */
+    guint8 fp_srcNodeId[2]; /* source node # */
+    guint8 fp_destNodeId[2]; /* destination node # */
+    guint8 fp_clFlags; /* cluster flags */
+    guint8 fp_src_vmname_len; /* vm src info */
+    guint8 fp_dst_vmname_len; /* vm src info */
+    guint8 fp_Data[4]; /* packet data starts here */
+} nspr_pktracefull_v25_t;
+#define nspr_pktracefull_v25_s  (sizeof(nspr_pktracefull_v25_t) - 4)
+#define fp_src_vmname    fp_Data
+#define fp_src_vmname    fp_Data
+
+
 /* partial packet trace structure */
 typedef	struct	nspr_pktracepart_v10
 {
@@ -347,6 +369,29 @@ typedef struct  nspr_pktracepart_v24
 } nspr_pktracepart_v24_t;
 #define nspr_pktracepart_v24_s  (sizeof(nspr_pktracepart_v24_t) -4)
 
+/* New partial packet trace structure v25 for vm info tracing */
+typedef struct  nspr_pktracepart_v25
+{
+    NSPR_HEADER3B_V22(pp);  /* long performance header */
+    guint8 pp_DevNo;   /* Network Device (NIC) number */
+    guint8 pp_AbsTimeHr[8];  /*High resolution absolute time in nanosec*/
+    guint8 pp_PktSizeOrg[2];  /* Original packet size */
+    guint8 pp_PktOffset[2];   /* starting offset in packet */
+    guint8 pp_PcbDevNo[4];    /* PCB devno */
+    guint8 pp_lPcbDevNo[4];   /* link PCB devno */
+    guint8 pp_VlanTag[2]; /* vlan tag */
+    guint8 pp_Coreid[2]; /* Coreid of the packet */
+    guint8 pp_srcNodeId[2]; /* source node # */
+    guint8 pp_destNodeId[2]; /* destination node # */
+    guint8 pp_clFlags; /* cluster flags */
+    guint8 pp_src_vmname_len; /* vm info */
+    guint8 pp_dst_vmname_len; /* vm info */
+    guint8 pp_Data[4]; /* packet data starts here */
+} nspr_pktracepart_v25_t;
+#define nspr_pktracepart_v25_s  (sizeof(nspr_pktracepart_v25_t) -4)
+#define pp_src_vmname    pp_Data
+#define pp_dst_vmname    pp_Data
+
 #define myoffsetof(type,fieldname) (&(((type*)0)->fieldname))
 
 #define __TNO(enumprefix,structprefix,structname,hdrname,structfieldname) \
@@ -394,7 +439,12 @@ typedef struct  nspr_pktracepart_v24
 		__TNO(enumprefix,structprefix,structname,destnodeid,destNodeId)\
 		__TNO(enumprefix,structprefix,structname,clflags,clFlags)
 
-
+#define TRACE_V25_REC_LEN_OFF(enumprefix,structprefix,structname) \
+			TRACE_V24_REC_LEN_OFF(enumprefix,structprefix,structname)\
+			__TNO(enumprefix,structprefix,structname,src_vmname_len,src_vmname_len)\
+			__TNO(enumprefix,structprefix,structname,dst_vmname_len,dst_vmname_len)\
+			__TNO(enumprefix,structprefix,structname,data,Data)
+	
 	TRACE_V10_REC_LEN_OFF(v10_part,pp,pktracepart_v10)
 	TRACE_V10_REC_LEN_OFF(v10_full,fp,pktracefull_v10)
 	TRACE_V20_REC_LEN_OFF(v20_part,pp,pktracepart_v20)
@@ -407,6 +457,9 @@ typedef struct  nspr_pktracepart_v24
 	TRACE_V23_REC_LEN_OFF(v23_full,fp,pktracefull_v23)
 	TRACE_V24_REC_LEN_OFF(v24_part,pp,pktracepart_v24)
 	TRACE_V24_REC_LEN_OFF(v24_full,fp,pktracefull_v24)
+	TRACE_V25_REC_LEN_OFF(v25_part,pp,pktracepart_v25)
+	TRACE_V25_REC_LEN_OFF(v25_full,fp,pktracefull_v25)
+
 #undef __TNV1O
 #undef __TNV1L
 #undef __TNO
@@ -843,6 +896,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 #define TIMEDEFV21(fp,type) TIMEDEFV20(fp,type)
 #define TIMEDEFV22(fp,type) TIMEDEFV20(fp,type)
 #define TIMEDEFV24(fp,type) TIMEDEFV23(fp,type)
+#define TIMEDEFV25(fp,type) TIMEDEFV24(fp,type)
 #define PPSIZEDEFV20(pp,ver) \
 	do {\
 		wth->phdr.presence_flags |= WTAP_HAS_CAP_LEN;\
@@ -854,6 +908,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 #define PPSIZEDEFV22(pp,ver) PPSIZEDEFV20(pp,ver)
 #define PPSIZEDEFV23(pp,ver) PPSIZEDEFV20(pp,ver)
 #define PPSIZEDEFV24(pp,ver) PPSIZEDEFV20(pp,ver)
+#define PPSIZEDEFV25(pp,ver) PPSIZEDEFV20(pp,ver)
 
 #define FPSIZEDEFV20(fp,ver)\
 	do {\
@@ -865,6 +920,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 #define FPSIZEDEFV22(pp,ver) FPSIZEDEFV20(fp,ver)
 #define FPSIZEDEFV23(pp,ver) FPSIZEDEFV20(fp,ver)
 #define FPSIZEDEFV24(pp,ver) FPSIZEDEFV20(fp,ver)
+#define FPSIZEDEFV25(pp,ver) FPSIZEDEFV20(fp,ver)
 
 #define PACKET_DESCRIBE(FPTIMEDEF,SIZEDEF,ver,enumprefix,type,structname,TYPE)\
 	do {\
@@ -910,38 +966,40 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 		case NSPR_PDPKTRACEFULLTXB_V##type:\
 		case NSPR_PDPKTRACEFULLRX_V##type:\
 			PACKET_DESCRIBE(TIMEDEF,FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,acttype);
-#define GENERATE_CASE_V24(type,acttype) \
+#define GENERATE_CASE_V25(type,acttype) \
 		case NSPR_PDPKTRACEFULLTX_V##type:\
 		case NSPR_PDPKTRACEFULLTXB_V##type:\
 		case NSPR_PDPKTRACEFULLRX_V##type:\
 		case NSPR_PDPKTRACEFULLNEWRX_V##type:\
 			PACKET_DESCRIBE(TIMEDEF,FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,acttype);
-				GENERATE_CASE_V24(24,204);
+        		GENERATE_CASE_V25(25,205);
+				GENERATE_CASE_V25(24,204);
 				GENERATE_CASE(23,203);
 				GENERATE_CASE(22,202);
 				GENERATE_CASE(21,201);
 				GENERATE_CASE(20,200);
 #undef GENERATE_CASE
-#undef GENERATE_CASE_V24
+#undef GENERATE_CASE_V25
 
 #define GENERATE_CASE(type,acttype) \
 		case NSPR_PDPKTRACEPARTTX_V##type:\
 		case NSPR_PDPKTRACEPARTTXB_V##type:\
 		case NSPR_PDPKTRACEPARTRX_V##type:\
 			PACKET_DESCRIBE(TIMEDEF,PPSIZEDEFV,type,v##type##_part,pp,pktracepart_v##type,acttype);
-#define GENERATE_CASE_V24(type,acttype) \
+#define GENERATE_CASE_V25(type,acttype) \
 		case NSPR_PDPKTRACEPARTTX_V##type:\
 		case NSPR_PDPKTRACEPARTTXB_V##type:\
 		case NSPR_PDPKTRACEPARTRX_V##type:\
 		case NSPR_PDPKTRACEPARTNEWRX_V##type:\
 			PACKET_DESCRIBE(TIMEDEF,PPSIZEDEFV,type,v##type##_part,pp,pktracepart_v##type,acttype);
-				GENERATE_CASE_V24(24,204);
+				GENERATE_CASE_V25(25,205);
+				GENERATE_CASE_V25(24,204);
 				GENERATE_CASE(23,203);
 				GENERATE_CASE(22,202);
 				GENERATE_CASE(21,201);
 				GENERATE_CASE(20,200);
 #undef GENERATE_CASE
-#undef GENERATE_CASE_V24
+#undef GENERATE_CASE_V25
 
 				case NSPR_ABSTIME_V20:
 				{
@@ -1063,7 +1121,7 @@ static gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
 		}
 	} else if (wth->file_type == WTAP_FILE_NETSCALER_2_0)
 	{
-#define GENERATE_CASE_FULL_V24(type,acttype) \
+#define GENERATE_CASE_FULL_V25(type,acttype) \
 		case NSPR_PDPKTRACEFULLTX_V##type:\
 		case NSPR_PDPKTRACEFULLTXB_V##type:\
 		case NSPR_PDPKTRACEFULLRX_V##type:\
@@ -1072,7 +1130,7 @@ static gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
 			pseudo_header->nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
 			break;\
 
-#define GENERATE_CASE_PART_V24(type,acttype) \
+#define GENERATE_CASE_PART_V25(type,acttype) \
 		case NSPR_PDPKTRACEPARTTX_V##type:\
 		case NSPR_PDPKTRACEPARTTXB_V##type:\
 		case NSPR_PDPKTRACEPARTRX_V##type:\
@@ -1091,8 +1149,10 @@ static gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
 			GENERATE_CASE_PART(22,202)
 			GENERATE_CASE_FULL(23,203)
 			GENERATE_CASE_PART(23,203)
-			GENERATE_CASE_FULL_V24(24,204)
-			GENERATE_CASE_PART_V24(24,204)
+			GENERATE_CASE_FULL_V25(24,204)
+			GENERATE_CASE_PART_V25(24,204)
+			GENERATE_CASE_FULL_V25(25,205)
+			GENERATE_CASE_PART_V25(25,205)
 		}
 	}
 
@@ -1347,6 +1407,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	case NSPR_HEADER_VERSION202:
 	case NSPR_HEADER_VERSION203:
 	case NSPR_HEADER_VERSION204:
+	case NSPR_HEADER_VERSION205:
 		if (wdh->file_type == WTAP_FILE_NETSCALER_1_0)
 		{
 			*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;

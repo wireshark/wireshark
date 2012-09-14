@@ -34,6 +34,8 @@
 static int proto_nstrace = -1;
 
 static int hf_ns_nicno = -1;
+static int hf_ns_src_vm = -1;
+static int hf_ns_dst_vm = -1;
 static int hf_ns_dir = -1;
 static int hf_ns_pcbdevno = -1;
 static int hf_ns_l_pcbdevno = -1;
@@ -76,23 +78,31 @@ static const value_string ns_dir_vals[] = {
 	{ NSPR_PDPKTRACEFULLTX_V22, "TX" },
 	{ NSPR_PDPKTRACEFULLTX_V23, "TX" },
 	{ NSPR_PDPKTRACEFULLTX_V24, "TX" },
+	{ NSPR_PDPKTRACEFULLTX_V25, "TX" },
 	{ NSPR_PDPKTRACEFULLTXB_V22, "TXB" },
 	{ NSPR_PDPKTRACEFULLTXB_V23, "TXB" },
 	{ NSPR_PDPKTRACEFULLTXB_V24, "TXB" },
+	{ NSPR_PDPKTRACEFULLTXB_V25, "TXB" },
 	{ NSPR_PDPKTRACEFULLRX_V22, "RX" },
 	{ NSPR_PDPKTRACEFULLRX_V23, "RX" },
 	{ NSPR_PDPKTRACEFULLRX_V24, "RX" },
+	{ NSPR_PDPKTRACEFULLRX_V25, "RX" },
 	{ NSPR_PDPKTRACEFULLNEWRX_V24, "NEW_RX" },
+	{ NSPR_PDPKTRACEFULLNEWRX_V25, "NEW_RX" },
 	{ NSPR_PDPKTRACEPARTTX_V22, "TX" },
 	{ NSPR_PDPKTRACEPARTTX_V23, "TX" },
 	{ NSPR_PDPKTRACEPARTTX_V24, "TX" },
+	{ NSPR_PDPKTRACEPARTTX_V25, "TX" },
 	{ NSPR_PDPKTRACEPARTTXB_V22, "TXB" },
 	{ NSPR_PDPKTRACEPARTTXB_V23, "TXB" },
 	{ NSPR_PDPKTRACEPARTTXB_V24, "TXB" },
+	{ NSPR_PDPKTRACEPARTTXB_V25, "TXB" },
 	{ NSPR_PDPKTRACEPARTRX_V22, "RX" },
 	{ NSPR_PDPKTRACEPARTRX_V23, "RX" },
 	{ NSPR_PDPKTRACEPARTRX_V24, "RX" },
+	{ NSPR_PDPKTRACEPARTRX_V25, "RX" },
 	{ NSPR_PDPKTRACEPARTNEWRX_V24, "NEW_RX" },
+	{ NSPR_PDPKTRACEPARTNEWRX_V25, "NEW_RX" },
 	{ 0,              NULL }
 };
 
@@ -118,6 +128,16 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const gchar *flags[] = {"FP", "FR", "DFD", "SRSS", "RSSH"};
 	gboolean 	first_flag = TRUE;
 	guint8		flagoffset, flagval;
+	guint8      src_vmname_len, dst_vmname_len;
+	guint8      variable_ns_len = 0;
+
+	if (pnstr->rec_type == NSPR_HEADER_VERSION205)
+		{
+		src_vmname_len = tvb_get_guint8(tvb,pnstr->src_vmname_len_offset);
+		dst_vmname_len = tvb_get_guint8(tvb,pnstr->dst_vmname_len_offset);
+		variable_ns_len = src_vmname_len + dst_vmname_len;
+		pnstr->eth_offset += variable_ns_len;
+		}
 
 	ti = proto_tree_add_protocol_format(tree, proto_nstrace, tvb, 0, pnstr->eth_offset, "NetScaler Packet Trace");
 	ns_tree = proto_item_add_subtree(ti, ett_ns);
@@ -127,6 +147,16 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	switch (pnstr->rec_type)
 	{
+	case NSPR_HEADER_VERSION205:
+
+		if(src_vmname_len){
+			proto_tree_add_item(ns_tree,hf_ns_src_vm,tvb,pnstr->data_offset,src_vmname_len,ENC_LITTLE_ENDIAN);
+			}
+		
+		if(dst_vmname_len){
+			proto_tree_add_item(ns_tree,hf_ns_dst_vm,tvb,pnstr->data_offset+src_vmname_len,dst_vmname_len,ENC_LITTLE_ENDIAN);
+			}
+
 
 	case NSPR_HEADER_VERSION204:
 
@@ -196,6 +226,14 @@ proto_register_ns(void)
 		{ &hf_ns_nicno,
 		  { "Nic No",		"nstrace.nicno", FT_UINT8, BASE_DEC,NULL, 0x0,
 			NULL, HFILL }},
+			
+		{ &hf_ns_src_vm,
+		  { "Src Vm Name",		"nstrace.src_vm", FT_STRINGZ, BASE_NONE,NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_ns_dst_vm,
+		  { "Dst Vm Name",		"nstrace.dst_vm", FT_STRINGZ, BASE_NONE,NULL, 0x0,
+			NULL, HFILL }},
 
 		{ &hf_ns_coreid,
 		  { "Core Id",		"nstrace.coreid", FT_UINT16, BASE_DEC,NULL, 0x0,
@@ -256,6 +294,7 @@ proto_register_ns(void)
 		{ &hf_ns_clflags_fp,
 		  { "Flow processor (FP)",	"nstrace.flags.fp", FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_FP,
 			  NULL, HFILL}},
+
 	};
 
 	static gint *ett[] = {

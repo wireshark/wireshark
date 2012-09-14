@@ -360,6 +360,9 @@ struct nstr_phdr {
 	guint8 srcnodeid_offset;
 	guint8 destnodeid_offset;
 	guint8 clflags_offset;
+	guint8 src_vmname_len_offset;
+	guint8 dst_vmname_len_offset;
+	guint8 data_offset;
 };
 
 /* Packet "pseudo-header" information for Ethernet capture files. */
