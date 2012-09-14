@@ -471,6 +471,10 @@ add_subdirectory( tools/lemon )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
+if((BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND))
+	add_subdirectory( ui )
+endif()
+
 if(BUILD_wireshark AND GTK_FOUND)
 	add_subdirectory( ui/gtk )
 endif()
@@ -526,6 +530,7 @@ PRINT_ENABLED_FEATURES()
 PRINT_DISABLED_FEATURES()
 
 link_directories(
+	${CMAKE_BINARY_DIR}/ui
 	${CMAKE_BINARY_DIR}/ui/gtk
 	${CMAKE_BINARY_DIR}/ui/qt
 	${CMAKE_BINARY_DIR}/codecs
@@ -720,9 +725,6 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		summary.c
 		tempfile.c
 		u3.c
-		ui/alert_box.c
-		ui/iface_lists.c
-		ui/util.c
 		ws80211_utils.c
 		${SHARK_COMMON_CAPTURE_SRC}
 		${WIRESHARK_COMMON_SRC}
@@ -731,6 +733,7 @@ endif()
 
 if(BUILD_wireshark AND GTK_FOUND)
 	set(wireshark_LIBS
+		ui
 		gtkui
 		${GTK2_LIBRARIES}
 		${GTK3_LIBRARIES}
@@ -1115,4 +1118,3 @@ if(DOC_DIR)
 		PATTERN "*.pdf"
 	)
 endif()
-

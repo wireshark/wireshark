@@ -56,8 +56,8 @@
 #include "ui/gtk/help_dlg.h"
 
 #include "ui/gtk/file_import_dlg.h"
-#include "ui/gtk/text_import.h"
-#include "ui/gtk/text_import_scanner.h"
+#include "ui/text_import.h"
+#include "ui/text_import_scanner.h"
 
 #include "file.h"
 #include "wsutil/file_util.h"
@@ -148,23 +148,13 @@ create_encap_list_store(void)
     /* Scan all Wiretap encapsulation types */
     for (encap = 1; encap < wtap_get_num_encap_types(); encap++)
     {
-        /* Check if we can write it to a PCAP file */
-        if ((wtap_wtap_encap_to_pcap_encap(encap) > 0) &&
-            /*
-             * Exclude wtap encapsulations that require a pseudo header,
-             * because we won't setup one from the text we import and
-             * wiretap doesn't allow us to write 'raw' frames
-             */
-            !((encap == WTAP_ENCAP_ATM_PDUS) ||
-              (encap == WTAP_ENCAP_IRDA) ||
-              (encap == WTAP_ENCAP_MTP2_WITH_PHDR) ||
-              (encap == WTAP_ENCAP_LINUX_LAPD) ||
-              (encap == WTAP_ENCAP_SITA) ||
-              (encap == WTAP_ENCAP_ERF) ||
-              (encap == WTAP_ENCAP_I2C) ||
-              (encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR) ||
-              (encap == WTAP_ENCAP_PPP_WITH_PHDR)
-           ) )
+        /* Check if we can write to a PCAP file
+         *
+         * Exclude wtap encapsulations that require a pseudo header,
+         * because we won't setup one from the text we import and
+         * wiretap doesn't allow us to write 'raw' frames
+         */
+        if ((wtap_wtap_encap_to_pcap_encap(encap) > 0) && !wtap_encap_requires_phdr(encap))
         {
             /* If it has got a name */
             if ((name = wtap_encap_string(encap)))

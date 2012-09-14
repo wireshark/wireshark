@@ -71,6 +71,7 @@ checkapi-todo:
 
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
+	CMakeLists.txt			\
 	doxygen.cfg.in			\
 	Makefile.common			\
 	Makefile.nmake

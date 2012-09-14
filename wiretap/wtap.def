@@ -40,6 +40,7 @@ wtap_dump_flush
 wtap_dump_open
 wtap_dump_open_ng
 wtap_dump_set_addrinfo_list
+wtap_encap_requires_phdr
 wtap_encap_short_string
 wtap_encap_string
 wtap_fdclose

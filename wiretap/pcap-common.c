@@ -660,6 +660,25 @@ wtap_wtap_encap_to_pcap_encap(int encap)
 	return -1;
 }
 
+gboolean
+wtap_encap_requires_phdr(int encap) {
+	if (
+		(encap == WTAP_ENCAP_ATM_PDUS) ||
+		(encap == WTAP_ENCAP_IRDA) ||
+		(encap == WTAP_ENCAP_MTP2_WITH_PHDR) ||
+		(encap == WTAP_ENCAP_LINUX_LAPD) ||
+		(encap == WTAP_ENCAP_SITA) ||
+		(encap == WTAP_ENCAP_ERF) ||
+		(encap == WTAP_ENCAP_I2C) ||
+		(encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR) ||
+		(encap == WTAP_ENCAP_PPP_WITH_PHDR)
+	) {
+		return TRUE;
+	}
+	return FALSE;
+}
+
+
 /*
  * Various pseudo-headers that appear at the beginning of packet data.
  *

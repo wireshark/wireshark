@@ -118,7 +118,6 @@ set(WIRESHARK_GTK_SRC
 	summary_dlg.c
 	supported_protos_dlg.c
 	tap_param_dlg.c
-	text_import.c
 	text_page_utils.c
 	time_shift_dlg.c
 	uat_gui.c
@@ -213,10 +212,6 @@ set(CLEAN_FILES
 	${WIRESHARK_TAP_SRC}
 )
 
-add_lex_files(WIRESHARK_GTK_SRC
-	text_import_scanner.l
-)
-
 if (WERROR)
 	set_source_files_properties(
 		${CLEAN_FILES}
@@ -279,4 +274,3 @@ install(
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
 	PATTERN ".svn" EXCLUDE
 )
-

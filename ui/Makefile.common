@@ -38,11 +38,13 @@ GENERATED_FILES = \
 	$(DIRTY_GENERATED_C_FILES)
 
 # Files that generate compileable files
-GENERATOR_FILES =
+GENERATOR_FILES = \
+	text_import_scanner.l
 
 WIRESHARK_UI_SRC = \
 	alert_box.c	\
 	iface_lists.c	\
+	text_import.c	\
 	util.c
 
 noinst_HEADERS = \
@@ -55,6 +57,7 @@ noinst_HEADERS = \
 	recent.h		\
 	recent_utils.h		\
 	simple_dialog.h		\
+	text_import.h		\
 	ui_util.h		\
 	utf8_entities.h		\
 	util.h
