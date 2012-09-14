@@ -399,8 +399,8 @@ static const value_string keycode_vals[] = {
 value_string_ext keycode_vals_ext = VALUE_STRING_EXT_INIT(keycode_vals);
 
 
-static unsigned int
-dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int report_type)
+static int
+dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, unsigned int report_type)
 {
     unsigned int protocol_code;
     unsigned int shortcut_helper = 0;
@@ -681,7 +681,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item   *ti;
     proto_tree   *bthid_tree;
-    unsigned int offset = 0;
+    int offset = 0;
     unsigned int transaction_type;
     unsigned int parameter;
     unsigned int protocol;
@@ -711,7 +711,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     }
 
-    ti = proto_tree_add_item(tree, proto_bthid, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_bthid, tvb, offset, -1, ENC_NA);
     bthid_tree = proto_item_add_subtree(ti, ett_bthid);
 
     proto_tree_add_item(bthid_tree, hf_bthid_transaction_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -806,7 +806,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 
-    if (tvb_length(tvb) > offset) {
+    if ((int)tvb_length(tvb) > offset) {
         proto_tree_add_item(bthid_tree, hf_bthid_data, tvb, offset, -1, ENC_BIG_ENDIAN);
         offset += tvb_length_remaining(tvb, offset);
     }
