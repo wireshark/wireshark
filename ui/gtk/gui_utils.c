@@ -116,24 +116,25 @@ static gboolean window_geom_load(const gchar *name, window_geometry_t *geom);
    part of the installation of Wireshark.
    */
 static void
-window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
+window_icon_realize_cb(GtkWidget *win,
+                       gpointer   data _U_)
 {
 #ifndef _WIN32
-    GList            *ws_icon_list=NULL;
-    GdkPixbuf        *icon;
+    GList     *ws_icon_list = NULL;
+    GdkPixbuf *icon;
 
-    icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon16_xpm);
-    ws_icon_list = g_list_append (ws_icon_list, icon);
-    icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon32_xpm);
-    ws_icon_list = g_list_append (ws_icon_list, icon);
-    icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon48_xpm);
-    ws_icon_list = g_list_append (ws_icon_list, icon);
-    icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon64_xpm);
-    ws_icon_list = g_list_append (ws_icon_list, icon);
+    icon = gdk_pixbuf_new_from_xpm_data((const char **)wsicon16_xpm);
+    ws_icon_list = g_list_append(ws_icon_list, icon);
+    icon = gdk_pixbuf_new_from_xpm_data((const char **)wsicon32_xpm);
+    ws_icon_list = g_list_append(ws_icon_list, icon);
+    icon = gdk_pixbuf_new_from_xpm_data((const char **)wsicon48_xpm);
+    ws_icon_list = g_list_append(ws_icon_list, icon);
+    icon = gdk_pixbuf_new_from_xpm_data((const char **)wsicon64_xpm);
+    ws_icon_list = g_list_append(ws_icon_list, icon);
 
     gtk_window_set_icon_list(GTK_WINDOW(win), ws_icon_list);
 
-    g_list_foreach(ws_icon_list, (GFunc) g_object_unref, NULL);
+    g_list_foreach(ws_icon_list, (GFunc)g_object_unref, NULL);
     g_list_free(ws_icon_list);
 
     /* set icon by name, this allows us to use even SVG icon if it is present */
@@ -145,7 +146,8 @@ window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
 /* Create a new window, of the specified type, with the specified title
    (if any) and the Wireshark icon. */
 GtkWidget *
-window_new(GtkWindowType type, const gchar *title)
+window_new(GtkWindowType  type,
+           const gchar   *title)
 {
     GtkWidget *win;
 
@@ -169,7 +171,9 @@ window_new(GtkWindowType type, const gchar *title)
 /* Same as window_new(), but will keep its geometry values (size, position, ...).
  * Be sure to use window_present() and window_destroy() appropriately! */
 GtkWidget *
-window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_name)
+window_new_with_geom(GtkWindowType  type,
+                     const gchar   *title,
+                     const gchar   *geom_name)
 {
     window_geometry_t geom;
     GtkWidget *win = window_new(type, title);
@@ -214,8 +218,8 @@ splash_window_new(void)
 void
 window_present(GtkWidget *win)
 {
-    window_geometry_t geom;
-    const gchar *name;
+    window_geometry_t  geom;
+    const gchar       *name;
 
     /* present this window */
     gtk_window_present(GTK_WINDOW(win));
@@ -235,10 +239,12 @@ window_present(GtkWidget *win)
 
 
 static gboolean
-window_key_press_cb (GtkWidget *widget, GdkEventKey *event, gpointer cancel_button)
+window_key_press_cb(GtkWidget   *widget,
+                    GdkEventKey *event,
+                    gpointer     cancel_button)
 {
-    g_return_val_if_fail (widget != NULL, FALSE);
-    g_return_val_if_fail (event != NULL, FALSE);
+    g_return_val_if_fail(widget != NULL, FALSE);
+    g_return_val_if_fail(event != NULL, FALSE);
 
     if (event->keyval == GDK_Escape) {
         gtk_widget_activate(GTK_WIDGET(cancel_button));
@@ -261,14 +267,18 @@ window_key_press_cb (GtkWidget *widget, GdkEventKey *event, gpointer cancel_butt
    such as "OK" and "Cancel" is, for better or worse, not universal
    (not even in GTK+ - look at the GtkFileSelection dialog!). */
 static void
-window_set_cancel(GtkWidget *widget, GtkWidget *cancel_button)
+window_set_cancel(GtkWidget *widget,
+                  GtkWidget *cancel_button)
 {
     g_signal_connect(widget, "key_press_event", G_CALLBACK(window_key_press_cb), cancel_button);
 }
 
 
 /* set the actions needed for the cancel "Close"/"Ok"/"Cancel" button that closes the window */
-void window_set_cancel_button(GtkWidget *win, GtkWidget *bt, window_cancel_button_fct cb)
+void
+window_set_cancel_button(GtkWidget                *win,
+                         GtkWidget                *bt,
+                         window_cancel_button_fct  cb)
 {
     if(cb)
         g_signal_connect(bt, "clicked", G_CALLBACK(cb), win);
@@ -280,7 +290,9 @@ void window_set_cancel_button(GtkWidget *win, GtkWidget *bt, window_cancel_butto
 
 
 /* default callback handler for cancel button "clicked" signal */
-void window_cancel_button_cb(GtkWidget *w _U_, gpointer data)
+void
+window_cancel_button_cb(GtkWidget *w _U_,
+                        gpointer   data)
 {
     window_destroy(GTK_WIDGET(data));
 }
@@ -288,7 +300,9 @@ void window_cancel_button_cb(GtkWidget *w _U_, gpointer data)
 
 /* default callback handler: the window managers X of the window was clicked (delete_event) */
 gboolean
-window_delete_event_cb(GtkWidget *win, GdkEvent *event _U_, gpointer user_data _U_)
+window_delete_event_cb(GtkWidget *win,
+                       GdkEvent  *event _U_,
+                       gpointer   user_data _U_)
 {
     window_destroy(win);
 
@@ -299,7 +313,8 @@ window_delete_event_cb(GtkWidget *win, GdkEvent *event _U_, gpointer user_data _
 
 /* get the geometry of a window from window_new() */
 void
-window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
+window_get_geometry(GtkWidget         *widget,
+                    window_geometry_t *geom)
 {
     GdkWindowState state;
     GdkWindow *widget_window;
@@ -322,7 +337,7 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
         As gdk_window_get_deskrelative_origin() is deprecated it has been removed 2011-07-24.
      */
 
-    memset (geom, 0, sizeof (window_geometry_t));
+    memset(geom, 0, sizeof(window_geometry_t));
 
     widget_window = gtk_widget_get_window(widget);
 
@@ -333,7 +348,7 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
     /* XXX - Is this the "approved" method? */
 #if GTK_CHECK_VERSION(2,24,0)
     geom->width = gdk_window_get_width(widget_window);
-    geom->height = gdk_window_get_height (widget_window);
+    geom->height = gdk_window_get_height(widget_window);
 #else
     gdk_drawable_get_size(widget_window,
                           &geom->width,
@@ -346,7 +361,8 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
 
 /* set the geometry of a window from window_new() */
 void
-window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
+window_set_geometry(GtkWidget         *widget,
+                    window_geometry_t *geom)
 {
     GdkScreen *default_screen;
     GdkRectangle viewable_area;
@@ -412,7 +428,7 @@ window_geom_save(const gchar *name, window_geometry_t *geom)
 
     /* init hashtable, if not already done */
     if(!window_geom_hash) {
-        window_geom_hash = g_hash_table_new (g_str_hash, g_str_equal);
+        window_geom_hash = g_hash_table_new(g_str_hash, g_str_equal);
     }
     /* if we have an old one, remove and free it first */
     work = g_hash_table_lookup(window_geom_hash, name);
@@ -433,13 +449,14 @@ window_geom_save(const gchar *name, window_geometry_t *geom)
 
 /* load the desired geometry for this window from the geometry hashtable */
 static gboolean
-window_geom_load(const gchar *name, window_geometry_t *geom)
+window_geom_load(const gchar       *name,
+                 window_geometry_t *geom)
 {
     window_geometry_t *p;
 
     /* init hashtable, if not already done */
     if(!window_geom_hash) {
-        window_geom_hash = g_hash_table_new (g_str_hash, g_str_equal);
+        window_geom_hash = g_hash_table_new(g_str_hash, g_str_equal);
     }
 
     p = g_hash_table_lookup(window_geom_hash, name);
@@ -454,7 +471,9 @@ window_geom_load(const gchar *name, window_geometry_t *geom)
 
 /* read in a single key value pair from the recent file into the geometry hashtable */
 void
-window_geom_recent_read_pair(const char *name, const char *key, const char *value)
+window_geom_recent_read_pair(const char *name,
+                             const char *key,
+                             const char *value)
 {
     window_geometry_t geom;
 
@@ -462,7 +481,7 @@ window_geom_recent_read_pair(const char *name, const char *key, const char *valu
     /* find window geometry maybe already in hashtable */
     if(!window_geom_load(name, &geom)) {
         /* not in table, init geom with "basic" values */
-        geom.key        = NULL;    /* Will be set in window_geom_save () */
+        geom.key        = NULL;    /* Will be set in window_geom_save() */
         geom.set_pos    = FALSE;
         geom.x          = -1;
         geom.y          = -1;
@@ -515,7 +534,7 @@ window_geom_recent_write_all(gpointer rf)
 {
     /* init hashtable, if not already done */
     if(!window_geom_hash) {
-        window_geom_hash = g_hash_table_new (g_str_hash, g_str_equal);
+        window_geom_hash = g_hash_table_new(g_str_hash, g_str_equal);
     }
 
     g_hash_table_foreach(window_geom_hash, write_recent_geom, rf);
@@ -525,8 +544,8 @@ window_geom_recent_write_all(gpointer rf)
 void
 window_destroy(GtkWidget *win)
 {
-    window_geometry_t geom;
-    const gchar *name;
+    window_geometry_t  geom;
+    const gchar       *name;
 
     if (!win)
         return;
@@ -535,7 +554,7 @@ window_destroy(GtkWidget *win)
      * cannot be retrieved at destroy time (so don't use event "destroy" for this) */
     /* ...and don't do this at all, if we currently have no GdkWindow (e.g. if the
      * GtkWidget is hidden) */
-    if(gtk_widget_get_has_window (win) && gtk_widget_get_visible(win)) {
+    if(gtk_widget_get_has_window(win) && gtk_widget_get_visible(win)) {
         window_get_geometry(win, &geom);
 
         name = g_object_get_data(G_OBJECT(win), WINDOW_GEOM_KEY);
@@ -552,20 +571,24 @@ window_destroy(GtkWidget *win)
 /* Do we need this one ? */
 /* convert an xpm to a GtkWidget, using the window settings from it's parent */
 /* (be sure that the parent window is already being displayed) */
-GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm) {
-    GdkPixbuf * pixbuf;
-    GdkPixmap * pixmap;
-    GdkBitmap * bitmap;
+GtkWidget *
+xpm_to_widget_from_parent(GtkWidget   *parent,
+                          const char **xpm)
+{
+    GdkPixbuf *pixbuf;
+    GdkPixmap *pixmap;
+    GdkBitmap *bitmap;
 
 
     pixbuf = gdk_pixbuf_new_from_xpm_data(xpm);
-    gdk_pixbuf_render_pixmap_and_mask_for_colormap (pixbuf, gtk_widget_get_colormap(parent), &pixmap, &bitmap, 128);
+    gdk_pixbuf_render_pixmap_and_mask_for_colormap(pixbuf, gtk_widget_get_colormap(parent), &pixmap, &bitmap, 128);
 
-    return gtk_image_new_from_pixmap (pixmap, bitmap);
+    return gtk_image_new_from_pixmap(pixmap, bitmap);
 }
 #endif
 
-static GtkWidget *_gtk_image_new_from_pixbuf_unref(GdkPixbuf *pixbuf) {
+static GtkWidget *
+_gtk_image_new_from_pixbuf_unref(GdkPixbuf *pixbuf) {
     GtkWidget *widget;
 
     widget = gtk_image_new_from_pixbuf(pixbuf);
@@ -574,7 +597,8 @@ static GtkWidget *_gtk_image_new_from_pixbuf_unref(GdkPixbuf *pixbuf) {
 }
 
 /* convert an xpm to a GtkWidget */
-GtkWidget *xpm_to_widget(const char ** xpm) {
+GtkWidget *
+xpm_to_widget(const char **xpm) {
     GdkPixbuf *pixbuf;
 
     pixbuf = gdk_pixbuf_new_from_xpm_data(xpm);
@@ -583,10 +607,11 @@ GtkWidget *xpm_to_widget(const char ** xpm) {
 
 /* Convert an pixbuf data to a GtkWidget */
 /* Data should be created with "gdk-pixbuf-csource --raw" */
-GtkWidget *pixbuf_to_widget(const char * pb_data) {
+GtkWidget *
+pixbuf_to_widget(const char *pb_data) {
     GdkPixbuf *pixbuf;
 
-    pixbuf = gdk_pixbuf_new_from_inline (-1, pb_data, FALSE, NULL);
+    pixbuf = gdk_pixbuf_new_from_inline(-1, pb_data, FALSE, NULL);
     return _gtk_image_new_from_pixbuf_unref(pixbuf);
 }
 
@@ -599,7 +624,8 @@ GtkWidget *pixbuf_to_widget(const char * pb_data) {
  * help?
  */
 void
-bad_dfilter_alert_box(GtkWidget *parent, const char *dftext)
+bad_dfilter_alert_box(GtkWidget  *parent,
+                      const char *dftext)
 {
     GtkWidget *msg_dialog;
 
@@ -616,13 +642,16 @@ bad_dfilter_alert_box(GtkWidget *parent, const char *dftext)
 }
 
 /* update the main window */
-void main_window_update(void)
+void
+main_window_update(void)
 {
-    while (gtk_events_pending()) gtk_main_iteration();
+    while (gtk_events_pending())
+        gtk_main_iteration();
 }
 
 /* exit the main window */
-void main_window_exit(void)
+void
+main_window_exit(void)
 {
     exit(0);
 }
@@ -630,14 +659,16 @@ void main_window_exit(void)
 #ifdef HAVE_LIBPCAP
 
 /* quit a nested main window */
-void main_window_nested_quit(void)
+void
+main_window_nested_quit(void)
 {
     if (gtk_main_level() > 0)
         gtk_main_quit();
 }
 
 /* quit the main window */
-void main_window_quit(void)
+void
+main_window_quit(void)
 {
     gtk_main_quit();
 }
@@ -645,14 +676,14 @@ void main_window_quit(void)
 
 
 typedef struct pipe_input_tag {
-    gint                source;
-    gpointer            user_data;
-    int                 *child_process;
-    pipe_input_cb_t     input_cb;
-    guint               pipe_input_id;
+    gint             source;
+    gpointer         user_data;
+    int             *child_process;
+    pipe_input_cb_t  input_cb;
+    guint            pipe_input_id;
 #ifdef _WIN32
 #else
-    GIOChannel          *channel;
+    GIOChannel      *channel;
 #endif
 } pipe_input_t;
 
@@ -663,12 +694,12 @@ typedef struct pipe_input_tag {
 static gboolean
 pipe_timer_cb(gpointer data)
 {
-    HANDLE handle;
-    DWORD avail = 0;
-    gboolean result, result1;
-    DWORD childstatus;
+    HANDLE        handle;
+    DWORD         avail      = 0;
+    gboolean      result, result1;
+    DWORD         childstatus;
     pipe_input_t *pipe_input = data;
-    gint iterations = 0;
+    gint          iterations = 0;
 
 
     /* try to read data from the pipe only 5 times, to avoid blocking */
@@ -677,7 +708,7 @@ pipe_timer_cb(gpointer data)
 
         /* Oddly enough although Named pipes don't work on win9x,
            PeekNamedPipe does !!! */
-        handle = (HANDLE) _get_osfhandle (pipe_input->source);
+        handle = (HANDLE)_get_osfhandle(pipe_input->source);
         result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
 
         /* Get the child process exit status */
@@ -735,8 +766,9 @@ pipe_timer_cb(gpointer data)
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
 static gboolean
-pipe_input_cb(GIOChannel *source _U_, GIOCondition condition _U_,
-               gpointer data)
+pipe_input_cb(GIOChannel   *source _U_,
+              GIOCondition  condition _U_,
+              gpointer      data)
 {
     pipe_input_t *pipe_input = data;
 
@@ -746,18 +778,22 @@ pipe_input_cb(GIOChannel *source _U_, GIOCondition condition _U_,
 
     if (pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
         /* restore pipe handler */
-        pipe_input->pipe_input_id = g_io_add_watch_full (pipe_input->channel,
-                                                         G_PRIORITY_HIGH,
-                                                         G_IO_IN|G_IO_ERR|G_IO_HUP,
-                                                         pipe_input_cb,
-                                                         pipe_input,
-                                                         NULL);
+        pipe_input->pipe_input_id = g_io_add_watch_full(pipe_input->channel,
+                                                        G_PRIORITY_HIGH,
+                                                        G_IO_IN|G_IO_ERR|G_IO_HUP,
+                                                        pipe_input_cb,
+                                                        pipe_input,
+                                                        NULL);
     }
     return TRUE;
 }
 #endif
 
-void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
+void
+pipe_input_set_handler(gint             source,
+                       gpointer         user_data,
+                       int             *child_process,
+                       pipe_input_cb_t  input_cb)
 {
     static pipe_input_t pipe_input;
 
@@ -830,7 +866,8 @@ static void set_scrollbar_placement_scrollw(GtkWidget *scrollw);
 /* Create a GtkScrolledWindow, set its scrollbar placement appropriately,
    and remember it. */
 GtkWidget *
-scrolled_window_new(GtkAdjustment *hadjustment, GtkAdjustment *vadjustment)
+scrolled_window_new(GtkAdjustment *hadjustment,
+                    GtkAdjustment *vadjustment)
 {
     GtkWidget *scrollw;
 
@@ -858,7 +895,8 @@ setup_scrolled_window(GtkWidget *scrollw)
 
 /* Remove a GtkScrolledWindow from the list of GtkScrolledWindows. */
 static void
-forget_scrolled_window(GtkWidget *scrollw, gpointer data _U_)
+forget_scrolled_window(GtkWidget *scrollw,
+                       gpointer   data _U_)
 {
     scrolled_windows = g_list_remove(scrolled_windows, scrollw);
 }
@@ -878,7 +916,8 @@ set_scrollbar_placement_scrollw(GtkWidget *scrollw)
 }
 
 static void
-set_scrollbar_placement_cb(gpointer data, gpointer user_data _U_)
+set_scrollbar_placement_cb(gpointer data,
+                           gpointer user_data _U_)
 {
     set_scrollbar_placement_scrollw((GtkWidget *)data);
 }
@@ -927,7 +966,8 @@ setup_tree(GtkWidget *tree)
 
 /* Remove a Tree from the list of Trees. */
 static void
-forget_tree(GtkWidget *tree, gpointer data _U_)
+forget_tree(GtkWidget *tree,
+            gpointer   data _U_)
 {
     trees = g_list_remove(trees, tree);
 }
@@ -942,7 +982,8 @@ set_tree_styles(GtkWidget *tree)
 }
 
 static void
-set_tree_styles_cb(gpointer data, gpointer user_data _U_)
+set_tree_styles_cb(gpointer data,
+                   gpointer user_data _U_)
 {
     set_tree_styles((GtkWidget *)data);
 }
@@ -956,7 +997,8 @@ set_tree_styles_all(void)
 
 /* Move the currently-selected item in a list store up or down one position. */
 gboolean
-tree_view_list_store_move_selection(GtkTreeView *tree, gboolean move_up)
+tree_view_list_store_move_selection(GtkTreeView *tree,
+                                    gboolean     move_up)
 {
     GtkTreeIter       from, to;
     GtkTreeModel     *model;
@@ -964,7 +1006,7 @@ tree_view_list_store_move_selection(GtkTreeView *tree, gboolean move_up)
     GtkTreePath      *path_from, *path_to;
 
     sel = gtk_tree_view_get_selection(tree);
-    if (! gtk_tree_selection_get_selected(sel, &model, &from)) {
+    if (!gtk_tree_selection_get_selected(sel, &model, &from)) {
         return FALSE;
     }
 
@@ -1005,7 +1047,7 @@ tree_view_list_store_get_selected_row(GtkTreeView *tree) {
     gint              row;
 
     sel = gtk_tree_view_get_selection(tree);
-    if (! gtk_tree_selection_get_selected(sel, &model, &iter)) {
+    if (!gtk_tree_selection_get_selected(sel, &model, &iter)) {
         return -1;
     }
 
@@ -1017,7 +1059,7 @@ tree_view_list_store_get_selected_row(GtkTreeView *tree) {
     path_str = gtk_tree_path_to_string(path);
     gtk_tree_path_free(path);
 
-    row = (gint) strtol(path_str, NULL, 10);
+    row = (gint)strtol(path_str, NULL, 10);
     g_free(path_str);
 
     return row;
@@ -1026,11 +1068,12 @@ tree_view_list_store_get_selected_row(GtkTreeView *tree) {
 /* append a row to the simple list */
 /* use it like: simple_list_append(list, 0, "first", 1, "second", -1) */
 void
-simple_list_append(GtkWidget *list, ...)
+simple_list_append(GtkWidget *list,
+                   ...)
 {
     va_list ap;
 
-    GtkTreeIter iter;
+    GtkTreeIter   iter;
     GtkListStore *store;
 
     va_start(ap, list);
@@ -1042,11 +1085,12 @@ simple_list_append(GtkWidget *list, ...)
 
 /* create a simple list widget */
 GtkWidget *
-simple_list_new(gint cols, const gchar **titles) {
-    GtkWidget *plugins_list;
-    int i;
-    GtkListStore *store;
-    GtkCellRenderer *renderer;
+simple_list_new(gint   cols,
+                const gchar **titles) {
+    GtkWidget         *plugins_list;
+    int                i;
+    GtkListStore      *store;
+    GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
 
 
@@ -1068,7 +1112,8 @@ simple_list_new(gint cols, const gchar **titles) {
     return plugins_list;
 }
 
-void render_as_url(GtkCellRenderer *cell)
+void
+render_as_url(GtkCellRenderer *cell)
 {
     g_object_set(cell, "foreground", "blue", NULL);
     g_object_set(cell, "foreground-set", TRUE, NULL);
@@ -1077,7 +1122,9 @@ void render_as_url(GtkCellRenderer *cell)
     g_object_set(cell, "underline-set", TRUE, NULL);
 }
 
-void simple_list_url_col(GtkWidget *list, gint col)
+void
+simple_list_url_col(GtkWidget *list,
+                    gint       col)
 {
     GtkTreeViewColumn *ul_column;
     GList             *renderers_list;
@@ -1102,7 +1149,7 @@ void simple_list_url_col(GtkWidget *list, gint col)
 void
 copy_to_clipboard(GString *str)
 {
-    GtkClipboard    *cb;
+    GtkClipboard *cb;
 
     cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
     gtk_clipboard_set_text(cb, str->str, -1);            /* Copy the byte data into the clipboard */
@@ -1110,12 +1157,13 @@ copy_to_clipboard(GString *str)
 
 
 typedef struct _copy_binary_t {
-    guint8* data;
-    int len;
+    guint8 *data;
+    int     len;
 } copy_binary_t;
 
-static
-copy_binary_t* create_copy_binary_t(const guint8* data, int len)
+static copy_binary_t *
+create_copy_binary_t(const guint8 *data,
+                     int           len)
 {
     copy_binary_t* copy_data;
 
@@ -1127,21 +1175,26 @@ copy_binary_t* create_copy_binary_t(const guint8* data, int len)
     return copy_data;
 }
 
-static void destroy_copy_binary_t(copy_binary_t* copy_data) {
+static void
+destroy_copy_binary_t(copy_binary_t *copy_data) {
     g_free(copy_data->data);
     g_free(copy_data);
 }
 
-static
-void copy_binary_free_cb(GtkClipboard *clipboard _U_, gpointer user_data_or_owner)
+static void
+copy_binary_free_cb(GtkClipboard  *clipboard _U_,
+                         gpointer  user_data_or_owner)
 {
     copy_binary_t* copy_data;
     copy_data = user_data_or_owner;
     destroy_copy_binary_t(copy_data);
 }
 
-static
-void copy_binary_get_cb(GtkClipboard *clipboard _U_, GtkSelectionData *selection_data, guint info _U_, gpointer user_data_or_owner)
+static void
+copy_binary_get_cb(GtkClipboard     *clipboard _U_,
+                   GtkSelectionData *selection_data,
+                   guint             info _U_,
+                   gpointer          user_data_or_owner)
 {
     copy_binary_t* copy_data;
 
@@ -1151,7 +1204,9 @@ void copy_binary_get_cb(GtkClipboard *clipboard _U_, GtkSelectionData *selection
     gtk_selection_data_set(selection_data, GDK_NONE, 8, copy_data->data, copy_data->len);
 }
 
-void copy_binary_to_clipboard(const guint8* data_p, int len)
+void
+copy_binary_to_clipboard(const guint8 *data_p,
+                         int           len)
 {
     static GtkTargetEntry target_entry[] = {
          {"application/octet_stream", 0, 0}}; /* XXX - this not understood by most applications,
@@ -1159,9 +1214,9 @@ void copy_binary_to_clipboard(const guint8* data_p, int len)
                                              * there something better that we can do?
                                              */
 
-    GtkClipboard    *cb;
-    copy_binary_t* copy_data;
-    gboolean ret;
+    GtkClipboard  *cb;
+    copy_binary_t *copy_data;
+    gboolean       ret;
 
     if(len <= 0) {
         return; /* XXX would it be better to clear the clipboard? */
@@ -1202,7 +1257,8 @@ create_user_window_title(const gchar *caption)
  * XXX - should this include the user preference as well?
  */
 void
-set_window_title(GtkWidget *win, const gchar *caption)
+set_window_title(GtkWidget   *win,
+                 const gchar *caption)
 {
     char *title;
     char *display_name;
@@ -1240,7 +1296,9 @@ set_window_title(GtkWidget *win, const gchar *caption)
  * a header cell has focus.
  */
 static gboolean
-tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data _U_)
+tree_view_key_pressed_cb(GtkWidget   *tree,
+                         GdkEventKey *event,
+                         gpointer     user_data _U_)
 {
     GtkTreeSelection* selection;
     GtkTreeIter iter;
@@ -1255,7 +1313,7 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
         return FALSE;
     }
 
-    if(!gtk_tree_selection_get_selected (selection, &model, &iter)) {
+    if(!gtk_tree_selection_get_selected(selection, &model, &iter)) {
         return FALSE;
     }
 
@@ -1334,7 +1392,7 @@ switch_to_fixed_col(GtkTreeView *view)
     list = columns;
     while(columns) {
         column = columns->data;
-        size = gtk_tree_view_column_get_width (column);
+        size = gtk_tree_view_column_get_width(column);
         gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_FIXED);
         if (size > gtk_tree_view_column_get_fixed_width(column))
             gtk_tree_view_column_set_fixed_width(column, size);
@@ -1346,7 +1404,8 @@ switch_to_fixed_col(GtkTreeView *view)
 }
 
 gint
-get_default_col_size(GtkWidget *view, const gchar *str)
+get_default_col_size(GtkWidget   *view,
+                     const gchar *str)
 {
     PangoLayout *layout;
     gint col_width;
@@ -1367,11 +1426,11 @@ get_default_col_size(GtkWidget *view, const gchar *str)
  * Present floats with two decimals
  */
 void
-float_data_func (GtkTreeViewColumn *column _U_,
-                 GtkCellRenderer   *renderer,
-                 GtkTreeModel      *model,
-                 GtkTreeIter       *iter,
-                 gpointer           user_data)
+float_data_func(GtkTreeViewColumn *column _U_,
+                GtkCellRenderer   *renderer,
+                GtkTreeModel      *model,
+                GtkTreeIter       *iter,
+                gpointer           user_data)
 {
     gfloat  float_val;
     gchar   buf[20];
@@ -1402,11 +1461,11 @@ float_data_func (GtkTreeViewColumn *column _U_,
  * Present value as hexadecimal.
  */
 void
-present_as_hex_func (GtkTreeViewColumn *column _U_,
-                     GtkCellRenderer   *renderer,
-                     GtkTreeModel      *model,
-                     GtkTreeIter       *iter,
-                     gpointer           user_data)
+present_as_hex_func(GtkTreeViewColumn *column _U_,
+                    GtkCellRenderer   *renderer,
+                    GtkTreeModel      *model,
+                    GtkTreeIter       *iter,
+                    gpointer           user_data)
 {
     guint  val;
     gchar   buf[35];
@@ -1422,11 +1481,11 @@ present_as_hex_func (GtkTreeViewColumn *column _U_,
 }
 
 void
-u64_data_func (GtkTreeViewColumn *column _U_,
-               GtkCellRenderer   *renderer,
-               GtkTreeModel      *model,
-               GtkTreeIter       *iter,
-               gpointer           user_data)
+u64_data_func(GtkTreeViewColumn *column _U_,
+              GtkCellRenderer   *renderer,
+              GtkTreeModel      *model,
+              GtkTreeIter       *iter,
+              gpointer           user_data)
 {
     guint64 val;
     int i = 0;
@@ -1455,11 +1514,11 @@ u64_data_func (GtkTreeViewColumn *column _U_,
  * Renders the const static string whose pointer is stored.
  */
 void
-str_ptr_data_func (GtkTreeViewColumn *column _U_,
-                   GtkCellRenderer   *renderer,
-                   GtkTreeModel      *model,
-                   GtkTreeIter       *iter,
-                   gpointer           user_data)
+str_ptr_data_func(GtkTreeViewColumn *column  _U_,
+                  GtkCellRenderer   *renderer,
+                  GtkTreeModel      *model,
+                  GtkTreeIter       *iter,
+                  gpointer          user_data)
 {
     const gchar *str = NULL;
 
@@ -1474,9 +1533,9 @@ str_ptr_data_func (GtkTreeViewColumn *column _U_,
 
 gint
 str_ptr_sort_func(GtkTreeModel *model,
-                  GtkTreeIter *a,
-                  GtkTreeIter *b,
-                  gpointer user_data)
+                  GtkTreeIter  *a,
+                  GtkTreeIter  *b,
+                  gpointer      user_data)
 {
     const gchar *str_a = NULL;
     const gchar *str_b = NULL;
@@ -1541,7 +1600,7 @@ ws_combo_box_new_text_and_pointer_full(GtkCellRenderer **cell_p) {
     */
 
     store = gtk_tree_store_new(3, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_BOOLEAN);
-    combo_box = gtk_combo_box_new_with_model(GTK_TREE_MODEL (store));
+    combo_box = gtk_combo_box_new_with_model(GTK_TREE_MODEL(store));
     g_object_unref(store);
     cell = gtk_cell_renderer_text_new();
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo_box), cell, TRUE);
@@ -1648,13 +1707,14 @@ ws_combo_box_append_text_and_pointer(GtkComboBox    *combo_box,
  * ws_combo_box_get_active_pointer:
  * @param combo_box A #GtkComboBox constructed using ws_combo_box_new_text_and_pointer()
  * @param ptr  A pointer to a location in which to store the pointer associated with the active entry
- * @return TRUE if an entry is selected (i.e: an active entry exists); FALSE otherwise
+ * @return TRUE if an entry is               selected (i.e: an active entry exists); FALSE otherwise
  *
  * You can only use this function with combo boxes constructed with
  * ws_combo_box_new_text_and_pointer().
  */
 gboolean
-ws_combo_box_get_active_pointer(GtkComboBox *combo_box, gpointer *ptr)
+ws_combo_box_get_active_pointer(GtkComboBox *combo_box,
+                                gpointer    *ptr)
 {
     GtkTreeStore *store;
     GtkTreeIter iter;
@@ -1690,7 +1750,8 @@ ws_combo_box_get_active(GtkComboBox *combo_box)
  *        Index refers to the immediate children of the tree.
  */
 void
-ws_combo_box_set_active(GtkComboBox *combo_box, gint idx)
+ws_combo_box_set_active(GtkComboBox *combo_box,
+                        gint         idx)
 {
     gtk_combo_box_set_active(combo_box, idx);
 }
@@ -1711,110 +1772,110 @@ ws_combo_box_set_active_iter(GtkComboBox *combo_box, GtkTreeIter *iter)
 #if GTK_CHECK_VERSION(2,22,0)
 #if !GTK_CHECK_VERSION(3,0,0)
 static cairo_format_t
-gdk_cairo_format_for_content (cairo_content_t content)
+gdk_cairo_format_for_content(cairo_content_t content)
 {
-  switch (content)
+    switch (content)
     {
     case CAIRO_CONTENT_COLOR:
-      return CAIRO_FORMAT_RGB24;
+        return CAIRO_FORMAT_RGB24;
     case CAIRO_CONTENT_ALPHA:
-      return CAIRO_FORMAT_A8;
+        return CAIRO_FORMAT_A8;
     case CAIRO_CONTENT_COLOR_ALPHA:
     default:
-      return CAIRO_FORMAT_ARGB32;
+        return CAIRO_FORMAT_ARGB32;
     }
 }
 
 static cairo_surface_t *
-gdk_cairo_surface_coerce_to_image (cairo_surface_t *surface,
-                                   cairo_content_t  content,
-                                   int              src_x,
-                                   int              src_y,
-                                   int              width,
-                                   int              height)
+gdk_cairo_surface_coerce_to_image(cairo_surface_t *surface,
+                                  cairo_content_t  content,
+                                  int              src_x,
+                                  int              src_y,
+                                  int              width,
+                                  int              height)
 {
-  cairo_surface_t *copy;
-  cairo_t *cr;
+    cairo_surface_t *copy;
+    cairo_t *cr;
 
-  copy = cairo_image_surface_create (gdk_cairo_format_for_content (content),
-                                     width,
-                                     height);
+    copy = cairo_image_surface_create(gdk_cairo_format_for_content(content),
+                                      width,
+                                      height);
 
-  cr = cairo_create (copy);
-  cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-  cairo_set_source_surface (cr, surface, -src_x, -src_y);
-  cairo_paint (cr);
-  cairo_destroy (cr);
+    cr = cairo_create(copy);
+    cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+    cairo_set_source_surface(cr, surface, -src_x, -src_y);
+    cairo_paint(cr);
+    cairo_destroy(cr);
 
-  return copy;
+    return copy;
 }
 
 static void
-convert_alpha (guchar *dest_data,
-               int     dest_stride,
-               guchar *src_data,
-               int     src_stride,
-               int     src_x,
-               int     src_y,
-               int     width,
-               int     height)
+convert_alpha(guchar *dest_data,
+              int     dest_stride,
+              guchar *src_data,
+              int     src_stride,
+              int     src_x,
+              int     src_y,
+              int     width,
+              int     height)
 {
-  int x, y;
+    int x, y;
 
-  src_data += src_stride * src_y + src_x * 4;
+    src_data += src_stride * src_y + src_x * 4;
 
-  for (y = 0; y < height; y++) {
-    guint32 *src = (guint32 *) src_data;
+    for (y = 0; y < height; y++) {
+        guint32 *src = (guint32 *)src_data;
 
-    for (x = 0; x < width; x++) {
-      guint alpha = src[x] >> 24;
+        for (x = 0; x < width; x++) {
+            guint alpha = src[x] >> 24;
 
-      if (alpha == 0)
-        {
-          dest_data[x * 4 + 0] = 0;
-          dest_data[x * 4 + 1] = 0;
-          dest_data[x * 4 + 2] = 0;
+            if (alpha == 0)
+            {
+                dest_data[x * 4 + 0] = 0;
+                dest_data[x * 4 + 1] = 0;
+                dest_data[x * 4 + 2] = 0;
+            }
+            else
+            {
+                dest_data[x * 4 + 0] = (((src[x] & 0xff0000) >> 16) * 255 + alpha / 2) / alpha;
+                dest_data[x * 4 + 1] = (((src[x] & 0x00ff00) >>  8) * 255 + alpha / 2) / alpha;
+                dest_data[x * 4 + 2] = (((src[x] & 0x0000ff) >>  0) * 255 + alpha / 2) / alpha;
+            }
+            dest_data[x * 4 + 3] = alpha;
         }
-      else
-        {
-          dest_data[x * 4 + 0] = (((src[x] & 0xff0000) >> 16) * 255 + alpha / 2) / alpha;
-          dest_data[x * 4 + 1] = (((src[x] & 0x00ff00) >>  8) * 255 + alpha / 2) / alpha;
-          dest_data[x * 4 + 2] = (((src[x] & 0x0000ff) >>  0) * 255 + alpha / 2) / alpha;
-        }
-      dest_data[x * 4 + 3] = alpha;
+
+        src_data += src_stride;
+        dest_data += dest_stride;
     }
-
-    src_data += src_stride;
-    dest_data += dest_stride;
-  }
 }
 
 static void
-convert_no_alpha (guchar *dest_data,
-                  int     dest_stride,
-                  guchar *src_data,
-                  int     src_stride,
-                  int     src_x,
-                  int     src_y,
-                  int     width,
-                  int     height)
+convert_no_alpha(guchar *dest_data,
+                 int     dest_stride,
+                 guchar *src_data,
+                 int     src_stride,
+                 int     src_x,
+                 int     src_y,
+                 int     width,
+                 int     height)
 {
-  int x, y;
+    int x, y;
 
-  src_data += src_stride * src_y + src_x * 4;
+    src_data += src_stride * src_y + src_x * 4;
 
-  for (y = 0; y < height; y++) {
-    guint32 *src = (guint32 *) src_data;
+    for (y = 0; y < height; y++) {
+        guint32 *src = (guint32 *)src_data;
 
-    for (x = 0; x < width; x++) {
-      dest_data[x * 3 + 0] = src[x] >> 16;
-      dest_data[x * 3 + 1] = src[x] >>  8;
-      dest_data[x * 3 + 2] = src[x];
+        for (x = 0; x < width; x++) {
+            dest_data[x * 3 + 0] = src[x] >> 16;
+            dest_data[x * 3 + 1] = src[x] >>  8;
+            dest_data[x * 3 + 2] = src[x];
+        }
+
+        src_data += src_stride;
+        dest_data += dest_stride;
     }
-
-    src_data += src_stride;
-    dest_data += dest_stride;
-  }
 }
 
 /**
@@ -1837,58 +1898,61 @@ convert_no_alpha (guchar *dest_data,
  *     count of 1, or %NULL on error
  */
 GdkPixbuf *
-gdk_pixbuf_get_from_surface  (cairo_surface_t *surface,
-                              gint             src_x,
-                              gint             src_y,
-                              gint             width,
-                              gint             height)
+gdk_pixbuf_get_from_surface(cairo_surface_t *surface,
+                            gint             src_x,
+                            gint             src_y,
+                            gint             width,
+                            gint             height)
 {
-  cairo_content_t content;
-  GdkPixbuf *dest;
+    cairo_content_t  content;
+    GdkPixbuf       *dest;
 
-  /* General sanity checks */
-  g_return_val_if_fail (surface != NULL, NULL);
-  g_return_val_if_fail (width > 0 && height > 0, NULL);
+    /* General sanity checks */
+    g_return_val_if_fail(surface != NULL, NULL);
+    g_return_val_if_fail(width > 0 && height > 0, NULL);
 
-  content = cairo_surface_get_content (surface) | CAIRO_CONTENT_COLOR;
-  dest = gdk_pixbuf_new (GDK_COLORSPACE_RGB,
-                         !!(content & CAIRO_CONTENT_ALPHA),
-                         8,
-                         width, height);
+    content = cairo_surface_get_content(surface) | CAIRO_CONTENT_COLOR;
+    dest    = gdk_pixbuf_new(GDK_COLORSPACE_RGB,
+                             !!(content & CAIRO_CONTENT_ALPHA),
+                             8,
+                             width, height);
 
-  surface = gdk_cairo_surface_coerce_to_image (surface, content,
-                                               src_x, src_y,
-                                               width, height);
-  cairo_surface_flush (surface);
-  if (cairo_surface_status (surface) || dest == NULL)
+    surface = gdk_cairo_surface_coerce_to_image(surface, content,
+                                                src_x, src_y,
+                                                width, height);
+    cairo_surface_flush(surface);
+    if (cairo_surface_status(surface) || dest == NULL)
     {
-      cairo_surface_destroy (surface);
-      return NULL;
+        cairo_surface_destroy(surface);
+        return NULL;
     }
 
-  if (gdk_pixbuf_get_has_alpha (dest))
-    convert_alpha (gdk_pixbuf_get_pixels (dest),
-                   gdk_pixbuf_get_rowstride (dest),
-                   cairo_image_surface_get_data (surface),
-                   cairo_image_surface_get_stride (surface),
-                   0, 0,
-                   width, height);
-  else
-    convert_no_alpha (gdk_pixbuf_get_pixels (dest),
-                      gdk_pixbuf_get_rowstride (dest),
-                      cairo_image_surface_get_data (surface),
-                      cairo_image_surface_get_stride (surface),
+    if (gdk_pixbuf_get_has_alpha(dest))
+        convert_alpha(gdk_pixbuf_get_pixels(dest),
+                      gdk_pixbuf_get_rowstride(dest),
+                      cairo_image_surface_get_data(surface),
+                      cairo_image_surface_get_stride(surface),
                       0, 0,
                       width, height);
+    else
+        convert_no_alpha(gdk_pixbuf_get_pixels(dest),
+                         gdk_pixbuf_get_rowstride(dest),
+                         cairo_image_surface_get_data(surface),
+                         cairo_image_surface_get_stride(surface),
+                         0, 0,
+                         width, height);
 
-  cairo_surface_destroy (surface);
-  return dest;
+    cairo_surface_destroy(surface);
+    return dest;
 }
 #endif /* !GTK_CHECK_VERSION(3,0,0) */
 #endif /* GTK_CHECK_VERSION(2,22,0) */
 
 
-GtkWidget * ws_gtk_box_new(GtkOrientation orientation, gint spacing, gboolean homogeneous)
+GtkWidget *
+ws_gtk_box_new(GtkOrientation orientation,
+               gint           spacing,
+               gboolean       homogeneous)
 {
 #if !GTK_CHECK_VERSION(3,0,0)
     if (orientation == GTK_ORIENTATION_HORIZONTAL)
@@ -1906,39 +1970,44 @@ GtkWidget * ws_gtk_box_new(GtkOrientation orientation, gint spacing, gboolean ho
 }
 
 #if !GTK_CHECK_VERSION(3,0,0)
-GtkWidget * gtk_button_box_new(GtkOrientation orientation)
+GtkWidget *
+gtk_button_box_new(GtkOrientation orientation)
 {
-    if (orientation == GTK_ORIENTATION_HORIZONTAL){
+    if (orientation == GTK_ORIENTATION_HORIZONTAL) {
         return gtk_hbutton_box_new();
-    }else{
+    } else {
         return gtk_vbutton_box_new();
     }
 }
 
-GtkWidget * gtk_scrollbar_new(GtkOrientation orientation, GtkAdjustment *adjustment)
+GtkWidget *
+gtk_scrollbar_new(GtkOrientation  orientation,
+                  GtkAdjustment  *adjustment)
 {
-    if (orientation == GTK_ORIENTATION_HORIZONTAL){
+    if (orientation == GTK_ORIENTATION_HORIZONTAL) {
         return gtk_hscrollbar_new(adjustment);
-    }else{
+    } else {
         return gtk_vscrollbar_new(adjustment);
     }
 }
 
-GtkWidget * gtk_paned_new(GtkOrientation orientation)
+GtkWidget *
+gtk_paned_new(GtkOrientation orientation)
 {
-    if (orientation == GTK_ORIENTATION_HORIZONTAL){
+    if(orientation == GTK_ORIENTATION_HORIZONTAL) {
         return gtk_hpaned_new();
-    }else{
+    } else {
         return gtk_vpaned_new();
     }
 }
 
-GtkWidget * gtk_separator_new (GtkOrientation orientation)
+GtkWidget *
+gtk_separator_new(GtkOrientation orientation)
 {
-    if (orientation == GTK_ORIENTATION_HORIZONTAL){
-        return gtk_hseparator_new ();
-    }else{
-        return gtk_vseparator_new ();
+    if (orientation == GTK_ORIENTATION_HORIZONTAL) {
+        return gtk_hseparator_new();
+    } else {
+        return gtk_vseparator_new();
     }
 }
 #endif /* GTK_CHECK_VERSION(3,0,0) */
