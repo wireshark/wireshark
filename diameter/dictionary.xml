@@ -3672,7 +3672,7 @@
 		<avp name="RAT-Type" code="1032" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated" />
 			<enum name="WLAN"		code="0" />
-			<enum name="VIRTUAL"		code="0" />
+			<enum name="VIRTUAL"		code="1" />
 			<enum name="UTRAN"		code="1000" />
 			<enum name="GERAN"		code="1001" />
 			<enum name="GAN"		code="1002" />
