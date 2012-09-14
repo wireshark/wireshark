@@ -331,8 +331,8 @@ endif
 #
 wireshark_LDADD = \
 	ui/gtk/libgtkui.a		\
-	ui/gtk/libgtkui_dirty.a		\
 	ui/libui.a			\
+	ui/libui_dirty.a		\
 	codecs/libcodec.a		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\

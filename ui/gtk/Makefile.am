@@ -28,11 +28,10 @@ if HAVE_WARNINGS_AS_ERRORS
 AM_CLEAN_CFLAGS = -Werror
 endif
 
-noinst_LIBRARIES = libgtkui.a libgtkui_dirty.a
+noinst_LIBRARIES = libgtkui.a
 
 CLEANFILES = \
 	libgtkui.a		\
-	libgtkui_dirty.a	\
 	*~
 
 MAINTAINERCLEANFILES = \
@@ -70,11 +69,6 @@ libgtkui_a_SOURCES = \
 libgtkui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 libgtkui_a_DEPENDENCIES =
-
-libgtkui_dirty_a_SOURCES = \
-	$(DIRTY_GENERATED_C_FILES)
-
-libgtkui_dirty_a_DEPENDENCIES =
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(PORTAUDIO_INCLUDES)
