@@ -33,19 +33,53 @@
 
 static g722_decode_state_t state;
 
-void
-initG722(void)
+void *
+codec_g722_init(void)
 {
     memset (&state, 0, sizeof (state));
     g722_decode_init(&state, 64000, 0);
+
+    return NULL;
+}
+
+void
+codec_g722_release(void *ctx _U_)
+{
+
 }
 
 int
-decodeG722(void *input _U_NOSPANDSP_, int inputSizeBytes _U_NOSPANDSP_,
-           void *output _U_NOSPANDSP_, int *outputSizeBytes _U_NOSPANDSP_)
+codec_g722_get_channels(void *ctx _U_)
+{
+    return 1;
+}
+
+int
+codec_g722_get_frequency(void *ctx _U_)
+{
+    return 64000;
+}
+
+int
+codec_g722_decode(void *ctx _U_, const void *input, int inputSizeBytes, void *output,
+        int *outputSizeBytes)
 {
     *outputSizeBytes = g722_decode(&state, output, input, inputSizeBytes);
     return 0;
 }
 
 #endif
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
+

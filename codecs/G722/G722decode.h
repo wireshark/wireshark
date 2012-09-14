@@ -25,10 +25,24 @@
 #ifndef __CODECS_G722DECODE_H__
 #define __CODECS_G722DECODE_H__
 
-void
-initG722(void);
-
-int
-decodeG722(void *input, int inputSizeBytes, void *output, int *outputSizeBytes);
+void *codec_g722_init(void);
+void  codec_g722_release(void *ctx);
+int   codec_g722_get_channels(void *ctx);
+int   codec_g722_get_frequency(void *ctx);
+int   codec_g722_decode(void *ctx, const void *input, int inputSizeBytes, void *output,
+        int *outputSizeBytes);
 
 #endif /* G722decode.h */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

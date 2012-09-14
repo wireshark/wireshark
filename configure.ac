@@ -2623,6 +2623,15 @@ AC_CHECK_FUNCS(mmap mprotect sysconf)
 dnl blank for now, but will be used in future
 AC_SUBST(wireshark_SUBDIRS)
 
+# Check Bluetooth SBC codec for RTP Player
+# git://git.kernel.org/pub/scm/bluetooth/sbc.git
+PKG_CHECK_MODULES(SBC, sbc >= 1.0, [have_sbc=yes], [have_sbc=no])
+if (test "${have_sbc}" = "yes"); then
+    AC_DEFINE(HAVE_SBC, 1, [Define to support playing SBC by standalone BlueZ SBC library])
+    CFLAGS="$CFLAGS $(pkg-config sbc --cflags)"
+    LIBS="$LIBS $(pkg-config sbc --libs)"
+fi
+
 dnl
 dnl check whether plugins should be enabled and, if they should be,
 dnl check for plugins directory - stolen from Amanda's configure.ac
@@ -3053,3 +3062,4 @@ echo "                 Use gnutls library : $tls_message"
 echo "     Use POSIX capabilities library : $libcap_message"
 echo "                  Use GeoIP library : $geoip_message"
 echo "                     Use nl library : $libnl_message"
+echo "              Use SBC codec library : $have_sbc"

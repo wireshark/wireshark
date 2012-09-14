@@ -25,10 +25,24 @@
 #ifndef __CODECS_G726DECODE_H__
 #define __CODECS_G726DECODE_H__
 
-void
-initG726_32(void);
-
-int
-decodeG726_32(void *input, int inputSizeBytes, void *output, int *outputSizeBytes);
+void *codec_g726_init(void);
+void  codec_g726_release(void *ctx);
+int   codec_g726_get_channels(void *ctx);
+int   codec_g726_get_frequency(void *ctx);
+int   codec_g726_decode(void *ctx, const void *input, int inputSizeBytes, void *output,
+        int *outputSizeBytes);
 
 #endif /* G726decode.h */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

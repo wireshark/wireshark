@@ -25,7 +25,24 @@
 #ifndef __CODECS_G711UDECODE_H__
 #define __CODECS_G711UDECODE_H__
 
-int
-decodeG711u(void *input, int inputSizeBytes, void *output, int *outputSizeBytes);
+void *codec_g711u_init(void);
+void  codec_g711u_release(void *ctx);
+int   codec_g711u_get_channels(void *ctx);
+int   codec_g711u_get_frequency(void *ctx);
+int   codec_g711u_decode(void *ctx, const void *input, int inputSizeBytes, void *output,
+        int *outputSizeBytes);
 
 #endif /* G711udecode.h */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

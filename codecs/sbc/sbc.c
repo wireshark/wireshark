@@ -31,7 +31,7 @@
 #include <glib.h>
 #include <sbc/sbc.h>
 
-#include "sbc.h"
+#include "sbc_private.h"
 
 #define SBC_BUFFER 8192
 
@@ -40,7 +40,7 @@ codec_sbc_init(void)
 {
     sbc_t *sbc;
 
-    sbc = g_malloc(sizeof(sbc_t));
+    sbc = (sbc_t *) g_malloc(sizeof(sbc_t));
     sbc_init(sbc, 0L);
 
     return sbc;
@@ -98,16 +98,16 @@ int
 codec_sbc_decode(void *ctx, const void *input, int inputSizeBytes, void *output,
         int *outputSizeBytes)
 {
-    size_t  size_in = (size_t) inputSizeBytes;
-    size_t  size_out = SBC_BUFFER;
-    size_t  len;
-    int     framelen;
-    int     xframe_pos = 0;
-    guint8  *data_in  = (guint8 *) input;
-    guint8  *data_out = (guint8 *) output;
-    sbc_t   *sbc = (sbc_t *) ctx;
-    guint8  *i_data;
-    guint8  tmp;
+    size_t         size_in = (size_t) inputSizeBytes;
+    size_t         size_out = SBC_BUFFER;
+    size_t         len;
+    int            framelen;
+    int            xframe_pos = 0;
+    const guint8  *data_in  = (const guint8 *) input;
+    guint8        *data_out = (guint8 *) output;
+    sbc_t         *sbc = (sbc_t *) ctx;
+    guint8        *i_data;
+    guint8         tmp;
 
     if (!output || !outputSizeBytes) {
         return size_out;
@@ -136,3 +136,16 @@ codec_sbc_decode(void *ctx, const void *input, int inputSizeBytes, void *output,
 }
 
 #endif
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -28,10 +28,23 @@
 #define __CODECS_SBC_H__
 
 void *codec_sbc_init(void);
-void codec_sbc_release(void *ctx);
-int codec_sbc_get_channels(void *ctx);
-int codec_sbc_get_frequency(void *ctx);
-int codec_sbc_decode(void *ctx, const void *input, int inputSizeBytes, void *output,
+void  codec_sbc_release(void *ctx);
+int   codec_sbc_get_channels(void *ctx);
+int   codec_sbc_get_frequency(void *ctx);
+int   codec_sbc_decode(void *ctx, const void *input, int inputSizeBytes, void *output,
         int *outputSizeBytes);
 
 #endif /* sbc.h */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

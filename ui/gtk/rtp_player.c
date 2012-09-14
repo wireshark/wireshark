@@ -69,8 +69,7 @@
 #include <codecs/codecs.h>
 
 #include "../globals.h"
-#include "../codecs/G711a/G711adecode.h"
-#include "../codecs/G711u/G711udecode.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
@@ -83,14 +82,6 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/gui_utils.h"
-
-/*define this symbol to compile with G729 and G723 codecs*/
-/*#define HAVE_G729_G723 1*/
-
-#ifdef HAVE_G729_G723
-#include "codecs/G729/G729decode.h"
-#include "codecs/G723/G723decode.h"
-#endif /* HAVE_G729_G723 */
 
 static gboolean initialized = FALSE;
 
@@ -107,7 +98,9 @@ static GtkWidget *rtp_player_dlg_w;
 static GtkWidget *channels_vb;
 static GtkWidget *main_scrolled_window = NULL;
 static GtkWidget *jitter_spinner;
+static GtkWidget *cb_use_jitter_buffer;
 static GtkWidget *cb_use_rtp_timestamp;
+static GtkWidget *cb_use_uninterrupted_mode;
 static GtkWidget *cb_view_as_time_of_day;
 static GtkWidget *bt_decode;
 static GtkWidget *bt_play;
@@ -127,6 +120,7 @@ static int new_jitter_buff;
 static GHashTable *rtp_channels_hash = NULL;
 
 static int sample_rate = 8000;
+static int channels = 1;
 
 /* Port Audio stuff */
 static int output_channels = 2;
@@ -248,6 +242,10 @@ typedef struct _rtp_decoder_t {
 } rtp_decoder_t;
 
 
+typedef struct _data_info {
+	int current_channel;
+} data_info;
+
 /****************************************************************************/
 static void
 rtp_key_destroy(gpointer key)
@@ -319,11 +317,15 @@ bt_state(gboolean decode, gboolean play_state, gboolean pause_state, gboolean st
 	gboolean false_val = FALSE;
 
 	gtk_widget_set_sensitive(bt_decode, decode);
+	gtk_widget_set_sensitive(cb_use_jitter_buffer, decode);
 	gtk_widget_set_sensitive(cb_use_rtp_timestamp, decode);
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp))) {
-		gtk_widget_set_sensitive(jitter_spinner, FALSE);
-	} else {
+	gtk_widget_set_sensitive(cb_use_uninterrupted_mode, decode);
+	gtk_widget_set_sensitive(cb_view_as_time_of_day, decode);
+
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_use_jitter_buffer))) {
 		gtk_widget_set_sensitive(jitter_spinner, decode);
+	} else {
+		gtk_widget_set_sensitive(jitter_spinner, FALSE);
 	}
 
 	if (new_jitter_buff != (int) gtk_spin_button_get_value((GtkSpinButton * )jitter_spinner)) {
@@ -499,7 +501,13 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 		decoder = g_new(rtp_decoder_t,1);
 		decoder->handle = NULL;
 		decoder->context = NULL;
-		p = try_val_to_str_ext(payload_type, &rtp_payload_type_short_vals_ext);
+
+		if (rp->info->info_payload_type_str && find_codec(rp->info->info_payload_type_str)) {
+			p = rp->info->info_payload_type_str;
+		} else {
+			p = try_val_to_str_ext(payload_type, &rtp_payload_type_short_vals_ext);
+		}
+
 		if (p) {
 			decoder->handle = find_codec(p);
 			if (decoder->handle)
@@ -512,57 +520,15 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 		tmp_buff = (SAMPLE *)g_malloc(tmp_buff_len);
 		decoded_bytes = codec_decode(decoder->handle, decoder->context, rp->payload_data, rp->info->info_payload_len, tmp_buff, &tmp_buff_len);
 		*out_buff = tmp_buff;
+
+		channels = codec_get_channels(decoder->handle, decoder->context);
+		sample_rate = codec_get_frequency(decoder->handle, decoder->context);
+
 		return decoded_bytes;
 	}
 
-	/* Try to decode with built-in codec */
-
-	switch (payload_type) {
-
-	case PT_PCMU:	/* G.711 u-law */
-		tmp_buff = (SAMPLE *)g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
-		decodeG711u(rp->payload_data, rp->info->info_payload_len,
-			  tmp_buff, &decoded_bytes);
-		break;
-
-	case PT_PCMA:	/* G.711 A-law */
-		tmp_buff = (SAMPLE *)g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
-		decodeG711a(rp->payload_data, rp->info->info_payload_len,
-			  tmp_buff, &decoded_bytes);
-		break;
-
-#ifdef HAVE_G729_G723
-	case PT_G729:	/* G.729 */
-		/* G729 8kbps => 64kbps/8kbps = 8  */
-		/* Compensate for possible 2 octet SID frame (G.729B) */
-		tmp_buff = g_malloc(sizeof(SAMPLE) * ((rp->info->info_payload_len + 8) / 10) * 80);
-		decodeG729(rp->payload_data, rp->info->info_payload_len,
-			  tmp_buff, &decoded_bytes);
-		break;
-
-	case PT_G723:	/* G.723 */
-		if (rp->info->info_payload_len%24 == 0)	/* G723 High 6.4kbps */
-			tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 10); /* G723 High 64kbps/6.4kbps = 10  */
-		else if (rp->info->info_payload_len%20 == 0)    /* G723 Low 5.3kbps */
-			tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 13); /* G723 High 64kbps/5.3kbps = 13  */
-		else {
-			return 0;
-		}
-		decodeG723(rp->payload_data, rp->info->info_payload_len,
-			  tmp_buff, &decoded_bytes);
-		break;
-#endif /* HAVE_G729_G723 */
-
-	default:
-		/*
-		 * XXX - return an error here, so the user gets told that
-		 * we don't support this codec!
-		 */
-		break;
-	}
-
-	*out_buff = tmp_buff;
-	return decoded_bytes;
+	*out_buff = NULL;
+	return 0;
 }
 
 /****************************************************************************/
@@ -582,7 +548,7 @@ update_progress_bar(gfloat fraction)
 /* Decode the RTP streams and add them to the RTP channels struct
  */
 static void
-decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
+decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 {
 	GString *key_str = NULL;
 	rtp_channel_info_t *rci;
@@ -620,6 +586,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	guint32 progbar_nextstep;
 	int progbar_quantum;
 	gfloat progbar_val;
+	data_info *info = (data_info *) ptr;
 
 	silence.val = 0;
 	silence.status = S_NORMAL;
@@ -636,9 +603,9 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	 * uses: src_ip:src_port dst_ip:dst_port call_num
 	 */
 	key_str = g_string_new("");
-	g_string_printf(key_str, "%s:%d %s:%d %d", get_addr_name(&(rsi->src_addr)),
+	g_string_printf(key_str, "%s:%d %s:%d %d %u", get_addr_name(&(rsi->src_addr)),
 		rsi->src_port, get_addr_name(&(rsi->dest_addr)),
-		rsi->dest_port, rsi->call_num );
+		rsi->dest_port, rsi->call_num, info->current_channel);
 
 	/* create the rtp_channels_hash table if it doesn't exist */
 	if (!rtp_channels_hash) {
@@ -729,7 +696,9 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 
 		rp = (rtp_packet_t *)rtp_packets_list->data;
 		if (first == TRUE) {
-			start_timestamp = rp->info->info_timestamp; /* defined start_timestmp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
+/* defined start_timestmp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
+/* XXX: if timestamps (RTP) are missing/ignored try use packet arrive time only (see also "rtp_time") */
+			start_timestamp = rp->info->info_timestamp;
 			start_rtp_time = 0;
 			rtp_time_prev = start_rtp_time;
 			first = FALSE;
@@ -767,7 +736,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 		fflush(stdout);
 #endif
 		/* if the jitter buffer was exceeded */
-		if ( diff*1000 > jitter_buff ) {
+		if ( diff*1000 > jitter_buff && !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_use_uninterrupted_mode))) {
 #ifdef DEBUG
 			printf("Packet drop by jitter buffer exceeded\n");
 #endif
@@ -779,8 +748,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 #ifdef DEBUG
 				printf("Resync...\n");
 #endif
-				silence_frames = (gint32)((arrive_time - arrive_time_prev)*sample_rate - decoded_bytes_prev/2);
-
+				silence_frames = (gint32)((arrive_time - arrive_time_prev)*sample_rate - decoded_bytes_prev / sizeof(SAMPLE));
 				/* Fix for bug 4119/5902: don't insert too many silence frames.
 				 * XXX - is there a better thing to do here?
 				 */
@@ -797,14 +765,22 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 				}
 
 				decoded_bytes_prev = 0;
-				start_timestamp = rp->info->info_timestamp; /* defined start_timestamp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
+/* defined start_timestmp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
+/* XXX: if timestamps (RTP) are missing/ignored try use packet arrive time only (see also "rtp_time") */
+				start_timestamp = rp->info->info_timestamp;
 				start_rtp_time = 0;
 				start_time = (double)rp->arrive_offset/1000;
 				rtp_time_prev = 0;
 			}
 		} else {
 			/* Add silence if it is necessary */
-			silence_frames = (gint32)((rtp_time - rtp_time_prev)*sample_rate - decoded_bytes_prev/2);
+
+			if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_use_uninterrupted_mode))) {
+				silence_frames = 0;
+			} else {
+				silence_frames = (gint32)((rtp_time - rtp_time_prev)*sample_rate - decoded_bytes_prev / sizeof(SAMPLE));
+			}
+
 			if (silence_frames != 0) {
 				rci->wrong_timestamp++;
 				status = S_WRONG_TIMESTAMP;
@@ -824,20 +800,19 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 				status = S_NORMAL;
 			}
 
-
 			if (silence_frames > 0) {
 				silence_frames = 0;
 			}
+
 			/* Add the audio */
-			for (i = - silence_frames; i< (decoded_bytes/2); i++) {
+			for (i = -silence_frames + ((info->current_channel) ? 1 : 0); i < decoded_bytes / (int) sizeof(SAMPLE); i += channels) {
 				sample.val = out_buff[i];
 				sample.status = status;
 				g_array_append_val(rci->samples, sample);
 				status = S_NORMAL;
 			}
-
 			rtp_time_prev = rtp_time;
-			pack_period = (double)(decoded_bytes/2)/sample_rate;
+			pack_period = (double) decoded_bytes / sizeof(SAMPLE) / sample_rate;
 			decoded_bytes_prev = decoded_bytes;
 			arrive_time_prev = arrive_time;
 		}
@@ -1876,13 +1851,13 @@ play_channels(void)
 			  &pa_stream,
 			  paNoDevice,     /* default input device */
 			  0,              /* no input */
-			  PA_SAMPLE_TYPE, /* 16 bit Integer input */
+			  PA_SAMPLE_TYPE,
 			  NULL,
 			  Pa_GetDefaultOutputDeviceID(),
-			  output_channels,   /* Stereo output */
-			  PA_SAMPLE_TYPE, /* 16 bit Integer output */
+			  output_channels,
+			  PA_SAMPLE_TYPE,
 			  NULL,
-			  sample_rate,    /* 8 kHz */
+			  sample_rate,
 			  FRAMES_PER_BUFFER,
 			  0,              /* number of buffers, if zero then use default minimum */
 			  paClipOff,      /* we won't output out of range samples so don't bother clipping them */
@@ -1922,9 +1897,9 @@ play_channels(void)
 			err = Pa_OpenDefaultStream(
 				&pa_stream,
 				0,
-				output_channels,     /* Stereo output */
-				PA_SAMPLE_TYPE,   /* 16 bit Integer output */
-				sample_rate,      /* 8 kHz */
+				output_channels,
+				PA_SAMPLE_TYPE,
+				sample_rate,
 				FRAMES_PER_BUFFER,
 				paCallback,
 				rtp_channels );
@@ -1954,8 +1929,8 @@ play_channels(void)
 			{
 				PaStreamParameters stream_parameters;
 				stream_parameters.device = host_api_info->defaultOutputDevice;
-				stream_parameters.channelCount = output_channels;       /* Stereo output */
-				stream_parameters.sampleFormat = PA_SAMPLE_TYPE;     /* 16 bit Integer output */
+				stream_parameters.channelCount = channels;
+				stream_parameters.sampleFormat = PA_SAMPLE_TYPE;
 				stream_parameters.suggestedLatency = 0;
 				stream_parameters.hostApiSpecificStreamInfo = NULL;
 #ifdef DEBUG
@@ -1965,7 +1940,7 @@ play_channels(void)
 					&pa_stream,
 					NULL,           /* no input */
 					&stream_parameters,
-					sample_rate,    /* 8 kHz */
+					sample_rate,
 					FRAMES_PER_BUFFER,
 					paClipOff,      /* we won't output out of range samples so don't bother clipping them */
 					paCallback,
@@ -2160,6 +2135,7 @@ decode_streams(void)
 {
 	guint statusbar_context;
 	guint counter;
+	data_info info;
 
 	/* set the sensitive state of the buttons (decode, play, pause, stop) */
 	bt_state(FALSE, FALSE, FALSE, FALSE);
@@ -2191,7 +2167,12 @@ decode_streams(void)
 	}
 
 	/* Decode the RTP streams and add them to the RTP channels to be played */
-	g_list_foreach( rtp_streams_list, (GFunc)decode_rtp_stream, NULL);
+	info.current_channel  = 0;
+	g_list_foreach(rtp_streams_list, (GFunc) decode_rtp_stream, &info);
+	if (channels > 1) {
+		info.current_channel = 1;
+		g_list_foreach(rtp_streams_list, (GFunc) decode_rtp_stream, &info);
+	}
 
 	/* reset the number of frames to be displayed, this is used for the progress bar */
 	total_frames = 0;
@@ -2246,7 +2227,7 @@ on_cb_view_as_time_of_day_clicked(GtkButton *button _U_, gpointer user_data _U_)
 
 /****************************************************************************/
 static void
-on_cb_use_rtp_clicked(GtkToggleButton  *button _U_, gpointer user_data _U_)
+on_cb_use_method_group_clicked(GtkToggleButton  *button _U_, gpointer user_data _U_)
 {
 	/* set the sensitive state of the buttons (decode, play, pause, stop) */
 	bt_state(TRUE, FALSE, FALSE, FALSE);
@@ -2337,7 +2318,7 @@ rtp_player_dlg_create(void)
 	gchar   *win_name;
 
 	title_name_ptr = cf_get_display_name(&cfile);
-	win_name = g_strdup_printf("%s - VoIP - RTP Player", title_name_ptr);
+	win_name = g_strdup_printf("%s - RTP Player", title_name_ptr);
 	g_free(title_name_ptr);
 
 	rtp_player_dlg_w = dlg_window_new(win_name);  /* transient_for top_level */
@@ -2385,11 +2366,20 @@ rtp_player_dlg_create(void)
 	gtk_widget_set_tooltip_text (jitter_spinner, "The simulated jitter buffer in [ms]");
 	g_signal_connect(G_OBJECT (jitter_spinner_adj), "value_changed", G_CALLBACK(jitter_spinner_value_changed), NULL);
 
-	cb_use_rtp_timestamp = gtk_check_button_new_with_label("Use RTP timestamp");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp), FALSE);
+	cb_use_jitter_buffer = gtk_radio_button_new_with_label(NULL, "Jitter buffer");
+	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), cb_use_jitter_buffer, FALSE, FALSE, 10);
+	g_signal_connect(cb_use_jitter_buffer, "toggled", G_CALLBACK(on_cb_use_method_group_clicked), NULL);
+	gtk_widget_set_tooltip_text(cb_use_jitter_buffer, "Use jitter buffer to heard RTP stream as end user");
+
+	cb_use_rtp_timestamp = gtk_radio_button_new_with_label(gtk_radio_button_get_group(GTK_RADIO_BUTTON(cb_use_jitter_buffer)), "Use RTP timestamp");
 	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), cb_use_rtp_timestamp, FALSE, FALSE, 10);
-	g_signal_connect(cb_use_rtp_timestamp, "toggled", G_CALLBACK(on_cb_use_rtp_clicked), NULL);
-	gtk_widget_set_tooltip_text (cb_use_rtp_timestamp, "Use RTP Timestamp instead of the arriving packet time. This will not reproduce the RTP stream as the user heard it, but is useful when the RTP is being tunneled and the original packet timing is missing");
+	g_signal_connect(cb_use_rtp_timestamp, "toggled", G_CALLBACK(on_cb_use_method_group_clicked), NULL);
+	gtk_widget_set_tooltip_text(cb_use_rtp_timestamp, "Use RTP Timestamp instead of the arriving packet time. This will not reproduce the RTP stream as the user heard it, but is useful when the RTP is being tunneled and the original packet timing is missing");
+
+	cb_use_uninterrupted_mode = gtk_radio_button_new_with_label(gtk_radio_button_get_group(GTK_RADIO_BUTTON(cb_use_jitter_buffer)), "Uninterrupted mode");
+	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), cb_use_uninterrupted_mode, FALSE, FALSE, 10);
+	g_signal_connect(cb_use_uninterrupted_mode, "toggled", G_CALLBACK(on_cb_use_method_group_clicked), NULL);
+	gtk_widget_set_tooltip_text(cb_use_uninterrupted_mode, "Ignore RTP Timestamp. Play stream as it is completed. It is useful when the RTP timestamp is missing.");
 
 	/* button row */
 	hbuttonbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
@@ -2477,12 +2467,6 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 	}
 
 	new_jitter_buff = -1;
-
-#ifdef HAVE_G729_G723
-	/* Initialize the G729 and G723 decoders */
-	initG723();
-	initG729();
-#endif /* HAVE_G729_G723 */
 
 	if (!rtp_channels) {
 		rtp_channels = g_new(rtp_play_channels_t,1);

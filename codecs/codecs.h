@@ -44,16 +44,37 @@ typedef struct codec_handle *codec_handle_t;
 
 typedef void *(*codec_init_fn)(void);
 typedef void (*codec_release_fn)(void *context);
-typedef int (*codec_decode_fn)(void *context, const void *input, int inputSizeBytes, void *output, int *outputSizeBytes);
+typedef int (*codec_get_channels_fn)(void *context);
+typedef int (*codec_get_frequency_fn)(void *context);
+typedef int (*codec_decode_fn)(void *context, const void *input, int inputSizeBytes,
+        void *output, int *outputSizeBytes);
 
-extern gboolean register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release_fn, codec_decode_fn decode_fn);
+extern gboolean register_codec(const char *name, codec_init_fn init_fn,
+        codec_release_fn release_fn, codec_get_channels_fn channels_fn,
+        codec_get_frequency_fn frequency_fn, codec_decode_fn decode_fn);
 extern codec_handle_t find_codec(const char *name);
 extern void *codec_init(codec_handle_t codec);
 extern void codec_release(codec_handle_t codec, void *context);
-extern int codec_decode(codec_handle_t codec, void *context, const void *input, int inputSizeBytes, void *output, int *outputSizeBytes);
+extern int codec_get_channels(codec_handle_t codec, void *context);
+extern int codec_get_frequency(codec_handle_t codec, void *context);
+extern int codec_decode(codec_handle_t codec, void *context, const void *input,
+        int inputSizeBytes, void *output, int *outputSizeBytes);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
 #endif /* _CODECS_H_ */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
