@@ -311,6 +311,7 @@ DISSECTOR_SRC = \
 	packet-bt-dht.c		\
 	packet-bt-utp.c		\
 	packet-btamp.c		\
+	packet-btbnep.c		\
 	packet-bthci_acl.c	\
 	packet-bthci_cmd.c	\
 	packet-bthci_evt.c	\

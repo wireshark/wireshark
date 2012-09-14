@@ -3467,6 +3467,10 @@ Tobias Rutz		<tobias.rutz[at]work-microwave.de> {
 	DVB-S2 Baseband Frame and GSE support
 }
 
+Michal Labedzki		<michal.labedzki[at]tieto.com> {
+	Bluetooth BNEP dissector
+}
+
 
 and by:
 
