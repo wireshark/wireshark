@@ -39,6 +39,10 @@ MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\
 	Makefile.in
 
+RUNLEX=$(top_srcdir)/tools/runlex.sh
+
+text_import_scanner_lex.h: text_import_scanner.c
+
 # All sources that should be put in the source distribution tarball
 libui_a_SOURCES = \
 	$(WIRESHARK_UI_SRC) \

@@ -39,10 +39,6 @@ MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\
 	Makefile.in
 
-RUNLEX=$(top_srcdir)/tools/runlex.sh
-
-text_import_scanner_lex.h: text_import_scanner.c
-
 #
 # Build "wireshark-tap-register.c", which contains a function
 # "register_all_tap_listeners()"
