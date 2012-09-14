@@ -334,10 +334,10 @@ typedef struct
 
 struct MobileId     /* Mobile id, -> TMSI, IMEI or IMSI */
 {
-  guint8 Length:8;
-  guint8 IdType:3;
-  guint8 OddEven:1;
-  guint8 Dig1:4;
+  guint8 Length;
+  guint8 IdType;
+  guint8 OddEven;
+  guint8 Dig1;
   union
   {
     unsigned char TMSI[TMSI_LEN];
@@ -5004,7 +5004,7 @@ typedef enum
     RLCMAC_HDR_TYPE_7 = 0x37,
     RLCMAC_HDR_TYPE_8 = 0x38,
     RLCMAC_HDR_TYPE_9 = 0x39,
-	RLCMAC_HDR_TYPE_10 = 0x3a,
+    RLCMAC_HDR_TYPE_10 = 0x3a
 }RLCMAC_block_format_t;
 
 /* < Downlink RLC/MAC control message > */

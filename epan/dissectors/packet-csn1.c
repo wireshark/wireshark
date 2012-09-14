@@ -238,21 +238,21 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             guint8 ui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
             pui8      = pui8DATA(data, pDescr->offset);
             *pui8     = ui8;
-            proto_tree_add_bits_item(tree, *(pDescr->serialize.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else if (no_of_bits <= 16)
           {
             guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
             pui16       = pui16DATA(data, pDescr->offset);
             *pui16      = ui16;
-            proto_tree_add_bits_item(tree, *(pDescr->serialize.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else if (no_of_bits <= 32)
           {
             guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
             pui32       = pui32DATA(data, pDescr->offset);
             *pui32      = ui32;
-            proto_tree_add_bits_item(tree, *(pDescr->serialize.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else
           {
@@ -353,7 +353,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             guint8 ui8 = tvb_get_masked_bits8(tvb, bit_offset, no_of_bits);
             pui8      = pui8DATA(data, pDescr->offset);
             *pui8     = ui8;
-            proto_tree_add_bits_item(tree, *(pDescr->serialize.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 
           }
           else
@@ -377,7 +377,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           guint8 no_of_value_bits = (guint8) pDescr->i;
           guint64 value;
 
-          proto_tree_add_split_bits_item_ret_val(tree, *pDescr->serialize.hf_ptr, tvb, bit_offset, pDescr->descr.crumb_spec, &value);
+          proto_tree_add_split_bits_item_ret_val(tree, *pDescr->format_p.hf_ptr, tvb, bit_offset, pDescr->descr.crumb_spec, &value);
           if (no_of_value_bits <= 8)
           {
             pui8      = pui8DATA(data, pDescr->offset);
@@ -406,7 +406,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         {
           if (remaining_bits_len >= pDescr->descr.crumb_spec[pDescr->i].crumb_bit_length)
           {
-             proto_tree_add_split_bits_crumb(tree, *pDescr->serialize.hf_ptr, tvb, bit_offset,
+             proto_tree_add_split_bits_crumb(tree, *pDescr->format_p.hf_ptr, tvb, bit_offset,
                                              pDescr->descr.crumb_spec, pDescr->i);
 
           remaining_bits_len -= pDescr->descr.crumb_spec[pDescr->i].crumb_bit_length;
@@ -427,7 +427,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         guint16 nCount = (guint16)pDescr->descr.value; /* nCount supplied by value i.e. M_UINT_ARRAY(...) */
         int i =0;
 
-        if (pDescr->serialize.value != 0)
+        if (pDescr->format_p.value != 0)
         { /* nCount specified by a reference to field holding value i.e. M_VAR_UINT_ARRAY(...) */
           nCount = *pui16DATA(data, nCount);
         }
@@ -477,7 +477,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         gint16      Status;
         csnStream_t arT    = *ar;
         gint16      nCount = pDescr->i;
-        guint16      nSize  = (guint16)(gint32)pDescr->serialize.value;
+        guint16      nSize  = (guint16)(gint32)pDescr->format_p.value;
         int i =0;
 
         pui8 = pui8DATA(data, pDescr->offset);
@@ -656,7 +656,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
       case CSN_SERIALIZE:
       {
-        StreamSerializeFcn_t serialize = pDescr->serialize.fcn;
+        StreamSerializeFcn_t serialize = (StreamSerializeFcn_t)pDescr->aux_fn;
         csnStream_t          arT       = *ar;
         guint length_len = pDescr->i;
         gint16               Status = -1;
@@ -792,7 +792,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                 guint8 ui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
                 pui8      = pui8DATA(data, pDescr->offset);
                 *pui8     = ui8;
-                proto_tree_add_bits_item(tree, *(pDescr->serialize.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 
               }
               else if (no_of_bits <= 16)
@@ -800,14 +800,14 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                 guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
                 pui16       = pui16DATA(data, pDescr->offset);
                 *pui16      = ui16;
-                proto_tree_add_bits_item(tree, *(pDescr->serialize.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
               }
               else if (no_of_bits <= 32)
               {
                 guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
                 pui32       = pui32DATA(data, pDescr->offset);
                 *pui32      = ui32;
-                proto_tree_add_bits_item(tree, *(pDescr->serialize.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 
               }
               else
@@ -886,7 +886,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
                 guint8 ui8 = tvb_get_masked_bits8(tvb, bit_offset, no_of_bits);
                 pui8      = pui8DATA(data, pDescr->offset);
                 *pui8     = ui8;
-                proto_tree_add_bits_item(tree, *(pDescr->serialize.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(tree, *(pDescr->format_p.hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
               }
               else
               { /* Maybe we should support more than 8 bits ? */
@@ -910,7 +910,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             guint16 nCount = (guint16)pDescr->descr.value; /* nCount supplied by value i.e. M_UINT_ARRAY(...) */
             gint i = 0;
 
-            if (pDescr->serialize.value != 0)
+            if (pDescr->format_p.value != 0)
             { /* nCount specified by a reference to field holding value i.e. M_VAR_UINT_ARRAY(...) */
               nCount = *pui16DATA(data, nCount);
             }
@@ -975,7 +975,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             gint16      Status;
             csnStream_t arT    = *ar;
             guint16      nCount = (guint16) pDescr->i;
-            guint16      nSize  = (guint16)(guint32)pDescr->serialize.value;
+            guint16      nSize  = (guint16)(guint32)pDescr->format_p.value;
             gint i = 0;
 
             pui8  = pui8DATA(data, pDescr->offset);
@@ -1429,7 +1429,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
          *  M_REC_TARRAY(_STRUCT, _MEMBER, _MEMBER_TYPE, _ElementCountField)
          * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE)}
          */
-        gint16 nSizeElement = (gint16)(gint32)pDescr->serialize.value;
+        gint16 nSizeElement = (gint16)(gint32)pDescr->format_p.value;
         guint8  ElementCount = 0;
 
         while (existNextElement(tvb, bit_offset, Tag))
@@ -1500,7 +1500,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
          * M_REC_TARRAY(_STRUCT, _MEMBER, _MEMBER_TYPE, _ElementCountField)
          * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE)}
          */
-        gint16      nSizeElement = (gint16)(gint32)pDescr->serialize.value;
+        gint16      nSizeElement = (gint16)(gint32)pDescr->format_p.value;
         guint8       ElementCount = 0;
         csnStream_t arT          = *ar;
         gboolean     EndOfList    = FALSE;
@@ -1592,7 +1592,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
       case CSN_CALLBACK:
       {
         guint16  no_of_bits;
-        DissectorCallbackFcn_t callback = (DissectorCallbackFcn_t)pDescr->descr.ptr;
+        DissectorCallbackFcn_t callback = (DissectorCallbackFcn_t)pDescr->aux_fn;
 
         no_of_bits = callback(tree, tvb, pvDATA(data, pDescr->i), pvDATA(data, pDescr->offset), bit_offset, ett_csn1);
         bit_offset += no_of_bits;

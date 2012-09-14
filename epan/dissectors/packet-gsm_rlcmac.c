@@ -3389,7 +3389,7 @@ CSN_DESCR_BEGIN(NeighbourCellParameters_t)
   M_TYPE       (NeighbourCellParameters_t, Cell_Selection, Cell_Selection_t),
   M_UINT       (NeighbourCellParameters_t,  NR_OF_REMAINING_CELLS,  4, &hf_neighbourcellparameters_nr_of_remaining_cells),
   M_UINT_OFFSET(NeighbourCellParameters_t, FREQ_DIFF_LENGTH, 3, 1),/* offset 1 */
-  M_CALLBACK   (NeighbourCellParameters_t, (void*)callback_init_Cell_Selection_Params_FREQUENCY_DIFF, FREQ_DIFF_LENGTH, Cell_Selection_Params_With_FreqDiff),
+  M_CALLBACK   (NeighbourCellParameters_t, callback_init_Cell_Selection_Params_FREQUENCY_DIFF, FREQ_DIFF_LENGTH, Cell_Selection_Params_With_FreqDiff),
   M_VAR_TARRAY (NeighbourCellParameters_t, Cell_Selection_Params_With_FreqDiff, Cell_Selection_Params_With_FreqDiff_t, NR_OF_REMAINING_CELLS),
 CSN_DESCR_END  (NeighbourCellParameters_t)
 
@@ -3514,7 +3514,7 @@ CSN_DESCR_BEGIN(Add_Frequency_list_t)
   M_UINT       (Add_Frequency_list_t,  NR_OF_FREQUENCIES,  5, &hf_add_frequency_list_nr_of_frequencies),
   M_UINT_OFFSET(Add_Frequency_list_t, FREQ_DIFF_LENGTH, 3, 1),/*offset 1*/
 
-  M_CALLBACK   (Add_Frequency_list_t, (void*)callback_init_Cell_Sel_Param_2_FREQUENCY_DIFF, FREQ_DIFF_LENGTH, CellSelectionParamsWithFreqDiff),
+  M_CALLBACK   (Add_Frequency_list_t, callback_init_Cell_Sel_Param_2_FREQUENCY_DIFF, FREQ_DIFF_LENGTH, CellSelectionParamsWithFreqDiff),
 
   M_VAR_TARRAY (Add_Frequency_list_t, CellSelectionParamsWithFreqDiff, CellSelectionParamsWithFreqDiff_t, NR_OF_FREQUENCIES),
 CSN_DESCR_END  (Add_Frequency_list_t)
@@ -3879,8 +3879,8 @@ CSN_DESCR_BEGIN(UTRAN_TDD_NeighbourCells_t)
   M_UINT       (UTRAN_TDD_NeighbourCells_t,  UARFCN,   14, &hf_utran_tdd_neighbourcells_uarfcn),
   M_UINT       (UTRAN_TDD_NeighbourCells_t,  Indic0,      1, &hf_utran_tdd_neighbourcells_indic0),
   M_UINT       (UTRAN_TDD_NeighbourCells_t,  NrOfCells,   5, &hf_utran_tdd_neighbourcells_nrofcells),
-  M_CALLBACK   (UTRAN_TDD_NeighbourCells_t, (void*)callback_UTRAN_TDD_map_NrOfFrequencies, NrOfCells, BitsInCellInfo),
-  M_CALLBACK   (UTRAN_TDD_NeighbourCells_t, (void*)callback_UTRAN_TDD_compute_TDD_CELL_INFORMATION, ZERO, CellInfo),
+  M_CALLBACK   (UTRAN_TDD_NeighbourCells_t,  callback_UTRAN_TDD_map_NrOfFrequencies, NrOfCells, BitsInCellInfo),
+  M_CALLBACK   (UTRAN_TDD_NeighbourCells_t,  callback_UTRAN_TDD_compute_TDD_CELL_INFORMATION, ZERO, CellInfo),
 CSN_DESCR_END  (UTRAN_TDD_NeighbourCells_t)
 
 
@@ -4052,7 +4052,7 @@ CSN_DESCR_BEGIN(Add_lu_ModeOnlyFrequencyList_t)
   M_UINT       (Add_lu_ModeOnlyFrequencyList_t,  NR_OF_FREQUENCIES,  5, &hf_add_lu_modeonlyfrequencylist_nr_of_frequencies),
   M_UINT       (Add_lu_ModeOnlyFrequencyList_t,  FREQ_DIFF_LENGTH,  3, &hf_add_lu_modeonlyfrequencylist_freq_diff_length),
 
-  M_CALLBACK   (Add_lu_ModeOnlyFrequencyList_t, (void*)callback_init_luMode_Cell_Sel_Param_FREQUENCY_DIFF, FREQ_DIFF_LENGTH, lu_ModeOnlyCellSelectionParamsWithFreqDiff),
+  M_CALLBACK   (Add_lu_ModeOnlyFrequencyList_t, callback_init_luMode_Cell_Sel_Param_FREQUENCY_DIFF, FREQ_DIFF_LENGTH, lu_ModeOnlyCellSelectionParamsWithFreqDiff),
 
   M_VAR_TARRAY (Add_lu_ModeOnlyFrequencyList_t, lu_ModeOnlyCellSelectionParamsWithFreqDiff, lu_ModeOnlyCellSelectionParamsWithFreqDiff_t, NR_OF_FREQUENCIES),
 CSN_DESCR_END  (Add_lu_ModeOnlyFrequencyList_t)
@@ -5649,7 +5649,7 @@ CSN_DESCR_BEGIN(COMPACT_Neighbour_Cell_Param_t)
   M_TYPE       (COMPACT_Neighbour_Cell_Param_t,  COMPACT_Cell_Sel, COMPACT_Cell_Sel_t),
   M_UINT       (COMPACT_Neighbour_Cell_Param_t,  NR_OF_REMAINING_CELLS, 4, &hf_packet_compact_ncell_param_nr_of_remaining_cells),
   M_UINT_OFFSET(COMPACT_Neighbour_Cell_Param_t,  FREQ_DIFF_LENGTH, 3, 1),
-  M_CALLBACK   (COMPACT_Neighbour_Cell_Param_t, (void*)callback_init_COMP_Ncell_Param_FREQUENCY_DIFF, FREQ_DIFF_LENGTH, COMPACT_Neighbour_Cell_Param_Remaining),
+  M_CALLBACK   (COMPACT_Neighbour_Cell_Param_t,  callback_init_COMP_Ncell_Param_FREQUENCY_DIFF, FREQ_DIFF_LENGTH, COMPACT_Neighbour_Cell_Param_Remaining),
   M_VAR_TARRAY (COMPACT_Neighbour_Cell_Param_t,  COMPACT_Neighbour_Cell_Param_Remaining, COMPACT_Neighbour_Cell_Param_Remaining_t, NR_OF_REMAINING_CELLS),
 CSN_DESCR_END  (COMPACT_Neighbour_Cell_Param_t)
 
