@@ -128,7 +128,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const gchar *flags[] = {"FP", "FR", "DFD", "SRSS", "RSSH"};
 	gboolean 	first_flag = TRUE;
 	guint8		flagoffset, flagval;
-	guint8      src_vmname_len, dst_vmname_len;
+	guint8      src_vmname_len = 0, dst_vmname_len = 0;
 	guint8      variable_ns_len = 0;
 
 	if (pnstr->rec_type == NSPR_HEADER_VERSION205)
