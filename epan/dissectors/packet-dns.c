@@ -2341,7 +2341,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         rropt_tree = proto_item_add_subtree(rropt, ett_dns_opts);
         proto_tree_add_item(rropt_tree, hf_dns_rr_opt_code, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
         cur_offset += 2;
-        proto_tree_add_item(rropt_tree, hf_dns_rr_opt_len, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        rropt = proto_tree_add_item(rropt_tree, hf_dns_rr_opt_len, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
         cur_offset += 2;
 
         proto_tree_add_item(rropt_tree, hf_dns_rr_opt_data, tvb, cur_offset, optlen, ENC_NA);
@@ -2361,6 +2361,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             proto_tree_add_item(rropt_tree, hf_dns_rr_opt_client_scope, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
             cur_offset += 1;
 
+            if (optlen-4 > 16) {
+              expert_add_info_format(pinfo, rropt, PI_MALFORMED, PI_ERROR,
+                  "Length too long for any type of IP address.");
+              /* Avoid stack-smashing which occurs otherwise with the
+               * following tvb_memcpy. */
+              optlen = 20;
+            }
             tvb_memcpy(tvb, ip_addr.bytes, cur_offset, (optlen - 4));
             switch(family) {
               case AFNUM_INET:
