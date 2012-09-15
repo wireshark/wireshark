@@ -182,7 +182,7 @@ sub read_svn_info {
 		}
 		close (CFGNMAKE);
 	}
-	if ($revision == 0) {
+	if ($revision == 0 and -d "$srcdir/.git") {
 
 		# Try git...
 		eval {
@@ -203,6 +203,26 @@ sub read_svn_info {
 			if (defined($line)) {
 				if ($line =~ /\* (\S+)/) {
 					$repo_path = $1;
+				}
+			}
+			1;
+			};
+	}
+	if ($revision == 0 and -d "$srcdir/.bzr") {
+
+		# Try bzr...
+		eval {
+			use warnings "all";
+			no warnings "all";
+			$svn_info_cmd = "(cd $srcdir; bzr log -l 1)";
+			$line = qx{$svn_info_cmd};
+			if (defined($line)) {
+				if ($line =~ /timestamp: \S+ (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
+					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
+				}
+				if ($line =~ /svn revno: (\d+) \(on (\S+)\)/) {
+					$revision = $1;
+					$repo_path = $2;
 				}
 			}
 			1;
@@ -610,3 +630,17 @@ make-version.pl [options] [source directory]
 
 Options can be used in any combination. If none are specified B<--set-svn>
 is assumed.
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#
+#
