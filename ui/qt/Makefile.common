@@ -37,8 +37,6 @@ GENERATED_NODIST_HEADER_FILES = \
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES =
 
-DIRTY_GENERATED_C_FILES =
-
 # Generated C source files that we don't want in the distribution.
 GENERATED_NODIST_C_FILES =
 
@@ -54,8 +52,7 @@ GENERATED_NODIST_CPP_FILES = \
 GENERATED_FILES = \
 	$(GENERATED_HEADER_FILES) \
 	$(GENERATED_C_FILES) \
-	$(GENERATED_CPP_FILES) \
-	$(DIRTY_GENERATED_C_FILES)
+	$(GENERATED_CPP_FILES)
 
 # All the generated files we don't want in the distribution.
 GENERATED_NODIST_FILES = \
