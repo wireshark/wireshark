@@ -33,13 +33,10 @@ GENERATED_HEADER_FILES =
 GENERATED_C_FILES = \
 	wireshark-tap-register.c
 
-DIRTY_GENERATED_C_FILES =
-
 # All the generated files.
 GENERATED_FILES = \
 	$(GENERATED_HEADER_FILES) \
-	$(GENERATED_C_FILES) \
-	$(DIRTY_GENERATED_C_FILES)
+	$(GENERATED_C_FILES)
 
 # Files that generate compileable files
 GENERATOR_FILES =
