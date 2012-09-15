@@ -733,8 +733,8 @@ endif()
 
 if(BUILD_wireshark AND GTK_FOUND)
 	set(wireshark_LIBS
-		ui
 		gtkui
+		ui
 		${GTK2_LIBRARIES}
 		${GTK3_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
@@ -757,6 +757,7 @@ endif()
 if(BUILD_qtshark AND QT_FOUND)
 	set(qtshark_LIBS
 		qtui
+		ui
 		${QT_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
 		codecs
