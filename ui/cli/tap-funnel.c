@@ -30,6 +30,11 @@
 #include "config.h"
 #endif
 
+#include <glib.h>
+#include <wiretap/wtap.h>
+#include <epan/nstime.h>
+#include <epan/proto.h>
+
 #include <epan/funnel.h>
 #include <stdio.h>
 #include <epan/stat_cmd_args.h>
@@ -101,6 +106,7 @@ static const funnel_ops_t funnel_ops = {
     /*...,*/
     NULL,
     funnel_logger,
+    NULL,
     NULL,
     NULL,
     NULL,

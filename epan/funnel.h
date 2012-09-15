@@ -77,6 +77,7 @@ typedef struct _funnel_ops_t {
 	void (*retap_packets)(void);
 	void (*copy_to_clipboard)(GString *str);
     
+	gchar * (*get_filter)(void);
 	void (*set_filter)(const char*);
         void (*set_color_filter_slot)(guint8 flit_nr, const gchar* filter);
 	gboolean (*open_file)(const char* fname, const char* filter, const char** error);

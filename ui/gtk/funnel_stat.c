@@ -468,6 +468,10 @@ static void funnel_new_dialog(const gchar* title,
     gtk_widget_show(win);
 }
 
+static gchar * funnel_get_filter(void) {
+    return (gchar *)gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+}
+
 static void funnel_set_filter(const char* filter_string) {
     gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
 }
@@ -571,6 +575,7 @@ static const funnel_ops_t funnel_ops = {
     funnel_logger,
     funnel_retap_packets,
     copy_to_clipboard,
+    funnel_get_filter,
     funnel_set_filter,
     funnel_set_color_filter_slot,
     funnel_open_file,

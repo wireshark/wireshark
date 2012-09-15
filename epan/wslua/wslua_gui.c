@@ -792,6 +792,19 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a cap
     }
 }
 
+WSLUA_FUNCTION wslua_get_filter(lua_State* L) { /* Get the main filter text */
+    const char *filter_str = NULL;
+
+    if (!ops->get_filter) {
+        WSLUA_ERROR(get_filter, "GUI not available");
+    }
+
+    filter_str = ops->get_filter();
+    lua_pushstring(L,filter_str);
+
+    return 1;
+}
+
 WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text */
 #define WSLUA_ARG_set_filter_TEXT 1 /* The filter's text. */
     const char* filter_str = luaL_checkstring(L,WSLUA_ARG_set_filter_TEXT);
