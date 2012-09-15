@@ -27,47 +27,12 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-
-#include <string.h>
-
 #include <gtk/gtk.h>
 
 #include "ui/simple_dialog.h"
 #include "../file.h"
 
 #include "ui/gtk/gui_stat_util.h"
-
-
-/* insert a string into a GTK_TABLE at column x and row y*/
-#if 0
-/* Statistic table */
-typedef struct _gtk_table {
-	GtkWidget *widget;  /**< the table widget */
-	int height;         /**< the height */
-	int width;          /**< the width */
-}gtk_table;
-
-void
-add_table_entry(gtk_table *tab, const char *str, int x, int y)
-{
-	GtkWidget *tmp;
-
-	if(y>=tab->height){
-		tab->height=y+1;
-		gtk_table_resize(GTK_TABLE(tab->widget), tab->height, tab->width);
-	}
-	if(x>=tab->width){
-		tab->width=x+1;
-		gtk_table_resize(GTK_TABLE(tab->widget), tab->height, tab->width);
-	}
-
-	tmp=gtk_label_new(str);
-	gtk_table_attach_defaults(GTK_TABLE(tab->widget), tmp, x, x+1, y, y+1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
-	gtk_widget_show(tmp);
-}
-#endif
 
 /* init a main window for stats, set title and display used filter in window */
 
@@ -76,8 +41,7 @@ init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, const char *title, 
 {
 	GtkWidget *main_label;
 	GtkWidget *filter_label;
-	char *filter_string;
-
+	char      *filter_string;
 
 	gtk_window_set_title(GTK_WINDOW(window), title);
 
@@ -85,17 +49,16 @@ init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, const char *title, 
 	gtk_container_set_border_width(GTK_CONTAINER(mainbox), 10);
 	gtk_widget_show(mainbox);
 
-	main_label=gtk_label_new(title);
+	main_label = gtk_label_new(title);
 	gtk_box_pack_start(GTK_BOX(mainbox), main_label, FALSE, FALSE, 0);
 	gtk_widget_show(main_label);
 
 	filter_string = g_strdup_printf("Filter: %s", filter ? filter : "");
-	filter_label=gtk_label_new(filter_string);
+	filter_label  = gtk_label_new(filter_string);
 	g_free(filter_string);
 	gtk_label_set_line_wrap(GTK_LABEL(filter_label), TRUE);
 	gtk_box_pack_start(GTK_BOX(mainbox), filter_label, FALSE, FALSE, 0);
 	gtk_widget_show(filter_label);
-
 }
 
 /* create a table, using a scrollable GtkTreeView */
@@ -103,14 +66,14 @@ init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, const char *title, 
 GtkTreeView *
 create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, const stat_column *headers)
 {
-	GtkTreeView *table;
-	GtkListStore *store;
-	GtkWidget *tree;
+	GtkTreeView       *table;
+	GtkListStore      *store;
+	GtkWidget         *tree;
 	GtkTreeViewColumn *column;
 	GtkTreeSelection  *sel;
-	GtkCellRenderer *renderer;
-	GType *types;
-	int i;
+	GtkCellRenderer   *renderer;
+	GType             *types;
+	int                i;
 
 	if (columns <= 0)
 		return NULL;
@@ -123,7 +86,7 @@ create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, cons
 	g_free(types);
 
 	/* create table */
-	tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+	tree  = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
 	table = GTK_TREE_VIEW(tree);
 	g_object_unref (G_OBJECT (store));
 
@@ -153,4 +116,3 @@ create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, cons
 
 	return table;
 }
-
