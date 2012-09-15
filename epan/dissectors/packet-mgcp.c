@@ -1398,7 +1398,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	const gchar *verb_description = "";
 	char code_with_verb[64] = "";  /* To fit "<4-letter-code> (<longest-verb>)" */
 
-	static address null_address = { AT_NONE, 0, NULL };
+	static address null_address = { AT_NONE, AT_SUB_NONE, 0, NULL };
 	tvb_previous_offset = 0;
 	tvb_len = tvb_length(tvb);
 	tvb_current_len = tvb_len;

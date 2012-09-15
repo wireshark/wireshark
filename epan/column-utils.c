@@ -1397,11 +1397,22 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
     break;
 
   case AT_ETHER:
-    if (is_src)
-      pinfo->cinfo->col_expr.col_expr[col] = "eth.src";
-    else
-      pinfo->cinfo->col_expr.col_expr[col] = "eth.dst";
-    address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
+    switch(addr->subtype) {
+    default:
+      if (is_src)
+        pinfo->cinfo->col_expr.col_expr[col] = "eth.src";
+      else
+        pinfo->cinfo->col_expr.col_expr[col] = "eth.dst";
+      address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
+      break;
+    case AT_SUB_IEEE80211:
+      if (is_src)
+        pinfo->cinfo->col_expr.col_expr[col] = "wlan.sa";
+      else
+        pinfo->cinfo->col_expr.col_expr[col] = "wlan.da";
+      address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
+      break;
+    }
     break;
 
   case AT_IPv4:

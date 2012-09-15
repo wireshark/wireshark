@@ -60,14 +60,28 @@ typedef enum {
   AT_AX25		/* AX.25 */
 } address_type;
 
+typedef enum {
+  AT_SUB_NONE,		/* no sub type */
+  AT_SUB_IEEE80211,	/* 802.11 */
+} address_stype;
+
 typedef struct _address {
   address_type  type;		/* type of address */
+  address_stype subtype;
   int           len;		/* length of address, in bytes */
   const void	*data;		/* pointer to address data */
 } address;
 
 #define	SET_ADDRESS(addr, addr_type, addr_len, addr_data) { \
 	(addr)->type = (addr_type); \
+	(addr)->subtype = AT_SUB_NONE; \
+	(addr)->len = (addr_len); \
+	(addr)->data = (addr_data); \
+	}
+
+#define SET_ADDRESS_SUB(addr, addr_type, addr_subtype, addr_len, addr_data) { \
+	(addr)->type = (addr_type); \
+	(addr)->subtype = addr_subtype; \
 	(addr)->len = (addr_len); \
 	(addr)->data = (addr_data); \
 	}

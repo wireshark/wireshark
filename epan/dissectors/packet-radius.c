@@ -1360,7 +1360,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	radius_call_info_key radius_call_key;
 	radius_call_info_key *new_radius_call_key;
 	radius_call_t *radius_call = NULL;
-	static address null_address = { AT_NONE, 0, NULL };
+	static address null_address = { AT_NONE, AT_SUB_NONE, 0, NULL };
 
 	/* does this look like radius ? */
 	if(!is_radius(tvb)){
