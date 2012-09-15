@@ -86,13 +86,6 @@ wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../../tools/make-tapreg-dotc Make
 	@$(SH) ../../tools/make-tapreg-dotc wireshark-tap-register.c . $(WIRESHARK_TAP_SRC)
 !ENDIF
 
-RUNLEX=..\..\tools\runlex.sh
-
-text_import_scanner.h: text_import_scanner.c
-text_import_scanner_lex.h: text_import_scanner.c
-text_import_scanner.obj : text_import_scanner.c
-	$(CC) $(GENERATED_CFLAGS) $(WSUG_CFLAGS) -Fd.\ -c $?
-
 !IF "$(PORTAUDIO_VERSION)" == "18"
 pa_lib.obj: $(PORTAUDIO_DIR)\pa_common\pa_lib.c
 	$(CC) -c $(LOCAL_CFLAGS) $?
