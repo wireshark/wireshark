@@ -30,11 +30,13 @@ include Makefile.common
 # if you add files here, be sure to include them also in Makefile.am EXTRA_DIST
 WIRESHARK_UI_SRC = \
 	$(WIRESHARK_UI_SRC) \
-	$(GENERATED_C_FILES)
+	$(GENERATED_C_FILES) \
+	$(DIRTY_GENERATED_C_FILES)
 
 WIRESHARK_UI_OBJECTS = \
 	$(WIRESHARK_UI_SRC:.c=.obj) \
-	$(GENERATED_C_FILES:.c=.obj)
+	$(GENERATED_C_FILES:.c=.obj) \
+	$(DIRTY_GENERATED_C_FILES:.c=.obj)
 
 libui.lib	: ..\config.h $(WIRESHARK_UI_OBJECTS)
 	link /lib /out:libui.lib $(WIRESHARK_UI_OBJECTS)
