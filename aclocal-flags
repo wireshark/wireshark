@@ -69,6 +69,16 @@ else
 		pkg_config_aclocal_dir=""
 	else
 		#
+		# Solaris 11's default pkg-config installation puts
+		# it in /usr/ccs/bin, but there's no /usr/ccs/share.
+		# Map /usr/ccs to /usr.
+		#
+		if [ "$pkg_config_prefix" = /usr/ccs ]
+		then
+			pkg_config_prefix=/usr
+		fi
+
+		#
 		# Now get the path of its aclocal directory.
 		#
 		pkg_config_aclocal_dir=$pkg_config_prefix/share/aclocal
