@@ -168,7 +168,7 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static gboolean
-dissect_interlink_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_interlink_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	if (!tvb_bytes_exist(tvb, 0, 4)) {
 		return FALSE;
