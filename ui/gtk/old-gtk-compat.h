@@ -89,7 +89,7 @@
 #	define gtk_style_context_get_color_background(x,y,z) gdkcolor_to_color_t(&z, &x->base[y])
 #	if GTK_CHECK_VERSION (2, 14, 0) && defined(GSEAL_ENABLE)
 	/* This is too late, see https://bugzilla.gnome.org/show_bug.cgi?id=641089
-	 * Accoriding to
+	 * According to
 	 * http://ftp.acc.umu.se/pub/GNOME/sources/gtk+/2.13/gtk+-2.13.4.changes
 	 * access to the button element was sealed during 2.13. They also admit that
 	 * they missed a use case and thus failed to provide an accessor function:
