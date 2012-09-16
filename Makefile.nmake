@@ -1174,6 +1174,9 @@ install-all: install-generated-files
 	xcopy $(GTK_DIR)\bin\$(XML_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IF "$(GTK_INST_VERSION)" == "3.4"
+	if not exist $(INSTALL_DIR)\$(GTK_SCHEMAS_INST_DIR) mkdir $(INSTALL_DIR)\$(GTK_SCHEMAS_INST_DIR)
+	if not exist $(GTK_DIR)\$(GTK_SCHEMAS_INST_DIR)\gschemas.compiled $(GTK_DIR)\bin\glib-compile-schemas $(GTK_DIR)\$(GTK_SCHEMAS_INST_DIR)
+	xcopy $(GTK_DIR)\$(GTK_SCHEMAS_INST_DIR)\gschemas.compiled  $(INSTALL_DIR)\$(GTK_SCHEMAS_INST_DIR) /d
 !ELSE
 	if not exist $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR)
 	xcopy "$(GTK_WIMP_DLLSRC_DIR)\libwimp.dll" $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) /d

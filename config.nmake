@@ -1067,6 +1067,7 @@ GTK_WIMP_RCDST_DIR=etc\gtk-2.0
 # Use of GTK3+ is experimental/not working
 #
 !ELSEIF "$(GTK_INST_VERSION)" == "3.4"
+GTK_SCHEMAS_INST_DIR=\share\glib-2.0\schemas
 
 # GTK+
 GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-3.0 \
