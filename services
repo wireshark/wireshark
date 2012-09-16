@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-09-07
+# 2012-09-11
 # 
 # Experts
 # 
@@ -14510,7 +14510,12 @@ dsmcc-ccp	13822/udp	# DSMCC Channel Change         [Tim_Addington]              
 bmdss	13823/tcp	# Blackmagic Design Streaming  [Sam_Vaughan]                                      [Sam_Vaughan]                                             2011-03-01
 # Server
 # 13823       udp    Reserved
-# 13824-13928           Unassigned
+# 13824-13893           Unassigned
+ucontrol	13894/tcp	# Ultimate Control             [NEGU_Soft]                                        [borja_lopez_urkidi]                                      2012-09-10
+# communication protocol
+ucontrol	13894/udp	# Ultimate Control             [NEGU_Soft]                                        [borja_lopez_urkidi]                                      2012-09-10
+# communication protocol
+# 13895-13928           Unassigned
 dta-systems	13929/tcp	# D-TA SYSTEMS                 [Alexis_Bose]                                      [Alexis_Bose]                                             2008-12-08
 dta-systems	13929/udp	# D-TA SYSTEMS                 [Alexis_Bose]                                      [Alexis_Bose]                                             2008-12-08
 medevolve	13930/tcp	# MedEvolve Port Requester     [Jon_Robertson]                                    [Jon_Robertson]                                           2008-10-24
@@ -16038,6 +16043,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Service
 # edcp                           udp    LaCie Ethernet Disk          [Nicolas_Bouilleaud]                               [Nicolas_Bouilleaud]                                                                                                                               Defined TXT keys: ip, mac, dhcp, mask, gtwy, wins, name,
 # Configuration Protocol                                                                                                                                                                                                             version
+# eeg                            tcp    EEG System Discovery across  [Shifted_Current]                                  [Joel_Aaron_Clipperton]                                   2012-09-11                                                                               Defined TXT keys: Type
+# local and wide area networks
 # efkon-elite                    tcp    EFKON Lightweight Interface  [EFKON_AG]                                         [Thomas_Kemmer]                                           2011-10-20                                                                               Defined TXT keys: txtvers, protovers, model, serial, scheme,
 # to Traffic Events                                                                                                                                                                                                                  path
 # egistix                               Egistix Auto-Discovery       [Dave_Lindquist_2]                                 [Dave_Lindquist_2]                                                                                                                                 Defined TXT keys: None
@@ -17401,6 +17408,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Boris_Polevoy]                                           Boris Polevoy                                   mailto:vapcom&mail.ru                                         2003-01
 # [Boris_Star]                                              Boris Star                                      mailto:boris.star&veritas.com                                 2003-01
 # [Boris_Svetlitsky]                                        Boris Svetlitsky                                mailto:boris&press-sense.com
+# [borja_lopez_urkidi]                                      borja lopez urkidi        NEGU Soft             mailto:lopezurkidi&gmail.com                                  2012-09-10
 # [Brad_Hamilton]                                           Brad Hamilton                                   mailto:bh&picksys.com
 # [Brad_Hamilton_2]                                         Brad Hamilton                                   mailto:brad_hamilton&kofax.com                                2002-08
 # [Brad_Johanson]                                           Brad Johanson                                   mailto:bradj&tidebreak.com                                    2005-08
@@ -19027,6 +19035,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Joe_Senner_2]                                            Joe Senner                                      mailto:support&buildforge.com
 # [Joe_Touch]                                               Joe Touch                                       mailto:touch&isi.edu
 # [Joe_Wesley]                                              Joe Wesley                                      mailto:joe.wesley&east.sun.com
+# [Joel_Aaron_Clipperton]                                   Joel Aaron Clipperton     Shifted Current LLC   mailto:joel&shiftedcurrent.com                                2012-09-11
 # [Joel_Dolisy]                                             Joel Dolisy                                     mailto:joel.dolisy&solarwinds.com                             2008-09-10
 # [Joel_E_Steiger]                                          Joel E. Steiger                                 mailto:jsteiger&eic-us.com                                    2004-02
 # [Joel_Karafin]                                            Joel Karafin                                    mailto:jkarafin&infotrieve.com
@@ -20022,6 +20031,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Nedelcho_Stanev_3]                                       Nedelcho Stanev                                 mailto:decho&iname.com
 # [Neel_A_Bhatt]                                            Neel A. Bhatt             Symantec Corp         mailto:neel_bhatt&symantec.com                                2012-01-03
 # [Neer_Kleinman]                                           Neer Kleinman                                   mailto:neer&qsr.co.il
+# [NEGU_Soft]                                                                         NEGU Soft             mailto:info&negusoft.com                                      2012-09-10
 # [Neil_Coggins]                                            Neil Coggins                                    mailto:neil.coggins&6thsight.com                              2006-07
 # [Neil_Salter]                                             Neil Salter                                     mailto:neil&indigo2.mvel.demon.co.uk
 # [Nestor_A_Diaz]                                           Nestor A. Diaz                                  mailto:nestor&tiendalinux.com                                 2009-05-12
@@ -20133,6 +20143,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ori_Yosefi]                                              Ori Yosefi                                      mailto:Ori.Yosefi&microsoft.com                               2009-05-04
 # [Oriol_Ferrer_Mesia]                                      Oriol Ferrer Mesia                              mailto:tm05788&salleurl.edu
 # [Orion_Reblitz_Richar]                                    Orion Reblitz-Richardson                        mailto:orionr&rakket.com
+# [OS_NEXUS]                                                                          OS NEXUS, Inc.        mailto:info&osnexus.com                                       2012-09-10
 # [Osamu_Masuda]                                            Osamu Masuda
 # [Oskar_Persano]                                           Oskar Persano             ims Info Management   mailto:ope&ims-info.ch                                        2011-10-20
 # Systems AG
@@ -20871,6 +20882,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Shawn_Casey]                                             Shawn Casey                                     mailto:Shawn.Casey&matrixone.com
 # [Sheila_Devins]                                           Sheila Devins                                   mailto:sheila_devins&vnet.ibm.com
 # [Shekar_Pasumarthi]                                       Shekar Pasumarthi                               mailto:shekarp&firstfloor.com
+# [Shifted_Current]                                                                   Shifted Current LLC   mailto:ask&shiftedcurrent.com                                 2012-09-11
 # [Shigenaka_Kanemitsu]                                     Shigenaka Kanemitsu                             mailto:Shigenaka_Kanemitsu&ypd.kyocera.co.jp
 # [Shingo_Kimura]                                           Shingo Kimura                                   mailto:Shingo.Kimura&jp.sony.com                              2005-08
 # [Shinji_Yamanaka]                                         Shinji Yamanaka                                 mailto:syamanaka&jci.co.jp
@@ -21070,6 +21082,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Steven_Ritland]                                          Steven Ritland                                  mailto:srr&us.ibm.com
 # [Steven_Sawkins]                                          Steven Sawkins                                  mailto:ssawkins&symantec.com
 # [Steven_Sweeting]                                         Steven Sweeting                                 mailto:ssweeting&sls-technology.com                           2008-01-28
+# [Steven_Umbehocker]                                       Steven Umbehocker         OS NEXUS, Inc.        mailto:steven.umbehocker&osnexus.com                          2012-09-10
 # [Steven_W_Clark]                                          Steven W. Clark                                 mailto:steven.clark&avocent.com
 # [Steven_W_Clark_2]                                        Steven W. Clark                                 mailto:sclark&equinox.com
 # [Stoneware_Inc]                                                                     Stoneware Inc.        mailto:coby.gurr&stone-ware.com                               2012-05-18
