@@ -290,7 +290,7 @@ static const value_string operation_type_vals[] = {
 };
 
 static void
-dissect_path_data_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint length_count)
+dissect_path_data_tlv(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     proto_item *ti, *flag_item;
     guint16 type, length_TLV, IDcount, flag, i;
@@ -314,7 +314,7 @@ dissect_path_data_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
 
             flag = tvb_get_ntohs(tvb, offset + TLV_TL_LENGTH);
             flag_item = proto_tree_add_item(path_data_tree, hf_forces_lfbselect_tlv_type_operation_path_flags, tvb, offset+TLV_TL_LENGTH, 2, ENC_BIG_ENDIAN);
-            flag_tree = proto_item_add_subtree(ti, ett_forces_path_data_tlv_flags);
+            flag_tree = proto_item_add_subtree(flag_item, ett_forces_path_data_tlv_flags);
             proto_tree_add_item(flag_tree, hf_forces_lfbselect_tlv_type_operation_path_flags_selector, tvb, offset+TLV_TL_LENGTH, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(flag_tree, hf_forces_lfbselect_tlv_type_operation_path_flags_reserved, tvb, offset+TLV_TL_LENGTH, 2, ENC_BIG_ENDIAN);
 
@@ -356,7 +356,7 @@ dissect_operation_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
         length = tvb_get_ntohs(tvb, offset+2);
         proto_tree_add_uint_format(oper_tree, hf_forces_lfbselect_tlv_type_operation_length, tvb, offset+2, 2, length, "Length:%u Bytes", length);
 
-        dissect_path_data_tlv(tvb, pinfo, oper_tree, offset+TLV_TL_LENGTH, length-TLV_TL_LENGTH);
+        dissect_path_data_tlv(tvb, oper_tree, offset+TLV_TL_LENGTH);
         offset += length;
     }
 }
@@ -379,7 +379,7 @@ dissect_lfbselecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint o
 }
 
 static void
-dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint length_count)
+dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
     proto_tree *meta_data_tree, *meta_data_ilv_tree, *redirect_data_tree;
     gint start_offset;
@@ -536,7 +536,7 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
         case REDIRECT_TLV:
             ti = proto_tree_add_text(forces_tlv_tree, tvb, offset, length_count, "Redirect TLV");
             tlv_tree = proto_item_add_subtree(ti, ett_forces_redirect_tlv_type);
-            dissect_redirecttlv(tvb, pinfo, tlv_tree, offset, length_count);
+            dissect_redirecttlv(tvb, pinfo, tlv_tree, offset);
             break;
 
         case ASResult_TLV:
