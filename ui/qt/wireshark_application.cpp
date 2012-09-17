@@ -54,6 +54,12 @@ get_last_open_dir(void)
     return last_open_dir;
 }
 
+void
+set_last_open_dir(const char *dirname)
+{
+    if (wsApp) wsApp->setLastOpenDir(dirname);
+}
+
 /*
  * Add the capture filename to the application-wide "Recent Files" list.
  * Contrary to the name this isn't limited to the "recent" menu.
