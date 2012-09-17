@@ -27,7 +27,6 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/crypt/md5.h>
@@ -48,8 +47,6 @@ static gboolean show_as_text = FALSE;
 static gboolean generate_md5_hash = FALSE;
 
 static gint ett_data = -1;
-
-void proto_reg_handoff_data(void);
 
 static void
 dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
