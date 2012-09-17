@@ -112,6 +112,8 @@ static int hf_dns_hinfo_cpu_length = -1;
 static int hf_dns_hinfo_cpu = -1;
 static int hf_dns_hinfo_os_length = -1;
 static int hf_dns_hinfo_os = -1;
+static int hf_dns_mx_preference = -1;
+static int hf_dns_mx_mail_exchange = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -1646,7 +1648,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_MX:
+    case T_MX: /* Mail Exchange (15) */
     {
       guint16       preference = 0;
       const guchar *mx_name;
@@ -1661,9 +1663,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
       proto_item_append_text(trr, ", preference %u, mx %s",
                              preference, name_out);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Preference: %u", preference);
-      proto_tree_add_text(rr_tree, tvb, cur_offset + 2, mx_name_len, "Mail exchange: %s",
-                          name_out);
+      proto_tree_add_item(rr_tree, hf_dns_mx_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      cur_offset += 2;
+      proto_tree_add_string(rr_tree, hf_dns_mx_mail_exchange, tvb, cur_offset, mx_name_len, name_out);
+      /* cur_offset += mx_name_len; */
 
     }
     break;
@@ -4097,6 +4100,16 @@ proto_register_dns(void)
 
     { &hf_dns_hinfo_os,
       { "OS", "dns.hinfo.os",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_mx_preference,
+      { "Preference", "dns.mx.preference",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_mx_mail_exchange,
+      { "Mail Exchange", "dns.mx.mail_exchange",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
