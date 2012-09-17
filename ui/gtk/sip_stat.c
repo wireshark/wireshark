@@ -189,26 +189,24 @@ sip_init_hash(sipstat_t *sp)
     int i;
 
     /* Create responses table */
-    sp->hash_responses = g_hash_table_new(g_int_hash, g_int_equal);
+    sp->hash_responses = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 
     /* Add all response codes */
-    for (i=0 ; vals_status_code[i].strptr ; i++)
+    for (i=0; vals_status_code[i].strptr; i++)
     {
-        gint                *key = g_malloc (sizeof(gint));
-        sip_response_code_t *sc  = g_malloc (sizeof(sip_response_code_t));
+        sip_response_code_t *sc  = g_malloc(sizeof(sip_response_code_t));
 
-        *key              = vals_status_code[i].value;
         sc->packets       = 0;
-        sc->response_code = *key;
+        sc->response_code = vals_status_code[i].value;
         sc->name          = vals_status_code[i].strptr;
         sc->widget        = NULL;
         sc->table         = NULL;
         sc->sp            = sp;
-        g_hash_table_insert(sc->sp->hash_responses, key, sc);
+        g_hash_table_insert(sc->sp->hash_responses, GUINT_TO_POINTER(vals_status_code[i].value), sc);
     }
 
     /* Create empty requests table */
-    sp->hash_requests = g_hash_table_new(g_str_hash, g_str_equal);
+    sp->hash_requests = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 }
 
 /* Draw the entry for an individual request message */
@@ -244,7 +242,7 @@ sip_draw_hash_requests(gchar *key _U_, sip_request_method_t *data, gchar *unused
 
 /* Draw an individual response entry */
 static void
-sip_draw_hash_responses(gint * key _U_ , sip_response_code_t *data, gchar * unused _U_)
+sip_draw_hash_responses(gint *key _U_ , sip_response_code_t *data, gchar *unused _U_)
 {
     gchar string_buff[SUM_STR_MAX];
 
@@ -258,9 +256,9 @@ sip_draw_hash_responses(gint * key _U_ , sip_response_code_t *data, gchar * unus
     /* Create an entry in the relevant box of the window */
     if (data->widget == NULL)
     {
-        guint x;
+        guint      x;
         GtkWidget *tmp;
-        guint i = data->response_code;
+        guint      i = data->response_code;
 
         /* Out of valid range - ignore */
         if ((i < 100) || (i >= 700))
@@ -269,19 +267,19 @@ sip_draw_hash_responses(gint * key _U_ , sip_response_code_t *data, gchar * unus
         }
 
         /* Find the table matching the code */
-        if (i<200)
+        if (i < 200)
         {
             data->table = data->sp->informational_table;
         }
-        else if (i<300)
+        else if (i < 300)
         {
             data->table = data->sp->success_table;
         }
-        else if (i<400)
+        else if (i < 400)
         {
             data->table = data->sp->redirection_table;
         }
-        else if (i<500)
+        else if (i < 500)
         {
             data->table = data->sp->client_error_table;
         }
@@ -321,7 +319,7 @@ sip_draw_hash_responses(gint * key _U_ , sip_response_code_t *data, gchar * unus
         data->widget = gtk_label_new(string_buff);
 
         /* Show this widget in the right place */
-        gtk_table_attach_defaults(GTK_TABLE(data->table), data->widget, 1, 2,x,x+1);
+        gtk_table_attach_defaults(GTK_TABLE(data->table), data->widget, 1, 2, x, x+1);
         gtk_label_set_justify(GTK_LABEL(data->widget), GTK_JUSTIFY_RIGHT);
         gtk_widget_show(data->widget);
 
@@ -335,17 +333,8 @@ sip_draw_hash_responses(gint * key _U_ , sip_response_code_t *data, gchar * unus
     }
 }
 
-
-
 static void
-sip_free_hash(gpointer key, gpointer value, gpointer user_data _U_)
-{
-    g_free(key);
-    g_free(value);
-}
-
-static void
-sip_reset_hash_responses(gchar *key _U_ , sip_response_code_t *data, gpointer ptr _U_)
+sip_reset_hash_responses(gchar *key _U_, sip_response_code_t *data, gpointer ptr _U_)
 {
     data->packets = 0;
 }
@@ -391,20 +380,25 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
     }
 
     /* Calculate average setup time */
-    if (value->setup_time){
+    if (value->setup_time)
+    {
         sp->no_of_completed_calls++;
         /* Check if it's the first value */
-        if ( sp->total_setup_time == 0 ){
+        if ( sp->total_setup_time == 0 )
+        {
             sp->average_setup_time = value->setup_time;
-            sp->total_setup_time = value->setup_time;
-            sp->max_setup_time = value->setup_time;
-            sp->min_setup_time = value->setup_time;
-        }else{
+            sp->total_setup_time   = value->setup_time;
+            sp->max_setup_time     = value->setup_time;
+            sp->min_setup_time     = value->setup_time;
+        } else
+        {
             sp->total_setup_time = sp->total_setup_time + value->setup_time;
-            if (sp->max_setup_time < value->setup_time){
+            if (sp->max_setup_time < value->setup_time)
+            {
                 sp->max_setup_time = value->setup_time;
             }
-            if (sp->min_setup_time > value->setup_time){
+            if (sp->min_setup_time > value->setup_time)
+            {
                 sp->min_setup_time = value->setup_time;
             }
             /* Calculate average */
@@ -416,51 +410,52 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
     if (value->response_code != 0)
     {
         /* Responses */
-        guint *key = g_malloc(sizeof(guint));
         sip_response_code_t *sc;
 
         /* Look up response code in hash table */
-        *key = value->response_code;
-        sc = g_hash_table_lookup(sp->hash_responses, key);
+        sc = g_hash_table_lookup(sp->hash_responses, GUINT_TO_POINTER(value->response_code));
         if (sc == NULL)
         {
-            /* Non-standard status code ; we classify it as others
+            /* Non-standard status code; we classify it as others
              * in the relevant category
-             * (Informational,Success,Redirection,Client Error,Server Error,Global Failure)
+             * (Informational, Success, Redirection, Client Error, Server Error, Global Failure)
              */
-            int i = value->response_code;
+            guint key;
+            guint i = value->response_code;
+
+
             if ((i < 100) || (i >= 700))
             {
                 /* Forget about crazy values */
                 return 0;
             }
-            else if (i<200)
+            else if (i < 200)
             {
-                *key = 199;      /* Hopefully, this status code will never be used */
+                key = 199;      /* Hopefully, this status code will never be used */
             }
-            else if (i<300)
+            else if (i < 300)
             {
-                *key = 299;
+                key = 299;
             }
-            else if (i<400)
+            else if (i < 400)
             {
-                *key = 399;
+                key = 399;
             }
-            else if (i<500)
+            else if (i < 500)
             {
-                *key = 499;
+                key = 499;
             }
             else if (i < 600)
             {
-                *key = 599;
+                key = 599;
             }
             else
             {
-                *key = 699;
+                key = 699;
             }
 
             /* Now look up this fallback code to get its text description */
-            sc = g_hash_table_lookup(sp->hash_responses, key);
+            sc = g_hash_table_lookup(sp->hash_responses, GUINT_TO_POINTER(key));
             if (sc == NULL)
             {
                 return 0;
@@ -537,7 +532,7 @@ sipstat_draw(void *psp)
  * remove_tap_listener() from modifying the list while draw_tap_listener()
  * is running.  The other protected block is in main.c
  *
- * There should not be any other critical regions in gtk2
+ * There should not be any other critical regions in gtk2.
  */
 /* When window is destroyed, clean up */
 static void
@@ -549,9 +544,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
     remove_tap_listener(sp);
     unprotect_thread_critical_region();
 
-    g_hash_table_foreach(sp->hash_responses, (GHFunc)sip_free_hash, NULL);
     g_hash_table_destroy(sp->hash_responses);
-    g_hash_table_foreach(sp->hash_requests,  (GHFunc)sip_free_hash, NULL);
     g_hash_table_destroy(sp->hash_requests);
     g_free(sp->filter);
     g_free(sp);
@@ -574,7 +567,7 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     GtkWidget  *bbox;
 
 
-    if (strncmp (optarg, "sip,stat,", 9) == 0)
+    if (strncmp(optarg, "sip,stat,", 9) == 0)
     {
         /* Skip those characters from filter to display */
         filter = optarg + 9;
@@ -588,7 +581,7 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     /* Create sip stats window structure */
     sp = g_malloc(sizeof(sipstat_t));
     sp->win = dlg_window_new("sip-stat");  /* transient_for top_level */
-    gtk_window_set_destroy_with_parent (GTK_WINDOW(sp->win), TRUE);
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(sp->win), TRUE);
 
     /* Set title to include any filter given */
     if (filter)
@@ -743,7 +736,8 @@ register_tap_listener_gtksipstat(void)
     register_dfilter_stat(&sip_stat_dlg, "_SIP", REGISTER_STAT_GROUP_TELEPHONY);
 }
 
-void sipstat_cb(GtkAction *action, gpointer user_data _U_)
+void
+sipstat_cb(GtkAction *action, gpointer user_data _U_)
 {
     tap_param_dlg_cb(action, &sip_stat_dlg);
 }
