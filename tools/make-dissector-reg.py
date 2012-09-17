@@ -177,9 +177,10 @@ if len(regs['proto_reg']) < 1:
 	sys.exit(1)
 
 # Sort the lists to make them pretty
-regs['proto_reg'].sort()
-regs['handoff_reg'].sort()
-regs['wtap_register'].sort()
+# Unique-ify the lists to avoid double registrations
+regs['proto_reg'] = sorted(set(regs['proto_reg']))
+regs['handoff_reg'] = sorted(set(regs['handoff_reg']))
+regs['wtap_register'] = sorted(set(regs['wtap_register']))
 
 reg_code = open(tmp_filename, "w")
 
