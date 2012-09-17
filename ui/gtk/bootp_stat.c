@@ -45,7 +45,7 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
-typedef const char* bootp_info_value_t;
+typedef const char *bootp_info_value_t;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _dhcp_stats_t {
@@ -65,11 +65,6 @@ typedef struct _dhcp_message_type_t {
 } dhcp_message_type_t;
 
 static void
-dhcp_free_hash(gpointer key _U_ , gpointer value, gpointer user_data _U_)
-{
-	g_free(value);
-}
-static void
 dhcp_reset_hash(gchar *key _U_ , dhcp_message_type_t *data, gpointer ptr _U_)
 {
 	data->packets = 0;
@@ -88,8 +83,7 @@ dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar * unused
 	if (data->widget == NULL) {	/* create an entry in the table */
 		GtkWidget *tmp;
 		int x = 2*((data->sp->index) % 2);
-		int y = (data->sp->index) /2;
-
+		int y = (data->sp->index) / 2;
 
 		/* Maybe we should display the hexadecimal value ? */
 		/* g_snprintf(string_buff, sizeof(string_buff), "%s  (0X%x)", data->name, *key); */
@@ -117,7 +111,7 @@ dhcpstat_reset(void *psp)
 	dhcpstat_t *sp = psp;
 	g_hash_table_foreach(sp->hash, (GHFunc)dhcp_reset_hash, NULL);
 }
-static int
+static gboolean
 dhcpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
 	dhcpstat_t               *sp    = psp;
@@ -125,26 +119,28 @@ dhcpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 	dhcp_message_type_t      *sc;
 
 	if (sp == NULL)
-		return 0;
+		return FALSE;
+
 	sc = g_hash_table_lookup(
 			sp->hash,
 			value);
 	if (!sc) {
 		/*g_warning("%s:%d What's Wrong for %s, doc ?", __FILE__, __LINE__, value);*/
 		sc = g_malloc(sizeof(dhcp_message_type_t));
-		sc ->packets = 1;
-		sc ->name    = value;
-		sc ->widget  = NULL;
-		sc ->sp	     = sp;
+		sc->packets = 1;
+		sc->name    = value;
+		sc->widget  = NULL;
+		sc->sp	    = sp;
 		g_hash_table_insert(
 				sp->hash,
-				(gpointer) value,
+				(gpointer)value, /* XXX: Fixme: not OK: value might possibly be ep_alloc'd string !! */
+				                 /*                     {if "Unknown Message Type ...")              */
 				sc);
 	} else {
 		/*g_warning("sc(%s)->packets++", sc->name);*/
 		sc->packets++;
 	}
-	return 1;
+	return TRUE;
 }
 
 
@@ -152,25 +148,16 @@ static void
 dhcpstat_draw(void *psp)
 {
 	dhcpstat_t *sp = psp;
-	guint       idx;
 
-	idx = sp->index;
 	g_hash_table_foreach(sp->hash, (GHFunc)dhcp_draw_message_type, NULL);
-	if (idx != sp->index) {
-		/* We have inserted a new entry corresponding to a status code ,
-		 * let's resize the table */
-		gtk_table_resize(GTK_TABLE(sp->table_message_type), sp->index  % 2 , 4);
-	}
-
 }
-
 
 
 /* Since the gtk2 implementation of tap is multithreaded we must protect
  * remove_tap_listener() from modifying the list while draw_tap_listener()
  * is running.  The other protected block is in main.c
  *
- * There should not be any other critical regions in gtk2
+ * There should not be any other critical regions in gtk2.
  */
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
@@ -182,7 +169,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	unprotect_thread_critical_region();
 
 	g_free(sp->filter);
-	g_hash_table_foreach(sp->hash, (GHFunc)dhcp_free_hash, NULL);
 	g_hash_table_destroy(sp->hash);
 	g_free(sp);
 }
@@ -209,7 +195,7 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 	}
 
 	sp = g_malloc(sizeof(dhcpstat_t));
-	sp->hash = g_hash_table_new(g_str_hash, g_str_equal);
+	sp->hash = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_free);
 	if(filter) {
 		sp->filter = g_strdup(filter);
 		title = g_strdup_printf("DHCP statistics with filter: %s", filter);
