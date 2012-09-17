@@ -118,6 +118,15 @@ static int hf_dns_txt_length = -1;
 static int hf_dns_txt = -1;
 static int hf_dns_spf_length = -1;
 static int hf_dns_spf = -1;
+static int hf_dns_rrsig_type_covered = -1;
+static int hf_dns_rrsig_algorithm = -1;
+static int hf_dns_rrsig_labels = -1;
+static int hf_dns_rrsig_original_ttl = -1;
+static int hf_dns_rrsig_signature_expiration = -1;
+static int hf_dns_rrsig_signature_inception = -1;
+static int hf_dns_rrsig_key_tag = -1;
+static int hf_dns_rrsig_signers_name = -1;
+static int hf_dns_rrsig_signature = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -1268,7 +1277,7 @@ dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_l
 #define DNS_ALGO_PRIVATEDNS         253 /* Private, domain name  */
 #define DNS_ALGO_PRIVATEOID         254 /* Private, OID */
 
-static const value_string algo_vals[] = {
+static const value_string dnssec_algo_vals[] = {
   { DNS_ALGO_RSAMD5,            "RSA/MD5" },
   { DNS_ALGO_DH,                "Diffie-Hellman" },
   { DNS_ALGO_DSA,               "DSA" },
@@ -1717,88 +1726,71 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_RRSIG:
-    case T_SIG:
+    case T_RRSIG: /* RRSIG (46) */
+    case T_SIG: /* Security Signature (24) */
     {
       int           rr_len = data_len;
-      guint16       type_covered;
-      nstime_t      nstime;
       const guchar *signer_name;
       int           signer_name_len;
-
+      proto_item    *ti;
 
       if (rr_len < 2) {
         goto bad_rr;
       }
-      type_covered = tvb_get_ntohs(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Type covered: %s",
-                          dns_type_description(type_covered));
+      ti = proto_tree_add_item(rr_tree, hf_dns_rrsig_type_covered, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      /* Fix me : need to remove dns_type_description and replace by value_string */
+      proto_item_append_text(ti, " (%s)", dns_type_description(tvb_get_ntohs(tvb, cur_offset)));
       cur_offset += 2;
       rr_len     -= 2;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
-                          val_to_str(tvb_get_guint8(tvb, cur_offset), algo_vals,
-                                     "Unknown (0x%02X)"));
+      proto_tree_add_item(rr_tree, hf_dns_rrsig_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
 
       if (rr_len < 1) {
         goto bad_rr;
       }
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Labels: %u",
-                          tvb_get_guint8(tvb, cur_offset));
+      proto_tree_add_item(rr_tree, hf_dns_rrsig_labels, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
 
       if (rr_len < 4) {
         goto bad_rr;
       }
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Original TTL: %s",
-                          time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
+      ti = proto_tree_add_item(rr_tree, hf_dns_rrsig_original_ttl, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(ti, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
       rr_len     -= 4;
 
       if (rr_len < 4) {
         goto bad_rr;
       }
-      nstime.secs = tvb_get_ntohl(tvb, cur_offset);
-      nstime.nsecs = 0;
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Signature expiration: %s",
-                          abs_time_to_str(&nstime, ABSOLUTE_TIME_LOCAL, TRUE));
+      proto_tree_add_item(rr_tree, hf_dns_rrsig_signature_expiration, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
       if (rr_len < 4) {
         goto bad_rr;
       }
-      nstime.secs = tvb_get_ntohl(tvb, cur_offset);
-      nstime.nsecs = 0;
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Time signed: %s",
-                          abs_time_to_str(&nstime, ABSOLUTE_TIME_LOCAL, TRUE));
+      proto_tree_add_item(rr_tree, hf_dns_rrsig_signature_inception, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
       if (rr_len < 2) {
         goto bad_rr;
       }
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Id of signing key(footprint): %u",
-                          tvb_get_ntohs(tvb, cur_offset));
+      proto_tree_add_item(rr_tree, hf_dns_rrsig_key_tag, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
 
       /* XXX Fix data length */
       signer_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &signer_name);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, signer_name_len,
-                          "Signer's name: %s",
-                          format_text(signer_name, strlen(signer_name)));
+      proto_tree_add_string(rr_tree, hf_dns_rrsig_signers_name, tvb, cur_offset, signer_name_len, signer_name);
       cur_offset += signer_name_len;
       rr_len     -= signer_name_len;
 
       if (rr_len != 0) {
-        proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Signature");
+        proto_tree_add_item(rr_tree, hf_dns_rrsig_signature, tvb, cur_offset, rr_len, ENC_BIG_ENDIAN);
       }
     }
     break;
@@ -1848,7 +1840,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
       algo = tvb_get_guint8(tvb, cur_offset);
       proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
-                          val_to_str(algo, algo_vals, "Unknown (0x%02X)"));
+                          val_to_str(algo, dnssec_algo_vals, "Unknown (0x%02X)"));
       cur_offset += 1;
       rr_len     -= 1;
 
@@ -1928,7 +1920,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
       algo = tvb_get_guint8(tvb, cur_offset);
       proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
-                          val_to_str(algo, algo_vals, "Unknown (0x%02X)"));
+                          val_to_str(algo, dnssec_algo_vals, "Unknown (0x%02X)"));
       cur_offset += 1;
       rr_len     -= 1;
 
@@ -2340,7 +2332,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
       cert_keyalg = tvb_get_guint8(tvb, cur_offset);
       proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
-                          val_to_str(cert_keyalg, algo_vals,
+                          val_to_str(cert_keyalg, dnssec_algo_vals,
                                      "Unknown (0x%02X)"));
       cur_offset += 1;
       rr_len     -= 1;
@@ -2468,7 +2460,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
       ds_algorithm = tvb_get_guint8(tvb, cur_offset);
       proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-                          "Algorithm: %s", val_to_str(ds_algorithm, algo_vals,"Unknown (0x%02X)") );
+                          "Algorithm: %s", val_to_str(ds_algorithm, dnssec_algo_vals,"Unknown (0x%02X)") );
       cur_offset += 1;
       rr_len     -= 1;
 
@@ -4158,6 +4150,51 @@ proto_register_dns(void)
       { "SPF", "dns.spf",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+
+    { &hf_dns_rrsig_type_covered,
+      { "Type Covered", "dns.rrsig.type_covered",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Identifies the type of the RRset that is covered by this RRSIG record", HFILL }},
+
+    { &hf_dns_rrsig_algorithm,
+      { "Algorithm", "dns.rrsig.algorithm",
+        FT_UINT8, BASE_DEC, VALS(dnssec_algo_vals), 0x0,
+        "Identifies the cryptographic algorithm used to create the signature", HFILL }},
+
+    { &hf_dns_rrsig_labels,
+      { "Labels", "dns.rrsig.labels",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Specifies the number of labels in the original RRSIG RR owner name", HFILL }},
+
+    { &hf_dns_rrsig_original_ttl,
+      { "Original TTL", "dns.rrsig.original_ttl",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Specifies the TTL of the covered RRset as it appears in the authoritative zone", HFILL }},
+
+    { &hf_dns_rrsig_signature_expiration,
+      { "Signature Expiration", "dns.rrsig.signature_expiration",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+        "Specify a validity period for the signature", HFILL }},
+
+    { &hf_dns_rrsig_signature_inception,
+      { "Signature Inception", "dns.rrsig.signature_inception",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+        "Specify a validity period for the signature", HFILL }},
+
+    { &hf_dns_rrsig_key_tag,
+      { "Key Tag", "dns.rrsig.key_tag",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Contains the key tag value of the DNSKEY RR that validates this signature", HFILL }},
+
+    { &hf_dns_rrsig_signers_name,
+      { "Signer's name", "dns.rrsig.signers_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Identifies the owner name of the DNSKEY RR that a validator is supposed to use to validate this signature", HFILL }},
+
+    { &hf_dns_rrsig_signature,
+      { "Signature", "dns.rrsig.signature",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Contains the cryptographic signature that covers the RRSIG RDATA", HFILL }},
 
     { &hf_dns_rr_ns,
       { "Name Server", "dns.resp.ns",
