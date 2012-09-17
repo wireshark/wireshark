@@ -3413,6 +3413,9 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 			/* Signifies the start of the call so set start_sec & start_usec */
 			/* Frame data holds the time info */
 			callsinfo->start_fd=pinfo->fd;
+			/* Each packet COULD BE OUR LAST!!!! */
+			/* Store frame data which holds time and frame number */
+			callsinfo->stop_fd = pinfo->fd;
 
 			/* Local packets too */
 			++(callsinfo->npackets);
@@ -3488,11 +3491,10 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 			callsinfo->call_num = tapinfo->ncalls++;
 			tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 
-				/* Open stream */
-			/* Signifies the start of the call so set start_sec & start_usec */
-			/* frame_data holds the time info */
-			callsinfo->start_fd=pinfo->fd;
-
+			/* Open stream */
+			/* Each packet COULD BE OUR LAST!!!! */
+			/* Store frame data which holds time and frame number */
+			callsinfo->stop_fd = pinfo->fd;
 			/* Local packets too */
 			++(callsinfo->npackets);
 
