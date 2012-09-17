@@ -543,6 +543,7 @@ DISSECTOR_SRC = \
 	packet-fmp_notify.c	\
 	packet-fmtp.c		\
 	packet-force10-oui.c	\
+	packet-forces.c		\
 	packet-fp_hint.c	\
 	packet-fr.c		\
 	packet-fractalgeneratorprotocol.c \
