@@ -83,32 +83,26 @@ if len(filenames) < 1:
 
 # Look through all files, applying the regex to each line.
 # If the pattern matches, save the "symbol" section to the
-# appropriate array.
+# appropriate set.
 regs = {
-	'proto_reg': [],
-	'handoff_reg': [],
-	'wtap_register': [],
+	'proto_reg': set(),
+	'handoff_reg': set(),
+	'wtap_register': set(),
 	}
 
 # For those that don't know Python, r"" indicates a raw string,
 # devoid of Python escapes.
-proto_regex0 = r"^(?P<symbol>proto_register_[_A-Za-z0-9]+)\s*\([^;]+$"
-proto_regex1 = r"void\s+(?P<symbol>proto_register_[_A-Za-z0-9]+)\s*\([^;]+$"
+proto_regex = r"(?P<symbol>proto_register_[_A-Za-z0-9]+)\s*\(\s*void\s*\)"
 
-handoff_regex0 = r"^(?P<symbol>proto_reg_handoff_[_A-Za-z0-9]+)\s*\([^;]+$"
-handoff_regex1 = r"void\s+(?P<symbol>proto_reg_handoff_[_A-Za-z0-9]+)\s*\([^;]+$"
+handoff_regex = r"(?P<symbol>proto_reg_handoff_[_A-Za-z0-9]+)\s*\(\s*void\s*\)"
 
-wtap_reg_regex0 = r"^(?P<symbol>wtap_register_[_A-Za-z0-9]+)\s*\([^;]+$"
-wtap_reg_regex1 = r"void\s+(?P<symbol>wtap_register_[_A-Za-z0-9]+)\s*\([^;]+$"
+wtap_reg_regex = r"(?P<symbol>wtap_register_[_A-Za-z0-9]+)\s*\([^;]+$"
 
 # This table drives the pattern-matching and symbol-harvesting
 patterns = [
-	( 'proto_reg', re.compile(proto_regex0) ),
-	( 'proto_reg', re.compile(proto_regex1) ),
-	( 'handoff_reg', re.compile(handoff_regex0) ),
-	( 'handoff_reg', re.compile(handoff_regex1) ),
-	( 'wtap_register', re.compile(wtap_reg_regex0) ),
-	( 'wtap_register', re.compile(wtap_reg_regex1) ),
+	( 'proto_reg', re.compile(proto_regex, re.MULTILINE) ),
+	( 'handoff_reg', re.compile(handoff_regex, re.MULTILINE) ),
+	( 'wtap_register', re.compile(wtap_reg_regex, re.MULTILINE) ),
 	]
 
 # Open our registration symbol cache
@@ -136,9 +130,9 @@ for filename in filenames:
 		if cur_mtime == cdict['mtime']:
 			cache_hits += 1
 #			print "Pulling %s from cache" % (filename)
-			regs['proto_reg'].extend(cdict['proto_reg'])
-			regs['handoff_reg'].extend(cdict['handoff_reg'])
-			regs['wtap_register'].extend(cdict['wtap_register'])
+			regs['proto_reg'] |= set(cdict['proto_reg'])
+			regs['handoff_reg'] |= set(cdict['handoff_reg'])
+			regs['wtap_register'] |= set(cdict['wtap_register'])
 			file.close()
 			continue
 	# We don't have a cache entry
@@ -151,17 +145,19 @@ for filename in filenames:
 			'wtap_register': [],
 			}
 #	print "Searching %s" % (filename)
-	for line in file.readlines():
-		for action in patterns:
-			regex = action[1]
-			match = regex.search(line)
-			if match:
-				symbol = match.group("symbol")
-				sym_type = action[0]
-				regs[sym_type].append(symbol)
-				if cache is not None:
-#					print "Caching %s for %s: %s" % (sym_type, filename, symbol)
-					cache[filename][sym_type].append(symbol)
+	# Read the whole file into memory
+	contents = file.read()
+	for action in patterns:
+		regex = action[1]
+		for match in regex.finditer(contents):
+			symbol = match.group("symbol")
+			sym_type = action[0]
+			regs[sym_type].add(symbol)
+			if cache is not None:
+#				print "Caching %s for %s: %s" % (sym_type, filename, symbol)
+				cache[filename][sym_type].append(symbol)
+	# We're done with the file contents
+	contets = ""
 	file.close()
 
 
@@ -176,11 +172,10 @@ if len(regs['proto_reg']) < 1:
 	print("No protocol registrations found")
 	sys.exit(1)
 
-# Sort the lists to make them pretty
-# Unique-ify the lists to avoid double registrations
-regs['proto_reg'] = sorted(set(regs['proto_reg']))
-regs['handoff_reg'] = sorted(set(regs['handoff_reg']))
-regs['wtap_register'] = sorted(set(regs['wtap_register']))
+# Convert the sets into sorted lists to make the output pretty
+regs['proto_reg'] = sorted(regs['proto_reg'])
+regs['handoff_reg'] = sorted(regs['handoff_reg'])
+regs['wtap_register'] = sorted(regs['wtap_register'])
 
 reg_code = open(tmp_filename, "w")
 
