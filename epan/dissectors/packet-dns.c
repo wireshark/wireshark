@@ -114,6 +114,10 @@ static int hf_dns_hinfo_os_length = -1;
 static int hf_dns_hinfo_os = -1;
 static int hf_dns_mx_preference = -1;
 static int hf_dns_mx_mail_exchange = -1;
+static int hf_dns_txt_length = -1;
+static int hf_dns_txt = -1;
+static int hf_dns_spf_length = -1;
+static int hf_dns_spf = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -1671,8 +1675,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_TXT:
-    case T_SPF:
+    case T_TXT: /* Text Strings (16) */
     {
       int rr_len = data_len;
       int txt_offset;
@@ -1682,10 +1685,33 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       txt_offset = cur_offset;
       while (rr_len != 0) {
         txt_len = tvb_get_guint8(tvb, txt_offset);
-        proto_tree_add_text(rr_tree, tvb, txt_offset, 1 + txt_len,
-                            "Text: %.*s", txt_len, tvb_get_ephemeral_string(tvb, txt_offset + 1, txt_len));
-        txt_offset += 1 + txt_len;
-        rr_len     -= 1 + txt_len;
+        proto_tree_add_item(rr_tree, hf_dns_txt_length, tvb, txt_offset, 1, ENC_BIG_ENDIAN);
+        txt_offset += 1;
+        rr_len     -= 1;
+        proto_tree_add_item(rr_tree, hf_dns_txt, tvb, txt_offset, txt_len, ENC_BIG_ENDIAN);
+        txt_offset +=  txt_len;
+        rr_len     -= txt_len;
+      }
+
+    }
+    break;
+
+    case T_SPF: /* Sender Policy Framework (99) */
+    {
+      int rr_len = data_len;
+      int spf_offset;
+      int spf_len;
+
+
+      spf_offset = cur_offset;
+      while (rr_len != 0) {
+        spf_len = tvb_get_guint8(tvb, spf_offset);
+        proto_tree_add_item(rr_tree, hf_dns_spf_length, tvb, spf_offset, 1, ENC_BIG_ENDIAN);
+        spf_offset += 1;
+        rr_len     -= 1;
+        proto_tree_add_item(rr_tree, hf_dns_spf, tvb, spf_offset, spf_len, ENC_BIG_ENDIAN);
+        spf_offset +=  spf_len;
+        rr_len     -= spf_len;
       }
 
     }
@@ -4110,6 +4136,26 @@ proto_register_dns(void)
 
     { &hf_dns_mx_mail_exchange,
       { "Mail Exchange", "dns.mx.mail_exchange",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_txt_length,
+      { "TXT Length", "dns.txt.length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_txt,
+      { "TXT", "dns.txt",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_spf_length,
+      { "SPF Length", "dns.spf.length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_spf,
+      { "SPF", "dns.spf",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
