@@ -2411,9 +2411,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 static gboolean
 dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	int length, tot_length;
-	guint8 oct, version, ihl;
-		
+    int length, tot_length;
+    guint8 oct, version, ihl;
+        
 /*
     0                   1                   2                   3   
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
@@ -2422,30 +2422,81 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 */
-	length = tvb_length(tvb);
-	if(length<4){
-		/* Need at least 4 bytes to make some sort of decision */
-		return FALSE;
-	}
-	oct = tvb_get_guint8(tvb,0);
-	ihl = oct & 0x0f;
-	version = oct >> 4;
-	if(version == 6){
-		/* TODO: Add IPv6 checks here */
-		return FALSE;
-	}
-	/* version == IPv4 , the minimum value for a correct header is 5 */
-	if((version != 4)|| (ihl < 5)){
-		return FALSE;
-	}
-	tot_length = tvb_get_ntohs(tvb,2);
+    length = tvb_length(tvb);
+    if(length<4){
+        /* Need at least 4 bytes to make some sort of decision */
+        return FALSE;
+    }
+    oct = tvb_get_guint8(tvb,0);
+    ihl = oct & 0x0f;
+    version = oct >> 4;
+    if(version == 6){
+        /* TODO: Add IPv6 checks here */
+/*
+    3.  IPv6 Header Format
 
-	if(tot_length != (int)tvb_reported_length(tvb)){
-		return FALSE;
-	}
+         0                   1                   2                   3   
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |Version| Traffic Class |           Flow Label                  |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |         Payload Length        |  Next Header  |   Hop Limit   |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                                                               |
+        +                                                               +
+        |                                                               |
+        +                         Source Address                        +
+        |                                                               |
+        +                                                               +
+        |                                                               |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                                                               |
+        +                                                               +
+        |                                                               |
+        +                      Destination Address                      +
+        |                                                               |
+        +                                                               +
+        |                                                               |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-	dissect_ip(tvb, pinfo, tree);
-	return TRUE;
+        Version              4-bit Internet Protocol version number = 6.
+
+        Traffic Class        8-bit traffic class field.  See section 7.
+
+        Flow Label           20-bit flow label.  See section 6.
+
+        Payload Length       16-bit unsigned integer.  Length of the IPv6
+                             payload, i.e., the rest of the packet following
+                             this IPv6 header, in octets.  (Note that any
+                             extension headers [section 4] present are
+                             considered part of the payload, i.e., included
+                             in the length count.)
+
+
+*/
+        if(length<8){
+            /* Need at least 8 bytes to make a decision */
+            return FALSE;
+        }
+        tot_length = tvb_get_ntohs(tvb,4);
+        if(tot_length != 40 + (int)tvb_reported_length(tvb)){
+            return FALSE;
+        }
+        call_dissector(ipv6_handle, tvb, pinfo, tree);
+        return TRUE;
+    }
+    /* version == IPv4 , the minimum value for a correct header is 5 */
+    if((version != 4)|| (ihl < 5)){
+        return FALSE;
+    }
+    tot_length = tvb_get_ntohs(tvb,2);
+
+    if(tot_length != 8 + (int)tvb_reported_length(tvb)){
+        return FALSE;
+    }
+
+    dissect_ip(tvb, pinfo, tree);
+    return TRUE;
 }
 
 void
