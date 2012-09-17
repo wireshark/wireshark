@@ -108,6 +108,10 @@ static int hf_dns_ptr_domain_name = -1;
 static int hf_dns_wks_address = -1;
 static int hf_dns_wks_protocol = -1;
 static int hf_dns_wks_bits = -1;
+static int hf_dns_hinfo_cpu_length = -1;
+static int hf_dns_hinfo_cpu = -1;
+static int hf_dns_hinfo_os_length = -1;
+static int hf_dns_hinfo_os = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -1606,7 +1610,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_HINFO:
+    case T_HINFO: /* Host Information (13) */
     {
       int         cpu_offset;
       int         cpu_len;
@@ -1627,10 +1631,17 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
       proto_item_append_text(trr, ", CPU %.*s, OS %.*s",
                              cpu_len, cpu, os_len, os);
-      proto_tree_add_text(rr_tree, tvb, cpu_offset, 1 + cpu_len, "CPU: %.*s",
-                          cpu_len, cpu);
-      proto_tree_add_text(rr_tree, tvb, os_offset, 1 + os_len, "OS: %.*s",
-                          os_len, os);
+
+      proto_tree_add_item(rr_tree, hf_dns_hinfo_cpu_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset += 1;
+      proto_tree_add_item(rr_tree, hf_dns_hinfo_cpu, tvb, cur_offset, cpu_len, ENC_BIG_ENDIAN);
+      cur_offset += cpu_len;
+
+      proto_tree_add_item(rr_tree, hf_dns_hinfo_os_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset += 1;
+      proto_tree_add_item(rr_tree, hf_dns_hinfo_os, tvb, cur_offset, os_len, ENC_BIG_ENDIAN);
+      /* cur_offset += os_len;*/
+
 
     }
     break;
@@ -4067,6 +4078,26 @@ proto_register_dns(void)
     { &hf_dns_wks_bits,
       { "Bits", "dns.wks.bits",
         FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_hinfo_cpu_length,
+      { "CPU Length", "dns.hinfo.cpu_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_hinfo_cpu,
+      { "CPU", "dns.hinfo.cpu",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_hinfo_os_length,
+      { "OS Length", "dns.hinfo.os_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_hinfo_os,
+      { "OS", "dns.hinfo.os",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_rr_ns,
