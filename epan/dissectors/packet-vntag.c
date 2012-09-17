@@ -28,7 +28,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
-#include <epan/prefs.h>
 
 static int proto_vntag = -1;
 
@@ -41,7 +40,7 @@ static gint ett_vntag = -1;
 static void
 dissect_vntag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint16 encap_proto;
+	guint16     encap_proto;
 	proto_tree *vntag_tree = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VNTAG");
