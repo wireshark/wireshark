@@ -92,9 +92,9 @@ regs = {
 
 # For those that don't know Python, r"" indicates a raw string,
 # devoid of Python escapes.
-proto_regex = r"(?P<symbol>proto_register_[_A-Za-z0-9]+)\s*\(\s*void\s*\)"
+proto_regex = r"(?P<symbol>proto_register_[_A-Za-z0-9]+)\s*\(\s*void\s*\)[^;]*$"
 
-handoff_regex = r"(?P<symbol>proto_reg_handoff_[_A-Za-z0-9]+)\s*\(\s*void\s*\)"
+handoff_regex = r"(?P<symbol>proto_reg_handoff_[_A-Za-z0-9]+)\s*\(\s*void\s*\)[^;]*$"
 
 wtap_reg_regex = r"(?P<symbol>wtap_register_[_A-Za-z0-9]+)\s*\([^;]+$"
 
