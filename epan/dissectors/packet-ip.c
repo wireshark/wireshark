@@ -2479,7 +2479,7 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             return FALSE;
         }
         tot_length = tvb_get_ntohs(tvb,4);
-        if(tot_length != 40 + (int)tvb_reported_length(tvb)){
+        if((tot_length + 40) != (int)tvb_reported_length(tvb)){
             return FALSE;
         }
         call_dissector(ipv6_handle, tvb, pinfo, tree);
@@ -2489,9 +2489,12 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     if((version != 4)|| (ihl < 5)){
         return FALSE;
     }
+    /* Total Length is the length of the datagram, measured in octets,
+     *  including internet header and data.
+     */
     tot_length = tvb_get_ntohs(tvb,2);
 
-    if(tot_length != 8 + (int)tvb_reported_length(tvb)){
+    if(tot_length != (int)tvb_reported_length(tvb)){
         return FALSE;
     }
 
