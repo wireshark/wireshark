@@ -1026,6 +1026,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-msproxy.c
 	dissectors/packet-msrp.c
 	dissectors/packet-mstp.c
+	dissectors/packet-mswsp.c
 	dissectors/packet-mtp2.c
 	dissectors/packet-mtp3.c
 	dissectors/packet-mtp3mg.c

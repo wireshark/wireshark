@@ -215,6 +215,7 @@ Performance Co-Pilot Proxy
 Aeron
 Network File System over Remote Direct Memory Access (NFSoRDMA)
 eXpressive Internet Protocol (XIP)
+Windows Search Protocol (MS-WSP)
 --sort-and-group--
 
 === Updated Protocol Support

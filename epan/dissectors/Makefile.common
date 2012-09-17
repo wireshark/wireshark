@@ -940,6 +940,7 @@ DISSECTOR_SRC = \
 	packet-msproxy.c	\
 	packet-msrp.c		\
 	packet-mstp.c		\
+	packet-mswsp.c \
 	packet-mtp2.c		\
 	packet-mtp3.c		\
 	packet-mtp3mg.c		\

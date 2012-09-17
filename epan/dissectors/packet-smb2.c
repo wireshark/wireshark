@@ -1583,7 +1583,6 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	di.conformant_run = 0;
 	/* we need di->call_data->flags.NDR64 == 0 */
 	di.call_data = &call_data;
-	di.dcerpc_procedure_name = "";
 
 	switch (mode) {
 	case FID_MODE_OPEN:
@@ -4421,7 +4420,7 @@ smb2_set_dcerpc_file_id(packet_info *pinfo, smb2_info_t *si)
 }
 
 static int
-dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, guint32 datalen, proto_tree *top_tree)
+dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, guint32 datalen, proto_tree *top_tree, void *data)
 {
 	tvbuff_t *dcerpc_tvb;
 	heur_dtbl_entry_t *hdtbl_entry;
@@ -4429,11 +4428,11 @@ dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_
 	dcerpc_tvb = tvb_new_subset(tvb, offset, MIN((int)datalen, tvb_captured_length_remaining(tvb, offset)), datalen);
 
 	/* dissect the full PDU */
-	dissector_try_heuristic(smb2_heur_subdissector_list, dcerpc_tvb, pinfo, top_tree, &hdtbl_entry, NULL);
+	if (dissector_try_heuristic(smb2_heur_subdissector_list, dcerpc_tvb, pinfo, top_tree, &hdtbl_entry, data)) {
 
 
-	offset += datalen;
-
+		offset += datalen;
+	}
 	return offset;
 }
 
@@ -4552,10 +4551,14 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	}
 
 	/* data or dcerpc ?*/
-	if (length && si->tree && si->tree->share_type == SMB2_SHARE_TYPE_PIPE) {
+	if (length) {
+		int oldoffset = offset;
 		smb2_set_dcerpc_file_id(pinfo, si);
-		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree);
-		return offset;
+		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree, si);
+		if (offset != oldoffset) {
+			/* managed to dissect pipe data */
+			return offset;
+		}
 	}
 
 	/* just ordinary data */
@@ -4612,9 +4615,9 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static void
-dissect_smb2_FSCTL_PIPE_TRANSCEIVE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *top_tree, gboolean data_in _U_)
+dissect_smb2_FSCTL_PIPE_TRANSCEIVE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *top_tree, gboolean data_in _U_, void *data)
 {
-	dissect_file_data_dcerpc(tvb, pinfo, tree, offset, tvb_captured_length_remaining(tvb, offset), top_tree);
+	dissect_file_data_dcerpc(tvb, pinfo, tree, offset, tvb_captured_length_remaining(tvb, offset), top_tree, data);
 }
 
 static void
@@ -4634,6 +4637,7 @@ dissect_smb2_FSCTL_PIPE_WAIT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if (name == NULL) {
 		name = "";
 	}
+
 	col_append_fstr(pinfo->cinfo, COL_INFO, " Pipe: %s", name);
 
 	if (top_tree) {
@@ -5138,7 +5142,7 @@ dissect_smb2_FSCTL_SET_OBJECT_ID_EXTENDED(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 void
-dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *top_tree, guint32 ioctl_function, gboolean data_in)
+dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *top_tree, guint32 ioctl_function, gboolean data_in, void *private_data _U_)
 {
 	guint16 dc;
 
@@ -5153,7 +5157,7 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		}
 		break;
 	case 0x0011c017: /* FSCTL_PIPE_TRANSCEIVE */
-		dissect_smb2_FSCTL_PIPE_TRANSCEIVE(tvb, pinfo, tree, 0, top_tree, data_in);
+		dissect_smb2_FSCTL_PIPE_TRANSCEIVE(tvb, pinfo, tree, 0, top_tree, data_in, private_data);
 		break;
 	case 0x00110018: /* FSCTL_PIPE_WAIT */
 		dissect_smb2_FSCTL_PIPE_WAIT(tvb, pinfo, tree, 0, top_tree, data_in);
@@ -5208,14 +5212,14 @@ static void
 dissect_smb2_ioctl_data_in(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
 {
 	smb2_set_dcerpc_file_id(pinfo, si);
-	dissect_smb2_ioctl_data(tvb, pinfo, tree, si->top_tree, si->ioctl_function, TRUE);
+	dissect_smb2_ioctl_data(tvb, pinfo, tree, si->top_tree, si->ioctl_function, TRUE, si);
 }
 
 static void
 dissect_smb2_ioctl_data_out(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
 {
 	smb2_set_dcerpc_file_id(pinfo, si);
-	dissect_smb2_ioctl_data(tvb, pinfo, tree, si->top_tree, si->ioctl_function, FALSE);
+	dissect_smb2_ioctl_data(tvb, pinfo, tree, si->top_tree, si->ioctl_function, FALSE, si);
 }
 
 static int
@@ -5444,14 +5448,15 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* reserved */
 	offset += 4;
 
-	/* data or dcerpc ?
-	 * If the pidvalid flag is set we assume it is a deferred
-	 * STATUS_PENDING read and thus a named pipe (==dcerpc)
-	 */
-	if (length && ( (si->tree && si->tree->share_type == SMB2_SHARE_TYPE_PIPE)||(si->flags & SMB2_FLAGS_ASYNC_CMD))) {
+	/* data or dcerpc ?*/
+	if (length) {
+		int oldoffset = offset;
 		smb2_set_dcerpc_file_id(pinfo, si);
-		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree);
-		return offset;
+		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree, si);
+		if (offset != oldoffset) {
+			/* managed to dissect pipe data */
+			return offset;
+		}
 	}
 
 	/* data */

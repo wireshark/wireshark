@@ -3260,7 +3260,7 @@ smb_dcerpc_reassembly_cleanup(void)
 
 gboolean
 dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
-    proto_tree *tree, guint32 fid)
+    proto_tree *tree, guint32 fid, void *data)
 {
 	gboolean result=0;
 	gboolean save_fragmented;
@@ -3293,7 +3293,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	   and bail out
 	*/
 	if(!pinfo->can_desegment){
-		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, NULL);
+		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, data);
 		goto clean_up_and_exit;
 	}
 
@@ -3324,7 +3324,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 			 * Try the heuristic dissectors and see if we
 			 * find someone that recognizes this payload.
 			 */
-			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, NULL);
+			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, data);
 
 			/* no this didn't look like something we know */
 			if(!result){
@@ -3375,7 +3375,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 			    tree, pinfo, d_tvb, &frag_tree_item);
 
 			/* dissect the full PDU */
-			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, NULL);
+			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, data);
 		}
 		goto clean_up_and_exit;
 	}
@@ -3395,12 +3395,12 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		/* we didn't find it, try any of the heuristic dissectors
 		   and bail out
 		*/
-		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, NULL);
+		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, data);
 		goto clean_up_and_exit;
 	}
 	if(!(fd_head->flags&FD_DEFRAGMENTED)){
 		/* we don't have a fully reassembled frame */
-		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, NULL);
+		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, data);
 		goto clean_up_and_exit;
 	}
 
@@ -3424,7 +3424,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		    tree, pinfo, d_tvb, &frag_tree_item);
 
 	/* dissect the full PDU */
-	result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, NULL);
+	result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree, &hdtbl_entry, data);
 
 
 
@@ -3667,7 +3667,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			if (fid != -1) {
 				if (d_tvb == NULL)
 					return FALSE;
-				return dissect_pipe_dcerpc(d_tvb, pinfo, tree, pipe_tree, fid);
+				return dissect_pipe_dcerpc(d_tvb, pinfo, tree, pipe_tree, fid, smb_info);
 			}
 			break;
 		}

@@ -4207,7 +4207,8 @@ dissect_file_data(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 bc, guint
 
 static int
 dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    proto_tree *top_tree, int offset, guint16 bc, guint16 datalen, guint16 fid)
+    proto_tree *top_tree, int offset, guint16 bc, guint16 datalen, guint16 fid,
+    void *data)
 {
 	int       tvblen;
 	tvbuff_t *dcerpc_tvb;
@@ -4222,7 +4223,7 @@ dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	tvblen = tvb_reported_length_remaining(tvb, offset);
 	dcerpc_tvb = tvb_new_subset(tvb, offset, tvblen, bc);
-	dissect_pipe_dcerpc(dcerpc_tvb, pinfo, top_tree, tree, fid);
+	dissect_pipe_dcerpc(dcerpc_tvb, pinfo, top_tree, tree, fid, data);
 	if (bc > tvblen)
 		offset += tvblen;
 	else
@@ -4248,7 +4249,7 @@ dissect_file_data_maybe_dcerpc(tvbuff_t *tvb, packet_info *pinfo,
 	if ( (si->sip && (si->sip->flags & SMB_SIF_TID_IS_IPC)) && (ofs == 0) ) {
 		/* dcerpc call */
 		return dissect_file_data_dcerpc(tvb, pinfo, tree,
-		    top_tree, offset, bc, datalen, fid);
+		    top_tree, offset, bc, datalen, fid, si);
 	} else {
 		/* ordinary file data */
 		return dissect_file_data(tvb, tree, offset, bc, datalen);
@@ -8329,7 +8330,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		/* ioctl data */
 		ioctl_tvb = tvb_new_subset(tvb, offset, MIN((int)bc, tvb_reported_length_remaining(tvb, offset)), bc);
 		if (nti) {
-			dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree_global, nti->ioctl_function, TRUE);
+			dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree_global, nti->ioctl_function, TRUE, NULL);
 		}
 
 		offset += bc;
@@ -8910,7 +8911,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 	case NT_TRANS_IOCTL:
 		/* ioctl data */
 		ioctl_tvb = tvb_new_subset(tvb, offset, MIN((int)len, tvb_reported_length_remaining(tvb, offset)), len);
-		dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree_global, nti->ioctl_function, FALSE);
+		dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree_global, nti->ioctl_function, FALSE, NULL);
 
 		offset += len;
 
