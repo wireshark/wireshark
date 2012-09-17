@@ -48,36 +48,6 @@ static char *last_open_dir = NULL;
 static bool updated_last_open_dir = FALSE;
 static QList<recent_item_status *> recent_items;
 
-void
-set_last_open_dir(const char *dirname)
-{
-    qint64 len;
-    gchar *new_last_open_dir;
-
-    if (dirname) {
-        len = strlen(dirname);
-        if (dirname[len-1] == G_DIR_SEPARATOR) {
-            new_last_open_dir = g_strconcat(dirname, NULL);
-        }
-        else {
-            new_last_open_dir = g_strconcat(dirname,
-                                            G_DIR_SEPARATOR_S, NULL);
-        }
-
-        if (last_open_dir == NULL ||
-            strcmp(last_open_dir, new_last_open_dir) != 0)
-            updated_last_open_dir = TRUE;
-    }
-    else {
-        new_last_open_dir = NULL;
-        if (last_open_dir != NULL)
-            updated_last_open_dir = TRUE;
-    }
-
-    g_free(last_open_dir);
-    last_open_dir = new_last_open_dir;
-}
-
 extern "C" char *
 get_last_open_dir(void)
 {
@@ -280,6 +250,43 @@ void WiresharkApplication::captureFileCallback(int event, void * data)
 //        g_warning("main_cf_callback: event %u unknown", event);
 //        g_assert_not_reached();
     }
+}
+
+QDir WiresharkApplication::lastOpenDir() {
+    return QDir(last_open_dir);
+}
+
+void WiresharkApplication::setLastOpenDir(QString *dir_str) {
+    setLastOpenDir(dir_str->toUtf8().constData());
+}
+
+void WiresharkApplication::setLastOpenDir(const char *dir_name)
+{
+    qint64 len;
+    gchar *new_last_open_dir;
+
+    if (dir_name) {
+        len = strlen(dir_name);
+        if (dir_name[len-1] == G_DIR_SEPARATOR) {
+            new_last_open_dir = g_strconcat(dir_name, NULL);
+        }
+        else {
+            new_last_open_dir = g_strconcat(dir_name,
+                                            G_DIR_SEPARATOR_S, NULL);
+        }
+
+        if (last_open_dir == NULL ||
+            strcmp(last_open_dir, new_last_open_dir) != 0)
+            updated_last_open_dir = TRUE;
+    }
+    else {
+        new_last_open_dir = NULL;
+        if (last_open_dir != NULL)
+            updated_last_open_dir = TRUE;
+    }
+
+    g_free(last_open_dir);
+    last_open_dir = new_last_open_dir;
 }
 
 void WiresharkApplication::clearRecentItems() {

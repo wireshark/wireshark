@@ -60,6 +60,9 @@ public:
     void captureCallback(int event, capture_options * capture_opts);
 #endif
     void captureFileCallback(int event, void * data);
+    QDir lastOpenDir();
+    void setLastOpenDir(const char *dir_name);
+    void setLastOpenDir(QString *dir_str);
 
 private:
     QTimer *recent_timer_;

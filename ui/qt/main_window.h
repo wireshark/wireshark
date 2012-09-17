@@ -96,6 +96,7 @@ private:
 
     void openCaptureFile(QString& cf_path = *new QString());
     void mergeCaptureFile();
+    void importCaptureFile();
     void saveCapture(capture_file *cf, bool close_capture);
     bool testCaptureFileClose(capture_file *cf, bool from_quit = false, QString& before_what = *new QString());
     void captureStop(capture_file *cf);
@@ -140,7 +141,9 @@ private slots:
 
     void on_actionFileOpen_triggered();
     void on_actionFileMerge_triggered();
+    void on_actionFileImport_triggered();
     void on_actionFileClose_triggered();
+
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();
 

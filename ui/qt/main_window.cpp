@@ -51,6 +51,7 @@
 #include "byte_view_tab.h"
 #include "capture_file_dialog.h"
 #include "display_filter_edit.h"
+#include "import_text_dialog.h"
 
 #include "qt_ui_utils.h"
 
@@ -407,7 +408,7 @@ void MainWindow::openCaptureFile(QString &cf_path)
         break;
     }
     // get_dirname overwrites its path. Hopefully this isn't a problem.
-    set_last_open_dir(get_dirname(cf_path.toUtf8().data()));
+    wsApp->setLastOpenDir(get_dirname(cf_path.toUtf8().data()));
     df_combo_box_->setEditText(display_filter);
 
     main_ui_->statusBar->showExpert();
@@ -576,13 +577,28 @@ void MainWindow::mergeCaptureFile()
         /* Save the name of the containing directory specified in the path name,
            if any; we can write over cf_merged_name, which is a good thing, given that
            "get_dirname()" does write over its argument. */
-        set_last_open_dir(get_dirname(tmpname));
+        wsApp->setLastOpenDir(get_dirname(tmpname));
         g_free(tmpname);
         df_combo_box_->setEditText(display_filter);
         main_ui_->statusBar->showExpert();
         return;
     }
 
+}
+
+void MainWindow::importCaptureFile() {
+    ImportTextDialog import_dlg;
+
+    if (!testCaptureFileClose(cap_file_, FALSE, *new QString(" before importing a new capture")))
+        return;
+
+    import_dlg.exec();
+
+    if (import_dlg.result() != QDialog::Accepted) {
+        return;
+    }
+
+    openCaptureFile(import_dlg.capfileName());
 }
 
 void MainWindow::saveCapture(capture_file *cf, bool close_capture) {
@@ -594,7 +610,7 @@ void MainWindow::saveCapture(capture_file *cf, bool close_capture) {
 bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString &before_what) {
     bool   capture_in_progress = FALSE;
 
-    if (cf->state == FILE_CLOSED)
+    if (!cf || cf->state == FILE_CLOSED)
         return true; /* Already closed, nothing to do */
 
 #ifdef HAVE_LIBPCAP
@@ -964,7 +980,7 @@ void MainWindow::captureFileReadFinished(const capture_file *cf) {
 
 //        /* Remember folder for next Open dialog and save it in recent */
 //	dir_path = get_dirname(g_strdup(cf->filename));
-//        set_last_open_dir(dir_path);
+//        wsApp->setLastOpenDir(dir_path);
 //        g_free(dir_path);
 //    }
 //    set_display_filename(cf);
@@ -1206,6 +1222,11 @@ void MainWindow::on_actionFileOpen_triggered()
 void MainWindow::on_actionFileMerge_triggered()
 {
     mergeCaptureFile();
+}
+
+void MainWindow::on_actionFileImport_triggered()
+{
+    importCaptureFile();
 }
 
 void MainWindow::on_actionFileClose_triggered() {

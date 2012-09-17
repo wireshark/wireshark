@@ -760,13 +760,12 @@ int main(int argc, char *argv[])
 
     /* Read the profile independent recent file.  We have to do this here so we can */
     /* set the profile before it can be set from the command line parameterts */
-    // xxx qtshark
-    //recent_read_static(&rf_path, &rf_open_errno);
-    //if (rf_path != NULL && rf_open_errno != 0) {
-    //    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-    //                  "Could not open common recent file\n\"%s\": %s.",
-    //                  rf_path, strerror(rf_open_errno));
-    //}
+    recent_read_static(&rf_path, &rf_open_errno);
+    if (rf_path != NULL && rf_open_errno != 0) {
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                      "Could not open common recent file\n\"%s\": %s.",
+                      rf_path, strerror(rf_open_errno));
+    }
 
     /* "pre-scan" the command line parameters, if we have "console only"
        parameters.  We do this so we don't start GTK+ if we're only showing
@@ -847,6 +846,27 @@ int main(int argc, char *argv[])
         case '?':        /* Ignore errors - the "real" scan will catch them. */
             break;
         }
+    }
+
+    /* Init the "Open file" dialog directory */
+    /* (do this after the path settings are processed) */
+
+    /* Read the profile dependent (static part) of the recent file. */
+    /* Only the static part of it will be read, as we don't have the gui now to fill the */
+    /* recent lists which is done in the dynamic part. */
+    /* We have to do this already here, so command line parameters can overwrite these values. */
+    recent_read_profile_static(&rf_path, &rf_open_errno);
+    if (rf_path != NULL && rf_open_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+            "Could not open recent file\n\"%s\": %s.",
+            rf_path, g_strerror(rf_open_errno));
+    }
+
+    if (recent.gui_fileopen_remembered_dir &&
+        test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
+      wsApp->setLastOpenDir(recent.gui_fileopen_remembered_dir);
+    } else {
+      wsApp->setLastOpenDir(get_persdatafile_dir());
     }
 
 #ifdef HAVE_LIBPCAP

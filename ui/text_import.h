@@ -28,11 +28,15 @@
  *******************************************************************************/
 
 
-#ifndef TEXT_IMPORT_H
-#define TEXT_IMPORT_H
+#ifndef __TEXT_IMPORT_H__
+#define __TEXT_IMPORT_H__
 
 #include <glib.h>
 #include "wtap.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 #define IMPORT_MAX_PACKET 64000
 
@@ -40,6 +44,7 @@
 
 enum offset_type
 {
+    OFFSET_NONE = 0,
     OFFSET_HEX,
     OFFSET_OCT,
     OFFSET_DEC
@@ -59,11 +64,11 @@ enum dummy_header_type
 typedef struct
 {
     /* Input info */
-    guchar *import_text_filename;
+    char *import_text_filename;
     FILE *import_text_file;
     enum offset_type offset_type;
     gboolean date_timestamp;
-    guchar *date_timestamp_format;
+    char *date_timestamp_format;
 
     /* Import info */
     guint encapsulation;
@@ -84,4 +89,8 @@ typedef struct
 void text_import_setup(text_import_info_t *info);
 void text_import_cleanup(void);
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __TEXT_IMPORT_H__ */

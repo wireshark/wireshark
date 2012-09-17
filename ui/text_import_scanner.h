@@ -28,8 +28,12 @@
  *******************************************************************************/
 
 
-#ifndef TEXT_IMPORT_SCANNER_H
-#define TEXT_IMPORT_SCANNER_H
+#ifndef __TEXT_IMPORT_SCANNER_H__
+#define __TEXT_IMPORT_SCANNER_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 typedef enum {
     T_BYTE = 1,
@@ -47,4 +51,8 @@ extern FILE *text_importin;
 
 int text_importlex(void);
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __TEXT_IMPORT_SCANNER_H__ */

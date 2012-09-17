@@ -134,9 +134,6 @@ win32:INCLUDEPATH += \
 # We have to manually trigger relinking each time one of these is modified.
 # Is there any way to do this automatically?
 SOURCES_WS_C = \
-    ../alert_box.c  \
-    ../iface_lists.c \
-    ../util.c  \
     ../../airpcap_loader.c \
     ../../capture-pcap-util.c     \
     ../../capture.c       \
@@ -239,7 +236,8 @@ HEADERS_QT_CPP = \
     wireshark_application.h
 
 FORMS += main_window.ui \
-    main_welcome.ui
+    main_welcome.ui \
+    import_text_dialog.ui
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
@@ -285,7 +283,7 @@ macx:QMAKE_LFLAGS += \
     -framework CoreServices \
     -framework ApplicationServices -framework CoreFoundation -framework CoreServices
 
-unix:LIBS += -L../../lib -Wl,-rpath ../../lib -lwireshark -lwiretap -lwsutil \
+unix:LIBS += -L../../lib -Wl,-rpath ../../lib -lwireshark -lwiretap -lwsutil -lui \
     -lpcap
 macx:LIBS += -Wl,-macosx_version_min,10.5 -liconv
 
@@ -318,6 +316,7 @@ win32 {
     LIBS += \
         wsock32.lib user32.lib shell32.lib comctl32.lib comdlg32.lib \
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-$${WTAP_VERSION} \
+        -L.. -llibui \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0
 
     !isEmpty(MSVCR_DLL) {
@@ -366,7 +365,6 @@ win32 {
     #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)\\..\\..\\plugins$$escape_expand(\\n\\t))
     #QMAKE_POST_LINK +=$$quote(nmake -f Makefile.nmake INSTALL_DIR=$$replace(PLUGINS_OUT_PWD, /, \\)\\$(DESTDIR)$$escape_expand(\\n\\t))
     #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)$$escape_expand(\\n\\t))
-
 }
 
 RESOURCES += \
@@ -385,3 +383,9 @@ ICON = ../../packaging/macosx/Resources/Wireshark.icns
 RC_FILE = qtshark.rc
 
 win32: QMAKE_CLEAN += *.pdb
+
+HEADERS += \
+    import_text_dialog.h
+
+SOURCES += \
+    import_text_dialog.cpp
