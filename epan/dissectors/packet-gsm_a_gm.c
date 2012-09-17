@@ -5181,6 +5181,7 @@ static const value_string gsm_a_sm_req_type_vals[] = {
 	{ 0x01,	"Initial request" },
 	{ 0x02, "Handover" },
 	{ 0x03, "Unused. If received, the network shall interpret this as \"Initial request\"." },
+	{ 0x04, "Emergency" },
 	{ 0, NULL }
 };
 
