@@ -127,6 +127,15 @@ static int hf_dns_rrsig_signature_inception = -1;
 static int hf_dns_rrsig_key_tag = -1;
 static int hf_dns_rrsig_signers_name = -1;
 static int hf_dns_rrsig_signature = -1;
+static int hf_dns_dnskey_flags = -1;
+static int hf_dns_dnskey_flags_zone_key = -1;
+static int hf_dns_dnskey_flags_key_revoked = -1;
+static int hf_dns_dnskey_flags_secure_entry_point = -1;
+static int hf_dns_dnskey_flags_reserved = -1;
+static int hf_dns_dnskey_protocol = -1;
+static int hf_dns_dnskey_algorithm = -1;
+static int hf_dns_dnskey_key_id = -1;
+static int hf_dns_dnskey_public_key = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -1297,6 +1306,14 @@ static const value_string dnssec_algo_vals[] = {
   { 0,                          NULL }
 };
 
+/* DNSKEY : RFC4034 */
+#define DNSKEY_FLAGS_ZK 0x0100
+#define DNSKEY_FLAGS_KR 0x0080
+#define DNSKEY_FLAGS_SEP 0x0001
+#define DNSKEY_FLAGS_RSV 0xFE7E
+
+static const true_false_string dns_dnskey_zone_key_tfs = { "This is the zone key for specified zone", "This it not a zone key" };
+
 /* See RFC 4398 */
 #define DNS_CERT_PKIX             1     /* X509 certificate */
 #define DNS_CERT_SPKI             2     /* Simple public key certificate */
@@ -1795,34 +1812,26 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_DNSKEY:
+    case T_DNSKEY: /* DNSKEY (48) */
     {
       int         rr_len = data_len;
-      guint16     flags;
       proto_item *tf, *ti_gen;
       proto_tree *flags_tree;
-      guint8      algo;
       guint16     key_id;
+      guint8 algo;
 
 
       if (rr_len < 2) {
         goto bad_rr;
       }
-      flags = tvb_get_ntohs(tvb, cur_offset);
-      tf = proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Flags: 0x%04X", flags);
+
+
+      tf = proto_tree_add_item(rr_tree, hf_dns_dnskey_flags, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       flags_tree = proto_item_add_subtree(tf, ett_t_key_flags);
-      proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-                          decode_boolean_bitfield(flags, 0x0100,
-                                                  2*8, "This is the zone key for the specified zone",
-                                                  "This is not a zone key"));
-      proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-                          decode_boolean_bitfield(flags, 0x0080,
-                                                  2*8, "Key is revoked",
-                                                  "Key is not revoked"));
-      proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-                          decode_boolean_bitfield(flags, 0x0001,
-                                                  2*8, "Key is a Key Signing Key",
-                                                  "Key is a Zone Signing Key"));
+      proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_zone_key, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_key_revoked, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_secure_entry_point, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_reserved, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
 
       cur_offset += 2;
       rr_len     -= 2;
@@ -1830,27 +1839,26 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (rr_len < 1) {
         goto bad_rr;
       }
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Protocol: %u",
-                          tvb_get_guint8(tvb, cur_offset));
+      /* Must have value 3, Add check ? */
+      proto_tree_add_item(flags_tree, hf_dns_dnskey_protocol, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
 
       if (rr_len < 1) {
         goto bad_rr;
       }
+      proto_tree_add_item(flags_tree, hf_dns_dnskey_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       algo = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
-                          val_to_str(algo, dnssec_algo_vals, "Unknown (0x%02X)"));
+
       cur_offset += 1;
       rr_len     -= 1;
 
       key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
-      ti_gen = proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: %u", key_id);
+      ti_gen = proto_tree_add_uint(rr_tree, hf_dns_dnskey_key_id, tvb, 0, 0, key_id);
       PROTO_ITEM_SET_GENERATED(ti_gen);
 
-      if (rr_len != 0) {
-        proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
-      }
+      proto_tree_add_item(rr_tree, hf_dns_dnskey_public_key, tvb, cur_offset, rr_len, ENC_BIG_ENDIAN);
+
     }
     break;
 
@@ -4195,6 +4203,51 @@ proto_register_dns(void)
       { "Signature", "dns.rrsig.signature",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "Contains the cryptographic signature that covers the RRSIG RDATA", HFILL }},
+
+    { &hf_dns_dnskey_flags,
+      { "Flags", "dns.dnskey.flags",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_dnskey_flags_zone_key,
+      { "Zone Key", "dns.dnskey.flags.zone_key",
+        FT_BOOLEAN, 16, TFS(&dns_dnskey_zone_key_tfs), DNSKEY_FLAGS_ZK,
+        NULL, HFILL }},
+
+    { &hf_dns_dnskey_flags_key_revoked,
+      { "Key Revoked", "dns.dnskey.flags.key_revoked",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), DNSKEY_FLAGS_KR,
+        NULL, HFILL }},
+
+    { &hf_dns_dnskey_flags_secure_entry_point,
+      { "Key Signing Key", "dns.dnskey.flags.secure_entry_point",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), DNSKEY_FLAGS_SEP,
+        NULL, HFILL }},
+
+    { &hf_dns_dnskey_flags_reserved,
+      { "Key Signing Key", "dns.dnskey.flags.reserved",
+        FT_UINT16, BASE_HEX, NULL, DNSKEY_FLAGS_RSV,
+        "Must be zero", HFILL }},
+
+    { &hf_dns_dnskey_protocol,
+      { "Protocol", "dns.dnskey.protocol",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Must be 3", HFILL }},
+
+    { &hf_dns_dnskey_algorithm,
+      { "Algorithm", "dns.dnskey.algorithm",
+        FT_UINT8, BASE_DEC, VALS(dnssec_algo_vals), 0x0,
+        "Identifies the public key's cryptographic algorithm and determines the format of the Public Key field", HFILL }},
+
+    { &hf_dns_dnskey_key_id,
+      { "Key id", "dns.dnskey.key_id",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_dnskey_public_key,
+      { "Public Key", "dns.dnskey.public_key",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_dns_rr_ns,
       { "Name Server", "dns.resp.ns",
