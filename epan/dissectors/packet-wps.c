@@ -890,7 +890,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     /* incomplete tlv-entry case */
     if (size < 4) {
       if (tmp_item != NULL && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, "Packet to short");
+        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, "Packet too short");
       break;
     }
 
