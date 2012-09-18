@@ -735,63 +735,56 @@ dissector_add_uint_sanity_check(const char *name, guint32 pattern, dissector_han
 void
 dissector_add_uint(const char *name, const guint32 pattern, dissector_handle_t handle)
 {
+	dissector_table_t  sub_dissectors;
+	dtbl_entry_t      *dtbl_entry;
+
+	sub_dissectors = find_dissector_table(name);
+
 	/*
-	 * Legalize formerly improper use of the API when calling it with
-	 * a pattern value of 0
-         */
-	if (pattern) {
-		dissector_table_t  sub_dissectors;
-		dtbl_entry_t      *dtbl_entry;
+	 * Make sure the dissector table exists.
+	 */
+	if (sub_dissectors == NULL) {
+		fprintf(stderr, "OOPS: dissector table \"%s\" doesn't exist\n",
+		    name);
+		fprintf(stderr, "Protocol being registered is \"%s\"\n",
+		    proto_get_protocol_long_name(handle->protocol));
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+			abort();
+		return;
+	}
 
-		sub_dissectors = find_dissector_table(name);
+	/* sanity checks */
+	g_assert(handle!=NULL);
+	switch (sub_dissectors->type) {
 
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
 		/*
-		 * Make sure the dissector table exists.
+		 * You can do a uint lookup in these tables.
 		 */
-		if (sub_dissectors == NULL) {
-			fprintf(stderr, "OOPS: dissector table \"%s\" doesn't exist\n",
-			    name);
-			fprintf(stderr, "Protocol being registered is \"%s\"\n",
-			    proto_get_protocol_long_name(handle->protocol));
-			if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
-				abort();
-			return;
-		}
+		break;
 
-		/* sanity checks */
-		g_assert(handle!=NULL);
-		switch (sub_dissectors->type) {
-
-		case FT_UINT8:
-		case FT_UINT16:
-		case FT_UINT24:
-		case FT_UINT32:
-			/*
-			 * You can do a uint lookup in these tables.
-			 */
-			break;
-
-		default:
-			/*
-			 * But you can't do a uint lookup in any other types
-			 * of tables.
-			 */
-			g_assert_not_reached();
-		}
+	default:
+		/*
+		 * But you can't do a uint lookup in any other types
+		 * of tables.
+		 */
+		g_assert_not_reached();
+	}
 
 #if 0
-		dissector_add_uint_sanity_check(name, pattern, handle, sub_dissectors);
+	dissector_add_uint_sanity_check(name, pattern, handle, sub_dissectors);
 #endif
 
-		dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
-		dtbl_entry->current = handle;
-		dtbl_entry->initial = dtbl_entry->current;
+	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
+	dtbl_entry->current = handle;
+	dtbl_entry->initial = dtbl_entry->current;
 
-		/* do the table insertion */
-		g_hash_table_insert( sub_dissectors->hash_table,
-				     GUINT_TO_POINTER( pattern), (gpointer)dtbl_entry);
-
-	}
+	/* do the table insertion */
+	g_hash_table_insert( sub_dissectors->hash_table,
+			     GUINT_TO_POINTER( pattern), (gpointer)dtbl_entry);
 
 	/*
 	 * Now add it to the list of handles that could be used with this
