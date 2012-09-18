@@ -110,6 +110,11 @@ PROCESSOR_ARCHITECTURE=amd64
 # Visual C++ 10.0, _MSC_VER 1600, msvcr100.dll
 #MSVC_VARIANT=MSVC2010EE
 
+# "Microsoft Visual C++ 2012 Express Edition"
+# Visual C++ 11.0, _MSC_VER 1700, msvcr110.dll
+## Note: Sep 18,2012: "not ready for prime time" (i.e. build fails)
+#MSVC_VARIANT=MSVC2012EE
+
 # The default if we haven't set a system environment variable or
 # uncommented an entry above.  We default to the version recommended
 # in the Developer's Guide, namely MSVC++ 2010 Express Edition.
@@ -734,6 +739,8 @@ MSC_VER_REQUIRED=1400
 MSC_VER_REQUIRED=1500
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010" ||  "$(MSVC_VARIANT)" == "MSVC2010EE"
 MSC_VER_REQUIRED=1600
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2012" ||  "$(MSVC_VARIANT)" == "MSVC2012EE"
+MSC_VER_REQUIRED=1700
 !ELSE
 !ERROR MSVC_VARIANT unknown
 !ENDIF
@@ -773,7 +780,9 @@ MANIFEST_INFO_REQUIRED=1
         "$(MSVC_VARIANT)" == "MSVC2008"   || \
         "$(MSVC_VARIANT)" == "MSVC2008EE" || \
         "$(MSVC_VARIANT)" == "MSVC2010"   || \
-        "$(MSVC_VARIANT)" == "MSVC2010EE"
+        "$(MSVC_VARIANT)" == "MSVC2010EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2012"   || \
+        "$(MSVC_VARIANT)" == "MSVC2012EE"
 LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
 	     /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
 
@@ -806,7 +815,9 @@ WARNINGS_CFLAGS=/w34295
 !IF     "$(MSVC_VARIANT)" == "MSVC2008"   || \
         "$(MSVC_VARIANT)" == "MSVC2008EE" || \
         "$(MSVC_VARIANT)" == "MSVC2010"   || \
-        "$(MSVC_VARIANT)" == "MSVC2010EE"
+        "$(MSVC_VARIANT)" == "MSVC2010EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2012"   || \
+        "$(MSVC_VARIANT)" == "MSVC2012EE"
 LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 !ENDIF
 
@@ -912,6 +923,8 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\$(PROCESSOR_ARC
 VCREDIST_EXE=$(WIRESHARK_LIB_DIR)\vcredist_$(TARGET_MACHINE).exe
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010"
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 10.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC100.CRT\*.*
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2012"
+MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 11.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC110.CRT\*.*
 
 !ELSE
 !ERROR MSVC_VARIANT unknown
