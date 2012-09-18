@@ -75,8 +75,8 @@ static int hf_hazelcast_flags = -1;
 
 #define HAZELCAST_LOCKCOUNT_FLAG	(1 << 0)
 #define HAZELCAST_TIMEOUT_FLAG		(1 << 1)
-#define HAZELCAST_TTL_FLAG		(1 << 2) 
-#define HAZELCAST_TXN_FLAG		(1 << 3) 
+#define HAZELCAST_TTL_FLAG		(1 << 2)
+#define HAZELCAST_TXN_FLAG		(1 << 3)
 #define HAZELCAST_LONGVALUE_FLAG	(1 << 4)
 #define HAZELCAST_VERSION_FLAG		(1 << 5)
 #define HAZELCAST_CLIENT_FLAG		(1 << 6)
@@ -242,7 +242,7 @@ static value_string_ext responseTypes_ext = VALUE_STRING_EXT_INIT(responseTypes)
 
 
 /*
- * Code to actually dissect the packets 
+ * Code to actually dissect the packets
  *
  * this really just works in TCP reassembly and calls the real dissector
  *
@@ -580,7 +580,7 @@ void proto_register_hazelcast(void) {
 	prefs_register_uint_preference(hazelcast_module, "tcp.port",
 				"Hazelcast TCP Port",
 				" Hazelcast TCP port if other than the default",
-				10, 
+				10,
 				&gPORT_PREF);
 
 	hazelcast_tap = register_tap("hzlcst");
@@ -588,26 +588,21 @@ void proto_register_hazelcast(void) {
 }
 
 
-void proto_reg_handoff_hazelcast(void) {
-
+void
+proto_reg_handoff_hazelcast(void) {
 	static gboolean initialized = FALSE;
 	static dissector_handle_t hazelcast_handle;
 	static int currentPort;
 
-	if ( !initialized) {
-
+	if (!initialized) {
 		hazelcast_handle = create_dissector_handle(dissect_hazelcast, proto_hazelcast);
-		dissector_add_uint("tcp.port", currentPort, hazelcast_handle);
-
+		initialized = TRUE;
 	} else {
-
 		dissector_delete_uint("tcp.port", currentPort, hazelcast_handle);
-		
 	}
 
 	currentPort = gPORT_PREF;
 	dissector_add_uint("tcp.port", currentPort, hazelcast_handle);
-
 }
 
 /*
