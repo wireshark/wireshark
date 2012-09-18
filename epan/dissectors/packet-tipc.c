@@ -66,7 +66,7 @@ static int hf_tipc_usr = -1;
 static int hf_tipcv2_usr = -1;
 static int hf_tipc_hdr_size = -1;
 static int hf_tipc_nonsequenced = -1;
-static int hf_tipc_destdrop;
+static int hf_tipc_destdrop = -1;
 static int hf_tipc_unused = -1;
 static int hf_tipc_msg_size = -1;
 static int hf_tipc_ack_link_lev_seq = -1;
@@ -106,7 +106,7 @@ static int hf_tipc_name_dist_upper = -1;
 static int hf_tipc_name_dist_port = -1;
 static int hf_tipc_name_dist_key = -1;
 
-static int hf_tipcv2_srcdrop;
+static int hf_tipcv2_srcdrop = -1;
 static int hf_tipcv2_data_msg_type = -1;
 static int hf_tipcv2_bcast_mtype = -1;
 static int hf_tipcv2_bundler_mtype = -1;
