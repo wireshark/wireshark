@@ -370,7 +370,7 @@ filemanager_open_directory (const gchar *path)
   if (argument == NULL)
     {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-          "%sCould not convert \"%s\" to a URI: \"%s\"%s\n\n\"%s\"\n\n",
+          "%sCould not convert \"%s\" to a URI: \"%s\"%s\"",
           simple_dialog_primary_start(), path, simple_dialog_primary_end(),
           error->message);
       g_error_free (error);
