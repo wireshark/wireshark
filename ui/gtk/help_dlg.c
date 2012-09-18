@@ -67,7 +67,6 @@ typedef struct {
 static GSList *help_text_pages = NULL;
 
 
-
 /**
  * Redraw all help pages, to use a new font.
  */
@@ -86,7 +85,6 @@ void help_redraw(void)
     }
 }
 
-
 static void
 topic_action(topic_action_e action)
 {
@@ -100,13 +98,11 @@ topic_action(topic_action_e action)
     }
 }
 
-
 void
 topic_cb(GtkWidget *w _U_, topic_action_e action)
 {
     topic_action(action);
 }
-
 
 gboolean
 topic_menu_cb(GtkWidget *w _U_, GdkEventButton *event _U_, gpointer user_data)

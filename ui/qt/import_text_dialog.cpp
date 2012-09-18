@@ -37,6 +37,7 @@
 #include "ui/text_import_scanner.h"
 #include "ui/last_open_dir.h"
 #include "ui/alert_box.h"
+#include "ui/help_url.h"
 
 #include "file.h"
 #include "wsutil/file_util.h"
@@ -449,6 +450,10 @@ void ImportTextDialog::on_maxLengthLineEdit_textChanged(const QString &max_frame
 
 void ImportTextDialog::on_buttonBox_helpRequested()
 {
-    qDebug() << "Fix: text file import help topic (and remove QDesktopServices & QUrl includes)";
-    QDesktopServices::openUrl(QUrl("http://www.wireshark.org/docs/wsug_html_chunked/ChIOImportSection.html"));
+    gchar *url = topic_action_url(HELP_IMPORT_DIALOG);
+
+    if(url != NULL) {
+        QDesktopServices::openUrl(QUrl(url));
+        g_free(url);
+    }
 }

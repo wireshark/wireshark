@@ -595,6 +595,7 @@ void MainWindow::importCaptureFile() {
     import_dlg.exec();
 
     if (import_dlg.result() != QDialog::Accepted) {
+        main_ui_->mainStack->setCurrentWidget(main_welcome_);
         return;
     }
 
@@ -701,7 +702,7 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
 
             switch (response) {
 
-            case QMessageBox::AcceptRole:
+            case QMessageBox::Save:
 #ifdef HAVE_LIBPCAP
                 /* If there's a capture in progress, we have to stop the capture
              and then do the save. */
@@ -712,25 +713,29 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
                 saveCapture(cf, TRUE);
                 break;
 
-            case QMessageBox::DestructiveRole:
+            case QMessageBox::Discard:
+                qDebug() << "DESTROY!";
 #ifdef HAVE_LIBPCAP
-                /* If there's a capture in progress; we have to stop the capture
-             and then do the close. */
+                /*
+                 * If there's a capture in progress; we have to stop the capture
+                 * and then do the close.
+                 */
                 if (capture_in_progress)
                     captureStop(cf);
 #endif
                 /* Just close the file, discarding changes */
                 cf_close(cf);
+                return true;
                 break;
 
-            case QMessageBox::RejectRole:
+            case QMessageBox::Cancel:
             default:
                 /* Don't close the file (and don't stop any capture in progress). */
-                return FALSE; /* file not closed */
+                return false; /* file not closed */
                 break;
             }
         } else {
-            /* unchanged file, just close it */
+            /* Unchanged file, just close it */
             cf_close(cf);
         }
     } else {
@@ -745,7 +750,7 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
         cf_close(cf);
     }
 
-    return TRUE; /* file closed */
+    return true; /* File closed */
 }
 
 void MainWindow::captureStop(capture_file *cf) {
@@ -1230,9 +1235,8 @@ void MainWindow::on_actionFileImport_triggered()
 }
 
 void MainWindow::on_actionFileClose_triggered() {
-    testCaptureFileClose(&cfile);
-
-    main_ui_->mainStack->setCurrentWidget(main_welcome_);
+    if (testCaptureFileClose(&cfile))
+        main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
 
 // View Menu
