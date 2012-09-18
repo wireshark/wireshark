@@ -84,6 +84,7 @@ private slots:
     void on_tagLineEdit_textChanged(const QString &tag_str);
     void on_ppiLineEdit_textChanged(const QString &ppi_str);
     void on_maxLengthLineEdit_textChanged(const QString &max_frame_len_str);
+    void on_buttonBox_helpRequested();
 };
 
 

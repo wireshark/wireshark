@@ -49,6 +49,8 @@
 #include <QDebug>
 #include <QFile>
 #include <QMessageBox>
+#include <QDesktopServices>
+#include <QUrl>
 
 ImportTextDialog::ImportTextDialog(QWidget *parent) :
     QDialog(parent),
@@ -443,4 +445,10 @@ void ImportTextDialog::on_maxLengthLineEdit_textChanged(const QString &max_frame
     } else {
         ok_button_->setEnabled(false);
     }
+}
+
+void ImportTextDialog::on_buttonBox_helpRequested()
+{
+    qDebug() << "Fix: text file import help topic (and remove QDesktopServices & QUrl includes)";
+    QDesktopServices::openUrl(QUrl("http://www.wireshark.org/docs/wsug_html_chunked/ChIOImportSection.html"));
 }
