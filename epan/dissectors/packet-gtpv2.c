@@ -4345,7 +4345,9 @@ dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_tree_add_item(tree, hf_gtpv2_enterprise_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
+    proto_item_append_text(item, "%s (%u)", val_to_str_ext_const(ext_id, &sminmpec_values_ext, "Unknown"),ext_id);
+
+    next_tvb = tvb_new_subset(tvb, offset, length-2, length-2);
     if(dissector_try_uint(gtpv2_priv_ext_dissector_table, ext_id, next_tvb, pinfo, tree))
         return;
 
@@ -5167,7 +5169,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_flags,
          {"Flags", "gtpv2.flags",
-          FT_UINT8, BASE_DEC, NULL, 0x0,
+          FT_UINT8, BASE_HEX, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_version,
