@@ -673,11 +673,23 @@ void proto_reg_handoff_uaudp(void)
 
     if (decode_ua)
     {
+        int no_ports_registered = TRUE;
+
         for (i=0; i < MAX_TERMINAL_PORTS; i++)
         {
             if (ports[i].port)
+            {
                 dissector_add_uint("udp.port", ports[i].port, uaudp_handle);
+                no_ports_registered = FALSE;
+            }
             ports[i].last_port = ports[i].port;
+        }
+
+        if (no_ports_registered)
+        {
+            /* If all ports are set to 0, then just register the handle so
+             * at least "Decode As..." will work. */
+            dissector_add_handle("udp.port", uaudp_handle);
         }
     }
 }
