@@ -3731,7 +3731,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     guint8  lcids[MAX_HEADERS_IN_PDU];
     gint16  pdu_lengths[MAX_HEADERS_IN_PDU];
 
-    proto_item *pdu_header_ti;
+    proto_item *pdu_header_ti, *sched_info_ti = NULL;
     proto_tree *pdu_header_tree;
 
     gboolean   have_seen_data_header = FALSE;
@@ -3797,6 +3797,9 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         lcids[number_of_headers] = first_byte & 0x1f;
         lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_mch_lcid,
                                       tvb, offset, 1, ENC_BIG_ENDIAN);
+        if (lcids[number_of_headers] == MCH_SCHEDULING_INFO_LCID) {
+            sched_info_ti = lcid_ti;
+        }
         write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                                  "(%s",
                                  val_to_str_const(lcids[number_of_headers],
@@ -3874,10 +3877,6 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                     proto_tree_add_bits_ret_val(pdu_subheader_tree, hf_mac_lte_mch_length,
                                                 tvb, offset*8 + 1, 7, &length, ENC_BIG_ENDIAN);
                     offset++;
-                }
-                if ((lcids[number_of_headers] == MCH_SCHEDULING_INFO_LCID) && (length & 0x01)) {
-                    expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_WARN,
-                                           "MCH Scheduling Information MAC Control Element should have an even size");
                 }
                 pdu_lengths[number_of_headers] = (gint16)length;
             }
@@ -3987,6 +3986,15 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                     guint16 stop_mtch_val;
                     proto_item *mch_sched_info_ti, *ti;
                     proto_tree *mch_sched_info_tree;
+
+                    if (pdu_lengths[n] == -1) {
+                        /* Control Element size is the remaining PDU */
+                        pdu_lengths[n] = (gint16)tvb_length_remaining(tvb, curr_offset);
+                    }
+                    if (pdu_lengths[n] & 0x01) {
+                        expert_add_info_format(pinfo, sched_info_ti, PI_MALFORMED, PI_WARN,
+                                               "MCH Scheduling Information MAC Control Element should have an even size");
+                    }
 
                     mch_sched_info_ti = proto_tree_add_string_format(tree,
                                                                      hf_mac_lte_control_mch_scheduling_info,
