@@ -2,7 +2,12 @@
 #
 AC_PREREQ(2.60)
 
-AC_INIT(wireshark, 1.9.0, http://bugs.wireshark.org/, , http://www.wireshark.org/)
+m4_define(version_major, 1)
+m4_define(version_minor, 9)
+m4_define(version_micro, 0)
+# XXX version_extra ?
+
+AC_INIT(wireshark, [version_major.version_minor.version_micro], http://bugs.wireshark.org/, , http://www.wireshark.org/)
 
 dnl Check for CPU / vendor / OS
 dnl The user is encouraged to use either `AC_CANONICAL_BUILD', or
@@ -25,6 +30,11 @@ dnl AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
 AM_INIT_AUTOMAKE([1.9 tar-ustar dist-bzip2 no-dist-gzip])
+
+# Make Wireshark's version available in config.h
+AC_DEFINE(VERSION_MAJOR, version_major, [Wireshark's major version])
+AC_DEFINE(VERSION_MINOR, version_minor, [Wireshark's minor version])
+AC_DEFINE(VERSION_MICRO, version_micro, [Wireshark's micro version])
 
 AM_DISABLE_STATIC
 

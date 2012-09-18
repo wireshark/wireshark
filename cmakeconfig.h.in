@@ -7,6 +7,9 @@
 
 /* Version number of package */
 #define VERSION "${CPACK_PACKAGE_VERSION}"
+#define VERSION_MAJOR "${PROJECT_MAJOR_VERSION}"
+#define VERSION_MINOR "${PROJECT_MINOR_VERSION}"
+#define VERSION_MICRO "${PROJECT_PATCH_VERSION}"
 
 /* FIXME: Move the path stuff to the CMakeInstallDirs.cmake file */
 /* Directory for data */
