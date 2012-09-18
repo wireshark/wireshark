@@ -31,7 +31,9 @@ endif
 noinst_LIBRARIES = libcliui.a
 
 CLEANFILES = \
-	libcliui.a		\
+	libcliui.a			\
+	tshark-tap-register.c-tmp	\
+	tshark-tap-register-cache.pkl	\
 	*~
 
 MAINTAINERCLEANFILES = \

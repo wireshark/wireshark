@@ -31,7 +31,9 @@ endif
 noinst_LIBRARIES = libgtkui.a
 
 CLEANFILES = \
-	libgtkui.a		\
+	libgtkui.a				\
+	wireshark-tap-register.c-tmp		\
+	wireshark-tap-register-cache.pkl	\
 	*~
 
 MAINTAINERCLEANFILES = \
