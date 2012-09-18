@@ -7,14 +7,20 @@
     <x>0</x>
     <y>0</y>
     <width>472</width>
-    <height>600</height>
+    <height>486</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>486</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Wireshark: Import from Text</string>
@@ -168,6 +174,37 @@
        </layout>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string>Maximum frame length:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="maxLengthLineEdit">
+       <property name="toolTip">
+        <string>The maximum size of the frames to write to the import capture file (max 64000)</string>
+       </property>
+       <property name="inputMask">
+        <string>90000; </string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+     </property>
     </widget>
    </item>
    <item row="1" column="0" colspan="2">
@@ -389,37 +426,6 @@
       </item>
      </layout>
     </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <item>
-      <widget class="QLabel" name="label_11">
-       <property name="text">
-        <string>Maximum frame length:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="maxLengthLineEdit">
-       <property name="toolTip">
-        <string>The maximum size of the frames to write to the import capture file (max 64000)</string>
-       </property>
-       <property name="inputMask">
-        <string>90000; </string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
   </layout>
  </widget>
