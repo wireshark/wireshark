@@ -657,7 +657,8 @@ void proto_reg_handoff_uaudp(void)
     {
         for (i=0; i<MAX_TERMINAL_PORTS; i++)
         {
-            dissector_delete_uint("udp.port", ports[i].last_port, uaudp_handle);
+            if (ports[i].last_port)
+                dissector_delete_uint("udp.port", ports[i].last_port, uaudp_handle);
         }
         if (str_to_addr_ip(pref_sys_ip_s, sys_ip))
         {
@@ -674,7 +675,8 @@ void proto_reg_handoff_uaudp(void)
     {
         for (i=0; i < MAX_TERMINAL_PORTS; i++)
         {
-            dissector_add_uint("udp.port", ports[i].port, uaudp_handle);
+            if (ports[i].port)
+                dissector_add_uint("udp.port", ports[i].port, uaudp_handle);
             ports[i].last_port = ports[i].port;
         }
     }
