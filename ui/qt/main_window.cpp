@@ -714,7 +714,6 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
                 break;
 
             case QMessageBox::Discard:
-                qDebug() << "DESTROY!";
 #ifdef HAVE_LIBPCAP
                 /*
                  * If there's a capture in progress; we have to stop the capture
