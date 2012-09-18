@@ -105,8 +105,7 @@ frame_data_sequence_add(frame_data_sequence *fds, frame_data *fdata)
     node = &leaf[fds->count];
   } else if (fds->count == NODES_PER_LEVEL) {
     /* It's a 1-level tree that will turn into a 2-level tree. */
-    level1 = g_malloc((sizeof *level1)*NODES_PER_LEVEL);
-    memset(level1, 0, (sizeof *level1)*NODES_PER_LEVEL);
+    level1 = g_malloc0((sizeof *level1)*NODES_PER_LEVEL);
     level1[0] = fds->ptree_root;
     leaf = g_malloc((sizeof *leaf)*NODES_PER_LEVEL);
     level1[1] = leaf;
@@ -123,11 +122,9 @@ frame_data_sequence_add(frame_data_sequence *fds, frame_data *fdata)
     node = &leaf[LEAF_INDEX(fds->count)];
   } else if (fds->count == NODES_PER_LEVEL*NODES_PER_LEVEL) {
     /* It's a 2-level tree that will turn into a 3-level tree */
-    level2 = g_malloc((sizeof *level2)*NODES_PER_LEVEL);
-    memset(level2, 0, (sizeof *level2)*NODES_PER_LEVEL);
+    level2 = g_malloc0((sizeof *level2)*NODES_PER_LEVEL);
     level2[0] = fds->ptree_root;
-    level1 = g_malloc((sizeof *level1)*NODES_PER_LEVEL);
-    memset(level1, 0, (sizeof *level1)*NODES_PER_LEVEL);
+    level1 = g_malloc0((sizeof *level1)*NODES_PER_LEVEL);
     level2[1] = level1;
     leaf = g_malloc((sizeof *leaf)*NODES_PER_LEVEL);
     level1[0] = leaf;
@@ -138,8 +135,7 @@ frame_data_sequence_add(frame_data_sequence *fds, frame_data *fdata)
     level2 = fds->ptree_root;
     level1 = level2[fds->count >> (LOG2_NODES_PER_LEVEL+LOG2_NODES_PER_LEVEL)];
     if (level1 == NULL) {
-      level1 = g_malloc((sizeof *level1)*NODES_PER_LEVEL);
-      memset(level1, 0, (sizeof *level1)*NODES_PER_LEVEL);
+      level1 = g_malloc0((sizeof *level1)*NODES_PER_LEVEL);
       level2[fds->count >> (LOG2_NODES_PER_LEVEL+LOG2_NODES_PER_LEVEL)] = level1;
     }
     leaf = level1[LEVEL_1_INDEX(fds->count)];
@@ -150,14 +146,11 @@ frame_data_sequence_add(frame_data_sequence *fds, frame_data *fdata)
     node = &leaf[LEAF_INDEX(fds->count)];
   } else if (fds->count == NODES_PER_LEVEL*NODES_PER_LEVEL*NODES_PER_LEVEL) {
     /* It's a 3-level tree that will turn into a 4-level tree */
-    level3 = g_malloc((sizeof *level3)*NODES_PER_LEVEL);
-    memset(level3, 0, (sizeof *level3)*NODES_PER_LEVEL);
+    level3 = g_malloc0((sizeof *level3)*NODES_PER_LEVEL);
     level3[0] = fds->ptree_root;
-    level2 = g_malloc((sizeof *level2)*NODES_PER_LEVEL);
-    memset(level2, 0, (sizeof *level2)*NODES_PER_LEVEL);
+    level2 = g_malloc0((sizeof *level2)*NODES_PER_LEVEL);
     level3[1] = level2;
-    level1 = g_malloc((sizeof *level1)*NODES_PER_LEVEL);
-    memset(level1, 0, (sizeof *level1)*NODES_PER_LEVEL);
+    level1 = g_malloc0((sizeof *level1)*NODES_PER_LEVEL);
     level2[0] = level1;
     leaf = g_malloc((sizeof *leaf)*NODES_PER_LEVEL);
     level1[0] = leaf;
@@ -175,14 +168,12 @@ frame_data_sequence_add(frame_data_sequence *fds, frame_data *fdata)
     level3 = fds->ptree_root;
     level2 = level3[LEVEL_3_INDEX(fds->count)];
     if (level2 == NULL) {
-      level2 = g_malloc((sizeof *level2)*NODES_PER_LEVEL);
-      memset(level2, 0, (sizeof *level2)*NODES_PER_LEVEL);
+      level2 = g_malloc0((sizeof *level2)*NODES_PER_LEVEL);
       level3[LEVEL_3_INDEX(fds->count)] = level2;
     }
     level1 = level2[LEVEL_2_INDEX(fds->count)];
     if (level1 == NULL) {
-      level1 = g_malloc((sizeof *level1)*NODES_PER_LEVEL);
-      memset(level1, 0, (sizeof *level1)*NODES_PER_LEVEL);
+      level1 = g_malloc0((sizeof *level1)*NODES_PER_LEVEL);
       level2[LEVEL_2_INDEX(fds->count)] = level1;
     }
     leaf = level1[LEVEL_1_INDEX(fds->count)];
