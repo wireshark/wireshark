@@ -882,9 +882,9 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
   guint   tlv_len;
   guint16 tlv_type;
 
-  proto_item *tlv_item; /* the root item */
-  proto_tree *tlv_root;
-  proto_item *tmp_item;
+  proto_item *tlv_item = NULL; /* the root item */
+  proto_tree *tlv_root = NULL;
+  proto_item *tmp_item = NULL;
 
   int hfindex = -1;
 
