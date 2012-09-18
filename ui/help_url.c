@@ -131,7 +131,7 @@ user_guide_url(const gchar *page) {
     HWND hw;
 
     g_string_printf(url, "%s\\user-guide.chm::/wsug_chm/%s>Wireshark Help",
-        get_datafile_dir(), topic);
+        get_datafile_dir(), page);
 
     hw = HtmlHelpW(NULL,
         utf_8to16(url->str),
