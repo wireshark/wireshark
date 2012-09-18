@@ -344,7 +344,7 @@ filemanager_open_directory (const gchar *path)
 
 #elif defined(MUST_LAUNCH_BROWSER_OURSELVES)
 
-  GError    *error = NULL;
+  GError    *error;
   gchar     *browser;
   gchar     *argument;
   gchar     *cmd;
@@ -366,7 +366,16 @@ filemanager_open_directory (const gchar *path)
     }
 
   /* conver the path to a URI */
-  argument = g_filename_to_uri(path);
+  argument = g_filename_to_uri(path, NULL, &error);
+  if (argument == NULL)
+    {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+          "%sCould not convert \"%s\" to a URI: \"%s\"%s\n\n\"%s\"\n\n",
+          simple_dialog_primary_start(), path, simple_dialog_primary_end(),
+          error->message);
+      g_error_free (error);
+      return FALSE;
+    }
 
   /* replace %s with URL */
   if (strstr (browser, "%s"))
