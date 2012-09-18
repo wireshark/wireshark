@@ -8055,17 +8055,6 @@ elem_a2p_bearer_session(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     return(curr_offset - offset);
 }
 
-static void
-free_encoding_name_str(void *ptr)
-{
-    encoding_name_and_rate_t    *encoding_name_and_rate = (encoding_name_and_rate_t *) ptr;
-
-    if (encoding_name_and_rate->encoding_name)
-    {
-        g_free(encoding_name_and_rate->encoding_name);
-    }
-}
-
 /*
  * IOS 5 4.2.90
  */
@@ -8092,7 +8081,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     gint                                *key;
     encoding_name_and_rate_t            *encoding_name_and_rate;
 
-    rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, free_encoding_name_str);
+    rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
     rtp_dyn_payload_used = FALSE;
 
     first_assigned_found = FALSE;
@@ -8328,11 +8317,11 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
             format_assigned &&
             (first_assigned_found == FALSE))
         {
-            key = (gint *) g_malloc(sizeof(gint));
+            key = (gint *) se_alloc(sizeof(gint));
             *key = rtp_payload_type;
 
-            encoding_name_and_rate = g_malloc(sizeof(encoding_name_and_rate_t));
-            encoding_name_and_rate->encoding_name = g_strdup(mime_type);
+            encoding_name_and_rate = se_alloc(sizeof(encoding_name_and_rate_t));
+            encoding_name_and_rate->encoding_name = se_strdup(mime_type);
             encoding_name_and_rate->sample_rate = sample_rate;
 
             g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
@@ -8345,11 +8334,11 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
         if (in_band_format_assigned)
         {
-            key = (gint *) g_malloc(sizeof(gint));
+            key = (gint *) se_alloc(sizeof(gint));
             *key = rtp_payload_type;
 
-            encoding_name_and_rate = g_malloc(sizeof(encoding_name_and_rate_t));
-            encoding_name_and_rate->encoding_name = g_strdup("telephone-event");
+            encoding_name_and_rate = se_alloc(sizeof(encoding_name_and_rate_t));
+            encoding_name_and_rate->encoding_name = se_strdup("telephone-event");
             encoding_name_and_rate->sample_rate = sample_rate;
 
             g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);

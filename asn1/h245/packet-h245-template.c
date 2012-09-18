@@ -336,15 +336,6 @@ static void update_unicast_addr(unicast_addr_t *req_addr, unicast_addr_t *ack_ad
   }
 }
 
-static void free_encoding_name_str (void *ptr)
-{
-  encoding_name_and_rate_t *encoding_name_and_rate = (encoding_name_and_rate_t *)ptr;
-
-  if (encoding_name_and_rate->encoding_name) {
-    g_free(encoding_name_and_rate->encoding_name);
-  }
-}
-
 static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_channel_lcl)
 {
 	gint *key;
@@ -365,11 +356,11 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 	/* (S)RTP, (S)RTCP */
 	if (upcoming_channel_lcl->rfc2198 > 0) {
-		encoding_name_and_rate_t *encoding_name_and_rate = g_malloc( sizeof(encoding_name_and_rate_t));
-		rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, free_encoding_name_str);
-		encoding_name_and_rate->encoding_name = g_strdup("red");
+		encoding_name_and_rate_t *encoding_name_and_rate = se_alloc( sizeof(encoding_name_and_rate_t));
+		rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
+		encoding_name_and_rate->encoding_name = se_strdup("red");
 		encoding_name_and_rate->sample_rate = 8000;
-		key = g_malloc(sizeof(gint));
+		key = se_alloc(sizeof(gint));
 		*key = upcoming_channel_lcl->rfc2198;
 		g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
 	}

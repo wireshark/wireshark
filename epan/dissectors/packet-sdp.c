@@ -22,7 +22,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Ref http://www.ietf.org/rfc/rfc4566.txt?number=4566
  */
 
@@ -268,15 +268,6 @@ static void dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                               transport_info_t *transport_info);
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, int length, transport_info_t *transport_info);
 
-static void free_encoding_name_str (void *ptr)
-{
-  encoding_name_and_rate_t *encoding_name_and_rate = (encoding_name_and_rate_t *)ptr;
-
-  if (encoding_name_and_rate->encoding_name) {
-    g_free(encoding_name_and_rate->encoding_name);
-  }
-}
-
 static void
 dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -343,7 +334,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     transport_info.media_proto[n]    = NULL;
     transport_info.media[n].pt_count = 0;
     transport_info.media[n].rtp_dyn_payload =
-      g_hash_table_new_full(g_int_hash, g_int_equal, g_free, free_encoding_name_str);
+      g_hash_table_new(g_int_hash, g_int_equal);
   }
   transport_info.media_count = 0;
 
@@ -1600,7 +1591,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       return;   /* Invalid */
     }
 
-    key  = g_malloc(sizeof (gint));
+    key  = se_alloc(sizeof (gint));
     *key = atol((char*)payload_type);
 
     transport_info->encoding_name[pt] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
@@ -1635,15 +1626,15 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
      */
     if (transport_info->media_count == 0) {
       for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++) {
-        encoding_name_and_rate = g_malloc(sizeof (encoding_name_and_rate_t));
-        encoding_name_and_rate->encoding_name = g_strdup(transport_info->encoding_name[pt]);
+        encoding_name_and_rate = se_alloc(sizeof (encoding_name_and_rate_t));
+        encoding_name_and_rate->encoding_name = se_strdup(transport_info->encoding_name[pt]);
         encoding_name_and_rate->sample_rate = transport_info->sample_rate[pt];
         if (n == 0) {
           g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
                               key, encoding_name_and_rate);
         } else {    /* we create a new key and encoding_name to assign to the other hash tables */
           gint *key2;
-          key2  = g_malloc(sizeof (gint));
+          key2  = se_alloc(sizeof (gint));
           *key2 = atol((char*)payload_type);
           g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
                               key2, encoding_name_and_rate);
@@ -1653,9 +1644,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       /* if the "a=" is after an "m=", only apply to this "m=" */
     } else
       /* in case there is an overflow in SDP_MAX_RTP_CHANNELS, we keep always the last "m=" */
-      encoding_name_and_rate = g_malloc(sizeof (encoding_name_and_rate_t));
+      encoding_name_and_rate = se_alloc(sizeof (encoding_name_and_rate_t));
 
-    encoding_name_and_rate->encoding_name = g_strdup(transport_info->encoding_name[pt]);
+    encoding_name_and_rate->encoding_name = se_strdup(transport_info->encoding_name[pt]);
     encoding_name_and_rate->sample_rate   = transport_info->sample_rate[pt];
     if (transport_info->media_count == SDP_MAX_RTP_CHANNELS-1)
       g_hash_table_insert(transport_info->media[ transport_info->media_count ].rtp_dyn_payload,
@@ -1792,159 +1783,170 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     }
     break;
   case SDP_CRYPTO:
-    /* http://tools.ietf.org/html/rfc4568
-     * 9.1.  Generic "Crypto" Attribute Grammar
-     *
-     *   The ABNF grammar for the crypto attribute is defined below:
-     *
-     *   "a=crypto:" tag 1*WSP crypto-suite 1*WSP key-params
-     *                                           *(1*WSP session-param)
-     *
-     *   tag              = 1*9DIGIT
-     *   crypto-suite     = 1*(ALPHA / DIGIT / "_")
-     *
-     *   key-params       = key-param *(";" key-param)
-     *   key-param        = key-method ":" key-info
-     *   key-method       = "inline" / key-method-ext
-     *   key-method-ext   = 1*(ALPHA / DIGIT / "_")
-     *   key-info         = 1*(%x21-3A / %x3C-7E) ; visible (printing) chars
-     *                                        ; except semi-colon
-     *  session-param    = 1*(VCHAR)         ; visible (printing) characters
-     *
-     *   where WSP, ALPHA, DIGIT, and VCHAR are defined in [RFC4234].
-     *
-     */
+      /* http://tools.ietf.org/html/rfc4568
+      * 9.1.  Generic "Crypto" Attribute Grammar
+      *
+      *   The ABNF grammar for the crypto attribute is defined below:
+      *
+      *   "a=crypto:" tag 1*WSP crypto-suite 1*WSP key-params
+      *                                           *(1*WSP session-param)
+      *
+      *   tag              = 1*9DIGIT
+      *   crypto-suite     = 1*(ALPHA / DIGIT / "_")
+      *
+      *   key-params       = key-param *(";" key-param)
+      *   key-param        = key-method ":" key-info
+      *   key-method       = "inline" / key-method-ext
+      *   key-method-ext   = 1*(ALPHA / DIGIT / "_")
+      *   key-info         = 1*(%x21-3A / %x3C-7E) ; visible (printing) chars
+      *                                        ; except semi-colon
+      *  session-param    = 1*(VCHAR)         ; visible (printing) characters
+      *
+      *   where WSP, ALPHA, DIGIT, and VCHAR are defined in [RFC4234].
+      *
+      */
 
-    /* We are at the first colon */
-    /* tag */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    tokenlen    = next_offset - offset;
-    proto_tree_add_uint(sdp_media_attribute_tree, hf_sdp_crypto_tag, tvb, offset, tokenlen,
-                        atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen)));
-    offset = next_offset + 1;
+      /* We are at the first colon */
+      /* tag */
+      next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+      tokenlen    = next_offset - offset;
+      proto_tree_add_uint(sdp_media_attribute_tree, hf_sdp_crypto_tag, tvb, offset, tokenlen,
+          atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen)));
+      offset = next_offset + 1;
 
-    /* crypto-suite */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    tokenlen    = next_offset - offset;
-    proto_tree_add_item(sdp_media_attribute_tree, hf_sdp_crypto_crypto_suite,
-                        tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
-    if (tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_80", tokenlen) == 0) {
+      /* crypto-suite */
+      next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+      tokenlen    = next_offset - offset;
+      proto_tree_add_item(sdp_media_attribute_tree, hf_sdp_crypto_crypto_suite,
+          tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+      if (tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_80", tokenlen) == 0) {
 
-      /* XXX This may only work in simple cases */
-      if (transport_info->encryption_algorithm == SRTP_ENC_ALG_NOT_SET) {
-        transport_info->encryption_algorithm = SRTP_ENC_ALG_AES_CM;
-        transport_info->auth_algorithm       = SRTP_AUTH_ALG_HMAC_SHA1;
-        /* number of octets used for the Auth Tag in the RTP payload */
-        transport_info->auth_tag_len         = 10;
-      }
-      master_key_length  = 16; /* 128 bits = 16 octets */
-      master_salt_length = 14; /* 112 bits = 14 octets */
-    } else if (tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_32", tokenlen) == 0) {
-      /* XXX This may only work in simple cases */
-      if (transport_info->encryption_algorithm == SRTP_ENC_ALG_NOT_SET) {
-        transport_info->encryption_algorithm = SRTP_ENC_ALG_AES_CM;
-        transport_info->auth_algorithm       = SRTP_AUTH_ALG_HMAC_SHA1;
-        /* number of octets used for the Auth Tag in the RTP payload */
-        transport_info->auth_tag_len         = 4;
-      }
-      master_key_length  = 16; /* 128 bits = 16 octets */
-      master_salt_length = 14; /* 112 bits = 14 octets */
-    } else if (tvb_strncaseeql(tvb, offset, "F8_128_HMAC_SHA1_80", tokenlen) == 0) {
-      if (transport_info->encryption_algorithm == SRTP_ENC_ALG_NOT_SET) {
-        /* XXX This may only work in simple cases */
-        transport_info->encryption_algorithm = SRTP_ENC_ALG_AES_F8;
-        transport_info->auth_algorithm       = SRTP_AUTH_ALG_HMAC_SHA1;
-        /* number of octets used for the Auth Tag in the RTP payload */
-        transport_info->auth_tag_len         = 10;
-      }
-      master_key_length  = 16; /* 128 bits = 16 octets */
-      master_salt_length = 14; /* 112 bits = 14 octets */
-    }
-    offset = next_offset + 1;
-
-    /* key-params */
-    while (has_more_pars == TRUE) {
-      int       param_end_offset;
-      tvbuff_t *key_salt_tvb;
-      gchar    *data_p = NULL;
-
-      param_end_offset = tvb_find_guint8(tvb, offset, -1, ';');
-      if (param_end_offset == -1) {
-        has_more_pars = FALSE;
-        param_end_offset = tvb_length(tvb);
-      }
-      parameter_item = proto_tree_add_text(sdp_media_attribute_tree,
-                                           tvb, offset, param_end_offset-offset, "Key parameters");
-      parameter_tree = proto_item_add_subtree(parameter_item, ett_sdp_crypto_key_parameters);
-
-      /* key-method or key-method-ext */
-      next_offset = tvb_find_guint8(tvb, offset, -1, ':');
-      if (next_offset == -1) {
-        expert_add_info_format(pinfo, parameter_item, PI_MALFORMED, PI_NOTE,
-                               "Invalid key-param (no ':' delimiter)");
-        break;
-      }
-      if (tvb_strncaseeql(tvb, offset, "inline", next_offset-offset) == 0) {
-        /* XXX only for SRTP? */
-        /* srtp-key-info       = key-salt ["|" lifetime] ["|" mki] */
-        offset      = next_offset +1;
-        next_offset = tvb_find_guint8(tvb, offset, -1, '|');
-        if (next_offset == -1) {
-          tokenlen = param_end_offset - offset;
-        } else {
-          tokenlen = next_offset - offset;
-        }
-        data_p = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-        key_salt_tvb = base64_to_tvb(tvb, data_p);
-        add_new_data_source(pinfo, key_salt_tvb, "Key_Salt_tvb");
-        if (master_key_length != 0) {
-          proto_tree_add_text(parameter_tree, tvb, offset, tokenlen, "Key and Salt");
-          proto_tree_add_item(parameter_tree, hf_sdp_crypto_master_key,
-                              key_salt_tvb, 0, master_key_length, ENC_ASCII|ENC_NA);
-          proto_tree_add_item(parameter_tree, hf_sdp_crypto_master_salt,
-                              key_salt_tvb, master_key_length, master_salt_length, ENC_ASCII|ENC_NA);
-        } else {
-          proto_tree_add_text(parameter_tree, key_salt_tvb, 0, -1, "Key and Salt");
-        }
-
-        /*  ["|" lifetime] ["|" mki] are optional */
-        if (next_offset != -1) {
-          offset = next_offset + 1;
-          next_offset = tvb_find_guint8(tvb, offset, -1, '|');
-          if (next_offset != -1) {
-            /*lifetime           = ["2^"] 1*(DIGIT)   ; see section 6.1 for "2^" */
-            tokenlen = next_offset - offset;
-            proto_tree_add_item(parameter_tree, hf_sdp_crypto_lifetime,
-                                tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
-            offset   = next_offset + 1;
+          /* XXX This may only work in simple cases */
+          if (transport_info->encryption_algorithm == SRTP_ENC_ALG_NOT_SET) {
+              transport_info->encryption_algorithm = SRTP_ENC_ALG_AES_CM;
+              transport_info->auth_algorithm       = SRTP_AUTH_ALG_HMAC_SHA1;
+              /* number of octets used for the Auth Tag in the RTP payload */
+              transport_info->auth_tag_len         = 10;
           }
-          /* mki                 = mki-value ":" mki-length
-           *
-           * mki-value           = 1*DIGIT
-           */
-          next_offset = tvb_find_guint8(tvb, offset, -1, ':');
-          tokenlen    = next_offset - offset;
-          proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
-          offset      = next_offset + 1;
-
-          /* mki-length          = 1*3DIGIT   ; range 1..128. */
-          next_offset = param_end_offset;
-          tokenlen    = next_offset - offset;
-
-          /* This will not work if more than one parameter */
-          /* number of octets used for the MKI in the RTP payload */
-          transport_info->mki_len = atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen));
-          proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki_length,
-                              tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
-        }
-        offset = param_end_offset;
-      } else {
-        tokenlen = param_end_offset -  next_offset + 1;
-        proto_tree_add_text(parameter_tree, tvb, next_offset + 1, tokenlen,
-                            "%s", tvb_get_ephemeral_string(tvb, next_offset + 1, tokenlen));
-        offset = param_end_offset;
+          master_key_length  = 16; /* 128 bits = 16 octets */
+          master_salt_length = 14; /* 112 bits = 14 octets */
+      } else if (tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_32", tokenlen) == 0) {
+          /* XXX This may only work in simple cases */
+          if (transport_info->encryption_algorithm == SRTP_ENC_ALG_NOT_SET) {
+              transport_info->encryption_algorithm = SRTP_ENC_ALG_AES_CM;
+              transport_info->auth_algorithm       = SRTP_AUTH_ALG_HMAC_SHA1;
+              /* number of octets used for the Auth Tag in the RTP payload */
+              transport_info->auth_tag_len         = 4;
+          }
+          master_key_length  = 16; /* 128 bits = 16 octets */
+          master_salt_length = 14; /* 112 bits = 14 octets */
+      } else if (tvb_strncaseeql(tvb, offset, "F8_128_HMAC_SHA1_80", tokenlen) == 0) {
+          if (transport_info->encryption_algorithm == SRTP_ENC_ALG_NOT_SET) {
+              /* XXX This may only work in simple cases */
+              transport_info->encryption_algorithm = SRTP_ENC_ALG_AES_F8;
+              transport_info->auth_algorithm       = SRTP_AUTH_ALG_HMAC_SHA1;
+              /* number of octets used for the Auth Tag in the RTP payload */
+              transport_info->auth_tag_len         = 10;
+          }
+          master_key_length  = 16; /* 128 bits = 16 octets */
+          master_salt_length = 14; /* 112 bits = 14 octets */
       }
-    }
+      offset = next_offset + 1;
+
+      /* key-params */
+      while (has_more_pars == TRUE) {
+          int       param_end_offset;
+          tvbuff_t *key_salt_tvb;
+          gchar    *data_p = NULL;
+
+          param_end_offset = tvb_find_guint8(tvb, offset, -1, ';');
+          if (param_end_offset == -1) {
+              has_more_pars = FALSE;
+              param_end_offset = tvb_length(tvb);
+          }
+          parameter_item = proto_tree_add_text(sdp_media_attribute_tree,
+              tvb, offset, param_end_offset-offset, "Key parameters");
+          parameter_tree = proto_item_add_subtree(parameter_item, ett_sdp_crypto_key_parameters);
+
+          /* key-method or key-method-ext */
+          next_offset = tvb_find_guint8(tvb, offset, -1, ':');
+          if (next_offset == -1) {
+              expert_add_info_format(pinfo, parameter_item, PI_MALFORMED, PI_NOTE,
+                  "Invalid key-param (no ':' delimiter)");
+              break;
+          }
+          if (tvb_strncaseeql(tvb, offset, "inline", next_offset-offset) == 0) {
+              /* XXX only for SRTP? */
+              /* srtp-key-info       = key-salt ["|" lifetime] ["|" mki] */
+              offset      = next_offset +1;
+              next_offset = tvb_find_guint8(tvb, offset, -1, '|');
+              if (next_offset == -1) {
+                  tokenlen = param_end_offset - offset;
+              } else {
+                  tokenlen = next_offset - offset;
+              }
+              data_p = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+              key_salt_tvb = base64_to_tvb(tvb, data_p);
+              add_new_data_source(pinfo, key_salt_tvb, "Key_Salt_tvb");
+              if (master_key_length != 0) {
+                  proto_tree_add_text(parameter_tree, tvb, offset, tokenlen, "Key and Salt");
+                  proto_tree_add_item(parameter_tree, hf_sdp_crypto_master_key,
+                      key_salt_tvb, 0, master_key_length, ENC_ASCII|ENC_NA);
+                  proto_tree_add_item(parameter_tree, hf_sdp_crypto_master_salt,
+                      key_salt_tvb, master_key_length, master_salt_length, ENC_ASCII|ENC_NA);
+              } else {
+                  proto_tree_add_text(parameter_tree, key_salt_tvb, 0, -1, "Key and Salt");
+              }
+
+              /*  ["|" lifetime] ["|" mki] are optional */
+              if (next_offset != -1) {
+                  offset = next_offset + 1;
+                  next_offset = tvb_find_guint8(tvb, offset, -1, '|');
+                  if(next_offset == -1){
+                      if(next_offset < param_end_offset){
+                          next_offset = param_end_offset;
+                      }
+                  }
+                  if (next_offset != -1) {
+                      /*lifetime           = ["2^"] 1*(DIGIT)   ; see section 6.1 for "2^" */
+                      tokenlen = next_offset - offset;
+                      proto_tree_add_item(parameter_tree, hf_sdp_crypto_lifetime,
+                          tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+                      offset   = next_offset + 1;
+                  }
+                  /* mki                 = mki-value ":" mki-length
+                  *
+                  * mki-value           = 1*DIGIT
+                  */
+				  if(offset>param_end_offset){
+					  next_offset = -1;
+				  }else{
+					  next_offset = tvb_find_guint8(tvb, offset, -1, ':');
+				  }
+                  if (next_offset != -1) {
+                      tokenlen    = next_offset - offset;
+                      proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+                      offset      = next_offset + 1;
+
+                      /* mki-length          = 1*3DIGIT   ; range 1..128. */
+                      next_offset = param_end_offset;
+                      tokenlen    = next_offset - offset;
+
+                      /* This will not work if more than one parameter */
+                      /* number of octets used for the MKI in the RTP payload */
+                      transport_info->mki_len = atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen));
+                      proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki_length,
+                          tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+                  }
+              }
+              offset = param_end_offset;
+          } else {
+              tokenlen = param_end_offset -  next_offset + 1;
+              proto_tree_add_text(parameter_tree, tvb, next_offset + 1, tokenlen,
+                  "%s", tvb_get_ephemeral_string(tvb, next_offset + 1, tokenlen));
+              offset = param_end_offset;
+          }
+      }
 
     break;
   default:
@@ -2225,12 +2227,12 @@ proto_register_sdp(void)
         "Format specific parameter(fmtp)", HFILL }
     },
     { &hf_ipbcp_version,
-      { "IPBCP Protocol Version", "ipbcp.version",
+      { "IPBCP Protocol Version", "sdp.ipbcp.version",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_ipbcp_type,
-      { "IPBCP Command Type", "ipbcp.command",
+      { "IPBCP Command Type", "sdp.ipbcp.command",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
@@ -2290,7 +2292,7 @@ proto_register_sdp(void)
         NULL, HFILL }
     },
     { &hf_sdp_crypto_master_salt,
-      { "Mater salt", "sdp.crypto.master_salt",
+      { "Master salt", "sdp.crypto.master_salt",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
