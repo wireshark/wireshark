@@ -34,11 +34,4 @@ extern gboolean filemanager_open_directory (const gchar *path);
 /* browse a file relative to the data dir */
 extern void browser_open_data_file (const gchar *filename);
 
-/** Convert local absolute path to uri.
- *
- * @param filename to (absolute pathed) filename to convert
- * @return a newly allocated uri, you must g_free it later
- */
-extern gchar *filename2uri(const gchar *filename);
-
 #endif /* __WEBBROWSER_H__ */

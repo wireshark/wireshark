@@ -24,6 +24,7 @@
 
 set(COMMON_UI_SRC
 	alert_box.c
+	help_url.c
 	iface_lists.c
 	text_import.c
 	util.c

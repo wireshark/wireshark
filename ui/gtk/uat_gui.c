@@ -5,23 +5,23 @@
  *
  *  User Accessible Tables GUI
  *  Mantain an array of user accessible data strucures
- *  
+ *
  * (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2001 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -61,15 +61,16 @@
 
 #include "../stat_menu.h"
 
+#include "ui/help_url.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
-#include "ui/gtk/help_dlg.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/uat_gui.h"
 #include "ui/gtk/packet_list.h"
+#include "ui/gtk/webbrowser.h"
 #include "ui/gtk/old-gtk-compat.h"
 
 # define BUTTON_SIZE_X -1
@@ -167,14 +168,14 @@ static char* fld_tostr(void* rec, uat_field_t* f) {
 		case PT_TXTMOD_HEXBYTES: {
 			GString* s = g_string_sized_new( len*2 + 1 );
 			guint i;
-			
+
 			for (i=0; i<len;i++) g_string_append_printf(s,"%.2X",((guint8*)ptr)[i]);
-			
+
 			out = ep_strdup(s->str);
-			
+
 			g_string_free(s,TRUE);
 			break;
-		} 
+		}
 		default:
 			g_assert_not_reached();
 			out = NULL;
@@ -276,7 +277,7 @@ static guint8* unhexbytes(const char* si, guint len, guint* len_p, const char** 
 
 	*err = NULL;
 	return buf;
-	
+
 on_error:
 	*err = "Error parsing hex string";
 	return NULL;
@@ -366,7 +367,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 
 		g_free(rec_tmp);
 	}
-	
+
 	dd->uat->changed = TRUE;
 
 	set_buttons(dd->uat, dd->uat->rep ? dd->uat->rep->selected : -1);
@@ -421,7 +422,7 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 	struct _uat_dlg_data* dd = g_malloc(sizeof(struct _uat_dlg_data));
 	uat_field_t* f = uat->fields;
 	guint colnum;
-	
+
 	dd->entries = g_ptr_array_new();
 	dd->win = dlg_conf_window_new(ep_strdup_printf("%s: %s", uat->name, (row == -1 ? "New" : "Edit")));
 	dd->uat = uat;
@@ -514,7 +515,7 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 				for (idx = 0; enum_vals[idx].strptr != NULL; idx++) {
 					const char* str = enum_vals[idx].strptr;
 					 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combo_box), str);
-					
+
 					if ( g_str_equal(str, text) ) {
 						*valptr = idx;
 					}
@@ -536,7 +537,7 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 				return;
 		}
 	}
-	
+
 	gtk_widget_grab_default(bt_ok);
 	gtk_widget_show_all(win);
 }
@@ -591,7 +592,7 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 	ud->uat = uat;
 	ud->idx = idx;
 	ud->win = win = dlg_conf_window_new(ep_strdup_printf("%s: Confirm Delete", uat->name));
-	
+
 	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
 	gtk_window_resize(GTK_WINDOW(win),400,25*(uat->ncols+2));
 
@@ -611,7 +612,7 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 		label = gtk_label_new(ep_strdup_printf("%s:", f[colnum].title));
 		gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 		gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, colnum+1, colnum + 2);
-		
+
 		label = gtk_label_new(text);
 		gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 		gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 1, 2, colnum+1, colnum + 2);
@@ -668,7 +669,7 @@ static void uat_delete_cb(GtkButton *button _U_, gpointer u) {
 
 static gboolean uat_window_delete_event_cb(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 	uat_t* uat = u;
-	
+
 	if (uat->rep) {
 		void* rep = uat->rep;
 
@@ -900,7 +901,15 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 }
 
 static void uat_help_cb(GtkWidget* w _U_, gpointer u) {
-	help_topic_html(ep_strdup_printf("%s.html",((uat_t*)u)->help));
+	gchar *help_page, *url;
+
+	help_page = g_strdup_printf("%s.html",((uat_t*)u)->help);
+	url = user_guide_url(help_page);
+	if (url) {
+		browser_open_url(url);
+	}
+	g_free(help_page);
+	g_free(url);
 }
 
 static GtkWidget* uat_window(void* u) {
@@ -988,7 +997,7 @@ static GtkWidget* uat_window(void* u) {
 	} else {
 
 		rep->bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
-	}	
+	}
 
 	move_hbox = gtk_button_box_new(GTK_ORIENTATION_VERTICAL);
 	gtk_box_pack_start(GTK_BOX(vbox), move_hbox, TRUE, FALSE, 0);
@@ -1078,7 +1087,7 @@ static GtkWidget* uat_window(void* u) {
 		g_signal_connect(GTK_WINDOW(rep->window), "delete_event", G_CALLBACK(uat_window_delete_event_cb), uat);
 		g_signal_connect(GTK_WINDOW(rep->window), "destroy", G_CALLBACK(uat_window_delete_event_cb), uat);
 	}
-	
+
 	gtk_widget_grab_focus(GTK_WIDGET(rep->list));
 
 	gtk_widget_show_all(rep->window);
@@ -1090,4 +1099,3 @@ static GtkWidget* uat_window(void* u) {
 void uat_window_cb(GtkWidget* u _U_, void* uat) {
 	uat_window(uat);
 }
-

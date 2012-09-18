@@ -76,6 +76,7 @@
 #include <epan/prefs.h>
 
 #include "ui/simple_dialog.h"
+#include "ui/help_url.h"
 
 #include "ui/gtk/webbrowser.h"
 
@@ -262,55 +263,6 @@ browser_open_url (const gchar *url)
 #endif
 }
 
-/** Convert local absolute path to uri.
- *
- * @param filename to (absolute pathed) filename to convert
- * @return a newly allocated uri, you must g_free it later
- */
-gchar *
-filename2uri(const gchar *filename)
-{
-    int i = 0;
-    gchar *file_tmp;
-    GString *filestr;
-
-
-    filestr = g_string_sized_new(200);
-
-    /* this escaping is somewhat slow but should working fine */
-    for(i=0; filename[i]; i++) {
-        switch(filename[i]) {
-        case(' '):
-            g_string_append(filestr, "%20");
-            break;
-        case('%'):
-            g_string_append(filestr, "%%");
-            break;
-        case('\\'):
-            g_string_append_c(filestr, '/');
-            break;
-            /* XXX - which other chars need to be escaped? */
-        default:
-            g_string_append_c(filestr, filename[i]);
-        }
-    }
-
-
-    /* prepend URI header "file:" appropriate for the system */
-#ifdef G_OS_WIN32
-    /* XXX - how do we handle UNC names (e.g. //servername/sharename/dir1/dir2/capture-file.cap) */
-    g_string_prepend(filestr, "file:///");
-#else
-    g_string_prepend(filestr, "file://");
-#endif
-
-    file_tmp = filestr->str;
-
-    g_string_free(filestr, FALSE /* don't free segment data */);
-
-    return file_tmp;
-}
-
 gboolean
 filemanager_open_directory (const gchar *path)
 {
@@ -414,7 +366,7 @@ filemanager_open_directory (const gchar *path)
     }
 
   /* conver the path to a URI */
-  argument = filename2uri (path);
+  argument = g_filename_to_uri(path);
 
   /* replace %s with URL */
   if (strstr (browser, "%s"))
@@ -491,30 +443,14 @@ strreplace (const gchar *string,
 void
 browser_open_data_file(const gchar *filename)
 {
-    gchar *file_path;
     gchar *uri;
-
-    /* build filename */
-#ifdef G_OS_WIN32
-    if((strlen(filename) > 2) && (filename[1] == ':'))
-      file_path = g_strdup(filename);
-#else
-    /* XXX: is this correct for MacOS/Linux ? */
-    if((strlen(filename) > 1) && (filename[0] == '/'))
-      file_path = g_strdup(filename);
-#endif 
-    else
-
-    file_path = g_strdup_printf("%s/%s", get_datafile_dir(), filename);
 
     /* XXX - check, if the file is really existing, otherwise display a simple_dialog about the problem */
 
-    /* convert filename to uri */
-    uri = filename2uri(file_path);
+    uri = data_file_url(filename);
 
     /* show the uri */
     browser_open_url (uri);
 
-    g_free(file_path);
     g_free(uri);
 }

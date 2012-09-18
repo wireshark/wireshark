@@ -1156,7 +1156,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
     }
 
     /* open the webbrowser */
-    file_uri = filename2uri(map_filename);
+    file_uri = g_filename_to_uri(map_filename, NULL, NULL);
     g_free(map_filename);
     uri_open = browser_open_url (file_uri);
     if(!uri_open) {
