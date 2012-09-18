@@ -298,7 +298,7 @@ Fin
 }
 
 
-# Read configure.in, then write it back out with an updated
+# Read configure.ac, then write it back out with an updated
 # "AC_INIT" line.
 sub update_configure_ac
 {
@@ -311,14 +311,12 @@ sub update_configure_ac
 
 	open(CFGIN, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CFGIN>) {
-		if ($line =~ /^AC_INIT\(wireshark, (\d+)\.(\d+).(\d+) *,(.*[\r\n]+)$/) {
-			$line = sprintf("AC_INIT\(wireshark, %d.%d.%d%s,$4",
-					$set_version ? $version_pref{"version_major"} : $1,
-					$set_version ? $version_pref{"version_minor"} : $2,
-					$set_version ? $version_pref{"version_micro"} : $3,
-					$package_string
-				       );
-
+		if ($line =~ /^m4_define\(version_major *,.*([\r\n]+)$/) {
+			$line = sprintf("m4_define(version_major, %d)$1", $version_pref{"version_major"});
+		} elsif ($line =~ /^m4_define\(version_minor *,.*([\r\n]+)$/) {
+			$line = sprintf("m4_define(version_minor, %d)$1", $version_pref{"version_minor"});
+		} elsif ($line =~ /^m4_define\(version_micro *,.*([\r\n]+)$/) {
+			$line = sprintf("m4_define(version_micro, %d)$1", $version_pref{"version_micro"});
 		}
 		$contents .= $line
 	}
