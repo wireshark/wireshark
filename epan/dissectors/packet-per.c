@@ -25,7 +25,7 @@ proper helper routines
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -284,7 +284,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 	guint32 len;
 	proto_item *pi;
 	int num_bits;
-	int i, bit;
+	int i, bit, str_length, str_index;
 	gboolean tmp;
 
 	if(!length){
@@ -301,30 +301,34 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		guint32 val;
 
 		val = 0;
-		str=ep_alloc(256);
 
-		g_snprintf(str, 256, " ");
+		/* prepare the string (max number of bits + quartet separators + prepended space) */
+		str_length = 256+64+1;
+		str=ep_alloc(str_length+1);
+		str_index = 0;
+
+		str_length = g_snprintf(str, str_length+1, " ");
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
-			g_strlcat(str,".", 256);
+			if (str_index < str_length) str[str_index++] = '.';
 		}
 		/* read the bits for the int */
 		num_bits = 8;
 		for(i=0;i<num_bits;i++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
 			if(bit&&(!(bit%8))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
 			bit++;
 			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
 			val<<=1;
 			if(tmp){
 				val|=1;
-				g_strlcat(str, "1", 256);
+				if (str_index < str_length) str[str_index++] = '1';
 				if (i==0) { /* bit 8 is 1, so not a single byte length */
 					num_bits = 16;
 				}
@@ -333,9 +337,10 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 					return offset;
 				}
 			} else {
-				g_strlcat(str, "0", 256);
+				if (str_index < str_length) str[str_index++] = '0';
 			}
 		}
+		str[str_index] = '\0'; /* Terminate string */
 		if((val&0x80)==0 && num_bits==8){
 			*length = val;
 			if(hf_index!=-1){
@@ -1181,7 +1186,8 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		 * number of bits necessary to represent the range.
 		 */
 		char *str;
-		int i, bit, length;
+		int  str_index = 0;
+		int i, bit, length, str_length;
 		guint32 mask,mask2;
 		/* We only handle 32 bit integers */
 		mask  = 0x80000000;
@@ -1201,44 +1207,46 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 			num_bits=1;
 		}
 
-		/* prepare the string */
-		str=ep_alloc(256);
-		g_snprintf(str, 256, "%s: ", hfi->name);
+		/* prepare the string (max number of bits + quartet separators + field name + ": ") */
+		str_length = 256+64+(int)strlen(hfi->name)+2;
+		str=ep_alloc(str_length+1);
+		str_index = g_snprintf(str, str_length+1, "%s: ", hfi->name);
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
-			g_strlcat(str,".", 256);
+			if (str_index < str_length) str[str_index++] = '.';
 		}
 		/* read the bits for the int */
 		for(i=0;i<num_bits;i++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
 			if(bit&&(!(bit%8))){
 				length+=1;
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
 			bit++;
 			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
 			val<<=1;
 			if(tmp){
 				val|=1;
-				g_strlcat(str, "1", 256);
+				if (str_index < str_length) str[str_index++] = '1';
 			} else {
-				g_strlcat(str, "0", 256);
+				if (str_index < str_length) str[str_index++] = '0';
 			}
 		}
 		for(;bit%8;bit++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
-			g_strlcat(str,".", 256);
+			if (str_index < str_length) str[str_index++] = '.';
 		}
+		str[str_index] = '\0'; /* Terminate string */
 		val_start = (offset-num_bits)>>3; val_length = length;
 		val+=min;
 		if (display_internal_per_fields)
-			proto_tree_add_text(tree, tvb, val_start,val_length,"Range = %u Bitfield length %u, %s",range, num_bits, str);
+			proto_tree_add_text(tree, tvb, val_start,val_length,"Range = %u Bitfield length %u, %s", range, num_bits, str);
 	} else if(range==256){
 		/* 10.5.7.2 */
 
@@ -1302,7 +1310,8 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	}
 	actx->created_item = it;
 	if (value) *value = val;
-	return offset;}
+	return offset;
+}
 
 guint32
 dissect_per_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint64 min, guint64 max, guint64 *value, gboolean has_extension)
@@ -1333,14 +1342,14 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 	 *			d)	"range" is greater than 64K (the indefinite length case).
 	 */
 	if(((max-min)>65536)&&(actx->aligned)){
-               /* just set range really big so it will fall through
-                  to the bottom of the encoding */
-               /* range=1000000; */
-			   range = max-min;
-			   if (range==65536)
-				   range++; /* make it fall trough? */
+		/* just set range really big so it will fall through
+		   to the bottom of the encoding */
+		/* range=1000000; */
+		range = max-min;
+		if (range==65536)
+			range++; /* make it fall trough? */
 	} else {
-		/* Copied from the 32 bit version, asuming the same problem occures
+		/* Copied from the 32 bit version, assuming the same problem occurs
 		 * at 64 bit boundary.
 		 * Really ugly hack.
 		 * We should really use guint64 as parameters for min/max.
@@ -1374,12 +1383,12 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		 * number of bits necessary to represent the range.
 		 */
 		char *str;
-		int i, bit, length;
-		guint32 mask,mask2;
-		/* We only handle 32 bit integers */
-		mask  = 0x80000000;
-		mask2 = 0x7fffffff;
-		i = 32;
+		int i, bit, length, str_length, str_index;
+		guint64 mask,mask2;
+		/* We only handle 64 bit integers */
+		mask  = G_GINT64_CONSTANT(0x8000000000000000);
+		mask2 = G_GINT64_CONSTANT(0x7fffffffffffffff);
+		i = 64;
 		while ((range & mask)== 0){
 			i = i - 1;
 			mask = mask>>1;
@@ -1394,40 +1403,43 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 			num_bits=1;
 		}
 
-		/* prepare the string */
-		str=ep_alloc(256);
-		g_snprintf(str, 256, "%s: ", hfi->name);
+		/* prepare the string (max number of bits + quartet separators + field name + ": ") */
+		str_length = 512+128+(int)strlen(hfi->name)+2;
+		str = ep_alloc(str_length+1);
+		str_index = 0;
+		str_index = g_snprintf(str, str_length+1, "%s: ", hfi->name);
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
-			g_strlcat(str,".", 256);
+			if (str_index < str_length) str[str_index++] = '.';
 		}
 		/* read the bits for the int */
 		for(i=0;i<num_bits;i++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
 			if(bit&&(!(bit%8))){
 				length+=1;
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
 			bit++;
 			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
 			val<<=1;
 			if(tmp){
 				val|=1;
-				g_strlcat(str, "1", 256);
+				if (str_index < str_length) str[str_index++] = '1';
 			} else {
-				g_strlcat(str, "0", 256);
+				if (str_index < str_length) str[str_index++] = '0';
 			}
 		}
 		for(;bit%8;bit++){
 			if(bit&&(!(bit%4))){
-				g_strlcat(str, " ", 256);
+				if (str_index < str_length) str[str_index++] = ' ';
 			}
-			g_strlcat(str,".", 256);
+			if (str_index < str_length) str[str_index++] = '.';
 		}
+		str[str_index] = '\0'; /* Terminate string */
 		val_start = (offset-num_bits)>>3; val_length = length;
 		val+=min;
 		if (display_internal_per_fields)
@@ -2522,7 +2534,7 @@ proto_register_per(void)
 		{ "Bit String Length", "per.bit_string_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bits in the Bit String", HFILL }},
 	{ &hf_per_const_int_len,
-		{ "Constrained Integer Length", "per._const_int_len", FT_UINT32, BASE_DEC,
+		{ "Constrained Integer Length", "per.const_int_len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes in the Constrained Integer", HFILL }},
     { &hf_per_direct_reference,
       { "direct-reference", "per.direct_reference",
