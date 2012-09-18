@@ -255,6 +255,11 @@
 /* Version number of package */
 #define VERSION "@VERSION@"
 
+/* Broken down version */
+#define VERSION_MAJOR @VERSION_MAJOR@
+#define VERSION_MINOR @VERSION_MINOR@
+#define VERSION_MICRO @VERSION_MICRO@
+
 /* We shouldn't need this under Windows but we'll define it anyway. */
 #define HTML_VIEWER "mozilla"
 

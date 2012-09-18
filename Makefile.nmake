@@ -387,6 +387,9 @@ dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) wsutil\libwsutil.lib ima
 
 config.h	: config.h.win32 config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
+	    -e s/@VERSION_MAJOR@/$(VERSION_MAJOR)/ \
+	    -e s/@VERSION_MINOR@/$(VERSION_MINOR)/ \
+	    -e s/@VERSION_MICRO@/$(VERSION_MICRO)/ \
 	    -e "s/@HAVE_C_ARES@/$(C_ARES_CONFIG)/" \
 	    -e "s/@HAVE_GNU_ADNS@/$(ADNS_CONFIG)/" \
  	    -e "s/@HAVE_KFW@/$(KFW_CONFIG)/" \
