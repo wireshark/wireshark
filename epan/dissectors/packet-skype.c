@@ -98,9 +98,6 @@ static int hf_skype_unknown_packet = -1;
 #define PROTO_SHORT_NAME "SKYPE"
 #define PROTO_LONG_NAME "SKYPE"
 
-#define PORT_SKYPE_UDP	0
-#define PORT_SKYPE_TCP	0
-
 typedef enum {
 	SKYPE_TYPE_UNKNOWN_0 = 0,
 	SKYPE_TYPE_PAYLOAD = 2,
@@ -451,8 +448,8 @@ proto_reg_handoff_skype(void)
 	dissector_handle_t skype_handle;
 
 	skype_handle = new_create_dissector_handle(dissect_skype_static, proto_skype);
-	dissector_add_uint("tcp.port", PORT_SKYPE_UDP, skype_handle);
-	dissector_add_uint("udp.port", PORT_SKYPE_UDP, skype_handle);
+	dissector_add_handle("tcp.port", skype_handle);
+	dissector_add_handle("udp.port", skype_handle);
 #if SKYPE_HEUR
 	heur_dissector_add("tcp", dissect_skype_heur, proto_skype);
 	heur_dissector_add("udp", dissect_skype_heur, proto_skype);
