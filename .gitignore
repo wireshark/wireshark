@@ -117,6 +117,7 @@ qtshark
 /ui/qt/qrc_*.cpp
 /ui/qt/qrc_*.cxx
 /ui/qt/ui_*.h
+/ui/qt/console.lua
 
 # Misc #
 ########
