@@ -41,21 +41,32 @@ libcliui.lib	: ..\..\config.h $(TSHARK_TAP_OBJECTS) tshark-tap-register.obj
 #
 # We do this by grepping through sources.
 #
+# The shell script runs slowly, as multiple greps and seds are run
+# for each input file; this is especially slow on Windows.  Therefore,
+# if Python is present (as indicated by PYTHON being defined), we run
+# a faster Python script to do that work instead.
+#
 # Formatting conventions:  The name of the tap_listener_register_*
 # routines must start in column zero, or must be preceded only by
 # "void " starting in column zero, and must not be inside #if.
 #
+!IFDEF PYTHON
+tshark-tap-register.c: $(TSHARK_TAP_SRC) ..\..\tools\make-tap-reg.py
+	@echo Making tshark-tap-register.c using python
+	@$(PYTHON) ..\..\tools\make-tap-reg.py . tshark-taps $(TSHARK_TAP_SRC)
+!ELSE
 # The first argument is the name of the file to write.
 # The second argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
-#
 tshark-tap-register.c: $(TSHARK_TAP_SRC) ..\..\tools\make-tapreg-dotc
 	@echo Making tshark-tap-register.c
 	@$(SH) ../../tools/make-tapreg-dotc tshark-tap-register.c . $(TSHARK_TAP_SRC)
+!ENDIF
 
 clean:
-	rm -f $(TSHARK_TAP_OBJECTS) tshark-tap-register.obj libcliui.lib *.pdb *.sbr \
-		doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
+	rm -f $(TSHARK_TAP_OBJECTS) tshark-tap-register.obj libcliui.lib *.pdb \
+		*.sbr doxygen.cfg html/*.* tshark-tap-register-cache.pkl \
+		tshark-tap-register.c-tmp
 	if exist html rmdir html
 
 distclean: clean

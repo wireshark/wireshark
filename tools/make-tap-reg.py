@@ -30,6 +30,10 @@ if registertype == "taps":
 	tmp_filename = "wireshark-tap-register.c-tmp"
 	final_filename = "wireshark-tap-register.c"
 	cache_filename = "wireshark-tap-register-cache.pkl"
+elif registertype == "tshark-taps":
+	tmp_filename = "tshark-tap-register.c-tmp"
+	final_filename = "tshark-tap-register.c"
+	cache_filename = "tshark-tap-register-cache.pkl"
 else:
 	print "Unknown output type '%s'" % registertype
 	sys.exit(1)

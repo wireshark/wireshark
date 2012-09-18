@@ -52,9 +52,14 @@ MAINTAINERCLEANFILES = \
 # The first argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-tshark-tap-register.c: $(TSHARK_TAP_SRC) $(top_srcdir)/tools/make-tapreg-dotc
-	@echo Making tshark-tap-register.c
-	@$(top_srcdir)/tools/make-tapreg-dotc tshark-tap-register.c $(srcdir) $(TSHARK_TAP_SRC)
+tshark-tap-register.c: $(TSHARK_TAP_SRC) $(top_srcdir)/tools/make-tapreg-dotc $(top_srcdir)/tools/make-tap-reg.py
+	@if test -n "$(PYTHON)"; then \
+		echo Making tshark-tap-register.c with python; \
+		$(PYTHON) $(top_srcdir)/tools/make-tap-reg.py $(srcdir) tshark-taps $(TSHARK_TAP_SRC); \
+	else \
+		echo Making tshark-tap-register.c; \
+		$(top_srcdir)/tools/make-tapreg-dotc tshark-tap-register.c $(srcdir) $(TSHARK_TAP_SRC); \
+	fi
 
 # All sources that should be put in the source distribution tarball
 libcliui_a_SOURCES = \
