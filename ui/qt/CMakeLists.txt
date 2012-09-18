@@ -34,6 +34,7 @@ set(QTSHARK_H_SRC
 	display_filter_combo.h
 	display_filter_edit.h
 	fileset_dialog.h
+	import_text_dialog.h
 	interface_tree.h
 	label_stack.h
 	main_status_bar.h
@@ -64,6 +65,7 @@ set(QTSHARK_CPP_SRC
 	display_filter_combo.cpp
 	display_filter_edit.cpp
 	fileset_dialog.cpp
+	import_text_dialog.cpp
 	interface_tree.cpp
 	label_stack.cpp
 	main.cpp
@@ -88,6 +90,7 @@ set(QTSHARK_SRC
 )
 
 set(QTSHARK_UI
+	import_text_dialog.ui
 	main_welcome.ui
 	main_window.ui
 )
