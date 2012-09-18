@@ -29,7 +29,7 @@
  * don't have it.
  */
 
-/*  Windows does not have inet_pton() and inet_pton() until Vista.  In order
+/*  Windows does not have inet_pton() and inet_ntop() until Vista.  In order
  *  to allow binaries compiled on Vista or later to work on pre-Vista Windows
  *  (without resorting to fragile link ordering tricks), we give our versions
  *  of those functions Wireshark-specific names.
