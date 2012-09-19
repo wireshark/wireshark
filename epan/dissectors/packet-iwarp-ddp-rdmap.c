@@ -258,6 +258,17 @@ static const value_string ddp_errcode_untagged_names[] = {
 		{ 0, NULL }
 };
 
+static heur_dissector_list_t rdmap_heur_subdissector_list;
+
+static void
+dissect_rdmap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if (!dissector_try_heuristic(rdmap_heur_subdissector_list,
+				    tvb, pinfo, tree, NULL)) {
+		call_dissector(data_handle, tvb, pinfo, tree);
+	}
+}
+
 /* update packet list pane in the GUI */
 static void
 ddp_rdma_packetlist(packet_info *pinfo, gboolean ddp_last_flag,
@@ -603,7 +614,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				/* display the payload */
 				next_tvb = tvb_new_subset_remaining(tvb, DDP_TAGGED_HEADER_LEN);
-				call_dissector(data_handle, next_tvb, pinfo, tree);
+				dissect_rdmap_payload(next_tvb, pinfo, tree);
 			}
 
 		} else {
@@ -632,7 +643,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				/* display the payload */
 				next_tvb = tvb_new_subset_remaining(tvb, DDP_UNTAGGED_HEADER_LEN);
-				call_dissector(data_handle, next_tvb, pinfo, tree);
+				dissect_rdmap_payload(next_tvb, pinfo, tree);
 			}
 		}
 	}
@@ -879,6 +890,9 @@ proto_register_iwarp_ddp_rdmap(void)
 	/* required function calls to register the header fields and subtrees */
 	proto_register_field_array(proto_iwarp_ddp_rdmap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_heur_dissector_list("iwarp_ddp_rdmap",
+				     &rdmap_heur_subdissector_list);
 
 	register_dissector("iwarp_ddp_rdmap", dissect_iwarp_ddp_rdmap,
 			proto_iwarp_ddp_rdmap);
