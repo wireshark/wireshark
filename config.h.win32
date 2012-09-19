@@ -237,7 +237,8 @@
 #endif
 
 /* Visual C 9 (2008) & Visual C 10 (2010) need these prototypes */
-#if _MSC_VER == 1500 || _MSC_VER == 1600
+/* XXX: I'm guessing that this also applies to Visual C 11 (2012); TBD */
+#if _MSC_VER == 1500 || _MSC_VER == 1600 || MSC_VER == 1700
 #define NTDDI_VERSION NTDDI_WIN2K
 #define _WIN32_WINNT _WIN32_WINNT_WIN2K
 #endif
