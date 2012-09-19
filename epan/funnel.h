@@ -23,7 +23,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #ifndef _FUNNEL_H
 #define _FUNNEL_H
@@ -61,32 +61,32 @@ typedef struct _funnel_ops_t {
     void (*set_editable)(funnel_text_window_t*  win, gboolean editable);
     void (*destroy_text_window)(funnel_text_window_t*  win);
     void (*add_button)(funnel_text_window_t*  win, funnel_bt_t* cb, const gchar* label);
-	
+
     void (*new_dialog)(const gchar* title,
-                                   const gchar** fieldnames,
-                                   funnel_dlg_cb_t dlg_cb,
-                                   void* data);
-	
-	
+		       const gchar** fieldnames,
+		       funnel_dlg_cb_t dlg_cb,
+		       void* data);
+
+
     void (*logger)(const gchar *log_domain,
                    GLogLevelFlags log_level,
                    const gchar *message,
                    gpointer user_data);
-	
-	
-	void (*retap_packets)(void);
-	void (*copy_to_clipboard)(GString *str);
-    
-	gchar * (*get_filter)(void);
-	void (*set_filter)(const char*);
-        void (*set_color_filter_slot)(guint8 flit_nr, const gchar* filter);
-	gboolean (*open_file)(const char* fname, const char* filter, const char** error);
-	void (*reload)(void);
-	void (*apply_filter)(void);
-    
-	gboolean (*browser_open_url)(const gchar *url);
-	void (*browser_open_data_file)(const gchar *filename);
-    
+
+
+    void (*retap_packets)(void);
+    void (*copy_to_clipboard)(GString *str);
+
+    gchar * (*get_filter)(void);
+    void (*set_filter)(const char*);
+    void (*set_color_filter_slot)(guint8 flit_nr, const gchar* filter);
+    gboolean (*open_file)(const char* fname, const char* filter, const char** error);
+    void (*reload)(void);
+    void (*apply_filter)(void);
+
+    gboolean (*browser_open_url)(const gchar *url);
+    void (*browser_open_data_file)(const gchar *filename);
+
     funnel_progress_window_t* (*new_progress_window)(const gchar* label, const gchar* task, gboolean terminate_is_stop, gboolean *stop_flag);
     void (*update_progress)(funnel_progress_window_t*, float pr, const gchar* task);
     void (*destroy_progress_window)(funnel_progress_window_t*);
