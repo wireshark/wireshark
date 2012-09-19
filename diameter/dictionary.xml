@@ -3467,11 +3467,11 @@
 		</avp>
 		<avp name="Event-Trigger" code="1006" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
-			<enum name="SGSN CHANGE"					code="0"/>
-			<enum name="QOS CHANGE"						code="1"/>
-			<enum name="RAT CHANGE"						code="2"/>
-			<enum name="TFT CHANGE"						code="3"/>
-			<enum name="PLMN CHANGE"					code="4"/>
+			<enum name="SGSN_CHANGE"					code="0"/>
+			<enum name="QOS_CHANGE"						code="1"/>
+			<enum name="RAT_CHANGE"						code="2"/>
+			<enum name="TFT_CHANGE"						code="3"/>
+			<enum name="PLMN_CHANGE"					code="4"/>
 			<enum name="LOSS_OF_BEARER" 					code="5"/>
 			<enum name="RECOVERY_OF_BEARER" 				code="6"/>
 			<enum name="IP-CAN_CHANGE"					code="7"/>
@@ -3493,9 +3493,9 @@
 			<enum name="RESOURCE_MODIFICATION_REQUEST"			code="23"/>
 			<enum name="PGW_TRACE_CONTROL"					code="24"/>
 			<enum name="UE_TIME_ZONE_CHANGE"				code="25"/>
-			<enum name="USAGE_REPORT"					code="26"/>
-			<enum name="TAI_CHANGE"						code="27"/>
-			<enum name="ECGI_CHANGE"					code="28"/>
+			<enum name="TAI_CHANGE"						code="26"/>
+			<enum name="ECGI_CHANGE"					code="27"/>
+			<enum name="CHARGING_CORRELATION_EXCHANGE"					code="28"/>
 			<enum name="APN-AMBR_MODIFICATION_FAILURE"			code="29"/>
 			<enum name="USER_CSG_INFORMATION_CHANGE"			code="30"/>
 			<enum name="USAGE_REPORT"					code="33"/>
@@ -3533,8 +3533,9 @@
 		</avp>
 		<avp name="Reporting-Level" code="1011" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
-			<enum name="CHARGING RULE LEVEL" code="0"/>
-			<enum name="RATING GROUP LEVEL" code="1"/>
+			<enum name="SERVICE_IDENTIFIER_LEVEL" code="0"/>
+			<enum name="RATING_GROUP_LEVEL" code="1"/>
+			<enum name="SPONSORED_CONNECTIVITY_LEVEL" code="2"/>
 		</avp>
 		<avp name="TFT-Filter" code="1012" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="IPFilterRule"/>
@@ -3625,6 +3626,7 @@
 			<enum name="WiMAX" 	code="3"/>
 			<enum name="3GPP2" 	code="4"/>
 			<enum name="3GPP-EPS" 	code="5"/>
+			<enum name="Non-3GPP-EPS" 	code="6"/>
 		</avp>
 		<avp name="QoS-Class-Identifier" code="1028" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
@@ -3663,10 +3665,14 @@
 			<enum name="MISSING_FLOW_DESCRIPTION"		code="9"/>
 			<enum name="RESOURCE_ALLOCATION_FAILURE"	code="10"/>
 			<enum name="UNSUCCESSFUL_QOS_VALIDATION"	code="11"/>
+			<enum name="INCORRECT_FLOW_INFORMATION"	code="12"/>
+			<enum name="PS_TO_CS_HANDOVER"	code="13"/>
+			<enum name="NO_BEARER_BOUND"	code="15"/>
 		</avp>
 		<avp name="RAT-Type" code="1032" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated" />
 			<enum name="WLAN"		code="0" />
+			<enum name="VIRTUAL"		code="1" />
 			<enum name="UTRAN"		code="1000" />
 			<enum name="GERAN"		code="1001" />
 			<enum name="GAN"		code="1002" />
@@ -3675,6 +3681,7 @@
 			<enum name="CDMA2000_1X"	code="2000" />
 			<enum name="HRPD"		code="2001" />
 			<enum name="UMB"		code="2002" />
+			<enum name="EHRPD"		code="2003" />
 		</avp>
 		<avp name="Event-Report-Indication" code="1033" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
