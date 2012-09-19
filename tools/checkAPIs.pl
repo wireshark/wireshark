@@ -128,13 +128,6 @@ my %APIs = (
                 'perror',                                       # Use g_strerror() and report messages in whatever
                                                                 #  fashion is appropriate for the code in question.
                 'ctime',                                        # Use abs_time_secs_to_str()
-                'dissector_add',                                # Use dissector_add_uint()
-                'dissector_change',                             # Use dissector_change_uint()
-                'dissector_delete',                             # Use dissector_delete_uint()
-                'dissector_get_port_handle',                    # Use dissector_get_uint_handle()
-                'dissector_reset',                              # Use dissector_reset_uint()
-                'dissector_try_port',                           # Use dissector_try_uint()
-                'dissector_try_port_new',                       # Use dissector_try_uint_new()
                 'next_tvb_add_port',                            # Use next_tvb_add_uint() (and a matching change
                                                                 #  of NTVB_PORT -> NTVB_UINT)
 

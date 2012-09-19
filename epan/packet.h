@@ -173,34 +173,18 @@ extern int get_dissector_table_base(const char *name);
 extern void dissector_add_uint(const char *abbrev, const guint32 pattern,
     dissector_handle_t handle);
 
-/* For old code that hasn't yet been changed. */
-#define dissector_add(abbrev, pattern, handle) \
-	dissector_add_uint(abbrev, pattern, handle)
-
 /* Delete the entry for a dissector in a uint dissector table
    with a particular pattern. */
 extern void dissector_delete_uint(const char *name, const guint32 pattern,
     dissector_handle_t handle);
-
-/* For old code that hasn't yet been changed. */
-#define dissector_delete(name, pattern, handle) \
-	dissector_delete_uint(name, pattern, handle)
 
 /* Change the entry for a dissector in a uint dissector table
    with a particular pattern to use a new dissector handle. */
 extern void dissector_change_uint(const char *abbrev, const guint32 pattern,
     dissector_handle_t handle);
 
-/* For old code that hasn't yet been changed. */
-#define dissector_change(abbrev, pattern, handle) \
-	dissector_change_uint(abbrev, pattern, handle)
-
 /* Reset an entry in a uint dissector table to its initial value. */
 extern void dissector_reset_uint(const char *name, const guint32 pattern);
-
-/* For old code that hasn't yet been changed. */
-#define dissector_reset(name, pattern) \
-	dissector_reset_uint(name, pattern)
 
 /* Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return TRUE,
@@ -208,28 +192,16 @@ extern void dissector_reset_uint(const char *name, const guint32 pattern);
 extern gboolean dissector_try_uint(dissector_table_t sub_dissectors,
     const guint32 uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-/* For old code that hasn't yet been changed. */
-#define dissector_try_port(sub_dissectors, uint_val, tvb, pinfo, tree) \
-	dissector_try_uint(sub_dissectors, uint_val, tvb, pinfo, tree)
-
 /* Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return TRUE,
    otherwise return FALSE. */
 extern gboolean dissector_try_uint_new(dissector_table_t sub_dissectors,
 	const guint32 uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name, void *data);
 
-/* For old code that hasn't yet been changed. */
-#define dissector_try_port_new(sub_dissectors, uint_val, tvb, pinfo, tree, add_proto_name) \
-	dissector_try_uint_new(sub_dissectors, uint_val, tvb, pinfo, tree, add_proto_name, NULL)
-
 /* Look for a given value in a given uint dissector table and, if found,
    return the dissector handle for that value. */
 extern dissector_handle_t dissector_get_uint_handle(
     dissector_table_t const sub_dissectors, const guint32 uint_val);
-
-/* For old code that hasn't yet been changed. */
-#define dissector_get_port_handle(sub_dissectors, uint_val) \
-	dissector_get_uint_handle(sub_dissectors, uint_val)
 
 /* Add an entry to a string dissector table. */
 extern void dissector_add_string(const char *name, const gchar *pattern,
