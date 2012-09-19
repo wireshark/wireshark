@@ -19,11 +19,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
-# include "config.h"
+#include "config.h"
 #endif
 
 #include <stdio.h>
@@ -542,11 +542,11 @@ iostat_draw(void *arg)
         borderlen, invl_col_w, numpad=1, namelen, len_filt, type, maxfltr_w, ftype;
     int fr_mag;    /* The magnitude of the max frame number in this column */
     int val_mag;   /* The magnitude of the max value in this column */
-    gboolean last_row=FALSE;
     char *spaces, *spaces_s, *filler_s=NULL, **fmts, *fmt=NULL;
     const char *filter;
     static gchar dur_mag_s[3], invl_mag_s[3], invl_prec_s[3], fr_mag_s[3], val_mag_s[3], *invl_fmt, *full_fmt;
-    io_stat_item_t *mit, **stat_cols, *item;
+    io_stat_item_t *mit, **stat_cols, *item, **item_in_column;
+    gboolean last_row=FALSE;
     io_stat_t *iot;
     column_width *col_w; 
     struct tm * tm_time;
@@ -617,19 +617,13 @@ iostat_draw(void *arg)
     else
         invl_col_w = (2*dur_mag) + (2*invl_prec) + 10;
 
-    /* Update the width of the time interval column (in fact the date) */ 
-    switch (timestamp_get_type()) {
-    case TS_ABSOLUTE:
-      invl_col_w=12;
-      break;
-    case TS_ABSOLUTE_WITH_DATE:
-      invl_col_w=23;
-      break;
-    default:
-      break;
-    }
-    invl_col_w = MAX(invl_col_w, 12);
-    borderlen = MAX(borderlen, invl_col_w);
+    /* Update the width of the time interval column for "-t ad" */ 
+    if (timestamp_get_type()==TS_ABSOLUTE_WITH_DATE) 
+        invl_col_w = MAX(invl_col_w, 23);
+	else
+		invl_col_w = MAX(invl_col_w, 12);
+
+	borderlen = MAX(borderlen, invl_col_w);
 
     /* Calc the total width of each row in the stats table and build the printf format string for each
     *  column based on its field type, width, and name length.
@@ -694,7 +688,7 @@ iostat_draw(void *arg)
                     *  CALC_TYPE_LOAD was already converted in iostat_packet() ) */
                     if (type==CALC_TYPE_LOAD) {
                         iot->max_vals[j] /= interval;
-                    } else {
+                    } else if (type != CALC_TYPE_AVG) {
                         iot->max_vals[j] = (iot->max_vals[j] + 500000000) / NANOSECS_PER_SEC;
                     }
                     val_mag = magnitude(iot->max_vals[j], 15);
@@ -886,23 +880,24 @@ iostat_draw(void *arg)
         printf("%s|", filler_s);
     }
     
-    printf("\n| Interval");
+	k = 11;
     switch (timestamp_get_type()) {
     case TS_ABSOLUTE:
-      printf("\n| Time    ");
-      break;
+        printf("\n| Time    ");
+        break;
     case TS_ABSOLUTE_WITH_DATE:
-      printf("\n| Date    ");
-      break;
+        printf("\n| Date and time");
+		k = 16;
+        break;
     case TS_RELATIVE:
     case TS_NOT_SET:
-      printf("\n| Interval");
-      break;
+        printf("\n| Interval");
+        break;
     default:
-      break;
+        break;
     }
 
-    spaces_s = &spaces[borderlen-(invl_col_w-11)];
+	spaces_s = &spaces[borderlen-(invl_col_w-k)];
     printf("%s|", spaces_s);
 
     /* Display the stat label in each column */
@@ -933,7 +928,14 @@ iostat_draw(void *arg)
     full_fmt = g_strconcat("| ", invl_fmt, " <> ", invl_fmt, " |", NULL);
     num_rows = (int)(duration/interval) + (((duration%interval+500000)/1000000) > 0 ? 1 : 0);
 
-    /* Display the table values.
+    /* Load item_in_column with the first item in each column */
+    item_in_column = (io_stat_item_t **) g_malloc(sizeof(io_stat_item_t) * num_cols);
+    for (j=0; j<num_cols; j++) {
+        item_in_column[j] = stat_cols[j];
+    }
+
+    /* Display the table values 
+    *
     * The outer loop is for time interval rows and the inner loop is for stat column items.*/
     for (i=0; i<num_rows; i++) {
 
@@ -947,144 +949,138 @@ iostat_draw(void *arg)
             invl_end = duration;
         }
 
-	    /* Patch for Absolute Time */
-	    the_time=iot->start_time+(guint32)(t/1000000);
-	    tm_time = localtime(&the_time);
+        /* Patch for Absolute Time */
+        the_time=iot->start_time+(guint32)(t/1000000);
+        tm_time = localtime(&the_time);
 
-	    /* Display the interval for this row */
-	    switch (timestamp_get_type()) {    	  
-	    case TS_ABSOLUTE:
-	      printf("| %02d:%02d:%02d |",
-		     tm_time->tm_hour,
-		     tm_time->tm_min,
-		     tm_time->tm_sec);
-	      break;
-    	  
-	    case TS_ABSOLUTE_WITH_DATE:
-	      printf("| %04d-%02d-%02d %02d:%02d:%02d |",
-		     tm_time->tm_year + 1900,
-		     tm_time->tm_mon + 1,
-		     tm_time->tm_mday,
-		     tm_time->tm_hour,
-		     tm_time->tm_min,
-		     tm_time->tm_sec);
-	      break;
-    	  
-	    case TS_RELATIVE:
-	    case TS_NOT_SET:
+        /* Display the interval for this row */
+        switch (timestamp_get_type()) {          
+        case TS_ABSOLUTE:
+          printf("| %02d:%02d:%02d |",
+             tm_time->tm_hour,
+             tm_time->tm_min,
+             tm_time->tm_sec);
+          break;
+          
+        case TS_ABSOLUTE_WITH_DATE:
+          printf("| %04d-%02d-%02d %02d:%02d:%02d |",
+             tm_time->tm_year + 1900,
+             tm_time->tm_mon + 1,
+             tm_time->tm_mday,
+             tm_time->tm_hour,
+             tm_time->tm_min,
+             tm_time->tm_sec);
+          break;
+          
+        case TS_RELATIVE:
+        case TS_NOT_SET:
 
           if (invl_prec==0) {
               printf(full_fmt, (guint32)(t/1000000),
-                             (guint32)(invl_end/1000000));
+                               (guint32)(invl_end/1000000));
           } else {
               printf(full_fmt, (guint32)(t/1000000),
-                             (guint32)(t%1000000) / dv,
-                             (guint32) (invl_end/1000000),
-                             (guint32)((invl_end%1000000) / dv));
+                               (guint32)(t%1000000) / dv,
+                               (guint32) (invl_end/1000000),
+                               (guint32)((invl_end%1000000) / dv));
           }
-	      break;
-	    /*    case TS_DELTA:
-	  	case TS_DELTA_DIS:
-		case TS_EPOCH:
-		case TS_UTC:
-		case TS_UTC_WITH_DATE:
-		    are not implemented */
+          break;
+     /* case TS_DELTA:
+        case TS_DELTA_DIS:
+        case TS_EPOCH:
+        case TS_UTC:
+        case TS_UTC_WITH_DATE:
+            are not implemented */
         default:
           break;
         }
 
-        /* Display all the stat values in this row */
+        /* Display stat values in each column for this row */
         for (j=0; j<num_cols; j++) {
-            /*
-            * Point to the list for this stat (column). */
-            item = stat_cols[j];
-            /* 
-            * Point to the item in the current row (time interval i) within this list. */            
-            for (k=0; k<i; k++)
-                if (item && item->next)
-                    item = item->next;
-                else
-                    item = NULL;
             fmt = fmts[j];
+            item = item_in_column[j]; 
 
             if (item) {
                 switch(item->calc_type) {
-                    case CALC_TYPE_FRAMES:
-                        printf(fmt, item->frames);
+                case CALC_TYPE_FRAMES:
+                    printf(fmt, item->frames);
+                    break;
+                case CALC_TYPE_BYTES:
+                case CALC_TYPE_COUNT:
+                    printf(fmt, item->counter);
+                    break;
+                case CALC_TYPE_FRAMES_AND_BYTES:
+                    printf(fmt, item->frames, item->counter);
+                    break;
+
+                case CALC_TYPE_SUM:
+                case CALC_TYPE_MIN:
+                case CALC_TYPE_MAX:
+                    ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
+                    switch(ftype){
+                    case FT_FLOAT:
+                        printf(fmt, item->float_counter);
                         break;
-                    case CALC_TYPE_BYTES:
-                    case CALC_TYPE_COUNT:
+                    case FT_DOUBLE:
+                        printf(fmt, item->double_counter);
+                        break;
+                    case FT_RELATIVE_TIME:
+                        item->counter = (item->counter + 500) / 1000;
+                        printf(fmt, (int)(item->counter/1000000), (int)(item->counter%1000000));
+                        break;
+                    default:
                         printf(fmt, item->counter);
                         break;
-                    case CALC_TYPE_FRAMES_AND_BYTES:
-                        printf(fmt, item->frames, item->counter);
-                        break;
+                    }
+                    break;
 
-                    case CALC_TYPE_SUM:
-                    case CALC_TYPE_MIN:
-                    case CALC_TYPE_MAX:
-                        ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
-                        switch(ftype){
-                        case FT_FLOAT:
-                            printf(fmt, item->float_counter);
-                            break;
-                        case FT_DOUBLE:
-                            printf(fmt, item->double_counter);
-                            break;
-                        case FT_RELATIVE_TIME:
-                            item->counter = (item->counter + 500) / 1000;
-                            printf(fmt, (int)(item->counter/1000000), (int)(item->counter%1000000));
-                            break;
-                        default:
-                            printf(fmt, item->counter);
-                            break;
-                        }
+                case CALC_TYPE_AVG:
+                    num = item->num;
+                    if(num==0)
+                        num=1;
+                    ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
+                    switch(ftype){
+                    case FT_FLOAT:
+                        printf(fmt, item->float_counter/num);
                         break;
+                    case FT_DOUBLE:
+                        printf(fmt, item->double_counter/num);
+                        break;
+                    case FT_RELATIVE_TIME:
+                        item->counter = ((item->counter/num) + 500) / 1000;
+                        printf(fmt,
+                            (int)(item->counter/1000000), (int)(item->counter%1000000));
+                        break;
+                    default:
+                        printf(fmt, item->counter/num);
+                        break;
+                    }
+                    break;
 
-                    case CALC_TYPE_AVG:
-                        num = item->num;
-                        if(num==0)
-                            num=1;
-                        ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
-                        switch(ftype){
-                        case FT_FLOAT:
-                            printf(fmt, item->float_counter/num);
-                            break;
-                        case FT_DOUBLE:
-                            printf(fmt, item->double_counter/num);
-                            break;
-                        case FT_RELATIVE_TIME:
-                            item->counter = ((item->counter/num) + 500) / 1000;
+                case CALC_TYPE_LOAD:
+                    ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
+                    switch(ftype){
+                    case FT_RELATIVE_TIME:
+                        if (!last_row) {
                             printf(fmt,
-                                (int)(item->counter/1000000), (int)(item->counter%1000000));
-                            break;
-                        default:
-                            printf(fmt, item->counter/num);
-                            break;
+                                (int) (item->counter/interval), 
+                                (int)((item->counter%interval)*1000000 / interval));                        
+                        } else {
+                            printf(fmt,
+                                (int) (item->counter/(invl_end-t)),
+                                (int)((item->counter%(invl_end-t))*1000000 / (invl_end-t)));
                         }
                         break;
-
-                    case CALC_TYPE_LOAD:
-                        ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
-                        switch(ftype){
-                        case FT_RELATIVE_TIME:
-                            if (!last_row) {
-                                printf(fmt,
-                                    (int) (item->counter/interval), 
-                                    (int)((item->counter%interval)*1000000 / interval));                        
-                            } else {
-                                printf(fmt,
-                                    (int) (item->counter/(invl_end-t)),
-                                    (int)((item->counter%(invl_end-t))*1000000 / (invl_end-t)));
-                            }
-                            break;
-                        }
-                        break;
+                    }
+                    break;
                 }
-                if (last_row)
+
+                if (last_row) {
                     if (fmt)
                         g_free(fmt);
-
+                } else {
+                    item_in_column[j] = item_in_column[j]->next; 
+                }
             } else {
                 printf(fmt, (guint64)0);
             }
@@ -1099,10 +1095,17 @@ iostat_draw(void *arg)
         printf("=");
     }
     printf("\n");
-    g_free(invl_fmt);
+    g_free(iot->items);
+    g_free(iot->max_vals);
+    g_free(iot->max_frame);
+    g_free(iot);
     g_free(col_w);
+    g_free(invl_fmt);
     g_free(full_fmt);
+    g_free(fmts);
     g_free(spaces);
+    g_free(stat_cols);
+    g_free(item_in_column);
 }
 
 
@@ -1279,8 +1282,20 @@ iostat_init(const char *optarg, void* userdata _U_)
         fprintf(stderr, "\ntshark: invalid \"-z io,stat,<interval>[,<filter>]\" argument\n");
         exit(1);
     }
+
+    switch (timestamp_get_type()) {
+    case TS_DELTA:
+    case TS_DELTA_DIS:
+    case TS_EPOCH:
+    case TS_UTC:
+    case TS_UTC_WITH_DATE:
+        fprintf(stderr, "\ntshark: invalid -t operand. io,stat only supports -t <r|a|ad>\n");
+        exit(1);
+	default:
+		break;
+    }
     
-    io = (io_stat_t *) g_malloc(sizeof(io_stat_t));
+	io = (io_stat_t *) g_malloc(sizeof(io_stat_t));
 
     /* If interval is 0, calculate statistics over the whole file by setting the interval to
     *  G_MAXINT32 */
