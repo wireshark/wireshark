@@ -2585,38 +2585,42 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  * field info update instead of only updating the representation as does
  * proto_item_append_text()
  */
+/* NOTE: this function will break with the TRY_TO_FAKE_THIS_ITEM()
+ * speed optimization.
+ * Currently only WSP use this function so it is not that bad but try to
+ * avoid using this one if possible.
+ * IF you must use this function you MUST also disable the
+ * TRY_TO_FAKE_THIS_ITEM() optimization for your dissector/function
+ * using proto_item_append_string().
+ * Do that by faking that the tree is visible by calling
+ * proto_tree_set_visible(tree, TRUE) (see packet-wsp.c)
+ * BEFORE you create the item you are later going to use
+ * proto_item_append_string() on.
+ */
 void
 proto_item_append_string(proto_item *pi, const char *str)
 {
-	field_info *fi = NULL;
-	size_t      curlen;
+	field_info        *fi;
+	header_field_info *hfinfo;
+	gchar             *old_str, *new_str;
 
-	if (pi == NULL) {
+	if (!pi)
 		return;
-	}
+	if (!*str)
+		return;
 
 	fi = PITEM_FINFO(pi);
-	if (fi == NULL) {
+	DISSECTOR_ASSERT_HINT(fi, "proto_tree_set_visible(tree, TRUE) should have been called previously");
+
+	hfinfo = fi->hfinfo;
+	if (hfinfo->type == FT_PROTOCOL) {
+		/* TRY_TO_FAKE_THIS_ITEM() speed optimization: silently skip */
 		return;
 	}
-
-	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
-		/*
-		 * If we don't already have a representation,
-		 * generate the default representation.
-		 */
-		if (fi->rep == NULL) {
-			ITEM_LABEL_NEW(fi->rep);
-			proto_item_fill_label(fi, fi->rep->representation);
-		}
-
-		curlen = strlen(fi->rep->representation);
-		if (ITEM_LABEL_LENGTH > curlen) {
-			g_strlcpy(fi->rep->representation + curlen,
-                      str,
-                      ITEM_LABEL_LENGTH - (gulong) curlen);
-		}
-	}
+	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
+	old_str = fvalue_get(&fi->value);
+	new_str = ep_strdup_printf("%s%s", old_str, str);
+	fvalue_set(&fi->value, new_str, FALSE);
 }
 
 /* Set the FT_STRING value */
