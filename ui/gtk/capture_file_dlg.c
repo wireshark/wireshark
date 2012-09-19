@@ -845,12 +845,14 @@ file_merge_cmd(GtkWidget *w _U_)
   int          file_type;
   cf_status_t  merge_status;
   char        *in_filenames[2];
-  char        *tmpname;
+  char        *tmpname = NULL;
 
   /*
    * Loop until the user either selects a file or gives up.
    */
   for (;;) {
+    g_string_truncate(file_name, 0);
+    g_string_truncate(display_filter, 0);
 #ifdef USE_WIN32_FILE_DIALOGS
     if (win32_merge_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), file_name, display_filter, &merge_type)) {
 #else /* USE_WIN32_FILE_DIALOGS */
@@ -890,8 +892,6 @@ file_merge_cmd(GtkWidget *w _U_)
         if (rfcode != NULL)
           dfilter_free(rfcode);
         g_free(tmpname);
-        g_string_free(file_name, TRUE);
-        g_string_free(display_filter, TRUE);
         continue;
       }
 
@@ -937,8 +937,10 @@ file_merge_cmd(GtkWidget *w _U_)
     /* Save the name of the containing directory specified in the path name,
        if any; we can write over cf_merged_name, which is a good thing, given that
        "get_dirname()" does write over its argument. */
-    set_last_open_dir(get_dirname(tmpname));
-    g_free(tmpname);
+    if (tmpname) {
+        set_last_open_dir(get_dirname(tmpname));
+        g_free(tmpname);
+    }
     g_string_free(file_name, TRUE);
     g_string_free(display_filter, TRUE);
     return;

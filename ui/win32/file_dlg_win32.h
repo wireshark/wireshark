@@ -131,8 +131,10 @@ void file_set_save_marked_sensitive();
 #define EWFD_PTX_FIRST_PKT 1014
 #define EWFD_PTX_ELAPSED   1015
 
+/* Save as dialog defines */
+#define EWFD_GZIP_CB     1000
 
-/* Save dialog defines */
+/* Export dialog defines */
 #define EWFD_CAPTURED_BTN    1000
 #define EWFD_DISPLAYED_BTN   1001
 #define EWFD_ALL_PKTS_BTN    1002

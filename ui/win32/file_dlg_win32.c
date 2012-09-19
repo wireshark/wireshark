@@ -139,6 +139,7 @@ static TCHAR *build_file_save_type_list(GArray *savable_file_types,
                                         gboolean must_support_comments);
 
 static int            filetype;
+static gboolean       use_compression;
 static packet_range_t g_range;
 static merge_action_e g_merge_action;
 static print_args_t   print_args;
@@ -375,8 +376,8 @@ win32_save_as_file(HWND h_wnd, capture_file *cf,
     GArray *savable_file_types;
     OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
-    GString *file_name8;
-    gchar *file_last_dot;
+    GString *file_name8, *file_suffix;
+    gchar *file_name_lower;
     GSList *extensions_list, *extension;
     gboolean add_extension;
     gchar *dirname;
@@ -389,6 +390,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf,
     savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes);
     if (savable_file_types == NULL)
         return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
+    use_compression = FALSE;
 
     /*
      * Loop until the user either selects a file or gives up.
@@ -427,12 +429,12 @@ win32_save_as_file(HWND h_wnd, capture_file *cf,
         ofn->nMaxFileTitle = 0;
         ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
         ofn->lpstrTitle = _T("Wireshark: Save file as");
-        ofn->Flags = OFN_ENABLESIZING  | OFN_EXPLORER        |
+        ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER        |
                      OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                      OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
         ofn->lpstrDefExt = NULL;
         ofn->lpfnHook = save_as_file_hook_proc;
-        ofn->lpTemplateName = NULL;
+        ofn->lpTemplateName = _T("WIRESHARK_SAVEASFILENAME_TEMPLATE");
 
         if (!GetSaveFileName(ofn)) {
             /* User cancelled or closed the dialog, or an error occurred. */
@@ -492,38 +494,49 @@ win32_save_as_file(HWND h_wnd, capture_file *cf,
          * extensions for the file type.
          */
         file_name8 = g_string_new(utf_16to8(file_name16));
-        file_last_dot = strrchr(file_name8->str,'.');
+        file_name_lower = g_utf8_strdown(file_name8->str, -1);
+        file_suffix = g_string_new("");
         extensions_list = wtap_get_file_extensions_list(filetype, FALSE);
         if (extensions_list != NULL) {
             /* We have one or more extensions for this file type.
                Start out assuming we need to add the default one. */
             add_extension = TRUE;
-            if (file_last_dot != NULL) {
-                /* Skip past the dot. */
-                file_last_dot++;
-
-                /* OK, see if the file has one of those extensions. */
-                for (extension = extensions_list; extension != NULL;
-                     extension = g_slist_next(extension)) {
-                    if (g_ascii_strcasecmp((char *)extension->data,
-                                           file_last_dot) == 0) {
-                        /*
-                         * The file name has one of the extensions for
-                         * this file type.
-                         */
-                        add_extension = FALSE;
-                        break;
-                    }
+            
+            /* OK, see if the file has one of those extensions. */
+            for (extension = extensions_list; extension != NULL;
+                 extension = g_slist_next(extension)) {
+                g_string_printf(file_suffix, ".%s", extension);
+                if (g_str_has_suffix(file_name_lower, file_suffix->str)) {
+                    /*
+                     * The file name has one of the extensions for
+                     * this file type.
+                     */
+                    add_extension = FALSE;
+                    break;
+                }
+                g_string_append(file_suffix, ".gz");
+                if (g_str_has_suffix(file_name_lower, file_suffix->str)) {
+                    /*
+                     * The file name has one of the extensions for
+                     * this file type.
+                     */
+                    add_extension = FALSE;
+                    break;
                 }
             }
         } else {
             /* We have no extensions for this file type.  Don't add one. */
             add_extension = FALSE;
         }
+        g_free(file_name_lower);
+        g_string_free(file_suffix, TRUE);
         if (add_extension) {
             if (wtap_default_file_extension(filetype) != NULL) {
                 g_string_append_printf(file_name8, ".%s",
                                        wtap_default_file_extension(filetype));
+                if (use_compression) {
+                    g_string_append(file_name8, ".gz");
+                }
             }
         }
 
@@ -545,7 +558,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf,
          * presumably should rarely fail in this case.
          */
         switch (cf_save_packets(&cfile, file_name8->str, filetype,
-                            FALSE/*compressed */,
+                            use_compression,
                             discard_comments,
                             dont_reopen)) {
         case CF_WRITE_OK:
@@ -1843,6 +1856,9 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
             /* Fill in the file format list */
             /*build_file_format_list(sf_hwnd);*/
+            /* Fill in the compression checkbox */
+            cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
+            SendMessage(cur_ctrl, BM_SETCHECK, use_compression, 0);
 
             break;
         case WM_COMMAND:
@@ -1868,7 +1884,16 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
                                     EnableWindow(cur_ctrl, FALSE);
                                 }
-                                filetype = new_filetype;
+                                filetype = new_filetype;                                
+                                cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
+                                if (wtap_dump_can_compress(file_type) {
+                                    EnableWindow(cur_ctrl);
+                                } else {
+                                    use_compression = FALSE;
+                                    DisableWindow(cur_ctrl);
+                                }
+                                SendMessage(cur_ctrl, BM_SETCHECK, use_compression, 0);
+
                             }
                         }
                     }
@@ -1888,6 +1913,13 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     TCHAR  file_name16_selected[MAX_PATH];
                     char  *file_name8_selected;
                     int    selected_size;
+
+                    /* Fetch our compression value */
+                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
+                    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+                        use_compression = TRUE;
+                    else
+                        use_compression = FALSE;
 
                     /* Check if trying to do 'save as' to the currently open file */
                     parent = GetParent(sf_hwnd);
