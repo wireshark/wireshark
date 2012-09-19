@@ -406,9 +406,9 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             line_prefix_info = g_new(line_prefix_info_t,1);
 
             /* Create and use buffer for contents before time */
-            line_prefix_info->before_time = g_malloc(before_time_offset+2);
-            memcpy(line_prefix_info->before_time, linebuff, before_time_offset+1);
-            line_prefix_info->before_time[before_time_offset+1] = '\0';
+            line_prefix_info->before_time = g_malloc(before_time_offset+1);
+            memcpy(line_prefix_info->before_time, linebuff, before_time_offset);
+            line_prefix_info->before_time[before_time_offset] = '\0';
 
             /* Create and use buffer for contents before time.
                Do this only if it doesn't correspond to " l ", which is by far the most
@@ -468,6 +468,15 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     int encap;
     int seconds, useconds, data_chars;
 
+    /* Get wtap external structure for this wtap */
+    dct2000_file_externals_t *file_externals =
+        (dct2000_file_externals_t*)wth->priv;
+
+    /* There *has* to be an entry for this wth */
+    if (!file_externals) {
+        return FALSE;
+    }
+
     /* Reset errno */
     *err = errno = 0;
 
@@ -497,6 +506,14 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
 
         /* Make sure all packets go to catapult dct2000 dissector */
         wth->phdr.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
+
+        /* Fill in timestamp (capture base + packet offset) */
+        wth->phdr.ts.secs = file_externals->start_secs + seconds;
+        if ((file_externals->start_usecs + useconds) >= 1000000) {
+            wth->phdr.ts.secs++;
+        }
+        wth->phdr.ts.nsecs =
+            ((file_externals->start_usecs + useconds) % 1000000) *1000;
 
 
         /*********************/
@@ -659,7 +676,7 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         dct2000->start_time.nsecs =
             (file_externals->start_usecs * 1000);
 
-        /* Set flag do don't write header out again */
+        /* Set flag so don't write header out again */
         dct2000->first_packet_written = TRUE;
     }
 
