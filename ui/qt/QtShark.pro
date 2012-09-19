@@ -314,7 +314,7 @@ win32 {
     LIBS += $$OBJECTS_WS_C
     LIBS += $$PA_OBJECTS
     LIBS += \
-        wsock32.lib user32.lib shell32.lib comctl32.lib comdlg32.lib \
+        $${guilibsdll} $${HHC_LIBS} \
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-$${WTAP_VERSION} \
         -L.. -llibui \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0

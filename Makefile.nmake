@@ -455,6 +455,10 @@ GEOIP_DIR = $(GEOIP_DIR:\=/)
 
 INTL_DLL = $(INTL_DLL)
 
+guilibsdll = $(guilibsdll)
+
+HHC_LIBS = $(HHC_LIBS)
+
 MSVC_VARIANT = $(MSVC_VARIANT)
 MSVCR_DLL = "$(MSVCR_DLL:\=/)"
 
