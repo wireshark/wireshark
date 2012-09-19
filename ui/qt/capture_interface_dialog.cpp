@@ -64,7 +64,7 @@ capture_remote_combo_add_recent(gchar *s)
     /* Empty remote host */
     return FALSE;
 
-  rh = (remote_host_t *) g_malloc (sizeof (remote_host_t));
+  rh = g_new (remote_host_t, 1);
 
   /* First value is the host */
   rh->remote_host = g_strdup ((const gchar *) valp->data);
