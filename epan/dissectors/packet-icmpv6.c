@@ -2062,7 +2062,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 guint8 context_id;
                 guint8 context_len;
                 struct e_in6_addr context_prefix;
-                
+
                 /* Context Length */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_context_length, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
                 context_len = tvb_get_guint8(tvb, opt_offset);
@@ -2084,7 +2084,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 /* Lifetime */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_valid_lifetime, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
                 opt_offset += 2;
-                
+
                 /* Context */
                 memset(&context_prefix.bytes, 0, sizeof(context_prefix));
                 switch(opt_len){
@@ -3285,6 +3285,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     cksum_vec[0].len = sizeof(tmp);
                     cksum_vec[0].ptr = (guint8 *)tmp;
                     conv_key[0] = in_cksum(cksum_vec, 1);
+                    if (conv_key[0] == 0)
+                        conv_key[0] = 0xffff;
                     if (pinfo->flags.in_gre_pkt)
                         conv_key[0] |= 0x00010000; /* set a bit for "in GRE" */
                     trans = transaction_end(pinfo, icmp6_tree, conv_key);
