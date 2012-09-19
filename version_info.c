@@ -220,11 +220,13 @@ get_string_from_dictionary(CFPropertyListRef dict, CFStringRef key)
 static gboolean
 get_os_x_version_info(GString *str)
 {
+	static const char server_version_plist_path[] =
+	    "/System/Library/CoreServices/ServerVersion.plist";
 	static const char system_version_plist_path[] =
 	    "/System/Library/CoreServices/SystemVersion.plist";
-	CFURLRef system_version_plist_file_url;
-	CFReadStreamRef system_version_plist_stream;
-	CFDictionaryRef system_version_dict;
+	CFURLRef version_plist_file_url;
+	CFReadStreamRef version_plist_stream;
+	CFDictionaryRef version_dict;
 	char *string;
 
 	/*
@@ -234,72 +236,99 @@ get_os_x_version_info(GString *str)
 	 * Alas, Gestalt() is deprecated in Mountain Lion, so the build
 	 * fails if you treat deprecation warnings as fatal.  I don't
 	 * know of any replacement API, so we fall back on reading
-	 * /System/Library/CoreServices/SystemVersion.plist
+	 * /System/Library/CoreServices/ServerVersion.plist if it
+	 * exists, otherwise /System/Library/CoreServices/SystemVersion.plist,
 	 * and using ProductUserVisibleVersion.  We also get the build
-	 * version from ProductBuildVersion.
-	 *
-	 * XXX - on OS X Server, do we need to read the server plist in
-	 * /System/Library/CoreServices/ServerVersion.plist - i.e., if
-	 * it exists, use it rather than SystemVersion.plist?
+	 * version from ProductBuildVersion and the product name from
+	 * ProductName.
 	 */
-	system_version_plist_file_url = CFURLCreateFromFileSystemRepresentation(NULL,
-	    system_version_plist_path, sizeof system_version_plist_path - 1,
+	version_plist_file_url = CFURLCreateFromFileSystemRepresentation(NULL,
+	    server_version_plist_path, sizeof server_version_plist_path - 1,
 	    false);
-	if (system_version_plist_file_url == NULL)
+	if (version_plist_file_url == NULL)
 		return FALSE;
-	system_version_plist_stream = CFReadStreamCreateWithFile(NULL,
-	    system_version_plist_file_url);
-	CFRelease(system_version_plist_file_url);
-	if (system_version_plist_stream == NULL)
+	version_plist_stream = CFReadStreamCreateWithFile(NULL,
+	    version_plist_file_url);
+	CFRelease(version_plist_file_url);
+	if (version_plist_stream == NULL)
 		return FALSE;
-	if (!CFReadStreamOpen(system_version_plist_stream)) {
-		CFRelease(system_version_plist_stream);
-		return FALSE;
+	if (!CFReadStreamOpen(version_plist_stream)) {
+		CFRelease(version_plist_stream);
+
+		/*
+		 * Try SystemVersion.plist.
+		 */
+		version_plist_file_url = CFURLCreateFromFileSystemRepresentation(NULL,
+		    system_version_plist_path, sizeof system_version_plist_path - 1,
+		    false);
+		if (version_plist_file_url == NULL)
+			return FALSE;
+		version_plist_stream = CFReadStreamCreateWithFile(NULL,
+		    version_plist_file_url);
+		CFRelease(version_plist_file_url);
+		if (version_plist_stream == NULL)
+			return FALSE;
+		if (!CFReadStreamOpen(version_plist_stream)) {
+			CFRelease(version_plist_stream);
+			return FALSE;
+		}
 	}
 #ifdef HAVE_CFPROPERTYLISTCREATEWITHSTREAM
-	system_version_dict = CFPropertyListCreateWithStream(NULL,
-	    system_version_plist_stream, 0, kCFPropertyListImmutable,
+	version_dict = CFPropertyListCreateWithStream(NULL,
+	    version_plist_stream, 0, kCFPropertyListImmutable,
 	    NULL, NULL);
 #else
-	system_version_dict = CFPropertyListCreateFromStream(NULL,
-	    system_version_plist_stream, 0, kCFPropertyListImmutable,
+	version_dict = CFPropertyListCreateFromStream(NULL,
+	    version_plist_stream, 0, kCFPropertyListImmutable,
 	    NULL, NULL);
 #endif
-	if (system_version_dict == NULL)
+	if (version_dict == NULL)
 		return FALSE;
-	if (CFGetTypeID(system_version_dict) != CFDictionaryGetTypeID()) {
+	if (CFGetTypeID(version_dict) != CFDictionaryGetTypeID()) {
 		/* This is *supposed* to be a dictionary.  Punt. */
-		CFRelease(system_version_dict);
-		CFReadStreamClose(system_version_plist_stream);
-		CFRelease(system_version_plist_stream);
+		CFRelease(version_dict);
+		CFReadStreamClose(version_plist_stream);
+		CFRelease(version_plist_stream);
 		return FALSE;
 	}
+	/* Get the product name string. */
+	string = get_string_from_dictionary(version_dict,
+	    CFSTR("ProductName"));
+	if (string == NULL) {
+		CFRelease(version_dict);
+		CFReadStreamClose(version_plist_stream);
+		CFRelease(version_plist_stream);
+		return FALSE;
+	}
+	g_string_append_printf(str, "%s", string);
+	g_free(string);
+
 	/* Get the OS version string. */
-	string = get_string_from_dictionary(system_version_dict,
+	string = get_string_from_dictionary(version_dict,
 	    CFSTR("ProductUserVisibleVersion"));
 	if (string == NULL) {
-		CFRelease(system_version_dict);
-		CFReadStreamClose(system_version_plist_stream);
-		CFRelease(system_version_plist_stream);
+		CFRelease(version_dict);
+		CFReadStreamClose(version_plist_stream);
+		CFRelease(version_plist_stream);
 		return FALSE;
 	}
-	g_string_append_printf(str, "OS X %s", string);
+	g_string_append_printf(str, " %s", string);
 	g_free(string);
 
 	/* Get the build string */
-	string = get_string_from_dictionary(system_version_dict,
+	string = get_string_from_dictionary(version_dict,
 	    CFSTR("ProductBuildVersion"));
 	if (string == NULL) {
-		CFRelease(system_version_dict);
-		CFReadStreamClose(system_version_plist_stream);
-		CFRelease(system_version_plist_stream);
+		CFRelease(version_dict);
+		CFReadStreamClose(version_plist_stream);
+		CFRelease(version_plist_stream);
 		return FALSE;
 	}
 	g_string_append_printf(str, ", build %s", string);
 	g_free(string);
-	CFRelease(system_version_dict);
-	CFReadStreamClose(system_version_plist_stream);
-	CFRelease(system_version_plist_stream);
+	CFRelease(version_dict);
+	CFReadStreamClose(version_plist_stream);
+	CFRelease(version_plist_stream);
 	return TRUE;
 }
 #endif
