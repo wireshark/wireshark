@@ -722,8 +722,8 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (!exp_ulpdu_length || exp_ulpdu_length != ulpdu_length) {
 			proto_tree_add_expert_format(tree, pinfo, &ei_mpa_bad_length, tvb, offset,
 				MPA_ULPDU_LENGTH_LEN,
-				"[ULPDU length field does not contain the expected length]");
-			return 0;
+				"[ULPDU length [%u] field does not contain the expected length[%u]]",
+				exp_ulpdu_length, ulpdu_length);
 		}
 
 		mpa_item = proto_tree_add_item(tree, proto_iwarp_mpa, tvb, 0,
