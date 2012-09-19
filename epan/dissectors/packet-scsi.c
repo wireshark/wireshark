@@ -167,7 +167,6 @@ static int hf_scsi_inq_vendor_id                = -1;
 static int hf_scsi_inq_product_id               = -1;
 static int hf_scsi_inq_product_rev              = -1;
 static int hf_scsi_inq_vendor_specific          = -1;
-static int hf_scsi_inq_reserved                 = -1;
 static int hf_scsi_inq_version_desc             = -1;
 static int hf_scsi_inq_devtype                  = -1;
 static int hf_scsi_inq_rmb                      = -1;
@@ -2552,12 +2551,8 @@ dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(tree, hf_scsi_inq_vendor_specific, tvb_v, offset_v, 20, ENC_NA);
         offset_v+=20;
 
-        proto_tree_add_item(tree, hf_scsi_inq_reserved, tvb_v, offset_v, 2, ENC_NA);
-        /* clocking, qas, ius */
-        offset_v++;
-
         /* reserved */
-        offset_v++;
+        offset_v += 2;
 
         /* version descriptors */
         for(i = 0;i<8;i++) {
@@ -5339,9 +5334,6 @@ proto_register_scsi(void)
            NULL, 0, NULL, HFILL}},
         { &hf_scsi_inq_vendor_specific,
           {"Vendor Specific", "scsi.inquiry.vendor_specific", FT_BYTES, BASE_NONE,
-           NULL, 0, NULL, HFILL}},
-        { &hf_scsi_inq_reserved,
-          {"Reserved", "scsi.inquiry.reserved", FT_BYTES, BASE_NONE,
            NULL, 0, NULL, HFILL}},
         { &hf_scsi_inq_version_desc,
           {"Version Description", "scsi.inquiry.version_desc", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
