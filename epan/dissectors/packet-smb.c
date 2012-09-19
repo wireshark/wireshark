@@ -21029,6 +21029,7 @@ proto_reg_handoff_smb(void)
 	ntlmssp_handle = find_dissector("ntlmssp");
 
 	heur_dissector_add("netbios", dissect_smb_heur, proto_smb);
+	heur_dissector_add("smb_direct", dissect_smb_heur, proto_smb);
 	heur_dissector_add("cotp", dissect_smb_heur, proto_smb);
 	heur_dissector_add("vines_spp", dissect_smb_heur, proto_smb);
 
