@@ -8368,6 +8368,7 @@ proto_reg_handoff_smb2(void)
 	gssapi_handle  = find_dissector("gssapi");
 	ntlmssp_handle = find_dissector("ntlmssp");
 	heur_dissector_add("netbios", dissect_smb2_heur, proto_smb2);
+	heur_dissector_add("smb_direct", dissect_smb2_heur, proto_smb2);
 }
 
 /*
