@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -380,7 +380,6 @@ print_alloc_stats()
 	guint num_allocs = 0;
 	guint total_used = 0;
 	guint total_allocation = 0;
-	guint total_free = 0;
 	guint used_for_canaries = 0;
 	guint total_headers;
 	guint i;
@@ -408,7 +407,6 @@ print_alloc_stats()
 			num_chunks++;
 			total_used += (chunk->amount_free_init - chunk->amount_free);
 			total_allocation += chunk->amount_free_init;
-			total_free += chunk->amount_free;
 		}
 		if (num_chunks > 0) {
 			fprintf (stderr, "\n");
@@ -431,7 +429,6 @@ print_alloc_stats()
 		num_allocs = 0;
 		total_used = 0;
 		total_allocation = 0;
-		total_free = 0;
 		used_for_canaries = 0;
 	}
 
@@ -458,7 +455,6 @@ print_alloc_stats()
 		num_chunks++;
 		total_used += (chunk->amount_free_init - chunk->amount_free);
 		total_allocation += chunk->amount_free_init;
-		total_free += chunk->amount_free;
 
 		if (se_packet_mem.debug_use_canary){
 			void *ptr = chunk->canary_last;
@@ -707,8 +703,8 @@ emem_create_chunk_gp(size_t size)
 	buf_end = npc->buf + size;
 
 	/* Align our guard pages on page-sized boundaries */
-	prot1 = (char *) ((((int) npc->buf + pagesize - 1) / pagesize) * pagesize);
-	prot2 = (char *) ((((int) buf_end - (1 * pagesize)) / pagesize) * pagesize);
+	prot1 = (char *) ((((intptr_t) npc->buf + pagesize - 1) / pagesize) * pagesize);
+	prot2 = (char *) ((((intptr_t) buf_end - (1 * pagesize)) / pagesize) * pagesize);
 
 	ret = VirtualProtect(prot1, pagesize, PAGE_NOACCESS, &oldprot);
 	g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
@@ -1849,79 +1845,108 @@ create_sub_tree(void* d)
 void
 emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
 {
-	emem_tree_t *next_tree;
+	emem_tree_t *insert_tree = NULL;
+	emem_tree_key_t *cur_key;
+	guint32 i, insert_key32 = 0;
 
-	if((key[0].length<1)||(key[0].length>100)){
+	if(!se_tree || !key) return;
+
+	for (cur_key = key; cur_key->length > 0; cur_key++) {
+		if(cur_key->length > 100) {
+			DISSECTOR_ASSERT_NOT_REACHED();
+		}
+
+		for (i = 0; i < cur_key->length; i++) {
+			/* Insert using the previous key32 */
+			if (!insert_tree) {
+				insert_tree = se_tree;
+			} else {
+				insert_tree = lookup_or_insert32(insert_tree, insert_key32, create_sub_tree, se_tree, EMEM_TREE_NODE_IS_SUBTREE);
+			}
+			insert_key32 = cur_key->key[i];
+		}
+	}
+
+	if(!insert_tree) {
+		/* We didn't get a valid key. Should we return NULL instead? */
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
-	if((key[0].length==1)&&(key[1].length==0)){
-		emem_tree_insert32(se_tree, *key[0].key, data);
-		return;
-	}
 
-	next_tree=lookup_or_insert32(se_tree, *key[0].key, create_sub_tree, se_tree, EMEM_TREE_NODE_IS_SUBTREE);
+	emem_tree_insert32(insert_tree, insert_key32, data);
 
-	if(key[0].length==1){
-		key++;
-	} else {
-		key[0].length--;
-		key[0].key++;
-	}
-	emem_tree_insert32_array(next_tree, key, data);
 }
 
 void *
 emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 {
-	emem_tree_t *next_tree;
+	emem_tree_t *lookup_tree = NULL;
+	emem_tree_key_t *cur_key;
+	guint32 i, lookup_key32 = 0;
 
 	if(!se_tree || !key) return NULL; /* prevent searching on NULL pointer */
 
-	if((key[0].length<1)||(key[0].length>100)){
+	for (cur_key = key; cur_key->length > 0; cur_key++) {
+		if(cur_key->length > 100) {
+			DISSECTOR_ASSERT_NOT_REACHED();
+		}
+
+		for (i = 0; i < cur_key->length; i++) {
+			/* Lookup using the previous key32 */
+			if (!lookup_tree) {
+				lookup_tree = se_tree;
+			} else {
+				lookup_tree = emem_tree_lookup32(lookup_tree, lookup_key32);
+				if (!lookup_tree) {
+					return NULL;
+				}
+			}
+			lookup_key32 = cur_key->key[i];
+		}
+	}
+
+	if(!lookup_tree) {
+		/* We didn't get a valid key. Should we return NULL instead? */
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
-	if((key[0].length==1)&&(key[1].length==0)){
-		return emem_tree_lookup32(se_tree, *key[0].key);
-	}
-	next_tree=emem_tree_lookup32(se_tree, *key[0].key);
-	if(!next_tree){
-		return NULL;
-	}
-	if(key[0].length==1){
-		key++;
-	} else {
-		key[0].length--;
-		key[0].key++;
-	}
-	return emem_tree_lookup32_array(next_tree, key);
+
+	return emem_tree_lookup32(lookup_tree, lookup_key32);
 }
 
 void *
 emem_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key)
 {
-	emem_tree_t *next_tree;
+	emem_tree_t *lookup_tree = NULL;
+	emem_tree_key_t *cur_key;
+	guint32 i, lookup_key32 = 0;
 
 	if(!se_tree || !key) return NULL; /* prevent searching on NULL pointer */
 
-	if((key[0].length<1)||(key[0].length>100)){
+	for (cur_key = key; cur_key->length > 0; cur_key++) {
+		if(cur_key->length > 100) {
+			DISSECTOR_ASSERT_NOT_REACHED();
+		}
+
+		for (i = 0; i < cur_key->length; i++) {
+			/* Lookup using the previous key32 */
+			if (!lookup_tree) {
+				lookup_tree = se_tree;
+			} else {
+				lookup_tree = emem_tree_lookup32_le(lookup_tree, lookup_key32);
+				if (!lookup_tree) {
+					return NULL;
+				}
+			}
+			lookup_key32 = cur_key->key[i];
+		}
+	}
+
+	if(!lookup_tree) {
+		/* We didn't get a valid key. Should we return NULL instead? */
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
-	if((key[0].length==1)&&(key[1].length==0)){ /* last key in key array */
-		return emem_tree_lookup32_le(se_tree, *key[0].key);
-	}
-	next_tree=emem_tree_lookup32(se_tree, *key[0].key);
-	/* key[0].key not found so find le and return */
-	if(!next_tree)
-		return emem_tree_lookup32_le(se_tree, *key[0].key);
 
-	/* key[0].key found so inc key pointer and try again */
-	if(key[0].length==1){
-		key++;
-	} else {
-		key[0].length--;
-		key[0].key++;
-	}
-	return emem_tree_lookup32_array_le(next_tree, key);
+	return emem_tree_lookup32_le(lookup_tree, lookup_key32);
+
 }
 
 /* Strings are stored as an array of uint32 containing the string characters
