@@ -127,9 +127,7 @@ print OUT <<"_SMINMPEC";
  *       with "(Unknown)" as the name so that direct (indexed) access
  *       to the list is possible.
  */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

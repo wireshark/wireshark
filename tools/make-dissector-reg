@@ -37,9 +37,7 @@ echo '/* It is created automatically by the Makefile. */'>>${outfile}-tmp
 if [ "$registertype" = plugin ]
 then
 	cat <<"EOF" >>${outfile}-tmp
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <gmodule.h>
 

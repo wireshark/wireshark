@@ -76,9 +76,7 @@
 	   </para>
 	   <example><title>Dissector Initialisation.</title>
    <programlisting>
-<![CDATA[#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+<![CDATA[#include "config.h"
 
 #include <epan/packet.h>
 
@@ -970,9 +968,7 @@ static gint *ett[] =
 		<example>
 			<title>Reassembling TCP fragments</title>
 			<programlisting>
-<![CDATA[#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+<![CDATA[#include "config.h"
 
 #include <epan/packet.h>
 #include <epan/prefs.h>

@@ -1994,9 +1994,7 @@ static int hf_operationrequest = -1;/* Request_Operation field */
 
     template_Includes = """\
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <gmodule.h>
 

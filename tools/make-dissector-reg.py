@@ -184,9 +184,7 @@ reg_code.write(preamble)
 # Make the routine to register all protocols
 if registertype == "plugin" or registertype == "plugin_wtap":
 	reg_code.write("""
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <gmodule.h>
 
