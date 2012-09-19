@@ -115,11 +115,6 @@ BNCH
 	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-CONNECT");
 #.END
 
-#.FN_BODY D-RELEASE
-%(DEFAULT_BODY)s
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-RELEASE");
-#.END
-
 #.FN_BODY D-CONNECT-ACK
 %(DEFAULT_BODY)s
 	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-CONNECT-ACK");
