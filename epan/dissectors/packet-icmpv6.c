@@ -3250,7 +3250,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         sequence = tvb_get_ntohs(tvb, offset);
         offset += 2;
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, " id=0x%04x, seq=%u", identifier, sequence);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " id=0x%04x, seq=%u, hop limit=%u",
+            identifier, sequence, pinfo->ip_ttl);
 
         if (pinfo->destport == 3544 && icmp6_type == ICMP6_ECHO_REQUEST) {
             /* RFC 4380
