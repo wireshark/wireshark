@@ -1103,6 +1103,7 @@ DISSECTOR_SRC = \
 	packet-smb-mailslot.c	\
 	packet-smb-pipe.c	\
 	packet-smb-sidsnooping.c	\
+	packet-smb-direct.c	\
 	packet-smb.c		\
 	packet-smb2.c		\
 	packet-sml.c		\
