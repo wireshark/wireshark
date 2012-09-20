@@ -41,6 +41,12 @@ set(lemon_LIBS
 	# Do we need something here on any platform?
 )
 
+if(CMAKE_COMPILER_IS_GNUCC)
+	add_definitions(-D_U_=__attribute__\(\(unused\)\))
+else()
+	add_definitions(-D_U_=)
+endif()
+
 add_executable(lemon ${lemon_FILES})
 
 target_link_libraries(lemon ${lemon_LIBS})
