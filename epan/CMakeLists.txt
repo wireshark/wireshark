@@ -546,6 +546,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-dpnss.c
 	dissectors/packet-drda.c
 	dissectors/packet-dsi.c
+	dissectors/packet-dtcp-ip.c
 	dissectors/packet-dtls.c
 	dissectors/packet-dtn.c
 	dissectors/packet-dtp.c
