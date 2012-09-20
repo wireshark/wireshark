@@ -35,6 +35,7 @@
 #include "globals.h"
 #include "wtap.h"
 #include "pcap-encap.h"
+#include "version_info.h"
 
 #include <epan/prefs.h>
 
@@ -477,12 +478,68 @@ file_import_open(text_import_info_t *info)
     int import_file_fd;
     char *tmpname, *capfile_name = NULL;
     int err;
+    /* pcapng defs */
+    wtapng_section_t            *shb_hdr;
+    wtapng_iface_descriptions_t *idb_inf;
+    wtapng_if_descr_t            int_data;
+    GString                     *os_info_str;
+    char                         appname[100];
 
     /* Choose a random name for the temporary import buffer */
     import_file_fd = create_tempfile(&tmpname, "import");
     capfile_name = g_strdup(tmpname);
 
-    info->wdh = wtap_dump_fdopen(import_file_fd, WTAP_FILE_PCAP, info->encapsulation, info->max_frame_length, FALSE, &err);
+    /* Create data for SHB  */
+    os_info_str = g_string_new("");
+    get_os_version_info(os_info_str);
+
+    g_snprintf(appname, sizeof(appname), "Wireshark " VERSION "%s", wireshark_svnversion);
+
+    shb_hdr = g_new(wtapng_section_t,1);
+    shb_hdr->section_length = -1;
+    /* options */
+    shb_hdr->opt_comment    = g_strdup_printf("File created by File->Import of file %s", info->import_text_filename);
+    shb_hdr->shb_hardware   = NULL;                    /* UTF-8 string containing the
+                                                       * description of the hardware used to create this section. 
+                                                       */
+    shb_hdr->shb_os         = os_info_str->str;        /* UTF-8 string containing the name 
+                                                       * of the operating system used to create this section.   
+                                                       */
+    g_string_free(os_info_str, FALSE);                /* The actual string is not freed */
+    shb_hdr->shb_user_appl = appname;                 /* UTF-8 string containing the name 
+                                                       *  of the application used to create this section.
+                                                       */
+
+
+    /* Create fake IDB info */
+    idb_inf = g_new(wtapng_iface_descriptions_t,1);
+    idb_inf->number_of_interfaces = 1;
+    idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+
+    /* create the fake interface data */
+    int_data.wtap_encap            = info->encapsulation;
+    int_data.time_units_per_second = 1000000; /* default microsecond resolution */
+    int_data.link_type             = wtap_wtap_encap_to_pcap_encap(info->encapsulation);
+    int_data.snap_len              = WTAP_MAX_PACKET_SIZE;
+    int_data.if_name               = g_strdup("Fake IF File->Import");
+    int_data.opt_comment           = NULL;
+    int_data.if_description        = NULL;
+    int_data.if_speed              = 0;
+    int_data.if_tsresol            = 6;
+    int_data.if_filter_str         = NULL;
+    int_data.bpf_filter_len        = 0;
+    int_data.if_filter_bpf_bytes   = NULL;
+    int_data.if_os                 = NULL;
+    int_data.if_fcslen             = -1;
+    int_data.num_stat_entries      = 0;          /* Number of ISB:s */
+    int_data.interface_statistics  = NULL;
+
+    g_array_append_val(idb_inf->interface_data, int_data);
+
+
+
+
+    info->wdh = wtap_dump_fdopen_ng(import_file_fd, WTAP_FILE_PCAPNG, info->encapsulation, info->max_frame_length, FALSE, shb_hdr, idb_inf, &err);
     if (info->wdh == NULL) {
         open_failure_alert_box(capfile_name, err, TRUE);
         fclose(info->import_text_file);
