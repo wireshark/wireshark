@@ -26,9 +26,7 @@
  * This file implements the "filter" toolbar for Wireshark.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <stdio.h>
 #include <string.h>

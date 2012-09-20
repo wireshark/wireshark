@@ -25,9 +25,7 @@
  * The code is different, but definitely inspired by his code.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 

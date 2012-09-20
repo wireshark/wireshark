@@ -25,9 +25,7 @@
  * compilation and studying of a PCRE pattern in dfilters.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <ftypes-int.h>
 

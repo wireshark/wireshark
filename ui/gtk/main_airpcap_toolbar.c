@@ -26,9 +26,7 @@
  * This file implements the wireless toolbar for Wireshark.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #ifdef HAVE_AIRPCAP
 

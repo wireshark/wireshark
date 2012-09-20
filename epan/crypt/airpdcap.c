@@ -36,9 +36,7 @@
 /****************************************************************************/
 /*      File includes                                                           */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <epan/tvbuff.h>
 #include <wsutil/crc32.h>

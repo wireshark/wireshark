@@ -1,9 +1,7 @@
 /* $Id$ */
 
 %include {
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "dfilter-int.h"
 #include "syntax-tree.h"

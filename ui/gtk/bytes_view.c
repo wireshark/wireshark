@@ -29,9 +29,7 @@
  *   pango-layout.c: High-level layout driver. Copyright (C) 2000, 2001, 2006 Red Hat Software
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <gtk/gtk.h>
 #include "ui/gtk/old-gtk-compat.h"

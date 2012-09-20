@@ -23,9 +23,7 @@
  */
 
 /* #define DEBUG	do{ printf("%s:%d  ",__FILE__,__LINE__);} while(0); */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <gtk/gtk.h>
 #include <string.h>

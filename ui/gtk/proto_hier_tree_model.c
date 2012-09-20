@@ -25,9 +25,7 @@
 /* This code was originally based on the GTK+ Tree View tutorial at
  * http://scentric.net/tutorial */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <string.h>
 

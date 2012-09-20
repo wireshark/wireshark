@@ -31,9 +31,7 @@
  * licensed under the GPL2 or later.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 #include <string.h>
 #include <errno.h>
 

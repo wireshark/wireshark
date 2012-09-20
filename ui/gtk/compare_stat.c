@@ -32,9 +32,7 @@
  * The packets are compared by the ip id. MAC or TTL is used to distinct the different files.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <stdio.h>
 #include <string.h>

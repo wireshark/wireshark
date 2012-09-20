@@ -29,9 +29,7 @@
   *  - avoid persistent tracking of NULL and ALL contexts
   */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include "gcp.h"
 

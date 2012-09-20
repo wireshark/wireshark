@@ -27,9 +27,7 @@
  * Routine from Chris Waters
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/tvbuff.h>

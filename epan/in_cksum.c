@@ -37,9 +37,7 @@
  *	@(#)in_cksum.c	8.1 (Berkeley) 6/10/93
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

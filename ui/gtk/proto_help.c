@@ -24,9 +24,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 /* This file basically does nothing except remind us how this worked before
  * the menu code was rewritten to no longer use the deprecated ItemFactory

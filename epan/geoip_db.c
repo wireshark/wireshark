@@ -29,9 +29,7 @@
  * e.g. GeoIPCity, can return other info such as area codes.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

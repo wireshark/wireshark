@@ -65,9 +65,7 @@
  * On the other hand, see bug 2699, in which xdg-open is itself buggy.
  */
 
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
+#include "config.h"
 #include <string.h> /* strlen, strstr */
 
 #include <gtk/gtk.h>

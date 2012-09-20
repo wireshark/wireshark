@@ -27,9 +27,7 @@
  * This file implements the "main" toolbar for Wireshark.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <gtk/gtk.h>
 

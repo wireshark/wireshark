@@ -28,9 +28,7 @@
  * USA.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <gtk/gtk.h>
 
