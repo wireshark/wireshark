@@ -4295,8 +4295,12 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
     }
     recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
     cnt = 1;
-    for (li = g_list_first(recent_files_list); li; li = li->next, cnt++) {
+    for (li = g_list_first(recent_files_list); li; cnt++) {
         widget_cf_name = li->data;
+
+        /* Find the next element BEFORE we (possibly) free the current one below */
+        li = li->next;
+
         if (
 #ifdef _WIN32
             /* do a case insensitive compare on win32 */
