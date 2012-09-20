@@ -505,14 +505,6 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
         /* Make sure all packets go to catapult dct2000 dissector */
         wth->phdr.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
 
-        /* Fill in timestamp (capture base + packet offset) */
-        wth->phdr.ts.secs = file_externals->start_secs + seconds;
-        if ((file_externals->start_usecs + useconds) >= 1000000) {
-            wth->phdr.ts.secs++;
-        }
-        wth->phdr.ts.nsecs =
-            ((file_externals->start_usecs + useconds) % 1000000) *1000;
-
 
         /*********************/
         /* Write stub header */
