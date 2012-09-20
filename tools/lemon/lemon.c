@@ -28,9 +28,6 @@
 ** Updated to sqlite lemon version 1.59
 ** $Id$
 */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1493,7 +1490,7 @@ int main(int argc _U_, char **argv)
   Symbol_new("$");
   lem.errsym = Symbol_new("error");
   /*
-  **  Resetting useCnt in errsym seems to disable some error checking we 
+  **  Resetting useCnt in errsym seems to disable some error checking we
   **  need to validate the filter syntax.  So we remove this resetting for now.
   **
   **  lem.errsym->useCnt = 0;
@@ -2148,7 +2145,7 @@ to follow the previous rule.");
     case IN_RHS:
       if( x[0]=='.' ){
         struct rule *rp;
-        rp = (struct rule *)calloc( sizeof(struct rule) + 
+        rp = (struct rule *)calloc( sizeof(struct rule) +
              sizeof(struct symbol*)*psp->nrhs + sizeof(char*)*psp->nrhs, 1);
         if( rp==0 ){
           ErrorMsg(psp->filename,psp->tokenlineno,
@@ -2963,7 +2960,7 @@ PRIVATE int PrintAction(struct action *ap, FILE *fp, int indent){
         indent,ap->sp->name,ap->x.rp->index);
       break;
     case SSCONFLICT:
-      fprintf(fp,"%*s shift  %d ** Parsing conflict **", 
+      fprintf(fp,"%*s shift  %d ** Parsing conflict **",
         indent,ap->sp->name,ap->x.stp->statenum);
       break;
     case SH_RESOLVED:
@@ -3335,7 +3332,7 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
 	  rp->code = "\n";
 	  rp->line = rp->ruleline;
   }
-  
+
   append_str(0,0,0,0);
   for(cp=rp->code; *cp; cp++){
     if( safe_isalpha(*cp) && (cp==rp->code || (!safe_isalnum(cp[-1]) && cp[-1]!='_')) ){
