@@ -64,7 +64,7 @@ static FrameRecord_t *g_FrameListTail;
 /* Debugging only                                 */
 
 /* Enable this symbol to see debug output */
-#define REORDER_DEBUG
+/* #define REORDER_DEBUG */
 
 #ifdef REORDER_DEBUG
 static void ReorderListDebugPrint(void)
