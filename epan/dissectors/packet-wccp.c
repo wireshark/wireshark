@@ -160,6 +160,10 @@ static gint ett_unknown_info = -1;
  *	http://tools.ietf.org/id/draft-wilson-wrec-wccp-v2-01.txt
  *
  * is an Internet-Draft for WCCP 2.0.
+ *
+ * At   http://tools.ietf.org/id/draft-mclaggan-wccp-v2rev1-00.txt
+ *
+ * is an Internet-Draft for WCCP 2 revision 1
  */
 
 /* This is NOT IANA assigned */
