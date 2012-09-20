@@ -860,8 +860,9 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   } else if (*err != 0) {
     /* We got an error reading the capture file.
        XXX - pop up a dialog box instead? */
-    g_warning("Error \"%s\" while reading: \"%s\"\n",
-        wtap_strerror(*err), cf->filename);
+    g_warning("Error \"%s\" while reading: \"%s\" (\"%s\")",
+        wtap_strerror(*err), err_info, cf->filename);
+    g_free(err_info);
 
     return CF_READ_ERROR;
   } else
@@ -958,6 +959,10 @@ cf_finish_tail(capture_file *cf, int *err)
   if (*err != 0) {
     /* We got an error reading the capture file.
        XXX - pop up a dialog box? */
+
+    g_warning("Error \"%s\" while reading: \"%s\" (\"%s\")",
+        wtap_strerror(*err), err_info, cf->filename);
+    g_free(err_info);
     return CF_READ_ERROR;
   } else {
     return CF_READ_OK;
