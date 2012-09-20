@@ -57,9 +57,11 @@ scanner_lex.h : scanner.c
 scanner.obj : scanner.c grammar.h
 	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c scanner.c
 
+scanner.c: grammar.h
+
 grammar.h : grammar.c
 grammar.c : $(LEMON)\lemon.exe $(LEMON)\lempar.c grammar.lemon
-	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c grammar.lemon 
+	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c grammar.lemon
 
 $(LEMON)\lemon.exe:
 	cd ../../tools
