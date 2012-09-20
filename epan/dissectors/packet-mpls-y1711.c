@@ -37,9 +37,7 @@
  *   table indexed by label value it has been moved here.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 

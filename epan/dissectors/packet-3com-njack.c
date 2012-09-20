@@ -51,9 +51,7 @@ Specs:
 	Type 0x10 (clear counters resp):  M -> S, Magic, type, 00
  */
 
-#ifdef HAVE_CONFIG_H
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

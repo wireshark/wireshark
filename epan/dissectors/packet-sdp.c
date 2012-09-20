@@ -26,9 +26,7 @@
  * Ref http://www.ietf.org/rfc/rfc4566.txt?number=4566
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <stdlib.h>
 #include <string.h>

@@ -40,9 +40,7 @@
  *       6           6        2      4       4       n bytes
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

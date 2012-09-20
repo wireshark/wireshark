@@ -33,9 +33,7 @@
  * Ref http://www.ietf.org/rfc/rfc5050.txt?number=5050
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 

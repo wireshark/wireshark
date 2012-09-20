@@ -32,9 +32,7 @@
  * - draft-zong-p2psip-drr-01
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <epan/conversation.h>
 #include <epan/prefs.h>

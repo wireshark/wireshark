@@ -27,9 +27,7 @@
  *     Annex to ITU Operational Bulletin No. 835 - 1.V.2005
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

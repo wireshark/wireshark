@@ -28,9 +28,7 @@
  * added by Timo Teras <timo.teras@iki.fi>
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <string.h>
 

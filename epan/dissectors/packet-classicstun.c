@@ -26,9 +26,7 @@
  * (supports extra message attributes described in draft-ietf-behave-rfc3489bis-00)
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

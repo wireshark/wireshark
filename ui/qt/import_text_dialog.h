@@ -24,9 +24,7 @@
 #ifndef IMPORT_TEXT_DIALOG_H
 #define IMPORT_TEXT_DIALOG_H
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <stdio.h>
 

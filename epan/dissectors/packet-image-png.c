@@ -27,9 +27,7 @@
 /* See http://www.w3.org/TR/PNG for specification
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

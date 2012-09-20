@@ -35,9 +35,7 @@
  * - SEQ/ACK analysis for Announce/Request/Reject/Release PDU
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <epan/packet.h>
 #include <epan/to_str.h>

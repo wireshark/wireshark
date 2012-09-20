@@ -32,9 +32,7 @@
 http://www.openbsd.org/cgi-bin/cvsweb/src/sys/net/if_pflog.c
 http://www.openbsd.org/cgi-bin/cvsweb/src/sys/net/if_pflog.h
 */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <epan/packet.h>
 

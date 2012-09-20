@@ -27,9 +27,7 @@
  *   and the source - git://cgit.freedesktop.org/spice/spice-protocol
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

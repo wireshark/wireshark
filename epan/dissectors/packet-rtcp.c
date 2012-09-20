@@ -62,9 +62,7 @@
  * (http://www.iana.org/assignments/rtcp-xr-block-types/rtcp-xr-block-types.xml).
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <stdlib.h>
 

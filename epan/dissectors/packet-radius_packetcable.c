@@ -42,9 +42,7 @@
        PacketCable(TM) Specification: Multimedia Specification [PKT-SP-MM-I04-080522]
 */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <epan/packet.h>
 #include <epan/sminmpec.h>

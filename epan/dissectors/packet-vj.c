@@ -59,9 +59,7 @@
  *                      Rewrite to make the code work for wireshark.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <string.h>

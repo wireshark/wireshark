@@ -43,9 +43,7 @@
  * Russian national ISUP-R 2000: RD 45.217-2001 book 4
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <epan/packet.h>
 #include <epan/stats_tree.h>

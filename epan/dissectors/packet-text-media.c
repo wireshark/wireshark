@@ -32,9 +32,7 @@
 
 /* Edit this file with 4-space tabs */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 

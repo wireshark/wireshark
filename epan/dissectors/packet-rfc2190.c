@@ -34,9 +34,7 @@
  * RFC 2190, http://www.ietf.org/rfc/rfc2190.txt
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

@@ -27,9 +27,7 @@
 /* Telnet authentication options as per     RFC2941
  * Kerberos v5 telnet authentication as per RFC2942
  */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <stdlib.h>
 #include <string.h>

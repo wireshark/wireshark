@@ -42,9 +42,7 @@
   - Fix 802.11 frame dissection
  */
 
-#ifdef HAVE_CONFIG_H
-#  include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

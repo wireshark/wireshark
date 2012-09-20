@@ -56,9 +56,7 @@
  * Note that line-end is often a LF instead of a CRLF.
 */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <string.h>
 #include <ctype.h>

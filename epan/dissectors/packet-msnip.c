@@ -35,9 +35,7 @@
 	Defined in draft-ietf-idmr-igmp-msnip-00.txt
 */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

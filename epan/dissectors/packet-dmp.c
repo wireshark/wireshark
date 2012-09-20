@@ -36,9 +36,7 @@
  * - Add Transmission/Retransmission statistics
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <string.h>
 #include <math.h>

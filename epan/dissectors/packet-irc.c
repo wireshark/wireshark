@@ -40,9 +40,7 @@
  *  http://www.invlogic.com/irc/ctcp.html
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <ctype.h>

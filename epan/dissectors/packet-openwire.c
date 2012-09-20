@@ -39,9 +39,7 @@
     Note : The WIREFORMAT_INFO command is always sent in "loose" format.
 
 */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

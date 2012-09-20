@@ -28,9 +28,7 @@
  * SRP protocol documents (http://srp.stanford.edu) and RFC 2945: "The SRP
  * Authentication and Key Exchange System." */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

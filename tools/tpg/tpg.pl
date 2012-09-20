@@ -179,9 +179,7 @@ my $c_file = <<"__C_FILE";
  DO NOT MODIFY.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "$proto_name-parser.h" 
 

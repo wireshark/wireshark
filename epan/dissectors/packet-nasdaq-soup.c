@@ -27,9 +27,7 @@
  * http://www.nasdaqtrader.com/content/technicalsupport/specifications/dataproducts/souptcp.pdf
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <epan/packet.h>
 #include <epan/prefs.h>

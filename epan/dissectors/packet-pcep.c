@@ -31,9 +31,7 @@
  * (c) Copyright 2012 Svetoslav Duhovnikov <duhovnikov[AT]gmail.com>
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <epan/packet.h>
 #include <epan/dissectors/packet-tcp.h>

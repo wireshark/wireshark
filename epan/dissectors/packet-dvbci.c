@@ -31,9 +31,7 @@
  * http://www.kaiser.cx/pcap-dvbci.html.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/addr_resolv.h>

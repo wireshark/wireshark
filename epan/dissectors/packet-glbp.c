@@ -38,9 +38,7 @@
  *       hello 3000, hold 10000 VF 1 Active  pri 167 vMAC 0007.b403.fd01
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

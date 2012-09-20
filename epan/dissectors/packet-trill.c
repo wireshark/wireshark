@@ -27,9 +27,7 @@
  * See: http://tools.ietf.org/html/draft-ietf-trill-rbridge-protocol-16
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

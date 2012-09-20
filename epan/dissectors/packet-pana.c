@@ -28,9 +28,7 @@
  * internet area/pana. I believe draft-18 then became RFC 5191).
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 

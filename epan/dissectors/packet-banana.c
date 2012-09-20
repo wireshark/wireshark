@@ -28,9 +28,7 @@
  * http://twistedmatrix.com/projects/core/documentation/specifications/banana.html
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

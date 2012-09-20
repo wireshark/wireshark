@@ -47,9 +47,7 @@
  *  - add missings things (desegmentation, reordering... that aren't present in actual OpenSSL implementation)
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

@@ -69,9 +69,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 
 */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <stdio.h>
 #include <string.h>

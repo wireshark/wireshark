@@ -50,9 +50,7 @@
  *   implement non-generic counters sampling                    (sFlow v2/4)
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 

@@ -25,9 +25,7 @@
  */
 
 /*  Include Files */
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif /* HAVE_CONFIG_H */
 
 #include <glib.h>
 #include <epan/packet.h>

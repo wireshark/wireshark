@@ -39,9 +39,7 @@
  * here, its just glue to get the ISUP/MTP3 data nicely.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

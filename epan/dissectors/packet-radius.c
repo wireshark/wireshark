@@ -53,9 +53,7 @@
     - dissect_3gpp_ipv6_dns_servers()
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <stdlib.h>
 #include <string.h>

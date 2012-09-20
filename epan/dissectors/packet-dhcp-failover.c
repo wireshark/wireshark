@@ -35,9 +35,7 @@
  * upon which the handling of the message-digest option is based.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

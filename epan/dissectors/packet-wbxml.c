@@ -44,9 +44,7 @@
 
 /* Edit this file with 4-space tabulation */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <string.h>
 

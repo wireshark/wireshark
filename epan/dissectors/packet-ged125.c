@@ -40,9 +40,7 @@
  * that header have a few other things. One of these things is a sub-message type.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 

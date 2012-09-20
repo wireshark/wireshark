@@ -30,9 +30,7 @@
  This dissector is based on Revision 6.1.2
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

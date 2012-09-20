@@ -34,9 +34,7 @@
  * ftp://ftp.cisco.com/pub/rfc/DRAFTS/draft-grant-tacacs-02.txt
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <stdio.h>
 #include <string.h>

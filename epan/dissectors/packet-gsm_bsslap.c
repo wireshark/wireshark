@@ -25,9 +25,7 @@
  * References: 3GPP TS 48.071 version 7.2.0 Release 7
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

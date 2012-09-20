@@ -25,9 +25,7 @@
 
 /* 3GPP TS 48.016 V 5.3.0 (2004-07) Release 6 + CR013 */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <epan/packet.h>
 

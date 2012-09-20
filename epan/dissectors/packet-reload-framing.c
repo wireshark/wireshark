@@ -27,9 +27,7 @@
  * - draft-ietf-p2psip-base-15
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <epan/conversation.h>
 #include <epan/expert.h>

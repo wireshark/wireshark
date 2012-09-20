@@ -27,9 +27,7 @@
  * Ref ITU-T Rec. Q.1990 (07/2001)
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 #include <epan/packet.h>

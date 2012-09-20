@@ -123,9 +123,7 @@
  * Note for WMeier...  Added YYY comments with some XXX comments.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <epan/packet.h>
 

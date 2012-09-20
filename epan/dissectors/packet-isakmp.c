@@ -43,9 +43,7 @@
  * http://www.iana.org/assignments/ikev2-parameters (last updated 2011-12-19)
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

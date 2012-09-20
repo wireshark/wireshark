@@ -51,9 +51,7 @@
  * PPID types updated by Thomas Dreibholz (Feb 2011)
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <string.h>
 #include <epan/prefs.h>

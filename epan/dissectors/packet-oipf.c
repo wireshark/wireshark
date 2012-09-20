@@ -27,9 +27,7 @@
    (CSPG-CI+) as defined in in Open IPTV Forum Specification Volume 7 V2.1
    http://www.openiptvforum.org/release_2.html */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

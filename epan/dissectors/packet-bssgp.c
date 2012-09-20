@@ -25,9 +25,7 @@
 
 /* 3GPP TS 48.018 V 6.5.0 (2004-07) Release 6 */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

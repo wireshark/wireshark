@@ -26,9 +26,7 @@
  * References: 3GPP TS 24.301 V10.6.1 (2012-03)
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

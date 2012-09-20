@@ -50,9 +50,7 @@
 *   Default TCP port is 1935
 */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <string.h>
 

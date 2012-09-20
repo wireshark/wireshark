@@ -36,9 +36,7 @@
  * UDP and TCP portions of the protocol are handled in this dissector.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <stdlib.h>
 #include <string.h>

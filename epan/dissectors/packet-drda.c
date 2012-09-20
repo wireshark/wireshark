@@ -47,9 +47,7 @@
 *       https://www-304.ibm.com/support/docview.wss?uid=pub1sc18985301
 */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

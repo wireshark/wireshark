@@ -37,9 +37,7 @@
 /* create extra output for conversation tracking */
 /* #define CTDEBUG 1 */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <epan/packet.h>
 #include <epan/conversation.h>

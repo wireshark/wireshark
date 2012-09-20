@@ -36,9 +36,7 @@
 	TTL==1 and IP.DST==224.0.0.2 for all packets.
 */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

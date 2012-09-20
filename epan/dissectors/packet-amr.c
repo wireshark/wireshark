@@ -27,9 +27,7 @@
  * 3GPP TS 26.101 for AMR-NB, 3GPP TS 26.201 for AMR-WB
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

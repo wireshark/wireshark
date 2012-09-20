@@ -38,9 +38,7 @@
   2) Informations about Ice can be found here: http://www.zeroc.com
 */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

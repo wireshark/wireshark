@@ -51,9 +51,7 @@
 	RFC1075 has typos in 3.12.2 and 3.12.4, see if you can spot them.
 */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

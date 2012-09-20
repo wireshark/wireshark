@@ -26,9 +26,7 @@
  */
 
 #define MAX_TEXTBUF_LENGTH 600
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 

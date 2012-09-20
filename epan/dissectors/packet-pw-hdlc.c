@@ -34,9 +34,7 @@
  * - For HDLC mode, decoding payloads other than PPP.]
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

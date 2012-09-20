@@ -30,9 +30,7 @@
  *             rather than having manual insertion via preferences
  *	TODO: perhaps better check coherence of certain information?
 */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

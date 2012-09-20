@@ -29,9 +29,7 @@
  * See linux/net/core/pktgen.c and linux/Documentation/networking/pktgen.txt for more info.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

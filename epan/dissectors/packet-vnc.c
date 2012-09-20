@@ -42,9 +42,7 @@
  *  and the RealVNC free edition & TightVNC source code
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

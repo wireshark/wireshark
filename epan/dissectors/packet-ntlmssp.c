@@ -26,9 +26,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 /* Just set me to activate debug #define DEBUG_NTLMSSP */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 #ifdef DEBUG_NTLMSSP
 #include <stdio.h>
 #endif

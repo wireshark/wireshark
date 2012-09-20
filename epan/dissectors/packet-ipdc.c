@@ -38,9 +38,7 @@
  *	http://tools.ietf.org/html/draft-pickett-ipdc-management-00
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <math.h>

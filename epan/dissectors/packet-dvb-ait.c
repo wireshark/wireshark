@@ -26,9 +26,7 @@
 /* This dissector processes a DVB Application Information Table (AIT) as
  * defined in ETSI TS 102 809. */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

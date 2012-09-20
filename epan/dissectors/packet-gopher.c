@@ -30,9 +30,7 @@
  * http://en.wikipedia.org/wiki/Gopher_%28protocol%29
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

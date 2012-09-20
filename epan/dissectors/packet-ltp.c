@@ -27,9 +27,7 @@
  * Licklider Transmission Protocol - RFC 5326.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

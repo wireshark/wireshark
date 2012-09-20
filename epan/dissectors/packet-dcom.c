@@ -65,9 +65,7 @@
  * packet-dcom-sysact.c:   ISystemActivator
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 /*
  * XXX - are the next two includes necessary?

@@ -28,9 +28,7 @@
  * information for this dissector came from the MIT kadmin source.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "packet-rpc.h"
 

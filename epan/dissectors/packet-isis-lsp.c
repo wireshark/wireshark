@@ -29,9 +29,7 @@
  *                    - Decoding for Group Address TLV and associated subTLVs as per RFC 6326
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

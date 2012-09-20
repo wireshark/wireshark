@@ -25,9 +25,7 @@
  * LGE Monitor is a trace tool from Nortel.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

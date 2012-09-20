@@ -37,9 +37,7 @@
  * http://www.3gpp.org/ftp/Specs/html-info/48056.htm
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <string.h>

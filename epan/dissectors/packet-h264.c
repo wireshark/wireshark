@@ -27,9 +27,7 @@
  * http://www.itu.int/rec/T-REC-H.264/en
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <string.h>
 

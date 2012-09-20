@@ -25,9 +25,7 @@
 
 /* DLSw dissector ( RFC 1434, RFC 1795, RFC 2166) */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

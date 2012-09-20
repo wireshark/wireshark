@@ -24,9 +24,7 @@
  *
  * BFCP Message structure is defined in RFC 4582.
  */
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 

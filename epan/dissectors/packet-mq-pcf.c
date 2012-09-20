@@ -31,9 +31,7 @@
 *   MQ PCF documentation is called "WebSphere MQ Programmable Command Formats and Administration Interface"
 */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <string.h>
 

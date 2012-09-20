@@ -26,9 +26,7 @@
  * Ref: ETSI DCP (ETSI TS 102 821)
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <epan/packet.h>
 #include <epan/reassemble.h>

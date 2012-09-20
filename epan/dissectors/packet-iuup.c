@@ -31,9 +31,7 @@
       Added crc6 and crc10 checks for header and payload
 */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 #include <epan/packet.h>

@@ -49,9 +49,7 @@
  * RFC1863 A BGP/IDRP Route Server alternative to a full mesh routing
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <string.h>
 

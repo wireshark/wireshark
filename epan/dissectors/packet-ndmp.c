@@ -30,9 +30,7 @@
    this file implements version 3 of ndmp
 */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <string.h>
 #include <glib.h>

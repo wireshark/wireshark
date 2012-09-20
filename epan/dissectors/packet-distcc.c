@@ -25,9 +25,7 @@
  */
 /* This dissector supports version 1 of the DISTCC protocol */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <stdio.h>
 #include <string.h>

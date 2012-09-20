@@ -59,9 +59,7 @@
  */
 
 /*  Include files */
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif /* HAVEHCONFIG_H */
 
 #include <string.h>
 

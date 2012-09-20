@@ -28,9 +28,7 @@
  * http://git.kernel.org/?p=linux/kernel/git/next/linux-next.git;a=blob;f=drivers/atm/atmtcp.c;hb=HEAD
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

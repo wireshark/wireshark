@@ -34,9 +34,7 @@
  * and      http://www.t11.org/ftp/t11/pub/fc/bb-5/08-545v1.pdf
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 

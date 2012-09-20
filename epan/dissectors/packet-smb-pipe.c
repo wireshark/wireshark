@@ -31,9 +31,7 @@ XXX  Fixme : shouldn't show [malformed frame] for long packets
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <time.h>
 #include <string.h>
