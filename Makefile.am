@@ -19,7 +19,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ACLOCAL_AMFLAGS = `./aclocal-flags`
 
@@ -81,7 +81,8 @@ diameter_DATA = \
 	diameter/TGPPRx.xml \
 	diameter/TGPPS9.xml \
 	diameter/TGPPSh.xml	\
-	diameter/Vodafone.xml
+	diameter/Vodafone.xml \
+	diameter/AlcatelLucent.xml
 
 #
 # Install the DTDs directory files in the "dtds" subdirectory
@@ -323,6 +324,9 @@ endif
 # unnecessary, because wireshark links to GTK_LIBS which is a superset.
 # It is not actually a superset: gmodule is included in GLIB_LIBS but
 # not in GTK_LIBS (unless accidentally on older glibs/gtks)."
+#
+# although it's also possible that -lgmodule is in GTK_LIBS but not
+# GLIB_LIBS (that's the case on my machine right now, for example).
 #
 wireshark_LDADD = \
 	ui/gtk/libgtkui.a		\
