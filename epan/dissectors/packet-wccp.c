@@ -151,9 +151,9 @@ static gint ett_unknown_info = -1;
 /*
  * At
  *
- *	http://www.alternic.org/drafts/drafts-f-g/draft-forster-wrec-wccp-v1-00.html
+ *	http://tools.ietf.org/html/draft-forster-wrec-wccp-v1-00
  *
- * is a copy of the now-expired Internet-Draft for WCCP 1.0.
+ * is a copy of the Internet-Draft for WCCP 1.0.
  *
  * At
  *
