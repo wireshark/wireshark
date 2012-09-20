@@ -27,9 +27,7 @@
  *   TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE to expect the first line to be
  *   at the start of every packet.
  */
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 #include "wtap-int.h"
 #include "buffer.h"
 #include "vms.h"

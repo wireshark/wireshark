@@ -24,9 +24,7 @@
 */
 
 #ifndef ENABLE_STATIC
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <gmodule.h>
 

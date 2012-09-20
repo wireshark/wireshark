@@ -41,9 +41,7 @@
  * 5.  Please see dissect_cisco for an example of how to do this.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>

@@ -31,9 +31,7 @@
  *      DCEs using asynchronous-to-synchronous conversion", Para. 8.1.1.6.1
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <wsutil/crc16.h>

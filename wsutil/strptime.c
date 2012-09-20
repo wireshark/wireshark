@@ -23,9 +23,7 @@
    some of them in the same format (such as year, week and weekday)
    this is enough information for determining the date.  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <ctype.h>
 #include <limits.h>

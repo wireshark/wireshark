@@ -77,9 +77,7 @@
  * snaplength is automatically set to 64K.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 /*
  * Just make sure we include the prototype for strptime as well

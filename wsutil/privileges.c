@@ -22,9 +22,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #if defined(HAVE_SETRESUID) || defined(HAVE_SETREGUID)
 #define _GNU_SOURCE /* Otherwise [sg]etres[gu]id won't be defined on Linux */

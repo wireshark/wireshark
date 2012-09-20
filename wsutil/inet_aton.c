@@ -27,9 +27,7 @@
  * SUCH DAMAGE.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #if defined(LIBC_SCCS) && !defined(lint)
 static char sccsid[] = "@(#)inet_addr.c	8.1 (Berkeley) 6/17/93";

@@ -28,9 +28,7 @@
  * REF: ETSI EN 300 392-2 V3.2.1
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 #include <epan/packet.h>

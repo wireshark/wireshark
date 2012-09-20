@@ -28,9 +28,7 @@
 #ifndef __MATE_H_
 #define __MATE_H_
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #ifndef ENABLE_STATIC
 #include "moduleinfo.h"

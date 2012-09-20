@@ -24,9 +24,7 @@
 
 /* This module provides Protocol Column Info tap for tshark */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <stdio.h>
 

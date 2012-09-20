@@ -36,9 +36,7 @@
  *   E.g. Zero or more Multiple-Services-Credit-Control AVPs(456)
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <stdio.h>
 

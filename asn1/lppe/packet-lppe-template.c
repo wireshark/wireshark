@@ -25,9 +25,7 @@
  * Ref Open Mobile Alliance OMA-TS-LPPe V1_0-20110929-C
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

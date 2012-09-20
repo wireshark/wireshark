@@ -33,9 +33,7 @@
  * Indentation logic: this file is indented with 2 spaces indentation.
  *                    there are no tabs.
  */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

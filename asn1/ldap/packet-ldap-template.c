@@ -82,9 +82,7 @@
  * Mathieu Parent <math.parent@gmail.com>
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <string.h>
 #include <ctype.h>

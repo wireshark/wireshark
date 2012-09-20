@@ -28,9 +28,7 @@
  * 3GPP TS 36.423 V9.2.0 (2010-03)
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

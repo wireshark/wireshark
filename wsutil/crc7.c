@@ -35,9 +35,7 @@
  *    ReflectOut   = False
  *    Algorithm    = table-driven
  *****************************************************************************/
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <glib.h>
 #include "crc7.h"     /* include the header file generated with pycrc */

@@ -25,9 +25,7 @@
  * Ref: 3GPP TS 25.419 version  V9.0.0 (2009-12)
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>

@@ -26,9 +26,7 @@
  * It is only used by tshark and not wireshark
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <stdio.h>
 

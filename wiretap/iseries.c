@@ -131,9 +131,7 @@ Number  S/R  Length    Timer                        MAC Address   MAC Address   
                            A00216D06A200000 020405B40402080A  1104B6C000000000 010303000B443BF1   **..*J .....*......**.........D;**
 */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 #include "wtap-int.h"
 #include "buffer.h"
 #include "iseries.h"

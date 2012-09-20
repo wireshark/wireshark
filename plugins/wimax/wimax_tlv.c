@@ -36,9 +36,7 @@
 /* Makefile.nmake in .../plugins/m2m.                        */
 /*************************************************************/
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "wimax_tlv.h"
 

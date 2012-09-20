@@ -25,9 +25,7 @@
  * Ref: 3GPP TS 25.469 version 8.4.0 Release 8
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <string.h>
