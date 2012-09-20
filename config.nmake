@@ -112,7 +112,14 @@ PROCESSOR_ARCHITECTURE=amd64
 
 # "Microsoft Visual C++ 2012 Express Edition"
 # Visual C++ 11.0, _MSC_VER 1700, msvcr110.dll
-## Note: Sep 18,2012: "not ready for prime time" (i.e. build fails)
+## Note: Sep 20,2012: *Beta*: Build with VC11 (2012) succeeds; Seems OK: Minimally tested;
+##       win32.mak is apparently not part of the MS 2012EE install;
+##       To build Windows Wireshark, win32.mak must be obtained*
+##        and copied to a dir specified in the Windows Environment
+##        variable 'include' (or to a dir added to the list in 'include').
+##       *One possibility: download the Windows 7 Platform SDK and copy
+##         win32.mak from ...\Microsoft SDKs\Windows\v7.[something]\include
+##         See: http://ask.wireshark.org/questions/14343/setting-development-project-under-visual-studio-2012
 #MSVC_VARIANT=MSVC2012EE
 
 # The default if we haven't set a system environment variable or
