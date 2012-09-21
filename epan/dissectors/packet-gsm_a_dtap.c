@@ -93,7 +93,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "config.h"
+# include "config.h"
 
 #include <glib.h>
 
@@ -232,7 +232,8 @@ const value_string gsm_a_dtap_msg_tp_strings[] = {
 	{ 0x87, "Deactivate Test Mode Complete" },
 	{ 0x88, "Reset UE Positioning Stored Information" },
 	{ 0x89, "UE Test Loop Mode C MBMS Packet Counter Request" },
-	{ 0x90, "UE Test Loop Mode C MBMS Packet Counter Response" },
+	{ 0x8a, "UE Test Loop Mode C MBMS Packet Counter Response" },
+	{ 0x8b, "Update UE Location Information" },
 	{ 0, NULL }
 };
 
@@ -321,6 +322,9 @@ const value_string gsm_dtap_elem_strings[] = {
 	{ 0x00, "UE Test Loop Mode C Setup"},
 	{ 0x00, "UE Positioning Technology"},
 	{ 0x00, "MBMS Packet Counter Value"},
+	{ 0x00, "Ellipsoid Point With Altitude"},
+	{ 0x00, "Horizontal Velocity"},
+	{ 0x00, "GNSS-TOD-msec"},
 	{ 0, NULL }
 };
 
@@ -493,6 +497,14 @@ static int hf_gsm_a_dtap_epc_ue_tl_c_mch_id = -1;
 static int hf_gsm_a_dtap_epc_ue_tl_c_lcid = -1;
 static int hf_gsm_a_dtap_epc_ue_positioning_technology = -1;
 static int hf_gsm_a_dtap_epc_mbms_packet_counter_value = -1;
+static int hf_gsm_a_dtap_epc_latitude_sign = -1;
+static int hf_gsm_a_dtap_epc_degrees_latitude = -1;
+static int hf_gsm_a_dtap_epc_degrees_longitude = -1;
+static int hf_gsm_a_dtap_epc_altitude_dir = -1;
+static int hf_gsm_a_dtap_epc_altitude = -1;
+static int hf_gsm_a_dtap_epc_bearing = -1;
+static int hf_gsm_a_dtap_epc_horizontal_speed = -1;
+static int hf_gsm_a_dtap_epc_gnss_tod_msec = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -4217,6 +4229,66 @@ de_tp_epc_mbms_packet_counter_value(tvbuff_t *tvb, proto_tree *tree, packet_info
 	return(curr_offset - offset);
 }
 
+static const true_false_string epc_latitude_sign_value = {
+	"South",
+	"North"
+};
+
+static const true_false_string epc_altitude_dir_value = {
+	"Depth",
+	"Height"
+};
+
+static guint16
+de_tp_epc_ellipsoid_point_with_alt(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32 curr_offset;
+	guint32 longitude;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_latitude_sign, tvb, curr_offset<<3, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_degrees_latitude, tvb, (curr_offset<<3)+1, 23, ENC_BIG_ENDIAN);
+	curr_offset += 3;
+	longitude = tvb_get_ntoh24(tvb, curr_offset);
+	proto_tree_add_int_format(tree, hf_gsm_a_dtap_epc_degrees_longitude, tvb, curr_offset, 3, longitude,
+	                          "%s = %s: %d", decode_bits_in_field(curr_offset<<3, 24, longitude),
+	                          proto_registrar_get_name(hf_gsm_a_dtap_epc_degrees_longitude), longitude-8388608);
+	curr_offset += 3;
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_altitude_dir, tvb, curr_offset<<3, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_altitude, tvb, (curr_offset<<3)+1, 15, ENC_BIG_ENDIAN);
+	curr_offset += 2;
+
+	return(curr_offset - offset);
+}
+
+static guint16
+de_tp_epc_horizontal_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32 curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_bearing, tvb, curr_offset<<3, 9, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_horizontal_speed, tvb, (curr_offset<<3)+9, 11, ENC_BIG_ENDIAN);
+	curr_offset += 3;
+
+	return(curr_offset - offset);
+}
+
+static guint16
+de_tp_epc_gnss_tod_msec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32 curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_gnss_tod_msec, tvb, (curr_offset<<3)+2, 22, ENC_BIG_ENDIAN);
+	curr_offset += 3;
+
+	return(curr_offset - offset);
+}
+
 guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Mobility Management Information Elements 10.5.3 */
 	de_auth_param_rand,	/* Authentication Parameter RAND */
@@ -4300,6 +4372,9 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	de_tp_epc_ue_tl_c_setup,			/* UE Test Loop Mode C Setup */
 	de_tp_epc_ue_positioning_technology,/* UE Positioning Technology */
 	de_tp_epc_mbms_packet_counter_value,/* MBMS Packet Counter Value */
+	de_tp_epc_ellipsoid_point_with_alt,	/* ellipsoidPointWithAltitude */
+	de_tp_epc_horizontal_velocity,		/* horizontalVelocity */
+	de_tp_epc_gnss_tod_msec,			/* gnss-TOD-msec */
 	NULL,	/* NONE */
 };
 
@@ -6101,6 +6176,24 @@ dtap_tp_epc_test_loop_mode_c_mbms_packet_counter_response(tvbuff_t *tvb, proto_t
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
+static void
+dtap_tp_epc_update_ue_location_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+	guint32 curr_offset;
+	guint32 consumed;
+	guint curr_len;
+
+	curr_len = len;
+	curr_offset = offset;
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_ELLIPSOID_POINT_WITH_ALT, NULL);
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_HORIZONTAL_VELOCITY, NULL);
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_GNSS_TOD_MSEC, NULL);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 
 #define	NUM_GSM_DTAP_MSG_MM (sizeof(gsm_a_dtap_msg_mm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_mm[NUM_GSM_DTAP_MSG_MM];
@@ -6229,6 +6322,7 @@ static void (*dtap_msg_tp_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 	dtap_tp_epc_reset_ue_positioning_stored_information, /* RESET UE POSITIONING STORED INFORMATION */
 	NULL, /* UE TEST LOOP MODE C MBMS PACKET COUNTER REQUEST */
 	dtap_tp_epc_test_loop_mode_c_mbms_packet_counter_response, /* UE TEST LOOP MODE C MBMS PACKET COUNTER RESPONSE */
+	dtap_tp_epc_update_ue_location_information, /* UPDATE UE LOCATION INFORMATION */
 	NULL,	/* NONE */
 };
 
@@ -6977,6 +7071,46 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_epc_mbms_packet_counter_value,
 		{ "MBMS packet counter value","gsm_a.dtap.epc.mbms_packet_counter_value",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_latitude_sign,
+		{ "Latitude Sign","gsm_a.dtap.epc.latitude_sign",
+		FT_BOOLEAN, BASE_NONE, TFS(&epc_latitude_sign_value), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_degrees_latitude,
+		{ "Degrees Latitude","gsm_a.dtap.epc.degrees_latitude",
+		FT_UINT24, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_degrees_longitude,
+		{ "Degrees Longitude","gsm_a.dtap.epc.degrees_longitude",
+		FT_INT24, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_altitude_dir,
+		{ "Altitude Direction","gsm_a.dtap.epc.altitude_direction",
+		FT_BOOLEAN, BASE_NONE, TFS(&epc_altitude_dir_value), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_altitude,
+		{ "Altitude","gsm_a.dtap.epc.altitude",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_bearing,
+		{ "Bearing","gsm_a.dtap.epc.bearing",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_horizontal_speed,
+		{ "Horizontal Speed","gsm_a.dtap.epc.horizontal_speed",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_gnss_tod_msec,
+		{ "GNSS-TOD-msec","gsm_a.dtap.epc.gnss_tod_msec",
+		FT_UINT24, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	};

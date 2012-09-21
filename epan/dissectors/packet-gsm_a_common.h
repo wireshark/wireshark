@@ -1053,7 +1053,7 @@ typedef enum
     DE_TP_PDU_DESCRIPTION,              /* GPRS Test Mode Cmd PDU description */
     DE_TP_MODE_FLAG,                    /* GPRS Test Mode Cmd Mode flag */
     DE_TP_EGPRS_MODE_FLAG,              /* EGPRS Start Radio Block Loopback Cmd Mode flag */
-	DE_TP_MS_POSITIONING_TECHNOLOGY,    /* MS Positioning Technology */
+    DE_TP_MS_POSITIONING_TECHNOLOGY,    /* MS Positioning Technology */
     DE_TP_UE_TEST_LOOP_MODE,            /* Close UE Test Loop Mode */
     DE_TP_UE_POSITIONING_TECHNOLOGY,    /* UE Positioning Technology */
     DE_TP_RLC_SDU_COUNTER_VALUE,        /* RLC SDU Counter Value */
@@ -1063,6 +1063,9 @@ typedef enum
     DE_TP_EPC_UE_TL_C_SETUP,            /* UE Test Loop Mode C Setup */
     DE_TP_EPC_UE_POSITIONING_TECHNOLOGY,/* UE Positioning Technology */
     DE_TP_EPC_MBMS_PACKET_COUNTER_VALUE,/* MBMS Packet Counter Value */
+    DE_TP_EPC_ELLIPSOID_POINT_WITH_ALT, /* ellipsoidPointWithAltitude */
+    DE_TP_EPC_HORIZONTAL_VELOCITY,      /* horizontalVelocity */
+    DE_TP_EPC_GNSS_TOD_MSEC,            /* gnss-TOD-msec */
     DE_NONE                             /* NONE */
 }
 dtap_elem_idx_t;
