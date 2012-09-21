@@ -5,7 +5,7 @@
 
 include ..\..\config.nmake
 
-CFLAGS=$(WARNINGS_ARE_ERRORS) -D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=$(WARNINGS_ARE_ERRORS) -I..\..\ $(LOCAL_CFLAGS)
 
 .c.obj::
    $(CC) $(CFLAGS) -Fd.\ -c $<
