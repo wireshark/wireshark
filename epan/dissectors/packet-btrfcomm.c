@@ -32,15 +32,12 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <etypes.h>
-#include <epan/emem.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/uat.h>
+
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
 #include "packet-btrfcomm.h"

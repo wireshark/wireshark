@@ -26,9 +26,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
+
 #include "packet-btl2cap.h"
 
 /* Initialize the protocol and registered fields */

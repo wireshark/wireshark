@@ -28,10 +28,9 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <etypes.h>
-#include <packet-hci_h4.h>
+
+#include "packet-hci_h4.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_bthci_sco = -1;

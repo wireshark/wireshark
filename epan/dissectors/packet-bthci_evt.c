@@ -32,14 +32,10 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <string.h>
-
 #include <epan/packet.h>
-#include <epan/strutil.h>
-#include <etypes.h>
-#include <packet-hci_h4.h>
-#include <addr_resolv.h>
+#include <epan/addr_resolv.h>
+
+#include "packet-hci_h4.h"
 
 static dissector_handle_t bthci_com_handle;
 

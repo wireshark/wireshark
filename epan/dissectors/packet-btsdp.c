@@ -26,15 +26,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/emem.h>
-#include <etypes.h>
 #include <epan/tap.h>
+
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
 
