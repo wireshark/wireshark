@@ -122,6 +122,10 @@ PROCESSOR_ARCHITECTURE=amd64
 ##         See: http://ask.wireshark.org/questions/14343/setting-development-project-under-visual-studio-2012
 #MSVC_VARIANT=MSVC2012EE
 
+# "Microsoft Visual Studio 2012"
+# Visual C++ 11.0, _MSC_VER 1700, msvcr110.dll
+#MSVC_VARIANT=MSVC2012
+
 # The default if we haven't set a system environment variable or
 # uncommented an entry above.  We default to the version recommended
 # in the Developer's Guide, namely MSVC++ 2010 Express Edition.
