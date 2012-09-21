@@ -4753,7 +4753,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, FALSE);
             return;
         } else {
-            proto_tree_add_text(tree, tvb, offset, len, "All ESM messages should be integrity protected");
+            proto_tree_add_text(tree, tvb, offset, len, "All ESM / Test Procedures messages should be integrity protected");
             return;
         }
     } else {
