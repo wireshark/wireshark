@@ -56,6 +56,7 @@ typedef enum
 #define PDCP_SN_LENGTH_5_BITS  5
 #define PDCP_SN_LENGTH_7_BITS  7
 #define PDCP_SN_LENGTH_12_BITS 12
+#define PDCP_SN_LENGTH_15_BITS 15
 
 
 
