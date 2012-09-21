@@ -321,6 +321,7 @@ DISSECTOR_SRC = \
 	packet-btl2cap.c	\
 	packet-btobex.c		\
 	packet-btrfcomm.c	\
+	packet-btsap.c		\
 	packet-btsdp.c		\
 	packet-bvlc.c		\
 	packet-bzr.c		\

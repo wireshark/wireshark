@@ -3470,8 +3470,8 @@ Tobias Rutz		<tobias.rutz[at]work-microwave.de> {
 Michal Labedzki		<michal.labedzki[at]tieto.com> {
 	Bluetooth BNEP dissector
 	Bluetooth HID dissector
+	Bluetooth SAP dissector
 }
-
 
 and by:
 
