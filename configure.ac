@@ -449,18 +449,17 @@ AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
 # AC_WIRESHARK_LDFLAGS_CHECK([-fwhole-program])
 
 #
-# If we're running GCC or clang, add '-D_U_="__attribute__((unused))"' to
-# CPPFLAGS as well, so we can use _U_ to flag unused function arguments and
-# not get warnings about them. Otherwise, add '-D_U_=""', so that _U_ used
-# to flag an unused function argument will compile with non-GCC, non-clang
-# compilers.
+# If we're running GCC or clang define _U_ to be "__attribute__((unused))"
+# so we can use _U_ to flag unused function parameters and not get warnings
+# about them. Otherwise, define _U_ to be an empty string so that _U_ used
+# to flag an unused function parameters will compile with other compilers.
 #
-# XXX - other compilers?
+# XXX - similar hints for other compilers?
 #
 if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
-  CPPFLAGS="-D_U_=\"__attribute__((unused))\" $CPPFLAGS"
+  AC_DEFINE(_U_, __attribute__((unused)), [Hint to the compiler that a function parameters is not used])
 else
-  CPPFLAGS="-D_U_=\"\" $CPPFLAGS"
+  AC_DEFINE(_U_, , [Hint to the compiler that a function parameters is not used])
 fi
 
 # If we're running GCC or CLang, use FORTIFY_SOURCE=2

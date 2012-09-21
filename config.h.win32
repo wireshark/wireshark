@@ -236,6 +236,11 @@
 #define WIN32			1
 #endif
 
+/* Wireshark's marker that a function parameter is unused.  Used to avoid
+ * warnings on compilers that support such hints.
+ */
+#define _U_
+
 /* Visual C 9 (2008), Visual C 10 (2010) and Visual C 11 (2012) need these prototypes */
 /* XXX: Can we use MSC_VER >= 1500 ?? */
 #if _MSC_VER == 1500 || _MSC_VER == 1600 || _MSC_VER == 1700
