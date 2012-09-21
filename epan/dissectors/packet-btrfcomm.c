@@ -40,6 +40,7 @@
 #include <epan/emem.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
+#include <epan/uat.h>
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
 #include "packet-btrfcomm.h"
@@ -117,11 +118,30 @@ typedef struct _dlci_state_t {
     char    do_credit_fc;
 } dlci_state_t;
 
+typedef struct {
+    guint               channel;
+    gchar*              payload_proto_name;
+    dissector_handle_t  payload_proto;
+} uat_rfcomm_channels_t;
+
+static gboolean               rfcomm_channels_enabled   = FALSE;
+static uat_t                  *uat_rfcomm_channels      = NULL;
+static uat_rfcomm_channels_t  *rfcomm_channels          = NULL;
+static guint                  num_rfcomm_channels       = 0;
+
+UAT_DEC_CB_DEF(rfcomm_channels, channel, uat_rfcomm_channels_t)
+UAT_PROTO_DEF(rfcomm_channels, payload_proto, payload_proto, payload_proto_name, uat_rfcomm_channels_t)
+
+static uat_field_t uat_rfcomm_channels_fields[] = {
+    UAT_FLD_DEC(rfcomm_channels, channel, "RFCOMM Channel",
+            "Range: 0-32"),
+    UAT_FLD_PROTO(rfcomm_channels, payload_proto, "Payload protocol",
+            "Dissector name used to decode RFCOMM channel"),
+    UAT_END_FIELDS
+};
+
 static dissector_handle_t data_handle;
 static dissector_handle_t ppp_handle;
-
-static const char *decode_by_dissector_name = "";
-static guint       decode_by_channel = 0;
 
 static const value_string vs_ctl_pn_i[] = {
     {0x0, "use UIH Frames"},
@@ -218,6 +238,17 @@ static const value_string vs_cr[] = {
     {0, NULL}
 };
 
+static dissector_handle_t
+find_proto_by_channel(guint channel) {
+    guint i_channel;
+
+    for (i_channel = 0; i_channel < num_rfcomm_channels; ++i_channel) {
+        if (rfcomm_channels[i_channel].channel == channel) {
+            return rfcomm_channels[i_channel].payload_proto;
+        }
+    }
+    return NULL;
+}
 
 static int
 get_le_multi_byte_value(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *val_ptr, int hf_index)
@@ -691,8 +722,8 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         rfcomm_data.cid = l2cap_data->cid;
         rfcomm_data.dlci = dlci;
 
-        decode_by_dissector = find_dissector(decode_by_dissector_name);
-        if (decode_by_dissector && decode_by_channel && decode_by_channel == (dlci >> 1)) {
+        decode_by_dissector = find_proto_by_channel(dlci >> 1);
+        if (rfcomm_channels_enabled && decode_by_dissector) {
             call_dissector(decode_by_dissector, next_tvb, pinfo, tree);
         } else if (!dissector_try_uint(rfcomm_channel_dissector_table, (guint32) dlci >> 1,
                 next_tvb, pinfo, tree)) {
@@ -707,11 +738,11 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(rfcomm_tree, hf_fcs, tvb, fcs_offset, 1, ENC_LITTLE_ENDIAN);
 }
 
-
 void
 proto_register_btrfcomm(void)
 {
     module_t *module;
+
     static hf_register_info hf[] = {
         { &hf_dlci,
           { "DLCI", "btrfcomm.dlci",
@@ -918,11 +949,29 @@ proto_register_btrfcomm(void)
     prefs_register_static_text_preference(module, "rfcomm.version",
             "Bluetooth Protocol RFCOMM version: 1.1", "Version of protocol supported by this dissector.");
 
-    prefs_register_uint_preference(module, "rfcomm.decode_by.channel",
-            "Decoby by: channel", "Channel - used to decode by RFCOMM channel", 10, &decode_by_channel);
+    prefs_register_bool_preference(module, "rfcomm.decode_by.enabled",
+            "Enable Force Decode by Channel",
+            "Turn on/off decode by next rules",
+            &rfcomm_channels_enabled);
 
-    prefs_register_string_preference(module, "rfcomm.decode_by.name",
-            "Decoby by: dissector name", "Dissector name - used to decode by RFCOMM channel", &decode_by_dissector_name);
+    uat_rfcomm_channels = uat_new("Force Decode by Channel",
+            sizeof(uat_rfcomm_channels_t),
+            "rfcomm_channels",
+            TRUE,
+            (void*) &rfcomm_channels,
+            &num_rfcomm_channels,
+            UAT_AFFECTS_DISSECTION,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            uat_rfcomm_channels_fields);
+
+    prefs_register_uat_preference(module, "rfcomm.channels",
+            "Force Decode by channel",
+            "Decode by channel",
+            uat_rfcomm_channels);
 }
 
 static int
