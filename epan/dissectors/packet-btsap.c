@@ -324,7 +324,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto
             break;
         case 0x09: /* TransportProtocol */
             proto_tree_add_item(ptree, hf_btsap_parameter_transport_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
-            transport_protocol = tvb_get_ntohs(tvb, offset);
+            transport_protocol = tvb_get_guint8(tvb, offset);
             proto_item_append_text(parameter_item, "%u", transport_protocol);
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %u", transport_protocol);
             length = 1;
