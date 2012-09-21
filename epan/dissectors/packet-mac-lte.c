@@ -35,7 +35,7 @@
 
 /* Described in:
  * 3GPP TS 36.321 Evolved Universal Terrestrial Radio Access (E-UTRA)
- *                Medium Access Control (MAC) protocol specification (Release 10)
+ *                Medium Access Control (MAC) protocol specification v11.0.0
  */
 
 
@@ -170,7 +170,8 @@ static int hf_mac_lte_control_long_ext_bsr_buffer_size_2 = -1;
 static int hf_mac_lte_control_long_ext_bsr_buffer_size_3 = -1;
 static int hf_mac_lte_control_crnti = -1;
 static int hf_mac_lte_control_timing_advance = -1;
-static int hf_mac_lte_control_timing_advance_reserved = -1;
+static int hf_mac_lte_control_timing_advance_group_id = -1;
+static int hf_mac_lte_control_timing_advance_command = -1;
 static int hf_mac_lte_control_ue_contention_resolution = -1;
 static int hf_mac_lte_control_ue_contention_resolution_identity = -1;
 static int hf_mac_lte_control_ue_contention_resolution_msg3 = -1;
@@ -244,6 +245,7 @@ static int ett_mac_lte_bch = -1;
 static int ett_mac_lte_pch = -1;
 static int ett_mac_lte_activation_deactivation = -1;
 static int ett_mac_lte_contention_resolution = -1;
+static int ett_mac_lte_timing_advance = -1;
 static int ett_mac_lte_power_headroom = -1;
 static int ett_mac_lte_extended_power_headroom = -1;
 static int ett_mac_lte_extended_power_headroom_cell = -1;
@@ -3099,30 +3101,34 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 case TIMING_ADVANCE_LCID:
                     {
                         proto_item *ta_ti;
-                        proto_item *reserved_ti;
-                        guint8      reserved;
+                        proto_item *ta_value_ti;
+                        proto_tree *ta_tree;
                         guint8      ta_value;
 
-                        /* Check 2 reserved bits */
-                        reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
-                        reserved_ti = proto_tree_add_item(tree, hf_mac_lte_control_timing_advance_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        if (reserved != 0) {
-                            expert_add_info_format(pinfo, reserved_ti, PI_MALFORMED, PI_ERROR,
-                                                   "Timing Advance Reserved bits not zero (found 0x%x)", reserved);
-                        }
+                        /* Create TA root */
+                        ta_ti = proto_tree_add_string_format(tree,
+                                                             hf_mac_lte_control_timing_advance,
+                                                             tvb, offset, 1,
+                                                             "",
+                                                             "Timing Advance");
+                        ta_tree = proto_item_add_subtree(ta_ti, ett_mac_lte_timing_advance);
+
+                        /* TAG Id */
+                        proto_tree_add_item(ta_tree, hf_mac_lte_control_timing_advance_group_id,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
 
                         /* TA value */
                         ta_value = tvb_get_guint8(tvb, offset) & 0x3f;
-                        ta_ti = proto_tree_add_item(tree, hf_mac_lte_control_timing_advance,
-                                                    tvb, offset, 1, ENC_BIG_ENDIAN);
+                        ta_value_ti = proto_tree_add_item(ta_tree, hf_mac_lte_control_timing_advance_command,
+                                                           tvb, offset, 1, ENC_BIG_ENDIAN);
 
                         if (ta_value == 31) {
-                            expert_add_info_format(pinfo, ta_ti, PI_SEQUENCE,
+                            expert_add_info_format(pinfo, ta_value_ti, PI_SEQUENCE,
                                                    PI_NOTE,
                                                    "Timing Advance control element received (no correction needed)");
                         }
                         else {
-                            expert_add_info_format(pinfo, ta_ti, PI_SEQUENCE,
+                            expert_add_info_format(pinfo, ta_value_ti, PI_SEQUENCE,
                                                    PI_WARN,
                                                    "Timing Advance control element received (%u) %s correction needed",
                                                    ta_value,
@@ -5286,14 +5292,20 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_control_timing_advance,
             { "Timing Advance",
-              "mac-lte.control.timing-advance", FT_UINT8, BASE_DEC, 0, 0x3f,
-              "Timing Advance (0-1282 - see 36.213, 4.2.3)", HFILL
+              "mac-lte.control.timing-advance", FT_STRING, BASE_NONE, 0, 0x0,
+              NULL, HFILL
             }
         },
-        { &hf_mac_lte_control_timing_advance_reserved,
-            { "Reserved",
-              "mac-lte.control.timing-advance.reserved", FT_UINT8, BASE_HEX, 0, 0xc0,
-              "Reserved bits", HFILL
+        { &hf_mac_lte_control_timing_advance_group_id,
+            { "Timing Advance Group Identity",
+              "mac-lte.control.timing-advance.group-id", FT_UINT8, BASE_DEC, 0, 0xc0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_timing_advance_command,
+            { "Timing Advance Command",
+              "mac-lte.control.timing-advance.command", FT_UINT8, BASE_DEC, 0, 0x3f,
+              "Timing Advance (0-63 - see 36.213, 4.2.3)", HFILL
             }
         },
         { &hf_mac_lte_control_ue_contention_resolution,
@@ -5620,6 +5632,7 @@ void proto_register_mac_lte(void)
         &ett_mac_lte_pch,
         &ett_mac_lte_activation_deactivation,
         &ett_mac_lte_contention_resolution,
+        &ett_mac_lte_timing_advance,
         &ett_mac_lte_power_headroom,
         &ett_mac_lte_extended_power_headroom,
         &ett_mac_lte_extended_power_headroom_cell,
