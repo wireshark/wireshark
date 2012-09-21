@@ -62,7 +62,7 @@ static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void), gboolean use_gui);
 static prefs_set_pref_e set_pref(gchar*, gchar*, void *, gboolean);
-static gchar *put_string_list(GList *, gboolean is_default);
+static void write_string_list(FILE *, GList *, gboolean is_default);
 static void free_col_info(GList *);
 static void pre_init_prefs(void);
 static gboolean prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt);
@@ -1338,7 +1338,7 @@ static void column_hidden_write_cb(pref_t* pref, write_pref_arg_t* arg)
     fprintf(arg->pf, "#");
   fprintf (arg->pf, "%s.%s: %s\n", prefix, pref->name, cols_hidden->str);
   /* This frees the list of strings, but not the strings to which it
-     refers; they are free'ed in put_string_list(). */
+     refers; they are free'ed in write_string_list(). */
   g_string_free (cols_hidden, TRUE);
   g_list_free(col_l);
 }
@@ -1544,9 +1544,11 @@ static void column_format_write_cb(pref_t* pref, write_pref_arg_t* arg)
   fprintf (arg->pf, "# Each pair of strings consists of a column title and its format.\n");
   if (is_default)
      fprintf(arg->pf, "#");
-  fprintf (arg->pf, "%s.%s: %s\n", prefix, pref->name, put_string_list(col_l, is_default));
+  fprintf(arg->pf, "%s.%s: ", prefix, pref->name);
+  write_string_list(arg->pf, col_l, is_default);
+  fprintf(arg->pf, "\n");
   /* This frees the list of strings, but not the strings to which it
-     refers; they are free'ed in put_string_list(). */
+     refers; they are free'ed in write_string_list(). */
   g_list_free(col_l);
 }
 
@@ -1675,9 +1677,11 @@ static void capture_column_write_cb(pref_t* pref, write_pref_arg_t* arg)
   fprintf(arg->pf, "# Possible values: INTERFACE,LINK,PMODE,SNAPLEN,MONITOR,BUFFER,FILTER\n");
   if (is_default)
      fprintf(arg->pf, "#");
-  fprintf (arg->pf, "%s.%s: %s\n", prefix, pref->name, put_string_list(col_l, is_default));
+  fprintf(arg->pf, "%s.%s: ", prefix, pref->name);
+  write_string_list(arg->pf, col_l, is_default);
+  fprintf(arg->pf, "\n");
   /* This frees the list of strings, but not the strings to which it
-     refers; they are free'ed in put_string_list(). */
+     refers; they are free'ed in write_string_list(). */
   g_list_free(col_l);
 
 }
@@ -2239,20 +2243,18 @@ prefs_get_string_list(gchar *str)
   return(sl);
 }
 
-#define MAX_FMT_PREF_LEN      1024
-#define MAX_FMT_PREF_LINE_LEN   60
-static gchar *
-put_string_list(GList *sl, gboolean is_default)
+static void
+write_string_list(FILE *f, GList *sl, gboolean is_default)
 {
-  static gchar  pref_str[MAX_FMT_PREF_LEN] = "";
+  char          pref_str[8];
   GList        *clp = g_list_first(sl);
   gchar        *str;
-  size_t        cur_len = 0;
+  int           cur_len = 0;
   gchar        *quoted_str;
   size_t        str_len;
   gchar        *strp, *quoted_strp, c;
-  size_t        fmt_len;
   guint         item_count = 0;
+  gboolean      first = TRUE;
 
   while (clp) {
     item_count++;
@@ -2275,32 +2277,30 @@ put_string_list(GList *sl, gboolean is_default)
     }
     *quoted_strp = '\0';
 
-    fmt_len = strlen(quoted_str) + 4;
-    if ((fmt_len + cur_len) < (MAX_FMT_PREF_LEN - 1)) {
+    {
+      cur_len = 0;
+      if (!first) {
+        pref_str[cur_len] = ','; cur_len++;
+      }
+
       if (item_count % 2) {
         /* Wrap the line.  */
-        if (cur_len > 0) cur_len--;
         pref_str[cur_len] = '\n'; cur_len++;
         if (is_default) {
           pref_str[cur_len] = '#'; cur_len++;
         }
         pref_str[cur_len] = '\t'; cur_len++;
+      } else {
+        pref_str[cur_len] = ' '; cur_len++;
       }
-      g_snprintf(&pref_str[cur_len], MAX_FMT_PREF_LEN - (gulong) cur_len, "\"%s\", ", quoted_str);
-      cur_len += fmt_len;
+      pref_str[cur_len] = '\0';
+      fprintf(f, "%s\"%s\"", pref_str, quoted_str);
+      first = FALSE;
     }
     g_free(quoted_str);
     g_free(str);
     clp = clp->next;
   }
-
-  /* If the string is at least two characters long, the last two characters
-     are ", ", and should be discarded, as there are no more items in the
-     string.  */
-  if (cur_len >= 2)
-    pref_str[cur_len - 2] = '\0';
-
-  return(pref_str);
 }
 
 void
