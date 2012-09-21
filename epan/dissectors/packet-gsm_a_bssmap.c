@@ -592,6 +592,7 @@ static int hf_fe_cell_load_info_rt_load_value = -1;
 static int hf_fe_cell_load_info_nrt_load_information_value = -1;
 static int hf_fe_ps_indication = -1;
 static int hf_fe_dtm_ho_command_ind_spare = -1;
+static int hf_gsm_a_bssmap_perm_speech_v_ind = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -1158,6 +1159,21 @@ be_enc_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 /*
  * [2] 3.2.2.11 Channel Type
  */
+/* Bits 7-1 indicate the permitted speech version identifier; */
+static const value_string gsm_a_bssap_perm_speech_v_ind_vals[] = {
+    { 0x01,  "GSM speech full rate version 1 (GSM FR)"},
+    { 0x05,  "GSM speech half rate version 1 (GSM HR)"},
+    { 0x11,  "GSM speech full rate version 2 (GSM EFR)"},
+    { 0x15,  "GSM speech half rate version 2"},
+    { 0x21,  "GSM speech full rate version 3 (FR AMR)"},
+    { 0x25,  "GSM speech half rate version 3 (HR AMR)"},
+    { 0x41,  "GSM speech full rate version 4 (OFR AMR-WB)"},
+    { 0x42,  "GSM speech full rate version 5 (FR AMR-WB)"},
+    { 0x46,  "GSM speech half rate version 4 (OHR AMR-WB)"},
+    { 0x45,  "GSM speech half rate version 6 (OHR AMR)"},
+    { 0,    NULL }
+};
+
 guint16
 be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
@@ -1231,37 +1247,9 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 
         do
         {
-            oct = tvb_get_guint8(tvb, curr_offset);
-
             proto_tree_add_item(tree, hf_gsm_a_bssmap_chan_type_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-            switch (oct & 0x7f)
-            {
-            case 0x01: str = "GSM speech full rate version 1"; break;
-            case 0x11: str = "GSM speech full rate version 2"; break;
-            case 0x21: str = "GSM speech full rate version 3 (FR AMR)"; break;
-            case 0x31: str = "GSM speech full rate version 4 (OFR AMR-WB)"; break;
-            case 0x32: str = "GSM speech full rate version 5 (FR AMR-WB)"; break;
-
-            case 0x05: str = "GSM speech half rate version 1"; break;
-            case 0x15: str = "GSM speech half rate version 2"; break;
-            case 0x25: str = "GSM speech half rate version 3 (HR AMR)"; break;
-            case 0x36: str = "GSM speech half rate version 4 (OHR AMR-WB)"; break;
-            case 0x35: str = "GSM speech half rate version 6 (OHR AMR)"; break;
-
-            default:
-                str = "Reserved";
-                break;
-            }
-
-            other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-            proto_tree_add_text(tree,
-                tvb, curr_offset, 1,
-                "%s = Speech version identifier: %s",
-                a_bigbuf,
-                str);
-
-            curr_offset++;
+            proto_tree_add_item(tree, hf_gsm_a_bssmap_perm_speech_v_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			curr_offset++;
         }
         while ((len - (curr_offset - offset)) > 0);
     }
@@ -7611,6 +7599,12 @@ proto_register_gsm_a_bssmap(void)
             FT_UINT8, BASE_HEX, NULL, 0,
             NULL, HFILL }
     },
+    { &hf_gsm_a_bssmap_perm_speech_v_ind,
+        { "Permitted speech version indication", "gsm_a.bssmap.perm_speech_v_ind",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_bssap_perm_speech_v_ind_vals), 0x7f,
+            NULL, HFILL }
+    },
+
     };
 
     /* Setup protocol subtree array */
