@@ -1343,7 +1343,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else if (cid == BTL2CAP_FIXED_CID_CONNLESS) { /* Connectionless reception channel */
         col_append_str(pinfo->cinfo, COL_INFO, "Connectionless reception channel");
 
-        psm     = tvb_get_letohs(tvb, offset);
+        psm = tvb_get_letohs(tvb, offset);
+        l2cap_data->psm = psm;
         proto_tree_add_item(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
@@ -1420,6 +1421,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              || (psm_data->dcid == (cid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000))))
             ) {
             psm = psm_data->psm;
+            l2cap_data->psm = psm;
 
             if (pinfo->p2p_dir == P2P_DIR_RECV)
                 config_data = &(psm_data->in);

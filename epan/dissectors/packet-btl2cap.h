@@ -49,6 +49,7 @@
 typedef struct _btl2cap_data_t {
     guint16 chandle;  /* only low 12 bits used */
     guint16 cid;
+    guint16 psm;
 } btl2cap_data_t;
 
 #endif
