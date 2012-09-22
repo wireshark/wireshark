@@ -114,8 +114,6 @@
 
 #define AIRPCAP_ADVANCED_EDIT_KEY_SELECTION_KEY		"airpcap_advanced_edit_key_selection_key"
 
-#define AIRPCAP_OPTIONS_ADVANCED_KEY			"airpcap_options_advanced_key"
-
 #define AIRPCAP_ADVANCED_FROM_KEY				"airpcap_advanced_from_key"
 
 #define AIRPCAP_KEY_MGMT_NEW_KEY	"airpcap_key_mgmt_new_key"
