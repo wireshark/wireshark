@@ -33,6 +33,19 @@
  * February 1990
  * Part Number: 092093-000
  *
+ * Banyan Systems are no longer in business, so that document cannot be
+ * ordered from them.  An online copy appears to be available at
+ *
+ *	http://banyan-vines.bamertal.net/Banyan-supplier-help/ProtoDef/ProtoDefMain.htm
+ *
+ * along with the VINES Architecture Definition at
+ *
+ *	http://banyan-vines.bamertal.net/Banyan-supplier-help/ArchDef/ArchDefMain.htm
+ *
+ * and other VINES documentation linked to from
+ *
+ *	http://banyan-vines.bamertal.net/Banyan-supplier-help/banyan.htm
+ *
  * Some information can also be found in
  *
  *	http://docwiki.cisco.com/wiki/Banyan_VINES
