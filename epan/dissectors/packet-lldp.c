@@ -45,6 +45,24 @@ static dissector_table_t oui_unique_code_table;
 static int proto_lldp = -1;
 static int hf_lldp_tlv_type = -1;
 static int hf_lldp_tlv_len = -1;
+static int hf_lldp_tlv_system_cap = -1;
+static int hf_lldp_tlv_system_cap_other = -1;
+static int hf_lldp_tlv_system_cap_repeater = -1;
+static int hf_lldp_tlv_system_cap_bridge = -1;
+static int hf_lldp_tlv_system_cap_wlan_access_pt = -1;
+static int hf_lldp_tlv_system_cap_router = -1;
+static int hf_lldp_tlv_system_cap_telephone = -1;
+static int hf_lldp_tlv_system_cap_docsis_cable_device = -1;
+static int hf_lldp_tlv_system_cap_station_only = -1;
+static int hf_lldp_tlv_enable_system_cap = -1;
+static int hf_lldp_tlv_enable_system_cap_other = -1;
+static int hf_lldp_tlv_enable_system_cap_repeater = -1;
+static int hf_lldp_tlv_enable_system_cap_bridge = -1;
+static int hf_lldp_tlv_enable_system_cap_wlan_access_pt = -1;
+static int hf_lldp_tlv_enable_system_cap_router = -1;
+static int hf_lldp_tlv_enable_system_cap_telephone = -1;
+static int hf_lldp_tlv_enable_system_cap_docsis_cable_device = -1;
+static int hf_lldp_tlv_enable_system_cap_station_only = -1;
 static int hf_chassis_id_subtype = -1;
 static int hf_chassis_id = -1;
 static int hf_chassis_id_mac = -1;
@@ -62,9 +80,77 @@ static int hf_mgn_addr_hex = -1;
 static int hf_mgn_obj_id = -1;
 static int hf_org_spc_oui = -1;
 static int hf_ieee_802_1_subtype = -1;
+static int hf_ieee_802_1_port_and_vlan_id_flag = -1;
+static int hf_ieee_802_1_port_and_vlan_id_flag_supported = -1;
+static int hf_ieee_802_1_port_and_vlan_id_flag_enabled = -1;
 static int hf_ieee_802_3_subtype = -1;
+static int hf_ieee_802_3_mac_phy_auto_neg_status = -1;
+static int hf_ieee_802_3_mac_phy_auto_neg_status_supported = -1;
+static int hf_ieee_802_3_mac_phy_auto_neg_status_enabled = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_1000base_tfd = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_1000base_t = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_1000base_xfd = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_1000base_x = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_fdx_bpause = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_fdx_spause = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_fdx_apause = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_fdx_pause = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_t2fd = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_t2 = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_txfd = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_tx = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_t4 = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_10base_tfd = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_10base_t = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_other = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_tfd = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_t = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_xfd = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_x = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_fdx_bpause = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_fdx_spause = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_fdx_apause = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_fdx_pause = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_t2fd = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_t2 = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_txfd = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_tx = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_t4 = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_10base_tfd = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_10base_t = -1;
+static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_other = -1;
+static int hf_ieee_802_3_mdi_power_support = -1;
+static int hf_ieee_802_3_mdi_power_support_port_class = -1;
+static int hf_ieee_802_3_mdi_power_support_pse_power_support = -1;
+static int hf_ieee_802_3_mdi_power_support_pse_power_enabled = -1;
+static int hf_ieee_802_3_mdi_power_support_pse_pairs = -1;
+static int hf_ieee_802_3_aggregation_status = -1;
+static int hf_ieee_802_3_aggregation_status_cap = -1;
+static int hf_ieee_802_3_aggregation_status_enabled = -1;
 static int hf_ieee_802_1qbg_subtype = -1;
+static int hf_ieee_802_1qbg_evb_support_caps = -1;
+static int hf_ieee_802_1qbg_evb_support_caps_std = -1;
+static int hf_ieee_802_1qbg_evb_support_caps_rr = -1;
+static int hf_ieee_802_1qbg_evb_support_caps_rte = -1;
+static int hf_ieee_802_1qbg_evb_support_caps_ecp = -1;
+static int hf_ieee_802_1qbg_evb_support_caps_vdp = -1;
+static int hf_ieee_802_1qbg_evb_configure_caps = -1;
+static int hf_ieee_802_1qbg_evb_configure_caps_std = -1;
+static int hf_ieee_802_1qbg_evb_configure_caps_rr = -1;
+static int hf_ieee_802_1qbg_evb_configure_caps_rte = -1;
+static int hf_ieee_802_1qbg_evb_configure_caps_ecp = -1;
+static int hf_ieee_802_1qbg_evb_configure_caps_vdp = -1;
 static int hf_media_tlv_subtype = -1;
+static int hf_media_tlv_subtype_caps = -1;
+static int hf_media_tlv_subtype_caps_llpd = -1;
+static int hf_media_tlv_subtype_caps_network_policy = -1;
+static int hf_media_tlv_subtype_caps_location_id = -1;
+static int hf_media_tlv_subtype_caps_mdi_pse = -1;
+static int hf_media_tlv_subtype_caps_mid_pd = -1;
+static int hf_media_tlv_subtype_caps_inventory = -1;
+static int hf_media_policy_flag = -1;
+static int hf_media_tag_flag = -1;
 static int hf_profinet_tlv_subtype = -1;
 static int hf_profinet_class2_port_status = -1;
 static int hf_profinet_class3_port_status = -1;
@@ -88,6 +174,11 @@ static int hf_profinet_orange_period_begin_offset = -1;
 static int hf_profinet_green_period_begin_valid = -1;
 static int hf_profinet_green_period_begin_offset = -1;
 static int hf_cisco_subtype = -1;
+static int hf_cisco_four_wire_power = -1;
+static int hf_cisco_four_wire_power_poe = -1;
+static int hf_cisco_four_wire_power_spare_pair_arch = -1;
+static int hf_cisco_four_wire_power_req_spare_pair_poe = -1;
+static int hf_cisco_four_wire_power_pse_spare_pair_poe = -1;
 static int hf_unknown_subtype = -1;
 static int hf_unknown_subtype_content = -1;
 
@@ -243,6 +334,10 @@ static const value_string power_type_802_3[] = {
 	{ 3,	"Type 1" },
 	{ 0, NULL }
 };
+
+static const true_false_string tfs_ieee_802_3_pse_pd = { "PSE", "PD" };
+static const true_false_string tfs_unknown_defined = { "Unknown", "Defined" };
+static const true_false_string tfs_shared_independent = { "Shared", "Independent" };
 
 /* Power Type */
 static const value_string media_power_type[] = {
@@ -558,8 +653,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		{
 			tf = proto_tree_add_text(tree, tvb, offset, 2, "Invalid Chassis ID (0x%02X)", tempType);
 			chassis_tree = proto_item_add_subtree(tf, ett_chassis_id);
-			proto_tree_add_text(chassis_tree, tvb, offset, 2, "%s Invalid Chassis ID (%u)",
-						decode_boolean_bitfield(tempType, TLV_TYPE_MASK, 16, "", ""), tempType);
+			proto_tree_add_text(chassis_tree, tvb, offset, 2, " Invalid Chassis ID (%u)", tempType);
 		}
 
 		return -1;
@@ -574,8 +668,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			tf = proto_tree_add_text(tree, tvb, offset, 2, "Invalid Chassis ID Length (%u)", tempLen);
 			chassis_tree = proto_item_add_subtree(tf, ett_chassis_id);
 			proto_tree_add_item(chassis_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-			proto_tree_add_text(chassis_tree, tvb, offset, 2, "%s Invalid Length: %u",
-						decode_boolean_bitfield(tempLen, TLV_INFO_LEN_MASK, 16, "", ""), tempLen);
+			proto_tree_add_text(chassis_tree, tvb, offset, 2, " Invalid Length: %u", tempLen);
 		}
 
 		return -1;
@@ -673,8 +766,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			tf = proto_tree_add_text(tree, tvb, offset, 2, "Invalid Chassis ID Length (%u)", tempLen);
 			chassis_tree = proto_item_add_subtree(tf, ett_chassis_id);
 			proto_tree_add_item(chassis_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-			proto_tree_add_text(chassis_tree, tvb, offset, 2, "%s Invalid Length: %u",
-						decode_boolean_bitfield(tempLen, TLV_INFO_LEN_MASK, 16, "", ""), tempLen);
+			proto_tree_add_text(chassis_tree, tvb, offset, 2, " Invalid Length: %u", tempLen);
 			/* Get chassis id subtype */
 			proto_tree_add_item(chassis_tree, hf_chassis_id_subtype, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
 
@@ -1017,7 +1109,6 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 {
 	guint16 tempShort;
 	guint32 tempLen = 0;
-	guint16 tempCapability;
 
 	proto_tree	*system_capabilities_tree = NULL;
 	proto_tree	*capabilities_summary_tree = NULL;
@@ -1030,9 +1121,6 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	/* Get tlv length */
 	tempLen = TLV_INFO_LEN(tempShort);
 
-	/* Get system capabilities */
-	tempCapability = tvb_get_ntohs(tvb, (offset+2));
-
 	if (tree)
 	{
 		/* Set system capabilities tree */
@@ -1043,81 +1131,32 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		proto_tree_add_item(system_capabilities_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		/* Display system capability information */
-		tf = proto_tree_add_text(system_capabilities_tree, tvb, (offset+2), 2, "Capabilities: 0x%04x", tempCapability);
+		tf = proto_tree_add_item(system_capabilities_tree, hf_lldp_tlv_system_cap, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 		capabilities_summary_tree = proto_item_add_subtree(tf, ett_system_cap_summary);
+
 		/* Add capabilities to summary tree */
-		if (tempCapability & SYSTEM_CAPABILITY_OTHER)
-			proto_tree_add_text(capabilities_summary_tree, tvb, (offset+2), 2, "%s",
-						decode_boolean_bitfield(tempCapability, SYSTEM_CAPABILITY_OTHER,
-						16, "Other", ""));
-		if (tempCapability & SYSTEM_CAPABILITY_REPEATER)
-			proto_tree_add_text(capabilities_summary_tree, tvb, (offset+2), 2, "%s",
-						decode_boolean_bitfield(tempCapability, SYSTEM_CAPABILITY_REPEATER,
-						16, "Repeater", ""));
-		if (tempCapability & SYSTEM_CAPABILITY_BRIDGE)
-			proto_tree_add_text(capabilities_summary_tree, tvb, (offset+2), 2, "%s",
-						decode_boolean_bitfield(tempCapability, SYSTEM_CAPABILITY_BRIDGE,
-						16, "Bridge", ""));
-		if (tempCapability & SYSTEM_CAPABILITY_WLAN)
-			proto_tree_add_text(capabilities_summary_tree, tvb, (offset+2), 2, "%s",
-						decode_boolean_bitfield(tempCapability, SYSTEM_CAPABILITY_WLAN,
-						16, "WLAN access point", ""));
-		if (tempCapability & SYSTEM_CAPABILITY_ROUTER)
-			proto_tree_add_text(capabilities_summary_tree, tvb, (offset+2), 2, "%s",
-						decode_boolean_bitfield(tempCapability, SYSTEM_CAPABILITY_ROUTER,
-						16, "Router", ""));
-		if (tempCapability & SYSTEM_CAPABILITY_TELEPHONE)
-			proto_tree_add_text(capabilities_summary_tree, tvb, (offset+2), 2, "%s",
-						decode_boolean_bitfield(tempCapability, SYSTEM_CAPABILITY_TELEPHONE,
-						16, "Telephone", ""));
-		if (tempCapability & SYSTEM_CAPABILITY_DOCSIS)
-			proto_tree_add_text(capabilities_summary_tree, tvb, (offset+2), 2, "%s",
-						decode_boolean_bitfield(tempCapability, SYSTEM_CAPABILITY_DOCSIS,
-						16, "DOCSIS cable device", ""));
-		if (tempCapability & SYSTEM_CAPABILITY_STATION)
-			proto_tree_add_text(capabilities_summary_tree, tvb, (offset+2), 2, "%s",
-						decode_boolean_bitfield(tempCapability, SYSTEM_CAPABILITY_STATION,
-						16, "Station only", ""));
+		proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_other, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_repeater, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_bridge, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_wlan_access_pt, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_router, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_telephone, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_docsis_cable_device, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_summary_tree, hf_lldp_tlv_system_cap_station_only, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
 		/* Get enabled summary */
-		tempShort = tvb_get_ntohs(tvb, (offset+4));
 
 		/* Display system capability information */
-		tf = proto_tree_add_text(system_capabilities_tree, tvb, (offset+4), 2, "Enabled Capabilities: 0x%04x", tempShort);
+		tf = proto_tree_add_item(system_capabilities_tree, hf_lldp_tlv_enable_system_cap, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 		capabilities_enabled_tree = proto_item_add_subtree(tf, ett_system_cap_enabled);
-		/* Add capabilities to summary tree */
-		if (tempShort & SYSTEM_CAPABILITY_OTHER)
-			proto_tree_add_text(capabilities_enabled_tree, tvb, (offset+4), 2, "%s",
-						decode_boolean_bitfield(tempShort, SYSTEM_CAPABILITY_OTHER,
-						16, "Other", ""));
-		if (tempShort & SYSTEM_CAPABILITY_REPEATER)
-			proto_tree_add_text(capabilities_enabled_tree, tvb, (offset+4), 2, "%s",
-						decode_boolean_bitfield(tempShort, SYSTEM_CAPABILITY_REPEATER,
-						16, "Repeater", ""));
-		if (tempShort & SYSTEM_CAPABILITY_BRIDGE)
-			proto_tree_add_text(capabilities_enabled_tree, tvb, (offset+4), 2, "%s",
-						decode_boolean_bitfield(tempShort, SYSTEM_CAPABILITY_BRIDGE,
-						16, "Bridge", ""));
-		if (tempShort & SYSTEM_CAPABILITY_WLAN)
-			proto_tree_add_text(capabilities_enabled_tree, tvb, (offset+4), 2, "%s",
-						decode_boolean_bitfield(tempShort, SYSTEM_CAPABILITY_WLAN,
-						16, "WLAN access point", ""));
-		if (tempShort & SYSTEM_CAPABILITY_ROUTER)
-			proto_tree_add_text(capabilities_enabled_tree, tvb, (offset+4), 2, "%s",
-						decode_boolean_bitfield(tempShort, SYSTEM_CAPABILITY_ROUTER,
-						16, "Router", ""));
-		if (tempShort & SYSTEM_CAPABILITY_TELEPHONE)
-			proto_tree_add_text(capabilities_enabled_tree, tvb, (offset+4), 2, "%s",
-						decode_boolean_bitfield(tempShort, SYSTEM_CAPABILITY_TELEPHONE,
-						16, "Telephone", ""));
-		if (tempShort & SYSTEM_CAPABILITY_DOCSIS)
-			proto_tree_add_text(capabilities_enabled_tree, tvb, (offset+4), 2, "%s",
-						decode_boolean_bitfield(tempShort, SYSTEM_CAPABILITY_DOCSIS,
-						16, "DOCSIS cable device", ""));
-		if (tempShort & SYSTEM_CAPABILITY_STATION)
-			proto_tree_add_text(capabilities_enabled_tree, tvb, (offset+4), 2, "%s",
-						decode_boolean_bitfield(tempShort, SYSTEM_CAPABILITY_STATION,
-						16, "Station only", ""));
+		proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_other, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_repeater, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_bridge, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_wlan_access_pt, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_router, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_telephone, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_docsis_cable_device, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(capabilities_enabled_tree, hf_lldp_tlv_enable_system_cap_station_only, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 	}
 
 	return (tempLen + 2);
@@ -1249,21 +1288,13 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	case 0x02:	/* Port and Protocol VLAN ID */
 	{
 		/* Get flags */
-		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
 		{
-			tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "Flags: 0x%02x", tempByte);
+			tf = proto_tree_add_item(tree, hf_ieee_802_1_port_and_vlan_id_flag, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 			vlan_flags = proto_item_add_subtree(tf, ett_port_vlan_flags);
 
-			/* Get supported flag */
-			proto_tree_add_text(vlan_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 1 << 1, 8, "Port and Protocol VLAN: Supported",
-												"Port and Protocol VLAN: Not Supported"));
-
-			/* Get enabled flag */
-			proto_tree_add_text(vlan_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 1 << 2, 8, "Port and Protocol VLAN: Enabled",
-												"Port and Protocol VLAN: Not Enabled"));
+			proto_tree_add_item(tree, hf_ieee_802_1_port_and_vlan_id_flag_supported, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_802_1_port_and_vlan_id_flag_enabled, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 		}
 
 		tempOffset++;
@@ -1354,68 +1385,28 @@ dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	switch (subType) {
 		case 0x00:
 			/* Get EVB capabilities */
-			tempShort = tvb_get_ntohs(tvb, tempOffset);
 			if (tree) {
-				tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "supported capabilities: 0x%04X", tempShort);
+				tf = proto_tree_add_item(tree, hf_ieee_802_1qbg_evb_support_caps, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 				evb_capabilities_subtree = proto_item_add_subtree(tf, ett_802_1qbg_capabilities_flags);
 
-				if (tempShort & EVB_CAPA_STD)
-					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
-								decode_boolean_bitfield(tempShort, EVB_CAPA_STD,
-								16, "standard bridging (STD)", ""));
-
-				if (tempShort & EVB_CAPA_RR)
-					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
-								decode_boolean_bitfield(tempShort, EVB_CAPA_RR,
-								16, "reflective relay (RR)", ""));
-
-				if (tempShort & EVB_CAPA_RTE)
-					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
-								decode_boolean_bitfield(tempShort, EVB_CAPA_RTE,
-								16, "retransmission timer exponent (RTE)", ""));
-
-				if (tempShort & EVB_CAPA_ECP)
-					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
-								decode_boolean_bitfield(tempShort, EVB_CAPA_ECP,
-								16, "edge control protocol (ECP)", ""));
-
-				if (tempShort & EVB_CAPA_VDP)
-					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
-								decode_boolean_bitfield(tempShort, EVB_CAPA_VDP,
-								16, "VSI discovery protocol (VDP)", ""));
+				proto_tree_add_item(evb_capabilities_subtree, hf_ieee_802_1qbg_evb_support_caps_std, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(evb_capabilities_subtree, hf_ieee_802_1qbg_evb_support_caps_rr, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(evb_capabilities_subtree, hf_ieee_802_1qbg_evb_support_caps_rte, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(evb_capabilities_subtree, hf_ieee_802_1qbg_evb_support_caps_ecp, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(evb_capabilities_subtree, hf_ieee_802_1qbg_evb_support_caps_vdp, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 			}
 
 			tempOffset += 2;
 
-			tempShort = tvb_get_ntohs(tvb, tempOffset);
 			if (tree) {
-				tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "configured capabilities: 0x%04X", tempShort);
+				tf = proto_tree_add_item(tree, hf_ieee_802_1qbg_evb_configure_caps, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 				evb_capabilities_subtree = proto_item_add_subtree(tf, ett_802_1qbg_capabilities_flags);
 
-				if (tempShort & EVB_CAPA_STD)
-					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
-								decode_boolean_bitfield(tempShort, EVB_CAPA_STD,
-								16, "standard bridging (STD)", ""));
-
-				if (tempShort & EVB_CAPA_RR)
-					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
-								decode_boolean_bitfield(tempShort, EVB_CAPA_RR,
-								16, "reflective relay (RR)", ""));
-
-				if (tempShort & EVB_CAPA_RTE)
-					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
-								decode_boolean_bitfield(tempShort, EVB_CAPA_RTE,
-								16, "retransmission timer exponent (RTE)", ""));
-
-				if (tempShort & EVB_CAPA_ECP)
-					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
-								decode_boolean_bitfield(tempShort, EVB_CAPA_ECP,
-								16, "edge control protocol (ECP)", ""));
-
-				if (tempShort & EVB_CAPA_VDP)
-					proto_tree_add_text(evb_capabilities_subtree, tvb, (offset+2), 2, "%s",
-								decode_boolean_bitfield(tempShort, EVB_CAPA_VDP,
-								16, "VSI discovery protocol (VDP)", ""));
+				proto_tree_add_item(evb_capabilities_subtree, hf_ieee_802_1qbg_evb_configure_caps_std, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(evb_capabilities_subtree, hf_ieee_802_1qbg_evb_configure_caps_rr, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(evb_capabilities_subtree, hf_ieee_802_1qbg_evb_configure_caps_rte, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(evb_capabilities_subtree, hf_ieee_802_1qbg_evb_configure_caps_ecp, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(evb_capabilities_subtree, hf_ieee_802_1qbg_evb_configure_caps_vdp, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 			}
 
 			tempOffset += 2;
@@ -1478,192 +1469,57 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
 		{
-			tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "Auto-Negotiation Support/Status: 0x%02x", tempByte);
+			tf = proto_tree_add_item(tree, hf_ieee_802_3_mac_phy_auto_neg_status, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 			mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_flags);
 
-			/* Get supported flag */
-			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x01, 8, "Auto-Negotiation: Supported",
-												"Auto-Negotiation: Not Supported"));
-
-			/* Get enabled flag */
-			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x02, 8, "Auto-Negotiation: Enabled",
-												"Auto-Negotiation: Not Enabled"));
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_mac_phy_auto_neg_status_supported, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_mac_phy_auto_neg_status_enabled, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 		}
 
 		tempOffset++;
 
 		/* Get pmd auto-negotiation advertised capability */
-		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 		{
-			tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "PMD Auto-Negotiation Advertised Capability: 0x%04X", tempShort);
+			tf = proto_tree_add_item(tree, hf_ieee_802_3_pmd_auto_neg_advertised_caps, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 			autoneg_advertised_subtree = proto_item_add_subtree(tf, ett_802_3_autoneg_advertised);
 
-			if (tempShort & AUTONEG_1000BASE_TFD)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_1000BASE_TFD,
-							16, "1000BASE-T (full duplex mode)", ""));
-
-			if (tempShort & AUTONEG_1000BASE_T)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_1000BASE_T,
-							16, "1000BASE-T (half duplex mode)", ""));
-
-			if (tempShort & AUTONEG_1000BASE_XFD)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_1000BASE_XFD,
-							16, "1000BASE-X (-LX, -SX, -CX full duplex mode)", ""));
-
-			if (tempShort & AUTONEG_1000BASE_X)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_1000BASE_X,
-							16, "1000BASE-X (-LX, -SX, -CX half duplex mode)", ""));
-
-			if (tempShort & AUTONEG_FDX_BPAUSE)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_FDX_BPAUSE,
-							16, "Asymmetric and Symmetric PAUSE (for full-duplex links)", ""));
-
-			if (tempShort & AUTONEG_FDX_SPAUSE)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_FDX_SPAUSE,
-							16, "Symmetric PAUSE (for full-duplex links)", ""));
-
-			if (tempShort & AUTONEG_FDX_APAUSE)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_FDX_APAUSE,
-							16, "Asymmetric PAUSE (for full-duplex links)", ""));
-
-			if (tempShort & AUTONEG_FDX_PAUSE)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_FDX_PAUSE,
-							16, "PAUSE (for full-duplex links)", ""));
-
-			if (tempShort & AUTONEG_100BASE_T2FD)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_100BASE_T2FD,
-							16, "100BASE-T2 (full duplex mode)", ""));
-
-			if (tempShort & AUTONEG_100BASE_T2)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_100BASE_T2,
-							16, "100BASE-T2 (half duplex mode)", ""));
-
-			if (tempShort & AUTONEG_100BASE_TXFD)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_100BASE_TXFD,
-							16, "100BASE-TX (full duplex mode)", ""));
-
-			if (tempShort & AUTONEG_100BASE_TX)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_100BASE_TX,
-							16, "100BASE-TX (half duplex mode)", ""));
-
-			if (tempShort & AUTONEG_100BASE_T4)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_100BASE_T4,
-							16, "100BASE-T4", ""));
-
-			if (tempShort & AUTONEG_10BASET_FD)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_10BASET_FD,
-							16, "10BASE-T (full duplex mode)", ""));
-
-			if (tempShort & AUTONEG_10BASE_T)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_10BASE_T,
-							16, "10BASE-T (half duplex mode)", ""));
-
-			if (tempShort & AUTONEG_OTHER)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, AUTONEG_OTHER,
-							16, "other or unknown", ""));
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_1000base_tfd, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_1000base_t, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_1000base_xfd, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_1000base_x, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_fdx_bpause, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_fdx_spause, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_fdx_apause, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_fdx_pause, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_t2fd, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_t2, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_txfd, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_tx, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_t4, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_10base_tfd, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_10base_t, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_other, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 
 			tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "Same in inverse (wrong) bitorder");
 			autoneg_advertised_subtree = proto_item_add_subtree(tf, ett_802_3_autoneg_advertised);
 
-			if (tempShort & INV_AUTONEG_1000BASE_TFD)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_1000BASE_TFD,
-							16, "1000BASE-T (full duplex mode)", ""));
-
-			if (tempShort & INV_AUTONEG_1000BASE_T)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_1000BASE_T,
-							16, "1000BASE-T (half duplex mode)", ""));
-
-			if (tempShort & INV_AUTONEG_1000BASE_XFD)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_1000BASE_XFD,
-							16, "1000BASE-X (-LX, -SX, -CX full duplex mode)", ""));
-
-			if (tempShort & INV_AUTONEG_1000BASE_X)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_1000BASE_X,
-							16, "1000BASE-X (-LX, -SX, -CX half duplex mode)", ""));
-
-			if (tempShort & INV_AUTONEG_FDX_BPAUSE)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_FDX_BPAUSE,
-							16, "Asymmetric and Symmetric PAUSE (for full-duplex links)", ""));
-
-			if (tempShort & INV_AUTONEG_FDX_SPAUSE)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_FDX_SPAUSE,
-							16, "Symmetric PAUSE (for full-duplex links)", ""));
-
-			if (tempShort & INV_AUTONEG_FDX_APAUSE)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_FDX_APAUSE,
-							16, "Asymmetric PAUSE (for full-duplex links)", ""));
-
-			if (tempShort & INV_AUTONEG_FDX_PAUSE)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_FDX_PAUSE,
-							16, "PAUSE (for full-duplex links)", ""));
-
-			if (tempShort & INV_AUTONEG_100BASE_T2FD)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_100BASE_T2FD,
-							16, "100BASE-T2 (full duplex mode)", ""));
-
-			if (tempShort & INV_AUTONEG_100BASE_T2)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_100BASE_T2,
-							16, "100BASE-T2 (half duplex mode)", ""));
-
-			if (tempShort & INV_AUTONEG_100BASE_TXFD)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_100BASE_TXFD,
-							16, "100BASE-TX (full duplex mode)", ""));
-
-			if (tempShort & INV_AUTONEG_100BASE_TX)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_100BASE_TX,
-							16, "100BASE-TX (half duplex mode)", ""));
-
-			if (tempShort & INV_AUTONEG_100BASE_T4)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_100BASE_T4,
-							16, "100BASE-T4", ""));
-
-			if (tempShort & INV_AUTONEG_10BASET_FD)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_10BASET_FD,
-							16, "10BASE-T (full duplex mode)", ""));
-
-			if (tempShort & INV_AUTONEG_10BASE_T)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_10BASE_T,
-							16, "10BASE-T (half duplex mode)", ""));
-
-			if (tempShort & INV_AUTONEG_OTHER)
-				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
-							decode_boolean_bitfield(tempShort, INV_AUTONEG_OTHER,
-							16, "other or unknown", ""));
-
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_tfd, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_t, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_xfd, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_x, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_fdx_bpause, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_fdx_spause, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_fdx_apause, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_fdx_pause, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_t2fd, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_t2, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_txfd, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_tx, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_t4, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_10base_tfd, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_10base_t, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(autoneg_advertised_subtree, hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_other, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 		}
 
 		tempOffset += 2;
@@ -1684,31 +1540,15 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		const char *strPtr;
 
 		/* Get MDI power support info */
-		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
 		{
-			tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "MDI Power Support: 0x%02x", tempByte);
+			tf = proto_tree_add_item(tree, hf_ieee_802_3_mdi_power_support, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 			mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_power);
 
-			/* Get port class */
-			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x01, 8, "Port Class: PSE",
-												"Port Class: PD"));
-
-			/* Get PSE MDI power support */
-			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x02, 8, "PSE MDI Power: Supported",
-												"PSE MDI Power: Not Supported"));
-
-			/* Get PSE MDI power state */
-			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x04, 8, "PSE MDI Power Enabled: Yes",
-												"PSE MDI Power Enabled: No"));
-
-			/* Get PSE pairs control ability */
-			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x08, 8, "PSE Pairs Control Ability: Yes",
-												"PSE Pairs Control Ability: No"));
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_mdi_power_support_port_class, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_mdi_power_support_pse_power_support, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_mdi_power_support_pse_power_enabled, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_mdi_power_support_pse_pairs, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 		}
 
 		tempOffset++;
@@ -1736,8 +1576,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		/* Determine power type */
 		subType = ((tempByte & 0xC0) >> 6);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s %s",
-				decode_boolean_bitfield(tempByte, 0xC0, 8, "Power Type:", "Power Type:"),
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Type %s %s",
 				val_to_str_const(subType, power_type_802_3, "Unknown"),
 				val_to_str_const(subType, media_power_type, "Unknown"));
 
@@ -1767,15 +1606,12 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		}
 		}
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
-				decode_boolean_bitfield(tempByte, 0x30, 8, "Power Source:", "Power Source:"),
-				strPtr);
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Source %s", strPtr);
 
 		/* Determine power priority */
 		subType = (tempByte & 0x0F);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
-				decode_boolean_bitfield(tempByte, 0x0F, 8, "Power Priority:", "Power Priority:"),
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Priority %s",
 				val_to_str_const(subType, media_power_priority, "Reserved"));
 
 		tempOffset++;
@@ -1799,21 +1635,12 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	case 0x03:	/* Link Aggregation */
 	{
 		/* Get aggregation status */
-		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
 		{
-			tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "Aggregation Status: 0x%02x", tempByte);
+			tf = proto_tree_add_item(tree, hf_ieee_802_3_aggregation_status, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 			mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_aggregation);
-
-			/* Get aggregation capability */
-			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x01, 8, "Aggregation Capability: Yes",
-												"Aggregation Capability: No"));
-
-			/* Get aggregation status */
-			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x02, 8, "Aggregation Status: Enabled",
-												"Aggregation Status: Not Enabled"));
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_aggregation_status_cap, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_aggregation_status_enabled, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 		}
 
 		tempOffset++;
@@ -1877,35 +1704,16 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
 			return;
 		}
-		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 		{
-			tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "Capabilities: 0x%04x", tempShort);
+			tf = proto_tree_add_item(tree, hf_media_tlv_subtype_caps, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 			media_flags = proto_item_add_subtree(tf, ett_media_capabilities);
-			if (tempShort & MEDIA_CAPABILITY_LLDP)
-				proto_tree_add_text(media_flags, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_LLDP, 16,
-												"LLDP-MED Capabilities", ""));
-			if (tempShort & MEDIA_CAPABILITY_NETWORK_POLICY)
-				proto_tree_add_text(media_flags, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_NETWORK_POLICY, 16,
-												"Network Policy", ""));
-			if (tempShort & MEDIA_CAPABILITY_LOCATION_ID)
-				proto_tree_add_text(media_flags, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_LOCATION_ID, 16,
-												"Location Identification", ""));
-			if (tempShort & MEDIA_CAPABILITY_MDI_PSE)
-				proto_tree_add_text(media_flags, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_MDI_PSE, 16,
-												"Extended Power via MDI-PSE", ""));
-			if (tempShort & MEDIA_CAPABILITY_MDI_PD)
-				proto_tree_add_text(media_flags, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_MDI_PD, 16,
-												"Extended Power via MDI-PD", ""));
-			if (tempShort & MEDIA_CAPABILITY_INVENTORY)
-				proto_tree_add_text(media_flags, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_INVENTORY, 16,
-												"Inventory", ""));
+			proto_tree_add_item(media_flags, hf_media_tlv_subtype_caps_llpd, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(media_flags, hf_media_tlv_subtype_caps_network_policy, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(media_flags, hf_media_tlv_subtype_caps_location_id, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(media_flags, hf_media_tlv_subtype_caps_mdi_pse, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(media_flags, hf_media_tlv_subtype_caps_mid_pd, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(media_flags, hf_media_tlv_subtype_caps_inventory, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 		}
 		tempOffset += 2;
 		tlvLen -= 2;
@@ -1947,21 +1755,16 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		}
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 
-		/* Unknown policy flag */
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, 0x8000, 16,"Policy: Unknown", "Policy: Defined"));
-
-		/* Tagged flag */
-		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, 0x4000, 16,"Tagged: Yes", "Tagged: No"));
+		{
+			proto_tree_add_item(tree, hf_media_policy_flag, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_media_tag_flag, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+		}
 
 		/* Get vlan id */
 		tempVLAN = (tempShort & 0x1FFE) >> 1;
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "%s %u",
-						decode_boolean_bitfield(tempShort, 0x1FFE, 16, "VLAN Id:", "VLAN Id:"), tempVLAN);
+			proto_tree_add_text(tree, tvb, tempOffset, 2, "VLAN Id: %u", tempVLAN);
 		tempOffset++;
 		tlvLen--;
 
@@ -1973,8 +1776,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		}
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "%s %u",
-						decode_boolean_bitfield(tempShort, 0x01C0, 16, "L2 Priority:", "L2 Priority:"),
+			proto_tree_add_text(tree, tvb, tempOffset, 2, "L2 Priority: %u",
 												((tempShort & 0x01C0) >> 6));
 		tempOffset++;
 		tlvLen--;
@@ -1982,8 +1784,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		/* Get DSCP value */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %u",
-						decode_boolean_bitfield(tempByte, 0x3F, 8, "DSCP Value:", "DSCP Value:"),
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "DSCP Value: %u",
 												(tempByte & 0x3F));
 
 		break;
@@ -2021,8 +1822,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			/* Get latitude resolution */
 			tempByte = tvb_get_guint8(tvb, tempOffset);
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %u",
-						decode_boolean_bitfield(tempByte, 0xFC, 8, "Latitude Resolution:", "Latitude Resolution:"),
+				proto_tree_add_text(tree, tvb, tempOffset, 1, "Latitude Resolution: %u",
 												((tempByte & 0xFC) >> 2));
 
 			/* Get latitude */
@@ -2038,8 +1838,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			/* Get longitude resolution */
 			tempByte = tvb_get_guint8(tvb, tempOffset);
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %u",
-					decode_boolean_bitfield(tempByte, 0xFC, 8, "Longitude Resolution:", "Longitude Resolution:"),
+				proto_tree_add_text(tree, tvb, tempOffset, 1, "Longitude Resolution: %u",
 											((tempByte & 0xFC) >> 2));
 
 			/* Get longitude */
@@ -2057,8 +1856,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			tempByte = tvb_get_guint8(tvb, tempOffset);
 			if (tree)
 			{
-				tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0xF0, 8, "Altitude Type: ", "Altitude Type: "));
+				tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "Altitude Type:");
 
 				switch ((tempByte >> 4))
 				{
@@ -2077,8 +1875,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			/* Get Altitude Resolution */
 			tempShort = tvb_get_ntohs(tvb, tempOffset);
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 2, "%s %u",
-						decode_boolean_bitfield(tempShort, 0x0FC0, 16, "Altitude Resolution: ", "Altitude Type: "),
+				proto_tree_add_text(tree, tvb, tempOffset, 2, "Altitude Resolution: %u",
 						((tempShort & 0x0FC0) >> 6));
 
 			tempOffset++;
@@ -2227,9 +2024,8 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		/* Determine power type */
 		subType = ((tempByte & 0xC0) >> 6);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
-						decode_boolean_bitfield(tempByte, 0xC0, 8, "Power Type:", "Power Type:"),
-												val_to_str_const(subType, media_power_type, "Unknown"));
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Type %s",
+									val_to_str_const(subType, media_power_type, "Unknown"));
 
 		/* Determine power source */
 		switch (subType)
@@ -2255,16 +2051,13 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		}
 		}
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
-						decode_boolean_bitfield(tempByte, 0x30, 8, "Power Source:", "Power Source:"),
-												strPtr);
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Source: %s", strPtr);
 
 		/* Determine power priority */
 		subType = (tempByte & 0x0F);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
-						decode_boolean_bitfield(tempByte, 0x0F, 8, "Power Priority:", "Power Priority:"),
-												val_to_str_const(subType, media_power_priority, "Reserved"));
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Priority: %s",
+									val_to_str_const(subType, media_power_priority, "Reserved"));
 
 		tempOffset++;
 
@@ -2523,7 +2316,6 @@ static void
 dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint8 subType;
-	guint8 tempByte;
 	guint32 tempOffset = offset;
 
 	proto_tree *fourwire_data = NULL;
@@ -2539,35 +2331,18 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	switch (subType)
 	{
 	case 0x01: /* Four-Wire Power-via-MDI TLV */
-	  tempByte = tvb_get_guint8(tvb, tempOffset);
-	  if (tree) {
-	    tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "Four-Wire Power-via-MDI: 0x%02x", tempByte);
-	    fourwire_data = proto_item_add_subtree(tf, ett_cisco_fourwire_tlv);
-
-	    proto_tree_add_text(fourwire_data, tvb, tempOffset, 1, "%s",
-				decode_boolean_bitfield(tempByte, 0x01, 8,
-							"PSE Four-Wire PoE Supported",
-							"PSE Four-Wire PoE Not Supported"));
-
-	    proto_tree_add_text(fourwire_data, tvb, tempOffset, 1, "%s",
-				decode_boolean_bitfield(tempByte, 0x02, 8,
-							"PD  Spare Pair Architecture Shared",
-							"PD  Spare Pair Architecture Independent"));
-
-	    proto_tree_add_text(fourwire_data, tvb, tempOffset, 1, "%s",
-				decode_boolean_bitfield(tempByte, 0x04, 8,
-							"PD  Request Spare Pair PoE On",
-							"PD  Request Spare Pair PoE Off"));
-
-	    proto_tree_add_text(fourwire_data, tvb, tempOffset, 1, "%s",
-				decode_boolean_bitfield(tempByte, 0x08, 8,
-							"PSE Spare Pair PoE On",
-							"PSE Spare Pair PoE Off"));
-	  }
-	  break;
+		if (tree) {
+			tf = proto_tree_add_item(tree, hf_cisco_four_wire_power, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			fourwire_data = proto_item_add_subtree(tf, ett_cisco_fourwire_tlv);
+			proto_tree_add_item(fourwire_data, hf_cisco_four_wire_power_poe, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(fourwire_data, hf_cisco_four_wire_power_spare_pair_arch, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(fourwire_data, hf_cisco_four_wire_power_req_spare_pair_poe, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(fourwire_data, hf_cisco_four_wire_power_pse_spare_pair_poe, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+		}
+		break;
 	default:
-	  proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, 1, ENC_NA);
-	  break;
+		proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, 1, ENC_NA);
+		break;
 	}
 }
 
@@ -2831,6 +2606,78 @@ proto_register_lldp(void)
 			{ "TLV Length", "lldp.tlv.len", FT_UINT16, BASE_DEC,
 			NULL, TLV_INFO_LEN_MASK, NULL, HFILL }
 		},
+		{ &hf_lldp_tlv_system_cap,
+			{ "Capabilities", "lldp.tlv.system_cap", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_system_cap_other,
+			{ "Other", "lldp.tlv.system_cap.other", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_OTHER, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_system_cap_repeater,
+			{ "Repeater", "lldp.tlv.system_cap.repeater", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_REPEATER, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_system_cap_bridge,
+			{ "Bridge", "lldp.tlv.system_cap.bridge", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_BRIDGE, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_system_cap_wlan_access_pt,
+			{ "WLAN access point", "lldp.tlv.system_cap.wlan_access_pt", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_WLAN, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_system_cap_router,
+			{ "Router", "lldp.tlv.system_cap.router", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_ROUTER, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_system_cap_telephone,
+			{ "Telephone", "lldp.tlv.system_cap.telephone", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_TELEPHONE, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_system_cap_docsis_cable_device,
+			{ "DOCSIS cable device", "lldp.tlv.system_cap.docsis_cable_device", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_DOCSIS, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_system_cap_station_only,
+			{ "Station only", "lldp.tlv.system_cap.station_only", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_STATION, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_enable_system_cap,
+			{ "Enabled Capabilities", "lldp.tlv.enable_system_cap", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_enable_system_cap_other,
+			{ "Other", "lldp.tlv.enable_system_cap.other", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_OTHER, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_enable_system_cap_repeater,
+			{ "Repeater", "lldp.tlv.enable_system_cap.repeater", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_REPEATER, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_enable_system_cap_bridge,
+			{ "Bridge", "lldp.tlv.enable_system_cap.bridge", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_BRIDGE, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_enable_system_cap_wlan_access_pt,
+			{ "WLAN access point", "lldp.tlv.enable_system_cap.wlan_access_pt", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_WLAN, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_enable_system_cap_router,
+			{ "Router", "lldp.tlv.enable_system_cap.router", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_ROUTER, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_enable_system_cap_telephone,
+			{ "Telephone", "lldp.tlv.enable_system_cap.telephone", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_TELEPHONE, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_enable_system_cap_docsis_cable_device,
+			{ "DOCSIS cable device", "lldp.tlv.enable_system_cap.docsis_cable_device", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_DOCSIS, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_enable_system_cap_station_only,
+			{ "Station only", "lldp.tlv.enable_system_cap.station_only", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_STATION, NULL, HFILL }
+		},
 		{ &hf_chassis_id_subtype,
 			{ "Chassis Id Subtype", "lldp.chassis.subtype", FT_UINT8, BASE_DEC,
 			VALS(chassis_id_subtypes), 0, NULL, HFILL }
@@ -2899,117 +2746,409 @@ proto_register_lldp(void)
 			{ "IEEE 802.1 Subtype", "lldp.ieee.802_1.subtype", FT_UINT8, BASE_HEX,
 			VALS(ieee_802_1_subtypes), 0x0, NULL, HFILL }
 		},
+		{ &hf_ieee_802_1_port_and_vlan_id_flag,
+			{ "Flags", "lldp.ieee.802_1.port_and_vlan_id_flag", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_port_and_vlan_id_flag_supported,
+			{ "Port and Protocol VLAN", "lldp.ieee.802_1.port_and_vlan_id_flag.supported", FT_BOOLEAN, 8,
+			TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_port_and_vlan_id_flag_enabled,
+			{ "Port and Protocol VLAN", "lldp.ieee.802_1.port_and_vlan_id_flag.enabled", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL }
+		},
 		{ &hf_ieee_802_3_subtype,
 			{ "IEEE 802.3 Subtype", "lldp.ieee.802_3.subtype", FT_UINT8, BASE_HEX,
 			VALS(ieee_802_3_subtypes), 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mac_phy_auto_neg_status,
+			{ "Auto-Negotiation Support/Status", "lldp.ieee.802_3.mac_phy_auto_neg_status", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mac_phy_auto_neg_status_supported,
+			{ "Auto-Negotiation", "lldp.ieee.802_3.mac_phy_auto_neg_status.supported", FT_BOOLEAN, 8,
+			TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mac_phy_auto_neg_status_enabled,
+			{ "Auto-Negotiation", "lldp.ieee.802_3.mac_phy_auto_neg_status.enabled", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps,
+			{ "PMD Auto-Negotiation Advertised Capability", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps", FT_UINT16, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_1000base_tfd,
+			{ "1000BASE-T (full duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.1000base_tfd", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_1000BASE_TFD, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_1000base_t,
+			{ "1000BASE-T (half duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.1000base_t", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_1000BASE_T, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_1000base_xfd,
+			{ "1000BASE-X (-LX, -SX, -CX full duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.1000base_xfd", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_1000BASE_XFD, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_1000base_x,
+			{ "1000BASE-X (-LX, -SX, -CX half duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.1000base_x", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_1000BASE_X, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_fdx_bpause,
+			{ "Asymmetric and Symmetric PAUSE (for full-duplex links)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.fdx_bpause", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_FDX_BPAUSE, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_fdx_spause,
+			{ "Symmetric PAUSE (for full-duplex links)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.fdx_spause", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_FDX_SPAUSE, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_fdx_apause,
+			{ "Asymmetric PAUSE (for full-duplex links)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.fdx_apause", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_FDX_APAUSE, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_fdx_pause,
+			{ "PAUSE (for full-duplex links)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.fdx_pause", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_FDX_PAUSE, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_t2fd,
+			{ "100BASE-T2 (full duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.100base_t2fd", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_100BASE_T2FD, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_t2,
+			{ "100BASE-T2 (half duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.100base_t2", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_100BASE_T2, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_txfd,
+			{ "100BASE-TX (full duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.100base_txfd", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_100BASE_TXFD, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_tx,
+			{ "100BASE-TX (half duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.100base_tx", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_100BASE_TX, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_100base_t4,
+			{ "100BASE-T4", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.100base_t4", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_100BASE_T4, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_10base_tfd,
+			{ "10BASE-T (full duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.10base_tfd", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_10BASET_FD, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_10base_t,
+			{ "10BASE-T (half duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.10base_t", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_10BASE_T, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_other,
+			{ "Other or unknown", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps.other", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), AUTONEG_OTHER, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_tfd,
+			{ "1000BASE-T (full duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.1000base_tfd", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_1000BASE_TFD, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_t,
+			{ "1000BASE-T (half duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.1000base_t", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_1000BASE_T, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_xfd,
+			{ "1000BASE-X (-LX, -SX, -CX full duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.1000base_xfd", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_1000BASE_XFD, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_1000base_x,
+			{ "1000BASE-X (-LX, -SX, -CX half duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.1000base_x", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_1000BASE_X, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_fdx_bpause,
+			{ "Asymmetric and Symmetric PAUSE (for full-duplex links)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.fdx_bpause", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_FDX_BPAUSE, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_fdx_spause,
+			{ "Symmetric PAUSE (for full-duplex links)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.fdx_spause", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_FDX_SPAUSE, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_fdx_apause,
+			{ "Asymmetric PAUSE (for full-duplex links)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.fdx_apause", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_FDX_APAUSE, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_fdx_pause,
+			{ "PAUSE (for full-duplex links)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.fdx_pause", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_FDX_PAUSE, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_t2fd,
+			{ "100BASE-T2 (full duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.100base_t2fd", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_100BASE_T2FD, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_t2,
+			{ "100BASE-T2 (half duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.100base_t2", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_100BASE_T2, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_txfd,
+			{ "100BASE-TX (full duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.100base_txfd", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_100BASE_TXFD, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_tx,
+			{ "100BASE-TX (half duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.100base_tx", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_100BASE_TX, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_t4,
+			{ "100BASE-T4", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.100base_t4", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_100BASE_T4, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_10base_tfd,
+			{ "10BASE-T (full duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.10base_tfd", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_10BASET_FD, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_10base_t,
+			{ "10BASE-T (half duplex mode)", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.10base_t", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_10BASE_T, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_other,
+			{ "Other or unknown", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.other", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), INV_AUTONEG_OTHER, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mdi_power_support,
+			{ "MDI Power Support", "lldp.ieee.802_3.mdi_power_support", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mdi_power_support_port_class,
+			{ "Port Class", "lldp.ieee.802_3.mdi_power_support.port_class", FT_BOOLEAN, 8,
+			TFS(&tfs_ieee_802_3_pse_pd), 0x01, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mdi_power_support_pse_power_support,
+			{ "PSE MDI Power", "lldp.ieee.802_3.mdi_power_support.supported", FT_BOOLEAN, 8,
+			TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mdi_power_support_pse_power_enabled,
+			{ "PSE MDI Power", "lldp.ieee.802_3.mdi_power_support.enabled", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mdi_power_support_pse_pairs,
+			{ "PSE Pairs Control Ability", "lldp.ieee.802_3.mdi_power_support.pse_pairs", FT_BOOLEAN, 8,
+			TFS(&tfs_yes_no), 0x08, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_aggregation_status,
+			{ "Aggregation Status", "lldp.ieee.802_3.aggregation_status", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_aggregation_status_cap,
+			{ "Aggregation Capability", "lldp.ieee.802_3.aggregation_status.cap", FT_BOOLEAN, 8,
+			TFS(&tfs_yes_no), 0x01, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_aggregation_status_enabled,
+			{ "Aggregation Status", "lldp.ieee.802_3.aggregation_status.enabled", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x02, NULL, HFILL }
 		},
 		{ &hf_ieee_802_1qbg_subtype,
 			{ "IEEE 802.1Qbg Subtype", "lldp.ieee.802_1qbg.subtype", FT_UINT8, BASE_HEX,
 			VALS(ieee_802_1qbg_subtypes), 0x0, NULL, HFILL }
 		},
+		{ &hf_ieee_802_1qbg_evb_support_caps,
+			{ "Supported capabilities", "lldp.ieee.802_1qbg.evb_support_caps", FT_UINT16, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_support_caps_std,
+			{ "Standard bridging (STD)", "lldp.ieee.802_1qbg.evb_support_caps.std", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), EVB_CAPA_STD, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_support_caps_rr,
+			{ "Reflective relay (RR)", "lldp.ieee.802_1qbg.evb_support_caps.rr", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), EVB_CAPA_RR, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_support_caps_rte,
+			{ "Retransmission timer exponent (RTE)", "lldp.ieee.802_1qbg.evb_support_caps.rte", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), EVB_CAPA_RTE, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_support_caps_ecp,
+			{ "Edge control protocol (ECP)", "lldp.ieee.802_1qbg.evb_support_caps.ecp", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), EVB_CAPA_ECP, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_support_caps_vdp,
+			{ "VSI discovery protocol (VDP)", "lldp.ieee.802_1qbg.evb_support_caps.vdp", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), EVB_CAPA_VDP, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_configure_caps,
+			{ "Configured capabilities", "lldp.ieee.802_1qbg.evb_configure_caps", FT_UINT16, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_configure_caps_std,
+			{ "Standard bridging (STD)", "lldp.ieee.802_1qbg.evb_configure_caps.std", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), EVB_CAPA_STD, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_configure_caps_rr,
+			{ "Reflective relay (RR)", "lldp.ieee.802_1qbg.evb_configure_caps.rr", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), EVB_CAPA_RR, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_configure_caps_rte,
+			{ "Retransmission timer exponent (RTE)", "lldp.ieee.802_1qbg.evb_configure_caps.rte", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), EVB_CAPA_RTE, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_configure_caps_ecp,
+			{ "Edge control protocol (ECP)", "lldp.ieee.802_1qbg.evb_configure_caps.ecp", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), EVB_CAPA_ECP, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_configure_caps_vdp,
+			{ "VSI discovery protocol (VDP)", "lldp.ieee.802_1qbg.evb_configure_caps.vdp", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), EVB_CAPA_VDP, NULL, HFILL }
+		},
 		{ &hf_media_tlv_subtype,
 			{ "Media Subtype",	"lldp.media.subtype", FT_UINT8, BASE_HEX,
 	   		VALS(media_subtypes), 0x0, NULL, HFILL }
 		},
+		{ &hf_media_tlv_subtype_caps,
+			{ "Capabilities", "lldp.media.subtype.caps", FT_UINT16, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_tlv_subtype_caps_llpd,
+			{ "LLDP-MED Capabilities", "lldp.media.subtype.caps.llpd", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), MEDIA_CAPABILITY_LLDP, NULL, HFILL }
+		},
+		{ &hf_media_tlv_subtype_caps_network_policy,
+			{ "Network Policy", "lldp.media.subtype.caps.network_policy", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), MEDIA_CAPABILITY_NETWORK_POLICY, NULL, HFILL }
+		},
+		{ &hf_media_tlv_subtype_caps_location_id,
+			{ "Location Identification", "lldp.media.subtype.caps.location_id", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), MEDIA_CAPABILITY_LOCATION_ID, NULL, HFILL }
+		},
+		{ &hf_media_tlv_subtype_caps_mdi_pse,
+			{ "Extended Power via MDI-PSE", "lldp.media.subtype.caps.mdi_pse", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), MEDIA_CAPABILITY_MDI_PSE, NULL, HFILL }
+		},
+		{ &hf_media_tlv_subtype_caps_mid_pd,
+			{ "Extended Power via MDI-PD", "lldp.media.subtype.caps.mid_pd", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), MEDIA_CAPABILITY_MDI_PD, NULL, HFILL }
+		},
+		{ &hf_media_tlv_subtype_caps_inventory,
+			{ "Inventory", "lldp.media.subtype.caps.inventory", FT_BOOLEAN, 16,
+			TFS(&tfs_capable_not_capable), MEDIA_CAPABILITY_INVENTORY, NULL, HFILL }
+		},
+		{ &hf_media_policy_flag,
+			{ "Policy", "lldp.media.policy_flag", FT_BOOLEAN, 16,
+			TFS(&tfs_unknown_defined), 0x8000, NULL, HFILL }
+		},
+		{ &hf_media_tag_flag,
+			{ "Tagged", "lldp.media.tag_flag", FT_BOOLEAN, 16,
+			TFS(&tfs_yes_no), 0x4000, NULL, HFILL }
+		},
 		{ &hf_profinet_tlv_subtype,
 			{ "Subtype",	"lldp.profinet.subtype", FT_UINT8, BASE_HEX,
-	   		VALS(profinet_subtypes), 0x0, "PROFINET Subtype", HFILL }
+			VALS(profinet_subtypes), 0x0, "PROFINET Subtype", HFILL }
 		},
 		{ &hf_profinet_port_rx_delay_local,
 			{ "Port RX Delay Local",	"lldp.profinet.port_rx_delay_local", FT_UINT32, BASE_DEC,
-	   		NULL, 0x0, NULL, HFILL }
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_port_rx_delay_remote,
 			{ "Port RX Delay Remote",	"lldp.profinet.port_rx_delay_remote", FT_UINT32, BASE_DEC,
-	   		NULL, 0x0, NULL, HFILL }
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_port_tx_delay_local,
 			{ "Port TX Delay Local",	"lldp.profinet.port_tx_delay_local", FT_UINT32, BASE_DEC,
-	   		NULL, 0x0, NULL, HFILL }
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_port_tx_delay_remote,
 			{ "Port TX Delay Remote",	"lldp.profinet.port_tx_delay_remote", FT_UINT32, BASE_DEC,
-	   		NULL, 0x0, NULL, HFILL }
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_cable_delay_local,
 			{ "Port Cable Delay Local",	"lldp.profinet.cable_delay_local", FT_UINT32, BASE_DEC,
-	   		NULL, 0x0, NULL, HFILL }
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_class2_port_status,
 			{ "RTClass2 Port Status",	"lldp.profinet.rtc2_port_status", FT_UINT16, BASE_HEX,
-	   		VALS(profinet_port2_status_vals), 0x0, NULL, HFILL }
+			VALS(profinet_port2_status_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_class3_port_status,
 			{ "RTClass3 Port Status",	"lldp.profinet.rtc3_port_status", FT_UINT16, BASE_HEX,
-	   		VALS(profinet_port3_status_vals), 0x0, NULL, HFILL }
+			VALS(profinet_port3_status_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_mrp_domain_uuid,
 			{ "MRP DomainUUID",	"lldp.profinet.mrp_domain_uuid", FT_GUID, BASE_NONE,
-	   		NULL, 0x0, NULL, HFILL }
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_mrrt_port_status,
 			{ "MRRT PortStatus",	"lldp.profinet.mrrt_port_status", FT_UINT16, BASE_HEX,
-	   		VALS(profinet_mrrt_port_status_vals), 0x0, NULL, HFILL }
+			VALS(profinet_mrrt_port_status_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_cm_mac,
 			{ "CMMacAdd",	"lldp.profinet.cm_mac_add", FT_ETHER, BASE_NONE,
-	   		NULL, 0x0, "CMResponderMacAdd or CMInitiatorMacAdd", HFILL }
+			NULL, 0x0, "CMResponderMacAdd or CMInitiatorMacAdd", HFILL }
 		},
 		{ &hf_profinet_master_source_address,
 			{ "MasterSourceAddress",	"lldp.profinet.master_source_address", FT_ETHER, BASE_NONE,
-	   		NULL, 0x0, NULL, HFILL }
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_subdomain_uuid,
 			{ "SubdomainUUID",	"lldp.profinet.subdomain_uuid", FT_GUID, BASE_NONE,
-	   		NULL, 0x0, NULL, HFILL }
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_ir_data_uuid,
 			{ "IRDataUUID",	"lldp.profinet.ir_data_uuid", FT_GUID, BASE_NONE,
-	   		NULL, 0x0, NULL, HFILL }
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_length_of_period_valid,
 			{ "LengthOfPeriod.Valid",	"lldp.profinet.length_of_period_valid", FT_UINT32, BASE_DEC,
-	   		NULL, 0x80000000, "Length field is valid/invalid", HFILL }
+			NULL, 0x80000000, "Length field is valid/invalid", HFILL }
 		},
 		{ &hf_profinet_length_of_period_length,
 			{ "LengthOfPeriod.Length",	"lldp.profinet.length_of_period_length", FT_UINT32, BASE_DEC,
-	   		NULL, 0x7FFFFFFF, "Duration of a cycle in nanoseconds", HFILL }
+			NULL, 0x7FFFFFFF, "Duration of a cycle in nanoseconds", HFILL }
 		},
 		{ &hf_profinet_red_period_begin_valid,
 			{ "RedPeriodBegin.Valid",	"lldp.profinet.red_period_begin_valid", FT_UINT32, BASE_DEC,
-	   		NULL, 0x80000000, "Offset field is valid/invalid", HFILL }
+			NULL, 0x80000000, "Offset field is valid/invalid", HFILL }
 		},
 		{ &hf_profinet_red_period_begin_offset,
 			{ "RedPeriodBegin.Offset",	"lldp.profinet.red_period_begin_offset", FT_UINT32, BASE_DEC,
-	   		NULL, 0x7FFFFFFF, "RT_CLASS_3 period, offset to cycle begin in nanoseconds", HFILL }
+			NULL, 0x7FFFFFFF, "RT_CLASS_3 period, offset to cycle begin in nanoseconds", HFILL }
 		},
 		{ &hf_profinet_orange_period_begin_valid,
 			{ "OrangePeriodBegin.Valid",	"lldp.profinet.orange_period_begin_valid", FT_UINT32, BASE_DEC,
-	   		NULL, 0x80000000, "Offset field is valid/invalid", HFILL }
+			NULL, 0x80000000, "Offset field is valid/invalid", HFILL }
 		},
 		{ &hf_profinet_orange_period_begin_offset,
 			{ "OrangePeriodBegin.Offset","lldp.profinet.orange_period_begin_offset", FT_UINT32, BASE_DEC,
-	   		NULL, 0x7FFFFFFF, "RT_CLASS_2 period, offset to cycle begin in nanoseconds", HFILL }
+			NULL, 0x7FFFFFFF, "RT_CLASS_2 period, offset to cycle begin in nanoseconds", HFILL }
 		},
 		{ &hf_profinet_green_period_begin_valid,
 			{ "GreenPeriodBegin.Valid",	"lldp.profinet.green_period_begin_valid", FT_UINT32, BASE_DEC,
-	   		NULL, 0x80000000, "Offset field is valid/invalid", HFILL }
+			NULL, 0x80000000, "Offset field is valid/invalid", HFILL }
 		},
 		{ &hf_profinet_green_period_begin_offset,
 			{ "GreenPeriodBegin.Offset",	"lldp.profinet.green_period_begin_offset", FT_UINT32, BASE_DEC,
-	   		NULL, 0x7FFFFFFF, "Unrestricted period, offset to cycle begin in nanoseconds", HFILL }
+			NULL, 0x7FFFFFFF, "Unrestricted period, offset to cycle begin in nanoseconds", HFILL }
 		},
 		{ &hf_cisco_subtype,
 			{ "Cisco Subtype",	"lldp.cisco.subtype", FT_UINT8, BASE_HEX,
-	   		VALS(cisco_subtypes), 0x0, NULL, HFILL }
+			VALS(cisco_subtypes), 0x0, NULL, HFILL }
+		},
+		{ &hf_cisco_four_wire_power,
+			{ "Four-Wire Power-via-MDI", "lldp.cisco.four_wire_power", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cisco_four_wire_power_poe,
+			{ "PSE Four-Wire PoE", "lldp.cisco.four_wire_power.poe", FT_BOOLEAN, 8,
+			TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }
+		},
+		{ &hf_cisco_four_wire_power_spare_pair_arch,
+			{ "PD Spare Pair Architecture", "lldp.cisco.four_wire_power.spare_pair_arch", FT_BOOLEAN, 8,
+			TFS(&tfs_shared_independent), 0x02, NULL, HFILL }
+		},
+		{ &hf_cisco_four_wire_power_req_spare_pair_poe,
+			{ "PD Request Spare Pair PoE", "lldp.cisco.four_wire_power.req_spare_pair_poe", FT_BOOLEAN, 8,
+			TFS(&tfs_on_off), 0x04, NULL, HFILL }
+		},
+		{ &hf_cisco_four_wire_power_pse_spare_pair_poe,
+			{ "PSE Spare Pair PoE", "lldp.cisco.four_wire_power.pse_spare_pair_poe", FT_BOOLEAN, 8,
+			TFS(&tfs_on_off), 0x08, NULL, HFILL }
 		},
 		{ &hf_unknown_subtype,
 			{ "Unknown Subtype","lldp.unknown_subtype", FT_UINT8, BASE_DEC,
-	   		NULL, 0x0, NULL, HFILL }
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_unknown_subtype_content,
 			{ "Unknown Subtype Content","lldp.unknown_subtype.content", FT_BYTES, BASE_NONE,
-	   		NULL, 0x0, NULL, HFILL }
+			NULL, 0x0, NULL, HFILL }
 		},
 	};
 
