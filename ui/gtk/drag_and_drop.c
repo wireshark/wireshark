@@ -213,9 +213,9 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
     char      **in_filenames;
 
 
-    /* DND_TARGET_URL on Win32:
+    /* DND_TARGET_URL:
      * The cf_name_freeme is a single string, containing one or more URI's,
-     * seperated by CR/NL chars. The length of the whole field can be found
+     * terminated by CR/NL chars. The length of the whole field can be found
      * in the selection_data->length field. If it contains one file, simply open it,
      * If it contains more than one file, ask to merge these files. */
 
@@ -249,6 +249,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
     switch(in_files) {
     case(0):
         /* shouldn't happen */
+        g_error("Drag and drop to open file, but no filenames? (%s)", cf_name ? cf_name : "null");
         break;
     case(1):
         /* open and read the capture file (this will close an existing file) */
@@ -322,18 +323,22 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
             return;
         }
 
-	/* the selection_data will soon be gone, make a copy first */
-	/* the data string is not zero terminated -> make a zero terminated "copy" of it */
-	sel_data_len = gtk_selection_data_get_length(selection_data);
-	sel_data_data = gtk_selection_data_get_data(selection_data);
-	cf_names_freeme = g_malloc(sel_data_len + 1);
-	memcpy(cf_names_freeme, sel_data_data, sel_data_len);
-	cf_names_freeme[sel_data_len] = '\0';
-
+        /* the selection_data will soon be gone, make a copy first */
+        /* the data string is not zero terminated -> make a zero terminated "copy" of it */
+        sel_data_len = gtk_selection_data_get_length(selection_data);
+        sel_data_data = gtk_selection_data_get_data(selection_data);
+        cf_names_freeme = g_malloc(sel_data_len + 3);
+        memcpy(cf_names_freeme, sel_data_data, sel_data_len);
+        if (cf_names_freeme[sel_data_len - 1] != '\n') {
+            cf_names_freeme[sel_data_len++] = '\r';
+            cf_names_freeme[sel_data_len++] = '\n';
+        }
+        cf_names_freeme[sel_data_len] = '\0';
+            
         /* If there's unsaved data, let the user save it first.
            If they cancel out of it, don't open the file. */
         if (do_file_close(&cfile, FALSE, " before opening a new capture file"))
-            dnd_open_file_cmd( cf_names_freeme );
+            dnd_open_file_cmd(cf_names_freeme);
     }
 }
 
@@ -342,20 +347,10 @@ gboolean
 gtk_osx_openFile (GtkOSXApplication *app _U_, gchar *path, gpointer user_data _U_)
 {
     GtkSelectionData selection_data;
-    gchar *selection_path;
-    int length = strlen(path) + 3;
-
-    selection_path = g_malloc(length + 3);
-    memcpy(selection_path, path, length);
-
-    selection_path[length] = '\r';
-    selection_path[length + 1] = '\n';
-    selection_path[length + 2] = '\0';
-
-    gtk_selection_data_set_text(&selection_data, selection_path, length);
+    int length = strlen(path);
+    
+    gtk_selection_data_set_text(&selection_data, path, length);
     dnd_data_received(NULL, NULL, 0, 0, &selection_data, DND_TARGET_URL, 0, 0);
-
-    g_free(selection_path);
 
     return TRUE;
 }
