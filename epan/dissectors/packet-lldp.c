@@ -1263,7 +1263,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	guint16 tempShort;
 	guint32 tempOffset = offset;
 
-	proto_tree	*vlan_flags = NULL;
+	proto_tree	*vlan_flags_tree = NULL;
 	proto_item 	*tf = NULL;
 
 	/* Get subtype */
@@ -1291,10 +1291,10 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		if (tree)
 		{
 			tf = proto_tree_add_item(tree, hf_ieee_802_1_port_and_vlan_id_flag, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
-			vlan_flags = proto_item_add_subtree(tf, ett_port_vlan_flags);
+			vlan_flags_tree = proto_item_add_subtree(tf, ett_port_vlan_flags);
 
-			proto_tree_add_item(tree, hf_ieee_802_1_port_and_vlan_id_flag_supported, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_ieee_802_1_port_and_vlan_id_flag_enabled, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(vlan_flags_tree, hf_ieee_802_1_port_and_vlan_id_flag_supported, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(vlan_flags_tree, hf_ieee_802_1_port_and_vlan_id_flag_enabled, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 		}
 
 		tempOffset++;
