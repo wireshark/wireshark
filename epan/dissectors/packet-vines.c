@@ -35,11 +35,11 @@
  *
  * Some information can also be found in
  *
- *	http://www.cisco.com/univercd/cc/td/doc/cisintwk/ito_doc/vines.htm
+ *	http://docwiki.cisco.com/wiki/Banyan_VINES
  *
  * and at
  *
- *	http://www.synapse.de/ban/HTML/P_VINES/Eng/P_vines.html
+ *	http://www.banalyzer.de/ban/HTML/P_VINES/Eng/P_vines.html
  *
  * The document at
  *
@@ -447,8 +447,6 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * XXX - bit 0x80 is "Normal" if 0; what is it if 1?
 		 */
 		if (is_broadcast) {
-			proto_tree_add_item(vip_tree, hf_vines_ip_length,
-				tvb, offset, 1, ENC_NA);
 			proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
 			    decode_boolean_bitfield(viph.vip_tctl, 0x40, 1*8,
 			      "Router nodes",
