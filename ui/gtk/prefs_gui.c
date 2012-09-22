@@ -370,8 +370,8 @@ gui_prefs_show(void)
 
 	/* Enable Expert Infos Dialog Tab Label "eye-candy" */
 	expert_info_eyecandy_cb = create_preference_check_button(main_tb, pos++,
-	    "Display LEDs in the Expert Infos dialog tab labels:",
-	    "Whether colored LED images should be displayed in the Expert Infos dialog tab labels.",
+	    "Display icons in the Expert Infos dialog tab labels:",
+	    "Whether icon images should be displayed in the Expert Infos dialog tab labels.",
 	    prefs.gui_expert_composite_eyecandy );
 	g_object_set_data(G_OBJECT(main_vb), GUI_EXPERT_EYECANDY_KEY, expert_info_eyecandy_cb);
 
