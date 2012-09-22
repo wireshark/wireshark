@@ -38,6 +38,13 @@
           Download</ulink> and install "Microsoft Visual C++
           2010 Express Edition SP1." (This is a very large download.)</para>
         </listitem>
+        <listitem>
+          <para>Windows SDK for Windows 7, if you want to build 64-bit
+                binaries for Windows 7:
+          <ulink url="http://msdn.microsoft.com/en-us/windowsserver/bb980924.aspx">
+          Download</ulink> and install "Microsoft Windows SDK for
+		  Windows 7"</para>
+        </listitem>
         <!--
         <listitem>
           <para>Platform SDK :
