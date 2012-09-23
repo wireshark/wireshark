@@ -314,51 +314,59 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int         offset = 24;
     guint8      auth_type;
     guint8      auth_len;
-    proto_item *ti;
-    proto_item *auth_item;
-    proto_tree *auth_tree;
+    proto_item *ti        = NULL;
+    proto_item *auth_item = NULL;
+    proto_tree *auth_tree = NULL;
     guint8     *password;
 
     auth_type = tvb_get_guint8(tvb, offset);
     auth_len  = tvb_get_guint8(tvb, offset + 1);
 
-    auth_item = proto_tree_add_text(tree, tvb, offset, auth_len, "Authentication: %s",
-                                    val_to_str(auth_type,
-                                               bfd_control_auth_type_values,
-                                               "Unknown Authentication Type (%d)") );
-    auth_tree = proto_item_add_subtree(auth_item, ett_bfd_auth);
+    if (tree) {
+        auth_item = proto_tree_add_text(tree, tvb, offset, auth_len, "Authentication: %s",
+                                        val_to_str(auth_type,
+                                                   bfd_control_auth_type_values,
+                                                   "Unknown Authentication Type (%d)") );
+        auth_tree = proto_item_add_subtree(auth_item, ett_bfd_auth);
 
-    proto_tree_add_item(auth_tree, hf_bfd_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(auth_tree, hf_bfd_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    ti = proto_tree_add_item(auth_tree, hf_bfd_auth_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(ti, " bytes");
+        ti = proto_tree_add_item(auth_tree, hf_bfd_auth_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, " bytes");
 
-    proto_tree_add_item(auth_tree, hf_bfd_auth_key, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(auth_tree, hf_bfd_auth_key, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    }
 
     switch (auth_type) {
         case BFD_AUTH_SIMPLE:
-            password = tvb_get_ephemeral_string(tvb, offset+3, auth_len-3);
-            proto_tree_add_string(auth_tree, hf_bfd_auth_password, tvb, offset+3,
-                    auth_len-3, password);
-            proto_item_append_text(auth_item, ": %s", password);
+            if (tree) {
+                password = tvb_get_ephemeral_string(tvb, offset+3, auth_len-3);
+                proto_tree_add_string(auth_tree, hf_bfd_auth_password, tvb, offset+3,
+                                      auth_len-3, password);
+                proto_item_append_text(auth_item, ": %s", password);
+            }
             break;
         case BFD_AUTH_MD5:
         case BFD_AUTH_MET_MD5:
         case BFD_AUTH_SHA1:
         case BFD_AUTH_MET_SHA1:
             if (auth_len != get_bfd_required_auth_len(auth_type)) {
-                ti = proto_tree_add_text(auth_tree, tvb, offset, auth_len,
-                        "Length of authentication is invalid (%d)", auth_len);
-                proto_item_append_text(auth_item, ": Invalid Authentication Section");
+                if (tree) {
+                    ti = proto_tree_add_text(auth_tree, tvb, offset, auth_len,
+                                             "Length of authentication is invalid (%d)", auth_len);
+                    proto_item_append_text(auth_item, ": Invalid Authentication Section");
+                }
                 expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
                         "Length of authentication section is invalid for Authentication Type: %s",
                         val_to_str(auth_type, bfd_control_auth_type_values, "Unknown Authentication Type (%d)") );
             }
 
-            proto_tree_add_item(auth_tree, hf_bfd_auth_seq_num, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+            if (tree) {
+                proto_tree_add_item(auth_tree, hf_bfd_auth_seq_num, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
-            proto_tree_add_text(auth_tree, tvb, offset+8, get_bfd_checksum_len(auth_type), "Checksum: 0x%s",
-                    tvb_bytes_to_str(tvb, offset+8, get_bfd_checksum_len(auth_type)) );
+                proto_tree_add_text(auth_tree, tvb, offset+8, get_bfd_checksum_len(auth_type), "Checksum: 0x%s",
+                                    tvb_bytes_to_str(tvb, offset+8, get_bfd_checksum_len(auth_type)) );
+            }
             break;
         default:
             break;
@@ -391,6 +399,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint bfd_desired_min_tx_interval;
     guint bfd_required_min_rx_interval;
     guint bfd_required_min_echo_interval;
+    proto_tree *bfd_tree = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BFD Control");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -444,7 +453,6 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         proto_item *ti;
-        proto_tree *bfd_tree;
         proto_tree *bfd_flags_tree;
         const char *sep;
 
@@ -545,21 +553,25 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                               "%4u ms (%u us)",
                                               bfd_required_min_echo_interval/1000,
                                               bfd_required_min_echo_interval);
+    } /* if (tree) */
 
-        /* Dissect the authentication fields if the Authentication flag has
-         * been set
-         */
-        if (bfd_version && bfd_flags_a) {
-            if (bfd_length >= 28) {
-                dissect_bfd_authentication(tvb, pinfo, bfd_tree);
-            } else {
+    /* Dissect the authentication fields if the Authentication flag has
+     * been set
+     */
+    if (bfd_version && bfd_flags_a) {
+        if (bfd_length >= 28) {
+            dissect_bfd_authentication(tvb, pinfo, bfd_tree);
+        } else {
+            proto_item *ti = NULL;
+            if (tree) {
                 ti = proto_tree_add_text(bfd_tree, tvb, 24, bfd_length,
-                        "Authentication: Length of the BFD frame is invalid (%d)", bfd_length);
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-                        "Authentication flag is set in a BFD packet, but no authentication data is present");
+                                         "Authentication: Length of the BFD frame is invalid (%d)", bfd_length);
             }
+            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+                                   "Authentication flag is set in a BFD packet, but no authentication data is present");
         }
     }
+
     return;
 }
 /* BFD CV Source MEP-ID TLV Decoder,
