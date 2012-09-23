@@ -135,9 +135,9 @@ title Command Prompt (VC++ 2010)]]>
       Download</ulink> the Cygwin installer and start it.</para>
       <para>At the "Select Packages" page, you'll need to select
       some additional packages, which are not installed by default.
-      Navigate to the required Category/Package row and click on
-      the "Skip" item in the "New" column so it shows a version
-      number for:
+      Navigate to the required Category/Package row and, if the packate
+      has a "Skip" item in the "New" column, click on the "Skip" item
+      so it shows a version number for:
       <itemizedlist>
         <listitem>
           <para>Archive/unzip</para>
