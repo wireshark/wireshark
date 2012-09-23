@@ -595,12 +595,12 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
   /* if we can decrypt and decryption have success
    * add decrypted data to this packet info */
-  ssl_debug_printf("decrypt_dtls_record: app_data len %d, ssl state %X\n",
-                   record_length, ssl->state);
   if (!ssl || (!save_plaintext && !(ssl->state & SSL_HAVE_SESSION_KEY))) {
     ssl_debug_printf("decrypt_dtls_record: no session key\n");
     return ret;
   }
+  ssl_debug_printf("decrypt_dtls_record: app_data len %d, ssl state %X\n",
+                   record_length, ssl->state);
 
   /* retrieve decoder for this packet direction */
   if (ssl_packet_from_server(ssl, dtls_associations, pinfo) != 0) {
