@@ -300,18 +300,22 @@ packet_list_get_flags(GtkTreeModel *tree_model)
 static gint
 packet_list_get_n_columns(GtkTreeModel *tree_model)
 {
+	PacketList *packet_list;
+
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), 0);
+	packet_list = (PacketList *) tree_model;
 
 	/* Note: We need one extra column to store the entire frame_data */
-	return PACKET_LIST(tree_model)->n_cols + 1;
+	return packet_list->n_cols + 1;
 }
 
 static GType
 packet_list_get_column_type(GtkTreeModel *tree_model, gint idx)
 {
 	PacketList *packet_list;
+
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), G_TYPE_INVALID);
-	packet_list = PACKET_LIST(tree_model);
+	packet_list = (PacketList *) tree_model;
 
 	/* Note: We use one extra column to store the entire frame_data */
 	g_return_val_if_fail(idx >= 0 && idx < packet_list->n_cols + 1, G_TYPE_INVALID);
@@ -334,6 +338,8 @@ packet_list_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
 	gint n;
 
 	g_assert(PACKETLIST_IS_LIST(tree_model));
+	packet_list = (PacketList *) tree_model;
+
 	g_assert(path != NULL);
 
 	indices = gtk_tree_path_get_indices(path);
@@ -344,7 +350,6 @@ packet_list_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
 
 	n = indices[0]; /* the n-th top level row */
 
-	packet_list = PACKET_LIST(tree_model);
 	if(PACKET_LIST_RECORD_COUNT(packet_list->visible_rows) == 0)
 		return FALSE;
 
@@ -370,7 +375,7 @@ packet_list_get_path(GtkTreeModel *tree_model, GtkTreeIter *iter)
 	PacketList *packet_list;
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), NULL);
-	packet_list = PACKET_LIST(tree_model);
+	packet_list = (PacketList *) tree_model;
 
 	g_return_val_if_fail(iter != NULL, NULL);
 	g_return_val_if_fail(iter->stamp == packet_list->stamp, NULL);
@@ -392,7 +397,7 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 	PacketList *packet_list;
 
 	g_return_if_fail(PACKETLIST_IS_LIST(tree_model));
-	packet_list = PACKET_LIST(tree_model);
+	packet_list = (PacketList *) tree_model;
 
 	g_return_if_fail(iter != NULL);
 	g_return_if_fail(iter->stamp == packet_list->stamp);
@@ -462,7 +467,7 @@ packet_list_iter_next(GtkTreeModel *tree_model, GtkTreeIter *iter)
 	PacketList *packet_list;
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), FALSE);
-	packet_list = PACKET_LIST(tree_model);
+	packet_list = (PacketList *) tree_model;
 
 	if(iter == NULL)
 		return FALSE;
@@ -476,7 +481,7 @@ packet_list_iter_next(GtkTreeModel *tree_model, GtkTreeIter *iter)
 	if (!nextrecord)
 		return FALSE;
 
-	iter->stamp = packet_list->stamp;
+	/* iter->stamp = packet_list->stamp; */
 	iter->user_data = nextrecord;
 
 	return TRUE;
@@ -489,7 +494,7 @@ packet_list_iter_children(GtkTreeModel *tree_model, GtkTreeIter *iter,
 	PacketList *packet_list;
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), FALSE);
-	packet_list = PACKET_LIST(tree_model);
+	packet_list = (PacketList *) tree_model;
 
 	/* This is a list, nodes have no children. */
 	if(parent) {
@@ -521,7 +526,7 @@ packet_list_iter_n_children(GtkTreeModel *tree_model, GtkTreeIter *iter)
 	PacketList *packet_list;
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), 0);
-	packet_list = PACKET_LIST(tree_model);
+	packet_list = (PacketList *) tree_model;
 
 	if(!iter) {
 		/* special case: if iter == NULL, return number of top-level rows */
@@ -543,7 +548,7 @@ packet_list_iter_nth_child(GtkTreeModel *tree_model, GtkTreeIter *iter,
 	PacketList *packet_list;
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), FALSE);
-	packet_list = PACKET_LIST(tree_model);
+	packet_list = (PacketList *) tree_model;
 
 	/* A list only has top-level rows */
 	if(parent) {
@@ -779,7 +784,7 @@ packet_list_sortable_get_sort_column_id(GtkTreeSortable *sortable,
 	g_return_val_if_fail(sortable != NULL, FALSE);
 	g_return_val_if_fail(PACKETLIST_IS_LIST(sortable), FALSE);
 
-	packet_list = PACKET_LIST(sortable);
+	packet_list = (PacketList *) sortable;
 
 	if(sort_col_id)
 		*sort_col_id = packet_list->sort_id;
@@ -917,7 +922,7 @@ packet_list_sortable_set_sort_column_id(GtkTreeSortable *sortable,
 	g_return_if_fail(sortable != NULL);
 	g_return_if_fail(PACKETLIST_IS_LIST(sortable));
 
-	packet_list = PACKET_LIST(sortable);
+	packet_list = (PacketList *) sortable;
 
 	if(packet_list->sort_id == sort_col_id &&
 	   packet_list->sort_order == order)
