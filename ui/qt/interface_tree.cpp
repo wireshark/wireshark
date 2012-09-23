@@ -59,10 +59,11 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     if_list = capture_interface_list(&err, &err_str);
     if_list = g_list_sort(if_list, if_list_comparator_alph);
 
-    if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+    if (if_list == NULL) {
         setDisabled(true);
         ti = new QTreeWidgetItem();
         ti->setText(0, QString(tr("No interfaces found\n%1")).arg(QString().fromUtf8(err_str)));
+        g_free(err_str);
         addTopLevelItem(ti);
         return;
     } else if (err_str) {
