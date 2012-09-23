@@ -409,8 +409,9 @@ File "..\..\smi_modules"
 ; of the installation directory.
 ;
 SetOutPath $INSTDIR\diameter
-File "..\..\diameter\Cisco.xml"
+File "..\..\diameter\AlcatelLucent.xml"
 File "..\..\diameter\chargecontrol.xml"
+File "..\..\diameter\Cisco.xml"
 File "..\..\diameter\dictionary.dtd"
 File "..\..\diameter\dictionary.xml"
 File "..\..\diameter\eap.xml"
