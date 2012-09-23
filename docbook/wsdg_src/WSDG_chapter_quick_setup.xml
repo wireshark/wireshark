@@ -326,8 +326,14 @@ title Command Prompt (VC++ 2010)]]>
         </listitem>
         -->
         <listitem>
-          <para>call <command>C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat</command>
-          to set environment variables of Visual C++ 2010 Express Edition.
+          <para>if you won't be building 64-bit binaries, call
+          <command>C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat</command>
+          to set environment variables of Visual C++ 2010 Express
+          Edition; if you will be building 64-bit binaries, call
+          <command>C:\Program Files\Microsoft Visual Studio 10\VC\Vcvarsall.bat x86_amd64</command>
+          if you are building on a 32-bit machine and call
+          <command>C:\Program Files\Microsoft Visual Studio 10\VC\Vcvarsall.bat amd64</command>
+          if you are building on a 64-bit machine.
           <superscript>1,2</superscript></para>
         </listitem>
         <listitem>
