@@ -944,16 +944,20 @@ col_set_rel_time(const frame_data *fd, column_info *cinfo, const int col)
 static void
 col_set_delta_time(const frame_data *fd, column_info *cinfo, const int col)
 {
+  nstime_t del_cap_ts;
+
+  frame_delta_abs_time(fd, fd->prev_cap, &del_cap_ts);
+
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
-    set_time_seconds(&fd->del_cap_ts, cinfo->col_buf[col]);
+    set_time_seconds(&del_cap_ts, cinfo->col_buf[col]);
     cinfo->col_expr.col_expr[col] = "frame.time_delta";
     g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
     break;
   case TS_SECONDS_HOUR_MIN_SEC:
-    set_time_hour_min_sec(&fd->del_cap_ts, cinfo->col_buf[col]);
+    set_time_hour_min_sec(&del_cap_ts, cinfo->col_buf[col]);
     cinfo->col_expr.col_expr[col] = "frame.time_delta";
-    set_time_seconds(&fd->del_cap_ts, cinfo->col_expr.col_expr_val[col]);
+    set_time_seconds(&del_cap_ts, cinfo->col_expr.col_expr_val[col]);
     break;
   default:
     g_assert_not_reached();
@@ -965,20 +969,25 @@ col_set_delta_time(const frame_data *fd, column_info *cinfo, const int col)
 static void
 col_set_delta_time_dis(const frame_data *fd, column_info *cinfo, const int col)
 {
+  nstime_t del_dis_ts;
+
   if (!fd->flags.has_ts) {
     cinfo->col_buf[col][0] = '\0';
     return;
   }
+
+  frame_delta_abs_time(fd, fd->prev_dis, &del_dis_ts);
+
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
-    set_time_seconds(&fd->del_dis_ts, cinfo->col_buf[col]);
+    set_time_seconds(&del_dis_ts, cinfo->col_buf[col]);
     cinfo->col_expr.col_expr[col] = "frame.time_delta_displayed";
     g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
     break;
   case TS_SECONDS_HOUR_MIN_SEC:
-    set_time_hour_min_sec(&fd->del_dis_ts, cinfo->col_buf[col]);
+    set_time_hour_min_sec(&del_dis_ts, cinfo->col_buf[col]);
     cinfo->col_expr.col_expr[col] = "frame.time_delta_displayed";
-    set_time_seconds(&fd->del_dis_ts, cinfo->col_expr.col_expr_val[col]);
+    set_time_seconds(&del_dis_ts, cinfo->col_expr.col_expr_val[col]);
     break;
   default:
     g_assert_not_reached();
@@ -1165,12 +1174,16 @@ set_fd_time(frame_data *fd, gchar *buf)
 
     case TS_DELTA:
       if (fd->flags.has_ts) {
+        nstime_t del_cap_ts;
+
+        frame_delta_abs_time(fd, fd->prev_cap, &del_cap_ts);
+
         switch (timestamp_get_seconds_type()) {
         case TS_SECONDS_DEFAULT:
-          set_time_seconds(&fd->del_cap_ts, buf);
+          set_time_seconds(&del_cap_ts, buf);
           break;
         case TS_SECONDS_HOUR_MIN_SEC:
-          set_time_hour_min_sec(&fd->del_cap_ts, buf);
+          set_time_hour_min_sec(&del_cap_ts, buf);
           break;
         default:
           g_assert_not_reached();
@@ -1182,12 +1195,16 @@ set_fd_time(frame_data *fd, gchar *buf)
 
     case TS_DELTA_DIS:
       if (fd->flags.has_ts) {
+        nstime_t del_dis_ts;
+
+        frame_delta_abs_time(fd, fd->prev_dis, &del_dis_ts);
+
         switch (timestamp_get_seconds_type()) {
         case TS_SECONDS_DEFAULT:
-          set_time_seconds(&fd->del_dis_ts, buf);
+          set_time_seconds(&del_dis_ts, buf);
           break;
         case TS_SECONDS_HOUR_MIN_SEC:
-          set_time_hour_min_sec(&fd->del_dis_ts, buf);
+          set_time_hour_min_sec(&del_dis_ts, buf);
           break;
         default:
           g_assert_not_reached();

@@ -103,8 +103,10 @@ static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_
 
 static guint32 cum_bytes;
 static nstime_t first_ts;
-static nstime_t prev_dis_ts;
-static nstime_t prev_cap_ts;
+static frame_data *prev_dis;
+static frame_data prev_dis_frame;
+static frame_data *prev_cap;
+static frame_data prev_cap_frame;
 
 static gboolean print_packet_info;      /* TRUE if we're to print packet information */
 static const char* prev_display_dissector_name = NULL;
@@ -2561,7 +2563,7 @@ process_packet_first_pass(capture_file *cf,
       epan_dissect_prime_dfilter(&edt, cf->rfcode);
 
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
-                                  &first_ts, &prev_dis_ts, &prev_cap_ts);
+                                  &first_ts, prev_dis, prev_cap);
 
     epan_dissect_run(&edt, pseudo_header, pd, &fdlocal, NULL);
 
@@ -2571,10 +2573,15 @@ process_packet_first_pass(capture_file *cf,
   }
 
   if (passed) {
-    frame_data_set_after_dissect(&fdlocal, &cum_bytes, &prev_dis_ts);
+    frame_data_set_after_dissect(&fdlocal, &cum_bytes);
+    prev_dis_frame = fdlocal;
+    prev_dis = &prev_dis_frame;
     frame_data_sequence_add(cf->frames, &fdlocal);
     cf->count++;
   }
+
+  prev_cap_frame = fdlocal;
+  prev_cap = &prev_cap_frame;
 
   if (do_dissection)
     epan_dissect_cleanup(&edt);
@@ -3096,7 +3103,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
       cinfo = NULL;
 
     frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
-                                  &first_ts, &prev_dis_ts, &prev_cap_ts);
+                                  &first_ts, prev_dis, prev_cap);
 
     epan_dissect_run(&edt, pseudo_header, pd, &fdata, cinfo);
 
@@ -3108,7 +3115,9 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
   }
 
   if (passed) {
-    frame_data_set_after_dissect(&fdata, &cum_bytes, &prev_dis_ts);
+    frame_data_set_after_dissect(&fdata, &cum_bytes);
+    prev_dis_frame = fdata;
+    prev_dis = &prev_dis_frame;
 
     /* Process this packet. */
     if (print_packet_info) {
@@ -3148,6 +3157,9 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
       }
     }
   }
+
+  prev_cap_frame = fdata;
+  prev_cap = &prev_cap_frame;
 
   if (do_dissection) {
     epan_dissect_cleanup(&edt);
@@ -3577,8 +3589,8 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
     cf->has_snap = TRUE;
   nstime_set_zero(&cf->elapsed_time);
   nstime_set_unset(&first_ts);
-  nstime_set_unset(&prev_dis_ts);
-  nstime_set_unset(&prev_cap_ts);
+  prev_dis = NULL;
+  prev_cap = NULL;
 
   cf->state = FILE_READ_IN_PROGRESS;
 

@@ -258,13 +258,25 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						    0, 0, &(pinfo->fd->abs_ts));
 			}
 
-			item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
-						   0, 0, &(pinfo->fd->del_cap_ts));
-			PROTO_ITEM_SET_GENERATED(item);
+			if (proto_field_is_referenced(tree, hf_frame_time_delta)) {
+				nstime_t     del_cap_ts;
 
-			item = proto_tree_add_time(fh_tree, hf_frame_time_delta_displayed, tvb,
-						   0, 0, &(pinfo->fd->del_dis_ts));
-			PROTO_ITEM_SET_GENERATED(item);
+				frame_delta_abs_time(pinfo->fd, pinfo->fd->prev_cap, &del_cap_ts);
+
+				item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
+							   0, 0, &(del_cap_ts));
+				PROTO_ITEM_SET_GENERATED(item);
+			}
+
+			if (proto_field_is_referenced(tree, hf_frame_time_delta_displayed)) {
+				nstime_t del_dis_ts;
+
+				frame_delta_abs_time(pinfo->fd, pinfo->fd->prev_dis, &del_dis_ts);
+
+				item = proto_tree_add_time(fh_tree, hf_frame_time_delta_displayed, tvb,
+							   0, 0, &(del_dis_ts));
+				PROTO_ITEM_SET_GENERATED(item);
+			}
 
 			item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
 						   0, 0, &(pinfo->fd->rel_ts));

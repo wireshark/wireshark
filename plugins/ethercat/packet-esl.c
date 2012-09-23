@@ -252,8 +252,6 @@ void modify_times(tvbuff_t *tvb, gint offset, packet_info *pinfo)
 
         pinfo->fd->abs_ts = ts;
         nstime_add(&pinfo->fd->rel_ts, &ts_delta);
-        nstime_add(&pinfo->fd->del_dis_ts, &ts_delta);
-        nstime_add(&pinfo->fd->del_cap_ts, &ts_delta);
     }
 }
 

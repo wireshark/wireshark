@@ -66,8 +66,8 @@ typedef struct _frame_data {
   nstime_t     abs_ts;       /**< Absolute timestamp */
   nstime_t     shift_offset; /**< How much the abs_tm of the frame is shifted */
   nstime_t     rel_ts;       /**< Relative timestamp (yes, it can be negative) */
-  nstime_t     del_dis_ts;   /**< Delta timestamp to previous displayed frame (yes, it can be negative) */
-  nstime_t     del_cap_ts;   /**< Delta timestamp to previous captured frame (yes, it can be negative) */
+  const struct _frame_data *prev_dis;   /**< Previous displayed frame */
+  const struct _frame_data *prev_cap;   /**< Previous captured frame */
   gchar        *opt_comment; /**< NULL if not available */
 } frame_data;
 
@@ -103,18 +103,20 @@ extern void frame_data_cleanup(frame_data *fdata);
 extern void frame_data_init(frame_data *fdata, guint32 num,
                 const struct wtap_pkthdr *phdr, gint64 offset,
                 guint32 cum_bytes);
+
+extern void frame_delta_abs_time(const frame_data *fdata, 
+                const frame_data *prev, nstime_t *delta);
 /**
  * Sets the frame data struct values before dissection.
  */
 extern void frame_data_set_before_dissect(frame_data *fdata,
                 nstime_t *elapsed_time,
                 nstime_t *first_ts,
-                nstime_t *prev_dis_ts,
-                nstime_t *prev_cap_ts);
+                const frame_data *prev_dis,
+                const frame_data *prev_cap);
 
 extern void frame_data_set_after_dissect(frame_data *fdata,
-                guint32 *cum_bytes,
-                nstime_t *prev_dis_ts);
+                guint32 *cum_bytes);
 
 #endif  /* __FRAME_DATA__ */
 

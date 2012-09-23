@@ -81,8 +81,8 @@ gboolean auto_scroll_live;
 
 static guint32 cum_bytes;
 static nstime_t first_ts;
-static nstime_t prev_dis_ts;
-static nstime_t prev_cap_ts;
+static frame_data *prev_dis;
+static frame_data *prev_cap;
 
 static gulong computed_elapsed;
 
@@ -332,8 +332,8 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   nstime_set_zero(&cf->elapsed_time);
   nstime_set_unset(&first_ts);
-  nstime_set_unset(&prev_dis_ts);
-  nstime_set_unset(&prev_cap_ts);
+  prev_dis = NULL;
+  prev_cap = NULL;
   cum_bytes = 0;
 
   /* Adjust timestamp precision if auto is selected, col width will be adjusted */
@@ -1099,7 +1099,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
   frame_data_set_before_dissect(fdata, &cf->elapsed_time,
-                                &first_ts, &prev_dis_ts, &prev_cap_ts);
+                                &first_ts, prev_dis, prev_cap);
+  prev_cap = fdata;
 
   /* If either
     + we have a display filter and are re-applying it;
@@ -1153,7 +1154,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   if (fdata->flags.passed_dfilter || fdata->flags.ref_time)
   {
-    frame_data_set_after_dissect(fdata, &cum_bytes, &prev_dis_ts);
+    frame_data_set_after_dissect(fdata, &cum_bytes);
+    prev_dis = fdata;
 
     /* If we haven't yet seen the first frame, this is it.
 
@@ -1836,8 +1838,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
      to check whether it should be displayed and, if so, add it to
      the display list. */
   nstime_set_unset(&first_ts);
-  nstime_set_unset(&prev_dis_ts);
-  nstime_set_unset(&prev_cap_ts);
+  prev_dis = NULL;
+  prev_cap = NULL;
   cum_bytes = 0;
 
   /* Update the progress bar when it gets to this value. */
@@ -2077,7 +2079,7 @@ ref_time_packets(capture_file *cf)
   frame_data *fdata;
 
   nstime_set_unset(&first_ts);
-  nstime_set_unset(&prev_dis_ts);
+  prev_dis = NULL;
   cum_bytes = 0;
 
   for (framenum = 1; framenum <= cf->count; framenum++) {
@@ -2106,8 +2108,8 @@ ref_time_packets(capture_file *cf)
      it's because this is the first displayed packet.  Save the time
      stamp of this packet as the time stamp of the previous displayed
      packet. */
-    if (nstime_is_unset(&prev_dis_ts)) {
-        prev_dis_ts = fdata->abs_ts;
+    if (prev_dis == NULL) {
+        prev_dis = fdata;
     }
 
     /* Get the time elapsed between the first packet and this packet. */
@@ -2124,8 +2126,8 @@ ref_time_packets(capture_file *cf)
     /* If this frame is displayed, get the time elapsed between the
      previous displayed packet and this packet. */
     if ( fdata->flags.passed_dfilter ) {
-        nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
-        prev_dis_ts = fdata->abs_ts;
+        fdata->prev_dis = prev_dis;
+        prev_dis = fdata;
     }
 
     /*

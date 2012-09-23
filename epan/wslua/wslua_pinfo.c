@@ -984,6 +984,15 @@ lua_nstime_to_sec(const nstime_t *nstime)
     return (((double)nstime->secs) + (((double)nstime->nsecs) / 1000000000.0));
 }
 
+static double
+lua_delta_nstime_to_sec(const frame_data *fd, const frame_data *prev)
+{
+	nstime_t del;
+
+	frame_delta_abs_time(fd, prev, &del);
+	return lua_nstime_to_sec(&del);
+}
+
 PINFO_GET_BOOLEAN(Pinfo_fragmented,pinfo->ws_pinfo->fragmented)
 PINFO_GET_BOOLEAN(Pinfo_in_error_pkt,pinfo->ws_pinfo->flags.in_error_pkt)
 PINFO_GET_BOOLEAN(Pinfo_visited,pinfo->ws_pinfo->fd->flags.visited)
@@ -993,8 +1002,8 @@ PINFO_GET_NUMBER(Pinfo_len,pinfo->ws_pinfo->fd->pkt_len)
 PINFO_GET_NUMBER(Pinfo_caplen,pinfo->ws_pinfo->fd->cap_len)
 PINFO_GET_NUMBER(Pinfo_abs_ts,lua_nstime_to_sec(&pinfo->ws_pinfo->fd->abs_ts))
 PINFO_GET_NUMBER(Pinfo_rel_ts,lua_nstime_to_sec(&pinfo->ws_pinfo->fd->rel_ts))
-PINFO_GET_NUMBER(Pinfo_delta_ts,lua_nstime_to_sec(&pinfo->ws_pinfo->fd->del_cap_ts))
-PINFO_GET_NUMBER(Pinfo_delta_dis_ts,lua_nstime_to_sec(&pinfo->ws_pinfo->fd->del_dis_ts))
+PINFO_GET_NUMBER(Pinfo_delta_ts,lua_delta_nstime_to_sec(pinfo->ws_pinfo->fd, pinfo->ws_pinfo->fd->prev_cap))
+PINFO_GET_NUMBER(Pinfo_delta_dis_ts,lua_delta_nstime_to_sec(pinfo->ws_pinfo->fd, pinfo->ws_pinfo->fd->prev_dis))
 PINFO_GET_NUMBER(Pinfo_ipproto,pinfo->ws_pinfo->ipproto)
 PINFO_GET_NUMBER(Pinfo_circuit_id,pinfo->ws_pinfo->circuit_id)
 PINFO_GET_NUMBER(Pinfo_desegment_len,pinfo->ws_pinfo->desegment_len)

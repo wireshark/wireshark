@@ -938,15 +938,11 @@ static void
 modify_time_perform(frame_data *fd, int neg, nstime_t *offset, int settozero)
 {
   static frame_data *first_packet = NULL;
-  static frame_data *lastdisplayed_packet = NULL;
-  static frame_data *prevcaptured_packet = NULL;
   static nstime_t nulltime;
 
   /* Only for initializing */
   if (offset == NULL) {
     first_packet = fd;
-    lastdisplayed_packet = NULL;
-    prevcaptured_packet = NULL;
     nulltime.secs = nulltime.nsecs = 0;
     return;
   }
@@ -974,28 +970,10 @@ modify_time_perform(frame_data *fd, int neg, nstime_t *offset, int settozero)
 
   /*
    * rel_ts     - Relative timestamp to first packet
-   * del_dis_ts - Delta timestamp to previous displayed frame
-   * del_cap_ts - Delta timestamp to previous captured frame
    */
   if (first_packet != NULL) {
     nstime_copy(&(fd->rel_ts), &(fd->abs_ts));
     nstime_subtract(&(fd->rel_ts), &(first_packet->abs_ts));
   } else
     nstime_copy(&(fd->rel_ts), &nulltime);
-
-  if (prevcaptured_packet != NULL) {
-    nstime_copy(&(fd->del_cap_ts), &(fd->abs_ts));
-    nstime_subtract(&(fd->del_cap_ts), &(prevcaptured_packet->abs_ts));
-  } else
-    nstime_copy(&(fd->del_cap_ts), &nulltime);
-
-  if (lastdisplayed_packet != NULL) {
-    nstime_copy(&(fd->del_dis_ts), &(fd->abs_ts));
-    nstime_subtract(&(fd->del_dis_ts), &(lastdisplayed_packet->abs_ts));
-  } else
-    nstime_copy(&(fd->del_dis_ts), &nulltime);
-
-  prevcaptured_packet = fd;
-  if (fd->flags.passed_dfilter)
-    lastdisplayed_packet = fd;
 }
