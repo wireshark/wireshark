@@ -29,21 +29,35 @@
       </para>
     </warning>
     <section id="ChSetupMSVC">
-      <title>Install Microsoft C compiler and Platform SDK</title>
-      <para>You need to install:
+      <title>Install Microsoft C compiler and SDK</title>
+      <para>You need to install, in exactly this order:
       <orderedlist>
         <listitem>
           <para>C compiler:
-          <ulink url="http://www.microsoft.com/express/Downloads/#Visual_Studio_2010_Express_Downloads">
+          <ulink url="http://www.microsoft.com/visualstudio/eng/downloads#d-2010-express">
           Download</ulink> and install "Microsoft Visual C++
-          2010 Express Edition SP1." (This is a very large download.)</para>
+                   2010 Express Edition." (This is a very large download.)</para>
         </listitem>
         <listitem>
           <para>Windows SDK for Windows 7, if you want to build 64-bit
                 binaries for Windows 7:
           <ulink url="http://msdn.microsoft.com/en-us/windowsserver/bb980924.aspx">
           Download</ulink> and install "Microsoft Windows SDK for
-		  Windows 7"</para>
+		  Windows 7."</para>
+        </listitem>
+        <listitem>
+          <para>C compiler service pack:
+          <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=23691">
+          Download</ulink> and install "Microsoft Visual Studio 2010
+                  Service Pack 1." (This is a very large download.)</para>
+        </listitem>
+        <listitem>
+          <para>Microsoft Visual C++ 2010 Service Pack 1 Compiler Update
+          for the Windows SDK 7.1, if you want to build 64-bit
+                binaries for Windows 7:
+          <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=4422">
+          Download</ulink> and install "Microsoft Visual C++ 2010
+                  Service Pack 1 Compiler Update for the Windows SDK 7.1."</para>
         </listitem>
         <!--
         <listitem>
@@ -54,6 +68,23 @@
         </listitem>
         -->
       </orderedlist></para>
+      <para>If you will be building 64-bit binaries, those items must be
+      installed in that order, as installing the Microsoft Visual Studio
+      2010 Service Pack 1 can, if you've installed the Microsoft Windows
+      SDK for Windows 7, remove the 64-bit compilers, as per
+      <ulink url="http://support.microsoft.com/?kbid=2519277">the
+      Microsoft Knowledge Base article "FIX: Visual C++ compilers are
+      removed when you upgrade Visual Studio 2010 Professional or Visual
+      Studio 2010 Express to Visual Studio 2010 SP1 if Windows SDK v7.1
+      is installed"</ulink>.  The release notes for the Microsoft Visual
+      C++ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1
+      say that, to ensure that your system has a supported
+      configuration, you must install the items in the order specified
+      above.  If you have Microsoft Update installed, so that the
+      Windows update process will update software other than components
+      of Windows, and thus will update Visual Studio, you may need to
+      disable it until after all of the above are installed, to make
+      sure it doesn't install Visual Studio 2010 SP1 out of order.</para>
       <para>Install MSVC the usual way. Don't forget to install
       <filename>vcvars32.bat</filename> or call it manually before building Wireshark.
       <filename>vcvars32.bat</filename> will set some required environment (e.g. the
