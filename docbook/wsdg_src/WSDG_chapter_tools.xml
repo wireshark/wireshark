@@ -225,6 +225,10 @@ PARTICULAR PURPOSE.]]>
         <para>C compiler (<filename>cl.exe</filename>)</para>
       </listitem>
       <listitem>
+        <para>Assembler (<filename>ml.exe</filename> for 32-bit targets
+        and <filename>ml64.exe</filename> for 64-bit targets)</para>
+      </listitem>
+      <listitem>
         <para>Linker (<filename>link.exe</filename>)</para>
       </listitem>
       <listitem>
