@@ -780,7 +780,7 @@ static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_lte_info  *p_p
             }
             break;
         case Channel_PCCH:
-            rrc_handle = find_dissector("lte-rrc.pcch");
+            rrc_handle = find_dissector("lte_rrc.pcch");
             break;
         case Channel_BCCH:
             switch (p_pdcp_info->BCCHTransport) {

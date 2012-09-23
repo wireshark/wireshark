@@ -36,7 +36,7 @@ HandoverPreparationInformation
 UERadioAccessCapabilityInformation
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch
-MCCH-Message                 @mcch				
+MCCH-Message                 @mcch
 PCCH-Message                 @pcch
 DL-CCCH-Message              @dl.ccch
 DL-DCCH-Message              @dl.dcch

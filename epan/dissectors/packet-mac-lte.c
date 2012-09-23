@@ -1801,18 +1801,13 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
 
         /* Get appropriate dissector handle */
-        dissector_handle_t protocol_handle = find_dissector("lte-rrc.pcch");
+        dissector_handle_t protocol_handle = find_dissector("lte_rrc.pcch");
 
         /* Hide raw view of bytes */
         PROTO_ITEM_SET_HIDDEN(ti);
 
         /* Call it (catch exceptions so that stats will be updated) */
-        TRY {
-            call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree, NULL);
-        }
-        CATCH_ALL {
-        }
-        ENDTRY
+        call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
     }
 
     /* Check that this *is* downlink! */
@@ -1917,12 +1912,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     s_number_of_rlc_pdus_shown++;
 
     /* Call it (catch exceptions so that stats will be updated) */
-    TRY {
-        call_dissector_only(protocol_handle, srb_tvb, pinfo, tree, NULL);
-    }
-    CATCH_ALL {
-    }
-    ENDTRY
+    call_with_catch_all(protocol_handle, srb_tvb, pinfo, tree);
 
     /* Let columns be written to again */
     col_set_writable(pinfo->cinfo, TRUE);

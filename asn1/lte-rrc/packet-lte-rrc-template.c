@@ -1674,98 +1674,130 @@ static const true_false_string lte_rrc_duration_val = {
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti;
-	proto_tree *lte_rrc_tree;
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_CCCH");
-	col_clear(pinfo->cinfo, COL_INFO);
-	if (tree) {
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_CCCH");
+  col_clear(pinfo->cinfo, COL_INFO);
 
-		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-		dissect_DL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-	}
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_DL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  }
 }
 
 static void
 dissect_lte_rrc_DL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti;
-	proto_tree *lte_rrc_tree;
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_DCCH");
-	col_clear(pinfo->cinfo, COL_INFO);
-	if (tree) {
-
-		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-		dissect_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-	}
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_DCCH");
+  col_clear(pinfo->cinfo, COL_INFO);
+  
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  }
 }
 
 
 static void
 dissect_lte_rrc_UL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti;
-	proto_tree *lte_rrc_tree;
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC UL_CCCH");
-	col_clear(pinfo->cinfo, COL_INFO);
-	if (tree) {
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC UL_CCCH");
+  col_clear(pinfo->cinfo, COL_INFO);
 
-		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-		dissect_UL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-	}
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_UL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  }
 }
 
 static void
 dissect_lte_rrc_UL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti;
-	proto_tree *lte_rrc_tree;
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC UL_DCCH");
-	col_clear(pinfo->cinfo, COL_INFO);
-	if (tree) {
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC UL_DCCH");
+  col_clear(pinfo->cinfo, COL_INFO);
 
-		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-		dissect_UL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-	}
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_UL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  }
 }
 
 static void
 dissect_lte_rrc_BCCH_BCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti;
-	proto_tree *lte_rrc_tree;
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC BCCH_BCH");
-	col_clear(pinfo->cinfo, COL_INFO);
-	if (tree) {
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC BCCH_BCH");
+  col_clear(pinfo->cinfo, COL_INFO);
 
-		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-		dissect_BCCH_BCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-	}
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_BCCH_BCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  }
 }
 
 static void
 dissect_lte_rrc_BCCH_DL_SCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti;
-	proto_tree *lte_rrc_tree;
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_SCH");
-	col_clear(pinfo->cinfo, COL_INFO);
-	if (tree) {
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_SCH");
+  col_clear(pinfo->cinfo, COL_INFO);
 
-		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-		dissect_BCCH_DL_SCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-	}
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_BCCH_DL_SCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  }
+}
+
+static void
+dissect_lte_rrc_PCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC PCCH");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_PCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  }
+}
+
+static void
+dissect_lte_rrc_MCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC MCCH");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+    dissect_MCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  }
 }
 
 /*--- proto_register_rrc -------------------------------------------*/
@@ -2185,6 +2217,8 @@ void proto_register_lte_rrc(void) {
   register_dissector("lte_rrc.ul_dcch", dissect_lte_rrc_UL_DCCH, proto_lte_rrc);
   register_dissector("lte_rrc.bcch_bch", dissect_lte_rrc_BCCH_BCH, proto_lte_rrc);
   register_dissector("lte_rrc.bcch_dl_sch", dissect_lte_rrc_BCCH_DL_SCH, proto_lte_rrc);
+  register_dissector("lte_rrc.pcch", dissect_lte_rrc_PCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.mcch", dissect_lte_rrc_MCCH, proto_lte_rrc);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));

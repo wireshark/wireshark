@@ -1012,14 +1012,14 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
                 protocol_handle = find_dissector("lte_rrc.dl_ccch");
                 break;
             case Channel_PCCH:
-                protocol_handle = find_dissector("lte-rrc.pcch");
+                protocol_handle = find_dissector("lte_rrc.pcch");
                 break;
             case Channel_BCCH:
                 if (bcch_transport == 1) {
-                    protocol_handle = find_dissector("lte-rrc.bcch.bch");
+                    protocol_handle = find_dissector("lte_rrc.bcch_bch");
                 }
                 else {
-                    protocol_handle = find_dissector("lte-rrc.bcch.dl.sch");
+                    protocol_handle = find_dissector("lte_rrc.bcch_dl_sch");
                 }
                 break;
 

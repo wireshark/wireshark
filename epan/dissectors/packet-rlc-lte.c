@@ -1842,7 +1842,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
                 protocol_handle = find_dissector("lte_rrc.bcch_dl_sch");
                 break;
             case CHANNEL_TYPE_PCCH:
-                protocol_handle = find_dissector("lte-rrc.pcch");
+                protocol_handle = find_dissector("lte_rrc.pcch");
                 break;
 
             case CHANNEL_TYPE_SRB:
