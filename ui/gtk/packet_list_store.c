@@ -637,7 +637,6 @@ gint
 packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 {
 	PacketListRecord *newrecord;
-	GtkTreeModel *model = GTK_TREE_MODEL(packet_list);
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), -1);
 
@@ -666,7 +665,7 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 	 * Issue a row_inserted signal if the model is connected
 	 * and the row is visible.
 	 */
-	if((model)&&(newrecord->visible_pos!=-1)) {
+	if (gtk_tree_view_get_model(GTK_TREE_VIEW(packet_list->view)) && newrecord->visible_pos != -1) {
 		GtkTreeIter iter;
 		GtkTreePath *path;
 
