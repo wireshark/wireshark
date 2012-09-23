@@ -978,6 +978,12 @@ static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1;
 #define PINFO_GET_LIGHTUSERDATA(name, val) \
     PINFO_GET(name,{lua_pushlightuserdata(L, (void *) (val));})
 
+static double
+lua_nstime_to_sec(const nstime_t *nstime)
+{
+    return (((double)nstime->secs) + (((double)nstime->nsecs) / 1000000000.0));
+}
+
 PINFO_GET_BOOLEAN(Pinfo_fragmented,pinfo->ws_pinfo->fragmented)
 PINFO_GET_BOOLEAN(Pinfo_in_error_pkt,pinfo->ws_pinfo->flags.in_error_pkt)
 PINFO_GET_BOOLEAN(Pinfo_visited,pinfo->ws_pinfo->fd->flags.visited)
@@ -985,10 +991,10 @@ PINFO_GET_BOOLEAN(Pinfo_visited,pinfo->ws_pinfo->fd->flags.visited)
 PINFO_GET_NUMBER(Pinfo_number,pinfo->ws_pinfo->fd->num)
 PINFO_GET_NUMBER(Pinfo_len,pinfo->ws_pinfo->fd->pkt_len)
 PINFO_GET_NUMBER(Pinfo_caplen,pinfo->ws_pinfo->fd->cap_len)
-PINFO_GET_NUMBER(Pinfo_abs_ts,(((double)pinfo->ws_pinfo->fd->abs_ts.secs) + (((double)pinfo->ws_pinfo->fd->abs_ts.nsecs) / 1000000000.0) ))
-PINFO_GET_NUMBER(Pinfo_rel_ts,(((double)pinfo->ws_pinfo->fd->rel_ts.secs) + (((double)pinfo->ws_pinfo->fd->rel_ts.nsecs) / 1000000000.0) ))
-PINFO_GET_NUMBER(Pinfo_delta_ts,(((double)pinfo->ws_pinfo->fd->del_cap_ts.secs) + (((double)pinfo->ws_pinfo->fd->del_cap_ts.nsecs) / 1000000000.0) ))
-PINFO_GET_NUMBER(Pinfo_delta_dis_ts,(((double)pinfo->ws_pinfo->fd->del_dis_ts.secs) + (((double)pinfo->ws_pinfo->fd->del_dis_ts.nsecs) / 1000000000.0) ))
+PINFO_GET_NUMBER(Pinfo_abs_ts,lua_nstime_to_sec(&pinfo->ws_pinfo->fd->abs_ts))
+PINFO_GET_NUMBER(Pinfo_rel_ts,lua_nstime_to_sec(&pinfo->ws_pinfo->fd->rel_ts))
+PINFO_GET_NUMBER(Pinfo_delta_ts,lua_nstime_to_sec(&pinfo->ws_pinfo->fd->del_cap_ts))
+PINFO_GET_NUMBER(Pinfo_delta_dis_ts,lua_nstime_to_sec(&pinfo->ws_pinfo->fd->del_dis_ts))
 PINFO_GET_NUMBER(Pinfo_ipproto,pinfo->ws_pinfo->ipproto)
 PINFO_GET_NUMBER(Pinfo_circuit_id,pinfo->ws_pinfo->circuit_id)
 PINFO_GET_NUMBER(Pinfo_desegment_len,pinfo->ws_pinfo->desegment_len)
