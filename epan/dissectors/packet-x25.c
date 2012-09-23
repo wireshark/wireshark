@@ -182,6 +182,7 @@ static gint hf_x25_reassembled_length = -1;
 static gint hf_x25_fast_select = -1;
 static gint hf_x25_icrd = -1;
 static gint hf_x25_reverse_charging = -1;
+static gint hf_x25_charging_info = -1;
 
 static const value_string vals_modulo[] = {
 	{ 1, "8" },
@@ -712,10 +713,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    byte1 = tvb_get_guint8(tvb, *offset + 1);
 		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
 			    "Parameter : %02X", byte1);
-		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1, "%s",
-			    decode_boolean_bitfield(byte1, 0x01, 1*8,
-				"Charging information requested",
-				"Charging information not requested"));
+			proto_tree_add_item(fac_subtree, hf_x25_charging_info, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
 		}
 		break;
 	    case X25_FAC_THROUGHPUT:
@@ -2681,6 +2679,10 @@ proto_register_x25(void)
 
 	{ &hf_x25_reverse_charging,
 	  { "Reverse charging", "x25.reverse_charging", FT_BOOLEAN, 8, TFS(&x25_reverse_charging_val), 0x01,
+	    NULL, HFILL }},
+
+	{ &hf_x25_charging_info,
+	  { "Charging information", "x25.charging_info", FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
 	    NULL, HFILL }},
     };
     static gint *ett[] = {

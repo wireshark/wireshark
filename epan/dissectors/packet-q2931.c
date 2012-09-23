@@ -53,6 +53,7 @@ static int hf_q2931_message_type_ext = -1;
 static int hf_q2931_message_flag = -1;
 static int hf_q2931_message_action_indicator = -1;
 static int hf_q2931_message_len = -1;
+static int hf_q2931_ie_handling_instructions = -1;
 
 static gint ett_q2931 = -1;
 static gint ett_q2931_ext = -1;
@@ -247,6 +248,9 @@ static const value_string q2931_codeset_vals[] = {
 	{ 0x07, "User-specific information elements" },
 	{ 0x00, NULL },
 };
+
+static const true_false_string tfs_q2931_handling_instructions = { "Follow explicit error handling instructions", 
+																   "Regular error handling procedures apply" };
 
 static void
 dissect_q2931_shift_ie(tvbuff_t *tvb, int offset, int len,
@@ -1990,11 +1994,7 @@ dissect_q2931_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
 	    decode_enumerated_bitfield(info_element_ext,
 	        Q2931_IE_COMPAT_CODING_STD, 8,
 		coding_std_vals, "Coding standard: %s"));
-	proto_tree_add_text(ie_ext_tree, tvb, offset + 1, 1, "%s",
-	    decode_boolean_bitfield(info_element_ext,
-	    Q2931_IE_COMPAT_FOLLOW_INST, 8,
-	    "Follow explicit error handling instructions",
-  	    "Regular error handling procedures apply"));
+	proto_tree_add_item(ie_ext_tree, hf_q2931_ie_handling_instructions, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 	if (info_element_ext & Q2931_IE_COMPAT_FOLLOW_INST) {
 		proto_tree_add_text(ie_ext_tree, tvb, offset + 1, 1, "%s",
 		    decode_enumerated_bitfield(info_element_ext,
@@ -2171,6 +2171,10 @@ proto_register_q2931(void)
 
 		{ &hf_q2931_message_len,
 		  { "Message length", "q2931.message_len", FT_UINT16, BASE_DEC, NULL, 0x0,
+		  	NULL, HFILL }},
+
+		{ &hf_q2931_ie_handling_instructions,
+		  { "Handling Instructions", "q2931.ie_handling_instructions", FT_BOOLEAN, 8, TFS(&tfs_q2931_handling_instructions), Q2931_IE_COMPAT_FOLLOW_INST,
 		  	NULL, HFILL }},
 
 	};

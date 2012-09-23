@@ -129,10 +129,14 @@ static int hf_a11_max_num_serv_opt = -1;
 /* Forward QoS Information */
 static int hf_a11_fqi_srid = -1;
 static int hf_a11_fqi_flags = -1;
+static int hf_a11_fqi_flags_ip_flow = -1;
+static int hf_a11_fqi_flags_dscp = -1;
+static int hf_a11_fqi_entry_flag = -1;
+static int hf_a11_fqi_entry_flag_dscp = -1;
+static int hf_a11_fqi_entry_flag_flow_state = -1;
 static int hf_a11_fqi_flowcount = -1;
 static int hf_a11_fqi_flowid = -1;
 static int hf_a11_fqi_entrylen = -1;
-static int hf_a11_fqi_dscp = -1;
 static int hf_a11_fqi_flowstate = -1;
 static int hf_a11_fqi_requested_qoslen = -1;
 static int hf_a11_fqi_flow_priority = -1;
@@ -149,6 +153,8 @@ static int hf_a11_rqi_srid = -1;
 static int hf_a11_rqi_flowcount = -1;
 static int hf_a11_rqi_flowid = -1;
 static int hf_a11_rqi_entrylen = -1;
+static int hf_a11_rqi_entry_flag = -1;
+static int hf_a11_rqi_entry_flag_flow_state = -1;
 static int hf_a11_rqi_flowstate = -1;
 static int hf_a11_rqi_requested_qoslen = -1;
 static int hf_a11_rqi_flow_priority = -1;
@@ -401,6 +407,7 @@ static const value_string a11_airlink_types[]= {
     {0, NULL},
 };
 
+static const true_false_string tfs_included_not_included = { "Included", "Not Included" };
 
 #define A11_MSG_MSID_ELEM_LEN_MAX 8
 #define A11_MSG_MSID_LEN_MAX 15
@@ -821,20 +828,13 @@ static void
 dissect_fwd_qosinfo_flags(tvbuff_t *tvb, int offset, proto_tree *ext_tree, guint8 *p_dscp_included)
 {
     guint8 flags = tvb_get_guint8(tvb, offset);
-    guint8 nbits = sizeof(flags) * 8;
 
-    proto_item *ti = proto_tree_add_text(ext_tree, tvb, offset, sizeof(flags),
-                                         "Flags: %#02x", flags);
-
+    proto_item *ti = proto_tree_add_item(ext_tree, hf_a11_fqi_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree *flags_tree = proto_item_add_subtree(ti, ett_a11_fqi_flags);
 
-    proto_tree_add_text(flags_tree, tvb, offset, sizeof(flags), "%s",
-                        decode_boolean_bitfield(flags, A11_FQI_IPFLOW_DISC_ENABLED, nbits,
-                                                "IP Flow Discriminator Enabled", "IP Flow Discriminator Disabled"));
+    proto_tree_add_item(flags_tree, hf_a11_fqi_flags_ip_flow, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_a11_fqi_flags_dscp, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_text(flags_tree, tvb, offset, sizeof(flags), "%s",
-                        decode_boolean_bitfield(flags, A11_FQI_DSCP_INCLUDED, nbits,
-                                                "DSCP Included", "DSCP Not Included"));
     if (flags & A11_FQI_DSCP_INCLUDED)
     {
         *p_dscp_included = 1;
@@ -844,50 +844,27 @@ dissect_fwd_qosinfo_flags(tvbuff_t *tvb, int offset, proto_tree *ext_tree, guint
     }
 }
 
-
-#define A11_FQI_DSCP 0x7E
-#define A11_FQI_FLOW_STATE 0x01
-
 static void
 dissect_fqi_entry_flags(tvbuff_t *tvb, int offset, proto_tree *ext_tree, guint8 dscp_enabled)
 {
-    guint8 dscp  = tvb_get_guint8(tvb, offset);
-    guint8 nbits = sizeof(dscp) * 8;
-
-    proto_item *ti = proto_tree_add_text(ext_tree, tvb, offset, sizeof(dscp),
-                                         "DSCP and Flow State: %#02x", dscp);
-
+    proto_item *ti = proto_tree_add_item(ext_tree, hf_a11_fqi_entry_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree *flags_tree = proto_item_add_subtree(ti, ett_a11_fqi_entry_flags);
 
     if (dscp_enabled)
     {
-        proto_tree_add_text(flags_tree, tvb, offset, sizeof(dscp), "%s",
-                            decode_numeric_bitfield(dscp, A11_FQI_DSCP, nbits,
-                                                    "DSCP: %u"));
+        proto_tree_add_item(flags_tree, hf_a11_fqi_entry_flag_dscp, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
 
-    proto_tree_add_text(flags_tree, tvb, offset, sizeof(dscp), "%s",
-                        decode_boolean_bitfield(dscp, A11_FQI_FLOW_STATE, nbits,
-                                                "Flow State: Active", "Flow State: Inactive"));
+    proto_tree_add_item(flags_tree, hf_a11_fqi_entry_flag_flow_state, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
-
-
-#define A11_RQI_FLOW_STATE 0x01
 
 static void
 dissect_rqi_entry_flags(tvbuff_t *tvb, int offset, proto_tree *ext_tree)
 {
-    guint8 flags = tvb_get_guint8(tvb, offset);
-    guint8 nbits = sizeof(flags) * 8;
-
-    proto_item *ti = proto_tree_add_text(ext_tree, tvb, offset, sizeof(flags),
-                                         "Flags: %#02x", flags);
-
+    proto_item *ti = proto_tree_add_item(ext_tree, hf_a11_rqi_entry_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree *flags_tree = proto_item_add_subtree(ti, ett_a11_rqi_entry_flags);
 
-    proto_tree_add_text(flags_tree, tvb, offset, sizeof(flags), "%s",
-                        decode_boolean_bitfield(flags, A11_RQI_FLOW_STATE, nbits,
-                                                "Flow State: Active", "Flow State: Inactive"));
+    proto_tree_add_item(flags_tree, hf_a11_rqi_entry_flag_flow_state, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* Code to dissect Forward QoS Info */
@@ -2023,6 +2000,31 @@ proto_register_a11(void)
             FT_UINT8, BASE_HEX, NULL, 0,
             "Forward Flow Entry Flags", HFILL }
         },
+        { &hf_a11_fqi_flags_ip_flow,
+          { "IP Flow Discriminator",   "a11.ext.fqi.flags.ip_flow",
+            FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), A11_FQI_IPFLOW_DISC_ENABLED,
+            NULL, HFILL }
+        },
+        { &hf_a11_fqi_flags_dscp,
+          { "DSCP",   "a11.ext.fqi.flags.dscp",
+            FT_BOOLEAN, 8, TFS(&tfs_included_not_included), A11_FQI_DSCP_INCLUDED,
+            NULL, HFILL }
+        },
+        { &hf_a11_fqi_entry_flag,
+          { "DSCP and Flow State",   "a11.ext.fqi.entry_flag",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_a11_fqi_entry_flag_dscp,
+          { "DSCP",   "a11.ext.fqi.entry_flag.dscp",
+            FT_UINT8, BASE_HEX, NULL, 0x7E,
+            NULL, HFILL }
+        },
+        { &hf_a11_fqi_entry_flag_flow_state,
+          { "Flow State",   "a11.ext.fqi.entry_flag.flow_state",
+            FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x01,
+            NULL, HFILL }
+        },
         { &hf_a11_fqi_flowcount,
           { "Forward Flow Count",   "a11.ext.fqi.flowcount",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -2037,11 +2039,6 @@ proto_register_a11(void)
           { "Entry Length",   "a11.ext.fqi.entrylen",
             FT_UINT8, BASE_DEC, NULL, 0,
             "Forward Entry Length", HFILL }
-        },
-        { &hf_a11_fqi_dscp,
-          { "Forward DSCP",   "a11.ext.fqi.dscp",
-            FT_UINT8, BASE_HEX, NULL, 0,
-            "Forward Flow DSCP", HFILL }
         },
         { &hf_a11_fqi_flowstate,
           { "Forward Flow State",   "a11.ext.fqi.flowstate",
@@ -2147,6 +2144,16 @@ proto_register_a11(void)
           { "Entry Length",   "a11.ext.rqi.entrylen",
             FT_UINT8, BASE_DEC, NULL, 0,
             "Reverse Flow Entry Length", HFILL }
+        },
+        { &hf_a11_rqi_entry_flag,
+          { "Flags",   "a11.ext.rqi.entry_flag",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_a11_rqi_entry_flag_flow_state,
+          { "Flow State",   "a11.ext.rqi.entry_flag.flow_state",
+            FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x01,
+            NULL, HFILL }
         },
         { &hf_a11_rqi_flowstate,
           { "Flow State",   "a11.ext.rqi.flowstate",

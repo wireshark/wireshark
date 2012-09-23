@@ -79,22 +79,6 @@ enum {
 #define P9_OTRUNC	  0x10
 #define P9_ORCLOSE	  0x40
 
-/* stat mode flags */
-#define DMDIR		0x80000000 /* Directory */
-#define DMAPPEND	0x40000000 /* Append only */
-#define DMEXCL		0x20000000 /* Exclusive use */
-#define DMMOUNT		0x10000000 /* Mounted channel */
-#define DMAUTH		0x08000000 /* Authentication */
-#define DMTMP		0x04000000 /* Temporary */
-
-#define QTDIR		0x80	/* Directory */
-#define QTAPPEND	0x40	/* Append only */
-#define QTEXCL		0x20	/* Exclusive use */
-#define QTMOUNT		0x10	/* Mounted channel */
-#define QTAUTH		0x08	/* Authentication */
-#define QTTMP		0x04	/* Temporary */
-#define QTFILE		0x00	/* plain file ?? */
-
 /* Initialize the protocol and registered fields */
 static int proto_9P = -1;
 static int hf_9P_msgsz = -1;
@@ -114,8 +98,29 @@ static int hf_9P_count = -1;
 static int hf_9P_offset = -1;
 static int hf_9P_perm = -1;
 static int hf_9P_qidtype = -1;
+static int hf_9P_qidtype_dir = -1;
+static int hf_9P_qidtype_append = -1;
+static int hf_9P_qidtype_exclusive = -1;
+static int hf_9P_qidtype_mount = -1;
+static int hf_9P_qidtype_auth_file = -1;
+static int hf_9P_qidtype_temp_file = -1;
 static int hf_9P_qidvers = -1;
 static int hf_9P_qidpath = -1;
+static int hf_9P_dm_dir = -1;
+static int hf_9P_dm_append = -1;
+static int hf_9P_dm_exclusive = -1;
+static int hf_9P_dm_mount = -1;
+static int hf_9P_dm_auth_file = -1;
+static int hf_9P_dm_temp_file = -1;
+static int hf_9P_dm_read_owner = -1;
+static int hf_9P_dm_write_owner = -1;
+static int hf_9P_dm_exec_owner = -1;
+static int hf_9P_dm_read_group = -1;
+static int hf_9P_dm_write_group = -1;
+static int hf_9P_dm_exec_group = -1;
+static int hf_9P_dm_read_others = -1;
+static int hf_9P_dm_write_others = -1;
+static int hf_9P_dm_exec_others = -1;
 static int hf_9P_stattype = -1;
 static int hf_9P_statmode = -1;
 static int hf_9P_atime = -1;
@@ -606,18 +611,12 @@ static void dissect_9P_qid(tvbuff_t * tvb,  proto_tree * tree,int offset)
 	qidtype_item = proto_tree_add_item(qid_tree, hf_9P_qidtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	qidtype_tree = proto_item_add_subtree(qidtype_item,ett_9P_qidtype);
 
-	proto_tree_add_text(qidtype_tree, tvb, offset, 1, "%s",
-	decode_boolean_bitfield(type,    QTDIR, 8, "Directory", "not a Directory"));
-	proto_tree_add_text(qidtype_tree, tvb, offset, 1, "%s",
-	decode_boolean_bitfield(type,    QTAPPEND, 8, "Append only", "not Append only"));
-	proto_tree_add_text(qidtype_tree, tvb, offset, 1, "%s",
-	decode_boolean_bitfield(type,    QTEXCL, 8, "Exclusive use", "not Exclusive use"));
-	proto_tree_add_text(qidtype_tree, tvb, offset, 1, "%s",
-	decode_boolean_bitfield(type,    QTMOUNT, 8, "Mounted channel", "not a Mounted channel"));
-	proto_tree_add_text(qidtype_tree, tvb, offset, 1, "%s",
-	decode_boolean_bitfield(type,    QTAUTH, 8, "Authentication file", "not an Authentication file"));
-	proto_tree_add_text(qidtype_tree, tvb, offset, 1, "%s",
-	decode_boolean_bitfield(type,    QTTMP, 8, "Temporary file (not backed up)", "not a Temporary file"));
+    proto_tree_add_item(qidtype_tree, hf_9P_qidtype_dir, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(qidtype_tree, hf_9P_qidtype_append, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(qidtype_tree, hf_9P_qidtype_exclusive, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(qidtype_tree, hf_9P_qidtype_mount, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(qidtype_tree, hf_9P_qidtype_auth_file, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(qidtype_tree, hf_9P_qidtype_temp_file, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
 	proto_tree_add_item(qid_tree, hf_9P_qidvers, tvb, offset+1, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(qid_tree, hf_9P_qidpath, tvb, offset+1+4, 8, ENC_LITTLE_ENDIAN);
@@ -635,39 +634,24 @@ static void dissect_9P_dm(tvbuff_t * tvb,  proto_item * item,int offset,int iscr
 	if(!mode_tree)
 		return;
 
-	proto_tree_add_text(mode_tree, tvb, offset, 1, "%s",
-	decode_boolean_bitfield(dm,    DMDIR, 32, "Directory", "not a Directory"));
+    proto_tree_add_item(mode_tree, hf_9P_dm_dir, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	if(!iscreate) { /* Not applicable to Tcreate (?) */
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(dm,    DMAPPEND, 32, "Append only", "not Append only"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(dm,    DMEXCL, 32, "Exclusive use", "not Exclusive use"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(dm,    DMMOUNT, 32, "Mounted channel", "not a Mounted channel"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(dm,    DMAUTH, 32, "Authentication file", "not an Authentication file"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(dm,    DMTMP, 32, "Temporary file (not backed up)", "not a Temporary file"));
+        proto_tree_add_item(mode_tree, hf_9P_dm_append, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(mode_tree, hf_9P_dm_exclusive, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(mode_tree, hf_9P_dm_mount, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(mode_tree, hf_9P_dm_auth_file, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(mode_tree, hf_9P_dm_temp_file, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	}
 
-	proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-	decode_boolean_bitfield(dm,    0400, 32, "Read permission for owner", "no Read permission for owner"));
-	proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-	decode_boolean_bitfield(dm,    0200, 32, "Write permission for owner", "no Write permission for owner"));
-	proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-	decode_boolean_bitfield(dm,    0100, 32, "Execute permission for owner", "no Execute permission for owner"));
-	proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-	decode_boolean_bitfield(dm,     040, 32, "Read permission for group", "no Read permission for group"));
-	proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-	decode_boolean_bitfield(dm,     020, 32, "Write permission for group", "no Write permission for group"));
-	proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-	decode_boolean_bitfield(dm,     010, 32, "Execute permission for group", "no Execute permission for group"));
-	proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-	decode_boolean_bitfield(dm,      04, 32, "Read permission for others", "no Read permission for others"));
-	proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-	decode_boolean_bitfield(dm,      02, 32, "Write permission for others", "no Write permission for others"));
-	proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-	decode_boolean_bitfield(dm,      01, 32, "Execute permission for others", "no Execute permission for others"));
+    proto_tree_add_item(mode_tree, hf_9P_dm_read_owner, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mode_tree, hf_9P_dm_write_owner, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mode_tree, hf_9P_dm_exec_owner, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mode_tree, hf_9P_dm_read_group, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mode_tree, hf_9P_dm_write_group, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mode_tree, hf_9P_dm_exec_group, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mode_tree, hf_9P_dm_read_others, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mode_tree, hf_9P_dm_write_others, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mode_tree, hf_9P_dm_exec_others, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 }
 
 /* Register 9P with Wireshark */
@@ -725,11 +709,65 @@ void proto_register_9P(void)
 		{&hf_9P_qidpath,
 		 {"Qid path", "9p.qidpath", FT_UINT64, BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
+		{&hf_9P_dm_dir,
+		 {"Directory", "9p.dm.dir", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x80000000,
+		  NULL, HFILL}},
+		{&hf_9P_dm_append,
+		 {"Append only", "9p.dm.append", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x40000000,
+		  NULL, HFILL}},
+		{&hf_9P_dm_exclusive,
+		 {"Exclusive use", "9p.dm.exclusive", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x20000000,
+		  NULL, HFILL}},
+		{&hf_9P_dm_mount,
+		 {"Mounted channel", "9p.dm.mount", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x10000000,
+		  NULL, HFILL}},
+		{&hf_9P_dm_auth_file,
+		 {"Authentication file", "9p.dm.auth_file", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x08000000,
+		  NULL, HFILL}},
+		{&hf_9P_dm_temp_file,
+		 {"Temporary file (not backed up)", "9p.dm.temp_file", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x04000000,
+		  NULL, HFILL}},
+		{&hf_9P_dm_read_owner,
+		 {"Read permission for owner", "9p.dm.read_owner", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000400,
+		  NULL, HFILL}},
+		{&hf_9P_dm_write_owner,
+		 {"Write permission for owner", "9p.dm.write_owner", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000200,
+		  NULL, HFILL}},
+		{&hf_9P_dm_exec_owner,
+		 {"Execute permission for owner", "9p.dm.exec_owner", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000100,
+		  NULL, HFILL}},
+		{&hf_9P_dm_read_others,
+		 {"Read permission for others", "9p.dm.read_others", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000004,
+		  NULL, HFILL}},
+		{&hf_9P_dm_write_others,
+		 {"Write permission for others", "9p.dm.write_others", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
+		  NULL, HFILL}},
+		{&hf_9P_dm_exec_others,
+		 {"Execute permission for others", "9p.dm.exec_others", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
+		  NULL, HFILL}},
 		{&hf_9P_qidvers,
 		 {"Qid version", "9p.qidvers", FT_UINT32, BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 		{&hf_9P_qidtype,
 		 {"Qid type", "9p.qidtype", FT_UINT8, BASE_HEX, NULL, 0x0,
+		  NULL, HFILL}},
+		{&hf_9P_qidtype_dir,
+		 {"Directory", "9p.qidtype.dir", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+		  NULL, HFILL}},
+		{&hf_9P_qidtype_append,
+		 {"Append only", "9p.qidtype.append", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+		  NULL, HFILL}},
+		{&hf_9P_qidtype_exclusive,
+		 {"Exclusive use", "9p.qidtype.exclusive", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+		  NULL, HFILL}},
+		{&hf_9P_qidtype_mount,
+		 {"Mounted channel", "9p.qidtype.mount", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+		  NULL, HFILL}},
+		{&hf_9P_qidtype_auth_file,
+		 {"Authentication file", "9p.qidtype.auth_file", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+		  NULL, HFILL}},
+		{&hf_9P_qidtype_temp_file,
+		 {"Temporary file (not backed up)", "9p.qidtype.temp_file", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
 		  NULL, HFILL}},
 		{&hf_9P_statmode,
 		 {"Mode", "9p.statmode", FT_UINT32, BASE_OCT, NULL, 0x0,

@@ -109,6 +109,13 @@ static int proto_vines_ip = -1;
 static int hf_vines_ip_protocol = -1;
 static int hf_vines_ip_checksum = -1;
 static int hf_vines_ip_length = -1;
+static int hf_vines_tctl = -1;
+static int hf_vines_tctl_node = -1;
+static int hf_vines_tctl_class = -1;
+static int hf_vines_tctl_forward_router = -1;
+static int hf_vines_tctl_metric = -1;
+static int hf_vines_tctl_notif_packet = -1;
+static int hf_vines_tctl_hop_count = -1;
 
 static gint ett_vines_ip = -1;
 static gint ett_vines_ip_tctl = -1;
@@ -118,11 +125,32 @@ static int proto_vines_echo = -1;
 static gint ett_vines_echo = -1;
 
 static int proto_vines_ipc = -1;
+static int hf_vines_ipc_src_port = -1;
+static int hf_vines_ipc_dest_port = -1;
+static int hf_vines_ipc_packet_type = -1;
+static int hf_vines_ipc_control = -1;
+static int hf_vines_ipc_control_ack = -1;
+static int hf_vines_ipc_control_end_msg = -1;
+static int hf_vines_ipc_control_beg_msg = -1;
+static int hf_vines_ipc_control_abort_msg = -1;
 
 static gint ett_vines_ipc = -1;
 static gint ett_vines_ipc_control = -1;
 
 static int proto_vines_spp = -1;
+static int hf_vines_spp_src_port = -1;
+static int hf_vines_spp_dest_port = -1;
+static int hf_vines_spp_packet_type = -1;
+static int hf_vines_spp_control = -1;
+static int hf_vines_spp_control_ack = -1;
+static int hf_vines_spp_control_end_msg = -1;
+static int hf_vines_spp_control_beg_msg = -1;
+static int hf_vines_spp_control_abort_msg = -1;
+static int hf_vines_spp_local_id = -1;
+static int hf_vines_spp_remote_id = -1;
+static int hf_vines_spp_seq_num = -1;
+static int hf_vines_spp_ack_num = -1;
+static int hf_vines_spp_window = -1;
 
 static gint ett_vines_spp = -1;
 static gint ett_vines_spp_control = -1;
@@ -132,6 +160,23 @@ static int proto_vines_arp = -1;
 static gint ett_vines_arp = -1;
 
 static int proto_vines_rtp = -1;
+static int hf_vines_rtp_comp_flag = -1;
+static int hf_vines_rtp_comp_flag_neighbor_router = -1;
+static int hf_vines_rtp_comp_flag_sequence_rtp = -1;
+static int hf_vines_rtp_comp_flag_sequence_rtp_version = -1;
+static int hf_vines_rtp_control = -1;
+static int hf_vines_rtp_control_sync_broadcast = -1;
+static int hf_vines_rtp_control_topology_update = -1;
+static int hf_vines_rtp_control_specific_request = -1;
+static int hf_vines_rtp_control_end_msg = -1;
+static int hf_vines_rtp_control_beg_msg = -1;
+static int hf_vines_rtp_machine_rtp = -1;
+static int hf_vines_rtp_machine_tcpip = -1;
+static int hf_vines_rtp_machine_bus = -1;
+static int hf_vines_rtp_flag_sequence_rtp = -1;
+static int hf_vines_rtp_flag_network_p2p = -1;
+static int hf_vines_rtp_flag_data_link_p2p = -1;
+static int hf_vines_rtp_flag_broadcast_medium = -1;
 
 static gint ett_vines_rtp = -1;
 static gint ett_vines_rtp_compatibility_flags = -1;
@@ -153,15 +198,6 @@ enum {
   VIP_PROTO_RTP = 5,	/* Routing Update Protocol (RTP) / SRTP (Sequenced RTP) */
   VIP_PROTO_ICP = 6	/* Internet Control Protocol (ICP) */
 };
-
-typedef struct _e_vip {
-  guint16 vip_chksum;
-  guint16 vip_pktlen;
-  guint8  vip_tctl;	/* Transport Control */
-  guint8  vip_proto;
-  guint8  vip_dst[VINES_ADDR_LEN];
-  guint8  vip_src[VINES_ADDR_LEN];
-} e_vip;
 
 /* VINES SPP and IPC structs and definitions */
 
@@ -373,10 +409,10 @@ proto_reg_handoff_vines_llc(void)
 static dissector_table_t vines_ip_dissector_table;
 
 static const value_string class_vals[] = {
-	{ 0x00, "Reachable regardless of cost" },
-	{ 0x10, "Reachable without cost" },
-	{ 0x20, "Reachable with low cost (>= 4800 bps)" },
-	{ 0x30, "Reachable via LAN" },
+	{ 0x00, "Regardless of cost" },
+	{ 0x10, "Without cost" },
+	{ 0x20, "With low cost (>= 4800 bps)" },
+	{ 0x30, "Via LAN" },
 	{ 0,    NULL }
 };
 
@@ -393,11 +429,18 @@ static const guint8 bcast_addr[VINES_ADDR_LEN] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 };
 
+static const true_false_string tfs_vine_tctl_router_all = { "Router nodes", "All nodes" };
+static const true_false_string tfs_vine_tctl_forward_router = { "Can handle redirect packets", "Cannot handle redirect packets" };
+static const true_false_string tfs_vine_tctl_return_not_return = { "Return", "Do not return" };
+
 static void
 dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int         offset = 0;
-	e_vip       viph;
+	guint16 vip_chksum;
+	guint16 vip_pktlen;
+	guint8  vip_tctl;	/* Transport Control */
+	guint8  vip_proto;
 	proto_tree *vip_tree, *tctl_tree;
 	proto_item *ti;
 	const guint8     *dst_addr, *src_addr;
@@ -409,17 +452,16 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* To do: check for runts, errs, etc. */
 
-	/* Avoids alignment problems on many architectures. */
-	tvb_memcpy(tvb, (guint8 *)&viph, offset, sizeof(e_vip));
-
-	viph.vip_chksum = g_ntohs(viph.vip_chksum);
-	viph.vip_pktlen = g_ntohs(viph.vip_pktlen);
+	/* capture the necessary parts of the header */
+	vip_chksum = tvb_get_letohs(tvb, offset);
+	vip_pktlen = tvb_get_letohs(tvb, offset+2);
+	vip_tctl = tvb_get_guint8(tvb, offset+3);
+	vip_proto = tvb_get_guint8(tvb, offset+4);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)",
-		    val_to_str_const(viph.vip_proto, proto_vals,
-		        "Unknown VIP protocol"),
-		    viph.vip_proto);
+			val_to_str_const(vip_tctl, proto_vals, "Unknown VIP protocol"), 
+			vip_tctl);
 	}
 
 	src_addr = tvb_get_ptr(tvb, offset+12, VINES_ADDR_LEN);
@@ -430,19 +472,18 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&pinfo->dst, AT_VINES, VINES_ADDR_LEN, dst_addr);
 
 	/* helpers to transport control */
-	if (memcmp(viph.vip_dst, bcast_addr, VINES_ADDR_LEN) == 0)
+	if (memcmp(dst_addr, bcast_addr, VINES_ADDR_LEN) == 0)
 		is_broadcast = TRUE;
 
 	/*
 	 * Adjust the length of this tvbuff to include only the Vines IP
 	 * datagram.
 	 */
-	set_actual_length(tvb, viph.vip_pktlen < 18 ? 18 : viph.vip_pktlen);
+	set_actual_length(tvb, vip_pktlen < 18 ? 18 : vip_pktlen);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_ip, tvb,
-					 offset, viph.vip_pktlen,
-					 ENC_NA);
+					 offset, vip_pktlen, ENC_NA);
 		vip_tree = proto_item_add_subtree(ti, ett_vines_ip);
 		proto_tree_add_item(vip_tree, hf_vines_ip_checksum,
 			tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -452,38 +493,29 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		ti = proto_tree_add_text(vip_tree, tvb, offset, 1,
-				    "Transport control: 0x%02x",
-				    viph.vip_tctl);
+		ti = proto_tree_add_item(vip_tree, hf_vines_tctl,
+			tvb, offset, 1, ENC_BIG_ENDIAN);
+
 		tctl_tree = proto_item_add_subtree(ti, ett_vines_ip_tctl);
 		/*
 		 * XXX - bit 0x80 is "Normal" if 0; what is it if 1?
 		 */
 		if (is_broadcast) {
-			proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
-			    decode_boolean_bitfield(viph.vip_tctl, 0x40, 1*8,
-			      "Router nodes",
-			      "All nodes"));
-			proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
-			    decode_enumerated_bitfield(viph.vip_tctl, 0x30, 1*8,
-				      class_vals, "%s"));
+			proto_tree_add_item(tctl_tree, hf_vines_tctl_node,
+				tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(tctl_tree, hf_vines_tctl_class,
+				tvb, offset, 1, ENC_NA);
 		} else {
-			proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
-			    decode_boolean_bitfield(viph.vip_tctl, 0x40, 1*8,
-			      "Forwarding router can handle redirect packets",
-			      "Forwarding router cannot handle redirect packets"));
-			proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
-			    decode_boolean_bitfield(viph.vip_tctl, 0x20, 1*8,
-			      "Return metric notification packet",
-			      "Do not return metric notification packet"));
-			proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
-			    decode_boolean_bitfield(viph.vip_tctl, 0x10, 1*8,
-			      "Return exception notification packet",
-			      "Do not return exception notification packet"));
+			proto_tree_add_item(tctl_tree, hf_vines_tctl_forward_router,
+						tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(tctl_tree, hf_vines_tctl_metric,
+						tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(tctl_tree, hf_vines_tctl_notif_packet,
+						tvb, offset, 1, ENC_NA);
 		}
-		proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
-		    decode_numeric_bitfield(viph.vip_tctl, 0x0F, 1*8,
-			"Hop count remaining = %u"));
+
+		proto_tree_add_item(tctl_tree, hf_vines_tctl_hop_count,
+							tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		proto_tree_add_item(vip_tree, hf_vines_ip_protocol, tvb,
@@ -505,7 +537,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 18;
 	}
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
-	if (!dissector_try_uint(vines_ip_dissector_table, viph.vip_proto,
+	if (!dissector_try_uint(vines_ip_dissector_table, vip_proto,
 	    next_tvb, pinfo, tree))
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 }
@@ -534,6 +566,40 @@ proto_register_vines_ip(void)
 	      FT_UINT16,	BASE_DEC,	NULL,		0x0,
 	      NULL,		HFILL }},
 
+	  { &hf_vines_tctl,
+	    { "Transport control",		"vines_ip.tctl",
+	      FT_UINT8,	BASE_HEX,	NULL,		0x0,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_tctl_node,
+	    { "Nodes",		"vines_ip.tctl.node",
+	      FT_BOOLEAN,	8,	TFS(&tfs_vine_tctl_router_all),		0x40,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_tctl_class,
+	    { "Reachable",		"vines_ip.tctl.class",
+	      FT_UINT8,	BASE_DEC,	VALS(class_vals),		0x30,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_tctl_forward_router,
+	    { "Forwarding Router",		"vines_ip.tctl.forward_router",
+	      FT_BOOLEAN,	8,	TFS(&tfs_vine_tctl_forward_router),		0x40,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_tctl_metric,
+	    { "Metric notification packet",		"vines_ip.tctl.metric",
+	      FT_BOOLEAN,	8,	TFS(&tfs_vine_tctl_return_not_return),		0x20,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_tctl_notif_packet,
+	    { "Exception notification packet",		"vines_ip.tctl.notif_packet",
+	      FT_BOOLEAN,	8,	TFS(&tfs_vine_tctl_return_not_return),		0x10,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_tctl_hop_count,
+	    { "Hop count remaining",		"vines_ip.tctl.hop_count",
+	      FT_UINT8,	BASE_DEC,	NULL,		0x0F,
+	      NULL,		HFILL }},
 	};
 
 	proto_vines_ip = proto_register_protocol("Banyan Vines IP", "Vines IP",
@@ -633,6 +699,9 @@ static const value_string vipc_err_vals[] = {
 	{ 0,   NULL }
 };
 
+static const true_false_string tfs_vine_ipc_send_not_send = { "Send", "Do not Send" };
+static const true_false_string tfs_vine_ipc_abort_not_abort = { "Abort", "Do not abort" };
+
 static void
 dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -695,59 +764,35 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_vines_ipc, tvb, offset,
-		    sizeof(viph), ENC_NA);
-		vipc_tree = proto_item_add_subtree(ti, ett_vines_ipc);
-		proto_tree_add_text(vipc_tree, tvb, offset,      2,
-				    "Source port: 0x%04x", viph.vipc_sport);
-	}
+	ti = proto_tree_add_item(tree, proto_vines_ipc, tvb, offset,
+		sizeof(viph), ENC_NA);
+	vipc_tree = proto_item_add_subtree(ti, ett_vines_ipc);
+
+	proto_tree_add_item(vipc_tree, hf_vines_ipc_src_port,
+						tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	if (tree) {
-		proto_tree_add_text(vipc_tree, tvb, offset,  2,
-				    "Destination port: 0x%04x",
-				    viph.vipc_dport);
-	}
+	proto_tree_add_item(vipc_tree, hf_vines_ipc_dest_port,
+						tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	if (tree) {
-		proto_tree_add_text(vipc_tree, tvb, offset,  1,
-				    "Packet type: 0x%02x (%s)",
-				    viph.vipc_pkttype,
-				    val_to_str_const(viph.vipc_pkttype, pkttype_vals,
-				        "Unknown"));
-	}
+	proto_tree_add_item(vipc_tree, hf_vines_ipc_packet_type,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	if (viph.vipc_pkttype != PKTTYPE_DGRAM) {
-		if (tree) {
-			ti = proto_tree_add_text(vipc_tree, tvb, offset,  1,
-					    "Control: 0x%02x",
-					    viph.vipc_control);
-			control_tree = proto_item_add_subtree(ti,
-			    ett_vines_ipc_control);
-			/*
-			 * XXX - do reassembly based on BOM/EOM bits.
-			 */
-			proto_tree_add_text(control_tree, tvb, offset, 1, "%s",
-			    decode_boolean_bitfield(viph.vipc_control, 0x80,
-			      1*8,
-			      "Send immediate acknowledgment",
-			      "Do not send immediate acknowledgement"));
-			proto_tree_add_text(control_tree, tvb, offset, 1, "%s",
-			    decode_boolean_bitfield(viph.vipc_control, 0x40,
-			      1*8,
-			      "End of message",
-			      "Not end of message"));
-			proto_tree_add_text(control_tree, tvb, offset, 1, "%s",
-			    decode_boolean_bitfield(viph.vipc_control, 0x20,
-			      1*8,
-			      "Beginning of message",
-			      "Not beginning of message"));
-			proto_tree_add_text(control_tree, tvb, offset, 1, "%s",
-			    decode_boolean_bitfield(viph.vipc_control, 0x10,
-			      1*8,
-			      "Abort current message",
-			      "Do not abort current message"));
-		}
+		ti = proto_tree_add_item(vipc_tree, hf_vines_ipc_control,
+					tvb, offset, 1, ENC_BIG_ENDIAN);
+
+		control_tree = proto_item_add_subtree(ti, ett_vines_ipc_control);
+		/*
+		 * XXX - do reassembly based on BOM/EOM bits.
+		 */
+		proto_tree_add_item(control_tree, hf_vines_ipc_control_ack,
+					tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(control_tree, hf_vines_ipc_control_end_msg,
+					tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(control_tree, hf_vines_ipc_control_beg_msg,
+					tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(control_tree, hf_vines_ipc_control_abort_msg,
+					tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 	if (viph.vipc_pkttype != PKTTYPE_DGRAM) {
@@ -806,6 +851,48 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_vines_ipc(void)
 {
+	static hf_register_info hf[] = {
+	  { &hf_vines_ipc_src_port,
+	    { "Source port",			"vines_ipc.src_port",
+	      FT_UINT16,		BASE_HEX,	NULL,	0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_ipc_dest_port,
+	    { "Destination port",			"vines_ipc.dest_port",
+	      FT_UINT16,		BASE_HEX,	NULL,	0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_ipc_packet_type,
+	    { "Packet type",		"vines_ipc.packet_type",
+	      FT_UINT8,	BASE_HEX,	VALS(pkttype_vals),		0x0,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_ipc_control,
+	    { "Control",		"vines_ipc.control",
+	      FT_UINT8,	BASE_HEX,	VALS(pkttype_vals),		0x0,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_ipc_control_ack,
+	    { "Immediate acknowledgment",	"vines_ipc.control.ack",
+	      FT_BOOLEAN,	8,	TFS(&tfs_vine_ipc_send_not_send),	0x80,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_ipc_control_end_msg,
+	    { "End of message",		"vines_ipc.control.end_msg",
+	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x40,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_ipc_control_beg_msg,
+	    { "Beginning of message",	"vines_ipc.control.beg_msg",
+	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x20,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_ipc_control_abort_msg,
+	    { "Current message",		"vines_ipc.control.abort_msg",
+	      FT_BOOLEAN,	8,	TFS(&tfs_vine_ipc_abort_not_abort),		0x10,
+	      NULL,		HFILL }}
+	};
+
 	static gint *ett[] = {
 		&ett_vines_ipc,
 		&ett_vines_ipc_control,
@@ -813,6 +900,7 @@ proto_register_vines_ipc(void)
 
 	proto_vines_ipc = proto_register_protocol("Banyan Vines IPC",
 	    "Vines IPC", "vines_ipc");
+	proto_register_field_array(proto_vines_ipc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_heur_dissector_list("vines_ipc",
@@ -870,51 +958,37 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_vines_spp, tvb, offset,
 		    sizeof(viph), ENC_NA);
 		vspp_tree = proto_item_add_subtree(ti, ett_vines_spp);
-		proto_tree_add_text(vspp_tree, tvb, offset,      2,
-				    "Source port: 0x%04x", viph.vspp_sport);
-		proto_tree_add_text(vspp_tree, tvb, offset + 2,  2,
-				    "Destination port: 0x%04x",
-				    viph.vspp_dport);
-		proto_tree_add_text(vspp_tree, tvb, offset + 4,  1,
-				    "Packet type: 0x%02x (%s)",
-				    viph.vspp_pkttype,
-				    val_to_str_const(viph.vspp_pkttype, pkttype_vals,
-				        "Unknown"));
-		ti = proto_tree_add_text(vspp_tree, tvb, offset + 5,  1,
-				    "Control: 0x%02x", viph.vspp_control);
+		proto_tree_add_item(vspp_tree, hf_vines_spp_src_port,
+				tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(vspp_tree, hf_vines_spp_dest_port,
+				tvb, offset+2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(vspp_tree, hf_vines_spp_packet_type,
+				tvb, offset+4, 1, ENC_BIG_ENDIAN);
+
+		ti = proto_tree_add_item(vspp_tree, hf_vines_spp_control,
+				tvb, offset+5, 1, ENC_BIG_ENDIAN);
 		control_tree = proto_item_add_subtree(ti, ett_vines_spp_control);
 		/*
 		 * XXX - do reassembly based on BOM/EOM bits.
 		 */
-		proto_tree_add_text(control_tree, tvb, offset + 5, 1, "%s",
-		    decode_boolean_bitfield(viph.vspp_control, 0x80, 1*8,
-		      "Send immediate acknowledgment",
-		      "Do not send immediate acknowledgement"));
-		proto_tree_add_text(control_tree, tvb, offset + 5, 1, "%s",
-		    decode_boolean_bitfield(viph.vspp_control, 0x40, 1*8,
-		      "End of message",
-		      "Not end of message"));
-		proto_tree_add_text(control_tree, tvb, offset + 5, 1, "%s",
-		    decode_boolean_bitfield(viph.vspp_control, 0x20, 1*8,
-		      "Beginning of message",
-		      "Not beginning of message"));
-		proto_tree_add_text(control_tree, tvb, offset + 5, 1, "%s",
-		    decode_boolean_bitfield(viph.vspp_control, 0x10, 1*8,
-		      "Abort current message",
-		      "Do not abort current message"));
-		proto_tree_add_text(vspp_tree, tvb, offset + 6,  2,
-				    "Local Connection ID: 0x%04x",
-				    viph.vspp_lclid);
-		proto_tree_add_text(vspp_tree, tvb, offset + 8,  2,
-				    "Remote Connection ID: 0x%04x",
-				    viph.vspp_rmtid);
-		proto_tree_add_text(vspp_tree, tvb, offset + 10, 2,
-				    "Sequence number: %u",
-				    viph.vspp_seqno);
-		proto_tree_add_text(vspp_tree, tvb, offset + 12, 2,
-				    "Ack number: %u", viph.vspp_ack);
-		proto_tree_add_text(vspp_tree, tvb, offset + 14, 2,
-				    "Window: %u", viph.vspp_win);
+		proto_tree_add_item(control_tree, hf_vines_spp_control_ack,
+				tvb, offset+5, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(control_tree, hf_vines_spp_control_end_msg,
+				tvb, offset+5, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(control_tree, hf_vines_spp_control_beg_msg,
+				tvb, offset+5, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(control_tree, hf_vines_spp_control_abort_msg,
+				tvb, offset+5, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(vspp_tree, hf_vines_spp_local_id,
+				tvb, offset+6, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(vspp_tree, hf_vines_spp_remote_id,
+				tvb, offset+8, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(vspp_tree, hf_vines_spp_seq_num,
+				tvb, offset+10, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(vspp_tree, hf_vines_spp_ack_num,
+				tvb, offset+12, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(vspp_tree, hf_vines_spp_window,
+				tvb, offset+14, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 16; /* sizeof SPP */
 
@@ -933,6 +1007,73 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_vines_spp(void)
 {
+	static hf_register_info hf[] = {
+	  { &hf_vines_spp_src_port,
+	    { "Source port",			"vines_spp.src_port",
+	      FT_UINT16,		BASE_HEX,	NULL,	0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_spp_dest_port,
+	    { "Destination port",			"vines_spp.dest_port",
+	      FT_UINT16,		BASE_HEX,	NULL,	0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_spp_packet_type,
+	    { "Packet type",		"vines_spp.packet_type",
+	      FT_UINT8,	BASE_HEX,	VALS(pkttype_vals),		0x0,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_spp_control,
+	    { "Control",		"vines_spp.control",
+	      FT_UINT8,	BASE_HEX,	NULL,		0x0,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_spp_control_ack,
+	    { "Immediate acknowledgment",	"vines_spp.control.ack",
+	      FT_BOOLEAN,	8,	TFS(&tfs_vine_ipc_send_not_send),	0x80,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_spp_control_end_msg,
+	    { "End of message",		"vines_spp.control.end_msg",
+	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x40,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_spp_control_beg_msg,
+	    { "Beginning of message",	"vines_spp.control.beg_msg",
+	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x20,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_spp_control_abort_msg,
+	    { "Current message",		"vines_spp.control.abort_msg",
+	      FT_BOOLEAN,	8,	TFS(&tfs_vine_ipc_abort_not_abort),		0x10,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_spp_local_id,
+	    { "Local Connection ID",			"vines_spp.local_id",
+	      FT_UINT16,		BASE_HEX,	NULL,	0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_spp_remote_id,
+	    { "Remote Connection ID",			"vines_spp.remote_id",
+	      FT_UINT16,		BASE_HEX,	NULL,	0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_spp_seq_num,
+	    { "Sequence number",			"vines_spp.seq_num",
+	      FT_UINT16,		BASE_DEC,	NULL,	0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_spp_ack_num,
+	    { "Ack number",			"vines_spp.ack_num",
+	      FT_UINT16,		BASE_DEC,	NULL,	0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_spp_window,
+	    { "Window",			"vines_spp.window",
+	      FT_UINT16,		BASE_DEC,	NULL,	0x0,
+	      NULL, HFILL }}
+	};
+
 	static gint *ett[] = {
 		&ett_vines_spp,
 		&ett_vines_spp_control,
@@ -940,6 +1081,7 @@ proto_register_vines_spp(void)
 
 	proto_vines_spp = proto_register_protocol("Banyan Vines SPP",
 	    "Vines SPP", "vines_spp");
+	proto_register_field_array(proto_vines_spp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_heur_dissector_list("vines_spp",
@@ -1137,6 +1279,13 @@ static const value_string vines_rtp_info_type_vals[] = {
 	{ 0,    NULL }
 };
 
+static const true_false_string tfs_vine_auto_config_not_auto_config = { "Auto-configured", "Not an auto-configured" };
+static const true_false_string tfs_vine_rtp_not_all_neighbor_all_neighbor = { "Not all neighbor routers support", "All neighbor routers support" };
+static const true_false_string tfs_vine_rtp_sequenced_not_sequenced = { "Sequenced", "Not Sequenced" };
+static const true_false_string tfs_part_not_part = { "Part of", "Not part of" };
+static const true_false_string tfs_fast_bus_slow_bus = { "Fast bus", "Slow bus" };
+static const true_false_string tfs_vine_rtp_no_yes = { "No", "Yes" };
+
 static void rtp_show_machine_type(proto_tree *tree, tvbuff_t *tvb, int offset,
     const char *tag);
 static void rtp_show_flags(proto_tree *tree, tvbuff_t *tvb, int offset,
@@ -1157,12 +1306,10 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8   operation_type;
 	guint8   node_type;
 	guint8   controller_type;
-	guint8   compatibility_flags;
 	guint8   link_addr_length;
 	guint8   source_route_length;
 	guint8   requested_info;
 	guint8   info_type;
-	guint8   control_flags;
 	guint16  metric;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines RTP");
@@ -1294,30 +1441,16 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					      "Unknown"),
 					    node_type);
 			offset += 1;
-			compatibility_flags = tvb_get_guint8(tvb, offset);
-			ti = proto_tree_add_text(vines_rtp_tree, tvb, offset, 1,
-					    "Compatibility Flags: 0x%02x",
-					    compatibility_flags);
-			subtree = proto_item_add_subtree(ti,
-			    ett_vines_rtp_compatibility_flags);
-			proto_tree_add_text(subtree, tvb,
-			    offset, 1, "%s",
-			    decode_boolean_bitfield(compatibility_flags,
-			      0x04, 1*8,
-			      "Auto-configured non-Vines-reachable neighbor router",
-			      "Not an auto-configured non-Vines-reachable neighbor router"));
-			proto_tree_add_text(subtree, tvb,
-			    offset, 1, "%s",
-			    decode_boolean_bitfield(compatibility_flags,
-			      0x02, 1*8,
-			      "Not all neighbor routers support Sequenced RTP",
-			      "All neighbor routers support Sequenced RTP"));
-			proto_tree_add_text(subtree, tvb,
-			    offset, 1, "%s",
-			    decode_boolean_bitfield(compatibility_flags,
-			      0x01, 1*8,
-			      "Sequenced RTP version mismatch",
-			      "No Sequenced RTP version mismatch"));
+			ti = proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_comp_flag,
+					tvb, offset, 1, ENC_BIG_ENDIAN);
+			subtree = proto_item_add_subtree(ti, ett_vines_rtp_compatibility_flags);
+
+			proto_tree_add_item(subtree, hf_vines_rtp_comp_flag_neighbor_router,
+					tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_vines_rtp_comp_flag_sequence_rtp,
+					tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_vines_rtp_comp_flag_sequence_rtp_version,
+					tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			offset += 1;	/* reserved */
 			switch (operation_type) {
@@ -1340,44 +1473,21 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					      "Unknown"),
 					    info_type);
 				offset += 1;
-				control_flags = tvb_get_guint8(tvb, offset);
-				ti = proto_tree_add_text(vines_rtp_tree, tvb,
-						    offset, 1,
-						    "Control Flags: 0x%02x",
-						    control_flags);
+				ti = proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_control,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
 				subtree = proto_item_add_subtree(ti,
 				    ett_vines_rtp_control_flags);
-				proto_tree_add_text(subtree, tvb,
-				    offset, 1, "%s",
-				    decode_boolean_bitfield(control_flags,
-				      0x10, 1*8,
-				      "Part of routing table synchronization broadcast",
-				      "Not part of routing table synchronization broadcast"));
-				proto_tree_add_text(subtree, tvb,
-				    offset, 1, "%s",
-				    decode_boolean_bitfield(control_flags,
-				      0x08, 1*8,
-				      "Part of full topology update",
-				      "Not part of full topology update"));
-				proto_tree_add_text(subtree, tvb,
-				    offset, 1, "%s",
-				    decode_boolean_bitfield(control_flags,
-				      0x04, 1*8,
-				      "Contains info specifically requested or network changes",
-				      "Not a response to a specific request"));
+				proto_tree_add_item(subtree, hf_vines_rtp_control_sync_broadcast,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtree, hf_vines_rtp_control_topology_update,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtree, hf_vines_rtp_control_specific_request,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
 				/* XXX - need reassembly? */
-				proto_tree_add_text(subtree, tvb,
-				    offset, 1, "%s",
-				    decode_boolean_bitfield(control_flags,
-				      0x02, 1*8,
-				      "End of message",
-				      "Not end of message"));
-				proto_tree_add_text(subtree, tvb,
-				    offset, 1, "%s",
-				    decode_boolean_bitfield(control_flags,
-				      0x01, 1*8,
-				      "Beginning of message",
-				      "Not beginning of message"));
+				proto_tree_add_item(subtree, hf_vines_rtp_control_end_msg,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtree, hf_vines_rtp_control_beg_msg,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 				proto_tree_add_text(vines_rtp_tree, tvb,
 					    offset, 2,
@@ -1526,18 +1636,12 @@ rtp_show_machine_type(proto_tree *tree, tvbuff_t *tvb, int offset, const char *t
 	    tag == NULL ? "" : " ",
 	    machine_type);
 	subtree = proto_item_add_subtree(ti, ett_vines_rtp_mtype);
-	proto_tree_add_text(subtree, tvb, offset, 1, "%s",
-	    decode_boolean_bitfield(machine_type, 0x04, 1*8,
-	      "Sequenced RTP supported",
-	      "Sequenced RTP not supported"));
-	proto_tree_add_text(subtree, tvb, offset, 1, "%s",
-	    decode_boolean_bitfield(machine_type, 0x02, 1*8,
-	      "TCP/IP supported",
-	      "TCP/IP not supported"));
-	proto_tree_add_text(subtree, tvb, offset, 1, "%s",
-	    decode_boolean_bitfield(machine_type, 0x01, 1*8,
-	      "Fast bus",
-	      "Slow bus"));
+	proto_tree_add_item(subtree, hf_vines_rtp_machine_rtp,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_vines_rtp_machine_tcpip,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_vines_rtp_machine_bus,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -1551,22 +1655,14 @@ rtp_show_flags(proto_tree *tree, tvbuff_t *tvb, int offset, const char *tag)
 	ti = proto_tree_add_text(tree, tvb, offset, 1, "%s Flags: 0x%02x",
 	    tag, flags);
 	flags_tree = proto_item_add_subtree(ti, ett_vines_rtp_flags);
-	proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
-	    decode_boolean_bitfield(flags, 0x08, 1*8,
-	      "Network doesn't support Sequenced RTP",
-	      "Network supports Sequenced RTP"));
-	proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
-	    decode_boolean_bitfield(flags, 0x04, 1*8,
-	      "Network accessed point-to-point on non-Vines network",
-	      "Network not accessed point-to-point on non-Vines network"));
-	proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
-	    decode_boolean_bitfield(flags, 0x02, 1*8,
-	      "Data link to network uses point-to-point connection",
-	      "Data link to network doesn't use point-to-point connection"));
-	proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
-	    decode_boolean_bitfield(flags, 0x01, 1*8,
-	      "Network accessed across broadcast medium",
-	      "Network not accessed across broadcast medium"));
+	proto_tree_add_item(flags_tree, hf_vines_rtp_flag_sequence_rtp,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_vines_rtp_flag_network_p2p,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_vines_rtp_flag_data_link_p2p,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_vines_rtp_flag_broadcast_medium,
+						tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 static int
@@ -1625,6 +1721,93 @@ rtp_show_gateway_info(proto_tree *tree, tvbuff_t *tvb, int offset,
 void
 proto_register_vines_rtp(void)
 {
+	static hf_register_info hf[] = {
+	  { &hf_vines_rtp_comp_flag,
+	    { "Compatibility Flags",		"vines_rtp.comp_flag",
+	      FT_UINT8,	BASE_HEX,	NULL,		0x0,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_comp_flag_neighbor_router,
+	    { "non-Vines-reachable neighbor router",	"vines_rtp.comp_flag.neighbor_router",
+	      FT_BOOLEAN,	8,	TFS(&tfs_vine_auto_config_not_auto_config),	0x04,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_comp_flag_sequence_rtp,
+	    { "Sequenced RTP",		"vines_rtp.comp_flag.sequence_rtp",
+	      FT_BOOLEAN,	8,	TFS(&tfs_vine_rtp_not_all_neighbor_all_neighbor),		0x02,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_comp_flag_sequence_rtp_version,
+	    { "RTP version mismatch",	"vines_rtp.comp_flag.rtp_version",
+	      FT_BOOLEAN,	8,	TFS(&tfs_vine_rtp_sequenced_not_sequenced),		0x01,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_control,
+	    { "Control Flags",		"vines_rtp.control",
+	      FT_UINT8,	BASE_HEX,	NULL,		0x0,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_control_sync_broadcast,
+	    { "Routing table synchronization broadcast",	"vines_rtp.control.sync_broadcast",
+	      FT_BOOLEAN,	8,	TFS(&tfs_part_not_part),	0x10,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_control_topology_update,
+	    { "Full topology update",		"vines_rtp.control.topology_update",
+	      FT_BOOLEAN,	8,	TFS(&tfs_part_not_part),		0x08,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_control_specific_request,
+	    { "Contains info specifically requested",	"vines_rtp.control.specific_request",
+	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x04,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_control_end_msg,
+	    { "End of message",		"vines_rtp.control.end_msg",
+	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x02,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_control_beg_msg,
+	    { "Beginning of message",	"vines_rtp.control.beg_msg",
+	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x01,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_machine_rtp,
+	    { "Sequenced RTP",	"vines_rtp.machine.rtp",
+	      FT_BOOLEAN,	8,	TFS(&tfs_supported_not_supported),		0x04,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_machine_tcpip,
+	    { "TCP/IP",		"vines_rtp.machine.tcpip",
+	      FT_BOOLEAN,	8,	TFS(&tfs_supported_not_supported),		0x02,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_machine_bus,
+	    { "Bus",	"vines_rtp.machine.bus",
+	      FT_BOOLEAN,	8,	TFS(&tfs_fast_bus_slow_bus),		0x01,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_flag_sequence_rtp,
+	    { "Network supports Sequenced RTP",	"vines_rtp.flag.sequence_rtp",
+	      FT_BOOLEAN,	8,	TFS(&tfs_vine_rtp_no_yes),		0x08,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_flag_network_p2p,
+	    { "Network accessed point-to-point on non-Vines network",	"vines_rtp.flag.network_p2p",
+	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x04,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_flag_data_link_p2p,
+	    { "Data link to network uses point-to-point connection",		"vines_rtp.flag.data_link_p2p",
+	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x02,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_rtp_flag_broadcast_medium,
+	    { "Network accessed across broadcast medium",	"vines_rtp.flag.broadcast_medium",
+	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x01,
+	      NULL,		HFILL }}
+	};
+
 	static gint *ett[] = {
 		&ett_vines_rtp,
 		&ett_vines_rtp_compatibility_flags,
@@ -1636,6 +1819,7 @@ proto_register_vines_rtp(void)
 
 	proto_vines_rtp = proto_register_protocol(
 	    "Banyan Vines RTP", "Vines RTP", "vines_rtp");
+	proto_register_field_array(proto_vines_rtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 

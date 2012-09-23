@@ -52,6 +52,10 @@ static int hf_clnp_length      = -1;
 static int hf_clnp_version     = -1;
 static int hf_clnp_ttl         = -1;
 static int hf_clnp_type        = -1;
+static int hf_clnp_cnf_segmentation         = -1;
+static int hf_clnp_cnf_more_segments        = -1;
+static int hf_clnp_cnf_report_error         = -1;
+static int hf_clnp_cnf_type    = -1;
 static int hf_clnp_pdu_length  = -1;
 static int hf_clnp_checksum    = -1;
 static int hf_clnp_dest_length = -1;
@@ -281,21 +285,10 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     flag_string,
                                     pdu_type_string);
     type_tree = proto_item_add_subtree(ti, ett_clnp_type);
-    proto_tree_add_text(type_tree, tvb, P_CLNP_TYPE, 1, "%s",
-                        decode_boolean_bitfield(cnf_type, CNF_SEG_OK, 8,
-                                                "Segmentation permitted",
-                                                "Segmentation not permitted"));
-    proto_tree_add_text(type_tree, tvb, P_CLNP_TYPE, 1, "%s",
-                        decode_boolean_bitfield(cnf_type, CNF_MORE_SEGS, 8,
-                                                "More segments",
-                                                "Last segment"));
-    proto_tree_add_text(type_tree, tvb, P_CLNP_TYPE, 1, "%s",
-                        decode_boolean_bitfield(cnf_type, CNF_ERR_OK, 8,
-                                                "Report error if PDU discarded",
-                                                "Don't report error if PDU discarded"));
-    proto_tree_add_text(type_tree, tvb, P_CLNP_TYPE, 1, "%s",
-                        decode_enumerated_bitfield(cnf_type, CNF_TYPE, 8,
-                                                   npdu_type_vals, "%s"));
+    proto_tree_add_item(type_tree, hf_clnp_cnf_segmentation, tvb, P_CLNP_TYPE, 1, ENC_NA);
+    proto_tree_add_item(type_tree, hf_clnp_cnf_more_segments, tvb, P_CLNP_TYPE, 1, ENC_NA);
+    proto_tree_add_item(type_tree, hf_clnp_cnf_report_error, tvb, P_CLNP_TYPE, 1, ENC_NA);
+    proto_tree_add_item(type_tree, hf_clnp_cnf_type, tvb, P_CLNP_TYPE, 1, ENC_NA);
   }
 
   /* If we don't have the full header - i.e., not enough to see the
@@ -571,6 +564,18 @@ proto_register_clnp(void)
 
     { &hf_clnp_type,
       { "PDU Type", "clnp.type",     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_clnp_cnf_segmentation,
+      { "Segmentation permitted", "clnp.cnf.segmentation", FT_BOOLEAN, 8, TFS(&tfs_yes_no), CNF_SEG_OK, NULL, HFILL }},
+
+    { &hf_clnp_cnf_more_segments,
+      { "More segments", "clnp.cnf.more_segments", FT_BOOLEAN, 8, TFS(&tfs_yes_no), CNF_MORE_SEGS, NULL, HFILL }},
+
+    { &hf_clnp_cnf_report_error,
+      { "Report error if PDU discarded", "clnp.cnf.report_error", FT_BOOLEAN, 8, TFS(&tfs_yes_no), CNF_ERR_OK, NULL, HFILL }},
+
+    { &hf_clnp_cnf_type,
+      { "Type", "clnp.cnf.type", FT_UINT8, BASE_DEC, VALS(npdu_type_vals), CNF_TYPE, NULL, HFILL }},
 
     { &hf_clnp_pdu_length,
       { "PDU length", "clnp.pdu.len",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},

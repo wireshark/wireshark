@@ -49,6 +49,14 @@ static int proto_aal1 = -1;
 static int proto_aal3_4 = -1;
 static int proto_oamaal = -1;
 
+static int hf_atm_le_control_flag_v2_capable = -1;
+static int hf_atm_le_control_flag_selective_multicast = -1;
+static int hf_atm_le_control_flag_v2_required = -1;
+static int hf_atm_le_control_flag_proxy = -1;
+static int hf_atm_le_control_flag_exclude_explorer_frames = -1;
+static int hf_atm_le_control_flag_address = -1;
+static int hf_atm_le_control_topology_change = -1;
+
 static gint ett_atm = -1;
 static gint ett_atm_lane = -1;
 static gint ett_atm_lane_lc_lan_dest = -1;
@@ -180,6 +188,8 @@ static const value_string le_control_frame_size_vals[] = {
   { 0x04, "18190/18202" },
   { 0,    NULL }
 };
+
+static const true_false_string tfs_remote_local = { "Remote", "Local" };
 
 static void
 dissect_le_client(tvbuff_t *tvb, proto_tree *tree)
@@ -554,34 +564,23 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case LE_CONFIGURE_REQUEST:
     case LE_CONFIGURE_RESPONSE:
-      proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
-                          decode_boolean_bitfield(flags, 0x0002, 8*2,
-                                                  "V2 capable", "Not V2 capable"));
+      proto_tree_add_item(flags_tree, hf_atm_le_control_flag_v2_capable, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       dissect_le_configure_join_frame(tvb, offset, lane_tree);
       break;
 
     case LE_JOIN_REQUEST:
     case LE_JOIN_RESPONSE:
-      proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
-                          decode_boolean_bitfield(flags, 0x0002, 8*2,
-                                                  "V2 capable", "Not V2 capable"));
+      proto_tree_add_item(flags_tree, hf_atm_le_control_flag_v2_capable, tvb, offset, 2, ENC_BIG_ENDIAN);
       if (opcode == LE_JOIN_REQUEST) {
-        proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
-                            decode_boolean_bitfield(flags, 0x0004, 8*2,
-                                                    "Selective multicast", "No selective multicast"));
+        proto_tree_add_item(flags_tree, hf_atm_le_control_flag_selective_multicast, tvb, offset, 2, ENC_BIG_ENDIAN);
       } else {
-        proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
-                            decode_boolean_bitfield(flags, 0x0008, 8*2,
-                                        "V2 required", "V2 not required"));
+        proto_tree_add_item(flags_tree, hf_atm_le_control_flag_v2_required, tvb, offset, 2, ENC_BIG_ENDIAN);
       }
-      proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
-        decode_boolean_bitfield(flags, 0x0080, 8*2,
-                                "Proxy", "Not proxy"));
-      proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
-        decode_boolean_bitfield(flags, 0x0200, 8*2,
-                                "Exclude explorer frames",
-                                "Don't exclude explorer frames"));
+
+      proto_tree_add_item(flags_tree, hf_atm_le_control_flag_proxy, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_atm_le_control_flag_exclude_explorer_frames, tvb, offset, 2, ENC_BIG_ENDIAN);
+
       offset += 2;
       dissect_le_configure_join_frame(tvb, offset, lane_tree);
       break;
@@ -598,18 +597,14 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case LE_ARP_RESPONSE:
     case LE_NARP_REQUEST:
       if (opcode != LE_NARP_REQUEST) {
-        proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
-                            decode_boolean_bitfield(flags, 0x0001, 8*2,
-                                                    "Remote address", "Local address"));
+        proto_tree_add_item(flags_tree, hf_atm_le_control_flag_address, tvb, offset, 2, ENC_BIG_ENDIAN);
       }
       offset += 2;
       dissect_le_arp_frame(tvb, offset, lane_tree);
       break;
 
     case LE_TOPOLOGY_REQUEST:
-      proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
-                          decode_boolean_bitfield(flags, 0x0100, 8*2,
-                                                  "Topology change", "No topology change"));
+        proto_tree_add_item(flags_tree, hf_atm_le_control_topology_change, tvb, offset, 2, ENC_BIG_ENDIAN);
       /* 92 reserved bytes */
       break;
 
@@ -1946,7 +1941,29 @@ proto_register_atm(void)
       { "CID",          "atm.cid", FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_atm_le_control_flag_v2_capable,
+      { "V2 capable", "atm.le_control.flag.v2_capable", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0002,
+        NULL, HFILL }},
+    { &hf_atm_le_control_flag_selective_multicast,
+      { "Selective multicast", "atm.le_control.flag.selective_multicast", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0004,
+        NULL, HFILL }},
+    { &hf_atm_le_control_flag_v2_required,
+      { "V2 required", "atm.le_control.flag.v2_required", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0008,
+        NULL, HFILL }},
+    { &hf_atm_le_control_flag_proxy,
+      { "Proxy", "atm.le_control.flag.flag_proxy", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0080,
+        NULL, HFILL }},
+    { &hf_atm_le_control_flag_exclude_explorer_frames,
+      { "Exclude explorer frames", "atm.le_control.flag.exclude_explorer_frames", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0200,
+        NULL, HFILL }},
+    { &hf_atm_le_control_flag_address,
+      { "Address", "atm.le_control.flag.address", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0001,
+        NULL, HFILL }},
+    { &hf_atm_le_control_topology_change,
+      { "Topology change", "atm.le_control.flag.topology_change", FT_BOOLEAN, 16, TFS(&tfs_remote_local), 0x0100,
+        NULL, HFILL }}
   };
+
   static gint *ett[] = {
     &ett_atm,
     &ett_ilmi,
