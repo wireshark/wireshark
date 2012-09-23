@@ -943,65 +943,40 @@ WSLUA_CLASS_DEFINE(Pinfo,FAIL_ON_NULL("expired pinfo"),NOP);
 
 static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1; }
 
-#define PINFO_GET_BOOLEAN(name,val) static int name(lua_State *L) {  \
+#define PINFO_GET(name,block) static int name(lua_State *L) {  \
     Pinfo pinfo = checkPinfo(L,1); \
     if (!pinfo) return 0;\
     if (pinfo->expired) { \
         luaL_error(L,"expired_pinfo"); \
         return 0; \
     } \
-    lua_pushboolean(L,val);\
+    block \
     return 1;\
 }
 
-#define PINFO_GET_NUMBER(name,val) static int name(lua_State *L) {  \
-    Pinfo pinfo = checkPinfo(L,1); \
-    if (!pinfo) return 0;\
-    if (pinfo->expired) { \
-        luaL_error(L,"expired_pinfo"); \
-        return 0; \
-    } \
-    lua_pushnumber(L,(lua_Number)(val));\
-    return 1;\
-}
+#define PINFO_GET_BOOLEAN(name,val) \
+    PINFO_GET(name,{lua_pushboolean(L,val);})
 
-#define PINFO_GET_STRING(name,val) static int name(lua_State *L) { \
-    Pinfo pinfo = checkPinfo(L,1); \
-    const gchar* value; \
-    if (!pinfo) return 0; \
-    if (pinfo->expired) { \
-        luaL_error(L,"expired_pinfo"); \
-        return 0; \
-    } \
-    value = val; \
-    if (value) lua_pushstring(L,(const char*)(value)); else lua_pushnil(L); \
-    return 1; \
-}
+#define PINFO_GET_NUMBER(name,val) \
+    PINFO_GET(name,{lua_pushnumber(L,(lua_Number)(val));})
 
-#define PINFO_GET_ADDRESS(name,role) static int name(lua_State *L) { \
-    Pinfo pinfo = checkPinfo(L,1); \
-    Address addr; \
-    if (!pinfo) return 0; \
-    if (pinfo->expired) { \
-        luaL_error(L,"expired_pinfo"); \
-        return 0; \
-    } \
-    addr = g_new(address,1); \
-    COPY_ADDRESS(addr, &(pinfo->ws_pinfo->role)); \
-    pushAddress(L,addr); \
-    return 1; \
-}
+#define PINFO_GET_STRING(name,val) \
+    PINFO_GET(name, { \
+      const gchar* value; \
+      value = val; \
+      if (value) lua_pushstring(L,(const char*)(value)); else lua_pushnil(L); \
+    })
 
-#define PINFO_GET_LIGHTUSERDATA(name, val) static int name(lua_State *L) { \
-    Pinfo pinfo = checkPinfo(L, 1); \
-    if (!pinfo) return 0; \
-    if (pinfo->expired) { \
-        luaL_error(L, "expired_pinfo"); \
-        return 0; \
-    } \
-    lua_pushlightuserdata(L, (void *) (val)); \
-    return 1; \
-}
+#define PINFO_GET_ADDRESS(name,role) \
+    PINFO_GET(name, { \
+      Address addr; \
+      addr = g_new(address,1); \
+      COPY_ADDRESS(addr, &(pinfo->ws_pinfo->role)); \
+      pushAddress(L,addr); \
+    })
+
+#define PINFO_GET_LIGHTUSERDATA(name, val) \
+    PINFO_GET(name,{lua_pushlightuserdata(L, (void *) (val));})
 
 PINFO_GET_BOOLEAN(Pinfo_fragmented,pinfo->ws_pinfo->fragmented)
 PINFO_GET_BOOLEAN(Pinfo_in_error_pkt,pinfo->ws_pinfo->flags.in_error_pkt)
