@@ -989,10 +989,9 @@ Stop.]]>
       versions (VC++ 2005 Express, .NET Framework, ...) do not
       contain an SDK - you'll need to download a PSDK in order to
       have the required C header files and libraries.</para>
-      <para>Older Versions of the Platform SDK should also work.
-      However, the command to set the environment settings will be
-      different, try search for SetEnv.* in the SDK
-      directory.</para>
+      <para>Older versions of the SDK should also work. However, the
+      command to set the environment settings will be different, try
+      search for SetEnv.* in the SDK directory.</para>
       <para>Prior to Windows Vista, the name "Platform SDK" was used;
       starting with Vista, the name was changed just to "Windows
       Software Development Kit" or "Windows SDK".  The full names of the
@@ -1027,10 +1026,9 @@ Stop.]]>
         <para>The files htmlhelp.c and htmlhelp.lib are required to
         be able to open .chm files from Wireshark - to show the
         "online help".</para>
-        <para>Both files are part of the Platform SDK (standalone
-        PSDK or MSVC since 2002). If you still use MSVC 6, you
-        can get them from the "HTML Help Workshop" mentioned
-        above.</para>
+        <para>Both files are part of the SDK (standalone (P)SDK or MSVC
+        since 2002). If you still use MSVC 6, you can get them from the
+        "HTML Help Workshop" mentioned above.</para>
         <para>The related settings in config.nmake depend on the
         MSVC variant you use:</para>
         <para>
