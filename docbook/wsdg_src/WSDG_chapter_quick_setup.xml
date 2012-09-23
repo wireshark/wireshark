@@ -146,9 +146,6 @@ title Command Prompt (VC++ 2010)]]>
           <para>Archive/zip (only needed if you intend to build the U3 package)</para>
         </listitem>
         <listitem>
-          <para>Base/rebase</para>
-        </listitem>
-        <listitem>
           <para>Devel/bison</para>
         </listitem>
         <listitem>
@@ -190,6 +187,8 @@ title Command Prompt (VC++ 2010)]]>
       tree is significantly easier to do with Subversion than
       downloading a zip file and merging new sources into a
       personal source tree "by hand".</para>
+      <para>There are several ways in which Subversion can be
+      installed:</para>
       <section>
         <title>Subversion</title>
         <para>If you want to work with the Wireshark Subversion
