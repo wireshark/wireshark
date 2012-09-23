@@ -437,7 +437,6 @@ static void
 dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int         offset = 0;
-	guint16 vip_chksum;
 	guint16 vip_pktlen;
 	guint8  vip_tctl;	/* Transport Control */
 	guint8  vip_proto;
@@ -453,7 +452,6 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* To do: check for runts, errs, etc. */
 
 	/* capture the necessary parts of the header */
-	vip_chksum = tvb_get_letohs(tvb, offset);
 	vip_pktlen = tvb_get_letohs(tvb, offset+2);
 	vip_tctl = tvb_get_guint8(tvb, offset+3);
 	vip_proto = tvb_get_guint8(tvb, offset+4);

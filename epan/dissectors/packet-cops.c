@@ -3215,14 +3215,12 @@ static int
 cops_mm_gate_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
-     guint8 gs_flags;
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Gate Spec");
      offset += 4;
 
      /* Flags */
-     gs_flags = tvb_get_guint8(tvb, offset);
      ti = info_to_display(tvb,stt,offset,1,"Flags",NULL,FMT_HEX,&hf_cops_pcmm_gate_spec_flags);
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree );
      proto_tree_add_item(object_tree, hf_cops_pcmm_gate_spec_flags_gate, tvb, offset, 1, ENC_BIG_ENDIAN);

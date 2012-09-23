@@ -626,10 +626,8 @@ static void dissect_9P_qid(tvbuff_t * tvb,  proto_tree * tree,int offset)
 static void dissect_9P_dm(tvbuff_t * tvb,  proto_item * item,int offset,int iscreate)
 {
 	proto_item *mode_tree;
-	guint32 dm;
 
 
-	dm = tvb_get_letohl(tvb,offset);
 	mode_tree = proto_item_add_subtree(item, ett_9P_dm);
 	if(!mode_tree)
 		return;
