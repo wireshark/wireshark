@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-09-11
+# 2012-09-21
 # 
 # Experts
 # 
@@ -2459,8 +2459,8 @@ capioverlan	1147/tcp	# CAPIoverLAN                  [Diego_Friedel]             
 capioverlan	1147/udp	# CAPIoverLAN                  [Diego_Friedel]                                    [Diego_Friedel]                                           2005-11
 elfiq-repl	1148/tcp	# Elfiq Replication Service    [Frederick_Parent]                                 [Frederick_Parent]                                        2005-11
 elfiq-repl	1148/udp	# Elfiq Replication Service    [Frederick_Parent]                                 [Frederick_Parent]                                        2005-11
-bvtsonar	1149/tcp	# BVT Sonar Service            [Justin_Huff]                                      [Justin_Huff]                                             2005-11
-bvtsonar	1149/udp	# BVT Sonar Service            [Justin_Huff]                                      [Justin_Huff]                                             2005-11
+bvtsonar	1149/tcp	# BlueView Sonar Service       [Teledyne_BlueView_Inc]                            [Cat_Zimmermann]                                          2005-11      2012-09-19
+bvtsonar	1149/udp	# BlueView Sonar Service       [Teledyne_BlueView_Inc]                            [Cat_Zimmermann]                                          2005-11      2012-09-19
 blaze	1150/tcp	# Blaze File Server            [Curt_Schimmel]                                    [Curt_Schimmel]                                           2005-11
 blaze	1150/udp	# Blaze File Server            [Curt_Schimmel]                                    [Curt_Schimmel]                                           2005-11
 unizensus	1151/tcp	# Unizensus Login Server       [Dirk_Materlik]                                    [Dirk_Materlik]                                           2005-11
@@ -2631,8 +2631,8 @@ periscope	1230/tcp	# Periscope                    [Kevin_Madden]                
 periscope	1230/udp	# Periscope                    [Kevin_Madden]                                     [Kevin_Madden]
 menandmice-lpm	1231/tcp	# menandmice-lpm               [Sigfus_Magnusson]                                 [Sigfus_Magnusson]
 menandmice-lpm	1231/udp	# menandmice-lpm               [Sigfus_Magnusson]                                 [Sigfus_Magnusson]
-# 1232        tcp    unassigned                                                                                                                                                                                                                         Microsoft (unoffically) using 1232
-# 1232        udp    unassigned                                                                                                                                                                                                                         Microsoft (unoffically) using 1232
+first-defense	1232/tcp	# Remote systems monitoring    [Nexum]                                            [Michael_Fread]                                           2012-09-21                                                                               Microsoft (unoffically) using 1232
+first-defense	1232/udp	# Remote systems monitoring    [Nexum]                                            [Michael_Fread]                                           2012-09-21                                                                               Microsoft (unoffically) using 1232
 univ-appserver	1233/tcp	# Universal App Server         [Tim_Sent]                                         [Tim_Sent]
 univ-appserver	1233/udp	# Universal App Server         [Tim_Sent]                                         [Tim_Sent]
 search-agent	1234/tcp	# Infoseek Search Agent        [Jackie_Wu]                                        [Jackie_Wu]
@@ -13287,7 +13287,11 @@ isdd	8148/tcp	# i-SDD file transfer          [Frank_Waarsenburg]                
 isdd	8148/udp	# i-SDD file transfer          [Frank_Waarsenburg]                                [Frank_Waarsenburg]                                       2004-11
 # 8149        tcp    Reserved
 eor-game	8149/udp	# Edge of Reality game data    [Sky_Schulz]                                       [Sky_Schulz]                                              2011-05-09
-# 8150-8159            Unassigned
+# 8150-8152            Unassigned
+quantastor	8153/tcp	# QuantaStor Management        [OS_NEXUS]                                         [Steven_Umbehocker]                                       2012-09-21
+# Interface
+# 8153        udp    Reserved
+# 8154-8159            Unassigned
 patrol	8160/tcp	# Patrol                       [Portnoy_Boxman]                                   [Portnoy_Boxman]
 patrol	8160/udp	# Patrol                       [Portnoy_Boxman]                                   [Portnoy_Boxman]
 patrol-snmp	8161/tcp	# Patrol SNMP                  [Portnoy_Boxman]                                   [Portnoy_Boxman]
@@ -13410,7 +13414,10 @@ pcsync-https	8443/tcp	# PCsync HTTPS
 pcsync-https	8443/udp	# PCsync HTTPS
 pcsync-http	8444/tcp	# PCsync HTTP                  [Katy_Lynn_McCullough]                             [Katy_Lynn_McCullough]
 pcsync-http	8444/udp	# PCsync HTTP                  [Katy_Lynn_McCullough]                             [Katy_Lynn_McCullough]
-# 8445-8449            Unassigned
+copy	8445/tcp	# Port for copy peer sync      [Copy]                                             [Jason_Dictos]                                            2012-09-19
+# feature
+copy-disc	8445/udp	# Port for copy discovery      [Copy]                                             [Jason_Dictos]                                            2012-09-19
+# 8446-8449            Unassigned
 npmp	8450/tcp	# npmp                         [Ian_Chard]                                        [Ian_Chard]
 npmp	8450/udp	# npmp                         [Ian_Chard]                                        [Ian_Chard]
 # 8451-8469            Unassigned
@@ -15851,6 +15858,10 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # aerohive-proxy                 tcp    Aerohive Proxy Configuration [Aerohive_Networks]                                [Matthew_Gast]                                            2012-05-31                                                                               Defined TXT keys: name, port, username
 # Service
 # airdrop                        tcp    Airdrop                      [Apple_Inc]                                        [Marc_Krochmal_2]                                         2012-03-02                                                                               Defined TXT keys: flags, phash, ehash, cname
+# airplay                        tcp    Protocol for streaming of    [Apple_Inc_2]                                      [Bob_Bradley_3]                                           2012-09-19                                                                               Defined TXT keys: am, cn, et, ft, fv, md, pk, pw, sf, tp, vn,
+# audio/video content                                                                                                                                                                                                                vs
+# airplay                        udp    Protocol for streaming of    [Apple_Inc_2]                                      [Bob_Bradley_3]                                           2012-09-19                                                                               Defined TXT keys: am, cn, et, ft, fv, md, pk, pw, sf, tp, vn,
+# audio/video content                                                                                                                                                                                                                vs
 # airport                               AirPort Base Station         [Bob_Bradley_2]                                    [Bob_Bradley_2]                                                                                                                                    Defined TXT keys: waMA;
 # airpreview                     tcp    Coda AirPreview              [Panic_Inc]                                        [Cabel_Sasser]                                            2012-07-19                                                                               Defined TXT keys: hasCamera, name, UUID
 # Defined TXT keys: mac=<MAC address> ip=<IP address>
@@ -17220,6 +17231,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Apple]                                                                             Apple                 mailto:vaughan&apple.com                                      2011-10-12
 # [Apple_2]                                                                           Apple                 mailto:justin.ko&apple.com                                    2011-10-20
 # [Apple_Inc]                                                                         Apple Inc.            mailto:marc&apple.com                                         2012-03-02
+# [Apple_Inc_2]                                                                       Apple Inc.            mailto:bradley&apple.com                                      2012-09-19
 # [AppMac_Software]                                         AppMac Software                                 mailto:appmac&appmac.com
 # [Apple_Computer]                                          Apple Computer                                  mailto:perftools-feedback&group.apple.com
 # [Archishmat_Gore]                                         Archishmat Gore                                 mailto:archisgore&yahoo.com                                   2004-11
@@ -17376,6 +17388,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Bob_Braden_2]                                            Bob Braden                                      mailto:braden&isi.edu
 # [Bob_Bradley]                                             Bob Bradley                                     mailto:bradley&apple.com                                      2003-03
 # [Bob_Bradley_2]                                           Bob Bradley                                     mailto:bradley&apple.com
+# [Bob_Bradley_3]                                           Bob Bradley               Apple Inc.            mailto:bradley&apple.com                                      2012-09-19
 # [Bob_Deblier]                                             Bob Deblier                                     mailto:bob&virtualunlimited.com
 # [Bob_Dedrick]                                             Bob Dedrick                                     mailto:bob&staff.prodigy.com
 # [Bob_Dolin]                                               Bob Dolin                                       mailto:bdolin&echelon.com                                     2008-04-10
@@ -17550,6 +17563,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Carsten_Strotmann]                                       Carsten Strotmann                               mailto:carsten.strotmann&menandmice.com                       2009-05-20
 # [Casey_Harrington]                                        Casey Harrington                                mailto:charrington&isxinc.com                                 2006-01
 # [Casper_Stoel]                                            Casper Stoel                                    mailto:cbs&ascinc.com
+# [Cat_Zimmermann]                                          Cat Zimmermann            Teledyne BlueView,    mailto:czimmermann&teledyne.com                               2012-09-19
+# Inc.
 # [Cedric_Maloux]                                           Cedric Maloux                                   mailto:cedric&allpeers.com                                    2007-04
 # [Chad_Williams]                                           Chad Williams                                   mailto:chad&apple.com
 # [Chair_for_Process_Control_Engineering]                                             The Chair for Process mailto:ks&plt.rwth-aachen.de                                  2012-08-07
@@ -17747,6 +17762,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Control_Technology_Inc]                                                            Control Technology    mailto:ceskew&controltechnology.com                           2011-10-28
 # Inc.
 # [COPALP]                                                                            COPALP                mailto:jf&copalp.com                                          2012-03-01
+# [Copy]                                                                              Copy                  mailto:team&copy.com                                          2012-09-19
 # [Corey_Burnett]                                           Corey Burnett                                   mailto:corey.burnett&biopop.com
 # [Corey_Clinton]                                           Corey Clinton                                   mailto:ccclinton&travisassoc.com                              2011-02-02
 # [Corey_Corrick]                                           Corey Corrick                                   mailto:corey.corrick&flamenconetworks.com
@@ -18836,6 +18852,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Jason_Aubain]                                            Jason Aubain                                    mailto:jaubain&kjt.com
 # [Jason_Case]                                              Jason Case                                      mailto:jason.case&ni.com                                      2002-08
 # [Jason_Cater]                                             Jason Cater                                     mailto:jason&ncsmags.com
+# [Jason_Dictos]                                            Jason Dictos                                    mailto:jdictos&barracuda.com                                  2012-09-19
 # [Jason_Dzubak]                                            Jason Dzubak                                    mailto:dzubak&byu.edu                                         2008-03-17
 # [Jason_Hamilton]                                          Jason Hamilton                                  mailto:JHamilton&griddatasecurity.com                         2006-06
 # [Jason_Howard]                                            Jason Howard                                    mailto:jason&spectsoft.com                                    2006-01
@@ -19229,7 +19246,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Jun_Yoshii]                                              Jun Yoshii                                      mailto:yoshii&ael.fujitsu.co.jp
 # [Juraj_Zopp]                                              Juraj Zopp                                      mailto:juraj.zopp&pianoforce.com
 # [Justin_Cepelak]                                          Justin Cepelak                                  mailto:jcepelak&splashdata.com
-# [Justin_Huff]                                             Justin Huff                                     mailto:justin.huff&blueviewtech.com                           2005-11
 # [Justin_Ko]                                               Justin Ko                 Apple                 mailto:justin.ko&apple.com                                    2011-10-20
 # [Justin_Paupore]                                          Justin Paupore                                  mailto:jpaupore&blueshiftlabs.net                             2007-08-16
 # [Justin_R_Bendich]                                        Justin R. Bendich                               mailto:jbendich&us.ibm.com
@@ -19827,6 +19843,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Michael_Elizarov]                                        Michael Elizarov                                mailto:Michael.Elizarov&microsoft.com                         2007-01
 # [Michael_Fischer]                                         Michael Fischer                                 mailto:otterley&pass.com
 # [Michael_Fischer_2]                                       Michael Fischer                                 tel:+49-531-21-13-0
+# [Michael_Fread]                                           Michael Fread             Nexum, Inc.           mailto:mfread&nexuminc.com                                    2012-09-21
 # [Michael_Friedman]                                        Michael Friedman                                mailto:mfr1&worldnet.att.net
 # [Michael_Ginn]                                            Michael Ginn                                    mailto:ginn&tyxar.com
 # [Michael_Gleicher]                                        Michael Gleicher                                mailto:mgleicher&comcast.net
@@ -20039,6 +20056,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Nevil_Brownlee]                                          Nevil Brownlee                                  mailto:n.brownlee&auckland.ac.nz                              2006-10
 # [NexStor_India_Limite]                                    NexStor India Limited                           mailto:next&nda.vsnl.net.in
 # [NextDay_Aps]                                                                       NextDay Aps           mailto:nextday&infinite-loop.dk                               2012-04-24
+# [Nexum]                                                                             Nexum, Inc.           mailto:mfread&nexuminc.com                                    2012-09-21
 # [Niall_Hogg]                                              Niall Hogg                                      mailto:niall.hogg&interamics.com                              2011-10-25
 # [Niall_Murphy]                                            Niall Murphy                                    mailto:niallm&orca.ucd.ie
 # [Nic_Catrambone]                                          Nic Catrambone                                  mailto:ncatramb&us.ibm.com                                    2003-01
@@ -20143,7 +20161,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ori_Yosefi]                                              Ori Yosefi                                      mailto:Ori.Yosefi&microsoft.com                               2009-05-04
 # [Oriol_Ferrer_Mesia]                                      Oriol Ferrer Mesia                              mailto:tm05788&salleurl.edu
 # [Orion_Reblitz_Richar]                                    Orion Reblitz-Richardson                        mailto:orionr&rakket.com
-# [OS_NEXUS]                                                                          OS NEXUS, Inc.        mailto:info&osnexus.com                                       2012-09-10
+# [OS_NEXUS]                                                                          OS NEXUS, Inc.        mailto:info&osnexus.com                                       2012-09-21
 # [Osamu_Masuda]                                            Osamu Masuda
 # [Oskar_Persano]                                           Oskar Persano             ims Info Management   mailto:ope&ims-info.ch                                        2011-10-20
 # Systems AG
@@ -21082,7 +21100,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Steven_Ritland]                                          Steven Ritland                                  mailto:srr&us.ibm.com
 # [Steven_Sawkins]                                          Steven Sawkins                                  mailto:ssawkins&symantec.com
 # [Steven_Sweeting]                                         Steven Sweeting                                 mailto:ssweeting&sls-technology.com                           2008-01-28
-# [Steven_Umbehocker]                                       Steven Umbehocker         OS NEXUS, Inc.        mailto:steven.umbehocker&osnexus.com                          2012-09-10
+# [Steven_Umbehocker]                                       Steven Umbehocker         OS NEXUS, Inc.        mailto:steven.umbehocker&osnexus.com                          2012-09-21
 # [Steven_W_Clark]                                          Steven W. Clark                                 mailto:steven.clark&avocent.com
 # [Steven_W_Clark_2]                                        Steven W. Clark                                 mailto:sclark&equinox.com
 # [Stoneware_Inc]                                                                     Stoneware Inc.        mailto:coby.gurr&stone-ware.com                               2012-05-18
@@ -21175,9 +21193,11 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # TeleConsult GmbH,
 # [TeleConsult]                                                                       76275 Ettlingen,      mailto:teleconsult&t-online.de
 # Germany
+# [Teledyne_BlueView_Inc]                                                             Teledyne BlueView,    mailto:czimmermann&teledyne.com                               2012-09-19
+# Inc.
+# [Telepathy_project]                                       Telepathy project                               mailto:telepathy&lists.freedesktop.org
 # [TeleTrusT_Deutschlan]                                                              TeleTrusT Deutschland mailto:info&teletrust.de                                      2006-04
 # e.V.
-# [Telepathy_project]                                       Telepathy project                               mailto:telepathy&lists.freedesktop.org
 # [Tenir_Software]                                                                    Tenir Software        mailto:sgums&tenirsoftware.com                                2011-10-27
 # [Teradici]                                                                          Teradici              mailto:jdillabough&teradici.com                               2012-03-06
 # [Terrence_J_Talbot]                                       Terrence J. Talbot                              mailto:lexcube!tjt&bu.edu
