@@ -285,7 +285,7 @@ PARTICULAR PURPOSE.]]>
                 <para>Publicly available?</para>
               </entry>
               <entry>
-                <para>Platform SDK required?</para>
+                <para>SDK required?</para>
               </entry>
               <entry>
                 <para>config.nmake:</para>
@@ -430,7 +430,7 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>Microsoft Visual Studio
-                9.0\VC\bin\vcvars32.bat</para>
+                10.0\VC\bin\vcvars32.bat</para>
               </entry>
               <entry>
                 <para>-</para>
@@ -508,10 +508,10 @@ PARTICULAR PURPOSE.]]>
       subscriptions
       </para>
       <para>
-      <superscript>2</superscript>as the Platform SDK is already
+      <superscript>2</superscript>as the SDK is already
       integrated in the package, you obviously don't need to
       install it and don't even need to call a separate environment
-      setting batch file for the Platform SDK!
+      setting batch file for the SDK!
       </para>
       <para>
       <superscript>3</superscript><filename>vcredist_x86.exe</filename>
@@ -979,27 +979,28 @@ Stop.]]>
     </section>
     <section>
       <title>Windows (Platform) SDK</title>
-      <para>The Windows Platform SDK (PSDK) is a free (as in
-      beer) download and contains platform specific headers and
+      <para>The Windows Platform SDK (PSDK) or Windows SDK is a free
+      (as in beer) download and contains platform specific headers and
       libraries (e.g. windows.h, WSock32.lib, ...). As new Windows
-      features evolve in time, updated PSDK's become available that
+      features evolve in time, updated SDK's become available that
       include new and updated API's.</para>
       <para>When you purchase a commercial Visual Studio, it will
-      include a PSDK. The free (as in beer) downloadable C compiler
+      include an SDK. The free (as in beer) downloadable C compiler
       versions (VC++ 2005 Express, .NET Framework, ...) do not
-      contain a PSDK - you'll need to download a PSDK in order to
+      contain an SDK - you'll need to download a PSDK in order to
       have the required C header files and libraries.</para>
       <para>Older Versions of the Platform SDK should also work.
       However, the command to set the environment settings will be
       different, try search for SetEnv.* in the SDK
       directory.</para>
-      <para>BTW: "Windows SDK" seems to be the new name of the
-      Platform SDK for Vista. The current SDK name is misleading:
-      "Microsoft Windows Software Development Kit for
-      Windows Vista and .NET Framework 3.0 Runtime
-      Components" - translated this means: the Windows SDK for
-      Windows Vista and Platforms (like WinXP) that have the .NET
-      3.0 runtime installed.</para>
+      <para>Prior to Windows Vista, the name "Platform SDK" was used;
+      starting with Vista, the name was changed just to "Windows
+      Software Development Kit" or "Windows SDK".  The full names of the
+      SDKs can be misleading; for example, the SDK for Vista was called
+      the "Microsoft Windows Software Development Kit for Windows Vista
+      and .NET Framework 3.0 Runtime Components", which really means the
+      Windows SDK for Windows Vista and Platforms (like WinXP) that have
+      the .NET 3.0 runtime installed.</para>
     </section>
     <section>
       <title>HTML Help</title>
