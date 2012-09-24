@@ -15,6 +15,7 @@ import os
 import sys
 import re
 import pickle
+import hashlib
 from stat import *
 
 VERSION_KEY = '_VERSION'
@@ -32,7 +33,6 @@ srcdir = sys.argv[1]
 #
 registertype = sys.argv[2]
 if registertype == "plugin" or registertype == "plugin_wtap":
-	tmp_filename = "plugin.c-tmp"
 	final_filename = "plugin.c"
 	cache_filename = None
 	preamble = """\
@@ -43,7 +43,6 @@ if registertype == "plugin" or registertype == "plugin_wtap":
  */
 """
 elif registertype == "dissectors":
-	tmp_filename = "register.c-tmp"
 	final_filename = "register.c"
 	cache_filename = "register-cache.pkl"
 	preamble = """\
@@ -177,13 +176,13 @@ regs['proto_reg'] = sorted(regs['proto_reg'])
 regs['handoff_reg'] = sorted(regs['handoff_reg'])
 regs['wtap_register'] = sorted(regs['wtap_register'])
 
-reg_code = open(tmp_filename, "w")
+reg_code = ""
 
-reg_code.write(preamble)
+reg_code += preamble
 
 # Make the routine to register all protocols
 if registertype == "plugin" or registertype == "plugin_wtap":
-	reg_code.write("""
+	reg_code += """
 #include "config.h"
 
 #include <gmodule.h>
@@ -198,109 +197,105 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 G_MODULE_EXPORT void
 plugin_register (void)
 {
-""");
+"""
 else:
-	reg_code.write("""
+	reg_code += """
 #include "register.h"
 void
 register_all_protocols(register_cb cb, gpointer client_data)
 {
-""");
+"""
 
 for symbol in regs['proto_reg']:
 	if registertype == "plugin" or registertype == "plugin_wtap":
-		line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
+		reg_code += "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
 	else:
-		line = "  {extern void %s (void); if(cb) (*cb)(RA_REGISTER, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
-	reg_code.write(line)
+		reg_code += "  {extern void %s (void); if(cb) (*cb)(RA_REGISTER, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
 
-reg_code.write("}\n")
+reg_code += "}\n"
 
 
 # Make the routine to register all protocol handoffs
 if registertype == "plugin" or registertype == "plugin_wtap":
-	reg_code.write("""
+	reg_code += """
 G_MODULE_EXPORT void
 plugin_reg_handoff(void)
 {
-""");
+"""
 else:
-	reg_code.write("""
+	reg_code += """
 void
 register_all_protocol_handoffs(register_cb cb, gpointer client_data)
 {
-""");
+"""
 
 for symbol in regs['handoff_reg']:
 	if registertype == "plugin" or registertype == "plugin_wtap":
-		line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
+		reg_code += "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
 	else:
-		line = "  {extern void %s (void); if(cb) (*cb)(RA_HANDOFF, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
-	reg_code.write(line)
+		reg_code += "  {extern void %s (void); if(cb) (*cb)(RA_HANDOFF, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
 
-reg_code.write("}\n")
+reg_code += "}\n"
 
 if registertype == "plugin":
-	reg_code.write("#endif\n");
+	reg_code += "#endif\n"
 elif registertype == "plugin_wtap":
-	reg_code.write("""
+	reg_code += """
 G_MODULE_EXPORT void
 register_wtap_module(void)
 {
-""");
+"""
 
 	for symbol in regs['wtap_register']:
 		line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
-		reg_code.write(line)
+		reg_code += line
 
-	reg_code.write("}\n");
-	reg_code.write("#endif\n");
+	reg_code += """
+}
+#endif
+"""
+
 else:
-	reg_code.write("""
+	reg_code += """
 static gulong proto_reg_count(void)
 {
-""");
-
-	line = "  return %d;\n" % len(regs['proto_reg'])
-	reg_code.write(line)
-
-	reg_code.write("""
+  return %(proto_reg_len)d;
 }
-""");
-	reg_code.write("""
+
 static gulong handoff_reg_count(void)
 {
-""");
-
-	line = "  return %d;\n" % len(regs['handoff_reg'])
-	reg_code.write(line)
-
-	reg_code.write("""
+  return %(handoff_reg_len)d;
 }
-""");
-	reg_code.write("""
+
 gulong register_count(void)
 {
-""");
+  return proto_reg_count() + handoff_reg_count();
+}
 
-	line = "  return proto_reg_count() + handoff_reg_count();"
-	reg_code.write(line)
-
-	reg_code.write("""
-}\n
-""");
+""" % {
+	'proto_reg_len': len(regs['proto_reg']),
+	'handoff_reg_len': len(regs['handoff_reg'])
+      }
 
 
-# Close the file
-reg_code.close()
+# Compare current and new content and update the file if anything has changed.
 
-# Remove the old final_file if it exists.
+new_hash = hashlib.sha1(reg_code).hexdigest()
+
 try:
-	os.stat(final_filename)
-	os.remove(final_filename)
-except OSError:
-	pass
+	fh = open(final_filename, 'rb')
+	cur_hash = hashlib.sha1(fh.read()).hexdigest()
+	fh.close()
+except:
+	cur_hash = ''
 
-# Move from tmp file to final file
-# FIXME: only overwrite final_filename if it differes from tmp_filename
-os.rename(tmp_filename, final_filename)
+try:
+	if new_hash != cur_hash:
+		print ('Updating ' + final_filename)
+		fh = open(final_filename, 'w')
+		fh.write(reg_code)
+		fh.close()
+	else:
+		print(final_filename + ' unchanged.')
+except OSError:
+	sys.exit('Unable to write ' + final_filename + '.\n')
