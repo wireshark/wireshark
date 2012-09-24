@@ -3472,6 +3472,7 @@ Michal Labedzki		<michal.labedzki[at]tieto.com> {
 	Bluetooth HID dissector
 	Bluetooth SAP dissector
 	Bluetooth AVCTP dissector
+	Bluetooth AVRCP dissector
 }
 
 and by:

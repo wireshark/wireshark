@@ -313,6 +313,7 @@ DISSECTOR_SRC = \
 	packet-btamp.c		\
 	packet-btbnep.c		\
 	packet-btavctp.c	\
+	packet-btavrcp.c	\
 	packet-bthci_acl.c	\
 	packet-bthci_cmd.c	\
 	packet-bthci_evt.c	\
