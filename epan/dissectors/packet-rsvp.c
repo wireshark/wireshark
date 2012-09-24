@@ -120,6 +120,90 @@
 
 static int proto_rsvp = -1;
 
+static int hf_rsvp_error_flags = -1;
+static int hf_rsvp_error_flags_path_state_removed = -1;
+static int hf_rsvp_error_flags_not_guilty = -1;
+static int hf_rsvp_error_flags_in_place = -1;
+static int hf_rsvp_eth_tspec_tlv_color_mode = -1;
+static int hf_rsvp_eth_tspec_tlv_coupling_flag = -1;
+static int hf_rsvp_sender_tspec_standard_contiguous_concatenation = -1;
+static int hf_rsvp_sender_tspec_arbitrary_contiguous_concatenation = -1;
+static int hf_rsvp_sender_tspec_regenerator_section = -1;
+static int hf_rsvp_sender_tspec_multiplex_section = -1;
+static int hf_rsvp_sender_tspec_J0_transparency = -1;
+static int hf_rsvp_sender_tspec_SOH_RSOH_DCC_transparency = -1;
+static int hf_rsvp_sender_tspec_LOH_MSOH_DCC_transparency = -1;
+static int hf_rsvp_sender_tspec_LOH_MSOH_extended_DCC_transparency = -1;
+static int hf_rsvp_sender_tspec_K1_K2_transparency = -1;
+static int hf_rsvp_sender_tspec_E1_transparency = -1;
+static int hf_rsvp_sender_tspec_F1_transparency = -1;
+static int hf_rsvp_sender_tspec_E2_transparency = -1;
+static int hf_rsvp_sender_tspec_B1_transparency = -1;
+static int hf_rsvp_sender_tspec_B2_transparency = -1;
+static int hf_rsvp_sender_tspec_M0_transparency = -1;
+static int hf_rsvp_sender_tspec_M1_transparency = -1;
+static int hf_rsvp_flowspec_standard_contiguous_concatenation = -1;
+static int hf_rsvp_flowspec_arbitrary_contiguous_concatenation = -1;
+static int hf_rsvp_flowspec_regenerator_section = -1;
+static int hf_rsvp_flowspec_multiplex_section = -1;
+static int hf_rsvp_flowspec_J0_transparency = -1;
+static int hf_rsvp_flowspec_SOH_RSOH_DCC_transparency = -1;
+static int hf_rsvp_flowspec_LOH_MSOH_DCC_transparency = -1;
+static int hf_rsvp_flowspec_LOH_MSOH_extended_DCC_transparency = -1;
+static int hf_rsvp_flowspec_K1_K2_transparency = -1;
+static int hf_rsvp_flowspec_E1_transparency = -1;
+static int hf_rsvp_flowspec_F1_transparency = -1;
+static int hf_rsvp_flowspec_E2_transparency = -1;
+static int hf_rsvp_flowspec_B1_transparency = -1;
+static int hf_rsvp_flowspec_B2_transparency = -1;
+static int hf_rsvp_flowspec_M0_transparency = -1;
+static int hf_rsvp_flowspec_M1_transparency = -1;
+static int hf_rsvp_integrity_flags_handshake = -1;
+static int hf_rsvp_sa_flags_local = -1;
+static int hf_rsvp_sa_flags_label = -1;
+static int hf_rsvp_sa_flags_se_style = -1;
+static int hf_rsvp_sa_flags_bandwidth = -1;
+static int hf_rsvp_sa_flags_node = -1;
+static int hf_rsvp_rro_flags_local_avail = -1;
+static int hf_rsvp_rro_flags_local_in_use = -1;
+static int hf_rsvp_rro_flags_bandwidth = -1;
+static int hf_rsvp_rro_flags_node = -1;
+static int hf_rsvp_rro_flags_node_address = -1;
+static int hf_rsvp_rro_flags_backup_tunnel_bandwidth = -1;
+static int hf_rsvp_rro_flags_backup_tunnel_hop = -1;
+static int hf_rsvp_lsp_attr_e2e = -1;
+static int hf_rsvp_lsp_attr_boundary = -1;
+static int hf_rsvp_lsp_attr_segment = -1;
+static int hf_rsvp_gen_uni_direction = -1;
+static int hf_rsvp_protection_info_flags_secondary_lsp = -1;
+static int hf_rsvp_pi_link_flags_extra_traffic = -1;
+static int hf_rsvp_pi_link_flags_unprotected = -1;
+static int hf_rsvp_pi_link_flags_shared = -1;
+static int hf_rsvp_pi_link_flags_dedicated1_1 = -1;
+static int hf_rsvp_pi_link_flags_dedicated1plus1 = -1;
+static int hf_rsvp_pi_link_flags_enhanced = -1;
+static int hf_rsvp_pi_link_flags_extra = -1;
+static int hf_rsvp_pi_link_flags_dedicated_1_1 = -1;
+static int hf_rsvp_pi_link_flags_dedicated_1plus1 = -1;
+static int hf_rsvp_rfc4872_secondary = -1;
+static int hf_rsvp_rfc4872_protecting = -1;
+static int hf_rsvp_rfc4872_notification_msg = -1;
+static int hf_rsvp_rfc4872_operational = -1;
+static int hf_rsvp_pi_lsp_flags_full_rerouting = -1;
+static int hf_rsvp_pi_lsp_flags_rerouting_extra = -1;
+static int hf_rsvp_pi_lsp_flags_1_n_protection = -1;
+static int hf_rsvp_pi_lsp_flags_1plus1_unidirectional = -1;
+static int hf_rsvp_pi_lsp_flags_1plus1_bidirectional = -1;
+static int hf_rsvp_protection_info_in_place = -1;
+static int hf_rsvp_protection_info_required = -1;
+static int hf_rsvp_pi_seg_flags_full_rerouting = -1;
+static int hf_rsvp_pi_seg_flags_rerouting_extra = -1;
+static int hf_rsvp_pi_seg_flags_1_n_protection = -1;
+static int hf_rsvp_pi_seg_flags_1plus1_unidirectional = -1;
+static int hf_rsvp_pi_seg_flags_1plus1_bidirectional = -1;
+static int hf_rsvp_frr_flags_one2one_backup = -1;
+static int hf_rsvp_frr_flags_facility_backup = -1;
+
 static dissector_table_t rsvp_dissector_table;
 
 static int rsvp_tap = -1;
@@ -1260,6 +1344,10 @@ enum hf_rsvp_filter_keys {
     /* Sentinel */
     RSVPF_MAX
 };
+
+static const true_false_string tfs_desired_not_desired = { "Desired", "Not Desired" };
+static const true_false_string tfs_next_next_hop_next_hop = { "Next-Next-Hop", "Next-Hop" };
+static const true_false_string tfs_gen_uni_direction = { "U: 1 - Upstream label/port ID", "U: 0 - Downstream label/port ID" };
 
 static int hf_rsvp_filter[RSVPF_MAX] = { -1 };
 
@@ -2446,21 +2534,15 @@ dissect_rsvp_error(proto_item *ti, proto_tree *rsvp_object_tree,
     }
 
     error_flags = tvb_get_guint8(tvb, offset3);
-    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset3, 1,
-                              "Flags: 0x%02x", error_flags);
+    ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_error_flags,
+                             tvb, offset3, 1, ENC_BIG_ENDIAN);
     rsvp_error_subtree = proto_item_add_subtree(ti2, TREE(TT_ERROR_FLAGS));
-    proto_tree_add_text(rsvp_error_subtree, tvb, offset3, 1, "%s",
-                    decode_boolean_bitfield(error_flags, 0x04, 8,
-                                            "Path State Removed",
-                                            ""));
-    proto_tree_add_text(rsvp_error_subtree, tvb, offset3, 1, "%s",
-                    decode_boolean_bitfield(error_flags, 0x02, 8,
-                                            "NotGuilty",
-                                            ""));
-    proto_tree_add_text(rsvp_error_subtree, tvb, offset3, 1, "%s",
-                    decode_boolean_bitfield(error_flags, 0x01, 8,
-                                            "InPlace",
-                                            ""));
+    proto_tree_add_item(rsvp_error_subtree, hf_rsvp_error_flags_path_state_removed,
+                             tvb, offset3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(rsvp_error_subtree, hf_rsvp_error_flags_not_guilty,
+                             tvb, offset3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(rsvp_error_subtree, hf_rsvp_error_flags_in_place,
+                             tvb, offset3, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(ti2, " %s %s %s",
                            (error_flags & (1<<2))  ? "Path-State-Removed" : "",
                            (error_flags & (1<<1))  ? "NotGuilty" : "",
@@ -2757,14 +2839,10 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, proto_tree *rsvp_object_tree,
             ti3 = proto_tree_add_text(rsvp_ethspec_subtree, tvb, offset+tlv_off+4, 1,
                                       "Profile: 0x%02x", profile);
             ethspec_profile_subtree = proto_item_add_subtree(ti3, TREE(TT_ETHSPEC_SUBTREE));
-            proto_tree_add_text(ethspec_profile_subtree, tvb, offset+tlv_off+4, 1, "%s",
-                                decode_boolean_bitfield(profile, 0x02, 8,
-                                            "Color Mode (CM) set",
-                                            "Color Mode (CM) NOT set"));
-            proto_tree_add_text(ethspec_profile_subtree, tvb, offset+tlv_off+4, 1, "%s",
-                                decode_boolean_bitfield(profile, 0x01, 8,
-                                            "Coupling Flag (CF) set",
-                                            "Coupling Flag (CF) NOT set"));
+            proto_tree_add_item(ethspec_profile_subtree, hf_rsvp_eth_tspec_tlv_color_mode,
+                             tvb, offset+tlv_off+4, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ethspec_profile_subtree, hf_rsvp_eth_tspec_tlv_coupling_flag,
+                             tvb, offset+tlv_off+4, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(ti3, " %s %s",
                                    (profile & (1<<1))  ? "CM" : "",
                                    (profile & (1<<0))  ? "CF" : "");
@@ -2994,14 +3072,10 @@ dissect_rsvp_tspec(proto_item *ti, proto_tree *rsvp_object_tree,
         ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
                             "Requested Concatenation (RCC): %d", tvb_get_guint8(tvb, offset2+1));
         tspec_tree = proto_item_add_subtree(ti2, TREE(TT_TSPEC_SUBTREE));
-        proto_tree_add_text(tspec_tree, tvb, offset2+1, 1, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+1), 0x01, 8,
-                                                    "Standard contiguous concatenation",
-                                                    "No standard contiguous concatenation"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+1, 1, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+1), 0x02, 8,
-                                                    "Arbitrary contiguous concatenation",
-                                                    "No arbitrary contiguous concatenation"));
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_standard_contiguous_concatenation,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_arbitrary_contiguous_concatenation,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
                             "Number of Contiguous Components (NCC): %d", tvb_get_ntohs(tvb, offset2+2));
         proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 2,
@@ -3011,62 +3085,36 @@ dissect_rsvp_tspec(proto_item *ti, proto_tree *rsvp_object_tree,
         ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4,
                                   "Transparency (T): 0x%0x", tvb_get_ntohl(tvb, offset2+8));
         tspec_tree = proto_item_add_subtree(ti2, TREE(TT_TSPEC_SUBTREE));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_ntohl(tvb, offset2+8), 0x0001, 32,
-                                                    "Section/Regenerator Section layer transparency",
-                                                    "No Section/Regenerator Section layer transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0002, 32,
-                                                    "Line/Multiplex Section layer transparency",
-                                                    "No Line/Multiplex Section layer transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0004, 32,
-                                                    "J0 transparency",
-                                                    "No J0 transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0008, 32,
-                                                    "SOH/RSOH DCC transparency",
-                                                    "No SOH/RSOH DCC transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0010, 32,
-                                                    "LOH/MSOH DCC transparency",
-                                                    "No LOH/MSOH DCC transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0020, 32,
-                                                    "LOH/MSOH Extended DCC transparency",
-                                                    "No LOH/MSOH Extended DCC transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0040, 32,
-                                                    "K1/K2 transparency",
-                                                    "No K1/K2 transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0080, 32,
-                                                    "E1 transparency",
-                                                    "No E1 transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0100, 32,
-                                                    "F1 transparency",
-                                                    "No F1 transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0200, 32,
-                                                    "E2 transparency",
-                                                    "No E2 transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0400, 32,
-                                                    "B1 transparency",
-                                                    "No B1 transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0800, 32,
-                                                    "B2 transparency",
-                                                    "No B2 transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x1000, 32,
-                                                    "M0 transparency",
-                                                    "No M0 transparency"));
-        proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x2000, 32,
-                                                    "M1 transparency",
-                                                    "No M1 transparency"));
+
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_regenerator_section,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_multiplex_section,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_J0_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_SOH_RSOH_DCC_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_LOH_MSOH_DCC_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_LOH_MSOH_extended_DCC_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_K1_K2_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_E1_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_F1_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_E2_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_B1_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_B2_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_M0_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tspec_tree, hf_rsvp_sender_tspec_M1_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+
         proto_tree_add_text(rsvp_object_tree, tvb, offset2+12, 4,
                             "Profile (P): %d", tvb_get_ntohl(tvb, offset2+12));
 
@@ -3358,14 +3406,10 @@ dissect_rsvp_flowspec(proto_item *ti, proto_tree *rsvp_object_tree,
         ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
                                   "Requested Concatenation (RCC): %d", tvb_get_guint8(tvb, offset2+1));
         flowspec_tree = proto_item_add_subtree(ti2, TREE(TT_FLOWSPEC_SUBTREE));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+1), 0x01, 8,
-                                                    "Standard contiguous concatenation",
-                                                    "No standard contiguous concatenation"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+1), 0x02, 8,
-                                                    "Arbitrary contiguous concatenation",
-                                                    "No arbitrary contiguous concatenation"));
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_standard_contiguous_concatenation,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_arbitrary_contiguous_concatenation,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
                             "Number of Contiguous Components (NCC): %d", tvb_get_ntohs(tvb, offset2+2));
         proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 2,
@@ -3375,62 +3419,36 @@ dissect_rsvp_flowspec(proto_item *ti, proto_tree *rsvp_object_tree,
         ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4,
                                   "Transparency (T): 0x%0x", tvb_get_ntohl(tvb, offset2+8));
         flowspec_tree = proto_item_add_subtree(ti2, TREE(TT_FLOWSPEC_SUBTREE));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_ntohl(tvb, offset2+8), 0x0001, 32,
-                                                    "Section/Regenerator Section layer transparency",
-                                                    "No Section/Regenerator Section layer transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0002, 32,
-                                                    "Line/Multiplex Section layer transparency",
-                                                    "No Line/Multiplex Section layer transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0004, 32,
-                                                    "J0 transparency",
-                                                    "No J0 transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0008, 32,
-                                                    "SOH/RSOH DCC transparency",
-                                                    "No SOH/RSOH DCC transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0010, 32,
-                                                    "LOH/MSOH DCC transparency",
-                                                    "No LOH/MSOH DCC transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0020, 32,
-                                                    "LOH/MSOH Extended DCC transparency",
-                                                    "No LOH/MSOH Extended DCC transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0040, 32,
-                                                    "K1/K2 transparency",
-                                                    "No K1/K2 transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0080, 32,
-                                                    "E1 transparency",
-                                                    "No E1 transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0100, 32,
-                                                    "F1 transparency",
-                                                    "No F1 transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0200, 32,
-                                                    "E2 transparency",
-                                                    "No E2 transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0400, 32,
-                                                    "B1 transparency",
-                                                    "No B1 transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0800, 32,
-                                                    "B2 transparency",
-                                                    "No B2 transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x1000, 32,
-                                                    "M0 transparency",
-                                                    "No M0 transparency"));
-        proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x2000, 32,
-                                                    "M1 transparency",
-                                                    "No M1 transparency"));
+
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_regenerator_section,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_multiplex_section,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_J0_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_SOH_RSOH_DCC_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_LOH_MSOH_DCC_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_LOH_MSOH_extended_DCC_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_K1_K2_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_E1_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_F1_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_E2_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_B1_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_B2_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_M0_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flowspec_tree, hf_rsvp_flowspec_M1_transparency,
+                             tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+
         proto_tree_add_text(rsvp_object_tree, tvb, offset2+12, 4,
                             "Profile (P): %d", tvb_get_ntohl(tvb, offset2+12));
 
@@ -3627,8 +3645,8 @@ dissect_rsvp_integrity(proto_item *ti _U_, proto_tree *rsvp_object_tree,
     ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
                               "Flags: 0x%02x", flags);
     rsvp_integ_flags_tree = proto_item_add_subtree(ti2, TREE(TT_INTEGRITY_FLAGS));
-    proto_tree_add_text(rsvp_integ_flags_tree, tvb, offset2, 1, "%s",
-        decode_boolean_bitfield(flags, 0x01, 8, "Handshake capable", "Handshake not capable"));
+    proto_tree_add_item(rsvp_integ_flags_tree, hf_rsvp_integrity_flags_handshake,
+                             tvb, offset2, 1, ENC_BIG_ENDIAN);
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 6,
                         "Key Identifier: %s", tvb_bytes_to_str(tvb, offset2+2, 6));
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 8,
@@ -4151,26 +4169,16 @@ dissect_rsvp_session_attribute(proto_item *ti, proto_tree *rsvp_object_tree,
                                   "Flags: 0x%02x", flags);
         rsvp_sa_flags_tree = proto_item_add_subtree(ti2,
                                                     TREE(TT_SESSION_ATTRIBUTE_FLAGS));
-        proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, "%s",
-                            decode_boolean_bitfield(flags, 0x01, 8,
-                                                    "Local protection desired",
-                                                    "Local protection not desired"));
-        proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, "%s",
-                            decode_boolean_bitfield(flags, 0x02, 8,
-                                                    "Label recording desired",
-                                                    "Label recording not desired"));
-        proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, "%s",
-                            decode_boolean_bitfield(flags, 0x04, 8,
-                                                    "SE style desired",
-                                                    "SE style not desired"));
-        proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, "%s",
-                            decode_boolean_bitfield(flags, 0x08, 8,
-                                                    "Bandwidth protection desired",
-                                                    "Bandwidth protection not desired"));
-        proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, "%s",
-                            decode_boolean_bitfield(flags, 0x10, 8,
-                                                    "Node protection desired",
-                                                    "Node protection not desired"));
+        proto_tree_add_item(rsvp_sa_flags_tree, hf_rsvp_sa_flags_local,
+                             tvb, offset2+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_sa_flags_tree, hf_rsvp_sa_flags_label,
+                             tvb, offset2+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_sa_flags_tree, hf_rsvp_sa_flags_se_style,
+                             tvb, offset2+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_sa_flags_tree, hf_rsvp_sa_flags_bandwidth,
+                             tvb, offset2+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_sa_flags_tree, hf_rsvp_sa_flags_node,
+                             tvb, offset2+2, 1, ENC_BIG_ENDIAN);
 
         name_len = tvb_get_guint8(tvb, offset2+3);
         proto_tree_add_text(rsvp_object_tree, tvb, offset2+3, 1,
@@ -4270,26 +4278,16 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
                                           "Flags: 0x%02x", flags);
                 rsvp_rro_flags_subtree =
                     proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x01, 8,
-                                                            "Local Protection Available",
-                                                            "Local Protection Not Available"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x02, 8,
-                                                            "Local Protection In Use",
-                                                            "Local Protection Not In Use"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x04, 8,
-                                                            "Bandwidth Protection Available",
-                                                            "Bandwidth Protection Not Available"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x08, 8,
-                                                            "Node Protection Available",
-                                                            "Node Protection Not Available"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x10, 8,
-                                                            "Address Specifies a Node-id Address",
-                                                            "Address Doesn't Specify a Node-id Address"));
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_local_avail,
+                             tvb, offset+l+7, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_local_in_use,
+                             tvb, offset+l+7, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_bandwidth,
+                             tvb, offset+l+7, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_node,
+                             tvb, offset+l+7, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_node_address,
+                             tvb, offset+l+7, 1, ENC_BIG_ENDIAN);
             }
 
             break;
@@ -4332,26 +4330,18 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
                                           "Flags: 0x%02x", flags);
                 rsvp_rro_flags_subtree =
                     proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x01, 8,
-                                                            "Local Protection Available",
-                                                            "Local Protection Not Available"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x02, 8,
-                                                            "Local Protection In Use",
-                                                            "Local Protection Not In Use"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x04, 8,
-                                                            "Backup Tunnel Has Bandwidth",
-                                                            "Backup Tunnel Does Not Have Bandwidth"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x08, 8,
-                                                            "Backup Tunnel Goes To Next-Next-Hop",
-                                                            "Backup Tunnel Goes To Next-Hop"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x10, 8,
-                                                            "Address Specifies a Node-id Address",
-                                                            "Address Doesn't Specify a Node-id Address"));
+
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_local_avail,
+                             tvb, offset+l+19, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_local_in_use,
+                             tvb, offset+l+19, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_backup_tunnel_bandwidth,
+                             tvb, offset+l+19, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_backup_tunnel_hop,
+                             tvb, offset+l+19, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_node_address,
+                             tvb, offset+l+19, 1, ENC_BIG_ENDIAN);
+
             }
 
             break;
@@ -4384,22 +4374,15 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
                                           "Flags: 0x%02x", flags);
                 rsvp_rro_flags_subtree =
                     proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x01, 8,
-                                                            "Local Protection Available",
-                                                            "Local Protection Not Available"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x02, 8,
-                                                            "Local Protection In Use",
-                                                            "Local Protection Not In Use"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x04, 8,
-                                                            "Backup Tunnel Has Bandwidth",
-                                                            "Backup Tunnel Does Not Have Bandwidth"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x08, 8,
-                                                            "Backup Tunnel Goes To Next-Next-Hop",
-                                                            "Backup Tunnel Goes To Next-Hop"));
+
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_local_avail,
+                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_local_in_use,
+                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_backup_tunnel_bandwidth,
+                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_backup_tunnel_hop,
+                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
             }
             proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+3, 1,
                                 "C-Type: %u",
@@ -4443,22 +4426,14 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
                                           "Flags: 0x%02x", flags);
                 rsvp_rro_flags_subtree =
                     proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x01, 8,
-                                                            "Local Protection Available",
-                                                            "Local Protection Not Available"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x02, 8,
-                                                            "Local Protection In Use",
-                                                            "Local Protection Not In Use"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x04, 8,
-                                                            "Backup Tunnel Has Bandwidth",
-                                                            "Backup Tunnel Does Not Have Bandwidth"));
-                proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
-                                    decode_boolean_bitfield(flags, 0x08, 8,
-                                                            "Backup Tunnel Goes To Next-Next-Hop",
-                                                            "Backup Tunnel Goes To Next-Hop"));
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_local_avail,
+                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_local_in_use,
+                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_backup_tunnel_bandwidth,
+                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_backup_tunnel_hop,
+                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
             }
             proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+4, 4,
                                 "Router-ID: %s",
@@ -5003,18 +4978,12 @@ dissect_rsvp_lsp_attributes(proto_tree *ti, proto_tree *rsvp_object_tree,
                 ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off, tlv_len,
                                           "LSP attributes TLV: 0x%08x", attributes);
                 rsvp_lsp_attr_subtree = proto_item_add_subtree(ti2, TREE(TT_LSP_ATTRIBUTES_FLAGS));
-                proto_tree_add_text(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, 4,
-                                    "%s", decode_boolean_bitfield(attributes, 0x01, 32,
-                                                                  "E2E re-routing desired",
-                                                                  "E2E re-routing NOT desired"));
-                proto_tree_add_text(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, 4,
-                                    "%s", decode_boolean_bitfield(attributes, 0x02, 32,
-                                                                  "Boundary re-routing desired",
-                                                                  "Boundary re-routing NOT desired"));
-                proto_tree_add_text(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, 4,
-                                    "%s", decode_boolean_bitfield(attributes, 0x04, 32,
-                                                                  "Segment-based re-routing desired",
-                                                                  "Segment-based re-routing NOT desired"));
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_e2e,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_boundary,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_segment,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(ti, "LSP Attribute:%s%s%s",
                                        (attributes & 0x01) ? " End-to-end re-routing" : "",
                                        (attributes & 0x02) ? " Boundary re-routing" : "",
@@ -5607,12 +5576,8 @@ dissect_rsvp_gen_uni(proto_tree *ti, proto_tree *rsvp_object_tree,
                                     "Type: %d", k);
                 proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
                                     "Length: %u", sobj_len);
-                proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 1,
-                                    "Direction: %s",
-                                    decode_boolean_bitfield(
-                                        tvb_get_guint8(tvb, offset2+l+4), 0x80, 8,
-                                        "U: 1 - Upstream label/port ID",
-                                        "U: 0 - Downstream label/port ID"));
+                proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_gen_uni_direction,
+                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+7, 1,
                                     "Label type: %u", tvb_get_guint8(tvb, offset2+l+7));
                 proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+8, 4,
@@ -5874,7 +5839,7 @@ dissect_rsvp_protection_info(proto_tree *ti, proto_tree *rsvp_object_tree,
                              int offset, int obj_length,
                              int rsvp_class _U_, int type)
 {
-    guint8      flags1, flags2, lsp_flags, link_flags, seg_flags;
+    guint8      flags1, lsp_flags, link_flags, seg_flags;
     proto_tree *ti2, *ti3, *ti4, *rsvp_pi_link_flags_tree, *rsvp_pi_lsp_flags_tree, *rsvp_pi_seg_flags_tree;
     int         offset2 = offset + 4;
 
@@ -5884,41 +5849,27 @@ dissect_rsvp_protection_info(proto_tree *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
                             "C-type: 1");
         flags1 = tvb_get_guint8(tvb, offset2);
-        flags1 >>= 4;
-        proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
-                            "Secondary LSP: %s",
-                            decode_boolean_bitfield(flags1, 0x08, 4, "Yes", "No"));
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_protection_info_flags_secondary_lsp,
+                             tvb, offset2, 1, ENC_BIG_ENDIAN);
 
         link_flags = tvb_get_guint8(tvb, offset2+3);
         ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+3, 1,
                                   "Link Flags: 0x%02x", link_flags);
         rsvp_pi_link_flags_tree = proto_item_add_subtree(ti2, TREE(TT_PROTECTION_INFO_LINK));
-        proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
-                            decode_boolean_bitfield(link_flags, 0x01, 8,
-                                                    "Extra Traffic desired",
-                                                    "Extra Traffic NOT desired"));
-        proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
-                            decode_boolean_bitfield(link_flags, 0x02, 8,
-                                                    "Unprotected desired",
-                                                    "Unprotected NOT desired"));
-        proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
-                            decode_boolean_bitfield(link_flags, 0x04, 8,
-                                                    "Shared desired",
-                                                    "Shared NOT desired"));
-        proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
-                            decode_boolean_bitfield(link_flags, 0x08, 8,
-                                                    "Dedicated 1:1 desired",
-                                                    "Dedicated 1:1 NOT desired"));
-        proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
-                            decode_boolean_bitfield(link_flags, 0x10, 8,
-                                                    "Dedicated 1+1 desired",
-                                                    "Dedicated 1+1 NOT desired"));
-        proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
-                            decode_boolean_bitfield(link_flags, 0x20, 8,
-                                                    "Enhanced desired",
-                                                    "Enhanced NOT desired"));
+        proto_tree_add_item(rsvp_pi_link_flags_tree, hf_rsvp_pi_link_flags_extra_traffic,
+                             tvb, offset2+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_link_flags_tree, hf_rsvp_pi_link_flags_unprotected,
+                             tvb, offset2+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_link_flags_tree, hf_rsvp_pi_link_flags_shared,
+                             tvb, offset2+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_link_flags_tree, hf_rsvp_pi_link_flags_dedicated1_1,
+                             tvb, offset2+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_link_flags_tree, hf_rsvp_pi_link_flags_dedicated1plus1,
+                             tvb, offset2+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_link_flags_tree, hf_rsvp_pi_link_flags_enhanced,
+                             tvb, offset2+3, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "%s%s%s%s%s%s%s.",
-                               flags1&0x08 ? "SecondaryLSP ":"",
+                               flags1&0x80 ? "SecondaryLSP ":"",
                                link_flags&0x01 ? "ExtraTraffic ":"",
                                link_flags&0x02 ? "Unprotected ":"",
                                link_flags&0x04 ? "Shared ":"",
@@ -5931,19 +5882,14 @@ dissect_rsvp_protection_info(proto_tree *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
                             "C-type:2");
         flags1 = tvb_get_guint8(tvb, offset2);
-        flags1 >>= 4;
-        proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
-                            "Secondary LSP:    %s",
-                            decode_boolean_bitfield(flags1, 0x08, 4, "Yes", "No"));
-        proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
-                            "Protecting LSP:   %s",
-                            decode_boolean_bitfield(flags1, 0x04, 4, "Yes", "No"));
-        proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
-                            "Notification msg: %s",
-                            decode_boolean_bitfield(flags1, 0x02, 4, "Yes", "No"));
-        proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
-                            "Operational LSP:  %s",
-                            decode_boolean_bitfield(flags1, 0x01, 4, "Yes", "No"));
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_rfc4872_secondary,
+                             tvb, offset2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_rfc4872_protecting,
+                             tvb, offset2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_rfc4872_notification_msg,
+                             tvb, offset2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_rfc4872_operational,
+                             tvb, offset2, 1, ENC_BIG_ENDIAN);
 
         lsp_flags = tvb_get_guint8(tvb, offset2+1);
         ti3 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
@@ -5955,26 +5901,16 @@ dissect_rsvp_protection_info(proto_tree *ti, proto_tree *rsvp_object_tree,
                                   lsp_flags&0x08 ? " 1+1 Unidirectional protection":"",
                                   lsp_flags&0x10 ? " 1+1 Bidirectional protection":"");
         rsvp_pi_lsp_flags_tree = proto_item_add_subtree(ti3, TREE(TT_PROTECTION_INFO_LSP));
-        proto_tree_add_text(rsvp_pi_lsp_flags_tree, tvb, offset2+1, 1, "%s",
-                            decode_boolean_bitfield(lsp_flags, 0x01, 6,
-                                                    "(Full) rerouting desired",
-                                                    "(Full) rerouting NOT desired"));
-        proto_tree_add_text(rsvp_pi_lsp_flags_tree, tvb, offset2+1, 1, "%s",
-                            decode_boolean_bitfield(lsp_flags, 0x02, 6,
-                                                    "Rerouting without extra-traffic desired",
-                                                    "Rerouting without extra-traffic NOT desired"));
-        proto_tree_add_text(rsvp_pi_lsp_flags_tree, tvb, offset2+1, 1, "%s",
-                            decode_boolean_bitfield(lsp_flags, 0x04, 6,
-                                                    "1:N protection with extra-traffic desired",
-                                                    "1:N protection with extra-traffic NOT desired"));
-        proto_tree_add_text(rsvp_pi_lsp_flags_tree, tvb, offset2+1, 1, "%s",
-                            decode_boolean_bitfield(lsp_flags, 0x08, 6,
-                                                    "1+1 unidirectional protection desired",
-                                                    "1+1 unidirectional protection NOT desired"));
-        proto_tree_add_text(rsvp_pi_lsp_flags_tree, tvb, offset2+1, 1, "%s",
-                            decode_boolean_bitfield(lsp_flags, 0x10, 6,
-                                                    "1+1 bidirectional protection desired",
-                                                    "1+1 bidirectional protection NOT desired"));
+        proto_tree_add_item(rsvp_pi_lsp_flags_tree, hf_rsvp_pi_lsp_flags_full_rerouting,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_lsp_flags_tree, hf_rsvp_pi_lsp_flags_rerouting_extra,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_lsp_flags_tree, hf_rsvp_pi_lsp_flags_1_n_protection,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_lsp_flags_tree, hf_rsvp_pi_lsp_flags_1plus1_unidirectional,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_lsp_flags_tree, hf_rsvp_pi_lsp_flags_1plus1_bidirectional,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
 
         link_flags = tvb_get_guint8(tvb, offset2+3);
         ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+3, 1,
@@ -5985,41 +5921,24 @@ dissect_rsvp_protection_info(proto_tree *ti, proto_tree *rsvp_object_tree,
                                   link_flags&0x08 ? " Dedicated1:1":"",
                                   link_flags&0x10 ? " Dedicated1+1":"",
                                   link_flags&0x20 ? " Enhanced":"");
-        rsvp_pi_link_flags_tree = proto_item_add_subtree(ti2,
-                                                         TREE(TT_PROTECTION_INFO_LINK));
-        proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
-                            decode_boolean_bitfield(link_flags, 0x01, 8,
-                                                    "Extra Traffic desired",
-                                                    "Extra Traffic NOT desired"));
-        proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
-                            decode_boolean_bitfield(link_flags, 0x02, 8,
-                                                    "Unprotected desired",
-                                                    "Unprotected NOT desired"));
-        proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
-                            decode_boolean_bitfield(link_flags, 0x04, 8,
-                                                    "Shared desired",
-                                                    "Shared NOT desired"));
-        proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
-                            decode_boolean_bitfield(link_flags, 0x08, 8,
-                                                    "Dedicated 1:1 desired",
-                                                    "Dedicated 1:1 NOT desired"));
-        proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
-                            decode_boolean_bitfield(link_flags, 0x10, 8,
-                                                    "Dedicated 1+1 desired",
-                                                    "Dedicated 1+1 NOT desired"));
-        proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
-                            decode_boolean_bitfield(link_flags, 0x20, 8,
-                                                    "Enhanced desired",
-                                                    "Enhanced NOT desired"));
+        rsvp_pi_link_flags_tree = proto_item_add_subtree(ti2, TREE(TT_PROTECTION_INFO_LINK));
+        proto_tree_add_item(rsvp_pi_link_flags_tree, hf_rsvp_pi_link_flags_extra,
+                             tvb, offset2+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_link_flags_tree, hf_rsvp_pi_link_flags_unprotected,
+                             tvb, offset2+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_link_flags_tree, hf_rsvp_pi_link_flags_shared,
+                             tvb, offset2+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_link_flags_tree, hf_rsvp_pi_link_flags_dedicated_1_1,
+                             tvb, offset2+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_link_flags_tree, hf_rsvp_pi_link_flags_dedicated_1plus1,
+                             tvb, offset2+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_link_flags_tree, hf_rsvp_pi_link_flags_enhanced,
+                             tvb, offset2+3, 1, ENC_BIG_ENDIAN);
 
-        flags2 = tvb_get_guint8(tvb, offset2+4);
-        flags2 >>= 6;
-        proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 1,
-                            "In-Place:   %s",
-                            decode_boolean_bitfield(flags2, 0x02, 2, "Yes", "No"));
-        proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 1,
-                            "Required:   %s",
-                            decode_boolean_bitfield(flags2, 0x01, 2, "Yes", "No"));
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_protection_info_in_place,
+                             tvb, offset2+4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_protection_info_required,
+                             tvb, offset2+4, 1, ENC_BIG_ENDIAN);
 
         seg_flags = tvb_get_guint8(tvb, offset2+5);
         ti4 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+5, 1,
@@ -6031,32 +5950,22 @@ dissect_rsvp_protection_info(proto_tree *ti, proto_tree *rsvp_object_tree,
                                   seg_flags&0x08 ? " 1+1 Unidirectional protection":"",
                                   seg_flags&0x10 ? " 1+1 Bidirectional protection":"");
         rsvp_pi_seg_flags_tree = proto_item_add_subtree(ti4, TREE(TT_PROTECTION_INFO_SEG));
-        proto_tree_add_text(rsvp_pi_seg_flags_tree, tvb, offset2+5, 1, "%s",
-                            decode_boolean_bitfield(seg_flags, 0x01, 6,
-                                                    "(Full) rerouting desired",
-                                                    "(Full) rerouting NOT desired"));
-        proto_tree_add_text(rsvp_pi_seg_flags_tree, tvb, offset2+5, 1, "%s",
-                            decode_boolean_bitfield(seg_flags, 0x02, 6,
-                                                    "Rerouting without extra-traffic desired",
-                                                    "Rerouting without extra-traffic NOT desired"));
-        proto_tree_add_text(rsvp_pi_seg_flags_tree, tvb, offset2+5, 1, "%s",
-                            decode_boolean_bitfield(seg_flags, 0x04, 6,
-                                                    "1:N protection with extra-traffic desired",
-                                                    "1:N protection with extra-traffic NOT desired"));
-        proto_tree_add_text(rsvp_pi_seg_flags_tree, tvb, offset2+5, 1, "%s",
-                            decode_boolean_bitfield(seg_flags, 0x08, 6,
-                                                    "1+1 unidirectional protection desired",
-                                                    "1+1 unidirectional protection NOT desired"));
-        proto_tree_add_text(rsvp_pi_seg_flags_tree, tvb, offset2+5, 1, "%s",
-                            decode_boolean_bitfield(seg_flags, 0x10, 6,
-                                                    "1+1 bidirectional protection desired",
-                                                    "1+1 bidirectional protection NOT desired"));
+        proto_tree_add_item(rsvp_pi_seg_flags_tree, hf_rsvp_pi_seg_flags_full_rerouting,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_seg_flags_tree, hf_rsvp_pi_seg_flags_rerouting_extra,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_seg_flags_tree, hf_rsvp_pi_seg_flags_1_n_protection,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_seg_flags_tree, hf_rsvp_pi_seg_flags_1plus1_unidirectional,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_pi_seg_flags_tree, hf_rsvp_pi_seg_flags_1plus1_bidirectional,
+                             tvb, offset2+1, 1, ENC_BIG_ENDIAN);
 
         proto_item_append_text(ti, "%s%s%s%s Link:%s%s%s%s%s%s, LSP:%s%s%s%s%s%s.",
-                               flags1&0x08 ? "SecondaryLSP ":"",
-                               flags1&0x04 ? "ProtectingLSP ":"",
-                               flags1&0x02 ? "Notification ":"",
-                               flags1&0x01 ? "OperationalLSP ":"",
+                               flags1&0x80 ? "SecondaryLSP ":"",
+                               flags1&0x40 ? "ProtectingLSP ":"",
+                               flags1&0x20 ? "Notification ":"",
+                               flags1&0x10 ? "OperationalLSP ":"",
                                link_flags&0x01 ? " ExtraTraffic":"",
                                link_flags&0x02 ? " Unprotected":"",
                                link_flags&0x04 ? " Shared":"",
@@ -6115,16 +6024,11 @@ dissect_rsvp_fast_reroute(proto_tree *ti, proto_tree *rsvp_object_tree,
         flags = tvb_get_guint8(tvb, offset+7);
         ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset+7, 1,
                                   "Flags: 0x%02x", flags);
-        rsvp_frr_flags_tree = proto_item_add_subtree(ti2,
-                                                     TREE(TT_FAST_REROUTE_FLAGS));
-        proto_tree_add_text(rsvp_frr_flags_tree, tvb, offset+7, 1, "%s",
-                            decode_boolean_bitfield(flags, 0x01, 8,
-                                                    "One-to-One Backup desired",
-                                                    "One-to-One Backup not desired"));
-        proto_tree_add_text(rsvp_frr_flags_tree, tvb, offset+7, 1, "%s",
-                            decode_boolean_bitfield(flags, 0x02, 8,
-                                                    "Facility Backup desired",
-                                                    "Facility Backup not desired"));
+        rsvp_frr_flags_tree = proto_item_add_subtree(ti2, TREE(TT_FAST_REROUTE_FLAGS));
+        proto_tree_add_item(rsvp_frr_flags_tree, hf_rsvp_frr_flags_one2one_backup,
+                             tvb, offset+7, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_frr_flags_tree, hf_rsvp_frr_flags_facility_backup,
+                             tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
                             "Bandwidth: %.10g", tvb_get_ntohieee_float(tvb, offset+8));
         proto_tree_add_text(rsvp_object_tree, tvb, offset+12, 4,
@@ -7372,7 +7276,506 @@ proto_register_rsvp(void)
          { "Enterprise Code", "rsvp.obj_private.enterprise",
            FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
            "IANA Network Management Private Enterprise Code", HFILL }
-        }
+        },
+
+        {&hf_rsvp_error_flags,
+         { "Flags", "rsvp.error_flags",
+           FT_UINT8, BASE_HEX, NULL, 0x0,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_error_flags_path_state_removed,
+         { "Path State Removed", "rsvp.error_flags.path_state_removed",
+           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_error_flags_not_guilty,
+         { "NotGuilty", "rsvp.error_flags.not_guilty",
+           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_error_flags_in_place,
+         { "InPlace", "rsvp.error_flags.in_place",
+           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_eth_tspec_tlv_color_mode,
+         { "Color Mode (CM)", "rsvp.eth_tspec_tlv.color_mode",
+           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_eth_tspec_tlv_coupling_flag,
+         { "Coupling Flag (CF)", "rsvp.eth_tspec_tlv.coupling_flag",
+           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_standard_contiguous_concatenation,
+         { "Standard contiguous concatenation", "rsvp.sender_tspec.standard_contiguous_concatenation",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_arbitrary_contiguous_concatenation,
+         { "Arbitrary contiguous concatenation", "rsvp.sender_tspec.arbitrary_contiguous_concatenation",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_regenerator_section,
+         { "Section/Regenerator Section layer transparency", "rsvp.sender_tspec.regenerator_section",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0001,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_multiplex_section,
+         { "Line/Multiplex Section layer transparency", "rsvp.sender_tspec.multiplex_section",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0002,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_J0_transparency,
+         { "J0 transparency", "rsvp.sender_tspec.J0_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0004,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_SOH_RSOH_DCC_transparency,
+         { "SOH/RSOH DCC transparency", "rsvp.sender_tspec.SOH_RSOH_DCC_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0008,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_LOH_MSOH_DCC_transparency,
+         { "LOH/MSOH DCC transparency", "rsvp.sender_tspec.LOH_MSOH_DCC_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0010,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_LOH_MSOH_extended_DCC_transparency,
+         { "LOH/MSOH Extended DCC transparency", "rsvp.sender_tspec.LOH_MSOH_extended_DCC_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0020,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_K1_K2_transparency,
+         { "K1/K2 transparency", "rsvp.sender_tspec.K1_K2_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0040,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_E1_transparency,
+         { "E1 transparency", "rsvp.sender_tspec.E1_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0080,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_F1_transparency,
+         { "F1 transparency", "rsvp.sender_tspec.F1_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0100,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_E2_transparency,
+         { "E2 transparency", "rsvp.sender_tspec.E2_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0200,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_B1_transparency,
+         { "B1 transparency", "rsvp.sender_tspec.B1_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0400,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_B2_transparency,
+         { "B2 transparency", "rsvp.sender_tspec.B2_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0800,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_M0_transparency,
+         { "M0 transparency", "rsvp.sender_tspec.M0_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x1000,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sender_tspec_M1_transparency,
+         { "M1 transparency", "rsvp.sender_tspec.M1_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x2000,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_standard_contiguous_concatenation,
+         { "Standard contiguous concatenation", "rsvp.flowspec.standard_contiguous_concatenation",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_arbitrary_contiguous_concatenation,
+         { "Arbitrary contiguous concatenation", "rsvp.flowspec.arbitrary_contiguous_concatenation",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_regenerator_section,
+         { "Section/Regenerator Section layer transparency", "rsvp.flowspec.regenerator_section",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0001,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_multiplex_section,
+         { "Line/Multiplex Section layer transparency", "rsvp.flowspec.multiplex_section",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0002,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_J0_transparency,
+         { "J0 transparency", "rsvp.flowspec.J0_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0004,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_SOH_RSOH_DCC_transparency,
+         { "SOH/RSOH DCC transparency", "rsvp.flowspec.SOH_RSOH_DCC_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0008,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_LOH_MSOH_DCC_transparency,
+         { "LOH/MSOH DCC transparency", "rsvp.flowspec.LOH_MSOH_DCC_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0010,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_LOH_MSOH_extended_DCC_transparency,
+         { "LOH/MSOH Extended DCC transparency", "rsvp.flowspec.LOH_MSOH_extended_DCC_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0020,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_K1_K2_transparency,
+         { "K1/K2 transparency", "rsvp.flowspec.K1_K2_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0040,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_E1_transparency,
+         { "E1 transparency", "rsvp.flowspec.E1_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0080,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_F1_transparency,
+         { "F1 transparency", "rsvp.flowspec.F1_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0100,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_E2_transparency,
+         { "E2 transparency", "rsvp.flowspec.E2_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0200,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_B1_transparency,
+         { "B1 transparency", "rsvp.flowspec.B1_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0400,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_B2_transparency,
+         { "B2 transparency", "rsvp.flowspec.B2_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0800,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_M0_transparency,
+         { "M0 transparency", "rsvp.flowspec.M0_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x1000,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_flowspec_M1_transparency,
+         { "M1 transparency", "rsvp.flowspec.M1_transparency",
+           FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x2000,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_integrity_flags_handshake,
+         { "Handshake", "rsvp.integrity.flags.handshake",
+           FT_BOOLEAN, 8, TFS(&tfs_capable_not_capable), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sa_flags_local,
+         { "Local protection", "rsvp.sa.flags.local",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sa_flags_label,
+         { "Label recording", "rsvp.sa.flags.label",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x02,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sa_flags_se_style,
+         { "SE style", "rsvp.sa.flags.se_style",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x04,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sa_flags_bandwidth,
+         { "Bandwidth protection", "rsvp.sa.flags.bandwidth",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x08,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_sa_flags_node,
+         { "Node protection", "rsvp.sa.flags.node",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x10,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_rro_flags_local_avail,
+         { "Local Protection", "rsvp.rro.flags.local_avail",
+           FT_BOOLEAN, 8, TFS(&tfs_available_not_available), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_rro_flags_local_in_use,
+         { "Local Protection", "rsvp.rro.flags.local_in_use",
+           FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x02,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_rro_flags_bandwidth,
+         { "Bandwidth Protection", "rsvp.rro.flags.bandwidth",
+           FT_BOOLEAN, 8, TFS(&tfs_available_not_available), 0x04,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_rro_flags_node,
+         { "Node Protection", "rsvp.rro.flags.node",
+           FT_BOOLEAN, 8, TFS(&tfs_available_not_available), 0x08,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_rro_flags_node_address,
+         { "Address Specifies a Node-id Address", "rsvp.rro.flags.node_address",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_rro_flags_backup_tunnel_bandwidth,
+         { "Backup Tunnel Has Bandwidth", "rsvp.rro.flags.backup_tunnel_bandwidth",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_rro_flags_backup_tunnel_hop,
+         { "Backup Tunnel Goes To", "rsvp.rro.flags.backup_tunnel_hop",
+           FT_BOOLEAN, 8, TFS(&tfs_next_next_hop_next_hop), 0x08,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_e2e,
+         { "E2E re-routing", "rsvp.lsp_attr.e2e",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_boundary,
+         { "Boundary re-routing", "rsvp.lsp_attr.boundary",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x02,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_segment,
+         { "Segment-based re-routing", "rsvp.lsp_attr.segment",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x04,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_gen_uni_direction,
+         { "Direction", "rsvp.gen_uni.direction",
+           FT_BOOLEAN, 8, TFS(&tfs_gen_uni_direction), 0x80,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_protection_info_flags_secondary_lsp,
+         { "Secondary LSP", "rsvp.pi.flags.secondary_lsp",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_link_flags_extra_traffic,
+         { "Extra Traffic", "rsvp.pi_link.flags.extra_traffic",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_link_flags_unprotected,
+         { "Unprotected", "rsvp.pi_link.flags.unprotected",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x02,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_link_flags_shared,
+         { "Shared", "rsvp.pi_link.flags.shared",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x04,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_link_flags_dedicated1_1,
+         { "Dedicated 1:1", "rsvp.pi_link.flags.dedicated1_1",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x08,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_link_flags_dedicated1plus1,
+         { "Dedicated 1+1", "rsvp.pi_link.flags.dedicated1plus1",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x10,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_link_flags_enhanced,
+         { "Enhanced", "rsvp.pi_link.flags.enhanced",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x20,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_link_flags_extra,
+         { "Extra Traffic", "rsvp.pi_link.flags.extra",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_link_flags_dedicated_1_1,
+         { "Dedicated 1:1", "rsvp.pi_link.flags.dedicated_1_1",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x08,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_link_flags_dedicated_1plus1,
+         { "Dedicated 1+1", "rsvp.pi_link.flags.dedicated_1plus1",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x10,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_rfc4872_secondary,
+         { "Secondary LSP", "rsvp.rfc4872.secondary",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_rfc4872_protecting,
+         { "Protecting LSP", "rsvp.rfc4872.protecting",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_rfc4872_notification_msg,
+         { "Protecting LSP", "rsvp.rfc4872.notification_msg",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_rfc4872_operational,
+         { "Protecting LSP", "rsvp.rfc4872.operational",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_lsp_flags_full_rerouting,
+         { "(Full) rerouting", "rsvp.pi_lsp.flags.full_rerouting",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_lsp_flags_rerouting_extra,
+         { "Rerouting without extra-traffic", "rsvp.pi_lsp.flags.rerouting_extra",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x02,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_lsp_flags_1_n_protection,
+         { "1:N protection with extra-traffic", "rsvp.pi_lsp.flags.1_n_protection",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x04,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_lsp_flags_1plus1_unidirectional,
+         { "1+1 unidirectional protection", "rsvp.pi_lsp.flags.1plus1_unidirectional",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x08,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_lsp_flags_1plus1_bidirectional,
+         { "1+1 bidirectional protection", "rsvp.pi_lsp.flags.1plus1_bidirectional",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x10,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_protection_info_in_place,
+         { "In-Place", "rsvp.protection_info.in_place",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_protection_info_required,
+         { "Required", "rsvp.protection_info.required",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_seg_flags_full_rerouting,
+         { "(Full) rerouting", "rsvp.pi_seg.flags.full_rerouting",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_seg_flags_rerouting_extra,
+         { "Rerouting without extra-traffic", "rsvp.pi_seg.flags.rerouting_extra",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x02,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_seg_flags_1_n_protection,
+         { "1:N protection with extra-traffic", "rsvp.pi_seg.flags.1_n_protection",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x04,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_seg_flags_1plus1_unidirectional,
+         { "1+1 unidirectional protection", "rsvp.pi_seg.flags.1plus1_unidirectional",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x08,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_pi_seg_flags_1plus1_bidirectional,
+         { "1+1 bidirectional protection", "rsvp.pi_seg.flags.1plus1_bidirectional",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x10,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_frr_flags_one2one_backup,
+         { "One-to-One Backup", "rsvp.frr.flags.one2one_backup",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x01,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_frr_flags_facility_backup,
+         { "Facility Backup", "rsvp.frr.flags.facility_backup",
+           FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x02,
+           NULL, HFILL }
+        },
+
     };
 
     gint *ett_tree[TT_MAX];
