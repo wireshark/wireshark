@@ -102,9 +102,9 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint            offset = 0;
     unsigned int    packet_type;
     unsigned int    cr;
-    unsigned int    pid;
+    unsigned int    pid = 0;
     unsigned int    transaction;
-    unsigned int    number_of_packets;
+    unsigned int    number_of_packets = 0;
     unsigned int    i_frame;
     fragment_t      *fragment;
     void            *save_private_data;
