@@ -26,7 +26,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 
 #include "wtap.h"
 
@@ -35,7 +34,7 @@
 /* TODO: add reoder list length as an optional param? */
 static void usage(void)
 {
-    printf("usage:  reorder <infile> <outfile>\n");
+    printf("usage:  reordercap <infile> <outfile>\n");
 }
 
 /* Remember where this frame was in the file */
@@ -73,7 +72,7 @@ static void ReorderListDebugPrint(void)
     FrameRecord_t *tmp = g_FrameListHead;
     printf("\n");
     while (tmp != NULL) {
-        printf("%6d: offset=%6llu, length=%6u, time=%lu:%u",
+        printf("%6d: offset=%6" G_GINT64_MODIFIER "u, length=%6u, time=%lu:%u",
                ++count, tmp->offset, tmp->length, tmp->time.secs, tmp->time.nsecs);
 
         if (tmp == g_FrameListHead) {
@@ -140,7 +139,7 @@ static void ReorderListAdd(gint64 offset, guint32 length,
     FrameRecord_t *newFrameRecord = g_malloc(sizeof(FrameRecord_t));
 
     /* Populate fields */
-    DEBUG_PRINT("\nAdded with offset=%06llu, length=%05u, secs=%lu, nsecs=%d\n",
+    DEBUG_PRINT("\nAdded with offset=%06" G_GINT64_MODIFIER "u, length=%05u, secs=%lu, nsecs=%d\n",
                 offset, length, time.secs, time.nsecs);
     newFrameRecord->offset = offset;
     newFrameRecord->length = length;
@@ -220,7 +219,7 @@ static void ReorderListDumpEarliest(wtap *wth, wtap_dumper *pdh)
 
     FrameRecord_t *prev_tail = g_FrameListTail;
 
-    DEBUG_PRINT("\nDumping frame (offset=%llu, length=%u) (%u items in list)\n", 
+    DEBUG_PRINT("\nDumping frame (offset=%" G_GINT64_MODIFIER "u, length=%u) (%u items in list)\n", 
                 g_FrameListHead->offset, g_FrameListHead->length,
                 g_FrameRecordCount);
 
@@ -338,7 +337,7 @@ int main(int argc, char *argv[])
 
     /* Close outfile */
     if (!wtap_dump_close(pdh, &err)) {
-        printf("reorder: Error closing %s: %s\n", outfile, wtap_strerror(err));
+        printf("Error closing %s: %s\n", outfile, wtap_strerror(err));
         exit(1);
     }
 
