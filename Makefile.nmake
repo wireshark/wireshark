@@ -353,7 +353,7 @@ mergecap.exe	: $(LIBS_CHECK)  config.h mergecap.obj merge.obj wsutil\libwsutil.l
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
 !ENDIF
 
-reordercapcap.exe	: $(LIBS_CHECK)  config.h reordercap.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\reordercap.res
+reordercap.exe	: $(LIBS_CHECK)  config.h reordercap.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\reordercap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:reordercap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console reordercap.obj $(reordercap_LIBS) setargv.obj image\reordercap.res
