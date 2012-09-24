@@ -176,13 +176,15 @@ static void ReorderListAdd(gint64 offset, guint32 length,
                 newFrameRecord->prev = tmp->prev;
                 /* Its next points to us */
                 newFrameRecord->prev->next = newFrameRecord;
+
+                /* Inserted after another item */
+                DEBUG_PRINT("*** Inc out out of order count\n");
+                g_OutOfOrder++;
             }
 
             /* Fix up next item */
             newFrameRecord->next = tmp;
             tmp->prev = newFrameRecord;
-
-            g_OutOfOrder++;
 
             return;
         }
@@ -196,6 +198,10 @@ static void ReorderListAdd(gint64 offset, guint32 length,
             newFrameRecord->prev = tmp;
             newFrameRecord->next = NULL;
             g_FrameListTail = newFrameRecord;
+
+            /* There were other items but we were earlier than them */
+            DEBUG_PRINT("*** Inc out out of order count\n");
+            g_OutOfOrder++;
 
             return;
         }
