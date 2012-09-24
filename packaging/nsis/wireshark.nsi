@@ -887,6 +887,12 @@ File "${STAGING_DIR}\mergecap.exe"
 File "..\..\doc\mergecap.html"
 SectionEnd
 
+Section "Reordercap" SecReordercap
+;-------------------------------------------
+SetOutPath $INSTDIR
+File "${STAGING_DIR}\reordercap.exe"
+SectionEnd
+
 Section "Capinfos" SecCapinfos
 ;-------------------------------------------
 SetOutPath $INSTDIR
@@ -940,6 +946,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecReordercap} "Reordercap is a program that copies frames from an input capture to an output capture after sorting by time."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Capinfos is a program that provides information on capture files."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Rawshark is a raw packet filter."
 !ifdef HHC_DIR
