@@ -4390,12 +4390,12 @@ dissect_spc_senddiagnostic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     if (!tree && !isreq)
         return;
 
-    proto_tree_add_uint(tree, hf_scsi_senddiag_st_code, tvb, offset, 1, 0);
-    proto_tree_add_boolean(tree, hf_scsi_senddiag_pf, tvb, offset, 1, 0);
-    proto_tree_add_boolean(tree, hf_scsi_senddiag_st, tvb, offset, 1, 0);
-    proto_tree_add_boolean(tree, hf_scsi_senddiag_devoff, tvb, offset, 1, 0);
-    proto_tree_add_boolean(tree, hf_scsi_senddiag_unitoff, tvb, offset, 1, 0);
-    proto_tree_add_uint(tree, hf_scsi_paramlen16, tvb, offset+2, 2, 0);
+    proto_tree_add_item(tree, hf_scsi_senddiag_st_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_scsi_senddiag_pf, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_scsi_senddiag_st, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_scsi_senddiag_devoff, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_scsi_senddiag_unitoff, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_scsi_paramlen16, tvb, offset+2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
                            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
 }
@@ -4408,10 +4408,10 @@ dissect_spc_writebuffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (!tree && !isreq)
         return;
 
-    proto_tree_add_uint(tree, hf_scsi_wb_mode, tvb, offset, 1, 0);
-    proto_tree_add_uint(tree, hf_scsi_wb_bufferid, tvb, offset+1, 1, 0);
-    proto_tree_add_uint(tree, hf_scsi_wb_bufoffset, tvb, offset+2, 3, 0);
-    proto_tree_add_uint(tree, hf_scsi_paramlen24, tvb, offset+5, 3, 0);
+    proto_tree_add_item(tree, hf_scsi_wb_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_scsi_wb_bufferid, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_scsi_wb_bufoffset, tvb, offset+2, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_scsi_paramlen24, tvb, offset+5, 3, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
                            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
 }
