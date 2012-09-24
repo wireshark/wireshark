@@ -269,6 +269,57 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     return 1;
 }
 
+/* Ugly, but much faster than using g_snprintf! */
+static void write_timestamp_string(char *timestamp_string, int secs, int tenthousandths)
+{
+    int idx = 0;
+
+    /* Secs */
+    if (secs < 10) {
+        timestamp_string[idx++] = ((secs % 10))         + '0';
+    }
+    else if (secs < 100) {
+        timestamp_string[idx++] = ( secs  /       10)   + '0';
+        timestamp_string[idx++] = ((secs % 10))          + '0';
+    }
+    else if (secs < 1000) {
+        timestamp_string[idx++] = ((secs)         / 100)   + '0';
+        timestamp_string[idx++] = ((secs % 100))  / 10     + '0';
+        timestamp_string[idx++] = ((secs % 10))            + '0';
+    }
+    else if (secs < 10000) {
+        timestamp_string[idx++] = ((secs)          / 1000)   + '0';
+        timestamp_string[idx++] = ((secs % 1000))  / 100     + '0';
+        timestamp_string[idx++] = ((secs % 100))   / 10      + '0';
+        timestamp_string[idx++] = ((secs % 10))              + '0';
+    }
+    else if (secs < 100000) {
+        timestamp_string[idx++] = ((secs)          / 10000)   + '0';
+        timestamp_string[idx++] = ((secs % 10000)) / 1000     + '0';
+        timestamp_string[idx++] = ((secs % 1000))  / 100      + '0';
+        timestamp_string[idx++] = ((secs % 100))   / 10       + '0';
+        timestamp_string[idx++] = ((secs % 10))               + '0';
+    }
+    else if (secs < 1000000) {
+        timestamp_string[idx++] = ((secs)           / 100000) + '0';
+        timestamp_string[idx++] = ((secs % 100000)) / 10000   + '0';
+        timestamp_string[idx++] = ((secs % 10000))  / 1000    + '0';
+        timestamp_string[idx++] = ((secs % 1000))   / 100     + '0';
+        timestamp_string[idx++] = ((secs % 100))    / 10      + '0';
+        timestamp_string[idx++] = ((secs % 10))               + '0';
+    }
+    else {
+        g_snprintf(timestamp_string, MAX_TIMESTAMP_LEN, "%d.%04d", secs, tenthousandths);
+        return;
+    }
+
+    timestamp_string[idx++] = '.';
+    timestamp_string[idx++] = ( tenthousandths          / 1000) + '0';
+    timestamp_string[idx++] = ((tenthousandths % 1000)  / 100)  + '0';
+    timestamp_string[idx++] = ((tenthousandths % 100)   / 10)   + '0';
+    timestamp_string[idx++] = ((tenthousandths % 10))           + '0';
+    timestamp_string[idx++] = '\0';
+}
 
 /**************************************************/
 /* Read packet function.                          */
@@ -337,7 +388,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             char timestamp_string[MAX_TIMESTAMP_LEN+1];
             gint64 *pkey = NULL;
 
-            g_snprintf(timestamp_string, MAX_TIMESTAMP_LEN, "%d.%04d", seconds, useconds/100);
+            write_timestamp_string(timestamp_string, seconds, useconds/100);
 
             wth->phdr.presence_flags = WTAP_HAS_TS;
 
@@ -500,7 +551,8 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
         int n;
         int stub_offset = 0;
         char timestamp_string[MAX_TIMESTAMP_LEN+1];
-        g_snprintf(timestamp_string, MAX_TIMESTAMP_LEN, "%d.%04d", seconds, useconds/100);
+
+        write_timestamp_string(timestamp_string, seconds, useconds/100);
 
         /* Make sure all packets go to catapult dct2000 dissector */
         wth->phdr.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
@@ -627,6 +679,8 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     gchar time_string[16];
     gboolean is_comment;
     dct2000_dump_t *dct2000;
+    int consecutive_slashes=0;
+    char *p_c;
 
     /******************************************************/
     /* Get the file_externals structure for this file */
@@ -685,18 +739,27 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     }
 
     /* Can infer from prefix if this is a comment (whose payload is displayed differently) */
-    is_comment = (strstr(prefix->before_time, "/////") != NULL);
+    /* This is much faster than strstr() for "/////" */
+    p_c = prefix->before_time;
+    while (p_c && (*p_c != '/')) {
+        p_c++;
+    }
+    while (p_c && (*p_c == '/')) {
+        consecutive_slashes++;
+        p_c++;
+    }
+    is_comment = (consecutive_slashes == 5);
 
     /* Calculate time of this packet to write, relative to start of dump */
     if (phdr->ts.nsecs >= dct2000->start_time.nsecs) {
-        g_snprintf(time_string, 16, "%ld.%04d",
-                  (long)(phdr->ts.secs - dct2000->start_time.secs),
-                  (phdr->ts.nsecs - dct2000->start_time.nsecs) / 100000);
+        write_timestamp_string(time_string,
+                               (long)(phdr->ts.secs - dct2000->start_time.secs),
+                               (phdr->ts.nsecs - dct2000->start_time.nsecs) / 100000);
     }
     else {
-        g_snprintf(time_string, 16, "%ld.%04u",
-                  (long)(phdr->ts.secs - dct2000->start_time.secs-1),
-                  ((1000000000 + (phdr->ts.nsecs / 100000)) - (dct2000->start_time.nsecs / 100000)) % 10000);
+        write_timestamp_string(time_string,
+                               (long)(phdr->ts.secs - dct2000->start_time.secs-1),
+                               ((1000000000 + (phdr->ts.nsecs / 100000)) - (dct2000->start_time.nsecs / 100000)) % 10000);
     }
 
     /* Write out the calculated timestamp */
@@ -876,7 +939,7 @@ parse_line(gchar *linebuff, gint line_length,
             }
 
             /* There is no variant, outhdr, etc.  Set protocol to be a comment */
-            g_snprintf(protocol_name, MAX_PROTOCOL_NAME, "comment");
+            g_strlcpy(protocol_name, "comment", MAX_PROTOCOL_NAME);
             *is_comment = TRUE;
             break;
         }
@@ -923,7 +986,12 @@ parse_line(gchar *linebuff, gint line_length,
             return FALSE;
         }
         port_number_string[port_digits] = '\0';
-        *context_portp = atoi(port_number_string);
+        if (port_digits == 1) {
+            *context_portp = port_number_string[0] - '0';
+        }
+        else {
+            *context_portp = atoi(port_number_string);
+        }
         /* Skip it */
         n++;
 
@@ -964,12 +1032,19 @@ parse_line(gchar *linebuff, gint line_length,
         if (variant_digits > MAX_VARIANT_DIGITS || (n+1 >= line_length)) {
             return FALSE;
         }
+
         if (variant_digits > 0) {
             variant_name[variant_digits] = '\0';
-            variant = atoi(variant_name);
+            if (variant_digits == 1) {
+                variant = variant_name[0] - '0';
+            }
+            else {
+                variant = atoi(variant_name);
+            }
         }
         else {
-            g_strlcpy(variant_name, "1", MAX_VARIANT_DIGITS+1);
+            variant_name[0] = '1';
+            variant_name[1] = '\0';
         }
 
 
@@ -1013,11 +1088,7 @@ parse_line(gchar *linebuff, gint line_length,
 
     /* FP may be carried over ATM, which has separate atm header to parse */
     if ((strcmp(protocol_name, "fp") == 0) ||
-        (strcmp(protocol_name, "fp_r4") == 0) ||
-        (strcmp(protocol_name, "fp_r5") == 0) ||
-        (strcmp(protocol_name, "fp_r6") == 0) ||
-        (strcmp(protocol_name, "fp_r7") == 0) ||
-        (strcmp(protocol_name, "fp_r8") == 0)) {
+        (strncmp(protocol_name, "fp_r", 4) == 0)) {
 
         if ((variant > 256) && (variant % 256 == 3)) {
             /* FP over udp is contained in IPPrim... */
