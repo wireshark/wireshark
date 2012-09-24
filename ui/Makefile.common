@@ -54,6 +54,7 @@ noinst_HEADERS = \
 	alert_box.h		\
 	capture_globals.h	\
 	last_open_dir.h		\
+	file_dialog.h		\
 	help_url.h		\
 	iface_lists.h		\
 	main_statusbar.h	\

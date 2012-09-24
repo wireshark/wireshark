@@ -56,6 +56,7 @@
 #include "../color_filters.h"
 #include "../merge.h"
 
+#include "ui/file_dialog.h"
 #include "ui/last_open_dir.h"
 
 #include "ui/gtk/main.h"
@@ -136,8 +137,8 @@ static TCHAR *build_file_open_type_list(void);
 static TCHAR *build_file_save_type_list(GArray *savable_file_types,
                                         gboolean must_support_comments);
 
-static int            filetype;
-static gboolean       use_compression;
+static int            g_filetype;
+static gboolean       g_compressed;
 static packet_range_t g_range;
 static merge_action_e g_merge_action;
 static print_args_t   print_args;
@@ -164,7 +165,7 @@ static char *g_dfilter_str = NULL;
 gboolean
 win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
     OPENFILENAME *ofn;
-    TCHAR file_name_w[MAX_PATH] = _T("");
+    TCHAR file_name16[MAX_PATH] = _T("");
     int ofnsize;
     gboolean gofn_ok;
 #if (_MSC_VER >= 1500)
@@ -175,7 +176,7 @@ win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
         return FALSE;
 
     if (file_name->len > 0) {
-        StringCchCopy(file_name_w, MAX_PATH, utf_8to16(file_name->str));
+        StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
     }
 
     if (display_filter->len > 0) {
@@ -231,7 +232,7 @@ win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
     ofn->nFilterIndex = FILE_OPEN_DEFAULT;
-    ofn->lpstrFile = file_name_w;
+    ofn->lpstrFile = file_name16;
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
@@ -251,7 +252,7 @@ win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
     gofn_ok = GetOpenFileName(ofn);
 
     if (gofn_ok) {
-        g_string_printf(file_name, "%s", utf_16to8(file_name_w));
+        g_string_printf(file_name, "%s", utf_16to8(file_name16));
         g_string_printf(display_filter, "%s", g_dfilter_str ? g_dfilter_str : "");
     }
 
@@ -262,15 +263,8 @@ win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
     return gofn_ok;
 }
 
-typedef enum {
-  SAVE,
-  SAVE_WITHOUT_COMMENTS,
-  SAVE_IN_ANOTHER_FORMAT,
-  CANCELLED
-} check_savability_t;
-
-static check_savability_t
-check_save_as_with_comments(HWND parent, capture_file *cf)
+check_savability_t
+win32_check_save_as_with_comments(HWND parent, capture_file *cf, int file_type)
 {
     gint           response;
 
@@ -288,7 +282,7 @@ check_save_as_with_comments(HWND parent, capture_file *cf)
        format in question supports (and handle different types of
        comments, some but not all of which some file formats might
        not support). */
-    if (filetype == WTAP_FILE_PCAPNG) {
+    if (file_type == WTAP_FILE_PCAPNG) {
         /* Yes - they selected pcap-ng.  Let the save happen; we can
            save the comments, so no need to delete them. */
         return SAVE;
@@ -368,225 +362,96 @@ check_save_as_with_comments(HWND parent, capture_file *cf)
 }
 
 gboolean
-win32_save_as_file(HWND h_wnd, capture_file *cf,
-                   gboolean must_support_comments, gboolean dont_reopen)
+win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_type,
+                   gboolean *compressed, gboolean must_support_comments)
 {
     GArray *savable_file_types;
     OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
-    GString *file_name8, *file_suffix;
-    gchar *file_name_lower;
-    GSList *extensions_list, *extension;
-    gboolean add_extension;
     gchar *dirname;
     int    ofnsize;
+    gboolean gsfn_ok;
 #if (_MSC_VER >= 1500)
     OSVERSIONINFO osvi;
 #endif
     gboolean discard_comments = FALSE;
 
+    if (!file_name || !file_type || !compressed)
+        return FALSE;
+
+    if (file_name->len > 0) {
+        StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
+    }
+
     savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes);
     if (savable_file_types == NULL)
         return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
-    use_compression = FALSE;
+    g_compressed = FALSE;
 
-    /*
-     * Loop until the user either selects a file or gives up.
-     */
-    for (;;) {
-        /* see OPENFILENAME comment in win32_open_file */
+    /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
-        SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-        osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-        GetVersionEx(&osvi);
-        if (osvi.dwMajorVersion >= 5) {
-            ofnsize = sizeof(OPENFILENAME);
-        } else {
-            ofnsize = OPENFILENAME_SIZE_VERSION_400;
-        }
-#else
-        ofnsize = sizeof(OPENFILENAME) + 12;
-#endif
-        ofn = g_malloc0(ofnsize);
-
-        ofn->lStructSize = ofnsize;
-        ofn->hwndOwner = h_wnd;
-#if (_MSC_VER <= 1200)
-        ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-#else
-        ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-#endif
-        ofn->lpstrFilter = build_file_save_type_list(savable_file_types,
-                                                     must_support_comments);
-        ofn->lpstrCustomFilter = NULL;
-        ofn->nMaxCustFilter = 0;
-        ofn->nFilterIndex = 1;  /* the first entry is the best match; 1-origin indexing */
-        ofn->lpstrFile = file_name16;
-        ofn->nMaxFile = MAX_PATH;
-        ofn->lpstrFileTitle = NULL;
-        ofn->nMaxFileTitle = 0;
-        ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
-        ofn->lpstrTitle = _T("Wireshark: Save file as");
-        ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER        |
-                     OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-                     OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
-        ofn->lpstrDefExt = NULL;
-        ofn->lpfnHook = save_as_file_hook_proc;
-        ofn->lpTemplateName = _T("WIRESHARK_SAVEASFILENAME_TEMPLATE");
-
-        if (!GetSaveFileName(ofn)) {
-            /* User cancelled or closed the dialog, or an error occurred. */
-            if (CommDlgExtendedError() == 0) {
-                /* User cancelled or closed the dialog. */
-                return FALSE; /* No save, no comments discarded */
-            }
-            /* XXX - pop up some error here. FNERR_INVALIDFILENAME
-               might be a user error; if so, they should know about
-               it. */
-            continue;
-        }
-
-        /* What file format was specified? */
-        filetype = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
-
-        /* If the file has comments, does the format the user selected
-           support them?  If not, ask the user whether they want to
-           discard the comments or choose a different format. */
-        switch (check_save_as_with_comments(h_wnd, cf)) {
-
-        case SAVE:
-            /* The file can be saved in the specified format as is;
-               just drive on and save in the format they selected. */
-            discard_comments = FALSE;
-            break;
-
-        case SAVE_WITHOUT_COMMENTS:
-            /* The file can't be saved in the specified format as is,
-               but it can be saved without the comments, and the user
-               said "OK, discard the comments", so save it in the
-               format they specified without the comments. */
-            discard_comments = TRUE;
-            break;
-
-        case SAVE_IN_ANOTHER_FORMAT:
-            /* There are file formats in which we can save this that
-               support comments, and the user said not to delete the
-               comments.  Reopen the "Save As" dialog, but with the
-               list of file formats including only the formats that
-               support comments, to let the user decide whether to save
-               in one of those formats or give up. */
-            discard_comments = FALSE;
-            must_support_comments = TRUE;
-            g_free( (void *) ofn->lpstrFilter);
-            g_free( (void *) ofn);
-            continue;
-
-        case CANCELLED:
-            /* The user said "forget it".  Just return. */
-            return FALSE; /* No save, no comments discarded */
-        }
-
-        /*
-         * Append the default file extension if there's none given by
-         * the user or if they gave one that's not one of the valid
-         * extensions for the file type.
-         */
-        file_name8 = g_string_new(utf_16to8(file_name16));
-        file_name_lower = g_utf8_strdown(file_name8->str, -1);
-        file_suffix = g_string_new("");
-        extensions_list = wtap_get_file_extensions_list(filetype, FALSE);
-        if (extensions_list != NULL) {
-            /* We have one or more extensions for this file type.
-               Start out assuming we need to add the default one. */
-            add_extension = TRUE;
-            
-            /* OK, see if the file has one of those extensions. */
-            for (extension = extensions_list; extension != NULL;
-                 extension = g_slist_next(extension)) {
-                g_string_printf(file_suffix, ".%s", extension);
-                if (g_str_has_suffix(file_name_lower, file_suffix->str)) {
-                    /*
-                     * The file name has one of the extensions for
-                     * this file type.
-                     */
-                    add_extension = FALSE;
-                    break;
-                }
-                g_string_append(file_suffix, ".gz");
-                if (g_str_has_suffix(file_name_lower, file_suffix->str)) {
-                    /*
-                     * The file name has one of the extensions for
-                     * this file type.
-                     */
-                    add_extension = FALSE;
-                    break;
-                }
-            }
-        } else {
-            /* We have no extensions for this file type.  Don't add one. */
-            add_extension = FALSE;
-        }
-        g_free(file_name_lower);
-        g_string_free(file_suffix, TRUE);
-        if (add_extension) {
-            if (wtap_default_file_extension(filetype) != NULL) {
-                g_string_append_printf(file_name8, ".%s",
-                                       wtap_default_file_extension(filetype));
-                if (use_compression) {
-                    g_string_append(file_name8, ".gz");
-                }
-            }
-        }
-
-        g_sf_hwnd = NULL;
-
-        /*
-         * GetSaveFileName() already asked the user if he wants to
-         * overwrite the old file, so if we are here, the user already
-         * said "yes". Write out all the packets to the file with the
-         * specified name.
-         *
-         * XXX: if the cf_save_packets() fails, it will do a GTK+
-         * simple_dialog(), which is not useful while runing a Windows
-         * dialog.
-         * (A GTK dialog box will be generated and basically will
-         * only appear when the redisplayed Windows 'save_as-file'
-         * dialog is dismissed. It will then need to be dismissed.
-         * This should be fixed even though the cf_save_packets()
-         * presumably should rarely fail in this case.
-         */
-        switch (cf_save_packets(&cfile, file_name8->str, filetype,
-                            use_compression,
-                            discard_comments,
-                            dont_reopen)) {
-        case CF_WRITE_OK:
-            /* The save succeeded; we're done.
-               Save the directory name for future file dialogs. */
-            dirname = get_dirname(file_name8->str);  /* Overwrites file_name8->str */
-            set_last_open_dir(dirname);
-            break;
-
-        case CF_WRITE_ERROR:
-            /* The save failed; let the user try again. */
-            g_string_free(file_name8, TRUE /* free_segment */);
-            g_free( (void *) ofn->lpstrFilter);
-            g_free( (void *) ofn);
-            continue;
-
-        case CF_WRITE_ABORTED:
-            /* The user aborted the save; just return. */
-            break;
-        }
-        g_string_free(file_name8, TRUE /* free_segment */);
-        break;
+    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+    if (osvi.dwMajorVersion >= 5) {
+        ofnsize = sizeof(OPENFILENAME);
+    } else {
+        ofnsize = OPENFILENAME_SIZE_VERSION_400;
     }
+#else
+    ofnsize = sizeof(OPENFILENAME) + 12;
+#endif
+    ofn = g_malloc0(ofnsize);
+
+    ofn->lStructSize = ofnsize;
+    ofn->hwndOwner = h_wnd;
+#if (_MSC_VER <= 1200)
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+#else
+    ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
+#endif
+    ofn->lpstrFilter = build_file_save_type_list(savable_file_types,
+                                                 must_support_comments);
+    ofn->lpstrCustomFilter = NULL;
+    ofn->nMaxCustFilter = 0;
+    ofn->nFilterIndex = 1;  /* the first entry is the best match; 1-origin indexing */
+    ofn->lpstrFile = file_name16;
+    ofn->nMaxFile = MAX_PATH;
+    ofn->lpstrFileTitle = NULL;
+    ofn->nMaxFileTitle = 0;
+    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+    ofn->lpstrTitle = _T("Wireshark: Save file as");
+    ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER        |
+                 OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
+    ofn->lpstrDefExt = NULL;
+    ofn->lpfnHook = save_as_file_hook_proc;
+    ofn->lpTemplateName = _T("WIRESHARK_SAVEASFILENAME_TEMPLATE");
+
+    gsfn_ok = GetSaveFileName(ofn);
+
+    if (gsfn_ok) {
+        g_string_printf(file_name, "%s", utf_16to8(file_name16));
+        /* What file format was specified? */
+        *file_type = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
+        *compressed = g_compressed;
+    } else {
+        /* User cancelled or closed the dialog, or an error occurred. */
+        if (CommDlgExtendedError() != 0) {
+        /* XXX - pop up some error here. FNERR_INVALIDFILENAME
+         * might be a user error; if so, they should know about
+         * it. For now we force a do-over.
+         */
+        g_string_truncate(file_name, 0);
+        gsfn_ok = TRUE;
+    }
+
     g_sf_hwnd = NULL;
     g_array_free(savable_file_types, TRUE);
     g_free( (void *) ofn->lpstrFilter);
     g_free( (void *) ofn);
-    return discard_comments;
+    return gsfn_ok;
 }
-
 
 void
 win32_export_specified_packets_file(HWND h_wnd) {
@@ -647,7 +512,7 @@ win32_export_specified_packets_file(HWND h_wnd) {
     ofn->lpTemplateName = _T("WIRESHARK_EXPORT_SPECIFIED_PACKETS_FILENAME_TEMPLATE");
 
     if (GetSaveFileName(ofn)) {
-        filetype = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
+        g_filetype = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
 
         /*
          * Append the default file extension if there's none given by the user
@@ -656,7 +521,7 @@ win32_export_specified_packets_file(HWND h_wnd) {
          */
         file_name8 = g_string_new(utf_16to8(file_name16));
         file_last_dot = strrchr(file_name8->str,'.');
-        extensions_list = wtap_get_file_extensions_list(filetype, FALSE);
+        extensions_list = wtap_get_file_extensions_list(g_filetype, FALSE);
         if (extensions_list != NULL) {
             /* We have one or more extensions for this file type.
                Start out assuming we need to add the default one. */
@@ -680,8 +545,8 @@ win32_export_specified_packets_file(HWND h_wnd) {
             add_extension = FALSE;
         }
         if (add_extension) {
-            if (wtap_default_file_extension(filetype) != NULL) {
-                g_string_append_printf(file_name8, ".%s", wtap_default_file_extension(filetype));
+            if (wtap_default_file_extension(g_filetype) != NULL) {
+                g_string_append_printf(file_name8, ".%s", wtap_default_file_extension(g_filetype));
             }
         }
 
@@ -702,7 +567,7 @@ win32_export_specified_packets_file(HWND h_wnd) {
          * This should be fixed even though the cf_save_packets()
          * presumably should rarely fail in this case.
          */
-        if (cf_export_specified_packets(&cfile, file_name8->str, &g_range, filetype, FALSE) != CF_OK) {
+        if (cf_export_specified_packets(&cfile, file_name8->str, &g_range, g_filetype, FALSE) != CF_OK) {
             /* The write failed.  Try again. */
             g_array_free(savable_file_types, TRUE);
             g_string_free(file_name8, TRUE /* free_segment */);
@@ -728,7 +593,7 @@ win32_export_specified_packets_file(HWND h_wnd) {
 gboolean
 win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *merge_type) {
     OPENFILENAME *ofn;
-    TCHAR         file_name_w[MAX_PATH] = _T("");
+    TCHAR         file_name16[MAX_PATH] = _T("");
     int           ofnsize;
     gboolean gofn_ok;
 #if (_MSC_VER >= 1500)
@@ -739,7 +604,7 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
         return FALSE;
 
     if (file_name->len > 0) {
-        StringCchCopy(file_name_w, MAX_PATH, utf_8to16(file_name->str));
+        StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
     }
 
     if (display_filter->len > 0) {
@@ -775,7 +640,7 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
     ofn->nFilterIndex = FILE_MERGE_DEFAULT;
-    ofn->lpstrFile = file_name_w;
+    ofn->lpstrFile = file_name16;
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
@@ -795,7 +660,7 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
     gofn_ok = GetOpenFileName(ofn);
 
     if (gofn_ok) {
-        g_string_printf(file_name, "%s", utf_16to8(file_name_w));
+        g_string_printf(file_name, "%s", utf_16to8(file_name16));
         g_string_printf(display_filter, "%s", g_dfilter_str ? g_dfilter_str : "");
 
         switch (g_merge_action) {
@@ -1173,7 +1038,7 @@ win32_export_color_file(HWND h_wnd, gpointer filter_list) {
     ofn->lpfnHook = NULL;
     ofn->lpTemplateName = NULL;
 
-    filetype = cfile.cd_t;
+    g_filetype = cfile.cd_t;
 
     /* XXX - Support marked filters */
     if (GetSaveFileName(ofn)) {
@@ -1673,7 +1538,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
 /* Generate a list of the file types we can save this file as.
 
-   "filetype" is the type it has now.
+   "g_filetype" is the type it has now.
 
    "encap" is the encapsulation for its packets (which could be
    "unknown" or "per-packet").
@@ -1824,7 +1689,7 @@ build_file_format_list(HWND sf_hwnd) {
         SendMessage(format_cb, CB_ADDSTRING, 0, (LPARAM) utf_8to16(s));
         g_free(s);
         SendMessage(format_cb, CB_SETITEMDATA, (LPARAM) index, (WPARAM) ft);
-        if (ft == filetype) {
+        if (ft == g_filetype) {
             /* Default to the same format as the file, if it's supported. */
             item_to_select = index;
         }
@@ -1850,13 +1715,13 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             g_sf_hwnd = sf_hwnd;
 
             /* Default to saving in the file's current format. */
-            filetype = cfile.cd_t;
+            g_filetype = cfile.cd_t;
 
             /* Fill in the file format list */
             /*build_file_format_list(sf_hwnd);*/
             /* Fill in the compression checkbox */
             cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
-            SendMessage(cur_ctrl, BM_SETCHECK, use_compression, 0);
+            SendMessage(cur_ctrl, BM_SETCHECK, g_compressed, 0);
 
             break;
         case WM_COMMAND:
@@ -1869,7 +1734,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     if (index != CB_ERR) {
                         new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) index, 0);
                         if (new_filetype != CB_ERR) {
-                            if (filetype != new_filetype) {
+                            if (g_filetype != new_filetype) {
                                 if (wtap_can_save_with_wiretap(new_filetype, cfile.linktypes)) {
                                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
                                     EnableWindow(cur_ctrl, TRUE);
@@ -1882,15 +1747,15 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
                                     EnableWindow(cur_ctrl, FALSE);
                                 }
-                                filetype = new_filetype;                                
+                                g_filetype = new_filetype;
                                 cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
                                 if (wtap_dump_can_compress(file_type) {
                                     EnableWindow(cur_ctrl);
                                 } else {
-                                    use_compression = FALSE;
+                                    g_compressed = FALSE;
                                     DisableWindow(cur_ctrl);
                                 }
-                                SendMessage(cur_ctrl, BM_SETCHECK, use_compression, 0);
+                                SendMessage(cur_ctrl, BM_SETCHECK, g_compressed, 0);
 
                             }
                         }
@@ -1915,9 +1780,9 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     /* Fetch our compression value */
                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
                     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-                        use_compression = TRUE;
+                        g_compressed = TRUE;
                     else
-                        use_compression = FALSE;
+                        g_compressed = FALSE;
 
                     /* Check if trying to do 'save as' to the currently open file */
                     parent = GetParent(sf_hwnd);
@@ -1964,7 +1829,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
             g_sf_hwnd = sf_hwnd;
 
             /* Default to saving all packets, in the file's current format. */
-            filetype = cfile.cd_t;
+            g_filetype = cfile.cd_t;
 
             /* init the packet range */
             packet_range_init(&g_range);
@@ -1988,7 +1853,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                     if (index != CB_ERR) {
                         new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) index, 0);
                         if (new_filetype != CB_ERR) {
-                            if (filetype != new_filetype) {
+                            if (g_filetype != new_filetype) {
                                 if (wtap_can_save_with_wiretap(new_filetype, cfile.linktypes)) {
                                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
                                     EnableWindow(cur_ctrl, TRUE);
@@ -2001,7 +1866,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
                                     EnableWindow(cur_ctrl, FALSE);
                                 }
-                                filetype = new_filetype;
+                                g_filetype = new_filetype;
                             }
                         }
                     }
