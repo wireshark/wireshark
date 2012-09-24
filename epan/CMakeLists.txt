@@ -392,6 +392,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bt-utp.c
 	dissectors/packet-btamp.c
 	dissectors/packet-btbnep.c
+	dissectors/packet-btavctp.c
 	dissectors/packet-bthci_acl.c
 	dissectors/packet-bthci_cmd.c
 	dissectors/packet-bthci_evt.c
