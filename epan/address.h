@@ -62,7 +62,7 @@ typedef enum {
 
 typedef enum {
   AT_SUB_NONE,		/* no sub type */
-  AT_SUB_IEEE80211,	/* 802.11 */
+  AT_SUB_IEEE80211	/* 802.11 */
 } address_stype;
 
 typedef struct _address {
