@@ -42,31 +42,31 @@ if(NOT PROJECT_MAJOR_VERSION)
 	file(STRINGS
 		${CMAKE_SOURCE_DIR}/configure.ac
 		PROJECT_MAJOR_VERSION_TMP
-		REGEX "^m4_define\\(version_major, [0-9]+\\)"
+		REGEX "^m4_define\\(\\[?version_major\\]?, *\\[?[0-9]+\\]?\\)"
 	)
 	file(STRINGS
 		${CMAKE_SOURCE_DIR}/configure.ac
 		PROJECT_MINOR_VERSION_TMP
-		REGEX "^m4_define\\(version_minor, [0-9]+\\)"
+		REGEX "^m4_define\\(\\[?version_minor\\]?, *\\[?[0-9]+\\]?\\)"
 	)
 	file(STRINGS
 		${CMAKE_SOURCE_DIR}/configure.ac
 		PROJECT_PATCH_VERSION_TMP
-		REGEX "^m4_define\\(version_micro, [0-9]+\\)"
+		REGEX "^m4_define\\(\\[?version_micro\\]?, *\\[?[0-9]+\\]?\\)"
 	)
 	# XXX pull VERSION_EXTENSION out of configure.ac ?
 
-	string(REGEX REPLACE "m4_define\\(version_major, ([0-9]+)\\)"
+	string(REGEX REPLACE "m4_define\\(\\[?version_major\\]?, *\\[?([0-9]+)\\]?\\)"
 		"\\1"
 		PROJECT_MAJOR_VERSION
 		${PROJECT_MAJOR_VERSION_TMP}
 	)
-	string(REGEX REPLACE "m4_define\\(version_minor, ([0-9]+)\\)"
+	string(REGEX REPLACE "m4_define\\(\\[?version_minor\\]?, *\\[?([0-9]+)\\]?\\)"
 		"\\1"
 		PROJECT_MINOR_VERSION
 		${PROJECT_MINOR_VERSION_TMP}
 	)
-	string(REGEX REPLACE "m4_define\\(version_micro, ([0-9]+)\\)"
+	string(REGEX REPLACE "m4_define\\(\\[?version_micro\\]?, *\\[?([0-9]+)\\]?\\)"
 		"\\1"
 		PROJECT_PATCH_VERSION
 		${PROJECT_PATCH_VERSION_TMP}
