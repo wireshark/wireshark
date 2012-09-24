@@ -311,12 +311,14 @@ sub update_configure_ac
 
 	open(CFGIN, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CFGIN>) {
-		if ($line =~ /^m4_define\(version_major *,.*([\r\n]+)$/) {
-			$line = sprintf("m4_define(version_major, %d)$1", $version_pref{"version_major"});
-		} elsif ($line =~ /^m4_define\(version_minor *,.*([\r\n]+)$/) {
-			$line = sprintf("m4_define(version_minor, %d)$1", $version_pref{"version_minor"});
-		} elsif ($line =~ /^m4_define\(version_micro *,.*([\r\n]+)$/) {
-			$line = sprintf("m4_define(version_micro, %d)$1", $version_pref{"version_micro"});
+		if ($line =~ /^m4_define\( *\[?version_major\]? *,.*([\r\n]+)$/) {
+			$line = sprintf("m4_define([version_major], [%d])$1", $version_pref{"version_major"});
+		} elsif ($line =~ /^m4_define\( *\[?version_minor\]? *,.*([\r\n]+)$/) {
+			$line = sprintf("m4_define([version_minor], [%d])$1", $version_pref{"version_minor"});
+		} elsif ($line =~ /^m4_define\( *\[?version_micro\]? *,.*([\r\n]+)$/) {
+			$line = sprintf("m4_define([version_micro], [%d])$1", $version_pref{"version_micro"});
+		} elsif ($line =~ /^m4_append\( *\[?version_micro_extra\]? *,.*([\r\n]+)$/) {
+			$line = sprintf("m4_append([version_micro_extra], [%s])$1", $package_string);
 		}
 		$contents .= $line
 	}
