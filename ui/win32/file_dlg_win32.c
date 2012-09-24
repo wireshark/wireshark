@@ -56,7 +56,6 @@
 #include "../color_filters.h"
 #include "../merge.h"
 
-#include "ui/file_dialog.h"
 #include "ui/last_open_dir.h"
 
 #include "ui/gtk/main.h"
@@ -368,7 +367,6 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     GArray *savable_file_types;
     OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
-    gchar *dirname;
     int    ofnsize;
     gboolean gsfn_ok;
 #if (_MSC_VER >= 1500)
@@ -437,13 +435,14 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
         *compressed = g_compressed;
     } else {
         /* User cancelled or closed the dialog, or an error occurred. */
-        if (CommDlgExtendedError() != 0) {
-        /* XXX - pop up some error here. FNERR_INVALIDFILENAME
-         * might be a user error; if so, they should know about
-         * it. For now we force a do-over.
-         */
-        g_string_truncate(file_name, 0);
-        gsfn_ok = TRUE;
+        if (CommDlgExtendedError() == 0) {
+            /* XXX - pop up some error here. FNERR_INVALIDFILENAME
+             * might be a user error; if so, they should know about
+             * it. For now we force a do-over.
+             */
+            g_string_truncate(file_name, 0);
+            gsfn_ok = TRUE;
+        }
     }
 
     g_sf_hwnd = NULL;

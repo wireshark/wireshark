@@ -45,7 +45,6 @@
 #include <wsutil/file_util.h>
 
 #include "ui/alert_box.h"
-#include "ui/file_dialog.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
@@ -1728,8 +1727,8 @@ file_save_as_cmd(capture_file *cf, gboolean must_support_comments,
    */
   for (;;) {
 #ifdef USE_WIN32_FILE_DIALOGS
-    //if (win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), cf,
-    //                       file_name, &file_type, &compressed, must_support_comments)) {
+    if (win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), cf,
+                           file_name, &file_type, &compressed, must_support_comments)) {
       /* They discarded comments, so redraw the packet details window
          to reflect any packets that no longer have comments. */
       packet_list_queue_draw();
@@ -1741,7 +1740,7 @@ file_save_as_cmd(capture_file *cf, gboolean must_support_comments,
          support them?  If not, ask the user whether they want to
          discard the comments or choose a different format. */
 #ifdef USE_WIN32_FILE_DIALOGS
-      //switch (win32_check_save_as_with_comments(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), cf, file_type) {
+      switch (win32_check_save_as_with_comments(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), cf, file_type)) {
 #else /* USE_WIN32_FILE_DIALOGS */
       switch (gtk_check_save_as_with_comments(top_level, cf, file_type)) {
 #endif /* USE_WIN32_FILE_DIALOGS */

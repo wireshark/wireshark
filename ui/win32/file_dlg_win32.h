@@ -25,6 +25,8 @@
 #ifndef __FILE_DLG_WIN32_H__
 #define __FILE_DLG_WIN32_H__
 
+#include "ui/file_dialog.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
