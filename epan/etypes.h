@@ -311,7 +311,7 @@
 #endif
 
 #ifndef ETHERTYPE_EAPOL
-#define ETHERTYPE_EAPOL 		0x888E  /* 802.1x Authentication */
+#define ETHERTYPE_EAPOL			0x888E  /* 802.1x Authentication */
 #endif
 
 #ifndef ETHERTYPE_PROFINET
@@ -319,7 +319,7 @@
 #endif
 
 #ifndef ETHERTYPE_HYPERSCSI
-#define ETHERTYPE_HYPERSCSI     	0x889A	/* HyperSCSI */
+#define ETHERTYPE_HYPERSCSI		0x889A	/* HyperSCSI */
 #endif
 
 #ifndef ETHERTYPE_CSM_ENCAPS
@@ -331,7 +331,7 @@
 #endif
 
 #ifndef ETHERTYPE_AOE
-#define ETHERTYPE_AOE           	0x88A2
+#define ETHERTYPE_AOE			0x88A2
 #endif
 
 #ifndef ETHERTYPE_ECATF
@@ -339,11 +339,11 @@
 #endif
 
 #ifndef ETHERTYPE_IEEE_802_1AD
-#define ETHERTYPE_IEEE_802_1AD  	0x88A8	/* IEEE 802.1ad Provider Bridge, Q-in-Q */
+#define ETHERTYPE_IEEE_802_1AD		0x88A8	/* IEEE 802.1ad Provider Bridge, Q-in-Q */
 #endif
 
 #ifndef ETHERTYPE_EPL_V2
-#define ETHERTYPE_EPL_V2        	0x88AB	/* communication profile for Real-Time Ethernet */
+#define ETHERTYPE_EPL_V2		0x88AB	/* communication profile for Real-Time Ethernet */
 #endif
 
 #ifndef ETHERTYPE_XIMETA
@@ -351,7 +351,7 @@
 #endif
 
 #ifndef ETHERTYPE_BRDWALK
-#define ETHERTYPE_BRDWALK       	0x88AE
+#define ETHERTYPE_BRDWALK		0x88AE
 #endif
 
 #ifndef ETHERTYPE_WAI
@@ -398,15 +398,15 @@
 #endif
 
 #ifndef ETHERTYPE_LLDP
-#define ETHERTYPE_LLDP	        	0x88CC  /* IEEE 802.1AB Link Layer Discovery Protocol (LLDP) */
+#define ETHERTYPE_LLDP			0x88CC  /* IEEE 802.1AB Link Layer Discovery Protocol (LLDP) */
 #endif
 
 #ifndef ETHERTYPE_SERCOS
-#define ETHERTYPE_SERCOS        	0x88CD  /* SERCOS interface real-time protocol for motion control */
+#define ETHERTYPE_SERCOS		0x88CD  /* SERCOS interface real-time protocol for motion control */
 #endif
 
 #ifndef ETHERTYPE_3GPP2
-#define ETHERTYPE_3GPP2	        	0x88D2  /* This will be used in a revision of the Interoperabi */
+#define ETHERTYPE_3GPP2			0x88D2  /* This will be used in a revision of the Interoperabi */
 #endif						/* Specification (IOS) for cdma2000 Access Network Interfaces (document numbers A.S0011-B */
 						/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
 
@@ -431,11 +431,11 @@
 #endif
 
 #ifndef ETHERTYPE_MRP
-#define ETHERTYPE_MRP	        	0x88E3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
+#define ETHERTYPE_MRP			0x88E3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
 #endif
 
 #ifndef ETHERTYPE_IEEE_802_1AH
-#define ETHERTYPE_IEEE_802_1AH  	0x88E7  /* IEEE 802.1ah Provider Backbone Bridge Mac-in-Mac */
+#define ETHERTYPE_IEEE_802_1AH		0x88E7  /* IEEE 802.1ah Provider Backbone Bridge Mac-in-Mac */
 #endif
 
 #ifndef ETHERTYPE_ELMI
@@ -481,7 +481,7 @@
 #endif
 
 #ifndef ETHERTYPE_LINX
-#define ETHERTYPE_LINX          	0x8911  /* ENEA LINX IPC protocol over Ethernet */
+#define ETHERTYPE_LINX			0x8911  /* ENEA LINX IPC protocol over Ethernet */
 #endif
 
 #ifndef ETHERTYPE_FIP
@@ -497,19 +497,19 @@
 #endif
 
 #ifndef ETHERTYPE_LOOP
-#define ETHERTYPE_LOOP			0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
+#define ETHERTYPE_LOOP			0x9000	/* used for layer 2 testing (do i see my own frames on the wire) */
 #endif
 
 #ifndef ETHERTYPE_RTMAC
-#define ETHERTYPE_RTMAC			0x9021 	/* RTnet: Real-Time Media Access Control */
+#define ETHERTYPE_RTMAC			0x9021	/* RTnet: Real-Time Media Access Control */
 #endif
 
 #ifndef ETHERTYPE_RTCFG
-#define ETHERTYPE_RTCFG			0x9022 	/* RTnet: Real-Time Configuration Protocol */
+#define ETHERTYPE_RTCFG			0x9022	/* RTnet: Real-Time Configuration Protocol */
 #endif
 
 #ifndef ETHERTYPE_LLT
-#define ETHERTYPE_LLT           	0xCAFE	/* Veritas Low Latency Transport (not officially registered) */
+#define ETHERTYPE_LLT			0xCAFE	/* Veritas Low Latency Transport (not officially registered) */
 #endif
 
 #ifndef ETHERTYPE_TDMOE
@@ -517,11 +517,11 @@
 #endif
 
 #ifndef ETHERTYPE_FCFT
-#define ETHERTYPE_FCFT          	0xFCFC	/* used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
+#define ETHERTYPE_FCFT			0xFCFC	/* used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
 #endif
 
 #ifndef ETHERTYPE_ROCE
-#define ETHERTYPE_ROCE		0x8915 /* Infiniband RDMA over Converged Ethernet */
+#define ETHERTYPE_ROCE			0x8915 /* Infiniband RDMA over Converged Ethernet */
 #endif
 
 WS_VAR_IMPORT const value_string etype_vals[];
