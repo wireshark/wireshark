@@ -45,6 +45,7 @@
 #include <wsutil/file_util.h>
 
 #include "ui/alert_box.h"
+#include "ui/file_dialog.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
