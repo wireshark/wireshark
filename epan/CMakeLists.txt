@@ -628,6 +628,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-fmtp.c
 	dissectors/packet-force10-oui.c
 	dissectors/packet-forces.c
+	dissectors/packet-foundry.c
 	dissectors/packet-fp_hint.c
 	dissectors/packet-fr.c
 	dissectors/packet-fractalgeneratorprotocol.c
