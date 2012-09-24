@@ -1500,10 +1500,10 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         offset += 8;
 
                         col_append_fstr(pinfo->cinfo, COL_INFO, " - 0x%08X%08X", (guint) (identifier >> 32), (guint) (identifier & 0xFFFFFFFF));
-                        if (identifier == 0x0000000000000000) {
+                        if (identifier == G_GINT64_CONSTANT(0x0000000000000000)) {
                             col_append_fstr(pinfo->cinfo, COL_INFO, " (SELECTED)");
                             proto_item_append_text(pitem, " (SELECTED)");
-                        } else if (identifier == 0xFFFFFFFFFFFFFFFF) {
+                        } else if (identifier == G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                             col_append_fstr(pinfo->cinfo, COL_INFO, " (NOT SELECTED)");
                             proto_item_append_text(pitem, " (NOT SELECTED)");
                         }
@@ -1720,7 +1720,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case PDU_PLAY_ITEM:
             if (is_command)  {
                 guint scope;
-                guint uid;
+                guint64 uid;
                 guint uid_counter;
 
                 proto_tree_add_item(tree, hf_btavrcp_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1733,7 +1733,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 uid_counter = tvb_get_ntohs(tvb, offset);
                 offset += 2;
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016x, UidCounter: 0x%04x",
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
                         val_to_str(scope, scope_vals, "unknown"), uid, uid_counter);
             } else {
                 guint status;
@@ -1748,7 +1748,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case PDU_ADD_TO_NOW_PLAYING:
             if (is_command)  {
                 guint scope;
-                guint uid;
+                guint64 uid;
                 guint uid_counter;
 
                 proto_tree_add_item(tree, hf_btavrcp_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1761,7 +1761,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 uid_counter = tvb_get_ntohs(tvb, offset);
                 offset += 2;
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016x, UidCounter: 0x%04x",
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
                         val_to_str(scope, scope_vals, "unknown"), uid, uid_counter);
             } else {
                 guint status;
@@ -1914,7 +1914,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         case PDU_CHANGE_PATH:
             if (is_command)  {
-                guint uid;
+                guint64 uid;
                 guint uid_counter;
                 guint direction;
 
@@ -1928,7 +1928,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 uid = tvb_get_ntoh64(tvb, offset);
                 offset += 8;
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - Direction: %s, Uid: 0x%016x, UidCounter: 0x%04x",
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - Direction: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
                         val_to_str(direction, direction_vals, "unknown"), uid, uid_counter);
             } else {
                 guint number_of_items;
@@ -1942,7 +1942,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case PDU_GET_ITEM_ATTRIBUTES:
             if (is_command)  {
                 guint       number_of_attributes;
-                guint       uid;
+                guint64     uid;
                 guint       uid_counter;
                 guint       scope;
                 proto_item  *pitem = NULL;
@@ -1959,7 +1959,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tree, hf_btavrcp_number_of_attributes, tvb, offset, 1, ENC_BIG_ENDIAN);
                 number_of_attributes = tvb_get_guint8(tvb, offset);
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016x, UidCounter: 0x%04x",
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
                         val_to_str(scope, scope_vals, "unknown"), uid, uid_counter);
 
                 if (number_of_attributes == 0) proto_item_append_text(pitem, " (All Supported Attributes)");
@@ -2110,7 +2110,8 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 timing_info->command_frame_number = pinfo->fd->num;
                 timing_info->command_timestamp = pinfo->fd->abs_ts;
                 timing_info->response_frame_number = 0;
-                timing_info->response_timestamp = (nstime_t) {0, 0};
+                timing_info->response_timestamp.secs = 0;
+                timing_info->response_timestamp.nsecs = 0;
                 timing_info->max_response_time = max_response_time;
 
                 timing_info->opcode = opcode;
@@ -2141,7 +2142,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (timing_info && timing_info->opcode == opcode && timing_info->op == op) {
             response_time = timing_info->response_timestamp.nsecs - timing_info->command_timestamp.nsecs;
             response_time /= 1000000;
-            response_time += (timing_info->response_timestamp.secs - timing_info->command_timestamp.secs) / 1000;
+            response_time += ((guint)timing_info->response_timestamp.secs - (guint)timing_info->command_timestamp.secs) / 1000;
 
             if (timing_info->response_frame_number == 0) {
                 response_time = UINT_MAX;
