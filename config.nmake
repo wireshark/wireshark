@@ -912,10 +912,20 @@ INSTALL_DIR=wireshark-gtk2
 # packages, the following will use the default paths depending
 # on the package version.
 #
+
+# You can either place the redistributable in its own platform-
+# and compiler-specific directory or in the top-level library
+# directory.
+!IF EXIST("$(WIRESHARK_LIB_DIR)\vcredist_$(MSVC_VARIANT)")
+VCREDIST_DIR=$(WIRESHARK_LIB_DIR)\vcredist_$(MSVC_VARIANT)
+!ELSE
+VCREDIST_DIR=$(WIRESHARK_LIB_DIR)
+!ENDIF
+
 !IF "$(WIRESHARK_TARGET_PLATFORM)" == "win64"
 # We're not creating portable packages and therefore don't have to worry about
 # "deploying using xcopy"
-VCREDIST_EXE=$(WIRESHARK_LIB_DIR)\vcredist_$(TARGET_MACHINE).exe
+VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2005"
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 8\VC\redist\$(PROCESSOR_ARCHITECTURE)\Microsoft.VC80.CRT\*.*
@@ -923,7 +933,7 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 8\VC\redist\$(PROCESSOR_ARCHI
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" || "$(MSVC_VARIANT)" == "MSVC2008EE"
 # you need to download the redistributable package vcredist_x86.exe from Microsoft first,
 # and copy it to the lib folder!!!
-VCREDIST_EXE=$(WIRESHARK_LIB_DIR)\vcredist_$(TARGET_MACHINE).exe
+VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2008"
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\$(PROCESSOR_ARCHITECTURE)\Microsoft.VC90.CRT\*.*
@@ -931,7 +941,7 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\$(PROCESSOR_ARC
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010EE"
 # you need to download the redistributable package vcredist_x86.exe from Microsoft first,
 # and copy it to the lib folder!!!
-VCREDIST_EXE=$(WIRESHARK_LIB_DIR)\vcredist_$(TARGET_MACHINE).exe
+VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010"
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 10.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC100.CRT\*.*
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2012"
