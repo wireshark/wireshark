@@ -176,7 +176,6 @@ enum
 #define E_REMOTE_OK_BT_KEY              "cap_remote_ok_bt"
 #define E_REMOTE_DEL_BT_KEY             "cap_remote_delete_bt"
 #define E_CAP_CBX_IFTYPE_NOUPDATE_KEY   "cap_cbx_iftype_noupdate"
-#define E_OPT_REMOTE_BT_KEY             "cap_remote_opt_bt"
 #define E_OPT_REMOTE_DIALOG_PTR_KEY     "cap_remote_opt_dialog"
 #define E_OPT_REMOTE_CALLER_PTR_KEY     "cap_remote_opt_caller"
 #endif
@@ -2897,21 +2896,23 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
-  remote_bt = gtk_button_new_with_label("Remote Settings");
-  gtk_widget_set_tooltip_text(remote_bt, "Various settings for remote capture.");
-
+  /*
+   * *IF* this is a remote interface, add the "Remote Settings"
+   * button.  Do *not* add it for other interfaces, as that could
+   * lead users to believe that it could somehow be enabled.
+   */
   /* Both the callback and the data are global */
-  g_signal_connect(remote_bt, "clicked", G_CALLBACK(options_remote_cb), NULL);
-  g_object_set_data(G_OBJECT(opt_edit_w), E_OPT_REMOTE_BT_KEY, remote_bt);
   if (strncmp (device.name, "rpcap://", 8) == 0)  {
-    gtk_widget_set_sensitive(remote_bt, TRUE);
-  } else {
-    gtk_widget_set_sensitive(remote_bt, FALSE);
+    remote_bt = gtk_button_new_with_label("Remote Settings");
+    gtk_widget_set_tooltip_text(remote_bt, "Various settings for remote capture.");
+
+    g_signal_connect(remote_bt, "clicked", G_CALLBACK(options_remote_cb), NULL);
+
+    gtk_box_pack_start(GTK_BOX(right_vb), remote_bt, FALSE, FALSE, 0);
+    gtk_widget_show(remote_bt);
   }
-  gtk_box_pack_start(GTK_BOX(right_vb), remote_bt, FALSE, FALSE, 0);
-  gtk_widget_show(remote_bt);
 #endif
-  /* advanced row */
+
 #ifdef HAVE_AIRPCAP
   /*
    * *IF* this is an AirPcap interface, add the "Wireless Settings"
