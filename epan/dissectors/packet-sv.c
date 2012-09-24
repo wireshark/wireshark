@@ -118,7 +118,7 @@ static int hf_sv_smpSynch = -1;                   /* T_smpSynch */
 static int hf_sv_seqData = -1;                    /* Data */
 
 /*--- End of included file: packet-sv-hf.c ---*/
-#line 102 "../../asn1/sv/packet-sv-template.c"
+#line 100 "../../asn1/sv/packet-sv-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sv = -1;
@@ -134,7 +134,7 @@ static gint ett_sv_SEQUENCE_OF_ASDU = -1;
 static gint ett_sv_ASDU = -1;
 
 /*--- End of included file: packet-sv-ett.c ---*/
-#line 109 "../../asn1/sv/packet-sv-template.c"
+#line 107 "../../asn1/sv/packet-sv-template.c"
 
 static const value_string sv_q_validity_vals[] = {
   {   0, "good" },
@@ -359,7 +359,7 @@ dissect_sv_SampledValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 /*--- End of included file: packet-sv-fn.c ---*/
-#line 188 "../../asn1/sv/packet-sv-template.c"
+#line 186 "../../asn1/sv/packet-sv-template.c"
 
 /*
 * Dissect SV PDUs inside a PPDU.
@@ -517,7 +517,7 @@ void proto_register_sv(void) {
         "Data", HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 305 "../../asn1/sv/packet-sv-template.c"
+#line 303 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -534,7 +534,7 @@ void proto_register_sv(void) {
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 313 "../../asn1/sv/packet-sv-template.c"
+#line 311 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* Register protocol */

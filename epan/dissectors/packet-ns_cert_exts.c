@@ -66,7 +66,7 @@ static int hf_ns_cert_exts_CertType_smime_ca = -1;
 static int hf_ns_cert_exts_CertType_object_signing_ca = -1;
 
 /*--- End of included file: packet-ns_cert_exts-hf.c ---*/
-#line 42 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 40 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -75,7 +75,7 @@ static int hf_ns_cert_exts_CertType_object_signing_ca = -1;
 static gint ett_ns_cert_exts_CertType = -1;
 
 /*--- End of included file: packet-ns_cert_exts-ett.c ---*/
-#line 45 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 43 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
 
 
 /*--- Included file: packet-ns_cert_exts-fn.c ---*/
@@ -224,7 +224,7 @@ static void dissect_CertType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ns_cert_exts-fn.c ---*/
-#line 47 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 45 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
 
 
 /*--- proto_register_ns_cert_exts -------------------------------------------*/
@@ -301,7 +301,7 @@ void proto_register_ns_cert_exts(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ns_cert_exts-hfarr.c ---*/
-#line 55 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 53 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
   };
 
   /* List of subtrees */
@@ -312,7 +312,7 @@ void proto_register_ns_cert_exts(void) {
     &ett_ns_cert_exts_CertType,
 
 /*--- End of included file: packet-ns_cert_exts-ettarr.c ---*/
-#line 60 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 58 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
   };
 
   /* Register protocol */
@@ -341,6 +341,6 @@ void proto_reg_handoff_ns_cert_exts(void) {
 
 
 /*--- End of included file: packet-ns_cert_exts-dis-tab.c ---*/
-#line 75 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 73 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
 }
 

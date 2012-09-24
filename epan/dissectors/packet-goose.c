@@ -118,7 +118,7 @@ static int hf_goose_mMSString = -1;               /* MMSString */
 static int hf_goose_utc_time = -1;                /* UtcTime */
 
 /*--- End of included file: packet-goose-hf.c ---*/
-#line 52 "../../asn1/goose/packet-goose-template.c"
+#line 50 "../../asn1/goose/packet-goose-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_goose = -1;
@@ -145,7 +145,7 @@ static gint ett_goose_SEQUENCE_OF_Data = -1;
 static gint ett_goose_Data = -1;
 
 /*--- End of included file: packet-goose-ett.c ---*/
-#line 57 "../../asn1/goose/packet-goose-template.c"
+#line 55 "../../asn1/goose/packet-goose-template.c"
 
 
 /*--- Included file: packet-goose-fn.c ---*/
@@ -713,7 +713,7 @@ dissect_goose_GOOSEpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 /*--- End of included file: packet-goose-fn.c ---*/
-#line 59 "../../asn1/goose/packet-goose-template.c"
+#line 57 "../../asn1/goose/packet-goose-template.c"
 
 /*
 * Dissect GOOSE PDUs inside a PPDU.
@@ -1022,7 +1022,7 @@ void proto_register_goose(void) {
         "UtcTime", HFILL }},
 
 /*--- End of included file: packet-goose-hfarr.c ---*/
-#line 127 "../../asn1/goose/packet-goose-template.c"
+#line 125 "../../asn1/goose/packet-goose-template.c"
   };
 
   /* List of subtrees */
@@ -1050,7 +1050,7 @@ void proto_register_goose(void) {
     &ett_goose_Data,
 
 /*--- End of included file: packet-goose-ettarr.c ---*/
-#line 133 "../../asn1/goose/packet-goose-template.c"
+#line 131 "../../asn1/goose/packet-goose-template.c"
   };
 
 	/* Register protocol */

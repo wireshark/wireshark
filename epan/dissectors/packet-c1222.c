@@ -121,7 +121,7 @@ static int hf_c1222_c1221_auth_request = -1;      /* OCTET_STRING_SIZE_1_255 */
 static int hf_c1222_c1221_auth_response = -1;     /* OCTET_STRING_SIZE_CONSTR002 */
 
 /*--- End of included file: packet-c1222-hf.c ---*/
-#line 93 "../../asn1/c1222/packet-c1222-template.c"
+#line 91 "../../asn1/c1222/packet-c1222-template.c"
 /* These are the EPSEM pieces */
 /* first, the flag components */
 static int hf_c1222_epsem_flags = -1;
@@ -225,7 +225,7 @@ static gint ett_c1222_Calling_authentication_value_c1222_U = -1;
 static gint ett_c1222_Calling_authentication_value_c1221_U = -1;
 
 /*--- End of included file: packet-c1222-ett.c ---*/
-#line 186 "../../asn1/c1222/packet-c1222-template.c"
+#line 184 "../../asn1/c1222/packet-c1222-template.c"
 
 
 /*------------------------------
@@ -1458,7 +1458,7 @@ static void dissect_C1222_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 991 "../../asn1/c1222/packet-c1222-template.c"
+#line 989 "../../asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1829,7 +1829,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1273 "../../asn1/c1222/packet-c1222-template.c"
+#line 1271 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1850,7 +1850,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1283 "../../asn1/c1222/packet-c1222-template.c"
+#line 1281 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   module_t *c1222_module;

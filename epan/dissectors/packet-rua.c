@@ -85,7 +85,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-rua-val.h ---*/
-#line 54 "../../asn1/rua/packet-rua-template.c"
+#line 52 "../../asn1/rua/packet-rua-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_rua = -1;
@@ -162,7 +162,7 @@ static int hf_rua_successfulOutcome_value = -1;   /* SuccessfulOutcome_value */
 static int hf_rua_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-rua-hf.c ---*/
-#line 59 "../../asn1/rua/packet-rua-template.c"
+#line 57 "../../asn1/rua/packet-rua-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rua = -1;
@@ -211,7 +211,7 @@ static gint ett_rua_SuccessfulOutcome = -1;
 static gint ett_rua_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-rua-ett.c ---*/
-#line 67 "../../asn1/rua/packet-rua-template.c"
+#line 65 "../../asn1/rua/packet-rua-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -1357,7 +1357,7 @@ static void dissect_RUA_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-rua-fn.c ---*/
-#line 89 "../../asn1/rua/packet-rua-template.c"
+#line 87 "../../asn1/rua/packet-rua-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1681,7 +1681,7 @@ module_t *rua_module;
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-rua-hfarr.c ---*/
-#line 140 "../../asn1/rua/packet-rua-template.c"
+#line 138 "../../asn1/rua/packet-rua-template.c"
   };
 
   /* List of subtrees */
@@ -1728,7 +1728,7 @@ module_t *rua_module;
     &ett_rua_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-rua-ettarr.c ---*/
-#line 146 "../../asn1/rua/packet-rua-template.c"
+#line 144 "../../asn1/rua/packet-rua-template.c"
   };
 
 
@@ -1787,7 +1787,7 @@ proto_reg_handoff_rua(void)
 
 
 /*--- End of included file: packet-rua-dis-tab.c ---*/
-#line 185 "../../asn1/rua/packet-rua-template.c"
+#line 183 "../../asn1/rua/packet-rua-template.c"
 
         } else {
                 dissector_delete_uint("sctp.port", sctp_port, rua_handle);

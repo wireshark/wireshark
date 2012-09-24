@@ -86,7 +86,7 @@ static int hf_pkixtsp_PKIFailureInfo_addInfoNotAvailable = -1;
 static int hf_pkixtsp_PKIFailureInfo_systemFailure = -1;
 
 /*--- End of included file: packet-pkixtsp-hf.c ---*/
-#line 47 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 45 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pkixtsp = -1;
@@ -102,7 +102,7 @@ static gint ett_pkixtsp_TSTInfo = -1;
 static gint ett_pkixtsp_Accuracy = -1;
 
 /*--- End of included file: packet-pkixtsp-ett.c ---*/
-#line 51 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 49 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
 
 
 
@@ -359,7 +359,7 @@ static void dissect_TSTInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-pkixtsp-fn.c ---*/
-#line 54 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 52 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
 
 
 static int
@@ -539,7 +539,7 @@ void proto_register_pkixtsp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pkixtsp-hfarr.c ---*/
-#line 105 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 103 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
   };
 
   /* List of subtrees */
@@ -557,7 +557,7 @@ void proto_register_pkixtsp(void) {
     &ett_pkixtsp_Accuracy,
 
 /*--- End of included file: packet-pkixtsp-ettarr.c ---*/
-#line 111 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 109 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
   };
 
   /* Register protocol */
@@ -588,6 +588,6 @@ void proto_reg_handoff_pkixtsp(void) {
 
 
 /*--- End of included file: packet-pkixtsp-dis-tab.c ---*/
-#line 135 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 133 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
 }
 

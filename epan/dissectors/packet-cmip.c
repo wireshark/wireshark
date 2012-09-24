@@ -342,7 +342,7 @@ static int hf_cmip_T_daysOfWeek_friday = -1;
 static int hf_cmip_T_daysOfWeek_saturday = -1;
 
 /*--- End of included file: packet-cmip-hf.c ---*/
-#line 59 "../../asn1/cmip/packet-cmip-template.c"
+#line 57 "../../asn1/cmip/packet-cmip-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmip = -1;
@@ -472,7 +472,7 @@ static gint ett_cmip_T_modificationList = -1;
 static gint ett_cmip_T_modificationList_item = -1;
 
 /*--- End of included file: packet-cmip-ett.c ---*/
-#line 63 "../../asn1/cmip/packet-cmip-template.c"
+#line 61 "../../asn1/cmip/packet-cmip-template.c"
 
 static guint32 opcode;
 
@@ -531,7 +531,7 @@ static const value_string cmip_error_code_vals[] = {
 
 
 /*--- End of included file: packet-cmip-table.c ---*/
-#line 70 "../../asn1/cmip/packet-cmip-template.c"
+#line 68 "../../asn1/cmip/packet-cmip-template.c"
 
 static int opcode_type;
 #define OPCODE_INVOKE        1
@@ -643,7 +643,7 @@ static const char *objectclass_identifier_id;
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-cmip-val.h ---*/
-#line 93 "../../asn1/cmip/packet-cmip-template.c"
+#line 91 "../../asn1/cmip/packet-cmip-template.c"
 
 /*--- Included file: packet-cmip-fn.c ---*/
 #line 1 "../../asn1/cmip/packet-cmip-fn.c"
@@ -4378,7 +4378,7 @@ static void dissect_WeekMask_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-cmip-fn.c ---*/
-#line 94 "../../asn1/cmip/packet-cmip-template.c"
+#line 92 "../../asn1/cmip/packet-cmip-template.c"
 
 
 
@@ -5577,7 +5577,7 @@ void proto_register_cmip(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmip-hfarr.c ---*/
-#line 188 "../../asn1/cmip/packet-cmip-template.c"
+#line 186 "../../asn1/cmip/packet-cmip-template.c"
   };
 
   /* List of subtrees */
@@ -5709,7 +5709,7 @@ void proto_register_cmip(void) {
     &ett_cmip_T_modificationList_item,
 
 /*--- End of included file: packet-cmip-ettarr.c ---*/
-#line 194 "../../asn1/cmip/packet-cmip-template.c"
+#line 192 "../../asn1/cmip/packet-cmip-template.c"
   };
 
   /* Register protocol */
@@ -5794,7 +5794,7 @@ void proto_register_cmip(void) {
 
 
 /*--- End of included file: packet-cmip-dis-tab.c ---*/
-#line 203 "../../asn1/cmip/packet-cmip-template.c"
+#line 201 "../../asn1/cmip/packet-cmip-template.c"
     oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
 
   attribute_id_dissector_table = register_dissector_table("cmip.attribute_id", "CMIP Attribute Id", FT_UINT32, BASE_DEC);

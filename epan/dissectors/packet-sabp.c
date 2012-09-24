@@ -98,7 +98,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-sabp-val.h ---*/
-#line 50 "../../asn1/sabp/packet-sabp-template.c"
+#line 48 "../../asn1/sabp/packet-sabp-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_sabp = -1;
@@ -188,7 +188,7 @@ static int hf_sabp_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_sabp_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-sabp-hf.c ---*/
-#line 56 "../../asn1/sabp/packet-sabp-template.c"
+#line 54 "../../asn1/sabp/packet-sabp-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sabp = -1;
@@ -242,7 +242,7 @@ static gint ett_sabp_SuccessfulOutcome = -1;
 static gint ett_sabp_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-sabp-ett.c ---*/
-#line 66 "../../asn1/sabp/packet-sabp-template.c"
+#line 64 "../../asn1/sabp/packet-sabp-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -1721,7 +1721,7 @@ static int dissect_SABP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-sabp-fn.c ---*/
-#line 90 "../../asn1/sabp/packet-sabp-template.c"
+#line 88 "../../asn1/sabp/packet-sabp-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2132,7 +2132,7 @@ void proto_register_sabp(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sabp-hfarr.c ---*/
-#line 180 "../../asn1/sabp/packet-sabp-template.c"
+#line 178 "../../asn1/sabp/packet-sabp-template.c"
   };
 
   /* List of subtrees */
@@ -2187,7 +2187,7 @@ void proto_register_sabp(void) {
     &ett_sabp_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sabp-ettarr.c ---*/
-#line 191 "../../asn1/sabp/packet-sabp-template.c"
+#line 189 "../../asn1/sabp/packet-sabp-template.c"
   };
 
 
@@ -2270,7 +2270,7 @@ proto_reg_handoff_sabp(void)
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
-#line 228 "../../asn1/sabp/packet-sabp-template.c"
+#line 226 "../../asn1/sabp/packet-sabp-template.c"
 
 }
 

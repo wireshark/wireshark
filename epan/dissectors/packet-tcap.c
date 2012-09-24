@@ -137,7 +137,7 @@ static int hf_tcap_AARQ_protocol_version_version1 = -1;
 static int hf_tcap_AARE_protocol_version_version1 = -1;
 
 /*--- End of included file: packet-tcap-hf.c ---*/
-#line 63 "../../asn1/tcap/packet-tcap-template.c"
+#line 61 "../../asn1/tcap/packet-tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -192,7 +192,7 @@ static gint ett_tcap_ABRT_user_information = -1;
 static gint ett_tcap_Associate_source_diagnostic = -1;
 
 /*--- End of included file: packet-tcap-ett.c ---*/
-#line 79 "../../asn1/tcap/packet-tcap-template.c"
+#line 77 "../../asn1/tcap/packet-tcap-template.c"
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -1425,7 +1425,7 @@ static void dissect_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 142 "../../asn1/tcap/packet-tcap-template.c"
+#line 140 "../../asn1/tcap/packet-tcap-template.c"
 
 
 
@@ -1545,7 +1545,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 254 "../../asn1/tcap/packet-tcap-template.c"
+#line 252 "../../asn1/tcap/packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -1876,7 +1876,7 @@ proto_register_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 316 "../../asn1/tcap/packet-tcap-template.c"
+#line 314 "../../asn1/tcap/packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1925,7 +1925,7 @@ proto_register_tcap(void)
     &ett_tcap_Associate_source_diagnostic,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 326 "../../asn1/tcap/packet-tcap-template.c"
+#line 324 "../../asn1/tcap/packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

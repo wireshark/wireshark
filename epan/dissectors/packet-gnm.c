@@ -225,7 +225,7 @@ static int hf_gnm_TransmissionCharacteristics_dCME = -1;
 static int hf_gnm_TransmissionCharacteristics_echoControl = -1;
 
 /*--- End of included file: packet-gnm-hf.c ---*/
-#line 50 "../../asn1/gnm/packet-gnm-template.c"
+#line 48 "../../asn1/gnm/packet-gnm-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -299,7 +299,7 @@ static gint ett_gnm_TpsInGtpList = -1;
 static gint ett_gnm_TransmissionCharacteristics = -1;
 
 /*--- End of included file: packet-gnm-ett.c ---*/
-#line 53 "../../asn1/gnm/packet-gnm-template.c"
+#line 51 "../../asn1/gnm/packet-gnm-template.c"
 
 
 /*--- Included file: packet-gnm-fn.c ---*/
@@ -2027,7 +2027,7 @@ static void dissect_Version_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-gnm-fn.c ---*/
-#line 55 "../../asn1/gnm/packet-gnm-template.c"
+#line 53 "../../asn1/gnm/packet-gnm-template.c"
 
 
 
@@ -2727,7 +2727,7 @@ void proto_register_gnm(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gnm-hfarr.c ---*/
-#line 82 "../../asn1/gnm/packet-gnm-template.c"
+#line 80 "../../asn1/gnm/packet-gnm-template.c"
   };
 
   /* List of subtrees */
@@ -2803,7 +2803,7 @@ void proto_register_gnm(void) {
     &ett_gnm_TransmissionCharacteristics,
 
 /*--- End of included file: packet-gnm-ettarr.c ---*/
-#line 87 "../../asn1/gnm/packet-gnm-template.c"
+#line 85 "../../asn1/gnm/packet-gnm-template.c"
   };
 
   /* Register protocol */
@@ -2892,7 +2892,7 @@ void proto_reg_handoff_gnm(void) {
 
 
 /*--- End of included file: packet-gnm-dis-tab.c ---*/
-#line 102 "../../asn1/gnm/packet-gnm-template.c"
+#line 100 "../../asn1/gnm/packet-gnm-template.c"
 	/* Wrapper to call CMIP */
 	register_ber_oid_dissector("0.0.13.3100.0.7.9", dissect_gnm_attribute_ObjectInstance, proto_gnm, "clientConnection(9)");
 	register_ber_oid_dissector("0.0.13.3100.0.7.10", dissect_gnm_attribute_ObjectInstance, proto_gnm, "clientTrail(10)");

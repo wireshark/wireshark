@@ -189,7 +189,7 @@ static int hf_acse_ACSE_requirements_higher_level_association = -1;
 static int hf_acse_ACSE_requirements_nested_association = -1;
 
 /*--- End of included file: packet-acse-hf.c ---*/
-#line 74 "../../asn1/acse/packet-acse-template.c"
+#line 72 "../../asn1/acse/packet-acse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_acse = -1;
@@ -233,7 +233,7 @@ static gint ett_acse_Authentication_value_other = -1;
 static gint ett_acse_Authentication_value = -1;
 
 /*--- End of included file: packet-acse-ett.c ---*/
-#line 78 "../../asn1/acse/packet-acse-template.c"
+#line 76 "../../asn1/acse/packet-acse-template.c"
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
@@ -1688,7 +1688,7 @@ dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-acse-fn.c ---*/
-#line 154 "../../asn1/acse/packet-acse-template.c"
+#line 152 "../../asn1/acse/packet-acse-template.c"
 
 
 /*
@@ -2239,7 +2239,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 272 "../../asn1/acse/packet-acse-template.c"
+#line 270 "../../asn1/acse/packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2285,7 +2285,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 278 "../../asn1/acse/packet-acse-template.c"
+#line 276 "../../asn1/acse/packet-acse-template.c"
   };
 
   /* Register protocol */

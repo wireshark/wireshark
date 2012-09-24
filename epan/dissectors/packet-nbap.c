@@ -1543,7 +1543,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-nbap-val.h ---*/
-#line 83 "../../asn1/nbap/packet-nbap-template.c"
+#line 81 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
@@ -4847,7 +4847,7 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-nbap-hf.c ---*/
-#line 91 "../../asn1/nbap/packet-nbap-template.c"
+#line 89 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
@@ -6486,7 +6486,7 @@ static gint ett_nbap_UnsuccessfulOutcome = -1;
 static gint ett_nbap_Outcome = -1;
 
 /*--- End of included file: packet-nbap-ett.c ---*/
-#line 99 "../../asn1/nbap/packet-nbap-template.c"
+#line 97 "../../asn1/nbap/packet-nbap-template.c"
 
 
 extern int proto_fp;
@@ -55040,7 +55040,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 317 "../../asn1/nbap/packet-nbap-template.c"
+#line 315 "../../asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -68377,7 +68377,7 @@ void proto_register_nbap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 489 "../../asn1/nbap/packet-nbap-template.c"
+#line 487 "../../asn1/nbap/packet-nbap-template.c"
 	};
 
 	/* List of subtrees */
@@ -70017,7 +70017,7 @@ void proto_register_nbap(void)
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 498 "../../asn1/nbap/packet-nbap-template.c"
+#line 496 "../../asn1/nbap/packet-nbap-template.c"
 	};
 
 	/* Register protocol */
@@ -71160,7 +71160,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 544 "../../asn1/nbap/packet-nbap-template.c"
+#line 542 "../../asn1/nbap/packet-nbap-template.c"
 }
 
 

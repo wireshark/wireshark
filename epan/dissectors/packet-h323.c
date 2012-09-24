@@ -128,7 +128,7 @@ static int hf_h323_timeToLive = -1;               /* TimeToLive */
 static int hf_h323_includeFastStart = -1;         /* NULL */
 
 /*--- End of included file: packet-h323-hf.c ---*/
-#line 93 "../../asn1/h323/packet-h323-template.c"
+#line 91 "../../asn1/h323/packet-h323-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -149,7 +149,7 @@ static gint ett_h323_T_fastStart = -1;
 static gint ett_h323_StatusInquiry_RD = -1;
 
 /*--- End of included file: packet-h323-ett.c ---*/
-#line 96 "../../asn1/h323/packet-h323-template.c"
+#line 94 "../../asn1/h323/packet-h323-template.c"
 
 
 /*--- Included file: packet-h323-fn.c ---*/
@@ -440,7 +440,7 @@ static int dissect_RobustnessData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-h323-fn.c ---*/
-#line 98 "../../asn1/h323/packet-h323-template.c"
+#line 96 "../../asn1/h323/packet-h323-template.c"
 
 /*--- proto_register_h323 ----------------------------------------------*/
 void proto_register_h323(void) {
@@ -564,7 +564,7 @@ void proto_register_h323(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h323-hfarr.c ---*/
-#line 105 "../../asn1/h323/packet-h323-template.c"
+#line 103 "../../asn1/h323/packet-h323-template.c"
   };
 
   /* List of subtrees */
@@ -587,7 +587,7 @@ void proto_register_h323(void) {
     &ett_h323_StatusInquiry_RD,
 
 /*--- End of included file: packet-h323-ettarr.c ---*/
-#line 110 "../../asn1/h323/packet-h323-template.c"
+#line 108 "../../asn1/h323/packet-h323-template.c"
   };
 
   /* Register protocol */

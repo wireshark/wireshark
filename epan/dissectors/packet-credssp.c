@@ -84,7 +84,7 @@ static int hf_credssp_authInfo = -1;              /* T_authInfo */
 static int hf_credssp_pubKeyAuth = -1;            /* OCTET_STRING */
 
 /*--- End of included file: packet-credssp-hf.c ---*/
-#line 56 "../../asn1/credssp/packet-credssp-template.c"
+#line 54 "../../asn1/credssp/packet-credssp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_credssp = -1;
@@ -100,7 +100,7 @@ static gint ett_credssp_TSCredentials = -1;
 static gint ett_credssp_TSRequest = -1;
 
 /*--- End of included file: packet-credssp-ett.c ---*/
-#line 60 "../../asn1/credssp/packet-credssp-template.c"
+#line 58 "../../asn1/credssp/packet-credssp-template.c"
 
 
 /*--- Included file: packet-credssp-fn.c ---*/
@@ -328,7 +328,7 @@ static void dissect_TSRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-credssp-fn.c ---*/
-#line 62 "../../asn1/credssp/packet-credssp-template.c"
+#line 60 "../../asn1/credssp/packet-credssp-template.c"
 
 /*
 * Dissect CredSSP PDUs
@@ -492,7 +492,7 @@ void proto_register_credssp(void) {
         "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-credssp-hfarr.c ---*/
-#line 137 "../../asn1/credssp/packet-credssp-template.c"
+#line 135 "../../asn1/credssp/packet-credssp-template.c"
   };
 
   /* List of subtrees */
@@ -510,7 +510,7 @@ void proto_register_credssp(void) {
     &ett_credssp_TSRequest,
 
 /*--- End of included file: packet-credssp-ettarr.c ---*/
-#line 143 "../../asn1/credssp/packet-credssp-template.c"
+#line 141 "../../asn1/credssp/packet-credssp-template.c"
   };
 
 

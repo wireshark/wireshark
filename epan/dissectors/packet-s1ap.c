@@ -327,7 +327,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-s1ap-val.h ---*/
-#line 69 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 67 "../../asn1/s1ap/packet-s1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_s1ap = -1;
@@ -806,7 +806,7 @@ static int hf_s1ap_candidateCellList = -1;        /* CandidateCellList */
 static int hf_s1ap_CandidateCellList_item = -1;   /* IRAT_Cell_ID */
 
 /*--- End of included file: packet-s1ap-hf.c ---*/
-#line 76 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 74 "../../asn1/s1ap/packet-s1ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
@@ -1061,7 +1061,7 @@ static gint ett_s1ap_HOReport = -1;
 static gint ett_s1ap_CandidateCellList = -1;
 
 /*--- End of included file: packet-s1ap-ett.c ---*/
-#line 87 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 85 "../../asn1/s1ap/packet-s1ap-template.c"
 
 enum{
 	INITIATING_MESSAGE,
@@ -9155,7 +9155,7 @@ int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 132 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 130 "../../asn1/s1ap/packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -9446,7 +9446,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 204 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 202 "../../asn1/s1ap/packet-s1ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, s1ap_handle);
@@ -11347,7 +11347,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 232 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 230 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -11603,7 +11603,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_CandidateCellList,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 244 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 242 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;

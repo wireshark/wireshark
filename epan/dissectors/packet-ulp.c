@@ -668,7 +668,7 @@ static int hf_ulp_GANSSSignals_signal7 = -1;
 static int hf_ulp_GANSSSignals_signal8 = -1;
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 64 "../../asn1/ulp/packet-ulp-template.c"
+#line 62 "../../asn1/ulp/packet-ulp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
@@ -885,7 +885,7 @@ static gint ett_ulp_PolygonArea = -1;
 static gint ett_ulp_PolygonDescription = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 68 "../../asn1/ulp/packet-ulp-template.c"
+#line 66 "../../asn1/ulp/packet-ulp-template.c"
 
 /* Include constants */
 
@@ -908,7 +908,7 @@ static gint ett_ulp_PolygonDescription = -1;
 #define maxWimaxBSMeas                 32
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 71 "../../asn1/ulp/packet-ulp-template.c"
+#line 69 "../../asn1/ulp/packet-ulp-template.c"
 
 
 
@@ -6269,7 +6269,7 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 74 "../../asn1/ulp/packet-ulp-template.c"
+#line 72 "../../asn1/ulp/packet-ulp-template.c"
 
 
 static guint
@@ -8683,7 +8683,7 @@ void proto_register_ulp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 99 "../../asn1/ulp/packet-ulp-template.c"
+#line 97 "../../asn1/ulp/packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -8902,7 +8902,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PolygonDescription,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 105 "../../asn1/ulp/packet-ulp-template.c"
+#line 103 "../../asn1/ulp/packet-ulp-template.c"
   };
 
   module_t *ulp_module;

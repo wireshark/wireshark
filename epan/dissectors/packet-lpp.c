@@ -881,7 +881,7 @@ static int hf_lpp_T_ecid_MeasSupported_rsrqSup = -1;
 static int hf_lpp_T_ecid_MeasSupported_ueRxTxSup = -1;
 
 /*--- End of included file: packet-lpp-hf.c ---*/
-#line 52 "../../asn1/lpp/packet-lpp-template.c"
+#line 50 "../../asn1/lpp/packet-lpp-template.c"
 
 static dissector_handle_t lppe_handle = NULL;
 
@@ -1186,7 +1186,7 @@ static gint ett_lpp_ECID_LocationServerErrorCauses = -1;
 static gint ett_lpp_ECID_TargetDeviceErrorCauses = -1;
 
 /*--- End of included file: packet-lpp-ett.c ---*/
-#line 60 "../../asn1/lpp/packet-lpp-template.c"
+#line 58 "../../asn1/lpp/packet-lpp-template.c"
 
 /* Include constants */
 
@@ -1197,7 +1197,7 @@ static gint ett_lpp_ECID_TargetDeviceErrorCauses = -1;
 #define maxBands                       64
 
 /*--- End of included file: packet-lpp-val.h ---*/
-#line 63 "../../asn1/lpp/packet-lpp-template.c"
+#line 61 "../../asn1/lpp/packet-lpp-template.c"
 
 static const value_string lpp_ePDU_ID_vals[] = {
   { 1, "OMA LPP extensions (LPPe)"},
@@ -7937,7 +7937,7 @@ int dissect_lpp_HorizontalVelocity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-lpp-fn.c ---*/
-#line 70 "../../asn1/lpp/packet-lpp-template.c"
+#line 68 "../../asn1/lpp/packet-lpp-template.c"
 
 
 /*--- proto_register_lpp -------------------------------------------*/
@@ -11235,7 +11235,7 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lpp-hfarr.c ---*/
-#line 79 "../../asn1/lpp/packet-lpp-template.c"
+#line 77 "../../asn1/lpp/packet-lpp-template.c"
   };
 
   /* List of subtrees */
@@ -11538,7 +11538,7 @@ void proto_register_lpp(void) {
     &ett_lpp_ECID_TargetDeviceErrorCauses,
 
 /*--- End of included file: packet-lpp-ettarr.c ---*/
-#line 85 "../../asn1/lpp/packet-lpp-template.c"
+#line 83 "../../asn1/lpp/packet-lpp-template.c"
   };
 
 

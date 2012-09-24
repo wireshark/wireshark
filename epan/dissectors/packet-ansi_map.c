@@ -877,7 +877,7 @@ static int hf_ansi_map_interSystemSMSDeliveryPointToPointRes = -1;  /* InterSyst
 static int hf_ansi_map_qualificationRequest2Res = -1;  /* QualificationRequest2Res */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
-#line 323 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 321 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
@@ -1137,7 +1137,7 @@ static gint ett_ansi_map_InvokeData = -1;
 static gint ett_ansi_map_ReturnData = -1;
 
 /*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 355 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 353 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /* Global variables */
 static dissector_table_t is637_tele_id_dissector_table; /* IS-637 Teleservice ID */
@@ -15458,7 +15458,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3586 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 3584 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -19304,7 +19304,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5239 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5237 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19565,7 +19565,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5272 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5270 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     static enum_val_t ansi_map_response_matching_type_values[] = {

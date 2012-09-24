@@ -83,7 +83,7 @@ static int hf_h283_deviceListResp = -1;           /* T_deviceListResp */
 static int hf_h283_deviceChange = -1;             /* NULL */
 
 /*--- End of included file: packet-h283-hf.c ---*/
-#line 44 "../../asn1/h283/packet-h283-template.c"
+#line 42 "../../asn1/h283/packet-h283-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h283 = -1;
@@ -106,7 +106,7 @@ static gint ett_h283_LCTIndication = -1;
 static gint ett_h283_NonStandardMessage = -1;
 
 /*--- End of included file: packet-h283-ett.c ---*/
-#line 48 "../../asn1/h283/packet-h283-template.c"
+#line 46 "../../asn1/h283/packet-h283-template.c"
 
 /* Subdissectors */
 static dissector_handle_t rdc_pdu_handle;
@@ -564,7 +564,7 @@ static int dissect_LCTPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
 
 /*--- End of included file: packet-h283-fn.c ---*/
-#line 57 "../../asn1/h283/packet-h283-template.c"
+#line 55 "../../asn1/h283/packet-h283-template.c"
 
 static int
 dissect_h283_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -720,7 +720,7 @@ void proto_register_h283(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h283-hfarr.c ---*/
-#line 80 "../../asn1/h283/packet-h283-template.c"
+#line 78 "../../asn1/h283/packet-h283-template.c"
   };
 
   /* List of subtrees */
@@ -745,7 +745,7 @@ void proto_register_h283(void) {
     &ett_h283_NonStandardMessage,
 
 /*--- End of included file: packet-h283-ettarr.c ---*/
-#line 86 "../../asn1/h283/packet-h283-template.c"
+#line 84 "../../asn1/h283/packet-h283-template.c"
   };
 
   /* Register protocol */

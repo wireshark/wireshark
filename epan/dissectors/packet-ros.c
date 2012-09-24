@@ -110,7 +110,7 @@ static int hf_ros_local = -1;                     /* INTEGER */
 static int hf_ros_global = -1;                    /* OBJECT_IDENTIFIER */
 
 /*--- End of included file: packet-ros-hf.c ---*/
-#line 76 "../../asn1/ros/packet-ros-template.c"
+#line 74 "../../asn1/ros/packet-ros-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ros = -1;
@@ -128,7 +128,7 @@ static gint ett_ros_InvokeId = -1;
 static gint ett_ros_Code = -1;
 
 /*--- End of included file: packet-ros-ett.c ---*/
-#line 80 "../../asn1/ros/packet-ros-template.c"
+#line 78 "../../asn1/ros/packet-ros-template.c"
 
 static dissector_table_t ros_oid_dissector_table=NULL;
 
@@ -1010,7 +1010,7 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 371 "../../asn1/ros/packet-ros-template.c"
+#line 369 "../../asn1/ros/packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
@@ -1241,7 +1241,7 @@ void proto_register_ros(void) {
         "OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 489 "../../asn1/ros/packet-ros-template.c"
+#line 487 "../../asn1/ros/packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1262,7 +1262,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 496 "../../asn1/ros/packet-ros-template.c"
+#line 494 "../../asn1/ros/packet-ros-template.c"
   };
 
   /* Register protocol */

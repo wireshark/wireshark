@@ -114,7 +114,7 @@ static int hf_charging_ase_T_tariffControlIndicators_non_cyclicTariff = -1;
 static int hf_charging_ase_T_tariffControlIndicators_01_non_cyclicTariff = -1;
 
 /*--- End of included file: packet-charging_ase-hf.c ---*/
-#line 45 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 43 "../../asn1/charging_ase/packet-charging_ase-template.c"
 
 static int ett_charging_ase = -1;
 
@@ -152,7 +152,7 @@ static gint ett_charging_ase_T_tariffControlIndicators_01 = -1;
 static gint ett_charging_ase_ChargingReferenceIdentification = -1;
 
 /*--- End of included file: packet-charging_ase-ett.c ---*/
-#line 48 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 46 "../../asn1/charging_ase/packet-charging_ase-template.c"
 
 static dissector_handle_t charging_ase_handle;
 
@@ -838,7 +838,7 @@ int dissect_charging_ase_ChargingMessageType_PDU(tvbuff_t *tvb _U_, packet_info 
 
 
 /*--- End of included file: packet-charging_ase-fn.c ---*/
-#line 52 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 50 "../../asn1/charging_ase/packet-charging_ase-template.c"
 
 static void
 dissect_charging_ase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1110,7 +1110,7 @@ proto_register_charging_ase(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-charging_ase-hfarr.c ---*/
-#line 75 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 73 "../../asn1/charging_ase/packet-charging_ase-template.c"
   };
 
   /* List of subtrees */
@@ -1151,7 +1151,7 @@ proto_register_charging_ase(void)
     &ett_charging_ase_ChargingReferenceIdentification,
 
 /*--- End of included file: packet-charging_ase-ettarr.c ---*/
-#line 81 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 79 "../../asn1/charging_ase/packet-charging_ase-template.c"
         };
 
   proto_charging_ase = proto_register_protocol(PNAME, PSNAME, PFNAME);

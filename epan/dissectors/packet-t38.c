@@ -149,7 +149,7 @@ static int hf_t38_fec_data = -1;                  /* T_fec_data */
 static int hf_t38_fec_data_item = -1;             /* OCTET_STRING */
 
 /*--- End of included file: packet-t38-hf.c ---*/
-#line 124 "../../asn1/t38/packet-t38-template.c"
+#line 122 "../../asn1/t38/packet-t38-template.c"
 
 /* T38 setup fields */
 static int hf_t38_setup        = -1;
@@ -183,7 +183,7 @@ static gint ett_t38_T_fec_info = -1;
 static gint ett_t38_T_fec_data = -1;
 
 /*--- End of included file: packet-t38-ett.c ---*/
-#line 144 "../../asn1/t38/packet-t38-template.c"
+#line 142 "../../asn1/t38/packet-t38-template.c"
 static gint ett_t38_setup = -1;
 
 static gint ett_data_fragment = -1;
@@ -975,7 +975,7 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-t38-fn.c ---*/
-#line 396 "../../asn1/t38/packet-t38-template.c"
+#line 394 "../../asn1/t38/packet-t38-template.c"
 
 /* initialize the tap t38_info and the conversation */
 static void
@@ -1331,7 +1331,7 @@ proto_register_t38(void)
         "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 675 "../../asn1/t38/packet-t38-template.c"
+#line 673 "../../asn1/t38/packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1392,7 +1392,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 722 "../../asn1/t38/packet-t38-template.c"
+#line 720 "../../asn1/t38/packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments
