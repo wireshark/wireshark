@@ -302,4 +302,5 @@ except OSError:
 	pass
 
 # Move from tmp file to final file
+# FIXME: only overwrite final_filename if it differes from tmp_filename
 os.rename(tmp_filename, final_filename)

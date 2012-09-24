@@ -181,4 +181,7 @@ EOF
 	echo "  return $proto_regs + $handoff_regs;" >>${outfile}-tmp
 	echo '}' >>${outfile}-tmp
 fi
-mv ${outfile}-tmp ${outfile}
+
+# Only overwrite outfile if it differs from newly generated file
+diff ${outfile}-tmp ${outfile} >/dev/null || mv ${outfile}-tmp ${outfile}
+
