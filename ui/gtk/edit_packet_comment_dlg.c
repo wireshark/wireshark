@@ -35,6 +35,7 @@
 #include "../cfile.h"
 #include "../file.h"
 
+#include "ui/main_statusbar.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/dlg_utils.h"
@@ -92,6 +93,8 @@ capture_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
 
   /* Update the main window as appropriate */
   main_update_for_unsaved_changes(&cfile);
+
+  status_capture_comment_update();
 
   window_destroy(edit_or_add_capture_comment_dlg);
 

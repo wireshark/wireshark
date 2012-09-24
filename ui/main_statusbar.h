@@ -32,6 +32,11 @@ void profile_bar_update(void);
 void packets_bar_update(void);
 void status_expert_update(void);
 
+/** Update the capture comment icon in the statusbar, depending on the
+ *  current capture comment (XXX - it's only available for GTK at the moment)
+ */
+void status_capture_comment_update(void);
+
 /** Push a formatted message referring to the currently-selected field
  * onto the statusbar.
  *
