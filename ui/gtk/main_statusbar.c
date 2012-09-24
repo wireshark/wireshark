@@ -813,6 +813,8 @@ statusbar_capture_update_started_cb(capture_options *capture_opts)
                             interface_names->str,
                             (capture_opts->save_file) ? capture_opts->save_file : "");
     g_string_free(interface_names, TRUE);
+
+    status_capture_comment_update();
 }
 
 static void
