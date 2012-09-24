@@ -131,6 +131,10 @@ README.windows for those instructions.
         By default the network traffic capture program is built.
         Use this switch to avoid building it.
 
+    --disable-reordercap
+        By default the capture-file reordering program is built.
+        Use this switch to avoid building it.
+
     --disable-rawshark
         By default the program used to dump and analyze raw libpcap data
         is built. Use this switch to avoid building it.

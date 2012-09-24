@@ -361,7 +361,7 @@ set(PACKAGELIST ${PACKAGELIST} YAPP)
 set(PACKAGELIST ${PACKAGELIST} POD)
 
 
-set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
+set(PROGLIST text2pcap mergecap capinfos editcap reordercap dumpcap)
 
 #Let's loop the package list
 foreach(PACKAGE ${PACKAGELIST})
@@ -896,12 +896,30 @@ if(BUILD_mergecap)
 		mergecap.c
 		merge.c
 		svnversion.h
+		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(mergecap ${mergecap_FILES})
 	add_dependencies(mergecap svnversion)
 	set_target_properties(mergecap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	target_link_libraries(mergecap ${mergecap_LIBS})
 	install(TARGETS mergecap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
+if(BUILD_reordercap)
+	set(reordercap_LIBS
+		wiretap
+		${ZLIB_LIBRARIES}
+	)
+	set(reordercap_FILES
+		reordercap.c
+		svnversion.h
+		${WTAP_PLUGIN_SOURCES}
+	)
+	add_executable(reordercap ${reordercap_FILES})
+	add_dependencies(reordercap svnversion)
+	set_target_properties(reordercap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+	target_link_libraries(reordercap ${reordercap_LIBS})
+	install(TARGETS reordercap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(BUILD_capinfos)

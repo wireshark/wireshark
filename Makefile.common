@@ -172,6 +172,12 @@ editcap_SOURCES = \
 	epan/nstime.c \
 	$(WTAP_PLUGIN_SOURCES)
 
+# reordercap specifics
+reordercap_SOURCES = \
+	reordercap.c \
+	svnversion.h
+
+# capinfos specifics
 capinfos_SOURCES = \
 	capinfos.c \
 	$(WTAP_PLUGIN_SOURCES)

@@ -46,10 +46,11 @@ bin_PROGRAMS = \
 	@randpkt_bin@	\
 	@dftest_bin@	\
 	@dumpcap_bin@	\
+	@reordercap_bin@	\
 	@rawshark_bin@
 
 EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
-	randpkt text2pcap dumpcap rawshark
+	randpkt text2pcap dumpcap reordercap rawshark
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -446,6 +447,13 @@ editcap_LDADD = \
 	@GLIB_LIBS@
 editcap_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
+# Libraries with which to link reordercap.
+reordercap_LDADD = \
+	wiretap/libwiretap.la		\
+	wsutil/libwsutil.la		\
+	@GLIB_LIBS@
+reordercap_CFLAGS = $(AM_CLEAN_CFLAGS)
+
 # Libraries with which to link randpkt.
 randpkt_LDADD = \
 	wiretap/libwiretap.la		\
@@ -713,6 +721,7 @@ EXTRA_DIST = \
 	image/nsis-unchecked.bmp		\
 	image/rawshark.rc.in			\
 	image/README.image			\
+	image/reordercap.rc.in			\
 	image/status.qrc			\
 	image/stock_dialog_error_48.xpm		\
 	image/stock_dialog_info_48.xpm		\
@@ -837,6 +846,7 @@ EXTRA_DIST = \
 	$(ui_DATA)		\
 	$(wimaxasncp_DATA)	\
 	randpkt.c		\
+	reordercap.c		\
 	smi_modules		\
 	text2pcap-scanner.l	\
 	text2pcap.c		\

@@ -1172,6 +1172,24 @@ AC_SUBST(mergecap_bin)
 AC_SUBST(mergecap_man)
 
 
+# Enable/disable reordercap
+
+AC_ARG_ENABLE(reordercap,
+  AC_HELP_STRING( [--enable-reordercap],
+                  [build reordercap @<:@default=yes@:>@]),
+    enable_reordercap=$enableval,enable_reordercap=yes)
+
+if test "x$enable_reordercap" = "xyes" ; then
+	reordercap_bin="reordercap\$(EXEEXT)"
+	reordercap_man="reordercap.1"
+else
+	reordercap_bin=""
+	reordercap_man=""
+fi
+AC_SUBST(reordercap_bin)
+AC_SUBST(reordercap_man)
+
+
 # Enable/disable text2pcap
 
 AC_ARG_ENABLE(text2pcap,
@@ -2267,6 +2285,7 @@ echo "                     Build capinfos : $enable_capinfos"
 echo "                      Build editcap : $enable_editcap"
 echo "                      Build dumpcap : $enable_dumpcap"
 echo "                     Build mergecap : $enable_mergecap"
+echo "                   Build reordercap : $enable_reordercap"
 echo "                    Build text2pcap : $enable_text2pcap"
 echo "                      Build randpkt : $enable_randpkt"
 echo "                       Build dftest : $enable_dftest"

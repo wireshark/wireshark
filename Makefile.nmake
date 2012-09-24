@@ -147,6 +147,11 @@ mergecap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
+reordercap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib \
+	wsutil\libwsutil.lib \
+	$(GLIB_LIBS)
+
 text2pcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	wsutil\libwsutil.lib \
@@ -181,13 +186,13 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS)
 
 EXECUTABLES=wireshark.exe tshark.exe rawshark.exe \
-	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe dumpcap.exe
+	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe reordercap.exe dumpcap.exe
 
 RESOURCES=image\wireshark.res image\file_dlg_win32.res \
 	image\libwireshark.res image\tshark.res image\capinfos.res \
 	image\editcap.res image\mergecap.res image\text2pcap.res \
 	image\wiretap.res image\dumpcap.res image\rawshark.res \
-	image\libwsutil.res
+	image\reordercap.res image\libwsutil.res
 
 
 all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) wireshark.bsc $(RESOURCES) doc help install-all
@@ -348,6 +353,15 @@ mergecap.exe	: $(LIBS_CHECK)  config.h mergecap.obj merge.obj wsutil\libwsutil.l
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
 !ENDIF
 
+reordercapcap.exe	: $(LIBS_CHECK)  config.h reordercap.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\reordercap.res
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:reordercap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console reordercap.obj $(reordercap_LIBS) setargv.obj image\reordercap.res
+<<
+!IFDEF MANIFEST_INFO_REQUIRED
+	mt.exe -nologo -manifest "reordercap.exe.manifest" -outputresource:reordercap.exe;1
+!ENDIF
+
 text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
@@ -497,14 +511,14 @@ text2pcap-scanner.obj : text2pcap-scanner.c
 # The following targets will rebuild their respective objs
 # if and when svnversion.h should change.
 #
-text2pcap.obj mergecap.obj capinfos.obj editcap.obj version_info.obj: svnversion.h
+text2pcap.obj mergecap.obj capinfos.obj editcap.obj reordercap.obj version_info.obj: svnversion.h
 
 
 clean-local:
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
  		$(EXECUTABLES) *.pdb *.sbr *.exe.manifest \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj \
-		nio-ie5.obj update.obj \
+		reordercap.obj nio-ie5.obj update.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb rdps.exe rdps.ilk config.h ps.c $(LIBS_CHECK) \
 		dftest.obj dftest.exe randpkt.obj randpkt.ext \
@@ -1044,6 +1058,8 @@ install-generated-files:
 	if exist editcap.pdb xcopy editcap.pdb $(INSTALL_DIR) /d
 	if exist mergecap.exe xcopy mergecap.exe $(INSTALL_DIR) /d
 	if exist mergecap.pdb xcopy mergecap.pdb $(INSTALL_DIR) /d
+	if exist reordercap.exe xcopy reordercap.exe $(INSTALL_DIR) /d
+	if exist reordercap.pdb xcopy reordercap.pdb $(INSTALL_DIR) /d
 	if exist rawshark.exe xcopy rawshark.exe $(INSTALL_DIR) /d
 	if exist rawshark.pdb xcopy rawshark.pdb $(INSTALL_DIR) /d
 	if exist text2pcap.exe xcopy text2pcap.exe $(INSTALL_DIR) /d
