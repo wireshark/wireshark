@@ -1326,11 +1326,7 @@ static dissector_handle_t look_for_dissector(const char *protocol_name)
     }
     else
     if ((strcmp(protocol_name, "fp") == 0) ||
-        (strcmp(protocol_name, "fp_r4") == 0) ||
-        (strcmp(protocol_name, "fp_r5") == 0) ||
-        (strcmp(protocol_name, "fp_r6") == 0) ||
-        (strcmp(protocol_name, "fp_r7") == 0) ||
-        (strcmp(protocol_name, "fp_r8") == 0) ||
+        (strncmp(protocol_name, "fp_r", 4) == 0) ||
         (strcmp(protocol_name, "fpiur_r5") == 0)) {
 
         return find_dissector("fp");
@@ -2214,11 +2210,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* FP protocols need info from outhdr attached */
     if ((strcmp(protocol_name, "fp") == 0) ||
-        (strcmp(protocol_name, "fp_r4") == 0) ||
-        (strcmp(protocol_name, "fp_r5") == 0) ||
-        (strcmp(protocol_name, "fp_r6") == 0) ||
-        (strcmp(protocol_name, "fp_r7") == 0) ||
-        (strcmp(protocol_name, "fp_r8") == 0) ||
+        (strncmp(protocol_name, "fp_r", 4) == 0) ||
         (strcmp(protocol_name, "fpiur_r5") == 0)) {
 
         parse_outhdr_string(outhdr_string, outhdr_length);
