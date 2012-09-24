@@ -6,7 +6,7 @@ include ..\config.nmake
 
 # Nmake uses an implicit rule to build a .res from a .rc file!
 
-ALL_RC=wireshark.rc libwireshark.rc tshark.rc rawshark.rc capinfos.rc editcap.rc text2pcap.rc mergecap.rc wiretap.rc dumpcap.rc libwsutil.rc wireshark.exe.manifest
+ALL_RC=wireshark.rc libwireshark.rc tshark.rc rawshark.rc capinfos.rc editcap.rc text2pcap.rc mergecap.rc reordercap.rc wiretap.rc dumpcap.rc libwsutil.rc wireshark.exe.manifest
 all : $(ALL_RC)
 
 wireshark.exe.manifest: wireshark.exe.manifest.in ..\config.nmake
@@ -50,6 +50,11 @@ mergecap.rc   : mergecap.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< mergecap.rc.in > $@
+
+reordercap.rc   : reordercap.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< reordercap.rc.in > $@
 
 text2pcap.rc  : text2pcap.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
