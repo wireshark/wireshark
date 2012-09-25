@@ -297,5 +297,19 @@ try:
 		fh.close()
 	else:
 		print(final_filename + ' unchanged.')
+		os.utime(final_filename, None)
 except OSError:
 	sys.exit('Unable to write ' + final_filename + '.\n')
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#
