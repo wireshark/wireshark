@@ -45,6 +45,7 @@
 #include "ui/alert_box.h"
 #include "ui/main_statusbar.h"
 #include "ui/capture_globals.h"
+#include "ui/help_url.h"
 
 #include "wireshark_application.h"
 #include "proto_tree.h"
@@ -71,6 +72,20 @@ static MainWindow *gbl_cur_main_window = NULL;
 void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
 {
     gbl_cur_main_window->setPipeInputHandler(source, user_data, child_process, input_cb);
+}
+
+//Copied from gtk/help_dlg.[ch] need to move to qt/help_dlg.[ch]
+static void
+topic_action(topic_action_e action)
+{
+    char *url;
+
+    url = topic_action_url(action);
+
+    if(url != NULL) {
+        QDesktopServices::openUrl(QUrl(url));
+        g_free(url);
+    }
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -1247,33 +1262,72 @@ void MainWindow::on_actionFileClose_triggered() {
 // Next / previous / first / last slots in packet_list
 
 // Help Menu
+void MainWindow::on_actionHelpContents_triggered() {
+
+    topic_action(HELP_CONTENT);
+}
+
+void MainWindow::on_actionHelpMPWireshark_triggered() {
+
+    topic_action(LOCALPAGE_MAN_WIRESHARK);
+}
+void MainWindow::on_actionHelpMPWireshark_Filter_triggered() {
+
+    topic_action(LOCALPAGE_MAN_WIRESHARK_FILTER);
+}
+void MainWindow::on_actionHelpMPTShark_triggered() {
+
+    topic_action(LOCALPAGE_MAN_TSHARK);
+}
+void MainWindow::on_actionHelpMPRawShark_triggered() {
+
+    topic_action(LOCALPAGE_MAN_RAWSHARK);
+}
+void MainWindow::on_actionHelpMPDumpcap_triggered() {
+
+    topic_action(LOCALPAGE_MAN_DUMPCAP);
+}
+void MainWindow::on_actionHelpMPMergecap_triggered() {
+
+    topic_action(LOCALPAGE_MAN_MERGECAP);
+}
+void MainWindow::on_actionHelpMPEditcap_triggered() {
+
+    topic_action(LOCALPAGE_MAN_EDITCAP);
+}
+void MainWindow::on_actionHelpMPText2cap_triggered() {
+
+    topic_action(LOCALPAGE_MAN_TEXT2PCAP);
+}
+
 void MainWindow::on_actionHelpWebsite_triggered() {
-    QDesktopServices::openUrl(QUrl("http://www.wireshark.org"));
+
+    topic_action(ONLINEPAGE_HOME);
 }
 
 void MainWindow::on_actionHelpFAQ_triggered() {
 
-    QDesktopServices::openUrl(QUrl("http://www.wireshark.org/faq.html"));
+    topic_action(ONLINEPAGE_FAQ);
 }
 
 void MainWindow::on_actionHelpAsk_triggered() {
 
-    QDesktopServices::openUrl(QUrl("http://ask.wireshark.org"));
+    topic_action(ONLINEPAGE_ASK);
 }
 
 void MainWindow::on_actionHelpDownloads_triggered() {
 
-    QDesktopServices::openUrl(QUrl("http://www.wireshark.org/download.html"));
+    topic_action(ONLINEPAGE_DOWNLOAD);
 }
 
 void MainWindow::on_actionHelpWiki_triggered() {
 
-    QDesktopServices::openUrl(QUrl("http://wiki.wireshark.org"));
+    topic_action(ONLINEPAGE_WIKI);
 }
 
 void MainWindow::on_actionHelpSampleCaptures_triggered() {
 
-    QDesktopServices::openUrl(QUrl("http://wiki.wireshark.org/SampleCaptures"));
+    topic_action(ONLINEPAGE_SAMPLE_FILES);
 }
 
 void MainWindow::on_actionGoGoToPacket_triggered() {

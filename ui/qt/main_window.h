@@ -147,6 +147,15 @@ private slots:
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();
 
+    void on_actionHelpContents_triggered();
+    void on_actionHelpMPWireshark_triggered();
+    void on_actionHelpMPWireshark_Filter_triggered();
+    void on_actionHelpMPTShark_triggered();
+    void on_actionHelpMPRawShark_triggered();
+    void on_actionHelpMPDumpcap_triggered();
+    void on_actionHelpMPMergecap_triggered();
+    void on_actionHelpMPEditcap_triggered();
+    void on_actionHelpMPText2cap_triggered();
     void on_actionHelpWebsite_triggered();
     void on_actionHelpFAQ_triggered();
     void on_actionHelpAsk_triggered();
