@@ -98,14 +98,14 @@ In addition to FOP, be sure to also have installed JAI and/or jimi to be able
 to use/convert the PNG graphics files. The FOP release note webpage tells how
 to do it:
 download jimi from:
-http://java.sun.com/products/jimi/
+http://www.oracle.com/technetwork/java/javasebusiness/downloads/java-archive-downloads-java-client-419417.html
 then extract the archive, then copy JimiProClasses.zip to FOP's lib dir and
 rename it to jimi-1.0.jar.
 
 Win32 only: HTML help compiler (for .chm generation only)
 ---------------------------------------------------------
 HTML Help Compiler (hhc.exe) from Microsoft:
-http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp
+http://www.microsoft.com/en-us/download/details.aspx?id=21138
 
 Lynx
 ----
