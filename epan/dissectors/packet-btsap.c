@@ -720,7 +720,7 @@ proto_register_btsap(void)
     module = prefs_register_protocol(proto_btsap, NULL);
     prefs_register_static_text_preference(module, "sap.version",
             "Bluetooth Profile SAP version: 1.1",
-	    "Version of protocol supported by this dissector.");
+            "Version of protocol supported by this dissector.");
 
     prefs_register_enum_preference(module, "sap.top_dissect",
             "Dissecting the top protocols", "Dissecting the top protocols",
@@ -741,3 +741,16 @@ proto_reg_handoff_btsap(void)
 
     dissector_add_handle("btrfcomm.channel", btsap_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
