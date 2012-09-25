@@ -47,6 +47,14 @@ static int hf_fdp_tlv_length = -1;
 /* Unknown element */
 static int hf_fdp_unknown = -1;
 static int hf_fdp_unknown_data = -1;
+/* Port Tag element */
+static int hf_fdp_tag = -1;
+static int hf_fdp_tag_native = -1;
+static int hf_fdp_tag_type = -1;
+static int hf_fdp_tag_unknown = -1;
+/* VLAN Bitmap */
+static int hf_fdp_vlanmap = -1;
+static int hf_fdp_vlanmap_vlan = -1;
 /* String element */
 static int hf_fdp_string = -1;
 static int hf_fdp_string_data = -1;
@@ -62,6 +70,8 @@ static gint ett_fdp_tlv_header = -1;
 static gint ett_fdp_unknown = -1;
 static gint ett_fdp_string = -1;
 static gint ett_fdp_net = -1;
+static gint ett_fdp_tag = -1;
+static gint ett_fdp_vlanmap = -1;
 
 #define PROTO_SHORT_NAME "FDP"
 #define PROTO_LONG_NAME "Foundry Discovery Protocol"
@@ -74,13 +84,13 @@ static const value_string foundry_pid_vals[] = {
 
 typedef enum {
 	FDP_TYPE_NAME = 1,
-	FDP_TYPE_NET = 2, /* Binary, Network information? */
+	FDP_TYPE_NET = 2,
 	FDP_TYPE_PORT = 3,
 	FDP_TYPE_CAPABILITIES = 4,
 	FDP_TYPE_VERSION = 5,
 	FDP_TYPE_MODEL = 6,
-	FDP_TYPE_UNK0101 = 0x0101,
-	FDP_TYPE_UNK0102 = 0x0102,
+	FDP_TYPE_VLANMAP = 0x0101,
+	FDP_TYPE_TAG = 0x0102,
 } fdp_type_t;
 
 static const value_string fdp_type_vals[] = {
@@ -90,8 +100,8 @@ static const value_string fdp_type_vals[] = {
 	{ FDP_TYPE_CAPABILITIES,	"Capabilities"},
 	{ FDP_TYPE_VERSION,		"Version"},
 	{ FDP_TYPE_MODEL,		"Platform"},
-	{ FDP_TYPE_UNK0101,		"Unknown-0101"},
-	{ FDP_TYPE_UNK0102,		"Unknown-0102"},
+	{ FDP_TYPE_VLANMAP,		"VLAN-Bitmap"},
+	{ FDP_TYPE_TAG,			"Tagging-Info"},
 
 	{ 0,    NULL }
 };
@@ -180,6 +190,58 @@ dissect_net_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 }
 
 static void
+dissect_vlanmap_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
+{
+	proto_item	*vlanmap_item;
+	proto_tree	*vlanmap_tree;
+	guint		vlan, voffset;
+	guint		bitoffset, byteoffset;
+
+	vlanmap_item = proto_tree_add_protocol_format(tree, hf_fdp_vlanmap,
+		tvb, offset, length, "VLAN-Map");
+
+	vlanmap_tree = proto_item_add_subtree(vlanmap_item, ett_fdp_vlanmap);
+
+	dissect_tlv_header(tvb, pinfo, offset, 4, vlanmap_tree);
+	offset += 4;
+	length -= 4;
+
+	voffset = 1;
+	for (vlan = 1; vlan <= (guint)length*8; vlan++) {
+		byteoffset = (vlan - voffset) / 8;
+		bitoffset = (vlan - voffset) % 8;
+		if (tvb_get_guint8(tvb, offset + byteoffset) & (1 << bitoffset)) {
+
+			proto_tree_add_uint(vlanmap_tree, hf_fdp_vlanmap_vlan, tvb,
+				offset + byteoffset, 1, vlan);
+		}
+	}
+}
+
+static void
+dissect_tag_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
+{
+	proto_item	*tag_item;
+	proto_tree	*tag_tree;
+
+	tag_item = proto_tree_add_protocol_format(tree, hf_fdp_tag,
+		tvb, offset, length, "Port tag");
+
+	tag_tree = proto_item_add_subtree(tag_item, ett_fdp_tag);
+
+	dissect_tlv_header(tvb, pinfo, offset, 4, tag_tree);
+	offset += 4;
+	length -= 4;
+	proto_tree_add_item(tag_tree, hf_fdp_tag_native, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+	length -= 2;
+	proto_tree_add_item(tag_tree, hf_fdp_tag_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+	length -= 2;
+	proto_tree_add_item(tag_tree, hf_fdp_tag_unknown, tvb, offset, length, ENC_NA);
+}
+
+static void
 dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
 	proto_item	*unknown_item;
@@ -258,8 +320,12 @@ dissect_fdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case FDP_TYPE_NET:
 				dissect_net_tlv(tvb, pinfo, offset, tlv_length, fdp_tree);
 				break;
-			case FDP_TYPE_UNK0101:
-			case FDP_TYPE_UNK0102:
+			case FDP_TYPE_TAG:
+				dissect_tag_tlv(tvb, pinfo, offset, tlv_length, fdp_tree);
+				break;
+			case FDP_TYPE_VLANMAP:
+				dissect_vlanmap_tlv(tvb, pinfo, offset, tlv_length, fdp_tree);
+				break;
 			default:
 				dissect_unknown_tlv(tvb, pinfo, offset, tlv_length, fdp_tree);
 				break;
@@ -336,13 +402,41 @@ proto_register_fdp(void)
 		{ "Net IP Address?",	"fdp.net.ip", FT_IPv4, BASE_NONE, NULL,
 			0x0, NULL, HFILL }},
 
+	/* VLAN Bitmap */
+		{ &hf_fdp_vlanmap,
+		{ "VLAN Map",	"fdp.vlanmap", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
+
+		{ &hf_fdp_vlanmap_vlan,
+		{ "VLAN",		"fdp.vlanmap.vlan", FT_UINT16, BASE_DEC, NULL,
+			0x0, NULL, HFILL }},
+
+	/* Port Tag element */
+		{ &hf_fdp_tag,
+		{ "Tag",	"fdp.tag", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
+
+		{ &hf_fdp_tag_native,
+		{ "Native",	"fdp.tag.native", FT_UINT16, BASE_DEC, NULL,
+			0x0, NULL, HFILL }},
+
+		{ &hf_fdp_tag_type,
+		{ "Type",	"fdp.tag.type", FT_UINT16, BASE_HEX, NULL,
+			0x0, NULL, HFILL }},
+
+		{ &hf_fdp_tag_unknown,
+		{ "Unknown",	"fdp.tag.unknown", FT_BYTES, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
+
         };
 	static gint *ett[] = {
 		&ett_fdp,
 		&ett_fdp_tlv_header,
 		&ett_fdp_unknown,
-		&ett_fdp_net,
 		&ett_fdp_string,
+		&ett_fdp_net,
+		&ett_fdp_tag,
+		&ett_fdp_vlanmap,
 	};
 
         proto_fdp = proto_register_protocol(PROTO_LONG_NAME,
