@@ -218,9 +218,9 @@ get_string_from_dictionary(CFPropertyListRef dict, CFStringRef key)
 static gboolean
 get_os_x_version_info(GString *str)
 {
-	static const char server_version_plist_path[] =
+	static const UInt8 server_version_plist_path[] =
 	    "/System/Library/CoreServices/ServerVersion.plist";
-	static const char system_version_plist_path[] =
+	static const UInt8 system_version_plist_path[] =
 	    "/System/Library/CoreServices/SystemVersion.plist";
 	CFURLRef version_plist_file_url;
 	CFReadStreamRef version_plist_stream;
