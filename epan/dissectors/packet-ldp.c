@@ -30,7 +30,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -970,7 +970,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                 rem-=addr_size;
                 proto_tree_add_text(fec_tree, tvb, offset-1, 1,
                                     "Invalid prefix %u length for family %s",
-                                    prefix_len, val_to_str(family, afn_vals, "Unknown Family"));
+                                    prefix_len, val_to_str_const(family, afn_vals, "Unknown Family"));
                 break;
             }
 
@@ -1045,7 +1045,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                 rem-=addr_size;
                 proto_tree_add_text(fec_tree, tvb, offset-1, 1,
                                     "Invalid address length %u length for family %s",
-                                    host_len, val_to_str(family, afn_vals, "Unknown Family"));
+                                    host_len, val_to_str_const(family, afn_vals, "Unknown Family"));
                 break;
             }
 
@@ -1400,7 +1400,7 @@ dissect_tlv_frame_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
     len=(guint8)(tvb_get_ntohs(tvb, offset)>>7) & 0x03;
     proto_tree_add_uint_format(val_tree, hf_ldp_tlv_fr_label_len, tvb, offset, 2, len,
-                               "Number of DLCI bits: %s (%u)", val_to_str(len, tlv_fr_len_vals, "Unknown Length"), len);
+                               "Number of DLCI bits: %s (%u)", val_to_str_const(len, tlv_fr_len_vals, "Unknown Length"), len);
 
     id=tvb_get_ntoh24(tvb, offset+1)&0x7FFFFF;
     proto_tree_add_uint_format(val_tree,
@@ -1430,7 +1430,7 @@ dissect_tlv_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
     data=tvb_get_ntohl(tvb, offset)&0x3FFFFFFF;
     proto_tree_add_uint_format(val_tree, hf_ldp_tlv_status_data, tvb, offset, 4,
-                               data, "Status Data: %s (0x%X)", val_to_str(data, tlv_status_data, "Unknown Status Data"), data);
+                               data, "Status Data: %s (0x%X)", val_to_str_const(data, tlv_status_data, "Unknown Status Data"), data);
 
     proto_tree_add_item(val_tree, hf_ldp_tlv_status_msg_id, tvb, offset+4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(val_tree, hf_ldp_tlv_status_msg_type, tvb, offset+8, 2, ENC_BIG_ENDIAN);
@@ -1495,7 +1495,7 @@ dissect_tlv_returned_message(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
                                    type, "Message Type: Experimental (0x%X)", type);
     } else {
         proto_tree_add_uint_format(val_tree, hf_ldp_tlv_returned_msg_type, tvb, offset, 2,
-                                   type, "Message Type: %s (0x%X)", val_to_str(type, ldp_message_types,"Unknown Message Type"), type);
+                                   type, "Message Type: %s (0x%X)", val_to_str_const(type, ldp_message_types,"Unknown Message Type"), type);
     }
 
     proto_tree_add_item(val_tree, hf_ldp_tlv_returned_msg_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
@@ -1726,7 +1726,7 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tr
 
         len=(guint8)(tvb_get_ntohs(tvb, offset)>>7) & 0x03;
         proto_tree_add_uint_format(lbl_tree, hf_ldp_tlv_sess_fr_len, tvb, offset, 2, len,
-                                   "Number of DLCI bits: %s (%u)", val_to_str(len, tlv_fr_len_vals, "Unknown Length"), len);
+                                   "Number of DLCI bits: %s (%u)", val_to_str_const(len, tlv_fr_len_vals, "Unknown Length"), len);
 
         id=tvb_get_ntoh24(tvb, offset+1)&0x7FFFFF;
         proto_tree_add_uint_format(lbl_tree,
@@ -1768,7 +1768,7 @@ dissect_tlv_ft_session(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
     flags = tvb_get_ntohs(tvb, offset);
     proto_item_append_text(ti, " (%s%s)", (flags & 0x8000) ? "R, " : "",
-                           val_to_str(flags & 0xF, tlv_ft_flags, "Invalid"));
+                           val_to_str_const(flags & 0xF, tlv_ft_flags, "Invalid"));
     proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_r, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_res, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_s, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2183,7 +2183,7 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
             break;
         default:
             proto_tree_add_uint_format(tlv_tree, hf_ldp_tlv_type, tvb, offset, 2,
-                                       type, "TLV Type: %s (0x%X)", val_to_str(type, tlv_type_names, "Unknown TLV type"), type );
+                                       type, "TLV Type: %s (0x%X)", val_to_str_const(type, tlv_type_names, "Unknown TLV type"), type );
         }
 
         proto_tree_add_item(tlv_tree, hf_ldp_tlv_len, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -2459,7 +2459,13 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                 &hf_ldp_tlv_intparam_vccv_cctype_ttl1 ,
                 &hf_ldp_tlv_intparam_vccv_cvtype_icmpping ,
                 &hf_ldp_tlv_intparam_vccv_cvtype_lspping ,
-                &hf_ldp_tlv_intparam_vccv_cvtype_bfd
+                &hf_ldp_tlv_intparam_vccv_cvtype_bfd,
+                &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2,
+                &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3,
+                &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4,
+                &hf_ldp_tlv_fec_vc_intparam_flowlabel_t,
+                &hf_ldp_tlv_fec_vc_intparam_flowlabel_r,
+                &hf_ldp_tlv_fec_vc_intparam_flowlabel_res
             };
             int vc_len = length;
             offset += 4;
@@ -2591,7 +2597,7 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
             break;
         default:
             proto_tree_add_uint_format(msg_tree, hf_ldp_msg_type, tvb, offset, 2,
-                                       type, "Message Type: %s (0x%X)", val_to_str(type, ldp_message_types,"Unknown Message Type"), type);
+                                       type, "Message Type: %s (0x%X)", val_to_str_const(type, ldp_message_types,"Unknown Message Type"), type);
         }
 
         proto_tree_add_item(msg_tree, hf_ldp_msg_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
@@ -3568,25 +3574,25 @@ proto_register_ldp(void)
           { "BFD IP/UDP-encapsulated, for PW Fault Detection only", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd1", FT_BOOLEAN, 8,
             NULL, 0x04, "VC FEC Interface Param VCCV CV Type BFD IP/UDP-encapsulated, for PW Fault Detection only", HFILL }},
 
-	{ &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2,
+        { &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2,
           { "BFD IP/UDP-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd2", FT_BOOLEAN, 8,
             NULL, 0x08, "VC FEC Interface Param VCCV CV Type BFD IP/UDP-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", HFILL }},
 
-	{ &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3,
+        { &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3,
           { "BFD BFD PW-ACH-encapsulated, for PW Fault Detection only", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd3", FT_BOOLEAN, 8,
             NULL, 0x10, "VC FEC Interface Param VCCV CV Type BFD PW-ACH-encapsulated, for PW Fault Detection only", HFILL }},
 
-	{ &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4,
+        { &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4,
           { "BFD BFD PW-ACH-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd4", FT_BOOLEAN, 8,
             NULL, 0x20, "VC FEC Interface Param VCCV CV Type BFD PW-ACH-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", HFILL }},
 
-	{ &hf_ldp_tlv_fec_vc_intparam_flowlabel_t,
+        { &hf_ldp_tlv_fec_vc_intparam_flowlabel_t,
           { "Flow Label Transmit bit", "ldp.msg.tlv.fec.vc.intparam.flowlabel.t", FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL}},
 
-	{ &hf_ldp_tlv_fec_vc_intparam_flowlabel_r,
+        { &hf_ldp_tlv_fec_vc_intparam_flowlabel_r,
           { "Flow Label Receive bit", "ldp.msg.tlv.fec.vc.intparam.flowlabel.r", FT_UINT8, BASE_DEC, NULL, 0x40, NULL, HFILL}},
 
-    { &hf_ldp_tlv_fec_vc_intparam_flowlabel_res,
+        { &hf_ldp_tlv_fec_vc_intparam_flowlabel_res,
           { "Flow Label Reserved", "ldp.msg.tlv.fec.vc.intparam.flowlabel.res", FT_UINT16, BASE_HEX, NULL, 0x3FFF, NULL, HFILL}},
 
         { &hf_ldp_tlv_lspid_act_flg,
