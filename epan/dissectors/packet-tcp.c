@@ -2831,8 +2831,6 @@ dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
     tcp_info_append_uint(pinfo, "CC", cc);
 }
 
-static value_string_ext qs_rate_vals_ext = VALUE_STRING_EXT_INIT(qs_rate_vals);
-
 static void
 dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
@@ -2854,9 +2852,9 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_text(opt_tree, tvb, offset,      optlen,
                         "%s: Rate response, %s, TTL diff %u ", optp->name,
-                        val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown"),
+                        val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"),
                         tvb_get_guint8(tvb, offset + 3));
-    col_append_fstr(pinfo->cinfo, COL_INFO, " QSresp=%s", val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " QSresp=%s", val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"));
 }
 
 
@@ -3574,7 +3572,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_EOL,
         "End of Option List (EOL)",
         NULL,
-        NO_LENGTH,
+        OPT_LEN_NO_LENGTH,
         0,
         NULL,
     },
@@ -3582,7 +3580,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_NOP,
         "No-Operation (NOP)",
         NULL,
-        NO_LENGTH,
+        OPT_LEN_NO_LENGTH,
         0,
         NULL,
     },
@@ -3590,7 +3588,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_MSS,
         "Maximum segment size",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_MSS,
         dissect_tcpopt_mss
     },
@@ -3598,7 +3596,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_WINDOW,
         "Window scale",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_WINDOW,
         dissect_tcpopt_wscale
     },
@@ -3606,7 +3604,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_SACK_PERM,
         "SACK permitted",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_SACK_PERM,
         dissect_tcpopt_sack_perm,
     },
@@ -3614,7 +3612,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_SACK,
         "SACK",
         &ett_tcp_option_sack,
-        VARIABLE_LENGTH,
+        OPT_LEN_VARIABLE_LENGTH,
         TCPOLEN_SACK_MIN,
         dissect_tcpopt_sack
     },
@@ -3622,7 +3620,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_ECHO,
         "Echo",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_ECHO,
         dissect_tcpopt_echo
     },
@@ -3630,7 +3628,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_ECHOREPLY,
         "Echo reply",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_ECHOREPLY,
         dissect_tcpopt_echo
     },
@@ -3638,7 +3636,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_TIMESTAMP,
         "Timestamps",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_TIMESTAMP,
         dissect_tcpopt_timestamp
     },
@@ -3646,7 +3644,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_MPTCP,
         "Multipath TCP",
         NULL,
-        VARIABLE_LENGTH,
+        OPT_LEN_VARIABLE_LENGTH,
         TCPOLEN_MPTCP_MIN,
         dissect_tcpopt_mptcp
     },
@@ -3654,7 +3652,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_CC,
         "CC",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_CC,
         dissect_tcpopt_cc
     },
@@ -3662,7 +3660,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_CCNEW,
         "CC.NEW",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_CCNEW,
         dissect_tcpopt_cc
     },
@@ -3670,7 +3668,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_CCECHO,
         "CC.ECHO",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_CCECHO,
         dissect_tcpopt_cc
     },
@@ -3678,7 +3676,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_MD5,
         "TCP MD5 signature",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_MD5,
         NULL
     },
@@ -3686,7 +3684,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_SCPS,
         "SCPS capabilities",
         &ett_tcp_option_scps,
-        VARIABLE_LENGTH,
+        OPT_LEN_VARIABLE_LENGTH,
         TCPOLEN_SCPS,
         dissect_tcpopt_scps
     },
@@ -3694,7 +3692,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_SNACK,
         "Selective Negative Acknowledgment",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_SNACK,
         dissect_tcpopt_snack
     },
@@ -3702,7 +3700,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_RECBOUND,
         "SCPS record boundary",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_RECBOUND,
         NULL
     },
@@ -3710,7 +3708,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_CORREXP,
         "SCPS corruption experienced",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_CORREXP,
         NULL
     },
@@ -3718,7 +3716,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_QS,
         "Quick-Start",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_QS,
         dissect_tcpopt_qs
     },
@@ -3726,7 +3724,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_USER_TO,
         "User Timeout",
         &ett_tcp_option_user_to,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_USER_TO,
         dissect_tcpopt_user_to
   },
@@ -3734,7 +3732,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_RVBD_PROBE,
         "Riverbed Probe",
         NULL,
-        VARIABLE_LENGTH,
+        OPT_LEN_VARIABLE_LENGTH,
         TCPOLEN_RVBD_PROBE_MIN,
         dissect_tcpopt_rvbd_probe
   },
@@ -3742,7 +3740,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_RVBD_TRPY,
         "Riverbed Transparency",
         NULL,
-        FIXED_LENGTH,
+        OPT_LEN_FIXED_LENGTH,
         TCPOLEN_RVBD_TRPY_MIN,
         dissect_tcpopt_rvbd_trpy
   },
@@ -3750,7 +3748,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_EXP_FD,
         "Experimental",
         NULL,
-        VARIABLE_LENGTH,
+        OPT_LEN_VARIABLE_LENGTH,
         TCPOLEN_EXP_MIN,
         dissect_tcpopt_exp
   },
@@ -3758,7 +3756,7 @@ static const ip_tcp_opt tcpopts[] = {
         TCPOPT_EXP_FE,
         "Experimental",
         NULL,
-        VARIABLE_LENGTH,
+        OPT_LEN_VARIABLE_LENGTH,
         TCPOLEN_EXP_MIN,
         dissect_tcpopt_exp
   }

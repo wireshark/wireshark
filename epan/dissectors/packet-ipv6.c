@@ -872,8 +872,6 @@ dissect_unknown_option(tvbuff_t *tvb, int offset, proto_tree *tree)
     return len;
 }
 
-static value_string_ext qs_rate_vals_ext = VALUE_STRING_EXT_INIT(qs_rate_vals);
-
 static int
 dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, const int hf_option_item)
 {
@@ -1023,7 +1021,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                                                         "%u", ttl_diff);
                   PROTO_ITEM_SET_GENERATED(ti);
                   proto_item_append_text(ti_opt, ", %s, QS TTL %u, QS TTL diff %u",
-                                         val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"),
+                                         val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"),
                                          tvb_get_guint8(tvb, offset), ttl_diff);
                   offset += 1;
                   proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_nonce, tvb, offset, 4, ENC_NA);
@@ -1033,7 +1031,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                   proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_NA);
                   offset += 1;
                   proto_item_append_text(ti_opt, ", %s",
-                                         val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown (%u)"));
+                                         val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"));
                   proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_unused, tvb, offset, 1, ENC_NA);
                   offset += 1;
                   proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_nonce, tvb, offset, 4, ENC_NA);
@@ -2128,7 +2126,7 @@ proto_register_ipv6(void)
                                 FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_ipv6_nxt,
       { "Next header",          "ipv6.nxt",
-                                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0x0, NULL, HFILL }},
+                                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0, NULL, HFILL }},
     { &hf_ipv6_hlim,
       { "Hop limit",            "ipv6.hlim",
                                 FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2399,7 +2397,7 @@ proto_register_ipv6(void)
                                 NULL, HFILL }},
     { &hf_ipv6_opt_qs_rate,
       { "Rate",                 "ipv6.opt.qs_rate",
-                                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &(qs_rate_vals_ext), QS_RATE_MASK,
+                                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &qs_rate_vals_ext, QS_RATE_MASK,
                                 NULL, HFILL }},
     { &hf_ipv6_opt_qs_ttl,
       { "QS TTL",               "ipv6.opt.qs_ttl",

@@ -1437,7 +1437,33 @@ dissect_ipopt_sdb(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     proto_tree_add_item(field_tree, hf_ip_opt_padding, tvb, offset, optlen, ENC_NA);
 }
 
-static value_string_ext qs_rate_vals_ext = VALUE_STRING_EXT_INIT(qs_rate_vals);
+const value_string qs_func_vals[] = {
+  {QS_RATE_REQUEST, "Rate request"},
+  {QS_RATE_REPORT,  "Rate report"},
+  {0,               NULL}
+};
+
+static const value_string qs_rate_vals[] = {
+  { 0, "0 bit/s"},
+  { 1, "80 Kbit/s"},
+  { 2, "160 Kbit/s"},
+  { 3, "320 Kbit/s"},
+  { 4, "640 Kbit/s"},
+  { 5, "1.28 Mbit/s"},
+  { 6, "2.56 Mbit/s"},
+  { 7, "5.12 Mbit/s"},
+  { 8, "10.24 Mbit/s"},
+  { 9, "20.48 Mbit/s"},
+  {10, "40.96 Mbit/s"},
+  {11, "81.92 Mbit/s"},
+  {12, "163.84 Mbit/s"},
+  {13, "327.68 Mbit/s"},
+  {14, "655.36 Mbit/s"},
+  {15, "1.31072 Gbit/s"},
+  {0, NULL}
+};
+value_string_ext qs_rate_vals_ext = VALUE_STRING_EXT_INIT(qs_rate_vals);
+
 static void
 dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                  guint optlen, packet_info *pinfo, proto_tree *opt_tree)
@@ -1472,14 +1498,14 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                                           "%u", ttl_diff);
     PROTO_ITEM_SET_GENERATED(ti);
     proto_item_append_text(tf, ", %s, QS TTL %u, QS TTL diff %u",
-                           val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"),
+                           val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"),
                            tvb_get_guint8(tvb, offset + 3), ttl_diff);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_nonce, tvb, offset + 4, 4, ENC_NA);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_reserved, tvb, offset + 4, 4, ENC_NA);
   } else if (function == QS_RATE_REPORT) {
     proto_tree_add_item(field_tree, hf_ip_opt_qs_rate, tvb, offset + 2, 1, ENC_NA);
     proto_item_append_text(tf, ", %s",
-                           val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown (%u)"));
+                           val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"));
     proto_tree_add_item(field_tree, hf_ip_opt_qs_unused, tvb, offset + 3, 1, ENC_NA);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_nonce, tvb, offset + 4, 4, ENC_NA);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_reserved, tvb, offset + 4, 4, ENC_NA);
@@ -1488,68 +1514,68 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static const ip_tcp_opt ipopts[] = {
   {IPOPT_EOOL, "End of Options List (EOL)", &ett_ip_option_eool,
-    NO_LENGTH, 0, dissect_ipopt_eool},
+    OPT_LEN_NO_LENGTH, 0, dissect_ipopt_eool},
   {IPOPT_NOP, "No Operation (NOP)", &ett_ip_option_nop,
-    NO_LENGTH, 0, dissect_ipopt_nop},
+    OPT_LEN_NO_LENGTH, 0, dissect_ipopt_nop},
   {IPOPT_SEC, "Security", &ett_ip_option_sec,
-    VARIABLE_LENGTH, IPOLEN_SEC_MIN, dissect_ipopt_security},
+    OPT_LEN_VARIABLE_LENGTH, IPOLEN_SEC_MIN, dissect_ipopt_security},
   {IPOPT_LSR, "Loose Source Route", &ett_ip_option_route,
-    VARIABLE_LENGTH, IPOLEN_LSR_MIN, dissect_ipopt_route},
+    OPT_LEN_VARIABLE_LENGTH, IPOLEN_LSR_MIN, dissect_ipopt_route},
   {IPOPT_TS, "Time Stamp", &ett_ip_option_timestamp,
-    VARIABLE_LENGTH, IPOLEN_TS_MIN, dissect_ipopt_timestamp},
+    OPT_LEN_VARIABLE_LENGTH, IPOLEN_TS_MIN, dissect_ipopt_timestamp},
   {IPOPT_ESEC, "Extended Security", &ett_ip_option_ext_security,
-    VARIABLE_LENGTH, IPOLEN_ESEC_MIN, dissect_ipopt_ext_security},
+    OPT_LEN_VARIABLE_LENGTH, IPOLEN_ESEC_MIN, dissect_ipopt_ext_security},
   {IPOPT_CIPSO, "Commercial Security", &ett_ip_option_cipso,
-    VARIABLE_LENGTH, IPOLEN_CIPSO_MIN, dissect_ipopt_cipso},
+    OPT_LEN_VARIABLE_LENGTH, IPOLEN_CIPSO_MIN, dissect_ipopt_cipso},
   {IPOPT_RR, "Record Route", &ett_ip_option_route,
-    VARIABLE_LENGTH, IPOLEN_RR_MIN, dissect_ipopt_record_route},
+    OPT_LEN_VARIABLE_LENGTH, IPOLEN_RR_MIN, dissect_ipopt_record_route},
   {IPOPT_SID, "Stream ID", &ett_ip_option_sid,
-    FIXED_LENGTH, IPOLEN_SID, dissect_ipopt_sid},
+    OPT_LEN_FIXED_LENGTH, IPOLEN_SID, dissect_ipopt_sid},
   {IPOPT_SSR, "Strict Source Route", &ett_ip_option_route,
-    VARIABLE_LENGTH, IPOLEN_SSR_MIN, dissect_ipopt_route},
+    OPT_LEN_VARIABLE_LENGTH, IPOLEN_SSR_MIN, dissect_ipopt_route},
 #if 0 /* TODO */
   {IPOPT_ZSU, "Experimental Measurement", &ett_ip_option_zsu,
-    VARIABLE_LENGTH /* ? */, IPOLEN_ZSU_MIN, dissect_ipopt_zsu},
+    OPT_LEN_VARIABLE_LENGTH /* ? */, IPOLEN_ZSU_MIN, dissect_ipopt_zsu},
 #endif
   {IPOPT_MTUP, "MTU Probe", &ett_ip_option_mtu,
-    FIXED_LENGTH, IPOLEN_MTU, dissect_ipopt_mtu},
+    OPT_LEN_FIXED_LENGTH, IPOLEN_MTU, dissect_ipopt_mtu},
   {IPOPT_MTUR, "MTU Reply", &ett_ip_option_mtu,
-    FIXED_LENGTH, IPOLEN_MTU, dissect_ipopt_mtu},
+    OPT_LEN_FIXED_LENGTH, IPOLEN_MTU, dissect_ipopt_mtu},
 #if 0 /* TODO */
   {IPOPT_FINN, "Experimental Flow Control", &ett_ip_option_finn,
-    VARIABLE_LENGTH /* ? */, IPOLEN_FINN_MIN, dissect_ipopt_finn},
+    OPT_LEN_VARIABLE_LENGTH /* ? */, IPOLEN_FINN_MIN, dissect_ipopt_finn},
   {IPOPT_VISA, "Experimental Access Control", &ett_ip_option_visa,
-    VARIABLE_LENGTH /* ? */, IPOLEN_VISA_MIN, dissect_ipopt_visa},
+    OPT_LEN_VARIABLE_LENGTH /* ? */, IPOLEN_VISA_MIN, dissect_ipopt_visa},
   {IPOPT_ENCODE, "???", &ett_ip_option_encode,
-    VARIABLE_LENGTH /* ? */, IPOLEN_ENCODE_MIN, dissect_ipopt_encode},
+    OPT_LEN_VARIABLE_LENGTH /* ? */, IPOLEN_ENCODE_MIN, dissect_ipopt_encode},
   {IPOPT_IMITD, "IMI Traffic Descriptor", &ett_ip_option_imitd,
-    VARIABLE_LENGTH /* ? */, IPOLEN_IMITD_MIN, dissect_ipopt_imitd},
+    OPT_LEN_VARIABLE_LENGTH /* ? */, IPOLEN_IMITD_MIN, dissect_ipopt_imitd},
   {IPOPT_EIP, "Extended Internet Protocol", &ett_ip_option_eip,
-    VARIABLE_LENGTH /* ? */, IPOLEN_EIP_MIN, dissect_ipopt_eip},
+    OPT_LEN_VARIABLE_LENGTH /* ? */, IPOLEN_EIP_MIN, dissect_ipopt_eip},
 #endif
   {IPOPT_TR, "Traceroute", &ett_ip_option_tr,
-    FIXED_LENGTH, IPOLEN_TR, dissect_ipopt_tr},
+    OPT_LEN_FIXED_LENGTH, IPOLEN_TR, dissect_ipopt_tr},
 #if 0 /* TODO */
   {IPOPT_ADDEXT, "Address Extension", &ett_ip_option_addext,
-    VARIABLE_LENGTH /* ? */, IPOLEN_ADDEXT_MIN, dissect_ipopt_addext},
+    OPT_LEN_VARIABLE_LENGTH /* ? */, IPOLEN_ADDEXT_MIN, dissect_ipopt_addext},
 #endif
   {IPOPT_RTRALT, "Router Alert", &ett_ip_option_ra,
-    FIXED_LENGTH, IPOLEN_RA, dissect_ipopt_ra},
+    OPT_LEN_FIXED_LENGTH, IPOLEN_RA, dissect_ipopt_ra},
   {IPOPT_SDB, "Selective Directed Broadcast", &ett_ip_option_sdb,
-    VARIABLE_LENGTH, IPOLEN_SDB_MIN, dissect_ipopt_sdb},
+    OPT_LEN_VARIABLE_LENGTH, IPOLEN_SDB_MIN, dissect_ipopt_sdb},
 #if 0 /* TODO */
   {IPOPT_UN, "Unassigned", &ett_ip_option_un,
-    VARIABLE_LENGTH /* ? */, IPOLEN_UN_MIN, dissect_ipopt_un},
+    OPT_LEN_VARIABLE_LENGTH /* ? */, IPOLEN_UN_MIN, dissect_ipopt_un},
   {IPOPT_DPS, "Dynamic Packet State", &ett_ip_option_dps,
-    VARIABLE_LENGTH /* ? */, IPOLEN_DPS_MIN, dissect_ipopt_dps},
+    OPT_LEN_VARIABLE_LENGTH /* ? */, IPOLEN_DPS_MIN, dissect_ipopt_dps},
   {IPOPT_UMP, "Upstream Multicast Pkt.", &ett_ip_option_ump,
-    VARIABLE_LENGTH /* ? */, IPOLEN_UMP_MIN, dissect_ipopt_ump},
+    OPT_LEN_VARIABLE_LENGTH /* ? */, IPOLEN_UMP_MIN, dissect_ipopt_ump},
 #endif
   {IPOPT_QS, "Quick-Start", &ett_ip_option_qs,
-    FIXED_LENGTH, IPOLEN_QS, dissect_ipopt_qs}
+    OPT_LEN_FIXED_LENGTH, IPOLEN_QS, dissect_ipopt_qs}
 #if 0 /* TODO */
   {IPOPT_EXP, "RFC3692-style Experiment", &ett_ip_option_exp,
-    VARIABLE_LENGTH /* ? */, IPOLEN_EXP_MIN, dissect_ipopt_exp}
+    OPT_LEN_VARIABLE_LENGTH /* ? */, IPOLEN_EXP_MIN, dissect_ipopt_exp}
 #endif
 };
 
@@ -1579,12 +1605,12 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
         break;
     }
     if (optp == &opttab[nopts]) {
-      /* We assume that the only NO_LENGTH options are EOL and NOP options,
-         so that we can treat unknown options as VARIABLE_LENGTH with a
+      /* We assume that the only OPT_LEN_NO_LENGTH options are EOL and NOP options,
+         so that we can treat unknown options as OPT_LEN_VARIABLE_LENGTH with a
          minimum of 2, and at least be able to move on to the next option
          by using the length in the option. */
       optp = NULL;  /* indicate that we don't know this option */
-      len_type = VARIABLE_LENGTH;
+      len_type = OPT_LEN_VARIABLE_LENGTH;
       optlen = 2;
       name = ep_strdup_printf("Unknown (0x%02x)", opt);
       dissect = NULL;
@@ -1594,7 +1620,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       optlen = optp->optlen;
       name = optp->name;
       dissect = optp->dissect;
-      if (opt_item && len_type == NO_LENGTH && optlen == 0 && opt == 1 &&
+      if (opt_item && len_type == OPT_LEN_NO_LENGTH && optlen == 0 && opt == 1 &&
          (nop_count == 0 || offset % 4)) { /* opt 1 = NOP in both IP and TCP */
         /* Count number of NOP in a row within a uint32 */
         nop_count++;
@@ -1603,7 +1629,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       }
     }
     --length;      /* account for type byte */
-    if (len_type != NO_LENGTH) {
+    if (len_type != OPT_LEN_NO_LENGTH) {
       /* Option has a length. Is it in the packet? */
       if (length == 0) {
         /* Bogus - packet must at least include option code byte and
@@ -1628,14 +1654,14 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
                             "past end of options)",
                             name, len, plurality(len, "", "s"));
         return;
-      } else if (len_type == FIXED_LENGTH && len != optlen) {
+      } else if (len_type == OPT_LEN_FIXED_LENGTH && len != optlen) {
         /* Bogus - option length isn't what it's supposed to be for this
            option. */
         proto_tree_add_text(opt_tree, tvb, offset, len,
                             "%s (with option length = %u byte%s; should be %u)",
                             name, len, plurality(len, "", "s"), optlen);
         return;
-      } else if (len_type == VARIABLE_LENGTH && len < optlen) {
+      } else if (len_type == OPT_LEN_VARIABLE_LENGTH && len < optlen) {
         /* Bogus - option length is less than what it's supposed to be for
            this option. */
         proto_tree_add_text(opt_tree, tvb, offset, len,
@@ -1726,14 +1752,14 @@ get_dst_offset(tvbuff_t *tvb, int offset, guint length,
          minimum of 2, and at least be able to move on to the next option
          by using the length in the option. */
       optp = NULL;  /* indicate that we don't know this option */
-      len_type = VARIABLE_LENGTH;
+      len_type = OPT_LEN_VARIABLE_LENGTH;
       optlen = 2;
     } else {
       len_type = optp->len_type;
       optlen = optp->optlen;
     }
     --length;      /* account for type byte */
-    if (len_type != NO_LENGTH) {
+    if (len_type != OPT_LEN_NO_LENGTH) {
       /* Option has a length. Is it in the packet? */
       if (length == 0) {
         /* Bogus - packet must at least include option code byte and
@@ -1749,11 +1775,11 @@ get_dst_offset(tvbuff_t *tvb, int offset, guint length,
       } else if (len - 2 > length) {
         /* Bogus - option goes past the end of the header. */
         return 0;
-      } else if (len_type == FIXED_LENGTH && len != optlen) {
+      } else if (len_type == OPT_LEN_FIXED_LENGTH && len != optlen) {
         /* Bogus - option length isn't what it's supposed to be for this
            option. */
         return 0;
-      } else if (len_type == VARIABLE_LENGTH && len < optlen) {
+      } else if (len_type == OPT_LEN_VARIABLE_LENGTH && len < optlen) {
         /* Bogus - option length is less than what it's supposed to be for
            this option. */
         return 0;

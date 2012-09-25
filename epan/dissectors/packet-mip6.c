@@ -1681,7 +1681,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_PAD1,                  /* 0 Pad1 [RFC3775] */
     "Pad1",
     NULL,
-    NO_LENGTH,
+    OPT_LEN_NO_LENGTH,
     0,
     NULL,
 },
@@ -1689,7 +1689,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_PADN,                  /* 1 PadN [RFC3775] */
     "PadN",
     &ett_mip6_opt_padn,
-    VARIABLE_LENGTH,
+    OPT_LEN_VARIABLE_LENGTH,
     0,
     dissect_mip6_opt_padn
 },
@@ -1697,7 +1697,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_BRA,                   /* 2 Binding Refresh Advice */
     "Binding Refresh Advice",
     &ett_mip6_opt_bra,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     MIP6_BRA_LEN,
     dissect_mip6_opt_bra
 },
@@ -1705,7 +1705,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_ACOA,                  /*3  Alternate Care-of Address */
     "Alternate Care-of Address",
     &ett_mip6_opt_acoa,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     MIP6_ACOA_LEN,
     dissect_mip6_opt_acoa
 },
@@ -1713,7 +1713,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_NI,                    /* 4 Nonce Indices */
     "Nonce Indices",
     &ett_mip6_opt_ni,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     MIP6_NI_LEN,
     dissect_mip6_opt_ni
 },
@@ -1721,7 +1721,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_AUTD,                  /* 5 Authorization Data */
     "Authorization Data",
     &ett_mip6_opt_bad,
-    VARIABLE_LENGTH,
+    OPT_LEN_VARIABLE_LENGTH,
     0,
     dissect_mip6_opt_bad
 },
@@ -1729,7 +1729,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_MNP,                   /* 6 Mobile Network Prefix Option */
     "Mobile Network Prefix",
     &ett_mip6_nemo_opt_mnp,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     MIP6_NEMO_MNP_LEN,
     dissect_mip6_nemo_opt_mnp
 },
@@ -1737,7 +1737,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_MHLLA,                 /* 7 Mobility Header Link-Layer Address option [RFC5568] */
     "Mobility Header Link-Layer Address option",
     &ett_fmip6_opt_lla,
-    VARIABLE_LENGTH,
+    OPT_LEN_VARIABLE_LENGTH,
     FMIP6_LLA_MINLEN,
     dissect_fmip6_opt_lla
 },
@@ -1745,7 +1745,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_MNID,                  /* 8 MN-ID-OPTION-TYPE */
     "Mobile Node Identifier",
     &ett_mip6_opt_mnid,
-    VARIABLE_LENGTH,
+    OPT_LEN_VARIABLE_LENGTH,
     MIP6_MNID_MINLEN,
     dissect_mip6_opt_mnid
 },
@@ -1753,7 +1753,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_VSM,                   /* 19 Vendor Specific Mobility Option [RFC5094]  */
     "Vendor Specific Mobility",
     &ett_mip6_opt_vsm,
-    VARIABLE_LENGTH,
+    OPT_LEN_VARIABLE_LENGTH,
     MIP6_VSM_MINLEN,
     dissect_mip6_opt_vsm
 },
@@ -1761,7 +1761,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_SSM,                   /* 20 Service Selection Mobility Option [RFC5149]  */
     "Service Selection Mobility",
     &ett_mip6_opt_ssm,
-    VARIABLE_LENGTH,
+    OPT_LEN_VARIABLE_LENGTH,
     MIP6_SSM_MINLEN,
     dissect_mip6_opt_ssm
 },
@@ -1769,7 +1769,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_HNP,                   /* 22 Home Network Prefix Option [RFC5213]   */
     "Home Network Prefix",
     &ett_pmip6_opt_hnp,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     MIP6_NEMO_MNP_LEN,
     dissect_mip6_nemo_opt_mnp
 },
@@ -1777,7 +1777,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_MOHI,                  /* 23 Handoff Indicator Option [RFC5213]   */
     "Handoff Indicator Option",
     &ett_pmip6_opt_hi,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     PMIP6_HI_LEN,
     dissect_pmip6_opt_hi
 },
@@ -1785,7 +1785,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_ATT,                   /* 24 Access Technology Type Option [RFC5213]  */
     "Access Technology Type Option",
     &ett_pmip6_opt_att,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     PMIP6_ATT_LEN,
     dissect_pmip6_opt_att
 },
@@ -1793,7 +1793,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_LLA,                        /* 26 Link-local Address Option [RFC5213   */
     "Link-local Address",
     &ett_pmip6_opt_lla,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     PMIP6_LLA_LEN,
     dissect_pmip6_opt_lla
 },
@@ -1802,7 +1802,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_TS,                    /* 27 Timestamp */
     "Timestamp",
     &ett_pmip6_opt_ts,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     PMIP6_TS_LEN,
     dissect_pmip6_opt_ts
 },
@@ -1810,7 +1810,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_RC,                    /* 28 Restart Counter [RFC5847] */
     "Restart Counter",
     &ett_pmip6_opt_rc,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     PMIP6_RC_LEN,
     dissect_pmip6_opt_rc
 },
@@ -1818,7 +1818,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_IPV4HA,                /* 29 IPv4 Home Address [RFC5555]  */
     "IPv4 Home Address",
     &ett_mip6_opt_ipv4ha,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     MIP6_IPV4HA_LEN,
     dissect_pmip6_opt_ipv4ha
 },
@@ -1826,7 +1826,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_IPV4AA,                /* 30 IPv4 Address Acknowledgement [RFC5555] */
     "IPv4 Address Acknowledgement",
     &ett_mip6_opt_ipv4aa,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     MIP6_IPV4AA_LEN,
     dissect_pmip6_opt_ipv4aa
 },
@@ -1834,7 +1834,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_GREK,                  /* 33 GRE Key Option [RFC5845]  */
     "GRE Key",
     &ett_pmip6_opt_grek,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     PMIP6_GREK_LEN,
     dissect_pmip6_opt_grek
 },
@@ -1842,7 +1842,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_IPV4HAREQ,             /* 36 IPv4 Home Address Request [RFC5844] */
     "IPv4 Home Address Request",
     &ett_mip6_opt_ipv4hareq,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     MIP6_IPV4HAREQ_LEN,
     dissect_pmip6_opt_ipv4hareq
 },
@@ -1850,7 +1850,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_IPV4HAREP,            /* 37 IPv4 Home Address Reply [RFC5844] */
     "IPv4 Home Address Reply",
     &ett_mip6_opt_ipv4harep,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     MIP6_IPV4HAREP_LEN,
     dissect_pmip6_opt_ipv4harep
 },
@@ -1858,7 +1858,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_IPV4DRA,               /* 38 IPv4 Default-Router Address [RFC5844] */
     "IPv4 Default-Router Address",
     &ett_mip6_opt_ipv4dra,
-    FIXED_LENGTH,
+    OPT_LEN_FIXED_LENGTH,
     MIP6_IPV4DRA_LEN,
     dissect_pmip6_opt_ipv4dra
 },
@@ -1894,13 +1894,13 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
                 break;
         }
         if (optp == &opttab[nopts]) {
-            /* We assume that the only NO_LENGTH options are Pad1 options,
-             * so that we can treat unknown options as VARIABLE_LENGTH with a
+            /* We assume that the only OPT_LEN_NO_LENGTH options are Pad1 options,
+             * so that we can treat unknown options as OPT_LEN_VARIABLE_LENGTH with a
              * minimum of 0, and at least be able to move on to the next option
              * by using the length in the option.
              */
             optp = NULL;    /* indicate that we don't know this option */
-            len_type = VARIABLE_LENGTH;
+            len_type = OPT_LEN_VARIABLE_LENGTH;
             optlen = 0;
             g_snprintf(name_str, sizeof name_str, "Unknown (0x%02x)", opt);
             name = name_str;
@@ -1912,7 +1912,7 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
             dissect = optp->dissect;
         }
         --length;      /* account for type byte */
-        if (len_type != NO_LENGTH) {
+        if (len_type != OPT_LEN_NO_LENGTH) {
             /* Option has a length. Is it in the packet? */
             if (length == 0) {
                 /* Bogus - packet must at least include
@@ -1930,14 +1930,14 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
                         "%s (option length = %u byte%s says option goes past end of options)",
                         name, len, plurality(len, "", "s"));
                 return;
-            } else if (len_type == FIXED_LENGTH && len != optlen) {
+            } else if (len_type == OPT_LEN_FIXED_LENGTH && len != optlen) {
                 /* Bogus - option length isn't what it's supposed to be for this
                    option. */
                 proto_tree_add_text(opt_tree, tvb, offset, len + 2,
                         "%s (with option length = %u byte%s; should be %u)", name,
                         len, plurality(len, "", "s"), optlen);
                 return;
-            } else if (len_type == VARIABLE_LENGTH && len < optlen) {
+            } else if (len_type == OPT_LEN_VARIABLE_LENGTH && len < optlen) {
                 /* Bogus - option length is less than what it's supposed to be for
                    this option. */
                 proto_tree_add_text(opt_tree, tvb, offset, len + 2,
