@@ -435,7 +435,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
         *compressed = g_compressed;
     } else {
         /* User cancelled or closed the dialog, or an error occurred. */
-        if (CommDlgExtendedError() == 0) {
+        if (CommDlgExtendedError() != 0) {
             /* XXX - pop up some error here. FNERR_INVALIDFILENAME
              * might be a user error; if so, they should know about
              * it. For now we force a do-over.
