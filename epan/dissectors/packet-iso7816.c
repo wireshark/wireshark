@@ -1,5 +1,5 @@
 /* packet-iso7816.c
- * Routines for packet dissection of generic ISO 7816 messages
+ * Routines for packet dissection of generic ISO 7816 smart card messages
  * Copyright 2012 by Martin Kaiser <martin@kaiser.cx>
  *
  * $Id$
