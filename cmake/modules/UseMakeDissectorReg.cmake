@@ -17,7 +17,7 @@ MACRO(REGISTER_DISSECTOR_FILES _outputfile _registertype )
 	#        fi
 	set( _sources ${ARGN} )
 	ADD_CUSTOM_COMMAND(
-	    OUTPUT 
+	    OUTPUT
 	      ${_outputfile}
 	    COMMAND ${PYTHON_EXECUTABLE}
 	      ${CMAKE_SOURCE_DIR}/tools/make-dissector-reg.py
