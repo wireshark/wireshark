@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /*  DRDA in a nutshell
@@ -55,6 +55,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include "packet-tcp.h"
 
 static int proto_drda = -1;
@@ -696,6 +697,10 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         iCommand = tvb_get_ntohs(tvb, offset + 8);
         iLength = tvb_get_ntohs(tvb, offset + 0);
+        if (iLength < 10) {
+            expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Invalid length detected (%u): should be at least 10 bytes long", iLength);
+            break;
+        }
         /* iCommandEnd is the length of the packet up to the end of the current command */
         iCommandEnd += iLength;
 

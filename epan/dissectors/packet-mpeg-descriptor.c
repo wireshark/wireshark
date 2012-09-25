@@ -35,6 +35,7 @@ static int proto_mpeg_descriptor = -1;
 static int hf_mpeg_descriptor_tag = -1;
 static int hf_mpeg_descriptor_length = -1;
 static int hf_mpeg_descriptor_data = -1;
+
 static gint ett_mpeg_descriptor = -1;
 
 static const value_string mpeg_descriptor_tag_vals[] = {
@@ -58,6 +59,13 @@ static const value_string mpeg_descriptor_tag_vals[] = {
 	{ 0x10, "Smoothing Buffer Descriptor" },
 	{ 0x11, "STD Descriptor" },
 	{ 0x12, "IBP Descriptor" },
+
+	/* From ETSI TR 101 202 */
+	{ 0x13, "Carousel Identifier Descriptor" },
+	{ 0x14, "Association Tag Descriptor" },
+	{ 0x15, "Deferred Association Tag Descriptor" },
+
+	/* From ISO/IEC 13818-1 */
 	{ 0x1B, "MPEG 4 Video Descriptor" },
 	{ 0x1C, "MPEG 4 Audio Descriptor" },
 	{ 0x1D, "IOD Descriptor" },
@@ -76,11 +84,6 @@ static const value_string mpeg_descriptor_tag_vals[] = {
 	{ 0x2A, "AVC Timing and HRD Descriptor" },
 	{ 0x2B, "MPEG2 AAC Descriptor" },
 	{ 0x2C, "FlexMuxTiming Descriptor" },
-
-	/* From ETSI TR 101 202 */
-	{ 0x13, "Carousel Identifier Descriptor" },
-	{ 0x14, "Association Tag Descriptor" },
-	{ 0x15, "Deferred Association Tag Descriptor" },
 
 	/* From ETSI EN 300 468 */
 	{ 0x40, "Network Name Descriptor" },
@@ -174,6 +177,7 @@ static const value_string mpeg_descriptor_tag_vals[] = {
 
 	{ 0x00, NULL}
 };
+static value_string_ext mpeg_descriptor_tag_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descriptor_tag_vals);
 
 /* 0x02 Video Stream Descriptor */
 static int hf_mpeg_descr_video_stream_multiple_frame_rate_flag = -1;
@@ -206,7 +210,7 @@ static void
 proto_mpeg_descriptor_dissect_video_stream(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 
-	guint8 mpeg1_only_flag = 0;
+	guint8 mpeg1_only_flag;
 
 	mpeg1_only_flag = tvb_get_guint8(tvb, offset) & MPEG_DESCR_VIDEO_STREAM_MPEG1_ONLY_FLAG_MASK;
 	proto_tree_add_item(tree, hf_mpeg_descr_video_stream_multiple_frame_rate_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -373,8 +377,9 @@ static int hf_mpeg_descr_max_bitrate = -1;
 static void
 proto_mpeg_descriptor_dissect_max_bitrate(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-	proto_item *rate_item = NULL;
-	guint32 rate = 0;
+	proto_item *rate_item;
+
+	guint32 rate;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_max_bitrate_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
 	rate = tvb_get_ntoh24(tvb, offset) & MPEG_DESCR_MAX_BITRATE_MASK;
@@ -396,8 +401,9 @@ static int hf_mpeg_descr_smoothing_buffer_size = -1;
 static void
 proto_mpeg_descriptor_dissect_smoothing_buffer(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-	proto_item *leak_rate_item = NULL;
-	guint32 leak_rate = 0;
+	proto_item *leak_rate_item;
+
+	guint32 leak_rate;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_smoothing_buffer_reserved1, tvb, offset, 3, ENC_BIG_ENDIAN);
 	leak_rate = tvb_get_ntoh24(tvb, offset) & MPEG_DESCR_SMOOTHING_BUFFER_LEAK_RATE_MASK;
@@ -448,8 +454,8 @@ static const value_string mpeg_descr_carousel_identifier_format_id_vals[] = {
 static void
 proto_mpeg_descriptor_dissect_carousel_identifier(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
-	guint8 key_len = 0, format_id = 0;
-	guint private_len = 0;
+	guint8 key_len, format_id;
+	guint  private_len = 0;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_carousel_identifier_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
@@ -512,9 +518,9 @@ static int hf_mpeg_descr_association_tag_private_bytes = -1;
 static void
 proto_mpeg_descriptor_dissect_association_tag(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
-	guint end = offset + len;
-	guint16 use = 0;
-	guint8 selector_len = 0;
+	guint   end = offset + len;
+	guint16 use;
+	guint8  selector_len;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_association_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
@@ -602,10 +608,11 @@ static gint ett_mpeg_descriptor_service_list = -1;
 static void
 proto_mpeg_descriptor_dissect_service_list(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
-	guint end = offset + len;
+	guint   end = offset + len;
 	guint16 svc_id;
-	proto_item *si = NULL;
-	proto_tree *svc_tree = NULL;
+
+	proto_item *si;
+	proto_tree *svc_tree;
 
 
 	while (offset < end) {
@@ -706,14 +713,16 @@ static const value_string mpeg_descr_satellite_delivery_fec_inner_vals[] = {
 
 	{ 0x0, NULL }
 };
+static value_string_ext mpeg_descr_satellite_delivery_fec_inner_vals_ext =
+	VALUE_STRING_EXT_INIT(mpeg_descr_satellite_delivery_fec_inner_vals);
 
 static void
 proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 
-	guint32 frequency = 0, symbol_rate = 0;
-	guint16 orbital_position = 0;
-	guint8 modulation_system = 0;
+	guint32 frequency, symbol_rate;
+	guint16 orbital_position;
+	guint8  modulation_system;
 
 	frequency = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_string_format_value(tree, hf_mpeg_descr_satellite_delivery_frequency, tvb, offset, 4,
@@ -805,11 +814,12 @@ static const value_string mpeg_descr_cable_delivery_fec_inner_vals[] = {
 
 	{ 0x0, NULL }
 };
+static value_string_ext mpeg_descr_cable_delivery_fec_inner_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_cable_delivery_fec_inner_vals);
 
 static void
 proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
-	guint32 frequency = 0, symbol_rate = 0;
+	guint32 frequency, symbol_rate;
 
 	frequency = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_string_format_value(tree, hf_mpeg_descr_cable_delivery_frequency, tvb, offset, 4,
@@ -881,10 +891,11 @@ static void
 proto_mpeg_descriptor_dissect_vbi_data(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 
-	guint8 svc_id = 0, svc_len = 0;
-	guint end = offset + len, svc_end = 0;
-	proto_item *si = NULL;
-	proto_tree *svc_tree = NULL;
+	guint8 svc_id, svc_len;
+	guint  end = offset + len, svc_end;
+
+	proto_item *si;
+	proto_tree *svc_tree;
 
 	while (offset < end) {
 		svc_id = tvb_get_guint8(tvb, offset);
@@ -965,13 +976,13 @@ static const value_string mpeg_descr_service_type_vals[] = {
 	{ 0x1A, "advanced codec HD NVOD time-shifted service" },
 
 	{ 0x00, NULL }
-
 };
+static value_string_ext mpeg_descr_service_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_service_type_vals);
 
 static void
 proto_mpeg_descriptor_dissect_service(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-	guint8 descr_len = 0, name_len = 0;
+	guint8 descr_len, name_len;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_service_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
@@ -1045,6 +1056,7 @@ static const value_string mpeg_descr_linkage_linkage_type_vals[] = {
 
 	{ 0x00, NULL }
 };
+static value_string_ext mpeg_descr_linkage_linkage_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_linkage_linkage_type_vals);
 
 static const value_string mpeg_descr_linkage_hand_over_type_vals[] = {
 	{ 0x01, "DVB hand-over to an identical service in a neighbouring country" },
@@ -1079,12 +1091,13 @@ static void
 proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 
-	guint8 linkage_type, hand_over_type, origin_type;
-	guint end = offset + len;
-	guint population_id_loop_count = 0;
-	guint16 population_id_base = 0, population_id_mask = 0;
-	proto_item *pi = NULL;
-	proto_tree *population_tree = NULL;
+	guint8  linkage_type, hand_over_type, origin_type;
+	guint   end = offset + len;
+	guint   population_id_loop_count;
+	guint16 population_id_base, population_id_mask;
+
+	proto_item *pi;
+	proto_tree *population_tree;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_linkage_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
@@ -1163,7 +1176,7 @@ static int hf_mpeg_descr_short_event_text = -1;
 static void
 proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-	guint8 name_len = 0, text_len = 0;
+	guint8 name_len, text_len;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_short_event_lang_code, tvb, offset, 3, ENC_ASCII|ENC_NA);
 	offset += 3;
@@ -1204,10 +1217,11 @@ static void
 proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 
-	guint8 items_len = 0, item_descr_len = 0, item_len = 0, text_len = 0;
-	guint items_end = 0;
-	proto_item *ii = NULL;
-	proto_tree *item_tree = NULL;
+	guint8 items_len, item_descr_len, item_len, text_len;
+	guint  items_end;
+
+	proto_item *ii;
+	proto_tree *item_tree;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_extended_event_descriptor_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_mpeg_descr_extended_event_last_descriptor_number, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1349,14 +1363,14 @@ static const value_string mpeg_descr_component_content_type_vals[] = {
 
 	{ 0x0, NULL }
 };
-
+static value_string_ext mpeg_descr_component_content_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_component_content_type_vals);
 
 static void
 proto_mpeg_descriptor_dissect_component(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 
-	proto_item *cti = NULL;
-	proto_tree *content_type_tree = NULL;
+	proto_item *cti;
+	proto_tree *content_type_tree;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_component_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1518,8 +1532,8 @@ static const value_string mpeg_descr_content_nibble_vals[] = {
 	{ 0xBF, "user defined (special charateristics)" },
 
 	{ 0x00, NULL }
-
 };
+static value_string_ext mpeg_descr_content_nibble_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_content_nibble_vals);
 
 static const value_string mpeg_descr_content_nibble_level_1_vals[] = {
 
@@ -1537,12 +1551,14 @@ static const value_string mpeg_descr_content_nibble_level_1_vals[] = {
 
 	{ 0x00, NULL }
 };
+static value_string_ext mpeg_descr_content_nibble_level_1_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_content_nibble_level_1_vals);
 
 static void
 proto_mpeg_descriptor_dissect_content(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
-	proto_item *ni = NULL;
-	proto_tree *nibble_tree = NULL;
+	proto_item *ni;
+	proto_tree *nibble_tree;
+
 	guint end = offset + len;
 
 	while (offset < end) {
@@ -1583,6 +1599,8 @@ static const value_string mpeg_descr_parental_rating_vals[] = {
 
 	{ 0x00, NULL }
 };
+static value_string_ext mpeg_descr_parental_rating_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_parental_rating_vals);
+
 
 static void
 proto_mpeg_descriptor_dissect_parental_rating(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -1655,8 +1673,8 @@ static const value_string mpeg_descr_local_time_offset_polarity_vals[] = {
 static void
 proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
-	guint end = offset + len;
-	guint16 time_offset = 0;
+	guint    end = offset + len;
+	guint16  time_offset;
 	nstime_t time_of_change;
 
 	while (offset < end) {
@@ -1721,6 +1739,7 @@ static const value_string mpeg_descr_subtitling_type_vals[] = {
 
 	{ 0, NULL }
 };
+static value_string_ext mpeg_descr_subtitling_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_subtitling_type_vals);
 
 static void
 proto_mpeg_descriptor_dissect_subtitling(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
@@ -1927,12 +1946,13 @@ static const value_string mpeg_descr_data_bcast_id_vals[] = {
 
 	{ 0, NULL }
 };
+static value_string_ext mpeg_descr_data_bcast_id_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_data_bcast_id_vals);
 
 static void
 proto_mpeg_descriptor_dissect_data_bcast(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 
-	guint8 selector_len = 0, text_len = 0;
+	guint8 selector_len, text_len;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_data_bcast_bcast_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
@@ -2063,11 +2083,11 @@ static const value_string mpeg_descr_ac3_component_type_number_of_channels_flags
 static void
 proto_mpeg_descriptor_dissect_ac3(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
-	guint end = offset + len;
-	guint8 flags = 0, component_type = 0;
+	guint  end = offset + len;
+	guint8 flags, component_type;
 
-	proto_item *ci = NULL;
-	proto_tree *component_type_tree = NULL;
+	proto_item *ci;
+	proto_tree *component_type_tree;
 
 	flags = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_mpeg_descr_ac3_component_type_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2147,8 +2167,8 @@ static const value_string mpeg_descr_content_identifier_crid_location_vals[] = {
 static void
 proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
-	guint end = offset + len, crid_len = 0;
-	guint8 crid = 0, crid_location = 0, crid_type = 0;
+	guint  end = offset + len, crid_len;
+	guint8 crid, crid_location, crid_type;
 
 	proto_item *ci;
 	proto_tree *crid_tree;
@@ -2209,6 +2229,7 @@ static const value_string mpeg_descr_extension_tag_extension_vals[] = {
 
 	{ 0x0, NULL }
 };
+static value_string_ext mpeg_descr_extension_tag_extension_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_extension_tag_extension_vals);
 
 static void
 proto_mpeg_descriptor_dissect_extension(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
@@ -2288,30 +2309,30 @@ static void
 proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 
-	guint end = offset + len;
-	guint8 flags = 0;
-	guint16 flags2 = 0;
+	guint   end    = offset + len;
+	guint8  flags;
+	guint16 flags2;
 
-	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_group_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_group_id,                        tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_logon_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_logon_id,                        tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_continuous_carrier_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_continuous_carrier, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_security_handshake_required, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_prefix_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_data_unit_labelling_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_mini_slot_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_continuous_carrier_reserved,     tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_continuous_carrier,              tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_security_handshake_required,     tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_prefix_flag,                     tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_data_unit_labelling_flag,        tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_mini_slot_flag,                  tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_contention_based_mini_slot_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	flags = tvb_get_guint8(tvb, offset);
 
 	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_capacity_type_flag_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_capacity_type_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_traffic_burst_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_capacity_type_flag,          tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_traffic_burst_type,          tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (flags & MPEG_DESCR_LOGON_INITIALIZE_TRAFFIC_BURST_TYPE_MASK) {
 		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_connectivity, tvb, offset, 2, ENC_BIG_ENDIAN);
 		flags2 = tvb_get_ntohs(tvb, offset);
@@ -2349,17 +2370,17 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
 
 	if (offset < end && (flags & MPEG_DESCR_LOGON_INITIALIZE_CAPACITY_TYPE_FLAG_MASK)) {
 
-		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_cra_level, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_cra_level,         tvb, offset, 3, ENC_BIG_ENDIAN);
 		offset += 3;
 
 		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_vbdc_max_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_vbdc_max, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_vbdc_max,          tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_rbdc_max, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_rbdc_max,          tvb, offset, 3, ENC_BIG_ENDIAN);
 		offset += 3;
 
-		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_rbdc_timeout, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_rbdc_timeout,      tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 }
@@ -2383,19 +2404,18 @@ proto_mpeg_descriptor_dissect_rcs_content(tvbuff_t *tvb, guint offset, guint8 le
 guint
 proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-	guint8 tag = 0, len = 0;
+	guint8      tag, len;
 
-	proto_item *di = NULL;
-	proto_tree *descriptor_tree = NULL;
+	proto_item *di;
+	proto_tree *descriptor_tree;
 
 	tag = tvb_get_guint8(tvb, offset);
 	len = tvb_get_guint8(tvb, offset + 1);
 
-
 	di = proto_tree_add_text(tree, tvb, offset, len + 2, "Descriptor Tag=0x%02x", tag);
 	descriptor_tree = proto_item_add_subtree(di, ett_mpeg_descriptor);
 
-	proto_tree_add_item(descriptor_tree, hf_mpeg_descriptor_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(descriptor_tree, hf_mpeg_descriptor_tag,    tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	proto_tree_add_item(descriptor_tree, hf_mpeg_descriptor_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2533,7 +2553,6 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 			break;
 	}
 
-
 	return len + 2;
 }
 
@@ -2545,7 +2564,7 @@ proto_register_mpeg_descriptor(void)
 	static hf_register_info hf[] = {
 		{ &hf_mpeg_descriptor_tag, {
 			"Descriptor Tag", "mpeg_descr.tag",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descriptor_tag_vals), 0, NULL, HFILL
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descriptor_tag_vals_ext, 0, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descriptor_length, {
@@ -2896,7 +2915,7 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_service_list_type, {
 			"Service Type", "mpeg_descr.svc_list.type",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_service_type_vals), 0, NULL, HFILL
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_service_type_vals_ext, 0, NULL, HFILL
 		} },
 
 		/* 0x42 Stuffing Descriptor */
@@ -2958,7 +2977,7 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_satellite_delivery_fec_inner, {
 			"FEC Inner", "mpeg_descr.sat_delivery.fec_inner",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_fec_inner_vals),
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_satellite_delivery_fec_inner_vals_ext,
 			MPEG_DESCR_SATELLITE_DELIVERY_FEC_INNER_MASK, NULL, HFILL
 		} },
 
@@ -2991,7 +3010,7 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_cable_delivery_fec_inner, {
 			"FEC Inner", "mpeg_descr.cable_delivery.fec_inner",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_cable_delivery_fec_inner_vals),
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_cable_delivery_fec_inner_vals_ext,
 			MPEG_DESCR_CABLE_DELIVERY_FEC_INNER_MASK, NULL, HFILL
 		} },
 
@@ -3036,7 +3055,7 @@ proto_register_mpeg_descriptor(void)
 		/* 0x48 Service Descriptor */
 		{ &hf_mpeg_descr_service_type, {
 			"Service Type", "mpeg_descr.svc.type",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_service_type_vals), 0, NULL, HFILL
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_service_type_vals_ext, 0, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_service_provider_name_length, {
@@ -3045,7 +3064,7 @@ proto_register_mpeg_descriptor(void)
 		} },
 
 		{ &hf_mpeg_descr_service_provider, {
-			"Service Provided Name", "mpeg_descr.svc.provider_name",
+			"Service Provider Name", "mpeg_descr.svc.provider_name",
 			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
@@ -3077,7 +3096,7 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_linkage_linkage_type, {
 			"Linkage Type", "mpeg_descr.linkage.type",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_linkage_linkage_type_vals), 0, NULL, HFILL
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_linkage_linkage_type_vals_ext, 0, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_linkage_hand_over_type, {
@@ -3253,7 +3272,7 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_component_content_type, {
 			"Stream Content and Component Type", "mpeg_descr.component.content_type",
-			FT_UINT16, BASE_HEX, VALS(mpeg_descr_component_content_type_vals),
+			FT_UINT16, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_component_content_type_vals_ext,
 			MPEG_DESCR_COMPONENT_CONTENT_TYPE_MASK, NULL, HFILL
 		} },
 
@@ -3287,12 +3306,12 @@ proto_register_mpeg_descriptor(void)
 		/* 0x54 Content Descriptor */
 		{ &hf_mpeg_descr_content_nibble, {
 			"Nibble Level 1 and 2", "mpeg_descr.content.nibble_1_2",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_content_nibble_vals), 0, NULL, HFILL
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_content_nibble_vals_ext, 0, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_content_nibble_level_1, {
 			"Nibble Level 1", "mpeg_descr.content.nibble_lvl_1",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_content_nibble_level_1_vals),
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_content_nibble_level_1_vals_ext,
 			MPEG_DESCR_CONTENT_NIBBLE_LEVEL_1_MASK, NULL, HFILL
 		} },
 
@@ -3336,7 +3355,7 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_parental_rating_rating, {
 			"Rating", "mpeg_descr.parental_rating.rating",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_parental_rating_vals), 0, NULL, HFILL
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_parental_rating_vals_ext, 0, NULL, HFILL
 		} },
 
 		/* 0x58 Local Time Offset Descriptor */
@@ -3384,7 +3403,7 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_subtitling_type, {
 			"Subtitling Type", "mpeg_descr.subtitling.type",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_subtitling_type_vals), 0, NULL, HFILL
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_subtitling_type_vals_ext, 0, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_subtitling_composition_page_id, {
@@ -3489,7 +3508,7 @@ proto_register_mpeg_descriptor(void)
 		/* 0x64 Data Broadcast Descriptor */
 		{ &hf_mpeg_descr_data_bcast_bcast_id, {
 			"Data Broadcast ID", "mpeg_descr.data_bcast.id",
-			FT_UINT16, BASE_HEX, VALS(mpeg_descr_data_bcast_id_vals), 0, NULL, HFILL
+			FT_UINT16, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_data_bcast_id_vals_ext, 0, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_data_bcast_component_tag, {
@@ -3525,7 +3544,7 @@ proto_register_mpeg_descriptor(void)
 		/* 0x66 Data Broadcast ID Descriptor */
 		{ &hf_mpeg_descr_data_bcast_id_bcast_id, {
 			"Data Broadcast ID", "mpeg_descr.data_bcast_id.id",
-			FT_UINT16, BASE_HEX, VALS(mpeg_descr_data_bcast_id_vals), 0, NULL, HFILL
+			FT_UINT16, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_data_bcast_id_vals_ext, 0, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_data_bcast_id_id_selector_bytes, {
@@ -3643,7 +3662,7 @@ proto_register_mpeg_descriptor(void)
 		/* 0x7F Extension Descriptor */
 		{ &hf_mpeg_descr_extension_tag_extension, {
 			"Descriptor Tag Extension", "mpeg_descr.ext.tag",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_extension_tag_extension_vals), 0, NULL, HFILL
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_extension_tag_extension_vals_ext, 0, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_extension_data, {
@@ -3826,3 +3845,16 @@ proto_register_mpeg_descriptor(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 noexpandtab:
+ * :indentSize=4:tabSize=4:noTabs=false:
+ */

@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Credits:
  *
@@ -425,7 +425,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 
 #define DATA_SHORT_HDR_LEN     24
 #define DATA_LONG_HDR_LEN      30
-#define MGT_FRAME_HDR_LEN      24  /* Length of Managment frame-headers */
+#define MGT_FRAME_HDR_LEN      24  /* Length of Management frame-headers */
 
 /*
  * COMPOSE_FRAME_TYPE() values for management frames.
@@ -3745,10 +3745,9 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
     }
     proto_tree_add_item(realm_tree, hf_ieee80211_ff_anqp_nai_realm,
                         tvb, offset, nai_len, ENC_ASCII|ENC_NA);
-    realm = tvb_get_string(tvb, offset, nai_len);
+    realm = tvb_get_ephemeral_string(tvb, offset, nai_len);
     if (realm) {
       proto_item_append_text(r_item, " (%s)", realm);
-      g_free(realm);
     }
     offset += nai_len;
     eap_count = tvb_get_guint8(tvb, offset);
@@ -6223,7 +6222,7 @@ dissect_vendor_ie_atheros(proto_item * item _U_, proto_tree * ietree,
   }
   proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_type, tvb, offset, 1, ENC_NA);
   type = tvb_get_guint8(tvb, offset);
-  proto_item_append_text(item, ": %s", val_to_str(type, atheros_ie_type_vals, "Unknown"));
+  proto_item_append_text(item, ": %s", val_to_str_const(type, atheros_ie_type_vals, "Unknown"));
   offset += 1;
   tag_len -= 1;
 
@@ -6381,7 +6380,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
   }
   if (!dont_change) {
     proto_item_append_text(aironet_item, ": Aironet %s",
-      val_to_str(type, aironet_ie_type_vals, "Unknown"));
+      val_to_str_const(type, aironet_ie_type_vals, "Unknown"));
   }
 }
 
@@ -7679,9 +7678,9 @@ static int ieee80211_tag_supp_rates(packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_ieee80211_tag_supp_rates, tvb, offset, 1,
                         ENC_BIG_ENDIAN);
     proto_item_append_text(ti, " %s,",
-                           val_to_str(tvb_get_guint8(tvb, offset),
-                                      ieee80211_supported_rates_vals,
-                                      "Unknown Rate") );
+                           val_to_str_const(tvb_get_guint8(tvb, offset),
+                                            ieee80211_supported_rates_vals,
+                                            "Unknown Rate") );
     offset++;
   }
 
@@ -8467,7 +8466,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
 
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
-            /* TODO Add Optionnal Subelements */
+            /* TODO Add Optional Subelements */
             break;
           }
           case 5: /* Beacon Request */
@@ -8559,7 +8558,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_mac_address, tvb, offset, 6, ENC_NA);
             offset += 6;
 
-            /* TODO Add Optionnal Subelements */
+            /* TODO Add Optional Subelements */
             break;
           }
           case 7: /* BSTA Statistics Request */
@@ -8576,7 +8575,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_group_id, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            /* TODO Add Optionnal Subelements */
+            /* TODO Add Optional Subelements */
             break;
           }
           case 8: /* Location Configuration Indication (LCI) Request */
@@ -8713,7 +8712,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_load, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            /* TODO Add Optionnal Subelements */
+            /* TODO Add Optional Subelements */
             break;
           }
           case 4: /* Noise Histogram Report */
@@ -8768,7 +8767,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_ipi_density_10, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            /* TODO Add Optionnal Subelements */
+            /* TODO Add Optional Subelements */
             break;
           case 5: /* Beacon Report */
           {
@@ -8806,7 +8805,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
 
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_parent_tsf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            /* TODO Add Optionnal Subelements */
+            /* TODO Add Optional Subelements */
             break;
           }
           case 6: /* Frame Report */
@@ -8822,7 +8821,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            /* TODO Add Optionnal Subelements */
+            /* TODO Add Optional Subelements */
             break;
           case 7: /* BSTA Statistics Report */
             /* TODO */
@@ -8974,7 +8973,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       while(offset < tag_end)
       {
         proto_tree_add_item(tree, hf_ieee80211_tag_ext_supp_rates, tvb, offset, 1, ENC_NA);
-        proto_item_append_text(ti, " %s,", val_to_str(tvb_get_guint8(tvb, offset), ieee80211_supported_rates_vals, "Unknown Rate") );
+        proto_item_append_text(ti, " %s,", val_to_str_const(tvb_get_guint8(tvb, offset), ieee80211_supported_rates_vals, "Unknown Rate") );
         offset += 1;
       }
       proto_item_append_text(ti, " [Mbit/sec]");
@@ -10938,7 +10937,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     guint8 algorithm=G_MAXUINT8;
     /* Davide Schiera (2006-11-27): added macros to check the algorithm    */
     /* used could be TKIP or CCMP                            */
-#define IS_TKIP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 1) & 0x20)
+#define IS_TKIP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 1) == \
+  ((tvb_get_guint8(tvb, hdr_len) | 0x20) & 0x7f))
 #define IS_CCMP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 2) == 0)
     /* Davide Schiera -----------------------------------------------------  */
 
@@ -12473,7 +12473,7 @@ proto_register_ieee80211 (void)
 
   static const true_false_string qos_info_field_more_data_ack_flags = {
     "STA can process Ack frames with More Data bit and will remain in the awake state.",
-    "STA cannot process Ack frames with More Data bit in Frame Controll field."
+    "STA cannot process Ack frames with More Data bit in Frame Control field."
   };
 
   static const true_false_string qos_info_field_queue_req_flags = {
@@ -12482,7 +12482,7 @@ proto_register_ieee80211 (void)
   };
 
   /* 7.3.1.17 Table 19b-Settings of the Max SP Length subfield */
-  static const value_string qos_info_field_max_sp_lenght_flags[] =
+  static const value_string qos_info_field_max_sp_length_flags[] =
   {
     { 0x0, "QAP may deliver all buffered MSDUs and MMPDUs." },
     { 0x2, "QAP may deliver a maximum of two MSDUs and MMPDUs per SP." },
@@ -14307,19 +14307,19 @@ proto_register_ieee80211 (void)
       NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_rsn_gmcs,
-     {"Group Managemement Cipher Suite", "wlan_mgt.rsn.gmcs", FT_UINT32, BASE_CUSTOM,
+     {"Group Management Cipher Suite", "wlan_mgt.rsn.gmcs", FT_UINT32, BASE_CUSTOM,
       rsn_gmcs_base_custom, 0, "Contains the cipher suite selector used by the BSS to protect broadcast/multicast traffic", HFILL }},
 
     {&hf_ieee80211_rsn_gmcs_oui,
-     {"Group Managemement Cipher Suite OUI", "wlan_mgt.rsn.gmcs.oui", FT_UINT24, BASE_CUSTOM,
+     {"Group Management Cipher Suite OUI", "wlan_mgt.rsn.gmcs.oui", FT_UINT24, BASE_CUSTOM,
       oui_base_custom, 0, NULL, HFILL }},
 
     {&hf_ieee80211_rsn_gmcs_type,
-     {"Group Managemement Cipher Suite type", "wlan_mgt.rsn.gmcs.type", FT_UINT8, BASE_DEC,
+     {"Group Management Cipher Suite type", "wlan_mgt.rsn.gmcs.type", FT_UINT8, BASE_DEC,
       NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_rsn_gmcs_80211_type,
-     {"Group Managemement Cipher Suite type", "wlan_mgt.rsn.gmcs.type", FT_UINT8, BASE_DEC,
+     {"Group Management Cipher Suite type", "wlan_mgt.rsn.gmcs.type", FT_UINT8, BASE_DEC,
       VALS(ieee80211_rsn_cipher_vals), 0, NULL, HFILL }},
 
 
@@ -15999,8 +15999,8 @@ proto_register_ieee80211 (void)
        FT_BOOLEAN, 8, TFS(&qos_info_field_qack_flags), 0x10, NULL, HFILL }},
 
     {&hf_ieee80211_qos_info_field_max_sp_length,
-     {"Max SP-Lenght", "wlan_mgt.tag.qos_cap.qos_info.max_sp_length",
-       FT_UINT8, BASE_HEX, VALS(qos_info_field_max_sp_lenght_flags),
+     {"Max SP-Length", "wlan_mgt.tag.qos_cap.qos_info.max_sp_length",
+       FT_UINT8, BASE_HEX, VALS(qos_info_field_max_sp_length_flags),
        0x60, NULL , HFILL }},
 
     {&hf_ieee80211_qos_info_field_more_data_ack,
@@ -16024,7 +16024,7 @@ proto_register_ieee80211 (void)
         FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}},
 
     {&hf_ieee80211_tag_ext_supp_rates,
-     {"Extented Supported Rates", "wlan_mgt.extented_supported_rates",
+     {"Extended Supported Rates", "wlan_mgt.extended_supported_rates",
       FT_UINT8, BASE_HEX, VALS(ieee80211_supported_rates_vals), 0x0,
       "In Mbit/sec, (B) for Basic Rates", HFILL }},
 
@@ -16719,8 +16719,7 @@ try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *
     /* decrypt successful, let's set up a new data tvb.              */
     decr_tvb = tvb_new_child_real_data(tvb, tmp, len, len);
     tvb_set_free_cb(decr_tvb, g_free);
-  } else
-    g_free(tmp);
+  }
 
   return decr_tvb;
 }
@@ -16738,7 +16737,7 @@ void set_airpdcap_keys(void)
   GByteArray *bytes = NULL;
   gboolean res;
 
-  keys=(PAIRPDCAP_KEYS_COLLECTION)g_malloc(sizeof(AIRPDCAP_KEYS_COLLECTION));
+  keys=(PAIRPDCAP_KEYS_COLLECTION)se_alloc(sizeof(AIRPDCAP_KEYS_COLLECTION));
   keys->nKeys = 0;
 
   for(i = 0; (uat_wep_key_records != NULL) && (i < num_wepkeys_uat) && (i < MAX_ENCRYPTION_KEYS); i++)
@@ -16805,7 +16804,6 @@ void set_airpdcap_keys(void)
 
   /* Now set the keys */
   AirPDcapSetKeys(&airpdcap_ctx,keys->Keys,keys->nKeys);
-  g_free(keys);
   if (bytes)
     g_byte_array_free(bytes, TRUE);
 
