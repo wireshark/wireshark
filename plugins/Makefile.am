@@ -42,8 +42,11 @@ plugindir = @plugindir@
 
 EXTRA_DIST = \
 	$(_CUSTOM_EXTRA_DIST_) \
-	plugins.vcproj	\
-	Makefile.nmake
+	plugins.vcproj \
+	Makefile.nmake \
+	Custom.make.example \
+	Custom.m4.example \
+	Custom.nmake.example
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
