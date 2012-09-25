@@ -698,6 +698,11 @@ MAKENSIS="$(PROGRAM_FILES)\NSIS\makensis.exe"
 MAKENSIS_UNICODE="$(PROGRAM_FILES)\NSIS\Unicode\makensis.exe"
 
 #
+# Recommended: Use the default user guide if not building one yourself.
+#
+UG_DIR=$(WIRESHARK_LIB_DIR)\user-guide
+
+#
 # Optional: To build the developers API documentation with doxygen and dot.
 # Currently experimental, outdated and incomplete.
 #
