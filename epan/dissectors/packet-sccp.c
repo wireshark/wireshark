@@ -32,7 +32,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 
@@ -202,7 +202,7 @@ static const value_string sccp_parameter_values[] = {
 #define ANSI_PC_INDICATOR_MASK          0x02
 #define ANSI_SSN_INDICATOR_MASK         0x01
 
-static const value_string sccp_national_indicator_values[] = {
+static const value_string sccp_ansi_national_indicator_values[] = {
   { 0x0,  "Address coded to International standard" },
   { 0x1,  "Address coded to National standard" },
   { 0,    NULL } };
@@ -596,7 +596,8 @@ static int hf_sccp_ssn = -1;
 static int hf_sccp_gt_digits = -1;
 
 /* Called Party address */
-static int hf_sccp_called_national_indicator = -1;
+static int hf_sccp_called_ansi_national_indicator = -1;
+static int hf_sccp_called_itu_natl_use_bit = -1;
 static int hf_sccp_called_routing_indicator = -1;
 static int hf_sccp_called_itu_global_title_indicator = -1;
 static int hf_sccp_called_ansi_global_title_indicator = -1;
@@ -621,7 +622,8 @@ static int hf_sccp_called_gt_digits = -1;
 static int hf_sccp_called_gt_digits_length = -1;
 
 /* Calling party address */
-static int hf_sccp_calling_national_indicator = -1;
+static int hf_sccp_calling_ansi_national_indicator = -1;
+static int hf_sccp_calling_itu_natl_use_bit = -1;
 static int hf_sccp_calling_routing_indicator = -1;
 static int hf_sccp_calling_itu_global_title_indicator = -1;
 static int hf_sccp_calling_ansi_global_title_indicator = -1;
@@ -1766,13 +1768,19 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
   if (decode_mtp3_standard == ANSI_STANDARD) {
     national = tvb_get_guint8(tvb, 0) & ANSI_NATIONAL_MASK;
-    expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_national_indicator
-                                      : hf_sccp_calling_national_indicator,
+    expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_national_indicator
+                                      : hf_sccp_calling_ansi_national_indicator,
                                       tvb, 0, ADDRESS_INDICATOR_LENGTH, national);
     if (national == 0)
       expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_WARN, "Address is coded to "
                              "international standards.  This doesn't normally happen in ANSI "
                              "networks.");
+  } else {
+    guint8 natl_use_bit = tvb_get_guint8(tvb, 0) & ITU_RESERVED_MASK;
+
+    proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_natl_use_bit
+                        : hf_sccp_calling_itu_natl_use_bit,
+                        tvb, 0, ADDRESS_INDICATOR_LENGTH, natl_use_bit);
   }
 
   routing_ind = tvb_get_guint8(tvb, 0) & ROUTING_INDICATOR_MASK;
@@ -3513,9 +3521,14 @@ proto_register_sccp(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_sccp_called_national_indicator,
+    { &hf_sccp_called_ansi_national_indicator,
       { "National Indicator", "sccp.called.ni",
-        FT_UINT8, BASE_HEX, VALS(sccp_national_indicator_values), ANSI_NATIONAL_MASK,
+        FT_UINT8, BASE_HEX, VALS(sccp_ansi_national_indicator_values), ANSI_NATIONAL_MASK,
+        NULL, HFILL}
+    },
+    { &hf_sccp_called_itu_natl_use_bit,
+      { "Reserved for national use", "sccp.called.reserved",
+        FT_UINT8, BASE_HEX, NULL, ITU_RESERVED_MASK,
         NULL, HFILL}
     },
     { &hf_sccp_called_routing_indicator,
@@ -3628,9 +3641,14 @@ proto_register_sccp(void)
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_sccp_calling_national_indicator,
+    { &hf_sccp_calling_ansi_national_indicator,
       { "National Indicator", "sccp.calling.ni",
-        FT_UINT8, BASE_HEX, VALS(sccp_national_indicator_values), ANSI_NATIONAL_MASK,
+        FT_UINT8, BASE_HEX, VALS(sccp_ansi_national_indicator_values), ANSI_NATIONAL_MASK,
+        NULL, HFILL}
+    },
+    { &hf_sccp_calling_itu_natl_use_bit,
+      { "Reserved for national use", "sccp.calling.reserved",
+        FT_UINT8, BASE_HEX, NULL, ITU_RESERVED_MASK,
         NULL, HFILL}
     },
     { &hf_sccp_calling_routing_indicator,
