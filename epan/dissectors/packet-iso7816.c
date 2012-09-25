@@ -26,6 +26,9 @@
 /* This dissector supports the command and response apdu structure
  * as defined in ISO 7816-4. Detailed dissection of the APDUs defined
  * in the ISO 7816 specifications will be added in the future.
+ *
+ * The dissection of Answer To Reset (ATR) messages was made a separate
+ * protocol so that it can be shared easily.
  */
 
 
@@ -37,10 +40,14 @@
 #include <epan/expert.h>
 
 static int proto_iso7816 = -1;
+static int proto_iso7816_atr = -1;
+
+static dissector_handle_t iso7816_atr_handle = NULL;
 
 static int ett_iso7816 = -1;
-static int ett_iso7816_atr_td = -1;
 static int ett_iso7816_class = -1;
+static int ett_iso7816_atr = -1;
+static int ett_iso7816_atr_td = -1;
 
 static int hf_iso7816_atr_init_char = -1;
 static int hf_iso7816_atr_t0 = -1;
@@ -134,20 +141,29 @@ static const range_string iso7816_sw1[] = {
 
 
 static int
-dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint        offset=0;
+    guint8      init_char;
     guint       i=0;  /* loop index for TA(i)...TD(i) */
-    proto_item *td_it;
-    proto_tree *td_tree=NULL;
+    proto_item *proto_it = NULL, *td_it;
+    proto_tree *proto_tree = NULL, *td_tree=NULL;
     guint8      ta, tb, tc, td, k=0;
     gint        tck_len;
     proto_item *err_it;
 
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "ATR sequence");
+    init_char = tvb_get_guint8(tvb, offset);
+    if (init_char!=0x3B && init_char!=0x3F)
+        return 0; /* no ATR sequence */
+
+    proto_it = proto_tree_add_protocol_format(tree, proto_iso7816_atr,
+                tvb, 0, -1, "ISO 7816 ATR");
+    proto_tree = proto_item_add_subtree(proto_it, ett_iso7816_atr);
+ 
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "ATR");
 
     /* ISO 7816-4, section 4 indicates that concatenations are big endian */
-    proto_tree_add_item(tree, hf_iso7816_atr_init_char,
+    proto_tree_add_item(proto_tree, hf_iso7816_atr_init_char,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -156,11 +172,11 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            in each loop, we dissect T0/TD(i) and TA(i+1), TB(i+1), TC(i+1) */
         td = tvb_get_guint8(tvb, offset);
         if (i==0) {
-            td_it = proto_tree_add_item(tree, hf_iso7816_atr_t0,
+            td_it = proto_tree_add_item(proto_tree, hf_iso7816_atr_t0,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         else {
-            td_it = proto_tree_add_uint_format(tree, hf_iso7816_atr_td,
+            td_it = proto_tree_add_uint_format(proto_tree, hf_iso7816_atr_td,
                     tvb, offset, 1, td,
                     "Interface character TD(%d): 0x%02x", i, td);
         }
@@ -179,6 +195,13 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 tvb, offset, 1, td&0x80,
                 "TD(%d) present: %s", i+1, td&0x80 ? "True" : "False");
 
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                "TA(%d)=%s TB(%d)=%s TC(%d)=%s TD(%d)=%s",
+                i+1, td&0x10 ? "True" : "False",
+                i+1, td&0x20 ? "True" : "False",
+                i+1, td&0x40 ? "True" : "False",
+                i+1, td&0x80 ? "True" : "False");
+
         if (i==0) {
             k = td&0x0F;   /* number of historical bytes */
             proto_tree_add_item(td_tree, hf_iso7816_atr_k,
@@ -193,20 +216,23 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (td&0x10) {
             ta = tvb_get_guint8(tvb, offset);
             /* we read TA(i+1), see comment above */
-            proto_tree_add_uint_format(tree, hf_iso7816_atr_ta, tvb, offset, 1,
-                    ta, "Interface character TA(%d): 0x%02x", i+1, ta);
+            proto_tree_add_uint_format(proto_tree, hf_iso7816_atr_ta,
+                    tvb, offset, 1, ta,
+                    "Interface character TA(%d): 0x%02x", i+1, ta);
             offset++;
         }
         if (td&0x20) {
             tb = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(tree, hf_iso7816_atr_tb, tvb, offset, 1,
-                    tb, "Interface character TB(%d): 0x%02x", i+1, tb);
+            proto_tree_add_uint_format(proto_tree, hf_iso7816_atr_tb,
+                    tvb, offset, 1, tb,
+                    "Interface character TB(%d): 0x%02x", i+1, tb);
             offset++;
         }
         if (td&0x40) {
             tc = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(tree, hf_iso7816_atr_tc, tvb, offset, 1,
-                    tc, "Interface character TC(%d): 0x%02x", i+1, tc);
+            proto_tree_add_uint_format(proto_tree, hf_iso7816_atr_tc,
+                    tvb, offset, 1, tc,
+                    "Interface character TC(%d): 0x%02x", i+1, tc);
             offset++;
         }
 
@@ -214,7 +240,7 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } while (td&0x80);
 
     if (k>0) {
-        proto_tree_add_item(tree, hf_iso7816_atr_hist_bytes,
+        proto_tree_add_item(proto_tree, hf_iso7816_atr_hist_bytes,
                 tvb, offset, k, ENC_NA);
         offset += k;
     }
@@ -222,17 +248,18 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tck_len = tvb_reported_length_remaining(tvb, offset);
     /* tck is either absent or exactly one byte */
     if (tck_len==1) {
-        proto_tree_add_item(tree, hf_iso7816_atr_tck,
+        proto_tree_add_item(proto_tree, hf_iso7816_atr_tck,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
     }
     else if (tck_len>1) {
-        err_it = proto_tree_add_text(tree, tvb, offset, tck_len,
+        err_it = proto_tree_add_text(proto_tree, tvb, offset, tck_len,
                 "Invalid TCK byte");
         expert_add_info_format(pinfo, err_it, PI_PROTOCOL, PI_WARN,
                 "TCK byte must either be absent or exactly one byte");
     }
 
+    proto_item_set_len(proto_it, offset);
     return offset;
 }
 
@@ -404,7 +431,7 @@ dissect_iso7816(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     gint                 offset = 0;
     proto_item          *tree_ti = NULL;
     proto_tree          *iso7816_tree = NULL;
-    guint8               tmp;
+    gboolean             is_atr = FALSE;
 
     if (pinfo->p2p_dir!=P2P_DIR_SENT && pinfo->p2p_dir!=P2P_DIR_RECV)
         return 0;
@@ -434,13 +461,14 @@ dissect_iso7816(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 (int)strlen(ADDR_CARD)+1, ADDR_CARD);
         SET_ADDRESS(&pinfo->dst, AT_STRINGZ,
                 (int)strlen(ADDR_INTF)+1, ADDR_INTF);
-        tmp = tvb_get_guint8(tvb, offset);
-        if (tmp==0x3B || tmp==0x3F) {
-            if (tree_ti)
-                proto_item_append_text(tree_ti, " ATR");
-            offset = dissect_iso7816_atr(tvb, pinfo, iso7816_tree);
+
+        if (iso7816_atr_handle) {
+            offset = call_dissector_only(iso7816_atr_handle,
+                    tvb, pinfo, iso7816_tree, NULL);
+            if (offset > 0)
+                is_atr = TRUE;
         }
-        else {
+        if (!is_atr) {
             if (tree_ti)
                 proto_item_append_text(tree_ti, " Response APDU");
             offset = dissect_iso7816_resp_apdu(tvb, pinfo, iso7816_tree);
@@ -557,8 +585,9 @@ proto_register_iso7816(void)
     };
     static gint *ett[] = {
         &ett_iso7816,
-        &ett_iso7816_atr_td,
-        &ett_iso7816_class
+        &ett_iso7816_class,
+        &ett_iso7816_atr,
+        &ett_iso7816_atr_td
     };
 
     proto_iso7816 = proto_register_protocol(
@@ -567,8 +596,17 @@ proto_register_iso7816(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     new_register_dissector("iso7816", dissect_iso7816, proto_iso7816);
+
+    proto_iso7816_atr = proto_register_protocol(
+            "ISO/IEC 7816-3", "ISO 7816-3", "iso7816.atr");
+    new_register_dissector("iso7816.atr", dissect_iso7816_atr, proto_iso7816_atr);
 }
 
+void
+proto_reg_handoff_iso7816(void)
+{
+    iso7816_atr_handle = find_dissector("iso7816.atr");
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

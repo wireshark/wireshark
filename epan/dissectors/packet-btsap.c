@@ -291,10 +291,10 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto
                 col_append_str(pinfo->cinfo, COL_INFO, ": ");
 
                 if (top_dissect == TOP_DISSECT_INTERNAL) {
-                    call_dissector_with_data(iso7816_atr_handle, next_tvb, pinfo, ptree, GINT_TO_POINTER(TRUE));
+                    call_dissector(iso7816_atr_handle, next_tvb, pinfo, ptree);
                 } else {
                     col_clear(pinfo->cinfo, COL_INFO);
-                    call_dissector_with_data(iso7816_atr_handle, next_tvb, pinfo, top_tree, GINT_TO_POINTER(TRUE));
+                    call_dissector(iso7816_atr_handle, next_tvb, pinfo, top_tree);
                 }
             } else {
                 proto_tree_add_item(ptree, hf_btsap_data, tvb, offset, parameter_length, ENC_NA);
@@ -735,7 +735,7 @@ proto_reg_handoff_btsap(void)
 
     btsap_handle = find_dissector("btsap");
     gsm_sim_handle = find_dissector("gsm_sim");
-    iso7816_atr_handle = find_dissector("iso7816_atr");
+    iso7816_atr_handle = find_dissector("iso7816.atr");
 
     dissector_add_uint("btrfcomm.service", BTSDP_SAP_SERVICE_UUID, btsap_handle);
 
