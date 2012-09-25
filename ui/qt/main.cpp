@@ -123,6 +123,7 @@
 #include <QTextCodec>
 #include <qtranslator.h>
 #include <qlocale.h>
+#include <qlibraryinfo.h>
 
 capture_file cfile;
 
@@ -645,6 +646,10 @@ int main(int argc, char *argv[])
     QTranslator translator;
     translator.load(QString(":/i18n/qtshark_") + locale);
     a.installTranslator(&translator);
+
+    QTranslator qtTranslator;
+    qtTranslator.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    a.installTranslator(&qtTranslator);
 
     // Hopefully we won't have to use QString::fromUtf8() in as many places.
     QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
