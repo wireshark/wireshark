@@ -35,6 +35,7 @@ static int proto_dlsw = -1;
 static int hf_dlsw_flow_control_indication = -1;
 static int hf_dlsw_flow_control_ack = -1;
 static int hf_dlsw_flow_control_operator = -1;
+static int hf_dlsw_flags_explorer_msg = -1;
 
 static gint ett_dlsw = -1;
 static gint ett_dlsw_header = -1;
@@ -297,10 +298,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         flags = tvb_get_guint8(tvb,21);
         ti2 = proto_tree_add_text (dlsw_header_tree,tvb, 21,1,"SSP Flags      = 0x%02x",flags) ;
         dlsw_flags_tree = proto_item_add_subtree(ti2, ett_dlsw_sspflags);
-        proto_tree_add_text (dlsw_flags_tree, tvb, 21, 1, "%s",
-                             decode_boolean_bitfield(flags, 0x80, 8,
-                                                     "Explorer message: yes",
-                                                     "Explorer message: no"));
+        proto_tree_add_item (dlsw_flags_tree, hf_dlsw_flags_explorer_msg, tvb, 21, 1, ENC_BIG_ENDIAN);
         proto_tree_add_text (dlsw_header_tree,tvb, 22,1,"Circuit priority = %s",
                              val_to_str((tvb_get_guint8(tvb,22)&7),dlsw_pri_vals, "Unknown (%d)")) ;
         proto_tree_add_text (dlsw_header_tree,tvb, 23,1,"Old message type = %s (0x%02x)",
@@ -524,6 +522,9 @@ proto_register_dlsw(void)
 	  NULL, HFILL}},
 	{&hf_dlsw_flow_control_operator,
      {"Flow Control Operator", "dlsw.flow_control_operator", FT_UINT8, BASE_DEC, VALS(dlsw_fc_cmd_vals), 0x07,
+	  NULL, HFILL}},
+	{&hf_dlsw_flags_explorer_msg,
+     {"Explorer message", "dlsw.flags.explorer_msg", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
 	  NULL, HFILL}},
   };
 

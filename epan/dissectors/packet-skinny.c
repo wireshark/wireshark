@@ -1209,6 +1209,14 @@ static int hf_cast_originalCdpnRedirectReason = -1;
 static int hf_cast_lastRedirectingReason = -1;
 static int hf_cast_callInstance = -1;
 static int hf_cast_callSecurityStatus = -1;
+static int hf_cast_partyPIRestrictionBits_CallingPartyName = -1;
+static int hf_cast_partyPIRestrictionBits_CallingPartyNumber = -1;
+static int hf_cast_partyPIRestrictionBits_CalledPartyName = -1;
+static int hf_cast_partyPIRestrictionBits_CalledPartyNumber = -1;
+static int hf_cast_partyPIRestrictionBits_OriginalCalledPartyName = -1;
+static int hf_cast_partyPIRestrictionBits_OriginalCalledPartyNumber = -1;
+static int hf_cast_partyPIRestrictionBits_LastRedirectPartyName = -1;
+static int hf_cast_partyPIRestrictionBits_LastRedirectPartyNumber = -1;
 static int hf_skinny_directoryIndex = -1;
 static int hf_skinny_directoryPhoneNumber = -1;
 
@@ -2046,22 +2054,14 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       val = tvb_get_letohl( tvb, i);
       ti_sub = proto_tree_add_text(skinny_tree, tvb, i, 8, "partyPIRestrictionBits");
       skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
-      proto_tree_add_text(skinny_sub_tree, tvb, i, 4, "%s",
-              decode_boolean_bitfield( val, 0x01, 4*8, "Does RestrictCallingPartyName", "Doesn't RestrictCallingPartyName"));
-      proto_tree_add_text(skinny_sub_tree, tvb, i, 4, "%s",
-              decode_boolean_bitfield( val, 0x02, 4*8, "Does RestrictCallingPartyNumber", "Doesn't RestrictCallingPartyNumber"));
-      proto_tree_add_text(skinny_sub_tree, tvb, i, 4, "%s",
-              decode_boolean_bitfield( val, 0x04, 4*8, "Does RestrictCalledPartyName", "Doesn't RestrictCalledPartyName"));
-      proto_tree_add_text(skinny_sub_tree, tvb, i, 4, "%s",
-              decode_boolean_bitfield( val, 0x08, 4*8, "Does RestrictCalledPartyNumber", "Doesn't RestrictCalledPartyNumber"));
-      proto_tree_add_text(skinny_sub_tree, tvb, i, 4, "%s",
-              decode_boolean_bitfield( val, 0x10, 4*8, "Does RestrictOriginalCalledPartyName", "Doesn't RestrictOriginalCalledPartyName"));
-      proto_tree_add_text(skinny_sub_tree, tvb, i, 4, "%s",
-              decode_boolean_bitfield( val, 0x20, 4*8, "Does RestrictOriginalCalledPartyNumber", "Doesn't RestrictOriginalCalledPartyNumber"));
-      proto_tree_add_text(skinny_sub_tree, tvb, i, 4, "%s",
-              decode_boolean_bitfield( val, 0x40, 4*8, "Does RestrictLastRedirectPartyName", "Doesn't RestrictLastRedirectPartyName"));
-      proto_tree_add_text(skinny_sub_tree, tvb, i, 4, "%s",
-              decode_boolean_bitfield( val, 0x80, 4*8, "Does RestrictLastRedirectPartyNumber", "Doesn't RestrictLastRedirectPartyNumber"));
+      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_CallingPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_CallingPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_CalledPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_CalledPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_OriginalCalledPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_OriginalCalledPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_LastRedirectPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_LastRedirectPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
       break;
 
     case 0x0090: /* ForwardStatMessage */
@@ -4657,6 +4657,54 @@ proto_register_skinny(void)
         FT_UINT32, BASE_DEC, VALS(cast_callSecurityStatusTypes), 0x0,
         NULL,
         HFILL }
+    },
+
+    { &hf_cast_partyPIRestrictionBits_CallingPartyName,
+      { "RestrictCallingPartyName", "cast.partyPIRestrictionBits.CallingPartyName",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x01,
+        NULL, HFILL }
+    },
+
+    { &hf_cast_partyPIRestrictionBits_CallingPartyNumber,
+      { "RestrictCallingPartyNumber", "cast.partyPIRestrictionBits.CallingPartyNumber",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x02,
+        NULL, HFILL }
+    },
+
+    { &hf_cast_partyPIRestrictionBits_CalledPartyName,
+      { "RestrictCalledPartyName", "cast.partyPIRestrictionBits.CalledPartyName",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x04,
+        NULL, HFILL }
+    },
+
+    { &hf_cast_partyPIRestrictionBits_CalledPartyNumber,
+      { "RestrictCalledPartyNumber", "cast.partyPIRestrictionBits.CalledPartyNumber",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x08,
+        NULL, HFILL }
+    },
+
+    { &hf_cast_partyPIRestrictionBits_OriginalCalledPartyName,
+      { "RestrictOriginalCalledPartyName", "cast.partyPIRestrictionBits.OriginalCalledPartyName",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x10,
+        NULL, HFILL }
+    },
+
+    { &hf_cast_partyPIRestrictionBits_OriginalCalledPartyNumber,
+      { "RestrictOriginalCalledPartyNumber", "cast.partyPIRestrictionBits.OriginalCalledPartyNumber",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x20,
+        NULL, HFILL }
+    },
+
+    { &hf_cast_partyPIRestrictionBits_LastRedirectPartyName,
+      { "RestrictLastRedirectPartyName", "cast.partyPIRestrictionBits.LastRedirectPartyName",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x40,
+        NULL, HFILL }
+    },
+
+    { &hf_cast_partyPIRestrictionBits_LastRedirectPartyNumber,
+      { "RestrictLastRedirectPartyNumber", "cast.partyPIRestrictionBits.LastRedirectPartyNumber",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x80,
+        NULL, HFILL }
     },
 
     { &hf_skinny_directoryIndex,

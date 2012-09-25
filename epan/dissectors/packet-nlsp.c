@@ -51,6 +51,9 @@ static int hf_nlsp_lsp_p                 = -1;
 static int hf_nlsp_lsp_attached_flag     = -1;
 static int hf_nlsp_lsp_lspdbol           = -1;
 static int hf_nlsp_lsp_router_type       = -1;
+static int hf_nlsp_lsp_link_info_clv_flags_cost_present = -1;
+static int hf_nlsp_lsp_link_info_clv_flags_cost_metric = -1;
+static int hf_nlsp_lsp_link_info_clv_flags_cost = -1;
 
 static gint ett_nlsp                     = -1;
 static gint ett_nlsp_hello_clv_area_addr = -1;
@@ -107,6 +110,8 @@ static const value_string nlsp_router_type_vals[] = {
 	{ 3, "Level 1 and Level 2 Router"},
 	{ 0, NULL}
 };
+
+static const true_false_string tfs_internal_external = { "Internal", "External" };
 
 /*
  * Our sub-packet dismantle structure for CLV's
@@ -671,20 +676,13 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	}
 	if (tree) {
 		flags_cost = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1, "%s",
-		    decode_boolean_bitfield(flags_cost, 0x80, 1*8,
-			"Cost not present", "Cost present"));
+		proto_tree_add_item(tree, hf_nlsp_lsp_link_info_clv_flags_cost_present, tvb, offset, 1, ENC_BIG_ENDIAN);
 		if (!(flags_cost & 0x80)) {
 			/*
 			 * 0x80 clear => cost present.
 			 */
-			proto_tree_add_text(tree, tvb, offset, 1, "%s",
-			    decode_boolean_bitfield(flags_cost, 0x40, 1*8,
-				"Cost is internal metric",
-				"Cost is external metric"));
-			proto_tree_add_text(tree, tvb, offset, 1, "%s",
-			    decode_numeric_bitfield(flags_cost, 0x3F, 1*8,
-				"Cost = %u"));
+			proto_tree_add_item(tree, hf_nlsp_lsp_link_info_clv_flags_cost_metric, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_nlsp_lsp_link_info_clv_flags_cost, tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 	}
 	offset += 1;
@@ -1622,6 +1620,18 @@ proto_register_nlsp(void)
 	      { "Router Type", "nlsp.lsp.router_type", FT_UINT8, BASE_DEC,
 	        VALS(nlsp_router_type_vals), NLSP_LSP_ROUTER_TYPE_MASK,
 	        NULL, HFILL }},
+
+	    { &hf_nlsp_lsp_link_info_clv_flags_cost_present,
+	      { "Cost present", "nlsp.lsp.link_info_clv.flags.cost_present", FT_BOOLEAN, 8,
+	        TFS(&tfs_no_yes), 0x80, NULL, HFILL }},
+
+	    { &hf_nlsp_lsp_link_info_clv_flags_cost_metric,
+	      { "Cost metric", "nlsp.lsp.link_info_clv.flags.cost_metric", FT_BOOLEAN, 8,
+	        TFS(&tfs_internal_external), 0x40, NULL, HFILL }},
+
+	    { &hf_nlsp_lsp_link_info_clv_flags_cost,
+	      { "Cost", "nlsp.lsp.link_info_clv.flags.cost", FT_UINT8, BASE_DEC,
+	        NULL, 0x3F, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_nlsp,

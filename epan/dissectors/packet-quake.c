@@ -36,6 +36,12 @@
 
 static int proto_quake = -1;
 static int hf_quake_header_flags = -1;
+static int hf_quake_header_flags_data = -1;
+static int hf_quake_header_flags_ack = -1;
+static int hf_quake_header_flags_no_ack = -1;
+static int hf_quake_header_flags_endmsg = -1;
+static int hf_quake_header_flags_unreliable = -1;
+static int hf_quake_header_flags_control = -1;
 static int hf_quake_header_length = -1;
 static int hf_quake_header_sequence = -1;
 static int hf_quake_control_command = -1;
@@ -74,18 +80,16 @@ static dissector_handle_t quake_handle;
 static dissector_handle_t data_handle;
 
 /* I took these names directly out of the Q1 source. */
-#define NETFLAG_LENGTH_MASK 0x0000ffff
 #define NET_HEADERSIZE 8
 #define DEFAULTnet_hostport 26000
 static guint gbl_quakeServerPort=DEFAULTnet_hostport;
 
-#define NETFLAG_LENGTH_MASK     0x0000ffff
-#define NETFLAG_DATA            0x00010000
-#define NETFLAG_ACK             0x00020000
-#define NETFLAG_NAK             0x00040000
-#define NETFLAG_EOM             0x00080000
-#define NETFLAG_UNRELIABLE      0x00100000
-#define NETFLAG_CTL             0x80000000
+#define NETFLAG_DATA            0x0001
+#define NETFLAG_ACK             0x0002
+#define NETFLAG_NAK             0x0004
+#define NETFLAG_EOM             0x0008
+#define NETFLAG_UNRELIABLE      0x0010
+#define NETFLAG_CTL             0x8000
 
 
 #define CCREQ_CONNECT           0x01
@@ -428,8 +432,7 @@ static void
 dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*quake_tree = NULL;
-	guint32		length;
-	guint32		flags;
+	guint16		flags;
 	guint32		sequence = 0;
 	guint		rest_length;
 	tvbuff_t	*next_tvb;
@@ -437,9 +440,7 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	length = tvb_get_ntohl(tvb, 0);
-	flags = length & (~NETFLAG_LENGTH_MASK);
-	length &= NETFLAG_LENGTH_MASK;
+	flags = tvb_get_ntohs(tvb, 2);
 
 	if (tree) {
 		proto_item *quake_item;
@@ -452,30 +453,18 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item* flags_item;
 		proto_tree* flags_tree;
 
-		flags_item = proto_tree_add_uint(quake_tree, hf_quake_header_flags,
-			tvb, 0, 2, flags);
+		flags_item = proto_tree_add_item(quake_tree, hf_quake_header_flags,
+			tvb, 2, 2, ENC_BIG_ENDIAN);
 		flags_tree = proto_item_add_subtree(flags_item, ett_quake_flags);
+		proto_tree_add_item(flags_tree, hf_quake_header_flags_data, tvb, 2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(flags_tree, hf_quake_header_flags_ack, tvb, 2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(flags_tree, hf_quake_header_flags_no_ack, tvb, 2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(flags_tree, hf_quake_header_flags_endmsg, tvb, 2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(flags_tree, hf_quake_header_flags_unreliable, tvb, 2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(flags_tree, hf_quake_header_flags_control, tvb, 2, 2, ENC_BIG_ENDIAN);
 
-		proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
-				    decode_boolean_bitfield(flags, NETFLAG_DATA, 32,
-							    "Data","-"));
-		proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
-				    decode_boolean_bitfield(flags, NETFLAG_ACK, 32,
-							    "Acknowledgment","-"));
-		proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
-				    decode_boolean_bitfield(flags, NETFLAG_NAK, 32,
-							    "No Acknowledgment","-"));
-		proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
-				    decode_boolean_bitfield(flags, NETFLAG_EOM, 32,
-							    "End Of Message","-"));
-		proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
-				    decode_boolean_bitfield(flags, NETFLAG_UNRELIABLE, 32,
-							    "Unreliable","-"));
-		proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
-				    decode_boolean_bitfield(flags, NETFLAG_CTL, 32,
-							    "Control","-"));
-		proto_tree_add_uint(quake_tree, hf_quake_header_length,
-			tvb, 2, 2, length);
+		proto_tree_add_item(quake_tree, hf_quake_header_length,
+			tvb, 0, 2, ENC_BIG_ENDIAN);
 	}
 
 	if (flags == NETFLAG_CTL) {
@@ -509,6 +498,30 @@ proto_register_quake(void)
     { &hf_quake_header_flags,
       { "Flags", "quake.header.flags",
 	FT_UINT16, BASE_HEX, NULL, 0x0,
+	NULL, HFILL }},
+    { &hf_quake_header_flags_data,
+      { "Data", "quake.header.flags.data",
+	FT_BOOLEAN, 16, TFS(&tfs_set_notset), NETFLAG_DATA,
+	NULL, HFILL }},
+    { &hf_quake_header_flags_ack,
+      { "Acknowledgment", "quake.header.flags.ack",
+	FT_BOOLEAN, 16, TFS(&tfs_set_notset), NETFLAG_ACK,
+	NULL, HFILL }},
+    { &hf_quake_header_flags_no_ack,
+      { "No Acknowledgment", "quake.header.flags.no_ack",
+	FT_BOOLEAN, 16, TFS(&tfs_set_notset), NETFLAG_NAK,
+	NULL, HFILL }},
+    { &hf_quake_header_flags_endmsg,
+      { "End Of Message", "quake.header.flags.endmsg",
+	FT_BOOLEAN, 16, TFS(&tfs_set_notset), NETFLAG_EOM,
+	NULL, HFILL }},
+    { &hf_quake_header_flags_unreliable,
+      { "Unreliable", "quake.header.flags.unreliable",
+	FT_BOOLEAN, 16, TFS(&tfs_set_notset), NETFLAG_UNRELIABLE,
+	NULL, HFILL }},
+    { &hf_quake_header_flags_control,
+      { "Control", "quake.header.flags.control",
+	FT_BOOLEAN, 16, TFS(&tfs_set_notset), NETFLAG_CTL,
 	NULL, HFILL }},
     { &hf_quake_header_length,
       { "Length", "quake.header.length",

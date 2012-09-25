@@ -287,6 +287,9 @@ static gint pcep_subobj_flags_lpa= -1;
 static gint pcep_subobj_flags_lpu= -1;
 static gint pcep_subobj_label_flags_gl= -1;
 static gint ett_pcep_obj_unknown = -1;
+static gint hf_pcep_no_path_tlvs_pce = -1;
+static gint hf_pcep_no_path_tlvs_unk_dest = -1;
+static gint hf_pcep_no_path_tlvs_unk_src = -1;
 
 /* PCEP message types.*/
 typedef enum {
@@ -699,27 +702,24 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 		proto_tree_add_text(tlv, tvb, offset + 2 + j, 2, "Length: %u", tlv_length);
 		switch (tlv_type)
 		{
-		    case 1:    /* NO-PATH TLV */
-			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "%s",
-					    decode_boolean_bitfield(tvb_get_ntohl(tvb, offset+4+j), 0x0001, 32, "PCE currently unavailable", ""));
-			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "%s",
-					    decode_boolean_bitfield(tvb_get_ntohl(tvb, offset+4+j), 0x0002, 32, "Unknown destination", ""));
-			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "%s",
-					    decode_boolean_bitfield(tvb_get_ntohl(tvb, offset+4+j), 0x0004, 32, "Unknown source", ""));
+			case 1:    /* NO-PATH TLV */
+			proto_tree_add_item(tlv, hf_pcep_no_path_tlvs_pce, tvb, offset+4+j, tlv_length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv, hf_pcep_no_path_tlvs_unk_dest, tvb, offset+4+j, tlv_length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv, hf_pcep_no_path_tlvs_unk_src, tvb, offset+4+j, tlv_length, ENC_BIG_ENDIAN);
 			break;
 
-		    case 3:   /* REQ-MISSING TLV */
+			case 3:   /* REQ-MISSING TLV */
 			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "Request-ID: %u", tvb_get_ntohl(tvb, offset+4+j));
 			break;
 
-		    case 4:   /* OF TLV */
+			case 4:   /* OF TLV */
 			for (i=0; i<tlv_length/2; i++)
 			    proto_tree_add_text(tlv, tvb, offset+4+j+i*2, 2, "OF-Code #%d: %s (%u)",
 						i+1, val_to_str_const(tvb_get_ntohs(tvb, offset+4+j+i*2), pcep_of_vals, "Unknown"),
 						tvb_get_ntohs(tvb, offset+4+j+i*2));
 			break;
 
-		    default:
+			default:
 			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "Data: %s",
 					tvb_bytes_to_str_punct(tvb, (offset) + 4 + j, tlv_length, ' '));
 		}
@@ -2980,6 +2980,15 @@ proto_register_pcep(void){
 		NULL, HFILL }},
 		{&pcep_subobj_label_flags_gl,
 		 { "Global Label", "pcep.subobj.label.flags.gl", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PCEP_SUB_LABEL_GL,
+		NULL, HFILL }},
+		{&hf_pcep_no_path_tlvs_pce,
+		 { "PCE currently unavailable", "pcep.no_path_tlvs.pce", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0001,
+		NULL, HFILL }},
+		{&hf_pcep_no_path_tlvs_unk_dest,
+		 { "Unknown destination", "pcep.no_path_tlvs.unk_dest", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0002,
+		NULL, HFILL }},
+		{&hf_pcep_no_path_tlvs_unk_src,
+		 { "Unknown source", "pcep.no_path_tlvs.unk_src", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0004,
 		NULL, HFILL }},
 	};
 

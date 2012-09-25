@@ -325,6 +325,10 @@ static int hf_tacplus_flags = -1;
 static int hf_tacplus_flags_payload_type = -1;
 static int hf_tacplus_flags_connection_type = -1;
 static int hf_tacplus_acct_flags = -1;
+static int hf_tacplus_acct_flags_more = -1;
+static int hf_tacplus_acct_flags_start = -1;
+static int hf_tacplus_acct_flags_stop = -1;
+static int hf_tacplus_acct_flags_watchdog = -1;
 static int hf_tacplus_session_id = -1;
 static int hf_tacplus_packet_len = -1;
 
@@ -673,22 +677,13 @@ dissect_tacplus_body_acct_req( tvbuff_t* tvb, proto_tree *tree )
 	proto_item *tf;
 	proto_tree *flags_tree;
 
-	val=tvb_get_guint8( tvb, ACCT_Q_FLAGS_OFF );
-	tf = proto_tree_add_uint( tree, hf_tacplus_acct_flags, tvb, ACCT_Q_FLAGS_OFF, 1, val );
+	tf = proto_tree_add_item( tree, hf_tacplus_acct_flags, tvb, ACCT_Q_FLAGS_OFF, 1, ENC_BIG_ENDIAN);
 
 	flags_tree = proto_item_add_subtree( tf, ett_tacplus_acct_flags );
-	proto_tree_add_text( flags_tree, tvb, ACCT_Q_FLAGS_OFF, 1, "%s",
-			decode_boolean_bitfield( val, TAC_PLUS_ACCT_FLAG_MORE, 8,
-				"More: Set", "More: Not set" ) );
-	proto_tree_add_text( flags_tree, tvb, ACCT_Q_FLAGS_OFF, 1, "%s",
-			decode_boolean_bitfield( val, TAC_PLUS_ACCT_FLAG_START, 8,
-				"Start: Set", "Start: Not set" ) );
-	proto_tree_add_text( flags_tree, tvb, ACCT_Q_FLAGS_OFF, 1, "%s",
-			decode_boolean_bitfield( val, TAC_PLUS_ACCT_FLAG_STOP, 8,
-				"Stop: Set", "Stop: Not set" ) );
-	proto_tree_add_text( flags_tree, tvb, ACCT_Q_FLAGS_OFF, 1, "%s",
-			decode_boolean_bitfield( val, TAC_PLUS_ACCT_FLAG_WATCHDOG, 8,
-				"Watchdog: Set", "Watchdog: Not set" ) );
+	proto_tree_add_item(flags_tree, hf_tacplus_acct_flags_more, tvb, ACCT_Q_FLAGS_OFF, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_tacplus_acct_flags_start, tvb, ACCT_Q_FLAGS_OFF, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_tacplus_acct_flags_stop, tvb, ACCT_Q_FLAGS_OFF, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_tacplus_acct_flags_watchdog, tvb, ACCT_Q_FLAGS_OFF, 1, ENC_BIG_ENDIAN);
 
 	val=tvb_get_guint8( tvb, ACCT_Q_METHOD_OFF );
 	proto_tree_add_text( tree, tvb, ACCT_Q_METHOD_OFF, 1,
@@ -1072,6 +1067,22 @@ proto_register_tacplus(void)
 	  { &hf_tacplus_acct_flags,
 	    { "Flags",    "tacplus.acct.flags",
 	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_acct_flags_more,
+	    { "More",    "tacplus.acct.flags.more",
+	      FT_BOOLEAN, 8, TFS(&tfs_set_notset), TAC_PLUS_ACCT_FLAG_MORE,
+	      NULL, HFILL }},
+	  { &hf_tacplus_acct_flags_start,
+	    { "Start",    "tacplus.acct.flags.start",
+	      FT_BOOLEAN, 8, TFS(&tfs_set_notset), TAC_PLUS_ACCT_FLAG_START,
+	      NULL, HFILL }},
+	  { &hf_tacplus_acct_flags_stop,
+	    { "Stop",    "tacplus.acct.flags.stop",
+	      FT_BOOLEAN, 8, TFS(&tfs_set_notset), TAC_PLUS_ACCT_FLAG_STOP,
+	      NULL, HFILL }},
+	  { &hf_tacplus_acct_flags_watchdog,
+	    { "Watchdog",    "tacplus.acct.flags.watchdog",
+	      FT_BOOLEAN, 8, TFS(&tfs_set_notset), TAC_PLUS_ACCT_FLAG_WATCHDOG,
 	      NULL, HFILL }},
 	  { &hf_tacplus_session_id,
 	    { "Session ID",         "tacplus.session_id",

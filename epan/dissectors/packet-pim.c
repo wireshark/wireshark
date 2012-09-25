@@ -50,6 +50,9 @@ static int hf_pim_res_bytes = -1;
 static int hf_pim_optiontype = -1;
 static int hf_pim_optionlength = -1;
 static int hf_pim_optionvalue = -1;
+static int hf_pim_register_flag = -1;
+static int hf_pim_register_flag_border = -1;
+static int hf_pim_register_flag_null_register = -1;
 static int hf_pim_mode = -1;
 static int hf_pim_holdtime = -1;
 static int hf_pim_numgroups = -1;
@@ -67,6 +70,9 @@ static int hf_pim_state_refresh_reserved = -1;
 static int hf_pim_rpt = -1;
 static int hf_pim_metric_pref = -1;
 static int hf_pim_metric = -1;
+static int hf_pim_prune_indicator = -1;
+static int hf_pim_prune_now = -1;
+static int hf_pim_assert_override = -1;
 
 static gint ett_pim = -1;
 static gint ett_pim_opts = -1;
@@ -852,22 +858,15 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     case 1:     /* register */
     {
-        guint32 flags;
         guint8 v_hl;
         tvbuff_t *next_tvb;
         proto_tree *flag_tree = NULL;
         proto_item *tiflag;
 
-        flags = tvb_get_ntohl(tvb, offset);
-        tiflag = proto_tree_add_text(pimopt_tree, tvb, offset, 4,
-                                     "Flags: 0x%08x", flags);
+        tiflag = proto_tree_add_item(flag_tree, hf_pim_register_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
         flag_tree = proto_item_add_subtree(tiflag, ett_pim);
-        proto_tree_add_text(flag_tree, tvb, offset, 1, "%s",
-                            decode_boolean_bitfield(flags, 0x80000000, 32,
-                                                    "Border", "Not border"));
-        proto_tree_add_text(flag_tree, tvb, offset, 1, "%s",
-                            decode_boolean_bitfield(flags, 0x40000000, 32,
-                                                    "Null-Register", "Not Null-Register"));
+        proto_tree_add_item(flag_tree, hf_pim_register_flag_border, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flag_tree, hf_pim_register_flag_null_register, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         /*
@@ -1206,15 +1205,9 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                             "TTL: %u", tvb_get_guint8(tvb, offset));
         offset += 1;
 
-        proto_tree_add_text(pimopt_tree, tvb, offset, 1, "Prune indicator %s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset), 0x80, 8,
-                                                    "set", "clear"));
-        proto_tree_add_text(pimopt_tree, tvb, offset, 1, "Prune now %s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset), 0x40, 8,
-                                                    "set", "clear"));
-        proto_tree_add_text(pimopt_tree, tvb, offset, 1, "Assert override %s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset), 0x20, 8,
-                                                    "set", "clear"));
+        proto_tree_add_item(pimopt_tree, hf_pim_prune_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pimopt_tree, hf_pim_prune_now, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pimopt_tree, hf_pim_assert_override, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         proto_tree_add_text(pimopt_tree, tvb, offset, 1,
@@ -1273,6 +1266,21 @@ proto_register_pim(void)
             { &hf_pim_optionvalue,
               { "Unknown", "pim.optionvalue",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_register_flag,
+              { "Flags", "pim.register_flag",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_register_flag_border,
+              { "Border", "pim.register_flag.border",
+                FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x80000000,
+                NULL, HFILL }
+            },
+            { &hf_pim_register_flag_null_register,
+              { "Null-Register", "pim.register_flag.null_register",
+                FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x40000000,
                 NULL, HFILL }
             },
             { &hf_pim_mode,
@@ -1357,6 +1365,21 @@ proto_register_pim(void)
             { &hf_pim_metric ,
               { "Metric", "pim.metric",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_prune_indicator ,
+              { "Prune indicator", "pim.prune_indicator",
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+                NULL, HFILL }
+            },
+            { &hf_pim_prune_now ,
+              { "Prune now", "pim.prune_now",
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+                NULL, HFILL }
+            },
+            { &hf_pim_assert_override ,
+              { "Assert override", "pim.assert_override",
+                FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
                 NULL, HFILL }
             },
         };

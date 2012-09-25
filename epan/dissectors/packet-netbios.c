@@ -89,6 +89,8 @@ static int hf_netb_ack_expected = -1;
 static int hf_netb_recv_cont_req = -1;
 static int hf_netb_send_no_ack = -1;
 static int hf_netb_version = -1;
+static int hf_netbios_no_receive_flags = -1;
+static int hf_netbios_no_receive_flags_send_no_ack = -1;
 static int hf_netb_largest_frame = -1;
 static int hf_netb_nb_name = -1;
 static int hf_netb_nb_name_type = -1;
@@ -448,19 +450,11 @@ static void netbios_no_receive_flags( tvbuff_t *tvb, proto_tree *tree,
 {
 	proto_tree *field_tree;
 	proto_item *tf;
-	guint flags = tvb_get_guint8( tvb, offset);
 
 		/* decode the flag field for No Receive packet*/
-
-	tf = proto_tree_add_text(tree, tvb, offset, 1,
-			"Flags: 0x%02x", flags);
-
-	if (flags & 0x02) {
-		field_tree = proto_item_add_subtree(tf, ett_netb_flags);
-		proto_tree_add_text(field_tree, tvb, offset, 1, "%s",
-		    decode_boolean_bitfield(flags, 0x02, 8,
-			"SEND.NO.ACK data not received", NULL));
-	}
+	tf = proto_tree_add_item(tree, hf_netbios_no_receive_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
+	proto_tree_add_item(field_tree, hf_netbios_no_receive_flags_send_no_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 }
 
 
@@ -1325,6 +1319,14 @@ void proto_register_netbios(void)
 		{ &hf_netb_version,
 		{ "NetBIOS Version", "netbios.version", FT_BOOLEAN,  8,
 			TFS( &netb_version_str), 0x01, NULL, HFILL }},
+
+		{ &hf_netbios_no_receive_flags,
+		{ "Flags", "netbios.no_receive_flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_netbios_no_receive_flags_send_no_ack,
+		{ "SEND.NO.ACK data received", "netbios.no_receive_flags.send_no_ack", FT_BOOLEAN,  8,
+			TFS( &tfs_no_yes), 0x02, NULL, HFILL }},
 
 		{ &hf_netb_largest_frame,
 		{ "Largest Frame", "netbios.largest_frame", FT_UINT8, BASE_DEC, VALS(max_frame_size_vals), 0x0E,

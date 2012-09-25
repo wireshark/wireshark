@@ -197,6 +197,9 @@ static gint ett_comp_data = -1;
 #endif
 static int proto_pppmuxcp = -1;
 
+static int hf_pppmux_flags_pid = -1;
+static int hf_pppmux_flags_field_length = -1;
+
 static gint ett_pppmuxcp = -1;
 static gint ett_pppmuxcp_options = -1;
 
@@ -212,7 +215,9 @@ static gint ett_pppmux_subframe_info = -1;
 static int proto_mp = -1;
 static int hf_mp_frag_first = -1;
 static int hf_mp_frag_last = -1;
+static int hf_mp_short_sequence_num_reserved = -1;
 static int hf_mp_sequence_num = -1;
+static int hf_mp_sequence_num_reserved = -1;
 static int hf_mp_short_sequence_num = -1;
 
 static int ett_mp = -1;
@@ -1508,6 +1513,8 @@ static const ip_tcp_opt pppmuxcp_opts[] = {
     {CI_DEFAULT_PID, "Default Protocol ID", NULL,
         OPT_LEN_FIXED_LENGTH, 4, dissect_pppmuxcp_def_pid_opt}
 };
+
+static const true_false_string tfs_pppmux_length_field = { "2 bytes", "1 byte" };
 
 #define N_PPPMUXCP_OPTS (sizeof pppmuxcp_opts / sizeof pppmuxcp_opts[0])
 
@@ -4380,13 +4387,10 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_text(hdr_tree, tvb, offset, length_field,
             "PFF/LXT: 0x%02X", flags);
         flag_tree = proto_item_add_subtree(ti, ett_pppmux_subframe_flags);
-
-        proto_tree_add_text(flag_tree, tvb, offset, length_field, "%s",
-            decode_boolean_bitfield(flags, 0x80, 8,
-                "PID Present", "PID not present"));
-        proto_tree_add_text(flag_tree, tvb, offset, length_field, "%s",
-            decode_boolean_bitfield(flags, 0x40, 8,
-                "2 bytes length field ", "1 byte length field"));
+        proto_tree_add_item(flag_tree, hf_pppmux_flags_pid, tvb,  offset, length_field,
+                ENC_BIG_ENDIAN);
+        proto_tree_add_item(flag_tree, hf_pppmux_flags_field_length, tvb,  offset, length_field,
+                ENC_BIG_ENDIAN);
         proto_tree_add_text(hdr_tree, tvb,offset, length_field,
             "Sub-frame Length = %u", length);
 
@@ -4773,15 +4777,13 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_boolean(hdr_tree, hf_mp_frag_first, tvb, 0, 1, flags);
         proto_tree_add_boolean(hdr_tree, hf_mp_frag_last, tvb, 0, 1, flags);
         if (mp_short_seqno) {
-            proto_tree_add_text(hdr_tree, tvb, 0, 1, "%s",
-                decode_boolean_bitfield(flags, MP_FRAG_RESERVED_SHORT,
-                    sizeof(flags) * 8, "reserved", "reserved"));
+            proto_tree_add_item(hdr_tree, hf_mp_short_sequence_num_reserved, tvb,  0, 1,
+                ENC_BIG_ENDIAN);
             proto_tree_add_item(mp_tree, hf_mp_short_sequence_num, tvb,  0, 2,
                 ENC_BIG_ENDIAN);
         } else {
-            proto_tree_add_text(hdr_tree, tvb, 0, 1, "%s",
-                decode_boolean_bitfield(flags, MP_FRAG_RESERVED,
-                    sizeof(flags) * 8, "reserved", "reserved"));
+            proto_tree_add_item(hdr_tree, hf_mp_sequence_num_reserved, tvb,  0, 1,
+                ENC_BIG_ENDIAN);
             proto_tree_add_item(mp_tree, hf_mp_sequence_num, tvb,  1, 3,
                 ENC_BIG_ENDIAN);
         }
@@ -5486,9 +5488,15 @@ proto_register_mp(void)
         { &hf_mp_sequence_num,
             { "Sequence number", "mp.seq", FT_UINT24, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
+        { &hf_mp_sequence_num_reserved,
+            { "Reserved", "mp.sequence_num_reserved", FT_BOOLEAN, 8,
+                NULL, MP_FRAG_RESERVED, NULL, HFILL }},
         { &hf_mp_short_sequence_num,
             { "Short Sequence number", "mp.sseq", FT_UINT16, BASE_DEC,
-                NULL, 0x0FFF, NULL, HFILL }}
+                NULL, 0x0FFF, NULL, HFILL }},
+        { &hf_mp_short_sequence_num_reserved,
+            { "Reserved", "mp.short_sequence_num_reserved", FT_BOOLEAN, 8,
+                NULL, MP_FRAG_RESERVED_SHORT, NULL, HFILL }},
     };
     static gint *ett[] = {
         &ett_mp,
@@ -6533,6 +6541,15 @@ proto_reg_handoff_chap(void)
 void
 proto_register_pppmuxcp(void)
 {
+    static hf_register_info hf[] = {
+        { &hf_pppmux_flags_pid,
+            { "PID", "pppmuxcp.flags.pid", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+                NULL, HFILL }},
+        { &hf_pppmux_flags_field_length,
+            { "Length field", "pppmuxcp.flags.field_length", FT_BOOLEAN, 8, TFS(&tfs_pppmux_length_field), 0x40,
+                NULL, HFILL }},
+        };
+
     static gint *ett[] = {
         &ett_pppmuxcp,
         &ett_pppmuxcp_options
@@ -6540,6 +6557,7 @@ proto_register_pppmuxcp(void)
 
     proto_pppmuxcp = proto_register_protocol("PPPMux Control Protocol",
         "PPP PPPMuxCP", "pppmuxcp");
+    proto_register_field_array(proto_pppmuxcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
 

@@ -60,53 +60,6 @@ enum                                    /* Not a typedef'd enum so we can OR */
 };
 /* End insert from cups/cups.h */
 
-typedef struct {
-	guint32	bit;
-	const char	*on_string;
-	const char	*off_string;
-} cups_ptype_bit_info;
-
-static const cups_ptype_bit_info cups_ptype_bits[] = {
-	{ CUPS_PRINTER_DEFAULT,
-	  "Default printer on network", "Not default printer" },
-	{ CUPS_PRINTER_IMPLICIT,
-	  "Implicit class", "Explicit class" },
-	{ CUPS_PRINTER_VARIABLE,
-	  "Can print variable sizes", "Cannot print variable sizes" },
-	{ CUPS_PRINTER_LARGE,
-	  "Can print up to 36x48 inches", "Cannot print up to 36x48 inches" },
-	{ CUPS_PRINTER_MEDIUM,
-	  "Can print up to 18x24 inches", "Cannot print up to 18x24 inches" },
-	{ CUPS_PRINTER_SMALL,
-	  "Can print up to 9x14 inches", "Cannot print up to 9x14 inches" },
-	{ CUPS_PRINTER_SORT,
-	  "Can sort", "Cannot sort" },
-	{ CUPS_PRINTER_BIND,
-	  "Can bind", "Cannot bind" },
-	{ CUPS_PRINTER_COVER,
-	  "Can cover", "Cannot cover" },
-	{ CUPS_PRINTER_PUNCH,
-	  "Can punch holes", "Cannot punch holes" },
-	{ CUPS_PRINTER_COLLATE,
-	  "Can do fast collating", "Cannot do fast collating" },
-	{ CUPS_PRINTER_COPIES,
-	  "Can do fast copies", "Cannot do fast copies" },
-	{ CUPS_PRINTER_STAPLE,
-	  "Can staple", "Cannot staple" },
-	{ CUPS_PRINTER_DUPLEX,
-	  "Can duplex", "Cannot duplex" },
-	{ CUPS_PRINTER_COLOR,
-	  "Can print color", "Cannot print color" },
-	{ CUPS_PRINTER_BW,
-	  "Can print black", "Cannot print black" },
-	{ CUPS_PRINTER_REMOTE,
-	  "Remote", "Local (illegal)" },
-	{ CUPS_PRINTER_CLASS,
-	  "Printer class", "Single printer" }
-};
-
-#define N_CUPS_PTYPE_BITS	(sizeof cups_ptype_bits / sizeof cups_ptype_bits[0])
-
 typedef enum _cups_state {
 	CUPS_IDLE = 3,
 	CUPS_PROCESSING,
@@ -120,8 +73,29 @@ static const value_string cups_state_values[] = {
 	{ 0,			NULL }
 };
 
+static const true_false_string tfs_implicit_explicit = { "Implicit class", "Explicit class" };
+static const true_false_string tfs_printer_class = { "Printer class", "Single printer" };
+
 static int proto_cups = -1;
 static int hf_cups_ptype = -1;
+static int hf_cups_ptype_default = -1;
+static int hf_cups_ptype_implicit = -1;
+static int hf_cups_ptype_variable = -1;
+static int hf_cups_ptype_large = -1;
+static int hf_cups_ptype_medium = -1;
+static int hf_cups_ptype_small = -1;
+static int hf_cups_ptype_sort = -1;
+static int hf_cups_ptype_bind = -1;
+static int hf_cups_ptype_cover = -1;
+static int hf_cups_ptype_punch = -1;
+static int hf_cups_ptype_collate = -1;
+static int hf_cups_ptype_copies = -1;
+static int hf_cups_ptype_staple = -1;
+static int hf_cups_ptype_duplex = -1;
+static int hf_cups_ptype_color = -1;
+static int hf_cups_ptype_bw = -1;
+static int hf_cups_ptype_remote = -1;
+static int hf_cups_ptype_class = -1;
 static int hf_cups_state = -1;
 
 static gint ett_cups = -1;
@@ -152,7 +126,6 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		offset = 0;
 	gint		next_offset;
 	guint		len;
-	unsigned int	u;
 	const guint8	*str;
 	cups_ptype_t	ptype;
 	unsigned int	state;
@@ -173,18 +146,26 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	len = next_offset - offset;
 	if (len != 0) {
 		if (cups_tree) {
-			ti = proto_tree_add_uint(cups_tree, hf_cups_ptype,
-			    tvb, offset, len, ptype);
-			ptype_subtree = proto_item_add_subtree(ti,
-			    ett_cups_ptype);
-			for (u = 0; u < N_CUPS_PTYPE_BITS; u++) {
-				proto_tree_add_text(ptype_subtree, tvb,
-				    offset, len, "%s",
-				    decode_boolean_bitfield(ptype,
-				      cups_ptype_bits[u].bit, sizeof (ptype)*8,
-				      cups_ptype_bits[u].on_string,
-				      cups_ptype_bits[u].off_string));
-			}
+			ti = proto_tree_add_uint(cups_tree, hf_cups_ptype, tvb, offset, len, ptype);
+			ptype_subtree = proto_item_add_subtree(ti, ett_cups_ptype);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_default, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_implicit, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_variable, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_large, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_medium, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_small, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_sort, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_bind, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_cover, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_punch, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_collate, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_copies, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_staple, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_duplex, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_color, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_bw, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_remote, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ptype_subtree, hf_cups_ptype_class, tvb, offset, len, ENC_BIG_ENDIAN);
 		}
 	}
 	offset = next_offset;
@@ -353,11 +334,63 @@ void
 proto_register_cups(void)
 {
 	static hf_register_info hf[] = {
-		/* This one could be split in separate fields. */
 		{ &hf_cups_ptype,
 			{ "Type", 	"cups.ptype", FT_UINT32, BASE_HEX,
 			  NULL, 0x0, NULL, HFILL }},
-
+		{ &hf_cups_ptype_default,
+			{ "Default printer on network", "cups.ptype.default", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_DEFAULT, NULL, HFILL }},
+		{ &hf_cups_ptype_implicit,
+			{ "Class", "cups.ptype.implicit", FT_BOOLEAN, 32,
+			  TFS(&tfs_implicit_explicit), CUPS_PRINTER_IMPLICIT, NULL, HFILL }},
+		{ &hf_cups_ptype_variable,
+			{ "Can print variable sizes", "cups.ptype.variable", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_VARIABLE, NULL, HFILL }},
+		{ &hf_cups_ptype_large,
+			{ "Can print up to 36x48 inches", "cups.ptype.large", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_LARGE, NULL, HFILL }},
+		{ &hf_cups_ptype_medium,
+			{ "Can print up to 18x24 inches", "cups.ptype.medium", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_MEDIUM, NULL, HFILL }},
+		{ &hf_cups_ptype_small,
+			{ "Can print up to 9x14 inches", "cups.ptype.small", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_SMALL, NULL, HFILL }},
+		{ &hf_cups_ptype_sort,
+			{ "Can sort", "cups.ptype.sort", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_SORT, NULL, HFILL }},
+		{ &hf_cups_ptype_bind,
+			{ "Can bind", "cups.ptype.bind", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_BIND, NULL, HFILL }},
+		{ &hf_cups_ptype_cover,
+			{ "Can cover", "cups.ptype.cover", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_COVER, NULL, HFILL }},
+		{ &hf_cups_ptype_punch,
+			{ "Can punch holes", "cups.ptype.punch", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_PUNCH, NULL, HFILL }},
+		{ &hf_cups_ptype_collate,
+			{ "Can do fast collating", "cups.ptype.collate", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_COLLATE, NULL, HFILL }},
+		{ &hf_cups_ptype_copies,
+			{ "Can do fast copies", "cups.ptype.copies", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_COPIES, NULL, HFILL }},
+		{ &hf_cups_ptype_staple,
+			{ "Can staple", "cups.ptype.staple", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_STAPLE, NULL, HFILL }},
+		{ &hf_cups_ptype_duplex,
+			{ "Can duplex", "cups.ptype.duplex", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_DUPLEX, NULL, HFILL }},
+		{ &hf_cups_ptype_color,
+			{ "Can print color", "cups.ptype.color", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_COLOR, NULL, HFILL }},
+		{ &hf_cups_ptype_bw,
+			{ "Can print black", "cups.ptype.bw", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_BW, NULL, HFILL }},
+		{ &hf_cups_ptype_remote,
+			{ "Remote", "cups.ptype.remote", FT_BOOLEAN, 32,
+			  TFS(&tfs_yes_no), CUPS_PRINTER_REMOTE, NULL, HFILL }},
+		{ &hf_cups_ptype_class,
+			{ "Class", "cups.ptype.class", FT_BOOLEAN, 32,
+			  TFS(&tfs_printer_class), CUPS_PRINTER_CLASS, NULL, HFILL }},
 		{ &hf_cups_state,
 			{ "State",	"cups.state", FT_UINT8, BASE_HEX,
 			  VALS(cups_state_values), 0x0, NULL, HFILL }}
