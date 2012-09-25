@@ -25,7 +25,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -38,10 +38,10 @@
 #include <packet-ip.h>
 
 /* message control flags */
-#define MPLS_PM_FLAGS_R    0x08
-#define MPLS_PM_FLAGS_T    0x04
-#define MPLS_PM_FLAGS_RES  0x03
-#define MPLS_PM_FLAGS_MASK 0x0F
+#define MPLS_PM_FLAGS_R     0x08
+#define MPLS_PM_FLAGS_T     0x04
+#define MPLS_PM_FLAGS_RES   0x03
+#define MPLS_PM_FLAGS_MASK  0x0F
 
 /* data format flags */
 #define MPLS_PM_DFLAGS_X    0x80
@@ -187,9 +187,9 @@ static const value_string pmt_vals[] = {
 #define MPLS_PM_TSF_NTP 2
 #define MPLS_PM_TSF_PTP 3
 const range_string mpls_pm_time_stamp_format_rvals[] = {
-    { MPLS_PM_TSF_NULL, MPLS_PM_TSF_NULL, 
+    { MPLS_PM_TSF_NULL, MPLS_PM_TSF_NULL,
       "Null Timestamp"                                   },
-    { MPLS_PM_TSF_SEQ, MPLS_PM_TSF_SEQ, 
+    { MPLS_PM_TSF_SEQ, MPLS_PM_TSF_SEQ,
       "Sequence Number"                                  },
     { MPLS_PM_TSF_NTP, MPLS_PM_TSF_NTP,
       "Network Time Protocol version 4 64-bit Timestamp" },
@@ -205,14 +205,12 @@ mpls_pm_dissect_counter(tvbuff_t *tvb, proto_tree *pm_tree,
                         guint8 i)
 {
     proto_item *ti;
-    gchar strunitp[] = "packets";
-    gchar strunitb[] = "octets";
     /*
-     *  FF: when bflag is true, indicates that the Counter 1-4 
+     *  FF: when bflag is true, indicates that the Counter 1-4
      *  fields represent octet counts.  Otherwise Counter 1-4 fields
      *  represent packet counts
      */
-    gchar *unit = bflag ? strunitb : strunitp;
+    gchar *unit = bflag ? "octets" : "packets";
 
     if (query) {
         switch (i) {
@@ -447,35 +445,25 @@ static void
 mpls_pm_build_cinfo(tvbuff_t *tvb, packet_info *pinfo, const char *str_pmt,
                     gboolean *query, gboolean *response,
                     gboolean *class_specific,
-                    guint32 *sid, guint8 *code)
+                    guint32  *sid, guint8 *code)
 {
-    int offset = 0;
-    guint8 sid3, sid2, sid1, sid0;
+    col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MPLS PM (%s)", str_pmt);
+    col_clear(pinfo->cinfo, COL_INFO);
 
-    *response = (tvb_get_guint8(tvb, offset) & 0x08) ? TRUE : FALSE;
-    *class_specific = (tvb_get_guint8(tvb, offset) & 0x04) ? TRUE : FALSE;
+    *response = (tvb_get_guint8(tvb, 0) & 0x08) ? TRUE : FALSE;
+    *class_specific = (tvb_get_guint8(tvb, 0) & 0x04) ? TRUE : FALSE;
     *query = !(*response);
-    *code = tvb_get_guint8(tvb, offset + 1);
+    *code = tvb_get_guint8(tvb, 1);
 
     if (!(*class_specific)) {
         /*
          * FF: when the T flag is set to 0 the DS field can be considered
          * part of the Session Identifier.
          */
-        *sid = tvb_get_ntohl(tvb, offset + 8);
+        *sid = tvb_get_ntohl(tvb, 8);
     } else {
-        sid3 = tvb_get_guint8(tvb, offset + 8);
-        sid2 = tvb_get_guint8(tvb, offset + 9);
-        sid1 = tvb_get_guint8(tvb, offset + 10);
-        sid0 = tvb_get_guint8(tvb, offset + 11) & 0xC0;
-        *sid = ((guint32)sid0 >> 6)  | ((guint32)sid1 << 8) |
-               ((guint32)sid2 << 16) | ((guint32)sid3 << 24);
+        *sid = tvb_get_ntohl(tvb, 8) >> 6;
     }
-
-    col_clear(pinfo->cinfo, COL_PROTOCOL);
-    col_clear(pinfo->cinfo, COL_INFO);
-
-    col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MPLS PM (%s)", str_pmt);
 
     if (*query) {
         col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -496,22 +484,22 @@ static void
 dissect_mpls_pm_loss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                      guint8 pmt)
 {
-    proto_item *ti = NULL;
-    proto_tree *pm_tree = NULL;
-    proto_tree *pm_tree_flags = NULL;
-    proto_tree *pm_tree_dflags = NULL;
-    guint32 offset = 0;
-    gboolean query = 0;
-    gboolean response = 0;
-    gboolean class_specific = 0;
-    guint32 sid = 0;
-    guint8 code = 0;
-    guint8 otf = 0;
-    gboolean bflag = FALSE;
-    guint8 i = 0;
+    proto_item *ti             = NULL;
+    proto_tree *pm_tree;
+    proto_tree *pm_tree_flags;
+    proto_tree *pm_tree_dflags;
+    guint32     offset         = 0;
+    gboolean    query          = 0;
+    gboolean    response       = 0;
+    gboolean    class_specific = 0;
+    guint32     sid            = 0;
+    guint8      code           = 0;
+    guint8      otf;
+    gboolean    bflag;
+    guint8      i;
 
     mpls_pm_build_cinfo(tvb, pinfo,
-                        val_to_str(pmt, pmt_vals, ""),
+                        val_to_str_const(pmt, pmt_vals, ""),
                         &query, &response, &class_specific, &sid, &code);
 
     if (!tree) {
@@ -532,14 +520,14 @@ dissect_mpls_pm_loss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* ctrl flags subtree */
 
-    ti = proto_tree_add_item(pm_tree, hf_mpls_pm_flags, tvb, 
+    ti = proto_tree_add_item(pm_tree, hf_mpls_pm_flags, tvb,
                              offset, 1, ENC_NA);
     pm_tree_flags = proto_item_add_subtree(ti, ett_mpls_pm_flags);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_r, tvb, 
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_r, tvb,
                         offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_t, tvb, 
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_t, tvb,
                         offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_res, tvb, 
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_res, tvb,
                         offset, 1, ENC_NA);
     offset += 1;
 
@@ -557,15 +545,15 @@ dissect_mpls_pm_loss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* data flags subtree */
-    ti = proto_tree_add_item(pm_tree, hf_mpls_pm_dflags, tvb, 
+    ti = proto_tree_add_item(pm_tree, hf_mpls_pm_dflags, tvb,
                              offset, 1, ENC_NA);
     pm_tree_dflags = proto_item_add_subtree(ti, ett_mpls_pm_dflags);
-    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_x, tvb, 
+    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_x, tvb,
                         offset, 1, ENC_NA);
     bflag = (tvb_get_guint8(tvb, offset) & 0x40) ? TRUE : FALSE;
-    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_b, tvb, 
+    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_b, tvb,
                         offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_res, tvb, 
+    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_res, tvb,
                         offset, 1, ENC_NA);
 
     otf = tvb_get_guint8(tvb, offset) & 0x0F;
@@ -611,7 +599,7 @@ dissect_mpls_pm_loss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     }
     offset += 8;
-    
+
     /* counters 1..4 */
     for (i = 1; i <= 4; i++) {
         mpls_pm_dissect_counter(tvb, pm_tree, offset, query, bflag, i);
@@ -636,18 +624,18 @@ dissect_mpls_pm_ilm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_mpls_pm_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti = NULL;
-    proto_tree *pm_tree = NULL;
-    proto_tree *pm_tree_flags = NULL;
-    guint32 offset = 0;
-    gboolean query = 0;
-    gboolean response = 0;
-    gboolean class_specific = 0;
-    guint32 sid = 0;
-    guint8 code = 0;
-    guint8 qtf = 0;
-    guint8 rtf = 0;
-    guint8 i = 0;
+    proto_item *ti;
+    proto_tree *pm_tree;
+    proto_tree *pm_tree_flags;
+    guint32     offset         = 0;
+    gboolean    query          = 0;
+    gboolean    response       = 0;
+    gboolean    class_specific = 0;
+    guint32     sid            = 0;
+    guint8      code           = 0;
+    guint8      qtf;
+    guint8      rtf;
+    guint8      i;
 
     mpls_pm_build_cinfo(tvb, pinfo,
                         "DM",
@@ -667,11 +655,11 @@ dissect_mpls_pm_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* ctrl flags subtree */
     ti = proto_tree_add_item(pm_tree, hf_mpls_pm_flags, tvb, offset, 1, ENC_NA);
     pm_tree_flags = proto_item_add_subtree(ti, ett_mpls_pm_flags);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_r, tvb, 
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_r, tvb,
                         offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_t, tvb, 
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_t, tvb,
                         offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_res, tvb, 
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_res, tvb,
                         offset, 1, ENC_NA);
     offset += 1;
 
@@ -723,23 +711,23 @@ static void
 dissect_mpls_pm_combined(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          guint8 pmt)
 {
-    proto_item *ti = NULL;
-    proto_tree *pm_tree = NULL;
-    proto_tree *pm_tree_flags = NULL;
-    proto_tree *pm_tree_dflags = NULL;
-    guint32 offset = 0;
-    gboolean query = 0;
-    gboolean response = 0;
-    gboolean class_specific = 0;
-    guint32 sid = 0;
-    guint8 code = 0;
-    guint8 qtf = 0;
-    guint8 rtf = 0;
-    gboolean bflag = FALSE;
-    guint8 i = 0;
+    proto_item *ti             = NULL;
+    proto_tree *pm_tree;
+    proto_tree *pm_tree_flags;
+    proto_tree *pm_tree_dflags;
+    guint32     offset         = 0;
+    gboolean    query          = 0;
+    gboolean    response       = 0;
+    gboolean    class_specific = 0;
+    guint32     sid            = 0;
+    guint8      code           = 0;
+    guint8      qtf;
+    guint8      rtf;
+    gboolean    bflag;
+    guint8      i;
 
     mpls_pm_build_cinfo(tvb, pinfo,
-                        val_to_str(pmt, pmt_vals, ""),
+                        val_to_str_const(pmt, pmt_vals, ""),
                         &query, &response, &class_specific, &sid, &code);
 
     if (!tree) {
@@ -763,11 +751,11 @@ dissect_mpls_pm_combined(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* ctrl flags subtree */
     ti = proto_tree_add_item(pm_tree, hf_mpls_pm_flags, tvb, offset, 1, ENC_NA);
     pm_tree_flags = proto_item_add_subtree(ti, ett_mpls_pm_flags);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_r, tvb, 
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_r, tvb,
                         offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_t, tvb, 
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_t, tvb,
                         offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_res, tvb, 
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_res, tvb,
                         offset, 1, ENC_NA);
     offset += 1;
 
@@ -785,15 +773,15 @@ dissect_mpls_pm_combined(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* data flags subtree */
-    ti = proto_tree_add_item(pm_tree, hf_mpls_pm_dflags, tvb, 
+    ti = proto_tree_add_item(pm_tree, hf_mpls_pm_dflags, tvb,
                              offset, 1, ENC_NA);
     pm_tree_dflags = proto_item_add_subtree(ti, ett_mpls_pm_dflags);
-    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_x, tvb, 
+    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_x, tvb,
                         offset, 1, ENC_NA);
     bflag = (tvb_get_guint8(tvb, offset) & 0x40) ? TRUE : FALSE;
-    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_b, tvb, 
+    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_b, tvb,
                         offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_res, tvb, 
+    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_res, tvb,
                         offset, 1, ENC_NA);
 
     /*
@@ -1416,20 +1404,11 @@ proto_register_mpls_pm(void)
 void
 proto_reg_handoff_mpls_pm(void)
 {
-    mpls_pm_dlm_handle =
-        create_dissector_handle(dissect_mpls_pm_dlm, proto_mpls_pm_dlm);
-
-    mpls_pm_ilm_handle =
-        create_dissector_handle(dissect_mpls_pm_ilm, proto_mpls_pm_ilm);
-
-    mpls_pm_dm_handle =
-        create_dissector_handle(dissect_mpls_pm_delay, proto_mpls_pm_dm);
-
-    mpls_pm_dlm_dm_handle =
-        create_dissector_handle(dissect_mpls_pm_dlm_dm, proto_mpls_pm_dlm_dm);
-
-    mpls_pm_ilm_dm_handle =
-        create_dissector_handle(dissect_mpls_pm_ilm_dm, proto_mpls_pm_ilm_dm);
+    mpls_pm_dlm_handle    = find_dissector("mpls_pm_dlm");
+    mpls_pm_ilm_handle    = find_dissector("mpls_pm_ilm");
+    mpls_pm_dm_handle     = find_dissector("mpls_pm_dm");
+    mpls_pm_dlm_dm_handle = find_dissector("mpls_pm_dlm_dm");
+    mpls_pm_ilm_dm_handle = find_dissector("mpls_pm_ilm_dm");
 }
 
 /*
