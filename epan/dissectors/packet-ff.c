@@ -96,8 +96,24 @@ static gint ett_ff_fda_msg_trailer	= -1;
  * 6.5.1 FDA Session Management Services
  */
 static int hf_ff_fda	= -1;
-
-
+static int hf_ff_hdr_srv_confirm_flag	= -1;
+static int hf_ff_hdr_srv_service_id	= -1;
+static int hf_ff_hdr_srv_fda_service_id_confirm	= -1;
+static int hf_ff_hdr_srv_fda_service_id_unconfirm	= -1;
+static int hf_ff_hdr_srv_sm_service_id_confirm	= -1;
+static int hf_ff_hdr_srv_sm_service_id_unconfirm	= -1;
+static int hf_ff_hdr_srv_fms_service_id_confirm	= -1;
+static int hf_ff_hdr_srv_fms_service_id_unconfirm	= -1;
+static int hf_ff_hdr_srv_lan_service_id_confirm	= -1;
+static int hf_ff_hdr_srv_lan_service_id_unconfirm	= -1;
+static int hf_ff_hdr_proto_id	= -1;
+static int hf_ff_hdr_confirm_msg_type	= -1;
+static int hf_ff_hdr_opts_msg_num	= -1;
+static int hf_ff_hdr_opts_invoke_id	= -1;
+static int hf_ff_hdr_opts_timestamp	= -1;
+static int hf_ff_hdr_opts_reserved	= -1;
+static int hf_ff_hdr_opts_ext_ctrl	= -1;
+static int hf_ff_hdr_opts_pad	= -1;
 
 /*
  * 6.5.1.1. FDA Open Session (Confirmed Service Id = 1)
@@ -197,6 +213,9 @@ static int hf_ff_sm_find_tag_reply_req_pd_tag	= -1;
 static int hf_ff_sm_find_tag_reply_req_reserved	= -1;
 static int hf_ff_sm_find_tag_reply_req_num_of_fda_addr_selectors	= -1;
 static int hf_ff_sm_find_tag_reply_req_fda_addr_selector	= -1;
+static int hf_ff_sm_find_tag_reply_dup_reserved	= -1;
+static int hf_ff_sm_find_tag_reply_dup_pd_tag	= -1;
+static int hf_ff_sm_find_tag_reply_dup_device	= -1;
 
 static gint ett_ff_sm_find_tag_reply_req	= -1;
 static gint ett_ff_sm_find_tag_reply_req_dup_detection_state	= -1;
@@ -228,6 +247,20 @@ static int hf_ff_sm_id_rsp_h1_live_list_reserved	= -1;
 static int hf_ff_sm_id_rsp_h1_live_list_ver_num	= -1;
 static int hf_ff_sm_id_rsp_h1_node_addr_ver_num_h1_node_addr	= -1;
 static int hf_ff_sm_id_rsp_h1_node_addr_ver_num_ver_num	= -1;
+static int hf_ff_sm_id_rsp_smk_state_name = -1;
+static int hf_ff_sm_id_rsp_smk_state_sync = -1;
+static int hf_ff_sm_id_rsp_dev_type_link = -1;
+static int hf_ff_sm_id_rsp_dev_type_iogateway = -1;
+static int hf_ff_sm_id_rsp_dev_type_hse = -1;
+static int hf_ff_sm_id_rsp_dev_type_h1 = -1;
+static int hf_ff_sm_id_rsp_dev_type_reserved = -1;
+static int hf_ff_sm_id_rsp_dev_type_redundant_caps = -1;
+static int hf_ff_sm_id_rsp_dev_redundancy_state_reserved = -1;
+static int hf_ff_sm_id_rsp_dev_redundancy_state_role = -1;
+static int hf_ff_sm_id_rsp_dev_redundancy_state_type = -1;
+static int hf_ff_sm_id_rsp_dup_detection_state_reserved = -1;
+static int hf_ff_sm_id_rsp_dup_detection_state_pd_tag = -1;
+static int hf_ff_sm_id_rsp_dup_detection_state_device = -1;
 
 static int hf_ff_sm_id_err	= -1;
 static int hf_ff_sm_id_err_err_class	= -1;
@@ -277,6 +310,13 @@ static gint ett_ff_sm_clear_addr_err	= -1;
  * 6.5.2.5. SM Set Assignment Info (Confirmed Service Id = 14)
  */
 static int hf_ff_sm_set_assign_info	= -1;
+
+static int hf_ff_sm_set_assign_info_req_dev_redundancy_state_reserved = -1;
+static int hf_ff_sm_set_assign_info_req_dev_redundancy_state_role = -1;
+static int hf_ff_sm_set_assign_info_req_dev_redundancy_state_type = -1;
+static int hf_ff_sm_set_assign_info_req_clear_dup_detection_state_reserved = -1;
+static int hf_ff_sm_set_assign_info_req_clear_dup_detection_state_pd_tag = -1;
+static int hf_ff_sm_set_assign_info_req_clear_dup_detection_state_device_index = -1;
 
 static int hf_ff_sm_set_assign_info_req	= -1;
 static int hf_ff_sm_set_assign_info_req_dev_id	= -1;
@@ -352,6 +392,20 @@ static int hf_ff_sm_dev_annunc_req_h1_live_list_reserved	= -1;
 static int hf_ff_sm_dev_annunc_req_h1_live_list_ver_num	= -1;
 static int hf_ff_sm_dev_annunc_req_h1_node_addr_ver_num_h1_node_addr	= -1;
 static int hf_ff_sm_dev_annunc_req_h1_node_addr_ver_num_ver_num	= -1;
+static int hf_ff_sm_dev_annunc_req_smk_state_name	= -1;
+static int hf_ff_sm_dev_annunc_req_smk_state_sync	= -1;
+static int hf_ff_sm_dev_annunc_req_dev_type_link = -1;
+static int hf_ff_sm_dev_annunc_req_dev_type_iogateway = -1;
+static int hf_ff_sm_dev_annunc_req_dev_type_hse = -1;
+static int hf_ff_sm_dev_annunc_req_dev_type_h1 = -1;
+static int hf_ff_sm_dev_annunc_req_dev_type_reserved = -1;
+static int hf_ff_sm_dev_annunc_req_dev_type_redundant_caps = -1;
+static int hf_ff_sm_dev_annunc_req_dev_redundancy_state_reserved = -1;
+static int hf_ff_sm_dev_annunc_req_dev_redundancy_state_role = -1;
+static int hf_ff_sm_dev_annunc_req_dev_redundancy_state_type = -1;
+static int hf_ff_sm_dev_annunc_req_dup_detection_state_reserved = -1;
+static int hf_ff_sm_dev_annunc_req_dup_detection_state_pd_tag = -1;
+static int hf_ff_sm_dev_annunc_req_dup_detection_state_device = -1;
 
 static gint ett_ff_sm_dev_annunc_req	= -1;
 static gint ett_ff_sm_dev_annunc_req_smk_state	= -1;
@@ -1248,6 +1302,12 @@ static int hf_ff_lr_get_info_rsp_diagnostic_msg_if_a_send_addr	= -1;
 static int hf_ff_lr_get_info_rsp_diagnostic_msg_if_a_recv_addr	= -1;
 static int hf_ff_lr_get_info_rsp_diagnostic_msg_if_b_send_addr	= -1;
 static int hf_ff_lr_get_info_rsp_diagnostic_msg_if_b_recv_addr	= -1;
+static int hf_ff_lr_get_info_rsp_lr_flags_reserved	= -1;
+static int hf_ff_lr_get_info_rsp_lr_flags_load_balance	= -1;
+static int hf_ff_lr_get_info_rsp_lr_flags_diag	= -1;
+static int hf_ff_lr_get_info_rsp_lr_flags_multi_recv	= -1;
+static int hf_ff_lr_get_info_rsp_lr_flags_cross_cable	= -1;
+static int hf_ff_lr_get_info_rsp_lr_flags_multi_trans	= -1;
 
 static int hf_ff_lr_get_info_err	= -1;
 static int hf_ff_lr_get_info_err_err_class	= -1;
@@ -1277,6 +1337,12 @@ static int hf_ff_lr_put_info_req_diagnostic_msg_if_a_send_addr	= -1;
 static int hf_ff_lr_put_info_req_diagnostic_msg_if_a_recv_addr	= -1;
 static int hf_ff_lr_put_info_req_diagnostic_msg_if_b_send_addr	= -1;
 static int hf_ff_lr_put_info_req_diagnostic_msg_if_b_recv_addr	= -1;
+static int hf_ff_lr_put_info_req_lr_flags_reserved	= -1;
+static int hf_ff_lr_put_info_req_lr_flags_load_balance	= -1;
+static int hf_ff_lr_put_info_req_lr_flags_diag	= -1;
+static int hf_ff_lr_put_info_req_lr_flags_multi_recv	= -1;
+static int hf_ff_lr_put_info_req_lr_flags_cross_cable	= -1;
+static int hf_ff_lr_put_info_req_lr_flags_multi_trans	= -1;
 
 static int hf_ff_lr_put_info_rsp	= -1;
 static int hf_ff_lr_put_info_rsp_lr_attrs_ver	= -1;
@@ -1288,6 +1354,12 @@ static int hf_ff_lr_put_info_rsp_diagnostic_msg_if_a_send_addr	= -1;
 static int hf_ff_lr_put_info_rsp_diagnostic_msg_if_a_recv_addr	= -1;
 static int hf_ff_lr_put_info_rsp_diagnostic_msg_if_b_send_addr	= -1;
 static int hf_ff_lr_put_info_rsp_diagnostic_msg_if_b_recv_addr	= -1;
+static int hf_ff_lr_put_info_rsp_lr_flags_reserved	= -1;
+static int hf_ff_lr_put_info_rsp_lr_flags_load_balance	= -1;
+static int hf_ff_lr_put_info_rsp_lr_flags_diag	= -1;
+static int hf_ff_lr_put_info_rsp_lr_flags_multi_recv	= -1;
+static int hf_ff_lr_put_info_rsp_lr_flags_cross_cable	= -1;
+static int hf_ff_lr_put_info_rsp_lr_flags_multi_trans	= -1;
 
 static int hf_ff_lr_put_info_err	= -1;
 static int hf_ff_lr_put_info_err_err_class	= -1;
@@ -1350,6 +1422,9 @@ static int hf_ff_lr_diagnostic_msg_req_if_a_to_a_status	= -1;
 static int hf_ff_lr_diagnostic_msg_req_if_b_to_a_status	= -1;
 static int hf_ff_lr_diagnostic_msg_req_if_a_to_b_status	= -1;
 static int hf_ff_lr_diagnostic_msg_req_if_b_to_b_status	= -1;
+static int hf_ff_lr_diagnostic_msg_req_dup_detection_state_reserved	= -1;
+static int hf_ff_lr_diagnostic_msg_req_dup_detection_state_pd_tag	= -1;
+static int hf_ff_lr_diagnostic_msg_req_dup_detection_state_device	= -1;
 
 static gint ett_ff_lr_diagnostic_msg_req	= -1;
 static gint ett_ff_lr_diagnostic_msg_req_dup_detection_stat	= -1;
@@ -1743,7 +1818,8 @@ static const value_string names_err_code_fms_init[] = {
 	{ 0,	NULL }
 };
 
-
+static const true_false_string tfs_do_not_clear_clear = { "Do not clear", "Clear" };
+static const true_false_string tfs_confirmed_unconfirmed = { "Confirmed", "Unconfirmed" };
 
 static const char *
 val_to_str_err_code(guint8 class, guint8 code)
@@ -2220,26 +2296,9 @@ dissect_ff_msg_sm_find_tag_reply_req_dup_detection_state(tvbuff_t *tvb,
 	 * Bit 1:    1 = Duplicate Device Index Detected
 	 *           0 = Duplicate Device Index Not Detected
 	 */
-
-	/* Bits 3-8: 1111 1100 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0xfc, 8, "Reserved: %u"));
-
-	/* Bits 2: 0000 0010 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x02, 8,
-			"Duplicate PD Tag Detected",
-			"Duplicate PD Tag Not Detected"),
-		(value & 0x02) >> 1);
-
-	/* Bits 1: 0000 0001 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x01, 8,
-			"Duplicate Device Index Detected",
-			"Duplicate Device Index Not Detected"),
-		value & 0x01);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_sm_find_tag_reply_dup_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_find_tag_reply_dup_pd_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_find_tag_reply_dup_device, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -2582,20 +2641,8 @@ dissect_ff_msg_sm_id_rsp_smk_state(tvbuff_t *tvb,
 	 *    0 = Not Synchronized with SNTP Time Server
 	 *    1 = Synchronized with SNTP Time Server
 	 */
-
-	/* Bits 2-8: 1111 1110 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, 0xfe, 8,
-			names_smk_state, "%s"), (value & 0xfe) >> 1);
-
-	/* Bits 1: 0000 0001 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x01, 8,
-			"Synchronized with SNTP Time Server",
-			"Not Synchronized with SNTP Time Server"),
-			value & 0x01);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_smk_state_name, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_smk_state_sync, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -2636,46 +2683,12 @@ dissect_ff_msg_sm_id_rsp_dev_type(tvbuff_t *tvb,
 	 *    6 = Type D-3 and Type D-1 Device
 	 *    7 = Type D-3 and D-2 and Type D-1 Device
 	 */
-
-	/* Bits 8: 1000 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x80, 8,
-			"Linking Device",
-			"Not Linking Device"),
-			(value & 0x80) >> 7);
-
-	/* Bits 7: 0100 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x40, 8,
-			"I/O Gateway",
-			"Not I/O Gateway"),
-			(value & 0x40) >> 6);
-
-	/* Bits 6: 0010 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x20, 8,
-			"HSE Field Device",
-			"Not HSE Field Device"),
-			(value & 0x20) >> 5);
-
-	/* Bits 5: 0001 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x10, 8,
-			"H1 Device",
-			"Not H1 Device"),
-			(value & 0x10) >> 4);
-
-	/* Bits 4: 0000 1000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0x08, 8, "Reserved: %u"));
-
-	/* Bits 1-3: 0000 0111 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, 0x07, 8,
-			names_dev_type, "Redundant Device Type Capability: %s"),
-			value & 0x07);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_type_link, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_type_iogateway, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_type_hse, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_type_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_type_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_type_redundant_caps, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -2712,23 +2725,9 @@ dissect_ff_msg_sm_id_rsp_dev_redundancy_state(tvbuff_t *tvb,
 	 *    2 = Type D-3 Device
 	 */
 
-	/* Bits 5-8: 1111 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0xf0, 8, "Reserved: %u"));
-
-	/* Bits 3-4: 0000 1100 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, 0x0c, 8,
-			names_dev_redundancy_role, "Device Redundancy Role: %s"),
-			(value & 0x0c) >> 2);
-
-	/* Bits 1-2: 0000 0011 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, 0x03, 8,
-			names_assigned_redundant_dev_type,
-			"Assigned Redundant Device Type: %s"), value & 0x03);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_redundancy_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_redundancy_state_role, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dev_redundancy_state_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -2761,25 +2760,9 @@ dissect_ff_msg_sm_id_rsp_dup_detection_state(tvbuff_t *tvb,
 	 *           0 = Duplicate Device Index Not Detected
 	 */
 
-	/* Bits 3-8: 1111 1100 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0xfc, 8, "Reserved: %u"));
-
-	/* Bits 2: 0000 0010 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x02, 8,
-			"Duplicate PD Tag Detected",
-			"Duplicate PD Tag Not Detected"),
-		(value & 0x02) >> 1);
-
-	/* Bits 1: 0000 0001 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x01, 8,
-			"Duplicate Device Index Detected",
-			"Duplicate Device Index Not Detected"),
-		value & 0x01);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dup_detection_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dup_detection_state_pd_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_id_rsp_dup_detection_state_device, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -3160,26 +3143,9 @@ dissect_ff_msg_sm_set_assign_info_req_dev_redundancy_state(tvbuff_t *tvb,
 	 *    1 = Type D-2 Device
 	 *    2 = Type D-3 Device
 	 */
-
-	/* Bits 5-8: 1111 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0xf0, 8, "Reserved: %u"));
-
-	/* Bits 3-4: 0000 1100 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, 0x0c, 8,
-			names_type_d2_dev_redundancy_role,
-			"Type D-2 Device Redundancy Role: %s"),
-			(value & 0x0c) >> 2);
-
-	/* Bits 1-2: 0000 0011 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, 0x03, 8,
-			names_assigned_redundant_dev_type,
-			"Assigned Device Redundancy Type: %s"),
-			value & 0x03);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_sm_set_assign_info_req_dev_redundancy_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_set_assign_info_req_dev_redundancy_state_role, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_set_assign_info_req_dev_redundancy_state_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -3211,26 +3177,9 @@ dissect_ff_msg_sm_set_assign_info_req_clear_dup_detection_state(tvbuff_t *tvb,
 	 * Bit 1:    1 = Do not clear Duplicate Device Index Detected
 	 *           0 = Clear Duplicate Device Index Detected
 	 */
-
-	/* Bits 3-8: 1111 1100 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0xfc, 8, "Reserved: %u"));
-
-	/* Bits 2: 0000 0010 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x02, 8,
-			"Do not clear Duplicate PD Tag Detected",
-			"Clear Duplicate PD Tag Detected"),
-		(value & 0x02) >> 1);
-
-	/* Bits 1: 0000 0001 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x01, 8,
-			"Do not clear Duplicate Device Index Detected",
-			"Clear Duplicate Device Index Detected"),
-		value & 0x01);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_sm_set_assign_info_req_clear_dup_detection_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_set_assign_info_req_clear_dup_detection_state_pd_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_set_assign_info_req_clear_dup_detection_state_device_index, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -3750,20 +3699,8 @@ dissect_ff_msg_sm_dev_annunc_req_smk_state(tvbuff_t *tvb,
 	 *    0 = Not Synchronized with SNTP Time Server
 	 *    1 = Synchronized with SNTP Time Server
 	 */
-
-	/* Bits 2-8: 1111 1110 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, 0xfe, 8,
-			names_smk_state, "%s"), (value & 0xfe) >> 1);
-
-	/* Bits 1: 0000 0001 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x01, 8,
-			"Synchronized with SNTP Time Server",
-			"Not Synchronized with SNTP Time Server"),
-			value & 0x01);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_smk_state_name, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_smk_state_sync, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -3804,46 +3741,12 @@ dissect_ff_msg_sm_dev_annunc_req_dev_type(tvbuff_t *tvb,
 	 *    6 = Type D-3 and Type D-1 Device
 	 *    7 = Type D-3 and D-2 and Type D-1 Device
 	 */
-
-	/* Bits 8: 1000 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x80, 8,
-			"Linking Device",
-			"Not Linking Device"),
-			(value & 0x80) >> 7);
-
-	/* Bits 7: 0100 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x40, 8,
-			"I/O Gateway",
-			"Not I/O Gateway"),
-			(value & 0x40) >> 6);
-
-	/* Bits 6: 0010 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x20, 8,
-			"HSE Field Device",
-			"Not HSE Field Device"),
-			(value & 0x20) >> 5);
-
-	/* Bits 5: 0001 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x10, 8,
-			"H1 Device",
-			"Not H1 Device"),
-			(value & 0x10) >> 4);
-
-	/* Bits 4: 0000 1000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0x08, 8, "Reserved: %u"));
-
-	/* Bits 1-3: 0000 0111 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, 0x07, 8,
-			names_dev_type, "Redundant Device Type Capability: %s"),
-			value & 0x07);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_type_link, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_type_iogateway, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_type_hse, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_type_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_type_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_type_redundant_caps, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -3879,24 +3782,9 @@ dissect_ff_msg_sm_dev_annunc_req_dev_redundancy_state(tvbuff_t *tvb,
 	 *    1 = Type D-2 Device
 	 *    2 = Type D-3 Device
 	 */
-
-	/* Bits 5-8: 1111 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0xf0, 8, "Reserved: %u"));
-
-	/* Bits 3-4: 0000 1100 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, 0x0c, 8,
-			names_dev_redundancy_role, "Device Redundancy Role: %s"),
-			(value & 0x0c) >> 2);
-
-	/* Bits 1-2: 0000 0011 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, 0x03, 8,
-			names_assigned_redundant_dev_type,
-			"Assigned Redundant Device Type: %s"), value & 0x03);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_redundancy_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_redundancy_state_role, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dev_redundancy_state_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -3928,26 +3816,9 @@ dissect_ff_msg_sm_dev_annunc_req_dup_detection_state(tvbuff_t *tvb,
 	 * Bit 1:    1 = Duplicate Device Index Detected
 	 *           0 = Duplicate Device Index Not Detected
 	 */
-
-	/* Bits 3-8: 1111 1100 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0xfc, 8, "Reserved: %u"));
-
-	/* Bits 2: 0000 0010 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x02, 8,
-			"Duplicate PD Tag Detected",
-			"Duplicate PD Tag Not Detected"),
-		(value & 0x02) >> 1);
-
-	/* Bits 1: 0000 0001 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x01, 8,
-			"Duplicate Device Index Detected",
-			"Duplicate Device Index Not Detected"),
-		value & 0x01);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dup_detection_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dup_detection_state_pd_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_sm_dev_annunc_req_dup_detection_state_device, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -9339,47 +9210,12 @@ dissect_ff_msg_lr_get_info_rsp_lr_flags(tvbuff_t *tvb,
 	 *             0 = False Transmit on both interfaces
 	 *             1 = True  Transmit on one interface
 	 */
-
-	/* Bits 6-8: 1110 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0xe0, 8, "Reserved: %u"));
-
-	/* Bits 5: 0001 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x10, 8,
-			"Load Balancing Enabled: True",
-			"Load Balancing Enabled: False"),
-		(value & 0x10) >> 4);
-
-	/* Bits 4: 0000 1000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x08, 8,
-			"Diagnosis Using Own Messages Enabled: True",
-			"Diagnosis Using Own Messages Enabled: False"),
-		(value & 0x08) >> 3);
-
-	/* Bits 3: 0000 0100 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x04, 8,
-			"Single Multicast Message Reception Interface Enabled: True",
-			"Single Multicast Message Reception Interface Enabled: False"),
-		(value & 0x04) >> 2);
-
-	/* Bits 2: 0000 0010 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x02, 8,
-			"Crossed Cable Detection Enabled: True",
-			"Crossed Cable Detection Enabled: False"),
-		(value & 0x02) >> 1);
-
-	/* Bits 1: 0000 0001 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x01, 8,
-			"Single Multicast Message Transmission Interface Enabled: True",
-			"Single Multicast Message Transmission Interface Enabled: False"),
-		value & 0x01);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_lr_get_info_rsp_lr_flags_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_get_info_rsp_lr_flags_load_balance, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_get_info_rsp_lr_flags_diag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_get_info_rsp_lr_flags_multi_recv, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_get_info_rsp_lr_flags_cross_cable, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_get_info_rsp_lr_flags_multi_trans, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -9594,47 +9430,12 @@ dissect_ff_msg_lr_put_info_req_lr_flags(tvbuff_t *tvb,
 	 *             0 = False Transmit on both interfaces
 	 *             1 = True  Transmit on one interface
 	 */
-
-	/* Bits 6-8: 1110 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0xe0, 8, "Reserved: %u"));
-
-	/* Bits 5: 0001 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x10, 8,
-			"Load Balancing Enabled: True",
-			"Load Balancing Enabled: False"),
-		(value & 0x10) >> 4);
-
-	/* Bits 4: 0000 1000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x08, 8,
-			"Diagnosis Using Own Messages Enabled: True",
-			"Diagnosis Using Own Messages Enabled: False"),
-		(value & 0x08) >> 3);
-
-	/* Bits 3: 0000 0100 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x04, 8,
-			"Single Multicast Message Reception Interface Enabled: True",
-			"Single Multicast Message Reception Interface Enabled: False"),
-		(value & 0x04) >> 2);
-
-	/* Bits 2: 0000 0010 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x02, 8,
-			"Crossed Cable Detection Enabled: True",
-			"Crossed Cable Detection Enabled: False"),
-		(value & 0x02) >> 1);
-
-	/* Bits 1: 0000 0001 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x01, 8,
-			"Single Multicast Message Transmission Interface Enabled: True",
-			"Single Multicast Message Transmission Interface Enabled: False"),
-		value & 0x01);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_lr_put_info_req_lr_flags_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_put_info_req_lr_flags_load_balance, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_put_info_req_lr_flags_diag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_put_info_req_lr_flags_multi_recv, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_put_info_req_lr_flags_cross_cable, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_put_info_req_lr_flags_multi_trans, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -9785,47 +9586,12 @@ dissect_ff_msg_lr_put_info_rsp_lr_flags(tvbuff_t *tvb,
 	 *             0 = False Transmit on both interfaces
 	 *             1 = True  Transmit on one interface
 	 */
-
-	/* Bits 6-8: 1110 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0xe0, 8, "Reserved: %u"));
-
-	/* Bits 5: 0001 0000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x10, 8,
-			"Load Balancing Enabled: True",
-			"Load Balancing Enabled: False"),
-		(value & 0x10) >> 4);
-
-	/* Bits 4: 0000 1000 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x08, 8,
-			"Diagnosis Using Own Messages Enabled: True",
-			"Diagnosis Using Own Messages Enabled: False"),
-		(value & 0x08) >> 3);
-
-	/* Bits 3: 0000 0100 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x04, 8,
-			"Single Multicast Message Reception Interface Enabled: True",
-			"Single Multicast Message Reception Interface Enabled: False"),
-		(value & 0x04) >> 2);
-
-	/* Bits 2: 0000 0010 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x02, 8,
-			"Crossed Cable Detection Enabled: True",
-			"Crossed Cable Detection Enabled: False"),
-		(value & 0x02) >> 1);
-
-	/* Bits 1: 0000 0001 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x01, 8,
-			"Single Multicast Message Transmission Interface Enabled: True",
-			"Single Multicast Message Transmission Interface Enabled: False"),
-		value & 0x01);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_lr_put_info_rsp_lr_flags_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_put_info_rsp_lr_flags_load_balance, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_put_info_rsp_lr_flags_diag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_put_info_rsp_lr_flags_multi_recv, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_put_info_rsp_lr_flags_cross_cable, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_put_info_rsp_lr_flags_multi_trans, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -10245,26 +10011,9 @@ dissect_ff_msg_diagnostic_msg_req_dup_detection_stat(tvbuff_t *tvb,
 	 * Bit 18:   1 = Duplicate Device Index Detected
 	 *           0 = Duplicate Device Index Not Detected
 	 */
-
-	/* Bits 3-8: 1111 1100 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, 0xfc, 8, "Reserved: %u"));
-
-	/* Bits 2: 0000 0010 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x02, 8,
-			"Duplicate PD Tag Detected",
-			"Duplicate PD Tag Not Detected"),
-		(value & 0x02) >> 1);
-
-	/* Bits 1: 0000 0001 */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, 0x01, 8,
-			"Duplicate Device Index Detected",
-			"Duplicate Device Index Not Detected"),
-		value & 0x01);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_lr_diagnostic_msg_req_dup_detection_state_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_diagnostic_msg_req_dup_detection_state_pd_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_lr_diagnostic_msg_req_dup_detection_state_device, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -12686,86 +12435,48 @@ dissect_ff_msg_hdr_srv(tvbuff_t *tvb,
 	}
 
 	/* Bit 8: Confirmed Flag */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(service, SERVICE_CONFIRMED_FLAG_MASK, 8,
-			"Confirmed Flag: Confirmed",
-			"Confirmed Flag: Unconfirmed"),
-		(service & SERVICE_CONFIRMED_FLAG_MASK) >> 7);
+	proto_tree_add_item(sub_tree, hf_ff_hdr_srv_confirm_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* Bits 1-7 Service Id of the service */
 	switch(proto_and_type & PROTOCOL_MASK) {
 		case PROTOCOL_FDA:
 			if(service & SERVICE_CONFIRMED_FLAG_MASK) {
-				proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-					decode_enumerated_bitfield(service,
-						SERVICE_SERVICE_ID_MASK, 8,
-						names_fda_confirmed, "Service Id: %s"),
-					service & SERVICE_SERVICE_ID_MASK);
+				proto_tree_add_item(sub_tree, hf_ff_hdr_srv_fda_service_id_confirm, tvb, offset, 1, ENC_BIG_ENDIAN);
 			} else {
-				proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-					decode_enumerated_bitfield(service,
-						SERVICE_SERVICE_ID_MASK, 8,
-						names_fda_unconfirmed, "Service Id: %s"),
-					service & SERVICE_SERVICE_ID_MASK);
+				proto_tree_add_item(sub_tree, hf_ff_hdr_srv_fda_service_id_unconfirm, tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
 
 			break;
 
 		case PROTOCOL_SM:
 			if(service & SERVICE_CONFIRMED_FLAG_MASK) {
-				proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-					decode_enumerated_bitfield(service,
-						SERVICE_SERVICE_ID_MASK, 8,
-						names_sm_confirmed, "Service Id: %s"),
-					service & SERVICE_SERVICE_ID_MASK);
+				proto_tree_add_item(sub_tree, hf_ff_hdr_srv_sm_service_id_confirm, tvb, offset, 1, ENC_BIG_ENDIAN);
 			} else {
-				proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-					decode_enumerated_bitfield(service,
-						SERVICE_SERVICE_ID_MASK, 8,
-						names_sm_unconfirmed, "Service Id: %s"),
-					service & SERVICE_SERVICE_ID_MASK);
+				proto_tree_add_item(sub_tree, hf_ff_hdr_srv_sm_service_id_unconfirm, tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
 
 			break;
 
 		case PROTOCOL_FMS:
 			if(service & SERVICE_CONFIRMED_FLAG_MASK) {
-				proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-					decode_enumerated_bitfield(service,
-						SERVICE_SERVICE_ID_MASK, 8,
-						names_fms_confirmed, "Service Id: %s"),
-					service & SERVICE_SERVICE_ID_MASK);
+				proto_tree_add_item(sub_tree, hf_ff_hdr_srv_fms_service_id_confirm, tvb, offset, 1, ENC_BIG_ENDIAN);
 			} else {
-				proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-					decode_enumerated_bitfield(service,
-						SERVICE_SERVICE_ID_MASK, 8,
-						names_fms_unconfirmed, "Service Id: %s"),
-					service & SERVICE_SERVICE_ID_MASK);
+				proto_tree_add_item(sub_tree, hf_ff_hdr_srv_fms_service_id_unconfirm, tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
 
 			break;
 
 		case PROTOCOL_LAN:
 			if(service & SERVICE_CONFIRMED_FLAG_MASK) {
-				proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-					decode_enumerated_bitfield(service,
-						SERVICE_SERVICE_ID_MASK, 8,
-						names_lan_confirmed, "Service Id: %s"),
-					service & SERVICE_SERVICE_ID_MASK);
+				proto_tree_add_item(sub_tree, hf_ff_hdr_srv_lan_service_id_confirm, tvb, offset, 1, ENC_BIG_ENDIAN);
 			} else {
-				proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-					decode_enumerated_bitfield(service,
-						SERVICE_SERVICE_ID_MASK, 8,
-						names_lan_unconfirmed, "Service Id: %s"),
-					service & SERVICE_SERVICE_ID_MASK);
+				proto_tree_add_item(sub_tree, hf_ff_hdr_srv_lan_service_id_unconfirm, tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
 
 			break;
 
 		default:
-			proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-				decode_numeric_bitfield(service, SERVICE_SERVICE_ID_MASK, 8,
-					"Service Id: Unknown (%u)"));
+			proto_tree_add_item(sub_tree, hf_ff_hdr_srv_service_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 
 	return;
@@ -12797,17 +12508,8 @@ dissect_ff_msg_hdr_proto_and_type(tvbuff_t *tvb,
 		return;
 	}
 
-	/* Bits 3 - 8: Protocol Id */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, PROTOCOL_MASK, 8,
-			names_proto, "Protocol Id: %s"), (value & PROTOCOL_MASK) >> 2);
-
-	/* Bits 1, 2: Confirmed Msg Type */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, TYPE_MASK, 8,
-			names_type, "Confirmed Msg Type: %s"), value & TYPE_MASK);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_hdr_proto_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_hdr_confirm_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -12834,46 +12536,12 @@ dissect_ff_msg_hdr_opts(tvbuff_t *tvb,
 		return;
 	}
 
-	/* Bit 8:   1 = Message Number present in the Trailer */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, OPTION_MESSAGE_NUMBER_MASK, 8,
-			"Message Number present in the Trailer",
-			"Message Number not present in the Trailer"),
-		(value & OPTION_MESSAGE_NUMBER_MASK) >> 7);
-
-	/* Bit 7:   1 = Invoke Id present in the Trailer */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, OPTION_INVOKE_ID_MASK, 8,
-			"Invoke Id present in the Trailer",
-			"Invoke Id not present in the Trailer"),
-		(value & OPTION_INVOKE_ID_MASK) >> 6);
-
-	/* Bit 6:   1 = Time Stamp present in the Trailer */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, OPTION_TIME_STAMP_MASK, 8,
-			"Time Stamp present in the Trailer",
-			"Time Stamp not present in the Trailer"),
-		(value & OPTION_TIME_STAMP_MASK) >> 5);
-
-	/* Bit 5:   Reserved */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s",
-		decode_numeric_bitfield(value, OPTION_RESERVED_MASK, 8,
-			"Reserved: %u"));
-
-	/* Bit 4:   1 = Extended Control Field present in the Trailer */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_boolean_bitfield(value, OPTION_EXTENDED_CNTRL_MASK, 8,
-			"Extended Control Field present in the Trailer",
-			"Extended Control Field not present in the Trailer"),
-		(value & OPTION_EXTENDED_CNTRL_MASK) >> 3);
-
-	/*  Bits1-3: Pad Length */
-	proto_tree_add_text(sub_tree, tvb, offset, 1, "%s (%u)",
-		decode_enumerated_bitfield(value, OPTION_PAD_LENGTH_MASK, 8,
-			names_pad_len, "Pad Length: %s"),
-			value & OPTION_PAD_LENGTH_MASK);
-
-	return;
+	proto_tree_add_item(sub_tree, hf_ff_hdr_opts_msg_num, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_hdr_opts_invoke_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_hdr_opts_timestamp, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_hdr_opts_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_hdr_opts_ext_ctrl, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_ff_hdr_opts_pad, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -13135,6 +12803,77 @@ proto_register_ff(void)
 			{ "FDA Session Management Service", "ff.fda",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
+		{ &hf_ff_hdr_srv_confirm_flag,
+			{ "Confirmed Flag", "ff.hdr_srv.confirm_flag",
+				FT_BOOLEAN, 8, TFS(&tfs_confirmed_unconfirmed), SERVICE_CONFIRMED_FLAG_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_srv_service_id,
+			{ "Service Id (Unknown)", "ff.hdr_srv.service_id",
+				FT_UINT8, BASE_DEC, NULL, SERVICE_SERVICE_ID_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_srv_fda_service_id_confirm,
+			{ "Service Id", "ff.hdr_srv.fda.service_id.confirm",
+				FT_UINT8, BASE_DEC, VALS(names_fda_confirmed), SERVICE_SERVICE_ID_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_srv_fda_service_id_unconfirm,
+			{ "Service Id", "ff.hdr_srv.fda.service_id.unconfirm",
+				FT_UINT8, BASE_DEC, VALS(names_fda_unconfirmed), SERVICE_SERVICE_ID_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_srv_sm_service_id_confirm,
+			{ "Service Id", "ff.hdr_srv.sm.service_id.confirm",
+				FT_UINT8, BASE_DEC, VALS(names_sm_confirmed), SERVICE_SERVICE_ID_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_srv_sm_service_id_unconfirm,
+			{ "Service Id", "ff.hdr_srv.sm.service_id.unconfirm",
+				FT_UINT8, BASE_DEC, VALS(names_sm_unconfirmed), SERVICE_SERVICE_ID_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_srv_fms_service_id_confirm,
+			{ "Service Id", "ff.hdr_srv.fms.service_id.confirm",
+				FT_UINT8, BASE_DEC, VALS(names_fms_confirmed), SERVICE_SERVICE_ID_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_srv_fms_service_id_unconfirm,
+			{ "Service Id", "ff.hdr_srv.fms.service_id.unconfirm",
+				FT_UINT8, BASE_DEC, VALS(names_fms_unconfirmed), SERVICE_SERVICE_ID_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_srv_lan_service_id_confirm,
+			{ "Service Id", "ff.hdr_srv.lan.service_id.confirm",
+				FT_UINT8, BASE_DEC, VALS(names_lan_confirmed), SERVICE_SERVICE_ID_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_srv_lan_service_id_unconfirm,
+			{ "Service Id", "ff.hdr_srv.lan.service_id.unconfirm",
+				FT_UINT8, BASE_DEC, VALS(names_lan_unconfirmed), SERVICE_SERVICE_ID_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_proto_id,
+			{ "Service Id", "ff.hdr.proto_id",
+				FT_UINT8, BASE_DEC, VALS(names_proto), PROTOCOL_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_confirm_msg_type,
+			{ "Service Id", "ff.hdr.confirm_msg_type",
+				FT_UINT8, BASE_DEC, VALS(names_type), TYPE_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_opts_msg_num,
+			{ "Message Number in the Trailer", "ff.hdr.opts.msg_num",
+				FT_BOOLEAN, 8, TFS(&tfs_present_not_present), OPTION_MESSAGE_NUMBER_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_opts_invoke_id,
+			{ "Invoke Id in the Trailer", "ff.hdr.opts.invoke_id",
+				FT_BOOLEAN, 8, TFS(&tfs_present_not_present), OPTION_INVOKE_ID_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_opts_timestamp,
+			{ "Time Stamp in the Trailer", "ff.hdr.opts.timestamp",
+				FT_BOOLEAN, 8, TFS(&tfs_present_not_present), OPTION_TIME_STAMP_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_opts_reserved,
+			{ "Reserved", "ff.hdr.opts.reserved",
+				FT_UINT8, BASE_HEX, NULL, OPTION_RESERVED_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_opts_ext_ctrl,
+			{ "Extended Control in the Trailer", "ff.hdr.opts.ext_ctrl",
+				FT_BOOLEAN, 8, TFS(&tfs_present_not_present), OPTION_EXTENDED_CNTRL_MASK, NULL, HFILL } },
+
+		{ &hf_ff_hdr_opts_pad,
+			{ "Pad Length", "ff.hdr.opts.pad",
+				FT_UINT8, BASE_HEX, NULL, OPTION_PAD_LENGTH_MASK, NULL, HFILL } },
 
 
 		/*
@@ -13424,6 +13163,20 @@ proto_register_ff(void)
 				"ff.sm.find_tag_reply.req.fda_addr_selector.fda_addr_selector",
 				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
+		{ &hf_ff_sm_find_tag_reply_dup_reserved,
+			{ "Reserved",
+				"ff.sm.find_tag_reply.dup_reserved",
+				FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
+
+		{ &hf_ff_sm_find_tag_reply_dup_pd_tag,
+			{ "Duplicate PD Tag",
+				"ff.sm.find_tag_reply.dup_pd_tag",
+				FT_BOOLEAN, 8, TFS(&tfs_detected_not_detected), 0x02, NULL, HFILL } },
+
+		{ &hf_ff_sm_find_tag_reply_dup_device,
+			{ "Duplicate Device Index",
+				"ff.sm.find_tag_reply.dup_device",
+				FT_BOOLEAN, 8, TFS(&tfs_detected_not_detected), 0x01, NULL, HFILL } },
 
 
 		/*
@@ -13516,6 +13269,61 @@ proto_register_ff(void)
 			{ "Version Number", "ff.sm.id.rsp.h1_node_addr_ver_num.ver_num",
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
+		{ &hf_ff_sm_id_rsp_smk_state_name,
+			{ "Name", "ff.sm.id.rsp.smk_state_name",
+				FT_UINT8, BASE_DEC, VALS(names_smk_state), 0xFE, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_smk_state_sync,
+			{ "Synchronized with SNTP Time Server", "ff.sm.id.rsp.smk_state_sync",
+				FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_dev_type_link,
+			{ "Linking Device", "ff.sm.id.rsp.dev_type.link",
+				FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_dev_type_iogateway,
+			{ "I/O Gateway", "ff.sm.id.rsp.dev_type.iogateway",
+				FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_dev_type_hse,
+			{ "HSE Field Device", "ff.sm.id.rsp.dev_type.hse",
+				FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_dev_type_h1,
+			{ "H1 Device", "ff.sm.id.rsp.dev_type.h1",
+				FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_dev_type_reserved,
+			{ "Reserved", "ff.sm.id.rsp.dev_type.reserved",
+				FT_UINT8, BASE_HEX, NULL, 0x08, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_dev_type_redundant_caps,
+			{ "Redundant Device Type Capability", "ff.sm.id.rsp.dev_type.redundant_caps",
+				FT_UINT8, BASE_DEC, VALS(names_dev_type), 0x07, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_dev_redundancy_state_reserved,
+			{ "Reserved", "ff.sm.id.rsp.dev_redundancy_state.reserved",
+				FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_dev_redundancy_state_role,
+			{ "Device Redundancy Role", "ff.sm.id.rsp.dev_redundancy_state.role",
+				FT_UINT8, BASE_DEC, VALS(names_dev_redundancy_role), 0x0C, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_dev_redundancy_state_type,
+			{ "Assigned Redundant Device Type", "ff.sm.id.rsp.dev_redundancy_state.type",
+				FT_UINT8, BASE_DEC, VALS(names_assigned_redundant_dev_type), 0x03, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_dup_detection_state_reserved,
+			{ "Reserved", "ff.sm.id.rsp.dup_detection_state.reserved",
+				FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_dup_detection_state_pd_tag,
+			{ "Duplicate PD Tag", "ff.sm.id.rsp.dup_detection_state.pd_tag",
+				FT_BOOLEAN, 8, TFS(&tfs_detected_not_detected), 0x02, NULL, HFILL } },
+
+		{ &hf_ff_sm_id_rsp_dup_detection_state_device,
+			{ "Duplicate Device Index", "ff.sm.id.rsp.dup_detection_state.device",
+				FT_BOOLEAN, 8, TFS(&tfs_detected_not_detected), 0x01, NULL, HFILL } },
 
 
 		/*
@@ -13619,6 +13427,30 @@ proto_register_ff(void)
 		/*
 		 * 6.5.2.5.1. Request Message Parameters
 		 */
+		{ &hf_ff_sm_set_assign_info_req_dev_redundancy_state_reserved,
+			{ "Reserved", "ff.sm.set_assign_info.req_dev_redundancy_state.reserved",
+				FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL } },
+
+		{ &hf_ff_sm_set_assign_info_req_dev_redundancy_state_role,
+			{ "Type D-2 Device Redundancy Role", "ff.sm.set_assign_info.req_dev_redundancy_state.role",
+				FT_UINT8, BASE_DEC, VALS(names_type_d2_dev_redundancy_role), 0x0C, NULL, HFILL } },
+
+		{ &hf_ff_sm_set_assign_info_req_dev_redundancy_state_type,
+			{ "Assigned Device Redundancy Type", "ff.sm.set_assign_info.req_dev_redundancy_state.type",
+				FT_UINT8, BASE_DEC, VALS(names_assigned_redundant_dev_type), 0x03, NULL, HFILL } },
+
+		{ &hf_ff_sm_set_assign_info_req_clear_dup_detection_state_reserved,
+			{ "Reserved", "ff.sm.set_assign_info.req_clear_dup_detection_state.reserved",
+				FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
+
+		{ &hf_ff_sm_set_assign_info_req_clear_dup_detection_state_pd_tag,
+			{ "Duplicate PD Tag Detected", "ff.sm.set_assign_info.req_clear_dup_detection_state.pd_tag",
+				FT_BOOLEAN, 8, TFS(&tfs_do_not_clear_clear), 0x02, NULL, HFILL } },
+
+		{ &hf_ff_sm_set_assign_info_req_clear_dup_detection_state_device_index,
+			{ "Duplicate Device Index Detected", "ff.sm.set_assign_info.req_clear_dup_detection_state.device_index",
+				FT_BOOLEAN, 8, TFS(&tfs_do_not_clear_clear), 0x01, NULL, HFILL } },
+
 		{ &hf_ff_sm_set_assign_info_req,
 			{ "SM Set Assignment Info Request", "ff.sm.set_assign_info.req",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -13854,6 +13686,61 @@ proto_register_ff(void)
 				"ff.sm.dev_annunc.req.h1_node_addr_ver_num.ver_num",
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
+		{ &hf_ff_sm_dev_annunc_req_smk_state_name,
+			{ "Name", "ff.sm.dev_annunc.req.smk_state_name",
+				FT_UINT8, BASE_DEC, VALS(names_smk_state), 0xFE, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_smk_state_sync,
+			{ "Synchronized with SNTP Time Server", "ff.sm.dev_annunc.req.smk_state_sync",
+				FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_dev_type_link,
+			{ "Linking Device", "ff.sm.dev_annunc.req.dev_type.link",
+				FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_dev_type_iogateway,
+			{ "I/O Gateway", "ff.sm.dev_annunc.req.dev_type.iogateway",
+				FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_dev_type_hse,
+			{ "HSE Field Device", "ff.sm.dev_annunc.req.dev_type.hse",
+				FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_dev_type_h1,
+			{ "H1 Device", "ff.sm.dev_annunc.req.dev_type.h1",
+				FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_dev_type_reserved,
+			{ "Reserved", "ff.sm.dev_annunc.req.dev_type.reserved",
+				FT_UINT8, BASE_HEX, NULL, 0x08, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_dev_type_redundant_caps,
+			{ "Redundant Device Type Capability", "ff.sm.dev_annunc.req.dev_type.redundant_caps",
+				FT_UINT8, BASE_DEC, VALS(names_dev_type), 0x07, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_dev_redundancy_state_reserved,
+			{ "Reserved", "ff.sm.dev_annunc.req_dev_redundancy_state.reserved",
+				FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_dev_redundancy_state_role,
+			{ "Type D-2 Device Redundancy Role", "ff.sm.dev_annunc.req_dev_redundancy_state.role",
+				FT_UINT8, BASE_DEC, VALS(names_type_d2_dev_redundancy_role), 0x0C, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_dev_redundancy_state_type,
+			{ "Assigned Device Redundancy Type", "ff.sm.dev_annunc.req_dev_redundancy_state.type",
+				FT_UINT8, BASE_DEC, VALS(names_assigned_redundant_dev_type), 0x03, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_dup_detection_state_reserved,
+			{ "Reserved", "ff.sm.dev_annunc.req.dup_detection_state.reserved",
+				FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_dup_detection_state_pd_tag,
+			{ "Duplicate PD Tag", "ff.sm.dev_annunc.req.dup_detection_state.pd_tag",
+				FT_BOOLEAN, 8, TFS(&tfs_detected_not_detected), 0x02, NULL, HFILL } },
+
+		{ &hf_ff_sm_dev_annunc_req_dup_detection_state_device,
+			{ "Duplicate Device Index", "ff.sm.dev_annunc.req.dup_detection_state.device",
+				FT_BOOLEAN, 8, TFS(&tfs_detected_not_detected), 0x01, NULL, HFILL } },
 
 
 		/*
@@ -16225,6 +16112,36 @@ proto_register_ff(void)
 				"ff.lr.get_info.rsp.diagnostic_msg_if_b_recv_addr",
 				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
+		{ &hf_ff_lr_get_info_rsp_lr_flags_reserved,
+			{ "Reserved",
+				"ff.lr.get_info.rsp.lr_flags.reserved",
+				FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL } },
+
+		{ &hf_ff_lr_get_info_rsp_lr_flags_load_balance,
+			{ "Load Balancing",
+				"ff.lr.get_info.rsp.lr_flags.load_balance",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10, NULL, HFILL } },
+
+		{ &hf_ff_lr_get_info_rsp_lr_flags_diag,
+			{ "Diagnosis Using Own Messages",
+				"ff.lr.get_info.rsp.lr_flags.diag",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08, NULL, HFILL } },
+
+		{ &hf_ff_lr_get_info_rsp_lr_flags_multi_recv,
+			{ "Single Multicast Message Reception Interface",
+				"ff.lr.get_info.rsp.lr_flags.multi_recv",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL } },
+
+		{ &hf_ff_lr_get_info_rsp_lr_flags_cross_cable,
+			{ "Crossed Cable Detection",
+				"ff.lr.get_info.rsp.lr_flags.cross_cable",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02, NULL, HFILL } },
+
+		{ &hf_ff_lr_get_info_rsp_lr_flags_multi_trans,
+			{ "Single Multicast Message Transmission Interface",
+				"ff.lr.get_info.rsp.lr_flags.multi_trans",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL } },
+
 
 
 		/*
@@ -16316,6 +16233,35 @@ proto_register_ff(void)
 				"ff.lr.put_info.req.diagnostic_msg_if_b_recv_addr",
 				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
+		{ &hf_ff_lr_put_info_req_lr_flags_reserved,
+			{ "Reserved",
+				"ff.lr.put_info.req.lr_flags.reserved",
+				FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL } },
+
+		{ &hf_ff_lr_put_info_req_lr_flags_load_balance,
+			{ "Load Balancing",
+				"ff.lr.put_info.req.lr_flags.load_balance",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10, NULL, HFILL } },
+
+		{ &hf_ff_lr_put_info_req_lr_flags_diag,
+			{ "Diagnosis Using Own Messages",
+				"ff.lr.put_info.req.lr_flags.diag",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08, NULL, HFILL } },
+
+		{ &hf_ff_lr_put_info_req_lr_flags_multi_recv,
+			{ "Single Multicast Message Reception Interface",
+				"ff.lr.put_info.req.lr_flags.multi_recv",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL } },
+
+		{ &hf_ff_lr_put_info_req_lr_flags_cross_cable,
+			{ "Crossed Cable Detection",
+				"ff.lr.put_info.req.lr_flags.cross_cable",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02, NULL, HFILL } },
+
+		{ &hf_ff_lr_put_info_req_lr_flags_multi_trans,
+			{ "Single Multicast Message Transmission Interface",
+				"ff.lr.put_info.req.lr_flags.multi_trans",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL } },
 
 
 		/*
@@ -16371,6 +16317,35 @@ proto_register_ff(void)
 				"ff.lr.put_info.rsp.diagnostic_msg_if_b_recv_addr",
 				FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
+		{ &hf_ff_lr_put_info_rsp_lr_flags_reserved,
+			{ "Reserved",
+				"ff.lr.put_info.rsp.lr_flags.reserved",
+				FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL } },
+
+		{ &hf_ff_lr_put_info_rsp_lr_flags_load_balance,
+			{ "Load Balancing",
+				"ff.lr.put_info.rsp.lr_flags.load_balance",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10, NULL, HFILL } },
+
+		{ &hf_ff_lr_put_info_rsp_lr_flags_diag,
+			{ "Diagnosis Using Own Messages",
+				"ff.lr.put_info.rsp.lr_flags.diag",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08, NULL, HFILL } },
+
+		{ &hf_ff_lr_put_info_rsp_lr_flags_multi_recv,
+			{ "Single Multicast Message Reception Interface",
+				"ff.lr.put_info.rsp.lr_flags.multi_recv",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL } },
+
+		{ &hf_ff_lr_put_info_rsp_lr_flags_cross_cable,
+			{ "Crossed Cable Detection",
+				"ff.lr.put_info.rsp.lr_flags.cross_cable",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02, NULL, HFILL } },
+
+		{ &hf_ff_lr_put_info_rsp_lr_flags_multi_trans,
+			{ "Single Multicast Message Transmission Interface",
+				"ff.lr.put_info.rsp.lr_flags.multi_trans",
+				FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL } },
 
 
 		/*
@@ -16560,6 +16535,19 @@ proto_register_ff(void)
 			{ "Interface BtoB Status",
 				"ff.lr.diagnostic_msg.req.if_b_to_b_status",
 				FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+		{ &hf_ff_lr_diagnostic_msg_req_dup_detection_state_reserved,
+			{ "Reserved", "ff.lr.diagnostic_msg.req.dup_detection_state.reserved",
+				FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
+
+		{ &hf_ff_lr_diagnostic_msg_req_dup_detection_state_pd_tag,
+			{ "Duplicate PD Tag", "ff.lr.diagnostic_msg.req.dup_detection_state.pd_tag",
+				FT_BOOLEAN, 8, TFS(&tfs_detected_not_detected), 0x02, NULL, HFILL } },
+
+		{ &hf_ff_lr_diagnostic_msg_req_dup_detection_state_device,
+			{ "Duplicate Device Index", "ff.lr.diagnostic_msg.req.dup_detection_state.device",
+				FT_BOOLEAN, 8, TFS(&tfs_detected_not_detected), 0x01, NULL, HFILL } },
+
 	};
 
 
