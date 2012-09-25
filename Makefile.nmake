@@ -1049,7 +1049,6 @@ install-generated-files:
 	if exist wireshark.exe xcopy wireshark.exe $(INSTALL_DIR) /d
 	if exist wireshark.pdb xcopy wireshark.pdb $(INSTALL_DIR) /d
 	if exist wireshark.bsc xcopy wireshark.bsc $(INSTALL_DIR) /d
-	if exist $(UG_DIR)\user-guide.chm xcopy $(UG_DIR)\user-guide.chm $(INSTALL_DIR) /d
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL_DIR) /d
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d
