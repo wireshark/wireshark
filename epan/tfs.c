@@ -66,4 +66,9 @@ const true_false_string tfs_not_allowed_allowed = { "Not Allowed", "Allowed" };
 const true_false_string tfs_accepted_not_accepted = { "Accepted", "Not Accepted" };
 const true_false_string tfs_detected_not_detected = { "Detected", "Not Detected" };
 const true_false_string tfs_available_not_available = { "Available", "Not available" };
+const true_false_string tfs_shared_independent = { "Shared", "Independent" };
+const true_false_string tfs_valid_invalid = { "Valid", "Invalid" };
+const true_false_string tfs_group_unique_name = { "Group name", "Unique name" };
+
+
 

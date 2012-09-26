@@ -75,4 +75,7 @@ WS_VAR_IMPORT const true_false_string tfs_not_allowed_allowed;
 WS_VAR_IMPORT const true_false_string tfs_accepted_not_accepted;
 WS_VAR_IMPORT const true_false_string tfs_detected_not_detected;
 WS_VAR_IMPORT const true_false_string tfs_available_not_available;
+WS_VAR_IMPORT const true_false_string tfs_shared_independent;
+WS_VAR_IMPORT const true_false_string tfs_valid_invalid;
+WS_VAR_IMPORT const true_false_string tfs_group_unique_name;
 #endif
