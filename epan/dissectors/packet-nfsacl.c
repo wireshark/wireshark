@@ -31,6 +31,11 @@
 #include "packet-nfs.h"
 
 static int proto_nfsacl = -1;
+static int hf_nfsacl_mask = -1;
+static int hf_nfsacl_mask_acl_entry = -1;
+static int hf_nfsacl_mask_acl_count = -1;
+static int hf_nfsacl_mask_default_acl_entry = -1;
+static int hf_nfsacl_mask_default_acl_count = -1;
 static int hf_nfsacl_procedure_v1 = -1;
 static int hf_nfsacl_procedure_v2 = -1;
 static int hf_nfsacl_procedure_v3 = -1;
@@ -41,6 +46,9 @@ static int hf_nfsacl_aclent = -1;
 static int hf_nfsacl_aclent_type = -1;
 static int hf_nfsacl_aclent_uid = -1;
 static int hf_nfsacl_aclent_perm = -1;
+static int hf_nfsacl_aclent_perm_read = -1;
+static int hf_nfsacl_aclent_perm_write = -1;
+static int hf_nfsacl_aclent_perm_exec = -1;
 static int hf_nfsacl_create = -1;
 
 static gint ett_nfsacl = -1;
@@ -68,38 +76,20 @@ static gint ett_nfsacl_aclent_entries = -1;
 #define ACL3_OK 0
 
 static int
-dissect_nfsacl_mask(tvbuff_t *tvb, int offset, proto_tree *tree,
-		    const char *name)
+dissect_nfsacl_mask(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint32 mask;
-	proto_item *mask_item = NULL;
-	proto_tree *mask_tree = NULL;
-
-	mask = tvb_get_ntohl(tvb, offset + 0);
+	proto_item *mask_item;
+	proto_tree *mask_tree;
 
 	if (tree)
 	{
-		mask_item = proto_tree_add_text(tree, tvb, offset, 4, "%s: 0x%02x",
-				name, mask);
+		mask_item = proto_tree_add_item(tree, hf_nfsacl_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+		mask_tree = proto_item_add_subtree(mask_item, ett_nfsacl_mask);
 
-		if (mask_item)
-			mask_tree = proto_item_add_subtree(mask_item, ett_nfsacl_mask);
-	}
-
-	if (mask_tree)
-	{
-		proto_tree_add_text(mask_tree, tvb, offset, 4, "%s",
-				decode_boolean_bitfield(mask, 0x01, 8, "ACL entry",
-					"(no ACL entry)"));
-		proto_tree_add_text(mask_tree, tvb, offset, 4, "%s",
-				decode_boolean_bitfield(mask, 0x02, 8, "ACL count",
-					"(no ACL count)"));
-		proto_tree_add_text(mask_tree, tvb, offset, 4, "%s",
-				decode_boolean_bitfield(mask, 0x04, 8, "default ACL entry",
-					"(no default ACL entry)"));
-		proto_tree_add_text(mask_tree, tvb, offset, 4, "%s",
-				decode_boolean_bitfield(mask, 0x08, 8, "default ACL count",
-					"(no default ACL count)"));
+		proto_tree_add_item(mask_tree, hf_nfsacl_mask_acl_entry, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mask_tree, hf_nfsacl_mask_acl_count, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mask_tree, hf_nfsacl_mask_default_acl_entry, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mask_tree, hf_nfsacl_mask_default_acl_count, tvb, offset, 4, ENC_BIG_ENDIAN);
 	}
 
 	offset += 4;
@@ -140,7 +130,6 @@ dissect_nfsacl_aclent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
 	proto_item *entry_item = NULL;
 	proto_tree *entry_tree = NULL;
-	guint32 perm;
 	proto_item *perm_item = NULL;
 	proto_tree *perm_tree = NULL;
 
@@ -154,26 +143,12 @@ dissect_nfsacl_aclent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_rpc_uint32(tvb, entry_tree, hf_nfsacl_aclent_type, offset);
 	offset = dissect_rpc_uint32(tvb, entry_tree, hf_nfsacl_aclent_uid, offset);
 
-	perm = tvb_get_ntohl(tvb, offset);
-
-	perm_item = proto_tree_add_uint(entry_tree, hf_nfsacl_aclent_perm,
-					tvb, offset, 4, perm);
-
-	if (perm_item)
-		perm_tree = proto_item_add_subtree(perm_item, ett_nfsacl_aclent_perm);
-
-	if (perm_tree)
-	{
-		proto_tree_add_text(perm_tree, tvb, offset, 4, "%s",
-				decode_boolean_bitfield(perm, NA_READ, 4, "READ", "no READ"));
-
-		proto_tree_add_text(perm_tree, tvb, offset, 4, "%s",
-				decode_boolean_bitfield(perm, NA_WRITE, 4, "WRITE", "no WRITE"));
-
-		proto_tree_add_text(perm_tree, tvb, offset, 4, "%s",
-				decode_boolean_bitfield(perm, NA_EXEC, 4, "EXEC", "no EXEC"));
-	}
-
+	perm_item = proto_tree_add_item(entry_tree, hf_nfsacl_aclent_perm,
+					tvb, offset, 4, ENC_BIG_ENDIAN);
+	perm_tree = proto_item_add_subtree(perm_item, ett_nfsacl_aclent_perm);
+	proto_tree_add_item(perm_tree, hf_nfsacl_aclent_perm_read, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(perm_tree, hf_nfsacl_aclent_perm_write, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(perm_tree, hf_nfsacl_aclent_perm_exec, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -189,7 +164,7 @@ dissect_nfsacl_secattr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_item *entry_item = NULL;
 	proto_tree *entry_tree = NULL;
 
-	offset = dissect_nfsacl_mask(tvb, offset, tree, "mask");
+	offset = dissect_nfsacl_mask(tvb, offset, tree);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfsacl_aclcnt, offset);
 
 	aclcnt = tvb_get_ntohl(tvb, offset);
@@ -250,7 +225,7 @@ dissect_nfsacl2_getacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			    proto_tree *tree)
 {
 	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
-	offset = dissect_nfsacl_mask(tvb, offset, tree, "mask");
+	offset = dissect_nfsacl_mask(tvb, offset, tree);
 	return offset;
 }
 
@@ -424,7 +399,7 @@ dissect_nfsacl3_getacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			    proto_tree *tree)
 {
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle", NULL);
-	offset = dissect_nfsacl_mask(tvb, offset, tree, "mask");
+	offset = dissect_nfsacl_mask(tvb, offset, tree);
 
 	return offset;
 }
@@ -564,6 +539,21 @@ void
 proto_register_nfsacl(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_nfsacl_mask, {
+			"Mask", "nfsacl.mask", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_nfsacl_mask_acl_entry, {
+			"ACL entry", "nfsacl.mask.acl_entry", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x01, NULL, HFILL }},
+		{ &hf_nfsacl_mask_acl_count, {
+			"ACL count", "nfsacl.mask.acl_count", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x02, NULL, HFILL }},
+		{ &hf_nfsacl_mask_default_acl_entry, {
+			"Default ACL entry", "nfsacl.mask.default_acl_entry", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x04, NULL, HFILL }},
+		{ &hf_nfsacl_mask_default_acl_count, {
+			"Default ACL count", "nfsacl.mask.default_acl_count", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0x08, NULL, HFILL }},
 		{ &hf_nfsacl_procedure_v1, {
 			"V1 Procedure", "nfsacl.procedure_v1", FT_UINT32, BASE_DEC,
 			VALS(nfsacl1_proc_vals), 0, NULL, HFILL }},
@@ -595,6 +585,15 @@ proto_register_nfsacl(void)
 		{ &hf_nfsacl_aclent_perm, {
 			"Permissions", "nfsacl.aclent.perm", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
+		{ &hf_nfsacl_aclent_perm_read, {
+			"READ", "nfsacl.aclent.perm.read", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), NA_READ, NULL, HFILL }},
+		{ &hf_nfsacl_aclent_perm_write, {
+			"WRITE", "nfsacl.aclent.perm.write", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), NA_WRITE, NULL, HFILL }},
+		{ &hf_nfsacl_aclent_perm_exec, {
+			"EXEC", "nfsacl.aclent.perm.exec", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), NA_EXEC, NULL, HFILL }},
 			/* V2 */
 		{ &hf_nfsacl_create, {
 			"create", "nfsacl.create", FT_BOOLEAN, BASE_NONE,

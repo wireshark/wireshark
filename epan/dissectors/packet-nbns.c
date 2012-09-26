@@ -53,6 +53,16 @@ static int hf_nbns_count_questions = -1;
 static int hf_nbns_count_answers = -1;
 static int hf_nbns_count_auth_rr = -1;
 static int hf_nbns_count_add_rr = -1;
+static int hf_nbns_name_flags = -1;
+static int hf_nbns_name_flags_group = -1;
+static int hf_nbns_name_flags_ont = -1;
+static int hf_nbns_name_flags_drg = -1;
+static int hf_nbns_name_flags_cnf = -1;
+static int hf_nbns_name_flags_act = -1;
+static int hf_nbns_name_flags_prm = -1;
+static int hf_nbns_nb_flags = -1;
+static int hf_nbns_nb_flags_group = -1;
+static int hf_nbns_nb_flags_ont = -1;
 
 static gint ett_nbns = -1;
 static gint ett_nbns_qd = -1;
@@ -77,6 +87,7 @@ static gint ett_nbdgm = -1;
 static int proto_nbss = -1;
 static int hf_nbss_type = -1;
 static int hf_nbss_flags = -1;
+static int hf_nbss_flags_e = -1;
 static int hf_nbss_length = -1;
 static int hf_nbss_cifs_length = -1;
 
@@ -160,6 +171,11 @@ static const true_false_string tfs_flags_broadcast = {
     "Not a broadcast packet"
 };
 
+static const true_false_string tfs_nbss_flags_e = { 
+    "Add 65536 to length", 
+    "Add 0 to length"
+};
+
 /* Opcodes */
 #define OPCODE_QUERY          0         /* standard query */
 #define OPCODE_REGISTRATION   5         /* registration */
@@ -232,6 +248,21 @@ static const value_string rcode_vals[] = {
 #define	NAME_FLAGS_ONT_M_NODE	(2<<(15-2))	/* M-mode node */
 
 #define	NAME_FLAGS_G		(1<<(15-0))	/* group name */
+
+static const value_string name_flags_ont_vals[] = {
+    { NAME_FLAGS_ONT_B_NODE, "B-node" },
+    { NAME_FLAGS_ONT_P_NODE, "P-node" },
+    { NAME_FLAGS_ONT_M_NODE, "M-node" },
+    { 0,                     NULL     }
+};
+
+static const value_string nb_flags_ont_vals[] = {
+    { NB_FLAGS_ONT_B_NODE, "B-node" },
+    { NB_FLAGS_ONT_P_NODE, "P-node" },
+    { NB_FLAGS_ONT_M_NODE, "M-node" },
+    { NB_FLAGS_ONT_H_NODE, "H-node" },
+    { 0,                   NULL     }
+};
 
 static const char *
 nbns_type_name (int type)
@@ -515,111 +546,58 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
 }
 
 static void
-nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset, gushort flags)
+nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset)
 {
-    char       *buf;
     proto_tree *field_tree;
     proto_item *tf;
-
-    static const value_string nb_flags_ont_vals[] = {
-        { NB_FLAGS_ONT_B_NODE, "B-node" },
-        { NB_FLAGS_ONT_P_NODE, "P-node" },
-        { NB_FLAGS_ONT_M_NODE, "M-node" },
-        { NB_FLAGS_ONT_H_NODE, "H-node" },
-        { 0,                   NULL     }
-    };
+    gushort flags;
 
     if (!rr_tree)
         return;
 
-    buf = ep_alloc(MAX_BUF_SIZE);
-    g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str_const(flags & NB_FLAGS_ONT, nb_flags_ont_vals,
-                                                         "Unknown"));
-    g_strlcat(buf, ", ", MAX_BUF_SIZE);
-    if (flags & NB_FLAGS_G)
-        g_strlcat(buf, "group", MAX_BUF_SIZE);
-    else
-        g_strlcat(buf, "unique", MAX_BUF_SIZE);
-    buf[MAX_BUF_SIZE-1] = '\0';
-    tf = proto_tree_add_text(rr_tree, tvb, offset, 2, "Flags: 0x%x (%s)", flags,
-                             buf);
+    flags = tvb_get_ntohs(tvb, offset);
+    tf = proto_tree_add_item(rr_tree, hf_nbns_nb_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(tf, ett_nbns_nb_flags);
-    proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_boolean_bitfield(flags, NB_FLAGS_G,
-                                                2*8,
-                                                "Group name",
-                                                "Unique name"));
-    proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_enumerated_bitfield(flags, NB_FLAGS_ONT,
-                                                   2*8, nb_flags_ont_vals, "%s"));
+    proto_tree_add_item(field_tree, hf_nbns_nb_flags_group, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_nbns_nb_flags_ont, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+    proto_item_append_text(tf, "(%s, %s", 
+                val_to_str_const(flags & NB_FLAGS_ONT, nb_flags_ont_vals, "Unknown"),
+                (flags & NB_FLAGS_G) ? "group" : "unique");
 }
 
 static void
-nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
-		    gushort flags)
+nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset)
 {
-    char       *buf;
     proto_item *field_tree;
     proto_item *tf;
-
-    static const value_string name_flags_ont_vals[] = {
-        { NAME_FLAGS_ONT_B_NODE, "B-node" },
-        { NAME_FLAGS_ONT_P_NODE, "P-node" },
-        { NAME_FLAGS_ONT_M_NODE, "M-node" },
-        { 0,                     NULL     }
-    };
+    gushort    flags;
 
     if (!rr_tree)
         return;
 
-    buf = ep_alloc(MAX_BUF_SIZE);
-    g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str_const(flags & NAME_FLAGS_ONT, name_flags_ont_vals,
-                                                         "Unknown"));
-    g_strlcat(buf, ", ", MAX_BUF_SIZE);
-    if (flags & NAME_FLAGS_G)
-        g_strlcat(buf, "group", MAX_BUF_SIZE);
-    else
-        g_strlcat(buf, "unique", MAX_BUF_SIZE);
-    if (flags & NAME_FLAGS_DRG)
-        g_strlcat(buf, ", being deregistered", MAX_BUF_SIZE);
-    if (flags & NAME_FLAGS_CNF)
-        g_strlcat(buf, ", in conflict", MAX_BUF_SIZE);
-    if (flags & NAME_FLAGS_ACT)
-        g_strlcat(buf, ", active", MAX_BUF_SIZE);
-    if (flags & NAME_FLAGS_PRM)
-        g_strlcat(buf, ", permanent node name", MAX_BUF_SIZE);
-    buf[MAX_BUF_SIZE-1] = '\0';
-    tf = proto_tree_add_text(rr_tree, tvb, offset, 2, "Name flags: 0x%x (%s)",
-                             flags, buf);
+    flags = tvb_get_ntohs(tvb, offset);
+    tf = proto_tree_add_item(rr_tree, hf_nbns_name_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(tf, ett_nbns_name_flags);
-    proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_boolean_bitfield(flags, NAME_FLAGS_G,
-                                                2*8,
-                                                "Group name",
-                                                "Unique name"));
-    proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_enumerated_bitfield(flags, NAME_FLAGS_ONT,
-                                                   2*8, name_flags_ont_vals, "%s"));
-    proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_boolean_bitfield(flags, NAME_FLAGS_DRG,
-                                                2*8,
-                                                "Name is being deregistered",
-                                                "Name is not being deregistered"));
-    proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_boolean_bitfield(flags, NAME_FLAGS_CNF,
-                                                2*8,
-                                                "Name is in conflict",
-                                                "Name is not in conflict"));
-    proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_boolean_bitfield(flags, NAME_FLAGS_ACT,
-                                                2*8,
-                                                "Name is active",
-                                                "Name is not active"));
-    proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_boolean_bitfield(flags, NAME_FLAGS_PRM,
-                                                2*8,
-                                                "Permanent node name",
-                                                "Not permanent node name"));
+    proto_tree_add_item(field_tree, hf_nbns_name_flags_group, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_nbns_name_flags_ont, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_nbns_name_flags_drg, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_nbns_name_flags_cnf, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_nbns_name_flags_act, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_nbns_name_flags_prm, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+    proto_item_append_text(tf, "(%s, %s", 
+                val_to_str_const(flags & NAME_FLAGS_ONT, name_flags_ont_vals, "Unknown"),
+                (flags & NAME_FLAGS_G) ? "group" : "unique");
+    if (flags & NAME_FLAGS_DRG)
+        proto_item_append_text(tf, ", being deregistered"); 
+    if (flags & NAME_FLAGS_CNF)
+        proto_item_append_text(tf, ", in conflict"); 
+    if (flags & NAME_FLAGS_ACT)
+        proto_item_append_text(tf, ", active"); 
+    if (flags & NAME_FLAGS_PRM)
+        proto_item_append_text(tf, ", permanent node name"); 
+    proto_item_append_text(tf, ")"); 
 }
 
 static int
@@ -643,7 +621,6 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
     char       *name_str;
     guint       num_names;
     char       *nbname;
-    gushort     name_flags;
 
     cur_offset = offset;
 
@@ -708,9 +685,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
                                         data_len, "(incomplete entry)");
                     break;
                 }
-                flags = tvb_get_ntohs(tvb, cur_offset);
-                nbns_add_nb_flags(rr_tree, tvb, cur_offset,
-                                  flags);
+                nbns_add_nb_flags(rr_tree, tvb, cur_offset);
                 cur_offset += 2;
                 data_len   -= 2;
 
@@ -777,9 +752,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
                 goto out;
             }
             if (rr_tree) {
-                name_flags = tvb_get_ntohs(tvb, cur_offset);
-                nbns_add_name_flags(rr_tree, tvb, cur_offset,
-                                    name_flags);
+                nbns_add_name_flags(rr_tree, tvb, cur_offset);
             }
             cur_offset += 2;
             data_len   -= 2;
@@ -1555,9 +1528,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
         if (tree) {
             tf = proto_tree_add_uint(nbss_tree, hf_nbss_flags, tvb, offset, 1, flags);
             field_tree = proto_item_add_subtree(tf, ett_nbss_flags);
-            proto_tree_add_text(field_tree, tvb, offset, 1, "%s",
-                                decode_boolean_bitfield(flags, NBSS_FLAGS_E,
-                                                        8, "Add 65536 to length", "Add 0 to length"));
+            proto_tree_add_item(field_tree, hf_nbss_flags_e, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         offset += 1;
 
@@ -1944,7 +1915,47 @@ proto_register_nbt(void)
         { &hf_nbns_count_add_rr,
           { "Additional RRs",      	"nbns.count.add_rr",
             FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Number of additional records in packet", HFILL }}
+            "Number of additional records in packet", HFILL }},
+        { &hf_nbns_name_flags,
+          { "Name flags",      	"nbns.name_flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_nbns_name_flags_group,
+          { "Name type",      	"nbns.name_flags.group",
+            FT_BOOLEAN, 16, TFS(&tfs_group_unique_name), NAME_FLAGS_G,
+            NULL, HFILL }},
+        { &hf_nbns_name_flags_ont,
+          { "ONT",      	"nbns.name_flags.ont",
+            FT_UINT16, BASE_DEC, VALS(name_flags_ont_vals), NAME_FLAGS_ONT,
+            NULL, HFILL }},
+        { &hf_nbns_name_flags_drg,
+          { "Name is being deregistered",      	"nbns.name_flags.drg",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), NAME_FLAGS_DRG,
+            NULL, HFILL }},
+        { &hf_nbns_name_flags_cnf,
+          { "Name is in conflict",      	"nbns.name_flags.cnf",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), NAME_FLAGS_CNF,
+            NULL, HFILL }},
+        { &hf_nbns_name_flags_act,
+          { "Name is active",      	"nbns.name_flags.act",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), NAME_FLAGS_ACT,
+            NULL, HFILL }},
+        { &hf_nbns_name_flags_prm,
+          { "Permanent node name",      	"nbns.name_flags.prm",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), NAME_FLAGS_PRM,
+            NULL, HFILL }},
+        { &hf_nbns_nb_flags,
+          { "Name flags",      	"nbns.nb_flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_nbns_nb_flags_group,
+          { "Name type",      	"nbns.nb_flags.group",
+            FT_BOOLEAN, 16, TFS(&tfs_group_unique_name), NB_FLAGS_G,
+            NULL, HFILL }},
+        { &hf_nbns_nb_flags_ont,
+          { "ONT",      	"nbns.nb_flags.ont",
+            FT_UINT16, BASE_DEC, VALS(nb_flags_ont_vals), NB_FLAGS_ONT,
+            NULL, HFILL }},
     };
 
     static hf_register_info hf_nbdgm[] = {
@@ -1987,6 +1998,10 @@ proto_register_nbt(void)
           { "Flags",		"nbss.flags",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             "NBSS message flags", HFILL }},
+        { &hf_nbss_flags_e,
+          { "Extend",		"nbss.flags.e",
+            FT_BOOLEAN, 8, TFS(&tfs_nbss_flags_e), NBSS_FLAGS_E,
+            NULL, HFILL }},
         { &hf_nbss_length,
           { "Length",		"nbss.length",
             FT_UINT16, BASE_DEC, NULL, 0x0,

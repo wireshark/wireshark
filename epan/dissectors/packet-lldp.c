@@ -337,7 +337,6 @@ static const value_string power_type_802_3[] = {
 
 static const true_false_string tfs_ieee_802_3_pse_pd = { "PSE", "PD" };
 static const true_false_string tfs_unknown_defined = { "Unknown", "Defined" };
-static const true_false_string tfs_shared_independent = { "Shared", "Independent" };
 
 /* Power Type */
 static const value_string media_power_type[] = {

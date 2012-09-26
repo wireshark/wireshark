@@ -31,6 +31,18 @@
 #include "packet-netbios.h"
 
 static int proto_nbipx = -1;
+static int hf_nbipx_name_flags = -1;
+static int hf_nbipx_name_flags_group = -1;
+static int hf_nbipx_name_flags_in_use = -1;
+static int hf_nbipx_name_flags_registered = -1;
+static int hf_nbipx_name_flags_duplicated = -1;
+static int hf_nbipx_name_flags_deregistered = -1;
+static int hf_nbipx_conn_control = -1;
+static int hf_nbipx_conn_control_sys_packet = -1;
+static int hf_nbipx_conn_control_ack = -1;
+static int hf_nbipx_conn_control_attention = -1;
+static int hf_nbipx_conn_control_end_msg = -1;
+static int hf_nbipx_conn_control_resend = -1;
 
 static gint ett_nbipx = -1;
 static gint ett_nbipx_conn_ctrl = -1;
@@ -181,6 +193,9 @@ static const value_string nbipx_data_stream_type_vals[] = {
 	{0,				NULL}
 };
 
+static const true_false_string tfs_system_non_system = { "System packet", "Non-system packet" };
+static const true_false_string tfs_required_not_required = { "Required", "Not required" };
+
 static void
 add_routers(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
@@ -208,7 +223,6 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti = NULL;
 	int		offset = 0;
 	guint8		packet_type;
-	guint8		name_type_flag;
 	proto_tree	*name_type_flag_tree;
 	proto_item	*tf;
 	char		name[(NETBIOS_NAME_LEN - 1)*4 + 1];
@@ -277,7 +291,6 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case NBIPX_CHECK_NAME:
 	case NBIPX_NAME_IN_USE:
 	case NBIPX_DEREGISTER_NAME:
-		name_type_flag = tvb_get_guint8(tvb, offset);
 		name_type = get_netbios_name(tvb, offset+2, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s<%02x>",
@@ -285,30 +298,14 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				name, name_type);
 		}
 		if (nbipx_tree) {
-			tf = proto_tree_add_text(nbipx_tree, tvb, offset, 1,
-				"Name type flag: 0x%02x", name_type_flag);
-			name_type_flag_tree = proto_item_add_subtree(tf,
-					ett_nbipx_name_type_flags);
-			proto_tree_add_text(name_type_flag_tree, tvb, offset,
-			    1, "%s",
-			    decode_boolean_bitfield(name_type_flag, 0x80, 8,
-			      "Group name", "Unique name"));
-			proto_tree_add_text(name_type_flag_tree, tvb, offset,
-			    1, "%s",
-			    decode_boolean_bitfield(name_type_flag, 0x40, 8,
-			      "Name in use", "Name not used"));
-			proto_tree_add_text(name_type_flag_tree, tvb, offset,
-			    1, "%s",
-			    decode_boolean_bitfield(name_type_flag, 0x04, 8,
-			      "Name registered", "Name not registered"));
-			proto_tree_add_text(name_type_flag_tree, tvb, offset,
-			    1, "%s",
-			    decode_boolean_bitfield(name_type_flag, 0x02, 8,
-			      "Name duplicated", "Name not duplicated"));
-			proto_tree_add_text(name_type_flag_tree, tvb, offset,
-			    1, "%s",
-			    decode_boolean_bitfield(name_type_flag, 0x01, 8,
-			      "Name deregistered", "Name not deregistered"));
+			tf = proto_tree_add_item(nbipx_tree, hf_nbipx_name_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			name_type_flag_tree = proto_item_add_subtree(tf, ett_nbipx_name_type_flags);
+
+			proto_tree_add_item(name_type_flag_tree, hf_nbipx_name_flags_group, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(name_type_flag_tree, hf_nbipx_name_flags_in_use, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(name_type_flag_tree, hf_nbipx_name_flags_registered, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(name_type_flag_tree, hf_nbipx_name_flags_duplicated, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(name_type_flag_tree, hf_nbipx_name_flags_deregistered, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		}
 		offset += 1;
 
@@ -465,31 +462,17 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_conn_control(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint8		conn_control;
 	proto_item	*ti;
 	proto_tree	*cc_tree;
 
 	if (tree) {
-		conn_control = tvb_get_guint8(tvb, offset);
-		ti = proto_tree_add_text(tree, tvb, offset, 1,
-		    "Connection control: 0x%02x", conn_control);
+		ti = proto_tree_add_item(tree, hf_nbipx_conn_control, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		cc_tree = proto_item_add_subtree(ti, ett_nbipx_conn_ctrl);
-		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
-		      decode_boolean_bitfield(conn_control, 0x80, 8,
-			      "System packet", "Non-system packet"));
-		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
-		      decode_boolean_bitfield(conn_control, 0x40, 8,
-			      "Acknowledgement required",
-			      "Acknowledgement not required"));
-		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
-		      decode_boolean_bitfield(conn_control, 0x20, 8,
-			      "Attention", "No attention"));
-		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
-		      decode_boolean_bitfield(conn_control, 0x10, 8,
-			      "End of message", "No end of message"));
-		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
-		      decode_boolean_bitfield(conn_control, 0x08, 8,
-			      "Resend", "No resend"));
+		proto_tree_add_item(cc_tree, hf_nbipx_conn_control_sys_packet, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cc_tree, hf_nbipx_conn_control_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cc_tree, hf_nbipx_conn_control_attention, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cc_tree, hf_nbipx_conn_control_end_msg, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(cc_tree, hf_nbipx_conn_control_resend, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -508,19 +491,82 @@ dissect_packet_type(tvbuff_t *tvb, int offset, guint8 packet_type,
 void
 proto_register_nbipx(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "nbipx.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+	static hf_register_info hf[] = {
+		{ &hf_nbipx_name_flags,
+		  { "Name type flag",   "nmpi.name_flags",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_name_flags_group,
+		  { "Name",   "nmpi.name_flags.group",
+			FT_BOOLEAN, 8, TFS(&tfs_group_unique_name), 0x80,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_name_flags_in_use,
+		  { "In use",   "nmpi.name_flags.in_use",
+			FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x40,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_name_flags_registered,
+		  { "Registered",   "nmpi.name_flags.registered",
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_name_flags_duplicated,
+		  { "Duplicated",   "nmpi.name_flags.duplicated",
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_name_flags_deregistered,
+		  { "Deregistered",   "nmpi.name_flags.deregistered",
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_name_flags,
+		  { "Name type flag",   "nmpi.name_flags",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_conn_control,
+		  { "Connection control",   "nmpi.conn_control",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_conn_control_sys_packet,
+		  { "Packet",   "nmpi.conn_control.sys_packet",
+			FT_BOOLEAN, 8, TFS(&tfs_system_non_system), 0x80,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_conn_control_ack,
+		  { "Acknowledgement",   "nmpi.conn_control.ack",
+			FT_BOOLEAN, 8, TFS(&tfs_required_not_required), 0x40,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_conn_control_attention,
+		  { "Attention",   "nmpi.conn_control.attention",
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_conn_control_end_msg,
+		  { "End of message",   "nmpi.conn_control.end_msg",
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_conn_control_resend,
+		  { "Resend",   "nmpi.conn_control.resend",
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+			NULL, HFILL }
+		},
+    };
+
 	static gint *ett[] = {
 		&ett_nbipx,
 		&ett_nbipx_conn_ctrl,
 		&ett_nbipx_name_type_flags,
 	};
 
-        proto_nbipx = proto_register_protocol("NetBIOS over IPX",
-	    "NBIPX", "nbipx");
- /*       proto_register_field_array(proto_nbipx, hf, array_length(hf));*/
+	proto_nbipx = proto_register_protocol("NetBIOS over IPX", "NBIPX", "nbipx");
+	proto_register_field_array(proto_nbipx, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 

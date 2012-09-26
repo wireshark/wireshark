@@ -209,6 +209,10 @@ static int hf_nfs_fsinfo_wtmult = -1;
 static int hf_nfs_fsinfo_dtpref = -1;
 static int hf_nfs_fsinfo_maxfilesize = -1;
 static int hf_nfs_fsinfo_properties = -1;
+static int hf_nfs_fsinfo_properties_setattr = -1;
+static int hf_nfs_fsinfo_properties_pathconf = -1;
+static int hf_nfs_fsinfo_properties_symlinks = -1;
+static int hf_nfs_fsinfo_properties_hardlinks = -1;
 static int hf_nfs_pathconf_linkmax = -1;
 static int hf_nfs_pathconf_name_max = -1;
 static int hf_nfs_pathconf_no_trunc = -1;
@@ -279,6 +283,19 @@ static int hf_nfs_mode3_xgrp = -1;
 static int hf_nfs_mode3_roth = -1;
 static int hf_nfs_mode3_woth = -1;
 static int hf_nfs_mode3_xoth = -1;
+static int hf_nfs_mode_name = -1;
+static int hf_nfs_mode_set_user_id = -1;
+static int hf_nfs_mode_set_group_id = -1;
+static int hf_nfs_mode_save_swap_text = -1;
+static int hf_nfs_mode_read_owner = -1;
+static int hf_nfs_mode_write_owner = -1;
+static int hf_nfs_mode_exec_owner = -1;
+static int hf_nfs_mode_read_group = -1;
+static int hf_nfs_mode_write_group = -1;
+static int hf_nfs_mode_exec_group = -1;
+static int hf_nfs_mode_read_other = -1;
+static int hf_nfs_mode_write_other = -1;
+static int hf_nfs_mode_exec_other = -1;
 
 /* NFSv4 */
 static int hf_nfs_nfsstat4 = -1;
@@ -2818,34 +2835,19 @@ dissect_mode(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 			"%s: 0%o", name, mode);
 
 		mode_tree = proto_item_add_subtree(mode_item, ett_nfs_mode);
-
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-			decode_enumerated_bitfield(mode,  0160000, 16,
-			nfs2_mode_names, "%s"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode,   04000, 16, "Set user id on exec", "not SUID"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode,   02000, 16, "Set group id on exec", "not SGID"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode,   01000, 16, "Save swapped text even after use", "not save swapped text"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode,    0400, 16, "Read permission for owner", "no Read permission for owner"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode,    0200, 16, "Write permission for owner", "no Write permission for owner"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode,    0100, 16, "Execute permission for owner", "no Execute permission for owner"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode,     040, 16, "Read permission for group", "no Read permission for group"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode,     020, 16, "Write permission for group", "no Write permission for group"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode,     010, 16, "Execute permission for group", "no Execute permission for group"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode,      04, 16, "Read permission for others", "no Read permission for others"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode,      02, 16, "Write permission for others", "no Write permission for others"));
-		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
-		decode_boolean_bitfield(mode,      01, 16, "Execute permission for others", "no Execute permission for others"));
+		proto_tree_add_item(mode_tree, hf_nfs_mode_name, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_nfs_mode_set_user_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_nfs_mode_set_group_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_nfs_mode_save_swap_text, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_nfs_mode_read_owner, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_nfs_mode_write_owner, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_nfs_mode_exec_owner, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_nfs_mode_read_group, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_nfs_mode_write_group, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_nfs_mode_exec_group, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_nfs_mode_read_other, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_nfs_mode_write_other, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mode_tree, hf_nfs_mode_exec_other, tvb, offset, 4, ENC_BIG_ENDIAN);
 	}
 
 	offset += 4;
@@ -5926,6 +5928,7 @@ dissect_nfs3_fsstat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 #define FSF3_HOMOGENEOUS 0x0008
 #define FSF3_CANSETTIME  0x0010
 
+static const true_false_string tfs_nfs_pathconf = { "is valid for all files", "should be get for every single file" };
 
 /* RFC 1813, Page 86..90 */
 static int
@@ -5945,14 +5948,6 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			  proto_tree* tree)
 {
 	guint32 status;
-	guint32 rtmax;
-	guint32 rtpref;
-	guint32 rtmult;
-	guint32 wtmax;
-	guint32 wtpref;
-	guint32 wtmult;
-	guint32 dtpref;
-	guint32 properties;
 	proto_item*	properties_item = NULL;
 	proto_tree*	properties_tree = NULL;
 	const char *err;
@@ -5962,81 +5957,35 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		case 0:
 			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
-			rtmax = tvb_get_ntohl(tvb, offset+0);
-			if (tree)
-				proto_tree_add_uint(tree, hf_nfs_fsinfo_rtmax, tvb,
-				offset+0, 4, rtmax);
+			proto_tree_add_item(tree, hf_nfs_fsinfo_rtmax, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
-			rtpref = tvb_get_ntohl(tvb, offset+0);
-			if (tree)
-				proto_tree_add_uint(tree, hf_nfs_fsinfo_rtpref, tvb,
-				offset+0, 4, rtpref);
+			proto_tree_add_item(tree, hf_nfs_fsinfo_rtpref, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
-			rtmult = tvb_get_ntohl(tvb, offset+0);
-			if (tree)
-				proto_tree_add_uint(tree, hf_nfs_fsinfo_rtmult, tvb,
-				offset+0, 4, rtmult);
+			proto_tree_add_item(tree, hf_nfs_fsinfo_rtmult, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
-			wtmax = tvb_get_ntohl(tvb, offset+0);
-			if (tree)
-				proto_tree_add_uint(tree, hf_nfs_fsinfo_wtmax, tvb,
-				offset+0, 4, wtmax);
+			proto_tree_add_item(tree, hf_nfs_fsinfo_wtmax, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
-			wtpref = tvb_get_ntohl(tvb, offset+0);
-			if (tree)
-				proto_tree_add_uint(tree, hf_nfs_fsinfo_wtpref, tvb,
-				offset+0, 4, wtpref);
+			proto_tree_add_item(tree, hf_nfs_fsinfo_wtpref, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
-			wtmult = tvb_get_ntohl(tvb, offset+0);
-			if (tree)
-				proto_tree_add_uint(tree, hf_nfs_fsinfo_wtmult, tvb,
-				offset+0, 4, wtmult);
+			proto_tree_add_item(tree, hf_nfs_fsinfo_wtmult, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
-			dtpref = tvb_get_ntohl(tvb, offset+0);
-			if (tree)
-				proto_tree_add_uint(tree, hf_nfs_fsinfo_dtpref, tvb,
-				offset+0, 4, dtpref);
+			proto_tree_add_item(tree, hf_nfs_fsinfo_dtpref, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			offset = dissect_rpc_uint64(tvb, tree,
 				hf_nfs_fsinfo_maxfilesize, offset);
 			offset = dissect_nfstime3(tvb, offset, tree, hf_nfs_dtime, hf_nfs_dtime_sec, hf_nfs_dtime_nsec);
-			properties = tvb_get_ntohl(tvb, offset+0);
 			if (tree) {
-				properties_item = proto_tree_add_uint(tree,
-				hf_nfs_fsinfo_properties,
-				tvb, offset+0, 4, properties);
+				properties_item = proto_tree_add_item(tree, hf_nfs_fsinfo_properties,
+				    tvb, offset, 4, ENC_BIG_ENDIAN);
 
 				properties_tree = proto_item_add_subtree(properties_item,
 						ett_nfs_fsinfo_properties);
 
-				proto_tree_add_text(properties_tree, tvb,
-					offset, 4, "%s",
-					decode_boolean_bitfield(properties,
-					FSF3_CANSETTIME,5,
-					"SETATTR can set time on server",
-					"SETATTR can't set time on server"));
-
-				proto_tree_add_text(properties_tree, tvb,
-					offset, 4, "%s",
-					decode_boolean_bitfield(properties,
-					FSF3_HOMOGENEOUS,5,
-					"PATHCONF is valid for all files",
-					"PATHCONF should be get for every single file"));
-
-				proto_tree_add_text(properties_tree, tvb,
-					offset, 4, "%s",
-					decode_boolean_bitfield(properties,
-					FSF3_SYMLINK,5,
-					"File System supports symbolic links",
-					"File System does not symbolic hard links"));
-
-				proto_tree_add_text(properties_tree, tvb,
-					offset, 4, "%s",
-					decode_boolean_bitfield(properties,
-					FSF3_LINK,5,
-					"File System supports hard links",
-					"File System does not support hard links"));
+				proto_tree_add_item(tree, hf_nfs_fsinfo_properties_setattr, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_nfs_fsinfo_properties_pathconf, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_nfs_fsinfo_properties_symlinks, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_nfs_fsinfo_properties_hardlinks, tvb, offset, 4, ENC_BIG_ENDIAN);
 			}
 			offset += 4;
 
@@ -10998,6 +10947,18 @@ proto_register_nfs(void)
 		{ &hf_nfs_fsinfo_properties, {
 			"Properties", "nfs.fsinfo.properties", FT_UINT32, BASE_HEX,
 			NULL, 0, "File System Properties", HFILL }},
+		{ &hf_nfs_fsinfo_properties_setattr, {
+			"SETATTR can set time on server", "nfs.fsinfo.properties.setattr", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), FSF3_CANSETTIME, NULL, HFILL }},
+		{ &hf_nfs_fsinfo_properties_pathconf, {
+			"PATHCONF", "nfs.fsinfo.properties.pathconf", FT_BOOLEAN, 32,
+			TFS(&tfs_nfs_pathconf), FSF3_HOMOGENEOUS, NULL, HFILL }},
+		{ &hf_nfs_fsinfo_properties_symlinks, {
+			"File System supports symbolic links", "nfs.fsinfo.properties.symlinks", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), FSF3_SYMLINK, NULL, HFILL }},
+		{ &hf_nfs_fsinfo_properties_hardlinks, {
+			"File System supports hard links", "nfs.fsinfo.properties.hardlinks", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), FSF3_LINK, NULL, HFILL }},
 		{ &hf_nfs_pathconf_linkmax, {
 			"linkmax", "nfs.pathconf.linkmax", FT_UINT32, BASE_DEC,
 			NULL, 0, "Maximum number of hard links", HFILL }},
@@ -12248,6 +12209,58 @@ proto_register_nfs(void)
 		{ &hf_nfs_mode3_xoth, {
 			"S_IXOTH", "nfs.mode3.xoth", FT_BOOLEAN, 32,
 			TFS(&tfs_yes_no), 0x001, NULL, HFILL }},
+
+		{ &hf_nfs_mode_name, {
+			"Name", "nfs.mode.name", FT_UINT32, BASE_DEC,
+			VALS(nfs2_mode_names), 0160000, NULL, HFILL }},
+
+		{ &hf_nfs_mode_set_user_id, {
+			"Set user id on exec", "nfs.mode.set_user_id", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 04000, NULL, HFILL }},
+
+		{ &hf_nfs_mode_set_group_id, {
+			"Set group id on exec", "nfs.mode.set_group_id", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 02000, NULL, HFILL }},
+
+		{ &hf_nfs_mode_save_swap_text, {
+			"Save swapped text even after use", "nfs.mode.save_swap_text", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 01000, NULL, HFILL }},
+
+		{ &hf_nfs_mode_read_owner, {
+			"Read permission for owner", "nfs.mode.read_owner", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0400, NULL, HFILL }},
+
+		{ &hf_nfs_mode_write_owner, {
+			"Read permission for owner", "nfs.mode.write_owner", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0200, NULL, HFILL }},
+
+		{ &hf_nfs_mode_exec_owner, {
+			"Read permission for owner", "nfs.mode.exec_owner", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 0100, NULL, HFILL }},
+
+		{ &hf_nfs_mode_read_group, {
+			"Read permission for group", "nfs.mode.read_group", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 040, NULL, HFILL }},
+
+		{ &hf_nfs_mode_write_group, {
+			"Read permission for group", "nfs.mode.write_group", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 020, NULL, HFILL }},
+
+		{ &hf_nfs_mode_exec_group, {
+			"Read permission for group", "nfs.mode.exec_group", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 010, NULL, HFILL }},
+
+		{ &hf_nfs_mode_read_other, {
+			"Read permission for others", "nfs.mode.read_other", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 04, NULL, HFILL }},
+
+		{ &hf_nfs_mode_write_other, {
+			"Read permission for others", "nfs.mode.write_other", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 02, NULL, HFILL }},
+
+		{ &hf_nfs_mode_exec_other, {
+			"Read permission for others", "nfs.mode.exec_other", FT_BOOLEAN, 32,
+			TFS(&tfs_yes_no), 01, NULL, HFILL }},
 
 		{ &hf_nfs_op_mask, {
 			"op_mask", "nfs.op_mask", FT_UINT32, BASE_DEC,

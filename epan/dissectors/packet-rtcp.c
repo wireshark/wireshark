@@ -808,7 +808,6 @@ static int
 dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item)
 {
     int           i;
-    char          strbuf[64];
     int           nack_num_frames_lost;
     proto_tree   *bitfield_tree;
     unsigned int  rtcp_rtpfb_nack_pid;
@@ -827,17 +826,18 @@ dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto
     nack_num_frames_lost = 1;
     if (rtcp_rtpfb_nack_blp) {
         for (i = 0; i < 16; i ++) {
-            g_snprintf(strbuf, 64, "Frame %d also lost", rtcp_rtpfb_nack_pid + i + 1);
-            proto_tree_add_text(bitfield_tree, tvb, offset, 2, "%s",
-                                decode_boolean_bitfield(rtcp_rtpfb_nack_blp, (1<<i), 16, strbuf, ""));
-
             if (rtcp_rtpfb_nack_blp & (1<<i)) {
                 proto_item *hidden_ti;
+                proto_tree_add_text(bitfield_tree, tvb, offset, 2, "Frame %d also lost", rtcp_rtpfb_nack_pid + i + 1);
                 hidden_ti = proto_tree_add_uint(bitfield_tree, hf_rtcp_rtpfb_nack_pid, tvb, offset, 2, rtcp_rtpfb_nack_pid + i + 1);
                 PROTO_ITEM_SET_HIDDEN(hidden_ti);
                 proto_item_append_text(ti, "%d ", rtcp_rtpfb_nack_pid + i + 1);
                 nack_num_frames_lost ++;
             }
+            else {
+                proto_tree_add_text(bitfield_tree, tvb, offset, 2, "");
+            }
+
         }
     } else {
         proto_item_set_text(ti, "0 (No additional frames lost)");

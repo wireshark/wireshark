@@ -601,6 +601,16 @@ static int hf_dnp3_al_aoq_b5 = -1;
 static int hf_dnp3_al_aoq_b6 = -1;
 static int hf_dnp3_al_aoq_b7 = -1;
 static int hf_dnp3_al_timestamp = -1;
+static int hf_dnp3_al_file_perms = -1;
+static int hf_dnp3_al_file_perms_read_owner = -1;
+static int hf_dnp3_al_file_perms_write_owner = -1;
+static int hf_dnp3_al_file_perms_exec_owner = -1;
+static int hf_dnp3_al_file_perms_read_group = -1;
+static int hf_dnp3_al_file_perms_write_group = -1;
+static int hf_dnp3_al_file_perms_exec_group = -1;
+static int hf_dnp3_al_file_perms_read_world = -1;
+static int hf_dnp3_al_file_perms_write_world = -1;
+static int hf_dnp3_al_file_perms_exec_world = -1;
 static int hf_dnp3_al_rel_timestamp = -1;
 static int hf_dnp3_al_ana16 = -1;
 static int hf_dnp3_al_ana32 = -1;
@@ -1462,7 +1472,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   guint8        al_2bit, al_objq, al_objq_index, al_objq_code, al_ptflags, al_ctlobj_code, al_oct_len=0,
                 al_ctlobj_code_c, al_ctlobj_code_m, al_ctlobj_code_tc, al_ctlobj_count, al_bi_val, bitindex=0;
   guint16       al_obj, al_val16=0, al_ctlobj_stat, al_relms, al_filename_offs, al_filename_len, al_file_ctrl_mode,
-                al_file_perms, temp;
+                temp;
   guint32       al_val32, al_ptaddr=0, al_ctlobj_on, al_ctlobj_off, file_data_size;
   nstime_t      al_reltime, al_abstime;
   gboolean      al_bit;
@@ -2287,28 +2297,18 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             /* Perms */
             if (al_file_ctrl_mode == AL_OBJ_FILE_MODE_WRITE) {
 
-              al_file_perms = tvb_get_letohs(tvb, data_pos);
-              perms_item = proto_tree_add_text(point_tree, tvb, offset, 2, "Permissions: %o", al_file_perms);
-              perms_tree = proto_item_add_subtree(perms_item, ett_dnp3_al_obj_point_perms);
+              perms_item = proto_tree_add_item(point_tree, hf_dnp3_al_file_perms, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-              proto_tree_add_text(perms_tree, tvb, data_pos, 2, "%s",
-              decode_boolean_bitfield(al_file_perms, 0400, 16, "Read permission for owner", "no Read permission for owner"));
-              proto_tree_add_text(perms_tree, tvb, data_pos, 2, "%s",
-              decode_boolean_bitfield(al_file_perms, 0200, 16, "Write permission for owner", "no Write permission for owner"));
-              proto_tree_add_text(perms_tree, tvb, data_pos, 2, "%s",
-              decode_boolean_bitfield(al_file_perms, 0100, 16, "Execute permission for owner", "no Execute permission for owner"));
-              proto_tree_add_text(perms_tree, tvb, data_pos, 2, "%s",
-              decode_boolean_bitfield(al_file_perms,  040, 16, "Read permission for group", "no Read permission for group"));
-              proto_tree_add_text(perms_tree, tvb, data_pos, 2, "%s",
-              decode_boolean_bitfield(al_file_perms,  020, 16, "Write permission for group", "no Write permission for group"));
-              proto_tree_add_text(perms_tree, tvb, data_pos, 2, "%s",
-              decode_boolean_bitfield(al_file_perms,  010, 16, "Execute permission for group", "no Execute permission for group"));
-              proto_tree_add_text(perms_tree, tvb, data_pos, 2, "%s",
-              decode_boolean_bitfield(al_file_perms,   04, 16, "Read permission for world", "no Read permission for world"));
-              proto_tree_add_text(perms_tree, tvb, data_pos, 2, "%s",
-              decode_boolean_bitfield(al_file_perms,   02, 16, "Write permission for world", "no Write permission for world"));
-              proto_tree_add_text(perms_tree, tvb, data_pos, 2, "%s",
-              decode_boolean_bitfield(al_file_perms,   01, 16, "Execute permission for world", "no Execute permission for world"));
+              perms_tree = proto_item_add_subtree(perms_item, ett_dnp3_al_obj_point_perms);
+              proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_read_owner, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+              proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_write_owner, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+              proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_exec_owner, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+              proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_read_group, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+              proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_write_group, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+              proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_exec_group, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+              proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_read_world, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+              proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_write_world, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+              proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_exec_world, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             }
             data_pos += 2;
 
@@ -3475,6 +3475,36 @@ proto_register_dnp3(void)
 
     { &hf_dnp3_al_timestamp,
     { "Timestamp", "dnp3.al.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, "Object Timestamp", HFILL }},
+
+    { &hf_dnp3_al_file_perms,
+    { "Permissions", "dnp3.al.file.perms", FT_UINT16, BASE_OCT, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_dnp3_al_file_perms_read_owner,
+    { "Read permission for owner", "dnp3.al.file.perms.read_owner", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0400, NULL, HFILL }},
+
+    { &hf_dnp3_al_file_perms_write_owner,
+    { "Write permission for owner", "dnp3.al.file.perms.write_owner", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0200, NULL, HFILL }},
+
+    { &hf_dnp3_al_file_perms_exec_owner,
+    { "Execute permission for owner", "dnp3.al.file.perms.exec_owner", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0100, NULL, HFILL }},
+
+    { &hf_dnp3_al_file_perms_read_group,
+    { "Read permission for group", "dnp3.al.file.perms.read_group", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 040, NULL, HFILL }},
+
+    { &hf_dnp3_al_file_perms_write_group,
+    { "Write permission for group", "dnp3.al.file.perms.write_group", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 020, NULL, HFILL }},
+
+    { &hf_dnp3_al_file_perms_exec_group,
+    { "Execute permission for group", "dnp3.al.file.perms.exec_group", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 010, NULL, HFILL }},
+
+    { &hf_dnp3_al_file_perms_read_world,
+    { "Read permission for world", "dnp3.al.file.perms.read_world", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 04, NULL, HFILL }},
+
+    { &hf_dnp3_al_file_perms_write_world,
+    { "Write permission for world", "dnp3.al.file.perms.write_world", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 02, NULL, HFILL }},
+
+    { &hf_dnp3_al_file_perms_exec_world,
+    { "Execute permission for world", "dnp3.al.file.perms.exec_world", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 01, NULL, HFILL }},
 
     { &hf_dnp3_al_rel_timestamp,
     { "Relative Timestamp", "dnp3.al.reltimestamp", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Object Relative Timestamp", HFILL }},

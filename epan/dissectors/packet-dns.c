@@ -134,6 +134,15 @@ static int hf_dns_dnskey_protocol = -1;
 static int hf_dns_dnskey_algorithm = -1;
 static int hf_dns_dnskey_key_id = -1;
 static int hf_dns_dnskey_public_key = -1;
+static int hf_dns_t_key_flags = -1;
+static int hf_dns_t_key_flags_authentication = -1;
+static int hf_dns_t_key_flags_confidentiality = -1;
+static int hf_dns_t_key_flags_key_required = -1;
+static int hf_dns_t_key_flags_associated_user = -1;
+static int hf_dns_t_key_flags_associated_named_entity = -1;
+static int hf_dns_t_key_flags_ipsec = -1;
+static int hf_dns_t_key_flags_mime = -1;
+static int hf_dns_t_key_flags_signatory = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -455,6 +464,7 @@ static const true_false_string tfs_flags_nsec3_optout = {
   "Additional insecure delegations allowed",
   "Additional insecure delegations forbidden"
 };
+static const true_false_string tfs_required_experimental = { "Experimental or optional", "Required" };
 
 /* TSIG/TKEY extended errors */
 #define TSIGERROR_BADSIG   (16)
@@ -1874,41 +1884,18 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         goto bad_rr;
       }
       flags = tvb_get_ntohs(tvb, cur_offset);
-      tf = proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Flags: 0x%04X", flags);
+      tf = proto_tree_add_item(rr_tree, hf_dns_t_key_flags, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       flags_tree = proto_item_add_subtree(tf, ett_t_key_flags);
-      proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-                          decode_boolean_bitfield(flags, 0x8000,
-                                                  2*8, "Key prohibited for authentication",
-                                                  "Key allowed for authentication"));
-      proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-                          decode_boolean_bitfield(flags, 0x4000,
-                                                  2*8, "Key prohibited for confidentiality",
-                                                  "Key allowed for confidentiality"));
+      proto_tree_add_item(flags_tree, hf_dns_t_key_flags_authentication, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_dns_t_key_flags_confidentiality, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       if ((flags & 0xC000) != 0xC000) {
         /* We have a key */
-        proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-                            decode_boolean_bitfield(flags, 0x2000,
-                                                    2*8, "Key is experimental or optional",
-                                                    "Key is required"));
-        proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-                            decode_boolean_bitfield(flags, 0x0400,
-                                                    2*8, "Key is associated with a user",
-                                                    "Key is not associated with a user"));
-        proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-                            decode_boolean_bitfield(flags, 0x0200,
-                                                    2*8, "Key is associated with the named entity",
-                                                    "Key is not associated with the named entity"));
-        proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-                            decode_boolean_bitfield(flags, 0x0080,
-                                                    2*8, "Key is valid for use with IPSEC",
-                                                    "Key is not valid for use with IPSEC"));
-        proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-                            decode_boolean_bitfield(flags, 0x0040,
-                                                    2*8, "Key is valid for use with MIME security multiparts",
-                                                    "Key is not valid for use with MIME security multiparts"));
-        proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-                            decode_numeric_bitfield(flags, 0x000F,
-                                                    2*8, "Signatory = %u"));
+        proto_tree_add_item(flags_tree, hf_dns_t_key_flags_key_required, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_dns_t_key_flags_associated_user, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_dns_t_key_flags_associated_named_entity, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_dns_t_key_flags_ipsec, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_dns_t_key_flags_mime, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_dns_t_key_flags_signatory, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       }
       cur_offset += 2;
       rr_len     -= 2;
@@ -4245,6 +4232,51 @@ proto_register_dns(void)
     { &hf_dns_dnskey_public_key,
       { "Public Key", "dns.dnskey.public_key",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_t_key_flags,
+      { "Flags", "dns.t_key.flags",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_t_key_flags_authentication,
+      { "Key allowed for authentication", "dns.t_key.flags.authentication",
+        FT_BOOLEAN, 16, TFS(&tfs_not_allowed_allowed), 0x8000,
+        NULL, HFILL }},
+
+    { &hf_dns_t_key_flags_confidentiality,
+      { "Key allowed for confidentiality", "dns.t_key.flags.confidentiality",
+        FT_BOOLEAN, 16, TFS(&tfs_not_allowed_allowed), 0x4000,
+        NULL, HFILL }},
+
+    { &hf_dns_t_key_flags_key_required,
+      { "Key required", "dns.t_key.flags.required",
+        FT_BOOLEAN, 16, TFS(&tfs_required_experimental), 0x2000,
+        NULL, HFILL }},
+
+    { &hf_dns_t_key_flags_associated_user,
+      { "Key is associated with a user", "dns.t_key.flags.associated_user",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0400,
+        NULL, HFILL }},
+
+    { &hf_dns_t_key_flags_associated_named_entity,
+      { "Key is associated with the named entity", "dns.t_key.flags.associated_named_entity",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0200,
+        NULL, HFILL }},
+
+    { &hf_dns_t_key_flags_ipsec,
+      { "Key use with IPSEC", "dns.t_key.flags.ipsec",
+        FT_BOOLEAN, 16, TFS(&tfs_valid_invalid), 0x0080,
+        NULL, HFILL }},
+
+    { &hf_dns_t_key_flags_mime,
+      { "Key use with MIME security multiparts", "dns.t_key.flags.mime",
+        FT_BOOLEAN, 16, TFS(&tfs_valid_invalid), 0x0040,
+        NULL, HFILL }},
+
+    { &hf_dns_t_key_flags_signatory,
+      { "Signatory", "dns.t_key.flags.signatory",
+        FT_UINT16, BASE_DEC, NULL, 0x000F,
         NULL, HFILL }},
 
     { &hf_dns_rr_ns,

@@ -65,6 +65,19 @@ static int hf_cdp_tlvlength = -1;
 static int hf_cdp_deviceid = -1;
 static int hf_cdp_platform = -1;
 static int hf_cdp_portid = -1;
+static int hf_cdp_capabilities = -1;
+static int hf_cdp_capabilities_router = -1;
+static int hf_cdp_capabilities_trans_bridge = -1;
+static int hf_cdp_capabilities_src_bridge = -1;
+static int hf_cdp_capabilities_switch = -1;
+static int hf_cdp_capabilities_host = -1;
+static int hf_cdp_capabilities_igmp_capable = -1;
+static int hf_cdp_capabilities_repeater = -1;
+static int hf_cdp_spare_poe_tlv = -1;
+static int hf_cdp_spare_poe_tlv_poe = -1;
+static int hf_cdp_spare_poe_tlv_spare_pair_arch = -1;
+static int hf_cdp_spare_poe_tlv_req_spare_pair_poe = -1;
+static int hf_cdp_spare_poe_tlv_pse_spare_pair_poe = -1;
 
 static gint ett_cdp = -1;
 static gint ett_cdp_tlv = -1;
@@ -1038,42 +1051,18 @@ dissect_capabilities(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *capabilities_tree;
-    guint32     capabilities;
 
     if (length < 4)
         return;
-    capabilities = tvb_get_ntohl(tvb, offset);
-    ti = proto_tree_add_text(tree, tvb, offset, length, "Capabilities: 0x%08x",
-        capabilities);
+    ti = proto_tree_add_item(tree, hf_cdp_capabilities, tvb, offset, 4, ENC_BIG_ENDIAN);
     capabilities_tree = proto_item_add_subtree(ti, ett_cdp_capabilities);
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
-        decode_boolean_bitfield(capabilities, 0x01, 4*8,
-            "Is  a Router",
-            "Not a Router"));
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
-        decode_boolean_bitfield(capabilities, 0x02, 4*8,
-            "Is  a Transparent Bridge",
-            "Not a Transparent Bridge"));
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
-        decode_boolean_bitfield(capabilities, 0x04, 4*8,
-            "Is  a Source Route Bridge",
-            "Not a Source Route Bridge"));
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
-        decode_boolean_bitfield(capabilities, 0x08, 4*8,
-            "Is  a Switch",
-            "Not a Switch"));
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
-        decode_boolean_bitfield(capabilities, 0x10, 4*8,
-            "Is  a Host",
-            "Not a Host"));
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
-        decode_boolean_bitfield(capabilities, 0x20, 4*8,
-            "Is  IGMP capable",
-            "Not IGMP capable"));
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
-        decode_boolean_bitfield(capabilities, 0x40, 4*8,
-            "Is  a Repeater",
-            "Not a Repeater"));
+    proto_tree_add_item(capabilities_tree, hf_cdp_capabilities_router, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(capabilities_tree, hf_cdp_capabilities_trans_bridge, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(capabilities_tree, hf_cdp_capabilities_src_bridge, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(capabilities_tree, hf_cdp_capabilities_switch, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(capabilities_tree, hf_cdp_capabilities_host, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(capabilities_tree, hf_cdp_capabilities_igmp_capable, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(capabilities_tree, hf_cdp_capabilities_repeater, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -1176,33 +1165,17 @@ dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length,
 {
     proto_item *ti;
     proto_tree *tlv_tree;
-    guint8      tlv_data;
 
     if (length == 0) {
         return;
     }
 
-    tlv_data = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_text(tree, tvb, offset, length,
-                             "Spare Pair PoE: 0x%02x", tlv_data);
+    ti = proto_tree_add_item(tree, hf_cdp_spare_poe_tlv, tvb, offset, 1, ENC_BIG_ENDIAN);
     tlv_tree = proto_item_add_subtree(ti, ett_cdp_spare_poe_tlv);
-
-    proto_tree_add_text(tlv_tree, tvb, offset, 1, "%s",
-        decode_boolean_bitfield(tlv_data, 0x01, 8,
-            "PSE Four-Wire PoE Supported",
-            "PSE Four-Wire PoE Not Supported"));
-    proto_tree_add_text(tlv_tree, tvb, offset, 1, "%s",
-        decode_boolean_bitfield(tlv_data, 0x02, 8,
-            "PD  Spare Pair Architecture Shared",
-            "PD  Spare Pair Architecture Independent"));
-    proto_tree_add_text(tlv_tree, tvb, offset, 1, "%s",
-        decode_boolean_bitfield(tlv_data, 0x04, 8,
-            "PD  Request Spare Pair PoE On",
-            "PD  Request Spare Pair PoE Off"));
-    proto_tree_add_text(tlv_tree, tvb, offset, 1, "%s",
-        decode_boolean_bitfield(tlv_data, 0x08, 8,
-            "PSE Spare Pair PoE On",
-            "PSE Spare Pair PoE Off"));
+    proto_tree_add_item(tlv_tree, hf_cdp_spare_poe_tlv_poe, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_cdp_spare_poe_tlv_spare_pair_arch, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_cdp_spare_poe_tlv_req_spare_pair_poe, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_cdp_spare_poe_tlv_pse_spare_pair_poe, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -1275,8 +1248,66 @@ proto_register_cdp(void)
 
         { &hf_cdp_portid,
         {"Sent through Interface", "cdp.portid", FT_STRING, BASE_NONE,
-                NULL, 0, NULL, HFILL }}
+                NULL, 0, NULL, HFILL }},
+
+        { &hf_cdp_capabilities,
+        {"Capabilities", "cdp.capabilities", FT_UINT32, BASE_HEX,
+                NULL, 0, NULL, HFILL }},
+
+        { &hf_cdp_capabilities_router,
+        {"Router", "cdp.capabilities.router", FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), 0x01, NULL, HFILL }},
+
+        { &hf_cdp_capabilities_trans_bridge,
+        {"Transparent Bridge", "cdp.capabilities.trans_bridge", FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), 0x02, NULL, HFILL }},
+
+        { &hf_cdp_capabilities_src_bridge,
+        {"Source Route Bridge", "cdp.capabilities.src_bridge", FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), 0x04, NULL, HFILL }},
+
+        { &hf_cdp_capabilities_switch,
+        {"Switch", "cdp.capabilities.switch", FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), 0x08, NULL, HFILL }},
+
+        { &hf_cdp_capabilities_host,
+        {"Host", "cdp.capabilities.host", FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), 0x10, NULL, HFILL }},
+
+        { &hf_cdp_capabilities_igmp_capable,
+        {"IGMP capable", "cdp.capabilities.igmp_capable", FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), 0x20, NULL, HFILL }},
+
+        { &hf_cdp_capabilities_repeater,
+        {"Repeater", "cdp.capabilities.repeater", FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), 0x40, NULL, HFILL }},
+
+        { &hf_cdp_spare_poe_tlv,
+        { "Spare Pair PoE", "cdp.spare_poe_tlv", FT_UINT8, BASE_HEX,
+                NULL, 0x0, NULL, HFILL }
+        },
+
+        { &hf_cdp_spare_poe_tlv_poe,
+        { "PSE Four-Wire PoE", "csp.spare_poe_tlv.poe", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }
+        },
+
+        { &hf_cdp_spare_poe_tlv_spare_pair_arch,
+        { "PD Spare Pair Architecture", "cdp.spare_poe_tlv.spare_pair_arch", FT_BOOLEAN, 8,
+                TFS(&tfs_shared_independent), 0x02, NULL, HFILL }
+        },
+
+        { &hf_cdp_spare_poe_tlv_req_spare_pair_poe,
+        { "PD Request Spare Pair PoE", "cdp.spare_poe_tlv.req_spare_pair_poe", FT_BOOLEAN, 8,
+                TFS(&tfs_on_off), 0x04, NULL, HFILL }
+        },
+
+        { &hf_cdp_spare_poe_tlv_pse_spare_pair_poe,
+        { "PSE Spare Pair PoE", "cdp.spare_poe_tlv.pse_spare_pair_poe", FT_BOOLEAN, 8,
+                TFS(&tfs_on_off), 0x08, NULL, HFILL }
+        },
     };
+
     static gint *ett[] = {
         &ett_cdp,
         &ett_cdp_tlv,
