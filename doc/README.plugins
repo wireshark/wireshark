@@ -110,7 +110,7 @@ CUSTOM_PLUGINS= \
 
 In order to be able to permanently add a plugin take the following steps.
 You will need to change the following files:
-	configure.in
+	configure.ac
 	CMakeLists.txt
 	epan/Makefile.am
 	Makefile.am
@@ -166,10 +166,10 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 	-dlopen plugins/irda/irda.la \
 	...
 
-3.2.4  Changes to the top level configure.in
+3.2.4  Changes to the top level configure.ac
 
 You need to add your plugins Makefile (in alphbetical order) to the 
-AC_OUTPUT rule in the configure.in
+AC_OUTPUT rule in the configure.ac
 
 AC_OUTPUT(
   ...
