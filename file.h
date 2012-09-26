@@ -66,6 +66,7 @@ typedef enum {
 } cf_print_status_t;
 
 typedef enum {
+    cf_cb_file_opened,
     cf_cb_file_closing,
     cf_cb_file_closed,
     cf_cb_file_read_started,

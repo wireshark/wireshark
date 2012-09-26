@@ -140,6 +140,7 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/color_dlg.h"
 #include "ui/gtk/filter_dlg.h"
+#include "ui/gtk/fileset_dlg.h"
 #include "ui/gtk/uat_gui.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/main_80211_toolbar.h"
@@ -1810,6 +1811,10 @@ static void
 main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 {
     switch(event) {
+    case(cf_cb_file_opened):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Opened");
+        fileset_file_opened(data);
+        break;
     case(cf_cb_file_closing):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closing");
         main_cf_cb_file_closing(data);

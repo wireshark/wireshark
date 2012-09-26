@@ -61,8 +61,6 @@ extern fileset_entry *fileset_get_previous(void);
 /* this file is a part of the current file set */
 extern void fileset_dlg_add_file(fileset_entry *entry);
 
-extern void fileset_file_opened(const char *fname);
-
 extern void fileset_file_closed(void);
 
 extern void fileset_update_dlg(void);
@@ -74,4 +72,3 @@ extern void fileset_update_file(const char *path);
 #endif /* __cplusplus */
 
 #endif /* __FILESET_H__ */
-

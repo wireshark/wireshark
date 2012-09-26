@@ -340,7 +340,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   cf_timestamp_auto_precision(cf);
   /* XXX needed ? */
   packet_list_queue_draw();
-  fileset_file_opened(fname);
+  cf_callback_invoke(cf_cb_file_opened, cf);
 
   if (cf->cd_t == WTAP_FILE_BER) {
     /* tell the BER dissector the file name */

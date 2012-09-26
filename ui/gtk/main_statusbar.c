@@ -988,6 +988,8 @@ void
 statusbar_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 {
     switch(event) {
+    case(cf_cb_file_opened):
+        break;
     case(cf_cb_file_closing):
         statusbar_cf_file_closing_cb(data);
         break;

@@ -32,6 +32,7 @@
 
 #include <gtk/gtk.h>
 
+#include "file.h"
 #include <epan/filesystem.h>
 
 #include "ui/simple_dialog.h"
@@ -364,8 +365,8 @@ fileset_previous_cb(GtkWidget *w _U_, gpointer d _U_)
 
 /* a new capture file was opened, browse the dir and look for files matching the given file set */
 void
-fileset_file_opened(const char *fname) {
-  fileset_add_dir(fname);
+fileset_file_opened(const capture_file *cf) {
+  fileset_add_dir(cf->filename);
   if(fs_w) {
     window_present(fs_w);
   }
@@ -396,4 +397,3 @@ fileset_file_closed(void)
                          fileset_get_previous() != NULL,
                          fileset_get_next() != NULL );
 }
-
