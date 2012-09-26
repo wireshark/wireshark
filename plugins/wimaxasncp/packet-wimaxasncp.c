@@ -877,11 +877,9 @@ static void wimaxasncp_dissect_tlv_value(
 
             value = tvb_get_guint8(tvb, offset);
 
-            item = proto_tree_add_uint_format(
+            item = proto_tree_add_item(
                 tree, tlv_info->hf_value,
-                tvb, offset, length, value,
-                "Value: %s",
-		decode_numeric_bitfield(value, 0xff, 8, "0x%02x"));
+                tvb, offset, 1, ENC_NA);
 
             proto_item_append_text(tlv_item, " - 0x%02x", value);
 
@@ -934,11 +932,9 @@ static void wimaxasncp_dissect_tlv_value(
 
             value = tvb_get_ntohs(tvb, offset);
 
-            item = proto_tree_add_uint_format(
+            item = proto_tree_add_item(
                 tree, tlv_info->hf_value,
-                tvb, offset, length, value,
-                "Value: %s",
-                decode_numeric_bitfield(value, 0xffff, 16, "0x%04x"));
+                tvb, offset, 2, ENC_BIG_ENDIAN);
 
             proto_item_append_text(tlv_item, " - 0x%04x", value);
 
@@ -991,11 +987,9 @@ static void wimaxasncp_dissect_tlv_value(
 
             value = tvb_get_ntohl(tvb, offset);
 
-            item = proto_tree_add_uint_format(
+            item = proto_tree_add_item(
                 tree, tlv_info->hf_value,
-                tvb, offset, length, value,
-                "Value: %s",
-                decode_numeric_bitfield(value, 0xffffffff, 32, "0x%08x"));
+                tvb, offset, 4, ENC_BIG_ENDIAN);
 
             proto_item_append_text(tlv_item, " - 0x%08x", value);
 
@@ -2281,8 +2275,7 @@ dissect_wimaxasncp(
                 proto_item_append_text(item, " - ");
             }
 
-            proto_item_append_text(
-                item, "%s", decode_numeric_bitfield(ui8, 0xff, 8, "0x%02x"));
+            proto_item_append_text(item, "0x%02x", ui8);
 
             flags_tree = proto_item_add_subtree(
                 item, ett_wimaxasncp_flags);
@@ -2362,8 +2355,7 @@ dissect_wimaxasncp(
          tvb, offset, 1, ui8,
         "OP ID: %s", val_to_str(ui8 >> 5, wimaxasncp_op_id_vals, unknown));
 
-    proto_item_append_text(
-        item, " (%s)", decode_numeric_bitfield(ui8, 0xe0, 8, "%u"));
+    proto_item_append_text(item, " (%u)", ((ui8 >> 5) & 7));
 
 
     /* use the function type to find the message vals */
@@ -2393,8 +2385,7 @@ dissect_wimaxasncp(
         tvb, offset, 1, ui8,
         "Message Type: %s", message_name);
 
-    proto_item_append_text(
-        item, " (%s)", decode_numeric_bitfield(ui8, 0x1f, 8, "%u"));
+    proto_item_append_text(item, " (%u)", ui8 & 0x1F);
 
     /* Add expert item if not matched */
     if (strcmp(message_name, unknown) == 0)
