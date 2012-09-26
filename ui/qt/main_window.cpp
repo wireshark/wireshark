@@ -470,7 +470,7 @@ void MainWindow::mergeCaptureFile()
 
             case QMessageBox::Save:
                 /* Save the file but don't close it */
-                saveCapture(cap_file_, FALSE);
+                saveCaptureFile(cap_file_, FALSE);
                 break;
 
             case QMessageBox::Cancel:
@@ -617,10 +617,258 @@ void MainWindow::importCaptureFile() {
     openCaptureFile(import_dlg.capfileName());
 }
 
-void MainWindow::saveCapture(capture_file *cf, bool close_capture) {
-    Q_UNUSED(cf);
-    Q_UNUSED(close_capture);
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: saveCapture");
+void MainWindow::saveCaptureFile(capture_file *cf, bool stay_closed) {
+    QString file_name;
+    gboolean discard_comments;
+    cf_write_status_t status;
+
+    if (cf->is_tempfile) {
+        /* This is a temporary capture file, so saving it means saving
+           it to a permanent file.  Prompt the user for a location
+           to which to save it.  Don't require that the file format
+           support comments - if it's a temporary capture file, it's
+           probably pcap-ng, which supports comments and, if it's
+           not pcap-ng, let the user decide what they want to do
+           if they've added comments. */
+        saveAsCaptureFile(cf, FALSE, stay_closed);
+    } else {
+        if (cf->unsaved_changes) {
+            /* This is not a temporary capture file, but it has unsaved
+               changes, so saving it means doing a "safe save" on top
+               of the existing file, in the same format - no UI needed
+               unless the file has comments and the file's format doesn't
+               support them.
+
+               If the file has comments, does the file's format support them?
+               If not, ask the user whether they want to discard the comments
+               or choose a different format. */
+            switch (CaptureFileDialog::checkSaveAsWithComments(cf, cf->cd_t)) {
+
+            case SAVE:
+                /* The file can be saved in the specified format as is;
+                   just drive on and save in the format they selected. */
+                discard_comments = FALSE;
+                break;
+
+            case SAVE_WITHOUT_COMMENTS:
+                /* The file can't be saved in the specified format as is,
+                   but it can be saved without the comments, and the user
+                   said "OK, discard the comments", so save it in the
+                   format they specified without the comments. */
+                discard_comments = TRUE;
+                break;
+
+            case SAVE_IN_ANOTHER_FORMAT:
+                /* There are file formats in which we can save this that
+                   support comments, and the user said not to delete the
+                   comments.  Do a "Save As" so the user can select
+                   one of those formats and choose a file name. */
+                saveAsCaptureFile(cf, TRUE, stay_closed);
+                return;
+
+            case CANCELLED:
+                /* The user said "forget it".  Just return. */
+                return;
+
+            default:
+                /* Squelch warnings that discard_comments is being used
+                   uninitialized. */
+                g_assert_not_reached();
+                return;
+            }
+
+            /* XXX - cf->filename might get freed out from under us, because
+               the code path through which cf_save_packets() goes currently
+               closes the current file and then opens and reloads the saved file,
+               so make a copy and free it later. */
+            file_name = cf->filename;
+            status = cf_save_packets(cf, file_name.toUtf8().constData(), cf->cd_t, cf->iscompressed,
+                                     discard_comments, stay_closed);
+            switch (status) {
+
+            case CF_WRITE_OK:
+                /* The save succeeded; we're done.
+                   If we discarded comments, redraw the packet list to reflect
+                   any packets that no longer have comments. */
+                if (discard_comments)
+                    packet_list_queue_draw();
+                break;
+
+            case CF_WRITE_ERROR:
+                /* The write failed.
+                   XXX - OK, what do we do now?  Let them try a
+                   "Save As", in case they want to try to save to a
+                   different directory r file system? */
+                break;
+
+            case CF_WRITE_ABORTED:
+                /* The write was aborted; just drive on. */
+                break;
+            }
+        }
+        /* Otherwise just do nothing. */
+    }
+}
+
+void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool stay_closed) {
+    QString file_name = "";
+    int file_type;
+    gboolean compressed;
+    cf_write_status_t status;
+    QString file_name_lower;
+    QString file_suffix;
+    GSList  *extensions_list, *extension;
+    gboolean add_extension;
+    gchar   *dirname;
+    gboolean discard_comments = FALSE;
+
+    if (!cf) {
+        return;
+    }
+
+    for (;;) {
+        CaptureFileDialog save_as_dlg(this);
+
+        switch (prefs.gui_fileopen_style) {
+
+        case FO_STYLE_LAST_OPENED:
+            /* The user has specified that we should start out in the last directory
+               we looked in.  If we've already opened a file, use its containing
+               directory, if we could determine it, as the directory, otherwise
+               use the "last opened" directory saved in the preferences file if
+               there was one. */
+            /* This is now the default behaviour in file_selection_new() */
+            break;
+
+        case FO_STYLE_SPECIFIED:
+            /* The user has specified that we should always start out in a
+               specified directory; if they've specified that directory,
+               start out by showing the files in that dir. */
+            if (prefs.gui_fileopen_dir[0] != '\0')
+                save_as_dlg.setDirectory(prefs.gui_fileopen_dir);
+            break;
+        }
+
+        /* If the file has comments, does the format the user selected
+           support them?  If not, ask the user whether they want to
+           discard the comments or choose a different format. */
+        switch(save_as_dlg.saveAs(cf, file_name, must_support_comments)) {
+
+        case SAVE:
+            /* The file can be saved in the specified format as is;
+               just drive on and save in the format they selected. */
+            discard_comments = FALSE;
+            break;
+
+        case SAVE_WITHOUT_COMMENTS:
+            /* The file can't be saved in the specified format as is,
+               but it can be saved without the comments, and the user
+               said "OK, discard the comments", so save it in the
+               format they specified without the comments. */
+            discard_comments = TRUE;
+            break;
+
+        case SAVE_IN_ANOTHER_FORMAT:
+            /* There are file formats in which we can save this that
+               support comments, and the user said not to delete the
+               comments.  The combo box of file formats has had the
+               formats that don't support comments trimmed from it,
+               so run the dialog again, to let the user decide
+               whether to save in one of those formats or give up. */
+            discard_comments = FALSE;
+            must_support_comments = TRUE;
+            continue;
+
+        case CANCELLED:
+            /* The user said "forget it".  Just get rid of the dialog box
+               and return. */
+            return;
+        }
+        file_type = save_as_dlg.selectedFileType();
+        compressed = save_as_dlg.isCompressed();
+
+        /*
+         * Append the default file extension if there's none given by
+         * the user or if they gave one that's not one of the valid
+         * extensions for the file type.
+         */
+        file_name_lower = file_name.toLower();
+        extensions_list = wtap_get_file_extensions_list(file_type, FALSE);
+        if (extensions_list != NULL) {
+            /* We have one or more extensions for this file type.
+               Start out assuming we need to add the default one. */
+            add_extension = TRUE;
+
+            /* OK, see if the file has one of those extensions. */
+            for (extension = extensions_list; extension != NULL;
+                 extension = g_slist_next(extension)) {
+                file_suffix += tr(".") + (char *)extension->data;
+                if (file_name_lower.endsWith(file_suffix)) {
+                    /*
+                     * The file name has one of the extensions for
+                     * this file type.
+                     */
+                    add_extension = FALSE;
+                    break;
+                }
+                file_suffix += ".gz";
+                if (file_name_lower.endsWith(file_suffix)) {
+                    /*
+                     * The file name has one of the extensions for
+                     * this file type.
+                     */
+                    add_extension = FALSE;
+                    break;
+                }
+            }
+        } else {
+            /* We have no extensions for this file type.  Don't add one. */
+            add_extension = FALSE;
+        }
+        if (add_extension) {
+            if (wtap_default_file_extension(file_type) != NULL) {
+                file_name += tr(".") + wtap_default_file_extension(file_type);
+                if (compressed) {
+                    file_name += ".gz";
+                }
+            }
+        }
+
+//#ifndef _WIN32
+//        /* If the file exists and it's user-immutable or not writable,
+//                       ask the user whether they want to override that. */
+//        if (!file_target_unwritable_ui(top_level, file_name.toUtf8().constData())) {
+//            /* They don't.  Let them try another file name or cancel. */
+//            continue;
+//        }
+//#endif
+
+        /* Attempt to save the file */
+        status = cf_save_packets(&cfile, file_name.toUtf8().constData(), file_type, compressed,
+                                 discard_comments, stay_closed);
+        switch (status) {
+
+        case CF_WRITE_OK:
+            /* The save succeeded; we're done. */
+            /* Save the directory name for future file dialogs. */
+            dirname = get_dirname(file_name.toUtf8().data());  /* Overwrites cf_name */
+            set_last_open_dir(dirname);
+            /* If we discarded comments, redraw the packet list to reflect
+               any packets that no longer have comments. */
+            if (discard_comments)
+                packet_list_queue_draw();
+            return;
+
+        case CF_WRITE_ERROR:
+            /* The save failed; let the user try again. */
+            continue;
+
+        case CF_WRITE_ABORTED:
+            /* The user aborted the save; just return. */
+            return;
+        }
+    }
+    return;
 }
 
 bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString &before_what) {
@@ -725,7 +973,7 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
                     captureStop(cf);
 #endif
                 /* Save the file and close it */
-                saveCapture(cf, TRUE);
+                saveCaptureFile(cf, TRUE);
                 break;
 
             case QMessageBox::Discard:
@@ -1251,6 +1499,16 @@ void MainWindow::on_actionFileImport_triggered()
 void MainWindow::on_actionFileClose_triggered() {
     if (testCaptureFileClose(&cfile))
         main_ui_->mainStack->setCurrentWidget(main_welcome_);
+}
+
+void MainWindow::on_actionFileSave_triggered()
+{
+    saveCaptureFile(cap_file_, FALSE);
+}
+
+void MainWindow::on_actionFileSaveAs_triggered()
+{
+    saveAsCaptureFile(cap_file_, FALSE, TRUE);
 }
 
 // View Menu

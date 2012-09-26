@@ -35,6 +35,7 @@
 #endif
 
 #include <errno.h>
+#include "file.h"
 #include "../../epan/addr_resolv.h"
 #include "../../epan/prefs.h"
 #include "../../epan/filesystem.h"
@@ -46,6 +47,7 @@
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QFileInfo>
+#include <QMessageBox>
 
 #include <QDebug>
 
@@ -119,20 +121,20 @@ extern void topic_cb(gpointer *widget, int topic) {
 
 CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &display_filter) :
     QFileDialog(parent), display_filter_(display_filter)
+#if !defined(Q_WS_WIN)
+    , default_ft_(-1)
+#else
+  , file_type_(-1)
+#endif
 {
 #if !defined(Q_WS_WIN)
-
     // Add extra widgets
     // http://qt-project.org/faq/answer/how_can_i_add_widgets_to_my_qfiledialog_instance
     setOption(QFileDialog::DontUseNativeDialog, true);
     QGridLayout *fd_grid = qobject_cast<QGridLayout*>(layout());
     QHBoxLayout *h_box = new QHBoxLayout();
 
-    fd_grid->addWidget(new QLabel(tr("Display Filter:")), fd_grid->rowCount(), 0, 1, 1);
-
-    display_filter_edit_ = new DisplayFilterEdit(this, true);
-    display_filter_edit_->setText(display_filter_);
-    fd_grid->addWidget(display_filter_edit_, fd_grid->rowCount() - 1, 1, 1, 1);
+    df_row_ = fd_grid->rowCount();
 
     fd_grid->addLayout(h_box, fd_grid->rowCount(), 1, 1, -1);
 
@@ -145,6 +147,89 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &display_filter) :
     merge_type_ = 0;
 #endif // Q_WS_WIN
 }
+
+#if !defined(Q_WS_WIN)
+check_savability_t CaptureFileDialog::checkSaveAsWithComments(capture_file *cf, int file_type) {
+    QMessageBox msg_dialog;
+    int response;
+
+    /* Do we have any comments? */
+    if (!cf_has_comments(cf)) {
+        /* No.  Let the save happen; no comments to delete. */
+        return SAVE;
+    }
+
+    /* XXX - for now, we "know" that pcap-ng is the only format for which
+       we support comments.  We should really ask Wiretap what the
+       format in question supports (and handle different types of
+       comments, some but not all of which some file formats might
+       not support). */
+    if (file_type == WTAP_FILE_PCAPNG) {
+        /* Yes - they selected pcap-ng.  Let the save happen; we can
+         save the comments, so no need to delete them. */
+        return SAVE;
+    }
+    /* No. Is pcap-ng one of the formats in which we can write this file? */
+    if (wtap_dump_can_write_encaps(WTAP_FILE_PCAPNG, cf->linktypes)) {
+        QPushButton *default_button;
+        /* Yes.  Offer the user a choice of "Save in a format that
+           supports comments", "Discard comments and save in the
+           format you selected", or "Cancel", meaning "don't bother
+           saving the file at all". */
+        msg_dialog.setIcon(QMessageBox::Question);
+        msg_dialog.setText("This capture file contains comments.");
+        msg_dialog.setInformativeText("The file format you chose doesn't support comments. "
+                                      "Do you want to save the capture in a format that supports comments "
+                                      "or discard the comments and save in the format you chose?");
+        msg_dialog.setStandardButtons(QMessageBox::Cancel);
+        // The predefined roles don't really match the tasks at hand...
+        msg_dialog.addButton("Discard comments and save", QMessageBox::DestructiveRole);
+        default_button = msg_dialog.addButton("Save in another format", QMessageBox::AcceptRole);
+        msg_dialog.setDefaultButton(default_button);
+    } else {
+        /* No.  Offer the user a choice of "Discard comments and
+           save in the format you selected" or "Cancel". */
+        msg_dialog.setIcon(QMessageBox::Question);
+        msg_dialog.setText("This capture file contains comments.");
+        msg_dialog.setInformativeText("No file format in which it can be saved supports comments. "
+                                      "Do you want to discard the comments and save in the format you chose?");
+        msg_dialog.setStandardButtons(QMessageBox::Cancel);
+        msg_dialog.addButton("Discard comments and save", QMessageBox::DestructiveRole);
+        msg_dialog.setDefaultButton(QMessageBox::Cancel);
+    }
+
+    response = msg_dialog.exec();
+
+    switch (response) {
+
+    case QMessageBox::Save:
+      /* OK, the only other format we support is pcap-ng.  Make that
+         the one and only format in the combo box, and return to
+         let the user continue with the dialog.
+
+         XXX - removing all the formats from the combo box will clear
+         the compressed checkbox; get the current value and restore
+         it.
+
+         XXX - we know pcap-ng can be compressed; if we ever end up
+         supporting saving comments in a format that *can't* be
+         compressed, such as NetMon format, we must check this. */
+      /* XXX - need a compressed checkbox here! */
+      return SAVE_IN_ANOTHER_FORMAT;
+
+    case QMessageBox::Discard:
+      /* Save without the comments and, if that succeeds, delete the
+         comments. */
+      return SAVE_WITHOUT_COMMENTS;
+
+    case QMessageBox::Cancel:
+    default:
+      /* Just give up. */
+      break;
+    }
+    return CANCELLED;
+}
+#endif // Q_WS_WIN
 
 void CaptureFileDialog::addPreview(QVBoxLayout &v_box) {
     QGridLayout *preview_grid = new QGridLayout();
@@ -215,8 +300,9 @@ QString CaptureFileDialog::fileType(int ft, bool extension_globs)
 
     filter = wtap_file_type_string(ft);
 
-    if (!extension_globs)
+    if (!extension_globs) {
         return filter;
+    }
 
     filter += " (";
 
@@ -267,20 +353,43 @@ QStringList CaptureFileDialog::buildFileOpenTypeList() {
 
 // Windows
 #ifdef Q_WS_WIN
+int CaptureFileDialog::selectedFileType() {
+    return file_type_;
+}
+
+int CaptureFileDialog::isCompressed() {
+    return compressed_;
+}
+
 int CaptureFileDialog::open(QString &file_name) {
     GString *fname = g_string_new(file_name.toUtf8().constData());
     GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
     gboolean wof_status;
 
     wof_status = win32_open_file(parentWidget()->effectiveWinId(), fname, dfilter);
-    file_name.append(QString::fromUtf8(fname->str));
-    display_filter_.clear();
-    display_filter_.append(QString::fromUtf8(dfilter->str));
+    file_name = fname->str;
+    display_filter_ = dfilter->str;
 
     g_string_free(fname, TRUE);
     g_string_free(dfilter, TRUE);
 
     return (int) wof_status;
+}
+
+check_savability_t CaptureFileDialog::saveAs(capture_file *cf, QString &file_name, bool must_support_comments) {
+    GString *fname = g_string_new(file_name.toUtf8().constData());
+    gboolean wsf_status;
+
+    wsf_status = win32_save_as_file(parentWidget()->effectiveWinId(), cf, fname, &file_type_, &compressed_, must_support_comments);
+    file_name = fname->str;
+
+    g_string_free(fname, TRUE);
+
+    if (wsf_status) {
+        return win32_check_save_as_with_comments(parentWidget()->effectiveWinId(), cf, file_type);
+    }
+
+    return CANCELLED;
 }
 
 int CaptureFileDialog::merge(QString &file_name) {
@@ -289,9 +398,8 @@ int CaptureFileDialog::merge(QString &file_name) {
     gboolean wmf_status;
 
     wmf_status = win32_merge_file(parentWidget()->effectiveWinId(), fname, dfilter, &merge_type_);
-    file_name.append(QString::fromUtf8(fname->str));
-    display_filter_.clear();
-    display_filter_.append(QString::fromUtf8(dfilter->str));
+    file_name = fname->str;
+    display_filter_ = dfilter->str;
 
     g_string_free(fname, TRUE);
     g_string_free(dfilter, TRUE);
@@ -308,7 +416,18 @@ int CaptureFileDialog::selectedFileType() {
     return type_hash_.value(selectedNameFilter(), -1);
 }
 
+bool CaptureFileDialog::isCompressed() {
+    return compress_.isChecked();
+}
+
 void CaptureFileDialog::addDisplayFilterEdit() {
+    QGridLayout *fd_grid = qobject_cast<QGridLayout*>(layout());
+
+    fd_grid->addWidget(new QLabel(tr("Display Filter:")), df_row_, 0, 1, 1);
+
+    display_filter_edit_ = new DisplayFilterEdit(this, true);
+    display_filter_edit_->setText(display_filter_);
+    fd_grid->addWidget(display_filter_edit_, df_row_, 1, 1, 1);
 
 }
 
@@ -330,26 +449,37 @@ void CaptureFileDialog::addResolutionControls(QVBoxLayout &v_box) {
     v_box.addWidget(&external_res_);
 }
 
+void CaptureFileDialog::addGzipControls(QVBoxLayout &v_box, capture_file *cf) {
+    compress_.setText(tr("Compress with g&zip"));
+    if (cf->iscompressed && wtap_dump_can_compress(default_ft_)) {
+        compress_.setChecked(true);
+    } else {
+        compress_.setChecked(false);
+    }
+    v_box.addWidget(&compress_);
+
+}
+
 int CaptureFileDialog::open(QString &file_name) {
     setWindowTitle(tr("Wireshark: Open Capture File"));
     setNameFilters(buildFileOpenTypeList());
     setFileMode(QFileDialog::ExistingFile);
 
-    file_name.clear();
-    display_filter_.clear();
-
+    addDisplayFilterEdit();
     addResolutionControls(left_v_box_);
     addPreview(right_v_box_);
 
     // Grow the dialog to account for the extra widgets.
     resize(width(), height() + left_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
 
+    display_filter_.clear();
+
     if (!file_name.isEmpty()) {
         selectFile(file_name);
     }
 
     if (QFileDialog::exec() && selectedFiles().length() > 0) {
-        file_name.append(selectedFiles()[0]);
+        file_name = selectedFiles()[0];
         display_filter_.append(display_filter_edit_->text());
 
         gbl_resolv_flags.mac_name = mac_res_.isChecked();
@@ -363,16 +493,42 @@ int CaptureFileDialog::open(QString &file_name) {
     }
 }
 
+check_savability_t CaptureFileDialog::saveAs(capture_file *cf, QString &file_name, bool must_support_comments) {
+    setWindowTitle(tr("Wireshark: Save Capture File As"));
+    // XXX There doesn't appear to be a way to use setNameFilters without restricting
+    // what the user can select. We might want to use our own combobox instead and
+    // let the user select anything.
+    setNameFilters(buildFileSaveAsTypeList(cf, must_support_comments));
+    setAcceptMode(QFileDialog::AcceptSave);
+    setLabelText(FileType, "Save as:");
+
+    addGzipControls(left_v_box_, cf);
+
+    // Grow the dialog to account for the extra widgets.
+    resize(width(), height() + left_v_box_.minimumSize().height());
+
+    if (!file_name.isEmpty()) {
+        selectFile(file_name);
+    }
+
+    if (QFileDialog::exec() && selectedFiles().length() > 0) {
+        file_name = selectedFiles()[0];
+        return checkSaveAsWithComments(cf, selectedFileType());
+    }
+    return CANCELLED;
+}
+
 int CaptureFileDialog::merge(QString &file_name) {
     setWindowTitle(tr("Wireshark: Merge Capture File"));
     setNameFilters(buildFileOpenTypeList());
     setFileMode(QFileDialog::ExistingFile);
 
-    file_name.clear();
-    display_filter_.clear();
-
+    addDisplayFilterEdit();
     addMergeControls(left_v_box_);
     addPreview(right_v_box_);
+
+    file_name.clear();
+    display_filter_.clear();
 
     // Grow the dialog to account for the extra widgets.
     resize(width(), height() + right_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
@@ -392,7 +548,6 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(capture_file *cf, bool mu
     GArray *savable_file_types;
     guint i;
     int ft;
-    int default_ft = -1;
 
     type_hash_.clear();
     savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes);
@@ -408,9 +563,9 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(capture_file *cf, bool mu
                 if (ft != WTAP_FILE_PCAPNG)
                     continue;
             }
-            if (default_ft == -1)
-                default_ft = ft; /* first file type is the default */
-            file_type = fileType(ft, false);
+            if (default_ft_ < 1)
+                default_ft_ = ft; /* first file type is the default */
+            file_type = fileType(ft);
             filters << file_type;
             type_hash_[file_type] = ft;
         }

@@ -1723,7 +1723,7 @@ file_save_as_cmd(capture_file *cf, gboolean must_support_comments,
   gchar   *dirname;
   gboolean discard_comments = FALSE;
 
- /*
+  /*
    * Loop until the user either selects a file or gives up.
    */
   for (;;) {

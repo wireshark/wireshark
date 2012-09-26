@@ -47,7 +47,6 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QFile>
-#include <QMessageBox>
 #include <QDesktopServices>
 #include <QUrl>
 
