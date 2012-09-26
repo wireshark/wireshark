@@ -452,7 +452,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* To do: check for runts, errs, etc. */
 
 	/* capture the necessary parts of the header */
-	vip_pktlen = tvb_get_letohs(tvb, offset+2);
+	vip_pktlen = tvb_get_ntohs(tvb, offset+2);
 	vip_tctl = tvb_get_guint8(tvb, offset+3);
 	vip_proto = tvb_get_guint8(tvb, offset+4);
 
