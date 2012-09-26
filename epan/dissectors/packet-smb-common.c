@@ -238,7 +238,7 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 	}
 
 	if (useunicode) {
-		if ((!nopad) && (*offsetp % 2)) {
+		if ((!nopad) && (*bcp % 2)) {
 			(*offsetp)++;   /* Looks like a pad byte there sometimes */
 			(*bcp)--;
 
