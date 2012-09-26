@@ -226,6 +226,7 @@ static gboolean preferences_call_mac_dissectors = TRUE;
 static gboolean preferences_show_release_info = TRUE;
 static gboolean preferences_payload_checksum = TRUE;
 static gboolean preferences_header_checksum = TRUE;
+static gboolean preferences_udp_do_heur = FALSE;
 
 /* E-DCH (T1) channel header information */
 struct edch_t1_subframe_info
@@ -3738,6 +3739,10 @@ heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 {
     struct fp_info *p_fp_info;
 
+    if (!preferences_udp_do_heur) {
+        return FALSE;
+    }
+
     p_fp_info = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
 
     /* if no FP info is present, this might be FP in a pcap(ng) file */
@@ -5401,7 +5406,11 @@ void proto_register_fp(void)
                                     "Validate FP header checksums",
                                     "Validate FP header checksums",
                                     &preferences_header_checksum);
-
+     /* Determines whether or not to validate FP header checksums */
+    prefs_register_bool_preference(fp_module, "udp_heur",
+                                    "Enable UDP heur dissector",
+                                    "Enable UDP heur dissector",
+                                    &preferences_udp_do_heur);
 }
 
 
