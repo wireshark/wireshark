@@ -1934,6 +1934,8 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     unsigned int    physical_medium;
     int             i;
     unsigned char   values[100];
+    guint16         wvalues[100];
+    char            *utf8value;
     int             length;
     unsigned short  ushort_value;
     int             entries = 0;
@@ -1951,6 +1953,18 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
     }
     add_string_to_table(table, row, "Vendor description", string_buff);
+
+    /* Friendly name */
+    length = sizeof(wvalues);
+    if (wpcap_packet_request(adapter, OID_GEN_FRIENDLY_NAME, FALSE /* !set */, (char *)wvalues, &length)) {
+        utf8value = g_utf16_to_utf8(wvalues, -1, NULL, NULL, NULL);
+        g_snprintf(string_buff, DETAILS_STR_MAX, "%s", utf8value);
+        g_free(utf8value);
+        entries++;
+    } else {
+        g_snprintf(string_buff, DETAILS_STR_MAX, "-");
+    }
+    add_string_to_table(table, row, "Friendly name", string_buff);
 
     /* Interface */
     add_string_to_table(table, row, "Interface", iface);
