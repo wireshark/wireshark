@@ -442,8 +442,6 @@ cf_reset_state(capture_file *cf)
 
   /* We have no file open. */
   cf->state = FILE_CLOSED;
-
-  fileset_file_closed();
 }
 
 /* Reset everything to a pristine state */

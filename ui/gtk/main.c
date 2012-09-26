@@ -1822,6 +1822,7 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     case(cf_cb_file_closed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
         main_cf_cb_file_closed(data);
+        fileset_file_closed();
         break;
     case(cf_cb_file_read_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read started");
