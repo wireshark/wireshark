@@ -5948,8 +5948,8 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			  proto_tree* tree)
 {
 	guint32 status;
-	proto_item*	properties_item = NULL;
-	proto_tree*	properties_tree = NULL;
+	proto_item*	properties_item;
+	proto_tree*	properties_tree;
 	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
@@ -5982,10 +5982,10 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				properties_tree = proto_item_add_subtree(properties_item,
 						ett_nfs_fsinfo_properties);
 
-				proto_tree_add_item(tree, hf_nfs_fsinfo_properties_setattr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(tree, hf_nfs_fsinfo_properties_pathconf, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(tree, hf_nfs_fsinfo_properties_symlinks, tvb, offset, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(tree, hf_nfs_fsinfo_properties_hardlinks, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(properties_tree, hf_nfs_fsinfo_properties_setattr, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(properties_tree, hf_nfs_fsinfo_properties_pathconf, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(properties_tree, hf_nfs_fsinfo_properties_symlinks, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(properties_tree, hf_nfs_fsinfo_properties_hardlinks, tvb, offset, 4, ENC_BIG_ENDIAN);
 			}
 			offset += 4;
 
