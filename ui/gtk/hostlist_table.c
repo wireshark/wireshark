@@ -1425,7 +1425,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
 #ifdef HAVE_GEOIP
-    if( strstr(table_name, "IPv4") != NULL) {
+    if( strstr(table_name, "IPv4") || strstr(table_name, "IPv6") ) {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, WIRESHARK_STOCK_MAP, GTK_STOCK_HELP, NULL);
     } else {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
@@ -1491,7 +1491,8 @@ ct_nb_map_switch_page_cb(GtkNotebook *nb, gpointer *pg _U_, guint page, gpointer
 
     if (pages && page > 0 && (int) page <= GPOINTER_TO_INT(pages[0]) && map_bt) {
         g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, pages[page]);
-        if(strstr( ((hostlist_table *)pages[page])->name, "IPv4") != NULL) {
+        if( strstr(((hostlist_table *)pages[page])->name, "IPv4") ||
+            strstr(((hostlist_table *)pages[page])->name, "IPv6") ) {
             gtk_widget_set_sensitive(map_bt, TRUE);
         } else {
             gtk_widget_set_sensitive(map_bt, FALSE);
