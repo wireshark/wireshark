@@ -51,7 +51,7 @@ typedef struct FrameRecord_t {
 
 /* This is pretty big, but I don't mind waiting a few seconds */
 #define MAX_REORDER_LIST_LENGTH 3000
-static int g_FrameRecordCount;
+static unsigned int g_FrameRecordCount;
 
 /* This is the list of frames, sorted by time.  Later frames at the front, earlier
    ones at the end */
@@ -100,7 +100,7 @@ static void ReorderListDebugPrint(void)
 /**************************************************/
 
 /* Counting frames that weren't in order */
-static int g_OutOfOrder = 0;
+static unsigned int g_OutOfOrder = 0;
 
 
 /* Is time1 later than time2? */
@@ -237,7 +237,7 @@ static void ReorderListDumpEarliest(wtap *wth, wtap_dumper *pdh)
                    g_FrameListTail->length,
                    &err,
                    &errinfo);
-    DEBUG_PRINT("re-read: err is %u, buf is (%s)\n", err, buf);
+    DEBUG_PRINT("re-read: err is %d, buf is (%s)\n", err, buf);
 
     /* Get packet header */
     phdr = wtap_phdr(wth);
