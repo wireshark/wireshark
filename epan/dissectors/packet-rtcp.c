@@ -819,10 +819,9 @@ dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto
     offset += 2;
 
     ti = proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_blp, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-    proto_item_set_text(ti, "RTCP Transport Feedback NACK BLP: ");
+    proto_item_append_text(ti, ": ");
     rtcp_rtpfb_nack_blp = tvb_get_ntohs(tvb, offset);
-    bitfield_tree = proto_item_add_subtree( ti, ett_rtcp_nack_blp);
+    bitfield_tree = proto_item_add_subtree(ti, ett_rtcp_nack_blp);
     nack_num_frames_lost = 1;
     if (rtcp_rtpfb_nack_blp) {
         for (i = 0; i < 16; i ++) {
@@ -834,10 +833,6 @@ dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto
                 proto_item_append_text(ti, "%d ", rtcp_rtpfb_nack_pid + i + 1);
                 nack_num_frames_lost ++;
             }
-            else {
-                proto_tree_add_text(bitfield_tree, tvb, offset, 2, "");
-            }
-
         }
     } else {
         proto_item_set_text(ti, "0 (No additional frames lost)");
@@ -4544,7 +4539,7 @@ proto_register_rtcp(void)
                 "RTCP Transport Feedback NACK BLP",
                 "rtcp.rtpfb.nack.blp",
                 FT_UINT16,
-                BASE_DEC,
+                BASE_HEX,
                 NULL,
                 0x0,
                 NULL, HFILL
