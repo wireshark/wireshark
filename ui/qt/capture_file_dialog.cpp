@@ -148,8 +148,12 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &display_filter) :
 #endif // Q_WS_WIN
 }
 
-#if !defined(Q_WS_WIN)
-check_savability_t CaptureFileDialog::checkSaveAsWithComments(capture_file *cf, int file_type) {
+check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *parent, capture_file *cf, int file_type) {
+#if defined(Q_WS_WIN)
+    if (!parent || !cf)
+        return CANCELLED;
+    return win32_check_save_as_with_comments(parent->effectiveWinId(), cf, file_type);
+#else // Q_WS_WIN
     QMessageBox msg_dialog;
     int response;
 
@@ -228,8 +232,8 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(capture_file *cf, 
       break;
     }
     return CANCELLED;
-}
 #endif // Q_WS_WIN
+}
 
 void CaptureFileDialog::addPreview(QVBoxLayout &v_box) {
     QGridLayout *preview_grid = new QGridLayout();
@@ -357,7 +361,7 @@ int CaptureFileDialog::selectedFileType() {
     return file_type_;
 }
 
-int CaptureFileDialog::isCompressed() {
+bool CaptureFileDialog::isCompressed() {
     return compressed_;
 }
 
@@ -386,7 +390,7 @@ check_savability_t CaptureFileDialog::saveAs(capture_file *cf, QString &file_nam
     g_string_free(fname, TRUE);
 
     if (wsf_status) {
-        return win32_check_save_as_with_comments(parentWidget()->effectiveWinId(), cf, file_type);
+        return win32_check_save_as_with_comments(parentWidget()->effectiveWinId(), cf, file_type_);
     }
 
     return CANCELLED;
@@ -513,7 +517,7 @@ check_savability_t CaptureFileDialog::saveAs(capture_file *cf, QString &file_nam
 
     if (QFileDialog::exec() && selectedFiles().length() > 0) {
         file_name = selectedFiles()[0];
-        return checkSaveAsWithComments(cf, selectedFileType());
+        return checkSaveAsWithComments(this, cf, selectedFileType());
     }
     return CANCELLED;
 }

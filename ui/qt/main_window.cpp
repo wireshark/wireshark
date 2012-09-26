@@ -642,7 +642,7 @@ void MainWindow::saveCaptureFile(capture_file *cf, bool stay_closed) {
                If the file has comments, does the file's format support them?
                If not, ask the user whether they want to discard the comments
                or choose a different format. */
-            switch (CaptureFileDialog::checkSaveAsWithComments(cf, cf->cd_t)) {
+            switch (CaptureFileDialog::checkSaveAsWithComments(this, cf, cf->cd_t)) {
 
             case SAVE:
                 /* The file can be saved in the specified format as is;

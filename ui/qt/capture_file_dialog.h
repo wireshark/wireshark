@@ -62,9 +62,8 @@ class CaptureFileDialog : public QFileDialog
     Q_OBJECT
 public:
     explicit CaptureFileDialog(QWidget *parent = NULL, QString &display_filter = *new QString());
-#if !defined(Q_WS_WIN)
-    static check_savability_t checkSaveAsWithComments(capture_file *cf, int file_type);
-#endif // Q_WS_WIN
+    static check_savability_t checkSaveAsWithComments(QWidget *parent, capture_file *cf, int file_type);
+
     int mergeType();
     int selectedFileType();
     bool isCompressed();
@@ -113,7 +112,7 @@ private:
 #else // Q_WS_WIN
     int file_type_;
     int merge_type_;
-    bool compressed_;
+    gboolean compressed_;
 #endif // Q_WS_WIN
 
 signals:
