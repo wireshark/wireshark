@@ -937,6 +937,7 @@ static gboolean
 map_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
               gpointer data)
 {
+    static char *opener = "{\n";
     map_t   *map = (map_t *)data;
     gchar   *table_entry, *esc_entry;
     guint64  value;
@@ -962,7 +963,7 @@ map_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
 },
  */
 
-    fputs("{\n", map->out_file);
+    fputs(opener, map->out_file);
     fputs("  'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [", map->out_file);
 
     /* Longitude */
@@ -1027,7 +1028,9 @@ map_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
     /* XXX - we could add specific icons, e.g. depending on the amount of packets or bytes */
 
     fputs("' }\n", map->out_file);
-    fputs("},\n", map->out_file);       /* XXX - Trim the comma from the last item */
+    fputs("}", map->out_file);
+    opener = ",\n{\n";
+
     map->hosts_written = TRUE;
 
     return FALSE;
