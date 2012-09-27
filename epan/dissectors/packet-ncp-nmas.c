@@ -525,10 +525,10 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         {
             switch (subverb) {
             case 0:             /* Fragmented Ping */
-                proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(atree, hf_session_ident, tvb, foffset, 4, ENC_BIG_ENDIAN);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
-                foffset += 4;
+                /*proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;*/
                 break;
             case 2:             /* Client Put Data */
                 proto_tree_add_item(atree, hf_squeue_bytes, tvb, foffset, 4, ENC_LITTLE_ENDIAN);

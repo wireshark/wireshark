@@ -1592,6 +1592,18 @@ static const value_string nds_verb2b_flag_vals[] = {
     { 0,  NULL }
 };
 
+static const value_string serv_type_vals[] = {
+    { 0, "NetWare" },
+    { 1, "OES" },
+    { 0,  NULL }
+};
+
+static const value_string kernel_type_vals[] = {
+    { 0, "NetWare" },
+    { 1, "Linux" },
+    { 0,  NULL }
+};
+
 static void
 process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
                     gboolean *req_cond_results, gboolean really_decode,
@@ -1619,7 +1631,7 @@ process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
  */
 typedef struct {
     conversation_t  *conversation;
-    guint8           nw_sequence;
+    guint32           nw_sequence_long;
 } ncp_req_hash_key;
 
 
@@ -1643,7 +1655,7 @@ ncp_equal(gconstpointer v, gconstpointer v2)
     const ncp_req_hash_key *val2 = (const ncp_req_hash_key*)v2;
 
     if (val1->conversation == val2->conversation &&
-        val1->nw_sequence  == val2->nw_sequence ) {
+        val1->nw_sequence_long  == val2->nw_sequence_long ) {
         return TRUE;
     }
     return FALSE;
@@ -1665,7 +1677,7 @@ static guint
 ncp_hash(gconstpointer v)
 {
     const ncp_req_hash_key *ncp_key = (const ncp_req_hash_key*)v;
-    return GPOINTER_TO_UINT(ncp_key->conversation) + ncp_key->nw_sequence;
+    return GPOINTER_TO_UINT(ncp_key->conversation) + ncp_key->nw_sequence_long;
 }
 
 static guint
@@ -1720,7 +1732,7 @@ ncp_postseq_cleanup(void)
 
 static ncp_req_hash_value*
 ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
-                const ncp_record *ncp_rec)
+                const ncp_record *ncp_rec, guint32 pkt_num)
 {
     ncp_req_hash_key    *request_key;
     ncp_req_hash_value  *request_value;
@@ -1729,7 +1741,7 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
        a reply to it. */
     request_key = se_alloc(sizeof(ncp_req_hash_key));
     request_key->conversation = conversation;
-    request_key->nw_sequence = nw_sequence;
+    request_key->nw_sequence_long = (0x10000 + ((pkt_num/255)<<16)) | nw_sequence;
 
     request_value = se_alloc(sizeof(ncp_req_hash_value));
     request_value->ncp_rec = ncp_rec;
@@ -1766,14 +1778,22 @@ ncp_eid_hash_insert(guint32 nw_eid)
 
 /* Returns the ncp_rec*, or NULL if not found. */
 static ncp_req_hash_value*
-ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence)
+ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence, guint32 pkt_num)
 {
     ncp_req_hash_key  request_key;
+	ncp_req_hash_value *temp_value;
 
     request_key.conversation = conversation;
-    request_key.nw_sequence = nw_sequence;
+    request_key.nw_sequence_long = (0x10000+((pkt_num/255)<<16)) | nw_sequence;
 
-    return g_hash_table_lookup(ncp_req_hash, &request_key);
+	temp_value = g_hash_table_lookup(ncp_req_hash, &request_key);
+	if(!temp_value)
+	{
+       request_key.nw_sequence_long = request_key.nw_sequence_long-0x10000;
+       temp_value = g_hash_table_lookup(ncp_req_hash, &request_key);
+	}
+	
+    return temp_value;
 }
 
 /* Returns the value_rec* for needed EID, or NULL if not found. */
@@ -2813,7 +2833,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 }
 
                 expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "%s: %s, Rights:(%s)",
-                                       val_to_str((atoi(oaction) & 0xeb), open_create_mode_vals, "Unknown: %d"),
+                                       val_to_str((strtoul(oaction, NULL, 16) & 0xeb), open_create_mode_vals, "Unknown: %d"),
                                        p_filename,
                                        val_to_str((atoi(p_rights) & 0x5f), ncp_rights_vals, "Unknown: %d"));
             }
@@ -2899,6 +2919,8 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
             char p_min_ver[3]="\0";
             char p_rev[3]="\0";
             char p_lang[3]="\0";
+			char p_serv_type[3]="\0";
+			char p_kernel[3]="\0";
 
             /* Get Server name and version info */
             build_expert_data(ncp_tree, "ncp.server_name",
@@ -2911,8 +2933,13 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                               p_rev, sizeof p_rev, 0, FALSE);
             build_expert_data(ncp_tree, "ncp.os_language_id",
                               p_lang, sizeof p_lang, 0, FALSE);
-            expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Server %s, version %s.%s, support pack %s, language %s", fsname,
-                                   p_maj_ver, p_min_ver, p_rev, p_lang);
+            build_expert_data(ncp_tree, "ncp.oes_server",
+                              p_serv_type, sizeof p_serv_type, 0, FALSE);
+            build_expert_data(ncp_tree, "ncp.oeslinux_or_netware",
+                              p_kernel, sizeof p_kernel, 0, FALSE);
+
+            expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Server %s, version %s.%s, support pack %s, language %s, server type %s, kernel %s", fsname,
+                                   p_maj_ver, p_min_ver, p_rev, p_lang, val_to_str((atoi(p_serv_type) & 0x01), serv_type_vals, "Unknown: %d"), val_to_str((atoi(p_kernel) & 0x01), kernel_type_vals, "Unknown: %d") );
         }
     }
 }
@@ -3181,7 +3208,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             proto_tree_add_uint_format(nvtree, hf_replica_number, tvb, voffset,
                                        4, value3, "Replica Number %d", value3);
             voffset = voffset+4;
-            if(vvalues->pflags & 0x8000)
+            if(vvalues->pflags & 0x8000 | vvalues->pflags & 0x4000)
             {
                 /* If this request flag is set then this is a server. Server structures
                  * include the RootID as part of the replica data. */
@@ -7098,7 +7125,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
         if (conversation != NULL) {
             /* find the record telling us the request made that caused
                this reply */
-            request_value = ncp_hash_lookup(conversation, sequence);
+            request_value = ncp_hash_lookup(conversation, sequence, pinfo->fd->num);
             if (!request_value) {
                 dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
                 return;
@@ -7489,7 +7516,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
             conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                             PT_NCP, nw_connection, nw_connection, 0);
         }
-        request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
+        request_value = ncp_hash_insert(conversation, sequence, ncp_rec, pinfo->fd->num);
         request_value->req_frame_num = pinfo->fd->num;
         request_value->req_frame_time = pinfo->fd->abs_ts;
 
@@ -7624,14 +7651,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
             ENDTRY;
         }
         ptvcursor_free(ptvc);
-        /* SecretStore packets are dessected in packet-ncp-sss.c */
-        if (func == 0x5c && ncp_tree) {
-            dissect_sss_request(tvb, pinfo, ncp_tree, request_value);
-        }
-        /* NMAS packets are dessected in packet-ncp-nmas.c */
-        if (func == 0x5e && ncp_tree) {
-            dissect_nmas_request(tvb, pinfo, ncp_tree, request_value);
-        }
 
         /* Now that the dissection is done, do we need to run
          * some display filters on the resulting tree in order
@@ -7672,7 +7691,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                 if (conversation != NULL) {
                     /* find the record telling us the request made that caused
                        this reply */
-                    request_value = ncp_hash_lookup(conversation, sequence);
+                    request_value = ncp_hash_lookup(conversation, sequence, pinfo->fd->num);
                 }
                 if (!conversation || !request_value)
                 {
@@ -7762,6 +7781,25 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                 }
             }
         }
+        if (!request_value)
+        {
+             conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                                 PT_NCP, nw_connection, nw_connection, 0);
+             if (conversation != NULL) {
+                 /* find the record telling us the request made that caused
+                    this reply */
+                 request_value = ncp_hash_lookup(conversation, sequence, pinfo->fd->num);
+              }
+        }
+        /* SecretStore packets are dessected in packet-ncp-sss.c */
+        if (func == 0x5c && ncp_tree) {
+            dissect_sss_request(tvb, pinfo, ncp_tree, request_value);
+        }
+        /* NMAS packets are dessected in packet-ncp-nmas.c */
+        if (func == 0x5e && ncp_tree) {
+            dissect_nmas_request(tvb, pinfo, ncp_tree, request_value);
+        }
+
         /* Store NCP request specific flags for manual dissection */
         if ((func == 0x57 || func == 0x59) && subfunc == 0x14 && ncp_tree && request_value) {
             char ret_info_string[16];
@@ -7769,11 +7807,11 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
             build_expert_data(ncp_tree, "ncp.ret_info_mask",
                               ret_info_string, sizeof ret_info_string, 0, FALSE);
-            request_value->req_mask = atoi(ret_info_string);
+            request_value->req_mask = (guint32) atoi(ret_info_string);
             build_expert_data(ncp_tree, "ncp.ext_info",
                               ret_info_string_ext, sizeof ret_info_string_ext,
                               0, FALSE);
-            request_value->req_mask_ext = atoi(ret_info_string_ext);
+            request_value->req_mask_ext = (guint32) atoi(ret_info_string_ext);
         }
         /* NCP function 89/6 passes either ASCII or UTF8 data */
         /* Decode manually since it is not possible to SREC the request */
@@ -8825,7 +8863,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         if (conversation != NULL) {
             /* find the record telling us the request made that caused
                this reply */
-            request_value = ncp_hash_lookup(conversation, sequence);
+            request_value = ncp_hash_lookup(conversation, sequence, pinfo->fd->num);
             if (request_value) {
                 ncp_rec = request_value->ncp_rec;
             }
@@ -8846,7 +8884,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                 /* find the record telling us the request made
                    that caused this reply */
                 request_value = ncp_hash_lookup(conversation,
-                                                sequence);
+                                                sequence, pinfo->fd->num);
                 if (request_value) {
                     ncp_rec = request_value->ncp_rec;
                 }
@@ -8860,7 +8898,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                     /* find the record telling us the request made
                        that caused this reply */
                     request_value = ncp_hash_lookup(conversation,
-                                                    sequence);
+                                                    sequence, pinfo->fd->num);
                     if (request_value) {
                         ncp_rec = request_value->ncp_rec;
                     }
@@ -11514,7 +11552,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (!pinfo->fd->flags.visited) {
-        request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
+        request_value = ncp_hash_insert(conversation, sequence, ncp_rec, pinfo->fd->num);
         request_value->req_frame_num = pinfo->fd->num;
         request_value->req_frame_time=pinfo->fd->abs_ts;
 
@@ -11560,7 +11598,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         PTREE_DATA(ncp_tree)->visible=1;
 #endif
 
-        request_value = ncp_hash_lookup(conversation, sequence);
+        request_value = ncp_hash_lookup(conversation, sequence, pinfo->fd->num);
         switch (type) {
         case NCP_BROADCAST_SLOT:
             ; /* nothing */
@@ -11841,7 +11879,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
                                             PT_NCP, nw_connection, nw_connection, 0);
         }
 
-        request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
+        request_value = ncp_hash_insert(conversation, sequence, ncp_rec, pinfo->fd->num);
         request_value->req_frame_num = pinfo->fd->num;
         request_value->req_frame_time=pinfo->fd->abs_ts;
 

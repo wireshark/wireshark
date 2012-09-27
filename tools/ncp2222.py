@@ -3198,6 +3198,16 @@ OCRetFlags			= val_string8("o_c_ret_flags", "Open Create Return Flags", [
 	[ 0x00, "No CallBack has been registered (No Op-Lock)" ],
 	[ 0x01, "Request has been registered for CallBack (Op-Lock)" ],
 ])
+OESServer			= val_string8("oes_server", "Type of Novell Server", [
+	[ 0x00, "NetWare" ],
+	[ 0x01, "OES" ],
+])
+
+OESLinuxOrNetWare			= val_string8("oeslinux_or_netware", "Kernel Type", [
+	[ 0x00, "NetWare" ],
+	[ 0x01, "Linux" ],
+])
+
 OldestDeletedFileAgeInTicks	= uint32("oldest_deleted_file_age_in_ticks", "Oldest Deleted File Age in Ticks")
 OldFileName			= bytes("old_file_name", "Old File Name", 15)
 OldFileSize			= uint32("old_file_size", "Old File Size")
@@ -9578,7 +9588,9 @@ def define_ncp2222():
 		rec( 82, 2, ProductRevisionVersion, BE ),
 		rec( 84, 1, OSLanguageID, LE ),
 		rec( 85, 1, SixtyFourBitOffsetsSupportedFlag ),
-		rec( 86, 50, Reserved50 ),
+		rec( 86, 1, OESServer ),
+		rec( 87, 1, OESLinuxOrNetWare ),
+		rec( 88, 48, Reserved48 ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9600])
 	# 2222/1712, 23/18
