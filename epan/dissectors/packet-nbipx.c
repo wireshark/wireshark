@@ -522,11 +522,6 @@ proto_register_nbipx(void)
 			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
 			NULL, HFILL }
 		},
-		{ &hf_nbipx_name_flags,
-		  { "Name type flag",   "nmpi.name_flags",
-			FT_UINT8, BASE_HEX, NULL, 0,
-			NULL, HFILL }
-		},
 		{ &hf_nbipx_conn_control,
 		  { "Connection control",   "nmpi.conn_control",
 			FT_UINT8, BASE_HEX, NULL, 0,
