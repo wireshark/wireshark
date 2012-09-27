@@ -9,7 +9,8 @@
  *
  * Monday, June 27, 2005
  * Support for the ICMP extensions for MPLS
- * (http://www.ietf.org/proceedings/01aug/I-D/draft-ietf-mpls-icmp-02.txt)
+ * (http://www.ietf.org/proceedings/01aug/I-D/draft-ietf-mpls-icmp-02.txt
+ *  which has been replaced by rfcs 4884 and 4950)
  * by   Maria-Luiza Crivat <luizacri@gmail.com>
  * &    Brice Augustin <bricecotte@gmail.com>
  *
@@ -25,7 +26,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Added support for ICMP extensions RFC 4884 and RFC 5837
  * (c) 2011 Gaurav Tungatkar <gstungat@ncsu.edu>
@@ -1357,6 +1358,8 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               tmp[0] = ~tvb_get_ntohs(tvb, 2);
               tmp[1] = ~0x0800; /* The difference between echo request & reply */
               conv_key[0] = ip_checksum((guint8 *)&tmp, sizeof(tmp));
+              if (conv_key[0] == 0)
+                conv_key[0] = 0xffff;
               if (pinfo->flags.in_gre_pkt)
                 conv_key[0] |= 0x00010000; /* set a bit for "in GRE" */
               conv_key[1] = (guint32)((tvb_get_ntohs(tvb, 4) << 16) |
@@ -1369,8 +1372,10 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            * see if the data looks like a timestamp; otherwise we'll get
            * malformed packets as we try to access data that isn't there. */
           if (tvb_length_remaining(tvb, 8) < 8) {
-            call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8),
-              pinfo, icmp_tree);
+            if (tvb_length_remaining(tvb, 8) > 0) {
+              call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8),
+                pinfo, icmp_tree);
+            }
             break;
           }
 
@@ -1652,19 +1657,19 @@ proto_register_icmp(void)
             FT_UINT8, BASE_DEC, NULL, INT_INFO_RESERVED,
             NULL, HFILL }},
     { &hf_icmp_int_info_ifindex,
-      { "ifIndex", "icmp.int_info.ifindex", FT_BOOLEAN, 8, NULL, INT_INFO_IFINDEX, 
+      { "ifIndex", "icmp.int_info.ifindex", FT_BOOLEAN, 8, NULL, INT_INFO_IFINDEX,
         "True: ifIndex of the interface included; False: ifIndex of the interface not included ", HFILL }},
     { &hf_icmp_int_info_ipaddr,
-      { "IP Address", "icmp.int_info.ipaddr", FT_BOOLEAN, 8, NULL, INT_INFO_IPADDR, 
+      { "IP Address", "icmp.int_info.ipaddr", FT_BOOLEAN, 8, NULL, INT_INFO_IPADDR,
         "True: IP Address Sub-Object present; False: IP Address Sub-Object not present", HFILL }},
     { &hf_icmp_int_info_name,
-      { "Interface Name", "icmp.int_info.name", FT_BOOLEAN, 8, NULL, INT_INFO_NAME, 
+      { "Interface Name", "icmp.int_info.name", FT_BOOLEAN, 8, NULL, INT_INFO_NAME,
         "True: Interface Name Sub-Object present; False: Interface Name Sub-Object not present", HFILL }},
     { &hf_icmp_int_info_mtu,
-      { "MTU", "icmp.int_info.mtu", FT_BOOLEAN, 8, NULL, INT_INFO_MTU, 
+      { "MTU", "icmp.int_info.mtu", FT_BOOLEAN, 8, NULL, INT_INFO_MTU,
         "True: MTU present; False: MTU not present", HFILL }},
     { &hf_icmp_int_info_afi,
-      { "Address Family Identifier", "icmp.int_info.afi", FT_UINT16, BASE_DEC, NULL, 0x0, 
+      { "Address Family Identifier", "icmp.int_info.afi", FT_UINT16, BASE_DEC, NULL, 0x0,
         "Address Family of the interface address", HFILL }},
     { &hf_icmp_int_info_ipv4,
 		{ "Source",		"icmp.int_info.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,

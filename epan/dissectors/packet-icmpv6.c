@@ -30,7 +30,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -3138,7 +3138,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (icmp6_type) {
         case ICMP6_DST_UNREACH:
-            code_name = val_to_str(icmp6_code, icmpv6_unreach_code_val, "Unknown");
+            code_name = val_to_str_const(icmp6_code, icmpv6_unreach_code_val, "Unknown");
             break;
         case ICMP6_TIME_EXCEEDED:
             code_name = val_to_str(icmp6_code, icmpv6_timeex_code_val, "Unknown (%d)");
@@ -3263,6 +3263,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     cksum_vec[0].len = sizeof(tmp);
                     cksum_vec[0].ptr = (guint8 *)tmp;
                     conv_key[0] = in_cksum(cksum_vec, 1);
+                    if (conv_key[0] == 0)
+                        conv_key[0] = 0xffff;
                     if (pinfo->flags.in_gre_pkt)
                         conv_key[0] |= 0x00010000; /* set a bit for "in GRE" */
                     trans = transaction_end(pinfo, icmp6_tree, conv_key);
