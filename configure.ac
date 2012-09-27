@@ -835,6 +835,7 @@ AC_DEFINE_UNQUOTED(DOC_DIR, "$docdir", [Directory for docs])
 # 3.0.0:  10 Feb 2011
 # 3.2.0:  25 Sep 2011
 # 3.4.0:  26 Mar 2012
+# 3.6.0:  24 Sep 2012
 
 if test "x$enable_wireshark" = "xyes"; then
 	if test "x$with_qt" = "xyes"; then
@@ -913,6 +914,7 @@ fi
 # 2.28.0: 08 Feb 2011
 # 2.30.0: 27 Sep 2011
 # 2.32.0: 24 Mar 2012
+# 2.34.0: 24 Sep 2012
 
 if test "$have_gtk" = "no" ; then
 	#
