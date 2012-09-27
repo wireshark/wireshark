@@ -3670,7 +3670,7 @@ make_menu_xml(const char *path) {
         /* reserve last token for menu-item processing */
         if (*(p+1) == NULL) break;
 
-        if (g_strcmp0(tok, "-") == 0) {
+        if (strcmp(tok, "-") == 0) {
             xml = g_string_append(xml, "<separator/>\n");
         } else {
             /* Split the name of the menu from its action (if any) */
@@ -3703,7 +3703,7 @@ make_menu_xml(const char *path) {
      * blank menu allows the developer to see the problem and fix it.
      */
     if ( (tok != NULL) /* && (tok[0] != '\0') */ ) {
-        if (g_strcmp0(tok, "-") == 0) {
+        if (strcmp(tok, "-") == 0) {
             xml = g_string_append(xml, "<separator/>\n");
         } else {
             /* append self-closing menu-item tag */
@@ -3757,7 +3757,7 @@ make_menu_actions(const char *path, const menu_item_t *menu_item_data) {
         /* reserve last token for item name */
         if ( *(p+1) == NULL ) break;
 
-        if (g_strcmp0(tok, "-") != 0) {
+        if (strcmp(tok, "-") != 0) {
 
             /* parse label from token */
             lbl = strchr(tok, '|');
