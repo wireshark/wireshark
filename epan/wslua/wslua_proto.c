@@ -24,7 +24,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -618,12 +618,18 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
     f->type = get_ftenum(luaL_checkstring(L,WSLUA_ARG_ProtoField_new_TYPE));
 
     /*XXX do it better*/
-    if (f->type == FT_NONE)
+    if (f->type == FT_NONE) {
+        g_free(f->name);
+        g_free(f->abbr);
+        g_free(f);
         WSLUA_ARG_ERROR(ProtoField_new,TYPE,"invalid ftypes");
+    }
 
     if (proto_check_field_name(f->abbr)) {
-      WSLUA_ARG_ERROR(ProtoField_new,ABBR,"Invalid char in abbrev");
-      return 0;
+        g_free(f->name);
+        g_free(f->abbr);
+        g_free(f);
+        WSLUA_ARG_ERROR(ProtoField_new,ABBR,"Invalid char in abbrev");
     }
 
     if (! lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING) ) {
@@ -639,6 +645,8 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
         } else if (tfs) {
             f->vs = TFS(tfs);
         } else {
+            g_free(f->name);
+            g_free(f->abbr);
             g_free(f);
             return 0;
         }

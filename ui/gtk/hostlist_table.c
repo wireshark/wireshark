@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -41,7 +41,7 @@
 #include <epan/tap.h>
 #include <epan/strutil.h>
 #ifdef HAVE_GEOIP
-#include "GeoIP.h"
+#include <GeoIP.h>
 #include <epan/geoip_db.h>
 #include <epan/pint.h>
 #include <epan/filesystem.h>
@@ -934,6 +934,14 @@ typedef struct {
     hostlist_table    *talkers;
 } map_t;
 
+static char *map_endpoint_opener;
+
+static void
+map_init(void)
+{
+    map_endpoint_opener = "{\n";
+}
+
 /* XXX output in C locale */
 static gboolean
 map_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
@@ -964,7 +972,7 @@ map_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
 },
  */
 
-    fputs("{\n", map->out_file);
+    fputs(map_endpoint_opener, map->out_file);
     fputs("  'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [", map->out_file);
 
     /* Longitude */
@@ -1029,7 +1037,9 @@ map_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
     /* XXX - we could add specific icons, e.g. depending on the amount of packets or bytes */
 
     fputs("' }\n", map->out_file);
-    fputs("},\n", map->out_file);       /* XXX - Trim the comma from the last item */
+    fputs("}", map->out_file);
+    map_endpoint_opener = ",\n{\n";
+
     map->hosts_written = TRUE;
 
     return FALSE;
@@ -1141,6 +1151,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
         fputs(tpl_line, map.out_file);
         /* MUST match ipmap.html */
         if (strstr(tpl_line, "// Start endpoint list")) {
+            map_init();
             gtk_tree_model_foreach(GTK_TREE_MODEL(store), map_handle, &map);
         }
     }
@@ -1646,7 +1657,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
     nb = gtk_notebook_new();
-    gtk_container_add(GTK_CONTAINER(vbox), nb);
+    gtk_box_pack_start(GTK_BOX(vbox), nb, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(nb), NB_PAGES_KEY, pages);
 
     page = 0;
@@ -1672,7 +1683,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
-    gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
+    gtk_box_pack_start(GTK_BOX(hbox), resolv_cb, TRUE, TRUE, 0);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
     gtk_widget_set_tooltip_text(resolv_cb,
         "Show results of name resolutions rather than the \"raw\" values. Please note: The corresponding name resolution must be enabled.");
@@ -1680,7 +1691,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     g_signal_connect(resolv_cb, "toggled", G_CALLBACK(hostlist_resolve_toggle_dest), pages);
 
     filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
-    gtk_container_add(GTK_CONTAINER(hbox), filter_cb);
+    gtk_box_pack_start(GTK_BOX(hbox), filter_cb, TRUE, TRUE, 0);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
     gtk_widget_set_tooltip_text(filter_cb, "Limit the list to endpoints matching the current display filter.");
 

@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
 #ifdef HAVE_CONFIG_H
@@ -808,12 +808,11 @@ static gboolean vwr_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 
 static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *IS_TX, int *err, gchar **err_info)
 {
-    int     bytes_read, file_off;
+    int     bytes_read;
     int     f_len, v_type;
     guint8  header[16];
 
     errno = WTAP_ERR_CANT_READ;
-    file_off = 0;
     *rec_size = 0;
 
     /* read out the file data in 16-byte messages, stopping either after we find a frame, */
@@ -826,8 +825,6 @@ static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *I
             *err = file_error(fh, err_info);
             return(FALSE);
         }
-        else
-            file_off += bytes_read;
 
         /* got a header; invoke decode-message function to parse and process it */
         /* if the function returns a length, then a frame or variable-length message */
@@ -842,8 +839,6 @@ static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *I
             else if (v_type != VT_FRAME) {
                 if (file_seek(fh, f_len, SEEK_CUR, err) < 0)
                     return(FALSE);
-                else
-                    file_off += f_len;
             }
             else {
                 *rec_size = f_len;

@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -4211,6 +4211,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
         g_warning("add_menu_recent_capture_file_absolute: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
+        g_free(normalized_cf_name);
         return;
     }
     recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");

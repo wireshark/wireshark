@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 
@@ -118,12 +118,6 @@ static void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_g
 	proto_item *gog_gop_item;
 	proto_tree *gog_gop_tree;
 	mate_pdu* pdu;
-
-#ifdef _MATE_DEBUGGING
-	proto_item* gog_key_item;
-	proto_tree* gog_key_tree;
-	guint i;
-#endif
 
 	gog_item = proto_tree_add_uint(tree,gog->cfg->hfid,tvb,0,0,gog->id);
 	gog_tree = proto_item_add_subtree(gog_item,gog->cfg->ett);

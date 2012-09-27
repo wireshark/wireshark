@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 
@@ -453,7 +453,7 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     sw = scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw),
                                         GTK_SHADOW_IN);
-    gtk_container_add(GTK_CONTAINER(container), sw);
+    gtk_box_pack_start(GTK_BOX(container), sw, TRUE, TRUE, 0);
 
     store = gtk_tree_store_new(NUM_STAT_COLUMNS, G_TYPE_STRING, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,

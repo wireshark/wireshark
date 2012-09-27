@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
 
@@ -1413,17 +1413,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {hf_rdp_pduSource,          2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
-#ifdef RDPELE
-  rdp_field_info_t license_fields[] = {
-    {hf_rdp_serverRandom,       2, NULL, 0, 0, NULL },
-    {hf_rdp_dwVersion,          4, NULL, 0, 0, NULL },
-    {hf_rdp_cbCompanyName,      4, &cbCompanyName, 0, 0, NULL },
-    {hf_rdp_pbCompanyName,      0, &cbCompanyName, 0, RDP_FI_UNICODE, NULL },
-    {hf_rdp_cbProductId,        4, &cbProductId, 0, 0, NULL },
-    {hf_rdp_pbProductId,        0, &cbProductId, 0, RDP_FI_UNICODE, NULL },
-    FI_TERMINATOR
-  };
-#endif
+
   length = tvb_length_remaining(tvb, offset);
   tree = dissect_rdp(tvb, pinfo, tree);
 

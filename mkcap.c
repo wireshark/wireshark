@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Using it to generate a capture file:
  * ./mkcap [some-flags] > some-file
@@ -320,10 +320,9 @@ gen_next_ack(int force, int spacing)
 void 
 makeackedrun(int len, int spacing, int ackdelay)
 {
-	int old_seq1, next_ack_ts=0;
+	int next_ack_ts=0;
         if (verbose) fprintf(stderr, "makeackedrun: Len=%d, spacing=%d, ackdelay=%d\n",
 		len, spacing, ackdelay);
-	old_seq1=seq_1;
 	while(len>0){
 
 	  /*
@@ -456,7 +455,6 @@ makeackedrundroppedtail8kb(int len, int spacing, int ackdelay)
 
 	if(num_dupes<3){
 		int seglen;
-		int new_seq;
 		ts+=1000000;
 		seglen=((seq_1-dropped_tail)>1460)?1460:(seq_1-dropped_tail);
 		if(seglen==1460){
@@ -466,7 +464,6 @@ makeackedrundroppedtail8kb(int len, int spacing, int ackdelay)
 		}
 		ts+=ackdelay;
 
-		new_seq=seglen+seq_1;
 		makeseg(eth_2, eth_1, ip_2, ip_1, port_2, port_1, &seq_2, &seq_1, "10", 0);
 		ts+=spacing;
 		return;
@@ -528,7 +525,7 @@ all_digits(char *str)
 void 
 process_drop_list(char *drop_list)
 {
-  int commas=0, i;
+  int commas=0;
   char *tok, *save;
 
   if (!drop_list || !(*drop_list)) {
@@ -574,8 +571,8 @@ process_drop_list(char *drop_list)
     else
       drops[commas / 2].drop_seg_start = num;
   }
-
   
+  g_free(save);
 
 }
 

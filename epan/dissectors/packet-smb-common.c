@@ -22,7 +22,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -240,7 +240,7 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 	}
 
 	if (useunicode) {
-		if ((!nopad) && (*offsetp % 2)) {
+		if ((!nopad) && (*bcp % 2)) {
 			(*offsetp)++;   /* Looks like a pad byte there sometimes */
 			(*bcp)--;
 

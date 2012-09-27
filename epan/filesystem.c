@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -1053,13 +1053,10 @@ get_persconffile_dir_no_profile(void)
          */
         pwd = getpwuid(getuid());
         if (pwd != NULL) {
-            /*
-             * This is cached, so we don't need to worry
-             * about allocating multiple ones of them.
-             */
-            homedir = g_strdup(pwd->pw_dir);
-        } else
+            homedir = pwd->pw_dir;
+        } else {
             homedir = "/tmp";
+        }
     }
     persconffile_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", homedir, PF_DIR);
 #endif
