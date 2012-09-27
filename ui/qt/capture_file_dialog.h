@@ -62,7 +62,11 @@ class CaptureFileDialog : public QFileDialog
     Q_OBJECT
 public:
     explicit CaptureFileDialog(QWidget *parent = NULL, QString &display_filter = *new QString());
-    static check_savability_t checkSaveAsWithComments(QWidget *parent, capture_file *cf, int file_type);
+    static check_savability_t checkSaveAsWithComments(QWidget *
+#if defined(Q_WS_WIN)
+            parent
+#endif
+            , capture_file *cf, int file_type);
 
     int mergeType();
     int selectedFileType();

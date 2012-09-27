@@ -148,7 +148,11 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &display_filter) :
 #endif // Q_WS_WIN
 }
 
-check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *parent, capture_file *cf, int file_type) {
+check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
+#if defined(Q_WS_WIN)
+        parent
+#endif
+        , capture_file *cf, int file_type) {
 #if defined(Q_WS_WIN)
     if (!parent || !cf)
         return CANCELLED;
