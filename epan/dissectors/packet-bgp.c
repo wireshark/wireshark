@@ -710,6 +710,11 @@ static int hf_bgp_ext_com_cos_flags_be = -1;
 static int hf_bgp_ext_com_cos_flags_ef = -1;
 static int hf_bgp_ext_com_cos_flags_af = -1;
 static int hf_bgp_ext_com_cos_flags_le = -1;
+static int hf_bgp_ext_com_qos_set_number = -1;
+static int hf_bgp_ext_com_qos_tech_type = -1;
+static int hf_bgp_ext_com_qos_marking_o = -1;
+static int hf_bgp_ext_com_qos_marking_a = -1;
+static int hf_bgp_ext_com_qos_default_to_zero = -1;
 
 static gint ett_bgp = -1;
 static gint ett_bgp_prefix = -1;
@@ -3192,19 +3197,11 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                     proto_tree_add_item(subtree5, hf_bgp_ext_com_qos_flags_ignore_remarking, tvb, q+1, 1, ENC_BIG_ENDIAN);
                                     proto_tree_add_item(subtree5, hf_bgp_ext_com_qos_flags_agg_marking, tvb, q+1, 1, ENC_BIG_ENDIAN);
 
-                                    proto_tree_add_text(subtree4, tvb, q+2, 1,
-                                                        "QoS Set Number: 0x%02x", tvb_get_guint8(tvb,q+2));
-                                    proto_tree_add_text(subtree4, tvb, q+3, 1,
-                                                        "Technology Type: 0x%02x (%s)", tvb_get_guint8(tvb,q+3),
-                                                             val_to_str_const(tvb_get_guint8(tvb,q+3),qos_tech_type,"Unknown"));
-                                    proto_tree_add_text(subtree4, tvb, q+4, 2,
-                                                        "QoS Marking O (16 bit): %s", decode_numeric_bitfield(tvb_get_ntohs(tvb,q+4),
-                                                                                                                   0xffff, 16, "0x%04x"));
-                                    proto_tree_add_text(subtree4, tvb, q+6, 1,
-                                                        "QoS Marking A  (8 bit): %s (decimal %d)", decode_numeric_bitfield(tvb_get_guint8(tvb,q+6),
-                                                                                                                           0xff, 8, "0x%02x"), tvb_get_guint8(tvb,q+6));
-                                    proto_tree_add_text(subtree4, tvb, q+7, 1,
-                                                        "Defaults to zero: 0x%02x", tvb_get_guint8(tvb,q+7));
+                                    proto_tree_add_item(subtree4, hf_bgp_ext_com_qos_set_number, tvb, q+2, 1, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(subtree4, hf_bgp_ext_com_qos_tech_type, tvb, q+3, 1, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(subtree4, hf_bgp_ext_com_qos_marking_o, tvb, q+4, 2, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(subtree4, hf_bgp_ext_com_qos_marking_a, tvb, q+6, 1, ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(subtree4, hf_bgp_ext_com_qos_default_to_zero, tvb, q+7, 1, ENC_BIG_ENDIAN);
                                     break;
                                 case BGP_EXT_COM_COS_CAP_T:
                                     is_regular_type = TRUE;
@@ -4331,6 +4328,21 @@ proto_register_bgp(void)
       { &hf_bgp_ext_com_cos_flags_le,
         { "LE class", "bgp.ext_com_cos.flags.le", FT_BOOLEAN, 8,
           TFS(&tfs_supported_not_supported), 0x10, NULL, HFILL}},
+      { &hf_bgp_ext_com_qos_set_number,
+        { "QoS Set Number", "bgp.ext_com_qos.set_number", FT_UINT8, BASE_HEX,
+          NULL, 0, NULL, HFILL}},
+      { &hf_bgp_ext_com_qos_tech_type,
+        { "Technology Type", "bgp.ext_com_qos.tech_type", FT_UINT8, BASE_HEX,
+          VALS(qos_tech_type), 0, NULL, HFILL}},
+      { &hf_bgp_ext_com_qos_marking_o,
+        { "QoS Marking O", "bgp.ext_com_qos.marking_o", FT_UINT16, BASE_HEX,
+          NULL, 0, NULL, HFILL}},
+      { &hf_bgp_ext_com_qos_marking_a,
+        { "QoS Marking A", "bgp.ext_com_qos.marking_a", FT_UINT8, BASE_HEX_DEC,
+          NULL, 0, NULL, HFILL}},
+      { &hf_bgp_ext_com_qos_default_to_zero,
+        { "Defaults to zero", "bgp.ext_com_qos.default_to_zero", FT_UINT8, BASE_HEX,
+          NULL, 0, NULL, HFILL}},
     };
 
     static gint *ett[] = {

@@ -49,6 +49,9 @@ static int proto_aal1 = -1;
 static int proto_aal3_4 = -1;
 static int proto_oamaal = -1;
 
+static int hf_atm_lan_destination_route_desc = -1;
+static int hf_atm_lan_destination_lan_id = -1;
+static int hf_atm_lan_destination_bridge_num = -1;
 static int hf_atm_le_control_flag_v2_capable = -1;
 static int hf_atm_le_control_flag_selective_multicast = -1;
 static int hf_atm_le_control_flag_v2_required = -1;
@@ -213,7 +216,6 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
   proto_tree *dest_tree;
   guint16 tag;
   proto_tree *rd_tree;
-  guint16 route_descriptor;
 
   td = proto_tree_add_text(tree, tvb, offset, 8, "%s LAN destination",
                            type);
@@ -233,16 +235,10 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
 
   case TAG_ROUTE_DESCRIPTOR:
     offset += 4;
-    route_descriptor = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_text(dest_tree, tvb, offset, 2, "Route descriptor: 0x%02X",
-                              route_descriptor);
+    proto_tree_add_item(dest_tree, hf_atm_lan_destination_route_desc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     rd_tree = proto_item_add_subtree(td, ett_atm_lane_lc_lan_dest_rd);
-    proto_tree_add_text(rd_tree, tvb, offset, 2, "%s",
-                        decode_numeric_bitfield(route_descriptor, 0xFFF0, 2*8,
-                                                "LAN ID = %u"));
-    proto_tree_add_text(rd_tree, tvb, offset, 2, "%s",
-                        decode_numeric_bitfield(route_descriptor, 0x000F, 2*8,
-                                                "Bridge number = %u"));
+    proto_tree_add_item(rd_tree, hf_atm_lan_destination_lan_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(rd_tree, hf_atm_lan_destination_bridge_num, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     break;
   }
 }
@@ -1941,6 +1937,15 @@ proto_register_atm(void)
       { "CID",          "atm.cid", FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_atm_lan_destination_route_desc,
+      { "Route descriptor", "atm.lan_destination.route_desc", FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_lan_destination_lan_id,
+      { "LAN ID", "atm.lan_destination.lan_id", FT_UINT16, BASE_DEC, NULL, 0xFFF0,
+        NULL, HFILL }},
+    { &hf_atm_lan_destination_bridge_num,
+      { "Bridge number", "atm.lan_destination.bridge_num", FT_UINT16, BASE_DEC, NULL, 0x000F,
+        NULL, HFILL }},
     { &hf_atm_le_control_flag_v2_capable,
       { "V2 capable", "atm.le_control.flag.v2_capable", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0002,
         NULL, HFILL }},

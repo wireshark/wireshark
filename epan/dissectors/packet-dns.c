@@ -95,6 +95,7 @@ static int hf_dns_rr_ttl = -1;
 static int hf_dns_rr_len = -1;
 static int hf_dns_rr_addr = -1;
 static int hf_dns_rr_primaryname = -1;
+static int hf_dns_rr_udp_payload_size = -1;
 static int hf_dns_soa_mname = -1;
 static int hf_dns_soa_rname = -1;
 static int hf_dns_soa_serial_number = -1;
@@ -1214,9 +1215,7 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
                              "Type: %s", dns_type_description(type));
   offset += 2;
   if (is_mdns) {
-    proto_tree_add_text(rr_tree, tvb, offset, 2, "%s",
-                        decode_numeric_bitfield(dns_class, 0x7fff, 16,
-                                                "UDP payload size: %u"));
+    proto_tree_add_uint(rr_tree, hf_dns_rr_udp_payload_size, tvb, offset, 2, dns_class);
     proto_tree_add_boolean(rr_tree, hf_dns_rr_cache_flush, tvb, offset, 2,
        flush);
   } else {
@@ -4038,6 +4037,11 @@ proto_register_dns(void)
       { "Primaryname", "dns.resp.primaryname",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Response Primary Name", HFILL }},
+
+    { &hf_dns_rr_udp_payload_size,
+      { "UDP payload size", "dns.resp.udp_payload_size",
+        FT_UINT16, BASE_HEX, NULL, 0x7FFF,
+        NULL, HFILL }},
 
     { &hf_dns_soa_mname,
       { "Primary name server", "dns.soa.mname",
