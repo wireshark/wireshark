@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 
@@ -470,6 +470,9 @@ profile_bar_new(void)
     profile_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(profile_bar), "profile");
     gtk_widget_set_tooltip_text(profile_bar_event, "Click to change configuration profile");
     profile_bar_update();
+#if !GTK_CHECK_VERSION(3,0,0)
+    gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(profile_bar), FALSE);
+#endif
 
     gtk_widget_show(profile_bar);
     gtk_widget_show(profile_bar_event);
@@ -811,6 +814,8 @@ statusbar_capture_update_started_cb(capture_options *capture_opts)
                             interface_names->str,
                             (capture_opts->save_file) ? capture_opts->save_file : "");
     g_string_free(interface_names, TRUE);
+
+    status_capture_comment_update();
 }
 
 static void

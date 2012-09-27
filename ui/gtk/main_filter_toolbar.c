@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /*
@@ -314,7 +314,7 @@ dfilter_entry_match(GtkWidget *filter_cm, char *s, int *index)
         g_value_unset (&value);
     } while (gtk_tree_model_iter_next (model, &iter));
 
-    *index = i;
+    *index = -1;
     return FALSE;
 }
 
@@ -397,10 +397,10 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
     if (cf_status == CF_OK && strlen(s) > 0) {
         int index;
 
-        if(!dfilter_entry_match(filter_cm,s, &index) || index != 0) {
+        if(!dfilter_entry_match(filter_cm,s, &index) || index > -1) {
 
             /* If the filter is already there but not the first entry, remove it */
-            if (index > 0) {
+            if (index > -1) {
                 gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(filter_cm), index);
                 index--;
             }
