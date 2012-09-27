@@ -1776,6 +1776,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   guint       tap_flags;
   gboolean    add_to_packet_list = FALSE;
   gboolean    compiled;
+  guint32     frames_count;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -1864,7 +1865,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
   selected_frame_seen = FALSE;
 
-  for (framenum = 1; framenum <= cf->count; framenum++) {
+  frames_count = cf->count;
+  for (framenum = 1; framenum <= frames_count; framenum++) {
     fdata = frame_data_sequence_find(cf->frames, framenum);
 
     /* Create the progress bar if necessary.
@@ -1887,11 +1889,11 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        * with count == 0, so let's assert that
        */
       g_assert(cf->count > 0);
-      progbar_val = (gfloat) count / cf->count;
+      progbar_val = (gfloat) count / frames_count;
 
       if (progbar != NULL) {
         g_snprintf(status_str, sizeof(status_str),
-                  "%4u of %u frames", count, cf->count);
+                  "%4u of %u frames", count, frames_count);
         update_progress_dlg(progbar, progbar_val, status_str);
       }
 
@@ -1980,7 +1982,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        even though the user requested that the scan stop, and that
        would leave the user stuck with an Wireshark grinding on
        until it finishes.  Should we just stick them with that? */
-    for (; framenum <= cf->count; framenum++) {
+    for (; framenum <= frames_count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
       fdata->flags.visited = 0;
       frame_data_cleanup(fdata);
