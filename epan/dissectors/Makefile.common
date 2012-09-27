@@ -652,6 +652,7 @@ DISSECTOR_SRC = \
 	packet-imf.c		\
 	packet-infiniband.c	\
 	packet-infiniband_sdp.c \
+	packet-interlink.c	\
 	packet-ip.c		\
 	packet-ipars.c		\
 	packet-ipdc.c		\

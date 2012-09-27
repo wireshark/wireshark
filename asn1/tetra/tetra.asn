@@ -1,5 +1,5 @@
 -- TETRA packet dissection
--- Copyright (c) 2007 - 2011 Professional Mobile Communication Research Group,
+-- Copyright (c) 2007 - 2012 Professional Mobile Communication Research Group,
 --    Beijing Institute of Technology, China
 --
 
@@ -2139,7 +2139,7 @@ D-CONNECT::=
        optional-elements CHOICE{
            no-type2 NULL,
            type2-parameters SEQUENCE {
-	         call-priority CHOICE{none NULL, call-priority INTEGER (0..31)},
+	         call-priority CHOICE{none NULL, call-priority INTEGER (0..15)},
 		     basic-service-information CHOICE{none NULL, basic-service-information Basic-service-information},
 		   temporary-address CHOICE { none NULL, temporary-address Calling-party-address-type},
 		       notification-indicator CHOICE { none NULL, notification-indicator INTEGER (0..63)},

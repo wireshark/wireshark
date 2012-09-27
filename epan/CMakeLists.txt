@@ -731,6 +731,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-imf.c
 	dissectors/packet-infiniband.c
 	dissectors/packet-infiniband_sdp.c
+	dissectors/packet-interlink.c
 	dissectors/packet-ip.c
 	dissectors/packet-ipars.c
 	dissectors/packet-ipdc.c
