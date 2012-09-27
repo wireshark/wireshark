@@ -3208,7 +3208,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             proto_tree_add_uint_format(nvtree, hf_replica_number, tvb, voffset,
                                        4, value3, "Replica Number %d", value3);
             voffset = voffset+4;
-            if(vvalues->pflags & 0x8000 | vvalues->pflags & 0x4000)
+            if((vvalues->pflags & 0x8000) | (vvalues->pflags & 0x4000))
             {
                 /* If this request flag is set then this is a server. Server structures
                  * include the RootID as part of the replica data. */
