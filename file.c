@@ -1227,7 +1227,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
       cf->packet_comment_count++;
     cf->f_datalen = offset + fdlocal.cap_len;
 
-    if (!cf->redissecting) {
+    if (!cf->rescanning) {
       row = add_packet_to_packet_list(fdata, cf, dfcode,
                                       filtering_tap_listeners, tap_flags,
                                       pseudo_header, buf, TRUE, TRUE);
@@ -1776,7 +1776,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   guint       tap_flags;
   gboolean    add_to_packet_list = FALSE;
   gboolean    compiled;
-  guint32     frames_count;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -1805,15 +1804,16 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
      screen updates while it happens. */
   packet_list_freeze();
 
+
+  /* We might receive new packets while redissecting, and we don't
+     want to dissect those before their time. */
+  cf->rescanning = TRUE;
+
   if (redissect) {
     /* We need to re-initialize all the state information that protocols
        keep, because some preference that controls a dissector has changed,
        which might cause the state information to be constructed differently
        by that dissector. */
-
-    /* We might receive new packets while redissecting, and we don't
-       want to dissect those before their time. */
-    cf->redissecting = TRUE;
 
     /* Cleanup all data structures used for dissection. */
     cleanup_dissection();
@@ -1865,8 +1865,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
   selected_frame_seen = FALSE;
 
-  frames_count = cf->count;
-  for (framenum = 1; framenum <= frames_count; framenum++) {
+  for (framenum = 1; framenum <= cf->count; framenum++) {
     fdata = frame_data_sequence_find(cf->frames, framenum);
 
     /* Create the progress bar if necessary.
@@ -1889,11 +1888,11 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        * with count == 0, so let's assert that
        */
       g_assert(cf->count > 0);
-      progbar_val = (gfloat) count / frames_count;
+      progbar_val = (gfloat) count / cf->count;
 
       if (progbar != NULL) {
         g_snprintf(status_str, sizeof(status_str),
-                  "%4u of %u frames", count, frames_count);
+                  "%4u of %u frames", count, cf->count);
         update_progress_dlg(progbar, progbar_val, status_str);
       }
 
@@ -1970,7 +1969,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   }
 
   /* We are done redissecting the packet list. */
-  cf->redissecting = FALSE;
+  cf->rescanning = FALSE;
 
   if (redissect) {
     /* Clear out what remains of the visited flags and per-frame data
@@ -1982,7 +1981,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        even though the user requested that the scan stop, and that
        would leave the user stuck with an Wireshark grinding on
        until it finishes.  Should we just stick them with that? */
-    for (; framenum <= frames_count; framenum++) {
+    for (; framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
       fdata->flags.visited = 0;
       frame_data_cleanup(fdata);
