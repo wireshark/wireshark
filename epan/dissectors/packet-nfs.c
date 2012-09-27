@@ -371,6 +371,9 @@ static int hf_nfs_offset4 = -1;
 static int hf_nfs_specdata1 = -1;
 static int hf_nfs_specdata2 = -1;
 static int hf_nfs_lock_type4 = -1;
+static int hf_nfs_open_rflags = -1;
+static int hf_nfs_open_rflags_mlock = -1;
+static int hf_nfs_open_rflags_confirm = -1;
 static int hf_nfs_reclaim4 = -1;
 static int hf_nfs_length4 = -1;
 static int hf_nfs_changeid4 = -1;
@@ -8193,32 +8196,17 @@ static const value_string names_open4_result_flags[] = {
 };
 
 static int
-dissect_nfs_open4_rflags(tvbuff_t *tvb, int offset,
-			 proto_tree *tree, const char *name)
+dissect_nfs_open4_rflags(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint rflags;
-	proto_item *rflags_item = NULL;
-	proto_item *rflags_tree = NULL;
-
-	rflags = tvb_get_ntohl(tvb, offset);
+	proto_item *rflags_item;
+	proto_item *rflags_tree;
 
 	if (tree)
 	{
-		rflags_item = proto_tree_add_text(tree, tvb, offset, 4,
-			"%s: 0x%08x", name, rflags);
-
-		{
-			rflags_tree = proto_item_add_subtree(rflags_item,
-				ett_nfs_open4_result_flags);
-
-			proto_tree_add_text(rflags_tree, tvb, offset, 4, "%s",
-					decode_enumerated_bitfield(rflags, OPEN4_RESULT_MLOCK, 2,
-					names_open4_result_flags, "%s"));
-
-			proto_tree_add_text(rflags_tree, tvb, offset, 4, "%s",
-					decode_enumerated_bitfield(rflags, OPEN4_RESULT_CONFIRM, 2,
-					names_open4_result_flags, "%s"));
-		}
+		rflags_item = proto_tree_add_item(tree, hf_nfs_open_rflags, tvb, offset, 4, ENC_BIG_ENDIAN);
+		rflags_tree = proto_item_add_subtree(rflags_item, ett_nfs_open4_result_flags);
+		proto_tree_add_item(rflags_tree, hf_nfs_open_rflags_mlock, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rflags_tree, hf_nfs_open_rflags_confirm, tvb, offset, 4, ENC_BIG_ENDIAN);
 	}
 
 	offset += 4;
@@ -9742,8 +9730,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs_stateid4(tvb, offset, newftree, &sid_hash);
 			offset = dissect_nfs_change_info4(tvb, offset, newftree,
 				"change_info");
-			offset = dissect_nfs_open4_rflags(tvb, offset, newftree,
-				"result_flags");
+			offset = dissect_nfs_open4_rflags(tvb, offset, newftree);
 			offset = dissect_nfs_attributes(tvb, offset, pinfo, newftree,
 				FATTR4_BITMAP_ONLY);
 			offset = dissect_nfs_open_delegation4(tvb, offset, pinfo, newftree);
@@ -11319,6 +11306,18 @@ proto_register_nfs(void)
 		{ &hf_nfs_lock_type4, {
 			"locktype", "nfs.locktype4", FT_UINT32, BASE_DEC,
 			VALS(names_nfs_lock_type4), 0, NULL, HFILL }},
+
+		{ &hf_nfs_open_rflags, {
+			"results_flags", "nfs.open_rflags", FT_UINT32, BASE_HEX,
+			VALS(names_nfs_lock_type4), 0, NULL, HFILL }},
+
+		{ &hf_nfs_open_rflags_mlock, {
+			"mlock", "nfs.open_rflags.mlock", FT_UINT32, BASE_DEC,
+			VALS(names_open4_result_flags), OPEN4_RESULT_MLOCK, NULL, HFILL }},
+
+		{ &hf_nfs_open_rflags_confirm, {
+			"confirm", "nfs.open_rflags.confirm", FT_UINT32, BASE_DEC,
+			VALS(names_open4_result_flags), OPEN4_RESULT_CONFIRM, NULL, HFILL }},
 
 		{ &hf_nfs_reclaim4, {
 			"reclaim", "nfs.reclaim4", FT_BOOLEAN, BASE_NONE,

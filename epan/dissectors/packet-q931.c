@@ -84,6 +84,8 @@ static int hf_q931_cause_value 				= -1;
 static int hf_q931_number_type				= -1;
 static int hf_q931_numbering_plan			= -1;
 static int hf_q931_extension_ind			= -1;
+static int hf_q931_extension_ind_preference		= -1;
+static int hf_q931_extension_ind_new_status		= -1;
 static int hf_q931_calling_party_number 		= -1;
 static int hf_q931_called_party_number 			= -1;
 static int hf_q931_connected_number 			= -1;
@@ -1444,10 +1446,8 @@ dissect_q931_change_status_ie(tvbuff_t *tvb, int offset, int len _U_, proto_tree
 	octet = tvb_get_guint8(tvb, offset);
 
 	proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_text(tree, tvb, offset, 1, "%s",
-		decode_enumerated_bitfield_shifted(octet, 0x40, 8, VALS(q931_status_preference_vals), "Preference: %s"));
-	proto_tree_add_text(tree, tvb, offset, 1, "%s",
-		decode_enumerated_bitfield(octet, 0x07, 8, VALS(q931_new_status_vals), "New status: %s"));
+	proto_tree_add_item(tree, hf_q931_extension_ind_preference, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_q931_extension_ind_new_status, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -3446,6 +3446,16 @@ proto_register_q931(void)
 		{ &hf_q931_extension_ind,
 		  { "Extension indicator",  "q931.extension_ind",
 			FT_BOOLEAN, 8, TFS(&q931_extension_ind_value), 0x80,
+			NULL, HFILL }},
+
+		{ &hf_q931_extension_ind_preference,
+		  { "Preference",  "q931.extension_ind_preference",
+			FT_UINT8, BASE_DEC, VALS(q931_status_preference_vals), 0x40,
+			NULL, HFILL }},
+
+		{ &hf_q931_extension_ind_new_status,
+		  { "New status",  "q931.extension_ind_new_status",
+			FT_UINT8, BASE_DEC, VALS(q931_new_status_vals), 0x07,
 			NULL, HFILL }},
 
 		{ &hf_q931_calling_party_number,
