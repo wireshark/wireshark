@@ -234,7 +234,7 @@ prefs_cleanup(void)
  */
 module_t *
 prefs_register_module(module_t *parent, const char *name, const char *title,
-                      const char *description, void (*apply_cb)(void), 
+                      const char *description, void (*apply_cb)(void),
                       const gboolean use_gui)
 {
     return prefs_register_module_or_subtree(parent, name, title, description,
@@ -252,7 +252,7 @@ prefs_register_subtree(module_t *parent, const char *title, const char *descript
                        void (*apply_cb)(void))
 {
     return prefs_register_module_or_subtree(parent, NULL, title, description,
-                                            TRUE, apply_cb, 
+                                            TRUE, apply_cb,
                                             parent ? parent->use_gui : FALSE);
 }
 
@@ -700,7 +700,7 @@ register_preference(module_t *module, const char *name, const char *title,
     if (prefs_find_preference(module, name) != NULL)
         g_error("Preference %s has already been registered", name);
 
-    if ((type != PREF_OBSOLETE) && 
+    if ((type != PREF_OBSOLETE) &&
         /* Don't compare if its a subtree */
         (module->name != NULL)) {
         /*
@@ -837,7 +837,7 @@ prefs_register_uint_preference(module_t *module, const char *name,
  * XXX - This should be temporary until we can find a better way
  * to do "custom" preferences
  */
-static void 
+static void
 prefs_register_uint_custom_preference(module_t *module, const char *name,
                                const char *title, const char *description,
                                struct pref_custom_cbs* custom_cbs, guint *var)
@@ -938,7 +938,7 @@ prefs_register_string_preference(module_t *module, const char *name,
  * XXX - This should be temporary until we can find a better way
  * to do "custom" preferences
  */
-static 
+static
 void prefs_register_string_custom_preference(module_t *module, const char *name,
                                  const char *title, const char *description,
                                  struct pref_custom_cbs* custom_cbs, const char **var)
@@ -1041,7 +1041,7 @@ void prefs_register_color_preference(module_t *module, const char *name,
  */
 typedef void (*pref_custom_list_init_cb) (pref_t* pref, GList** value);
 
-static 
+static
 void prefs_register_list_custom_preference(module_t *module, const char *name,
     const char *title, const char *description, struct pref_custom_cbs* custom_cbs,
     pref_custom_list_init_cb init_cb, GList** list)
@@ -1278,7 +1278,7 @@ static prefs_set_pref_e column_hidden_set_cb(pref_t* pref, gchar* value, gboolea
     fmt_data    *cfmt;
     pref_t  *format_pref;
 
-    if (strcmp(*pref->varp.string, value) != 0) {
+    if (*pref->varp.string && (strcmp(*pref->varp.string, value) != 0)) {
         *changed = TRUE;
         g_free((void *)*pref->varp.string);
         *pref->varp.string = g_strdup(value);
@@ -1343,8 +1343,8 @@ static void column_hidden_write_cb(pref_t* pref, write_pref_arg_t* arg)
   g_list_free(col_l);
 }
 
-/* Number of columns "preference".  This is only used internally and is not written to the 
- * preference file 
+/* Number of columns "preference".  This is only used internally and is not written to the
+ * preference file
  */
 static void column_num_reset_cb(pref_t* pref)
 {
@@ -1491,8 +1491,8 @@ static prefs_set_pref_e column_format_set_cb(pref_t* pref, gchar* value, gboolea
 
 static void column_format_write_cb(pref_t* pref, write_pref_arg_t* arg)
 {
-  GList       *clp = *pref->varp.list, *col_l,  
-              *pref_col = g_list_first(clp), 
+  GList       *clp = *pref->varp.list, *col_l,
+              *pref_col = g_list_first(clp),
               *def_col = g_list_first(pref->default_val.list);
   fmt_data    *cfmt, *def_cfmt;
   gchar       *prefs_fmt;
@@ -1640,9 +1640,9 @@ static prefs_set_pref_e capture_column_set_cb(pref_t* pref, gchar* value, gboole
 
 static void capture_column_write_cb(pref_t* pref, write_pref_arg_t* arg)
 {
-  GList       *clp = *pref->varp.list, 
+  GList       *clp = *pref->varp.list,
               *col_l = NULL,
-              *pref_col = g_list_first(clp), 
+              *pref_col = g_list_first(clp),
               *def_col = g_list_first(pref->default_val.list);
   gchar *col, *def_col_str;
   gboolean is_default = TRUE;
@@ -1671,7 +1671,7 @@ static void capture_column_write_cb(pref_t* pref, write_pref_arg_t* arg)
     col_l = g_list_append(col_l, g_strdup(col));
     clp = clp->next;
   }
-   
+
   fprintf(arg->pf, "\n# Capture options dialog column list.\n");
   fprintf(arg->pf, "# List of columns to be displayed.\n");
   fprintf(arg->pf, "# Possible values: INTERFACE,LINK,PMODE,SNAPLEN,MONITOR,BUFFER,FILTER\n");
@@ -1734,24 +1734,24 @@ static module_t *nameres_module = NULL;
 void
 prefs_register_modules(void)
 {
-    module_t *printing, *capture_module, *console_module, 
+    module_t *printing, *capture_module, *console_module,
         *gui_layout_module, *gui_font_module;
     struct pref_custom_cbs custom_cbs;
 
     if (protocols_module != NULL) {
         /* Already setup preferences */
         return;
-    } 
+    }
 
-    /* Ensure the "global" preferences have been initialized so the 
-     * preference API has the proper default values to work from 
+    /* Ensure the "global" preferences have been initialized so the
+     * preference API has the proper default values to work from
      */
     pre_init_prefs();
 
     /* GUI
-     * These are "simple" GUI preferences that can be read/written using the 
+     * These are "simple" GUI preferences that can be read/written using the
      * preference module API.  These preferences still use their own
-     * configuration screens for access, but this cuts down on the 
+     * configuration screens for access, but this cuts down on the
      * preference "string compare list" in set_pref()
      */
     gui_module = prefs_register_module(NULL, "gui", "User Interface",
@@ -1808,7 +1808,7 @@ prefs_register_modules(void)
     custom_cbs.reset_cb = column_hidden_reset_cb;
     custom_cbs.set_cb = column_hidden_set_cb;
     custom_cbs.write_cb = column_hidden_write_cb;
-    prefs_register_string_custom_preference(gui_column_module, PRS_COL_HIDDEN, "Packet list hidden columns", 
+    prefs_register_string_custom_preference(gui_column_module, PRS_COL_HIDDEN, "Packet list hidden columns",
         "List all columns to hide in the packet list", &custom_cbs, (const char **)&cols_hidden_list);
 
     custom_cbs.free_cb = column_format_free_cb;
@@ -1816,18 +1816,18 @@ prefs_register_modules(void)
     custom_cbs.set_cb = column_format_set_cb;
     custom_cbs.write_cb = column_format_write_cb;
 
-    prefs_register_list_custom_preference(gui_column_module, PRS_COL_FMT, "Packet list column format", 
-        "Each pair of strings consists of a column title and its format", &custom_cbs, 
+    prefs_register_list_custom_preference(gui_column_module, PRS_COL_FMT, "Packet list column format",
+        "Each pair of strings consists of a column title and its format", &custom_cbs,
         column_format_init_cb, &prefs.col_list);
 
-    /* Number of columns.  This is only used internally and is not written to the 
-     * preference file 
+    /* Number of columns.  This is only used internally and is not written to the
+     * preference file
      */
     custom_cbs.free_cb = custom_pref_no_cb;
     custom_cbs.reset_cb = column_num_reset_cb;
     custom_cbs.set_cb = column_num_set_cb;
     custom_cbs.write_cb = column_num_write_cb;
-    prefs_register_uint_custom_preference(gui_column_module, PRS_COL_NUM, "Number of columns", 
+    prefs_register_uint_custom_preference(gui_column_module, PRS_COL_NUM, "Number of columns",
         "Number of columns in col_list", &custom_cbs, &prefs.num_cols);
 
     /* User Interface : Font */
@@ -1835,48 +1835,48 @@ prefs_register_modules(void)
 
     prefs_register_obsolete_preference(gui_font_module, "font_name");
 
-    prefs_register_string_preference(gui_font_module, "gtk2.font_name", "Font name", 
+    prefs_register_string_preference(gui_font_module, "gtk2.font_name", "Font name",
         "Font name for packet list, protocol tree, and hex dump panes.", (const char**)(&prefs.gui_font_name));
 
     /* User Interface : Colors */
     gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
 
-    prefs_register_color_preference(gui_color_module, "marked_frame.fg", "Color preferences for a marked frame", 
+    prefs_register_color_preference(gui_color_module, "marked_frame.fg", "Color preferences for a marked frame",
         "Color preferences for a marked frame", &prefs.gui_marked_fg);
 
-    prefs_register_color_preference(gui_color_module, "marked_frame.bg", "Color preferences for a marked frame", 
+    prefs_register_color_preference(gui_color_module, "marked_frame.bg", "Color preferences for a marked frame",
         "Color preferences for a marked frame", &prefs.gui_marked_bg);
 
-    prefs_register_color_preference(gui_color_module, "ignored_frame.fg", "Color preferences for a ignored frame", 
+    prefs_register_color_preference(gui_color_module, "ignored_frame.fg", "Color preferences for a ignored frame",
         "Color preferences for a ignored frame", &prefs.gui_ignored_fg);
 
-    prefs_register_color_preference(gui_color_module, "ignored_frame.bg", "Color preferences for a ignored frame", 
+    prefs_register_color_preference(gui_color_module, "ignored_frame.bg", "Color preferences for a ignored frame",
         "Color preferences for a ignored frame", &prefs.gui_ignored_bg);
 
-    prefs_register_color_preference(gui_color_module, "stream.client.fg", "TCP stream window color preference", 
+    prefs_register_color_preference(gui_color_module, "stream.client.fg", "TCP stream window color preference",
         "TCP stream window color preference", &prefs.st_client_fg);
 
-    prefs_register_color_preference(gui_color_module, "stream.client.bg", "TCP stream window color preference", 
+    prefs_register_color_preference(gui_color_module, "stream.client.bg", "TCP stream window color preference",
         "TCP stream window color preference", &prefs.st_client_bg);
 
-    prefs_register_color_preference(gui_color_module, "stream.server.fg", "TCP stream window color preference", 
+    prefs_register_color_preference(gui_color_module, "stream.server.fg", "TCP stream window color preference",
         "TCP stream window color preference", &prefs.st_server_fg);
 
-    prefs_register_color_preference(gui_color_module, "stream.server.bg", "TCP stream window color preference", 
+    prefs_register_color_preference(gui_color_module, "stream.server.bg", "TCP stream window color preference",
         "TCP stream window color preference", &prefs.st_server_bg);
 
     custom_cbs.free_cb = colorized_frame_free_cb;
     custom_cbs.reset_cb = colorized_frame_reset_cb;
     custom_cbs.set_cb = colorized_frame_set_cb;
     custom_cbs.write_cb = colorized_frame_write_cb;
-    prefs_register_string_custom_preference(gui_column_module, "colorized_frame.fg", "Colorized Foreground", 
+    prefs_register_string_custom_preference(gui_column_module, "colorized_frame.fg", "Colorized Foreground",
         "Filter Colorized Foreground", &custom_cbs, (const char **)&prefs.gui_colorized_fg);
 
     custom_cbs.free_cb = colorized_frame_free_cb;
     custom_cbs.reset_cb = colorized_frame_reset_cb;
     custom_cbs.set_cb = colorized_frame_set_cb;
     custom_cbs.write_cb = colorized_frame_write_cb;
-    prefs_register_string_custom_preference(gui_column_module, "colorized_frame.bg", "Colorized Background", 
+    prefs_register_string_custom_preference(gui_column_module, "colorized_frame.bg", "Colorized Background",
         "Filter Colorized Background", &custom_cbs, (const char **)&prefs.gui_colorized_bg);
 
     prefs_register_enum_preference(gui_module, "console_open",
@@ -1901,7 +1901,7 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.gui_recent_df_entries_max);
 
-    prefs_register_string_preference(gui_module, "fileopen.dir", "Start Directory", 
+    prefs_register_string_preference(gui_module, "fileopen.dir", "Start Directory",
         "Directory to start in when opening File Open dialog.", (const char**)(&prefs.gui_fileopen_dir));
 
     prefs_register_obsolete_preference(gui_module, "fileopen.remembered_dir");
@@ -1963,13 +1963,13 @@ prefs_register_modules(void)
                        "Filter Toolbar style",
                        &prefs.gui_toolbar_filter_style, gui_toolbar_style, FALSE);
 
-    prefs_register_string_preference(gui_module, "webbrowser", "The path to the webbrowser", 
+    prefs_register_string_preference(gui_module, "webbrowser", "The path to the webbrowser",
         "The path to the webbrowser (Ex: mozilla)", (const char**)(&prefs.gui_webbrowser));
 
-    prefs_register_string_preference(gui_module, "window_title", "Custom window title", 
+    prefs_register_string_preference(gui_module, "window_title", "Custom window title",
         "Custom window title. (Appended to existing titles.)", (const char**)(&prefs.gui_window_title));
 
-    prefs_register_string_preference(gui_module, "start_title", "Custom start page title", 
+    prefs_register_string_preference(gui_module, "start_title", "Custom start page title",
         "Custom start page title", (const char**)(&prefs.gui_start_title));
 
     prefs_register_enum_preference(gui_module, "version_placement",
@@ -2013,9 +2013,9 @@ prefs_register_modules(void)
                        (gint*)(void*)(&prefs.gui_layout_content_3), gui_layout_content, FALSE);
 
     /* Console
-     * These are preferences that can be read/written using the 
+     * These are preferences that can be read/written using the
      * preference module API.  These preferences still use their own
-     * configuration screens for access, but this cuts down on the 
+     * configuration screens for access, but this cuts down on the
      * preference "string compare list" in set_pref()
      */
     console_module = prefs_register_module(NULL, "console", "Console",
@@ -2025,40 +2025,40 @@ prefs_register_modules(void)
     custom_cbs.reset_cb = console_log_level_reset_cb;
     custom_cbs.set_cb = console_log_level_set_cb;
     custom_cbs.write_cb = console_log_level_write_cb;
-    prefs_register_uint_custom_preference(console_module, "log.level", "logging level", 
+    prefs_register_uint_custom_preference(console_module, "log.level", "logging level",
         "A bitmask of glib log levels", &custom_cbs, &prefs.console_log_level);
 
     /* Capture
-     * These are preferences that can be read/written using the 
+     * These are preferences that can be read/written using the
      * preference module API.  These preferences still use their own
-     * configuration screens for access, but this cuts down on the 
+     * configuration screens for access, but this cuts down on the
      * preference "string compare list" in set_pref()
      */
     capture_module = prefs_register_module(NULL, "capture", "Capture",
         "CAPTURE", NULL, FALSE);
 
-    prefs_register_string_preference(capture_module, "device", "Default capture device", 
+    prefs_register_string_preference(capture_module, "device", "Default capture device",
         "Default capture device", (const char**)(&prefs.capture_device));
 
-    prefs_register_string_preference(capture_module, "devices_linktypes", "Interface link-layer header type", 
+    prefs_register_string_preference(capture_module, "devices_linktypes", "Interface link-layer header type",
         "Interface link-layer header types (Ex: en0(1),en1(143),...)",
         (const char**)(&prefs.capture_devices_linktypes));
 
-    prefs_register_string_preference(capture_module, "devices_descr", "Interface descriptions", 
+    prefs_register_string_preference(capture_module, "devices_descr", "Interface descriptions",
         "Interface descriptions (Ex: eth0(eth0 descr),eth1(eth1 descr),...)",
         (const char**)(&prefs.capture_devices_descr));
 
-    prefs_register_string_preference(capture_module, "devices_hide", "Hide interface", 
+    prefs_register_string_preference(capture_module, "devices_hide", "Hide interface",
         "Hide interface? (Ex: eth0,eth3,...)", (const char**)(&prefs.capture_devices_hide));
 
-    prefs_register_string_preference(capture_module, "devices_monitor_mode", "Capture in monitor mode", 
-        "By default, capture in monitor mode on interface? (Ex: eth0,eth3,...)", 
+    prefs_register_string_preference(capture_module, "devices_monitor_mode", "Capture in monitor mode",
+        "By default, capture in monitor mode on interface? (Ex: eth0,eth3,...)",
         (const char**)(&prefs.capture_devices_monitor_mode));
 
-    prefs_register_bool_preference(capture_module, "prom_mode", "Capture in promiscuous mode", 
+    prefs_register_bool_preference(capture_module, "prom_mode", "Capture in promiscuous mode",
         "Capture in promiscuous mode?", &prefs.capture_prom_mode);
 
-    prefs_register_bool_preference(capture_module, "pcap_ng", "Capture in Pcap-NG format", 
+    prefs_register_bool_preference(capture_module, "pcap_ng", "Capture in Pcap-NG format",
         "Capture in Pcap-NG format?", &prefs.capture_pcap_ng);
 
     prefs_register_bool_preference(capture_module, "real_time_update", "Update packet list in real time during capture",
@@ -2076,7 +2076,7 @@ prefs_register_modules(void)
     custom_cbs.reset_cb = capture_column_reset_cb;
     custom_cbs.set_cb = capture_column_set_cb;
     custom_cbs.write_cb = capture_column_write_cb;
-    prefs_register_list_custom_preference(capture_module, "columns", "Capture options dialog column list", 
+    prefs_register_list_custom_preference(capture_module, "columns", "Capture options dialog column list",
         "List of columns to be displayed", &custom_cbs, capture_column_init_cb, &prefs.capture_columns);
 
     /* Name Resolution */
@@ -2092,20 +2092,20 @@ prefs_register_modules(void)
     printing = prefs_register_module(NULL, "print", "Printing",
         "Printing", NULL, TRUE);
 
-    prefs_register_enum_preference(printing, "format", 
-                                   "Format", "Can be one of \"text\" or \"postscript\"", 
+    prefs_register_enum_preference(printing, "format",
+                                   "Format", "Can be one of \"text\" or \"postscript\"",
                                    &prefs.pr_format, print_format_vals, TRUE);
 
-    prefs_register_enum_preference(printing, "destination", 
-                                   "Print to", "Can be one of \"command\" or \"file\"", 
+    prefs_register_enum_preference(printing, "destination",
+                                   "Print to", "Can be one of \"command\" or \"file\"",
                                    &prefs.pr_dest, print_dest_vals, TRUE);
 
 #ifndef _WIN32
-    prefs_register_string_preference(printing, "command", "Command", 
+    prefs_register_string_preference(printing, "command", "Command",
         "Output gets piped to this command when the destination is set to \"command\"", (const char**)(&prefs.pr_cmd));
 #endif
 
-    prefs_register_filename_preference(printing, "file", "File", 
+    prefs_register_filename_preference(printing, "file", "File",
         "This is the file that gets written to when the destination is set to \"file\"", (const char**)(&prefs.pr_file));
 
 
@@ -2138,7 +2138,7 @@ prefs_register_modules(void)
                                    &prefs.display_hidden_proto_items);
 
     /* Obsolete preferences
-     * These "modules" were reorganized/renamed to correspond to their GUI 
+     * These "modules" were reorganized/renamed to correspond to their GUI
      * configuration screen within the preferences dialog
      */
 
@@ -2468,7 +2468,7 @@ pre_init_prefs(void)
                                 "PMODE",
                                 "SNAPLEN",
                                 "MONITOR",
-                                "BUFFER", 
+                                "BUFFER",
                                 "FILTER"};
 #elif defined(_WIN32) && !defined (HAVE_PCAP_CREATE)
   static gint num_capture_cols = 6;
@@ -2477,7 +2477,7 @@ pre_init_prefs(void)
                                 "LINK",
                                 "PMODE",
                                 "SNAPLEN",
-                                "BUFFER", 
+                                "BUFFER",
                                 "FILTER"};
 #else
   static gint num_capture_cols = 5;
@@ -2891,7 +2891,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
 
   /* load SMI modules if needed */
   oids_init();
- 
+
   return &prefs;
 }
 
@@ -3416,7 +3416,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
            return PREFS_SET_SYNTAX_ERR;
      }
   } else {
-    /* Handle deprecated "global" options that don't have a module 
+    /* Handle deprecated "global" options that don't have a module
      * associated with them
      */
     if ((strcmp(pref_name, "name_resolve_concurrency") == 0) ||
@@ -3893,8 +3893,8 @@ write_pref(gpointer data, gpointer user_data)
 	break;
     }
 
-    /* 
-     * The prefix will either be the module name or the parent 
+    /*
+     * The prefix will either be the module name or the parent
      * name if its a subtree
      */
     prefix = (arg->module->name != NULL) ? arg->module->name : arg->module->parent->name;
@@ -4107,7 +4107,7 @@ write_prefs(char **pf_path_return)
         "# Preferences that have been commented out have not been\n"
         "# changed from their default value.\n", pf);
 
-  /* 
+  /*
    * For "backwards compatibility" the GUI module is written first as its
    * at the top of the file.  This is followed by all modules that can't
    * fit into the preferences read/write API.  Finally the remaining modules
@@ -4120,7 +4120,7 @@ write_prefs(char **pf_path_return)
 
   {
     struct filter_expression *fe = *(struct filter_expression **)prefs.filter_expressions;
-    
+
     if (fe != NULL)
       fprintf(pf, "\n####### Filter Expressions ########\n");
 
@@ -4147,9 +4147,9 @@ write_prefs(char **pf_path_return)
   return 0;
 }
 
-/** The col_list is only partly managed by the custom preference API 
+/** The col_list is only partly managed by the custom preference API
  * because its data is shared between multiple preferences, so
- * it's freed here 
+ * it's freed here
  */
 static void
 free_col_info(GList * list)
