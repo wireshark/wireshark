@@ -1294,8 +1294,18 @@ static int dissect_camel_InitialDPArgExtensionV2(gboolean implicit_tag _U_, tvbu
 
 static int
 dissect_camel_AccessPointName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
+  tvbuff_t   *parameter_tvb;
+  proto_tree *subtree;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_camel_AccessPointName);
+  de_sm_apn(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
 
   return offset;
 }
@@ -8505,7 +8515,7 @@ void proto_register_camel(void) {
         NULL, HFILL }},
     { &hf_camel_accessPointName,
       { "accessPointName", "camel.accessPointName",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_camel_chargingID,
       { "chargingID", "camel.chargingID",

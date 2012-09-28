@@ -457,6 +457,22 @@ proto_tree *subtree;
  dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
 #.END
 
+#----------------------------------------------------------------------------------------
+#.FN_PARS AccessPointName
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY AccessPointName
+
+  tvbuff_t   *parameter_tvb;
+  proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_camel_AccessPointName);
+  de_sm_apn(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+#.END
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY EndUserAddress/pDPTypeOrganization VAL_PTR = &parameter_tvb
@@ -654,7 +670,6 @@ proto_tree *subtree;
 #.TYPE_ATTR
 PDPTypeOrganization TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(gsm_map_PDP_Type_Organisation_vals)
 DateAndTime	TYPE = FT_STRING DISPLAY = BASE_NONE
-AccessPointName	TYPE = FT_STRING DISPLAY = BASE_NONE
 Code/local TYPE = FT_INT32  DISPLAY = BASE_DEC  STRINGS = VALS(camel_opr_code_strings)
 ServiceInteractionIndicatorsTwo/holdTreatmentIndicator TYPE = FT_INT32  DISPLAY = BASE_DEC STRINGS = VALS(camel_holdTreatmentIndicator_values)
 ServiceInteractionIndicatorsTwo/cwTreatmentIndicator TYPE = FT_INT32  DISPLAY = BASE_DEC STRINGS = VALS(camel_cwTreatmentIndicator_values)
