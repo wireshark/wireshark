@@ -164,13 +164,6 @@ dcerpcstat_draw(void *rs_arg)
 	draw_srt_table_data(&rs->srt_table);
 }
 
-
-/* since the gtk2 implementation of tap is multithreaded we must protect
- * remove_tap_listener() from modifying the list while draw_tap_listener()
- * is running.  the other protected block is in main.c
- *
- * there should not be any other critical regions in gtk2
- */
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -181,8 +174,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	free_srt_table_data(&rs->srt_table);
 	g_free(rs);
 }
-
-
 
 /* When called, this function will create a new instance of gtk-dcerpcstat.
  */

@@ -309,12 +309,6 @@ rpcprogs_draw(void *dummy _U_)
 	}
 }
 
-/* Since the gtk2 implementation of tap is multithreaded we must protect
- * remove_tap_listener() from modifying the list while draw_tap_listener()
- * is running.  The other protected block is in main.c
- *
- * There should not be any other critical regions in gtk2
- */
 static void
 win_destroy_cb(void *dummy _U_, gpointer data _U_)
 {

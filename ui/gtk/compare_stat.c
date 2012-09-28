@@ -519,12 +519,6 @@ call_foreach_print_ip_tree(gpointer value, gpointer user_data)
 	return FALSE;
 }
 
-/* since the gtk2 implementation of tap is multithreaded we must protect
- * remove_tap_listener() from modifying the list while draw_tap_listener()
- * is running.  the other protected block is in main.c
- *
- * there should not be any other critical regions in gtk2
- */
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {

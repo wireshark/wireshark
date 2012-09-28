@@ -525,13 +525,6 @@ sipstat_draw(void *psp)
     gtk_widget_show_all(sp->win);
 }
 
-
-/* Since the gtk2 implementation of tap is multithreaded we must protect
- * remove_tap_listener() from modifying the list while draw_tap_listener()
- * is running.  The other protected block is in main.c
- *
- * There should not be any other critical regions in gtk2.
- */
 /* When window is destroyed, clean up */
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
