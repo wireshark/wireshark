@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V10.5.0 (2012-06)
+-- 3GPP TS 36.355 V11.0.0 (2012-09)
 -- $Id$
 --
 
@@ -1097,7 +1097,8 @@ GNSS-DataBitsSgnElement ::= SEQUENCE {
 GNSS-AcquisitionAssistance ::= SEQUENCE {
 	gnss-SignalID				GNSS-SignalID,
 	gnss-AcquisitionAssistList	GNSS-AcquisitionAssistList,
-	...
+	...,
+	confidence-r10				INTEGER (0..100)	OPTIONAL	-- Need ON
 }
 
 GNSS-AcquisitionAssistList ::= SEQUENCE (SIZE(1..64)) OF GNSS-AcquisitionAssistElement
@@ -1113,7 +1114,12 @@ GNSS-AcquisitionAssistElement  ::= SEQUENCE {
 	azimuth						INTEGER (0..511),
 	elevation					INTEGER (0..127),		
 	...,
-	codePhase1023				BOOLEAN				OPTIONAL 	-- Need OP
+	codePhase1023				BOOLEAN				OPTIONAL, 	-- Need OP
+	dopplerUncertaintyExt-r10	ENUMERATED {	d60, 
+												d80,
+											 	d100,
+			 									d120,
+											 	noInformation, ... }	OPTIONAL	-- Need ON
 }
 
 GNSS-Almanac ::= SEQUENCE {
@@ -1679,7 +1685,9 @@ GNSS-DataBitAssistanceSupport ::= 	SEQUENCE {
 }
 
 GNSS-AcquisitionAssistanceSupport ::= 	SEQUENCE {
-	...
+	...,
+	confidenceSupport-r10					ENUMERATED { true }		OPTIONAL,
+	dopplerUncertaintyExtSupport-r10		ENUMERATED { true }		OPTIONAL
 }
 
 GNSS-AlmanacSupport ::= 	SEQUENCE {
