@@ -4363,7 +4363,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
 
   swindow = gtk_scrolled_window_new (NULL, NULL);
-  gtk_widget_set_size_request(swindow, FALSE, 180);
+  gtk_widget_set_size_request(swindow, 676, 180);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(swindow), GTK_SHADOW_IN);
 
   view = gtk_tree_view_new ();
@@ -5017,7 +5017,7 @@ capture_start_confirmed(void)
   guint i;
 
   /* did the user ever select a capture interface before? */
-  if(global_capture_opts.num_selected == 0 && 
+  if(global_capture_opts.num_selected == 0 &&
       ((prefs.capture_device == NULL) || (*prefs.capture_device != '\0'))) {
     simple_dialog(ESD_TYPE_CONFIRMATION,
                   ESD_BTN_OK,
