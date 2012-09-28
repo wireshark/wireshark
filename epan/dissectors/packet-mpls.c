@@ -463,7 +463,6 @@ static void
 dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t *next_tvb;
-    guint8    length;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
         proto_tree_add_text(tree, tvb, 0, -1, "Error processing Message");
@@ -472,9 +471,6 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if ( dissect_try_cw_first_nibble( tvb, pinfo, tree ))
        return;
-
-    /* bits 4 to 7 and FRG bits are displayed together */
-    length  = tvb_get_guint8(tvb, 1) & 0x3F;
 
     if (tree) {
         proto_tree  *mpls_pw_mcw_tree;
@@ -485,6 +481,7 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item(mpls_pw_mcw_tree, hf_mpls_pw_mcw_flags,
                             tvb, 0, 2, ENC_BIG_ENDIAN);
+        /* bits 4 to 7 and FRG bits are displayed together */
         proto_tree_add_item(mpls_pw_mcw_tree, hf_mpls_pw_mcw_length,
                             tvb, 1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(mpls_pw_mcw_tree, hf_mpls_pw_mcw_sequence_number,
