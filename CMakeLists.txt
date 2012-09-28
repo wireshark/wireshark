@@ -182,7 +182,6 @@ if(ENABLE_EXTRA_GCC_CHECKS)   # This overrides -Werror
 endif()
 
 add_definitions(
-	-DHAVE_CONFIG_H
 	-DG_DISABLE_DEPRECATED
 	-DG_DISABLE_SINGLE_INCLUDES
 )
