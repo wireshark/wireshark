@@ -822,11 +822,6 @@ dissector_delete_uint(const char *name, const guint32 pattern,
 		 */
 		g_hash_table_remove(sub_dissectors->hash_table,
 				    GUINT_TO_POINTER(pattern));
-
-		/*
-		 * Now free up the entry.
-		 */
-		g_free(dtbl_entry);
 	}
 }
 
@@ -893,7 +888,6 @@ dissector_reset_uint(const char *name, const guint32 pattern)
 	} else {
 		g_hash_table_remove(sub_dissectors->hash_table,
 				    GUINT_TO_POINTER(pattern));
-		g_free(dtbl_entry);
 	}
 }
 
@@ -1086,11 +1080,6 @@ dissector_delete_string(const char *name, const gchar *pattern,
 		 * Found - remove it.
 		 */
 		g_hash_table_remove(sub_dissectors->hash_table, pattern);
-
-		/*
-		 * Now free up the entry.
-		 */
-		g_free(dtbl_entry);
 	}
 }
 
@@ -1157,7 +1146,6 @@ dissector_reset_string(const char *name, const gchar *pattern)
 		dtbl_entry->current = dtbl_entry->initial;
 	} else {
 		g_hash_table_remove(sub_dissectors->hash_table, pattern);
-		g_free(dtbl_entry);
 	}
 }
 
@@ -1240,12 +1228,11 @@ dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry)
 }
 
 gint
-dissector_compare_filter_name(gconstpointer* dissector_a, gconstpointer* dissector_b)
+dissector_compare_filter_name(gconstpointer dissector_a, gconstpointer dissector_b)
 {
-	dissector_handle_t	a = (dissector_handle_t)dissector_a,
-						b = (dissector_handle_t)dissector_b;
-	const char			*a_name,
-						*b_name;
+	dissector_handle_t a = (dissector_handle_t)dissector_a;
+	dissector_handle_t b = (dissector_handle_t)dissector_b;
+	const char *a_name, *b_name;
 	gint ret;
 
 	if (a->protocol == NULL)
@@ -1294,7 +1281,7 @@ dissector_add_handle(const char *name, dissector_handle_t handle)
 
 	/* Add it to the list. */
 	sub_dissectors->dissector_handles =
-		g_slist_insert_sorted(sub_dissectors->dissector_handles, (gpointer)handle, dissector_compare_filter_name);
+		g_slist_insert_sorted(sub_dissectors->dissector_handles, (gpointer)handle, (GCompareFunc)dissector_compare_filter_name);
 }
 
 dissector_handle_t
@@ -1531,6 +1518,7 @@ dissector_all_tables_foreach_table (DATFunc_table func,
 		list = g_hash_table_get_keys(dissector_tables);
 		list = g_list_sort(list, compare_key_func);
 		g_list_foreach(list, dissector_all_tables_foreach_list_func, &info);
+		g_list_free(list);
 	}
 	else
 	{
@@ -1568,14 +1556,18 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 		 * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
 		 * so we use "g_direct_hash()" and "g_direct_equal()".
 		 */
-		sub_dissectors->hash_table = g_hash_table_new( g_direct_hash,
-							       g_direct_equal );
+		sub_dissectors->hash_table = g_hash_table_new_full( g_direct_hash,
+							       g_direct_equal,
+							       NULL,
+							       &g_free );
 		break;
 
 	case FT_STRING:
 	case FT_STRINGZ:
-		sub_dissectors->hash_table = g_hash_table_new( g_str_hash,
-							       g_str_equal );
+		sub_dissectors->hash_table = g_hash_table_new_full( g_str_hash,
+							       g_str_equal,
+							       NULL,
+							       &g_free );
 		break;
 
 	default:
@@ -2153,3 +2145,16 @@ call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    tvb,pinfo,tree);
 	}
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
