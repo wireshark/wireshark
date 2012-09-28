@@ -86,6 +86,8 @@ static void file_select_file_type_cb(GtkWidget *w, gpointer data);
 static cf_write_status_t file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range);
 static int set_file_type_list(GtkWidget *combo_box, capture_file *cf,
                               gboolean must_support_comments);
+static gboolean test_file_close(capture_file *cf, gboolean from_quit,
+                                const char *before_what);
 
 #define E_FILE_TYPE_COMBO_BOX_KEY "file_type_combo_box"
 #define E_COMPRESSED_CB_KEY       "compressed_cb"
@@ -420,7 +422,7 @@ preview_new(void)
 
 /* Open a file */
 static void
-file_open_cmd(GtkWidget *w)
+file_open_cmd(capture_file *cf, GtkWidget *w _U_)
 {
 #if _WIN32
   win32_open_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
@@ -561,6 +563,9 @@ file_open_cmd(GtkWidget *w)
       continue;
     }
 
+    /* Only close the old file now that we know we want to open another one. */
+    cf_close(cf);
+
     /* Get the specified read filter and try to compile it. */
     rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
     if (!dfilter_compile(rfilter, &rfcode)) {
@@ -640,8 +645,8 @@ void
 file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   /* If there's unsaved data, let the user save it first.
      If they cancel out of it, don't quit. */
-  if (do_file_close(&cfile, FALSE, " before opening a new capture file"))
-    file_open_cmd(widget);
+  if (test_file_close(&cfile, FALSE, " before opening a new capture file"))
+    file_open_cmd(&cfile, widget);
 }
 
 /* Merge existing with another file */
@@ -996,8 +1001,11 @@ do_capture_stop(capture_file *cf)
 }
 #endif
 
+/* Returns true if the current file has been saved or if the user has chosen
+ * to discard it, ie if it is safe to continue with the call to close, and
+ * false otherwise. */
 gboolean
-do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
+test_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
 {
   GtkWidget *msg_dialog;
   gchar     *display_basename;
@@ -1018,7 +1026,7 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
   } else
 #endif
     capture_in_progress = FALSE;
-       
+
   if (prefs.gui_ask_unsaved) {
     if (cf->is_tempfile || capture_in_progress || cf->unsaved_changes) {
       /* This is a temporary capture file, or there's a capture in
@@ -1029,7 +1037,7 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
                                             GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
                                             GTK_MESSAGE_QUESTION,
                                             GTK_BUTTONS_NONE,
-                                            capture_in_progress ? 
+                                            capture_in_progress ?
                                                 "Do you want to stop the capture and save the captured packets%s?" :
                                                 "Do you want to save the captured packets%s?",
                                             before_what);
@@ -1126,8 +1134,6 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
         if (capture_in_progress)
           do_capture_stop(cf);
 #endif
-        /* Just close the file, discarding changes */
-        cf_close(cf);
         break;
 
       case GTK_RESPONSE_CANCEL:
@@ -1136,11 +1142,10 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
       default:
         /* Don't close the file (and don't stop any capture in progress). */
         return FALSE; /* file not closed */
-        break;
       }
     } else {
-      /* unchanged file, just close it */
-      cf_close(cf);
+      /* unchanged file, safe to close */
+      return TRUE;
     }
   } else {
     /* User asked not to be bothered by those prompts, just close it.
@@ -1151,9 +1156,19 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
     if (capture_in_progress)
       do_capture_stop(cf);
 #endif
-    cf_close(cf);
+    return TRUE;
   }
-  return TRUE; /* file closed */
+  return TRUE; /* shouldn't get here? */
+}
+
+gboolean
+do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
+{
+  if (test_file_close(cf, from_quit, before_what)) {
+    cf_close(cf);
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /* Close a file */
@@ -1348,7 +1363,7 @@ do_file_save(capture_file *cf, gboolean dont_reopen)
            uninitialized. */
         g_assert_not_reached();
         return;
-      }      
+      }
 
       /* XXX - cf->filename might get freed out from under us, because
          the code path through which cf_save_packets() goes currently
@@ -1717,7 +1732,7 @@ do_file_save_as(capture_file *cf, gboolean must_support_comments,
          and return. */
       window_destroy(file_save_as_w);
       return;
-    }      
+    }
 
     /* If the file exists and it's user-immutable or not writable,
        ask the user whether they want to override that. */

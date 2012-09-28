@@ -144,6 +144,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Truncated/partial JPEG files are not dissected.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6230">Bug
+          6230</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Support for MPLS Packet Loss and Delay Measurement, RFC 6374.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6881">Bug
           6881</ulink>)
@@ -201,6 +207,12 @@ Wireshark Info
           epan/dissectors/packet-per.c dissect_per_constrained_integer_64b fails for 64 bits.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7624">Bug
           7624</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          New SCTP PPID 48.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7635">Bug
+          7635</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -324,12 +336,14 @@ ICMP,
 ICMPv6,
 IEEE 802.11,
 Interlink,
+JPEG,
 LDP,
 MPEG,
 MPLS,
 PPP,
 SCCP,
 SCSI,
+SCTP,
 SDP,
 SMB,
 TETRA

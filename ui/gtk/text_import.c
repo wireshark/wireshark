@@ -526,6 +526,12 @@ write_current_packet (void)
             if (ts_fmt == NULL) { ts_usec++; }  /* fake packet counter */
             pkthdr.caplen = pkthdr.len = prefix_length + curr_offset + eth_trailer_length;
             pkthdr.pkt_encap = pcap_link_type;
+			pkthdr.interface_id = 0;
+			pkthdr.presence_flags = 0;
+			pkthdr.opt_comment = NULL;
+			pkthdr.drop_count = 0;
+			pkthdr.pack_flags = 0;
+			pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
 
             wtap_dump(wdh, &pkthdr, NULL, packet_buf, &err);
         }

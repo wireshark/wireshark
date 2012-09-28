@@ -64,6 +64,7 @@
 #include "packet-ssl-utils.h"
 #include <wsutil/file_util.h>
 #include <epan/uat.h>
+#include <epan/sctpppids.h>
 
 /* DTLS User Access Table */
 static ssldecrypt_assoc_t *dtlskeylist_uats = NULL;
@@ -2659,7 +2660,7 @@ proto_register_dtls(void)
     &ett_dtls_cipher_suites,
     &ett_dtls_comp_methods,
     &ett_dtls_extension,
-	&ett_dtls_new_ses_ticket,
+    &ett_dtls_new_ses_ticket,
     &ett_dtls_certs,
     &ett_dtls_cert_types,
     &ett_dtls_dnames,
@@ -2723,7 +2724,7 @@ proto_register_dtls(void)
 
   register_dissector("dtls", dissect_dtls, proto_dtls);
   dtls_handle = find_dissector("dtls");
-
+  dissector_add_uint("sctp.ppi", DIAMETER_DTLS_PROTOCOL_ID, dtls_handle);
   dtls_associations = g_tree_new(ssl_association_cmp);
 
   register_init_routine(dtls_init);
