@@ -464,7 +464,6 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t *next_tvb;
     guint8    length;
-    guint16   sequence_number;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
         proto_tree_add_text(tree, tvb, 0, -1, "Error processing Message");
@@ -477,7 +476,6 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* bits 4 to 7 and FRG bits are displayed together */
     length  = tvb_get_guint8(tvb, 1) & 0x3F;
 
-    sequence_number = tvb_get_ntohs(tvb, 2);
     if (tree) {
         proto_tree  *mpls_pw_mcw_tree;
         proto_item  *ti;
