@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -171,6 +171,50 @@ fileset_is_file_in_set(const char *fname1, const char *fname2)
     return TRUE;
 }
 
+/* GCompareFunc helper for g_list_find_custom() */
+static gint
+fileset_find_by_path(gconstpointer a, gconstpointer b)
+{
+    const fileset_entry *entry;
+    const char *path;
+
+    entry = (const fileset_entry *) a;
+    path  = (const char *) b;
+
+    return g_strcmp0(entry->fullname, path);
+}
+
+/* update the time and size of this file in the list */
+void
+fileset_update_file(const char *path)
+{
+    int fh, result;
+    ws_statb64 buf;
+    fileset_entry *entry = NULL;
+    GList *entry_list;
+
+    fh = ws_open( path, O_RDONLY, 0000 /* no creation so don't matter */);
+    if(fh !=  -1) {
+
+        /* Get statistics */
+        result = ws_fstat64( fh, &buf );
+
+        /* Show statistics if they are valid */
+        if( result == 0 ) {
+            entry_list = g_list_find_custom(set.entries, path,
+                                            fileset_find_by_path);
+
+            if (entry_list) {
+                entry = (fileset_entry *) entry_list->data;
+                entry->ctime    = buf.st_ctime;
+                entry->mtime    = buf.st_mtime;
+                entry->size     = buf.st_size;
+            }
+        }
+
+        ws_close(fh);
+    }
+}
 
 /* we know this file is part of the set, so add it */
 static fileset_entry *
