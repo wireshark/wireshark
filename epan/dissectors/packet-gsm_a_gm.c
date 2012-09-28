@@ -259,7 +259,6 @@ static int hf_gsm_a_gm_acc_tech_type = -1;
 static int hf_gsm_a_gm_acc_cap_struct_len = -1;
 static int hf_gsm_a_gm_sms_value = -1;
 static int hf_gsm_a_gm_sm_value = -1;
-static int hf_gsm_a_gm_sm_ext = -1;
 static int hf_gsm_a_gm_link_dir = -1;
 static int hf_gsm_a_gm_cause = -1;
 
@@ -3864,7 +3863,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 
 	/* 1 ext 0 0 0 0 Spare  Configuration protocol */
-	proto_tree_add_item(tree, hf_gsm_a_gm_sm_ext, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_ext, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* Configuration protocol (octet 3)
 	 * Bits
 	 * 3 2 1
@@ -7087,11 +7086,6 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_sm_value,
 		  { "(SM_VALUE) Switch-Measure", "gsm_a.gm.gmm.sm",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,
-		    NULL, HFILL }
-		},
-		{ &hf_gsm_a_gm_sm_ext,
-		  { "Ext", "gsm_a.gm.sm.ext",
-		    FT_UINT8, BASE_HEX, NULL, 0x80,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_link_dir,
