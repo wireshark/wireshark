@@ -218,9 +218,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	mgcpstat_t *ms=(mgcpstat_t *)data;
 
-	protect_thread_critical_region();
 	remove_tap_listener(ms);
-	unprotect_thread_critical_region();
 
 	if(ms->filter){
 		g_free(ms->filter);

@@ -120,9 +120,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	ldapstat_t *ldap=(ldapstat_t *)data;
 
-	protect_thread_critical_region();
 	remove_tap_listener(ldap);
-	unprotect_thread_critical_region();
 
 	free_srt_table_data(&ldap->ldap_srt_table);
 	g_free(ldap);

@@ -530,9 +530,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	compstat_t *cs=(compstat_t *)data;
 
-	protect_thread_critical_region();
 	remove_tap_listener(cs);
-	unprotect_thread_critical_region();
 
 	first_window=TRUE;
 	gtk_tree_store_clear(cs->simple_list);

@@ -335,9 +335,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
     expert_comp_dlg_t *ss=(expert_comp_dlg_t *)data;
 
-    protect_thread_critical_region();
     remove_tap_listener(ss);
-    unprotect_thread_critical_region();
 
     if (expert_comp_dlg_w != NULL) {
         window_destroy(expert_comp_dlg_w);
@@ -357,9 +355,7 @@ expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
     expert_tapdata_t *etd=(expert_tapdata_t *)data;
 
-    protect_thread_critical_region();
     remove_tap_listener(etd);
-    unprotect_thread_critical_region();
 
     /*free_srt_table_data(&etd->afp_srt_table);*/
     g_array_free(etd->ei_array, TRUE);

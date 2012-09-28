@@ -125,9 +125,7 @@ static void win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
   struct camelsrt_t *hs=(struct camelsrt_t *)data;
 
-  protect_thread_critical_region();
   remove_tap_listener(hs);
-  unprotect_thread_critical_region();
 
   free_srt_table_data(&hs->camel_srt_table);
   g_free(hs);

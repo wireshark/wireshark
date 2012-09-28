@@ -225,9 +225,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	wspstat_t *sp = (wspstat_t *)data;
 
-	protect_thread_critical_region();
 	remove_tap_listener(sp);
-	unprotect_thread_critical_region();
 
 	g_free(sp->pdu_stats);
 	g_free(sp->filter);

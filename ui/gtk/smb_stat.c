@@ -126,9 +126,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	smbstat_t *ss=(smbstat_t *)data;
 
-	protect_thread_critical_region();
 	remove_tap_listener(ss);
-	unprotect_thread_critical_region();
 
 	free_srt_table_data(&ss->smb_srt_table);
 	free_srt_table_data(&ss->trans2_srt_table);

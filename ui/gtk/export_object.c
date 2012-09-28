@@ -103,9 +103,7 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	export_object_entry_t *entry;
 	GSList *slist = object_list->entries;
 
-	protect_thread_critical_region();
 	remove_tap_listener(object_list);
-	unprotect_thread_critical_region();
 
 	/* Free the GSList attributes */
 	while(slist) {

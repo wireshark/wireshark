@@ -489,9 +489,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	h225counter_t *hs=(h225counter_t *)data;
 
-	protect_thread_critical_region();
 	remove_tap_listener(hs);
-	unprotect_thread_critical_region();
 
 	if(hs->filter){
 		g_free(hs->filter);

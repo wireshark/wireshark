@@ -359,9 +359,7 @@ ct_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
     conversations_table *conversations=(conversations_table *)data;
 
-    protect_thread_critical_region();
     remove_tap_listener(conversations);
-    unprotect_thread_critical_region();
 
     reset_ct_table_data(conversations);
     g_free(conversations);

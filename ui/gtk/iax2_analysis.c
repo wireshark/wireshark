@@ -747,9 +747,7 @@ static void on_iax2_window_destroy(GtkWidget *win _U_, gpointer data)
 	user_data_t *user_data = data;
 
 	/* remove tap listener */
-	protect_thread_critical_region();
 	remove_tap_listener(user_data);
-	unprotect_thread_critical_region();
 
 	/* close and remove temporary files */
 	if (user_data->forward.saveinfo.fp != NULL)
@@ -1889,9 +1887,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, gpointer data)
 	GString *error_string;
 
 	/* remove tap listener */
-	protect_thread_critical_region();
 	remove_tap_listener(user_data);
-	unprotect_thread_critical_region();
 
 	/* register tap listener */
 	error_string = register_tap_listener("IAX2", user_data, NULL, 0,

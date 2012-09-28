@@ -162,9 +162,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	dhcpstat_t *sp = (dhcpstat_t *)data;
 
-	protect_thread_critical_region();
 	remove_tap_listener(sp);
-	unprotect_thread_critical_region();
 
 	g_free(sp->filter);
 	g_hash_table_destroy(sp->hash);

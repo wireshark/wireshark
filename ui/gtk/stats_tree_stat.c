@@ -139,10 +139,7 @@ draw_gtk_tree(void *psp)
 static void
 free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 {
-
-	protect_thread_critical_region();
 	remove_tap_listener(st);
-	unprotect_thread_critical_region();
 
 	if (st->root.pr)
 		st->root.pr->iter = NULL;

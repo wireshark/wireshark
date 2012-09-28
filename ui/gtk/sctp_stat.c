@@ -1292,9 +1292,7 @@ void
 remove_tap_listener_sctp_stat(void)
 {
 	if (sctp_tapinfo_struct.is_registered) {
-		protect_thread_critical_region();
 		remove_tap_listener(&sctp_tapinfo_struct);
-		unprotect_thread_critical_region();
 		sctp_tapinfo_struct.is_registered = FALSE;
 	}
 }

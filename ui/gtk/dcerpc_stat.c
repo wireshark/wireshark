@@ -176,9 +176,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	dcerpcstat_t *rs = (dcerpcstat_t *)data;
 
-	protect_thread_critical_region();
 	remove_tap_listener(rs);
-	unprotect_thread_critical_region();
 
 	free_srt_table_data(&rs->srt_table);
 	g_free(rs);

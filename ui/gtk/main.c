@@ -1330,24 +1330,6 @@ void reset_tap_update_timer(void)
     tap_update_timer_id = g_timeout_add(prefs.tap_update_interval, tap_update_cb, NULL);
 }
 
-void
-protect_thread_critical_region(void)
-{
-    /* Threading support for TAP:s removed
-     * http://www.wireshark.org/lists/wireshark-dev/200611/msg00199.html
-     * See the commit for removed code:
-     * http://anonsvn.wireshark.org/viewvc/viewvc.cgi?view=rev&revision=35027
-     */
-}
-void
-unprotect_thread_critical_region(void)
-{
-    /* Threading support for TAP:s removed
-     * http://www.wireshark.org/lists/wireshark-dev/200611/msg00199.html
-     */
-
-}
-
 /*
  * Periodically process outstanding hostname lookups. If we have new items,
  * redraw the packet list and tree view.

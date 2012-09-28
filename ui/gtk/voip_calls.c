@@ -459,9 +459,7 @@ rtp_event_init_tap(void)
 void
 remove_tap_listener_rtp_event(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_rtp_struct.rtp_event_dummy));
-	unprotect_thread_critical_region();
 
 	have_rtp_event_tap_listener=FALSE;
 }
@@ -754,9 +752,7 @@ rtp_init_tap(void)
 void
 remove_tap_listener_rtp(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_rtp_struct.rtp_dummy));
-	unprotect_thread_critical_region();
 
 	have_RTP_tap_listener=FALSE;
 }
@@ -917,9 +913,7 @@ t38_init_tap(void)
 void
 remove_tap_listener_t38(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.t38_dummy));
-	unprotect_thread_critical_region();
 
 	have_T38_tap_listener=FALSE;
 }
@@ -1119,9 +1113,7 @@ sip_calls_init_tap(void)
 void
 remove_tap_listener_sip_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.sip_dummy));
-	unprotect_thread_critical_region();
 
 	have_SIP_tap_listener=FALSE;
 }
@@ -1330,9 +1322,7 @@ isup_calls_init_tap(void)
 void
 remove_tap_listener_isup_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.isup_dummy));
-	unprotect_thread_critical_region();
 
 	have_isup_tap_listener=FALSE;
 }
@@ -1416,10 +1406,8 @@ mtp3_calls_init_tap(void)
 void
 remove_tap_listener_mtp3_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.mtp3_dummy));
 	remove_tap_listener(&(the_tapinfo_struct.m3ua_dummy));
-	unprotect_thread_critical_region();
 
 	have_mtp3_tap_listener=FALSE;
 	have_m3ua_tap_listener=FALSE;
@@ -1738,9 +1726,7 @@ q931_calls_init_tap(void)
 void
 remove_tap_listener_q931_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.q931_dummy));
-	unprotect_thread_critical_region();
 
 	have_q931_tap_listener=FALSE;
 }
@@ -2026,9 +2012,7 @@ h225_calls_init_tap(void)
 void
 remove_tap_listener_h225_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.h225_dummy));
-	unprotect_thread_critical_region();
 
 	have_H225_tap_listener=FALSE;
 }
@@ -2184,9 +2168,7 @@ h245dg_calls_init_tap(void)
 void
 remove_tap_listener_h245dg_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.h245dg_dummy));
-	unprotect_thread_critical_region();
 
 	have_H245dg_tap_listener=FALSE;
 }
@@ -2251,9 +2233,7 @@ sdp_calls_init_tap(void)
 void
 remove_tap_listener_sdp_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.sdp_dummy));
-	unprotect_thread_critical_region();
 
 	have_sdp_tap_listener=FALSE;
 }
@@ -2635,9 +2615,7 @@ mgcp_calls_init_tap(void)
 void
 remove_tap_listener_mgcp_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.mgcp_dummy));
-	unprotect_thread_critical_region();
 
 	have_MGCP_tap_listener=FALSE;
 }
@@ -2762,9 +2740,7 @@ actrace_calls_init_tap(void)
 void
 remove_tap_listener_actrace_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.actrace_dummy));
-	unprotect_thread_critical_region();
 
 	have_actrace_tap_listener=FALSE;
 }
@@ -2924,10 +2900,8 @@ void h248_calls_init_tap(void)
 void
 remove_tap_listener_h248_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.h248_dummy));
 	remove_tap_listener(&(the_tapinfo_struct.megaco_dummy));
-	unprotect_thread_critical_region();
 
 	have_megaco_tap_listener=FALSE;
 	have_h248_tap_listener=FALSE;
@@ -3108,9 +3082,7 @@ void sccp_calls_init_tap(void)
 void
 remove_tap_listener_sccp_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.sccp_dummy));
-	unprotect_thread_critical_region();
 
 	have_sccp_tap_listener=FALSE;
 	have_sua_tap_listener=FALSE;
@@ -3613,9 +3585,7 @@ unistim_calls_init_tap(void) {
 void
 remove_tap_listener_unistim_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.unistim_dummy));
-	unprotect_thread_critical_region();
 
 	have_unistim_tap_listener=FALSE;
 }
@@ -3776,9 +3746,7 @@ skinny_calls_init_tap(void)
 void
 remove_tap_listener_skinny_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.skinny_dummy));
-	unprotect_thread_critical_region();
 
 	have_skinny_tap_listener=FALSE;
 }
@@ -3960,9 +3928,7 @@ iax2_calls_init_tap(void)
 void
 remove_tap_listener_iax2_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.iax2_dummy));
-	unprotect_thread_critical_region();
 
 	have_iax2_tap_listener=FALSE;
 }
@@ -4066,9 +4032,7 @@ VoIPcalls_init_tap(void)
 void
 remove_tap_listener_voip_calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.voip_dummy));
-	unprotect_thread_critical_region();
 
 	have_voip_tap_listener=FALSE;
 }
@@ -4132,9 +4096,7 @@ prot_calls_init_tap(void)
 void
 remove_tap_listener_prot__calls(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.prot__dummy));
-	unprotect_thread_critical_region();
 
 	have_prot__tap_listener=FALSE;
 }

@@ -1366,9 +1366,7 @@ disable_graph(io_stat_graph_t *gio)
 {
 	if (gio->display) {
 		gio->display=FALSE;
-		protect_thread_critical_region();
 		remove_tap_listener(gio);
-		unprotect_thread_critical_region();
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button),
 		    FALSE);
 	}
@@ -1490,9 +1488,7 @@ draw_area_destroy_cb(GtkWidget *widget _U_, gpointer user_data)
 
 	for(i=0;i<MAX_GRAPHS;i++){
 		if(io->graphs[i].display){
-			protect_thread_critical_region();
 			remove_tap_listener(&io->graphs[i]);
-			unprotect_thread_critical_region();
 
 			g_free( (gpointer) (io->graphs[i].args->title) );
 			io->graphs[i].args->title=NULL;
@@ -2137,9 +2133,7 @@ filter_callback(GtkWidget *widget, gpointer user_data)
 	   first just try to delete any previous settings and then apply
 	   the new ones.
 	*/
-	protect_thread_critical_region();
 	remove_tap_listener(gio);
-	unprotect_thread_critical_region();
 
 	io_stat_reset(gio->io);
 	enable_graph(gio, filter, field);

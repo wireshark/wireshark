@@ -320,9 +320,7 @@ win_destroy_cb(void *dummy _U_, gpointer data _U_)
 {
 	rpc_program_t *rp, *rp2;
 
-	protect_thread_critical_region();
 	remove_tap_listener(win);
-	unprotect_thread_critical_region();
 
 	win = NULL;
 	for(rp=prog_list;rp;) {

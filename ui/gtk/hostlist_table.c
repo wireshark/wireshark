@@ -256,9 +256,7 @@ hostlist_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
     hostlist_table *hosts=(hostlist_table *)data;
 
-    protect_thread_critical_region();
     remove_tap_listener(hosts);
-    unprotect_thread_critical_region();
 
     reset_hostlist_table_data(hosts);
     g_free(hosts);

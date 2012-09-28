@@ -107,9 +107,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	fcstat_t *fc=(fcstat_t *)data;
 
-	protect_thread_critical_region();
 	remove_tap_listener(fc);
-	unprotect_thread_critical_region();
 
 	free_srt_table_data(&fc->fc_srt_table);
 	g_free(fc);

@@ -778,9 +778,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 static void on_destroy(GtkWidget *win _U_, user_data_t *user_data)
 {
 	/* remove tap listener */
-	protect_thread_critical_region();
 	remove_tap_listener(user_data);
-	unprotect_thread_critical_region();
 
 	/* close and remove temporary files */
 	if (user_data->forward.saveinfo.fp != NULL)
@@ -1933,9 +1931,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 	GString *error_string;
 
 	/* remove tap listener */
-	protect_thread_critical_region();
 	remove_tap_listener(user_data);
-	unprotect_thread_critical_region();
 
 	/* register tap listener */
 	error_string = register_tap_listener("rtp", user_data, NULL, 0,

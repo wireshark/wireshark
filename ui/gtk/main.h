@@ -61,9 +61,6 @@ extern GString *runtime_info_str;
 
 extern GtkWidget* wireless_tb;
 
-extern void protect_thread_critical_region(void);
-extern void unprotect_thread_critical_region(void);
-
 void
 airpcap_toolbar_encryption_cb(GtkWidget *entry, gpointer user_data);
 

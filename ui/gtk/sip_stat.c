@@ -538,9 +538,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
     sipstat_t *sp = (sipstat_t *)data;
 
-    protect_thread_critical_region();
     remove_tap_listener(sp);
-    unprotect_thread_critical_region();
 
     g_hash_table_destroy(sp->hash_responses);
     g_hash_table_destroy(sp->hash_requests);

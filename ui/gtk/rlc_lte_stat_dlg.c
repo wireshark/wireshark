@@ -912,9 +912,7 @@ static void win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
     rlc_lte_stat_t *hs = (rlc_lte_stat_t *)data;
 
-    protect_thread_critical_region();
     remove_tap_listener(hs);
-    unprotect_thread_critical_region();
 
     if (hs->dlg_w != NULL) {
         window_destroy(hs->dlg_w);

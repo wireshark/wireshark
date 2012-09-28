@@ -120,9 +120,7 @@ flow_graph_data_init(void) {
 static void
 remove_tap_listener_flow_graph(void)
 {
-	protect_thread_critical_region();
 	remove_tap_listener(&(tap_identifier));
-	unprotect_thread_critical_region();
 
 	have_frame_tap_listener=FALSE;
 	have_tcp_tap_listener=FALSE;

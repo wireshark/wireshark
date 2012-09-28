@@ -163,9 +163,7 @@ void
 remove_tap_listener_rtp_stream(void)
 {
 	if (the_tapinfo_struct.is_registered) {
-		protect_thread_critical_region();
 		remove_tap_listener(&the_tapinfo_struct);
-		unprotect_thread_critical_region();
 
 		the_tapinfo_struct.is_registered = FALSE;
 	}
