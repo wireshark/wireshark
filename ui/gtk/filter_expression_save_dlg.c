@@ -189,7 +189,8 @@ filter_button_add(const char *label, const char *expr, struct filter_expression 
 		return(0);
 
 	/* Create the "Label" button */
-	fe->button = gtk_tool_button_new(NULL, fe->label);
+	fe->button = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+	gtk_tool_button_set_label(fe->button, fe->label);
 	g_signal_connect(fe->button, "clicked", G_CALLBACK(filter_button_cb),
 	    NULL);
 	gtk_widget_set_sensitive(GTK_WIDGET(fe->button), FALSE);
