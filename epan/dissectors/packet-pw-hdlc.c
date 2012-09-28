@@ -248,10 +248,10 @@ void proto_reg_handoff_pw_hdlc(void)
 	dissector_handle_t handle;
 
 	handle = find_dissector("pw_hdlc_nocw_fr");
-	dissector_add_uint( "mpls.label", LABEL_INVALID, handle );
+	dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, handle );
 
 	handle = find_dissector("pw_hdlc_nocw_hdlc_ppp");
-	dissector_add_uint( "mpls.label", LABEL_INVALID, handle );
+	dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, handle );
 
 	ppp_handle = find_dissector( "ppp" );
 	fr_handle = find_dissector( "fr" );

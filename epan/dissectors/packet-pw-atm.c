@@ -467,14 +467,11 @@ too_small_packet_or_notpw(tvbuff_t * tvb
 	 */
 	if (packet_size < 4) /* 4 is smallest size which may be sensible (for PWACH dissector) */
 	{
-		if (tree || pinfo->cinfo)
-		{
-			proto_item  * item;
-			item = proto_tree_add_item(tree, proto_handler, tvb, 0, -1, ENC_NA);
-			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-				"PW packet size (%d) is too small to carry sensible information"
-				,(int)packet_size);
-		}
+		proto_item  * item;
+		item = proto_tree_add_item(tree, proto_handler, tvb, 0, -1, ENC_NA);
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+				       "PW packet size (%d) is too small to carry sensible information"
+				       ,(int)packet_size);
 		/* represent problems in the Packet List pane */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 		col_set_str(pinfo->cinfo, COL_INFO, "Malformed: PW packet is too small");
@@ -610,7 +607,6 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 	}
 
-	if (tree || pinfo->cinfo)
 	{
 		proto_item* item;
 		item = proto_tree_add_item(tree, proto_11_or_aal5_pdu, tvb, 0, -1, ENC_NA);
@@ -848,7 +844,6 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		col_append_pw_info(pinfo, payload_size, cells, padding_size);
 	}
 
-	if (tree || pinfo->cinfo)
 	{
 		proto_item* item;
 		item = proto_tree_add_item(tree, proto_aal5_sdu, tvb, 0, -1, ENC_NA);
@@ -1023,7 +1018,6 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 	}
 
-	if (tree || pinfo->cinfo)
 	{
 		proto_item* item;
 		item = proto_tree_add_item(tree, proto_n1_cw, tvb, 0, -1, ENC_NA);
@@ -1103,7 +1097,6 @@ dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 	}
 
-	if (tree || pinfo->cinfo)
 	{
 		proto_item* item;
 		item = proto_tree_add_item(tree, proto_n1_nocw, tvb, 0, -1, ENC_NA);
@@ -1187,179 +1180,173 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		size = tvb_reported_length_remaining(tvb, 0);
 		if (size < PWC_SIZEOF_CW)
 		{
-			if (tree || pinfo->cinfo)
-			{
-				proto_item  *item;
-				item = proto_tree_add_item(tree, proto_control_word, tvb, 0, -1, ENC_NA);
-				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-					"Packet (size: %d) is too small to carry MPLS PW Control Word"
-					,(int)size);
-			}
+			proto_item  *item;
+			item = proto_tree_add_item(tree, proto_control_word, tvb, 0, -1, ENC_NA);
+			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+					       "Packet (size: %d) is too small to carry MPLS PW Control Word"
+					       ,(int)size);
 			return;
 		}
 	}
 
-	if (tree || pinfo->cinfo)
 	{
 		proto_item* item_top;
+		proto_tree* tree2;
+		proto_item* item;
+
 		item_top = proto_tree_add_item(tree, proto_control_word, tvb, 0, -1, ENC_NA);
 		pwc_item_append_cw(item_top, tvb_get_ntohl(tvb, 0), FALSE);
 
-		{
-			proto_tree* tree2;
-			tree2 = proto_item_add_subtree(item_top, ett_cw);
-			{
-				proto_item* item;
-				/* bits 0..3 */
-				item = proto_tree_add_item(tree2, hf_cw_bits03, tvb, 0, 1, ENC_BIG_ENDIAN);
-				if (pd->props & PWC_CW_BAD_BITS03)
-				{
-					/* add item to tree (and show it) only if its value is wrong*/
-					expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
-						,"Bits 0..3 of Control Word must be 0");
-				}
-				else
-				{
-			                PROTO_ITEM_SET_HIDDEN(item); /* show only in error cases */
-		                }
+		tree2 = proto_item_add_subtree(item_top, ett_cw);
 
-				/* flags */
+		/* bits 0..3 */
+		item = proto_tree_add_item(tree2, hf_cw_bits03, tvb, 0, 1, ENC_BIG_ENDIAN);
+		if (pd->props & PWC_CW_BAD_BITS03)
+		{
+			/* add item to tree (and show it) only if its value is wrong*/
+			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+					       ,"Bits 0..3 of Control Word must be 0");
+		}
+		else
+		{
+			PROTO_ITEM_SET_HIDDEN(item); /* show only in error cases */
+		}
+
+		/* flags */
+		if (MODE_N1(pd->mode))
+		{
+			item = proto_tree_add_item(tree2, hf_pref_cw_flags, tvb, 0, 1, ENC_BIG_ENDIAN);
+			if (pd->props & PWC_CW_BAD_FLAGS)
+			{
+				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+						       ,"Flags must be 0 for PW ATM N:1 encapsulation");
+			}
+		}
+		if (pd->mode == PWATM_MODE_AAL5_SDU)
+		{
+			proto_tree_add_item(tree2, hf_pref_cw_a5s_t, tvb, 0, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree2, hf_pref_cw_a5s_e, tvb, 0, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree2, hf_pref_cw_a5s_c, tvb, 0, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree2, hf_pref_cw_a5s_u, tvb, 0, 1, ENC_BIG_ENDIAN);
+			/*
+			 * rfc4717: [When FRF.8.1 Frame Relay/ATM PVC Service Interworking [RFC3916]
+			 * traffic is being transported, the CPCS-UU Least Significant Bit
+			 * (LSB) of the AAL5 CPCS-PDU may contain the Frame Relay C/R bit.
+			 * The ingress router, PE1, SHOULD copy this bit to the U bit of the
+			 * control word.  The egress router, PE2, SHOULD copy the U bit to
+			 * the CPCS-UU Least Significant Bit (LSB) of the AAL5 CPCS PDU.]
+			 *
+			 * Let's remember this bit (and then transfer it to ATM dissector).
+			 */
+			pd->aal5_sdu_frame_relay_cr_bit =
+				(0 == (tvb_get_guint8(tvb, 0) & 0x01 /*preferred_cw.U*/))
+				? FALSE : TRUE;
+		}
+
+		/* reserved bits */
+		if (MODE_11_OR_AAL5_PDU(pd->mode)
+		    || (MODE_N1(pd->mode) && !pref_n1_cw_extend_cw_length_with_rsvd)
+		    /* for N:1 add RSV only if it is NOT used in length */
+		    || ((pd->mode == PWATM_MODE_AAL5_SDU) && !pref_aal5_sdu_extend_cw_length_with_rsvd)
+		    /* for AAl5 SDU add RSV only if it is NOT used in length */)
+		{
+			if (MODE_11_OR_AAL5_PDU(pd->mode))
+			{
+				item = proto_tree_add_item(tree2
+							   ,hf_generic_cw_rsv, tvb, 0, 1, ENC_BIG_ENDIAN);
+			}
+			else
+			{ /*preferred cw*/
+				item = proto_tree_add_item(tree2
+							   ,hf_pref_cw_rsv, tvb, 1, 1, ENC_BIG_ENDIAN);
+			}
+
+			if (pd->props & PWC_CW_BAD_RSV)
+			{
+				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+						       ,"Reserved bits in Control Word must be 0");
+			}
+			else
+			{
+				PROTO_ITEM_SET_HIDDEN(item); /*...and show only in error cases */
+			}
+		}
+
+		/* length */
+		if (MODE_N1(pd->mode)
+		    || (PWATM_MODE_AAL5_SDU == pd->mode))
+		{
+			{
+				int hf_len = hf_pref_cw_len;
 				if (MODE_N1(pd->mode))
 				{
-					item = proto_tree_add_item(tree2, hf_pref_cw_flags, tvb, 0, 1, ENC_BIG_ENDIAN);
-					if (pd->props & PWC_CW_BAD_FLAGS)
-					{
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
-							,"Flags must be 0 for PW ATM N:1 encapsulation");
-					}
+					if (pref_n1_cw_extend_cw_length_with_rsvd)
+						hf_len = hf_pref_cw_rsvlen;
 				}
-				if (pd->mode == PWATM_MODE_AAL5_SDU)
+				else /*PW_MODE_AAL5_SDU*/
 				{
-					proto_tree_add_item(tree2, hf_pref_cw_a5s_t, tvb, 0, 1, ENC_BIG_ENDIAN);
-					proto_tree_add_item(tree2, hf_pref_cw_a5s_e, tvb, 0, 1, ENC_BIG_ENDIAN);
-					proto_tree_add_item(tree2, hf_pref_cw_a5s_c, tvb, 0, 1, ENC_BIG_ENDIAN);
-					proto_tree_add_item(tree2, hf_pref_cw_a5s_u, tvb, 0, 1, ENC_BIG_ENDIAN);
-					/*
-					 * rfc4717: [When FRF.8.1 Frame Relay/ATM PVC Service Interworking [RFC3916]
-					 * traffic is being transported, the CPCS-UU Least Significant Bit
-					 * (LSB) of the AAL5 CPCS-PDU may contain the Frame Relay C/R bit.
-					 * The ingress router, PE1, SHOULD copy this bit to the U bit of the
-					 * control word.  The egress router, PE2, SHOULD copy the U bit to
-					 * the CPCS-UU Least Significant Bit (LSB) of the AAL5 CPCS PDU.]
-					 *
-					 * Let's remember this bit (and then transfer it to ATM dissector).
-					 */
-					pd->aal5_sdu_frame_relay_cr_bit =
-						(0 == (tvb_get_guint8(tvb, 0) & 0x01 /*preferred_cw.U*/))
-						? FALSE : TRUE;
+					if (pref_aal5_sdu_extend_cw_length_with_rsvd)
+						hf_len = hf_pref_cw_rsvlen;
 				}
-
-				/* reserved bits */
-				if (MODE_11_OR_AAL5_PDU(pd->mode)
-				    || (MODE_N1(pd->mode) && !pref_n1_cw_extend_cw_length_with_rsvd)
-					/* for N:1 add RSV only if it is NOT used in length */
-				    || ((pd->mode == PWATM_MODE_AAL5_SDU) && !pref_aal5_sdu_extend_cw_length_with_rsvd)
-					/* for AAl5 SDU add RSV only if it is NOT used in length */)
-				{
-					if (MODE_11_OR_AAL5_PDU(pd->mode))
-					{
-						item = proto_tree_add_item(tree2
-							,hf_generic_cw_rsv, tvb, 0, 1, ENC_BIG_ENDIAN);
-					}
-					else
-					{ /*preferred cw*/
-						item = proto_tree_add_item(tree2
-							,hf_pref_cw_rsv, tvb, 1, 1, ENC_BIG_ENDIAN);
-					}
-
-					if (pd->props & PWC_CW_BAD_RSV)
-					{
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
-							,"Reserved bits in Control Word must be 0");
-					}
-					else
-					{
-				                PROTO_ITEM_SET_HIDDEN(item); /*...and show only in error cases */
-			                }
-				}
-
-				/* length */
-				if (MODE_N1(pd->mode)
-				    || (PWATM_MODE_AAL5_SDU == pd->mode))
-				{
-					{
-						int hf_len = hf_pref_cw_len;
-						if (MODE_N1(pd->mode))
-						{
-							if (pref_n1_cw_extend_cw_length_with_rsvd)
-								hf_len = hf_pref_cw_rsvlen;
-						}
-						else /*PW_MODE_AAL5_SDU*/
-						{
-							if (pref_aal5_sdu_extend_cw_length_with_rsvd)
-								hf_len = hf_pref_cw_rsvlen;
-						}
-						item = proto_tree_add_item(tree2, hf_len, tvb, 1, 1, ENC_BIG_ENDIAN);
-					}
-					if (pd->props & PWC_CW_BAD_LEN_MUST_BE_0)
-					{
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
-							,"Bad Length: must be 0 for this encapsulation");
-					}
-					if (pd->props & PWC_CW_BAD_PAYLEN_LE_0)
-					{
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
-							,"Bad Length: too small, must be >= %d"
-							,(int)(PWC_SIZEOF_CW+SIZEOF_N1_PW_CELL));
-					}
-					if (pd->props & PWC_CW_BAD_PAYLEN_GT_PACKET)
-					{
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
-							,"Bad Length: must be <= than PSN packet size (%d)"
-							,(int)pd->packet_size);
-					}
-					if (pd->props & PWC_CW_BAD_PADDING_NE_0)
-					{
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
-							,"Bad Length: must be == PSN packet size (%d), no padding allowed"
-							,(int)pd->packet_size);
-					}
-				}
-
-				/* sequence number */
-				proto_tree_add_item(tree2, hf_cw_seq, tvb
-					,MODE_11_OR_AAL5_PDU(pd->mode) ? 1 : 2, 2, ENC_BIG_ENDIAN);
-
-				/* atm-specific byte */
-				if (MODE_11(pd->mode))
-				{
-					proto_tree_add_item(tree2, hf_gen_cw_atmbyte, tvb, 3, 1, ENC_BIG_ENDIAN);
-					/*
-					 * no need to highlight item in the tree, therefore
-					 * expert_add_info_format() is not used here.
-					 */
-					item = proto_tree_add_text(tree2, tvb, 3, 1
-						,"ATM-specific byte of CW is fully dissected below as %s%s"
-						,(PWATM_MODE_11_VPC == pd->mode) ? "a part of "	: ""
-						,"PW ATM Cell Header [000]");
-					PROTO_ITEM_SET_GENERATED(item);
-					/*
-					 * Note: if atm-specific byte contains something wrong
-					 * (e.g. non-zero RSV or inadequate V), CW is not
-					 * marked as "bad".
-					 */
-				}
-
-				/*3rd byte of CW*/
-				if (PWATM_MODE_AAL5_PDU == pd->mode)
-				{
-					tvbuff_t* tvb_2;
-					tvb_2 = tvb_new_subset_remaining(tvb, (PWC_SIZEOF_CW-1));
-					call_dissector(dh_cell_header, tvb_2, pinfo, tree2);
-					proto_item_append_text(item_top, ", ");
-					proto_item_append_text_cwb3_fields(item_top, pd);
-				}
+				item = proto_tree_add_item(tree2, hf_len, tvb, 1, 1, ENC_BIG_ENDIAN);
 			}
+			if (pd->props & PWC_CW_BAD_LEN_MUST_BE_0)
+			{
+				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+						       ,"Bad Length: must be 0 for this encapsulation");
+			}
+			if (pd->props & PWC_CW_BAD_PAYLEN_LE_0)
+			{
+				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+						       ,"Bad Length: too small, must be >= %d"
+						       ,(int)(PWC_SIZEOF_CW+SIZEOF_N1_PW_CELL));
+			}
+			if (pd->props & PWC_CW_BAD_PAYLEN_GT_PACKET)
+			{
+				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+						       ,"Bad Length: must be <= than PSN packet size (%d)"
+						       ,(int)pd->packet_size);
+			}
+			if (pd->props & PWC_CW_BAD_PADDING_NE_0)
+			{
+				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+						       ,"Bad Length: must be == PSN packet size (%d), no padding allowed"
+						       ,(int)pd->packet_size);
+			}
+		}
+
+		/* sequence number */
+		proto_tree_add_item(tree2, hf_cw_seq, tvb
+				    ,MODE_11_OR_AAL5_PDU(pd->mode) ? 1 : 2, 2, ENC_BIG_ENDIAN);
+
+		/* atm-specific byte */
+		if (MODE_11(pd->mode))
+		{
+			proto_tree_add_item(tree2, hf_gen_cw_atmbyte, tvb, 3, 1, ENC_BIG_ENDIAN);
+			/*
+			 * no need to highlight item in the tree, therefore
+			 * expert_add_info_format() is not used here.
+			 */
+			item = proto_tree_add_text(tree2, tvb, 3, 1
+						   ,"ATM-specific byte of CW is fully dissected below as %s%s"
+						   ,(PWATM_MODE_11_VPC == pd->mode) ? "a part of "	: ""
+						   ,"PW ATM Cell Header [000]");
+			PROTO_ITEM_SET_GENERATED(item);
+			/*
+			 * Note: if atm-specific byte contains something wrong
+			 * (e.g. non-zero RSV or inadequate V), CW is not
+			 * marked as "bad".
+			 */
+		}
+
+		/*3rd byte of CW*/
+		if (PWATM_MODE_AAL5_PDU == pd->mode)
+		{
+			tvbuff_t* tvb_2;
+			tvb_2 = tvb_new_subset_remaining(tvb, (PWC_SIZEOF_CW-1));
+			call_dissector(dh_cell_header, tvb_2, pinfo, tree2);
+			proto_item_append_text(item_top, ", ");
+			proto_item_append_text_cwb3_fields(item_top, pd);
 		}
 	}
 	return;
@@ -1479,7 +1466,6 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 		}
 	}
 
-	if (tree || pinfo->cinfo)
 	{
 		proto_item* item;
 
@@ -1646,7 +1632,6 @@ dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data
 	 * NB: do not touch columns -- keep info from previous dissector
 	 */
 
-	if (tree || pinfo->cinfo)
 	{
 		proto_item* item;
 		item = proto_tree_add_item(tree, proto_cell, tvb, 0, dissect_size, ENC_NA);
@@ -1969,13 +1954,13 @@ proto_reg_handoff_pw_atm_ata(void)
 {
 	dissector_handle_t h;
 	h = find_dissector("mpls_pw_atm_n1_cw");
-	dissector_add_uint( "mpls.label", LABEL_INVALID, h );
+	dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, h );
 	h = find_dissector("mpls_pw_atm_n1_nocw");
-	dissector_add_uint( "mpls.label", LABEL_INVALID, h );
+	dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, h );
 	h = find_dissector("mpls_pw_atm_11_or_aal5_pdu");
-	dissector_add_uint( "mpls.label", LABEL_INVALID, h );
+	dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, h );
 	h = find_dissector("mpls_pw_atm_aal5_sdu");
-	dissector_add_uint( "mpls.label", LABEL_INVALID, h );
+	dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, h );
 
 	dh_cell		   = find_dissector("mpls_pw_atm_cell");
 	dh_cell_header	   = find_dissector("mpls_pw_atm_cell_header");

@@ -83,9 +83,9 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 						,pwc_demux_type_t demux)
 {
 	const int encaps_size = 4; /*RTP header in encapsulation is not supported yet*/
-	gint packet_size;
-	gint payload_size;
-	gint padding_size;
+	gint      packet_size;
+	gint      payload_size;
+	gint      padding_size;
 	pwc_packet_properties_t properties;
 
 	packet_size = tvb_reported_length_remaining(tvb_original, 0);
@@ -97,18 +97,12 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 	 */
 	if (packet_size < 4) /* 4 is smallest size which may be sensible (for PWACH dissector) */
 	{
-		if (tree)
-		{
-			proto_item  *item;
-			item = proto_tree_add_item(tree, proto, tvb_original, 0, -1, ENC_NA);
-			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-				"PW packet size (%d) is too small to carry sensible information"
-				,(int)packet_size);
-		}
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		{
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
-		}
+		proto_item  *item;
+		item = proto_tree_add_item(tree, proto, tvb_original, 0, -1, ENC_NA);
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+				       "PW packet size (%d) is too small to carry sensible information"
+				       ,(int)packet_size);
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
 		col_set_str(pinfo->cinfo, COL_INFO, "Malformed: PW packet is too small");
 		return;
 	}
@@ -153,7 +147,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 		 *
 		 * We will use RFC5086's definition here.
 		 */
-		int cw_len;
+		int  cw_len;
 		gint payload_size_from_packet;
 
 		cw_len = tvb_get_guint8(tvb_original, 1) & 0x3f;
@@ -226,10 +220,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 	}
 
 	/* fill up columns*/
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_clear(pinfo->cinfo, COL_INFO);
@@ -443,7 +434,7 @@ void proto_reg_handoff_pw_cesopsn(void)
 {
 	data_handle = find_dissector("data");
 	pw_padding_handle = find_dissector("pw_padding");
-	dissector_add_uint("mpls.label", LABEL_INVALID, find_dissector("pw_cesopsn_mpls"));
+	dissector_add_uint("mpls.label", MPLS_LABEL_INVALID, find_dissector("pw_cesopsn_mpls"));
 	dissector_add_handle("udp.port", find_dissector("pw_cesopsn_udp")); /* For Decode-As */
 	return;
 }

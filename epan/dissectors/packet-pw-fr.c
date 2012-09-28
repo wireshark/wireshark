@@ -83,7 +83,6 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 	packet_size = tvb_reported_length_remaining(tvb, 0);
 	if (packet_size < encaps_size)
 	{
-		if (tree)
 		{
 			proto_item  *item;
 			item = proto_tree_add_item(tree, proto_encaps, tvb, 0, -1, ENC_NA);
@@ -178,7 +177,6 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		}
 	}
 
-	if (tree)
 	{
 		proto_tree* subtree;
 		proto_item* item_headline;
@@ -197,9 +195,9 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 
 		(void)proto_tree_add_item( subtree, hf_cw_fecn, tvb, 0, 1, ENC_BIG_ENDIAN );
 		(void)proto_tree_add_item( subtree, hf_cw_becn, tvb, 0, 1, ENC_BIG_ENDIAN );
-		(void)proto_tree_add_item( subtree, hf_cw_de, tvb, 0, 1, ENC_BIG_ENDIAN );
-		(void)proto_tree_add_item( subtree, hf_cw_cr, tvb, 0, 1, ENC_BIG_ENDIAN );
-		(void)proto_tree_add_item( subtree, hf_cw_frg, tvb, 1, 1, ENC_BIG_ENDIAN );
+		(void)proto_tree_add_item( subtree, hf_cw_de,   tvb, 0, 1, ENC_BIG_ENDIAN );
+		(void)proto_tree_add_item( subtree, hf_cw_cr,   tvb, 0, 1, ENC_BIG_ENDIAN );
+		(void)proto_tree_add_item( subtree, hf_cw_frg,  tvb, 1, 1, ENC_BIG_ENDIAN );
 
 		item = proto_tree_add_item( subtree, hf_cw_len, tvb, 1, 1, ENC_BIG_ENDIAN );
 		if (packet_quality & PQ_CW_BAD_LEN_GT_PACKET)
@@ -295,6 +293,6 @@ proto_reg_handoff_pw_fr(void)
 {
 	dissector_handle_t h;
 	h = find_dissector("pw_fr");
-	dissector_add_uint("mpls.label", LABEL_INVALID, h);
+	dissector_add_uint("mpls.label", MPLS_LABEL_INVALID, h);
 	fr_stripped_address_handle = find_dissector("fr_stripped_address");
 }

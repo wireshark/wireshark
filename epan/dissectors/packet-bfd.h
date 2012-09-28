@@ -24,7 +24,6 @@
 #ifndef PACKET_BFD_H
 #define PACKET_BFD_H
 
-void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 void dissect_bfd_mep (tvbuff_t *tvb, proto_tree *tree);
 
 #endif

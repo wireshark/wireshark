@@ -12,9 +12,9 @@
  *     - enhanced "what's past last mpls label?" heuristic
  *
  * (c) Copyright 2011, Shobhank Sharma <ssharma5@ncsu.edu>
- *     - Removed some mpls preferences which are no longer relevant/needed like 
+ *     - Removed some mpls preferences which are no longer relevant/needed like
  *       decode PWAC payloads as PPP traffic and assume all channel types except
- *       0x21 are raw BFD. 
+ *       0x21 are raw BFD.
  *     - MPLS extension from PW-ACH to MPLS Generic Associated Channel as per RFC 5586
  *     - Updated Pseudowire Associated Channel Types as per http://www.iana.org/assignments/pwe3-parameters
  *
@@ -76,15 +76,15 @@ static gint proto_pw_mcw = -1;
 static gint ett_mpls = -1;
 static gint ett_mpls_pw_ach = -1;
 static gint ett_mpls_pw_mcw = -1;
-static char PW_ACH[50]="PW Associated Channel Header";
+static char PW_ACH[50] = "PW Associated Channel Header";
 
 const value_string special_labels[] = {
-    {LABEL_IP4_EXPLICIT_NULL,   "IPv4 Explicit-Null"},
-    {LABEL_ROUTER_ALERT,        "Router Alert"},
-    {LABEL_IP6_EXPLICIT_NULL,   "IPv6 Explicit-Null"},
-    {LABEL_IMPLICIT_NULL,       "Implicit-Null"},
-    {LABEL_OAM_ALERT,           "OAM Alert"},
-    {LABEL_GACH,                "Generic Associated Channel Label (GAL)"},
+    {MPLS_LABEL_IP4_EXPLICIT_NULL,   "IPv4 Explicit-Null"},
+    {MPLS_LABEL_ROUTER_ALERT,        "Router Alert"},
+    {MPLS_LABEL_IP6_EXPLICIT_NULL,   "IPv6 Explicit-Null"},
+    {MPLS_LABEL_IMPLICIT_NULL,       "Implicit-Null"},
+    {MPLS_LABEL_OAM_ALERT,           "OAM Alert"},
+    {MPLS_LABEL_GACH,                "Generic Associated Channel Label (GAL)"},
     {0, NULL }
 };
 
@@ -270,6 +270,7 @@ static const value_string mpls_pw_types[] = {
     { 0x001F, "Reserved"                                       },/*[Bryant]  2008-04-17*/
     { 0, NULL }
 };
+static value_string_ext mpls_pw_types_ext = VALUE_STRING_EXT_INIT(mpls_pw_types);
 #endif
 
 /*
@@ -305,6 +306,7 @@ static const value_string mpls_pwac_types[] = {
     { 0x7FFF, "Reserved for Experimental Use"},
     { 0, NULL }
 };
+static value_string_ext mpls_pwac_types_ext = VALUE_STRING_EXT_INIT(mpls_pwac_types);
 
 static dissector_table_t mpls_subdissector_table;
 
@@ -314,9 +316,10 @@ static dissector_table_t mpls_subdissector_table;
  * Return the label in "label", EXP bits in "exp",
  * bottom_of_stack in "bos", and TTL in "ttl"
  */
-void decode_mpls_label(tvbuff_t *tvb, int offset,
-                       guint32 *label, guint8 *exp,
-                       guint8 *bos, guint8 *ttl)
+void
+decode_mpls_label(tvbuff_t *tvb, int offset,
+                       guint32  *label, guint8 *exp,
+                       guint8   *bos, guint8 *ttl)
 {
     guint8 octet0 = tvb_get_guint8(tvb, offset+0);
     guint8 octet1 = tvb_get_guint8(tvb, offset+1);
@@ -334,152 +337,121 @@ void decode_mpls_label(tvbuff_t *tvb, int offset,
 static void
 dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree  *mpls_pw_ach_tree = NULL;
-    proto_item  *ti = NULL;
-    tvbuff_t    *next_tvb = NULL;
-    int         offset = 0;
-    guint8      ver = 0;
-    guint16     res = 0;
-    guint16     channel_type = 0;
+    tvbuff_t   *next_tvb;
+    guint16     channel_type;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
-        if (tree)
-            proto_tree_add_text(tree, tvb, 0, -1, "Error processing Message");
+        proto_tree_add_text(tree, tvb, 0, -1, "Error processing Message");
         return;
     }
-    ver = (tvb_get_guint8(tvb, 0) & 0x0F);
-    res = tvb_get_guint8(tvb, 1);
+
     channel_type = tvb_get_ntohs(tvb, 2);
+
     if (tree) {
+        proto_tree *mpls_pw_ach_tree;
+        proto_item *ti;
+        guint16     res;
+
         ti = proto_tree_add_item(tree, proto_pw_ach, tvb, 0, 4, ENC_NA);
         mpls_pw_ach_tree = proto_item_add_subtree(ti, ett_mpls_pw_ach);
-        if (mpls_pw_ach_tree == NULL)
-            return;
-        proto_tree_add_uint_format(mpls_pw_ach_tree, hf_mpls_pw_ach_ver,
-                                   tvb, 0, 1, ver, "Version: %d", ver);
-        ti = proto_tree_add_uint_format(mpls_pw_ach_tree, hf_mpls_pw_ach_res,
-                                        tvb, 1, 1, res, "Reserved: 0x%02x", res);
+
+        proto_tree_add_item(mpls_pw_ach_tree, hf_mpls_pw_ach_ver,
+                            tvb, 0, 1, ENC_BIG_ENDIAN);
+
+        res = tvb_get_guint8(tvb, 1);
+        ti = proto_tree_add_uint(mpls_pw_ach_tree, hf_mpls_pw_ach_res,
+                                        tvb, 1, 1, res);
         if (res != 0)
             proto_tree_add_text(mpls_pw_ach_tree, tvb, 1, 1,
                 "Error: this byte is reserved and must be 0");
         else
             PROTO_ITEM_SET_HIDDEN(ti);
 
-        if ((channel_type == ACH_TYPE_BFD_CC) || (channel_type == ACH_TYPE_BFD_CV) || 
-            (channel_type == ACH_TYPE_ONDEMAND_CV)) {
-            switch (channel_type) { 
-                case ACH_TYPE_BFD_CC:
+        proto_tree_add_uint_format_value(mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
+                                         tvb, 2, 2, channel_type,
+                                         "%s (0x%04x)",
+                                         val_to_str_ext_const(channel_type, &mpls_pwac_types_ext, "Unknown"),
+                                         channel_type);
 
-                    proto_tree_add_uint_format (mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
-                                                tvb, (offset + 2), 2, channel_type,
-                                                "Channel Type: %s (0x%04x)",
-                                                val_to_str (channel_type, mpls_pwac_types, 
-                                                "BFD CC"), channel_type);
-                    offset = offset + 4;
-                    next_tvb = tvb_new_subset_remaining (tvb, offset);
-                    dissect_bfd_control (next_tvb, pinfo, tree);
+    } /* if (tree) */
 
-                break;
+    next_tvb     = tvb_new_subset_remaining(tvb, 4);
 
-                case ACH_TYPE_BFD_CV:
+    switch (channel_type) {
+        case ACH_TYPE_BFD_CC:
+            call_dissector(dissector_bfd, next_tvb, pinfo, tree);  /* bfd_control() */
+            break;
 
-                    proto_tree_add_uint_format (mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
-                                                tvb, (offset + 2), 2, channel_type,
-                                                "Channel Type: %s (0x%04x)",
-                                                val_to_str (channel_type, mpls_pwac_types, 
-                                                "BFD CV"), channel_type);
-                    offset = offset + 4;
-                    next_tvb = tvb_new_subset_remaining (tvb, offset);
-                    dissect_bfd_control (next_tvb, pinfo, tree);
-                    next_tvb = tvb_new_subset_remaining (tvb, offset);
-                    dissect_bfd_mep (next_tvb, tree);
+        case ACH_TYPE_BFD_CV:
+            call_dissector(dissector_bfd, next_tvb, pinfo, tree);  /* bfd_control() */
+            dissect_bfd_mep(next_tvb, tree);
+            break;
 
-                break;
+        case ACH_TYPE_ONDEMAND_CV:
+            dissect_mpls_echo(next_tvb, pinfo, tree);
+            break;
 
-                case ACH_TYPE_ONDEMAND_CV:
-  
-                    proto_tree_add_uint_format (mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
-                                                tvb, (offset + 2), 2, channel_type,
-                                                "Channel Type: %s (0x%04x)",
-                                                val_to_str (channel_type, mpls_pwac_types, "On-Demand CV"),
-                                                channel_type);
-                       offset = offset + 4;
-                    next_tvb = tvb_new_subset_remaining (tvb, offset);
-                    dissect_mpls_echo (next_tvb, pinfo, tree); 
- 
-                break;
-            }
-            return;
-        }
+        case 0x21:   /* IPv4, RFC4385 clause 6. */
+            call_dissector(dissector_ip, next_tvb, pinfo, tree);
+            break;
 
+        case 0x7:    /* PWACH-encapsulated BFD, RFC 5885 */
+            call_dissector(dissector_bfd, next_tvb, pinfo, tree);
+            break;
 
-        proto_tree_add_uint_format(mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
-                                   tvb, 2, 2, channel_type,
-                                   "Channel Type: %s (0x%04x)",
-                                   val_to_str(channel_type, mpls_pwac_types, "Unknown"),
-                                              channel_type);
-    }
-    next_tvb = tvb_new_subset_remaining(tvb, 4);
+        case 0x57:   /* IPv6, RFC4385 clause 6. */
+            call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
+            break;
 
-    if (0x21 == channel_type /*IPv4, RFC4385 clause 6.*/)
-    {
-        call_dissector(dissector_ip, next_tvb, pinfo, tree);
-    }
-    else if (0x7 == channel_type /*PWACH-encapsulated BFD, RFC 5885*/)
-    {
-        call_dissector(dissector_bfd, next_tvb, pinfo, tree);
-    }
-    else if (0x57 == channel_type /*IPv6, RFC4385 clause 6.*/)
-    {
-        call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
-    }
-    else if (channel_type == 0x000A) /* FF: MPLS PM, RFC 6374, DLM */
-    {
-        call_dissector(dissector_mpls_pm_dlm, next_tvb, pinfo, tree);
-    }
-    else if (channel_type == 0x000B) /* FF: MPLS PM, RFC 6374, ILM */
-    {
-        call_dissector(dissector_mpls_pm_ilm, next_tvb, pinfo, tree);
-    }
-    else if (channel_type == 0x000C) /* FF: MPLS PM, RFC 6374, DM */
-    {
-        call_dissector(dissector_mpls_pm_dm, next_tvb, pinfo, tree);
-    }
-    else if (channel_type == 0x000D) /* FF: MPLS PM, RFC 6374, DLM+DM */
-    {
-        call_dissector(dissector_mpls_pm_dlm_dm, next_tvb, pinfo, tree);
-    }
-    else if (channel_type == 0x000E) /* FF: MPLS PM, RFC 6374, ILM+DM */
-    {
-        call_dissector(dissector_mpls_pm_ilm_dm, next_tvb, pinfo, tree);
-    }
-    else if (channel_type == 0x0024) /* FF: PSC, RFC 6378 */
-    {
-        call_dissector(dissector_mpls_psc, next_tvb, pinfo, tree);
-    }
-    else
-    {
-        call_dissector(dissector_data, next_tvb, pinfo, tree);
+        case 0x000A: /* FF: MPLS PM, RFC 6374, DLM */
+            call_dissector(dissector_mpls_pm_dlm, next_tvb, pinfo, tree);
+            break;
+
+        case 0x000B: /* FF: MPLS PM, RFC 6374, ILM */
+            call_dissector(dissector_mpls_pm_ilm, next_tvb, pinfo, tree);
+            break;
+
+        case 0x000C: /* FF: MPLS PM, RFC 6374, DM */
+            call_dissector(dissector_mpls_pm_dm, next_tvb, pinfo, tree);
+            break;
+
+        case 0x000D: /* FF: MPLS PM, RFC 6374, DLM+DM */
+            call_dissector(dissector_mpls_pm_dlm_dm, next_tvb, pinfo, tree);
+            break;
+
+        case 0x000E: /* FF: MPLS PM, RFC 6374, ILM+DM */
+            call_dissector(dissector_mpls_pm_ilm_dm, next_tvb, pinfo, tree);
+            break;
+
+        case 0x0024: /* FF: PSC, RFC 6378 */
+            call_dissector(dissector_mpls_psc, next_tvb, pinfo, tree);
+            break;
+
+        default:
+            call_dissector(dissector_data, next_tvb, pinfo, tree);
+            break;
     }
 }
 
-gboolean dissect_try_cw_first_nibble( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+gboolean
+dissect_try_cw_first_nibble( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
     guint8 nibble;
+
     nibble = (tvb_get_guint8(tvb, 0 ) >> 4) & 0x0F;
     switch ( nibble )
     {
-    case 6:
-        call_dissector( dissector_ipv6, tvb, pinfo, tree);
-        return TRUE;
-    case 4:
-        call_dissector( dissector_ip, tvb, pinfo, tree);
-        return TRUE;
-    case 1:
-        dissect_pw_ach( tvb, pinfo, tree );
-        return TRUE;
-    default:
-        break;
+        case 6:
+            call_dissector(dissector_ipv6, tvb, pinfo, tree);
+            return TRUE;
+        case 4:
+            call_dissector(dissector_ip, tvb, pinfo, tree);
+            return TRUE;
+        case 1:
+            dissect_pw_ach(tvb, pinfo, tree );
+            return TRUE;
+        default:
+            break;
     }
     return FALSE;
 }
@@ -490,17 +462,12 @@ gboolean dissect_try_cw_first_nibble( tvbuff_t *tvb, packet_info *pinfo, proto_t
 static void
 dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree  *mpls_pw_mcw_tree = NULL;
-    proto_item  *ti = NULL;
-    tvbuff_t    *next_tvb = NULL;
-    guint8      flags = 0;
-    guint8      frg = 0;
-    guint8      length = 0;
-    guint16     sequence_number = 0;
+    tvbuff_t *next_tvb;
+    guint8    length;
+    guint16   sequence_number;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
-        if (tree)
-            proto_tree_add_text(tree, tvb, 0, -1, "Error processing Message");
+        proto_tree_add_text(tree, tvb, 0, -1, "Error processing Message");
         return;
     }
 
@@ -508,45 +475,41 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        return;
 
     /* bits 4 to 7 and FRG bits are displayed together */
-    flags = (tvb_get_guint8(tvb, 0) & 0x0F) << 2;
-    frg = (tvb_get_guint8(tvb, 1) & 0xC0) >> 6;
-    flags |= frg;
-    length = tvb_get_guint8(tvb, 1) & 0x3F;
+    length  = tvb_get_guint8(tvb, 1) & 0x3F;
+
     sequence_number = tvb_get_ntohs(tvb, 2);
     if (tree) {
+        proto_tree  *mpls_pw_mcw_tree;
+        proto_item  *ti;
+
         ti = proto_tree_add_item(tree, proto_pw_mcw, tvb, 0, 4, ENC_NA);
         mpls_pw_mcw_tree = proto_item_add_subtree(ti, ett_mpls_pw_mcw);
-        if (mpls_pw_mcw_tree == NULL)
-            return;
-        proto_tree_add_uint_format(mpls_pw_mcw_tree, hf_mpls_pw_mcw_flags,
-                                   tvb, 0, 1, flags, "Flags: 0x%02x", flags);
-        proto_tree_add_uint_format(mpls_pw_mcw_tree, hf_mpls_pw_mcw_length,
-                                        tvb, 1, 1, length, "Length: %u", length);
-        proto_tree_add_uint_format(mpls_pw_mcw_tree, hf_mpls_pw_mcw_sequence_number,
-                                   tvb, 2, 2, sequence_number,
-                                   "Sequence Number: %d", sequence_number);
+
+        proto_tree_add_item(mpls_pw_mcw_tree, hf_mpls_pw_mcw_flags,
+                            tvb, 0, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(mpls_pw_mcw_tree, hf_mpls_pw_mcw_length,
+                            tvb, 1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(mpls_pw_mcw_tree, hf_mpls_pw_mcw_sequence_number,
+                            tvb, 2, 2, ENC_BIG_ENDIAN);
     }
     next_tvb = tvb_new_subset_remaining(tvb, 4);
-    call_dissector( dissector_data, next_tvb, pinfo, tree );
+    call_dissector(dissector_data, next_tvb, pinfo, tree);
 }
 
 static void
 dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
-    guint32 label = LABEL_INVALID;
-    guint8 exp;
-    guint8 bos;
-    guint8 ttl;
-    proto_tree *mpls_tree = NULL;
-    proto_item *ti;
+    int       offset = 0;
+    guint32   label  = MPLS_LABEL_INVALID;
+    guint8    exp;
+    guint8    bos;
+    guint8    ttl;
     tvbuff_t *next_tvb;
+    gboolean  found;
+    guint8    first_nibble;
     struct mplsinfo mplsinfo;
-    int found = 0;
-    guint8 first_nibble;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPLS");
-
     col_set_str(pinfo->cinfo, COL_INFO, "MPLS Label Switched Packet");
 
     /* Start Decoding Here. */
@@ -559,12 +522,15 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * update pinfo
          */
         mplsinfo.label = pinfo->mpls_label = label;
-        mplsinfo.exp = exp;
-        mplsinfo.bos = bos;
-        mplsinfo.ttl = ttl;
+        mplsinfo.exp   = exp;
+        mplsinfo.bos   = bos;
+        mplsinfo.ttl   = ttl;
+
         pinfo->private_data = &mplsinfo;
 
         if (tree) {
+            proto_item *ti;
+            proto_tree *mpls_tree;
 
             ti = proto_tree_add_item(tree, proto_mpls, tvb, offset, 4, ENC_NA);
             mpls_tree = proto_item_add_subtree(ti, ett_mpls);
@@ -574,11 +540,11 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             } else {
                 proto_item_append_text(ti, ", Label: %u", label);
             }
-            if (label <= LABEL_MAX_RESERVED){
+            if (label <= MPLS_LABEL_MAX_RESERVED){
                 proto_tree_add_item(mpls_tree, hf_mpls_label_special, tvb,
                                     offset, 4, ENC_BIG_ENDIAN);
-                proto_item_append_text(ti, " (%s)", val_to_str(label, 
-                                    special_labels, "Reserved - Unknown"));
+                proto_item_append_text(ti, " (%s)",
+                                       val_to_str_const(label, special_labels, "Reserved - Unknown"));
             } else {
                 proto_tree_add_item(mpls_tree, hf_mpls_label, tvb, offset, 4,
                                     ENC_BIG_ENDIAN);
@@ -598,22 +564,22 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         offset += 4;
-        
-        if (label == LABEL_GACH && !bos)
-        {
+
+        if ((label == MPLS_LABEL_GACH) && !bos) {
             proto_tree_add_text(tree, tvb, 0, -1, "Invalid Label");
         }
 
-        if (label == LABEL_GACH && bos) {
-            g_strlcpy(PW_ACH,"Generic Associated Channel Header",50);
+        if ((label == MPLS_LABEL_GACH) && bos) {
+            g_strlcpy(PW_ACH, "Generic Associated Channel Header",50);
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             dissect_pw_ach( next_tvb, pinfo, tree );
             return;
         }
         else
-            g_strlcpy(PW_ACH,"PW Associated Channel Header",50);
+            g_strlcpy(PW_ACH, "PW Associated Channel Header",50);
 
-        if (bos) break;
+        if (bos)
+            break;
     }
 
     first_nibble = (tvb_get_guint8(tvb, offset) >> 4) & 0x0F;
@@ -621,7 +587,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     /* 1) explicit label-to-dissector binding ? */
-    found = dissector_try_uint(mpls_subdissector_table, label, 
+    found = dissector_try_uint(mpls_subdissector_table, label,
                                next_tvb, pinfo, tree);
     if (found)
         return;
@@ -637,9 +603,9 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_pw_ach(next_tvb, pinfo, tree);
         return;
     } else if (first_nibble == 0) {
-        /* 
+        /*
          * FF: it should be a PW with a CW but... it's not
-         * guaranteed (e.g. an Ethernet PW w/o CW and a DA MAC 
+         * guaranteed (e.g. an Ethernet PW w/o CW and a DA MAC
          * address like 00:xx:xx:xx:xx:xx).  So, let the user and
          * eventually any further PW heuristics decide.
          */
@@ -647,49 +613,49 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* 3) use the mpls_default_payload info from user */
     switch (mpls_default_payload) {
-    case MDD_PW_SATOP:
-        call_dissector(dissector_pw_satop, next_tvb, pinfo, tree);
-        break;
-    case MDD_PW_CESOPSN:
-        call_dissector(dissector_pw_cesopsn, next_tvb, pinfo, tree);
-        break;
-    case MDD_PW_ETH_HEUR:
-        call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
-        break;
-    case MDD_MPLS_PW_FR_DLCI:
-        call_dissector(dissector_pw_fr, next_tvb, pinfo, tree);
-        break;
-    case MDD_MPLS_PW_HDLC_NOCW_FRPORT:
-        call_dissector(dissector_pw_hdlc_nocw_fr, next_tvb, pinfo, tree);
-        break;
-    case MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP:
-        call_dissector(dissector_pw_hdlc_nocw_hdlc_ppp,next_tvb, pinfo, tree);
-        break;
-    case MDD_MPLS_PW_ETH_CW:
-        call_dissector(dissector_pw_eth_cw, next_tvb, pinfo, tree);
-        break;
-    case MDD_MPLS_PW_ETH_NOCW:
-        call_dissector(dissector_pw_eth_nocw, next_tvb, pinfo, tree);
-        break;
-    case MDD_ITDM:
-        call_dissector(dissector_itdm, next_tvb, pinfo, tree);
-        break;
-    case MDD_MPLS_PW_ATM_N1_CW:
-        call_dissector(dissector_mpls_pw_atm_n1_cw, next_tvb, pinfo, tree);
-        break;
-    case MDD_MPLS_PW_ATM_N1_NOCW:
-        call_dissector(dissector_mpls_pw_atm_n1_nocw, next_tvb, pinfo, tree);
-        break;
-    case MDD_MPLS_PW_ATM_11_OR_AAL5_PDU:
-        call_dissector(dissector_mpls_pw_atm_11_aal5pdu, next_tvb, pinfo, tree);
-        break;
-    case MDD_MPLS_PW_ATM_AAL5_SDU:
-        call_dissector(dissector_mpls_pw_atm_aal5_sdu, next_tvb, pinfo, tree);
-        break;
-    default: /* fallthrough */
-    case MDD_MPLS_PW_GENERIC:
-        dissect_pw_mcw(next_tvb, pinfo, tree);
-        break;
+        case MDD_PW_SATOP:
+            call_dissector(dissector_pw_satop, next_tvb, pinfo, tree);
+            break;
+        case MDD_PW_CESOPSN:
+            call_dissector(dissector_pw_cesopsn, next_tvb, pinfo, tree);
+            break;
+        case MDD_PW_ETH_HEUR:
+            call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
+            break;
+        case MDD_MPLS_PW_FR_DLCI:
+            call_dissector(dissector_pw_fr, next_tvb, pinfo, tree);
+            break;
+        case MDD_MPLS_PW_HDLC_NOCW_FRPORT:
+            call_dissector(dissector_pw_hdlc_nocw_fr, next_tvb, pinfo, tree);
+            break;
+        case MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP:
+            call_dissector(dissector_pw_hdlc_nocw_hdlc_ppp,next_tvb, pinfo, tree);
+            break;
+        case MDD_MPLS_PW_ETH_CW:
+            call_dissector(dissector_pw_eth_cw, next_tvb, pinfo, tree);
+            break;
+        case MDD_MPLS_PW_ETH_NOCW:
+            call_dissector(dissector_pw_eth_nocw, next_tvb, pinfo, tree);
+            break;
+        case MDD_ITDM:
+            call_dissector(dissector_itdm, next_tvb, pinfo, tree);
+            break;
+        case MDD_MPLS_PW_ATM_N1_CW:
+            call_dissector(dissector_mpls_pw_atm_n1_cw, next_tvb, pinfo, tree);
+            break;
+        case MDD_MPLS_PW_ATM_N1_NOCW:
+            call_dissector(dissector_mpls_pw_atm_n1_nocw, next_tvb, pinfo, tree);
+            break;
+        case MDD_MPLS_PW_ATM_11_OR_AAL5_PDU:
+            call_dissector(dissector_mpls_pw_atm_11_aal5pdu, next_tvb, pinfo, tree);
+            break;
+        case MDD_MPLS_PW_ATM_AAL5_SDU:
+            call_dissector(dissector_mpls_pw_atm_aal5_sdu, next_tvb, pinfo, tree);
+            break;
+        default: /* fallthrough */
+        case MDD_MPLS_PW_GENERIC:
+            dissect_pw_mcw(next_tvb, pinfo, tree);
+            break;
     }
 }
 
@@ -700,53 +666,72 @@ proto_register_mpls(void)
 
         /* MPLS header fields */
         {&hf_mpls_label,
-         {"MPLS Label", "mpls.label", FT_UINT32, BASE_DEC, NULL, 0xFFFFF000,
-          NULL, HFILL }},
+         {"MPLS Label", "mpls.label",
+          FT_UINT32, BASE_DEC, NULL, 0xFFFFF000,
+          NULL, HFILL }
+        },
 
         {&hf_mpls_label_special,
-         {"MPLS Label", "mpls.label", FT_UINT32, BASE_DEC, VALS(special_labels), 0xFFFFF000,
-          NULL, HFILL }},
+         {"MPLS Label", "mpls.label",
+          FT_UINT32, BASE_DEC, VALS(special_labels), 0xFFFFF000,
+          NULL, HFILL }
+        },
 
         {&hf_mpls_exp,
-         {"MPLS Experimental Bits", "mpls.exp", FT_UINT32, BASE_DEC, NULL, 0x00000E00,
-          NULL, HFILL }},
+         {"MPLS Experimental Bits", "mpls.exp",
+          FT_UINT32, BASE_DEC, NULL, 0x00000E00,
+          NULL, HFILL }
+        },
 
         {&hf_mpls_bos,
-         {"MPLS Bottom Of Label Stack", "mpls.bottom", FT_UINT32, BASE_DEC, NULL, 0x00000100,
-          NULL, HFILL }},
+         {"MPLS Bottom Of Label Stack", "mpls.bottom",
+          FT_UINT32, BASE_DEC, NULL, 0x00000100,
+          NULL, HFILL }
+        },
 
         {&hf_mpls_ttl,
-         {"MPLS TTL", "mpls.ttl", FT_UINT32, BASE_DEC, NULL, 0x0000000FF,
-          NULL, HFILL }},
+         {"MPLS TTL", "mpls.ttl",
+          FT_UINT32, BASE_DEC, NULL, 0x0000000FF,
+          NULL, HFILL }
+        },
 
         /* PW Associated Channel Header fields */
         {&hf_mpls_pw_ach_ver,
-         {"PW Associated Channel Version", "pwach.ver", FT_UINT8, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
+         {"Channel Version", "pwach.ver",
+          FT_UINT8, BASE_DEC, NULL, 0x0F,
+          "PW Associated Channel Version", HFILL }
+        },
 
         {&hf_mpls_pw_ach_res,
-         {"Reserved", "pwach.res", FT_UINT8, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
+         {"Reserved", "pwach.res",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+        },
 
         {&hf_mpls_pw_ach_channel_type,
-         {"PW Associated Channel Type", "pwach.channel_type", FT_UINT16, BASE_HEX,
-          NULL, 0x0, NULL, HFILL }},
+         {"Channel Type", "pwach.channel_type",
+          FT_UINT16, BASE_HEX, NULL, 0x0,
+          "PW Associated Channel Type", HFILL }
+        },
 
         /* Generic/Preferred PW MPLS Control Word fields */
         {&hf_mpls_pw_mcw_flags,
-         {"Generic/Preferred PW MPLS Control Word Flags", "pwmcw.flags", FT_UINT8,
-          BASE_HEX, NULL, 0x0, NULL,
-          HFILL }},
+         {"Flags", "pwmcw.flags",
+          FT_UINT8, BASE_HEX, NULL, 0x0FC0,
+          "Generic/Preferred PW MPLS Control Word Flags", HFILL }
+        },
 
         {&hf_mpls_pw_mcw_length,
-         {"Generic/Preferred PW MPLS Control Word Length", "pwmcw.length", FT_UINT8,
-          BASE_DEC, NULL, 0x0, NULL,
-          HFILL }},
+         {"Length", "pwmcw.length",
+          FT_UINT8, BASE_DEC, NULL, 0x3F,
+          "Generic/Preferred PW MPLS Control Word Length", HFILL }
+        },
 
         {&hf_mpls_pw_mcw_sequence_number,
-         {"Generic/Preferred PW MPLS Control Word Sequence Number",
-          "pwmcw.sequence_number", FT_UINT16, BASE_DEC, NULL, 0x0,
-          NULL, HFILL }},
+         {"Sequence Number", "pwmcw.sequence_number",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "Generic/Preferred PW MPLS Control Word Sequence Number", HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -805,7 +790,7 @@ proto_reg_handoff_mpls(void)
     dissector_add_uint("ip.proto", IP_PROTO_MPLS_IN_IP, mpls_handle);
 
     mpls_handle = find_dissector("mplspwcw");
-    dissector_add_uint( "mpls.label", LABEL_INVALID, mpls_handle );
+    dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, mpls_handle );
 
     dissector_data                  = find_dissector("data");
     dissector_ipv6                  = find_dissector("ipv6");

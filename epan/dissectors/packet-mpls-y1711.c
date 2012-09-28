@@ -29,7 +29,7 @@
 /*
  * FF: NOTES
  *
- * - this should dissect OAM pdus (identified by the LABEL_OAM_ALERT = 14
+ * - this should dissect OAM pdus (identified by the MPLS_LABEL_OAM_ALERT = 14
  *   label) as described in ITU-T Y.1711 and RFC 3429.
  *
  * - this code used to be (since 2006) in packet-mpls.c ... nobody on this
@@ -114,12 +114,14 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                       0x00, 0x00, 0x00, 0x00, 0x00 };
 
     functype = tvb_get_guint8(tvb, offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (Y.1711: %s)",
-                    (functype == 0x01) ? "CV" :
-                    (functype == 0x02) ? "FDI" :
-                    (functype == 0x03) ? "BDI" :
-                    (functype == 0x07) ? "FDD" :
-                    "reserved/unknown");
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Y.1711: %s)",
+                        (functype == 0x01) ? "CV" :
+                        (functype == 0x02) ? "FDI" :
+                        (functype == 0x03) ? "BDI" :
+                        (functype == 0x07) ? "FDD" :
+                        "reserved/unknown");
+    }
 
     /* sanity checks */
     if (tvb_reported_length(tvb) < 44) {
@@ -143,10 +145,10 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     mpls_y1711_tree = proto_item_add_subtree(ti, ett_mpls_y1711);
 
     /* checks for exp, bos and ttl encoding */
-    if (mplsinfo->label != LABEL_OAM_ALERT)
+    if (mplsinfo->label != MPLS_LABEL_OAM_ALERT)
         proto_tree_add_text(mpls_y1711_tree, tvb, offset - 4, 3,
                             "Warning: Y.1711 but no OAM alert label (%d) ?!",
-                            LABEL_OAM_ALERT);
+                            MPLS_LABEL_OAM_ALERT);
 
     if (mplsinfo->exp != 0)
         proto_tree_add_text(mpls_y1711_tree, tvb, offset - 2, 1,
@@ -415,7 +417,7 @@ proto_reg_handoff_mpls_y1711(void)
 {
     mpls_y1711_handle = find_dissector("mpls_y1711");
     dissector_add_uint("mpls.label",
-                       LABEL_OAM_ALERT /* 14 */,
+                       MPLS_LABEL_OAM_ALERT /* 14 */,
                        mpls_y1711_handle);
 
     data_handle = find_dissector("data");

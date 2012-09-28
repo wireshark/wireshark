@@ -52,10 +52,8 @@ static dissector_handle_t pw_eth_handle_nocw;
 static void
 dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *pw_eth_tree = NULL;
-    proto_item *ti = NULL;
-    tvbuff_t *next_tvb = NULL;
-    guint16 sequence_number = 0;
+    tvbuff_t *next_tvb;
+    guint16   sequence_number;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
         if (tree)
@@ -70,15 +68,15 @@ dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sequence_number = tvb_get_ntohs(tvb, 2);
 
     if (tree) {
+        proto_tree *pw_eth_tree;
+        proto_item *ti;
+
         ti = proto_tree_add_boolean(tree, hf_pw_eth_cw,
                                     tvb, 0, 0, TRUE);
         PROTO_ITEM_SET_HIDDEN(ti);
         ti = proto_tree_add_item(tree, proto_pw_eth_cw,
                                  tvb, 0, 4, ENC_NA);
         pw_eth_tree = proto_item_add_subtree(ti, ett_pw_eth);
-
-        if (pw_eth_tree == NULL)
-            return;
 
         proto_tree_add_uint_format(pw_eth_tree,
                                    hf_pw_eth_cw_sequence_number,
@@ -112,10 +110,10 @@ dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    tvbuff_t *next_tvb = NULL;
-    proto_item *ti = NULL;
+    tvbuff_t *next_tvb;
 
     if (tree) {
+        proto_item *ti;
         ti = proto_tree_add_boolean(tree, hf_pw_eth, tvb, 0, 0, TRUE);
         PROTO_ITEM_SET_HIDDEN(ti);
     }
@@ -135,8 +133,8 @@ dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 looks_like_plain_eth(tvbuff_t *tvb _U_)
 {
-    const gchar *manuf_name_da = NULL;
-    const gchar *manuf_name_sa = NULL;
+    const gchar *manuf_name_da;
+    const gchar *manuf_name_sa;
 
     if (tvb_reported_length_remaining(tvb, 0) < 14) {
         return FALSE;
@@ -230,13 +228,13 @@ proto_reg_handoff_pw_eth(void)
     eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
     pw_eth_handle_cw = find_dissector("pw_eth_cw");
-    dissector_add_uint("mpls.label", LABEL_INVALID, pw_eth_handle_cw);
+    dissector_add_uint("mpls.label", MPLS_LABEL_INVALID, pw_eth_handle_cw);
 
     pw_eth_handle_nocw = find_dissector("pw_eth_nocw");
-    dissector_add_uint("mpls.label", LABEL_INVALID, pw_eth_handle_nocw);
+    dissector_add_uint("mpls.label", MPLS_LABEL_INVALID, pw_eth_handle_nocw);
 
     pw_eth_handle_heuristic = find_dissector("pw_eth_heuristic");
-    dissector_add_uint("mpls.label", LABEL_INVALID, pw_eth_handle_heuristic);
+    dissector_add_uint("mpls.label", MPLS_LABEL_INVALID, pw_eth_handle_heuristic);
 }
 
 /*

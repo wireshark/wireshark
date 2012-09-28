@@ -374,7 +374,7 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-void
+static void
 dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint flags;
@@ -564,7 +564,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         } else {
             proto_item *ti = NULL;
             if (tree) {
-                ti = proto_tree_add_text(bfd_tree, tvb, 24, bfd_length,
+                ti = proto_tree_add_text(bfd_tree, tvb, 24, bfd_length-24,
                                          "Authentication: Length of the BFD frame is invalid (%d)", bfd_length);
             }
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
