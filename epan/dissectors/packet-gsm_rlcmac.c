@@ -108,7 +108,6 @@ static int ett_data_segments  = -1;
 static int hf_usf = -1;
 static int hf_ul_payload_type = -1;
 static int hf_dl_payload_type = -1;
-static int hf_ul_retry_bit = -1;
 static int hf_rrbp = -1;
 static int hf_s_p = -1;
 static int hf_es_p = -1;
@@ -6065,7 +6064,7 @@ CSN_DESCR_BEGIN  (UL_Data_Mac_Header_t)
   M_UINT         (UL_Data_Mac_Header_t,  Payload_Type, 2, &hf_ul_payload_type),
   M_UINT         (UL_Data_Mac_Header_t,  Countdown_Value, 4, &hf_countdown_value),
   M_UINT         (UL_Data_Mac_Header_t,  SI, 1, &hf_ul_data_si),
-  M_UINT         (UL_Data_Mac_Header_t,  R, 1, &hf_ul_retry_bit),
+  M_UINT         (UL_Data_Mac_Header_t,  R, 1, &hf_ul_retry),
 CSN_DESCR_END    (UL_Data_Mac_Header_t)
 
 CSN_DESCR_BEGIN  (UL_Data_Block_GPRS_t)
@@ -6083,7 +6082,7 @@ CSN_DESCR_BEGIN  (UL_Data_Block_EGPRS_Header_Type1_t)
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type1_t, TFI, bits_spec_ul_tfi, 1, &hf_uplink_tfi),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, Countdown_Value, 4, &hf_countdown_value),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, SI, 1, &hf_ul_data_si),
-  M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, R, 1, &hf_ul_retry_bit),
+  M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, R, 1, &hf_ul_retry),
   M_SPLIT_BITS   (UL_Data_Block_EGPRS_Header_Type1_t, BSN1, bits_spec_ul_bsn1, 11, &hf_bsn),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type1_t, BSN1, bits_spec_ul_bsn1, 1, &hf_bsn),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type1_t, TFI, bits_spec_ul_tfi, 0, &hf_uplink_tfi),
@@ -6104,7 +6103,7 @@ CSN_DESCR_BEGIN  (UL_Data_Block_EGPRS_Header_Type2_t)
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type2_t, TFI, bits_spec_ul_tfi, 1, &hf_uplink_tfi),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type2_t, Countdown_Value, 4, &hf_countdown_value),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type2_t, SI, 1, &hf_ul_data_si),
-  M_UINT         (UL_Data_Block_EGPRS_Header_Type2_t, R, 1, &hf_ul_retry_bit),
+  M_UINT         (UL_Data_Block_EGPRS_Header_Type2_t, R, 1, &hf_ul_retry),
   M_SPLIT_BITS   (UL_Data_Block_EGPRS_Header_Type2_t, BSN1, bits_spec_ul_bsn1, 11, &hf_bsn),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type2_t, BSN1, bits_spec_ul_bsn1, 1, &hf_bsn),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type2_t, TFI, bits_spec_ul_tfi, 0, &hf_uplink_tfi),
@@ -6124,7 +6123,7 @@ CSN_DESCR_BEGIN  (UL_Data_Block_EGPRS_Header_Type3_t)
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type3_t, TFI, bits_spec_ul_tfi, 1, &hf_uplink_tfi),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type3_t, Countdown_Value, 4, &hf_countdown_value),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type3_t, SI, 1, &hf_ul_data_si),
-  M_UINT         (UL_Data_Block_EGPRS_Header_Type3_t, R, 1, &hf_ul_retry_bit),
+  M_UINT         (UL_Data_Block_EGPRS_Header_Type3_t, R, 1, &hf_ul_retry),
   M_SPLIT_BITS   (UL_Data_Block_EGPRS_Header_Type3_t, BSN1, bits_spec_ul_bsn1, 11, &hf_bsn),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type3_t, BSN1, bits_spec_ul_bsn1, 1, &hf_bsn),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type3_t, TFI, bits_spec_ul_tfi, 0, &hf_uplink_tfi),
@@ -7875,13 +7874,6 @@ proto_register_gsm_rlcmac(void)
      { &hf_ul_data_si,
        { "SI",
          "gsm_rlcmac.ul.data_si",
-         FT_UINT8, BASE_DEC, NULL, 0x0,
-         NULL, HFILL
-       }
-     },
-     { &hf_ul_retry_bit,
-       { "R",
-         "gsm_rlcmac.ul.retry",
          FT_UINT8, BASE_DEC, NULL, 0x0,
          NULL, HFILL
        }
