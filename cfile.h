@@ -90,7 +90,7 @@ typedef struct _capture_file {
   wtap        *wth;             /* Wiretap session */
   dfilter_t   *rfcode;          /* Compiled read (display) filter program */
   gchar       *dfilter;         /* Display filter string */
-  gboolean     rescanning;      /* TRUE if currently rescanning (rescan_packets) */
+  gboolean     redissecting;    /* TRUE if currently redissecting (cf_redissect_packets) */
   /* search */
   gchar       *sfilter;         /* Filter, hex value, or string being searched */
   gboolean     hex;             /* TRUE if "Hex value" search was last selected */
