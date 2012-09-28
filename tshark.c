@@ -109,6 +109,7 @@ static nstime_t prev_dis_ts;
 static nstime_t prev_cap_ts;
 
 static gboolean print_packet_info;      /* TRUE if we're to print packet information */
+static const char* prev_display_dissector_name = NULL;
 
 static gboolean perform_two_pass_analysis;
 
@@ -369,7 +370,11 @@ static void
 display_dissector_table_names(const char *table_name, const char *ui_name,
                               gpointer output)
 {
-  fprintf((FILE *)output, "\t%s (%s)\n", table_name, ui_name);
+  if ((prev_display_dissector_name == NULL) ||
+      (strcmp(prev_display_dissector_name, table_name) != 0)) {
+     fprintf((FILE *)output, "\t%s (%s)\n", table_name, ui_name);
+     prev_display_dissector_name = table_name;
+  }
 }
 
 /*
@@ -392,9 +397,13 @@ display_dissector_names(const gchar *table _U_, gpointer handle, gpointer output
     g_assert(proto_filter_name != NULL);
     g_assert(proto_ui_name != NULL);
 
-    fprintf((FILE *)output, "\t%s (%s)\n",
-            proto_filter_name,
-            proto_ui_name);
+    if ((prev_display_dissector_name == NULL) ||
+        (strcmp(prev_display_dissector_name, proto_filter_name) != 0)) {
+      fprintf((FILE *)output, "\t%s (%s)\n",
+              proto_filter_name,
+              proto_ui_name);
+       prev_display_dissector_name = proto_filter_name;
+    }
   }
 }
 
@@ -446,6 +455,16 @@ find_protocol_name_func(const gchar *table _U_, gpointer handle, gpointer user_d
 }
 
 /*
+ * Allow dissector key names to be sorted alphabetically
+ */
+
+static gint
+compare_dissector_key_name(gconstpointer* dissector_a, gconstpointer* dissector_b)
+{
+  return strcmp((const char*)dissector_a, (const char*)dissector_b);
+}
+
+/*
  * Print all layer type names supported.
  * We send the output to the stream described by the handle output.
  */
@@ -454,7 +473,8 @@ static void
 fprint_all_layer_types(FILE *output)
 
 {
-  dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)output);
+  prev_display_dissector_name = NULL;
+  dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)output, compare_dissector_key_name);
 }
 
 /*
@@ -467,6 +487,7 @@ static void
 fprint_all_protocols_for_layer_types(FILE *output, gchar *table_name)
 
 {
+  prev_display_dissector_name = NULL;
   dissector_table_foreach_handle(table_name,
                                  display_dissector_names,
                                  (gpointer)output);
@@ -3419,15 +3440,17 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     switch (output_action) {
 
     case WRITE_TEXT:
+      /* Only initialize the fields that are actually used in proto_tree_print.
+       * This is particularly important for .range, as that's heap memory which
+       * we would otherwise have to g_free().
       print_args.to_file = TRUE;
       print_args.format = print_format;
       print_args.print_summary = !verbose;
-      print_args.print_hex = verbose && print_hex;
       print_args.print_formfeed = FALSE;
-      print_args.print_dissections = verbose ? print_dissections_expanded : print_dissections_none;
-
-      /* init the packet range */
       packet_range_init(&print_args.range);
+      */
+      print_args.print_hex = verbose && print_hex;
+      print_args.print_dissections = verbose ? print_dissections_expanded : print_dissections_none;
 
       if (!proto_tree_print(&print_args, edt, print_stream))
         return FALSE;

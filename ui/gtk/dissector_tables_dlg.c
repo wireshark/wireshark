@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -328,7 +328,7 @@ dissector_tables_dlg_init(void)
     tmp = gtk_label_new("String tables");
     gtk_widget_show(tmp);
     hbox =  ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-    gtk_container_add(GTK_CONTAINER(hbox), tmp);
+    gtk_box_pack_start(GTK_BOX (hbox), tmp, TRUE, TRUE, 0);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
     scrolled_window = scrolled_window_new(NULL, NULL);
@@ -343,7 +343,7 @@ dissector_tables_dlg_init(void)
     tmp = gtk_label_new("Integer tables");
     gtk_widget_show(tmp);
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-    gtk_container_add(GTK_CONTAINER(hbox), tmp);
+    gtk_box_pack_start(GTK_BOX (hbox), tmp, TRUE, TRUE, 0);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
     scrolled_window = scrolled_window_new(NULL, NULL);
@@ -358,7 +358,7 @@ dissector_tables_dlg_init(void)
     tmp = gtk_label_new("Heuristic tables");
     gtk_widget_show(tmp);
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-    gtk_container_add(GTK_CONTAINER(hbox), tmp);
+    gtk_box_pack_start(GTK_BOX(hbox), tmp, TRUE, TRUE, 0);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
     scrolled_window = scrolled_window_new(NULL, NULL);
@@ -373,7 +373,7 @@ dissector_tables_dlg_init(void)
     g_signal_connect(dissector_tables_dlg_w, "destroy", G_CALLBACK(win_destroy_cb), NULL);
 
     /* Fill the table with data */
-    dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)&dis_tbl_trees);
+    dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)&dis_tbl_trees, NULL);
 
     dissector_all_heur_tables_foreach_table(display_heur_dissector_table_names, (gpointer)&dis_tbl_trees);
 
