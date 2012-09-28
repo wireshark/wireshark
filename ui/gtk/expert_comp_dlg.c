@@ -861,8 +861,16 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     /* Details */
     details_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
-    ss->all_label = gtk_label_new("Details: 0");
-    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), details_page, ss->all_label);
+    ss->all_label = gtk_label_new("Details: 0/y");
+    gtk_widget_show(ss->all_label);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
+    if ( prefs.gui_expert_composite_eyecandy ) {
+        image = pixbuf_to_widget(capture_comment_disabled_pb_data);
+        gtk_widget_show(image);
+        gtk_box_pack_start(GTK_BOX(hbox), image, TRUE, TRUE, 0);
+    }
+    gtk_box_pack_start(GTK_BOX(hbox), ss->all_label, TRUE, TRUE, 0);
+    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), details_page, hbox);
 
     /* Packet comments */
     comments_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
@@ -871,8 +879,8 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
         image = pixbuf_to_widget(capture_comment_update_pb_data);
-	gtk_widget_show(image);
-	gtk_box_pack_start(GTK_BOX(hbox), image, TRUE, TRUE, 0);
+        gtk_widget_show(image);
+        gtk_box_pack_start(GTK_BOX(hbox), image, TRUE, TRUE, 0);
     }
     gtk_box_pack_start(GTK_BOX(hbox), ss->pkt_comments_label, TRUE, TRUE, 0);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), comments_page, hbox);
