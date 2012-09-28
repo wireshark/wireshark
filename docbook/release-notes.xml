@@ -39,15 +39,65 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-26.html">wnpa-sec-2012-26</ulink>
           </para>
           <para>
-	    .
-            <!-- Fixed in trunk: r? -->
-            <!-- Fixed in trunk-1.8: r? -->
-            <!-- Fixed in trunk-1.6: r? -->
-            <!-- Fixed in trunk-1.4: r? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=?">Bug
-            ?</ulink>)
+	    The HSRP dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r44454 -->
+            <!-- Fixed in trunk-1.8: r45125 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7581">Bug
+            7581</ulink>)
           </para>
-          <para>Versions affected: 1.4.0 to 1.4.15, 1.6.0 to 1.6.10, 1.8.0 to 1.8.2.</para>
+          <para>Versions affected: 1.8.0 to 1.8.2.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-27.html">wnpa-sec-2012-27</ulink>
+          </para>
+          <para>
+	    The PPP dissector could abort.
+            <!-- Fixed in trunk: r44688, r44689 -->
+            <!-- Fixed in trunk-1.8: r45126 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7581">Bug
+            7581</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.2.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-28.html">wnpa-sec-2012-28</ulink>
+          </para>
+          <para>
+	    Martin Wilck discovered an infinite loop in the DRDA dissector.
+            <!-- Fixed in trunk: r44749 -->
+            <!-- Fixed in trunk-1.8: r45129 -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7666">Bug
+            7666</ulink>)
+          </para>
+          <para>Versions affected: 1.6.0 to 1.6.10, 1.8.0 to 1.8.2.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-29.html">wnpa-sec-2012-29</ulink>
+          </para>
+          <para>
+	    Laurent Butti discovered a buffer overflow in the LDP dissector.
+            <!-- Fixed in trunk: r44801 -->
+            <!-- Fixed in trunk-1.8: r45130 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7567">Bug
+            7567</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.2.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
           </para>
@@ -71,6 +121,160 @@ Wireshark Info
 	  HDCP2 uses the wrong protocol id.
         </para></listitem>
 
+        <listitem><para>
+	  Several I/O graph problems have been fixed.
+        </para></listitem>
+
+        <listitem><para>
+          No markers show up when maps are displayed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5016">Bug
+          5016</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Volume label field of &quot;SMB/TRANS2-QUERY_FS_INFO/InfoVolume level&quot; reply packet is not displayed correctly due alignment issue.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5778">Bug
+          5778</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          64-bit Wireshark appears to hit 2-Gbyte memory limit on 64-bit Windows.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5979">Bug
+          5979</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Support for MPLS Packet Loss and Delay Measurement, RFC 6374.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6881">Bug
+          6881</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Memory leak in voip_calls.c.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7320">Bug
+          7320</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          When listing protocols available for &quot;Decode As&quot;, plugins are sorted after built-ins.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7348">Bug
+          7348</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Hidden columns should not be printed when printing packet summary line.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7356">Bug
+          7356</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Size wrong in &quot;File Set List&quot; for just-finished captures.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7370">Bug
+          7370</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Error: no dependency information found for debian/wireshark-common/usr/lib/wireshark/libwsutil.so.2 (used by debian/wireshark/usr/bin/wireshark).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7408">Bug
+          7408</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Parse and properly display LTE RADIUS AVP 3GPP-User-Location-Info.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7474">Bug
+          7474</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          [PATCH] HomeplugAV dissector: decode device id.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7548">Bug
+          7548</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          BACnet GetEnrollmentSummary-ACK does not decode correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7556">Bug
+          7556</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          epan/dissectors/packet-per.c dissect_per_constrained_integer_64b fails for 64 bits.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7624">Bug
+          7624</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          dissector of Qos attribute &quot;Reliability Class&quot; in GMM/SM message.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7670">Bug
+          7670</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Performance regression in tshark -z io,stat.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7674">Bug
+          7674</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Incorrect io-stat table format when unsupported &quot;-t&quot; operand is specified and when using AVG of relative_time fields.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7685">Bug
+          7685</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IEEE 802.11 TKIP dissection : wrong IS_TKIP macro.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7691">Bug
+          7691</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Homeplug AV dissectors does not properly dissect short frames.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7707">Bug
+          7707</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          mm_context_nas_dl_cnt and mm_context_nas_ul_cnt are not dissected properly in ContextResponse message in Gtpv2.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7718">Bug
+          7718</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          This trace causes Wireshark to crash when VoIP Calls selected.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7724">Bug
+          7724</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Some diameter Gx enumerations are missing values or value is incorrect.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7727">Bug
+          7727</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark 1.8.2 is only displaying 2 filters from the drop-down menu even when preferences are set to higher integer.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7731">Bug
+          7731</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Dissection error of D-RELEASE and D-CONNECT in TETRA dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7736">Bug
+          7736</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          DND can cause Wireshark to crash.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7744">Bug
+          7744</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          SCSI: WRITE BUFFER fields always display as zero.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7753">Bug
+          7753</ulink>)
+        </para></listitem>
+
 <!-- Sort by bug # -->
 <!--
         <listitem><para>
@@ -80,7 +284,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
 
       </itemizedlist>
 
@@ -108,7 +311,28 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-HDCP2
+ASN.1 PER,
+BACnet,
+DIAMETER,
+DRDA,
+GSM Management,
+GTP,
+GTPv2,
+HDCP2,
+HomePlug AV,
+ICMP,
+ICMPv6,
+IEEE 802.11,
+Interlink,
+LDP,
+MPEG,
+MPLS,
+PPP,
+SCCP,
+SCSI,
+SDP,
+SMB,
+TETRA
 
     </para>
     </section>
@@ -116,7 +340,7 @@ HDCP2
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+There are no file format updates in this release.
 
     </para>
     </section>
