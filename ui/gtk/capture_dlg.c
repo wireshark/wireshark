@@ -1282,6 +1282,7 @@ insert_new_rows(GList *list)
           device.active_dlt = data_link_info->dlt;
         }
         link->name = g_strdup(str);
+        g_free(str);
         device.links = g_list_append(device.links, link);
         linktype_count++;
       } /* for link_types */
@@ -1925,9 +1926,12 @@ capture_remote_combo_add_recent(gchar *s)
 
   /* First value is the host */
   rh->remote_host = g_strdup (valp->data);
-  if (strlen(rh->remote_host) == 0)
+  if (strlen(rh->remote_host) == 0) {
     /* Empty remote host */
+    g_free(rh->remote_host);
+    g_free(rh);
     return FALSE;
+  }
   rh->auth_type = CAPTURE_AUTH_NULL;
   valp = valp->next;
 
