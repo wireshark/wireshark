@@ -76,11 +76,22 @@ static enum_val_t data_rates[] = {
   {NULL, NULL, -1}
 };
 
-static int
-get_sdh_level(tvbuff_t *tvb)
+static int 
+get_sdh_level(tvbuff_t *tvb, packet_info *pinfo)
 {
-  /*data rate has been set in the SHD options*/
+  /*data rate has been set in the SDH options*/
   if(sdh_data_rate != -1) return sdh_data_rate;
+  /*ERF specifies data rate*/
+  switch((pinfo->pseudo_header->erf.ehdr_list[0].ehdr & 0xff00) >> 8){ 
+    case 1: /*OC-3*/
+      return 1;
+    case 2: /*OC-12*/
+      return 4;
+    case 3: /*OC-48*/
+      return 16; 
+    default:  /*drop through and try the next method*/
+      ;   
+  }
   /*returns the multiplier for each data level*/
   switch(tvb_reported_length(tvb)){
     case 2430:  /*OC-3*/
@@ -90,11 +101,12 @@ get_sdh_level(tvbuff_t *tvb)
     case 19440: /*OC-24*/
       return 8;
     case 38880: /*OC-48*/
-      return 16;
+      return 16; 
   }
 
   return 1;
 }
+
 
 static void
 dissect_sdh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -106,7 +118,7 @@ dissect_sdh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *sdh_tree;
     proto_item *sdh_item;
 
-    int     level = get_sdh_level(tvb);
+    int     level = get_sdh_level(tvb, pinfo);
 
     guint32 a1;
     guint32 a2;
