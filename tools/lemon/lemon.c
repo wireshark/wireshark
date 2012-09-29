@@ -377,14 +377,14 @@ void Configtable_clear(int(*)(struct config *));
 
 /* Allocate a new parser action */
 static struct action *Action_new(void){
-  static struct action *freelist = 0;
+  static struct action *freelist = NULL;
   struct action *new;
 
-  if( freelist==0 ){
+  if( freelist==NULL ){
     int i;
     int amt = 100;
     freelist = (struct action *)calloc(amt, sizeof(struct action));
-    if( freelist==0 ){
+    if( freelist==NULL ){
       fprintf(stderr,"Unable to allocate memory for a new parser action.");
       exit(1);
     }
@@ -1095,11 +1095,11 @@ static int resolve_conflict(
 ** in the LEMON parser generator.
 */
 
-static struct config *freelist = 0;      /* List of free configurations */
-static struct config *current = 0;       /* Top of list of configurations */
-static struct config **currentend = 0;   /* Last on list of configs */
-static struct config *basis = 0;         /* Top of list of basis configs */
-static struct config **basisend = 0;     /* End of list of basis configs */
+static struct config *freelist = NULL;      /* List of free configurations */
+static struct config *current = NULL;       /* Top of list of configurations */
+static struct config **currentend = NULL;   /* Last on list of configs */
+static struct config *basis = NULL;         /* Top of list of basis configs */
+static struct config **basisend = NULL;     /* End of list of basis configs */
 
 /* Return a pointer to a new configuration */
 PRIVATE struct config *newconfig(void){
@@ -1108,7 +1108,7 @@ PRIVATE struct config *newconfig(void){
     int i;
     int amt = 3;
     freelist = (struct config *)calloc( amt, sizeof(struct config) );
-    if( freelist==0 ){
+    if( freelist==NULL ){
       fprintf(stderr,"Unable to allocate memory for a new configuration.");
       exit(1);
     }
@@ -2149,7 +2149,7 @@ to follow the previous rule.");
         struct rule *rp;
         rp = (struct rule *)calloc( sizeof(struct rule) +
              sizeof(struct symbol*)*psp->nrhs + sizeof(char*)*psp->nrhs, 1);
-        if( rp==0 ){
+        if( rp==NULL ){
           ErrorMsg(psp->filename,psp->tokenlineno,
             "Can't allocate enough memory for this rule.");
           psp->errorcnt++;
@@ -2198,10 +2198,18 @@ to follow the previous rule.");
         if( msp->type!=MULTITERMINAL ){
           struct symbol *origsp = msp;
           msp = calloc(1,sizeof(*msp));
+	  if (msp == NULL) {
+	     fprintf(stderr, "Unable to allocate enough memory for MSP, exiting...\n");
+	     exit(1);
+	  }
           memset(msp, 0, sizeof(*msp));
           msp->type = MULTITERMINAL;
           msp->nsubsym = 1;
           msp->subsym = calloc(1,sizeof(struct symbol*));
+	  if (msp->subsym == NULL) {
+	     fprintf(stderr, "Unable to allocate enough memory for MSP->subsym, exiting...\n");
+	     exit(1);
+	  }
           msp->subsym[0] = origsp;
           msp->name = origsp->name;
           psp->rhs[psp->nrhs-1] = msp;
@@ -2712,7 +2720,7 @@ struct plink *Plink_new(void){
     int i;
     int amt = 100;
     plink_freelist = (struct plink *)calloc( amt, sizeof(struct plink) );
-    if( plink_freelist==0 ){
+    if( plink_freelist==NULL ){
       fprintf(stderr,
       "Unable to allocate memory for a new follow-set propagation link.\n");
       exit(1);
@@ -3455,6 +3463,10 @@ PRIVATE void print_stack_union(
   /* Allocate and initialize types[] and allocate stddt[] */
   arraysize = lemp->nsymbol * 2;
   types = (char**)calloc( arraysize, sizeof(char*) );
+  if (types == NULL) {
+    fprintf(stderr, "Unable to allocate enough memory for types\n");
+    exit(1);
+  }
   for(i=0; i<arraysize; i++) types[i] = 0;
   maxdtlength = 0;
   if( lemp->vartype ){
@@ -3737,7 +3749,7 @@ void ReportTable(
 
   /* Compute the actions on all states and count them up */
   ax = calloc(lemp->nstate*2, sizeof(ax[0]));
-  if( ax==0 ){
+  if( ax==NULL ){
     fprintf(stderr,"malloc failed\n");
     exit(1);
   }
@@ -4213,7 +4225,7 @@ void SetSize(int n)
 char *SetNew(void){
   char *s;
   s = (char*)calloc( size, 1);
-  if( s==0 ){
+  if( s==NULL ){
     memory_error();
   }
   return s;
