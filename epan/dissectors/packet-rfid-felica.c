@@ -3,6 +3,7 @@
  *
  * References:
  * http://www.sony.net/Products/felica/business/tech-support/data/fl_usmnl_1.2.pdf
+ * http://www.sony.net/Products/felica/business/tech-support/data/fp_usmnl_1.11.pdf
  * http://www.sony.net/Products/felica/business/tech-support/data/format_sequence_guidelines_1.1.pdf
  * http://code.google.com/u/101410204121169118393/updates
  * https://github.com/codebutler/farebot/wiki/Suica
@@ -97,8 +98,11 @@ static int hf_felica_status_flag2 = -1;
 /* NFC Forum NDEF */
 #define SC_NFC_FORUM   0x12fc
 
-/* Felica Networks' Common Area */
+/* FeliCa Networks' Common Area */
 #define SC_FELICA_NW_COMMON_AREA 0xfe00
+
+/* FeliCa Plug (NFC Dynamic Tag) */
+#define SC_FELICA_PLUG 0xfee1
 
 /* Japanese transit card */
 #define SC_IRUCA       0xde80
@@ -145,6 +149,7 @@ static const value_string felica_req_codes[] = {
 
 static const value_string felica_sys_codes[] = {
     {SC_FELICA_LITE,           "FeliCa Lite"},
+    {SC_FELICA_PLUG,           "FeliCa Plug (NFC Dynamic Tag)"},
     {SC_NFC_FORUM,             "NFC Forum (NDEF)"},
     {SC_FELICA_NW_COMMON_AREA, "FeliCa Networks Common Area"},
     {SC_IRUCA,                 "IruCa"},
