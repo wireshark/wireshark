@@ -262,6 +262,9 @@ static int hf_smb2_max_trans_size = -1;
 static int hf_smb2_max_read_size = -1;
 static int hf_smb2_max_write_size = -1;
 static int hf_smb2_channel = -1;
+static int hf_smb2_rdma_v1_offset = -1;
+static int hf_smb2_rdma_v1_token = -1;
+static int hf_smb2_rdma_v1_length = -1;
 static int hf_smb2_session_flags = -1;
 static int hf_smb2_ses_flags_guest = -1;
 static int hf_smb2_ses_flags_null = -1;
@@ -288,6 +291,7 @@ static int hf_smb2_min_count = -1;
 static int hf_smb2_remaining_bytes = -1;
 static int hf_smb2_channel_info_offset = -1;
 static int hf_smb2_channel_info_length = -1;
+static int hf_smb2_channel_info_blob = -1;
 static int hf_smb2_ioctl_flags = -1;
 static int hf_smb2_ioctl_is_fsctl = -1;
 static int hf_smb2_close_pq_attrib = -1;
@@ -393,6 +397,7 @@ static gint ett_windows_sockaddr = -1;
 static gint ett_smb2_close_flags = -1;
 static gint ett_smb2_notify_flags = -1;
 static gint ett_smb2_write_flags = -1;
+static gint ett_smb2_rdma_v1 = -1;
 static gint ett_smb2_DH2Q_buffer = -1;
 static gint ett_smb2_DH2C_buffer = -1;
 static gint ett_smb2_dh2x_flags = -1;
@@ -4025,6 +4030,58 @@ dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_
 	return offset;
 }
 
+#define SMB2_CHANNEL_NONE		0x00000000
+#define SMB2_CHANNEL_RDMA_V1		0x00000001
+#define SMB2_CHANNEL_RDMA_V1_INVALIDATE	0x00000002
+
+static const value_string smb2_channel_vals[] = {
+	{ SMB2_CHANNEL_NONE,	"None" },
+	{ SMB2_CHANNEL_RDMA_V1,	"RDMA V1" },
+	{ SMB2_CHANNEL_RDMA_V1_INVALIDATE,	"RDMA V1_INVALIDATE" },
+	{ 0, NULL }
+};
+
+static void
+dissect_smb2_rdma_v1_blob(tvbuff_t *tvb, packet_info *pinfo _U_,
+			  proto_tree *parent_tree, smb2_info_t *si _U_)
+{
+	int         offset      = 0;
+	int         len;
+	int         i;
+	int         num;
+	proto_item *sub_item    = NULL;
+	proto_tree *sub_tree    = NULL;
+	proto_item *parent_item = NULL;
+
+	if (parent_tree) {
+		parent_item = proto_tree_get_parent(parent_tree);
+	}
+
+	len = tvb_reported_length(tvb);
+
+	num = len / 16;
+
+	if (parent_item) {
+		proto_item_append_text(parent_item, ": SMBDirect Buffer Descriptor V1: (%d elements)", num);
+	}
+
+	for (i = 0; i < num; i++) {
+		if (parent_tree) {
+			sub_item = proto_tree_add_text(parent_tree, tvb, offset, 8, "RDMA V1");
+			sub_tree = proto_item_add_subtree(sub_item, ett_smb2_rdma_v1);
+		}
+
+		proto_tree_add_item(sub_tree, hf_smb2_rdma_v1_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		proto_tree_add_item(sub_tree, hf_smb2_rdma_v1_token, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		proto_tree_add_item(sub_tree, hf_smb2_rdma_v1_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+	}
+}
+
 #define SMB2_WRITE_FLAG_WRITE_THROUGH		0x00000001
 
 static int
@@ -4032,6 +4089,8 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	guint16 dataoffset = 0;
 	guint32 data_tvb_len;
+	offset_length_buffer_t c_olb;
+	guint32 channel;
 	guint32 length;
 	guint64 off;
 	static const int *f_fields[] = {
@@ -4064,6 +4123,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
 	/* channel */
+	channel = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
@@ -4071,17 +4131,24 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb2_remaining_bytes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	/* write channel info offset */
-	proto_tree_add_item(tree, hf_smb2_channel_info_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
-
-	/* write channel info length */
-	proto_tree_add_item(tree, hf_smb2_channel_info_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
+	/* write channel info blob offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &c_olb, OLB_O_UINT16_S_UINT16, hf_smb2_channel_info_blob);
 
 	/* flags */
 	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_write_flags, ett_smb2_write_flags, f_fields, ENC_LITTLE_ENDIAN);
 	offset += 4;
+
+	/* the write channel info blob itself */
+	switch (channel) {
+	case SMB2_CHANNEL_RDMA_V1:
+	case SMB2_CHANNEL_RDMA_V1_INVALIDATE:
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &c_olb, si, dissect_smb2_rdma_v1_blob);
+		break;
+	case SMB2_CHANNEL_NONE:
+	default:
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &c_olb, si, NULL);
+		break;
+	}
 
 	/* data or dcerpc ?*/
 	if (length && si->tree && si->tree->share_type == SMB2_SHARE_TYPE_PIPE) {
@@ -4095,6 +4162,8 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	data_tvb_len=(guint32)tvb_length_remaining(tvb, offset);
 
 	offset += MIN(length,(guint32)tvb_length_remaining(tvb, offset));
+
+	offset = dissect_smb2_olb_tvb_max_offset(offset, &c_olb);
 
 	if (have_tap_listener(smb2_eo_tap) && (data_tvb_len == length)) {
 		if (si->saved && si->eo_file_info) { /* without this data we don't know wich file this belongs to */
@@ -4824,6 +4893,8 @@ dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	offset_length_buffer_t c_olb;
+	guint32 channel;
 	guint32 len;
 	guint64 off;
 
@@ -4853,6 +4924,7 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 4;
 
 	/* channel */
+	channel = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
@@ -4860,15 +4932,21 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_smb2_remaining_bytes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	/* channel info offset */
-	proto_tree_add_item(tree, hf_smb2_channel_info_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
+	/* read channel info blob offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &c_olb, OLB_O_UINT16_S_UINT16, hf_smb2_channel_info_blob);
 
-	/* channel info length */
-	proto_tree_add_item(tree, hf_smb2_channel_info_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
+	/* the read channel info blob itself */
+	switch (channel) {
+	case SMB2_CHANNEL_RDMA_V1:
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &c_olb, si, dissect_smb2_rdma_v1_blob);
+		break;
+	case SMB2_CHANNEL_NONE:
+	default:
+		dissect_smb2_olb_buffer(pinfo, tree, tvb, &c_olb, si, NULL);
+		break;
+	}
 
-	/* there is a buffer here   but it is never used (yet) */
+	offset = dissect_smb2_olb_tvb_max_offset(offset, &c_olb);
 
 	/* Store len and offset */
 	if (si->saved) {
@@ -7908,7 +7986,19 @@ proto_register_smb2(void)
 		    NULL, 0, "Maximum size of a write", HFILL }},
 
 		{ &hf_smb2_channel,
-		  { "Channel", "smb2.channel", FT_UINT32, BASE_DEC,
+		  { "Channel", "smb2.channel", FT_UINT32, BASE_HEX,
+		    VALS(smb2_channel_vals), 0, NULL, HFILL }},
+
+		{ &hf_smb2_rdma_v1_offset,
+		  { "Offset", "smb2.buffer_descriptor.offset", FT_UINT64, BASE_DEC,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_rdma_v1_token,
+		  { "Token", "smb2.buffer_descriptor.token", FT_UINT32, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_rdma_v1_length,
+		  { "Length", "smb2.buffer_descriptor.length", FT_UINT32, BASE_DEC,
 		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_smb2_share_flags,
@@ -7999,6 +8089,10 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_channel_info_length,
 		  { "Channel Info Length", "smb2.channel_info_length", FT_UINT16, BASE_DEC,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_channel_info_blob,
+		  { "Channel Info Blob", "smb2.channel_info_blob", FT_NONE, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_smb2_ioctl_is_fsctl,
@@ -8234,6 +8328,7 @@ proto_register_smb2(void)
 		&ett_windows_sockaddr,
 		&ett_smb2_close_flags,
 		&ett_smb2_notify_flags,
+		&ett_smb2_rdma_v1,
 		&ett_smb2_write_flags,
 		&ett_smb2_find_flags,
 		&ett_smb2_file_directory_info,
