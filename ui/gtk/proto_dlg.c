@@ -98,7 +98,7 @@ static GtkWidget *
 build_heur_dissectors_treeview(void)
 {
   GtkWidget  *bbox, *proto_list, *label, *proto_sw, *proto_vb, *button,
-             *ok_bt, *apply_bt, *save_bt, *cancel_bt, *help_bt;
+             *ok_bt, *save_bt, *cancel_bt;
 
   const gchar *titles[] = { "Status", "Heuristic Protocol", "Description" };
   GtkListStore *proto_store;
@@ -188,7 +188,7 @@ build_heur_dissectors_treeview(void)
   /*g_signal_connect(ok_bt, "clicked", G_CALLBACK(proto_ok_cb), proto_w);*/
   gtk_widget_grab_default(ok_bt);
 
-  apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
+  /*apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);*/
  /* g_signal_connect(apply_bt, "clicked", G_CALLBACK(proto_apply_cb), proto_w);*/
 
   save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
@@ -197,7 +197,7 @@ build_heur_dissectors_treeview(void)
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(proto_w, cancel_bt, proto_cancel_cb);
 
-  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  /*help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);*/
   /*g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_ENABLED_PROTOCOLS_DIALOG);*/
 
   /*g_signal_connect(proto_w, "delete_event", G_CALLBACK(proto_delete_event_cb), NULL);*/

@@ -599,7 +599,6 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	double pack_period;
 #ifdef DEBUG /* ?? */
 	double total_time;
-	double total_time_prev;
 #endif
 	gint32 silence_frames;
 	int seq;
@@ -695,7 +694,6 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	pack_period = 0;
 #ifdef DEBUG /* ?? */
 	total_time = 0;
-	total_time_prev = 0;
 #endif
 	seq = 0;
 #ifdef DEBUG /* ?? */

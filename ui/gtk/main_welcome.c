@@ -974,9 +974,6 @@ static void fill_capture_box(void)
 {
     GtkWidget         *box_to_fill, *item_hb_refresh;
     GtkWidget         *item_hb_interface_list, *item_hb_capture, *item_hb_start, *label, *w;
-#ifdef _WIN32
-    GtkWidget         *item_hb;
-#endif
     GtkTreeSelection  *selection;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
@@ -1052,11 +1049,11 @@ static void fill_capture_box(void)
                                   _T("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\EnableTCPChimney"),
                                   NULL, NULL, (LPBYTE) &chimney_enabled, &ce_size);
         if (reg_ret == ERROR_SUCCESS && chimney_enabled) {
-            item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
-                                     "Offloading Detected",
-                                     "TCP Chimney offloading is enabled. You \nmight not capture much data.",
-                                     topic_online_url(ONLINEPAGE_CHIMNEY),
-                                     topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_CHIMNEY));
+            welcome_button(WIRESHARK_STOCK_WIKI,
+                           "Offloading Detected",
+                           "TCP Chimney offloading is enabled. You \nmight not capture much data.",
+                           topic_online_url(ONLINEPAGE_CHIMNEY),
+                           topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_CHIMNEY));
             gtk_box_pack_start(GTK_BOX(box_to_fill), item_hb_capture, FALSE, FALSE, 5);
         }
 #endif /* _WIN32 */
