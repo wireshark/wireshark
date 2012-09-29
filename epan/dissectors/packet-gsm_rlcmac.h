@@ -4820,7 +4820,7 @@ typedef struct
   guint8 TFI;
   guint8 TI;
   guint8 BSN;
-  guint64 E;
+  guint8 E;
 } UL_Data_Block_GPRS_t;
 
 typedef struct
