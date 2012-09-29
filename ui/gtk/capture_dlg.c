@@ -1350,14 +1350,12 @@ static void
 update_interface_list(void)
 {
   GtkWidget *iftype_cbx;
-  GtkTreeView *if_cb;
   GList     *if_list, *if_r_list;
   int        iftype, err;
   gchar     *err_str;
 
   if (cap_open_w == NULL)
     return;
-  if_cb = (GtkTreeView *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   iftype_cbx = (GtkWidget *)g_object_get_data(G_OBJECT(g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_REMOTE_DIALOG_PTR_KEY)), E_REMOTE_HOST_TE_KEY);
   iftype = CAPTURE_IFREMOTE;
   if (iftype >= CAPTURE_IFREMOTE) {
@@ -1427,8 +1425,7 @@ capture_remote_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 static void
 capture_remote_ok_cb(GtkWidget *win _U_, GtkWidget *remote_w)
 {
-  GtkWidget *host_te, *port_te, *auth_pwd_rb, *username_te, *passwd_te,
-            *auth_null_rb, *auth_passwd_rb;
+  GtkWidget *host_te, *port_te, *username_te, *passwd_te, *auth_passwd_rb;
   gchar *hostname;
 
   if (remote_w == NULL) {
@@ -1438,12 +1435,9 @@ capture_remote_ok_cb(GtkWidget *win _U_, GtkWidget *remote_w)
   host_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w), E_REMOTE_HOST_TE_KEY);
   hostname = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(host_te));
   port_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w), E_REMOTE_PORT_TE_KEY);
-  auth_pwd_rb = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w),
-                                               E_REMOTE_AUTH_PASSWD_KEY);
   username_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w),
                                                E_REMOTE_USERNAME_TE_KEY);
   passwd_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w), E_REMOTE_PASSWD_TE_KEY);
-  auth_null_rb = (GtkWidget *) g_object_get_data(G_OBJECT(remote_w), E_REMOTE_AUTH_NULL_KEY);
   auth_passwd_rb = (GtkWidget *) g_object_get_data(G_OBJECT(remote_w), E_REMOTE_AUTH_PASSWD_KEY);
   g_free(global_remote_opts.remote_host_opts.remote_host);
   global_remote_opts.remote_host_opts.remote_host = hostname;
