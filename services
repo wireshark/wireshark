@@ -14,11 +14,11 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-09-21
+# 2012-09-26
 # 
 # Experts
 # 
-# Joe Touch; Markku Kojo, Eliot Lear, Allison Mankin, Kumiko Ono, Martin Stiemerling
+# Joe Touch; Markku Kojo, Eliot Lear, Allison Mankin, Kumiko Ono, Martin Stiemerling and Lars Eggert
 # 
 # Note
 # 
@@ -16364,6 +16364,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # mesamis                               Mes Amis                     [David_Priest]                                     [David_Priest]                                                                                                                                     Defined TXT keys: None
 # mi-raysat                             Mental Ray for Maya          [Autodesk]                                         [Autodesk]                                                                                                                                         Defined TXT keys: None
 # modolansrv                            modo LAN Services            [Matt_Craig]                                       [Matt_Craig]                                                                                                                                       Defined TXT keys: None
+# Authentication service for
+# mogeneti-auth                  tcp    Mogeneti Software            [Mogeneti]                                         [Bart_Rijpers]                                            2012-09-26                                                                               Defined TXT keys: none
+# Applications
 # moneysync                             SplashMoney Synchronization  [Justin_Cepelak]                                   [Justin_Cepelak]                                                                                                                                   Defined TXT keys: Proprietary
 # Service
 # MoneyWorks Gold and
@@ -17308,6 +17311,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Barry_McDarby]                                           Barry McDarby                                   mailto:realspace&starwolf.biz                                 2003-04
 # [Barry_Shelton]                                           Barry Shelton                                   mailto:bshelton&wirelessknowledge.com
 # [Barry_Whyte]                                             Barry Whyte                                     mailto:barry_whyte&uk.ibm.com
+# [Bart_Rijpers]                                            Bart Rijpers              Mogeneti              mailto:bart&mogeneti.com                                      2012-09-26
 # [Bart_Schaefer]                                           Bart Schaefer                                   mailto:bart&suburbansoftware.com                              2005-08
 # [Basil_Lee]                                               Basil Lee                                       mailto:basil.lee&gnnettest.com
 # [Baskaran_Subramaniam]                                    Baskaran Subramaniam                            mailto:baskaran&apple.com
@@ -19999,6 +20003,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Mitsuji_Toda]                                            Mitsuji Toda                                    mailto:toda&mmedia.mci.mei.co.jp
 # [Mitsuo_Kodama]                                           Mitsuo Kodama                                   mailto:kodama&jbmia.or.jp                                     2005-06
 # [Miva_Corporation]                                        Miva Corporation                                mailto:jwoods&miva.com.au
+# [Mogeneti]                                                                          Mogeneti              mailto:serveradmin&mogeneti.com                               2012-09-26
 # [Mohsen_Banan]                                            Mohsen Banan                                    mailto:mohsen&rostam.neda.com
 # [Mohsen_Banan_2]                                          Mohsen Banan                                    mailto:mohsen&neda.com
 # [Moises_E_Hernandez]                                      Moises E. Hernandez                             mailto:moises&accugraph.com
