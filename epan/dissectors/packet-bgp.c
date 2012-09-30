@@ -39,6 +39,7 @@
  * RFC6608 Subcodes for BGP Finite State Machine Error
  * draft-ietf-idr-as4bytes-06
  * draft-ietf-idr-dynamic-cap-03
+ * draft-ietf-idr-bgp-enhanced-route-refresh-02
  * draft-ietf-idr-bgp-ext-communities-05
  * draft-knoll-idr-qos-attribute-03
  * draft-nalawade-kapoor-tunnel-safi-05
@@ -138,6 +139,7 @@ struct bgp_route_refresh {
 #define BGP_CAPABILITY_4_OCTET_AS_NUMBER           0x41    /* draft-ietf-idr-as4bytes-06 */
 #define BGP_CAPABILITY_DYNAMIC_CAPABILITY          0x42    /* draft-ietf-idr-dynamic-cap-03 */
 #define BGP_CAPABILITY_ADDITIONAL_PATHS            0x45    /* draft-ietf-idr-add-paths */
+#define BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH      0x46    /* draft-ietf-idr-bgp-enhanced-route-refresh-02 */
 #define BGP_CAPABILITY_ORF_CISCO                   0x82    /* Cisco */
 #define BGP_CAPABILITY_ROUTE_REFRESH_CISCO         0x80    /* Cisco */
 
@@ -570,6 +572,7 @@ static const value_string capability_vals[] = {
     { BGP_CAPABILITY_ADDITIONAL_PATHS,            "Support for Additional Paths" },
     { BGP_CAPABILITY_ROUTE_REFRESH_CISCO,         "Route refresh capability" },
     { BGP_CAPABILITY_ORF_CISCO,                   "Cooperative route filtering capability" },
+    { BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH,      "Enhanced route refresh capability" },
     { 0, NULL }
 };
 
@@ -589,6 +592,14 @@ static const value_string mcast_vpn_route_type[] = {
     { MCAST_VPN_RTYPE_SHARED_TREE_JOIN , "Shared Tree Join route" },
     { MCAST_VPN_RTYPE_SOURCE_TREE_JOIN , "Source Tree Join route" },
     { 0, NULL }
+};
+
+/* Subtype Route Refresh, draft-ietf-idr-bgp-enhanced-route-refresh-02 */
+static const value_string route_refresh_subtype_vals[] = {
+    { 0, "Normal route refresh request [RFC2918] with/without ORF [RFC5291]" },
+    { 1, "Demarcation of the beginning of a route refresh" },
+    { 2, "Demarcation of the ending of a route refresh" },
+    { 0,  NULL }
 };
 
 static const true_false_string tfs_optional_wellknown = { "Optional", "Well-known" };
@@ -624,6 +635,9 @@ static int hf_bgp_notify_minor_cease = -1;
 static int hf_bgp_notify_minor_cap_msg = -1;
 static int hf_bgp_notify_minor_unknown = -1;
 static int hf_bgp_notify_data = -1;
+static int hf_bgp_route_refresh_afi = -1;
+static int hf_bgp_route_refresh_subtype = -1;
+static int hf_bgp_route_refresh_safi = -1;
 static int hf_bgp_cap = -1;
 static int hf_bgp_cap_type = -1;
 static int hf_bgp_cap_length = -1;
@@ -2189,6 +2203,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             }
             break;
 
+        case BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH:
         case BGP_CAPABILITY_ROUTE_REFRESH_CISCO:
         case BGP_CAPABILITY_ROUTE_REFRESH:
             if (clen != 0) {
@@ -3562,7 +3577,6 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 static void
 dissect_bgp_route_refresh(tvbuff_t *tvb, proto_tree *tree)
 {
-    guint16         i;    /* tmp            */
     int             p;         /* tvb offset counter    */
     int             pend;       /* end of list of entries for one orf type */
     guint16         hlen;       /* tvb RR msg length */
@@ -3602,24 +3616,19 @@ example 2
 
     hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     p = BGP_HEADER_SIZE;
+
     /* AFI */
-    i = tvb_get_ntohs(tvb, p);
-    proto_tree_add_text(tree, tvb, p, 2,
-                        "Address family identifier: %s (%u)",
-                        val_to_str_const(i, afn_vals, "Unknown"), i);
+    proto_tree_add_item(tree, hf_bgp_route_refresh_afi, tvb, p, 2, ENC_BIG_ENDIAN);
     p += 2;
-    /* Reserved */
-    proto_tree_add_text(tree, tvb, p, 1,
-                        "Reserved: 1 byte");
+
+    /*  Subtype in draft-ietf-idr-bgp-enhanced-route-refresh-02 (for Enhanced Route Refresh Capability) before Reserved*/
+    proto_tree_add_item(tree, hf_bgp_route_refresh_subtype, tvb, p, 1, ENC_BIG_ENDIAN);
     p++;
+
     /* SAFI */
-    i = tvb_get_guint8(tvb, p);
-    proto_tree_add_text(tree, tvb, p, 1,
-                        "Subsequent address family identifier: %s (%u)",
-                        val_to_str_const(i, bgpattr_nlri_safi,
-                        i >= 128 ? "Vendor specific" : "Unknown"),
-                        i);
+    proto_tree_add_item(tree, hf_bgp_route_refresh_safi, tvb, p, 1, ENC_BIG_ENDIAN);
     p++;
+
     if ( hlen == BGP_HEADER_SIZE + 4 )
         return;
     while (p < hlen) {
@@ -4073,6 +4082,17 @@ proto_register_bgp(void)
       { &hf_bgp_notify_data,
         { "Data", "bgp.notify.minor_error", FT_BYTES, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
+
+        /* Route Refresh */
+      { &hf_bgp_route_refresh_afi,
+        { "Address family identifier (AFI)", "bgp.route_refresh.afi", FT_UINT16, BASE_DEC,
+          VALS(afn_vals), 0x0, NULL, HFILL }},
+      { &hf_bgp_route_refresh_subtype,
+        { "Subtype", "bgp.route_refresh.subtype", FT_UINT8, BASE_DEC,
+          VALS(route_refresh_subtype_vals), 0x0, NULL, HFILL }},
+      { &hf_bgp_route_refresh_safi,
+        { "Subsequent address family identifier (SAFI)", "bgp.route_refresh.safi", FT_UINT8, BASE_DEC,
+          VALS(bgpattr_nlri_safi), 0x0, NULL, HFILL }},
 
         /* Capability */
       { &hf_bgp_cap,
