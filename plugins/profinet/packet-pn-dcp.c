@@ -874,7 +874,7 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
         pn_append_info(pinfo, dcp_item, "Hello");
         break;
     default:
-        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset)); 
+        dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset)); 
         return;
     }
 
@@ -891,7 +891,7 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
         is_response = TRUE;
         break;
     default:
-        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset)); 
+        dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset)); 
         return;
     }
 
