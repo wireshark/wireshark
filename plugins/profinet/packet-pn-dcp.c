@@ -70,6 +70,8 @@ static int hf_pn_dcp_suboption_vendor_id = -1;
 static int hf_pn_dcp_suboption_device_id = -1;
 static int hf_pn_dcp_suboption_device_role = -1;
 static int hf_pn_dcp_suboption_device_aliasname = -1;
+static int hf_pn_dcp_suboption_device_instance_high = -1;
+static int hf_pn_dcp_suboption_device_instance_low = -1;
 
 static int hf_pn_dcp_suboption_dhcp = -1;
 static int hf_pn_dcp_suboption_dhcp_device_id = -1;
@@ -209,6 +211,7 @@ static const value_string pn_dcp_suboption_ip_block_info[] = {
 #define PNDCP_SUBOPTION_DEVICE_DEV_ROLE         0x04
 #define PNDCP_SUBOPTION_DEVICE_DEV_OPTIONS      0x05
 #define PNDCP_SUBOPTION_DEVICE_ALIAS_NAME       0x06
+#define PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE     0x07
 
 static const value_string pn_dcp_suboption_device[] = {
     { 0x00, "Reserved" },
@@ -218,7 +221,8 @@ static const value_string pn_dcp_suboption_device[] = {
     { PNDCP_SUBOPTION_DEVICE_DEV_ROLE,      "Device Role" },
     { PNDCP_SUBOPTION_DEVICE_DEV_OPTIONS,   "Device Options" },
     { PNDCP_SUBOPTION_DEVICE_ALIAS_NAME,    "Alias Name" },
-    /*0x07 - 0xff reserved */
+    { PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE,  "Device Instance" },
+    /*0x08 - 0xff reserved */
     { 0, NULL }
 };
 
@@ -432,6 +436,8 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16 block_qualifier;
     gboolean have_block_info=FALSE;
     gboolean have_block_qualifier=FALSE;
+    guint8 device_instance_high;
+    guint8 device_instance_low;
 
 
     /* SuboptionDevice... */
@@ -540,6 +546,17 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item_append_text(block_item, ", BlockInfo: %s", val_to_str(block_info, pn_dcp_block_info, "Unknown"));
         proto_item_append_text(block_item, ", \"%s\"", aliasname);
         offset += block_length;
+        break;
+    case(PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE):
+        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_device_instance_high, &device_instance_high);
+        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_device_instance_low, &device_instance_low);
+        pn_append_info(pinfo, dcp_item, ", Dev-Instance");
+        proto_item_append_text(block_item, "Device/Device Instance");
+        if(have_block_qualifier)
+            proto_item_append_text(block_item, ", BlockQualifier: %s", val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
+        if(have_block_info)
+            proto_item_append_text(block_item, ", BlockInfo: %s", val_to_str(block_info, pn_dcp_block_info, "Unknown"));
+        proto_item_append_text(block_item, ", InstanceHigh: %d, Instance Low: %d", device_instance_high, device_instance_low);
         break;
     default:
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length); 
@@ -992,6 +1009,10 @@ proto_register_pn_dcp (void)
         { "DeviceRoleDetails", "pn_dcp.suboption_device_role", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_dcp_suboption_device_aliasname,
         { "AliasName", "pn_dcp.suboption_device_aliasname", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_dcp_suboption_device_instance_high,
+        { "DeviceInstanceHigh", "pn_dcp.suboption_device_instance", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_dcp_suboption_device_instance_low,
+        { "DeviceInstanceLow", "pn_dcp.suboption_device_instance", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_pn_dcp_suboption_dhcp,
         { "Suboption", "pn_dcp.suboption_dhcp", FT_UINT8, BASE_DEC, VALS(pn_dcp_suboption_dhcp), 0x0, NULL, HFILL }},
