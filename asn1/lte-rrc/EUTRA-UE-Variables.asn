@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V11.0.0 (2012-06)
+-- 3GPP TS 36.331 V11.1.0 (2012-09)
 -- $Id$
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
@@ -8,8 +8,10 @@ BEGIN
 IMPORTS
 	AbsoluteTimeInfo-r10,
 	AreaConfiguration-r10,
+	AreaConfiguration-v11x0,
 	CarrierFreqGERAN,
 	CellIdentity,
+	ConnEstFailReport-r11,
 	SpeedStateScaleFactors,
 	C-RNTI,
 	LoggingDuration-r10,
@@ -26,6 +28,7 @@ IMPORTS
 	PhysCellIdUTRA-FDD,
 	PhysCellIdUTRA-TDD,
 	PLMN-Identity,
+	PLMN-IdentityList3-r11,
 	QuantityConfig,
 	ReportConfigToAddModList,
 	RLF-Report-r9,
@@ -37,8 +40,21 @@ IMPORTS
 FROM EUTRA-RRC-Definitions;
 
 
+VarConnEstFail-Report-r11 ::=		SEQUENCE {
+	connEstFailReport-r11				ConnEstFailReport-r11,
+	plmn-Identity-r11					PLMN-Identity
+}
+
+
 VarLogMeasConfig-r10 ::=				SEQUENCE {
 	areaConfiguration-r10			AreaConfiguration-r10		OPTIONAL,
+	loggingDuration-r10				LoggingDuration-r10,
+	loggingInterval-r10				LoggingInterval-r10
+}
+
+VarLogMeasConfig-r11 ::=		SEQUENCE {
+	areaConfiguration-r10			AreaConfiguration-r10		OPTIONAL,
+	areaConfiguration-v11x0			AreaConfiguration-v11x0		OPTIONAL,
 	loggingDuration-r10				LoggingDuration-r10,
 	loggingInterval-r10				LoggingInterval-r10
 }
@@ -49,6 +65,15 @@ VarLogMeasReport-r10 ::=				SEQUENCE {
 	traceRecordingSessionRef-r10			OCTET STRING (SIZE (2)),
 	tce-Id-r10							OCTET STRING (SIZE (1)),
 	plmn-Identity-r10					PLMN-Identity,
+	absoluteTimeInfo-r10				AbsoluteTimeInfo-r10,
+	logMeasInfoList-r10					LogMeasInfoList2-r10
+}
+
+VarLogMeasReport-r11 ::=			SEQUENCE {
+	traceReference-r10					TraceReference-r10,
+	traceRecordingSessionRef-r10		OCTET STRING (SIZE (2)),
+	tce-Id-r10							OCTET STRING (SIZE (1)),
+	plmn-IdentityList-r11				PLMN-IdentityList3-r11,
 	absoluteTimeInfo-r10				AbsoluteTimeInfo-r10,
 	logMeasInfoList-r10					LogMeasInfoList2-r10
 }
@@ -101,6 +126,11 @@ CellsTriggeredList ::=				SEQUENCE (SIZE (1..maxCellMeas)) OF CHOICE {
 VarRLF-Report-r10 ::=				SEQUENCE {
 	rlf-Report-r10							RLF-Report-r9,
 	plmn-Identity-r10						PLMN-Identity
+}
+
+VarRLF-Report-r11 ::=				SEQUENCE {
+	rlf-Report-r10						RLF-Report-r9,
+	plmn-IdentityList-r11				PLMN-IdentityList3-r11
 }
 
 

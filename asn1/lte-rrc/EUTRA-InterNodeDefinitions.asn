@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V11.0.0 (2012-06)
+-- 3GPP TS 36.331 V11.1.0 (2012-09)
 -- $Id$
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -6,6 +6,7 @@ EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
+	AffectedCarrierFreqList-r11,
 	AntennaInfoCommon,
 	CellIdentity,
 	C-RNTI,
@@ -13,6 +14,7 @@ IMPORTS
 	ARFCN-ValueEUTRA,
 	MasterInformationBlock,
 	maxFreq,
+	MBMSInterestIndication-r11,
 	MeasConfig,
 	OtherConfig-r9,
 	PhysCellId,
@@ -25,6 +27,7 @@ IMPORTS
 	SystemInformationBlockType1,
 	SystemInformationBlockType1-v890-IEs,
 	SystemInformationBlockType2,
+	TDM-AssistanceInfo-r11,
 	UECapabilityInformation,
 	UE-CapabilityRAT-ContainerList
 FROM EUTRA-RRC-Definitions;
@@ -72,6 +75,11 @@ HandoverPreparationInformation-v920-IEs	::= SEQUENCE {
 	ue-ConfigRelease-r9					ENUMERATED {
 										rel9, rel10, spare6, spare5, spare4, spare3,
 										spare2, spare1, ...} 			OPTIONAL, 	-- Cond HO2
+	nonCriticalExtension				HandoverPreparationInformation-v11x0-IEs		OPTIONAL
+}
+
+HandoverPreparationInformation-v11x0-IEs	::= SEQUENCE {
+	as-Context-v11x0					AS-Context-v11x0				OPTIONAL,	-- Cond HO2
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -118,6 +126,21 @@ AS-Config ::=				SEQUENCE {
 
 AS-Context ::=							SEQUENCE {
 	reestablishmentInfo						ReestablishmentInfo			OPTIONAL	-- Cond HO
+}
+
+AS-Context-v11x0 ::=					SEQUENCE {
+	idc-Context-r11							IDC-Context-r11				OPTIONAL,	-- Cond HO
+	mbmsInterestIndication-r11				OCTET STRING (CONTAINING
+											MBMSInterestIndication-r11)	OPTIONAL,	-- Cond HO2
+	...
+}
+
+
+
+IDC-Context-r11 ::=				SEQUENCE {
+	affectedCarrierFreqList-r11			AffectedCarrierFreqList-r11 	OPTIONAL,
+	tdm-AssistanceInfo-r11				TDM-AssistanceInfo-r11			OPTIONAL,
+	...
 }
 
 

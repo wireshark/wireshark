@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V11.0.0 Release 11) packet dissection
+ * (3GPP TS 36.331 V11.1.0 Release 11) packet dissection
  * Copyright 2008, Vincent Helfre
  *
  * $Id$
@@ -303,8 +303,8 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_32_val = {
   "Undefined - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_33_val = {
-  "Inter-RAT ANR features for UTRAN - Supported",
-  "Inter-RAT ANR features for UTRAN - Not supported"
+  "Inter-RAT ANR features for UTRAN FDD - Supported",
+  "Inter-RAT ANR features for UTRAN FDD - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_34_val = {
   "Inter-RAT ANR features for GERAN - Supported",
@@ -319,20 +319,20 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_36_val = {
   "Inter-RAT ANR features for HRPD - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_37_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "Inter-RAT ANR features for UTRAN TDD - Supported",
+  "Inter-RAT ANR features for UTRAN TDD - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_38_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "EUTRA RRC_CONNECTED to UTRA TDD CELL_DCH PS handover - Supported",
+  "EUTRA RRC_CONNECTED to UTRA TDD CELL_DCH PS handover - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_39_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "UTRAN TDD measurements, reporting and measurement reporting event B2 in E-UTRA connected mode - Supported",
+  "UTRAN TDD measurements, reporting and measurement reporting event B2 in E-UTRA connected mode - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_40_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "EUTRA RRC_CONNECTED to UTRA TDD CELL_DCH CS handover - Supported",
+  "EUTRA RRC_CONNECTED to UTRA TDD CELL_DCH CS handover - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_41_val = {
   "Undefined - Supported",

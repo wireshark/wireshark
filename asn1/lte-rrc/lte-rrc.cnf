@@ -27,7 +27,6 @@ UERadioAccessCapabilityInformation
 UERadioAccessCapabilityInformation_PDU
 UE-EUTRA-Capability
 UE-EUTRA-Capability_PDU
-#UEInformationResponse
 #.END
 
 #.PDU_NEW
@@ -57,6 +56,10 @@ VarLogMeasConfig-r10
 VarLogMeasReport-r10
 LogMeasInfoList2-r10
 VarRLF-Report-r10
+VarConnEstFail-Report-r11
+VarLogMeasConfig-r11
+VarLogMeasReport-r11
+VarRLF-Report-r11
 
 #.MAKE_ENUM
 RAT-Type TYPE_PREFIX
@@ -780,6 +783,26 @@ if(ue_eutra_cap_tvb){
     dissect_per_constrained_integer(gnss_tod_msec_tvb, 0, &asn1_ctx, tree, hf_index, 0U, 3599999U, NULL, FALSE);
   }
 
+#.FN_BODY LocationInfo-r10/eag_1/uncertainty-r11 VAL_PTR = &uncertainty_tvb
+  tvbuff_t *uncertainty_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (uncertainty_tvb) {
+    asn1_ctx_t asn1_ctx;
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, actx->pinfo);
+      offset = dissect_per_constrained_integer(uncertainty_tvb, 0, &asn1_ctx, tree, hf_index, 0U, 127U, NULL, FALSE);
+
+  }
+
+#.FN_BODY LocationInfo-r10/eag_1/confidence-r11 VAL_PTR = &confidence_tvb
+  tvbuff_t *confidence_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (confidence_tvb) {
+    asn1_ctx_t asn1_ctx;
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, actx->pinfo);
+      offset = dissect_per_constrained_integer(confidence_tvb, 0, &asn1_ctx, tree, hf_index, 0U, 100U, NULL, FALSE);
+
+  }
+
 #.FN_BODY AbsoluteTimeInfo-r10 VAL_PTR = &abs_time_info_tvb
   tvbuff_t *abs_time_info_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -787,7 +810,7 @@ if(ue_eutra_cap_tvb){
   if (abs_time_info_tvb) {
     const gchar *str;
     proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_neighCellConfig);
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_absTimeInfo);
     str = tvb_bcd_dig_to_ep_str(abs_time_info_tvb, 0, 6, NULL, FALSE);
     proto_tree_add_text(subtree, abs_time_info_tvb, 0, 6, "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1],
                         str[2], str[3], str[4], str[5], str[6], str[7], str[8], str[9], str[10], str[11]);
@@ -827,6 +850,14 @@ SystemInformationBlockType1/cellSelectionInfo/q-RxLevMinOffset STRINGS=VALS(lte_
 %(DEFAULT_BODY)s
 #.FN_FTR RLF-Report-r9/eag_1/timeConnFailure-r10
   proto_item_append_text(actx->created_item, " (%dms)", 100*timeConnFailure_val);
+
+#.FN_BODY RLF-Report-r9/eag_2/timeSinceFailure-r11
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "s");
+
+#.FN_BODY ConnEstFailReport-r11/timeSinceFailure-r11
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "s");
 
 #.TYPE_ATTR
 CarrierFreqUTRA-FDD/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
@@ -869,6 +900,10 @@ CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPD
 #.FN_BODY DRX-Config/setup/shortDRX/drxShortCycleTimer
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, " (multiples of shortDRX-Cycle)");
+
+#.FN_BODY DRX-Config-r11/setup/shortDRX-r11/drxShortCycleTimer
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " (multiples of shortDRX-Cycle-r11)");
 
 #.FN_BODY PDSCH-ConfigCommon/referenceSignalPower
 %(DEFAULT_BODY)s
@@ -1158,4 +1193,16 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCountingResponse-r10");
 #.FN_HDR InterFreqRSTDMeasurementIndication-r10
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "InterFreqRSTDMeasurementIndication-r10");
+
+#.FN_HDR UEAssistanceInformation-r11
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "UEAssistanceInformation-r11");
+
+#.FN_HDR InDeviceCoexIndication-r11
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "InDeviceCoexIndication-r11");
+
+#.FN_HDR MBMSInterestIndication-r11
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSInterestIndication-r11");
 
