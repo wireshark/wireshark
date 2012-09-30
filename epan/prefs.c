@@ -1778,8 +1778,8 @@ prefs_register_modules(void)
                                    &prefs.gui_altern_colors);
 
     prefs_register_bool_preference(gui_module, "expert_composite_eyecandy",
-                                   "Display LEDs on Expert Composite Dialog Tabs",
-                                   "Display LEDs on Expert Composite Dialog Tabs?",
+                                   "Display Icons on Expert Composite Dialog Tabs",
+                                   "Display Icons on Expert Composite Dialog Tabs?",
                                    &prefs.gui_expert_composite_eyecandy);
 
     prefs_register_bool_preference(gui_module, "filter_toolbar_show_in_statusbar",
