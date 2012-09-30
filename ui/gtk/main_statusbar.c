@@ -687,7 +687,8 @@ status_capture_comment_update(void)
 
     comment_str = cf_read_shb_comment(&cfile);
 
-    if(comment_str != NULL){
+    /* *comment_str==0x0 -> comment exists, but it's empty */
+    if(comment_str!=NULL && *comment_str!=0x0){
             gtk_widget_show(capture_comment);
     }else{
             gtk_widget_show(capture_comment_none);
