@@ -91,9 +91,18 @@ add_string_to_table(GtkWidget *list, guint *row, const gchar *title, const gchar
 
 
 static void
-add_string_to_list(GtkWidget *list, const gchar *title, gchar *captured, gchar *displayed, gchar *marked)
+add_string_to_list(GtkWidget *list, const gchar *title, gchar *captured,
+                   gchar *displayed, gchar *pct_displayed, gchar *marked,
+                   gchar *pct_marked)
 {
-    simple_list_append(list, 0, title, 1, captured, 2, displayed, 3, marked, -1);
+    simple_list_append(list,
+                       0, title,
+                       1, captured,
+                       2, displayed,
+                       3, pct_displayed,
+                       4, marked,
+                       5, pct_marked,
+                       -1);
 }
 
 static void
@@ -167,7 +176,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkTreeIter    iter;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *column;
-  static const char *titles[] = { "Traffic", "Captured", "Displayed", "Marked" };
+  static const char *titles[] = {
+    "Traffic", "Captured", "Displayed", "Displayed %", "Marked", "Marked %" };
 
   gchar         string_buff[SUM_STR_MAX];
   gchar         string_buff2[SUM_STR_MAX];
@@ -327,17 +337,17 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_table(table, &row, "", "");
   add_string_to_table_sensitive(table, &row, "Capture", "", (summary.ifaces->len > 0));
   if(summary.shb_hardware){
-    /* trucate the string to a reasonable length */
+    /* truncate the string to a reasonable length */
     g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_hardware);
     add_string_to_table(table, &row, "Capture HW:",string_buff);
   }
   if(summary.shb_os){
-    /* trucate the strings to a reasonable length */
+    /* truncate the strings to a reasonable length */
     g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_os);
     add_string_to_table(table, &row, "OS:", string_buff);
   }
   if(summary.shb_user_appl){
-    /* trucate the string to a reasonable length */
+    /* truncate the string to a reasonable length */
     g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_user_appl);
     add_string_to_table(table, &row, "Capture application:", string_buff);
   }
@@ -377,7 +387,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     }
     /* Dropped count */
     if (iface.drops_known) {
-      g_snprintf(string_buff2, SUM_STR_MAX, "%" G_GINT64_MODIFIER "u", iface.drops);
+      g_snprintf(string_buff2, SUM_STR_MAX, "%" G_GINT64_MODIFIER "u (%.3f%%)",
+                 iface.drops, summary.packet_count ? (100.0 * iface.drops)/summary.packet_count : 0.0);
     } else {
       g_snprintf(string_buff2, SUM_STR_MAX, "unknown");
     }
@@ -437,147 +448,190 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   /* Ignored packet count */
-  g_snprintf(string_buff, SUM_STR_MAX, "%i", summary.ignored_count);
+  g_snprintf(string_buff, SUM_STR_MAX, "%i (%.3f%%)", summary.ignored_count,
+             summary.packet_count ? (100.0 * summary.ignored_count)/summary.packet_count : 0.0);
   add_string_to_table(table, &row, "Ignored packets:", string_buff);
 
   /* Traffic */
-  list = simple_list_new(4, titles);
+  list = simple_list_new(6, titles);
   gtk_box_pack_start(GTK_BOX(main_vb), list, TRUE, TRUE, 0);
 
+#define cap_buf         string_buff
+#define disp_buf        string_buff2
+#define disp_pct_buf    string_buff3
+#define mark_buf        string_buff4
+#define mark_pct_buf    string_buff5
+
   /* Packet count */
-  g_snprintf(string_buff, SUM_STR_MAX, "%i", summary.packet_count);
+  g_snprintf(cap_buf, SUM_STR_MAX, "%i", summary.packet_count);
   if (summary.dfilter) {
-    g_snprintf(string_buff2, SUM_STR_MAX, "%i", summary.filtered_count);
+    g_snprintf(disp_buf, SUM_STR_MAX, "%i", summary.filtered_count);
+    g_snprintf(disp_pct_buf, SUM_STR_MAX, "%.3f%%", summary.packet_count ?
+               (100.0 * summary.filtered_count)/summary.packet_count : 0.0);
   } else {
-    g_strlcpy(string_buff2, string_buff, SUM_STR_MAX);
+    g_strlcpy(disp_buf, cap_buf, SUM_STR_MAX);
+    g_strlcpy(disp_pct_buf, "100.000%", SUM_STR_MAX);
   }
-  g_snprintf(string_buff3, SUM_STR_MAX, "%i", summary.marked_count);
-  add_string_to_list(list, "Packets", string_buff, string_buff2, string_buff3);
+  g_snprintf(mark_buf, SUM_STR_MAX, "%i", summary.marked_count);
+  g_snprintf(mark_pct_buf, SUM_STR_MAX, "%.3f%%", summary.packet_count ?
+             (100.0 * summary.marked_count)/summary.packet_count : 0.0);
+  add_string_to_list(list, "Packets", cap_buf,
+                     disp_buf, disp_pct_buf, mark_buf, mark_pct_buf);
 
   /* Time between first and last */
   if (seconds > 0) {
-    g_snprintf(string_buff, SUM_STR_MAX, "%.3f sec", seconds);
+    g_snprintf(cap_buf, SUM_STR_MAX, "%.3f sec", seconds);
   } else {
-    string_buff[0] = '\0';
+    cap_buf[0] = '\0';
   }
   if (summary.dfilter && disp_seconds > 0) {
-    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f sec", disp_seconds);
+    g_snprintf(disp_buf, SUM_STR_MAX, "%.3f sec", disp_seconds);
   } else {
-    string_buff2[0] = '\0';
+    disp_buf[0] = '\0';
   }
+  disp_pct_buf[0] = '\0';
   if (summary.marked_count && marked_seconds > 0) {
-    g_snprintf(string_buff3, SUM_STR_MAX, "%.3f sec", marked_seconds);
+    g_snprintf(mark_buf, SUM_STR_MAX, "%.3f sec", marked_seconds);
   } else {
-    string_buff3[0] = '\0';
+    mark_buf[0] = '\0';
   }
-  if (string_buff[0] != '\0' || string_buff2[0] != '\0' || string_buff3[0] != '\0')
-    add_string_to_list(list, "Between first and last packet", string_buff, string_buff2, string_buff3);
+  mark_pct_buf[0] = '\0';
+  if (cap_buf[0] != '\0' || disp_buf[0] != '\0' || mark_buf[0] != '\0') {
+    add_string_to_list(list, "Between first and last packet", cap_buf,
+                       disp_buf, disp_pct_buf, mark_buf, mark_pct_buf);
+  }
 
-  /* Packets per second */
+  /* Average packets per second */
   if (seconds > 0) {
-    g_snprintf(string_buff, SUM_STR_MAX, "%.3f", summary.packet_count/seconds);
+    g_snprintf(cap_buf, SUM_STR_MAX, "%.3f", summary.packet_count/seconds);
   } else {
-    string_buff[0] = '\0';
+    cap_buf[0] = '\0';
   }
   if(summary.dfilter && disp_seconds > 0) {
-    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", summary.filtered_count/disp_seconds);
+    g_snprintf(disp_buf, SUM_STR_MAX, "%.3f", summary.filtered_count/disp_seconds);
   } else {
-    string_buff2[0] = '\0';
+    disp_buf[0] = '\0';
   }
+  disp_pct_buf[0] = '\0';
   if(summary.marked_count && marked_seconds > 0) {
-    g_snprintf(string_buff3, SUM_STR_MAX, "%.3f", summary.marked_count/marked_seconds);
+    g_snprintf(mark_buf, SUM_STR_MAX, "%.3f", summary.marked_count/marked_seconds);
   } else {
-    string_buff3[0] = '\0';
+    mark_buf[0] = '\0';
   }
-  if (string_buff[0] != '\0' || string_buff2[0] != '\0' || string_buff3[0] != '\0')
-  add_string_to_list(list, "Avg. packets/sec", string_buff, string_buff2, string_buff3);
+  mark_pct_buf[0] = '\0';
+  if (cap_buf[0] != '\0' || disp_buf[0] != '\0' || mark_buf[0] != '\0') {
+    add_string_to_list(list, "Avg. packets/sec", cap_buf,
+                       disp_buf, disp_pct_buf, mark_buf, mark_pct_buf);
+  }
 
-  /* Packet size */
+  /* Average packet size */
   if (summary.packet_count > 1) {
-    g_snprintf(string_buff, SUM_STR_MAX, "%.3f bytes",
+    g_snprintf(cap_buf, SUM_STR_MAX, "%.3f bytes",
                /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
                (float) ((gint64) summary.bytes)/summary.packet_count);
   } else {
-    string_buff[0] = '\0';
+    cap_buf[0] = '\0';
   }
   if (summary.dfilter && summary.filtered_count > 1) {
-    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f bytes",
+    g_snprintf(disp_buf, SUM_STR_MAX, "%.3f bytes",
                /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
                (float) ((gint64) summary.filtered_bytes)/summary.filtered_count);
   } else {
-    string_buff2[0] = '\0';
+    disp_buf[0] = '\0';
   }
+  disp_pct_buf[0] = '\0';
   if (summary.marked_count > 1) {
-    g_snprintf(string_buff3, SUM_STR_MAX, "%.3f bytes",
+    g_snprintf(mark_buf, SUM_STR_MAX, "%.3f bytes",
                /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
                (float) ((gint64) summary.marked_bytes)/summary.marked_count);
   } else {
-    string_buff3[0] = '\0';
+    mark_buf[0] = '\0';
   }
-  if (string_buff[0] != '\0' || string_buff2[0] != '\0' || string_buff3[0] != '\0')
-    add_string_to_list(list, "Avg. packet size", string_buff, string_buff2, string_buff3);
+  mark_pct_buf[0] = '\0';
+  if (cap_buf[0] != '\0' || disp_buf[0] != '\0' || mark_buf[0] != '\0') {
+    add_string_to_list(list, "Avg. packet size", cap_buf,
+                       disp_buf, disp_pct_buf, mark_buf, mark_pct_buf);
+  }
 
   /* Byte count */
-  g_snprintf(string_buff, SUM_STR_MAX, "%" G_GINT64_MODIFIER "u", summary.bytes);
-  if (summary.dfilter && summary.filtered_count > 0) {
-    g_snprintf(string_buff2, SUM_STR_MAX, "%" G_GINT64_MODIFIER "u", summary.filtered_bytes);
+  g_snprintf(cap_buf, SUM_STR_MAX, "%" G_GINT64_MODIFIER "u", summary.bytes);
+  if (summary.dfilter) {
+    g_snprintf(disp_buf, SUM_STR_MAX, "%" G_GINT64_MODIFIER "u", summary.filtered_bytes);
+    g_snprintf(disp_pct_buf, SUM_STR_MAX, "%.3f%%", summary.bytes ?
+               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+               (100.0 * (gint64) summary.filtered_bytes)/summary.bytes : 0.0);
   } else {
-    string_buff2[0] = '\0';
+    g_strlcpy(disp_buf, cap_buf, SUM_STR_MAX);
+    g_strlcpy(disp_pct_buf, "100.000%", SUM_STR_MAX);
   }
   if (summary.marked_count) {
-    g_snprintf(string_buff3, SUM_STR_MAX, "%" G_GINT64_MODIFIER "u", summary.marked_bytes);
+    g_snprintf(mark_buf, SUM_STR_MAX, "%" G_GINT64_MODIFIER "u", summary.marked_bytes);
+    g_snprintf(mark_pct_buf, SUM_STR_MAX, "%.3f%%", summary.bytes ?
+               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+               (100.0 * (gint64) summary.marked_bytes)/summary.bytes : 0.0);
   } else {
-    string_buff3[0] = '\0';
+    g_strlcpy(mark_buf, "0", SUM_STR_MAX);
+    g_strlcpy(mark_pct_buf, "0.000%", SUM_STR_MAX);
   }
-  if (string_buff[0] != '\0' || string_buff2[0] != '\0' || string_buff3[0] != '\0')
-    add_string_to_list(list, "Bytes", string_buff, string_buff2, string_buff3);
+  if (cap_buf[0] != '\0' || disp_buf[0] != '\0' || mark_buf[0] != '\0') {
+    add_string_to_list(list, "Bytes", cap_buf,
+                       disp_buf, disp_pct_buf, mark_buf, mark_pct_buf);
+  }
 
   /* Bytes per second */
   if (seconds > 0){
     /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-    g_snprintf(string_buff, SUM_STR_MAX, "%.3f", ((gint64) summary.bytes)/seconds);
+    g_snprintf(cap_buf, SUM_STR_MAX, "%.3f", ((gint64) summary.bytes)/seconds);
   } else {
-    string_buff[0] = '\0';
+    cap_buf[0] = '\0';
   }
   if (summary.dfilter && disp_seconds > 0) {
     /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", ((gint64) summary.filtered_bytes)/disp_seconds);
+    g_snprintf(disp_buf, SUM_STR_MAX, "%.3f", ((gint64) summary.filtered_bytes)/disp_seconds);
   } else {
-    string_buff2[0] = '\0';
+    disp_buf[0] = '\0';
   }
+  disp_pct_buf[0] = '\0';
   if (summary.marked_count && marked_seconds > 0) {
     /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-    g_snprintf(string_buff3, SUM_STR_MAX, "%.3f", ((gint64) summary.marked_bytes)/marked_seconds);
+    g_snprintf(mark_buf, SUM_STR_MAX, "%.3f", ((gint64) summary.marked_bytes)/marked_seconds);
   } else {
-    string_buff3[0] = '\0';
+    mark_buf[0] = '\0';
   }
-  if (string_buff[0] != '\0' || string_buff2[0] != '\0' || string_buff3[0] != '\0')
-    add_string_to_list(list, "Avg. bytes/sec", string_buff, string_buff2, string_buff3);
+  mark_pct_buf[0] = '\0';
+  if (cap_buf[0] != '\0' || disp_buf[0] != '\0' || mark_buf[0] != '\0') {
+    add_string_to_list(list, "Avg. bytes/sec", cap_buf,
+                       disp_buf, disp_pct_buf, mark_buf, mark_pct_buf);
+  }
 
   /* MBit per second */
   if (seconds > 0) {
-    g_snprintf(string_buff, SUM_STR_MAX, "%.3f",
+    g_snprintf(cap_buf, SUM_STR_MAX, "%.3f",
                /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
                ((gint64) summary.bytes) * 8.0 / (seconds * 1000.0 * 1000.0));
   } else {
-    string_buff[0] = '\0';
+    cap_buf[0] = '\0';
   }
   if (summary.dfilter && disp_seconds > 0) {
-    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f",
+    g_snprintf(disp_buf, SUM_STR_MAX, "%.3f",
                /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
                ((gint64) summary.filtered_bytes) * 8.0 / (disp_seconds * 1000.0 * 1000.0));
   } else {
-    string_buff2[0] = '\0';
+    disp_buf[0] = '\0';
   }
+  disp_pct_buf[0] = '\0';
   if (summary.marked_count && marked_seconds > 0) {
-    g_snprintf(string_buff3, SUM_STR_MAX, "%.3f",
+    g_snprintf(mark_buf, SUM_STR_MAX, "%.3f",
                /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
                ((gint64) summary.marked_bytes) * 8.0 / (marked_seconds * 1000.0 * 1000.0));
   } else {
-    string_buff3[0] = '\0';
+    mark_buf[0] = '\0';
   }
-  if (string_buff[0] != '\0' || string_buff2[0] != '\0' || string_buff3[0] != '\0')
-    add_string_to_list(list, "Avg. MBit/sec", string_buff, string_buff2, string_buff3);
+  mark_pct_buf[0] = '\0';
+  if (cap_buf[0] != '\0' || disp_buf[0] != '\0' || mark_buf[0] != '\0') {
+    add_string_to_list(list, "Avg. MBit/sec", cap_buf,
+                       disp_buf, disp_pct_buf, mark_buf, mark_pct_buf);
+  }
 
 
   /* Button row. */

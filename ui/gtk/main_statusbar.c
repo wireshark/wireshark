@@ -494,13 +494,22 @@ packets_bar_update(void)
 
         /* Do we have any packets? */
         if(cfile.count) {
-            g_string_printf(packets_str, " Packets: %u " UTF8_MIDDLE_DOT " Displayed: %u " UTF8_MIDDLE_DOT " Marked: %u",
-                            cfile.count, cfile.displayed_count, cfile.marked_count);
-            if(cfile.drops_known) {
-                g_string_append_printf(packets_str, " " UTF8_MIDDLE_DOT " Dropped: %u", cfile.drops);
+            g_string_printf(packets_str, " Packets: %u " UTF8_MIDDLE_DOT
+                            " Displayed: %u (%.1f%%) ",
+                            cfile.count,
+                            cfile.displayed_count,
+                            (100.0 * cfile.displayed_count)/cfile.count);
+            if(cfile.marked_count) {
+                g_string_append_printf(packets_str, " " UTF8_MIDDLE_DOT " Marked: %u (%.1f%%)",
+                                       cfile.marked_count, (100.0 * cfile.marked_count)/cfile.count);
             }
-            if(cfile.ignored_count > 0) {
-                g_string_append_printf(packets_str, " " UTF8_MIDDLE_DOT " Ignored: %u", cfile.ignored_count);
+            if(cfile.drops_known) {
+                g_string_append_printf(packets_str, " " UTF8_MIDDLE_DOT " Dropped: %u (%.1f%%)",
+                                       cfile.drops, (100.0 * cfile.drops)/cfile.count);
+            }
+            if(cfile.ignored_count) {
+                g_string_append_printf(packets_str, " " UTF8_MIDDLE_DOT " Ignored: %u (%.1f%%)",
+                                       cfile.ignored_count, (100.0 * cfile.ignored_count)/cfile.count);
             }
             if(!cfile.is_tempfile){
                 /* Loading an existing file */
