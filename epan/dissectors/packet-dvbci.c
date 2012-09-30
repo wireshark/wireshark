@@ -1737,11 +1737,12 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
 
 
     offset_start = offset;
+    dat_id = tvb_get_guint8(tvb, offset);
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset_start, -1, "CC data item");
+        ti = proto_tree_add_text(tree, tvb, offset_start, -1, "CC data item: %s",
+                val_to_str_const(dat_id, dvbci_cc_dat_id, "unknown"));
         cc_item_tree = proto_item_add_subtree(ti, ett_dvbci_cc_item);
     }
-    dat_id = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(cc_item_tree, hf_dvbci_cc_dat_id,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
