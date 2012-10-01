@@ -1,6 +1,6 @@
 /* fileset_dialog.h
  *
- * $Id$
+ * $Id: fileset_dialog.h 44766 2012-09-04 08:18:31Z alagoutte $
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,24 +21,51 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef FILESET_DIALOG_H
-#define FILESET_DIALOG_H
+#ifndef FILE_SET_DIALOG_H
+#define FILE_SET_DIALOG_H
+
+#include "config.h"
+
+#include <glib.h>
+
+#include "file.h"
+#include "fileset.h"
 
 #include <QDialog>
+#include <QTreeWidgetItem>
 
-class FilesetDialog : public QDialog
+namespace Ui {
+class FileSetDialog;
+}
+
+class FileSetDialog : public QDialog
 {
     Q_OBJECT
+
 public:
-    explicit FilesetDialog(QWidget *parent = 0);
+    explicit FileSetDialog(QWidget *parent = 0);
+    ~FileSetDialog();
+
+    void fileOpened(const capture_file *cf);
+    void fileClosed();
+    void addFile(fileset_entry *entry = NULL);
 
 signals:
+    void fileSetOpenCaptureFile(QString &);
 
-public slots:
+private slots:
+    void on_buttonBox_helpRequested();
 
+    void on_fileSetTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+
+private:
+    QString nameToDate(const char *name);
+
+    Ui::FileSetDialog *fs_ui_;
+    QPushButton *close_button_;
 };
 
-#endif // FILESET_DIALOG_H
+#endif // FILE_SET_DIALOG_H
 
 /*
  * Editor modelines

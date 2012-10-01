@@ -90,7 +90,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -103,13 +103,13 @@
      </property>
      <addaction name="actionDummyNoFilesFound"/>
     </widget>
-    <widget class="QMenu" name="menuFile_Set">
+    <widget class="QMenu" name="menuFileSet">
      <property name="title">
       <string>File Set</string>
      </property>
-     <addaction name="actionList_Files"/>
-     <addaction name="actionNext_File"/>
-     <addaction name="actionPrevious_File"/>
+     <addaction name="actionFileSetListFiles"/>
+     <addaction name="actionFileSetNextFile"/>
+     <addaction name="actionFileSetPreviousFile"/>
     </widget>
     <addaction name="actionFileOpen"/>
     <addaction name="menuOpenRecentCaptureFile"/>
@@ -120,7 +120,7 @@
     <addaction name="actionFileSave"/>
     <addaction name="actionFileSaveAs"/>
     <addaction name="separator"/>
-    <addaction name="menuFile_Set"/>
+    <addaction name="menuFileSet"/>
     <addaction name="separator"/>
     <addaction name="actionFileExportPackets"/>
     <addaction name="actionFileExportPacketDissections"/>
@@ -618,17 +618,17 @@
     <string>Ctrl+P</string>
    </property>
   </action>
-  <action name="actionList_Files">
+  <action name="actionFileSetListFiles">
    <property name="text">
     <string>List Files</string>
    </property>
   </action>
-  <action name="actionNext_File">
+  <action name="actionFileSetNextFile">
    <property name="text">
     <string>Next File</string>
    </property>
   </action>
-  <action name="actionPrevious_File">
+  <action name="actionFileSetPreviousFile">
    <property name="text">
     <string>Previous File</string>
    </property>

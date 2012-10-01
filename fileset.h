@@ -43,9 +43,6 @@ typedef struct _fileset_entry {
 /* helper: is this a probable file of a file set (does the naming pattern match)? */
 extern gboolean fileset_filename_match_pattern(const char *fname);
 
-/* helper: test, if both files could be in the same file set */
-extern gboolean fileset_is_file_in_set(const char *fname1, const char *fname2);
-
 extern void fileset_add_dir(const char *fname, void *window);
 
 extern void fileset_delete(void);

@@ -125,7 +125,7 @@ fileset_filename_match_pattern(const char *fname)
 
 /* test, if both files could be in the same file set */
 /* (the filenames must already be in correct shape) */
-gboolean
+static gboolean
 fileset_is_file_in_set(const char *fname1, const char *fname2)
 {
     char        *pfx1;

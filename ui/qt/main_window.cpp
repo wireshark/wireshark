@@ -107,6 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->setupUi(this);
     setMenusForCaptureFile();
     setForCaptureInProgress(false);
+    setMenusForFileSet(false);
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     updateRecentFiles();
@@ -196,6 +197,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(captureCaptureFailed(capture_options *)));
 #endif
 
+    connect(wsApp, SIGNAL(captureFileOpened(const capture_file*)),
+            this, SLOT(captureFileOpened(const capture_file*)));
     connect(wsApp, SIGNAL(captureFileReadStarted(const capture_file*)),
             this, SLOT(captureFileReadStarted(const capture_file*)));
     connect(wsApp, SIGNAL(captureFileReadFinished(const capture_file*)),
@@ -206,7 +209,7 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(captureFileClosed(const capture_file*)));
 
     connect(main_welcome_, SIGNAL(recentFileActivated(QString&)),
-            this, SLOT(openRecentCaptureFile(QString&)));
+            this, SLOT(openCaptureFile(QString&)));
 
     connect(main_ui_->actionGoNextPacket, SIGNAL(triggered()),
             packet_list_, SLOT(goNextPacket()));
@@ -229,6 +232,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(proto_tree, SIGNAL(protoItemSelected(bool)),
             main_ui_->actionViewExpandSubtrees, SLOT(setEnabled(bool)));
+
+    connect(&file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString&)),
+            this, SLOT(openCaptureFile(QString&)));
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
@@ -339,9 +345,7 @@ void MainWindow::openCaptureFile(QString &cf_path)
     dfilter_t *rfcode = NULL;
     int err;
 
-    cap_file_ = NULL;
-
-    testCaptureFileClose(&cfile, false);
+    testCaptureFileClose(false);
 
     for (;;) {
 
@@ -390,18 +394,18 @@ void MainWindow::openCaptureFile(QString &cf_path)
         }
 
         /* Try to open the capture file. */
+        cfile.window = this;
         if (cf_open(&cfile, cf_path.toUtf8().constData(), FALSE, &err) != CF_OK) {
             /* We couldn't open it; don't dismiss the open dialog box,
                just leave it around so that the user can, after they
                dismiss the alert box popped up for the open error,
                try again. */
+            cfile.window = NULL;
             if (rfcode != NULL)
                 dfilter_free(rfcode);
             cf_path.clear();
             continue;
         }
-
-        cfile.window = this;
 
         switch (cf_read(&cfile, FALSE)) {
 
@@ -604,7 +608,7 @@ void MainWindow::mergeCaptureFile()
 void MainWindow::importCaptureFile() {
     ImportTextDialog import_dlg;
 
-    if (!testCaptureFileClose(cap_file_, FALSE, *new QString(" before importing a new capture")))
+    if (!testCaptureFileClose(FALSE, *new QString(" before importing a new capture")))
         return;
 
     import_dlg.exec();
@@ -844,7 +848,7 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
 //#endif
 
         /* Attempt to save the file */
-        status = cf_save_packets(&cfile, file_name.toUtf8().constData(), file_type, compressed,
+        status = cf_save_packets(cf, file_name.toUtf8().constData(), file_type, compressed,
                                  discard_comments, stay_closed);
         switch (status) {
 
@@ -871,14 +875,14 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
     return;
 }
 
-bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString &before_what) {
+bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
     bool   capture_in_progress = FALSE;
 
-    if (!cf || cf->state == FILE_CLOSED)
+    if (!cap_file_ || cap_file_->state == FILE_CLOSED)
         return true; /* Already closed, nothing to do */
 
 #ifdef HAVE_LIBPCAP
-    if (cf->state == FILE_READ_IN_PROGRESS) {
+    if (cap_file_->state == FILE_READ_IN_PROGRESS) {
         /* This is true if we're reading a capture file *or* if we're doing
          a live capture.  If we're reading a capture file, the main loop
          is busy reading packets, and only accepting input from the
@@ -889,7 +893,7 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
 #endif
 
     if (prefs.gui_ask_unsaved) {
-        if (cf->is_tempfile || capture_in_progress || cf->unsaved_changes) {
+        if (cap_file_->is_tempfile || capture_in_progress || cap_file_->unsaved_changes) {
             QMessageBox msg_dialog;
             QString question;
             QPushButton *default_button;
@@ -900,7 +904,7 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
             /* This is a temporary capture file, or there's a capture in
                progress, or the file has unsaved changes; ask the user whether
                to save the data. */
-            if (cf->is_tempfile) {
+            if (cap_file_->is_tempfile) {
 
                 msg_dialog.setText("You have unsaved packets");
                 msg_dialog.setInformativeText("They will be lost if you don't save them.");
@@ -923,7 +927,7 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
                     question.append(before_what).append("?");
                     msg_dialog.setInformativeText("Your captured packets will be lost if you don't save them.");
                 } else {
-                    gchar *display_basename = g_filename_display_basename(cf->filename);
+                    gchar *display_basename = g_filename_display_basename(cap_file_->filename);
                     question.append(QString("Do you want to save the changes you've made to the capture file \"%1\"%2?")
                                     .arg(display_basename)
                                     .arg(before_what)
@@ -948,7 +952,7 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
             msg_dialog.setDefaultButton(default_button);
 
             if (from_quit) {
-                if (cf->state == FILE_READ_IN_PROGRESS) {
+                if (cap_file_->state == FILE_READ_IN_PROGRESS) {
                     msg_dialog.addButton("Stop and Quit without Saving", QMessageBox::DestructiveRole);
                 } else {
                     msg_dialog.addButton("Quit without Saving", QMessageBox::DestructiveRole);
@@ -970,10 +974,10 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
                 /* If there's a capture in progress, we have to stop the capture
              and then do the save. */
                 if (capture_in_progress)
-                    captureStop(cf);
+                    captureStop();
 #endif
                 /* Save the file and close it */
-                saveCaptureFile(cf, TRUE);
+                saveCaptureFile(cap_file_, TRUE);
                 break;
 
             case QMessageBox::Discard:
@@ -983,10 +987,10 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
                  * and then do the close.
                  */
                 if (capture_in_progress)
-                    captureStop(cf);
+                    captureStop();
 #endif
                 /* Just close the file, discarding changes */
-                cf_close(cf);
+                cf_close(cap_file_);
                 return true;
                 break;
 
@@ -998,7 +1002,7 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
             }
         } else {
             /* Unchanged file, just close it */
-            cf_close(cf);
+            cf_close(cap_file_);
         }
     } else {
         /* User asked not to be bothered by those prompts, just close it.
@@ -1007,18 +1011,18 @@ bool MainWindow::testCaptureFileClose(capture_file *cf, bool from_quit, QString 
         /* If there's a capture in progress, we have to stop the capture
            and then do the close. */
         if (capture_in_progress)
-            captureStop(cf);
+            captureStop();
 #endif
-        cf_close(cf);
+        cf_close(cap_file_);
     }
 
     return true; /* File closed */
 }
 
-void MainWindow::captureStop(capture_file *cf) {
+void MainWindow::captureStop() {
     stopCapture();
 
-    while(cf->state == FILE_READ_IN_PROGRESS) {
+    while(cap_file_ && cap_file_->state == FILE_READ_IN_PROGRESS) {
         WiresharkApplication::processEvents();
     }
 }
@@ -1097,7 +1101,7 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     main_ui_->actionFileExportPacketBytes->setEnabled(capture_in_progress);
     main_ui_->actionFileExportSSLSessionKeys->setEnabled(capture_in_progress);
     main_ui_->actionFileExportObjects->setEnabled(capture_in_progress);
-    main_ui_->menuFile_Set->setEnabled(capture_in_progress);
+    main_ui_->menuFileSet->setEnabled(!capture_in_progress);
     main_ui_->actionFileQuit->setEnabled(true);
 
     //    set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortAscending",
@@ -1124,6 +1128,15 @@ void MainWindow::setMenusForCaptureStopping() {
     main_ui_->actionStopCapture->setEnabled(false);
     main_ui_->actionCaptureRestart->setEnabled(false);
 #endif /* HAVE_LIBPCAP */
+}
+
+void MainWindow::setMenusForFileSet(bool enable_list_files) {
+    bool enable_next = fileset_get_next() != NULL && enable_list_files;
+    bool enable_prev = fileset_get_previous() != NULL && enable_list_files;
+
+    main_ui_->actionFileSetListFiles->setEnabled(enable_list_files);
+    main_ui_->actionFileSetNextFile->setEnabled(enable_next);
+    main_ui_->actionFileSetPreviousFile->setEnabled(enable_prev);
 }
 
 void MainWindow::updateForUnsavedChanges() {
@@ -1222,8 +1235,16 @@ void MainWindow::captureCaptureFailed(capture_options *capture_opts) {
 
 // Callbacks from cfile.c via WiresharkApplication::captureFileCallback
 
-void MainWindow::captureFileReadStarted(const capture_file *cf) {
+void MainWindow::captureFileOpened(const capture_file *cf) {
+    if (cf->window != this) return;
     cap_file_ = (capture_file *) cf;
+
+    file_set_dialog_.fileOpened(cf);
+    setMenusForFileSet(true);
+}
+
+void MainWindow::captureFileReadStarted(const capture_file *cf) {
+    if (cf != cap_file_) return;
 //    tap_param_dlg_update();
 
     /* Set up main window for a capture file. */
@@ -1277,6 +1298,9 @@ void MainWindow::captureFileClosing(const capture_file *cf) {
 void MainWindow::captureFileClosed(const capture_file *cf) {
     if (cf != cap_file_) return;
     packets_bar_update();
+
+    file_set_dialog_.fileClosed();
+    setMenusForFileSet(false);
 
     // Reset expert info indicator
     main_ui_->statusBar->hideExpert();
@@ -1473,11 +1497,6 @@ void MainWindow::recentActionTriggered() {
     }
 }
 
-void MainWindow::openRecentCaptureFile(QString &cfPath)
-{
-    openCaptureFile(cfPath);
-}
-
 
 // File Menu
 
@@ -1497,7 +1516,7 @@ void MainWindow::on_actionFileImport_triggered()
 }
 
 void MainWindow::on_actionFileClose_triggered() {
-    if (testCaptureFileClose(&cfile))
+    if (testCaptureFileClose())
         main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
 
@@ -1509,6 +1528,31 @@ void MainWindow::on_actionFileSave_triggered()
 void MainWindow::on_actionFileSaveAs_triggered()
 {
     saveAsCaptureFile(cap_file_, FALSE, TRUE);
+}
+
+void MainWindow::on_actionFileSetListFiles_triggered()
+{
+    file_set_dialog_.exec();
+}
+
+void MainWindow::on_actionFileSetNextFile_triggered()
+{
+    fileset_entry *entry = fileset_get_next();
+
+    if (entry) {
+        QString new_cf_path = entry->fullname;
+        openCaptureFile(new_cf_path);
+    }
+}
+
+void MainWindow::on_actionFileSetPreviousFile_triggered()
+{
+    fileset_entry *entry = fileset_get_previous();
+
+    if (entry) {
+        QString new_cf_path = entry->fullname;
+        openCaptureFile(new_cf_path);
+    }
 }
 
 // View Menu
@@ -1667,7 +1711,7 @@ void MainWindow::on_actionStartCapture_triggered()
     }
 
     /* XXX - will closing this remove a temporary file? */
-    if (testCaptureFileClose(&cfile, FALSE, *new QString(" before starting a new capture")))
+    if (testCaptureFileClose(FALSE, *new QString(" before starting a new capture")))
         startCapture();
 }
 

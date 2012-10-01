@@ -51,6 +51,7 @@
 #include "packet_list.h"
 #include "display_filter_combo.h"
 #include "progress_bar.h"
+#include "file_set_dialog.h"
 
 class QAction;
 
@@ -81,6 +82,7 @@ private:
     capture_file *cap_file_;
     PacketList *packet_list_;
     QWidget *previous_focus_;
+    FileSetDialog file_set_dialog_;
     bool capture_stopping_;
 
     // Pipe input
@@ -94,19 +96,19 @@ private:
     QSocketNotifier *pipe_notifier_;
 #endif
 
-    void openCaptureFile(QString& cf_path = *new QString());
     void mergeCaptureFile();
     void importCaptureFile();
     void saveCaptureFile(capture_file *cf, bool stay_closed);
     void saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool stay_closed);
-    bool testCaptureFileClose(capture_file *cf, bool from_quit = false, QString& before_what = *new QString());
-    void captureStop(capture_file *cf);
+    bool testCaptureFileClose(bool from_quit = false, QString& before_what = *new QString());
+    void captureStop();
 
     void setMenusForCaptureFile(bool force_disable = false);
     void setMenusForCaptureInProgress(bool capture_in_progress = false);
     void setMenusForCaptureStopping();
     // xxx set_menus_for_captured_packets
     // xxx set_menus_for_selected_packet
+    void setMenusForFileSet(bool enable_list_files);
     void updateForUnsavedChanges();
     void setForCaptureInProgress(gboolean capture_in_progress = false);
 
@@ -114,6 +116,8 @@ signals:
     void showProgress(progdlg_t **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
 
 public slots:
+    void openCaptureFile(QString& cf_path = *new QString());
+
 #ifdef HAVE_LIBPCAP
     void captureCapturePrepared(capture_options *capture_opts);
     void captureCaptureUpdateStarted(capture_options *capture_opts);
@@ -124,6 +128,7 @@ public slots:
     void captureCaptureFailed(capture_options *capture_opts);
 #endif
 
+    void captureFileOpened(const capture_file *cf);
     void captureFileReadStarted(const capture_file *cf);
     void captureFileReadFinished(const capture_file *cf);
     void captureFileClosing(const capture_file *cf);
@@ -138,7 +143,6 @@ private slots:
 
     void updateRecentFiles();
     void recentActionTriggered();
-    void openRecentCaptureFile(QString& cfPath = *new QString());
 
     void on_actionFileOpen_triggered();
     void on_actionFileMerge_triggered();
@@ -146,6 +150,9 @@ private slots:
     void on_actionFileClose_triggered();
     void on_actionFileSave_triggered();
     void on_actionFileSaveAs_triggered();
+    void on_actionFileSetListFiles_triggered();
+    void on_actionFileSetNextFile_triggered();
+    void on_actionFileSetPreviousFile_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();

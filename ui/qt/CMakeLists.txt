@@ -33,7 +33,7 @@ set(QTSHARK_H_SRC
 	color_utils.h
 	display_filter_combo.h
 	display_filter_edit.h
-	fileset_dialog.h
+	file_set_dialog.h
 	import_text_dialog.h
 	interface_tree.h
 	label_stack.h
@@ -64,7 +64,7 @@ set(QTSHARK_CPP_SRC
 	color_utils.cpp
 	display_filter_combo.cpp
 	display_filter_edit.cpp
-	fileset_dialog.cpp
+	file_set_dialog.cpp
 	import_text_dialog.cpp
 	interface_tree.cpp
 	label_stack.cpp

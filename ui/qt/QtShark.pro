@@ -183,7 +183,7 @@ SOURCES_QT_CPP = \
     color_utils.cpp \
     display_filter_combo.cpp \
     display_filter_edit.cpp \
-    fileset_dialog.cpp \
+    file_set_dialog.cpp \
     interface_tree.cpp \
     label_stack.cpp \
     main.cpp \
@@ -216,7 +216,7 @@ HEADERS_QT_CPP = \
     color_utils.h \
     display_filter_combo.h \
     display_filter_edit.h \
-    fileset_dialog.h \
+    file_set_dialog.h \
     interface_tree.h \
     label_stack.h \
     main_status_bar.h \
@@ -237,7 +237,8 @@ HEADERS_QT_CPP = \
 
 FORMS += main_window.ui \
     main_welcome.ui \
-    import_text_dialog.ui
+    import_text_dialog.ui \
+    file_set_dialog.ui
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {

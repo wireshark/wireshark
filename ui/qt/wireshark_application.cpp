@@ -211,6 +211,10 @@ void WiresharkApplication::captureFileCallback(int event, void * data)
 
     switch(event) {
 
+    case(cf_cb_file_opened):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Opened");
+        emit captureFileOpened(cf);
+        break;
     case(cf_cb_file_closing):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closing");
         emit captureFileClosing(cf);

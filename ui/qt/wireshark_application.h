@@ -81,6 +81,7 @@ signals:
     void captureCaptureFailed(capture_options *capture_opts);
 #endif
 
+    void captureFileOpened(const capture_file *cf);
     void captureFileReadStarted(const capture_file *cf);
     void captureFileReadFinished(const capture_file *cf);
     void captureFileClosing(const capture_file *cf);

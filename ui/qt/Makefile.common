@@ -76,7 +76,7 @@ MOC_HDRS = \
 	color_utils.h \
 	display_filter_combo.h \
 	display_filter_edit.h \
-	fileset_dialog.h \
+	file_set_dialog.h \
 	interface_tree.h \
 	label_stack.h \
 	main_status_bar.h \
@@ -129,7 +129,7 @@ WIRESHARK_QT_SRC = \
 	color_utils.cpp \
 	display_filter_combo.cpp \
 	display_filter_edit.cpp \
-	fileset_dialog.cpp \
+	file_set_dialog.cpp \
 	interface_tree.cpp \
 	label_stack.cpp \
 	main_status_bar.cpp \
