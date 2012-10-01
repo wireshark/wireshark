@@ -117,15 +117,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
     connect(df_edit, SIGNAL(pushFilterSyntaxWarning(QString&)), main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
 
-#ifdef _WIN32
-    // Qt <= 4.7 doesn't seem to style Windows toolbars. If we wanted to be really fancy we could use Blur Behind:
-    // http://labs.qt.nokia.com/2009/09/15/using-blur-behind-on-windows/
-    setStyleSheet(
-                "QToolBar {"
-                "  background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(255,255,255,127), stop:0.37 rgba(234,234,234,127), stop:1 rgba(155,155,155,91));"
-                "}"
-            );
-#endif
     main_ui_->mainToolBar->addWidget(df_combo_box_);
 
     main_ui_->utilityToolBar->hide();
