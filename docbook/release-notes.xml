@@ -76,9 +76,27 @@ Wireshark Info
 -->
 
         <listitem><para>
+          No markers show up when maps are displayed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5016">Bug
+          5016</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Truncated/partial JPEG files are not dissected.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6230">Bug
+          6230</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Assertion when using tshark/wireshark on large captures.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5699">Bug
           5699</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Volume label field of &quot;SMB/TRANS2-QUERY_FS_INFO/InfoVolume level&quot; reply packet is not displayed correctly due alignment issue.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5778">Bug
+          5778</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -111,6 +129,12 @@ Wireshark Info
           7724</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          SCSI: WRITE BUFFER fields always display as zero.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7753">Bug
+          7753</ulink>)
+        </para></listitem>
+
      </itemizedlist>
 
     </para>
@@ -140,10 +164,13 @@ There are no new protocols in this release.
 ASN.1 PER,
 GSM Management,
 IEEE 802.11,
+JPEG,
 PCAP,
 RANAP,
 RRC,
 RRLP,
+SCSI,
+SMB,
 TETRA
 
     </para>

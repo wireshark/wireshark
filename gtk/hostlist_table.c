@@ -920,6 +920,14 @@ typedef struct {
     hostlist_table    *talkers;
 } map_t;
 
+static char *map_endpoint_opener;
+
+static void
+map_init(void)
+{
+    map_endpoint_opener = "{\n";
+}
+
 /* XXX output in C locale */
 static gboolean
 map_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
@@ -950,7 +958,7 @@ map_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
 },
  */
 
-    fputs("{\n", map->out_file);
+    fputs(map_endpoint_opener, map->out_file);
     fputs("  'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [", map->out_file);
 
     /* Longitude */
@@ -1015,7 +1023,9 @@ map_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
     /* XXX - we could add specific icons, e.g. depending on the amount of packets or bytes */
 
     fputs("' }\n", map->out_file);
-    fputs("},\n", map->out_file);       /* XXX - Trim the comma from the last item */
+    fputs("}", map->out_file);
+    map_endpoint_opener = ",\n{\n";
+
     map->hosts_written = TRUE;
 
     return FALSE;
@@ -1126,6 +1136,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
         fputs(tpl_line, map.out_file);
         /* MUST match ipmap.html */
         if (strstr(tpl_line, "// Start endpoint list")) {
+            map_init();
             gtk_tree_model_foreach(GTK_TREE_MODEL(store), map_handle, &map);
         }
     }
