@@ -3376,6 +3376,10 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 			/* Signifies the start of the call so set start_sec & start_usec */
 			callsinfo->start_abs=pinfo->fd->abs_ts;
 			callsinfo->start_rel=pinfo->fd->rel_ts;
+			/* Each packet COULD BE OUR LAST!!!! */
+			/* Store frame data which holds time and frame number */
+			callsinfo->stop_abs=pinfo->fd->abs_ts;
+			callsinfo->stop_rel=pinfo->fd->rel_ts;
 
 			/* Local packets too */
 			++(callsinfo->npackets);
@@ -3457,6 +3461,10 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 			/* Signifies the start of the call so set start_sec & start_usec */
 			callsinfo->start_abs=pinfo->fd->abs_ts;
 			callsinfo->start_rel=pinfo->fd->rel_ts;
+			/* Each packet COULD BE OUR LAST!!!! */
+			/* Store frame data which holds time and frame number */
+			callsinfo->stop_abs=pinfo->fd->abs_ts;
+			callsinfo->stop_rel=pinfo->fd->rel_ts;
 
 			/* Local packets too */
 			++(callsinfo->npackets);
@@ -3726,8 +3734,8 @@ skinny_calls_init_tap(void)
 		 * doesn't fill in the info passed to the tap's packet
 		 * routine.
 		 */
-		error_string = register_tap_listener("skinny", 
-			&(the_tapinfo_struct.skinny_dummy), 
+		error_string = register_tap_listener("skinny",
+			&(the_tapinfo_struct.skinny_dummy),
 			NULL,
 			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,
@@ -3916,8 +3924,8 @@ iax2_calls_init_tap(void)
 		 * dissectors, but, unless I've missed something, it doesn't
 		 * appear to be true of the IAX2 dissector.
 		 */
-		error_string = register_tap_listener("IAX2", 
-			&(the_tapinfo_struct.iax2_dummy), 
+		error_string = register_tap_listener("IAX2",
+			&(the_tapinfo_struct.iax2_dummy),
 			NULL,
 			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,

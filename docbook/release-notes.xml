@@ -76,6 +76,18 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Assertion when using tshark/wireshark on large captures.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5699">Bug
+          5699</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          64-bit Wireshark appears to hit 2-Gbyte memory limit on 64-bit Windows.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5979">Bug
+          5979</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           epan/dissectors/packet-per.c dissect_per_constrained_integer_64b fails for 64 bits.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7624">Bug
           7624</ulink>)
@@ -85,6 +97,18 @@ Wireshark Info
           dissector of Qos attribute &quot;Reliability Class&quot; in GMM/SM message.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7670">Bug
           7670</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          [ieee802.11] TKIP dissection : wrong IS_TKIP macro.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7691">Bug
+          7691</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          This trace causes Wireshark to crash when VoIP Calls selected.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7724">Bug
+          7724</ulink>)
         </para></listitem>
 
      </itemizedlist>
@@ -115,6 +139,7 @@ There are no new protocols in this release.
 
 ASN.1 PER,
 GSM Management,
+IEEE 802.11,
 PCAP,
 RANAP,
 RRC,

@@ -2292,11 +2292,11 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     offset += 1;
 
     /* Octet 8-10 NAS Downlink Count*/
-    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_nas_dl_cnt,	tvb, offset, 1, FALSE);
+    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_nas_dl_cnt,	tvb, offset, 3, FALSE);
     offset += 3;
 
     /* Octet 11-13 NAS Uplink Count */
-    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_nas_ul_cnt,	tvb, offset, 1, FALSE);
+    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_nas_ul_cnt,	tvb, offset, 3, FALSE);
     offset += 3;
 
     proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");

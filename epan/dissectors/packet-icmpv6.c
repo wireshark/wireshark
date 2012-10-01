@@ -3211,6 +3211,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     cksum_vec[0].len = sizeof(tmp);
                     cksum_vec[0].ptr = (guint8 *)tmp;
                     conv_key[0] = in_cksum(cksum_vec, 1);
+                    if (conv_key[0] == 0)
+                        conv_key[0] = 0xffff;
                     trans = transaction_end(pinfo, icmp6_tree, conv_key);
                 }
             }

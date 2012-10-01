@@ -831,7 +831,7 @@ static guint32 get_best_guess_mstimeofday(tvbuff_t *tvb, gint offset, guint32 co
 
     if (be_ts < MSPERDAY && le_ts < MSPERDAY) {
         guint32 saved_be_ts = be_ts;
-        guint32 saved_le_ts = le_ts;        
+        guint32 saved_le_ts = le_ts;
 
         /* Is this a rollover to a new day, clocks not synchronized, different
          * timezones between originate and receive/transmit, .. what??? */
@@ -1076,6 +1076,8 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tmp[0] = ~tvb_get_ntohs(tvb, 2);
             tmp[1] = ~0x0800; /* The difference between echo request & reply */
             conv_key[0] = ip_checksum((guint8 *)&tmp, sizeof(tmp));
+            if (conv_key[0] == 0)
+              conv_key[0] = 0xffff;
             conv_key[1] = (guint32)((tvb_get_ntohs(tvb, 4) << 16) |
               tvb_get_ntohs(tvb, 6));
             trans = transaction_start(pinfo, icmp_tree, conv_key);
@@ -1106,9 +1108,9 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       {
         guint32 frame_ts, orig_ts;
 
-        frame_ts = ((pinfo->fd->abs_ts.secs * 1000) + 
+        frame_ts = ((pinfo->fd->abs_ts.secs * 1000) +
           (pinfo->fd->abs_ts.nsecs / 1000000)) % 86400000;
-       
+
         orig_ts = get_best_guess_mstimeofday(tvb, 8, frame_ts);
         proto_tree_add_text(icmp_tree, tvb, 8, 4,
           "Originate timestamp: %s after midnight UTC",
