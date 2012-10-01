@@ -81,10 +81,9 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*ieee802a_tree = NULL;
 	proto_item	*ti;
-	int		offset = 0;
 	tvbuff_t	*next_tvb;
 	guint32		oui;
-	guint16		etype;
+	guint16		pid;
 	oui_info_t	*oui_info;
 	dissector_table_t subdissector_table;
 	int		hf;
@@ -93,22 +92,21 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ieee802a, tvb, 0, -1, ENC_NA);
+		ti = proto_tree_add_item(tree, proto_ieee802a, tvb, 0, 5, ENC_NA);
 		ieee802a_tree = proto_item_add_subtree(ti, ett_ieee802a);
-	} else
-		ieee802a_tree = NULL;
+	}
 
-	oui =	tvb_get_ntoh24(tvb, offset);
-	etype = tvb_get_ntohs(tvb, offset+3);
+	oui =	tvb_get_ntoh24(tvb, 0);
+	pid = tvb_get_ntohs(tvb, 3);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 		    "OUI 0x%06X (%s), PID 0x%04X",
-		    oui, val_to_str_const(oui, oui_vals, "Unknown"), etype);
+		    oui, val_to_str_const(oui, oui_vals, "Unknown"), pid);
 	}
 	if (tree) {
 		proto_tree_add_uint(ieee802a_tree, hf_ieee802a_oui,
-		    tvb, offset, 3, oui);
+		    tvb, 0, 3, oui);
 	}
 
 	/*
@@ -131,11 +129,11 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		subdissector_table = NULL;
 	}
 	if (tree)
-		proto_tree_add_uint(ieee802a_tree, hf, tvb, offset+3, 2, etype);
-	next_tvb = tvb_new_subset_remaining(tvb, offset+5);
+		proto_tree_add_uint(ieee802a_tree, hf, tvb, 3, 2, pid);
+	next_tvb = tvb_new_subset_remaining(tvb, 5);
 	if (subdissector_table != NULL) {
 		/* do lookup with the subdissector table */
-		if (dissector_try_uint(subdissector_table, etype, next_tvb,
+		if (dissector_try_uint(subdissector_table, pid, next_tvb,
 		    pinfo, tree))
 			return;
 	}
