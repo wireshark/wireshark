@@ -41,6 +41,7 @@
 #include "../capture.h"
 #include "ui/capture_globals.h"
 #endif
+#include "ui/main_statusbar.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/summary_dlg.h"
 #include "ui/gtk/dlg_utils.h"
@@ -151,6 +152,8 @@ summary_ok_cb(GtkWidget *w _U_, GtkWidget *view)
 
   /* Update the main window */
   main_update_for_unsaved_changes(&cfile);
+
+  status_capture_comment_update();
 
   window_destroy(summary_dlg);
 }
