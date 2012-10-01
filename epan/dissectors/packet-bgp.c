@@ -33,6 +33,7 @@
  * RFC2918 Route Refresh Capability for BGP-4
  * RFC3107 Carrying Label Information in BGP-4
  * RFC4486 Subcodes for BGP Cease Notification Message
+ * RFC4724 Graceful Restart Mechanism for BGP
  * RFC5512 BGP Encapsulation SAFI and the BGP Tunnel Encapsulation Attribute
  * RFC5640 Load-Balancing for Mesh Softwires
  * RFC6608 Subcodes for BGP Finite State Machine Error
@@ -2088,7 +2089,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             }
             break;
         case BGP_CAPABILITY_GRACEFUL_RESTART:
-            if (clen < 6) {
+            if ((clen < 6) && (clen != 2)) {
                 expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Capability length %u too short, must be greater than 6", clen);
                 proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, clen, ENC_NA);
                 offset += clen;
@@ -2096,6 +2097,10 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             else {
                 int eclen = offset + clen;
                 proto_tree *sub_tree;
+
+                if (clen == 2){
+                    expert_add_info_format(pinfo, ti_len, PI_REQUEST_CODE, PI_CHAT, "Graceful Restart Capability supported in Helper mode only");
+                }
 
                 /* Timers */
                 ti = proto_tree_add_item(cap_tree, hf_bgp_cap_gr_timers, tvb, offset, 2, ENC_NA);

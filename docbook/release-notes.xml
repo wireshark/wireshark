@@ -76,7 +76,7 @@ Wireshark Info
 	    Martin Wilck discovered an infinite loop in the DRDA dissector.
             <!-- Fixed in trunk: r44749 -->
             <!-- Fixed in trunk-1.8: r45129 -->
-            <!-- Fixed in trunk-1.6: r? -->
+            <!-- Fixed in trunk-1.6: r45234 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7666">Bug
             7666</ulink>)
           </para>
@@ -129,6 +129,12 @@ Wireshark Info
           No markers show up when maps are displayed.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5016">Bug
           5016</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Assertion when using tshark/wireshark on large captures.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5699">Bug
+          5699</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -270,6 +276,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          BGP bad decoding for Graceful Restart Capability with only helper support &amp; for Enhanced Route Refresh Capability.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7734">Bug
+          7734</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Dissection error of D-RELEASE and D-CONNECT in TETRA dissector.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7736">Bug
           7736</ulink>)
@@ -325,8 +337,11 @@ There are no new protocols in this release.
 
 ASN.1 PER,
 BACnet,
+BGP,
 DIAMETER,
 DRDA,
+DVB,
+DVB CI,
 GSM Management,
 GTP,
 GTPv2,
@@ -338,9 +353,14 @@ IEEE 802.11,
 Interlink,
 JPEG,
 LDP,
+LPP,
 MPEG,
 MPLS,
+PCAP,
 PPP,
+RANAP,
+RRC,
+RRLP,
 SCCP,
 SCSI,
 SCTP,
