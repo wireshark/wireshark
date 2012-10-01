@@ -90,6 +90,7 @@ set(QTSHARK_SRC
 )
 
 set(QTSHARK_UI
+	file_set_dialog.ui
 	import_text_dialog.ui
 	main_welcome.ui
 	main_window.ui
