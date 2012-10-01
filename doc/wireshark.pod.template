@@ -8,7 +8,7 @@ wireshark - Interactively dump and analyze network traffic
 B<wireshark>
 S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
 S<[ B<-b> E<lt>capture ring buffer optionE<gt> ] ...>
-S<[ B<-B> E<lt>capture buffer size (Win32 only)E<gt> ] >
+S<[ B<-B> E<lt>capture buffer sizeE<gt> ] >
 S<[ B<-c> E<lt>capture packet countE<gt> ]>
 S<[ B<-C> E<lt>configuration profileE<gt> ]>
 S<[ B<-d> E<lt>display filterE<gt> ]>
@@ -270,7 +270,7 @@ of size one megabyte.
 Set capture buffer size (in MB, default is 1MB).  This is used by the
 the capture driver to buffer packet data until that data can be written
 to disk.  If you encounter packet drops while capturing, try to increase
-this size.  Note that, while B<Tshark> attempts to set the buffer size
+this size.  Note that, while B<Wireshark> attempts to set the buffer size
 to 1MB by default, and can be told to set it to a larger value, the
 system or interface on which you're capturing might silently limit the
 capture buffer size to a lower value or raise it to a higher value.
