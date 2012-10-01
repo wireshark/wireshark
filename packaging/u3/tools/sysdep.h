@@ -41,9 +41,7 @@
 ** suitability of this software for any purpose.
 */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #ifndef _WIN32
 #include <sys/types.h>

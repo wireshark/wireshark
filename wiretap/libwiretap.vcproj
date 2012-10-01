@@ -27,7 +27,7 @@
 				ReBuildCommandLine=""
 				CleanCommandLine=""
 				Output="libwiretap.exe"
-				PreprocessorDefinitions="WIN32;_DEBUG;HAVE_CONFIG_H"
+				PreprocessorDefinitions="WIN32;_DEBUG"
 				IncludeSearchPath=""
 				ForcedIncludes=""
 				AssemblySearchPath=""

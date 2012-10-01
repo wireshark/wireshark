@@ -28,7 +28,7 @@
 				ReBuildCommandLine=""
 				CleanCommandLine="nmake -f Makefile.nmake distclean"
 				Output="wireshark-gtk2\wireshark.exe"
-				PreprocessorDefinitions="WIN32;_DEBUG;HAVE_CONFIG_H"
+				PreprocessorDefinitions="WIN32;_DEBUG"
 				IncludeSearchPath=""
 				ForcedIncludes=""
 				AssemblySearchPath=""
