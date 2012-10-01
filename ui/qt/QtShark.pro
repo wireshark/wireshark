@@ -276,7 +276,7 @@ win32 {
     HEADERS += $$HEADERS_QT_CPP
 }
 
-DEFINES += HAVE_CONFIG_H INET6 REENTRANT
+DEFINES += INET6 REENTRANT
 unix:DEFINES += _U_=\"__attribute__((unused))\"
 
 macx:QMAKE_LFLAGS += \
