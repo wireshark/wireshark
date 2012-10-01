@@ -277,6 +277,7 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 	find_dlg_w = dlg_window_new("Wireshark: Find text");
 	gtk_window_set_transient_for(GTK_WINDOW(find_dlg_w),
 				     GTK_WINDOW(follow_info->streamwindow));
+	gtk_widget_set_size_request(find_dlg_w, 225, -1);
 	gtk_window_set_destroy_with_parent(GTK_WINDOW(find_dlg_w), TRUE);
 	follow_info->find_dlg_w = find_dlg_w;
 
