@@ -649,9 +649,6 @@ static int hf_rrlp_ganssEphExtDay = -1;           /* INTEGER_0_8191 */
 static int hf_rrlp_ganssEphExtTOD = -1;           /* GANSSTOD */
 static int hf_rrlp_keplerToe_01 = -1;             /* INTEGER_0_37799 */
 static int hf_rrlp_keplerW_01 = -1;               /* T_keplerW */
-static int hf_rrlp_keplerM0_01 = -1;              /* T_keplerM0 */
-static int hf_rrlp_keplerI0_01 = -1;              /* T_keplerI0 */
-static int hf_rrlp_keplerOmega0_01 = -1;          /* T_keplerOmega0 */
 static int hf_rrlp_SeqOfGANSSRefOrbit_item = -1;  /* GANSSReferenceOrbit */
 static int hf_rrlp_ganssOrbitModel_01 = -1;       /* ReferenceNavModel */
 static int hf_rrlp_GANSSEphemerisDeltaMatrix_item = -1;  /* GANSSEphemerisDeltaEpoch */
@@ -709,12 +706,12 @@ static int hf_rrlp_utcTot_01 = -1;                /* INTEGER_0_65535 */
 static int hf_rrlp_utcWNot = -1;                  /* INTEGER_0_8191 */
 static int hf_rrlp_utcDN_01 = -1;                 /* BIT_STRING_SIZE_4 */
 static int hf_rrlp_nA = -1;                       /* INTEGER_1_1461 */
-static int hf_rrlp_tauC = -1;                     /* T_tauC */
+static int hf_rrlp_tauC = -1;                     /* INTEGER_M2147483648_2147483647 */
 static int hf_rrlp_b1 = -1;                       /* INTEGER_M1024_1023 */
 static int hf_rrlp_b2 = -1;                       /* INTEGER_M512_511 */
 static int hf_rrlp_kp = -1;                       /* BIT_STRING_SIZE_2 */
 static int hf_rrlp_utcA1wnt = -1;                 /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_utcA0wnt = -1;                 /* T_utcA0wnt */
+static int hf_rrlp_utcA0wnt = -1;                 /* INTEGER_M2147483648_2147483647 */
 static int hf_rrlp_utcStandardID = -1;            /* INTEGER_0_7 */
 static int hf_rrlp_ganssID1 = -1;                 /* GANSS_ID1 */
 static int hf_rrlp_ganssID3 = -1;                 /* GANSS_ID3 */
@@ -4430,47 +4427,17 @@ dissect_rrlp_T_keplerW(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
-
-static int
-dissect_rrlp_T_keplerM0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_rrlp_T_keplerI0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_rrlp_T_keplerOmega0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
-
-  return offset;
-}
-
-
 static const per_sequence_t ReferenceNavModel_sequence[] = {
   { &hf_rrlp_keplerToe_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_37799 },
   { &hf_rrlp_keplerW_01     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_T_keplerW },
   { &hf_rrlp_keplerDeltaN   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
-  { &hf_rrlp_keplerM0_01    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_T_keplerM0 },
+  { &hf_rrlp_keplerM0       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
   { &hf_rrlp_keplerOmegaDot , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8388608_8388607 },
   { &hf_rrlp_keplerE        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_4294967295 },
   { &hf_rrlp_keplerIDot     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8192_8191 },
   { &hf_rrlp_keplerAPowerHalf, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_4294967295 },
-  { &hf_rrlp_keplerI0_01    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_T_keplerI0 },
-  { &hf_rrlp_keplerOmega0_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_T_keplerOmega0 },
+  { &hf_rrlp_keplerI0       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
+  { &hf_rrlp_keplerOmega0   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
   { &hf_rrlp_keplerCrs      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
   { &hf_rrlp_keplerCis      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
   { &hf_rrlp_keplerCus      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
@@ -4767,19 +4734,9 @@ dissect_rrlp_UTCmodelSet2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-
-static int
-dissect_rrlp_T_tauC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
-
-  return offset;
-}
-
-
 static const per_sequence_t UTCmodelSet3_sequence[] = {
   { &hf_rrlp_nA             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_1_1461 },
-  { &hf_rrlp_tauC           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_T_tauC },
+  { &hf_rrlp_tauC           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
   { &hf_rrlp_b1             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_M1024_1023 },
   { &hf_rrlp_b2             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_M512_511 },
   { &hf_rrlp_kp             , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_BIT_STRING_SIZE_2 },
@@ -4795,19 +4752,9 @@ dissect_rrlp_UTCmodelSet3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-
-static int
-dissect_rrlp_T_utcA0wnt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
-
-  return offset;
-}
-
-
 static const per_sequence_t UTCmodelSet4_sequence[] = {
   { &hf_rrlp_utcA1wnt       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8388608_8388607 },
-  { &hf_rrlp_utcA0wnt       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_T_utcA0wnt },
+  { &hf_rrlp_utcA0wnt       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
   { &hf_rrlp_utcTot         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
   { &hf_rrlp_utcWNt         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
   { &hf_rrlp_utcDeltaTls    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
@@ -7008,7 +6955,7 @@ static const per_sequence_t PDU_sequence[] = {
 static int
 dissect_rrlp_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 26 "../../asn1/rrlp/rrlp.cnf"
-	
+
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 
 	col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/RRLP");
@@ -8655,19 +8602,19 @@ void proto_register_rrlp(void) {
         "INTEGER_M4194304_4194303", HFILL }},
     { &hf_rrlp_cnavMo,
       { "cnavMo", "rrlp.cnavMo",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_rrlp_cnavE,
       { "cnavE", "rrlp.cnavE",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_rrlp_cnavOmega,
       { "cnavOmega", "rrlp.cnavOmega",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_rrlp_cnavOMEGA0,
       { "cnavOMEGA0", "rrlp.cnavOMEGA0",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_rrlp_cnavDeltaOmegaDot,
       { "cnavDeltaOmegaDot", "rrlp.cnavDeltaOmegaDot",
@@ -8675,7 +8622,7 @@ void proto_register_rrlp(void) {
         "INTEGER_M65536_65535", HFILL }},
     { &hf_rrlp_cnavIo,
       { "cnavIo", "rrlp.cnavIo",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_rrlp_cnavIoDot,
       { "cnavIoDot", "rrlp.cnavIoDot",
@@ -9377,18 +9324,6 @@ void proto_register_rrlp(void) {
       { "keplerW", "rrlp.keplerW",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_rrlp_keplerM0_01,
-      { "keplerM0", "rrlp.keplerM0",
-        FT_INT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_rrlp_keplerI0_01,
-      { "keplerI0", "rrlp.keplerI0",
-        FT_INT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_rrlp_keplerOmega0_01,
-      { "keplerOmega0", "rrlp.keplerOmega0",
-        FT_INT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
     { &hf_rrlp_SeqOfGANSSRefOrbit_item,
       { "GANSSReferenceOrbit", "rrlp.GANSSReferenceOrbit",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9620,7 +9555,7 @@ void proto_register_rrlp(void) {
     { &hf_rrlp_tauC,
       { "tauC", "rrlp.tauC",
         FT_INT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "INTEGER_M2147483648_2147483647", HFILL }},
     { &hf_rrlp_b1,
       { "b1", "rrlp.b1",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -9640,7 +9575,7 @@ void proto_register_rrlp(void) {
     { &hf_rrlp_utcA0wnt,
       { "utcA0wnt", "rrlp.utcA0wnt",
         FT_INT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "INTEGER_M2147483648_2147483647", HFILL }},
     { &hf_rrlp_utcStandardID,
       { "utcStandardID", "rrlp.utcStandardID",
         FT_UINT32, BASE_DEC, NULL, 0,

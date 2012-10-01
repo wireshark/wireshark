@@ -4283,9 +4283,9 @@ dissect_ranap_GlobalRNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_ranap_GTP_TEI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 312 "../../asn1/ranap/ranap.cnf"
-  tvbuff_t *parameter_tvb=NULL;	
+  tvbuff_t *parameter_tvb=NULL;
   int saved_hf;
-  
+
   saved_hf = hf_index;
   hf_index = -1;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -4294,7 +4294,7 @@ dissect_ranap_GTP_TEI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
   if (!parameter_tvb)
     return offset;
-  proto_tree_add_item(tree, saved_hf, parameter_tvb, 0, 4, FALSE);  
+  proto_tree_add_item(tree, saved_hf, parameter_tvb, 0, 4, FALSE);
 
 
 
@@ -4321,17 +4321,17 @@ dissect_ranap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 8, FALSE, &imsi_tvb);
-  
+
 	if(!imsi_tvb)
 		return offset;
 	if ( actx->pinfo->sccp_info
 		 && actx->pinfo->sccp_info->data.co.assoc
 		 && ! actx->pinfo->sccp_info->data.co.assoc->calling_party ) {
-	   
+
 		guint len = tvb_length(imsi_tvb);
 		guint8* bytes = ep_tvb_memdup(imsi_tvb,0,len);
 
-		actx->pinfo->sccp_info->data.co.assoc->calling_party = 
+		actx->pinfo->sccp_info->data.co.assoc->calling_party =
 			se_strdup_printf("IMSI: %s", bytes_to_str(bytes, len) );
 	}
 	digit_str = unpack_digits(imsi_tvb, 0);
@@ -6312,7 +6312,7 @@ dissect_ranap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 	if ((rrc_message_tvb)&&(tvb_length(rrc_message_tvb)!=0)){
 		if(ProtocolIE_ID == id_Source_ToTarget_TransparentContainer){
 		/* Note: In the current version of this specification, this IE may
-		 * either carry the Source RNC to Target RNC Transparent Container 
+		 * either carry the Source RNC to Target RNC Transparent Container
 		 * or the Source eNB to Target eNB Transparent Container IE as defined in [49]...
 		 */
 			call_dissector(rrc_s_to_trnc_handle,rrc_message_tvb,actx->pinfo, proto_tree_get_root(tree));
@@ -6485,13 +6485,13 @@ static const per_sequence_t SourceRNC_ToTargetRNC_TransparentContainer_sequence[
 static int
 dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 324 "../../asn1/ranap/ranap.cnf"
-/* If SourceRNC-ToTargetRNC-TransparentContainer is called trough 
+/* If SourceRNC-ToTargetRNC-TransparentContainer is called trough
    dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU
    ProtocolIE_ID may be unset
    */
-   
-   
-   ProtocolIE_ID = id_Source_ToTarget_TransparentContainer; 
+
+
+   ProtocolIE_ID = id_Source_ToTarget_TransparentContainer;
 
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6799,7 +6799,7 @@ dissect_ranap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
-  
+
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      1, 160, TRUE, &parameter_tvb);
 
@@ -6816,7 +6816,7 @@ dissect_ranap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 		/* IPv6 */
 		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, FALSE);
 	}
-	
+
 
 
   return offset;
@@ -6852,7 +6852,7 @@ dissect_ranap_TypeOfError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ranap_UE_AggregateMaximumBitRateDownlink(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 1000000000U, NULL, FALSE);
 
   return offset;
@@ -6862,7 +6862,7 @@ dissect_ranap_UE_AggregateMaximumBitRateDownlink(tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_ranap_UE_AggregateMaximumBitRateUplink(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 1000000000U, NULL, FALSE);
 
   return offset;

@@ -17656,7 +17656,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
     { &hf_pcap_ue_GANSSTimingOfCell,
       { "ue-GANSSTimingOfCell", "pcap.ue_GANSSTimingOfCell",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_pcap_ganss_Time_ID,
       { "ganss-Time-ID", "pcap.ganss_Time_ID",
