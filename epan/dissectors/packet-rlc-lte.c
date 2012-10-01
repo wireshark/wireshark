@@ -75,7 +75,8 @@ static enum_val_t pdcp_drb_col_vals[] = {
 static gint global_rlc_lte_call_pdcp_for_drb = (gint)PDCP_drb_off;
 static gint signalled_pdcp_sn_bits = 12;
 
-static gboolean global_rlc_lte_call_rrc = FALSE;
+static gboolean global_rlc_lte_call_rrc_for_ccch = FALSE;
+static gboolean global_rlc_lte_call_rrc_for_mcch = FALSE;
 
 /* Preference to expect RLC headers without payloads */
 static gboolean global_rlc_lte_headers_expected = FALSE;
@@ -223,6 +224,7 @@ static const value_string rlc_channel_type_vals[] =
     { CHANNEL_TYPE_SRB,          "SRB"},
     { CHANNEL_TYPE_DRB,          "DRB"},
     { CHANNEL_TYPE_BCCH_DL_SCH,  "BCCH_DL_SCH"},
+    { CHANNEL_TYPE_MCCH,         "MCCH"},
     { 0, NULL }
 };
 
@@ -708,7 +710,7 @@ static void show_PDU_in_info(packet_info *pinfo,
 }
 
 
-/* Show an SDU.  If configured, pass to PDCP dissector */
+/* Show an SDU. If configured, pass to PDCP/RRC dissector */
 static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, gint offset, gint length,
                              rlc_lte_info *rlc_info, gboolean whole_pdu, rlc_channel_reassembly_info *reassembly_info,
                              sequence_analysis_state state)
@@ -720,83 +722,111 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                                                     hf_rlc_lte_um_data,
                                               tvb, offset, length, ENC_NA);
 
-    /* Send whole PDU to PDCP */
-    if ((whole_pdu || (reassembly_info != NULL)) &&
-        (((global_rlc_lte_call_pdcp_for_srb) && (rlc_info->channelType == CHANNEL_TYPE_SRB)) ||
-         ((global_rlc_lte_call_pdcp_for_drb != PDCP_drb_off) && (rlc_info->channelType == CHANNEL_TYPE_DRB)))) {
+    if (whole_pdu || (reassembly_info != NULL)) {
+        if (((global_rlc_lte_call_pdcp_for_srb) && (rlc_info->channelType == CHANNEL_TYPE_SRB)) ||
+            ((global_rlc_lte_call_pdcp_for_drb != PDCP_drb_off) && (rlc_info->channelType == CHANNEL_TYPE_DRB))) {
+            /* Send whole PDU to PDCP */
 
-        /* TODO: made static to avoid compiler warning... */
-        static tvbuff_t *pdcp_tvb = NULL;
-        volatile dissector_handle_t protocol_handle;
-        struct pdcp_lte_info *p_pdcp_lte_info;
+            /* TODO: made static to avoid compiler warning... */
+            static tvbuff_t *pdcp_tvb = NULL;
+            volatile dissector_handle_t protocol_handle;
+            struct pdcp_lte_info *p_pdcp_lte_info;
 
-        /* Get tvb for passing to LTE PDCP dissector */
-        if (reassembly_info == NULL) {
-            pdcp_tvb = tvb_new_subset(tvb, offset, length, length);
-        }
-        else {
-            /* Get combined tvb. */
-            pdcp_tvb = reassembly_get_reassembled_tvb(reassembly_info, tvb, pinfo);
-            reassembly_show_source(reassembly_info, tree, tvb, offset);
-        }
-
-        /* Reuse or allocate struct */
-        p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
-        if (p_pdcp_lte_info == NULL) {
-            p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
-            /* Store info in packet */
-            p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
-        }
-
-        p_pdcp_lte_info->ueid = rlc_info->ueid;
-        p_pdcp_lte_info->channelType = Channel_DCCH;
-        p_pdcp_lte_info->channelId = rlc_info->channelId;
-        p_pdcp_lte_info->direction = rlc_info->direction;
-        p_pdcp_lte_info->is_retx = (state != SN_OK);
-
-        /* Set plane and sequnce number length */
-        p_pdcp_lte_info->no_header_pdu = FALSE;
-        if (rlc_info->channelType == CHANNEL_TYPE_SRB) {
-            p_pdcp_lte_info->plane = SIGNALING_PLANE;
-            p_pdcp_lte_info->seqnum_length = 5;
-        }
-        else {
-            p_pdcp_lte_info->plane = USER_PLANE;
-            switch (global_rlc_lte_call_pdcp_for_drb) {
-                case PDCP_drb_SN_7:
-                    p_pdcp_lte_info->seqnum_length = 7;
-                    break;
-                case PDCP_drb_SN_12:
-                    p_pdcp_lte_info->seqnum_length = 12;
-                    break;
-                case PDCP_drb_SN_15:
-                    p_pdcp_lte_info->seqnum_length = 15;
-                    break;
-                case PDCP_drb_SN_signalled:
-                    /* Use whatever was signalled (e.g. in RRC) */
-                    p_pdcp_lte_info->seqnum_length = signalled_pdcp_sn_bits;
-                    break;
-
-                default:
-                    DISSECTOR_ASSERT(FALSE);
-                    break;
+            /* Get tvb for passing to LTE PDCP dissector */
+            if (reassembly_info == NULL) {
+                pdcp_tvb = tvb_new_subset(tvb, offset, length, length);
             }
+            else {
+                /* Get combined tvb. */
+                pdcp_tvb = reassembly_get_reassembled_tvb(reassembly_info, tvb, pinfo);
+                reassembly_show_source(reassembly_info, tree, tvb, offset);
+            }
+
+            /* Reuse or allocate struct */
+            p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+            if (p_pdcp_lte_info == NULL) {
+                p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
+                /* Store info in packet */
+                p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
+            }
+
+            p_pdcp_lte_info->ueid = rlc_info->ueid;
+            p_pdcp_lte_info->channelType = Channel_DCCH;
+            p_pdcp_lte_info->channelId = rlc_info->channelId;
+            p_pdcp_lte_info->direction = rlc_info->direction;
+            p_pdcp_lte_info->is_retx = (state != SN_OK);
+
+            /* Set plane and sequence number length */
+            p_pdcp_lte_info->no_header_pdu = FALSE;
+            if (rlc_info->channelType == CHANNEL_TYPE_SRB) {
+                p_pdcp_lte_info->plane = SIGNALING_PLANE;
+                p_pdcp_lte_info->seqnum_length = 5;
+            }
+            else {
+                p_pdcp_lte_info->plane = USER_PLANE;
+                switch (global_rlc_lte_call_pdcp_for_drb) {
+                    case PDCP_drb_SN_7:
+                        p_pdcp_lte_info->seqnum_length = 7;
+                        break;
+                    case PDCP_drb_SN_12:
+                        p_pdcp_lte_info->seqnum_length = 12;
+                        break;
+                    case PDCP_drb_SN_15:
+                        p_pdcp_lte_info->seqnum_length = 15;
+                        break;
+                    case PDCP_drb_SN_signalled:
+                        /* Use whatever was signalled (e.g. in RRC) */
+                        p_pdcp_lte_info->seqnum_length = signalled_pdcp_sn_bits;
+                        break;
+
+                    default:
+                        DISSECTOR_ASSERT(FALSE);
+                        break;
+                }
+            }
+
+            p_pdcp_lte_info->rohc_compression = FALSE;
+
+
+            /* Get dissector handle */
+            protocol_handle = find_dissector("pdcp-lte");
+
+            TRY {
+                call_dissector_only(protocol_handle, pdcp_tvb, pinfo, tree, NULL);
+            }
+            CATCH_ALL {
+            }
+            ENDTRY
+
+            PROTO_ITEM_SET_HIDDEN(data_ti);
         }
+        else if (global_rlc_lte_call_rrc_for_mcch && (rlc_info->channelType == CHANNEL_TYPE_MCCH)) {
+            /* Send whole PDU to RRC */
+            static tvbuff_t *rrc_tvb = NULL;
+            volatile dissector_handle_t protocol_handle;
 
-        p_pdcp_lte_info->rohc_compression = FALSE;
+            /* Get tvb for passing to LTE RRC dissector */
+            if (reassembly_info == NULL) {
+                rrc_tvb = tvb_new_subset(tvb, offset, length, length);
+            }
+            else {
+                /* Get combined tvb. */
+                rrc_tvb = reassembly_get_reassembled_tvb(reassembly_info, tvb, pinfo);
+                reassembly_show_source(reassembly_info, tree, tvb, offset);
+            }
 
+            /* Get dissector handle */
+            protocol_handle = find_dissector("lte_rrc.mcch");
 
-        /* Get dissector handle */
-        protocol_handle = find_dissector("pdcp-lte");
+            TRY {
+                call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree, NULL);
+            }
+            CATCH_ALL {
+            }
+            ENDTRY
 
-        TRY {
-            call_dissector_only(protocol_handle, pdcp_tvb, pinfo, tree, NULL);
+            PROTO_ITEM_SET_HIDDEN(data_ti);
         }
-        CATCH_ALL {
-        }
-        ENDTRY
-
-        PROTO_ITEM_SET_HIDDEN(data_ti);
     }
 }
 
@@ -1816,12 +1846,12 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Remaining bytes are all data */
     raw_tm_ti = proto_tree_add_item(tree, hf_rlc_lte_tm_data, tvb, offset, -1, ENC_NA);
-    if (!global_rlc_lte_call_rrc) {
+    if (!global_rlc_lte_call_rrc_for_ccch) {
         write_pdu_label_and_info(top_ti, NULL, pinfo,
                                  "   [%u-bytes]", tvb_length_remaining(tvb, offset));
     }
 
-    if (global_rlc_lte_call_rrc) {
+    if (global_rlc_lte_call_rrc_for_ccch) {
         tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
         volatile dissector_handle_t protocol_handle = 0;
 
@@ -1847,6 +1877,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
 
             case CHANNEL_TYPE_SRB:
             case CHANNEL_TYPE_DRB:
+            case CHANNEL_TYPE_MCCH:
 
             default:
                 /* Shouldn't happen, just return... */
@@ -3273,7 +3304,12 @@ void proto_register_rlc_lte(void)
     prefs_register_bool_preference(rlc_lte_module, "call_rrc_for_ccch",
         "Call RRC dissector for CCCH PDUs",
         "Call RRC dissector for CCCH PDUs",
-        &global_rlc_lte_call_rrc);
+        &global_rlc_lte_call_rrc_for_ccch);
+
+    prefs_register_bool_preference(rlc_lte_module, "call_rrc_for_mcch",
+        "Call RRC dissector for MCCH PDUs",
+        "Call RRC dissector for MCCH PDUs",
+        &global_rlc_lte_call_rrc_for_mcch);
 
     prefs_register_bool_preference(rlc_lte_module, "heuristic_rlc_lte_over_udp",
         "Try Heuristic LTE-RLC over UDP framing",

@@ -801,6 +801,9 @@ static gboolean global_mac_lte_dissect_crc_failures = FALSE;
 /* Whether should attempt to decode lcid 1&2 SDUs as srb1/2 (i.e. AM RLC) */
 static gboolean global_mac_lte_attempt_srb_decode = TRUE;
 
+/* Whether should attempt to decode MCH LCID 0 as MCCH */
+static gboolean global_mac_lte_attempt_mcch_decode = FALSE;
+
 /* Where to take LCID -> DRB mappings from */
 enum lcid_drb_source {
     FromStaticTable, FromConfigurationProtocol
@@ -1869,7 +1872,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                guint8 UMSequenceNumberLength,
                                guint8 priority)
 {
-    tvbuff_t            *srb_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
+    tvbuff_t            *rb_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
     struct rlc_lte_info *p_rlc_lte_info;
 
     /* Get RLC dissector handle */
@@ -1912,7 +1915,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     s_number_of_rlc_pdus_shown++;
 
     /* Call it (catch exceptions so that stats will be updated) */
-    call_with_catch_all(protocol_handle, srb_tvb, pinfo, tree);
+    call_with_catch_all(protocol_handle, rb_tvb, pinfo, tree);
 
     /* Let columns be written to again */
     col_set_writable(pinfo->cinfo, TRUE);
@@ -4059,21 +4062,29 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                             tvb_length_remaining(tvb, offset) :
                             pdu_lengths[n];
 
-        /* Dissect SDU as raw bytes */
-        sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_mch_sdu, tvb, offset, pdu_lengths[n],
-                                             NULL, "SDU (%s, length=%u bytes): ",
-                                             val_to_str_const(lcids[n], mch_lcid_vals, "Unknown"),
-                                             data_length);
-        /* Show bytes too.  There must be a nicer way of doing this! */
-        pdu_data = tvb_get_ptr(tvb, offset, pdu_lengths[n]);
-        for (i=0; i < data_length; i++) {
-            g_snprintf(buff+(i*2), 3, "%02x",  pdu_data[i]);
-            if (i >= 30) {
-                g_snprintf(buff+(i*2), 4, "...");
-                break;
+        if ((lcids[n] == 0) && global_mac_lte_attempt_mcch_decode) {
+            /* Call RLC dissector */
+            call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
+                               RLC_UM_MODE, DIRECTION_DOWNLINK, 0,
+                               CHANNEL_TYPE_MCCH, 0, 5, 0);
+        } else {
+            /* Dissect SDU as raw bytes */
+            sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_mch_sdu, tvb, offset, pdu_lengths[n],
+                                                 NULL, "SDU (%s, length=%u bytes): ",
+                                                 val_to_str_const(lcids[n], mch_lcid_vals, "Unknown"),
+                                                 data_length);
+
+            /* Show bytes too.  There must be a nicer way of doing this! */
+            pdu_data = tvb_get_ptr(tvb, offset, pdu_lengths[n]);
+            for (i=0; i < data_length; i++) {
+                g_snprintf(buff+(i*2), 3, "%02x",  pdu_data[i]);
+                if (i >= 30) {
+                    g_snprintf(buff+(i*2), 4, "...");
+                    break;
+                }
             }
+            proto_item_append_text(sdu_ti, "%s", buff);
         }
-        proto_item_append_text(sdu_ti, "%s", buff);
 
         offset += data_length;
     }
@@ -5700,6 +5711,11 @@ void proto_register_mac_lte(void)
         "Attempt to dissect LCID 1&2 as srb1&2",
         "Will call LTE RLC dissector with standard settings as per RRC spec",
         &global_mac_lte_attempt_srb_decode);
+
+    prefs_register_bool_preference(mac_lte_module, "attempt_to_dissect_mcch",
+        "Attempt to dissect MCH LCID 0 as MCCH",
+        "Will call LTE RLC dissector for MCH LCID 0",
+        &global_mac_lte_attempt_mcch_decode);
 
     prefs_register_enum_preference(mac_lte_module, "lcid_to_drb_mapping_source",
         "Source of LCID -> drb channel settings",
