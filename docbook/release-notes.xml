@@ -36,23 +36,21 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-26.html">wnpa-sec-2012-26</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-28.html">wnpa-sec-2012-28</ulink>
           </para>
           <para>
-	    .
-            <!-- Fixed in trunk: r? -->
-            <!-- Fixed in trunk-1.8: r? -->
-            <!-- Fixed in trunk-1.6: r? -->
-            <!-- Fixed in trunk-1.4: r? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=?">Bug
-            ?</ulink>)
+	    Martin Wilck discovered an infinite loop in the DRDA dissector.
+            <!-- Fixed in trunk: r44749 -->
+            <!-- Fixed in trunk-1.8: r45129 -->
+            <!-- Fixed in trunk-1.6: r45234 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7666">Bug
+            7666</ulink>)
           </para>
-          <para>Versions affected: 1.4.0 to 1.4.15, 1.6.0 to 1.6.10, 1.8.0 to 1.8.2.</para>
+          <para>Versions affected: 1.6.0 to 1.6.10, 1.8.0 to 1.8.2.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
           </para>
         </listitem>
-
       </itemizedlist>
 
     </para>
