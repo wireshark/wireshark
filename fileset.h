@@ -46,7 +46,7 @@ extern gboolean fileset_filename_match_pattern(const char *fname);
 /* helper: test, if both files could be in the same file set */
 extern gboolean fileset_is_file_in_set(const char *fname1, const char *fname2);
 
-extern void fileset_add_dir(const char *fname);
+extern void fileset_add_dir(const char *fname, void *window);
 
 extern void fileset_delete(void);
 
@@ -59,9 +59,9 @@ extern fileset_entry *fileset_get_previous(void);
 
 
 /* this file is a part of the current file set */
-extern void fileset_dlg_add_file(fileset_entry *entry);
+extern void fileset_dlg_add_file(fileset_entry *entry, void *window);
 
-extern void fileset_update_dlg(void);
+extern void fileset_update_dlg(void *window);
 
 extern void fileset_update_file(const char *path);
 

@@ -131,8 +131,9 @@ fileset_dlg_name2date_dup(const char * name) {
     pfx++;
     pos = pfx - name;
 
-    /* start conversion behind that underscore */
-    filename = g_strdup_printf("%c%c%c%c.%c%c.%c%c %c%c:%c%c:%c%c",
+    /* Start conversion behind that underscore */
+    /* http://en.wikipedia.org/wiki/ISO_8601 */
+    filename = g_strdup_printf("%c%c%c%c-%c%c-%c%c %c%c:%c%c:%c%c",
         /* year  */  name[pos]  ,  name[pos+1], name[pos+2], name[pos+3],
         /* month */  name[pos+4],  name[pos+5],
         /* day   */  name[pos+6],  name[pos+7],
@@ -146,7 +147,7 @@ fileset_dlg_name2date_dup(const char * name) {
 
 /* this file is a part of the current file set, add it to the dialog */
 void
-fileset_dlg_add_file(fileset_entry *entry) {
+fileset_dlg_add_file(fileset_entry *entry, void *window _U_) {
     char *created;
     char *modified;
     char *size;
@@ -165,13 +166,13 @@ fileset_dlg_add_file(fileset_entry *entry) {
 		/* if this file doesn't follow the file set pattern, */
 		/* use the creation time of that file */
 		local = localtime(&entry->ctime);
-		created = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u",
+		created = g_strdup_printf("%04u-%02u-%02u %02u:%02u:%02u",
 			local->tm_year+1900, local->tm_mon+1, local->tm_mday,
 			local->tm_hour, local->tm_min, local->tm_sec);
 	}
 
     local = localtime(&entry->mtime);
-    modified = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u",
+    modified = g_strdup_printf("%04u-%02u-%02u %02u:%02u:%02u",
         local->tm_year+1900, local->tm_mon+1, local->tm_mday,
         local->tm_hour, local->tm_min, local->tm_sec);
     size = g_strdup_printf("%" G_GINT64_MODIFIER "d Bytes", entry->size);
@@ -328,7 +329,7 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(fs_w, "destroy", G_CALLBACK(fs_destroy_cb), NULL);
 
   /* init the dialog content */
-  fileset_update_dlg();
+  fileset_update_dlg(NULL);
 
   gtk_widget_show_all(fs_w);
   window_present(fs_w);
@@ -366,7 +367,7 @@ fileset_previous_cb(GtkWidget *w _U_, gpointer d _U_)
 /* a new capture file was opened, browse the dir and look for files matching the given file set */
 void
 fileset_file_opened(const capture_file *cf) {
-  fileset_add_dir(cf->filename);
+  fileset_add_dir(cf->filename, NULL);
   if(fs_w) {
     window_present(fs_w);
   }
