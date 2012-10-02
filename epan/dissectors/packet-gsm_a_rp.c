@@ -58,7 +58,7 @@ static const value_string gsm_rp_msg_strings[] = {
 const value_string gsm_rp_elem_strings[] = {
 	/* Short Message Service RP Information Elements [5] 8.2 */
 	{ 0x00,	"RP-Message Reference" },
-	{ 0x00,	"RP-Origination Address" },
+	{ 0x00,	"RP-Originator Address" },
 	{ 0x00,	"RP-Destination Address" },
 	{ 0x00,	"RP-User Data" },
 	{ 0x00,	"RP-Cause" },
@@ -84,7 +84,7 @@ typedef enum
 {
 	/* Short Message Service Information Elements [5] 8.2 */
 	DE_RP_MESSAGE_REF,				/* RP-Message Reference */
-	DE_RP_ORIG_ADDR,				/* RP-Origination Address */
+	DE_RP_ORIG_ADDR,				/* RP-Originator Address */
 	DE_RP_DEST_ADDR,				/* RP-Destination Address */
 	DE_RP_USER_DATA,				/* RP-User Data */
 	DE_RP_CAUSE,					/* RP-Cause */
@@ -248,7 +248,7 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 guint16 (*rp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Short Message Service Information Elements [5] 8.2 */
 	de_rp_message_ref,	/* RP-Message Reference */
-	de_rp_orig_addr,	/* RP-Origination Address */
+	de_rp_orig_addr,	/* RP-Originator Address */
 	de_rp_dest_addr,	/* RP-Destination Address */
 	de_rp_user_data,	/* RP-User Data */
 	de_rp_cause,	/* RP-Cause */
