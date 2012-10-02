@@ -2414,7 +2414,7 @@ addr_resolve_pref_init(module_t *nameres)
                                    "Use hosts file from profile dir only",
                                    "By default hosts file(s) will be loaded from multiple sources"
                                    " by checking this box only the hostfile for the current profile will be loaded"
-								   " if the default profile is used the hosts file must be in the same dir as preferences",
+                                   " if the default profile is used the hosts file must be in the same dir as preferences",
                                    &gbl_resolv_flags.load_hosts_file_from_profile_only);
 
 }
@@ -2494,7 +2494,7 @@ host_name_lookup_init(void) {
         read_hosts_file(hostspath);
       }
       g_free(hostspath);
-	}
+    }
   }
 #else /* _WIN32 */
   if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
