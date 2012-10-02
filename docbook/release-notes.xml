@@ -46,9 +46,9 @@ Wireshark Info
             7581</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.2.</para>
-          <para>
+          <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
-          </para>
+          </para> -->
         </listitem>
 
         <listitem>
@@ -59,13 +59,15 @@ Wireshark Info
 	    The PPP dissector could abort.
             <!-- Fixed in trunk: r44688, r44689 -->
             <!-- Fixed in trunk-1.8: r45126 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7581">Bug
-            7581</ulink>)
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7316">Bug
+            7316</ulink>,
+            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7668">bug
+            7668</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.2.</para>
-          <para>
+          <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
-          </para>
+          </para> -->
         </listitem>
 
         <listitem>
@@ -81,9 +83,9 @@ Wireshark Info
             7666</ulink>)
           </para>
           <para>Versions affected: 1.6.0 to 1.6.10, 1.8.0 to 1.8.2.</para>
-          <para>
+          <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
-          </para>
+          </para> -->
         </listitem>
 
         <listitem>
@@ -98,9 +100,9 @@ Wireshark Info
             7567</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.2.</para>
-          <para>
+          <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
-          </para>
+          </para> -->
         </listitem>
 
       </itemizedlist>
