@@ -4814,12 +4814,12 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 {
 	guint32	      curr_offset;
 	guint	      curr_len;
-	guchar        op_code;
-	guchar        pkt_fil_count;
-	guchar        e_bit;
+	guint8        op_code;
+	guint8        pkt_fil_count;
+	guint8        e_bit;
 	const gchar  *str;
-	guchar        count;
-	guchar        oct;
+	guint8        count;
+	guint8        oct;
 	gint          pf_length;
 	gint          i;
 	gint          pack_component_type;
@@ -4866,7 +4866,8 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 				return (len);
 			}
 			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_pkt_flt_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			oct = tvb_get_guint8(tvb, curr_offset) & 0x0f;
+			proto_tree_add_uint_format_value(tf_tree, hf_gsm_a_sm_tft_pkt_flt_id, tvb, curr_offset, 1, oct, "%d", oct+1);
 			curr_offset++;
 			curr_len--;
 			count++;
@@ -4880,7 +4881,8 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 			}
 			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_pkt_flt_dir, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_pkt_flt_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+			oct = tvb_get_guint8(tvb, curr_offset) & 0x0f;
+			proto_tree_add_uint_format_value(tf_tree, hf_gsm_a_sm_tft_pkt_flt_id, tvb, curr_offset, 1, oct, "%d", oct+1);
 			curr_offset++;
 			curr_len--;
 
@@ -5064,7 +5066,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 			case 0x03:
 				for (i=0; i<pf_length; i++) {
 					proto_tree_add_text(tf_tree, tvb, curr_offset+i, 1, "Packet filter identifier %d: %d",
-			                            i, tvb_get_guint8(tvb, curr_offset+i));
+			                            i, (tvb_get_guint8(tvb, curr_offset+i)&0x0f)+1);
 				}
 				break;
 
