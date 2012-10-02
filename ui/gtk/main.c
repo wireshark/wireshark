@@ -1339,7 +1339,7 @@ static gboolean
 resolv_update_cb(gpointer data _U_)
 {
   /* Anything new show up? */
-  if (host_name_lookup_process(NULL)) {
+  if (host_name_lookup_process()) {
     if (gtk_widget_get_window(pkt_scrollw))
       gdk_window_invalidate_rect(gtk_widget_get_window(pkt_scrollw), NULL, TRUE);
     if (gtk_widget_get_window(tv_scrollw))

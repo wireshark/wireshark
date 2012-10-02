@@ -127,11 +127,10 @@ extern void host_name_lookup_init(void);
  *  This is called from a GLIB timeout in Wireshark and before processing
  *  each packet in TShark.
  *
- * @param data Ignored.
  * @return True if any new objects have been resolved since the previous
  * call. This can be used to trigger a display update, e.g. in Wireshark.
  */
-extern gboolean host_name_lookup_process(gpointer data);
+extern gboolean host_name_lookup_process(void);
 
 /* host_name_lookup_cleanup cleans up an ADNS socket if we're using ADNS */
 extern void host_name_lookup_cleanup(void);

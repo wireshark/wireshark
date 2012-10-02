@@ -2525,7 +2525,7 @@ host_name_lookup_init(void) {
 
 #ifdef HAVE_C_ARES
 gboolean
-host_name_lookup_process(gpointer data _U_) {
+host_name_lookup_process(void) {
   async_dns_queue_msg_t *caqm;
   struct timeval tv = { 0, 0 };
   int nfds;
@@ -2594,7 +2594,7 @@ host_name_lookup_cleanup(void) {
  * - Do we need to keep our query structures around?
  */
 gboolean
-host_name_lookup_process(gpointer data _U_) {
+host_name_lookup_process(void) {
   async_dns_queue_msg_t *almsg;
   GList *cur;
   char addr_str[] = "111.222.333.444.in-addr.arpa.";
@@ -2667,7 +2667,7 @@ host_name_lookup_cleanup(void) {
 #else /* HAVE_GNU_ADNS */
 
 gboolean
-host_name_lookup_process(gpointer data _U_) {
+host_name_lookup_process(void) {
   gboolean nro = new_resolved_objects;
 
   new_resolved_objects = FALSE;

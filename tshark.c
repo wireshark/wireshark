@@ -2546,7 +2546,7 @@ process_packet_first_pass(capture_file *cf,
     if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
         gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns)
       /* Grab any resolved addresses */
-      host_name_lookup_process(NULL);
+      host_name_lookup_process();
 
     /* If we're going to be applying a read filter, we'll need to
        create a protocol tree against which to apply the filter. */
@@ -2611,7 +2611,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
     if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
         gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns)
       /* Grab any resolved addresses */
-      host_name_lookup_process(NULL);
+      host_name_lookup_process();
 
     if (cf->rfcode || verbose || filtering_tap_listeners ||
         (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
@@ -3066,7 +3066,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
     if (print_packet_info && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
         gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns))
       /* Grab any resolved addresses */
-      host_name_lookup_process(NULL);
+      host_name_lookup_process();
 
     if (cf->rfcode || verbose || filtering_tap_listeners ||
         (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
