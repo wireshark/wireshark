@@ -80,30 +80,13 @@ FileSetDialog::~FileSetDialog()
 void FileSetDialog::fileOpened(const capture_file *cf) {
     if (!cf) return;
     fs_ui_->fileSetTree->clear();
-//    fileset_delete();
     fileset_add_dir(cf->filename, this);
-//    if(fs_w) {
-//        window_present(fs_w);
-//    }
-
 }
 
 /* the capture file was closed */
 void FileSetDialog::fileClosed() {
     fileset_delete();
     fs_ui_->fileSetTree->clear();
-
-//    if(fs_w) {
-//        /* reinit the table, title and alike */
-//        g_object_ref(G_OBJECT(fs_tb_vb));
-//        gtk_widget_destroy(fs_tb);
-//        fileset_delete();
-//        fileset_init_table(fs_tb_vb);
-//        window_present(fs_w);
-//    } else {
-//        fileset_delete();
-//    }
-
 }
 
 #include <QDebug>
@@ -162,7 +145,7 @@ void FileSetDialog::addFile(fileset_entry *entry) {
         close_button_->setEnabled(true);
 
     fs_ui_->fileSetTree->addTopLevelItem(entry_item);
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < fs_ui_->fileSetTree->columnCount(); i++)
         fs_ui_->fileSetTree->resizeColumnToContents(i);
     fs_ui_->fileSetTree->setFocus();
 }

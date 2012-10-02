@@ -72,6 +72,7 @@ set(QTSHARK_CPP_SRC
 	main_status_bar.cpp
 	main_welcome.cpp
 	main_window.cpp
+	main_window_slots.cpp
 	monospace_font.cpp
 	packet_list.cpp
 	packet_list_model.cpp
