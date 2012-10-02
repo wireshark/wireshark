@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
 
-    <application id="16777222" name="3GPP Gq" uri="http://www.3GPP.org/ftp/Specs/html-info/29209.htm">
-        
-        <!-- ************************** Gq AVPS ********************* -->
-		<!-- ETSI TS 129 209 V6.7.0 (2007-06) -->
+<application id="16777222" name="3GPP Gq" uri="http://www.3GPP.org/ftp/Specs/html-info/29209.htm">
 
-		<avp name="Abort-Cause" code="500" mandatory="must" vendor-bit="must" may-encrypt="yes" vendor-id="TGPP">
-			<type type-name="Enumerated"/>
-			<enum name="BEARER_RELEASED" code="0"/>
-			<enum name="INSUFFICIENT_SERVER_RESOURCES" code="1"/>
-			<enum name="INSUFFICIENT_BEARER_RESOURCES" code="2"/>
-		</avp>
+    <!-- ETSI TS 129 209 V6.7.0 (2007-06) -->
 
-		<avp name="Access-Network-Charging-Address" code="501" vendor-bit="must" may-encrypt="no" vendor-id="TGPP"> 
-			<type type-name="IPAddress"/>
-		</avp>
+    <avp name="Abort-Cause" code="500" mandatory="must" vendor-bit="must" may-encrypt="yes" vendor-id="TGPP">
+        <type type-name="Enumerated"/>
+        <enum name="BEARER_RELEASED" code="0"/>
+        <enum name="INSUFFICIENT_SERVER_RESOURCES" code="1"/>
+        <enum name="INSUFFICIENT_BEARER_RESOURCES" code="2"/>
+    </avp>
+
+    <avp name="Access-Network-Charging-Address" code="501" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+        <type type-name="IPAddress"/>
+    </avp>
 
     <avp name="Access-Network-Charging-Identifier" code="502" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
         <grouped>
-          <gavp name="Access-Network-Charging-Identifier-Value"/>
-          <gavp name="Flows"/>
+            <gavp name="Access-Network-Charging-Identifier-Value"/>
+            <gavp name="Flows"/>
         </grouped>
     </avp>
 
@@ -40,13 +39,13 @@
         <type type-name="OctetString"/>
     </avp>
 
-	  <avp name="Flow-Description" code="507" vendor-id="TGPP" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must">
-		  <type type-name="IPFilterRule"/>
-	  </avp>
+    <avp name="Flow-Description" code="507" vendor-id="TGPP" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must">
+        <type type-name="IPFilterRule"/>
+    </avp>
 
     <avp name="Flow-Grouping" code="508" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
         <grouped>
-                <gavp name="Flows"/>
+            <gavp name="Flows"/>
         </grouped>
     </avp>
 
@@ -56,9 +55,9 @@
 
     <avp name="Flows" code="510" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
         <grouped>
-          <gavp name="Media-Component-Number"/>
-          <gavp name="Flow-Number"/>
-          <gavp name="Final-Unit-Action"/>
+            <gavp name="Media-Component-Number"/>
+            <gavp name="Flow-Number"/>
+            <gavp name="Final-Unit-Action"/>
         </grouped>
     </avp>
 
@@ -88,8 +87,15 @@
             <enum name="INDICATION_OF_RELEASE_OF_BEARER" code="4"/>
             <enum name="INDICATION_OF_ESTABLISHMENT_OF_BEARER" code="5"/>
       <!-- ETSI ES 283 026 V2.4.1 (2008-11) In addition, the present document defines two new events:-->
+      <!-- NOTE: 3GPP 29.214 has conflicting values for 6 and 7... -->
             <enum name="INDICATION_OF_SUBSCRIBER_DETACHMENT" code="6"/>
             <enum name="INDICATION_OF_RESERVATION_EXPIRATION" code="7"/>
+      <!-- From 3GPP 29.214 v11.6.0: -->
+            <enum name="INDICATION_OF_SUCCESSFUL_RESOURCES_ALLOCATION" code="8"/>
+            <enum name="INDICATION_OF_FAILED_RESOURCES_ALLOCATION" code="9"/>
+            <enum name="INDICATION_OF_LIMITED_PCC_DEPLOYMENT" code="10"/>
+            <enum name="USAGE_REPORT" code="11"/>
+            <enum name="ACCESS_NETWORK_INFO_REPORT" code="12"/>
     </avp>
 
     <avp name="Max-Requested-Bandwidth-DL" code="515" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
@@ -102,21 +108,21 @@
 
     <avp name="Media-Component-Description" code="517" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
         <grouped>
-           <gavp name="Media-Component-Number"/>
-           <gavp name="Media-Sub-Component"/>
-           <gavp name="AF-Application-Identifier"/>
-           <gavp name="Media-Type"/>
-           <gavp name="Max-Requested-Bandwidth-UL"/>
-           <gavp name="Max-Requested-Bandwidth-DL"/>
-           <gavp name="Flow-Status"/>
-           <gavp name="RS-Bandwidth"/>
-           <gavp name="RR-Bandwidth"/>
-           <gavp name="Codec-Data"/>
-			<!-- ETSI ES 283 026 V1.6.0 (2008-02) -->
-          <gavp name="Reservation-Priority"/>
-          <gavp name="Reservation-Class"/>
-          <gavp name="Transport-Class"/>
-          <gavp name="Media-Authorization-Context-Id"/>
+            <gavp name="Media-Component-Number"/>
+            <gavp name="Media-Sub-Component"/>
+            <gavp name="AF-Application-Identifier"/>
+            <gavp name="Media-Type"/>
+            <gavp name="Max-Requested-Bandwidth-UL"/>
+            <gavp name="Max-Requested-Bandwidth-DL"/>
+            <gavp name="Flow-Status"/>
+            <gavp name="RS-Bandwidth"/>
+            <gavp name="RR-Bandwidth"/>
+            <gavp name="Codec-Data"/>
+        <!-- ETSI ES 283 026 V1.6.0 (2008-02) -->
+            <gavp name="Reservation-Priority"/>
+            <gavp name="Reservation-Class"/>
+            <gavp name="Transport-Class"/>
+            <gavp name="Media-Authorization-Context-Id"/>
         </grouped>
     </avp>
 
@@ -126,12 +132,12 @@
 
     <avp name="Media-Sub-Component" code="519" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
         <grouped>
-          <gavp name="Flow-Number"/>
-          <gavp name="Flow-Description"/>
-          <gavp name="Flow-Status"/>
-          <gavp name="Flow-Usage"/>
-          <gavp name="Max-Requested-Bandwidth-UL"/>
-          <gavp name="Max-Requested-Bandwidth-DL"/>
+            <gavp name="Flow-Number"/>
+            <gavp name="Flow-Description"/>
+            <gavp name="Flow-Status"/>
+            <gavp name="Flow-Usage"/>
+            <gavp name="Max-Requested-Bandwidth-UL"/>
+            <gavp name="Max-Requested-Bandwidth-DL"/>
         </grouped>
     </avp>
 
@@ -147,7 +153,6 @@
             <enum name="OTHER" code="4294967295"/>
     </avp>
 
-
     <avp name="RR-Bandwidth" code="521" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
         <type type-name="Unsigned32"/>
     </avp>
@@ -155,14 +160,11 @@
     <avp name="RS-Bandwidth" code="522" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
         <type type-name="Unsigned32"/>
     </avp>
-    
+
     <avp name="SIP-Forking-Indication" code="523" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
         <type type-name="Enumerated"/>
             <enum name="SINGLE_DIALOGUE" code="0"/>
             <enum name="SEVERAL_DIALOGUES" code="1"/>
     </avp>
 
-
-        <!-- ************************ END Gq AVPS ******************* -->
-
-    </application>
+</application>
