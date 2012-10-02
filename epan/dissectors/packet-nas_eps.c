@@ -184,7 +184,6 @@ static int hf_nas_eps_egbr_dl = -1;
 
 static int hf_nas_eps_esm_cause = -1;
 static int hf_nas_eps_esm_eit = -1;
-static int hf_nas_eps_esm_lnkd_eps_bearer_id = -1;
 static int hf_nas_eps_esm_notif_ind = -1;
 static int hf_nas_eps_esm_pdn_type = -1;
 static int hf_nas_eps_esm_pdn_ipv4 = -1;
@@ -2519,20 +2518,6 @@ static const value_string nas_eps_esm_linked_bearer_id_vals[] = {
     { 0, NULL }
 };
 
-
-
-static guint16
-de_esm_lnkd_eps_bearer_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
-{
-    guint32 curr_offset;
-
-    curr_offset = offset;
-
-    proto_tree_add_item(tree, hf_nas_eps_esm_lnkd_eps_bearer_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    return(len);
-}
-
 /*
  * 9.9.4.7 LLC service access point identifier
  * See subclause 10.5.6.9 in 3GPP TS 24.008
@@ -2788,7 +2773,7 @@ guint16 (*esm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     de_esm_qos,                     /* 9.9.4.3 EPS quality of service */
     de_esm_cause,                   /* 9.9.4.4 ESM cause */
     de_esm_inf_trf_flg,             /* 9.9.4.5 ESM information transfer flag */
-    de_esm_lnkd_eps_bearer_id,      /* 9.9.4.6 Linked EPS bearer identity  */
+    NULL,                           /* 9.9.4.6 Linked EPS bearer identity  */
     NULL,                           /* 9.9.4.7 LLC service access point identifier */
     de_esm_notif_ind,               /* 9.9.4.7a Notification indicator */
     NULL,                           /* 9.9.4.8 Packet flow identifier  */
@@ -4556,6 +4541,26 @@ get_nas_emm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
     return;
 }
 
+static const value_string nas_eps_esm_bearer_id_vals[] = {
+    { 0x0,  "No EPS bearer identity assigned"},
+    { 0x1,  "Reserved"},
+    { 0x2,  "Reserved"},
+    { 0x3,  "Reserved"},
+    { 0x4,  "Reserved"},
+    { 0x5,  "EPS bearer identity value 5"},
+    { 0x6,  "EPS bearer identity value 6"},
+    { 0x7,  "EPS bearer identity value 7"},
+    { 0x8,  "EPS bearer identity value 8"},
+    { 0x9,  "EPS bearer identity value 9"},
+    { 0xa,  "EPS bearer identity value 10"},
+    { 0xb,  "EPS bearer identity value 11"},
+    { 0xc,  "EPS bearer identity value 12"},
+    { 0xd,  "EPS bearer identity value 13"},
+    { 0xe,  "EPS bearer identity value 14"},
+    { 0xf,  "EPS bearer identity value 15"},
+    { 0, NULL }
+};
+
 /*
  * EPS session management messages.
  * A plain NAS message is pased to this function
@@ -4942,7 +4947,7 @@ proto_register_nas_eps(void) {
     },
     { &hf_nas_eps_bearer_id,
         { "EPS bearer identity",    "nas_eps.bearer_id",
-        FT_UINT8, BASE_DEC, NULL, 0xf0,
+        FT_UINT8, BASE_DEC, VALS(nas_eps_esm_bearer_id_vals), 0xf0,
         NULL, HFILL }
     },
     { &hf_nas_eps_spare_bits,
@@ -5575,11 +5580,6 @@ proto_register_nas_eps(void) {
     { &hf_nas_eps_esm_eit,
         { "EIT (ESM information transfer)", "nas_eps.emm.eit",
         FT_BOOLEAN, 8, TFS(&nas_eps_emm_eit_vals), 0x01,
-        NULL, HFILL }
-    },
-    { &hf_nas_eps_esm_lnkd_eps_bearer_id,
-        { "Linked EPS bearer identity","nas_eps.esm.lnkd_eps_bearer_id",
-        FT_UINT8,BASE_DEC, VALS(nas_eps_esm_linked_bearer_id_vals), 0x0f,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_notif_ind,
