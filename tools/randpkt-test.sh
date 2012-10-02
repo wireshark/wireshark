@@ -58,7 +58,7 @@ ulimit -c unlimited
 # V Print a view of the details of the packet rather than a one-line summary of the packet
 # x Cause TShark to print a hex and ASCII dump of the packet data after printing the summary or details
 # r Read packet data from the following infile
-TSHARK_ARGS="-nVxr"
+declare -a TSHARK_ARGS=("-nVxr" "-nr")
 RANDPKT_ARGS="-b 2000 -c 5000"
 
 NOTFOUND=0
@@ -76,7 +76,9 @@ HOWMANY="forever"
 if [ $MAX_PASSES -gt 0 ]; then
     HOWMANY="$MAX_PASSES passes"
 fi
-echo "Running $TSHARK with args: $TSHARK_ARGS ($HOWMANY)"
+echo -n "Running $TSHARK with args: "
+printf "\"%s\" " "${TSHARK_ARGS[@]}"
+echo "($HOWMANY)"
 echo "Running $RANDPKT with args: $RANDPKT_ARGS"
 echo ""
 
@@ -118,9 +120,13 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
         "$RANDPKT" $RANDPKT_ARGS -t $PKT_TYPE $TMP_DIR/$TMP_FILE \
             > /dev/null 2>&1
 
-        "$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
-            > /dev/null 2> $TMP_DIR/$ERR_FILE
-        RETVAL=$?
+	for ARGS in "${TSHARK_ARGS[@]}" ; do
+            echo -n "($ARGS) "
+            "$TSHARK" $ARGS $TMP_DIR/$TMP_FILE \
+                > /dev/null 2> $TMP_DIR/$ERR_FILE
+            RETVAL=$?
+	    if [ $RETVAL -ge 128 ] ; then break ; fi
+        done
         grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
             > /dev/null 2>&1 && DISSECTOR_BUG=1
         if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then

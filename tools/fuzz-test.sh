@@ -94,7 +94,7 @@ ulimit -c unlimited
 
 if [ $VALGRIND -eq 1 ]; then
     RUNNER="$BIN_DIR/tools/valgrind-wireshark.sh"
-    RUNNER_ARGS="${CONFIG_PROFILE}${TWO_PASS}"
+    declare -a RUNNER_ARGS=("${CONFIG_PROFILE}${TWO_PASS}")
 else
     # Not using valgrind, use regular tshark.
     # TShark arguments (you won't have to change these)
@@ -103,7 +103,7 @@ else
     # x Cause TShark to print a hex and ASCII dump of the packet data after printing the summary or details
     # r Read packet data from the following infile
     RUNNER="$TSHARK"
-    RUNNER_ARGS="${CONFIG_PROFILE}${TWO_PASS}-nVxr"
+    declare -a RUNNER_ARGS=("${CONFIG_PROFILE}${TWO_PASS}-nVxr" "${CONFIG_PROFILE}${TWO_PASS}-nr")
 fi
 
 
@@ -148,7 +148,9 @@ HOWMANY="forever"
 if [ $MAX_PASSES -gt 0 ]; then
         HOWMANY="$MAX_PASSES passes"
 fi
-echo "Running $RUNNER with args: $RUNNER_ARGS ($HOWMANY)"
+echo -n "Running $RUNNER with args: "
+printf "\"%s\" " "${RUNNER_ARGS[@]}"
+echo "($HOWMANY)"
 echo ""
 
 # Clean up on <ctrl>C, etc
@@ -254,9 +256,13 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 	    fi
 	fi
 
-	"$RUNNER" $RUNNER_ARGS $TMP_DIR/$TMP_FILE \
-	    > /dev/null 2>> $TMP_DIR/$ERR_FILE
-	RETVAL=$?
+	for ARGS in "${RUNNER_ARGS[@]}" ; do
+	    echo -n "($ARGS) "
+	    "$RUNNER" $ARGS $TMP_DIR/$TMP_FILE \
+		> /dev/null 2>> $TMP_DIR/$ERR_FILE
+	    RETVAL=$?
+	    if [ $RETVAL -ge 128 ] ; then break ; fi
+	done
 
 	# Uncomment the next two lines to enable dissector bug
 	# checking.
