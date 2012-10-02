@@ -432,20 +432,20 @@ PARTICULAR PURPOSE.]]>
               </entry>
             </row>
             <row>
-              <entry morerows="1" valign="center">
+              <entry morerows="1" valign="middle">
                 <para>Visual Studio 2010</para>
               </entry>
-              <entry morerows="1" valign="center">
+              <entry morerows="1" valign="middle">
                 <para>Yes</para>
               </entry>
-              <entry morerows="1" valign="center">
+              <entry morerows="1" valign="middle">
                 <para>Commercial</para>
               </entry>
-              <entry morerows="1" valign="center">
+              <entry morerows="1" valign="middle">
                 <para>No
                 <superscript>2</superscript></para>
               </entry>
-              <entry morerows="1" valign="center">
+              <entry morerows="1" valign="middle">
                 <para>MSVC2010</para>
               </entry>
               <entry>
@@ -455,7 +455,7 @@ PARTICULAR PURPOSE.]]>
                 <para>Microsoft Visual Studio
                 10.0\VC\vcvarsall.bat x86</para>
               </entry>
-              <entry morerows="1" valign="center">
+              <entry morerows="1" valign="middle">
                 <para>-</para>
               </entry>
             </row>
@@ -469,14 +469,14 @@ PARTICULAR PURPOSE.]]>
               </entry>
             </row>
             <row>
-              <entry morerows="1" valign="center">
+              <entry morerows="1" valign="middle">
                 <para>Visual C++ 2010 Express Edition</para>
                 <para>(recommended)</para>
               </entry>
-              <entry morerows="1" valign="center">
+              <entry morerows="1" valign="middle">
                 <para>Yes</para>
               </entry>
-              <entry morerows="1" valign="center">
+              <entry morerows="1" valign="middle">
                 <para>
                 <ulink url="http://www.microsoft.com/express/Downloads/#Visual_Studio_2010_Express_Downloads">
                 Free Download</ulink></para>
@@ -485,7 +485,7 @@ PARTICULAR PURPOSE.]]>
                 <para>No
                 <superscript>2</superscript></para>
               </entry>
-              <entry morerows="1" valign="center">
+              <entry morerows="1" valign="middle">
                 <para>MSVC2010EE</para>
               </entry>
               <entry>
