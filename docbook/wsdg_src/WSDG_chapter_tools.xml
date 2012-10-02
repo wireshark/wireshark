@@ -270,13 +270,14 @@ PARTICULAR PURPOSE.]]>
 
       <informaltable frame="all">
         <tgroup cols="7">
-          <colspec colname="c1" colwidth="14*" />
-          <colspec colname="c2" colwidth="14*" />
-          <colspec colname="c3" colwidth="14*" />
-          <colspec colname="c4" colwidth="14*" />
-          <colspec colname="c5" colwidth="14*" />
-          <colspec colname="c6" colwidth="14*" />
-          <colspec colname="c7" colwidth="14*" />
+          <colspec colname="compiler_package" colwidth="14*" />
+          <colspec colname="ide_debugger" colwidth="14*" />
+          <colspec colname="publicly_available" colwidth="14*" />
+          <colspec colname="sdk_required" colwidth="14*" />
+          <colspec colname="msvc_variant" colwidth="14*" />
+          <colspec colname="bitwidth" colwidth="14*" />
+          <colspec colname="vcvars_bat" colwidth="14*" />
+          <colspec colname="remarks" colwidth="14*" />
           <tbody>
             <row>
               <entry>
@@ -290,6 +291,9 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>SDK required?</para>
+              </entry>
+              <entry>
+                <para>32-bit/64-bit</para>
               </entry>
               <entry>
                 <para>config.nmake:</para>
@@ -322,6 +326,9 @@ PARTICULAR PURPOSE.]]>
                 <para>MSVC2005</para>
               </entry>
               <entry>
+                <para>32-bit only</para>
+              </entry>
+              <entry>
                 <para>Microsoft Visual Studio
                 8\VC\bin\vcvars32.bat</para>
               </entry>
@@ -348,6 +355,9 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>MSVC2005EE</para>
+              </entry>
+              <entry>
+                <para>32-bit only</para>
               </entry>
               <entry>
                 <para>Microsoft Visual Studio
@@ -378,6 +388,9 @@ PARTICULAR PURPOSE.]]>
                 <para>MSVC2008</para>
               </entry>
               <entry>
+                <para>32-bit only?</para>
+              </entry>
+              <entry>
                 <para>Microsoft Visual Studio
                 9.0\VC\bin\vcvars32.bat</para>
               </entry>
@@ -405,6 +418,9 @@ PARTICULAR PURPOSE.]]>
                 <para>MSVC2008EE</para>
               </entry>
               <entry>
+                <para>32-bit only?</para>
+              </entry>
+              <entry>
                 <para>Microsoft Visual Studio
                 9.0\VC\bin\vcvars32.bat</para>
               </entry>
@@ -416,39 +432,51 @@ PARTICULAR PURPOSE.]]>
               </entry>
             </row>
             <row>
-              <entry>
+              <entry morerows="1" valign="center">
                 <para>Visual Studio 2010</para>
               </entry>
-              <entry>
+              <entry morerows="1" valign="center">
                 <para>Yes</para>
               </entry>
-              <entry>
+              <entry morerows="1" valign="center">
                 <para>Commercial</para>
               </entry>
-              <entry>
+              <entry morerows="1" valign="center">
                 <para>No
                 <superscript>2</superscript></para>
               </entry>
-              <entry>
+              <entry morerows="1" valign="center">
                 <para>MSVC2010</para>
               </entry>
               <entry>
-                <para>Microsoft Visual Studio
-                10.0\VC\bin\vcvars32.bat</para>
+                <para>32-bit</para>
               </entry>
               <entry>
+                <para>Microsoft Visual Studio
+                10.0\VC\vcvarsall.bat x86</para>
+              </entry>
+              <entry morerows="1" valign="center">
                 <para>-</para>
               </entry>
             </row>
-             <row>
+            <row>
               <entry>
+                <para>64-bit</para>
+              </entry>
+              <entry>
+                <para>Microsoft Visual Studio
+                10.0\VC\vcvarsall.bat x64</para>
+              </entry>
+            </row>
+            <row>
+              <entry morerows="1" valign="center">
                 <para>Visual C++ 2010 Express Edition</para>
                 <para>(recommended)</para>
               </entry>
-              <entry>
+              <entry morerows="1" valign="center">
                 <para>Yes</para>
               </entry>
-              <entry>
+              <entry morerows="1" valign="center">
                 <para>
                 <ulink url="http://www.microsoft.com/express/Downloads/#Visual_Studio_2010_Express_Downloads">
                 Free Download</ulink></para>
@@ -457,16 +485,37 @@ PARTICULAR PURPOSE.]]>
                 <para>No
                 <superscript>2</superscript></para>
               </entry>
-              <entry>
+              <entry morerows="1" valign="center">
                 <para>MSVC2010EE</para>
               </entry>
               <entry>
+                <para>32-bit</para>
+              </entry>
+              <entry>
                 <para>Microsoft Visual Studio
-                10.0\VC\vcvarsall.bat"" x86</para>
+                10.0\VC\vcvarsall.bat x86</para>
               </entry>
               <entry>
                 <para>
-                  <filename>vcredist_x86.exe</filename>,
+                  <filename>vcredist_x86.exe</filename>
+                  <superscript>3</superscript>
+                </para>
+              </entry>
+            </row>
+            <row>
+              <entry>
+                <para>Yes
+                <superscript>2</superscript></para>
+              </entry>
+              <entry>
+                <para>64-bit</para>
+              </entry>
+              <entry>
+                <para>Microsoft Visual Studio
+                10.0\VC\vcvarsall.bat x64</para>
+              </entry>
+              <entry>
+                <para>
                   <filename>vcredist_x64.exe</filename>
                   <superscript>3</superscript>
                 </para>
@@ -492,6 +541,9 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>DOTNET20</para>
+              </entry>
+              <entry>
+                <para>32-bit only?</para>
               </entry>
               <entry>
                 <para>Microsoft.NET\SDK\v2.0\Bin\sdkvars.bat</para>
