@@ -7905,7 +7905,7 @@ proto_register_gsm_rlcmac(void)
      },
      { &hf_me,
        { "ME",        "gsm_rlcmac.me",
-         FT_BOOLEAN, BASE_NONE, TFS(&me_vals), 0x0,
+         FT_UINT8, BASE_DEC, VALS(me_vals), 0x0,
          NULL, HFILL
        }
      },
