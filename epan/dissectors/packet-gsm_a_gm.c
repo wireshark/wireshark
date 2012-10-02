@@ -41,6 +41,12 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 10.6.1 Release 10)
  *
+ *   Reference [11]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 11.4.0 Release 11)
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -178,6 +184,7 @@ const value_string gsm_gm_elem_strings[] = {
 	{ 0x00, "Voice domain preference and UE's usage setting" },
 	{ 0x00, "P-TMSI type" },
 	{ 0x00, "Location Area Identification 2" },
+	{ 0x00, "Network resource identifier container" },
 	/* Session Management Information Elements 10.5.6 */
 	{ 0x00,	"Access Point Name" },
 	{ 0x00,	"Network Service Access Point Identifier" },
@@ -311,6 +318,7 @@ static int hf_gsm_a_gm_req_ms_info_irat2 = -1;
 static int hf_gsm_a_gm_ue_usage_setting = -1;
 static int hf_gsm_a_gm_voice_domain_pref_for_eutran = -1;
 static int hf_gsm_a_gm_ptmsi_type = -1;
+static int hf_gsm_a_gm_nri_cont = -1;
 static int hf_gsm_a_sm_pdp_type_org = -1;
 static int hf_gsm_a_sm_qos_mean_thr = -1;
 static int hf_gsm_a_sm_qos_peak_thr = -1;
@@ -3341,6 +3349,7 @@ de_gmm_ptmsi_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
 	return (curr_offset - offset);
 }
+
 /* [10] 10.5.5.30 Location Area Identification 2 */
 static guint16
 de_gmm_lai_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
@@ -3348,6 +3357,23 @@ de_gmm_lai_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
 	/* The Location Area Identification 2 value is coded as octet 2 to 6 of the */
 	/* Location Area Identification information element */
 	return de_lai(tvb, tree, pinfo, offset, len, add_string, string_len);
+}
+
+/* [11] 10.5.5.31 Network resource identifier container */
+static guint16
+de_gmm_net_res_id_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint32 bit_offset;
+
+	curr_offset = offset;
+	bit_offset  = curr_offset<<3;
+
+	proto_tree_add_item(tree, hf_gsm_a_gm_nri_cont, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+	bit_offset += 10;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
+
+	return len;
 }
 
 /*
@@ -5271,6 +5297,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_gmm_voice_domain_pref,          /* Voice domain preference and UE's usage setting */
 	de_gmm_ptmsi_type,                 /* P-TMSI type */
 	de_gmm_lai_2,                      /* Location Area Identification 2 */
+	de_gmm_net_res_id_cont,            /* Network resource identifier container */
 	/* Session Management Information Elements 10.5.6 */
 	de_sm_apn,                         /* Access Point Name */
 	de_sm_nsapi,                       /* Network Service Access Point Identifier */
@@ -7341,6 +7368,11 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_ptmsi_type,
 		  { "P-TMSI type", "gsm_a.gm.gmm.ptmsi_type",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_ptmsi_type_value), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_nri_cont,
+		  { "NRI container value", "gsm_a.gm.gmm.nri_cont_value",
+		    FT_UINT16, BASE_HEX, NULL, 0xffc0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_pdp_type_org,

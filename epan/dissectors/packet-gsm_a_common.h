@@ -1106,6 +1106,7 @@ typedef enum
     DE_VOICE_DOMAIN_PREF,           /* [7] 10.5.5.28 Voice domain preference and UE's usage setting */
     DE_PTMSI_TYPE,                  /* [10] 10.5.5.29 P-TMSI type */
     DE_LAI_2,                       /* [10] 10.5.5.30 Location Area Identification 2 */
+    DE_NET_RES_ID_CONT,             /* [11] 10.5.5.31 Network resource identifier container */
     /* Session Management Information Elements [3] 10.5.6 */
     DE_ACC_POINT_NAME,              /* Access Point Name */
     DE_NET_SAPI,                    /* Network Service Access Point Identifier */
