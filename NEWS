@@ -1,4 +1,4 @@
-Wireshark 1.6.10 Release Notes
+Wireshark 1.6.11 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,108 +12,47 @@ What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed.
+   The following vulnerability has been fixed.
 
-     o wnpa-sec-2012-13
+     o wnpa-sec-2012-28
 
-       The DCP ETSI dissector could trigger a zero division. Reported
-       by Laurent Butti. (Bug 7566)
+       Martin Wilck discovered an infinite loop in the DRDA
+       dissector. (Bug 7666)
 
-       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
-       1.8.1.
-
-       CVE-2012-4285
-
-     o wnpa-sec-2012-15
-
-       The XTP dissector could go into an infinite loop. Reported by
-       Ben Schmidt. (Bug 7571)
-
-       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
-       1.8.1.
-
-       CVE-2012-4288
-
-     o wnpa-sec-2012-17
-
-       The AFP dissector could go into a large loop. Reported by
-       Stefan Cornelius. (Bug 7603)
-
-       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
-       1.8.1.
-
-       CVE-2012-4289
-
-     o wnpa-sec-2012-18
-
-       The RTPS2 dissector could overflow a buffer. Reported by
-       Laurent Butti. (Bug 7568)
-
-       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
-       1.8.1.
-
-       CVE-2012-4296
-
-     o wnpa-sec-2012-19
-
-       The GSM RLC MAC dissector could overflow a buffer. Reported by
-       Laurent Butti. (Bug 7561)
-
-       Versions affected: 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.
-
-       CVE-2012-4297
-
-     o wnpa-sec-2012-20
-
-       The CIP dissector could exhaust system memory. Reported by Ben
-       Schmidt. (Bug 7570)
-
-       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
-       1.8.1.
-
-       CVE-2012-4291
-
-     o wnpa-sec-2012-21
-
-       The STUN dissector could crash. Reported by Laurent Butti.
-       (Bug 7569)
-
-       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
-       1.8.1.
-
-       CVE-2012-4292
-
-     o wnpa-sec-2012-22
-
-       The EtherCAT Mailbox dissector could abort. Reported by
-       Laurent Butti. (Bug 7562)
-
-       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
-       1.8.1.
-
-       CVE-2012-4293
-
-     o wnpa-sec-2012-23
-
-       The CTDB dissector could go into a large loop. Reported by Ben
-       Schmidt. (Bug 7573)
-
-       Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to
-       1.8.1.
-
-       CVE-2012-4290
+       Versions affected: 1.6.0 to 1.6.10, 1.8.0 to 1.8.2.
 
    The following bugs have been fixed:
 
-     o Wireshark may not run on Windows due to missing DLLs.
+     o The HTTP dissector does not reassemble headers when the first
+       TCP segment does not contain a full header line.
 
-     o ISDN LAPD X.31 packet traffic can not be decoded. (Bug 7514)
+     o No markers show up when maps are displayed. (Bug 5016)
 
-     o GSM classmark3 decode wrong. (Bug 7524)
+     o Truncated/partial JPEG files are not dissected. (Bug 6230)
 
-     o tshark WARNING ERR: Dissector bug, protocol X2AP, in packet
-       17019451: proto.c:1347: failed assertion "length == 4. (Bug
-       7542)
+     o Assertion when using tshark/wireshark on large captures. (Bug
+       5699)
+
+     o Volume label field of "SMB/TRANS2-QUERY_FS_INFO/InfoVolume
+       level" reply packet is not displayed correctly due alignment
+       issue. (Bug 5778)
+
+     o 64-bit Wireshark appears to hit 2-Gbyte memory limit on 64-bit
+       Windows. (Bug 5979)
+
+     o epan/dissectors/packet-per.c
+       dissect_per_constrained_integer_64b fails for 64 bits. (Bug
+       7624)
+
+     o dissector of Qos attribute "Reliability Class" in GMM/SM
+       message. (Bug 7670)
+
+     o [ieee802.11] TKIP dissection : wrong IS_TKIP macro. (Bug 7691)
+
+     o This trace causes Wireshark to crash when VoIP Calls selected.
+       (Bug 7724)
+
+     o SCSI: WRITE BUFFER fields always display as zero. (Bug 7753)
 
   New and Updated Features
 
@@ -125,12 +64,12 @@ What's New
 
   Updated Protocol Support
 
-   AFP, CIP, CTDB, DCP ETSI, EtherCAT Mailbox, GSM A, GSM RLC MAC,
-   ISDN, NFS, RTPS2, STUN, X2AP, XTP
+   ASN.1 PER, GSM Management, IEEE 802.11, JPEG, PCAP, RANAP, RRC,
+   RRLP, SCSI, SMB, TETRA
 
   New and Updated Capture File Support
 
-   .
+   There are no file format updates in this release.
 
 Getting Wireshark
 

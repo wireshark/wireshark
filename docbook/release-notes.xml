@@ -31,7 +31,7 @@ Wireshark Info
 
     <para>
 
-      The following vulnerabilities have been fixed.
+      The following vulnerability has been fixed.
       <itemizedlist>
 
         <listitem>
@@ -47,9 +47,9 @@ Wireshark Info
             7666</ulink>)
           </para>
           <para>Versions affected: 1.6.0 to 1.6.10, 1.8.0 to 1.8.2.</para>
-          <para>
+          <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
-          </para>
+          </para> -->
         </listitem>
       </itemizedlist>
 
@@ -179,7 +179,7 @@ TETRA
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+There are no file format updates in this release.
 
     </para>
     </section>

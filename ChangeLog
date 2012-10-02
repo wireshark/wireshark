@@ -14,3 +14,341 @@ Changed paths:
 1.6.10 → 1.6.11.
 
 ------------------------------------------------------------------------
+r44584 | gerald | 2012-08-19 08:04:37 -0700 (Sun, 19 Aug 2012) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/manuf
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-08-19]
+------------------------------------------------------------------------
+r44598 | sake | 2012-08-20 12:42:17 -0700 (Mon, 20 Aug 2012) | 14 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-http.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r44593 | sake | 2012-08-20 01:52:37 +0200 (ma, 20 aug 2012) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-http.c
+
+  Enhance the http dissector to correctly reassemble http
+  headers when the first tcp segment does not contain a
+  full line.
+
+  ------------------------------------------------------------------------
+\nUpdate the release notes.
+
+------------------------------------------------------------------------
+r44678 | gerald | 2012-08-26 08:04:34 -0700 (Sun, 26 Aug 2012) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/manuf
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-08-26]
+------------------------------------------------------------------------
+r44691 | pascal | 2012-08-28 07:28:48 -0700 (Tue, 28 Aug 2012) | 3 lines
+Changed paths:
+   M /trunk-1.6/epan/dissectors/packet-gsm_a_gm.c
+
+Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7670 :
+Use correct filter name and value string for the dissection of Qos attribute "Reliability Class" in GMM/SM message
+
+------------------------------------------------------------------------
+r44740 | gerald | 2012-09-02 08:04:28 -0700 (Sun, 02 Sep 2012) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/manuf
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-09-02]
+------------------------------------------------------------------------
+r44822 | gerald | 2012-09-09 08:04:46 -0700 (Sun, 09 Sep 2012) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/manuf
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-09-09]
+------------------------------------------------------------------------
+r44926 | gerald | 2012-09-16 08:04:40 -0700 (Sun, 16 Sep 2012) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/manuf
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-09-16]
+------------------------------------------------------------------------
+r45069 | gerald | 2012-09-23 08:04:13 -0700 (Sun, 23 Sep 2012) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/manuf
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-09-23]
+------------------------------------------------------------------------
+r45222 | gerald | 2012-09-30 08:04:11 -0700 (Sun, 30 Sep 2012) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/manuf
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-09-30]
+------------------------------------------------------------------------
+r45233 | gerald | 2012-10-01 10:28:52 -0700 (Mon, 01 Oct 2012) | 42 lines
+Changed paths:
+   M /trunk-1.6/ChangeLog
+   M /trunk-1.6/asn1/pcap/pcap.cnf
+   M /trunk-1.6/asn1/ranap/ranap.cnf
+   M /trunk-1.6/asn1/rrc/rrc.cnf
+   M /trunk-1.6/asn1/rrlp/rrlp.cnf
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-pcap.c
+   M /trunk-1.6/epan/dissectors/packet-per.c
+   M /trunk-1.6/epan/dissectors/packet-ranap.c
+   M /trunk-1.6/epan/dissectors/packet-rrc.c
+   M /trunk-1.6/epan/dissectors/packet-rrlp.c
+
+Copy over r44500 from the trunk:
+
+  ------------------------------------------------------------------------
+  r44510 | pascal | 2012-08-14 15:12:31 -0700 (Tue, 14 Aug 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-per.c
+
+  From Jan de Jongh via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7624 :
+  dissect_per_constrained_integer_64b fails for 64 bits
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r44513 | pascal | 2012-08-15 06:42:46 -0700 (Wed, 15 Aug 2012) | 2 lines
+  Changed paths:
+     M /trunk/asn1/lpp/lpp.cnf
+     M /trunk/asn1/pcap/pcap.cnf
+     M /trunk/asn1/ranap/ranap.cnf
+     M /trunk/asn1/rrc/rrc.cnf
+     M /trunk/asn1/rrlp/rrlp.cnf
+     M /trunk/epan/dissectors/packet-lpp.c
+     M /trunk/epan/dissectors/packet-pcap.c
+     M /trunk/epan/dissectors/packet-ranap.c
+     M /trunk/epan/dissectors/packet-rrc.c
+     M /trunk/epan/dissectors/packet-rrlp.c
+
+  Fix field type for some 64 bits header fields
+  ------------------------------------------------------------------------
+  r44533 | pascal | 2012-08-15 13:43:00 -0700 (Wed, 15 Aug 2012) | 2 lines
+  Changed paths:
+     M /trunk/asn1/rrlp/rrlp.cnf
+     M /trunk/epan/dissectors/packet-rrlp.c
+
+  Fix some headers fields that were wrongly marked as 64 bits instead of 32 bits
+  ------------------------------------------------------------------------
+
+Regenerate the ASN.1 dissectors.
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r45234 | gerald | 2012-10-01 10:35:57 -0700 (Mon, 01 Oct 2012) | 14 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-drda.c
+
+Copy over r44749 from the trunk:
+
+  ------------------------------------------------------------------------
+  r44749 | pascal | 2012-09-03 05:48:57 -0700 (Mon, 03 Sep 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-drda.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7666 :
+  Check that DRDA command has a minimum length of 10 bytes to prevent a potential infinite loop
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r45235 | gerald | 2012-10-01 10:56:38 -0700 (Mon, 01 Oct 2012) | 70 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-gtpv2.c
+   M /trunk-1.6/epan/dissectors/packet-icmp.c
+   M /trunk-1.6/epan/dissectors/packet-icmpv6.c
+   M /trunk-1.6/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.6/epan/emem.c
+   M /trunk-1.6/gtk/voip_calls.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r44790 | alagoutte | 2012-09-06 01:55:16 -0700 (Thu, 06 Sep 2012) | 16 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ieee80211.c
+
+  From Masashi Honma via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7691
+  TKIP dissection : wrong IS_TKIP macro
+
+  In [1] "11.4.2.2 TKIP MPDU formats", we could see below sentence.
+  "WEPSeed[1] is not used to construct the TSC, but is set to (TSC1 | 0x20) &
+  0x7f."
+
+  But the IS_TKIP macro only checks (WEPSeed[1] & 0x20).
+  So sometimes IS_TKIP macro mis-dissects a CCMP frame as a TKIP frame.
+
+  This patch changes IS_TKIP macro to do more better check.
+
+  [1] IEEE Std 802.11.-2012
+
+  #BACKPORT(1.8, 1.6)
+  ------------------------------------------------------------------------
+  r44844 | morriss | 2012-09-10 08:18:17 -0700 (Mon, 10 Sep 2012) | 6 lines
+  Changed paths:
+     M /trunk/epan/emem.c
+
+  Attempt to fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5699
+  and https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5979 :
+
+  Don't cast the buffer address to int on Win32: a 64-bit address won't
+  fit in an integer.
+  ------------------------------------------------------------------------
+  r44880 | morriss | 2012-09-11 06:11:33 -0700 (Tue, 11 Sep 2012) | 4 lines
+  Changed paths:
+     M /trunk/epan/emem.c
+
+  As suggested by Anatoly in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5699 :
+
+  Followup to r44844: use a better cast (intptr_t instead of long long).
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r44881 | pascal | 2012-09-12 03:21:00 -0700 (Wed, 12 Sep 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gtpv2.c
+
+  From Esa Haapamäki via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7718 :
+  Fix dissection of NAS Uplink and Downlink Count in MM Context IE
+  ------------------------------------------------------------------------
+  r44940 | etxrab | 2012-09-17 07:51:08 -0700 (Mon, 17 Sep 2012) | 1 line
+  Changed paths:
+     M /trunk/ui/gtk/voip_calls.c
+
+  callsinfo->stop_fd not set in all branches for UNISTIM.
+  ------------------------------------------------------------------------
+  r45007 | cmaynard | 2012-09-19 10:57:54 -0700 (Wed, 19 Sep 2012) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-icmp.c
+     M /trunk/epan/dissectors/packet-icmpv6.c
+
+  Fix request/response tracking with checksum corner case.
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r45236 | gerald | 2012-10-01 11:13:02 -0700 (Mon, 01 Oct 2012) | 60 lines
+Changed paths:
+   M /trunk-1.6/doc/README.plugins
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-image-jfif.c
+   M /trunk-1.6/epan/dissectors/packet-scsi.c
+   M /trunk-1.6/epan/dissectors/packet-smb-common.c
+   M /trunk-1.6/gtk/hostlist_table.c
+   M /trunk-1.6/ipmap.html
+   A /trunk-1.6/plugins/Custom.m4.example (from /trunk/plugins/Custom.m4.example:45142)
+   A /trunk-1.6/plugins/Custom.make.example (from /trunk/plugins/Custom.make.example:45142)
+   M /trunk-1.6/plugins/Custom.nmake.example
+   M /trunk-1.6/plugins/Makefile.am
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r45142 | jake | 2012-09-25 14:02:13 -0700 (Tue, 25 Sep 2012) | 1 line
+  Changed paths:
+     M /trunk/doc/README.plugins
+     A /trunk/plugins/Custom.m4.example
+     A /trunk/plugins/Custom.make.example
+     M /trunk/plugins/Custom.nmake.example
+     M /trunk/plugins/Makefile.am
+
+  Implement and document the Custom plugin system. Create relevant example files and add them to the distribution. Rewrite README.plugins to describe how to use this system.
+  ------------------------------------------------------------------------
+  r45150 | cmaynard | 2012-09-26 09:48:20 -0700 (Wed, 26 Sep 2012) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-smb-common.c
+
+  In get_unicode_or_ascii_string(), check if the length is odd/even, not the offset.  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5778 - Volume label field ... is not displayed correctly ...
+
+  #BACKPORT(1.8, 1.6)
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r45111 | pascal | 2012-09-24 12:42:12 -0700 (Mon, 24 Sep 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-scsi.c
+
+  From Steve Magnani via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7753 :
+  Fix display of WRITE BUFFER and SEND DIAGNOSTIC fields in SCSI dissector
+  ------------------------------------------------------------------------
+  r45146 | cmaynard | 2012-09-25 20:30:48 -0700 (Tue, 25 Sep 2012) | 3 lines
+  Changed paths:
+     M /trunk/ipmap.html
+     M /trunk/ui/gtk/hostlist_table.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5016 - No markers show up when maps are displayed.
+  #BACKPORT(1.8, 1.6)
+  ------------------------------------------------------------------------
+  r45148 | cmaynard | 2012-09-26 05:54:46 -0700 (Wed, 26 Sep 2012) | 3 lines
+  Changed paths:
+     M /trunk/ui/gtk/hostlist_table.c
+
+  Revision 45146 fixed only the first map.  This patch fixes all maps.
+  #BACKPORT(1.6, 1.8)
+  ------------------------------------------------------------------------
+  r45174 | cmaynard | 2012-09-27 07:02:37 -0700 (Thu, 27 Sep 2012) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-image-jfif.c
+
+  Allow dissection of partial jpegs by a modification of the heuristics.
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6230
+  #BACKPORT(1.8, 1.6)
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r45248 | gerald | 2012-10-01 16:47:22 -0700 (Mon, 01 Oct 2012) | 16 lines
+Changed paths:
+   M /trunk-1.6/doc/wireshark.pod.template
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r45229 | morriss | 2012-10-01 00:14:03 -0700 (Mon, 01 Oct 2012) | 5 lines
+  Changed paths:
+     M /trunk/doc/wireshark.pod.template
+
+  The -B option is no longer only available in Win32: remove the Win32
+  restriction from the Synopsis.
+
+  This is the man page for Wireshark, not Tshark (fix a cut-n-pasteo).
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
