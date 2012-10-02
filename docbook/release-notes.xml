@@ -46,9 +46,9 @@ Wireshark Info
             7581</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.2.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
-          </para> -->
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-5237">CVE-2012-5237</ulink>
+          </para>
         </listitem>
 
         <listitem>
@@ -65,9 +65,9 @@ Wireshark Info
             7668</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.2.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
-          </para> -->
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-5238">CVE-2012-5238</ulink>
+          </para>
         </listitem>
 
         <listitem>
@@ -83,9 +83,9 @@ Wireshark Info
             7666</ulink>)
           </para>
           <para>Versions affected: 1.6.0 to 1.6.10, 1.8.0 to 1.8.2.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
-          </para> -->
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-5239">CVE-2012-5239</ulink>
+          </para>
         </listitem>
 
         <listitem>
@@ -100,9 +100,9 @@ Wireshark Info
             7567</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.2.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-?">CVE-2012-?</ulink>
-          </para> -->
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-5240">CVE-2012-5240</ulink>
+          </para>
         </listitem>
 
       </itemizedlist>
