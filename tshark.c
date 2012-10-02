@@ -2548,13 +2548,13 @@ process_packet_first_pass(capture_file *cf,
       /* Grab any resolved addresses */
       host_name_lookup_process(NULL);
 
-      if (cf->rfcode)
-        create_proto_tree = TRUE;
+    /* If we're going to be applying a read filter, we'll need to
+       create a protocol tree against which to apply the filter. */
+    if (cf->rfcode)
+      create_proto_tree = TRUE;
 
-    /* The protocol tree will be "visible", i.e., printed, only if we're
-       printing packet details, which is true if we're printing stuff
-       ("print_packet_info" is true) and we're in verbose mode ("verbose"
-       is true). */
+    /* We're not going to display the protocol tree on this pass,
+       so it's not going to be "visible". */
     epan_dissect_init(&edt, create_proto_tree, FALSE);
 
     /* If we're running a read filter, prime the epan_dissect_t with that
