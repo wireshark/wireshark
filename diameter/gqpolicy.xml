@@ -80,16 +80,21 @@
     <avp name="Specific-Action" code="513" mandatory="must" protected="may" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
         <type type-name="Enumerated"/>
       <!--ETSI TS 129 209 V6.7.0 (2007-06)-->
-            <enum name="SERVICE_INFORMATION_REQUEST" code="0"/>
+            <enum name="SERVICE_INFORMATION_REQUEST (now void)" code="0"/>
             <enum name="CHARGING_CORRELATION_EXCHANGE" code="1"/>
             <enum name="INDICATION_OF_LOSS_OF_BEARER" code="2"/>
             <enum name="INDICATION_OF_RECOVERY_OF_BEARER" code="3"/>
             <enum name="INDICATION_OF_RELEASE_OF_BEARER" code="4"/>
-            <enum name="INDICATION_OF_ESTABLISHMENT_OF_BEARER" code="5"/>
-      <!-- ETSI ES 283 026 V2.4.1 (2008-11) In addition, the present document defines two new events:-->
-      <!-- NOTE: 3GPP 29.214 has conflicting values for 6 and 7... -->
-            <enum name="INDICATION_OF_SUBSCRIBER_DETACHMENT" code="6"/>
-            <enum name="INDICATION_OF_RESERVATION_EXPIRATION" code="7"/>
+            <enum name="INDICATION_OF_ESTABLISHMENT_OF_BEARER (now void)" code="5"/>
+      <!-- ETSI ES 283 026 V2.4.1 (2008-11) defines these 2 events:
+        INDICATION_OF_SUBSCRIBER_DETACHMENT - 6
+        INDICATION_OF_RESERVATION_EXPIRATION - 7
+
+        But they are superceded by 3GPP 29.214 and ETSI 129 214 V10 with the
+        values below...
+      -->
+            <enum name="IP-CAN_CHANGE" code="6"/>
+            <enum name="INDICATION_OF_OUT_OF_CREDIT" code="7"/>
       <!-- From 3GPP 29.214 v11.6.0: -->
             <enum name="INDICATION_OF_SUCCESSFUL_RESOURCES_ALLOCATION" code="8"/>
             <enum name="INDICATION_OF_FAILED_RESOURCES_ALLOCATION" code="9"/>
