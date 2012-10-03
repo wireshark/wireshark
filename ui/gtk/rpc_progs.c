@@ -186,8 +186,8 @@ rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		prog_list = rp;
 	} else if ((ri->prog == prog_list->program) && (ri->vers == prog_list->version)) {
 		rp = prog_list;
-	} else if ( (ri->prog<prog_list->program)
-		||  ((ri->prog == prog_list->program) && (ri->vers<prog_list->version))) {
+	} else if ( (ri->prog < prog_list->program)
+		||  ((ri->prog == prog_list->program) && (ri->vers < prog_list->version))) {
 		/* we should be first entry in list */
 		rp = g_malloc(sizeof(rpc_program_t));
 		add_new_program(rp);
@@ -197,7 +197,7 @@ rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		prog_list = rp;
 	} else {
 		/* we go somewhere else in the list */
-		for(rp = prog_list; rp; rp = rp->next) {
+		for (rp = prog_list; rp; rp = rp->next) {
 			if ((rp->next)
 			&&  (rp->next->program == ri->prog)
 			&&  (rp->next->version == ri->vers)) {
@@ -205,9 +205,9 @@ rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 				break;
 			}
 			if ((!rp->next)
-			|| (rp->next->program>ri->prog)
+			|| (rp->next->program > ri->prog)
 			|| (  (rp->next->program == ri->prog)
-			    &&(rp->next->version>ri->vers))) {
+			   && (rp->next->version > ri->vers))) {
 				rpc_program_t *trp;
 				trp = g_malloc(sizeof(rpc_program_t));
 				add_new_program(trp);
@@ -243,15 +243,15 @@ rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	}
 
 	if ( (delta.secs<rp->min.secs)
-        ||   ( (delta.secs == rp->min.secs)
-            && (delta.nsecs<rp->min.nsecs) ) ) {
+        ||   (  (delta.secs == rp->min.secs)
+             && (delta.nsecs < rp->min.nsecs) ) ) {
 		rp->min.secs  = delta.secs;
 		rp->min.nsecs = delta.nsecs;
 	}
 
 	if ( (delta.secs>rp->max.secs)
-        ||   ( (delta.secs == rp->max.secs)
-	    && (delta.nsecs>rp->max.nsecs) ) ) {
+        ||   (  (delta.secs == rp->max.secs)
+	     && (delta.nsecs > rp->max.nsecs) ) ) {
 		rp->max.secs  = delta.secs;
 		rp->max.nsecs = delta.nsecs;
 	}
@@ -275,7 +275,7 @@ rpcprogs_draw(void *dummy _U_)
 	int            i;
 	guint64        td;
 
-	for(rp=prog_list,i=1; rp; rp=rp->next,i++) {
+	for (rp=prog_list,i=1; rp; rp=rp->next,i++) {
 		/* Ignore procedures with no calls */
 		if (rp->num == 0) {
 			continue;
@@ -317,7 +317,7 @@ win_destroy_cb(void *dummy _U_, gpointer data _U_)
 	remove_tap_listener(win);
 
 	win = NULL;
-	for(rp=prog_list;rp;) {
+	for (rp=prog_list; rp;) {
 		rp2=rp->next;
 		g_free(rp);
 		rp=rp2;
@@ -346,7 +346,7 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 
 	title_string = rpcprogs_gen_title();
 	win = dlg_window_new(title_string);  /* transient_for top_level */
-	gtk_window_set_destroy_with_parent (GTK_WINDOW(win), TRUE);
+	gtk_window_set_destroy_with_parent(GTK_WINDOW(win), TRUE);
 
 	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_container_add(GTK_CONTAINER(win), vbox);
