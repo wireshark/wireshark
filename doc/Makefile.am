@@ -201,7 +201,7 @@ mergecap.html: mergecap.pod ../config.h $(top_srcdir)/docbook/ws.css
 	--noindex							\
 	$(srcdir)/mergecap.pod > mergecap.html
 
-reordercap.1: mergecap.pod ../config.h
+reordercap.1: reordercap.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
