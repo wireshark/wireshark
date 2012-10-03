@@ -261,7 +261,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 	    "$RUNNER" $ARGS $TMP_DIR/$TMP_FILE \
 		> /dev/null 2>> $TMP_DIR/$ERR_FILE
 	    RETVAL=$?
-	    if [ $RETVAL -ge 128 ] ; then break ; fi
+	    if [ $RETVAL -ne 0 ] ; then break ; fi
 	done
 
 	# Uncomment the next two lines to enable dissector bug

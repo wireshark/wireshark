@@ -125,7 +125,7 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
             "$TSHARK" $ARGS $TMP_DIR/$TMP_FILE \
                 > /dev/null 2> $TMP_DIR/$ERR_FILE
             RETVAL=$?
-	    if [ $RETVAL -ge 128 ] ; then break ; fi
+	    if [ $RETVAL -ne 0 ] ; then break ; fi
         done
         grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
             > /dev/null 2>&1 && DISSECTOR_BUG=1
