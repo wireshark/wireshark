@@ -23,18 +23,38 @@
  *
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 #include "wtap.h"
 
+#ifndef HAVE_GETOPT
+#include "wsutil/wsgetopt.h"
+#endif
 
 /* Show command-line usage */
-/* TODO: add reoder list length as an optional param? */
 static void usage(void)
 {
-    printf("usage:  reordercap <infile> <outfile>\n");
+    fprintf(stderr, "Reordercap %s"
+#ifdef SVNVERSION
+	  " (" SVNVERSION " from " SVNPATH ")"
+#endif
+	  "\n", VERSION);
+    fprintf(stderr, "Reorder timestamps of input file frames into output file.\n");
+    fprintf(stderr, "See http://www.wireshark.org for more information.\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Usage: reordercap [options] <infile> <outfile>\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Options:\n");
+    fprintf(stderr, "  -l <list length>               maximum reordering list length (default is infinite).\n");
 }
 
 /* Remember where this frame was in the file */
@@ -49,8 +69,9 @@ typedef struct FrameRecord_t {
     struct FrameRecord_t *next;
 } FrameRecord_t;
 
-/* This is pretty big, but I don't mind waiting a few seconds */
-#define MAX_REORDER_LIST_LENGTH 3000
+/* By default let the whole capture be completely sorted. */
+/* Would be very slow with a large file very out of order, but this is unlikely */
+static unsigned int g_MAX_LIST_LENGTH=0;
 static unsigned int g_FrameRecordCount;
 
 /* This is the list of frames, sorted by time.  Later frames at the front, earlier
@@ -79,7 +100,7 @@ static void ReorderListDebugPrint(void)
             printf(" (head)");
         }
         if (tmp == g_FrameListTail) {
-            printf(" (tail)\n");
+            printf(" (tail)");
         }
         printf("\n");
 
@@ -127,7 +148,13 @@ static gboolean ReorderListEmpty(void)
 /* Is the reorder list full? */
 static gboolean ReorderListFull(void)
 {
-    return (g_FrameRecordCount >= MAX_REORDER_LIST_LENGTH);
+    if (g_MAX_LIST_LENGTH <= 0) {
+        /* Zero means don't limit the length */
+        return FALSE;
+    }
+    else {
+        return (g_FrameRecordCount >= g_MAX_LIST_LENGTH);
+    }
 }
 
 /* Add a new frame to the reorder list */
@@ -287,12 +314,31 @@ int main(int argc, char *argv[])
     const struct wtap_pkthdr *phdr;
     guint32 read_count = 0;
 
+    int opt;
+    char *p;
+    int file_count;
+
     /* 1st arg is infile, 2nd arg is outfile */
     char *infile;
     char *outfile;
-    if (argc == 3) {
-        infile = argv[1];
-        outfile = argv[2];
+
+    /* Process the options first */
+    while ((opt = getopt(argc, argv, "l:")) != -1) {
+        switch (opt) {
+            case 'l':
+                g_MAX_LIST_LENGTH = strtol(optarg, &p, 10);
+                //get_positive_int(optarg, "maximum list length");
+                break;
+            case '?':
+                usage();
+                exit(1);
+        }
+    }
+
+    file_count = argc - optind;
+    if (file_count == 2) {
+        infile = argv[optind];
+        outfile = argv[optind+1];
     }
     else {
         usage();

@@ -6,6 +6,7 @@ reordercap - Reorder input file by timestamp into output file
 =head1 SYNOPSIS
 
 B<reorder>
+S<[ B<-l> E<lt>I<maximum reorder list length>E<gt> ]>
 E<lt>I<infile>E<gt> E<lt>I<outfile>E<gt>
 
 =head1 DESCRIPTION
@@ -16,11 +17,13 @@ timestamp.
 
 This functionality may be useful when capture files have been created by
 combining frames from more than one well-synchronised source, but the
-frames are still not in strict order.
+frames have not been combined in strict time order.
 
-It does this by maintaining an ordered list of information about frames it
-has read - at the moment the list has an arbitrary, fixed maximum length
-of 3000 frames.
+It does this by maintaining an ordered (by timestamp) list of information about
+frames it has read.  The default is to let this list grow infinitely, but there
+is a command-line option to place a limit upon it.  Using a smaller limit will
+allow for the reordering to complete more quickly, at the risk of not completely
+sorting the capture.
 
 B<Reordercap> writes the output capture file in the same format as the input
 capture file.
