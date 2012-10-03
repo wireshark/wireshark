@@ -323,7 +323,7 @@
               and to build 64-bit binaries call
               <command>C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\Vcvarsall.bat amd64</command></para>
             </listitem>
-          </orderedlist>
+          </itemizedlist>
         </listitem>
         <listitem>
           <para><command>cd C:\wireshark</command> to jump into the source
