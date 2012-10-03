@@ -31,6 +31,7 @@
 
 #ifdef Q_WS_WIN
 #include <windows.h>
+#include "packet-range.h"
 #include "ui/win32/file_dlg_win32.h"
 #endif
 
