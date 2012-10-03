@@ -251,9 +251,21 @@ running_with_special_privs(void)
 
 /*
  * Permanently relinquish  set-UID and set-GID privileges.
- * Ignore errors for now - if we have the privileges, we should
- * be able to relinquish them.
+ * If error, abort since we probably shouldn't continue
+ * with elevated privileges.
+ * Note that if this error occurs when dumpcap is called from
+ * wireshark or tshark, the message seen will be
+ * "Child dumpcap process died:". This is obscure but we'll
+ *   consider it acceptable since it should be highly unlikely
+ *   that this error will occur.
  */
+
+static void
+setxid_fail(gchar *str)
+{
+	g_error("Attempt to relinguish privileges failed [%s()] - aborting: %s\n",
+		str, g_strerror(errno));
+}
 
 void
 relinquish_special_privs_perm(void)
@@ -270,17 +282,17 @@ relinquish_special_privs_perm(void)
 	 */
 	if (started_with_special_privs()) {
 #ifdef HAVE_SETRESGID
-		setresgid(rgid, rgid, rgid);
+		if (setresgid(rgid, rgid, rgid) == -1) {setxid_fail("setresgid");}
 #else
-		setgid(rgid);
-		setegid(rgid);
+		if (setgid(rgid)                == -1) {setxid_fail("setgid"); }
+		if (setegid(rgid)               == -1) {setxid_fail("setegid");}
 #endif
 
 #ifdef HAVE_SETRESUID
-		setresuid(ruid, ruid, ruid);
+		if (setresuid(ruid, ruid, ruid) == -1) {setxid_fail("setresuid");}
 #else
-		setuid(ruid);
-		seteuid(ruid);
+		if (setuid(ruid)                == -1) {setxid_fail("setuid"); }
+		if (seteuid(ruid)               == -1) {setxid_fail("seteuid");}
 #endif
 	}
 }
