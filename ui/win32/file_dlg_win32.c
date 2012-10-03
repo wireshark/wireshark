@@ -106,6 +106,13 @@ typedef enum {
 
 #define FILE_DEFAULT_COLOR 2
 
+static UINT_PTR CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);	 
+static UINT_PTR CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);	 
+static UINT_PTR CALLBACK export_specified_packets_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);	 
+static UINT_PTR CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);	 
+static UINT_PTR CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);	 
+static UINT_PTR CALLBACK export_raw_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);	 
+static UINT_PTR CALLBACK export_sslkeys_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);	
 static void range_update_dynamics(HWND sf_hwnd, packet_range_t *range);
 static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
 static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range);
@@ -445,7 +452,7 @@ win32_export_specified_packets_file(HWND h_wnd, GString *file_name,
 
     savable_file_types = wtap_get_savable_file_types(cfile.cd_t, cfile.linktypes);
     if (savable_file_types == NULL)
-        return;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
+        return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
 
     g_range = range;
     g_compressed = FALSE;
@@ -1758,7 +1765,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                     break;
 #endif
                 default:
-                    range_handle_wm_command(sf_hwnd, cur_ctrl, w_param, &g_range);
+                    range_handle_wm_command(sf_hwnd, cur_ctrl, w_param, g_range);
                     break;
             }
             break;
@@ -2013,6 +2020,8 @@ range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t
     HWND  cur_ctrl;
     TCHAR range_text[RANGE_TEXT_MAX];
 
+    if (!range) return;
+    
     switch(w_param) {
         case (BN_CLICKED << 16) | EWFD_CAPTURED_BTN:
         case (BN_CLICKED << 16) | EWFD_DISPLAYED_BTN:
