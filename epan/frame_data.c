@@ -25,25 +25,27 @@
 
 #include "config.h"
 
+#include <glib.h>
+
 #include <wiretap/wtap.h>
 #include <epan/frame_data.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/timestamp.h>
 
-#include <glib.h>
 
 /* Protocol-specific data attached to a frame_data structure - protocol
    index and opaque pointer. */
 typedef struct _frame_proto_data {
-  int proto;
+  int   proto;
   void *proto_data;
 } frame_proto_data;
 
 /* XXX - I declared this static, because it only seems to be used by
  * p_get_proto_data and p_add_proto_data
  */
-static gint p_compare(gconstpointer a, gconstpointer b)
+static gint
+p_compare(gconstpointer a, gconstpointer b)
 {
   const frame_proto_data *ap = (const frame_proto_data *)a;
   const frame_proto_data *bp = (const frame_proto_data *)b;
@@ -75,8 +77,8 @@ p_add_proto_data(frame_data *fd, int proto, void *proto_data)
 void *
 p_get_proto_data(frame_data *fd, int proto)
 {
-  frame_proto_data temp, *p1;
-  GSList *item;
+  frame_proto_data  temp, *p1;
+  GSList           *item;
 
   temp.proto = proto;
   temp.proto_data = NULL;
@@ -95,8 +97,8 @@ p_get_proto_data(frame_data *fd, int proto)
 void
 p_remove_proto_data(frame_data *fd, int proto)
 {
-  frame_proto_data temp;
-  GSList *item;
+  frame_proto_data  temp;
+  GSList           *item;
 
   temp.proto = proto;
   temp.proto_data = NULL;
@@ -135,91 +137,91 @@ p_remove_proto_data(frame_data *fd, int proto)
 void
 frame_delta_abs_time(const frame_data *fdata, const frame_data *prev, nstime_t *delta)
 {
-	if (prev) {
-		nstime_delta(delta, &fdata->abs_ts, &prev->abs_ts);
-	} else {
-		/* If we don't have the time stamp of the previous packet,
-		   it's because we have no displayed/captured packets prior to this.
-		   Set the delta time to zero. */
-		nstime_set_zero(delta);
-	}
+  if (prev) {
+    nstime_delta(delta, &fdata->abs_ts, &prev->abs_ts);
+  } else {
+    /* If we don't have the time stamp of the previous packet,
+       it's because we have no displayed/captured packets prior to this.
+       Set the delta time to zero. */
+    nstime_set_zero(delta);
+  }
 }
 
 static gint
 frame_data_time_delta_compare(const frame_data *fdata1, const frame_data *fdata2)
 {
-	nstime_t del_cap_ts1, del_cap_ts2;
+  nstime_t del_cap_ts1, del_cap_ts2;
 
-	frame_delta_abs_time(fdata1, fdata1->prev_cap, &del_cap_ts1);
-	frame_delta_abs_time(fdata2, fdata2->prev_cap, &del_cap_ts2);
+  frame_delta_abs_time(fdata1, fdata1->prev_cap, &del_cap_ts1);
+  frame_delta_abs_time(fdata2, fdata2->prev_cap, &del_cap_ts2);
 
-	return COMPARE_TS_REAL(del_cap_ts1, del_cap_ts2);
+  return COMPARE_TS_REAL(del_cap_ts1, del_cap_ts2);
 }
 
 static gint
 frame_data_time_delta_dis_compare(const frame_data *fdata1, const frame_data *fdata2)
 {
-	nstime_t del_dis_ts1, del_dis_ts2;
+  nstime_t del_dis_ts1, del_dis_ts2;
 
-	frame_delta_abs_time(fdata1, fdata1->prev_dis, &del_dis_ts1);
-	frame_delta_abs_time(fdata2, fdata2->prev_dis, &del_dis_ts2);
+  frame_delta_abs_time(fdata1, fdata1->prev_dis, &del_dis_ts1);
+  frame_delta_abs_time(fdata2, fdata2->prev_dis, &del_dis_ts2);
 
-	return COMPARE_TS_REAL(del_dis_ts1, del_dis_ts2);
+  return COMPARE_TS_REAL(del_dis_ts1, del_dis_ts2);
 }
 
 gint
 frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field)
 {
-    switch (field) {
-        case COL_NUMBER:
-            return COMPARE_FRAME_NUM();
+  switch (field) {
+  case COL_NUMBER:
+    return COMPARE_FRAME_NUM();
 
-        case COL_CLS_TIME:
-            switch (timestamp_get_type()) {
-                case TS_ABSOLUTE:
-                case TS_ABSOLUTE_WITH_DATE:
-                case TS_UTC:
-                case TS_UTC_WITH_DATE:
-                case TS_EPOCH:
-                    return COMPARE_TS(abs_ts);
+  case COL_CLS_TIME:
+    switch (timestamp_get_type()) {
+    case TS_ABSOLUTE:
+    case TS_ABSOLUTE_WITH_DATE:
+    case TS_UTC:
+    case TS_UTC_WITH_DATE:
+    case TS_EPOCH:
+      return COMPARE_TS(abs_ts);
 
-                case TS_RELATIVE:
-                    return COMPARE_TS(rel_ts);
+    case TS_RELATIVE:
+      return COMPARE_TS(rel_ts);
 
-                case TS_DELTA:
-                    return frame_data_time_delta_compare(fdata1, fdata2);
+    case TS_DELTA:
+      return frame_data_time_delta_compare(fdata1, fdata2);
 
-                case TS_DELTA_DIS:
-                    return frame_data_time_delta_dis_compare(fdata1, fdata2);
+    case TS_DELTA_DIS:
+      return frame_data_time_delta_dis_compare(fdata1, fdata2);
 
-                case TS_NOT_SET:
-                    return 0;
-            }
-            return 0;
-
-        case COL_ABS_TIME:
-        case COL_ABS_DATE_TIME:
-        case COL_UTC_TIME:
-        case COL_UTC_DATE_TIME:
-            return COMPARE_TS(abs_ts);
-
-        case COL_REL_TIME:
-            return COMPARE_TS(rel_ts);
-
-        case COL_DELTA_TIME:
-            return frame_data_time_delta_compare(fdata1, fdata2);
-
-        case COL_DELTA_TIME_DIS:
-            return frame_data_time_delta_dis_compare(fdata1, fdata2);
-
-        case COL_PACKET_LENGTH:
-            return COMPARE_NUM(pkt_len);
-
-        case COL_CUMULATIVE_BYTES:
-            return COMPARE_NUM(cum_bytes);
-
+    case TS_NOT_SET:
+      return 0;
     }
-    g_return_val_if_reached(0);
+    return 0;
+
+  case COL_ABS_TIME:
+  case COL_ABS_DATE_TIME:
+  case COL_UTC_TIME:
+  case COL_UTC_DATE_TIME:
+    return COMPARE_TS(abs_ts);
+
+  case COL_REL_TIME:
+    return COMPARE_TS(rel_ts);
+
+  case COL_DELTA_TIME:
+    return frame_data_time_delta_compare(fdata1, fdata2);
+
+  case COL_DELTA_TIME_DIS:
+    return frame_data_time_delta_dis_compare(fdata1, fdata2);
+
+  case COL_PACKET_LENGTH:
+    return COMPARE_NUM(pkt_len);
+
+  case COL_CUMULATIVE_BYTES:
+    return COMPARE_NUM(cum_bytes);
+
+  }
+  g_return_val_if_reached(0);
 }
 
 void
@@ -319,7 +321,8 @@ frame_data_cleanup(frame_data *fdata)
   }
 
   /* XXX, frame_data_cleanup() is called when redissecting (rescan_packets()),
-   *      which might be triggered by lot of things, like: preferences change, setting manual address resolve, etc.. (grep by redissect_packets)
+   *      which might be triggered by lot of things, like: preferences change,
+   *      setting manual address resolve, etc.. (grep by redissect_packets)
    *      fdata->opt_comment can be set by user, which we must not discard when redissecting.
    */
 #if 0
