@@ -3,7 +3,7 @@
  *
  * Routines for [MS-SMBD] the RDMA transport layer for SMB2/3
  *
- * Copyright 2012 Stefan Metzmacher <metze@samba.org>
+ * Copyright 2012-2014 Stefan Metzmacher <metze@samba.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -28,6 +28,9 @@
 
 #include <glib.h>
 
+#include <epan/packet.h>
+#include <epan/reassemble.h>
+#include <epan/prefs.h>
 #include "packet-windows-common.h"
 #include "packet-iwarp-ddp-rdmap.h"
 #include "packet-infiniband.h"
@@ -37,6 +40,8 @@ static int proto_smb_direct = -1;
 static gint ett_smb_direct = -1;
 static gint ett_smb_direct_hdr = -1;
 static gint ett_smb_direct_flags = -1;
+static gint ett_smb_direct_fragment = -1;
+static gint ett_smb_direct_fragments = -1;
 
 static int hf_smb_direct_negotiate_request = -1;
 static int hf_smb_direct_negotiate_response = -1;
@@ -56,6 +61,34 @@ static int hf_smb_direct_flags_response_requested = -1;
 static int hf_smb_direct_remaining_length = -1;
 static int hf_smb_direct_data_offset = -1;
 static int hf_smb_direct_data_length = -1;
+static int hf_smb_direct_fragments = -1;
+static int hf_smb_direct_fragment = -1;
+static int hf_smb_direct_fragment_overlap = -1;
+static int hf_smb_direct_fragment_overlap_conflict = -1;
+static int hf_smb_direct_fragment_multiple_tails = -1;
+static int hf_smb_direct_fragment_too_long_fragment = -1;
+static int hf_smb_direct_fragment_error = -1;
+static int hf_smb_direct_fragment_count = -1;
+static int hf_smb_direct_reassembled_in = -1;
+static int hf_smb_direct_reassembled_length = -1;
+static int hf_smb_direct_reassembled_data = -1;
+
+static const fragment_items smb_direct_frag_items = {
+        &ett_smb_direct_fragment,
+        &ett_smb_direct_fragments,
+        &hf_smb_direct_fragments,
+        &hf_smb_direct_fragment,
+        &hf_smb_direct_fragment_overlap,
+        &hf_smb_direct_fragment_overlap_conflict,
+        &hf_smb_direct_fragment_multiple_tails,
+        &hf_smb_direct_fragment_too_long_fragment,
+        &hf_smb_direct_fragment_error,
+        &hf_smb_direct_fragment_count,
+        &hf_smb_direct_reassembled_in,
+        &hf_smb_direct_reassembled_length,
+        &hf_smb_direct_reassembled_data,
+        "SMB Direct fragments"
+};
 
 enum SMB_DIRECT_HDR_TYPE {
 	SMB_DIRECT_HDR_UNKNOWN = -1,
@@ -69,12 +102,99 @@ enum SMB_DIRECT_HDR_TYPE {
 static heur_dissector_list_t smb_direct_heur_subdissector_list;
 static dissector_handle_t data_handle;
 
+static gboolean smb_direct_reassemble = TRUE;
+static reassembly_table smb_direct_reassembly_table;
+
 static void
-dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+smb_direct_reassemble_init(void)
 {
+	reassembly_table_init(&smb_direct_reassembly_table,
+	    &addresses_ports_reassembly_table_functions);
+}
+
+static void
+dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo,
+			   proto_tree *tree, guint32 remaining_length)
+{
+	gboolean save_fragmented = pinfo->fragmented;
+	int save_visited = pinfo->fd->flags.visited;
+	conversation_t *conversation = NULL;
+	fragment_head *fd_head = NULL;
+	tvbuff_t *payload_tvb = NULL;
+	gboolean more_frags = FALSE;
+	gboolean fd_head_not_cached = FALSE;
+
+	if (!smb_direct_reassemble) {
+		payload_tvb = tvb;
+		goto dissect_payload;
+	}
+
+	conversation = find_or_create_conversation(pinfo);
+
+	if (remaining_length > 0) {
+		more_frags = TRUE;
+	}
+
+	fd_head = (fragment_head *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb_direct, 0);
+	if (fd_head == NULL) {
+		fd_head_not_cached = TRUE;
+
+		pinfo->fd->flags.visited = 0;
+		fd_head = fragment_add_seq_next(&smb_direct_reassembly_table,
+						tvb, 0, pinfo,
+						conversation->index,
+						NULL, tvb_captured_length(tvb),
+						more_frags);
+	}
+
+	if (fd_head == NULL) {
+		/*
+		 * We really want the fd_head and pass it to
+		 * process_reassembled_data()
+		 *
+		 * So that individual fragments gets the
+		 * reassembled in field.
+		 */
+		fd_head = fragment_get_reassembled_id(&smb_direct_reassembly_table,
+						      pinfo,
+						      conversation->index);
+	}
+
+	if (fd_head == NULL) {
+		/*
+		 * we need more data...
+		 */
+		goto done;
+	}
+
+	if (fd_head_not_cached) {
+		p_add_proto_data(wmem_file_scope(), pinfo,
+				 proto_smb_direct, 0, fd_head);
+	}
+
+	payload_tvb = process_reassembled_data(tvb, 0, pinfo,
+					       "Reassembled SMB Direct",
+					       fd_head,
+					       &smb_direct_frag_items,
+					       NULL, /* update_col_info*/
+					       tree);
+	if (payload_tvb == NULL) {
+		/*
+		 * we need more data...
+		 */
+		goto done;
+	}
+
+dissect_payload:
+	pinfo->fragmented = FALSE;
 	if (!dissector_try_heuristic(smb_direct_heur_subdissector_list,
-				    tvb, pinfo, tree, NULL))
-		call_dissector(data_handle,tvb, pinfo, tree);
+				     payload_tvb, pinfo, tree, NULL)) {
+		call_dissector(data_handle, payload_tvb, pinfo, tree);
+	}
+done:
+	pinfo->fragmented = save_fragmented;
+	pinfo->fd->flags.visited = save_visited;
+	return;
 }
 
 static void
@@ -92,6 +212,7 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	guint16 flags = 0;
 	proto_tree *flags_tree = NULL;
 	proto_item *flags_item = NULL;
+	guint32 remaining_length = 0;
 	guint32 data_offset = 0;
 	guint32 data_length = 0;
 	guint rlen = tvb_reported_length(tvb);
@@ -240,6 +361,7 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		/* 2 bytes reserved */
 		offset += 2;
 
+		remaining_length = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(data_tree, hf_smb_direct_remaining_length,
 				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -264,7 +386,8 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 
 		if (next_tvb != NULL) {
-			dissect_smb_direct_payload(next_tvb, pinfo, parent_tree);
+			dissect_smb_direct_payload(next_tvb, pinfo,
+						   parent_tree, remaining_length);
 		}
 
 		/* offset = data_offset + data_length; */
@@ -426,6 +549,8 @@ void proto_register_smb_direct(void)
 		&ett_smb_direct,
 		&ett_smb_direct_hdr,
 		&ett_smb_direct_flags,
+		&ett_smb_direct_fragment,
+		&ett_smb_direct_fragments,
 	};
 
 	static hf_register_info hf[] = {
@@ -503,7 +628,51 @@ void proto_register_smb_direct(void)
 		{ "DataLength", "smb_direct.data_length",
 		FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+	{ &hf_smb_direct_fragments,
+		{ "Reassembled SMB Direct Fragments", "smb_direct.fragments",
+		FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_direct_fragment,
+		{ "SMB Direct Fragment", "smb_direct.fragment",
+		FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_smb_direct_fragment_overlap,
+		{ "Fragment overlap", "smb_direct.fragment.overlap",
+		FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_direct_fragment_overlap_conflict,
+		{ "Conflicting data in fragment overlap", "smb_direct.fragment.overlap.conflict",
+		FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_direct_fragment_multiple_tails,
+		{ "Multiple tail fragments found", "smb_direct.fragment.multipletails",
+		FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_direct_fragment_too_long_fragment,
+		{ "Fragment too long", "smb_direct.fragment.toolongfragment",
+		FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_direct_fragment_error,
+		{ "Defragmentation error", "smb_direct.fragment.error",
+		FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_direct_fragment_count,
+		{ "Fragment count", "smb_direct.fragment.count",
+		FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+	{ &hf_smb_direct_reassembled_in,
+		{ "Reassembled PDU in frame", "smb_direct.reassembled_in",
+		FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_direct_reassembled_length,
+		{ "Reassembled SMB Direct length", "smb_direct.reassembled.length",
+		FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_direct_reassembled_data,
+		{ "Reassembled SMB Direct data", "smb_direct.reassembled.data",
+		FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
 	};
+	module_t *smb_direct_module;
 
 	proto_smb_direct = proto_register_protocol("SMB-Direct (SMB RDMA Transport)",
 						   "SMBDirect", "smb_direct");
@@ -512,6 +681,14 @@ void proto_register_smb_direct(void)
 
 	register_heur_dissector_list("smb_direct",
 				     &smb_direct_heur_subdissector_list);
+
+	smb_direct_module = prefs_register_protocol(proto_smb_direct, NULL);
+	prefs_register_bool_preference(smb_direct_module,
+				       "reassemble_smb_direct",
+				       "Reassemble SMB Direct fragments",
+				       "Whether the SMB Direct dissector should reassemble fragmented payloads",
+				       &smb_direct_reassemble);
+	register_init_routine(smb_direct_reassemble_init);
 }
 
 void
