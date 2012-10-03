@@ -54,11 +54,6 @@
 
 #ifdef HAVE_NTDDNDIS_H
 #include <Ntddndis.h>
-/* VC 6.0 with SDK has the same Ntddndis.h as MSVC2003 */
-# if (_MSC_VER <= 1200)
-# undef _MSC_VER
-# define _MSC_VER 1310
-# endif
 #endif
 
 #include "../capture_wpcap_packet.h"
@@ -158,146 +153,6 @@ struct sockaddr_storage {
 /* Optional OIDs */
 #define OID_GEN_NETWORK_LAYER_ADDRESSES 0x00010118
 #define OID_GEN_TRANSPORT_HEADER_OFFSET 0x00010119
-
-
-/* This will probably break if you're using VC++ 6 _and_ have a newer SDK. */
-#if (_MSC_VER <= 1200) || (_MSC_VER == 1310)
-#if (_MSC_VER <= 1200)
-/* Physical medium (OID_GEN_PHYSICAL_MEDIUM) */
-typedef enum ndis_phys_medium {
-	NdisPhysicalMediumUnspecified,
-	NdisPhysicalMediumWirelessLan,
-	NdisPhysicalMediumCableModem,
-	NdisPhysicalMediumPhoneLine,
-	NdisPhysicalMediumPowerLine,
-	NdisPhysicalMediumDSL,
-	NdisPhysicalMediumFibreChannel,
-	NdisPhysicalMedium1394,
-	NdisPhysicalMediumWirelessWan,
-	NdisPhysicalMediumMax
-};
-
-/* flag definitions for OID_GEN_MAC_OPTIONS */
-#define NDIS_MAC_OPTION_COPY_LOOKAHEAD_DATA     0x00000001
-#define NDIS_MAC_OPTION_RECEIVE_SERIALIZED      0x00000002
-#define NDIS_MAC_OPTION_TRANSFERS_NOT_PEND      0x00000004
-#define NDIS_MAC_OPTION_NO_LOOPBACK             0x00000008
-#define NDIS_MAC_OPTION_FULL_DUPLEX             0x00000010
-#define NDIS_MAC_OPTION_EOTX_INDICATION         0x00000020
-#define NDIS_MAC_OPTION_8021P_PRIORITY          0x00000040
-#define NDIS_MAC_OPTION_8021Q_VLAN              0x00000080
-
-/* 802.11 OIDs */
-#define OID_802_11_BSSID			0x0D010101
-#define OID_802_11_SSID				0x0D010102
-#define OID_802_11_NETWORK_TYPES_SUPPORTED	0x0D010203
-#define OID_802_11_NETWORK_TYPE_IN_USE		0x0D010204
-#define OID_802_11_TX_POWER_LEVEL		0x0D010205
-#define OID_802_11_RSSI				0x0D010206
-#define OID_802_11_RSSI_TRIGGER			0x0D010207
-#define OID_802_11_INFRASTRUCTURE_MODE		0x0D010108
-#define OID_802_11_FRAGMENTATION_THRESHOLD	0x0D010209
-#define OID_802_11_RTS_THRESHOLD		0x0D01020A
-#define OID_802_11_NUMBER_OF_ANTENNAS		0x0D01020B
-#define OID_802_11_RX_ANTENNA_SELECTED		0x0D01020C
-#define OID_802_11_TX_ANTENNA_SELECTED		0x0D01020D
-#define OID_802_11_SUPPORTED_RATES		0x0D01020E
-#define OID_802_11_DESIRED_RATES		0x0D010210
-#define OID_802_11_CONFIGURATION		0x0D010211
-#define OID_802_11_STATISTICS			0x0D020212
-#define OID_802_11_ADD_WEP			0x0D010113
-#define OID_802_11_REMOVE_WEP			0x0D010114
-#define OID_802_11_DISASSOCIATE			0x0D010115
-#define OID_802_11_POWER_MODE			0x0D010216
-#define OID_802_11_BSSID_LIST			0x0D010217
-#define OID_802_11_AUTHENTICATION_MODE		0x0D010118
-#define OID_802_11_PRIVACY_FILTER		0x0D010119
-#define OID_802_11_BSSID_LIST_SCAN		0x0D01011A
-#define OID_802_11_WEP_STATUS			0x0D01011B
-
-#endif /*(_MSC_VER <= 1200)*/
-
-#define OID_802_11_ENCRYPTION_STATUS		OID_802_11_WEP_STATUS
-#define OID_802_11_RELOAD_DEFAULTS		0x0D01011C
-#define OID_802_11_ADD_KEY			0x0D01011D
-#define OID_802_11_REMOVE_KEY			0x0D01011E
-#define OID_802_11_ASSOCIATION_INFORMATION	0x0D01011F
-#define OID_802_11_TEST				0x0D010120
-#define OID_802_11_CAPABILITY			0x0D010122
-#define OID_802_11_PMKID			0x0D010123
-
-#if (_MSC_VER <= 1200)
-
-/* PnP and power management OIDs */
-#define OID_PNP_CAPABILITIES			0xFD010100
-#define OID_PNP_SET_POWER			0xFD010101
-#define OID_PNP_QUERY_POWER			0xFD010102
-#define OID_PNP_ADD_WAKE_UP_PATTERN		0xFD010103
-#define OID_PNP_REMOVE_WAKE_UP_PATTERN		0xFD010104
-#define OID_PNP_WAKE_UP_PATTERN_LIST		0xFD010105
-#define OID_PNP_ENABLE_WAKE_UP			0xFD010106
-
-/* Current infrastructure mode (OID_802_11_INFRASTRUCTURE_MODE) */
-enum network_infrastructure {
-	Ndis802_11IBSS,
-	Ndis802_11Infrastructure,
-	Ndis802_11AutoUnknown,
-	Ndis802_11InfrastructureMax
-};
-
-/* Current authentication mode (OID_802_11_AUTHENTICATION_MODE) */
-enum authentication_mode {
-	Ndis802_11AuthModeOpen,
-	Ndis802_11AuthModeShared,
-	Ndis802_11AuthModeAutoSwitch,
-	Ndis802_11AuthModeWPA,
-	Ndis802_11AuthModeWPAPSK,
-	Ndis802_11AuthModeWPANone,
-	Ndis802_11AuthModeWPA2,
-	Ndis802_11AuthModeWPA2PSK,
-	Ndis802_11AuthModeMax
-};
-
-/* Current network type (OID_802_11_NETWORK_TYPES_SUPPORTED / OID_802_11_NETWORK_TYPE_IN_USE) */
-enum network_type {
-	Ndis802_11FH,
-	Ndis802_11DS,
-	Ndis802_11OFDM5,
-	Ndis802_11OFDM24,
-	/* MSDN site uses Ndis802_11Automode, which is not mentioned
-	 * in DDK, so add one and assign it to
-	 * Ndis802_11NetworkTypeMax */
-	Ndis802_11Automode,
-	Ndis802_11NetworkTypeMax = Ndis802_11Automode
-};
-
-/* Current encryption status (OID_802_11_ENCRYPTION_STATUS) */
-enum encryption_status {
-	Ndis802_11WEPEnabled,
-	Ndis802_11Encryption1Enabled = Ndis802_11WEPEnabled,
-	Ndis802_11WEPDisabled,
-	Ndis802_11EncryptionDisabled = Ndis802_11WEPDisabled,
-	Ndis802_11WEPKeyAbsent,
-	Ndis802_11Encryption1KeyAbsent = Ndis802_11WEPKeyAbsent,
-	Ndis802_11WEPNotSupported,
-	Ndis802_11EncryptionNotSupported = Ndis802_11WEPNotSupported,
-	Ndis802_11Encryption2Enabled,
-	Ndis802_11Encryption2KeyAbsent,
-	Ndis802_11Encryption3Enabled,
-	Ndis802_11Encryption3KeyAbsent
-};
-
-#endif /*(_MSC_VER <= 1200)*/
-
-typedef struct _NDIS_802_11_FIXED_IEs
-{
-  UCHAR  Timestamp[8];
-  USHORT  BeaconInterval;
-  USHORT  Capabilities;
-} NDIS_802_11_FIXED_IEs, *PNDIS_802_11_FIXED_IEs;
-
-#endif /* (_MSC_VER <= 1200) || (_MSC_VER == 1310) */
-
 
 /* Currently associated SSID (OID_802_11_SSID) */
 #define NDIS_ESSID_MAX_SIZE 32
@@ -502,7 +357,6 @@ static const value_string win32_802_11_auth_mode_vals[] = {
 	{ Ndis802_11AuthModeOpen,       "Open System" },
 	{ Ndis802_11AuthModeShared,     "Shared Key" },
 	{ Ndis802_11AuthModeAutoSwitch, "Auto Switch" },
-#if (_MSC_VER != 1310)
 	{ Ndis802_11AuthModeWPA,        "WPA" },
 	{ Ndis802_11AuthModeWPAPSK,     "WPA-PSK (pre shared key)" },
 	{ Ndis802_11AuthModeWPANone,    "WPA (ad hoc)" },
@@ -510,25 +364,21 @@ static const value_string win32_802_11_auth_mode_vals[] = {
 	{ Ndis802_11AuthModeWPA2,       "WPA2" },
 	{ Ndis802_11AuthModeWPA2PSK,    "WPA2-PSK (pre shared key)" },
 #endif
-#endif
     { 0, NULL }
 };
 
 static const value_string win32_802_11_network_type_vals[] = {
 	{ Ndis802_11FH,         "FH (frequency-hopping spread-spectrum)" },
 	{ Ndis802_11DS,         "DS (direct-sequence spread-spectrum)" },
-#if (_MSC_VER != 1310)
 	{ Ndis802_11OFDM5,      "5-GHz OFDM" },
 	{ Ndis802_11OFDM24,     "2.4-GHz OFDM" },
 #if (_MSC_VER != 1400) /* These are not defined in Ntddndis.h in MSVC2005/MSVC2005EE PSDK */
 	{ Ndis802_11Automode,   "Auto" },
 #endif
-#endif
     { 0, NULL }
 };
 
 static const value_string win32_802_11_encryption_status_vals[] = {
-#if (_MSC_VER != 1310)
 	{ Ndis802_11Encryption1Enabled,     "WEP enabled, TKIP & AES disabled, transmit key available" },
 	{ Ndis802_11EncryptionDisabled,     "WEP & TKIP & AES disabled, transmit key available" },
 	{ Ndis802_11Encryption1KeyAbsent,   "WEP enabled, TKIP & AES disabled, transmit key unavailable" },
@@ -537,7 +387,6 @@ static const value_string win32_802_11_encryption_status_vals[] = {
 	{ Ndis802_11Encryption2KeyAbsent,   "WEP & TKIP enabled, AES disabled, transmit key unavailable" },
 	{ Ndis802_11Encryption3Enabled,     "WEP & TKIP & AES enabled, transmit key available" },
 	{ Ndis802_11Encryption3KeyAbsent,   "WEP & TKIP & AES enabled, transmit key unavailable" },
-#endif
     { 0, NULL }
 };
 
