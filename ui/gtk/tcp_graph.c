@@ -2390,7 +2390,7 @@ static void v_axis_pixmap_draw (struct axis *axis)
 	double major_tick;
 	int not_disp, rdigits, offset, imin, imax;
 	double bottom, top, j, fl, corr;
-        PangoLayout *layout;
+	PangoLayout *layout;
 	cairo_t *cr;
 
 	debug(DBS_FENTRY) puts ("v_axis_pixmap_draw()");
@@ -2426,7 +2426,6 @@ static void v_axis_pixmap_draw (struct axis *axis)
 	cairo_set_line_width (cr, 1.0);
 	cairo_move_to(cr, axis->p.width - 1.5, (axis->p.height-axis->s.height)/2.0);
 	cairo_line_to(cr, axis->s.width - 1.5, axis->p.height);
-	cairo_stroke(cr);
 
 	offset = g->wp.y + (-g->geom.y);
 	fl = floor (axis->min / axis->major) * axis->major;
@@ -2450,7 +2449,6 @@ static void v_axis_pixmap_draw (struct axis *axis)
 		cairo_set_line_width (cr, 1.0);
 		cairo_move_to(cr, axis->p.width - 15, y+0.5);
 		cairo_line_to(cr, axis->s.width - 1, y+0.5);
-		cairo_stroke(cr);
 
 		g_snprintf (desc, sizeof(desc), "%.*f", rdigits, i*axis->major + fl);
         layout = gtk_widget_create_pango_layout(g->drawing_area, desc);
@@ -2473,7 +2471,6 @@ static void v_axis_pixmap_draw (struct axis *axis)
 				cairo_set_line_width (cr, 1.0);
 				cairo_move_to(cr, axis->s.width - 8, y+0.5);
 				cairo_line_to(cr, axis->s.width - 1, y+0.5);
-				cairo_stroke(cr);
 		}
 	}
 	for (i=0; axis->label[i]; i++) {
@@ -2485,6 +2482,7 @@ static void v_axis_pixmap_draw (struct axis *axis)
         pango_cairo_show_layout (cr, layout);
         g_object_unref(G_OBJECT(layout));
     }
+	cairo_stroke (cr);
 	cairo_destroy (cr);
 }
 
@@ -2495,7 +2493,7 @@ static void h_axis_pixmap_draw (struct axis *axis)
 	double major_tick, minor_tick;
 	int not_disp, rdigits, offset, imin, imax;
 	double left, right, j, fl, corr;
-        PangoLayout *layout;
+	PangoLayout *layout;
 	cairo_t *cr;
 
 	debug(DBS_FENTRY) puts ("h_axis_pixmap_draw()");
@@ -2531,7 +2529,6 @@ static void h_axis_pixmap_draw (struct axis *axis)
 	cairo_set_line_width (cr, 1.0);
 	cairo_move_to(cr, 0, 0.5);
 	cairo_line_to(cr, axis->s.width + (axis->p.width-axis->s.width)/2.0, 0.5);
-	cairo_stroke(cr);
 
 	offset = g->wp.x - g->geom.x;
 
@@ -2552,7 +2549,6 @@ static void h_axis_pixmap_draw (struct axis *axis)
 			continue;
 		cairo_move_to(cr, x+0.5, 0);
 		cairo_line_to(cr, x+0.5, 15);
-		cairo_stroke(cr);
 
 		g_snprintf (desc, sizeof(desc), "%.*f", rdigits, i*axis->major + fl);
         layout = gtk_widget_create_pango_layout(g->drawing_area, desc);
@@ -2572,7 +2568,6 @@ static void h_axis_pixmap_draw (struct axis *axis)
 				cairo_set_line_width (cr, 1.0);
 				cairo_move_to(cr, x+0.5, 0);
 				cairo_line_to(cr, x+0.5, 8);
-				cairo_stroke(cr);
 			}
 		}
 	}
@@ -2585,6 +2580,7 @@ static void h_axis_pixmap_draw (struct axis *axis)
 		pango_cairo_show_layout (cr, layout);
         g_object_unref(G_OBJECT(layout));
 	}
+	cairo_stroke (cr);
 	cairo_destroy (cr);
 }
 
