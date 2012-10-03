@@ -1,0 +1,58 @@
+
+=head1 NAME
+
+reordercap - Reorder input file by timestamp into output file
+
+=head1 SYNOPSIS
+
+B<reorder>
+E<lt>I<infile>E<gt> E<lt>I<outfile>E<gt>
+
+=head1 DESCRIPTION
+
+B<Reordercap> is a program that reads an input capture file and rewrites the
+frames to an output capture file, but with the frames sorted by increasing
+timestamp.
+
+This functionality may be useful when capture files have been created by
+combining frames from more than one well-synchronised source, but the
+frames are still not in strict order.
+
+It does this by maintaining an ordered list of information about frames it
+has read - at the moment the list has an arbitrary, fixed maximum length
+of 3000 frames.
+
+B<Reordercap> writes the output capture file in the same format as the input
+capture file.
+
+B<Reordercap> is able to detect, read and write the same capture files that
+are supported by B<Wireshark>.
+The input file doesn't need a specific filename extension; the file
+format and an optional gzip compression will be automatically detected.
+Near the beginning of the DESCRIPTION section of wireshark(1) or
+L<http://www.wireshark.org/docs/man-pages/wireshark.html>
+is a detailed description of the way B<Wireshark> handles this, which is
+the same way B<Reordercap> handles this.
+
+=head1 SEE ALSO
+
+pcap(3), wireshark(1), tshark(1), dumpcap(1), editcap(1), mergecap(1),
+text2pcap(1), pcap-filter(7) or tcpdump(8) if it doesn't exist.
+
+=head1 NOTES
+
+B<Reordercap> is part of the B<Wireshark> distribution.  The latest version
+of B<Wireshark> can be found at L<http://www.wireshark.org>.
+
+It may make sense to move this functionality into B<Editcap>, or perhaps
+B<Mergecap>, in which B<reordercap> could be retired.
+
+HTML versions of the Wireshark project man pages are available at:
+L<http://www.wireshark.org/docs/man-pages>.
+
+=head1 AUTHORS
+
+  Original Author
+  -------- ------
+  Martin Mathieson             <martin.r.mathieson[AT]googlemail.com>
+

@@ -66,6 +66,7 @@ man1_MANS = \
 	@tshark_man@	\
 	@text2pcap_man@	\
 	@mergecap_man@	\
+	@reordercap_man@	\
 	@capinfos_man@	\
 	@editcap_man@	\
 	@dumpcap_man@	\
@@ -82,7 +83,7 @@ noinst_DATA = idl2wrs.1 idl2wrs.html
 
 pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
-	mergecap.html text2pcap.html dumpcap.html rawshark.html \
+	mergecap.html reordercap.html text2pcap.html dumpcap.html rawshark.html \
 	dftest.html randpkt.html
 
 #
@@ -199,6 +200,19 @@ mergecap.html: mergecap.pod ../config.h $(top_srcdir)/docbook/ws.css
 	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/mergecap.pod > mergecap.html
+
+reordercap.1: mergecap.pod ../config.h
+	$(POD2MAN)					\
+	--center="The Wireshark Network Analyzer"	\
+	--release=$(VERSION)				\
+	$(srcdir)/reordercap.pod > reordercap.1
+
+reordercap.html: reordercap.pod ../config.h $(top_srcdir)/docbook/ws.css
+	$(POD2HTML)							\
+	--title="reordercap - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=$(top_srcdir)/docbook/ws.css				\
+	--noindex							\
+	$(srcdir)/reordercap.pod > reordercap.html
 
 text2pcap.1: text2pcap.pod ../config.h
 	$(POD2MAN)					\

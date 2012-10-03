@@ -27,11 +27,11 @@
 include ../config.nmake
 
 doc: wireshark.html tshark.html wireshark-filter.html capinfos.html \
-	editcap.html idl2wrs.html mergecap.html text2pcap.html dumpcap.html \
+	editcap.html idl2wrs.html mergecap.html reordercap.html text2pcap.html dumpcap.html \
 	rawshark.html
 
 man: wireshark.1 tshark.1 wireshark-filter.4 capinfos.1 editcap.1 \
-	idl2wrs.1 mergecap.1 text2pcap.1 dumpcap.1 rawshark.1
+	idl2wrs.1 mergecap.1 reordercap.1 text2pcap.1 dumpcap.1 rawshark.1
 
 wireshark.pod: wireshark.pod.template AUTHORS-SHORT-FORMAT
 	copy /B wireshark.pod.template + AUTHORS-SHORT-FORMAT wireshark.pod
@@ -144,6 +144,19 @@ mergecap.html: mergecap.pod ../config.h ws.css
 	--noindex                                 \
 	mergecap.pod > mergecap.html
 
+reordercap.1: reordercap.pod ../config.h
+	$(POD2MAN)                      \
+	--center="The Wireshark Network Analyzer" \
+	--release=$(VERSION)			 \
+	reordercap.pod > reordercap.1
+
+reordercap.html: reordercap.pod ../config.h ws.css
+	$(POD2HTML)                     \
+	--title="reordercap - The Wireshark Network Analyzer $(VERSION)" \
+	--css=ws.css \
+	--noindex                                 \
+	reordercap.pod > reordercap.html
+
 text2pcap.1: text2pcap.pod ../config.h
 	$(POD2MAN)                      \
 	--center="The Wireshark Network Analyzer" \
@@ -191,6 +204,7 @@ clean:
 	rm -f editcap.html editcap.1
 	rm -f idl2wrs.html idl2wrs.1
 	rm -f mergecap.html mergecap.1
+	rm -f reordercap.html reordercap.1
 	rm -f text2pcap.html text2pcap.1
 	rm -f dumpcap.html dumpcap.1
 	rm -f rawshark.html rawshark.1
