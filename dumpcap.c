@@ -1583,7 +1583,7 @@ exit_main(int status)
 
 #ifdef HAVE_LIBCAP
 /*
- * If we were linked with libcap (not libpcap), make sure we have
+ * If we were linked with libcap (not related to libpcap), make sure we have
  * CAP_NET_ADMIN and CAP_NET_RAW, then relinquish our permissions.
  * (See comment in main() for details)
  */
@@ -4965,7 +4965,7 @@ report_packet_drops(guint32 received, guint32 drops, gchar *name)
 }
 
 
-/****************************************************************************************************************/
+/************************************************************************************************/
 /* signal_pipe handling */
 
 
