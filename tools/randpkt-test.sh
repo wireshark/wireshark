@@ -122,13 +122,15 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
 
 	for ARGS in "${TSHARK_ARGS[@]}" ; do
             echo -n "($ARGS) "
+	    echo -e "Command and args: $TSHARK $ARGS\n" > $TMP_DIR/$ERR_FILE
             "$TSHARK" $ARGS $TMP_DIR/$TMP_FILE \
-                > /dev/null 2> $TMP_DIR/$ERR_FILE
+                > /dev/null 2>> $TMP_DIR/$ERR_FILE
             RETVAL=$?
 	    if [ $RETVAL -ne 0 ] ; then break ; fi
         done
         grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
             > /dev/null 2>&1 && DISSECTOR_BUG=1
+
         if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
             RAND_FILE="randpkt-`$DATE +%Y-%m-%d`-$$.pcap"
             mv $TMP_DIR/$TMP_FILE $TMP_DIR/$RAND_FILE

@@ -258,6 +258,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 
 	for ARGS in "${RUNNER_ARGS[@]}" ; do
 	    echo -n "($ARGS) "
+	    echo -e "Command and args: $RUNNER $ARGS\n" > $TMP_DIR/$ERR_FILE
 	    "$RUNNER" $ARGS $TMP_DIR/$TMP_FILE \
 		> /dev/null 2>> $TMP_DIR/$ERR_FILE
 	    RETVAL=$?
