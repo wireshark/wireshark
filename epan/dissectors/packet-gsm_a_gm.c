@@ -4867,7 +4867,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 			}
 			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
 			oct = tvb_get_guint8(tvb, curr_offset) & 0x0f;
-			proto_tree_add_uint_format_value(tf_tree, hf_gsm_a_sm_tft_pkt_flt_id, tvb, curr_offset, 1, oct, "%d", oct+1);
+			proto_tree_add_uint_format_value(tf_tree, hf_gsm_a_sm_tft_pkt_flt_id, tvb, curr_offset, 1, oct, "%d (%d)", oct+1, oct);
 			curr_offset++;
 			curr_len--;
 			count++;
@@ -4882,7 +4882,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_pkt_flt_dir, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			oct = tvb_get_guint8(tvb, curr_offset) & 0x0f;
-			proto_tree_add_uint_format_value(tf_tree, hf_gsm_a_sm_tft_pkt_flt_id, tvb, curr_offset, 1, oct, "%d", oct+1);
+			proto_tree_add_uint_format_value(tf_tree, hf_gsm_a_sm_tft_pkt_flt_id, tvb, curr_offset, 1, oct, "%d (%d)", oct+1, oct);
 			curr_offset++;
 			curr_len--;
 
@@ -5053,20 +5053,21 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 			switch (param) {
 			case 0x01:
 				proto_tree_add_text(tf_tree, tvb, curr_offset, pf_length, "Authorization token value: 0x%s",
-			                        tvb_bytes_to_str(tvb, curr_offset, pf_length));
+				                    tvb_bytes_to_str(tvb, curr_offset, pf_length));
 				break;
 
 			case 0x02:
 				proto_tree_add_text(tf_tree, tvb, curr_offset, 2, "Media Component number value: 0x%x",
-			                        tvb_get_bits16(tvb, curr_offset<<3, 16, ENC_BIG_ENDIAN));
+				                    tvb_get_bits16(tvb, curr_offset<<3, 16, ENC_BIG_ENDIAN));
 				proto_tree_add_text(tf_tree, tvb, curr_offset+2, 2, "IP flow number: 0x%x",
-			                        tvb_get_bits16(tvb, (curr_offset+2)<<3, 16, ENC_BIG_ENDIAN));
+				                    tvb_get_bits16(tvb, (curr_offset+2)<<3, 16, ENC_BIG_ENDIAN));
 				break;
 
 			case 0x03:
 				for (i=0; i<pf_length; i++) {
-					proto_tree_add_text(tf_tree, tvb, curr_offset+i, 1, "Packet filter identifier %d: %d",
-			                            i, (tvb_get_guint8(tvb, curr_offset+i)&0x0f)+1);
+					oct = tvb_get_guint8(tvb, curr_offset+i) & 0x0f;
+					proto_tree_add_text(tf_tree, tvb, curr_offset+i, 1, "Packet filter identifier %d: %d (%d)",
+					                    i, oct+1, oct);
 				}
 				break;
 
