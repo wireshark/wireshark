@@ -270,14 +270,14 @@ PARTICULAR PURPOSE.]]>
 
       <informaltable frame="all">
         <tgroup cols="7">
-          <colspec colname="compiler_package" colwidth="14*" />
-          <colspec colname="ide_debugger" colwidth="14*" />
-          <colspec colname="publicly_available" colwidth="14*" />
-          <colspec colname="sdk_required" colwidth="14*" />
-          <colspec colname="msvc_variant" colwidth="14*" />
-          <colspec colname="bitwidth" colwidth="14*" />
-          <colspec colname="vcvars_bat" colwidth="14*" />
-          <colspec colname="remarks" colwidth="14*" />
+          <colspec colname="compiler_package" colwidth="12*" />
+          <colspec colname="ide_debugger" colwidth="12*" />
+          <colspec colname="publicly_available" colwidth="12*" />
+          <colspec colname="sdk_required" colwidth="12*" />
+          <colspec colname="msvc_variant" colwidth="12*" />
+          <colspec colname="bitwidth" colwidth="12*" />
+          <colspec colname="vcvars_bat" colwidth="12*" />
+          <colspec colname="remarks" colwidth="12*" />
           <tbody>
             <row>
               <entry>
