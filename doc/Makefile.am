@@ -298,7 +298,7 @@ CLEANFILES =		\
 	mergecap.1	\
 	mergecap.html	\
 	reordercap.1	\
-	reofercap.html	\
+	reordercap.html	\
 	randpkt.1	\
 	randpkt.html	\
 	rawshark.1	\
