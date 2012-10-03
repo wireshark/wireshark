@@ -269,7 +269,7 @@ PARTICULAR PURPOSE.]]>
       </para>
 
       <informaltable frame="all">
-        <tgroup cols="7">
+        <tgroup cols="8">
           <colspec colname="compiler_package" colwidth="12*" />
           <colspec colname="ide_debugger" colwidth="12*" />
           <colspec colname="publicly_available" colwidth="12*" />
