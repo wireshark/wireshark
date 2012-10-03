@@ -297,6 +297,8 @@ CLEANFILES =		\
 	idl2wrs.html	\
 	mergecap.1	\
 	mergecap.html	\
+	reordercap.1	\
+	reofercap.html	\
 	randpkt.1	\
 	randpkt.html	\
 	rawshark.1	\
