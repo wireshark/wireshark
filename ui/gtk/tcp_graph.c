@@ -2202,6 +2202,7 @@ static void graph_pixmap_draw (struct graph *g)
 	cairo_t *cr;
 	GdkColor *current_line_color = NULL;
 	GdkColor *color_to_set = NULL;
+	gboolean line_stroked = TRUE;
 
 	debug(DBS_FENTRY) puts ("graph_display()");
 	not_disp = 1 ^ g->displayed;
@@ -2235,10 +2236,14 @@ static void graph_pixmap_draw (struct graph *g)
 
 				/* Draw the line */
 				draw_element_line (g, e, cr, color_to_set);
+				line_stroked = FALSE;
 				break;
 
 			case ELMT_ELLIPSE:
-				current_line_color = NULL;
+				if (!line_stroked) {
+					cairo_stroke(cr);
+					line_stroked = TRUE;
+				}
 				draw_element_ellipse (g, e, cr);
 				break;
 
@@ -2248,7 +2253,8 @@ static void graph_pixmap_draw (struct graph *g)
 		}
 
 	/* Make sure any remaining lines get drawn */
-	cairo_stroke (cr);
+	if (!line_stroked)
+		cairo_stroke (cr);
 
 	cairo_destroy (cr);
 }
@@ -2302,10 +2308,13 @@ static void draw_element_ellipse (struct graph *g, struct element *e, cairo_t *c
 
 	debug(DBS_GRAPH_DRAWING) printf ("ellipse: (x, y) -> (w, h): (%f, %f) -> (%f, %f)\n", x, y, w, h);
 
+	cairo_save(cr);
+	cairo_set_source_rgb(cr, 0, 0, 0);
 	cairo_translate (cr, x + w / 2., y + h / 2.);
 	cairo_scale (cr, w / 2., h / 2.);
 	cairo_arc (cr, 0., 0., 1., 0., 2 * G_PI);
 	cairo_fill(cr);
+	cairo_restore(cr);
 }
 
 static void axis_pixmaps_create (struct axis *axis)
