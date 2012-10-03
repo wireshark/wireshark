@@ -85,10 +85,6 @@
       of Windows, and thus will update Visual Studio, you may need to
       disable it until after all of the above are installed, to make
       sure it doesn't install Visual Studio 2010 SP1 out of order.</para>
-      <para>Install MSVC the usual way. Don't forget to install
-      <filename>vcvars32.bat</filename> or call it manually before building Wireshark.
-      <filename>vcvars32.bat</filename> will set some required environment (e.g. the
-      <varname>PATH</varname>) settings.</para>
       <tip>
         <title>You can use other Microsoft C compiler variants!</title>
         <para>It's possible to compile Wireshark with a wide range
@@ -403,7 +399,8 @@ title Command Prompt (VC++ 2010)]]>
         </programlisting>
       </para>
       <para>If you have problems with all the first three items (cl, link, nmake),
-      check if you called <literal>vcvars32/SetEnv</literal> as mentioned in
+      check if you called <literal>vcvars32/vcvarsall/SetEnv</literal>
+      as mentioned in
       <xref linkend="ChSetupPrepareCommandCom" /> (which will "fix"
       your <varname>PATH</varname> settings). However, the exact text will be slightly
       different depending on the MSVC version used.</para>
