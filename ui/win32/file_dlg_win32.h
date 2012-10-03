@@ -77,7 +77,11 @@ gboolean win32_save_as_file(HWND h_wnd, capture_file *cf,
  *
  * @param h_wnd HWND of the parent window.
  */
-void win32_export_specified_packets_file(HWND h_wnd);
+void win32_export_specified_packets_file(HWND h_wnd, GString *file_name,
+                                         int *file_type,
+                                         gboolean *compressed,
+                                         packet_range_t *range);
+
 
 /** Open the "Merge" dialog box.
  *
@@ -145,8 +149,8 @@ void file_set_save_marked_sensitive();
 #define EWFD_PTX_FIRST_PKT 1014
 #define EWFD_PTX_ELAPSED   1015
 
-/* Save as dialog defines */
-#define EWFD_GZIP_CB     1000
+/* Save as and export dialog defines */
+#define EWFD_GZIP_CB     1040
 
 /* Export dialog defines */
 #define EWFD_CAPTURED_BTN    1000

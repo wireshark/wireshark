@@ -82,7 +82,6 @@ static void do_file_save(capture_file *cf, gboolean dont_reopen);
 static void file_save_as_cmd(capture_file *cf, gboolean must_support_comments,
                             gboolean dont_reopen);
 static void file_select_file_type_cb(GtkWidget *w, gpointer data);
-static cf_write_status_t file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range);
 static int set_file_type_list(GtkWidget *combo_box, capture_file *cf,
                               gboolean must_support_comments);
 static gboolean test_file_close(capture_file *cf, gboolean from_quit,
@@ -1698,6 +1697,65 @@ gtk_save_as_file(GtkWidget *w _U_, capture_file *cf, GString *file_name, int *fi
 }
 #endif /* USE_WIN32_FILE_DIALOGS */
 
+static void
+file_add_extension(GString *file_name, int file_type, gboolean compressed) {
+  gchar   *file_name_lower;
+  GString *file_suffix;
+  GSList  *extensions_list, *extension;
+  gboolean add_extension;
+
+  /*
+   * Append the default file extension if there's none given by
+   * the user or if they gave one that's not one of the valid
+   * extensions for the file type.
+   */
+  file_name_lower = g_utf8_strdown(file_name->str, -1);
+  file_suffix = g_string_new("");
+  extensions_list = wtap_get_file_extensions_list(file_type, FALSE);
+  if (extensions_list != NULL) {
+    /* We have one or more extensions for this file type.
+       Start out assuming we need to add the default one. */
+    add_extension = TRUE;
+
+    /* OK, see if the file has one of those extensions. */
+    for (extension = extensions_list; extension != NULL;
+         extension = g_slist_next(extension)) {
+      g_string_printf(file_suffix, ".%s", (char *)extension->data);
+      if (g_str_has_suffix(file_name_lower, file_suffix->str)) {
+        /*
+         * The file name has one of the extensions for
+         * this file type.
+         */
+        add_extension = FALSE;
+        break;
+      }
+      g_string_append(file_suffix, ".gz");
+      if (g_str_has_suffix(file_name_lower, file_suffix->str)) {
+        /*
+         * The file name has one of the extensions for
+         * this file type.
+         */
+        add_extension = FALSE;
+        break;
+      }
+    }
+  } else {
+    /* We have no extensions for this file type.  Don't add one. */
+    add_extension = FALSE;
+  }
+  g_free(file_name_lower);
+  g_string_free(file_suffix, TRUE);
+  if (add_extension) {
+    if (wtap_default_file_extension(file_type) != NULL) {
+      g_string_append_printf(file_name, ".%s",
+                             wtap_default_file_extension(file_type));
+      if (compressed) {
+        g_string_append(file_name, ".gz");
+      }
+    }
+  }
+}
+
 /* Save a file with a user-specified name */
 
 /*
@@ -1716,10 +1774,6 @@ file_save_as_cmd(capture_file *cf, gboolean must_support_comments,
   int file_type;
   gboolean compressed;
   cf_write_status_t status;
-  gchar   *file_name_lower;
-  GString *file_suffix;
-  GSList  *extensions_list, *extension;
-  gboolean add_extension;
   gchar   *dirname;
   gboolean discard_comments = FALSE;
 
@@ -1778,56 +1832,7 @@ file_save_as_cmd(capture_file *cf, gboolean must_support_comments,
         return;
       }
 
-      /*
-       * Append the default file extension if there's none given by
-       * the user or if they gave one that's not one of the valid
-       * extensions for the file type.
-       */
-      file_name_lower = g_utf8_strdown(file_name->str, -1);
-      file_suffix = g_string_new("");
-      extensions_list = wtap_get_file_extensions_list(file_type, FALSE);
-      if (extensions_list != NULL) {
-        /* We have one or more extensions for this file type.
-           Start out assuming we need to add the default one. */
-        add_extension = TRUE;
-
-        /* OK, see if the file has one of those extensions. */
-        for (extension = extensions_list; extension != NULL;
-             extension = g_slist_next(extension)) {
-          g_string_printf(file_suffix, ".%s", (char *)extension->data);
-          if (g_str_has_suffix(file_name_lower, file_suffix->str)) {
-            /*
-             * The file name has one of the extensions for
-             * this file type.
-             */
-            add_extension = FALSE;
-            break;
-          }
-          g_string_append(file_suffix, ".gz");
-          if (g_str_has_suffix(file_name_lower, file_suffix->str)) {
-            /*
-             * The file name has one of the extensions for
-             * this file type.
-             */
-            add_extension = FALSE;
-            break;
-          }
-        }
-      } else {
-        /* We have no extensions for this file type.  Don't add one. */
-        add_extension = FALSE;
-      }
-      g_free(file_name_lower);
-      g_string_free(file_suffix, TRUE);
-      if (add_extension) {
-        if (wtap_default_file_extension(file_type) != NULL) {
-          g_string_append_printf(file_name, ".%s",
-                                 wtap_default_file_extension(file_type));
-          if (compressed) {
-            g_string_append(file_name, ".gz");
-          }
-        }
-      }
+      file_add_extension(file_name, file_type, compressed);
 
 #ifndef _WIN32
       /* If the file exists and it's user-immutable or not writable,
@@ -1846,7 +1851,7 @@ file_save_as_cmd(capture_file *cf, gboolean must_support_comments,
       case CF_WRITE_OK:
         /* The save succeeded; we're done. */
         /* Save the directory name for future file dialogs. */
-        dirname = get_dirname(file_name->str);  /* Overwrites cf_name */
+        dirname = get_dirname(file_name->str);  /* Overwrites file_name->str */
         set_last_open_dir(dirname);
         /* If we discarded comments, redraw the packet list to reflect
            any packets that no longer have comments. */
@@ -1875,26 +1880,21 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   file_save_as_cmd(&cfile, FALSE, FALSE);
 }
 
-void
-file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+#ifndef USE_WIN32_FILE_DIALOGS
+static gboolean
+gtk_export_specified_packets_file(GtkWidget *w _U_, GString *file_name, int *file_type,
+                                  gboolean *compressed, packet_range_t *range)
 {
-#ifdef USE_WIN32_FILE_DIALOGS
-  win32_export_specified_packets_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
-#else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget     *file_export_specified_packets_w;
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *range_fr, *range_tb,
                 *compressed_cb;
-  packet_range_t range;
   char          *cf_name;
-  gchar         *display_basename;
-  GtkWidget     *msg_dialog;
+  gpointer       ptr;
+
+  if (!file_name || !file_type || !compressed || !range)
+    return FALSE;
 
   /* Default to writing out all displayed packets, in the file's current format. */
-
-  /* init the packet range */
-  packet_range_init(&range);
-  range.process_filtered = TRUE;
-  range.include_dependents = TRUE;
 
   /* build the file selection */
   file_export_specified_packets_w = file_selection_new("Wireshark: Export Specified Packets",
@@ -1915,7 +1915,7 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(range_fr);
 
   /* range table */
-  range_tb = range_new(&range, TRUE);
+  range_tb = range_new(range, TRUE);
   gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
   gtk_widget_show(range_tb);
 
@@ -1950,142 +1950,138 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   g_signal_connect(ft_combo_box, "changed", G_CALLBACK(file_select_file_type_cb), file_export_specified_packets_w);
   ws_combo_box_set_active(GTK_COMBO_BOX(ft_combo_box), 0);
 
-  /*
-   * Loop until the user either selects a file or gives up.
-   */
-  for (;;) {
-    cf_name = file_selection_run(file_export_specified_packets_w);
-    if (cf_name == NULL) {
-      /* User cancelled or closed the dialog. */
-      return;
-    }
-
-    /* Check whether the range is valid. */
-    if (!range_check_validity_modal(file_export_specified_packets_w, &range)) {
-      /* The range isn't valid; the user was told that, and dismissed
-         the dialog telling them that, so let them fix the range
-         and try again, or cancel. */
-      g_free(cf_name);
-      continue;
-    }
-
-    /*
-     * Check that we're not going to save on top of the current
-     * capture file.
-     * We do it here so we catch all cases ...
-     * Unfortunately, the file requester gives us an absolute file
-     * name and the read file name may be relative (if supplied on
-     * the command line). From Joerg Mayer.
-     */
-    if (files_identical(cfile.filename, cf_name)) {
-      display_basename = g_filename_display_basename(cf_name);
-      msg_dialog = gtk_message_dialog_new(GTK_WINDOW(file_export_specified_packets_w),
-                                          GTK_DIALOG_DESTROY_WITH_PARENT,
-                                          GTK_MESSAGE_ERROR,
-                                          GTK_BUTTONS_OK,
-  "The file \"%s\" is the capture file from which you're exporting the packets.",
-                                          display_basename);
-      g_free(display_basename);
-      gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
-           "You cannot export packets on top of the current capture file.");
-      gtk_dialog_run(GTK_DIALOG(msg_dialog));
-      gtk_widget_destroy(msg_dialog);
-      g_free(cf_name);
-      continue;
-    }
-
-#ifndef _WIN32
-    /* If the file exists and it's user-immutable or not writable,
-       ask the user whether they want to override that. */
-    if (!file_target_unwritable_ui(file_export_specified_packets_w, cf_name)) {
-      /* They don't.  Let them try another file name or cancel. */
-      g_free(cf_name);
-      continue;
-    }
-#endif
-
-    /* attempt to export the packets */
-    g_free(cf_name);
-    switch (file_export_specified_packets_cb(file_export_specified_packets_w,
-                                             &range)) {
-
-    case CF_WRITE_OK:
-      /* The save succeeded; we're done. */
-      return;
-
-    case CF_WRITE_ERROR:
-      /* The save failed; let the user try again */
-      continue;
-
-    case CF_WRITE_ABORTED:
-      /* The user aborted the save; just return. */
-      return;
-    }
+  cf_name = file_selection_run(file_export_specified_packets_w);
+  if (cf_name == NULL) {
+    /* User cancelled or closed the dialog. */
+    return FALSE;
   }
-#endif /* USE_WIN32_FILE_DIALOGS */
-}
-
-/* all tests ok, we only have to write out the packets */
-/* (and probably continue with a pending operation) */
-static cf_write_status_t
-file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range)
-{
-  GtkWidget *ft_combo_box;
-  GtkWidget *compressed_cb;
-  gchar     *cf_name;
-  gchar     *dirname;
-  gpointer   ptr;
-  int        file_type;
-  gboolean   compressed;
-  cf_write_status_t status;
-
-  /* Hide the file chooser while we're doing the export. */
-  gtk_widget_hide(fs);
-
-  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
-
-  compressed_cb = (GtkWidget *)g_object_get_data(G_OBJECT(fs), E_COMPRESSED_CB_KEY);
-  ft_combo_box  = (GtkWidget *)g_object_get_data(G_OBJECT(fs), E_FILE_TYPE_COMBO_BOX_KEY);
 
   if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(ft_combo_box), &ptr)) {
       g_assert_not_reached();  /* Programming error: somehow nothing is active */
   }
-  file_type = GPOINTER_TO_INT(ptr);
-  compressed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb));
+  *file_type = GPOINTER_TO_INT(ptr);
+  *compressed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb));
 
-  /* Write out the specified packets to the file with the specified name. */
-  status = cf_export_specified_packets(&cfile, cf_name, range, file_type,
-                                       compressed);
-  switch (status) {
+  /* We've crossed the Rubicon; get rid of the file export box. */
+  window_destroy(GTK_WIDGET(file_export_specified_packets_w));
 
-  case CF_WRITE_OK:
-    /* The write succeeded; get rid of the file selection box. */
-    /* cf_export_specified_packets() might already closed our dialog! */
-    window_destroy(GTK_WIDGET(fs));
-
-    /* Save the directory name for future file dialogs.
-       XXX - should there be separate ones for "Save As" and
-       "Export Specified Packets"? */
-    dirname = get_dirname(cf_name);  /* Overwrites cf_name */
-    set_last_open_dir(dirname);
-    break;
-
-  case CF_WRITE_ERROR:
-    /* The write failed.
-       just leave the file selection box around so that the user can,
-       after they dismiss the alert box popped up for the error, try
-       again. */
-    break;
-
-  case CF_WRITE_ABORTED:
-    /* The write was aborted; just get rid of the file selection
-       box and return. */
-    window_destroy(fs);
-    break;
-  }
+  g_string_printf(file_name, "%s", cf_name);
   g_free(cf_name);
-  return status;
+  return TRUE;
 }
+#endif /* USE_WIN32_FILE_DIALOGS */
+
+/*
+ * <platform/>_export_specified_packets_file routines should upon entry...
+ *   Set the path and fill in the filename if the path+filename is provided.
+ * ...and upon exit...
+ *   Return TRUE on "OK" and "FALSE" on "Cancel".
+ *   Close the window.
+ */
+
+void
+file_export_specified_packets_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
+  GString *file_name = g_string_new("");
+  int file_type;
+  gboolean compressed;
+  packet_range_t range;
+  cf_write_status_t status;
+  gchar *dirname;
+  gchar *display_basename;
+  GtkWidget *msg_dialog;
+
+  /* init the packet range */
+  packet_range_init(&range);
+  range.process_filtered = TRUE;
+  range.include_dependents = TRUE;
+
+  /*
+   * Loop until the user either selects a file or gives up.
+   */
+  for (;;) {
+#ifdef USE_WIN32_FILE_DIALOGS
+    if (win32_export_specified_packets_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)),
+                                            file_name, &file_type, &compressed, &range)) {
+#else /* USE_WIN32_FILE_DIALOGS */
+    if (gtk_export_specified_packets_file(w, file_name, &file_type, &compressed, &range)) {
+#endif /* USE_WIN32_FILE_DIALOGS */
+
+      /* Check whether the range is valid. */
+      if (!range_check_validity_modal(top_level, &range)) {
+        /* The range isn't valid; the user was told that, and dismissed
+           the dialog telling them that, so let them fix the range
+           and try again, or cancel. */
+        continue;
+      }
+
+      /* XXX - Check for comments? */
+
+      /*
+       * Check that we're not going to save on top of the current
+       * capture file.
+       * We do it here so we catch all cases ...
+       * Unfortunately, the file requester gives us an absolute file
+       * name and the read file name may be relative (if supplied on
+       * the command line). From Joerg Mayer.
+       */
+      if (files_identical(cfile.filename, file_name->str)) {
+        display_basename = g_filename_display_basename(file_name->str);
+        msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+                                            GTK_DIALOG_DESTROY_WITH_PARENT,
+                                            GTK_MESSAGE_ERROR,
+                                            GTK_BUTTONS_OK,
+        "The file \"%s\" is the capture file from which you're exporting the packets.",
+                                            display_basename);
+        g_free(display_basename);
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+             "You cannot export packets on top of the current capture file.");
+        gtk_dialog_run(GTK_DIALOG(msg_dialog));
+        gtk_widget_destroy(msg_dialog);
+        continue;
+      }
+
+      file_add_extension(file_name, file_type, compressed);
+
+#ifndef _WIN32
+      /* If the file exists and it's user-immutable or not writable,
+         ask the user whether they want to override that. */
+      if (!file_target_unwritable_ui(top_level, file_name->str)) {
+        /* They don't.  Let them try another file name or cancel. */
+        continue;
+      }
+#endif
+
+      /* Attempt to export the file */
+      status = cf_export_specified_packets(&cfile, file_name->str, &range, file_type,
+                                         compressed);
+      switch (status) {
+
+      case CF_WRITE_OK:
+        /* The write succeeded; get rid of the file selection box. */
+        /* cf_export_specified_packets() might already closed our dialog! */
+
+        /* Save the directory name for future file dialogs.
+           XXX - should there be separate ones for "Save As" and
+           "Export Specified Packets"? */
+        dirname = get_dirname(file_name->str);  /* Overwrites file_name->str */
+        set_last_open_dir(dirname);
+        break;
+
+      case CF_WRITE_ERROR:
+        /* The save failed; let the user try again. */
+        continue;
+
+      case CF_WRITE_ABORTED:
+        /* The user aborted the save; just return. */
+        g_string_free(file_name, TRUE);
+        return;
+      }
+    }
+    g_string_free(file_name, TRUE);
+    return;
+  }
+}
+
 
 /* Reload a file using the current read and display filters */
 void

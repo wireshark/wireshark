@@ -106,28 +106,6 @@ typedef enum {
 
 #define FILE_DEFAULT_COLOR 2
 
-/*
- * We should probably test the SDK version instead of the compiler version,
- * but this should work for our purposes.
- */
-#if (_MSC_VER <= 1200)
-static UINT CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT CALLBACK export_specified_packets_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT CALLBACK export_raw_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT CALLBACK export_sslkeys_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-#else
-static UINT_PTR CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT_PTR CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT_PTR CALLBACK export_specified_packets_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT_PTR CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT_PTR CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT_PTR CALLBACK export_raw_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static UINT_PTR CALLBACK export_sslkeys_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-#endif /* (_MSC_VER <= 1200) */
-
 static void range_update_dynamics(HWND sf_hwnd, packet_range_t *range);
 static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
 static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range);
@@ -136,11 +114,11 @@ static TCHAR *build_file_open_type_list(void);
 static TCHAR *build_file_save_type_list(GArray *savable_file_types,
                                         gboolean must_support_comments);
 
-static int            g_filetype;
-static gboolean       g_compressed;
-static packet_range_t g_range;
-static merge_action_e g_merge_action;
-static print_args_t   print_args;
+static int             g_filetype;
+static gboolean        g_compressed;
+static packet_range_t *g_range;
+static merge_action_e  g_merge_action;
+static print_args_t    print_args;
 /* XXX - The reason g_sf_hwnd exists is so that we can call
  *       range_update_dynamics() from anywhere; it's currently
  *       static, but if we move to using the native Windows
@@ -222,11 +200,7 @@ win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
-#if (_MSC_VER <= 1200)
-    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-#endif
     ofn->lpstrFilter = build_file_open_type_list();
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -403,11 +377,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
-#if (_MSC_VER <= 1200)
-    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-#endif
     ofn->lpstrFilter = build_file_save_type_list(savable_file_types,
                                                  must_support_comments);
     ofn->lpstrCustomFilter = NULL;
@@ -452,24 +422,33 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     return gsfn_ok;
 }
 
-void
-win32_export_specified_packets_file(HWND h_wnd) {
+gboolean
+win32_export_specified_packets_file(HWND h_wnd, GString *file_name,
+                                    int *file_type,
+                                    gboolean *compressed,
+                                    packet_range_t *range) {
     GArray *savable_file_types;
     OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
-    GString *file_name8;
-    gchar *file_last_dot;
-    GSList *extensions_list, *extension;
-    gboolean add_extension;
-    gchar *dirname;
     int    ofnsize;
+    gboolean gsfn_ok;
 #if (_MSC_VER >= 1500)
     OSVERSIONINFO osvi;
 #endif
 
+    if (!file_name || !file_type || !compressed || !range)
+        return FALSE;
+
+    if (file_name->len > 0) {
+        StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
+    }
+
     savable_file_types = wtap_get_savable_file_types(cfile.cd_t, cfile.linktypes);
     if (savable_file_types == NULL)
         return;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
+
+    g_range = range;
+    g_compressed = FALSE;
 
     /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
@@ -488,11 +467,7 @@ win32_export_specified_packets_file(HWND h_wnd) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
-#if (_MSC_VER <= 1200)
-    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-#endif
     ofn->lpstrFilter = build_file_save_type_list(savable_file_types, FALSE);
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -510,82 +485,31 @@ win32_export_specified_packets_file(HWND h_wnd) {
     ofn->lpfnHook = export_specified_packets_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_EXPORT_SPECIFIED_PACKETS_FILENAME_TEMPLATE");
 
-    if (GetSaveFileName(ofn)) {
-        g_filetype = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
+    gsfn_ok = GetSaveFileName(ofn);
 
-        /*
-         * Append the default file extension if there's none given by the user
-         * or if they gave one that's not one of the valid extensions for
-         * the file type.
-         */
-        file_name8 = g_string_new(utf_16to8(file_name16));
-        file_last_dot = strrchr(file_name8->str,'.');
-        extensions_list = wtap_get_file_extensions_list(g_filetype, FALSE);
-        if (extensions_list != NULL) {
-            /* We have one or more extensions for this file type.
-               Start out assuming we need to add the default one. */
-            add_extension = TRUE;
-            if (file_last_dot != NULL) {
-                /* Skip past the dot. */
-                file_last_dot++;
-
-                /* OK, see if the file has one of those extensions. */
-                for (extension = extensions_list; extension != NULL;
-                     extension = g_slist_next(extension)) {
-                    if (g_ascii_strcasecmp((char *)extension->data, file_last_dot) == 0) {
-                        /* The file name has one of the extensions for this file type */
-                        add_extension = FALSE;
-                        break;
-                    }
-                }
-            }
-        } else {
-            /* We have no extensions for this file type.  Don't add one. */
-            add_extension = FALSE;
+    if (gsfn_ok) {
+        g_string_printf(file_name, "%s", utf_16to8(file_name16));
+        /* What file format was specified? */
+        *file_type = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
+        *compressed = g_compressed;
+    } else {
+        /* User cancelled or closed the dialog, or an error occurred. */
+        if (CommDlgExtendedError() != 0) {
+            /* XXX - pop up some error here. FNERR_INVALIDFILENAME
+             * might be a user error; if so, they should know about
+             * it. For now we force a do-over.
+             */
+            g_string_truncate(file_name, 0);
+            gsfn_ok = TRUE;
         }
-        if (add_extension) {
-            if (wtap_default_file_extension(g_filetype) != NULL) {
-                g_string_append_printf(file_name8, ".%s", wtap_default_file_extension(g_filetype));
-            }
-        }
-
-        g_sf_hwnd = NULL;
-
-        /*
-         * GetSaveFileName() already asked the user if he wants to overwrite
-         * the old file, so if we are here, the user already said "yes".
-         * Write out the specified packets to the file with the specified
-         * name.
-         *
-         * XXX: if the cf_export_specified_packets() fails, it will do a
-         * GTK+ simple_dialog(), which is not useful while runing a Windows
-         * dialog.
-         * (A GTK dialog box will be generated and basically will
-         * only appear when the redisplayed Windows 'save_as-file'
-         * dialog is dismissed. It will then need to be dismissed.
-         * This should be fixed even though the cf_save_packets()
-         * presumably should rarely fail in this case.
-         */
-        if (cf_export_specified_packets(&cfile, file_name8->str, &g_range, g_filetype, FALSE) != CF_OK) {
-            /* The write failed.  Try again. */
-            g_array_free(savable_file_types, TRUE);
-            g_string_free(file_name8, TRUE /* free_segment */);
-            g_free( (void *) ofn->lpstrFilter);
-            g_free( (void *) ofn);
-            win32_export_specified_packets_file(h_wnd);
-            return;
-        }
-
-        /* Save the directory name for future file dialogs. */
-        dirname = get_dirname(file_name8->str);  /* Overwrites cf_name */
-        set_last_open_dir(dirname);
-
-        g_string_free(file_name8, TRUE /* free_segment */);
     }
+
     g_sf_hwnd = NULL;
+    g_range = NULL;
     g_array_free(savable_file_types, TRUE);
     g_free( (void *) ofn->lpstrFilter);
     g_free( (void *) ofn);
+    return gsfn_ok;
 }
 
 
@@ -630,11 +554,7 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
-#if (_MSC_VER <= 1200)
-    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-#endif
     ofn->lpstrFilter = build_file_open_type_list();
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -712,11 +632,7 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
-#if (_MSC_VER <= 1200)
-    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-#endif
     ofn->lpstrFilter = FILE_TYPES_EXPORT;
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -836,11 +752,7 @@ win32_export_raw_file(HWND h_wnd) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
-#if (_MSC_VER <= 1200)
-    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-#endif
     ofn->lpstrFilter = FILE_TYPES_RAW;
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -930,11 +842,7 @@ win32_export_sslkeys_file(HWND h_wnd) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
-#if (_MSC_VER <= 1200)
-    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-#endif
     ofn->lpstrFilter = FILE_TYPES_SSLKEYS;
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -1015,11 +923,7 @@ win32_export_color_file(HWND h_wnd, gpointer filter_list) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
-#if (_MSC_VER <= 1200)
-    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-#endif
     ofn->lpstrFilter = FILE_TYPES_COLOR;
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -1080,11 +984,7 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
-#if (_MSC_VER <= 1200)
-    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-#else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-#endif
     ofn->lpstrFilter = FILE_TYPES_COLOR;
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
@@ -1443,11 +1343,7 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
 }
 
 
-#if (_MSC_VER <= 1200)
-static UINT CALLBACK
-#else
 static UINT_PTR CALLBACK
-#endif
 open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND      cur_ctrl, parent;
     OFNOTIFY *notify = (OFNOTIFY *) l_param;
@@ -1673,7 +1569,7 @@ build_file_format_list(HWND sf_hwnd) {
         if (ft == WTAP_FILE_UNKNOWN)
             continue;  /* not a real file type */
 
-        if (!packet_range_process_all(&g_range) || ft != cfile.cd_t) {
+        if (!packet_range_process_all(g_range) || ft != cfile.cd_t) {
             /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
             if (!wtap_can_save_with_wiretap(ft, cfile.linktypes))
                 continue;       /* We can't. */
@@ -1699,11 +1595,7 @@ build_file_format_list(HWND sf_hwnd) {
 }
 #endif
 
-#if (_MSC_VER <= 1200)
-static UINT CALLBACK
-#else
 static UINT_PTR CALLBACK
-#endif
 save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
@@ -1813,11 +1705,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 }
 
 #define RANGE_TEXT_MAX 128
-#if (_MSC_VER <= 1200)
-static UINT CALLBACK
-#else
 static UINT_PTR CALLBACK
-#endif
 export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
@@ -1830,16 +1718,14 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
             /* Default to saving all packets, in the file's current format. */
             g_filetype = cfile.cd_t;
 
-            /* init the packet range */
-            packet_range_init(&g_range);
-            /* default to displayed packets */
-            g_range.process_filtered   = TRUE;
-            g_range.include_dependents   = TRUE;
-
             /* Fill in the file format list */
             /*build_file_format_list(sf_hwnd);*/
 
-            range_handle_wm_initdialog(sf_hwnd, &g_range);
+            range_handle_wm_initdialog(sf_hwnd, g_range);
+
+            /* Fill in the compression checkbox */
+            cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
+            SendMessage(cur_ctrl, BM_SETCHECK, g_compressed, 0);
 
             break;
         case WM_COMMAND:
@@ -1886,6 +1772,13 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                     TCHAR  file_name16_selected[MAX_PATH];
                     char  *file_name8_selected;
                     int    selected_size;
+
+                    /* Fetch our compression value */
+                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
+                    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+                        g_compressed = TRUE;
+                    else
+                        g_compressed = FALSE;
 
                     /* Check if trying to do 'save as' to the currently open file */
                     parent = GetParent(sf_hwnd);
@@ -2182,11 +2075,7 @@ range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t
     }
 }
 
-#if (_MSC_VER <= 1200)
-static UINT CALLBACK
-#else
 static UINT_PTR CALLBACK
-#endif
 merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND      cur_ctrl, parent;
     OFNOTIFY *notify = (OFNOTIFY *) l_param;
@@ -2258,11 +2147,7 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 }
 
 
-#if (_MSC_VER <= 1200)
-static UINT CALLBACK
-#else
 static UINT_PTR CALLBACK
-#endif
 export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
@@ -2322,11 +2207,7 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     return 0;
 }
 
-#if (_MSC_VER <= 1200)
-static UINT CALLBACK
-#else
 static UINT_PTR CALLBACK
-#endif
 export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND          cur_ctrl;
     OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
@@ -2354,11 +2235,7 @@ export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param
     return 0;
 }
 
-#if (_MSC_VER <= 1200)
-static UINT CALLBACK
-#else
 static UINT_PTR CALLBACK
-#endif
 export_sslkeys_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND          cur_ctrl;
     OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
