@@ -105,22 +105,6 @@
       <para>XXX - mention the compiler and PSDK web installers -
       which significantly reduce download size - and find out the
       required components</para>
-      <para>Wireshark development depends on several environment variables,
-      particularly <varname>PATH</varname>. You can use a batch script to fill
-      these in, for example
-
-        <programlisting>
-<![CDATA[@echo off
-echo Adding things to the path...
-set PATH=%PATH%;.
-set PATH=%PATH%;c:\cygwin\bin
-
-echo Setting up Visual Studio environment...
-call "c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat"
-
-title Command Prompt (VC++ 2010)]]>
-        </programlisting>
-      </para>
       <para>Why is this recommended? While this is a huge download,
       the 2010 Express Edition is the only free (as in beer)
       version that includes the Visual Studio integrated
@@ -361,6 +345,23 @@ title Command Prompt (VC++ 2010)]]>
       <filename>C:\Programme</filename> - take this also in account where
       <filename>C:\Program Files</filename> appears elsewhere. Note: You need
       to repeat steps 1 - 4 each time you open a new cmd.exe!</para>
+      <para>Wireshark development depends on several additional
+      environment variables, particularly <varname>PATH</varname>.
+      You can use a batch script to fill these in, along with the Visual
+      C++ variables; for example:
+
+        <programlisting>
+<![CDATA[@echo off
+echo Adding things to the path...
+set PATH=%PATH%;.
+set PATH=%PATH%;c:\cygwin\bin
+
+echo Setting up Visual Studio environment...
+call "c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat"
+
+title Command Prompt (VC++ 2010)]]>
+        </programlisting>
+      </para>
     </section>
     <section id="ChToolsWin32Verify">
       <title>Verify installed tools</title>
