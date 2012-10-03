@@ -350,6 +350,7 @@ EXTRA_DIST = \
 	randpkt.pod		\
 	randpkt.txt		\
 	rawshark.pod		\
+	reordercap.pod	\
 	sgml.doc.template	\
 	text2pcap.pod		\
 	tshark.pod		\
