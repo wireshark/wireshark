@@ -925,6 +925,7 @@ endif()
 if(BUILD_capinfos)
 	set(capinfos_LIBS
 		wiretap
+		wsutil
 		${ZLIB_LIBRARIES}
 		${GCRYPT_LIBRARIES}
 		${APPLE_COCOA_LIBRARY}
