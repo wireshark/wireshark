@@ -913,6 +913,27 @@ help/faq.txt: $(srcdir)/help/faq.py
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
 
+# Used by patch-bzip2
+# Trim off any extra version information and find the previous micro release.
+BASE_VERSION=`echo "$(VERSION)" | awk -F. '{$$3 = $$3 + 0 ; printf("%d.%d.%d"), $$1, $$2, $$3}'`
+PREV_VERSION=`echo "$(VERSION)" | awk -F. '{$$3 = $$3 + 0 ; if ($$3 > 0) $$3-- ; printf("%d.%d.%d"), $$1, $$2, $$3}'`
+PREV_DIR="wireshark-$(PREV_VERSION)"
+PREV_FILE="$(PREV_DIR).tar.bz2"
+PREV_URL="http://www.wireshark.org/download/src/all-versions/$(PREV_FILE)"
+
+patch-bzip2: distdir
+	if test x$(BASE_VERSION) != x$(PREV_VERSION) ; then \
+		curl -z $(PREV_FILE) -o $(PREV_FILE) $(PREV_URL) && \
+		tar -xjf $(PREV_FILE) && \
+		diff -urN $(PREV_DIR) $(distdir) | bzip2 > patch-wireshark-$(PREV_VERSION)-to-$(VERSION).bz2 && \
+		echo "Created patch-bzip2" ; \
+		rm -rf $(PREV_DIR) ; \
+	else \
+		echo "This appears to be the first micro version ($(PREV_VERSION)). Skipping." ; \
+	fi
+	$(am__remove_distdir)
+
+
 # Used by svr4-package and osx-package
 # We load top_stagedir with an explicit path so that libtool doesn't freak.
 top_stagedir=`cd $(top_srcdir) && pwd`/packaging/staging
