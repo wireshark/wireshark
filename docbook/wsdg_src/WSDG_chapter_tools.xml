@@ -258,8 +258,10 @@ PARTICULAR PURPOSE.]]>
         were compiled using Microsoft Visual C++ 6.0. Using the release
         compilers is recommended for Wireshark development work. "Express
         Edition" compilers such as Visual C++ 2010 Express Edition SP1 can be
-        used but any PortableApps or U3 packages you create will require the
-        installation of a separate Visual C++ Redistributable package. See
+        used but any PortableApps or U3 packages you create with them
+        will require the installation of a separate Visual C++
+        Redistributable package on any machine on which the PortableApps
+        or U3 package is to be used. See
         <quote><link linkend='msvc-runtime-redistributable' endterm='msvc-runtime-redistributable.title'/></quote>
         below for more details.
       </para>
