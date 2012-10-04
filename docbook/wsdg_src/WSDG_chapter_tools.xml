@@ -368,7 +368,7 @@ PARTICULAR PURPOSE.]]>
               <entry>
                 <para>
                   <filename>vcredist_x86.exe</filename>
-                  <superscript>3</superscript>
+                  <superscript>4</superscript>
                 </para>
               </entry>
             </row>
@@ -429,7 +429,7 @@ PARTICULAR PURPOSE.]]>
               <entry>
                 <para>
                   <filename>vcredist_x86.exe</filename>
-                  <superscript>3</superscript>
+                  <superscript>4</superscript>
                 </para>
               </entry>
             </row>
@@ -500,14 +500,14 @@ PARTICULAR PURPOSE.]]>
               <entry>
                 <para>
                   <filename>vcredist_x86.exe</filename>
-                  <superscript>3</superscript>
+                  <superscript>4</superscript>
                 </para>
               </entry>
             </row>
             <row>
               <entry>
                 <para>Yes
-                <superscript>2</superscript></para>
+                <superscript>3</superscript></para>
               </entry>
               <entry>
                 <para>64-bit</para>
@@ -519,14 +519,14 @@ PARTICULAR PURPOSE.]]>
               <entry>
                 <para>
                   <filename>vcredist_x64.exe</filename>
-                  <superscript>3</superscript>
+                  <superscript>4</superscript>
                 </para>
               </entry>
             </row>
             <row>
               <entry>
                 <para>.NET Framework 2.0 SDK
-                <superscript>4</superscript></para>
+                <superscript>5</superscript></para>
               </entry>
               <entry>
                 <para>No</para>
@@ -553,7 +553,7 @@ PARTICULAR PURPOSE.]]>
               <entry>
                 <para>
                   <filename>vcredist_x86.exe</filename>
-                  <superscript>3</superscript>
+                  <superscript>4</superscript>
                 </para>
               </entry>
             </row>
@@ -572,7 +572,12 @@ PARTICULAR PURPOSE.]]>
       setting batch file for the SDK!
       </para>
       <para>
-      <superscript>3</superscript><filename>vcredist_x86.exe</filename>
+      <superscript>3</superscript>the Express Edition does not include
+      compilers or assemblers that can generate 64-bit code; those are
+      only included in the SDK
+      </para>
+      <para>
+      <superscript>4</superscript><filename>vcredist_x86.exe</filename>
       (3MB free download) is required to build
       <filename>Wireshark-win32-&WiresharkCurrentVersion;.x.exe</filename>,
       and <filename>vcredist_x64.exe</filename> is required to build
@@ -583,7 +588,7 @@ PARTICULAR PURPOSE.]]>
       installed for the compiler.
       </para>
       <para>
-      <superscript>4</superscript>MSDN remarks that the
+      <superscript>5</superscript>MSDN remarks that the
       corresponding .NET runtime is required. It's currently
       unclear if the runtime needs to be installed for the C
       compiler to work - or is this only needed to compile / run
