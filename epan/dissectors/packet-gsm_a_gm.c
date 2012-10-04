@@ -151,6 +151,7 @@ const value_string gsm_a_dtap_msg_sm_strings[] = {
 
 const value_string gsm_gm_elem_strings[] = {
 	/* GPRS Mobility Management Information Elements 10.5.5 */
+	{ 0x00,	"Additional Update Type" },
 	{ 0x00,	"Attach Result" },
 	{ 0x00,	"Attach Type" },
 	{ 0x00,	"Cipher Algorithm" },
@@ -177,6 +178,7 @@ const value_string gsm_gm_elem_strings[] = {
 	{ 0x00,	"Cell Notification" },
 	{ 0x00, "PS LCS Capability" },
 	{ 0x00,	"Network Feature Support" },
+	{ 0x00,	"Additional Network Feature Support" },
 	{ 0x00, "Inter RAT information container" },
 	{ 0x00, "Requested MS information" },
 	{ 0x00, "UE network capability" },
@@ -253,6 +255,7 @@ static int hf_gsm_a_sm_ip4_address = -1;
 static int hf_gsm_a_sm_ip4_mask = -1;
 static int hf_gsm_a_sm_ip6_address = -1;
 static int hf_gsm_a_sm_ip6_mask = -1;
+static int hf_gsm_a_sm_ip6_prefix_length = -1;
 static int hf_gsm_a_sm_tft_protocol_header = -1;
 static int hf_gsm_a_sm_tft_port = -1;
 static int hf_gsm_a_sm_tft_port_low = -1;
@@ -269,6 +272,7 @@ static int hf_gsm_a_gm_sm_value = -1;
 static int hf_gsm_a_gm_link_dir = -1;
 static int hf_gsm_a_gm_cause = -1;
 
+static int hf_gsm_a_gm_add_upd_type = -1;
 static int hf_gsm_a_gm_fop = -1;
 static int hf_gsm_a_gm_res_of_attach = -1;
 static int hf_gsm_a_gm_type_of_ciph_alg = -1;
@@ -313,6 +317,7 @@ static int hf_gsm_a_gm_lcs_molr = -1;
 static int hf_gsm_a_gm_mbms = -1;
 static int hf_gsm_a_gm_ims_vops = -1;
 static int hf_gsm_a_gm_emc_bs = -1;
+static int hf_gsm_a_gm_gprs_sms = -1;
 static int hf_gsm_a_gm_req_ms_info_irat = -1;
 static int hf_gsm_a_gm_req_ms_info_irat2 = -1;
 static int hf_gsm_a_gm_ue_usage_setting = -1;
@@ -334,6 +339,10 @@ static int hf_gsm_a_sm_qos_max_bitrate_upl_ext = -1;
 static int hf_gsm_a_sm_qos_max_bitrate_downl_ext = -1;
 static int hf_gsm_a_sm_qos_guar_bitrate_upl_ext = -1;
 static int hf_gsm_a_sm_qos_guar_bitrate_downl_ext = -1;
+static int hf_gsm_a_sm_qos_max_bitrate_upl_ext2 = -1;
+static int hf_gsm_a_sm_qos_max_bitrate_downl_ext2 = -1;
+static int hf_gsm_a_sm_qos_guar_bitrate_upl_ext2 = -1;
+static int hf_gsm_a_sm_qos_guar_bitrate_downl_ext2 = -1;
 static int hf_gsm_a_sm_cause = -1;
 static int hf_gsm_a_sm_cause_2 = -1;
 static int hf_gsm_a_sm_llc_sapi = -1;
@@ -401,6 +410,8 @@ static int hf_gsm_a_gm_rac_dtr_cap = -1;
 static int hf_gsm_a_gm_rac_emsr_cap = -1;
 static int hf_gsm_a_gm_rac_fast_down_freq_switch_cap = -1;
 static int hf_gsm_a_gm_rac_tighter_cap = -1;
+static int hf_gsm_a_gm_rac_fanr_cap = -1;
+static int hf_gsm_a_gm_rac_ipa_cap = -1;
 static int hf_gsm_a_sm_ti_flag = -1;
 static int hf_gsm_a_sm_ext = -1;
 
@@ -427,6 +438,7 @@ static int hf_gsm_a_gmm_net_cap_isr = -1;
 static int hf_gsm_a_gmm_net_cap_srvcc_to_geran = -1;
 static int hf_gsm_a_gmm_net_cap_epc = -1;
 static int hf_gsm_a_gmm_net_cap_nf = -1;
+static int hf_gsm_a_gmm_net_geran_net_sharing = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -463,6 +475,29 @@ gint ett_gsm_gm_elem[NUM_GSM_GM_ELEM];
 static const gchar *pdp_str[2]={ "PDP-INACTIVE", "PDP-ACTIVE" };
 
 /*
+ * [9] 10.5.5.0 Additional Update Type
+ */
+static const true_false_string gsm_a_gm_add_upd_type_value = {
+	"SMS only",
+	"No additional information (shall be interpreted as request for combined attach or combined tracking area updating)"
+};
+static guint16
+de_gmm_add_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32 curr_offset, bit_offset;
+
+	curr_offset = offset;
+	bit_offset  = (curr_offset<<3)+4;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+	bit_offset += 3;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_add_upd_type, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	return (curr_offset - offset);
+}
+
+ /*
  * [9] 10.5.5.1 Attach result
  */
 static const value_string gsm_a_gm_res_of_attach_vals[] = {
@@ -1007,6 +1042,11 @@ static const true_false_string gsm_a_gmm_net_cap_nf_vals = {
 	"Mobile station does not support the notification procedure"
 };
 
+static const true_false_string gsm_a_gmm_net_geran_net_vals = {
+	"Mobile station supports GERAN network sharing",
+	"Mobile station does not support GERAN network sharing"
+};
+
 guint16
 de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -1080,8 +1120,8 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 	/* bit 2: NF capability */
 	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_nf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-	/* bits 1: Spare bit */
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+7, 1, ENC_BIG_ENDIAN);
+	/* bits 1: GERAN network sharing capability */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_geran_net_sharing, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
@@ -1274,17 +1314,17 @@ static const value_string gsm_a_gm_geran_to_eutra_support_in_geran_ptm_vals[] = 
 
 static const value_string gsm_a_gm_alt_efta_multi_slot_class_vals[] = {
 	{ 0x00, "No Alternative EFTA multislot class is indicated. Use (DTM) EGPRS (high) multislot class only" },
-	{ 0x01, "Alternative EFTA multislot class is Multislot class 19" },
-	{ 0x02, "Alternative EFTA multislot class is Multislot class 20" },
-	{ 0x03, "Alternative EFTA multislot class is Multislot class 21" },
-	{ 0x04, "Alternative EFTA multislot class is Multislot class 22" },
-	{ 0x05, "Alternative EFTA multislot class is Multislot class 23" },
-	{ 0x06, "Alternative EFTA multislot class is Multislot class 24" },
-	{ 0x07, "Alternative EFTA multislot class is Multislot class 25" },
-	{ 0x08, "Alternative EFTA multislot class is Multislot class 26" },
-	{ 0x09, "Alternative EFTA multislot class is Multislot class 27" },
-	{ 0x0a, "Alternative EFTA multislot class is Multislot class 28" },
-	{ 0x0b, "Alternative EFTA multislot class is Multislot class 29" },
+	{ 0x01, "Alternative EFTA multislot class 1" },
+	{ 0x02, "Alternative EFTA multislot class 2" },
+	{ 0x03, "Alternative EFTA multislot class 3" },
+	{ 0x04, "Unused" },
+	{ 0x05, "Unused" },
+	{ 0x06, "Unused" },
+	{ 0x07, "Unused" },
+	{ 0x08, "Unused" },
+	{ 0x09, "Unused" },
+	{ 0x0a, "Unused" },
+	{ 0x0b, "Unused" },
 	{ 0x0c, "Unused" },
 	{ 0x0d, "Unused" },
 	{ 0x0e, "Unused" },
@@ -2842,6 +2882,32 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		oct <<= bits_needed;
 		bits_in_oct -= bits_needed;
 
+		/*
+		 * Release 11
+		 */
+
+		 /*
+		 * FANR Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_fanr_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		 /*
+		 * IPA Capability
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ipa_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
 		 /*
 		 * we are too long ... so jump over it
 		 */
@@ -2895,6 +2961,7 @@ static const range_string gmm_cause_vals[] = {
 	{ 0x17, 0x17, "GSM authentication unacceptable"},
 	{ 0x18, 0x18, "Protocol error, unspecified"},
 	{ 0x19, 0x19, "Not authorized for this CSG"},
+	{ 0x1c, 0x1c, "SMS provided via GPRS in this routing area"},
 	{ 0x20, 0x20, "Service option not supported"},						/* Annex G.4 */
 	{ 0x21, 0x21, "Requested service option not subscribed"},			/* Annex G.4 */
 	{ 0x22, 0x22, "Service option temporarily out of order"},			/* Annex G.4 */
@@ -3215,6 +3282,27 @@ de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	proto_tree_add_item(tree, hf_gsm_a_gm_mbms, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_gm_ims_vops, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_gm_emc_bs, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	return (curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.23a Additional network feature support
+ */
+static const true_false_string gsm_a_gm_gprs_sms_value = {
+	"SMS via GPRS not supported",
+	"SMS via GPRS supported"
+};
+static guint16
+de_gmm_add_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32 curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 7, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_gprs_sms, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return (curr_offset - offset);
@@ -3834,6 +3922,7 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x000e, 0x000e, "MSISDN Request" },
 	{ 0x000f, 0x000f, "IFOM-Support-Request" },
 	{ 0x0010, 0x0010, "IPv4 Link MTU Request" },
+	{ 0x0011, 0x0011, "MS support of Local address in TFT indicator" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -3854,6 +3943,7 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x000e, 0x000e, "MSISDN" },
 	{ 0x000f, 0x000f, "IFOM-Support" },
 	{ 0x0010, 0x0010, "IPv4 Link MTU" },
+	{ 0x0011, 0x0011, "Network support of Local address in TFT indicator" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -3945,6 +4035,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			case 0x000A:
 			case 0x000B:
 			case 0x000F:
+			case 0x0011:
 				break;
 			case 0x0004:
 				if ((link_dir == P2P_DIR_DL) && (e_len == 1)) {
@@ -4298,6 +4389,19 @@ qos_calc_ext_bitrate(guint8 oct)
 	return 128000 + (oct - 0xba) * 2000;
 }
 
+static guint32
+qos_calc_ext2_bitrate(guint8 oct)
+{
+	if (oct <= 0x3d)
+		return (256 + oct * 4);
+	if (oct <= 0xa1)
+		return (500 + (oct-0x3d) * 10);
+	if (oct <= 0xf6)
+		return (1500 + (oct-0xa1) * 100);
+
+	return 10000;
+}
+
 guint16
 de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -4550,6 +4654,69 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 	curr_offset += 1;
 
+	/* Maximum bit rate for downlink (extended-2) Octet 19 */
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	if (oct == 0x00)
+		str = "Use the value indicated by the Maximum bit rate for downlink";
+	else
+	{
+		temp32 = qos_calc_ext2_bitrate(oct);
+		str = ep_strdup_printf("%u Mbps", temp32);
+	}
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_downl_ext2, tvb,
+		curr_offset, 1, oct, "%s (%u)", str, oct);
+
+	curr_offset += 1;
+	NO_MORE_DATA_CHECK(len);
+
+	/* Guaranteed bit rate for downlink (extended-2) Octet 20 */
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	if (oct == 0x00)
+		str = "Use the value indicated by the Guaranteed bit rate for downlink";
+	else
+	{
+		temp32 = qos_calc_ext2_bitrate(oct);
+		str = ep_strdup_printf("%u Mbps", temp32);
+	}
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_guar_bitrate_downl_ext2, tvb,
+		curr_offset, 1, oct, "%s (%u)", str, oct);
+
+	curr_offset += 1;
+	NO_MORE_DATA_CHECK(len);
+
+	/* Maximum bit rate for uplink (extended-2) Octet 21 */
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	if (oct == 0x00)
+		str = "Use the value indicated by the Maximum bit rate for uplink";
+	else
+	{
+		temp32 = qos_calc_ext2_bitrate(oct);
+		str = ep_strdup_printf("%u Mbps", temp32);
+	}
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_max_bitrate_upl_ext2, tvb,
+		curr_offset, 1, oct, "%s (%u)", str, oct);
+
+	curr_offset += 1;
+	NO_MORE_DATA_CHECK(len);
+
+	/* Guaranteed bit rate for uplink (extended-2) Octet 22 */
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	if (oct == 0x00)
+		str = "Use the value indicated by the Guaranteed bit rate for uplink";
+	else
+	{
+		temp32 = qos_calc_ext2_bitrate(oct);
+		str = ep_strdup_printf("%u Mbps", temp32);
+	}
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_qos_guar_bitrate_upl_ext2, tvb,
+		curr_offset, 1, oct, "%s (%u)", str, oct);
+
+	curr_offset += 1;
+
 	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return (curr_offset - offset);
@@ -4590,6 +4757,8 @@ static const value_string gsm_a_sm_cause_vals[] = {
 	{ 0x34, "Single address bearers only allowed" },
 	{ 0x38, "Collision with network initiated request" },
 	{ 0x3c, "Bearer handling not supported" },
+	{ 0x41, "Maximum number of PDP contexts reached" },
+	{ 0x42, "Requested APN not supported in current RAT and PLMN combination" },
 	{ 0x51, "Invalid transaction identifier value" },
 	{ 0x5f, "Semantically incorrect message" },
 	{ 0x60, "Invalid mandatory information" },
@@ -4939,6 +5108,17 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 					pf_length   -= 8;
 					break;
 
+				case 0x11:
+					str = "IPv4 local address type";
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip4_address, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+					curr_offset += 4;
+					curr_len    -= 4;
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip4_mask, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+					curr_offset += 4;
+					curr_len    -= 4;
+					pf_length   -= 8;
+					break;
+
 				case 0x20:
 					str = "IPv6 remote address type";
 					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip6_address, tvb, curr_offset, 16, ENC_NA);
@@ -4948,6 +5128,28 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 					curr_offset += 16;
 					curr_len    -= 16;
 					pf_length   -= 32;
+					break;
+
+				case 0x21:
+					str = "IPv6 remote address/prefix length type";
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip6_address, tvb, curr_offset, 16, ENC_NA);
+					curr_offset += 16;
+					curr_len    -= 16;
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip6_prefix_length, tvb, curr_offset, 1, ENC_NA);
+					curr_offset += 1;
+					curr_len    -= 1;
+					pf_length   -= 17;
+					break;
+
+				case 0x23:
+					str = "IPv6 local address/prefix length type";
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip6_address, tvb, curr_offset, 16, ENC_NA);
+					curr_offset += 16;
+					curr_len    -= 16;
+					proto_tree_add_item(comp_tree, hf_gsm_a_sm_ip6_prefix_length, tvb, curr_offset, 1, ENC_NA);
+					curr_offset += 1;
+					curr_len    -= 1;
+					pf_length   -= 17;
 					break;
 
 				case 0x30:
@@ -5267,6 +5469,7 @@ de_sm_connectivity_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* GPRS Mobility Management Information Elements 10.5.5 */
+	de_gmm_add_upd_type,               /* Additional Update Type */
 	de_gmm_attach_res,                 /* Attach Result */
 	de_gmm_attach_type,                /* Attach Type */
 	de_gmm_ciph_alg,                   /* Cipher Algorithm */
@@ -5293,6 +5496,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	NULL  /* no associated data */,	   /* Cell Notification */
 	de_gmm_ps_lcs_cap,                 /* PS LCS Capability */
 	de_gmm_net_feat_supp,              /* Network Feature Support */
+	de_gmm_add_net_feat_supp,          /* Network Feature Support */
 	de_gmm_rat_info_container,         /* Inter RAT information container */
 	de_gmm_req_ms_info,                /* Requested MS information */
 	NULL,                              /* UE network capability */
@@ -5400,6 +5604,10 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV(0x14, GSM_A_PDU_TYPE_GM, DE_LAI_2, " - Old location area identification");
 
+	ELEM_OPT_TV_SHORT(0xF0, GSM_A_PDU_TYPE_GM, DE_ADD_UPD_TYPE, NULL);
+
+	ELEM_OPT_TLV(0x10, GSM_A_PDU_TYPE_GM, DE_NET_RES_ID_CONT, " - TMSI based NRI container");
+
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
@@ -5461,6 +5669,8 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_OPT_TLV( 0x38, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3323 value" );
 
 	ELEM_OPT_TLV(0x39, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3312 extended value");
+
+	ELEM_OPT_TLV(0x66, GSM_A_PDU_TYPE_GM, DE_ADD_NET_FEAT_SUP, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -5866,6 +6076,10 @@ dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	ELEM_OPT_TLV(0x14, GSM_A_PDU_TYPE_GM, DE_LAI_2, " - Old location area identification");
 
+	ELEM_OPT_TV_SHORT(0xF0, GSM_A_PDU_TYPE_GM, DE_ADD_UPD_TYPE, NULL);
+
+	ELEM_OPT_TLV(0x10, GSM_A_PDU_TYPE_GM, DE_NET_RES_ID_CONT, " - TMSI based NRI container");
+
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
@@ -5927,6 +6141,8 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 	ELEM_OPT_TLV( 0x38, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3323 value");
 
 	ELEM_OPT_TLV(0x39, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3312 extended value");
+
+	ELEM_OPT_TLV(0x66, GSM_A_PDU_TYPE_GM, DE_ADD_NET_FEAT_SUP, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -6556,8 +6772,9 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
-	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
-	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS, NULL);
+	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
+
+	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -6581,8 +6798,7 @@ dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
-	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
-	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS, NULL);
+	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -7043,6 +7259,11 @@ proto_register_gsm_a_gm(void)
 		    FT_IPv6, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_gsm_a_sm_ip6_prefix_length,
+		  { "IPv6 prefix length", "gsm_a.gm.sm.ip6_prefix_length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_gsm_a_sm_tft_protocol_header,
 		  { "Protocol/header", "gsm_a.gm.sm.tft.protocol_header",
 		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, (&ipproto_val_ext), 0x0,
@@ -7126,6 +7347,11 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_cause,
 		  { "GMM Cause", "gsm_a.gm.gmm.cause",
 		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmm_cause_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_add_upd_type,
+		  { "Additional update type", "gsm_a.gm.gmm.add_upd_type",
+		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_add_upd_type_value), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_fop,
@@ -7348,6 +7574,11 @@ proto_register_gsm_a_gm(void)
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_emc_bs_value), 0x01,
 		    "Emergency bearer services indicator", HFILL }
 		},
+		{ &hf_gsm_a_gm_gprs_sms,
+		  { "GPRS-SMS", "gsm_a.gm.gmm.gprs_sms",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_gprs_sms_value), 0x01,
+		    NULL, HFILL }
+		},
 		{ &hf_gsm_a_gm_req_ms_info_irat,
 		  { "I-RAT", "gsm_a.gm.gmm.req_ms_info_irat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_req_ms_info_irat_vals), 0x0,
@@ -7450,6 +7681,26 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_sm_qos_guar_bitrate_downl_ext,
 		  { "Guaranteed bitrate for downlink (extended)", "gsm_a.gm.sm.qos.guar_bitrate_downl_ext",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_sm_qos_max_bitrate_upl_ext2,
+		  { "Maximum bitrate for uplink (extended-2)", "gsm_a.gm.sm.qos.max_bitrate_upl_ext2",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_sm_qos_max_bitrate_downl_ext2,
+		  { "Maximum bitrate for downlink (extended-2)", "gsm_a.gm.sm.qos.max_bitrate_downl_ext2",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_sm_qos_guar_bitrate_upl_ext2,
+		  { "Guaranteed bitrate for uplink (extended-2)", "gsm_a.gm.sm.qos.guar_bitrate_upl_ext2",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_sm_qos_guar_bitrate_downl_ext2,
+		  { "Guaranteed bitrate for downlink (extended-2)", "gsm_a.gm.sm.qos.guar_bitrate_downl_ext2",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
@@ -7584,13 +7835,18 @@ proto_register_gsm_a_gm(void)
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_epc,
-		  { "EPC Capability", "gsm_a.gm.gmm.net_cap.epc",
+		  { "EPC capability", "gsm_a.gm.gmm.net_cap.epc",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_epc_vals), 0x04,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gmm_net_cap_nf,
-		  { "NF Capability", "gsm_a.gm.gmm.net_cap.nf",
+		  { "NF capability", "gsm_a.gm.gmm.net_cap.nf",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_nf_vals), 0x02,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gmm_net_geran_net_sharing,
+		  { "GERAN network sharing capability", "gsm_a.gm.gmm.net_cap.geran_net_sharing",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_geran_net_vals), 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_tmgi,
@@ -7901,6 +8157,16 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_rac_tighter_cap,
 		  { "TIGHTER Capability", "gsm_a.gm.gmm.rac.tighter_cap",
 		    FT_UINT8, BASE_DEC, VALS(tighter_cap_level_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_fanr_cap,
+		  { "Fast Ack/Nack Reporting Capability", "gsm_a.gm.gmm.rac.fanr_cap",
+		    FT_UINT8, BASE_DEC, TFS(&tfs_supported_not_supported), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_ipa_cap,
+		  { "Immediate Packet Assignment Capability", "gsm_a.gm.gmm.rac.ipa_cap",
+		    FT_UINT8, BASE_DEC, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_ti_flag,

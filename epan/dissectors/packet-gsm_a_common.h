@@ -1073,6 +1073,7 @@ dtap_elem_idx_t;
 typedef enum
 {
     /* GPRS Mobility Management Information Elements [3] 10.5.5 */
+    DE_ADD_UPD_TYPE,                /* [11] 10.5.5.0 Additional Update Type */
     DE_ATTACH_RES,                  /* [7] 10.5.5.1 Attach Result*/
     DE_ATTACH_TYPE,                 /* [7] 10.5.5.2 Attach Type */
     DE_CIPH_ALG,                    /* [7] 10.5.5.3 Cipher Algorithm */
@@ -1099,6 +1100,7 @@ typedef enum
     DE_CELL_NOT,                    /* [7] 10.5.5.21 Cell Notification */
     DE_PS_LCS_CAP,                  /* [7] 10.5.5.22 PS LCS Capability */
     DE_NET_FEAT_SUP,                /* [7] 10.5.5.23 Network Feature Support */
+    DE_ADD_NET_FEAT_SUP,            /* [11] 10.5.5.23a Additional network feature support */
     DE_RAT_INFO_CONTAINER,          /* [7] 10.5.5.24 Inter RAT information container */
     DE_REQ_MS_INFO,                 /* [7] 10.5.5.25 Requested MS information */
     DE_UE_NETWORK_CAP,              /* [7] 10.5.5.26 UE network capability */

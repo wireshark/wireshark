@@ -14,7 +14,7 @@
  *   Vienna (ftw.)Betriebs-GmbH within the Project Metawin.
  *
  * Added Dissection of Radio Resource Management Information Elements
- * and othere enhancements and fixes.
+ * and other enhancements and fixes.
  * Copyright 2005 - 2009, Anders Broman [AT] ericsson.com
  * Small bugfixes, mainly in Qos and TFT by Nils Ljungberg and Stefan Boman [AT] ericsson.com
  *
@@ -71,6 +71,12 @@
  *   Core network protocols;
  *   Stage 3
  *   (3GPP TS 24.008 version 10.6.1 Release 10)
+ *
+ *   Reference [11]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 11.4.0 Release 11)
  *
  * $Id$
  *
@@ -1531,8 +1537,8 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 	switch ((oct & 0x18) >> 3)
 	{
 	case 0x00: str = "No rate adaption"; break;
-	case 0x01: str = "V.110, I.460/X.30 rate adaptation"; break;
-	case 0x02: str = "ITU-T X.31 flag stuffing"; break;
+	case 0x01: str = "Rate adaptation according to ITU-T Rec. V.110 and ITU-T Rec. X.30"; break;
+	case 0x02: str = "Flag stuffing according to ITU-T Rec. X.31"; break;
 	default:
 		str = "Other rate adaption (see octet 5a)";
 		break;
@@ -1547,7 +1553,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
 	switch (oct & 0x07)
 	{
-	case 0x01: str = "I.440/450"; break;
+	case 0x01: str = "According to ITU-T Rec. Q.920 and ITU-T Rec. Q.930"; break;
 	case 0x02: str = "Reserved: was allocated in earlier phases of the protocol"; break;
 	case 0x03: str = "Reserved: was allocated in earlier phases of the protocol"; break;
 	case 0x04: str = "Reserved: was allocated in earlier phases of the protocol"; break;
@@ -1595,8 +1601,8 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
 	switch ((oct & 0x18) >> 3)
 	{
-	case 0x00: str = "V.120"; break;
-	case 0x01: str = "H.223 & H.245"; break;
+	case 0x00: str = "According to ITU-T Rec. V.120"; break;
+	case 0x01: str = "According to ITU-T Rec. H.223 and ITU-T Rec. H.245"; break;
 	case 0x02: str = "PIAFS"; break;
 	default:
 		str = "Reserved";
@@ -1763,12 +1769,12 @@ bc_octet_6:
 
 	switch (oct & 0x0f)
 	{
-	case 0x01: str = "0.3 kbit/s Recommendation X.1 and V.110"; break;
-	case 0x02: str = "1.2 kbit/s Recommendation X.1 and V.110"; break;
-	case 0x03: str = "2.4 kbit/s Recommendation X.1 and V.110"; break;
-	case 0x04: str = "4.8 kbit/s Recommendation X.1 and V.110"; break;
-	case 0x05: str = "9.6 kbit/s Recommendation X.1 and V.110"; break;
-	case 0x06: str = "12.0 kbit/s transparent (non compliance with X.1 and V.110)"; break;
+	case 0x01: str = "0.3 kbit/s (according to ITU-T Rec. X.1 and ITU-T Rec. V.110)"; break;
+	case 0x02: str = "1.2 kbit/s (according to ITU-T Rec. X.1 and ITU-T Rec. V.110)"; break;
+	case 0x03: str = "2.4 kbit/s (according to ITU-T Rec. X.1 and ITU-T Rec. V.110)"; break;
+	case 0x04: str = "4.8 kbit/s (according to ITU-T Rec. X.1 and ITU-T Rec. V.110)"; break;
+	case 0x05: str = "9.6 kbit/s (according to ITU-T Rec. X.1 and ITU-T Rec. V.110)"; break;
+	case 0x06: str = "12.0 kbit/s transparent (non compliance with ITU-T Rec. X.1 and ITU-T Rec. V.110)"; break;
 	case 0x07: str = "Reserved: was allocated in earlier phases of the protocol"; break;
 	default:
 		str = "Reserved";
@@ -1893,12 +1899,12 @@ bc_octet_6:
 	switch (oct & 0x1f)
 	{
 	case 0x00: str = "None"; break;
-	case 0x01: str = "V.21"; break;
-	case 0x02: str = "V.22"; break;
-	case 0x03: str = "V.22 bis"; break;
+	case 0x01: str = "According to ITU-T Rec. V.21"; break;
+	case 0x02: str = "According to ITU-T Rec. V.22"; break;
+	case 0x03: str = "According to ITU-T Rec. V.22 bis"; break;
 	case 0x04: str = "Reserved: was allocated in earlier phases of the protocol"; break;
-	case 0x05: str = "V.26 ter"; break;
-	case 0x06: str = "V.32"; break;
+	case 0x05: str = "According to ITU-T Rec. V.26 ter"; break;
+	case 0x06: str = "According to ITU-T Rec. V.32"; break;
 	case 0x07: str = "Modem for undefined interface"; break;
 	case 0x08: str = "Autobauding type 1"; break;
 	default:
@@ -1937,7 +1943,7 @@ bc_octet_6:
 	switch ((oct & 0x60) >> 5)
 	{
 	case 0x00: str = "No other modem type specified in this field"; break;
-	case 0x02: str = "V.34"; break;
+	case 0x02: str = "According to ITU-T Rec. V.34"; break;
 	default:
 		str = "Reserved";
 		break;
@@ -1953,17 +1959,17 @@ bc_octet_6:
 	switch (oct & 0x1f)
 	{
 	case 0x00: str = "Fixed network user rate not applicable/No meaning is associated with this value"; break;
-	case 0x01: str = "9.6 kbit/s Recommendation X.1 and V.110"; break;
-	case 0x02: str = "14.4 kbit/s Recommendation X.1 and V.110"; break;
-	case 0x03: str = "19.2 kbit/s Recommendation X.1 and V.110"; break;
-	case 0x04: str = "28.8 kbit/s Recommendation X.1 and V.110"; break;
-	case 0x05: str = "38.4 kbit/s Recommendation X.1 and V.110"; break;
-	case 0x06: str = "48.0 kbit/s Recommendation X.1 and V.110(synch)"; break;
-	case 0x07: str = "56.0 kbit/s Recommendation X.1 and V.110(synch) /bit transparent"; break;
+	case 0x01: str = "9.6 kbit/s (according to ITU-T Rec. X.1 and ITU-T Rec. V.110)"; break;
+	case 0x02: str = "14.4 kbit/s (according to ITU-T Rec. X.1 and ITU-T Rec. V.110)"; break;
+	case 0x03: str = "19.2 kbit/s (according to ITU-T Rec. X.1 and ITU-T Rec. V.110)"; break;
+	case 0x04: str = "28.8 kbit/s (according to ITU-T Rec. X.1 and ITU-T Rec. V.110)"; break;
+	case 0x05: str = "38.4 kbit/s (according to ITU-T Rec. X.1 and ITU-T Rec. V.110)"; break;
+	case 0x06: str = "48.0 kbit/s (according to ITU-T Rec. X.1 and ITU-T Rec. V.110 (synch))"; break;
+	case 0x07: str = "56.0 kbit/s (according to ITU-T Rec. X.1 and ITU-T Rec. V.110 (synch) /bit transparent)"; break;
 	case 0x08: str = "64.0 kbit/s bit transparent"; break;
 	case 0x09: str = "33.6 kbit/s bit transparent"; break;
-	case 0x0a: str = "32.0 kbit/s Recommendation I.460"; break;
-	case 0x0b: str = "31.2 kbit/s Recommendation V.34"; break;
+	case 0x0a: str = "32.0 kbit/s (according to ITU-T Rec. I.460)"; break;
+	case 0x0b: str = "31.2 kbit/s (according to ITU-T Rec. V.34)"; break;
 	default:
 		str = "Reserved";
 		break;
@@ -2229,7 +2235,7 @@ bc_octet_7:
 	switch (oct & 0x1f)
 	{
 	case 0x06: str = "Reserved: was allocated in earlier phases of the protocol"; break;
-	case 0x08: str = "ISO 6429, codeset 0 (DC1/DC3)"; break;
+	case 0x08: str = "According to ISO/IEC 6429, codeset 0 (DC1/DC3)"; break;
 	case 0x09: str = "Reserved: was allocated but never used in earlier phases of the protocol"; break;
 	case 0x0a: str = "Videotex profile 1"; break;
 	case 0x0c: str = "COPnoFlCt (Character oriented Protocol with no Flow Control mechanism)"; break;
@@ -2442,13 +2448,13 @@ const value_string gsm_a_dtap_type_of_number_values[] = {
 
 const value_string gsm_a_dtap_numbering_plan_id_values[] = {
 	{ 0x00,	"unknown" },
-	{ 0x01,	"ISDN/Telephony Numbering (Rec ITU-T E.164)" },
+	{ 0x01,	"ISDN/Telephony Numbering (ITU-T Rec. E.164 / ITU-T Rec. E.163)" },
 	{ 0x02,	"spare" },
 	{ 0x03,	"Data Numbering (ITU-T Rec. X.121)" },
 	{ 0x04,	"Telex Numbering (ITU-T Rec. F.69)" },
 	{ 0x08,	"National Numbering" },
 	{ 0x09,	"Private Numbering" },
-	{ 0x0d,	"reserved for CTS (see 3GPP TS 44.056 [91])" },
+	{ 0x0d,	"Reserved for CTS (see 3GPP TS 44.056)" },
 	{ 0x0f,	"Reserved for extension" },
 	{ 0, NULL }
 };
@@ -2536,7 +2542,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
  * Helper function for sub address decoding
  */
 const value_string gsm_a_dtap_type_of_sub_addr_values[] = {
-	{ 0x00,	"NSAP (X.213/ISO 8348 AD2)" },
+	{ 0x00,	"NSAP (ITU-T Rec. X.213/ISO 8348 AD2)" },
 	{ 0x02,	"User specified" },
 	{ 0, NULL }
 };
@@ -3346,8 +3352,8 @@ static const range_string gsm_a_dtap_u2u_prot_discr_vals[] = {
 	{ 0x02, 0x02, "X.244" },
 	{ 0x03, 0x03, "Reserved for system management convergence function" },
 	{ 0x04, 0x04, "IA5 characters" },
-	{ 0x07, 0x07, "Rec.V.120 rate adaption" },
-	{ 0x08, 0x08, "Q.931 (I.451) user-network call control messages" },
+	{ 0x07, 0x07, "Rate adaption according to ITU-T Rec. V.120" },
+	{ 0x08, 0x08, "User-network call control messages according to ITU-T Rec. Q.931" },
 	{ 0x10, 0x3F, "Reserved for other network layer or layer 3 protocols" },
 	{ 0x40, 0x4E, "National use" },
 	{ 0x4F, 0x4F, "3GPP capability exchange protocol" },
@@ -4762,6 +4768,7 @@ dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 	case 2: str = "IMEI"; break;
 	case 3: str = "IMEISV"; break;
 	case 4: str = "TMSI"; break;
+	case 5: str = "P-TMSI, RAI, P-TMSI signature"; break;
 	default:
 		str = "Reserved";
 		break;
@@ -4796,6 +4803,12 @@ dtap_mm_id_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 	is_uplink = IS_UPLINK_TRUE;
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+
+	ELEM_OPT_TV_SHORT(0xE0, GSM_A_PDU_TYPE_GM, DE_PTMSI_TYPE, NULL);
+
+	ELEM_OPT_TLV( 0x1B, GSM_A_PDU_TYPE_GM, DE_RAI_2, " - Routing area identification");
+
+	ELEM_OPT_TLV( 0x19, GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG_2, " - P-TMSI signature");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }

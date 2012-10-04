@@ -66,6 +66,18 @@ const value_string gsm_common_elem_strings[] = {
     { 0, NULL }
 };
 
+static const value_string gsm_a_skip_ind_vals[] = {
+    { 0, "No indication of selected PLMN"},
+    { 1, "First PLMN in the broadcast system information"},
+    { 2, "Second PLMN in the broadcast system information"},
+    { 3, "Third PLMN in the broadcast system information"},
+    { 4, "Fourth PLMN in the broadcast sytem information"},
+    { 5, "Fifth PLMN in the broadcast system information"},
+    { 6, "Reserved"},
+    { 7, "Reserved"},
+    { 0, NULL }
+};
+
 static const true_false_string gsm_a_extension_value = {
     "No Extension",
     "Extended"
@@ -3709,7 +3721,7 @@ proto_register_gsm_a_common(void)
     },
     { &hf_gsm_a_skip_ind,
         { "Skip Indicator", "gsm_a.skip.ind",
-        FT_UINT8, BASE_DEC, NULL, 0xf0,
+        FT_UINT8, BASE_DEC, VALS(gsm_a_skip_ind_vals), 0xf0,
         NULL, HFILL }
     },
     { &hf_gsm_a_b7spare,
