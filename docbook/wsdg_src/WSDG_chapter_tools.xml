@@ -346,12 +346,12 @@ PARTICULAR PURPOSE.]]>
               <entry>
                 <para>
                 Free Download (link disappeared)
-		</para>
+                </para>
               </entry>
               <entry>
                 <para>
                 Free Download (link disappeared)
-		</para>
+                </para>
               </entry>
               <entry>
                 <para>MSVC2005EE</para>
@@ -532,12 +532,12 @@ PARTICULAR PURPOSE.]]>
               <entry>
                 <para>
                 Free Download (link disappeared)
-		</para>
+                </para>
               </entry>
               <entry>
                 <para>
                 Free Download (link disappeared)
-		</para>
+                </para>
               </entry>
               <entry>
                 <para>DOTNET20</para>
@@ -831,7 +831,7 @@ Stop.]]>
         for Wireshark have been downloaded and installed. This directory
         is specified by the WIRESHARK_LIB_DIR setting in the
         <filename>config.nmake</filename> file; by default it is
-	<filename>C:\wireshark-win32-libs</filename>.  It need not, and
+        <filename>C:\wireshark-win32-libs</filename>.  It need not, and
         should not, be run after being downloaded.
       </para>
       <section>
@@ -867,11 +867,15 @@ Stop.]]>
               the target directory (e.g. <filename>C:\Program
               Files\Wireshark</filename>)</para>
             </listitem>
-          </orderedlist>To save installer size, when building Wireshark
-          with MSVC2005, method 3 (copying the content of
-          <filename>Microsoft.VC80.CRT</filename>) is used (this
-          produces the smallest package). As MSVC2005EE and DOTNET20
-          don't provide the folder "Microsoft.VC80.CRT", when Wireshark
+          </orderedlist>To save installer size, and to make a "portable"
+          version of Wireshark (which must be completely self-contained,
+          on a medium such as a flash drive, and not require that an
+          installer be run to install anything on the target machine)
+          possible, when building Wireshark with MSVC2005, method 3
+          (copying the content of <filename>Microsoft.VC80.CRT</filename>)
+          is used (this produces the smallest package). As MSVC2005EE and
+          DOTNET20 don't provide the folder
+          <filename>Microsoft.VC80.CRT</filename>, when Wireshark
           is built with either of them method 2 is used.
           You'll have to download the version of
           <filename>vcredist_x86.exe</filename>,
@@ -881,7 +885,9 @@ Stop.]]>
           compiler version. The best way to determine this version is to
           open one of the generated manifest files (e.g.
           <filename>wireshark.exe.manifest</filename>)
-          and look for the version of the Microsoft.VC80.CRT entry.
+          and look for the version of the Microsoft.VC80.CRT entry. A
+          portable version of 64-bit Wireshark is not built, so method 3
+          is used for 64-bit builds.
         </para>
         <para>
           <itemizedlist>
@@ -942,12 +948,54 @@ Stop.]]>
       </section>
       <section>
         <title>msvcr90.dll / vcredist_x86.exe / vcredist_x64.exe - Version 9.0 (2008)</title>
+        <para>There are three redistribution methods that MSDN
+        mentions for MSVC 9 (see:
+        "<ulink url="http://msdn.microsoft.com/en-US/library/ms235316(v=vs.90).aspx">Choosing a Deployment Method</ulink>"):
+        </para>
         <para>
-          For Microsoft Visual C++ 2008 (MSVC 9), there are three
-          redistribution methods that MSDN mentions (see:
-          "<ulink url="http://msdn.microsoft.com/en-US/library/ms235316(v=vs.90).aspx">Choosing a Deployment Method</ulink>"), but only method 2 is
-          used for Wireshark.  There are both 32-bit and 64-bit versions
-          of the redistributables.
+          <orderedlist>
+            <listitem>
+              <para>"Using Visual C++ Redistributable Merge Modules"
+              (kind of loadable modules for building msi installers -
+              not suitable for Wireshark's NSIS based installer)</para>
+            </listitem>
+            <listitem>
+              <para>"Using Visual C++ Redistributable Package", wherein
+              the Microsoft libraries are installed by copying
+              <filename>vcredist_x86.exe</filename> or
+              <filename>vcredist_x64.exe</filename> to the target
+              machine and executing it on that machine (MSDN recommends
+              this for applications built with Visual Studio 2008
+              Express Edition)
+              </para>
+            </listitem>
+            <listitem>
+              <para>"Install a particular Visual C++ assembly as a
+              private assembly for the application", wherein the
+              Microsoft libraries are installed by copying the folder
+              content of <filename>Microsoft.VC90.CRT</filename> to
+              the target directory (e.g. <filename>C:\Program
+              Files\Wireshark</filename>)</para>
+            </listitem>
+          </orderedlist>To save installer size, and to make a "portable"
+          version of Wireshark (which must be completely self-contained,
+          on a medium such as a flash drive, and not require that an
+          installer be run to install anything on the target machine)
+          possible, when building Wireshark with MSVC2008, method 3
+          (copying the content of <filename>Microsoft.VC90.CRT</filename>)
+          is used (this produces the smallest package). As MSVC2008EE
+          desn't provide the folder <filename>Microsoft.VC90.CRT</filename>,
+          when Wireshark is built with it method 2 is used.
+          You'll have to download the version of
+          <filename>vcredist_x86.exe</filename> or
+          <filename>vcredist_x64.exe</filename> from Microsoft that
+          corresponds to your target (32-bit or 64-bit) and your
+          compiler version. The best way to determine this version is to
+          open one of the generated manifest files (e.g.
+          <filename>wireshark.exe.manifest</filename>)
+          and look for the version of the Microsoft.VC90.CRT entry. A
+          portable version of 64-bit Wireshark is not built, so method 3
+          is used for 64-bit builds.
         </para>
         <para>
           <itemizedlist>
@@ -996,14 +1044,54 @@ Stop.]]>
       </section>
       <section>
         <title>msvcr100.dll / vcredist_x86.exe / vcredist_x64.exe - Version 10.0 (2010)</title>
+        <para>There are three redistribution methods that MSDN
+        mentions for MSVC 10 (see:
+        "<ulink url="http://msdn.microsoft.com/en-US/library/ms235316(v=vs.100).aspx">Choosing a Deployment Method</ulink>"):
+        </para>
         <para>
-          For Microsoft Visual C++ 2010 (MSVC 10), there are three
-          redistribution methods that MSDN mentions (see:
-          "<ulink url="http://msdn.microsoft.com/en-US/library/ms235316(v=vs.100).aspx">Choosing a Deployment Method</ulink>"), but only "Using Visual
-          C++ Redistributable Package" is used for Wireshark; that is
-          the first method mentioned in "Choosing a Deployment Method",
-          and is the one recommended by Microsoft.  There are both
-          32-bit and 64-bit versions of the redistributables.
+          <orderedlist>
+            <listitem>
+              <para>"Using Visual C++ Redistributable Package", wherein
+              the Microsoft libraries are installed by copying
+              <filename>vcredist_x86.exe</filename> or
+              <filename>vcredist_x64.exe</filename> to the target
+              machine and executing it on that machine (MSDN recommends
+              this for applications built with Visual Studio 2010,
+              both Express Edition and non-Express editions)
+              </para>
+            </listitem>
+            <listitem>
+              <para>"Using Visual C++ Redistributable Merge Modules"
+              (kind of loadable modules for building msi installers -
+              not suitable for Wireshark's NSIS based installer)</para>
+            </listitem>
+            <listitem>
+              <para>"Install a particular Visual C++ assembly as a
+              private assembly for the application", wherein the
+              Microsoft libraries are installed by copying the folder
+              content of <filename>Microsoft.VC100.CRT</filename> to
+              the target directory (e.g. <filename>C:\Program
+              Files\Wireshark</filename>)</para>
+            </listitem>
+          </orderedlist>To save installer size, and to make a "portable"
+          version of Wireshark (which must be completely self-contained,
+          on a medium such as a flash drive, and not require that an
+          installer be run to install anything on the target machine)
+          possible, when building Wireshark with MSVC2010, method 3
+          (copying the content of <filename>Microsoft.VC100.CRT</filename>)
+          is used (this produces the smallest package). As MSVC20010EE
+          desn't provide the folder <filename>Microsoft.VC100.CRT</filename>,
+          when Wireshark is built with it method 1 is used.
+          You'll have to download the version of
+          <filename>vcredist_x86.exe</filename> or
+          <filename>vcredist_x64.exe</filename> from Microsoft that
+          corresponds to your target (32-bit or 64-bit) and your
+          compiler version. The best way to determine this version is to
+          open one of the generated manifest files (e.g.
+          <filename>wireshark.exe.manifest</filename>)
+          and look for the version of the Microsoft.VC100.CRT entry. A
+          portable version of 64-bit Wireshark is not built, so method 1
+          is used for 64-bit builds.
         </para>
         <para>
           <itemizedlist>
