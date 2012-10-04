@@ -944,7 +944,6 @@ Stop.]]>
       <section>
         <title>msvcr90.dll / vcredist_x86.exe / vcredist_x64.exe - Version 9.0 (2008)</title>
         <para>
-        <para>
           For Microsoft Visual C++ 2008 (MSVC 9), there are three
           redistribution methods that MSDN mentions (see:
           "<ulink url="http://msdn.microsoft.com/en-US/library/ms235316(v=vs.90).aspx">
