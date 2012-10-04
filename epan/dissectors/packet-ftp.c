@@ -38,6 +38,7 @@
 #include <epan/strutil.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
 static int proto_ftp = -1;
 static int proto_ftp_data = -1;
@@ -53,6 +54,9 @@ static int hf_ftp_pasv_nat = -1;
 static int hf_ftp_active_ip = -1;
 static int hf_ftp_active_port = -1;
 static int hf_ftp_active_nat = -1;
+static int hf_ftp_eprt_af = -1;
+static int hf_ftp_eprt_ip = -1;
+static int hf_ftp_eprt_port = -1;
 
 static gint ett_ftp = -1;
 static gint ett_ftp_reqresp = -1;
@@ -104,6 +108,7 @@ static const value_string response_table[] = {
     { 502, "Command not implemented" },
     { 503, "Bad sequence of commands" },
     { 504, "Command not implemented for that parameter" },
+    { 522, "Network protocol not supported" },
     { 530, "Not logged in" },
     { 532, "Need account for storing files" },
     { 533, "Command protection level denied for policy reasons" },
@@ -121,6 +126,15 @@ static const value_string response_table[] = {
     { 0,   NULL }
 };
 static value_string_ext response_table_ext = VALUE_STRING_EXT_INIT(response_table);
+
+#define EPRT_AF_IPv4 1
+#define EPRT_AF_IPv6 2
+static const value_string eprt_af_vals[] = {
+    { EPRT_AF_IPv4, "IPv4" },
+    { EPRT_AF_IPv6, "IPv6" },
+    { 0, NULL }
+};
+
 
 /*
  * Parse the address and port information in a PORT command or in the
@@ -239,6 +253,160 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip, guint16 *ftp_p
     return ret;
 }
 
+static gboolean
+isvalid_rfc2428_delimiter(const guchar c)
+{
+    /* RFC2428 sect. 2 states rules for a valid delimiter */
+    static const gchar forbidden[] = {"0123456789abcdef.:"};
+    if (c < 33 || c > 126)
+        return FALSE;
+    else if (strchr(forbidden, tolower(c)))
+        return FALSE;
+    else
+        return TRUE;
+}
+
+static gboolean
+rfc2428_ipstr_to_ipv4(guint32 *addr, gchar* str)
+{
+    int ip_addr[4];
+
+    if (sscanf(str, "%d.%d.%d.%d", &ip_addr[0], &ip_addr[1], 
+                &ip_addr[2], &ip_addr[3]) != 4)
+        return FALSE;
+
+    *addr = g_htonl((ip_addr[0] << 24) | (ip_addr[1] << 16) | 
+                    (ip_addr[2] << 8)  |  ip_addr[3]);
+
+    return TRUE;
+}
+
+/*
+ * RFC2428 states...
+ *
+ *     AF Number   Protocol 
+ *     ---------   --------         
+ *     1           Internet Protocol, Version 4 
+ *     2           Internet Protocol, Version 6 
+ *     
+ *     AF Number   Address Format      Example         
+ *     ---------   --------------      -------         
+ *     1           dotted decimal      132.235.1.2         
+ *     2           IPv6 string         1080::8:800:200C:417A                     
+ *                 representations                     
+ *                 defined in 
+ *     
+ *     The following are sample EPRT commands:         
+ *          EPRT |1|132.235.1.2|6275|         
+ *          EPRT |2|1080::8:800:200C:417A|5282|
+ *     
+ *     The first command specifies that the server should use IPv4 to open a    
+ *     data connection to the host "132.235.1.2" on TCP port 6275.  The    
+ *     second command specifies that the server should use the IPv6 network    
+ *     protocol and the network address "1080::8:800:200C:417A" to open a    
+ *     TCP data connection on port 5282.
+ * 
+ * ... which means in fact that RFC2428 is capable to handle both, 
+ * IPv4 and IPv6 so we have to care about the address family and properly
+ * act depending on it.
+ * 
+ */
+static gboolean
+parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af, 
+        guint32 *eprt_ip, guint16 *eprt_ipv6 _U_, guint16 *ftp_port, 
+        guint32 *eprt_ip_len, guint32 *ftp_port_len) 
+{
+    gint      delimiters_seen = 0;
+    gchar     delimiter;
+    gint      fieldlen;
+    gchar    *field;
+    gint      n;
+    gint      lastn;
+    char     *args, *p;
+    gboolean  ret = TRUE;
+
+
+    if (!line)
+        return FALSE;
+    /* Copy the rest of the line into a null-terminated buffer. */
+    args = ep_strndup(line, linelen);
+    p = args;
+
+    /*
+     * RFC2428 sect. 2 states ...
+     * 
+     *     The EPRT command keyword MUST be followed by a single space (ASCII
+     *     32). Following the space, a delimiter character (<d>) MUST be
+     *     specified.
+     *
+     * ... the preceding <space> is already stripped so we know that the first
+     * character must be the delimiter and has just to be checked to be valid.
+     */
+    if (!isvalid_rfc2428_delimiter(*p))
+        return FALSE;  /* EPRT command does not follow a vaild delimiter;
+                        * malformed EPRT command - immediate escape */
+
+    delimiter = *p; 
+    /* Validate that the delimiter occurs 4 times in the string */
+    for (n = 0; n < linelen; n++) {
+        if (*(p+n) == delimiter) 
+            delimiters_seen++;
+    }
+    if (delimiters_seen != 4)
+        return FALSE; /* delimiter doesn't occur 4 times 
+                       * probably no EPRT request - immediate escape */
+
+    /* we know that the first character is a delimiter... */
+    delimiters_seen = 1;
+    lastn = 0;
+    /* ... so we can start searching from the 2nd onwards */
+    for (n=1; n < linelen; n++) {
+
+        if (*(p+n) != delimiter)
+            continue;
+
+        /* we found a delimiter */
+        delimiters_seen++;
+
+        fieldlen = n - lastn - 1;
+        if (fieldlen<=0)
+            return FALSE; /* all fields must have data in them */
+        field =  p + lastn + 1;
+
+        if (delimiters_seen == 2) {     /* end of address family field */
+            gchar *af_str;
+            af_str = ep_strndup(field, fieldlen);
+            *eprt_af = atoi(af_str);
+        }
+        else if (delimiters_seen == 3) {/* end of IP address field */
+            gchar *ip_str;
+            ip_str = ep_strndup(field, fieldlen);
+
+            if (*eprt_af == EPRT_AF_IPv4) {
+                ret = rfc2428_ipstr_to_ipv4(eprt_ip, ip_str);
+            }
+            else if (*eprt_af == EPRT_AF_IPv6) {
+                /* XXX - parse IPv6 */
+                ret = TRUE;
+            }
+            else
+                return FALSE; /* invalid/unknown address family */
+
+            *eprt_ip_len = fieldlen;
+        }
+        else if (delimiters_seen == 4) {/* end of port field */
+            gchar *pt_str;
+            pt_str = ep_strndup(field, fieldlen);
+
+            *ftp_port = atoi(pt_str);
+            *ftp_port_len = fieldlen;
+        }
+
+        lastn = n;
+    }
+
+    return ret;
+}
 
 static gboolean
 parse_extended_pasv_response(const guchar *line, int linelen, guint16 *ftp_port)
@@ -317,6 +485,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32         code;
     gchar           code_str[4];
     gboolean        is_port_request   = FALSE;
+    gboolean        is_eprt_request   = FALSE;
     gboolean        is_pasv_response  = FALSE;
     gboolean        is_epasv_response = FALSE;
     gint            next_offset;
@@ -327,6 +496,11 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32         pasv_offset;
     guint32         ftp_ip;
     guint32         ftp_ip_len;
+    guint32         eprt_offset;
+    guint32         eprt_af           = 0;
+    guint32         eprt_ip;
+    guint16         eprt_ipv6[8];
+    guint32         eprt_ip_len       = 0;
     guint16         ftp_port;
     guint32         ftp_port_len;
     address         ftp_ip_address;
@@ -403,6 +577,11 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             if (strncmp(line, "PORT", tokenlen) == 0)
                 is_port_request = TRUE;
+            /*
+             * EPRT request command, as per RFC 2428
+             */
+            else if (strncmp(line, "EPRT", tokenlen) == 0)
+                is_eprt_request = TRUE;
         }
     } else {
         /*
@@ -577,6 +756,63 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
+    if (is_eprt_request) {
+        if (linelen != 0) {
+            /* 
+             * RFC2428 - sect. 2
+             * This frame contains a EPRT request; let's dissect it and set up a 
+             * conversation for the data connection.
+             */
+            if (parse_eprt_request(line, linelen,
+                        &eprt_af, &eprt_ip, eprt_ipv6, &ftp_port,
+                        &eprt_ip_len, &ftp_port_len)) {
+                if (tree) {
+                    /* since parse_eprt_request() returned TRUE,
+                       we know that we have a valid address family */
+                    eprt_offset = tokenlen + 1 + 1;  /* token, space, 1st delimiter */
+                    proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_af, tvb, 
+                            eprt_offset, 1, eprt_af);
+                    eprt_offset += 1 + 1; /* addr family, 2nd delimiter */
+
+                    if (eprt_af == EPRT_AF_IPv4) {
+                        proto_tree_add_ipv4(reqresp_tree, hf_ftp_eprt_ip,
+                                tvb, eprt_offset, eprt_ip_len, eprt_ip);
+                        SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4,
+                                (const guint8 *)&eprt_ip);
+                    }
+                    else if (eprt_af == EPRT_AF_IPv6) {
+                        /* XXX - display and store IPv6 address */
+                    }
+                    eprt_offset += eprt_ip_len + 1; /* addr, 3rd delimiter */
+
+                    proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_port,
+                            tvb, eprt_offset, ftp_port_len, ftp_port);
+                }
+
+                /* XXX - when we handle IPv6, we'll remove the check */
+                if (eprt_af == EPRT_AF_IPv4) {
+                    /* Find/create conversation for data */
+                    conversation = find_conversation(pinfo->fd->num,
+                            &pinfo->src, &ftp_ip_address,
+                            PT_TCP, ftp_port, 0, NO_PORT_B);
+                    if (conversation == NULL) {
+                        conversation = conversation_new(
+                                pinfo->fd->num, &pinfo->src, &ftp_ip_address, 
+                                PT_TCP, ftp_port, 0, NO_PORT2);
+                        conversation_set_dissector(conversation,
+                                ftpdata_handle);
+                    }
+                }
+            }
+            else {
+                proto_item *item;
+                item = proto_tree_add_text(reqresp_tree, 
+                        tvb, offset - linelen - 1, linelen, "Invalid EPRT arguments");
+                expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
+                        "EPRT arguments must have the form: |<family>|<addr>|<port>|");
+            }
+        }
+    }
 
     if (is_epasv_response) {
         if (linelen != 0) {
@@ -730,8 +966,22 @@ proto_register_ftp(void)
         { &hf_ftp_active_nat,
           { "Active IP NAT", "ftp.active.nat",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "NAT is active", HFILL}}
+            "NAT is active", HFILL}},
 
+        { &hf_ftp_eprt_af,
+          { "Extended active address family", "ftp.eprt.af",
+            FT_UINT8, BASE_DEC, VALS(eprt_af_vals), 0,
+            NULL, HFILL }},
+
+        { &hf_ftp_eprt_ip,
+          { "Extended active IP address", "ftp.eprt.ip",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "Extended active FTP client IPv4 address", HFILL }},
+
+        { &hf_ftp_eprt_port,
+          { "Extended active port", "ftp.eprt.port",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "Extended active FTP client listener port", HFILL }}
     };
     static gint *ett[] = {
         &ett_ftp,
