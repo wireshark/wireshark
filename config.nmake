@@ -923,28 +923,88 @@ VCREDIST_DIR=$(WIRESHARK_LIB_DIR)
 !ENDIF
 
 !IF "$(WIRESHARK_TARGET_PLATFORM)" == "win64"
-# We're not creating portable packages and therefore don't have to worry about
-# "deploying using xcopy"
+#
+# For 64-bit platforms, we don't create portable packages and therefore
+# don't have to worry that "Using the Visual C++ Redistributable
+# Package" requires that an installer be run to install that package,
+# so we use that method to make the C runtime available.
+#
 VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2005"
+#
+# For MSVC 2005 non-Express Edition, we "Install a particular Visual C++
+# assembly as a private assembly for the application", by copying
+# the contents of the Microsoft.VC80.CRT folder to the target directory.
+# This is done to reduce the size of the installer; it also makes
+# a portable version work, as the C runtime doesn't have to be
+# installed on the target machine.
+#
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 8\VC\redist\$(PROCESSOR_ARCHITECTURE)\Microsoft.VC80.CRT\*.*
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" || "$(MSVC_VARIANT)" == "MSVC2008EE"
-# you need to download the redistributable package vcredist_x86.exe from Microsoft first,
-# and copy it to the lib folder!!!
+#
+# For MSVC 2005 Express Edition, for the .NET Framework 2.0 SDK, and
+# for MSVC 2008 Express Edition, we "Use the Visual C++ Redistributable
+# Package", because they don't provide the Microsoft.VC80.CRT folder.
+#
+# They also don't provide the redistributable package, so you need to
+# download the appropriate version of the redistributable package,
+# vcredist_x86.exe, vcredist_x64.exe, or vcredist_ia64.exe, from
+# Microsoft first, and copy it to the lib folder!!!
+#
 VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2008"
+#
+# For MSVC 2008 non-Express Edition, we "Install a particular Visual C++
+# assembly as a private assembly for the application", by copying
+# the contents of the Microsoft.VC90.CRT folder to the target directory.
+# This is done to reduce the size of the installer; it also makes
+# a portable version work, as the C runtime doesn't have to be
+# installed on the target machine.
+#
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\$(PROCESSOR_ARCHITECTURE)\Microsoft.VC90.CRT\*.*
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010EE"
-# you need to download the redistributable package vcredist_x86.exe from Microsoft first,
-# and copy it to the lib folder!!!
+#
+# For MSVC 2010 Express Edition, we "Use the Visual C++ Redistributable
+# Package", because it doesn't provide the Microsoft.VC80.CRT folder.
+#
+# It also doesn't provide the redistributable package, so you need to
+# download the appropriate version of the redistributable package,
+# vcredist_x86.exe or vcredist_x64.exe, from Microsoft first, and copy
+# it to the lib folder!!!
 VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010"
+#
+# For MSVC 2010 non-Express Edition, we "Install a particular Visual C++
+# assembly as a private assembly for the application", by copying
+# the contents of the Microsoft.VC100.CRT folder to the target directory.
+# This is done to reduce the size of the installer; it also makes
+# a portable version work, as the C runtime doesn't have to be
+# installed on the target machine.
+#
+# Note: for what it's worth, Microsoft recommends "Using the Visual C++
+# Redistributable Package", rather than "Installing a particular Visual
+# C++ assembly as a private assembly for the application", starting
+# with Visual Studio 2010.
+#
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 10.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC100.CRT\*.*
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2012"
+#
+# For MSVC 2012 non-Express Edition, we "Install a particular Visual C++
+# assembly as a private assembly for the application", by copying
+# the contents of the Microsoft.VC110.CRT folder to the target directory.
+# This is done to reduce the size of the installer; it also makes
+# a portable version work, as the C runtime doesn't have to be
+# installed on the target machine.
+#
+# Note: for what it's worth, Microsoft recommends "Using the Visual C++
+# Redistributable Package", rather than "Installing a particular Visual
+# C++ assembly as a private assembly for the application", starting
+# with Visual Studio 2010.
+#
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 11.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC110.CRT\*.*
 
 !ELSE
