@@ -927,7 +927,7 @@ patch-bzip2: distdir
 		tar -xjf $(PREV_FILE) && \
 		diff -urN $(PREV_DIR) $(distdir) | bzip2 > patch-wireshark-$(PREV_VERSION)-to-$(VERSION).bz2 && \
 		echo "Created patch-bzip2" ; \
-		rm -rf $(PREV_DIR) ; \
+		rm -rf "$(PREV_FILE)" "$(PREV_DIR)" ; \
 	else \
 		echo "This appears to be the first micro version ($(PREV_VERSION)). Skipping." ; \
 	fi
