@@ -295,11 +295,11 @@ PARTICULAR PURPOSE.]]>
                 <para>SDK required?</para>
               </entry>
               <entry>
-                <para>32-bit/64-bit</para>
-              </entry>
-              <entry>
                 <para>config.nmake:</para>
                 <para>MSVC_VARIANT</para>
+              </entry>
+              <entry>
+                <para>32-bit/64-bit</para>
               </entry>
               <entry>
                 <para>set compiler PATH and alike settings
