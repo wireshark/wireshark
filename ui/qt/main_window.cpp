@@ -827,7 +827,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
 
             if (from_quit) {
                 if (cap_file_->state == FILE_READ_IN_PROGRESS) {
-                    msg_dialog.addButton(tr("Stop and Quit without Saving)", QMessageBox::DestructiveRole);
+                    msg_dialog.addButton(tr("Stop and Quit without Saving"), QMessageBox::DestructiveRole);
                 } else {
                     msg_dialog.addButton(tr("Quit without Saving"), QMessageBox::DestructiveRole);
                 }
