@@ -46,10 +46,16 @@
 
 #define SUM_STR_MAX  1024
 
+/* Ino about a table */
+typedef struct {
+    GtkWidget  *table;
+    guint       row_count;
+} tbl_info_t;
+
 /* Used to keep track of the statistics for an entire program interface */
 typedef struct _sip_stats_t {
-    char       *filter;
-    GtkWidget  *win;
+    char        *filter;
+    GtkWidget   *win;
     GHashTable  *hash_responses;
     GHashTable  *hash_requests;
     guint32      packets;               /* number of sip packets, including continuations */
@@ -65,12 +71,12 @@ typedef struct _sip_stats_t {
 
     GtkWidget   *request_box;    /* container for INVITE, ... */
 
-    GtkWidget   *informational_table;   /* Status code between 100 and 199 */
-    GtkWidget   *success_table;         /*   200 and 299 */
-    GtkWidget   *redirection_table;     /*   300 and 399 */
-    GtkWidget   *client_error_table;    /*   400 and 499 */
-    GtkWidget   *server_errors_table;   /*   500 and 599 */
-    GtkWidget   *global_failures_table; /*   600 and 699 */
+    tbl_info_t   informational_table_info;   /* Status code between 100 and 199 */
+    tbl_info_t   success_table_info;         /*   200 and 299 */
+    tbl_info_t   redirection_table_info;     /*   300 and 399 */
+    tbl_info_t   client_error_table_info;    /*   400 and 499 */
+    tbl_info_t   server_errors_table_info;   /*   500 and 599 */
+    tbl_info_t   global_failures_table_info; /*   600 and 699 */
 } sipstat_t;
 
 /* Used to keep track of the stats for a specific response code
@@ -81,8 +87,8 @@ typedef struct _sip_response_code_t {
     guint        response_code;         /* 404 */
     const gchar *name;                  /* "Not Found" */
     GtkWidget   *widget;                /* Label where we display it */
-    GtkWidget   *table;                 /* Table in which we put it,
-                                           e.g. client_error_table */
+    tbl_info_t  *table_info;            /* Info about table in which we put it,
+                                           e.g. client_error_table_info */
     sipstat_t   *sp;                    /* Pointer back to main struct */
 } sip_response_code_t;
 
@@ -198,7 +204,7 @@ sip_init_hash(sipstat_t *sp)
         sc->response_code = vals_status_code[i].value;
         sc->name          = vals_status_code[i].strptr;
         sc->widget        = NULL;
-        sc->table         = NULL;
+        sc->table_info    = NULL;
         sc->sp            = sp;
         g_hash_table_insert(sc->sp->hash_responses, GUINT_TO_POINTER(vals_status_code[i].value), sc);
     }
@@ -267,40 +273,31 @@ sip_draw_hash_responses(gint *key _U_ , sip_response_code_t *data, gchar *unused
         /* Find the table matching the code */
         if (i < 200)
         {
-            data->table = data->sp->informational_table;
+            data->table_info = &(data->sp->informational_table_info);
         }
         else if (i < 300)
         {
-            data->table = data->sp->success_table;
+            data->table_info = &(data->sp->success_table_info);
         }
         else if (i < 400)
         {
-            data->table = data->sp->redirection_table;
+            data->table_info = &(data->sp->redirection_table_info);
         }
         else if (i < 500)
         {
-            data->table = data->sp->client_error_table;
+            data->table_info = &(data->sp->client_error_table_info);
         }
         else if (i < 600)
         {
-            data->table = data->sp->server_errors_table;
+            data->table_info = &(data->sp->server_errors_table_info);
         }
         else
         {
-            data->table = data->sp->global_failures_table;
+            data->table_info = &(data->sp->global_failures_table_info);
         }
 
         /* Get number of rows in table */
-#if GTK_CHECK_VERSION(2,22,0)
-        gtk_table_get_size(GTK_TABLE(data->table), &x, NULL);
-#else
-    /* Work around GTK bug: Sealed in 2.14, accessor provided in 2.22 */
-#   if GTK_CHECK_VERSION (2, 14, 0) && defined(GSEAL_ENABLE)
-        x = GTK_TABLE(data->table)->_g_sealed__nrows;
-#   else
-        x = GTK_TABLE(data->table)->nrows;
-#   endif
-#endif
+        x = data->table_info->row_count;
 
         /* Create a new label with this response, e.g. "SIP 180 Ringing" */
         g_snprintf(string_buff, sizeof(string_buff),
@@ -308,7 +305,7 @@ sip_draw_hash_responses(gint *key _U_ , sip_response_code_t *data, gchar *unused
         tmp = gtk_label_new(string_buff);
 
         /* Insert the label in the correct place in the table */
-        gtk_table_attach_defaults(GTK_TABLE(data->table), tmp,  0, 1, x, x+1);
+        gtk_table_attach_defaults(GTK_TABLE(data->table_info->table), tmp,  0, 1, x, x+1);
         gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
         gtk_widget_show(tmp);
 
@@ -317,12 +314,11 @@ sip_draw_hash_responses(gint *key _U_ , sip_response_code_t *data, gchar *unused
         data->widget = gtk_label_new(string_buff);
 
         /* Show this widget in the right place */
-        gtk_table_attach_defaults(GTK_TABLE(data->table), data->widget, 1, 2, x, x+1);
+        gtk_table_attach_defaults(GTK_TABLE(data->table_info->table), data->widget, 1, 2, x, x+1);
         gtk_label_set_justify(GTK_LABEL(data->widget), GTK_JUSTIFY_RIGHT);
         gtk_widget_show(data->widget);
 
-        gtk_table_resize(GTK_TABLE(data->table), x+1, 4);
-
+        data->table_info->row_count += 1;
     } else
     {
         /* Just update the existing label string */
@@ -526,6 +522,7 @@ sipstat_draw(void *psp)
 }
 
 /* When window is destroyed, clean up */
+
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -540,6 +537,20 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 
+static void
+init_table(GtkWidget *main_vb, gchar *title, tbl_info_t *tbl_info)
+{
+    GtkWidget *fr;
+
+    fr = gtk_frame_new(title);
+    gtk_box_pack_start(GTK_BOX(main_vb), fr, TRUE, TRUE, 0);
+
+    /* table (within that frame) */
+    (*tbl_info).table = gtk_table_new(0, 2, FALSE);
+    gtk_container_add(GTK_CONTAINER(fr), (*tbl_info).table);
+    (*tbl_info).row_count = 0;
+}
+
 /* Create a new instance of gtk_sipstat. */
 static void
 gtk_sipstat_init(const char *optarg, void *userdata _U_)
@@ -548,10 +559,7 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     const char *filter;
     GString    *error_string;
     char       *title;
-    GtkWidget  *main_vb, *separator,
-               *informational_fr, *success_fr, *redirection_fr,
-               *client_errors_fr, *server_errors_fr, *global_failures_fr,
-               *request_fr;
+    GtkWidget  *main_vb, *separator, *request_fr;
     GtkWidget  *bt_close;
     GtkWidget  *bbox;
 
@@ -603,50 +611,12 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     gtk_box_pack_start(GTK_BOX(main_vb), sp->resent_label, TRUE, TRUE, 0);
     gtk_widget_show(sp->resent_label);
 
-
-    /* Informational response frame */
-    informational_fr = gtk_frame_new("Informational  SIP 1xx");
-    gtk_box_pack_start(GTK_BOX(main_vb), informational_fr, TRUE, TRUE, 0);
-
-    /* Information table (within that frame) */
-    sp->informational_table = gtk_table_new(0, 2, FALSE);
-    gtk_container_add(GTK_CONTAINER(informational_fr), sp->informational_table);
-
-    /* Success table and frame */
-    success_fr = gtk_frame_new("Success         SIP 2xx");
-    gtk_box_pack_start(GTK_BOX(main_vb), success_fr, TRUE, TRUE, 0);
-
-    sp->success_table = gtk_table_new(0, 2, FALSE);
-    gtk_container_add(GTK_CONTAINER(success_fr), sp->success_table);
-
-    /* Redirection table and frame */
-    redirection_fr = gtk_frame_new("Redirection     SIP 3xx");
-    gtk_box_pack_start(GTK_BOX(main_vb), redirection_fr, TRUE, TRUE, 0);
-
-    sp->redirection_table = gtk_table_new(0, 2, FALSE);
-    gtk_container_add(GTK_CONTAINER(redirection_fr), sp->redirection_table);
-
-    /* Client Errors table and frame */
-    client_errors_fr = gtk_frame_new("Client errors  SIP 4xx");
-    gtk_box_pack_start(GTK_BOX(main_vb), client_errors_fr, TRUE, TRUE, 0);
-
-    sp->client_error_table = gtk_table_new(0, 2, FALSE);
-    gtk_container_add(GTK_CONTAINER(client_errors_fr), sp->client_error_table);
-
-    /* Server Errors table and frame */
-    server_errors_fr = gtk_frame_new("Server errors  SIP 5xx");
-    gtk_box_pack_start(GTK_BOX(main_vb), server_errors_fr, TRUE, TRUE, 0);
-
-    sp->server_errors_table = gtk_table_new(0, 2, FALSE);
-    gtk_container_add(GTK_CONTAINER(server_errors_fr), sp->server_errors_table);
-
-    /* Global Failures table and frame */
-    global_failures_fr = gtk_frame_new("Global failures  SIP 6xx");
-    gtk_box_pack_start(GTK_BOX(main_vb), global_failures_fr, TRUE, TRUE, 0);
-
-    sp->global_failures_table = gtk_table_new(0, 2, FALSE);
-    gtk_container_add(GTK_CONTAINER(global_failures_fr), sp->global_failures_table);
-
+    init_table(main_vb, "Informational   SIP 1xx", &(sp->informational_table_info));
+    init_table(main_vb, "Success         SIP 2xx", &(sp->success_table_info));
+    init_table(main_vb, "Redirection     SIP 3xx", &(sp->redirection_table_info));
+    init_table(main_vb, "Client errors   SIP 4xx", &(sp->client_error_table_info));
+    init_table(main_vb, "Server errors   SIP 5xx", &(sp->server_errors_table_info));
+    init_table(main_vb, "Global failures SIP 6xx", &(sp->global_failures_table_info));
 
     /* Separator between requests and responses */
     separator = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
