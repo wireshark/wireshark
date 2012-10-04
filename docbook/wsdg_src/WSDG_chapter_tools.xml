@@ -844,26 +844,32 @@ Stop.]]>
         <para>
           <orderedlist>
             <listitem>
-              <para>"Redistributable Merge Modules" (kind of loadable
-              modules for building msi installers - not suitable for
-              Wireshark's NSIS based installer)</para>
+              <para>"Using Visual C++ Redistributable Merge Modules"
+              (kind of loadable modules for building msi installers -
+              not suitable for Wireshark's NSIS based installer)</para>
             </listitem>
             <listitem>
-              <para>copy the folder content of Microsoft.VC80.CRT to
+              <para>"Using Visual C++ Redistributable Package", wherein
+              the Microsoft libraries are installed by copying
+              <filename>vcredist_x86.exe</filename> or
+              <filename>vcredist_x64.exe</filename> to the target
+              machine and executing it on that machine (MSDN recommends
+              this for applications built with Visual Studio 2005
+              Express Edition)
+              </para>
+            </listitem>
+            <listitem>
+              <para>"Install a particular Visual C++ assembly as a
+              private assembly for the application", wherein the
+              Microsoft libraries are installed by copying the folder
+              content of <filename>Microsoft.VC80.CRT</filename> to
               the target directory (e.g. <filename>C:\Program
               Files\Wireshark</filename>)</para>
             </listitem>
-            <listitem>
-              <para>
-                <filename>vcredist_x86.exe</filename> (needs to be
-                executed on the target machine - MSDN recommends this
-                for the 2005 Express Editions)
-              </para>
-            </listitem>
           </orderedlist>To save installer size, MSVC2005 uses the
-          content of Microsoft.VC80.CRT (method 2 - this is the
+          content of Microsoft.VC80.CRT (method 3 - this is the
           smallest package). As MSVC2005EE and DOTNET20 doesn't
-          provide the folder "Microsoft.VC80.CRT" they use method 3.
+          provide the folder "Microsoft.VC80.CRT" they use method 2.
           You'll have to download a <filename>vcredist_x86.exe</filename>
           from Microsoft that matches your compiler version. The best way
           to determine this version is to open one of the generated
@@ -931,7 +937,7 @@ Stop.]]>
       <section>
         <title>msvcr90.dll / vcredist_x86.exe / vcredist_x64.exe - Version 9.0 (2008)</title>
         <para>
-          For Microsoft Visual C++ 2008 (MSVC 9), only method 3 is
+          For Microsoft Visual C++ 2008 (MSVC 9), only method 2 is
           used.  There are both 32-bit and 64-bit versions of the
           redistributables.
         </para>
@@ -983,7 +989,7 @@ Stop.]]>
       <section>
         <title>msvcr100.dll / vcredist_x86.exe / vcredist_x64.exe - Version 10.0 (2010)</title>
         <para>
-          For Microsoft Visual C++ 2010 (MSVC 10), only method 3 is
+          For Microsoft Visual C++ 2010 (MSVC 10), only method 2 is
           used.  There are both 32-bit and 64-bit versions of the
           redistributables.
         </para>
