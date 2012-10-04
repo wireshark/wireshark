@@ -840,7 +840,8 @@ Stop.]]>
         <para>There are three redistribution methods that MSDN
         mentions for MSVC 8 (see:
         "<ulink url="http://msdn.microsoft.com/library/ms235316(VS.80).aspx">
-        Choosing a Deployment Method</ulink>"):</para>
+        Choosing a Deployment Method</ulink>"):
+        </para>
         <para>
           <orderedlist>
             <listitem>
@@ -851,8 +852,9 @@ Stop.]]>
             <listitem>
               <para>"Using Visual C++ Redistributable Package", wherein
               the Microsoft libraries are installed by copying
-              <filename>vcredist_x86.exe</filename> or
-              <filename>vcredist_x64.exe</filename> to the target
+              <filename>vcredist_x86.exe</filename>,
+              <filename>vcredist_x64.exe</filename>, or
+              <filename>vcredist_ia64.exe</filename> to the target
               machine and executing it on that machine (MSDN recommends
               this for applications built with Visual Studio 2005
               Express Edition)
@@ -866,14 +868,19 @@ Stop.]]>
               the target directory (e.g. <filename>C:\Program
               Files\Wireshark</filename>)</para>
             </listitem>
-          </orderedlist>To save installer size, MSVC2005 uses the
-          content of Microsoft.VC80.CRT (method 3 - this is the
-          smallest package). As MSVC2005EE and DOTNET20 doesn't
-          provide the folder "Microsoft.VC80.CRT" they use method 2.
-          You'll have to download a <filename>vcredist_x86.exe</filename>
-          from Microsoft that matches your compiler version. The best way
-          to determine this version is to open one of the generated
-          manifest files (e.g.
+          </orderedlist>To save installer size, when building Wireshark
+          with MSVC2005, method 3 (copying the content of
+          <filename>Microsoft.VC80.CRT</filename>) is used (this
+          produces the smallest package). As MSVC2005EE and DOTNET20
+          don't provide the folder "Microsoft.VC80.CRT", when Wireshark
+          is built with either of them method 2 is used.
+          You'll have to download the version of
+          <filename>vcredist_x86.exe</filename>,
+          <filename>vcredist_x64.exe</filename>, or
+          <filename>vcredist_ia64.exe</filename> from Microsoft that
+          corresponds to your target (32-bit or 64-bit) and your
+          compiler version. The best way to determine this version is to
+          open one of the generated manifest files (e.g.
           <filename>wireshark.exe.manifest</filename>)
           and look for the version of the Microsoft.VC80.CRT entry.
         </para>
@@ -937,9 +944,13 @@ Stop.]]>
       <section>
         <title>msvcr90.dll / vcredist_x86.exe / vcredist_x64.exe - Version 9.0 (2008)</title>
         <para>
-          For Microsoft Visual C++ 2008 (MSVC 9), only method 2 is
-          used.  There are both 32-bit and 64-bit versions of the
-          redistributables.
+        <para>
+          For Microsoft Visual C++ 2008 (MSVC 9), there are three
+          redistribution methods that MSDN mentions (see:
+          "<ulink url="http://msdn.microsoft.com/en-US/library/ms235316(v=vs.90).aspx">
+          Choosing a Deployment Method</ulink>"), but only method 2 is
+          used for Wireshark.  There are both 32-bit and 64-bit versions
+          of the redistributables.
         </para>
         <para>
           <itemizedlist>
@@ -989,9 +1000,14 @@ Stop.]]>
       <section>
         <title>msvcr100.dll / vcredist_x86.exe / vcredist_x64.exe - Version 10.0 (2010)</title>
         <para>
-          For Microsoft Visual C++ 2010 (MSVC 10), only method 2 is
-          used.  There are both 32-bit and 64-bit versions of the
-          redistributables.
+          For Microsoft Visual C++ 2010 (MSVC 10), there are three
+          redistribution methods that MSDN mentions (see:
+          "<ulink url="http://msdn.microsoft.com/en-US/library/ms235316(v=vs.100).aspx">
+          Choosing a Deployment Method</ulink>"), but only "Using Visual
+          C++ Redistributable Package" is used for Wireshark; that is
+          the first method mentioned in "Choosing a Deployment Method",
+          and is the one recommended by Microsoft.  There are both
+          32-bit and 64-bit versions of the redistributables.
         </para>
         <para>
           <itemizedlist>
