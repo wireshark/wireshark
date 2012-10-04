@@ -279,7 +279,7 @@ void ImportTextDialog::on_textFileBrowseButton_clicked()
         break;
     }
 
-    QString file_name = QFileDialog::getOpenFileName(this, "Wireshark: Import text file", open_dir);
+    QString file_name = QFileDialog::getOpenFileName(this, tr("Wireshark: Import text file"), open_dir);
     ui->textFileLineEdit->setText(file_name);
 }
 
@@ -320,9 +320,9 @@ void ImportTextDialog::on_dateTimeLineEdit_textChanged(const QString &time_forma
         time(&cur_time);
         cur_tm = localtime(&cur_time);
         strftime(time_str, 100, ui->dateTimeLineEdit->text().toUtf8().constData(), cur_tm);
-        ui->timestampExampleLabel->setText(QString("Example: %1").arg(time_str));
+        ui->timestampExampleLabel->setText(QString(tr("Example: %1")).arg(time_str));
     } else {
-        ui->timestampExampleLabel->setText("<i>(No format will be applied)</i>");
+        ui->timestampExampleLabel->setText(tr("<i>(No format will be applied)</i>"));
     }
 }
 

@@ -310,7 +310,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 }
 
 
-
 void MainWindow::mergeCaptureFile()
 {
     QString file_name = "";
@@ -331,16 +330,16 @@ void MainWindow::mergeCaptureFile()
             /* This is a temporary capture file or has unsaved changes; ask the
                user whether to save the capture. */
             if (cap_file_->is_tempfile) {
-                msg_dialog.setText("Save packets before merging?");
-                msg_dialog.setInformativeText("A temporary capture file can't be merged.");
+                msg_dialog.setText(tr("Save packets before merging?"));
+                msg_dialog.setInformativeText(tr("A temporary capture file can't be merged."));
             } else {
                 /*
                  * Format the message.
                  */
                 display_basename = g_filename_display_basename(cap_file_->filename);
-                msg_dialog.setText(QString("Save changes in \"%1\" before merging?").arg(display_basename));
+                msg_dialog.setText(QString(tr("Save changes in \"%1\" before merging?")).arg(display_basename));
                 g_free(display_basename);
-                msg_dialog.setInformativeText("Changes must be saved before the files can be merged.");
+                msg_dialog.setInformativeText(tr("Changes must be saved before the files can be merged."));
             }
 
             msg_dialog.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
@@ -398,10 +397,7 @@ void MainWindow::mergeCaptureFile()
                    selection box again once they dismiss the alert. */
                 //bad_dfilter_alert_box(top_level, display_filter->str);
                 QMessageBox::warning(this, tr("Invalid Display Filter"),
-                                     QString("The filter expression ") +
-                                     display_filter +
-                                     QString(" isn't a valid display filter. (") +
-                                     dfilter_error_msg + QString(")."),
+                                     QString(tr("The filter expression %1 isn't a valid display filter. (%2).").arg(display_filter, dfilter_error_msg)),
                                      QMessageBox::Ok);
                 continue;
             }
@@ -486,7 +482,7 @@ void MainWindow::mergeCaptureFile()
 void MainWindow::importCaptureFile() {
     ImportTextDialog import_dlg;
 
-    if (!testCaptureFileClose(FALSE, *new QString(" before importing a new capture")))
+    if (!testCaptureFileClose(FALSE, *new QString(tr(" before importing a new capture"))))
         return;
 
     import_dlg.exec();
@@ -784,15 +780,15 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
                to save the data. */
             if (cap_file_->is_tempfile) {
 
-                msg_dialog.setText("You have unsaved packets");
-                msg_dialog.setInformativeText("They will be lost if you don't save them.");
+                msg_dialog.setText(tr("You have unsaved packets"));
+                msg_dialog.setInformativeText(tr("They will be lost if you don't save them."));
 
                 if (capture_in_progress) {
-                    question.append("Do you want to stop the capture and save the captured packets");
+                    question.append(tr("Do you want to stop the capture and save the captured packets"));
                 } else {
-                    question.append("Do you want to save the captured packets");
+                    question.append(tr("Do you want to save the captured packets"));
                 }
-                question.append(before_what).append("?");
+                question.append(before_what).append(tr("?"));
                 msg_dialog.setInformativeText(question);
 
 
@@ -801,17 +797,17 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
                  * Format the message.
                  */
                 if (capture_in_progress) {
-                    question.append("Do you want to stop the capture and save the captured packets");
-                    question.append(before_what).append("?");
-                    msg_dialog.setInformativeText("Your captured packets will be lost if you don't save them.");
+                    question.append(tr("Do you want to stop the capture and save the captured packets"));
+                    question.append(before_what).append(tr("?"));
+                    msg_dialog.setInformativeText(tr("Your captured packets will be lost if you don't save them."));
                 } else {
                     gchar *display_basename = g_filename_display_basename(cap_file_->filename);
-                    question.append(QString("Do you want to save the changes you've made to the capture file \"%1\"%2?")
+                    question.append(QString(tr("Do you want to save the changes you've made to the capture file \"%1\"%2?"))
                                     .arg(display_basename)
                                     .arg(before_what)
                                     );
                     g_free(display_basename);
-                    msg_dialog.setInformativeText("Your changes will be lost if you don't save them.");
+                    msg_dialog.setInformativeText(tr("Your changes will be lost if you don't save them."));
                 }
             }
 
@@ -823,7 +819,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
             msg_dialog.setStandardButtons(QMessageBox::Cancel);
 
             if (capture_in_progress) {
-                default_button = msg_dialog.addButton("Stop and Save", QMessageBox::AcceptRole);
+                default_button = msg_dialog.addButton(tr("Stop and Save"), QMessageBox::AcceptRole);
             } else {
                 default_button = msg_dialog.addButton(QMessageBox::Save);
             }
@@ -831,13 +827,13 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
 
             if (from_quit) {
                 if (cap_file_->state == FILE_READ_IN_PROGRESS) {
-                    msg_dialog.addButton("Stop and Quit without Saving", QMessageBox::DestructiveRole);
+                    msg_dialog.addButton(tr("Stop and Quit without Saving)", QMessageBox::DestructiveRole);
                 } else {
-                    msg_dialog.addButton("Quit without Saving", QMessageBox::DestructiveRole);
+                    msg_dialog.addButton(tr("Quit without Saving"), QMessageBox::DestructiveRole);
                 }
             } else {
                 if (capture_in_progress) {
-                    msg_dialog.addButton("Stop and Continue without Saving", QMessageBox::DestructiveRole);
+                    msg_dialog.addButton(tr("Stop and Continue without Saving"), QMessageBox::DestructiveRole);
                 } else {
                     msg_dialog.addButton(QMessageBox::Discard);
                 }
@@ -1035,7 +1031,6 @@ void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
 //    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 //#endif
 }
-
 
 /*
  * Editor modelines

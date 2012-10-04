@@ -250,27 +250,27 @@ void CaptureFileDialog::addPreview(QVBoxLayout &v_box) {
     preview_grid->setColumnStretch(0, 0);
     preview_grid->setColumnStretch(1, 10);
 
-    lbl = new QLabel("Format:");
+    lbl = new QLabel(tr("Format:"));
     preview_grid->addWidget(lbl, 0, 0);
     preview_grid->addWidget(&preview_format_, 0, 1);
     preview_labels_ << lbl << &preview_format_;
 
-    lbl = new QLabel("Size:");
+    lbl = new QLabel(tr("Size:"));
     preview_grid->addWidget(lbl, 1, 0);
     preview_grid->addWidget(&preview_size_, 1, 1);
     preview_labels_ << lbl << &preview_size_;
 
-    lbl = new QLabel("Packets:");
+    lbl = new QLabel(tr("Packets:"));
     preview_grid->addWidget(lbl, 2, 0);
     preview_grid->addWidget(&preview_packets_, 2, 1);
     preview_labels_ << lbl << &preview_packets_;
 
-    lbl = new QLabel("First Packet:");
+    lbl = new QLabel(tr("First Packet:"));
     preview_grid->addWidget(lbl, 3, 0);
     preview_grid->addWidget(&preview_first_, 3, 1);
     preview_labels_ << lbl << &preview_first_;
 
-    lbl = new QLabel("Elapsed Time:");
+    lbl = new QLabel(tr("Elapsed Time:"));
     preview_grid->addWidget(lbl, 4, 0);
     preview_grid->addWidget(&preview_elapsed_, 4, 1);
     preview_labels_ << lbl << &preview_elapsed_;

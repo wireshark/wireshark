@@ -95,29 +95,25 @@ packets_bar_update(void)
 
     /* Do we have any packets? */
     if (cfile.count) {
-        packetsStr.append(QString("Packets: %1 " UTF8_MIDDLE_DOT " Displayed: %2 " UTF8_MIDDLE_DOT " Marked: %3")
-//        packetsStr.append(QString(QObject::tr("Packets: %1 Displayed: %2 Marked: %3"))
+        packetsStr.append(QString(QObject::tr("Packets: %1 %4 Displayed: %2 %4 Marked: %3"))
                           .arg(cfile.count)
                           .arg(cfile.displayed_count)
-                          .arg(cfile.marked_count));
+                          .arg(cfile.marked_count)
+                          .arg(UTF8_MIDDLE_DOT));
         if(cfile.drops_known) {
-            packetsStr.append(QString(" " UTF8_MIDDLE_DOT " Dropped: %1")).arg(cfile.drops);
+            packetsStr.append(QString(QObject::tr(" %1 Dropped: %2"))).arg(UTF8_MIDDLE_DOT).arg(cfile.drops);
         }
         if(cfile.ignored_count > 0) {
-            packetsStr.append(QString(" " UTF8_MIDDLE_DOT " Ignored: %1").arg(cfile.ignored_count));
+            packetsStr.append(QString(QObject::tr(" %1 Ignored: %2")).arg(UTF8_MIDDLE_DOT).arg(cfile.ignored_count));
         }
         if(!cfile.is_tempfile) {
             /* Loading an existing file */
             gulong computed_elapsed = cf_get_computed_elapsed();
-            packetsStr.append(QString(" " UTF8_MIDDLE_DOT " Load time: %1:%2.%3")
+            packetsStr.append(QString(QObject::tr(" %1  Load time: %2:%3.%4"))
+                                        .arg(UTF8_MIDDLE_DOT)
                                         .arg(computed_elapsed/60000)
                                         .arg(computed_elapsed%60000/1000)
                                         .arg(computed_elapsed%1000));
-            /*packetsStr.append(QString().sprintf(QObject::tr(" Load time: %lu:%02lu.%03lu",
-                                        computed_elapsed/60000,
-                                        computed_elapsed%60000/1000,
-                                        computed_elapsed%1000)));
-            */
         }
     } else {
         packetsStr.append(QObject::tr("No Packets"));
@@ -188,31 +184,31 @@ void MainStatusBar::hideExpert() {
 
 void MainStatusBar::expertUpdate() {
     QString imgText = "<img src=\":/expert/expert_";
-    QString ttText = " is the highest expert info level";
+    QString ttText = tr(" is the highest expert info level");
 
     switch(expert_get_highest_severity()) {
     case(PI_ERROR):
         imgText.append("error");
-        ttText.prepend("ERROR");
+        ttText.prepend(tr("ERROR"));
         break;
     case(PI_WARN):
         imgText.append("warn");
-        ttText.prepend("WARNING");
+        ttText.prepend(tr("WARNING"));
         break;
     case(PI_NOTE):
         imgText.append("note");
-        ttText.prepend("NOTE");
+        ttText.prepend(tr("NOTE"));
         break;
     case(PI_CHAT):
         imgText.append("chat");
-        ttText.prepend("CHAT");
+        ttText.prepend(tr("CHAT"));
         break;
 //    case(PI_COMMENT):
 //        m_expertStatus.setText("<img src=\":/expert/expert_comment.png\"></img>");
 //        break;
     default:
         imgText.append("none");
-        ttText = "No expert info";
+        ttText = tr("No expert info");
         break;
     }
 
