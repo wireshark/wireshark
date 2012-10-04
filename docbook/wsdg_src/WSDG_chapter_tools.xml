@@ -867,27 +867,31 @@ Stop.]]>
               the target directory (e.g. <filename>C:\Program
               Files\Wireshark</filename>)</para>
             </listitem>
-          </orderedlist>To save installer size, and to make a "portable"
+          </orderedlist>
+        </para>
+        <para>
+          To save installer size, and to make a "portable"
           version of Wireshark (which must be completely self-contained,
           on a medium such as a flash drive, and not require that an
           installer be run to install anything on the target machine)
-          possible, when building Wireshark with MSVC2005, method 3
-          (copying the content of <filename>Microsoft.VC80.CRT</filename>)
-          is used (this produces the smallest package). As MSVC2005EE and
-          DOTNET20 don't provide the folder
-          <filename>Microsoft.VC80.CRT</filename>, when Wireshark
+          possible, when building 32-bit Wireshark with MSVC2005, method
+          3 (copying the content of <filename>Microsoft.VC80.CRT</filename>)
+          is used (this produces the smallest package).
+        </para>
+        <para>
+          As MSVC2005EE and DOTNET20 don't provide the folder
+          <filename>Microsoft.VC80.CRT</filename>, when 32-bit Wireshark
           is built with either of them method 2 is used.
-          You'll have to download the version of
-          <filename>vcredist_x86.exe</filename>,
-          <filename>vcredist_x64.exe</filename>, or
-          <filename>vcredist_ia64.exe</filename> from Microsoft that
-          corresponds to your target (32-bit or 64-bit) and your
-          compiler version. The best way to determine this version is to
-          open one of the generated manifest files (e.g.
-          <filename>wireshark.exe.manifest</filename>)
-          and look for the version of the Microsoft.VC80.CRT entry. A
-          portable version of 64-bit Wireshark is not built, so method 3
-          is used for all 64-bit builds.
+          You'll have to download the appropriate version of
+          <filename>vcredist_x86.exe</filename> from Microsoft for your
+          compiler version.
+        </para>
+        <para>
+          A portable version of 64-bit Wireshark is not built, so method
+          3 is used for all 64-bit builds.  You'll have to download the
+          appropriate version of <filename>vcredist_x64.exe</filename>
+          or <filename>vcredist_ia64.exe</filename> from Microsoft
+          for your target processor and compiler version.
         </para>
         <para>
           <itemizedlist>
@@ -974,25 +978,30 @@ Stop.]]>
               the target directory (e.g. <filename>C:\Program
               Files\Wireshark</filename>)</para>
             </listitem>
-          </orderedlist>To save installer size, and to make a "portable"
+          </orderedlist>
+        </para>
+        <para>
+          To save installer size, and to make a "portable"
           version of Wireshark (which must be completely self-contained,
           on a medium such as a flash drive, and not require that an
           installer be run to install anything on the target machine)
-          possible, when building Wireshark with MSVC2008, method 3
-          (copying the content of <filename>Microsoft.VC90.CRT</filename>)
-          is used (this produces the smallest package). As MSVC2008EE
-          desn't provide the folder <filename>Microsoft.VC90.CRT</filename>,
-          when Wireshark is built with it method 2 is used.
-          You'll have to download the version of
-          <filename>vcredist_x86.exe</filename> or
-          <filename>vcredist_x64.exe</filename> from Microsoft that
-          corresponds to your target (32-bit or 64-bit) and your
-          compiler version. The best way to determine this version is to
-          open one of the generated manifest files (e.g.
-          <filename>wireshark.exe.manifest</filename>)
-          and look for the version of the Microsoft.VC90.CRT entry. A
-          portable version of 64-bit Wireshark is not built, so method 3
-          is used for all 64-bit builds.
+          possible, when building 32-bit Wireshark with MSVC2008, method
+          3 (copying the content of <filename>Microsoft.VC90.CRT</filename>)
+          is used (this produces the smallest package).
+        </para>
+        <para>
+          As MSVC2008EE doesn't provide the folder
+          <filename>Microsoft.VC90.CRT</filename>,
+          when 32-bit Wireshark is built with it method 2 is used.
+          You'll have to download the appropriate version of
+          <filename>vcredist_x86.exe</filename> from Microsoft for your
+          compiler version.
+        </para>
+        <para>
+	  A portable version of 64-bit Wireshark is not built, so method
+          2 is used for all 64-bit builds.  You'll have to download the
+          appropriate version of <filename>vcredist_x64.exe</filename>
+          from Microsoft for your compiler version.
         </para>
         <para>
           <itemizedlist>
@@ -1070,25 +1079,30 @@ Stop.]]>
               the target directory (e.g. <filename>C:\Program
               Files\Wireshark</filename>)</para>
             </listitem>
-          </orderedlist>To save installer size, and to make a "portable"
+          </orderedlist>
+        </para>
+        <para>
+          To save installer size, and to make a "portable"
           version of Wireshark (which must be completely self-contained,
           on a medium such as a flash drive, and not require that an
           installer be run to install anything on the target machine)
-          possible, when building Wireshark with MSVC2010, method 3
-          (copying the content of <filename>Microsoft.VC100.CRT</filename>)
-          is used (this produces the smallest package). As MSVC20010EE
-          desn't provide the folder <filename>Microsoft.VC100.CRT</filename>,
-          when Wireshark is built with it method 1 is used.
-          You'll have to download the version of
-          <filename>vcredist_x86.exe</filename> or
-          <filename>vcredist_x64.exe</filename> from Microsoft that
-          corresponds to your target (32-bit or 64-bit) and your
-          compiler version. The best way to determine this version is to
-          open one of the generated manifest files (e.g.
-          <filename>wireshark.exe.manifest</filename>)
-          and look for the version of the Microsoft.VC100.CRT entry. A
-          portable version of 64-bit Wireshark is not built, so method 1
-          is used for all 64-bit builds.
+          possible, when building 32-bit Wireshark with MSVC2010, method
+          3 (copying the content of <filename>Microsoft.VC100.CRT</filename>)
+          is used (this produces the smallest package).
+        </para>
+        <para>
+          As MSVC20010EE doesn't provide the folder
+          <filename>Microsoft.VC100.CRT</filename>,
+          when 32-bit Wireshark is built with it method 1 is used.
+          You'll have to download the appropriate version of
+          <filename>vcredist_x86.exe</filename> from Microsoft that
+          corresponds to your compiler version.
+        </para>
+        <para>
+          A portable version of 64-bit Wireshark is not built, so method
+          1 is used for all 64-bit builds.  You'll have to download the
+          appropriate version of <filename>vcredist_x64.exe</filename>
+          from Microsoft for your compiler version.
         </para>
         <para>
           <itemizedlist>
