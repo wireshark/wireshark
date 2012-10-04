@@ -1,5 +1,5 @@
 /* Reorder the frames from an input dump file, and write to output dump file.
- * Martin Mathieson
+ * Martin Mathieson and Jakub Jawadzki
  *
  * $Id$
  *
@@ -54,30 +54,17 @@ static void usage(void)
     fprintf(stderr, "Usage: reordercap [options] <infile> <outfile>\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "Options:\n");
-    fprintf(stderr, "  -l <list length>               maximum reordering list length (default is infinite).\n");
+    fprintf(stderr, "  -n        don't write to output file if the input file is ordered.\n");
 }
 
 /* Remember where this frame was in the file */
 typedef struct FrameRecord_t {
     gint64               offset;
     guint32              length;
+    guint                num;
 
     struct wtap_nstime   time;
-
-    /* List item pointers */
-    struct FrameRecord_t *prev;
-    struct FrameRecord_t *next;
 } FrameRecord_t;
-
-/* By default let the whole capture be completely sorted. */
-/* Would be very slow with a large file very out of order, but this is unlikely */
-static unsigned int g_MAX_LIST_LENGTH=0;
-static unsigned int g_FrameRecordCount;
-
-/* This is the list of frames, sorted by time.  Later frames at the front, earlier
-   ones at the end */
-static FrameRecord_t *g_FrameListHead;
-static FrameRecord_t *g_FrameListTail;
 
 
 /**************************************************/
@@ -87,218 +74,86 @@ static FrameRecord_t *g_FrameListTail;
 /* #define REORDER_DEBUG */
 
 #ifdef REORDER_DEBUG
-static void ReorderListDebugPrint(void)
-{
-    int count=0;
-    FrameRecord_t *tmp = g_FrameListHead;
-    printf("\n");
-    while (tmp != NULL) {
-        printf("%6d: offset=%6" G_GINT64_MODIFIER "u, length=%6u, time=%lu:%u",
-               ++count, tmp->offset, tmp->length, tmp->time.secs, tmp->time.nsecs);
-
-        if (tmp == g_FrameListHead) {
-            printf(" (head)");
-        }
-        if (tmp == g_FrameListTail) {
-            printf(" (tail)");
-        }
-        printf("\n");
-
-        tmp = tmp->next;
-    }
-    printf("\n");
-}
-#else
-#define ReorderListDebugPrint()
-#endif
-
-#ifdef REORDER_DEBUG
 #define DEBUG_PRINT printf
 #else
 #define DEBUG_PRINT(...)
 #endif
-
 /**************************************************/
 
-/* Counting frames that weren't in order */
-static unsigned int g_OutOfOrder = 0;
 
-
-/* Is time1 later than time2? */
-static gboolean isLaterTime(struct wtap_nstime time1,
-                            struct wtap_nstime time2)
-{
-    if (time1.secs > time2.secs) {
-        return TRUE;
-    }
-    if (time1.secs == time2.secs) {
-        return (time1.nsecs > time2.nsecs);
-    }
-    else {
-        return FALSE;
-    }
-}
-
-/* Is the reorder list empty? */
-static gboolean ReorderListEmpty(void)
-{
-    return (g_FrameRecordCount == 0);
-}
-
-/* Is the reorder list full? */
-static gboolean ReorderListFull(void)
-{
-    if (g_MAX_LIST_LENGTH <= 0) {
-        /* Zero means don't limit the length */
-        return FALSE;
-    }
-    else {
-        return (g_FrameRecordCount >= g_MAX_LIST_LENGTH);
-    }
-}
-
-/* Add a new frame to the reorder list */
-/* Adding later ones to the front */
-static void ReorderListAdd(gint64 offset, guint32 length,
-                           struct wtap_nstime time)
-{
-    FrameRecord_t *tmp;
-    FrameRecord_t *newFrameRecord = g_malloc(sizeof(FrameRecord_t));
-
-    /* Populate fields */
-    DEBUG_PRINT("\nAdded with offset=%06" G_GINT64_MODIFIER "u, length=%05u, secs=%lu, nsecs=%d\n",
-                offset, length, time.secs, time.nsecs);
-    newFrameRecord->offset = offset;
-    newFrameRecord->length = length;
-    newFrameRecord->time = time;
-
-    /* We will definitely add it below, so inc counter */
-    g_FrameRecordCount++;
-
-    /* First time, this will be the head */
-    if (g_FrameListHead == NULL) {
-        DEBUG_PRINT("this item will be head - only item\n");
-        g_FrameListHead = newFrameRecord;
-        newFrameRecord->prev = NULL;
-        newFrameRecord->next = NULL;
-        g_FrameListTail = newFrameRecord;
-        return;
-    }
-
-    /* Look for the place in the list where this item fits */
-    tmp = g_FrameListHead;
-    while (tmp != NULL) {
-        if (isLaterTime(time, tmp->time)) {
-            DEBUG_PRINT("Time was Later, writing before element\n");
-
-            /* Insert newFrameRecord *before* tmp */
-
-            /* Fix up prev item */
-            if (tmp == g_FrameListHead) {
-                /* Inserting before existing head */
-                g_FrameListHead = newFrameRecord;
-            }
-            else {
-                /* Our prev is tmps old prev */
-                newFrameRecord->prev = tmp->prev;
-                /* Its next points to us */
-                newFrameRecord->prev->next = newFrameRecord;
-
-                /* Inserted after another item */
-                DEBUG_PRINT("*** Inc out out of order count\n");
-                g_OutOfOrder++;
-            }
-
-            /* Fix up next item */
-            newFrameRecord->next = tmp;
-            tmp->prev = newFrameRecord;
-
-            return;
-        }
-
-        /* Didn't find an item to insert in front of */
-        if (tmp->next == NULL) {
-            DEBUG_PRINT("Reached the end of the list, so insert here\n");
-
-            /* We are the new last item */
-            tmp->next = newFrameRecord;
-            newFrameRecord->prev = tmp;
-            newFrameRecord->next = NULL;
-            g_FrameListTail = newFrameRecord;
-
-            /* There were other items but we were earlier than them */
-            DEBUG_PRINT("*** Inc out out of order count\n");
-            g_OutOfOrder++;
-
-            return;
-        }
-        else {
-            /* Move onto the next item */
-            DEBUG_PRINT("Time was earlier, move to next position\n");
-            tmp = tmp->next;
-        }
-    }
-}
-
-/* Dump the earliest item in the reorder list to the output file, and pop it */
-static void ReorderListDumpEarliest(wtap *wth, wtap_dumper *pdh)
+static void
+frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh)
 {
     union wtap_pseudo_header pseudo_header;
     int    err;
     gchar  *errinfo;
     const struct wtap_pkthdr *phdr;
-    guint8 buf[16000];
+    guint8 buf[65535];
     struct wtap_pkthdr new_phdr;
 
-    FrameRecord_t *prev_tail = g_FrameListTail;
-
-    DEBUG_PRINT("\nDumping frame (offset=%" G_GINT64_MODIFIER "u, length=%u) (%u items in list)\n", 
-                g_FrameListHead->offset, g_FrameListHead->length,
-                g_FrameRecordCount);
+    DEBUG_PRINT("\nDumping frame (offset=%" G_GINT64_MODIFIER "u, length=%u)\n", 
+                frame->offset, frame->length);
 
     /* Re-read the first frame from the stored location */
     wtap_seek_read(wth,
-                   g_FrameListTail->offset,
+                   frame->offset,
                    &pseudo_header,
                    buf,
-                   g_FrameListTail->length,
+                   frame->length,
                    &err,
                    &errinfo);
     DEBUG_PRINT("re-read: err is %d, buf is (%s)\n", err, buf);
 
     /* Get packet header */
+    /* XXX, this might not work */
     phdr = wtap_phdr(wth);
 
     /* Copy, and set length and timestamp from item. */
-    memcpy((void*)&new_phdr, phdr, sizeof(struct wtap_pkthdr));
-    new_phdr.len = g_FrameListTail->length;
-    new_phdr.ts.secs = g_FrameListTail->time.secs;
-    new_phdr.ts.nsecs = g_FrameListTail->time.nsecs;
+    new_phdr = *phdr;
+    new_phdr.len = frame->length;
+    new_phdr.caplen = frame->length;
+    new_phdr.ts = frame->time;
 
     /* Dump frame to outfile */
     if (!wtap_dump(pdh, &new_phdr, &pseudo_header, buf, &err)) {
         printf("Error (%s) writing frame to outfile\n", wtap_strerror(err));
         exit(1);
     }
-
-    /* Now remove this (the last/earliest) item from the list */
-    if (g_FrameListTail->prev == NULL) {
-        g_FrameListTail = NULL;
-        g_FrameListHead = NULL;
-    }
-    else {
-        /* 2nd last item is now last */
-        g_FrameListTail->prev->next = NULL;
-        g_FrameListTail = g_FrameListTail->prev;
-    }
-
-    /* And free the struct */
-    g_free(prev_tail);
-    g_FrameRecordCount--;
-
-    DEBUG_PRINT("Frame written, %u remaining\n", g_FrameRecordCount);
 }
 
+/* Comparing timestamps between 2 frames.
+   -1 if (t1 < t2)
+   0  if (t1 == t2)
+   1  if (t1 > t2)
+*/
+static int
+frames_compare(gconstpointer a, gconstpointer b)
+{
+    const FrameRecord_t *frame1 = *(const FrameRecord_t **) a;
+    const FrameRecord_t *frame2 = *(const FrameRecord_t **) b;
+
+    const struct wtap_nstime *time1 = &frame1->time;
+    const struct wtap_nstime *time2 = &frame2->time;
+
+    if (time1->secs > time2->secs)
+        return 1;
+    if (time1->secs < time2->secs)
+        return -1;
+
+    /* time1->secs == time2->secs */
+    if (time1->nsecs > time2->nsecs)
+        return 1;
+    if (time1->nsecs < time2->nsecs)
+        return -1;
+
+    /* time1->nsecs == time2->nsecs */
+
+    if (frame1->num > frame2->num)
+        return 1;
+    if (frame1->num < frame2->num)
+        return -1;
+    return 0;
+}
 
 
 /********************************************************************/
@@ -312,22 +167,23 @@ int main(int argc, char *argv[])
     gchar *err_info;
     gint64 data_offset;
     const struct wtap_pkthdr *phdr;
-    guint32 read_count = 0;
+    guint wrong_order_count = 0;
+    gboolean write_output_regardless = TRUE;
+    guint i;
+
+    GPtrArray *frames;
+    FrameRecord_t *prevFrame = NULL;
 
     int opt;
-    char *p;
     int file_count;
-
-    /* 1st arg is infile, 2nd arg is outfile */
     char *infile;
     char *outfile;
 
     /* Process the options first */
-    while ((opt = getopt(argc, argv, "l:")) != -1) {
+    while ((opt = getopt(argc, argv, "n")) != -1) {
         switch (opt) {
-            case 'l':
-                g_MAX_LIST_LENGTH = strtol(optarg, &p, 10);
-                //get_positive_int(optarg, "maximum list length");
+            case 'n':
+                write_output_regardless = FALSE;
                 break;
             case '?':
                 usage();
@@ -335,6 +191,7 @@ int main(int argc, char *argv[])
         }
     }
 
+    /* Remaining args are file names */
     file_count = argc - optind;
     if (file_count == 2) {
         infile = argv[optind];
@@ -351,7 +208,6 @@ int main(int argc, char *argv[])
         printf("reorder: Can't open %s: %s\n", infile, wtap_strerror(err));
         exit(1);
     }
-
     DEBUG_PRINT("file_type is %u\n", wtap_file_type(wth));
 
     /* Open outfile (same filetype/encap as input file) */
@@ -361,40 +217,58 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    /* Allocate the array of frame pointers. */
+    frames = g_ptr_array_new();
 
     /* Read each frame from infile */
     while (wtap_read(wth, &err, &err_info, &data_offset)) {
-        read_count++;
+        FrameRecord_t *newFrameRecord;
+
         phdr = wtap_phdr(wth);
 
-        /* Add it to the reordering list */
-        ReorderListAdd(data_offset, phdr->len, phdr->ts);
-        ReorderListDebugPrint();
+        newFrameRecord = g_slice_new(FrameRecord_t);
+        newFrameRecord->num = frames->len + 1;
+        newFrameRecord->offset = data_offset;
+        newFrameRecord->length = phdr->len;
+        newFrameRecord->time = phdr->ts;
 
-        /* If/when the list gets full, dump the earliest item out */
-        if (ReorderListFull()) {
-            DEBUG_PRINT("List is full, dumping earliest!\n");
-
-            /* Write out the earliest one */
-            ReorderListDumpEarliest(wth, pdh);
-            ReorderListDebugPrint();
+        if (prevFrame && frames_compare(&newFrameRecord, &prevFrame) < 0) {
+           wrong_order_count++;
         }
+
+        g_ptr_array_add(frames, newFrameRecord);
+        prevFrame = newFrameRecord;
+    }
+    printf("%u frames, %u out of order\n", frames->len, wrong_order_count);
+
+    /* Sort the frames */
+    if (wrong_order_count > 0) {
+        g_ptr_array_sort(frames, frames_compare);
     }
 
-    /* Flush out the remaining (ordered) frames */
-    while (!ReorderListEmpty()) {
-        ReorderListDumpEarliest(wth, pdh);
-        ReorderListDebugPrint();
+    /* Write out each sorted frame in turn */
+    for (i = 0; i < frames->len; i++) {
+        FrameRecord_t *frame = frames->pdata[i];
+
+        /* Avoid writing if already sorted and configured to */
+        if (write_output_regardless || (wrong_order_count > 0)) {
+            frame_write(frame, wth, pdh);
+        }
+        g_slice_free(FrameRecord_t, frame);
     }
+
+    if (!write_output_regardless && (wrong_order_count == 0)) {
+        printf("Not writing output file because input file is already in order!\n");
+    }
+
+    /* Free the whole array */
+    g_ptr_array_free(frames, TRUE);
 
     /* Close outfile */
     if (!wtap_dump_close(pdh, &err)) {
         printf("Error closing %s: %s\n", outfile, wtap_strerror(err));
         exit(1);
     }
-
-    /* Write how many frames, and how many were out of order */
-    printf("%u frames, %u out of order\n", read_count, g_OutOfOrder);
 
     /* Finally, close infile */
     wtap_fdclose(wth);
