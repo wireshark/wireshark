@@ -8404,6 +8404,8 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       proto_tree_add_item(tree, hf_ieee80211_csa_channel_switch_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       proto_item_append_text(ti, ", Count: %d ", tvb_get_guint8(tvb, offset));
       offset += 1;
+
+      break;
     }
 
     case TAG_MEASURE_REQ: /* 7.3.2.21 Measurement Request element (38) with update from 802.11k-2008 */
