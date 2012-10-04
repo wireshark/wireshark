@@ -839,8 +839,7 @@ Stop.]]>
         (2005)</title>
         <para>There are three redistribution methods that MSDN
         mentions for MSVC 8 (see:
-        "<ulink url="http://msdn.microsoft.com/library/ms235316(VS.80).aspx">
-        Choosing a Deployment Method</ulink>"):
+        "<ulink url="http://msdn.microsoft.com/library/ms235316(VS.80).aspx">Choosing a Deployment Method</ulink>"):
         </para>
         <para>
           <orderedlist>
@@ -946,8 +945,7 @@ Stop.]]>
         <para>
           For Microsoft Visual C++ 2008 (MSVC 9), there are three
           redistribution methods that MSDN mentions (see:
-          "<ulink url="http://msdn.microsoft.com/en-US/library/ms235316(v=vs.90).aspx">
-          Choosing a Deployment Method</ulink>"), but only method 2 is
+          "<ulink url="http://msdn.microsoft.com/en-US/library/ms235316(v=vs.90).aspx">Choosing a Deployment Method</ulink>"), but only method 2 is
           used for Wireshark.  There are both 32-bit and 64-bit versions
           of the redistributables.
         </para>
@@ -1001,8 +999,7 @@ Stop.]]>
         <para>
           For Microsoft Visual C++ 2010 (MSVC 10), there are three
           redistribution methods that MSDN mentions (see:
-          "<ulink url="http://msdn.microsoft.com/en-US/library/ms235316(v=vs.100).aspx">
-          Choosing a Deployment Method</ulink>"), but only "Using Visual
+          "<ulink url="http://msdn.microsoft.com/en-US/library/ms235316(v=vs.100).aspx">Choosing a Deployment Method</ulink>"), but only "Using Visual
           C++ Redistributable Package" is used for Wireshark; that is
           the first method mentioned in "Choosing a Deployment Method",
           and is the one recommended by Microsoft.  There are both
