@@ -56,6 +56,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 #define SFLOW_UDP_PORTS "6343"
 
@@ -862,11 +863,13 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static gint
-dissect_sflow_245_address_type(tvbuff_t *tvb, proto_tree *tree, gint offset,
+dissect_sflow_245_address_type(tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree, gint offset,
                                struct sflow_address_type *hf_type,
                                struct sflow_address_details *addr_detail) {
     guint32 addr_type;
     int len;
+    proto_item *pi;
 
     addr_type = tvb_get_ntohl(tvb, offset);
     offset += 4;
@@ -881,15 +884,12 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, proto_tree *tree, gint offset,
         proto_tree_add_item(tree, hf_type->hf_addr_v6, tvb, offset, 16, ENC_NA);
         break;
     default:
-        /* acferen:  November 10, 2010
-         *
-         * We should never get here, but if we do we don't know
-         * the length for this address type.  Not knowing the
-         * length this default case is doomed to failure.  Might
-         * as well acknowledge that as soon as possible.
-         */
-        proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", addr_type);
-        return 0;               /* malformed packet */
+        /* unknown/invalid address type, we don't know the length
+           setting it to 0 is ok, offset is incremented by this function,
+           we won't get stuck in an endless loop */
+        len = 0;
+        pi = proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", addr_type);
+        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown/invalid address type");
     }
 
     if (addr_detail) {
@@ -924,10 +924,10 @@ dissect_sflow_245_extended_switch(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 
 /* extended router data, after the packet data */
 static gint
-dissect_sflow_245_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset) {
+dissect_sflow_245_extended_router(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
 
-    offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
+    offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
     proto_tree_add_item(tree, hf_sflow_245_nexthop_src_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_sflow_245_nexthop_dst_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -937,7 +937,7 @@ dissect_sflow_245_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 
 /* extended MPLS data */
 static gint
-dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, proto_tree *tree, gint offset) {
+dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     guint32 in_label_count, out_label_count, i, j;
     proto_tree *in_stack;
     proto_item *ti_in;
@@ -945,7 +945,7 @@ dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, proto_tree *tree, gint offset)
     proto_item *ti_out;
 
     struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
-    offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
+    offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
 
     in_label_count = tvb_get_ntohl(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 4, "In Label Stack Entries: %u", in_label_count);
@@ -980,22 +980,22 @@ dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 /* extended NAT data */
 static gint
-dissect_sflow_5_extended_nat(tvbuff_t *tvb, proto_tree *tree, gint offset) {
+dissect_sflow_5_extended_nat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     struct sflow_address_type addr_type = {hf_sflow_245_ipv4_src,
                                            hf_sflow_245_ipv6_src};
-    offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
+    offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
 
     addr_type.hf_addr_v4 = hf_sflow_245_ipv4_dst;
     addr_type.hf_addr_v6 = hf_sflow_245_ipv6_dst;
 
-    offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
+    offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
 
     return offset;
 }
 
 /* extended gateway data, after the packet data */
 static gint
-dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset) {
+dissect_sflow_245_extended_gateway(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     gint32 len = 0;
     gint32 i, j, comm_len, dst_len, dst_seg_len;
     guint32 path_type;
@@ -1011,7 +1011,7 @@ dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
     if (version == 5) {
         struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
 
-        offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
+        offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
     }
 
     proto_tree_add_item(tree, hf_sflow_245_as, tvb, offset + len, 4, ENC_BIG_ENDIAN);
@@ -1777,10 +1777,10 @@ dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
                 offset = dissect_sflow_245_extended_switch(tvb, extended_data_tree, offset);
                 break;
             case SFLOW_245_EXTENDED_ROUTER:
-                offset = dissect_sflow_245_extended_router(tvb, extended_data_tree, offset);
+                offset = dissect_sflow_245_extended_router(tvb, pinfo, extended_data_tree, offset);
                 break;
             case SFLOW_245_EXTENDED_GATEWAY:
-                offset = dissect_sflow_245_extended_gateway(tvb, extended_data_tree, offset);
+                offset = dissect_sflow_245_extended_gateway(tvb, pinfo, extended_data_tree, offset);
                 break;
             case SFLOW_245_EXTENDED_USER:
                 break;
@@ -1838,10 +1838,10 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset = dissect_sflow_245_extended_switch(tvb, flow_data_tree, offset);
                 break;
             case SFLOW_5_ROUTER:
-                offset = dissect_sflow_245_extended_router(tvb, flow_data_tree, offset);
+                offset = dissect_sflow_245_extended_router(tvb, pinfo, flow_data_tree, offset);
                 break;
             case SFLOW_5_GATEWAY:
-                offset = dissect_sflow_245_extended_gateway(tvb, flow_data_tree, offset);
+                offset = dissect_sflow_245_extended_gateway(tvb, pinfo, flow_data_tree, offset);
                 break;
             case SFLOW_5_USER:
                 offset = dissect_sflow_5_extended_user(tvb, flow_data_tree, offset);
@@ -1850,10 +1850,10 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset = dissect_sflow_5_extended_url(tvb, flow_data_tree, offset);
                 break;
             case SFLOW_5_MPLS_DATA:
-                offset = dissect_sflow_5_extended_mpls_data(tvb, flow_data_tree, offset);
+                offset = dissect_sflow_5_extended_mpls_data(tvb, pinfo, flow_data_tree, offset);
                 break;
             case SFLOW_5_NAT:
-                offset = dissect_sflow_5_extended_nat(tvb, flow_data_tree, offset);
+                offset = dissect_sflow_5_extended_nat(tvb, pinfo, flow_data_tree, offset);
                 break;
             case SFLOW_5_MPLS_TUNNEL:
                 offset = dissect_sflow_5_extended_mpls_tunnel(tvb, flow_data_tree, offset);
@@ -2679,7 +2679,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree_add_item(sflow_245_tree, hf_sflow_version, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    offset = dissect_sflow_245_address_type(tvb, sflow_245_tree, offset,
+    offset = dissect_sflow_245_address_type(tvb, pinfo, sflow_245_tree, offset,
                                             &addr_type, &addr_details);
     switch (addr_details.addr_type) {
         case ADDR_TYPE_IPV4:
