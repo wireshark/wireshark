@@ -102,37 +102,66 @@ rpcprogs_gen_title(void)
 }
 
 static void
+rpcprogs_init_table(GtkWidget *table_parent)
+{
+	GtkWidget *tmp;
+
+	table = gtk_table_new(1, 5, TRUE);
+	gtk_container_add(GTK_CONTAINER(table_parent), table);
+
+	tmp = gtk_label_new("Program");
+	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 0,1,0,1);
+	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
+
+	tmp = gtk_label_new("Version");
+	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 1,2,0,1);
+	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
+
+	tmp = gtk_label_new("Calls");
+	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 2,3,0,1);
+	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
+
+	tmp = gtk_label_new("Min SRT");
+	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 3,4,0,1);
+	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
+
+	tmp = gtk_label_new("Max SRT");
+	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 4,5,0,1);
+	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
+
+	tmp = gtk_label_new("Avg SRT");
+	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 5,6,0,1);
+	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
+}
+
+
+
+static void
 rpcprogs_reset(void *dummy _U_)
 {
+	GtkWidget     *table_parent;
 	rpc_program_t *rp;
 
-	while(prog_list) {
+	while (prog_list) {
 		rp = prog_list;
 		prog_list = prog_list->next;
-
-		gtk_widget_destroy(rp->wprogram);
-		rp->wprogram = NULL;
-		gtk_widget_destroy(rp->wversion);
-		rp->wversion = NULL;
-		gtk_widget_destroy(rp->wnum);
-		rp->wnum     = NULL;
-		gtk_widget_destroy(rp->wmin);
-		rp->wmin     = NULL;
-		gtk_widget_destroy(rp->wmax);
-		rp->wmax     = NULL;
-		gtk_widget_destroy(rp->wavg);
-		rp->wavg     = NULL;
 		g_free(rp);
 	}
-	gtk_table_resize(GTK_TABLE(table), 1, 6);
 	num_progs = 0;
+
+	table_parent = gtk_widget_get_parent(table);
+	gtk_widget_destroy(table); /* also destroys the widgets contained within the table */
+	table = NULL;
+
+	rpcprogs_init_table(table_parent);
+	gtk_widget_show(table);
+
 }
 
 static void
 add_new_program(rpc_program_t *rp)
 {
 	num_progs++;
-	gtk_table_resize(GTK_TABLE(table), num_progs+1, 6);
 
 	rp->wprogram = gtk_label_new("0");
 	gtk_table_attach_defaults(GTK_TABLE(table), rp->wprogram, 0, 1, num_progs, num_progs+1);
@@ -242,15 +271,15 @@ rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		rp->min.nsecs = delta.nsecs;
 	}
 
-	if ( (delta.secs<rp->min.secs)
-        ||   (  (delta.secs == rp->min.secs)
-             && (delta.nsecs < rp->min.nsecs) ) ) {
+	if ( (delta.secs < rp->min.secs)
+	||   (	(delta.secs == rp->min.secs)
+	     && (delta.nsecs < rp->min.nsecs) ) ) {
 		rp->min.secs  = delta.secs;
 		rp->min.nsecs = delta.nsecs;
 	}
 
-	if ( (delta.secs>rp->max.secs)
-        ||   (  (delta.secs == rp->max.secs)
+	if ( (delta.secs > rp->max.secs)
+	||   (	(delta.secs == rp->max.secs)
 	     && (delta.nsecs > rp->max.nsecs) ) ) {
 		rp->max.secs  = delta.secs;
 		rp->max.nsecs = delta.nsecs;
@@ -318,9 +347,9 @@ win_destroy_cb(void *dummy _U_, gpointer data _U_)
 
 	win = NULL;
 	for (rp=prog_list; rp;) {
-		rp2=rp->next;
+		rp2 = rp->next;
 		g_free(rp);
-		rp=rp2;
+		rp = rp2;
 	}
 	prog_list = NULL;
 }
@@ -334,7 +363,7 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 	char      *title_string;
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
-	GtkWidget *tmp;
+	GtkWidget *table_parent;
 	GString   *error_string;
 	GtkWidget *bt_close;
 	GtkWidget *bbox;
@@ -356,33 +385,13 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 	g_free(title_string);
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
 
+	/* wrap table in a dummy container so that the table can be */
+	/*  destroyed and re-created as needed.			    */
+	/* XXX: This is a kludge; Better: Use a GtkTreeView & etc.  */
+	table_parent = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, TRUE);
+	gtk_container_add(GTK_CONTAINER(vbox), table_parent);
 
-	table = gtk_table_new(1, 5, TRUE);
-	gtk_container_add(GTK_CONTAINER(vbox), table);
-
-	tmp = gtk_label_new("Program");
-	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 0,1,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
-
-	tmp = gtk_label_new("Version");
-	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 1,2,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-
-	tmp = gtk_label_new("Calls");
-	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 2,3,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-
-	tmp = gtk_label_new("Min SRT");
-	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 3,4,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-
-	tmp = gtk_label_new("Max SRT");
-	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 4,5,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-
-	tmp = gtk_label_new("Avg SRT");
-	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 5,6,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
+	rpcprogs_init_table(table_parent);
 
 	error_string = register_tap_listener("rpc", win, NULL, 0, rpcprogs_reset, rpcprogs_packet, rpcprogs_draw);
 	if (error_string) {
@@ -412,7 +421,7 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 void
 gtk_rpcprogs_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-	gtk_rpcprogs_init("",NULL);
+	gtk_rpcprogs_init("", NULL);
 }
 
 void
