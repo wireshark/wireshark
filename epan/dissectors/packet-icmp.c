@@ -1624,15 +1624,15 @@ proto_register_icmp(void)
         NULL, HFILL }},
 
     { &hf_icmp_resp_in,
-      { "Response In", "icmp.resp_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-        "The response to this request is in this frame", HFILL }},
+      { "Response frame", "icmp.resp_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "The frame number of the corresponding response", HFILL }},
 
     { &hf_icmp_resp_to,
-      { "Response To", "icmp.resp_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-        "This is the response to the request in this frame", HFILL }},
+      { "Request frame", "icmp.resp_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "The frame number of the corresponding request", HFILL }},
 
     { &hf_icmp_resptime,
-      { "Response Time", "icmp.resptime", FT_DOUBLE, BASE_NONE, NULL, 0x0,
+      { "Response time", "icmp.resptime", FT_DOUBLE, BASE_NONE, NULL, 0x0,
         "The time between the request and the response, in ms.", HFILL }},
 
     { &hf_icmp_data_time,
