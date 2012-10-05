@@ -2594,7 +2594,7 @@ pre_init_prefs(void)
   prefs.st_server_bg.red           = 60909;
   prefs.st_server_bg.green         = 60909;
   prefs.st_server_bg.blue          = 64507;
-  prefs.gui_geometry_save_position = FALSE;
+  prefs.gui_geometry_save_position = TRUE;
   prefs.gui_geometry_save_size     = TRUE;
   prefs.gui_geometry_save_maximized= TRUE;
   prefs.gui_macosx_style           = TRUE;
