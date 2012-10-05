@@ -376,18 +376,16 @@ window_set_geometry(GtkWidget         *widget,
          * other.
          *
          * If the requested (x,y) position isn't within the monitor's
-         * viewable area, change it to the viewable area's (0,0). */
-
+         * viewable area, change it to the viewable area's (x,y). */
         default_screen = gdk_screen_get_default();
         monitor_num = gdk_screen_get_monitor_at_point(default_screen,
                                                       geom->x, geom->y);
         gdk_screen_get_monitor_geometry(default_screen, monitor_num,
                                         &viewable_area);
-
-        if(geom->x < viewable_area.x || geom->x > viewable_area.width)
+        if(geom->x < viewable_area.x || geom->x > (viewable_area.x + viewable_area.width))
             geom->x = viewable_area.x;
 
-        if(geom->y < viewable_area.y || geom->y > viewable_area.height)
+        if(geom->y < viewable_area.y || geom->y > (viewable_area.y + viewable_area.height))
             geom->y = viewable_area.y;
 
         gtk_window_move(GTK_WINDOW(widget),
@@ -709,8 +707,8 @@ pipe_timer_cb(gpointer data)
         handle = (HANDLE)_get_osfhandle(pipe_input->source);
         result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
 
-        /* Get the child process exit status */   
-	GetExitCodeProcess((HANDLE)*(pipe_input->child_process), &childstatus); 
+        /* Get the child process exit status */
+        GetExitCodeProcess((HANDLE)*(pipe_input->child_process), &childstatus);
 
         /* If the Peek returned an error, or there are bytes to be read
            or the childwatcher thread has terminated then call the normal
