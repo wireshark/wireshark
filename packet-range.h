@@ -28,11 +28,16 @@
 #ifndef __PACKET_RANGE_H__
 #define __PACKET_RANGE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <glib.h>
 
-#include <epan/frame_data.h>
-
 #include <epan/range.h>
+
+#include "cfile.h"
+
 
 extern guint32  curr_selected_frame;
 
@@ -59,14 +64,13 @@ typedef struct packet_range_tag {
     guint32  selected_packet;       /* the currently selected packet */
 
     /* current packet counts (captured) */
-    /* cfile.count */               /* packets in capture file */
-    /* cfile.marked_count */        /* packets marked */
-    guint32  mark_range_cnt;        /* packets in marked range */
-    guint32  user_range_cnt;        /* packets in user specified range */
-    guint32  ignored_cnt;           /* packets ignored */
-    guint32  ignored_marked_cnt;    /* packets ignored and marked */
-    guint32  ignored_mark_range_cnt;/* packets ignored in marked range */
-    guint32  ignored_user_range_cnt;/* packets ignored in user specified range */
+    capture_file *cf;                     /* Associated capture file. */
+    guint32       mark_range_cnt;         /* packets in marked range */
+    guint32       user_range_cnt;         /* packets in user specified range */
+    guint32       ignored_cnt;            /* packets ignored */
+    guint32       ignored_marked_cnt;     /* packets ignored and marked */
+    guint32       ignored_mark_range_cnt; /* packets ignored in marked range */
+    guint32       ignored_user_range_cnt; /* packets ignored in user specified range */
 
     /* current packet counts (displayed) */
     guint32  displayed_cnt;
@@ -92,7 +96,7 @@ typedef enum {
 } range_process_e;
 
 /* init the range structure */
-extern void packet_range_init(packet_range_t *range);
+extern void packet_range_init(packet_range_t *range, capture_file *cf);
 
 /* check whether the packet range is OK */
 extern convert_ret_t packet_range_check(packet_range_t *range);
@@ -108,5 +112,9 @@ extern range_process_e packet_range_process_packet(packet_range_t *range, frame_
 
 /* convert user given string to the internal user specified range representation */
 extern void packet_range_convert_str(packet_range_t *range, const gchar *es);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __PACKET_RANGE_H__ */

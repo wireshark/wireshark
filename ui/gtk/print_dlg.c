@@ -145,7 +145,7 @@ file_print_cmd(gboolean print_selected)
   }
 
   /* init the printing range */
-  packet_range_init(&args->range);
+  packet_range_init(&args->range, &cfile);
   args->range.process_filtered = TRUE;
 
   if(print_selected) {
@@ -213,7 +213,7 @@ export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   }
 
   /* init the printing range */
-  packet_range_init(&args->range);
+  packet_range_init(&args->range, &cfile);
   args->range.process_filtered = TRUE;
 
   export_text_win = open_print_dialog("Wireshark: Export as \"Plain Text\" File", output_action_export_text, args);
@@ -267,7 +267,7 @@ export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   }
 
   /* init the printing range */
-  packet_range_init(&args->range);
+  packet_range_init(&args->range, &cfile);
   args->range.process_filtered = TRUE;
 
   export_ps_win = open_print_dialog("Wireshark: Export as \"PostScript\" file", output_action_export_ps, args);
@@ -321,7 +321,7 @@ export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   }
 
   /* init the printing range */
-  packet_range_init(&args->range);
+  packet_range_init(&args->range, &cfile);
   args->range.process_filtered = TRUE;
 
   export_psml_win = open_print_dialog("Wireshark: Export as \"PSML\" file", output_action_export_psml, args);
@@ -374,7 +374,7 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   }
 
   /* init the printing range */
-  packet_range_init(&args->range);
+  packet_range_init(&args->range, &cfile);
   args->range.process_filtered = TRUE;
 
   export_pdml_win = open_print_dialog("Wireshark: Export as \"PDML\" file", output_action_export_pdml, args);
@@ -426,7 +426,7 @@ export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   }
 
   /* init the printing range */
-  packet_range_init(&args->range);
+  packet_range_init(&args->range, &cfile);
   args->range.process_filtered = TRUE;
 
   export_csv_win = open_print_dialog("Wireshark: Export as \"Comma Separated Values\" File", output_action_export_csv, args);
@@ -478,7 +478,7 @@ export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   }
 
   /* init the printing range */
-  packet_range_init(&args->range);
+  packet_range_init(&args->range, &cfile);
   args->range.process_filtered = TRUE;
 
   export_carrays_win = open_print_dialog("Wireshark: Export as \"C Arrays\" File",

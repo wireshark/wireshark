@@ -32,15 +32,16 @@
 
 #include <gtk/gtk.h>
 
-#include "packet-range.h"
 #include <epan/filesystem.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 
-#include "../globals.h"
-#include "../color.h"
-#include "../color_filters.h"
-#include "../merge.h"
+#include "packet-range.h"
+#include "globals.h"
+#include "color.h"
+#include "color_filters.h"
+#include "merge.h"
+
 #include "ui/util.h"
 #include <wsutil/file_util.h>
 
@@ -1975,6 +1976,7 @@ gtk_export_specified_packets_file(GtkWidget *w _U_, GString *file_name, int *fil
  * <platform/>_export_specified_packets_file routines should upon entry...
  *   Set the path and fill in the filename if the path+filename is provided.
  * ...and upon exit...
+ *   Not initialize range.
  *   Return TRUE on "OK" and "FALSE" on "Cancel".
  *   Close the window.
  */
@@ -1991,7 +1993,7 @@ file_export_specified_packets_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
   GtkWidget *msg_dialog;
 
   /* init the packet range */
-  packet_range_init(&range);
+  packet_range_init(&range, &cfile);
   range.process_filtered = TRUE;
   range.include_dependents = TRUE;
 

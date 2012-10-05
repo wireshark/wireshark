@@ -29,7 +29,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-
 typedef struct _fileset_entry {
   char     *fullname;      /* File name with path (g_strdup'ed) */
   char     *name;          /* File name without path (g_strdup'ed) */

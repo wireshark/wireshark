@@ -2543,7 +2543,7 @@ process_packet_first_pass(capture_file *cf,
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
-    if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
+    if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
         gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns)
       /* Grab any resolved addresses */
       host_name_lookup_process();
@@ -2608,7 +2608,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
-    if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
+    if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
         gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns)
       /* Grab any resolved addresses */
       host_name_lookup_process();
@@ -3063,7 +3063,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
-    if (print_packet_info && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
+    if (print_packet_info && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
         gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns))
       /* Grab any resolved addresses */
       host_name_lookup_process();
@@ -3465,7 +3465,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       print_args.format = print_format;
       print_args.print_summary = !verbose;
       print_args.print_formfeed = FALSE;
-      packet_range_init(&print_args.range);
+      packet_range_init(&print_args.range, &cfile);
       */
       print_args.print_hex = verbose && print_hex;
       print_args.print_dissections = verbose ? print_dissections_expanded : print_dissections_none;

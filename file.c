@@ -2327,7 +2327,7 @@ cf_retap_packets(capture_file *cf)
 
   /* Iterate through the list of packets, dissecting all packets and
      re-running the taps. */
-  packet_range_init(&range);
+  packet_range_init(&range, cf);
   packet_range_process_init(&range);
   switch (process_specified_packets(cf, &range, "Recalculating statistics on",
                                     "all packets", TRUE, retap_packet,

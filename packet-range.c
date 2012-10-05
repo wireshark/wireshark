@@ -35,8 +35,6 @@
 
 #include <epan/frame_data.h>
 
-#include "globals.h"
-
 #include "packet-range.h"
 
 /* (re-)calculate the packet counts (except the user specified range) */
@@ -70,6 +68,8 @@ static void packet_range_calc(packet_range_t *range) {
     range->displayed_ignored_mark_range_cnt = 0L;
     range->displayed_ignored_user_range_cnt = 0L;
 
+    g_assert(range->cf != NULL);
+
     /* XXX - this doesn't work unless you have a full set of frame_data
      * structures for all packets in the capture, which is not,
      * for example, the case when TShark is doing a one-pass
@@ -81,7 +81,7 @@ static void packet_range_calc(packet_range_t *range) {
      * the capture_file structure, updating them whenever we
      * filter the display, etc..
      */
-    if (cfile.frames != NULL) {
+    if (range->cf->frames != NULL) {
         /* The next for-loop is used to obtain the amount of packets
          * to be processed and is used to present the information in
          * the Save/Print As widget.
@@ -91,10 +91,10 @@ static void packet_range_calc(packet_range_t *range) {
          * data must be entered in the widget by the user.
          */
 
-        for(framenum = 1; framenum <= cfile.count; framenum++) {
-            packet = frame_data_sequence_find(cfile.frames, framenum);
+        for(framenum = 1; framenum <= range->cf->count; framenum++) {
+            packet = frame_data_sequence_find(range->cf->frames, framenum);
 
-            if (cfile.current_frame == packet) {
+            if (range->cf->current_frame == packet) {
                 range->selected_packet = framenum;
             }
             if (packet->flags.passed_dfilter) {
@@ -136,8 +136,8 @@ static void packet_range_calc(packet_range_t *range) {
             }
         }
 
-        for(framenum = 1; framenum <= cfile.count; framenum++) {
-            packet = frame_data_sequence_find(cfile.frames, framenum);
+        for(framenum = 1; framenum <= range->cf->count; framenum++) {
+            packet = frame_data_sequence_find(range->cf->frames, framenum);
 
             if (framenum >= mark_low &&
                 framenum <= mark_high)
@@ -162,7 +162,7 @@ static void packet_range_calc(packet_range_t *range) {
 
 #if 0
         /* in case we marked just one packet, we add 1. */
-        if (cfile.marked_count != 0) {
+        if (range->cf->marked_count != 0) {
             range->mark_range = mark_high - mark_low + 1;
         }
 
@@ -185,6 +185,8 @@ static void packet_range_calc_user(packet_range_t *range) {
     range->displayed_user_range_cnt   = 0L;
     range->displayed_ignored_user_range_cnt = 0L;
 
+    g_assert(range->cf != NULL);
+
     /* XXX - this doesn't work unless you have a full set of frame_data
      * structures for all packets in the capture, which is not,
      * for example, the case when TShark is doing a one-pass
@@ -204,9 +206,9 @@ static void packet_range_calc_user(packet_range_t *range) {
      * help, but if the user specified about *half* the packets in
      * the range, that won't help, either.
      */
-    if (cfile.frames != NULL) {
-        for(framenum = 1; framenum <= cfile.count; framenum++) {
-            packet = frame_data_sequence_find(cfile.frames, framenum);
+    if (range->cf->frames != NULL) {
+        for(framenum = 1; framenum <= range->cf->count; framenum++) {
+            packet = frame_data_sequence_find(range->cf->frames, framenum);
 
             if (value_is_in_range(range->user_range, framenum)) {
                 range->user_range_cnt++;
@@ -226,12 +228,12 @@ static void packet_range_calc_user(packet_range_t *range) {
 
 
 /* init the range struct */
-void packet_range_init(packet_range_t *range) {
+void packet_range_init(packet_range_t *range, capture_file *cf) {
 
-    range->process            = range_process_all;
-    range->process_filtered   = FALSE;
-    range->remove_ignored     = FALSE;
-    range->user_range         = range_empty();
+    memset(range, 0, sizeof(packet_range_t));
+    range->process    = range_process_all;
+    range->user_range = range_empty();
+    range->cf         = cf;
 
     /* calculate all packet range counters */
     packet_range_calc(range);
@@ -273,6 +275,8 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
         return range_process_next;
     }
 
+    g_assert(range->cf != NULL);
+
     switch(range->process) {
     case(range_process_all):
         break;
@@ -280,7 +284,7 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
         if (range->selected_done) {
           return range_processing_finished;
         }
-        if (fdata->num != cfile.current_frame->num) {
+        if (fdata->num != range->cf->current_frame->num) {
           return range_process_next;
         }
         range->selected_done = TRUE;
@@ -343,7 +347,10 @@ void packet_range_convert_str(packet_range_t *range, const gchar *es)
 
     if (range->user_range != NULL)
         g_free(range->user_range);
-    ret = range_convert_str(&new_range, es, cfile.count);
+
+    g_assert(range->cf != NULL);
+
+    ret = range_convert_str(&new_range, es, range->cf->count);
     if (ret != CVT_NO_ERROR) {
         /* range isn't valid */
         range->user_range                 = NULL;

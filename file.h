@@ -25,14 +25,12 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
-#include "packet-range.h"
 #include "wiretap/wtap.h"
-#include <epan/dfilter/dfilter.h>
 #include "print.h"
 #include <errno.h>
 #include <epan/epan.h>
 
-#include "cfile.h"
+#include "packet-range.h"
 
 #ifdef __cplusplus
 extern "C" {
