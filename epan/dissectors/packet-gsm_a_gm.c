@@ -8161,12 +8161,12 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_gm_rac_fanr_cap,
 		  { "Fast Ack/Nack Reporting Capability", "gsm_a.gm.gmm.rac.fanr_cap",
-		    FT_UINT8, BASE_DEC, TFS(&tfs_supported_not_supported), 0x0,
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_ipa_cap,
 		  { "Immediate Packet Assignment Capability", "gsm_a.gm.gmm.rac.ipa_cap",
-		    FT_UINT8, BASE_DEC, TFS(&tfs_supported_not_supported), 0x0,
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_ti_flag,
