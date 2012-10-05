@@ -75,8 +75,9 @@ static gboolean global_analyze_samp_ip_headers = FALSE;
 
 #define ENTERPRISE_DEFAULT 0
 
-#define ADDR_TYPE_IPV4 1
-#define ADDR_TYPE_IPV6 2
+#define ADDR_TYPE_UNKNOWN 0
+#define ADDR_TYPE_IPV4    1
+#define ADDR_TYPE_IPV6    2
 
 #define FLOWSAMPLE 1
 #define COUNTERSSAMPLE 2
@@ -875,6 +876,9 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, packet_info *pinfo,
     offset += 4;
 
     switch (addr_type) {
+    case ADDR_TYPE_UNKNOWN:
+        len = 0;
+        break;
     case ADDR_TYPE_IPV4:
         len = 4;
         proto_tree_add_item(tree, hf_type->hf_addr_v4, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -884,9 +888,11 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(tree, hf_type->hf_addr_v6, tvb, offset, 16, ENC_NA);
         break;
     default:
-        /* unknown/invalid address type, we don't know the length
-           setting it to 0 is ok, offset is incremented by this function,
-           we won't get stuck in an endless loop */
+        /* Invalid address type, or a type we don't understand; we don't
+           know the length. W e treat it as having no contents; that
+           doesn't trap us in an endless loop, as we at least include
+           the address type and thus at least advance the offset by 4.
+           Note that we have a problem, though. */
         len = 0;
         pi = proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", addr_type);
         expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown/invalid address type");
@@ -2665,16 +2671,42 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     volatile guint offset = 0;
     guint          i      = 0;
 
+    /*
+     * We fetch the version and address type so that we can determine,
+     * ahead of time, whether this is an sFlow packet or not, before
+     * we do *anything* to the columns or the protocol tree.
+     *
+     * XXX - we might want to deem this "not sFlow" if we don't have at
+     * least 8 bytes worth of data.
+     */
+    version = tvb_get_ntohl(tvb, offset);
+    if (version != 2 && version != 4 && version != 5) {
+       /* Unknown version; assume it's not an sFlow packet. */
+       return 0;
+    }
+    addr_details.addr_type = tvb_get_ntohl(tvb, offset + 4);
+    switch (addr_details.addr_type) {
+        case ADDR_TYPE_UNKNOWN:
+        case ADDR_TYPE_IPV4:
+        case ADDR_TYPE_IPV6:
+            break;
+
+        default:
+            /*
+             * Address type we don't know about; assume it's not an sFlow
+             * packet.
+             */
+            return 0;
+    }
+
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "sFlow");
-
 
     /* create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_sflow, tvb, 0, -1, ENC_NA);
 
     sflow_245_tree = proto_item_add_subtree(ti, ett_sflow_245);
 
-    version = tvb_get_ntohl(tvb, offset);
     col_add_fstr(pinfo->cinfo, COL_INFO, "V%u", version);
     proto_tree_add_item(sflow_245_tree, hf_sflow_version, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -2682,6 +2714,8 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     offset = dissect_sflow_245_address_type(tvb, pinfo, sflow_245_tree, offset,
                                             &addr_type, &addr_details);
     switch (addr_details.addr_type) {
+        case ADDR_TYPE_UNKNOWN:
+            break;
         case ADDR_TYPE_IPV4:
             col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s", ip_to_str(addr_details.agent_address.v4));
             break;
@@ -2689,9 +2723,6 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s",
                     ip6_to_str((struct e_in6_addr *) addr_details.agent_address.v6));
             break;
-        default:
-            /* unknown address.  this will cause a malformed packet.  */
-            return 0;
     }
 
     if (version == 5) {
