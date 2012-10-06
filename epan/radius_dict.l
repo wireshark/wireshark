@@ -332,6 +332,7 @@ static void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_
 	radius_attr_info_t* a;
 	GHashTable* by_id;
 	guint32 code;
+	const gchar *tmpName = NULL;
 
 
 	if (current_attr){
@@ -377,12 +378,20 @@ static void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_
 	a->ett = -1;
 	a->tlvs_by_id = NULL;
 
-	if (a->name)
-		g_free((gpointer) a->name);
+	if (a->name) {
+		tmpName = a->name;
+	}
 	a->name = g_strdup(name);
 
 	g_hash_table_insert(by_id, GUINT_TO_POINTER(code),a);
 	g_hash_table_insert(dict->attrs_by_name,(gpointer) (a->name),a);
+
+	/* Don't free the old name until after the hash_table ops, since it
+	   seems to end up being used in there somewhere, causing valgrind
+	   errors. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7803 */
+	if (tmpName) {
+		g_free((gpointer) tmpName);
+	}
 }
 
 static void add_tlv(const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const gchar* current_attr) {
@@ -627,3 +636,16 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 int yywrap(void) {
     return 1;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
