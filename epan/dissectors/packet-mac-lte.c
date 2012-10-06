@@ -44,6 +44,8 @@ int proto_mac_lte = -1;
 
 static int mac_lte_tap = -1;
 
+static dissector_handle_t rlc_lte_handle;
+
 /* Decoding context */
 static int hf_mac_lte_context = -1;
 static int hf_mac_lte_context_radio_type = -1;
@@ -1875,9 +1877,6 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     tvbuff_t            *rb_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
     struct rlc_lte_info *p_rlc_lte_info;
 
-    /* Get RLC dissector handle */
-    volatile dissector_handle_t protocol_handle = find_dissector("rlc-lte");
-
     /* Resuse or create RLC info */
     p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
     if (p_rlc_lte_info == NULL) {
@@ -1915,7 +1914,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     s_number_of_rlc_pdus_shown++;
 
     /* Call it (catch exceptions so that stats will be updated) */
-    call_with_catch_all(protocol_handle, rb_tvb, pinfo, tree);
+    call_with_catch_all(rlc_lte_handle, rb_tvb, pinfo, tree);
 
     /* Let columns be written to again */
     col_set_writable(pinfo->cinfo, TRUE);
@@ -5840,6 +5839,9 @@ void proto_reg_handoff_mac_lte(void)
 
         /* Add as a heuristic UDP dissector */
         heur_dissector_add("udp", dissect_mac_lte_heur, proto_mac_lte);
+
+        /* Look up RLC dissector handle once and for all */
+        rlc_lte_handle = find_dissector("rlc-lte");
     }
 }
 

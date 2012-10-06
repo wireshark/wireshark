@@ -94,6 +94,8 @@ int proto_rlc_lte = -1;
 extern int proto_mac_lte;
 extern int proto_pdcp_lte;
 
+static dissector_handle_t pdcp_lte_handle;
+
 static int rlc_lte_tap = -1;
 
 /* Decoding context */
@@ -729,7 +731,6 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
             /* TODO: made static to avoid compiler warning... */
             static tvbuff_t *pdcp_tvb = NULL;
-            volatile dissector_handle_t protocol_handle;
             struct pdcp_lte_info *p_pdcp_lte_info;
 
             /* Get tvb for passing to LTE PDCP dissector */
@@ -787,12 +788,8 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
             p_pdcp_lte_info->rohc_compression = FALSE;
 
-
-            /* Get dissector handle */
-            protocol_handle = find_dissector("pdcp-lte");
-
             TRY {
-                call_dissector_only(protocol_handle, pdcp_tvb, pinfo, tree, NULL);
+                call_dissector_only(pdcp_lte_handle, pdcp_tvb, pinfo, tree, NULL);
             }
             CATCH_ALL {
             }
@@ -3340,4 +3337,6 @@ proto_reg_handoff_rlc_lte(void)
 {
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_rlc_lte_heur, proto_rlc_lte);
+
+    pdcp_lte_handle = find_dissector("pdcp-lte");
 }
