@@ -101,13 +101,6 @@ static int hf_catapult_dct2000_lte_ccpri_opcode = -1;
 static int hf_catapult_dct2000_lte_ccpri_status = -1;
 static int hf_catapult_dct2000_lte_ccpri_channel = -1;
 
-static int hf_catapult_dct2000_lte_monitor_cpu_user = -1;
-static int hf_catapult_dct2000_lte_monitor_cpu_sys = -1;
-static int hf_catapult_dct2000_lte_monitor_cpu_load = -1;
-static int hf_catapult_dct2000_lte_monitor_lte_scs_cpu_user = -1;
-static int hf_catapult_dct2000_lte_monitor_lte_scs_cpu_sys = -1;
-
-
 static int hf_catapult_dct2000_lte_nas_rrc_opcode = -1;
 static int hf_catapult_dct2000_lte_nas_rrc_establish_cause = -1;
 static int hf_catapult_dct2000_lte_nas_rrc_priority = -1;
@@ -2480,41 +2473,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                           "%s", string);
                 }
 
-                #define MONITOR_PREFIX ">> INFO ALL:    Monitor: CPU=["
-                if (strncmp(string, MONITOR_PREFIX, strlen(MONITOR_PREFIX)) == 0) {
-                    gint user_cpu, sys_cpu, load_cpu;
-                    gint memory_free, memory_load;
-                    gint lte_scs_user_cpu, lte_scs_system_cpu;
-                    int matched;
-                    matched = sscanf(string+strlen(MONITOR_PREFIX),
-                                     "User%%=%d Sys%%=%d Load%%=%d] Memory=[FreeMb=%d Load%%=%d] LTE_SCS_CPU=[User%%=%d Sys%%=%d]",
-                                     &user_cpu, &sys_cpu, &load_cpu,
-                                     &memory_free, &memory_load,
-                                     &lte_scs_user_cpu, &lte_scs_system_cpu);
-                    if (matched == 7) {
-                        /* Overall CPU */
-                        ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_cpu_user,
-                                                 tvb, 0, 0, user_cpu);
-                        PROTO_ITEM_SET_GENERATED(ti);
-
-                        ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_cpu_sys,
-                                                 tvb, 0, 0, sys_cpu);
-                        PROTO_ITEM_SET_GENERATED(ti);
-
-                        ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_cpu_load,
-                                                 tvb, 0, 0, load_cpu);
-                        PROTO_ITEM_SET_GENERATED(ti);
-
-                        /* LTE_SCS CPU */
-                        ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_lte_scs_cpu_user,
-                                                 tvb, 0, 0, lte_scs_user_cpu);
-                        PROTO_ITEM_SET_GENERATED(ti);
-
-                        ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_lte_scs_cpu_sys,
-                                                 tvb, 0, 0, lte_scs_system_cpu);
-                        PROTO_ITEM_SET_GENERATED(ti);
-                    }
-                }
                 return;
             }
 
@@ -3195,37 +3153,6 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_lte_ccpri_channel,
             { "Channel",
               "dct2000.lte.ccpri.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
-              NULL, HFILL
-            }
-        },
-
-        { &hf_catapult_dct2000_lte_monitor_cpu_user,
-            { "User CPU",
-              "dct2000.lte.monitor.cpu.user", FT_UINT32, BASE_DEC, NULL, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_catapult_dct2000_lte_monitor_cpu_sys,
-            { "Sys CPU",
-              "dct2000.lte.monitor.cpu.sys", FT_UINT32, BASE_DEC, NULL, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_catapult_dct2000_lte_monitor_cpu_load,
-            { "Load CPU",
-              "dct2000.lte.monitor.cpu.load", FT_UINT32, BASE_DEC, NULL, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_catapult_dct2000_lte_monitor_lte_scs_cpu_user,
-            { "lte-scs User CPU",
-              "dct2000.lte.monitor.lte-scs.cpu.user", FT_UINT32, BASE_DEC, NULL, 0x0,
-              NULL, HFILL
-            }
-        },
-        { &hf_catapult_dct2000_lte_monitor_lte_scs_cpu_sys,
-            { "lte-scs Sys CPU",
-              "dct2000.lte.monitor.lte-scs.cpu.sys", FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL
             }
         },
