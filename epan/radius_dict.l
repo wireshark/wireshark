@@ -266,6 +266,9 @@
 	if (!yyin) {
 		if (errno) {
 			g_string_append_printf(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], g_strerror(errno) );
+			g_free(fullpaths[include_stack_ptr]);
+			fullpaths[include_stack_ptr] = NULL;
+			include_stack_ptr--;
 			yyterminate();
 		}
 	} else {
