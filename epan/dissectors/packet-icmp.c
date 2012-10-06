@@ -58,7 +58,8 @@ static int hf_icmp_data_time = -1;
 static int hf_icmp_data_time_relative = -1;
 
 typedef struct _icmp_conv_info_t {
-    emem_tree_t *pdus;
+    emem_tree_t *unmatched_pdus;
+    emem_tree_t *matched_pdus;
 } icmp_conv_info_t;
 
 static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, guint32 *key);
@@ -946,13 +947,15 @@ dissect_extensions(tvbuff_t *tvb, gint offset, proto_tree *tree)
 
     } /* end while */
 } /* end dissect_extensions */
+
+#include <stdio.h>
 /* ======================================================================= */
 static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, guint32 *key)
 {
     conversation_t *conversation;
     icmp_conv_info_t *icmp_info;
     icmp_transaction_t *icmp_trans;
-    emem_tree_key_t icmp_key[2];
+    emem_tree_key_t icmp_key[3];
     proto_item *it;
 
     /* Handle the conversation tracking */
@@ -961,37 +964,51 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
     if ( icmp_info == NULL )
     {
         icmp_info = se_alloc(sizeof(icmp_conv_info_t));
-        icmp_info->pdus = se_tree_create_non_persistent(
-            EMEM_TREE_TYPE_RED_BLACK, "icmp_pdus");
+        icmp_info->unmatched_pdus = se_tree_create_non_persistent(
+            EMEM_TREE_TYPE_RED_BLACK, "icmp_unmatched_pdus");
+        icmp_info->matched_pdus = se_tree_create_non_persistent(
+            EMEM_TREE_TYPE_RED_BLACK, "icmp_matched_pdus");
         conversation_add_proto_data(conversation, proto_icmp, icmp_info);
     }
 
-    icmp_key[0].length = 2;
-    icmp_key[0].key = key;
-    icmp_key[1].length = 0;
-    icmp_key[1].key = NULL;
-    if ( !PINFO_FD_VISITED(pinfo) )
-    {
+    if ( !PINFO_FD_VISITED(pinfo) ) {
+        /* this is a new request, create a new transaction structure and map it to the 
+	   unmatched table
+	 */
+	icmp_key[0].length = 2;
+	icmp_key[0].key = key;
+	icmp_key[1].length = 0;
+	icmp_key[1].key = NULL;
+
         icmp_trans = se_alloc(sizeof(icmp_transaction_t));
         icmp_trans->rqst_frame = PINFO_FD_NUM(pinfo);
         icmp_trans->resp_frame = 0;
         icmp_trans->rqst_time = pinfo->fd->abs_ts;
         nstime_set_zero(&icmp_trans->resp_time);
-        se_tree_insert32_array(icmp_info->pdus, icmp_key, (void *)icmp_trans);
-    }
-    else /* Already visited this frame */
-        icmp_trans = se_tree_lookup32_array(icmp_info->pdus, icmp_key);
+        se_tree_insert32_array(icmp_info->unmatched_pdus, icmp_key, (void *)icmp_trans);
+    } else {
+        /* Already visited this frame */
+        guint32 frame_num = pinfo->fd->num;
 
+	icmp_key[0].length = 2;
+	icmp_key[0].key = key;
+	icmp_key[1].length = 1;
+	icmp_key[1].key = &frame_num;
+	icmp_key[2].length = 0;
+	icmp_key[2].key = NULL;
+
+        icmp_trans = se_tree_lookup32_array(icmp_info->matched_pdus, icmp_key);
+    }
     if ( icmp_trans == NULL )
         return (NULL);
 
     /* Print state tracking in the tree */
-    if ( icmp_trans->resp_frame &&
-        (icmp_trans->rqst_frame == PINFO_FD_NUM(pinfo)) )
-    {
+    if (icmp_trans->resp_frame) {
         it = proto_tree_add_uint(tree, hf_icmp_resp_in, NULL, 0, 0,
             icmp_trans->resp_frame);
         PROTO_ITEM_SET_GENERATED(it);
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (reply in %d)", icmp_trans->resp_frame);
     }
 
     return (icmp_trans);
@@ -1004,7 +1021,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
     conversation_t *conversation;
     icmp_conv_info_t *icmp_info;
     icmp_transaction_t *icmp_trans;
-    emem_tree_key_t icmp_key[2];
+    emem_tree_key_t icmp_key[3];
     proto_item *it;
     nstime_t ns;
     double resp_time;
@@ -1018,32 +1035,67 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
     if ( icmp_info == NULL )
         return (NULL);
 
-    icmp_key[0].length = 2;
-    icmp_key[0].key = key;
-    icmp_key[1].length = 0;
-    icmp_key[1].key = NULL;
-    icmp_trans = se_tree_lookup32_array(icmp_info->pdus, icmp_key);
-    if ( icmp_trans == NULL )
-        return (NULL);
+    if ( !PINFO_FD_VISITED(pinfo) ) {
+        guint32 frame_num;
 
-    /* Print state tracking in the tree */
-    if ( icmp_trans->rqst_frame &&
-        (icmp_trans->rqst_frame < PINFO_FD_NUM(pinfo)) &&
-        ((icmp_trans->resp_frame == 0) ||
-        (icmp_trans->resp_frame == PINFO_FD_NUM(pinfo))) )
-    {
+        icmp_key[0].length = 2;
+    	icmp_key[0].key = key;
+    	icmp_key[1].length = 0;
+    	icmp_key[1].key = NULL;
+    	icmp_trans = se_tree_lookup32_array(icmp_info->unmatched_pdus, icmp_key);
+    	if ( icmp_trans == NULL )
+    	    return (NULL);
+
+	/* we have already seen this response, or an identical one */
+	if (icmp_trans->resp_frame != 0)
+    	    return (NULL);
+
         icmp_trans->resp_frame = PINFO_FD_NUM(pinfo);
-        it = proto_tree_add_uint(tree, hf_icmp_resp_to, NULL, 0, 0,
-            icmp_trans->rqst_frame);
-        PROTO_ITEM_SET_GENERATED(it);
 
-        nstime_delta(&ns, &pinfo->fd->abs_ts, &icmp_trans->rqst_time);
-        icmp_trans->resp_time = ns;
-        resp_time = nstime_to_msec(&ns);
-        it = proto_tree_add_double_format_value(tree, hf_icmp_resptime, NULL,
-            0, 0, resp_time, "%.3f ms", resp_time);
-        PROTO_ITEM_SET_GENERATED(it);
+	/* we found a match. Add entries to the matched table for both request and reply frames
+	 */
+	icmp_key[0].length = 2;
+	icmp_key[0].key = key;
+	icmp_key[1].length = 1;
+	icmp_key[1].key = &frame_num;
+	icmp_key[2].length = 0;
+	icmp_key[2].key = NULL;
+
+	frame_num = icmp_trans->rqst_frame;
+        se_tree_insert32_array(icmp_info->matched_pdus, icmp_key, (void *)icmp_trans);
+
+	frame_num = icmp_trans->resp_frame;
+        se_tree_insert32_array(icmp_info->matched_pdus, icmp_key, (void *)icmp_trans);
+    } else {
+        /* Already visited this frame */
+        guint32 frame_num = pinfo->fd->num;
+
+	icmp_key[0].length = 2;
+	icmp_key[0].key = key;
+	icmp_key[1].length = 1;
+	icmp_key[1].key = &frame_num;
+	icmp_key[2].length = 0;
+	icmp_key[2].key = NULL;
+
+        icmp_trans = se_tree_lookup32_array(icmp_info->matched_pdus, icmp_key);
+
+  	if ( icmp_trans == NULL )
+    	    return (NULL);
     }
+
+
+    it = proto_tree_add_uint(tree, hf_icmp_resp_to, NULL, 0, 0,
+            icmp_trans->rqst_frame);
+    PROTO_ITEM_SET_GENERATED(it);
+
+    nstime_delta(&ns, &pinfo->fd->abs_ts, &icmp_trans->rqst_time);
+    icmp_trans->resp_time = ns;
+    resp_time = nstime_to_msec(&ns);
+    it = proto_tree_add_double_format_value(tree, hf_icmp_resptime, NULL,
+            0, 0, resp_time, "%.3f ms", resp_time);
+    PROTO_ITEM_SET_GENERATED(it);
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (request in %d)", icmp_trans->rqst_frame);
 
     return (icmp_trans);
 
