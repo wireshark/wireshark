@@ -5829,9 +5829,6 @@ void proto_register_mac_lte(void)
 
 void proto_reg_handoff_mac_lte(void)
 {
-    dissector_handle_t mac_lte_handle;
-    mac_lte_handle = find_dissector("mac-lte");
-
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_mac_lte_heur, proto_mac_lte);
 
