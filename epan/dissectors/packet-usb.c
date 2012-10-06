@@ -1876,7 +1876,8 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint8  transfer_type;
     guint8  endpoint_number;
     guint8  transfer_type_and_direction;
-    guint8  type, flag;
+    guint8  type;
+    guint8  flag[2];
     guint16 val16;
     guint32 val32;
     guint64 val64;
@@ -1909,20 +1910,22 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
      * sizeof(struct usb_device_setup_hdr) bytes. The content of these
      * bytes only have meaning in case setup_flag == 0.
      */
-    flag = tvb_get_guint8(tvb, 14);
-    if (flag == 0) {
+    flag[0] = tvb_get_guint8(tvb, 14);
+    flag[1] = '\0';
+    if (flag[0] == 0) {
         proto_tree_add_string(tree, hf_usb_setup_flag, tvb, 14, 1, "relevant (0)");
     } else {
         proto_tree_add_string_format_value(tree, hf_usb_setup_flag, tvb,
-            14, 1, &flag, "not relevant ('%c')", isprint(flag) ? flag: '.');
+            14, 1, flag, "not relevant ('%c')", isprint(flag[0]) ? flag[0]: '.');
     }
 
-    flag = tvb_get_guint8(tvb, 15);
-    if (flag == 0) {
+    flag[0] = tvb_get_guint8(tvb, 15);
+    flag[1] = '\0';
+    if (flag[0] == 0) {
         proto_tree_add_string(tree, hf_usb_data_flag, tvb, 15, 1, "present (0)");
     } else {
         proto_tree_add_string_format_value(tree, hf_usb_data_flag, tvb,
-            15, 1, &flag, "not present ('%c')", isprint(flag) ? flag : '.');
+            15, 1, flag, "not present ('%c')", isprint(flag[0]) ? flag[0] : '.');
     }
 
     tvb_memcpy(tvb, (guint8 *)&val64, 16, 8);
