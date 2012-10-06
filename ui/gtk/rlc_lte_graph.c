@@ -95,13 +95,21 @@ struct irect {
 
 typedef enum {
     ELMT_NONE=0,
-    ELMT_LINE=1
+    ELMT_LINE=1,
+    ELMT_ELLIPSE=2
 } ElementType;
 
 struct line_params {
     struct line dim;
 };
 
+struct rect {
+    double x, y, width, height;
+};
+
+struct ellipse_params {
+    struct rect dim;
+};
 
 struct element {
     ElementType type;
@@ -109,6 +117,7 @@ struct element {
     struct segment *parent;
     union {
         struct line_params line;
+        struct ellipse_params ellipse;
     } p;
 };
 
@@ -249,7 +258,7 @@ static int refnum=0;
 #define DBS_GRAPH_DRAWING	(1 << 3)
 #define DBS_TPUT_ELMTS		(1 << 4)
 /*int debugging = DBS_FENTRY;*/
-/*static int debugging = 1; */
+/* static int debugging = 1; */
 /*int debugging = DBS_AXES_TICKS;*/
 /*int debugging = DBS_AXES_DRAWING;*/
 /*int debugging = DBS_GRAPH_DRAWING;*/
@@ -272,6 +281,7 @@ static void graph_destroy(struct graph * );
 static void graph_initialize_values(struct graph * );
 static void graph_init_sequence(struct graph * );
 static void draw_element_line(struct graph * , struct element * ,  cairo_t * , GdkColor *new_color);
+static void draw_element_ellipse(struct graph * , struct element * , cairo_t *cr);
 static void graph_display(struct graph * );
 static void graph_pixmaps_create(struct graph * );
 static void graph_pixmaps_switch(struct graph * );
@@ -287,6 +297,7 @@ static void graph_segment_list_get(struct graph * );
 static void graph_segment_list_free(struct graph * );
 static void graph_select_segment(struct graph * , int , int );
 static int line_detect_collision(struct element * , int , int );
+static int ellipse_detect_collision(struct element *e, int x, int y);
 static void axis_pixmaps_create(struct axis * );
 static void axis_pixmaps_switch(struct axis * );
 static void axis_display(struct axis * );
@@ -426,20 +437,17 @@ static void create_drawing_area(struct graph *g)
 #endif
     char *display_name;
     char window_title[WINDOW_TITLE_LENGTH];
-    struct segment current;
-    rlc_lte_tap_info *thdr;
     GtkAllocation widget_alloc;
 
     debug(DBS_FENTRY) puts("create_drawing_area()");
-    thdr=select_rlc_lte_session(&cfile, &current);
     display_name = cf_get_display_name(&cfile);
     /* Set channel details in title */
-	g_snprintf(window_title, WINDOW_TITLE_LENGTH, "LTE RLC Graph %d: %s (UE-%u, chan=%s%u %s - %s)",
-			   refnum, display_name,
-               thdr->ueid, (thdr->channelType == CHANNEL_TYPE_SRB) ? "SRB" : "DRB",
-               thdr->channelId,
-               (thdr->direction == DIRECTION_UPLINK) ? "UL" : "DL",
-               (thdr->rlcMode == RLC_UM_MODE) ? "UM" : "AM");
+    g_snprintf(window_title, WINDOW_TITLE_LENGTH, "LTE RLC Graph %d: %s (UE-%u, chan=%s%u %s - %s)",
+               refnum, display_name,
+               g->current->ueid, (g->current->channelType == CHANNEL_TYPE_SRB) ? "SRB" : "DRB",
+               g->current->channelId,
+               (g->current->direction == DIRECTION_UPLINK) ? "UL" : "DL",
+               (g->current->rlcMode == RLC_UM_MODE) ? "UM" : "AM");
     g_free(display_name);
     g->toplevel = dlg_window_new("RLC Graph");
     gtk_window_set_title(GTK_WINDOW(g->toplevel), window_title);
@@ -621,7 +629,7 @@ static void graph_initialize_values(struct graph *g)
     g->zoom.x = g->zoom.y = 1.0;
 
     /* Zooming in step - set same for both dimensions */
-    g->zoom.step_x = g->zoom.step_y = 1.1;
+    g->zoom.step_x = g->zoom.step_y = 1.15;
     g->zoom.flags = 0;
 
     g->cross.draw = g->cross.erase_needed = 0;
@@ -870,7 +878,7 @@ static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment
     error_string = register_tap_listener("rlc-lte", &th, NULL, 0, NULL, tap_lte_rlc_packet, NULL);
     if (error_string){
         fprintf(stderr, "wireshark: Couldn't register rlc_lte_graph tap: %s\n",
-            error_string->str);
+                error_string->str);
         g_string_free(error_string, TRUE);
         exit(1);
     }
@@ -1120,9 +1128,10 @@ static void graph_pixmap_draw(struct graph *g)
     int not_disp;
     cairo_t *cr;
 
-    cairo_t *cr_lines;
+    cairo_t *cr_elements;
     GdkColor *current_color = NULL;
     GdkColor *color_to_set = NULL;
+    gboolean line_stroked = TRUE;
 
     debug(DBS_FENTRY) puts("graph_display()");
     not_disp = 1 ^ g->displayed;
@@ -1140,19 +1149,25 @@ static void graph_pixmap_draw(struct graph *g)
     /* Create one cairo_t for use with all of the lines, rather than continually
        creating and destroying one for each line */
 #if GTK_CHECK_VERSION(2,22,0)
-    cr_lines = cairo_create(g->surface[not_disp]);
+    cr_elements = cairo_create(g->surface[not_disp]);
 #else
-    cr_lines = gdk_cairo_create(g->pixmap[not_disp]);
+    cr_elements = gdk_cairo_create(g->pixmap[not_disp]);
 #endif
 
+    /* N.B. This makes drawing circles take half the time of the default setting.
+       Changing from the default fill rule didn't make any noticable difference
+       though */
+    cairo_set_tolerance(cr_elements, 1.0);
+
     /* Line width is always 1 pixel */
-    cairo_set_line_width(cr_lines, 1.0);
+    cairo_set_line_width(cr_elements, 1.0);
 
     /* Draw all elements */
     for (list=g->elists; list; list=list->next) {
         for (e=list->elements; e->type != ELMT_NONE; e++) {
             switch (e->type) {
                 case ELMT_LINE:
+
                     /* Work out if we need to change colour */
                     if (current_color == e->elment_color_p) {
                         /* No change needed */
@@ -1161,22 +1176,37 @@ static void graph_pixmap_draw(struct graph *g)
                     else {
                         /* Changing colour */
                         current_color = color_to_set = e->elment_color_p;
+                        cairo_stroke(cr_elements);
                     }
 
                     /* Draw the line */
-                    draw_element_line(g, e, cr_lines, color_to_set);
+                    draw_element_line(g, e, cr_elements, color_to_set);
+                    line_stroked = FALSE;
                     break;
+
+                case ELMT_ELLIPSE:
+                    if (!line_stroked) {
+                        cairo_stroke(cr_elements);
+                        line_stroked = TRUE;
+                    }
+
+                    draw_element_ellipse(g, e, cr_elements);
+                    break;
+
 
                 default:
                     /* No other element types supported at the moment */
                     break;
             }
         }
-    }
-    /* Make sure any remaining lines get drawn */
-    cairo_stroke(cr_lines);
 
-    cairo_destroy(cr_lines);
+        /* Make sure any remaining lines get drawn */
+        if (!line_stroked) {
+            cairo_stroke(cr_elements);
+        }
+    }
+
+    cairo_destroy(cr_elements);
 }
 
 static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
@@ -1192,7 +1222,6 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
     /* Set our new colour (if changed) */
     if (new_color != NULL) {
         /* First draw any previous lines with old colour */
-        cairo_stroke(cr);
         gdk_cairo_set_source_color(cr, new_color);
     }
 
@@ -1218,6 +1247,25 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
     cairo_move_to(cr, xx1+0.5, yy1+0.5);
     cairo_line_to(cr, xx2+0.5, yy2+0.5);
 }
+
+static void draw_element_ellipse(struct graph *g, struct element *e, cairo_t *cr)
+{
+    gdouble w = e->p.ellipse.dim.width;
+    gdouble h = e->p.ellipse.dim.height;
+    gdouble x = e->p.ellipse.dim.x + g->geom.x - g->wp.x;
+    gdouble y = g->geom.height-1 - e->p.ellipse.dim.y + g->geom.y - g->wp.y;
+
+    debug(DBS_GRAPH_DRAWING) printf ("ellipse: (x, y) -> (w, h): (%f, %f) -> (%f, %f)\n", x, y, w, h);
+
+    cairo_save(cr);
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_translate(cr, x + w/2.0, y + h/2.0);
+    cairo_scale(cr, w/2.0, h/2.0);
+    cairo_arc(cr, 0.0, 0.0, 1.0, 0.0, 2*G_PI);
+    cairo_fill(cr);
+    cairo_restore(cr);
+}
+
 
 static void axis_pixmaps_create(struct axis *axis)
 {
@@ -1364,10 +1412,11 @@ static void v_axis_pixmap_draw(struct axis *axis)
             int y = (int) (g->geom.height-1 - (int )rint(i*minor_tick) -
                             offset + corr + axis->s.y);
 
-            if (y > 0 && y < axis->p.height)
+            if (y > 0 && y < axis->p.height) {
                 cairo_set_line_width(cr, 1.0);
                 cairo_move_to(cr, axis->s.width - 8, y+0.5);
                 cairo_line_to(cr, axis->s.width - 1, y+0.5);
+            }
         }
     }
     for (i=0; axis->label[i]; i++) {
@@ -1692,6 +1741,11 @@ static void graph_select_segment(struct graph *g, int x, int y)
                         num = e->parent->num;
                     }
                     break;
+                case ELMT_ELLIPSE:
+                    if (ellipse_detect_collision(e, x, y)) {
+                        num = e->parent->num;
+                    }
+                    break;
 
                 default:
                     break;
@@ -1737,6 +1791,26 @@ static int line_detect_collision(struct element *e, int x, int y)
         return FALSE;
     }
 }
+
+static int ellipse_detect_collision(struct element *e, int x, int y)
+{
+    int xx1, yy1, xx2, yy2;
+
+    xx1 = (int )rint (e->p.ellipse.dim.x);
+    xx2 = (int )rint (e->p.ellipse.dim.x + e->p.ellipse.dim.width);
+    yy1 = (int )rint (e->p.ellipse.dim.y - e->p.ellipse.dim.height);
+    yy2 = (int )rint (e->p.ellipse.dim.y);
+    /*
+    printf ("ellipse: (%d,%d)->(%d,%d), clicked: (%d,%d)\n", xx1, yy1, xx2, yy2, x, y);
+     */
+    if (xx1<=x && x<=xx2 && yy1<=y && y<=yy2) {
+        return TRUE;
+    }
+    else {
+        return FALSE;
+    }
+}
+
 
 
 static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event, gpointer user_data)	 
@@ -2471,13 +2545,11 @@ static void rlc_lte_make_elmtlist(struct graph *g)
     struct element *elements1, *e1;		/* list of elmts showing data */
     struct segment *last_status_segment = NULL;
     double xx0, yy0;
-    gboolean data_seen = FALSE;
     gboolean ack_seen = FALSE;
     guint32 seq_base;
     guint32 seq_cur;
     int n, data, acks, nacks;
 
-    double previous_data_x=0.0, previous_data_y=0.0;
     double previous_status_x=0.0, previous_status_y=0.0;
 
     debug(DBS_FENTRY) puts("rlc_lte_make_elmtlist()");
@@ -2491,7 +2563,7 @@ static void rlc_lte_make_elmtlist(struct graph *g)
         e0 = elements0 = (struct element *)g_malloc(n*sizeof(struct element));
 
         /* Allocate elements for data */
-        n = 1 + (5*data);
+        n = data+1;
         e1 = elements1 = (struct element *)g_malloc(n*sizeof(struct element));
 
         /* Allocate container for 2nd list of elements */
@@ -2521,74 +2593,23 @@ static void rlc_lte_make_elmtlist(struct graph *g)
         if (!tmp->isControlPDU) {
 
             /* DATA */
-            double yy1, yy2;
-            double xx1, xx2;
 
             /* seq_cur is SN */
             seq_cur = tmp->SN - seq_base;
 
             /* Work out positions around this SN */
-            #define DATA_CROSS_SIZE 2
+            #define DATA_BLOB_SIZE 4
             y = (g->zoom.y * seq_cur);
-            yy1 = y + DATA_CROSS_SIZE;
-            yy2 = y - DATA_CROSS_SIZE;
-            xx1 = x - DATA_CROSS_SIZE;
-            xx2 = x + DATA_CROSS_SIZE;
 
-            if (data_seen) {
-                /* Line from previous data point (if any) */
-                e1->type = ELMT_LINE;
-                e1->parent = tmp;     /* So line belongs to this frame... */
-                e1->elment_color_p = &g->style.seq_color;
-                e1->p.line.dim.x1 = previous_data_x;
-                e1->p.line.dim.y1 = previous_data_y;
-                e1->p.line.dim.x2 = x;
-                e1->p.line.dim.y2 = y;
-                e1++;
-            }
-
-            /* Diagonal lines */
-            e1->type = ELMT_LINE;
+            /* Circle for data point */
+            e1->type = ELMT_ELLIPSE;
             e1->parent = tmp;
             e1->elment_color_p = &g->style.seq_color;
-            e1->p.line.dim.x1 = xx1;
-            e1->p.line.dim.y1 = yy1;
-            e1->p.line.dim.x2 = xx2;
-            e1->p.line.dim.y2 = yy2;
+            e1->p.ellipse.dim.width = DATA_BLOB_SIZE;
+            e1->p.ellipse.dim.height = DATA_BLOB_SIZE;
+            e1->p.ellipse.dim.x = x;
+            e1->p.ellipse.dim.y = y;
             e1++;
-
-            e1->type = ELMT_LINE;
-            e1->parent = tmp;
-            e1->elment_color_p = &g->style.seq_color;
-            e1->p.line.dim.x1 = xx2;
-            e1->p.line.dim.y1 = yy1;
-            e1->p.line.dim.x2 = xx1;
-            e1->p.line.dim.y2 = yy2;
-            e1++;
-
-            /* Vertical */
-            e1->type = ELMT_LINE;
-            e1->parent = tmp;
-            e1->elment_color_p = &g->style.seq_color;
-            e1->p.line.dim.x1 = x;
-            e1->p.line.dim.y1 = yy1;
-            e1->p.line.dim.x2 = x;
-            e1->p.line.dim.y2 = yy2;
-            e1++;
-
-            /* Horizontal */
-            e1->type = ELMT_LINE;
-            e1->parent = tmp;
-            e1->elment_color_p = &g->style.seq_color;
-            e1->p.line.dim.x1 = xx2;
-            e1->p.line.dim.y1 = y;
-            e1->p.line.dim.x2 = xx1;
-            e1->p.line.dim.y2 = y;
-            e1++;
-
-            data_seen = TRUE;
-            previous_data_x = x;
-            previous_data_y = y;
         } else {
 
             /* Remember the last status segment */
