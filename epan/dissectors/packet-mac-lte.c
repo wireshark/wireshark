@@ -1106,7 +1106,6 @@ static GHashTable *mac_lte_sr_request_hash = NULL;
 
 
 /* Forward declarations */
-void proto_reg_handoff_mac_lte(void);
 void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static guint8 get_mac_lte_channel_priority(guint16 ueid _U_, guint8 lcid,
@@ -2119,7 +2118,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                         /* Could be as many as max-tx (which we don't know) * 8ms ago.
                            32 is the most I've seen... */
                         if (total_gap <= 33) {
-                            ULHARQResult *original_result = NULL;
+                            ULHARQResult *original_result;
 
                             /* Original detected!!! Store result pointing back */
                             result = se_alloc0(sizeof(ULHARQResult));
@@ -4136,7 +4135,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item          *retx_ti        = NULL;
     proto_item          *ti;
     gint                 offset         = 0;
-    struct mac_lte_info *p_mac_lte_info = NULL;
+    struct mac_lte_info *p_mac_lte_info;
     gint                 n;
 
     /* Allocate and zero tap struct */
@@ -4149,7 +4148,6 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pdu_ti = proto_tree_add_item(tree, proto_mac_lte, tvb, offset, -1, ENC_NA);
     proto_item_append_text(pdu_ti, " ");
     mac_lte_tree = proto_item_add_subtree(pdu_ti, ett_mac_lte);
-
 
     /* Look for packet info! */
     p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
@@ -4629,7 +4627,7 @@ static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, size_t len _
     lcid_drb_mapping_t       *d = dest;
 
     /* Copy all items over */
-    d->lcid = o->lcid;
+    d->lcid  = o->lcid;
     d->drbid = o->drbid;
     d->channel_type = o->channel_type;
 
@@ -4637,6 +4635,75 @@ static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, size_t len _
 }
 
 
+/* Set LCID -> RLC channel mappings from signalling protocol (i.e. RRC or similar).
+   TODO: not using UEID yet - assume all UEs configured identically... */
+void set_mac_lte_channel_mapping(guint16 ueid _U_, guint8 lcid,
+                                 guint8  srbid, guint8 drbid,
+                                 guint8  rlcMode, guint8 um_sn_length,
+                                 guint8  ul_priority)
+{
+    /* Don't bother setting srb details - we just assume AM */
+    if (srbid != 0) {
+        return;
+    }
+
+    /* Ignore if LCID is out of range */
+    if ((lcid < 3) || (lcid > 10)) {
+        return;
+    }
+
+    /* Set array entry */
+    dynamic_lcid_drb_mapping[lcid].valid = TRUE;
+    dynamic_lcid_drb_mapping[lcid].drbid = drbid;
+    dynamic_lcid_drb_mapping[lcid].ul_priority = ul_priority;
+
+    switch (rlcMode) {
+        case RLC_AM_MODE:
+            dynamic_lcid_drb_mapping[lcid].channel_type = rlcAM;
+            break;
+        case RLC_UM_MODE:
+            if (um_sn_length == 5) {
+                dynamic_lcid_drb_mapping[lcid].channel_type = rlcUM5;
+            }
+            else {
+                dynamic_lcid_drb_mapping[lcid].channel_type = rlcUM10;
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
+/* Return the configured UL priority for the channel */
+static guint8 get_mac_lte_channel_priority(guint16 ueid _U_, guint8 lcid,
+                                           guint8 direction)
+{
+    /* Priority only affects UL */
+    if (direction == DIRECTION_DOWNLINK) {
+        return 0;
+    }
+
+    /* Won't report value if channel not configured */
+    if (!dynamic_lcid_drb_mapping[lcid].valid) {
+        return 0;
+    }
+    else {
+        return dynamic_lcid_drb_mapping[lcid].ul_priority;
+    }
+}
+
+/* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */
+mac_lte_info *get_mac_lte_proto_data(packet_info *pinfo)
+{
+    return p_get_proto_data(pinfo->fd, proto_mac_lte);
+}
+
+/* Function to be called from outside this module (e.g. in a plugin) to set per-packet data */
+void set_mac_lte_proto_data(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
+{
+    p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
+}
 
 void proto_register_mac_lte(void)
 {
@@ -5760,88 +5827,15 @@ void proto_register_mac_lte(void)
     register_init_routine(&mac_lte_init_protocol);
 }
 
-
-/* Set LCID -> RLC channel mappings from signalling protocol (i.e. RRC or similar).
-   TODO: not using UEID yet - assume all UEs configured identically... */
-void set_mac_lte_channel_mapping(guint16 ueid _U_, guint8 lcid,
-                                 guint8  srbid, guint8 drbid,
-                                 guint8  rlcMode, guint8 um_sn_length,
-                                 guint8  ul_priority)
-{
-    /* Don't bother setting srb details - we just assume AM */
-    if (srbid != 0) {
-        return;
-    }
-
-    /* Ignore if LCID is out of range */
-    if ((lcid < 3) || (lcid > 10)) {
-        return;
-    }
-
-    /* Set array entry */
-    dynamic_lcid_drb_mapping[lcid].valid = TRUE;
-    dynamic_lcid_drb_mapping[lcid].drbid = drbid;
-    dynamic_lcid_drb_mapping[lcid].ul_priority = ul_priority;
-
-    switch (rlcMode) {
-        case RLC_AM_MODE:
-            dynamic_lcid_drb_mapping[lcid].channel_type = rlcAM;
-            break;
-        case RLC_UM_MODE:
-            if (um_sn_length == 5) {
-                dynamic_lcid_drb_mapping[lcid].channel_type = rlcUM5;
-            }
-            else {
-                dynamic_lcid_drb_mapping[lcid].channel_type = rlcUM10;
-            }
-            break;
-
-        default:
-            break;
-    }
-}
-
-/* Return the configured UL priority for the channel */
-static guint8 get_mac_lte_channel_priority(guint16 ueid _U_, guint8 lcid,
-                                           guint8 direction)
-{
-    /* Priority only affects UL */
-    if (direction == DIRECTION_DOWNLINK) {
-        return 0;
-    }
-
-    /* Won't report value if channel not configured */
-    if (!dynamic_lcid_drb_mapping[lcid].valid) {
-        return 0;
-    }
-    else {
-        return dynamic_lcid_drb_mapping[lcid].ul_priority;
-    }
-}
-
-/* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */
-mac_lte_info *get_mac_lte_proto_data(packet_info *pinfo)
-{
-    return p_get_proto_data(pinfo->fd, proto_mac_lte);
-}
-
-/* Function to be called from outside this module (e.g. in a plugin) to set per-packet data */
-void set_mac_lte_proto_data(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
-{
-    p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
-}
-
 void proto_reg_handoff_mac_lte(void)
 {
-    static dissector_handle_t mac_lte_handle;
-    if (!mac_lte_handle) {
-        mac_lte_handle = find_dissector("mac-lte");
+    dissector_handle_t mac_lte_handle;
+    mac_lte_handle = find_dissector("mac-lte");
 
-        /* Add as a heuristic UDP dissector */
-        heur_dissector_add("udp", dissect_mac_lte_heur, proto_mac_lte);
+    /* Add as a heuristic UDP dissector */
+    heur_dissector_add("udp", dissect_mac_lte_heur, proto_mac_lte);
 
-        /* Look up RLC dissector handle once and for all */
-        rlc_lte_handle = find_dissector("rlc-lte");
-    }
+    /* Look up RLC dissector handle once and for all */
+    rlc_lte_handle = find_dissector("rlc-lte");
 }
 
