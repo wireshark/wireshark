@@ -515,6 +515,13 @@ emem_strbuf_t *ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c);
  */
 emem_strbuf_t *ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len);
 
+/**
+ * Dump the whole tree (of trees) to stdout.
+ *
+ * @param emem_tree The tree to dump to standard output.
+ *
+ * @return void
+ */
 void emem_print_tree(emem_tree_t* emem_tree);
 
 /* #define DEBUG_INTENSE_CANARY_CHECKS */
