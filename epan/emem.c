@@ -1903,11 +1903,11 @@ emem_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key)
 	if((key[0].length==1)&&(key[1].length==0)){ /* last key in key array */
 		return emem_tree_lookup32_le(se_tree, *key[0].key);
 	}
-	next_tree=emem_tree_lookup32(se_tree, *key[0].key);
-	/* key[0].key not found so find le and return */
-	if(!next_tree)
-		return emem_tree_lookup32_le(se_tree, *key[0].key);
-
+	next_tree=emem_tree_lookup32_le(se_tree, *key[0].key);
+	/* key[0].key not found so return NULL */
+	if(!next_tree){
+		return NULL;
+	}
 	/* key[0].key found so inc key pointer and try again */
 	if(key[0].length==1){
 		key++;
