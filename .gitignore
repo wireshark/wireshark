@@ -111,6 +111,7 @@ wireshark.pod
 # Qt #
 ######
 qtshark
+/ui/qt/__/
 /ui/qt/*.qrc.depends
 /ui/qt/*.pro.user
 /ui/qt/*.qm
@@ -126,6 +127,7 @@ qtshark
 *.swp
 *~
 .DS_Store
+cscope.*
 packaging/macosx/COPYING.txt
 packaging/macosx/Info.plist
 packaging/rpm/SPECS/wireshark.spec
