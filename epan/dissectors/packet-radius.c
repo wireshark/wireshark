@@ -2013,15 +2013,15 @@ static void register_radius_fields(const char* unused _U_) {
 	 }
 
 	if (dir) {
-		 radius_load_dictionary(dict,dir,"dictionary",&dict_err_str);
+		radius_load_dictionary(dict,dir,"dictionary",&dict_err_str);
 
-		 if (dict_err_str) {
+		if (dict_err_str) {
 			report_failure("radius: %s",dict_err_str);
 			g_free(dict_err_str);
-		 }
+		}
 
-		 g_hash_table_foreach(dict->attrs_by_id,register_attrs,&ri);
-		 g_hash_table_foreach(dict->vendors_by_id,register_vendors,&ri);
+		g_hash_table_foreach(dict->attrs_by_id,register_attrs,&ri);
+		g_hash_table_foreach(dict->vendors_by_id,register_vendors,&ri);
 	}
 
 	g_free(dir);
@@ -2119,3 +2119,16 @@ proto_reg_handoff_radius(void)
 
 	alt_port = alt_port_pref;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
