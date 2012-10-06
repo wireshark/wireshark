@@ -806,7 +806,6 @@ static gboolean vwr_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 
 static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *IS_TX, int *err, gchar **err_info)
 {
-    int     bytes_read;
     int     f_len, v_type;
     guint8  header[16];
 
@@ -819,7 +818,7 @@ static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *I
     /* variable-length item, we read the variable length item out and discard it */
     /* if we find a frame, we return (with the header in the passed buffer) */
     while (1) {
-        if ((bytes_read = file_read(header, 16, fh)) != 16) {
+        if (file_read(header, 16, fh) != 16) {
             *err = file_error(fh, err_info);
             return(FALSE);
         }
