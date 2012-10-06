@@ -2108,11 +2108,12 @@ emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, void *user
 	return emem_tree_foreach_nodes(emem_tree->tree, callback, user_data);
 }
 
+static void emem_print_subtree(emem_tree_t* emem_tree, guint32 level);
 
 static void
-emem_tree_print_nodes(emem_tree_node_t* node, int level)
+emem_tree_print_nodes(const char *prefix, emem_tree_node_t* node, guint32 level)
 {
-	int i;
+	guint32 i;
 
 	if (!node)
 		return;
@@ -2121,23 +2122,39 @@ emem_tree_print_nodes(emem_tree_node_t* node, int level)
 		printf("    ");
 	}
 
-	printf("NODE:%p parent:%p left:0x%p right:%px key:%d data:%p\n",
+	printf("%sNODE:%p parent:%p left:%p right:%p colour:%s key:%u %s:%p\n", prefix,
 		(void *)node,(void *)(node->parent),(void *)(node->left),(void *)(node->right),
-		(node->key32),node->data);
+		(node->u.rb_color)?"Black":"Red",(node->key32),(node->u.is_subtree)?"tree":"data",node->data);
 	if(node->left)
-		emem_tree_print_nodes(node->left, level+1);
+		emem_tree_print_nodes("L-", node->left, level+1);
 	if(node->right)
-		emem_tree_print_nodes(node->right, level+1);
+		emem_tree_print_nodes("R-", node->right, level+1);
+
+	if (node->u.is_subtree)
+		emem_print_subtree(node->data, level+1);
 }
-void
-emem_print_tree(emem_tree_t* emem_tree)
+
+static void
+emem_print_subtree(emem_tree_t* emem_tree, guint32 level)
 {
+	guint32 i;
+        
 	if (!emem_tree)
 		return;
 
-	printf("EMEM tree type:%d name:%s tree:%p\n",emem_tree->type,emem_tree->name,(void *)(emem_tree->tree));
+	for(i=0;i<level;i++){
+		printf("    ");
+	}
+
+	printf("EMEM tree:%p type:%s name:%s root:%p\n",emem_tree,(emem_tree->type==1)?"RedBlack":"unknown",emem_tree->name,(void *)(emem_tree->tree));
 	if(emem_tree->tree)
-		emem_tree_print_nodes(emem_tree->tree, 0);
+		emem_tree_print_nodes("Root-", emem_tree->tree, level);
+}
+
+void
+emem_print_tree(emem_tree_t* emem_tree)
+{
+	emem_print_subtree(emem_tree, 0);
 }
 
 /*
