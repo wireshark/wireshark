@@ -659,7 +659,7 @@ static const value_string a11_aut_flow_prof_subtype_vals[] = {
 
 /* X.S0011-005-D v2.0 Authorized Flow Profile IDs for the User */
 static const gchar *
-dissect_3gpp2_radius_aut_flow_profile_ids(proto_tree  *tree, tvbuff_t  *tvb, packet_info *pinfo _U_)
+dissect_3gpp2_radius_aut_flow_profile_ids(proto_tree  *tree, tvbuff_t  *tvb, packet_info *pinfo)
 {
     proto_tree *sub_tree;
     int         offset = 0;
