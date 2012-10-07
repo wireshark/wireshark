@@ -759,8 +759,9 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
     proto_tree *subtree = NULL;
     proto_item *ti = NULL;
-    guint tvb_len = tvb_reported_length(tvb);
-    guint32 offset = 0;
+    gint tvb_len = tvb_reported_length(tvb);
+    gint32 start_entropy = 0;
+    gint32 start_fill, start_marker;
 
     /* check if we have a full JFIF in tvb */
     if (tvb_len < 20)
@@ -778,23 +779,48 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         ti = proto_tree_add_item(tree, proto_jfif,
                 tvb, 0, -1, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_jfif);
-        proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, ENC_BIG_ENDIAN);
     }
 
-    offset = 2;     /* skip MARKER_SOI */
-
-    /*
-     * Process the remaining markers and marker segments
-     */
-    while (offset < tvb_len) {
+    for (; ; ) {
         const char *str;
-        const guint16 marker = tvb_get_ntohs(tvb, offset);
+        guint16 marker;
+
+        start_fill = start_entropy;
+
+        for (; ; ) {
+            start_fill = tvb_find_guint8(tvb, start_fill, -1, 0xFF);
+
+            if (start_fill == -1 || tvb_len - start_fill == 1
+              || tvb_get_guint8(tvb, start_fill + 1) != 0) /* FF 00 is FF escaped */
+                break;
+
+            start_fill += 2;
+        }
+
+        if (start_fill == -1) start_fill = tvb_len;
+
+        if (start_fill != start_entropy)
+            proto_tree_add_text(subtree, tvb, start_entropy, start_fill - start_entropy,
+                                "Entropy-coded segment (dissection is not yet implemented)");
+
+        if (start_fill == tvb_len) break;
+
+        start_marker = start_fill;
+
+        while (tvb_get_guint8(tvb, start_marker + 1) == 0xFF)
+            ++start_marker;
+
+        if (start_marker != start_fill)
+            proto_tree_add_text(subtree, tvb, start_fill, start_marker - start_fill,
+                                "Fill bytes");
+        
+        marker = tvb_get_ntohs(tvb, start_marker);
         str = match_strval(marker, vals_marker);
         if (str) { /* Known marker */
             if (marker_has_length(marker)) { /* Marker segment */
                 /* Length of marker segment = 2 + len */
-                const guint16 len = tvb_get_ntohs(tvb, offset + 2);
-                tvbuff_t *tmp_tvb = tvb_new_subset(tvb, offset, 2 + len, 2 + len);
+                const guint16 len = tvb_get_ntohs(tvb, start_marker + 2);
+                tvbuff_t *tmp_tvb = tvb_new_subset(tvb, start_marker, 2 + len, 2 + len);
                 switch (marker) {
                     case MARKER_APP0:
                         process_app0_segment(subtree, tmp_tvb, len, marker, str);
@@ -823,27 +849,21 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         break;
                     case MARKER_SOS:
                         process_sos_header(subtree, tmp_tvb, len, marker, str);
-                        /*
-                         * TODO - dissect a scan; the scan data is encoded.
-                         */
-                        proto_tree_add_text(subtree, tvb, offset + 2 + len, -1,
-                                "JFIF dissection stops here (dissection of a scan is not yet implemented)");
-                        return tvb_len;
                         break;
                     default:
                         process_marker_segment(subtree, tmp_tvb, len, marker, str);
                         break;
                 }
-                offset += 2 + len;
+                start_entropy = start_marker + 2 + len;
             } else { /* Marker but no segment */
                 /* Length = 2 */
                 proto_tree_add_item(subtree, hf_marker,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
+                        tvb, start_marker, 2, ENC_BIG_ENDIAN);
+                start_entropy = start_marker + 2;
             }
         } else { /* Reserved! */
             ti = proto_tree_add_item(subtree, hf_marker,
-                    tvb, offset, 2, ENC_BIG_ENDIAN);
+                    tvb, start_marker, 2, ENC_BIG_ENDIAN);
             proto_item_append_text(ti, " (Reserved)");
             return tvb_len;
         }
