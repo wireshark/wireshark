@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-09-26
+# 2012-10-05
 # 
 # Experts
 # 
@@ -13488,7 +13488,10 @@ sun-as-jmxrmi	8686/udp	# Sun App Server - JMX/RMI     [Abhijit_Kumar]           
 # 8687-8698            Unassigned
 vnyx	8699/tcp	# VNYX Primary Port            [Gregg_Green]                                      [Gregg_Green]                                             2004-11
 vnyx	8699/udp	# VNYX Primary Port            [Gregg_Green]                                      [Gregg_Green]                                             2004-11
-# 8700-8731            Unassigned
+# 8700-8710            Unassigned
+nvc	8711/tcp	# Nuance Voice Control         [Nuance_Communications_Inc2]                       [Diego_Negre]                                             2012-10-05
+# 8711        udp    Reserved
+# 8712-8731            Unassigned
 # 8732        tcp    Reserved
 dtp-net	8732/udp	# DASGIP Net Services          [Dr_Matthias_Arnold]                               [Dr_Matthias_Arnold]                                      2009-03-23
 ibus	8733/tcp	# iBus                         [Silvano_Maffeis]                                  [Silvano_Maffeis]
@@ -16015,6 +16018,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Protocol                                                                                                                                                                                                                           http://www.ditrios.org/index.php?link=tutorial/index#zeroconf
 # divelogsync                           Dive Log Data Sharing and    [Greg_McLaughlin]                                  [Greg_McLaughlin]                                                                                                                                  Defined TXT keys: None
 # Synchronization Protocol
+# dlpx-sp                        tcp    Delphix Session Protocol     [Delphix_Corp]                                     [Peng_Dai]                                                2012-10-02                                                                               Defined TXT keys: None
 # dltimesync                     udp    Local Area Dynamic Time      [Geoff_Back_3]                                     [Geoff_Back_3]                                                                                                                                     Defined TXT keys: None
 # Synchronisation Protocol
 # dns-sd                                DNS Service Discovery        [Stuart_Cheshire_5][Marc_Krochmal]                 [Stuart_Cheshire_5][Marc_Krochmal]                                                                                                                 Not a service type. Special name reserved for DNS-SD meta
@@ -18066,6 +18070,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Dean_Skelton]                                            Dean Skelton                                    mailto:mdskel&ftw.rsc.raytheon.com
 # [Dean_Webb]                                               Dean Webb                                       mailto:dean.webb&ascend.com
 # [Delcio_Prizon]                                           Delcio Prizon                                   mailto:dprizon&smar.com.br
+# [Delphix_Corp]                                                                      Delphix Corp          mailto:peng.dai&delphix.com                                   2012-10-02
 # [Denis_Ducharme]                                          Denis Ducharme                                  mailto:dducharme&softek.com
 # [Denis_Leclerc]                                           Denis Leclerc                                   mailto:DLeclerc&banyan.com
 # [Denise_Eckstein]                                         Denise Eckstein                                 mailto:denise.eckstein&hp.com                                 2004-11
@@ -18100,6 +18105,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Dick_van_der_Sijs]                                       Dick van der Sijs                               mailto:dick&and.nl
 # [Didier_Cabannes]                                         Didier Cabannes                                 mailto:Didier&matisse.com                                     2004-11
 # [Diego_Friedel]                                           Diego Friedel                                   mailto:d.friedel&avm.de                                       2006-03
+# [Diego_Negre]                                             Diego Negre               Nuance Communications mailto:Diego.Negre&nuance.com                                 2012-10-05
 # [Diego_Santa_Cruz]                                        Diego Santa Cruz          SpinetiX S.A.         mailto:Diego.SantaCruz&spinetix.com                           2011-10-18
 # [Diego_Saravia]                                           Diego Saravia                                   mailto:dsa&unsa.edu.ar
 # [Dieter_Siegmund]                                         Dieter Siegmund                                 mailto:dieter&apple.com                                       2007-10-22
@@ -20123,6 +20129,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [NovaWiz_LTD]                                             NovaWiz LTD                                     mailto:Moshe&novawiz.com
 # [Nuance_Communications_Inc]                                                         Nuance                mailto:Mark.Jackson&nuance.com                                2011-10-27
 # Communications, Inc.
+# [Nuance_Communications_Inc2]                                                        Nuance Communications mailto:NOD_SolutionsArchitecture&nuance.com                   2012-10-05
 # [OASIS_KMIP_Technical_Committee]                                                    OASIS KMIP Technical  mailto:robin&oasis-open.org                                   2011-07-25
 # Committee
 # [OC]                                                                                OC                    mailto:ocs&ocs.cz
@@ -20278,6 +20285,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Pedro_Alpedrinha]                                        Pedro Alpedrinha                                mailto:pedro.alpedrinha&redevirtual.com                       2006-02
 # [Pekka_Riikonen]                                          Pekka Riikonen                                  mailto:priikone&poseidon.pspt.fi
 # [Pekka_Takaranta]                                         Pekka Takaranta                                 mailto:pekka.takaranta&tellabs.fi
+# [Peng_Dai]                                                Peng Dai                  Delphix Corp          mailto:peng.dai&delphix.com                                   2012-10-02
 # [Per_Cederqvist]                                          Per Cederqvist                                  mailto:ceder&lysator.liu.se
 # [Per_Fahlberg]                                            Per Fahlberg                                    mailto:support&remograph.com                                  2009-01-21
 # [Per_Hellberg]                                            Per Hellberg                                    mailto:phellberg&isogon.com                                   2002-02
