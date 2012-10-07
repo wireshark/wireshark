@@ -26,7 +26,6 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <string.h>
 #include <time.h>
 
 #include <gtk/gtk.h>
@@ -52,8 +51,8 @@
 #endif
 
 
-/* a single capture counter value (with title, pointer to value and GtkWidgets) */
-/* as the packet_counts is a struct, not an array, keep a pointer to the */
+/* a single capture counter value (with title, pointer to value and GtkWidgets)   */
+/* as the packet_counts is a struct, not an array, keep a pointer to the          */
 /* corresponding value packet_counts, to speed up (and simplify) output of values */
 typedef struct {
   const gchar *title;
@@ -63,11 +62,11 @@ typedef struct {
 
 /* all data we need to know of this dialog, after creation finished */
 typedef struct {
-  GtkWidget               *cap_w;
-  GtkWidget               *running_time_lb;
-  capture_info_counts_t   counts[PACKET_COUNTS_SIZE];
-  guint                   timer_id;
-  time_t                  start_time;
+  GtkWidget             *cap_w;
+  GtkWidget             *running_time_lb;
+  capture_info_counts_t  counts[PACKET_COUNTS_SIZE];
+  guint                  timer_id;
+  time_t                 start_time;
 } capture_info_ui_t;
 
 
@@ -97,8 +96,8 @@ capture_info_stop_clicked_cb(GtkButton *w _U_, gpointer data) {
 static gboolean
 capture_info_ui_update_cb(gpointer data)
 {
-  capture_info *cinfo = data;
-  capture_info_ui_t *info = cinfo->ui;
+  capture_info      *cinfo = data;
+  capture_info_ui_t *info  = cinfo->ui;
 
   if (!info) /* ...which might happen on slow displays? */
     return TRUE;
@@ -125,33 +124,33 @@ capture_options *capture_opts)
   GString           *str;
 
   info = g_malloc0(sizeof(capture_info_ui_t));
-  info->counts[0].title = "Total";
-  info->counts[0].value_ptr = &(cinfo->counts->total);
-  info->counts[1].title = "SCTP";
-  info->counts[1].value_ptr = &(cinfo->counts->sctp);
-  info->counts[2].title = "TCP";
-  info->counts[2].value_ptr = &(cinfo->counts->tcp);
-  info->counts[3].title = "UDP";
-  info->counts[3].value_ptr = &(cinfo->counts->udp);
-  info->counts[4].title = "ICMP";
-  info->counts[4].value_ptr = &(cinfo->counts->icmp);
-  info->counts[5].title = "ARP";
-  info->counts[5].value_ptr = &(cinfo->counts->arp);
-  info->counts[6].title = "OSPF";
-  info->counts[6].value_ptr = &(cinfo->counts->ospf);
-  info->counts[7].title = "GRE";
-  info->counts[7].value_ptr = &(cinfo->counts->gre);
-  info->counts[8].title = "NetBIOS";
-  info->counts[8].value_ptr = &(cinfo->counts->netbios);
-  info->counts[9].title = "IPX";
-  info->counts[9].value_ptr = &(cinfo->counts->ipx);
-  info->counts[10].title = "VINES";
+  info->counts[0].title      = "Total";
+  info->counts[0].value_ptr  = &(cinfo->counts->total);
+  info->counts[1].title      = "SCTP";
+  info->counts[1].value_ptr  = &(cinfo->counts->sctp);
+  info->counts[2].title      = "TCP";
+  info->counts[2].value_ptr  = &(cinfo->counts->tcp);
+  info->counts[3].title      = "UDP";
+  info->counts[3].value_ptr  = &(cinfo->counts->udp);
+  info->counts[4].title      = "ICMP";
+  info->counts[4].value_ptr  = &(cinfo->counts->icmp);
+  info->counts[5].title      = "ARP";
+  info->counts[5].value_ptr  = &(cinfo->counts->arp);
+  info->counts[6].title      = "OSPF";
+  info->counts[6].value_ptr  = &(cinfo->counts->ospf);
+  info->counts[7].title      = "GRE";
+  info->counts[7].value_ptr  = &(cinfo->counts->gre);
+  info->counts[8].title      = "NetBIOS";
+  info->counts[8].value_ptr  = &(cinfo->counts->netbios);
+  info->counts[9].title      = "IPX";
+  info->counts[9].value_ptr  = &(cinfo->counts->ipx);
+  info->counts[10].title     = "VINES";
   info->counts[10].value_ptr = &(cinfo->counts->vines);
-  info->counts[11].title = "Other";
+  info->counts[11].title     = "Other";
   info->counts[11].value_ptr = &(cinfo->counts->other);
-  info->counts[12].title = "I2C Events";
+  info->counts[12].title     = "I2C Events";
   info->counts[12].value_ptr = &(cinfo->counts->i2c_event);
-  info->counts[13].title = "I2C Data";
+  info->counts[13].title     = "I2C Data";
   info->counts[13].value_ptr = &(cinfo->counts->i2c_data);
 
   /*
@@ -275,7 +274,7 @@ capture_options *capture_opts)
   gtk_widget_show(info->running_time_lb);
   gtk_table_attach(GTK_TABLE(running_tb),
                    info->running_time_lb,
-                   1, 2, 0, 1, 0, 0, 5, 0);
+                   1, 2, 0, 1, 0, 0, 5, 0);  /* effect: pads *all* the columns ?? */
 
   /* allow user to either click a stop button, or the close button on
      the window to stop a capture in progress. */
