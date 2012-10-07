@@ -238,11 +238,13 @@ static gint     global_pdcp_lte_layer_to_show = (gint)ShowRLCLayer;
 /* Channel key */
 typedef struct
 {
-    /* TODO: use bit fields to fit into 32 bits... */
-    guint16            ueId;
-    guint8             plane;
-    guint16            channelId;
-    guint8             direction;
+    /* Using bit fields to fit into 32 bits, so avoiding the need to allocate
+       heap memory for these structs */
+    unsigned           ueId : 16;
+    unsigned           plane : 2;
+    unsigned           channelId : 6;
+    unsigned           direction : 1;
+    unsigned           notUsed : 7;
 } pdcp_channel_hash_key;
 
 /* Channel state */
@@ -259,20 +261,15 @@ static GHashTable *pdcp_sequence_analysis_channel_hash = NULL;
 /* Equal keys */
 static gint pdcp_channel_equal(gconstpointer v, gconstpointer v2)
 {
-    const pdcp_channel_hash_key* val1 = (const pdcp_channel_hash_key *)v;
-    const pdcp_channel_hash_key* val2 = (const pdcp_channel_hash_key *)v2;
-
-    /* All fields must match */
-    return (memcmp(val1, val2, sizeof(pdcp_channel_hash_key)) == 0);
+    /* Key fits in 4 bytes, so just compare pointers! */
+    return (v == v2);
 }
 
 /* Compute a hash value for a given key. */
 static guint pdcp_channel_hash_func(gconstpointer v)
 {
-    const pdcp_channel_hash_key* val1 = (const pdcp_channel_hash_key *)v;
-
-    /* TODO: use multipliers */
-    return val1->ueId + val1->plane + val1->channelId + val1->direction;
+    /* Just use pointer, as the fields are all in this value */
+    return (guint)v;
 }
 
 
@@ -284,6 +281,7 @@ typedef struct {
     unsigned           plane :    2;
     unsigned           channelId: 5;
     unsigned           direction: 1;
+    unsigned           notUsed :  9;
 } pdcp_result_hash_key;
 
 static gint pdcp_result_hash_equal(gconstpointer v, gconstpointer v2)
@@ -307,6 +305,16 @@ static guint pdcp_result_hash_func(gconstpointer v)
                                (val1->direction<<9);
 }
 
+/* pdcp_channel_hash_key fits into the pointer, so just copy the value into
+   a guint, cast to apointer and return that as the key */
+static gpointer get_channel_hash_key(pdcp_channel_hash_key *key)
+{
+    guint  asInt = 0;
+    /* TODO: assert that sizeof(pdcp_channel_hash_key) <= sizeof(guint) ? */
+    memcpy(&asInt, key, sizeof(pdcp_channel_hash_key));
+    return GUINT_TO_POINTER(asInt);
+}
+
 /* Convenience function to get a pointer for the hash_func to work with */
 static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
                                     pdcp_lte_info *p_pdcp_lte_info,
@@ -317,7 +325,7 @@ static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
 
     /* Only allocate a struct when will be adding entry */
     if (do_persist) {
-        p_key = se_new0(pdcp_result_hash_key);
+        p_key = se_new(pdcp_result_hash_key);
     }
     else {
         memset(&key, 0, sizeof(pdcp_result_hash_key));
@@ -330,6 +338,7 @@ static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
     p_key->plane = (guint8)p_pdcp_lte_info->plane;
     p_key->channelId = p_pdcp_lte_info->channelId;
     p_key->direction = p_pdcp_lte_info->direction;
+    p_key->notUsed = 0;
 
     return p_key;
 }
@@ -474,7 +483,6 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                                      proto_tree *tree)
 {
     pdcp_channel_hash_key          channel_key;
-    pdcp_channel_hash_key         *p_channel_key;
     pdcp_channel_status           *p_channel_status;
     pdcp_sequence_report_in_frame *p_report_in_frame      = NULL;
     gboolean                       createdChannel         = FALSE;
@@ -503,14 +511,15 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
     /**************************************************/
     /* Create or find an entry for this channel state */
-    memset(&channel_key, 0, sizeof(channel_key));
     channel_key.ueId = p_pdcp_lte_info->ueid;
     channel_key.plane = p_pdcp_lte_info->plane;
     channel_key.channelId = p_pdcp_lte_info->channelId;
     channel_key.direction = p_pdcp_lte_info->direction;
+    channel_key.notUsed = 0;
 
     /* Do the table lookup */
-    p_channel_status = (pdcp_channel_status*)g_hash_table_lookup(pdcp_sequence_analysis_channel_hash, &channel_key);
+    p_channel_status = (pdcp_channel_status*)g_hash_table_lookup(pdcp_sequence_analysis_channel_hash,
+                                                                 get_channel_hash_key(&channel_key));
 
     /* Create table entry if necessary */
     if (p_channel_status == NULL) {
@@ -518,10 +527,10 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
         /* Allocate a new value and duplicate key contents */
         p_channel_status = se_new0(pdcp_channel_status);
-        p_channel_key = se_memdup(&channel_key, sizeof(pdcp_channel_hash_key));
 
         /* Add entry */
-        g_hash_table_insert(pdcp_sequence_analysis_channel_hash, p_channel_key, p_channel_status);
+        g_hash_table_insert(pdcp_sequence_analysis_channel_hash,
+                            get_channel_hash_key(&channel_key), p_channel_status);
     }
 
     /* Create space for frame state_report */
@@ -968,6 +977,13 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Append this protocol name rather than replace. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
 
+    /* Look for attached packet info! */
+    p_pdcp_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+    /* Can't dissect anything without it... */
+    if (p_pdcp_info == NULL) {
+        return;
+    }
+
     /* Don't want to overwrite the RLC Info column if configured not to */
     if ((global_pdcp_lte_layer_to_show == ShowRLCLayer) &&
         (p_get_proto_data(pinfo->fd, proto_rlc_lte) != NULL)) {
@@ -985,15 +1001,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         root_ti = proto_tree_add_item(tree, proto_pdcp_lte, tvb, offset, -1, ENC_NA);
         pdcp_tree = proto_item_add_subtree(root_ti, ett_pdcp);
     }
-
-
-    /* Look for attached packet info! */
-    p_pdcp_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
-    /* Can't dissect anything without it... */
-    if (p_pdcp_info == NULL) {
-        return;
-    }
-
 
     /* Set mode string */
     mode = val_to_str_const(p_pdcp_info->mode, rohc_mode_vals, "Error");
@@ -1016,6 +1023,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         guint16  seqnum = 0;
         gboolean seqnum_set = FALSE;
 
+        guint8  first_byte = tvb_get_guint8(tvb, offset);
+
         /*****************************/
         /* Signalling plane messages */
         if (p_pdcp_info->plane == SIGNALING_PLANE) {
@@ -1023,7 +1032,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             guint32 data_length;
 
             /* Verify 3 reserved bits are 0 */
-            guint8 reserved = (tvb_get_guint8(tvb, offset) & 0xe0) >> 5;
+            guint8 reserved = (first_byte & 0xe0) >> 5;
             proto_item *ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_control_plane_reserved,
                                                  tvb, offset, 1, ENC_BIG_ENDIAN);
             if (reserved != 0) {
@@ -1032,7 +1041,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             }
 
             /* 5-bit sequence number */
-            seqnum = tvb_get_guint8(tvb, offset) & 0x1f;
+            seqnum = first_byte & 0x1f;
             seqnum_set = TRUE;
             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_5, tvb, offset, 1, ENC_BIG_ENDIAN);
             write_pdu_label_and_info(root_ti, pinfo, " sn=%-2u ", seqnum);
@@ -1087,7 +1096,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             /**********************************/
             /* User-plane messages            */
-            gboolean pdu_type = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
+            gboolean pdu_type = (first_byte & 0x80) >> 7;
 
             /* Data/Control flag */
             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_data_control, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1099,7 +1108,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 /* Number of sequence number bits depends upon config */
                 switch (p_pdcp_info->seqnum_length) {
                     case PDCP_SN_LENGTH_7_BITS:
-                        seqnum = tvb_get_guint8(tvb, offset) & 0x7f;
+                        seqnum = first_byte & 0x7f;
                         seqnum_set = TRUE;
                         proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_7, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
@@ -1111,7 +1120,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
                             /* 3 reserved bits */
                             ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_reserved3, tvb, offset, 1, ENC_BIG_ENDIAN);
-                            reserved_value = (tvb_get_guint8(tvb, offset) & 0x70) >> 4;
+                            reserved_value = (first_byte & 0x70) >> 4;
 
                             /* Complain if not 0 */
                             if (reserved_value != 0) {
@@ -1143,7 +1152,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             else {
                 /*******************************/
                 /* User-plane Control messages */
-                guint8 control_pdu_type = (tvb_get_guint8(tvb, offset) & 0x70) >> 4;
+                guint8 control_pdu_type = (first_byte & 0x70) >> 4;
                 proto_tree_add_item(pdcp_tree, hf_pdcp_lte_control_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 switch (control_pdu_type) {
@@ -1268,7 +1277,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* If not compressed with ROHC, show as user-plane data */
     if (!p_pdcp_info->rohc_compression) {
-        if (tvb_length_remaining(tvb, offset) > 0) {
+        gint payload_length = tvb_length_remaining(tvb, offset);
+        if (payload_length > 0) {
             if (p_pdcp_info->plane == USER_PLANE) {
                 if (global_pdcp_dissect_user_plane_as_ip) {
                     tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -1308,15 +1318,15 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     if (rrc_handle != 0) {
                         /* Call RRC dissector if have one */
                         tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset,
-                                                               tvb_length_remaining(tvb, offset),
-                                                               tvb_length_remaining(tvb, offset));
+                                                               payload_length,
+                                                               payload_length);
 
                         call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree, NULL);
                     }
                     else {
                          /* Just show data */
                          proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
-                                             tvb_length_remaining(tvb, offset), ENC_NA);
+                                             payload_length, ENC_NA);
                     }
                 }
                 else {
@@ -1325,7 +1335,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             }
 
             write_pdu_label_and_info(root_ti, pinfo, "(%u bytes data)",
-                                     tvb_length_remaining(tvb, offset));
+                                     payload_length);
         }
 
         /* Let RLC write to columns again */
