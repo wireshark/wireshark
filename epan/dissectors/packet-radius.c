@@ -205,7 +205,7 @@ static const value_string radius_pkt_type_codes[] =
 static value_string_ext radius_pkt_type_codes_ext = VALUE_STRING_EXT_INIT(radius_pkt_type_codes);
 
 /*
- * Init Hash table stuff for converation
+ * Init Hash table stuff for conversation
  */
 
 typedef struct _radius_call_info_key
@@ -1456,7 +1456,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			 *  so that we can match up requests with replies.
 			 *
 			 * Because it is UDP and the reply can come from any IP
-			 * and port (not necessarly the request dest), we only
+			 * and port (not necessarily the request dest), we only
 			 * track the source IP and port of the request to match
 			 * the reply.
 			 */
@@ -1571,7 +1571,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			 * port and address that the call came from.
 			 *
 			 * Because it is UDP and the reply can come from any IP
-			 * and port (not necessarly the request dest), we only
+			 * and port (not necessarily the request dest), we only
 			 * track the source IP and port of the request to match
 			 * the reply.
 			 */
