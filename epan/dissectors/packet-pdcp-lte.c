@@ -269,7 +269,7 @@ static gint pdcp_channel_equal(gconstpointer v, gconstpointer v2)
 static guint pdcp_channel_hash_func(gconstpointer v)
 {
     /* Just use pointer, as the fields are all in this value */
-    return (guint)v;
+    return GPOINTER_TO_UINT(v);
 }
 
 
