@@ -524,61 +524,6 @@ static gboolean destroy_value_strings(gpointer k, gpointer v, gpointer p _U_) {
 	return TRUE;
 }
 
-static gboolean destroy_tlvs(gpointer k _U_, gpointer v, gpointer p _U_) {
-	radius_attr_info_t* s = v;
-	int i;
-
-	g_free((gpointer) (s->name));
-
-	if (s->vs) {
-		for(i=0; s->vs[i].strptr; i++) {
-			g_free((void *)s->vs[i].strptr);
-		}
-		g_free((void *)s->vs);
-	}
-	g_free(s);
-	return TRUE;
-}
-
-static gboolean destroy_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
-	radius_attr_info_t* a = v;
-	int i;
-
-	g_free((gpointer) (a->name));
-	if (a->tlvs_by_id) {
-		g_hash_table_foreach_remove(a->tlvs_by_id, destroy_tlvs, p);
-		g_hash_table_destroy(a->tlvs_by_id);
-	}
-
-	if (a->vs) {
-		for(i=0; a->vs[i].strptr; i++) {
-			g_free((void *)a->vs[i].strptr);
-		}
-		g_free((void *)a->vs);
-	}
-	g_free(a);
-	return TRUE;
-}
-
-static gboolean destroy_vendors(gpointer k _U_, gpointer v, gpointer p) {
-	radius_vendor_info_t* vnd = v;
-	g_free( (gpointer) vnd->name);
-	g_hash_table_foreach_remove(vnd->attrs_by_id,destroy_attrs,p);
-	g_hash_table_destroy(vnd->attrs_by_id);
-	g_free(vnd);
-	return TRUE;
-}
-
-static void destroy_dict(radius_dictionary_t* d) {
-	g_hash_table_foreach_remove(d->attrs_by_id,destroy_attrs,NULL);
-	g_hash_table_foreach_remove(d->vendors_by_id,destroy_vendors,NULL);
-	g_hash_table_destroy(d->vendors_by_id);
-	g_hash_table_destroy(d->attrs_by_id);
-	g_hash_table_destroy(d->vendors_by_name);
-	g_hash_table_destroy(d->attrs_by_name);
-	g_free(d);
-}
-
 gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar* filename, gchar** err_str) {
 	int i;
 
@@ -618,9 +563,8 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 	g_hash_table_foreach_remove(value_strings,destroy_value_strings,NULL);
 
 	if (error->len > 0) {
-		 *err_str = error->str;
+		*err_str = error->str;
 		g_string_free(error,FALSE);
-		destroy_dict(dict);
 		return FALSE;
 	} else {
 		*err_str = NULL;
