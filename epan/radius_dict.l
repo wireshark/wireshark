@@ -265,12 +265,18 @@
 
 	if (!yyin) {
 		if (errno) {
-			g_string_append_printf(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], g_strerror(errno) );
-			g_free(fullpaths[include_stack_ptr]);
-			fullpaths[include_stack_ptr] = NULL;
-			include_stack_ptr--;
-			yyterminate();
+			g_string_append_printf(error,
+					"Could not open file: '%s', error: %s\n",
+					fullpaths[include_stack_ptr],
+					g_strerror(errno) );
+		} else {
+			g_string_append_printf(error,
+					"Could not open file: '%s', no errno\n",
+					fullpaths[include_stack_ptr]);
 		}
+		g_free(fullpaths[include_stack_ptr]);
+		fullpaths[include_stack_ptr] = NULL;
+		include_stack_ptr--;
 	} else {
 		linenums[include_stack_ptr] = 1;
 		yy_switch_to_buffer(yy_create_buffer( yyin, YY_BUF_SIZE ) );
