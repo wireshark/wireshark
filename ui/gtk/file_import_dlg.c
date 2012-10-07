@@ -26,27 +26,16 @@
 
 #include "config.h"
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <ctype.h>
-#include <string.h>
+#include <gtk/gtk.h>
 
 #include "globals.h"
 #include "wtap.h"
 #include "pcap-encap.h"
 #include "version_info.h"
 
-#include <epan/prefs.h>
-
-#include <gtk/gtk.h>
-
-#include "filters.h"
-
 #include "ui/simple_dialog.h"
 #include "ui/alert_box.h"
 
-#include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
@@ -100,8 +89,8 @@
 
 #define IMPORT_FRAME_LENGTH_TE_KEY      "import_frame_length_text"
 
-static GtkWidget *file_import_dlg_w = NULL;
-static GtkListStore *encap_list_store = NULL;
+static GtkWidget    *file_import_dlg_w = NULL;
+static GtkListStore *encap_list_store  = NULL;
 
 /*****************************************************************************/
 
@@ -124,10 +113,10 @@ static void
 timefmt_cb_toggle(GtkWidget *widget, gpointer data _U_)
 {
     GtkWidget *timefmt_lbl, *timefmt_te;
-    gboolean apply_fmt;
+    gboolean   apply_fmt;
 
     timefmt_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), INPUT_TIMEFMT_LBL_KEY));
-    timefmt_te = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), INPUT_TIMEFMT_TE_KEY));
+    timefmt_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), INPUT_TIMEFMT_TE_KEY));
 
     apply_fmt = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
     gtk_widget_set_sensitive(timefmt_lbl, apply_fmt);
@@ -138,8 +127,8 @@ timefmt_cb_toggle(GtkWidget *widget, gpointer data _U_)
 static void
 create_encap_list_store(void)
 {
-    GtkTreeIter iter;
-    gint encap;
+    GtkTreeIter  iter;
+    gint         encap;
     const gchar *name;
 
     encap_list_store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_UINT);
@@ -169,7 +158,7 @@ create_encap_list_store(void)
 static GtkWidget *
 fill_encap_combo(void)
 {
-    GtkWidget *encap_co = NULL;
+    GtkWidget       *encap_co;
     GtkCellRenderer *cell;
 
     encap_co = gtk_combo_box_new_with_model(GTK_TREE_MODEL(encap_list_store));
@@ -185,9 +174,9 @@ static void header_frm_child_set(GtkWidget *widget, gpointer data);
 static void
 encap_co_changed(GtkComboBox *widget, gpointer data)
 {
-    GtkTreeIter iter;
-    gboolean result;
-    GtkWidget *header_cb;
+    GtkTreeIter  iter;
+    gboolean     result;
+    GtkWidget   *header_cb;
 
     result = gtk_combo_box_get_active_iter(widget, &iter);
 
@@ -233,240 +222,240 @@ header_cb_toggle(GtkWidget *widget, gpointer data)
 static void
 header_eth_rb_toggle(GtkWidget *widget, gpointer data)
 {
-    GtkWidget *etype_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_LBL_KEY));
-    GtkWidget *etype_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_TE_KEY));
-    GtkWidget *prot_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_LBL_KEY));
-    GtkWidget *prot_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_TE_KEY));
+    GtkWidget *etype_lbl    = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_LBL_KEY));
+    GtkWidget *etype_te     = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_TE_KEY));
+    GtkWidget *prot_lbl     = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_LBL_KEY));
+    GtkWidget *prot_te      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_TE_KEY));
     GtkWidget *src_port_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_SRC_PORT_LBL_KEY));
     GtkWidget *src_port_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_SRC_PORT_TE_KEY));
     GtkWidget *dst_port_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_DST_PORT_LBL_KEY));
     GtkWidget *dst_port_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_DST_PORT_TE_KEY));
-    GtkWidget *tag_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_LBL_KEY));
-    GtkWidget *tag_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_TE_KEY));
-    GtkWidget *ppi_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_LBL_KEY));
-    GtkWidget *ppi_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_TE_KEY));
+    GtkWidget *tag_lbl      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_LBL_KEY));
+    GtkWidget *tag_te       = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_TE_KEY));
+    GtkWidget *ppi_lbl      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_LBL_KEY));
+    GtkWidget *ppi_te       = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_TE_KEY));
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
     {
-        gtk_widget_set_sensitive(etype_lbl, TRUE);
-        gtk_widget_set_sensitive(etype_te, TRUE);
-        gtk_widget_set_sensitive(prot_lbl, FALSE);
-        gtk_widget_set_sensitive(prot_te, FALSE);
+        gtk_widget_set_sensitive(etype_lbl,    TRUE);
+        gtk_widget_set_sensitive(etype_te,     TRUE);
+        gtk_widget_set_sensitive(prot_lbl,     FALSE);
+        gtk_widget_set_sensitive(prot_te,      FALSE);
         gtk_widget_set_sensitive(src_port_lbl, FALSE);
-        gtk_widget_set_sensitive(src_port_te, FALSE);
+        gtk_widget_set_sensitive(src_port_te,  FALSE);
         gtk_widget_set_sensitive(dst_port_lbl, FALSE);
-        gtk_widget_set_sensitive(dst_port_te, FALSE);
-        gtk_widget_set_sensitive(tag_lbl, FALSE);
-        gtk_widget_set_sensitive(tag_te, FALSE);
-        gtk_widget_set_sensitive(ppi_lbl, FALSE);
-        gtk_widget_set_sensitive(ppi_te, FALSE);
+        gtk_widget_set_sensitive(dst_port_te,  FALSE);
+        gtk_widget_set_sensitive(tag_lbl,      FALSE);
+        gtk_widget_set_sensitive(tag_te,       FALSE);
+        gtk_widget_set_sensitive(ppi_lbl,      FALSE);
+        gtk_widget_set_sensitive(ppi_te,       FALSE);
     }
     else
     {
-        gtk_widget_set_sensitive(etype_lbl, FALSE);
-        gtk_widget_set_sensitive(etype_te, FALSE);
+        gtk_widget_set_sensitive(etype_lbl,    FALSE);
+        gtk_widget_set_sensitive(etype_te,     FALSE);
     }
 }
 
 static void
 header_ipv4_rb_toggle(GtkWidget *widget, gpointer data)
 {
-    GtkWidget *etype_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_LBL_KEY));
-    GtkWidget *etype_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_TE_KEY));
-    GtkWidget *prot_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_LBL_KEY));
-    GtkWidget *prot_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_TE_KEY));
+    GtkWidget *etype_lbl    = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_LBL_KEY));
+    GtkWidget *etype_te     = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_TE_KEY));
+    GtkWidget *prot_lbl     = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_LBL_KEY));
+    GtkWidget *prot_te      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_TE_KEY));
     GtkWidget *src_port_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_SRC_PORT_LBL_KEY));
     GtkWidget *src_port_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_SRC_PORT_TE_KEY));
     GtkWidget *dst_port_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_DST_PORT_LBL_KEY));
     GtkWidget *dst_port_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_DST_PORT_TE_KEY));
-    GtkWidget *tag_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_LBL_KEY));
-    GtkWidget *tag_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_TE_KEY));
-    GtkWidget *ppi_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_LBL_KEY));
-    GtkWidget *ppi_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_TE_KEY));
+    GtkWidget *tag_lbl      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_LBL_KEY));
+    GtkWidget *tag_te       = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_TE_KEY));
+    GtkWidget *ppi_lbl      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_LBL_KEY));
+    GtkWidget *ppi_te       = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_TE_KEY));
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
     {
-        gtk_widget_set_sensitive(etype_lbl, FALSE);
-        gtk_widget_set_sensitive(etype_te, FALSE);
-        gtk_widget_set_sensitive(prot_lbl, TRUE);
-        gtk_widget_set_sensitive(prot_te, TRUE);
+        gtk_widget_set_sensitive(etype_lbl,    FALSE);
+        gtk_widget_set_sensitive(etype_te,     FALSE);
+        gtk_widget_set_sensitive(prot_lbl,     TRUE);
+        gtk_widget_set_sensitive(prot_te,      TRUE);
         gtk_widget_set_sensitive(src_port_lbl, FALSE);
-        gtk_widget_set_sensitive(src_port_te, FALSE);
+        gtk_widget_set_sensitive(src_port_te,  FALSE);
         gtk_widget_set_sensitive(dst_port_lbl, FALSE);
-        gtk_widget_set_sensitive(dst_port_te, FALSE);
-        gtk_widget_set_sensitive(tag_lbl, FALSE);
-        gtk_widget_set_sensitive(tag_te, FALSE);
-        gtk_widget_set_sensitive(ppi_lbl, FALSE);
-        gtk_widget_set_sensitive(ppi_te, FALSE);
+        gtk_widget_set_sensitive(dst_port_te,  FALSE);
+        gtk_widget_set_sensitive(tag_lbl,      FALSE);
+        gtk_widget_set_sensitive(tag_te,       FALSE);
+        gtk_widget_set_sensitive(ppi_lbl,      FALSE);
+        gtk_widget_set_sensitive(ppi_te,       FALSE);
     }
     else
     {
-        gtk_widget_set_sensitive(prot_lbl, FALSE);
-        gtk_widget_set_sensitive(prot_te, FALSE);
+        gtk_widget_set_sensitive(prot_lbl,     FALSE);
+        gtk_widget_set_sensitive(prot_te,      FALSE);
     }
 }
 
 static void
 header_udp_rb_toggle(GtkWidget *widget, gpointer data)
 {
-    GtkWidget *etype_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_LBL_KEY));
-    GtkWidget *etype_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_TE_KEY));
-    GtkWidget *prot_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_LBL_KEY));
-    GtkWidget *prot_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_TE_KEY));
+    GtkWidget *etype_lbl    = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_LBL_KEY));
+    GtkWidget *etype_te     = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_TE_KEY));
+    GtkWidget *prot_lbl     = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_LBL_KEY));
+    GtkWidget *prot_te      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_TE_KEY));
     GtkWidget *src_port_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_SRC_PORT_LBL_KEY));
     GtkWidget *src_port_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_SRC_PORT_TE_KEY));
     GtkWidget *dst_port_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_DST_PORT_LBL_KEY));
     GtkWidget *dst_port_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_DST_PORT_TE_KEY));
-    GtkWidget *tag_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_LBL_KEY));
-    GtkWidget *tag_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_TE_KEY));
-    GtkWidget *ppi_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_LBL_KEY));
-    GtkWidget *ppi_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_TE_KEY));
+    GtkWidget *tag_lbl      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_LBL_KEY));
+    GtkWidget *tag_te       = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_TE_KEY));
+    GtkWidget *ppi_lbl      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_LBL_KEY));
+    GtkWidget *ppi_te       = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_TE_KEY));
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
     {
-        gtk_widget_set_sensitive(etype_lbl, FALSE);
-        gtk_widget_set_sensitive(etype_te, FALSE);
-        gtk_widget_set_sensitive(prot_lbl, FALSE);
-        gtk_widget_set_sensitive(prot_te, FALSE);
+        gtk_widget_set_sensitive(etype_lbl,    FALSE);
+        gtk_widget_set_sensitive(etype_te,     FALSE);
+        gtk_widget_set_sensitive(prot_lbl,     FALSE);
+        gtk_widget_set_sensitive(prot_te,      FALSE);
         gtk_widget_set_sensitive(src_port_lbl, TRUE);
-        gtk_widget_set_sensitive(src_port_te, TRUE);
+        gtk_widget_set_sensitive(src_port_te,  TRUE);
         gtk_widget_set_sensitive(dst_port_lbl, TRUE);
-        gtk_widget_set_sensitive(dst_port_te, TRUE);
-        gtk_widget_set_sensitive(tag_lbl, FALSE);
-        gtk_widget_set_sensitive(tag_te, FALSE);
-        gtk_widget_set_sensitive(ppi_lbl, FALSE);
-        gtk_widget_set_sensitive(ppi_te, FALSE);
+        gtk_widget_set_sensitive(dst_port_te,  TRUE);
+        gtk_widget_set_sensitive(tag_lbl,      FALSE);
+        gtk_widget_set_sensitive(tag_te,       FALSE);
+        gtk_widget_set_sensitive(ppi_lbl,      FALSE);
+        gtk_widget_set_sensitive(ppi_te,       FALSE);
     }
     else
     {
         gtk_widget_set_sensitive(src_port_lbl, FALSE);
-        gtk_widget_set_sensitive(src_port_te, FALSE);
+        gtk_widget_set_sensitive(src_port_te,  FALSE);
         gtk_widget_set_sensitive(dst_port_lbl, FALSE);
-        gtk_widget_set_sensitive(dst_port_te, FALSE);
+        gtk_widget_set_sensitive(dst_port_te,  FALSE);
     }
 }
 
 static void
 header_tcp_rb_toggle(GtkWidget *widget, gpointer data)
 {
-    GtkWidget *etype_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_LBL_KEY));
-    GtkWidget *etype_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_TE_KEY));
-    GtkWidget *prot_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_LBL_KEY));
-    GtkWidget *prot_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_TE_KEY));
+    GtkWidget *etype_lbl    = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_LBL_KEY));
+    GtkWidget *etype_te     = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_TE_KEY));
+    GtkWidget *prot_lbl     = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_LBL_KEY));
+    GtkWidget *prot_te      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_TE_KEY));
     GtkWidget *src_port_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_SRC_PORT_LBL_KEY));
     GtkWidget *src_port_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_SRC_PORT_TE_KEY));
     GtkWidget *dst_port_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_DST_PORT_LBL_KEY));
     GtkWidget *dst_port_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_DST_PORT_TE_KEY));
-    GtkWidget *tag_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_LBL_KEY));
-    GtkWidget *tag_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_TE_KEY));
-    GtkWidget *ppi_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_LBL_KEY));
-    GtkWidget *ppi_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_TE_KEY));
+    GtkWidget *tag_lbl      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_LBL_KEY));
+    GtkWidget *tag_te       = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_TE_KEY));
+    GtkWidget *ppi_lbl      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_LBL_KEY));
+    GtkWidget *ppi_te       = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_TE_KEY));
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
     {
-        gtk_widget_set_sensitive(etype_lbl, FALSE);
-        gtk_widget_set_sensitive(etype_te, FALSE);
-        gtk_widget_set_sensitive(prot_lbl, FALSE);
-        gtk_widget_set_sensitive(prot_te, FALSE);
+        gtk_widget_set_sensitive(etype_lbl,    FALSE);
+        gtk_widget_set_sensitive(etype_te,     FALSE);
+        gtk_widget_set_sensitive(prot_lbl,     FALSE);
+        gtk_widget_set_sensitive(prot_te,      FALSE);
         gtk_widget_set_sensitive(src_port_lbl, TRUE);
-        gtk_widget_set_sensitive(src_port_te, TRUE);
+        gtk_widget_set_sensitive(src_port_te,  TRUE);
         gtk_widget_set_sensitive(dst_port_lbl, TRUE);
-        gtk_widget_set_sensitive(dst_port_te, TRUE);
-        gtk_widget_set_sensitive(tag_lbl, FALSE);
-        gtk_widget_set_sensitive(tag_te, FALSE);
-        gtk_widget_set_sensitive(ppi_lbl, FALSE);
-        gtk_widget_set_sensitive(ppi_te, FALSE);
+        gtk_widget_set_sensitive(dst_port_te,  TRUE);
+        gtk_widget_set_sensitive(tag_lbl,      FALSE);
+        gtk_widget_set_sensitive(tag_te,       FALSE);
+        gtk_widget_set_sensitive(ppi_lbl,      FALSE);
+        gtk_widget_set_sensitive(ppi_te,       FALSE);
     }
     else
     {
         gtk_widget_set_sensitive(src_port_lbl, FALSE);
-        gtk_widget_set_sensitive(src_port_te, FALSE);
+        gtk_widget_set_sensitive(src_port_te,  FALSE);
         gtk_widget_set_sensitive(dst_port_lbl, FALSE);
-        gtk_widget_set_sensitive(dst_port_te, FALSE);
+        gtk_widget_set_sensitive(dst_port_te,  FALSE);
     }
 }
 
 static void
 header_sctp_rb_toggle(GtkWidget *widget, gpointer data)
 {
-    GtkWidget *etype_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_LBL_KEY));
-    GtkWidget *etype_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_TE_KEY));
-    GtkWidget *prot_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_LBL_KEY));
-    GtkWidget *prot_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_TE_KEY));
+    GtkWidget *etype_lbl    = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_LBL_KEY));
+    GtkWidget *etype_te     = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_TE_KEY));
+    GtkWidget *prot_lbl     = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_LBL_KEY));
+    GtkWidget *prot_te      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_TE_KEY));
     GtkWidget *src_port_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_SRC_PORT_LBL_KEY));
     GtkWidget *src_port_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_SRC_PORT_TE_KEY));
     GtkWidget *dst_port_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_DST_PORT_LBL_KEY));
     GtkWidget *dst_port_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_DST_PORT_TE_KEY));
-    GtkWidget *tag_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_LBL_KEY));
-    GtkWidget *tag_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_TE_KEY));
-    GtkWidget *ppi_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_LBL_KEY));
-    GtkWidget *ppi_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_TE_KEY));
+    GtkWidget *tag_lbl      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_LBL_KEY));
+    GtkWidget *tag_te       = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_TE_KEY));
+    GtkWidget *ppi_lbl      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_LBL_KEY));
+    GtkWidget *ppi_te       = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_TE_KEY));
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
     {
-        gtk_widget_set_sensitive(etype_lbl, FALSE);
-        gtk_widget_set_sensitive(etype_te, FALSE);
-        gtk_widget_set_sensitive(prot_lbl, FALSE);
-        gtk_widget_set_sensitive(prot_te, FALSE);
+        gtk_widget_set_sensitive(etype_lbl,    FALSE);
+        gtk_widget_set_sensitive(etype_te,     FALSE);
+        gtk_widget_set_sensitive(prot_lbl,     FALSE);
+        gtk_widget_set_sensitive(prot_te,      FALSE);
         gtk_widget_set_sensitive(src_port_lbl, TRUE);
-        gtk_widget_set_sensitive(src_port_te, TRUE);
+        gtk_widget_set_sensitive(src_port_te,  TRUE);
         gtk_widget_set_sensitive(dst_port_lbl, TRUE);
-        gtk_widget_set_sensitive(dst_port_te, TRUE);
-        gtk_widget_set_sensitive(tag_lbl, TRUE);
-        gtk_widget_set_sensitive(tag_te, TRUE);
-        gtk_widget_set_sensitive(ppi_lbl, FALSE);
-        gtk_widget_set_sensitive(ppi_te, FALSE);
+        gtk_widget_set_sensitive(dst_port_te,  TRUE);
+        gtk_widget_set_sensitive(tag_lbl,      TRUE);
+        gtk_widget_set_sensitive(tag_te,       TRUE);
+        gtk_widget_set_sensitive(ppi_lbl,      FALSE);
+        gtk_widget_set_sensitive(ppi_te,       FALSE);
     }
     else
     {
         gtk_widget_set_sensitive(src_port_lbl, FALSE);
-        gtk_widget_set_sensitive(src_port_te, FALSE);
+        gtk_widget_set_sensitive(src_port_te,  FALSE);
         gtk_widget_set_sensitive(dst_port_lbl, FALSE);
-        gtk_widget_set_sensitive(dst_port_te, FALSE);
-        gtk_widget_set_sensitive(tag_lbl, FALSE);
-        gtk_widget_set_sensitive(tag_te, FALSE);
+        gtk_widget_set_sensitive(dst_port_te,  FALSE);
+        gtk_widget_set_sensitive(tag_lbl,      FALSE);
+        gtk_widget_set_sensitive(tag_te,       FALSE);
     }
 }
 
 static void
 header_sctp_data_rb_toggle(GtkWidget *widget, gpointer data)
 {
-    GtkWidget *etype_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_LBL_KEY));
-    GtkWidget *etype_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_TE_KEY));
-    GtkWidget *prot_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_LBL_KEY));
-    GtkWidget *prot_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_TE_KEY));
+    GtkWidget *etype_lbl    = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_LBL_KEY));
+    GtkWidget *etype_te     = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_ETYPE_TE_KEY));
+    GtkWidget *prot_lbl     = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_LBL_KEY));
+    GtkWidget *prot_te      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PROT_TE_KEY));
     GtkWidget *src_port_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_SRC_PORT_LBL_KEY));
     GtkWidget *src_port_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_SRC_PORT_TE_KEY));
     GtkWidget *dst_port_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_DST_PORT_LBL_KEY));
     GtkWidget *dst_port_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_DST_PORT_TE_KEY));
-    GtkWidget *tag_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_LBL_KEY));
-    GtkWidget *tag_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_TE_KEY));
-    GtkWidget *ppi_lbl = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_LBL_KEY));
-    GtkWidget *ppi_te  = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_TE_KEY));
+    GtkWidget *tag_lbl      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_LBL_KEY));
+    GtkWidget *tag_te       = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_TAG_TE_KEY));
+    GtkWidget *ppi_lbl      = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_LBL_KEY));
+    GtkWidget *ppi_te       = GTK_WIDGET(g_object_get_data(G_OBJECT(data), IMPORT_HEADER_PPI_TE_KEY));
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
     {
-        gtk_widget_set_sensitive(etype_lbl, FALSE);
-        gtk_widget_set_sensitive(etype_te, FALSE);
-        gtk_widget_set_sensitive(prot_lbl, FALSE);
-        gtk_widget_set_sensitive(prot_te, FALSE);
+        gtk_widget_set_sensitive(etype_lbl,    FALSE);
+        gtk_widget_set_sensitive(etype_te,     FALSE);
+        gtk_widget_set_sensitive(prot_lbl,     FALSE);
+        gtk_widget_set_sensitive(prot_te,      FALSE);
         gtk_widget_set_sensitive(src_port_lbl, TRUE);
-        gtk_widget_set_sensitive(src_port_te, TRUE);
+        gtk_widget_set_sensitive(src_port_te,  TRUE);
         gtk_widget_set_sensitive(dst_port_lbl, TRUE);
-        gtk_widget_set_sensitive(dst_port_te, TRUE);
-        gtk_widget_set_sensitive(tag_lbl, FALSE);
-        gtk_widget_set_sensitive(tag_te, FALSE);
-        gtk_widget_set_sensitive(ppi_lbl, TRUE);
-        gtk_widget_set_sensitive(ppi_te, TRUE);
+        gtk_widget_set_sensitive(dst_port_te,  TRUE);
+        gtk_widget_set_sensitive(tag_lbl,      FALSE);
+        gtk_widget_set_sensitive(tag_te,       FALSE);
+        gtk_widget_set_sensitive(ppi_lbl,      TRUE);
+        gtk_widget_set_sensitive(ppi_te,       TRUE);
     }
     else
     {
         gtk_widget_set_sensitive(src_port_lbl, FALSE);
-        gtk_widget_set_sensitive(src_port_te, FALSE);
+        gtk_widget_set_sensitive(src_port_te,  FALSE);
         gtk_widget_set_sensitive(dst_port_lbl, FALSE);
-        gtk_widget_set_sensitive(dst_port_te, FALSE);
-        gtk_widget_set_sensitive(ppi_lbl, FALSE);
-        gtk_widget_set_sensitive(ppi_te, FALSE);
+        gtk_widget_set_sensitive(dst_port_te,  FALSE);
+        gtk_widget_set_sensitive(ppi_lbl,      FALSE);
+        gtk_widget_set_sensitive(ppi_te,       FALSE);
     }
 }
 
@@ -475,9 +464,9 @@ header_sctp_data_rb_toggle(GtkWidget *widget, gpointer data)
 static void
 file_import_open(text_import_info_t *info)
 {
-    int import_file_fd;
-    char *tmpname, *capfile_name = NULL;
-    int err;
+    int   import_file_fd;
+    char *tmpname, *capfile_name;
+    int   err;
     /* pcapng defs */
     wtapng_section_t            *shb_hdr;
     wtapng_iface_descriptions_t *idb_inf;
@@ -500,13 +489,13 @@ file_import_open(text_import_info_t *info)
     /* options */
     shb_hdr->opt_comment    = g_strdup_printf("File created by File->Import of file %s", info->import_text_filename);
     shb_hdr->shb_hardware   = NULL;                    /* UTF-8 string containing the
-                                                       * description of the hardware used to create this section. 
+                                                       * description of the hardware used to create this section.
                                                        */
-    shb_hdr->shb_os         = os_info_str->str;        /* UTF-8 string containing the name 
-                                                       * of the operating system used to create this section.   
+    shb_hdr->shb_os         = os_info_str->str;        /* UTF-8 string containing the name
+                                                       * of the operating system used to create this section.
                                                        */
     g_string_free(os_info_str, FALSE);                /* The actual string is not freed */
-    shb_hdr->shb_user_appl = appname;                 /* UTF-8 string containing the name 
+    shb_hdr->shb_user_appl  = appname;                /* UTF-8 string containing the name
                                                        *  of the application used to create this section.
                                                        */
 
@@ -604,17 +593,17 @@ setup_file_import(GtkWidget *main_w)
     /* Retrieve the input and import settings from the dialog */
 
     /* First the main components */
-    input_frm = GTK_WIDGET(g_object_get_data(G_OBJECT(main_w), INPUT_FRM_KEY));
+    input_frm  = GTK_WIDGET(g_object_get_data(G_OBJECT(main_w), INPUT_FRM_KEY));
     import_frm = GTK_WIDGET(g_object_get_data(G_OBJECT(main_w), IMPORT_FRM_KEY));
 
     /* Then the input frame controls of interest */
     {
-        GtkWidget *filename_te = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_FILENAME_TE_KEY));
+        GtkWidget *filename_te   = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_FILENAME_TE_KEY));
         GtkWidget *offset_hex_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_OFFSET_HEX_RB_KEY));
         GtkWidget *offset_oct_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_OFFSET_OCT_RB_KEY));
         GtkWidget *offset_dec_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_OFFSET_DEC_RB_KEY));
-        GtkWidget *timefmt_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_DATETIME_CB_KEY));
-        GtkWidget *timefmt_te = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_TIMEFMT_TE_KEY));
+        GtkWidget *timefmt_cb    = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_DATETIME_CB_KEY));
+        GtkWidget *timefmt_te    = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_TIMEFMT_TE_KEY));
 
         text_import_info->import_text_filename = g_strdup(gtk_entry_get_text(GTK_ENTRY(filename_te)));
 
@@ -639,26 +628,26 @@ setup_file_import(GtkWidget *main_w)
 
     /* Then the import frame controls of interest */
     {
-        GtkWidget *encap_co = GTK_WIDGET(g_object_get_data(G_OBJECT(import_frm), IMPORT_ENCAP_CO_KEY));
-        GtkWidget *header_frm = GTK_WIDGET(g_object_get_data(G_OBJECT(import_frm), IMPORT_HEADER_FRM_KEY));
-        GtkWidget *framelen_te = GTK_WIDGET(g_object_get_data(G_OBJECT(import_frm), IMPORT_FRAME_LENGTH_TE_KEY));
+        GtkWidget *encap_co            = GTK_WIDGET(g_object_get_data(G_OBJECT(import_frm), IMPORT_ENCAP_CO_KEY));
+        GtkWidget *header_frm          = GTK_WIDGET(g_object_get_data(G_OBJECT(import_frm), IMPORT_HEADER_FRM_KEY));
+        GtkWidget *framelen_te         = GTK_WIDGET(g_object_get_data(G_OBJECT(import_frm), IMPORT_FRAME_LENGTH_TE_KEY));
 
         /* Then the header frame controls of interest */
-        GtkWidget *header_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_CB_KEY));
+        GtkWidget *header_cb           = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_CB_KEY));
 
-        GtkWidget *header_eth_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_ETH_RB_KEY));
-        GtkWidget *header_ipv4_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_IPV4_RB_KEY));
-        GtkWidget *header_udp_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_UDP_RB_KEY));
-        GtkWidget *header_tcp_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_TCP_RB_KEY));
-        GtkWidget *header_sctp_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_SCTP_RB_KEY));
+        GtkWidget *header_eth_rb       = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_ETH_RB_KEY));
+        GtkWidget *header_ipv4_rb      = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_IPV4_RB_KEY));
+        GtkWidget *header_udp_rb       = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_UDP_RB_KEY));
+        GtkWidget *header_tcp_rb       = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_TCP_RB_KEY));
+        GtkWidget *header_sctp_rb      = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_SCTP_RB_KEY));
         GtkWidget *header_sctp_data_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_SCTP_D_RB_KEY));
 
-        GtkWidget *etype_te = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_ETYPE_TE_KEY));
-        GtkWidget *protocol_te = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_PROT_TE_KEY));
-        GtkWidget *src_port_te = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_SRC_PORT_TE_KEY));
-        GtkWidget *dst_port_te = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_DST_PORT_TE_KEY));
-        GtkWidget *tag_te = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_TAG_TE_KEY));
-        GtkWidget *ppi_te = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_PPI_TE_KEY));
+        GtkWidget *etype_te            = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_ETYPE_TE_KEY));
+        GtkWidget *protocol_te         = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_PROT_TE_KEY));
+        GtkWidget *src_port_te         = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_SRC_PORT_TE_KEY));
+        GtkWidget *dst_port_te         = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_DST_PORT_TE_KEY));
+        GtkWidget *tag_te              = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_TAG_TE_KEY));
+        GtkWidget *ppi_te              = GTK_WIDGET(g_object_get_data(G_OBJECT(header_frm), IMPORT_HEADER_PPI_TE_KEY));
 
         GtkTreeIter iter;
 
@@ -672,11 +661,11 @@ setup_file_import(GtkWidget *main_w)
             (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(header_cb))))
         {
             text_import_info->dummy_header_type =
-                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(header_eth_rb)) ? HEADER_ETH :
-                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(header_ipv4_rb)) ? HEADER_IPV4 :
-                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(header_udp_rb)) ? HEADER_UDP :
-                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(header_tcp_rb)) ? HEADER_TCP :
-                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(header_sctp_rb)) ? HEADER_SCTP :
+                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(header_eth_rb))       ? HEADER_ETH :
+                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(header_ipv4_rb))      ? HEADER_IPV4 :
+                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(header_udp_rb))       ? HEADER_UDP :
+                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(header_tcp_rb))       ? HEADER_TCP :
+                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(header_sctp_rb))      ? HEADER_SCTP :
                 gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(header_sctp_data_rb)) ? HEADER_SCTP_DATA :
                 HEADER_NONE;
 
@@ -842,7 +831,7 @@ file_import_dlg_new(void)
     GtkWidget  *main_w, *main_vb,
                *input_frm, *input_tb, *input_vb,
                *filename_hb, *filename_lbl, *filename_te, *browse_bt,
-               *offset_hb, *offset_lbl_vb, *offset_lbl, *offset_rb_vb,
+               *offset_lbl, *offset_rb_vb,
                *offset_hex_rb, *offset_oct_rb, *offset_dec_rb,
                *timefmt_hb, *timefmt_cb, *timefmt_lbl, *timefmt_te,
                *import_frm, *import_vb,
@@ -907,12 +896,6 @@ file_import_dlg_new(void)
     g_signal_connect(browse_bt, "clicked", G_CALLBACK(browse_file_cb), filename_te);
 
     /* Offsets */
-    offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-    gtk_container_set_border_width(GTK_CONTAINER(offset_hb), 3);
-    gtk_box_pack_start(GTK_BOX(input_vb), offset_hb, FALSE, FALSE, 0);
-
-    offset_lbl_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
-    gtk_box_pack_start(GTK_BOX(offset_hb), offset_lbl_vb, FALSE, FALSE, 0);
 
     offset_lbl = gtk_label_new("Offsets:");
     gtk_misc_set_alignment(GTK_MISC(offset_lbl), 1.0f, 0.0f);
@@ -957,7 +940,9 @@ file_import_dlg_new(void)
     g_object_set_data(G_OBJECT(timefmt_cb), INPUT_TIMEFMT_LBL_KEY, timefmt_lbl);
 
     timefmt_te = gtk_entry_new();
-    gtk_widget_set_tooltip_text(timefmt_te, "The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)");
+    gtk_widget_set_tooltip_text(timefmt_te,
+                                "The format in which to parse timestamps in the text file (eg. %H:%M:%S.)."
+                                " Format specifiers are based on strptime(3)");
     gtk_box_pack_start(GTK_BOX(timefmt_hb), timefmt_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(timefmt_cb), INPUT_TIMEFMT_TE_KEY, timefmt_te);
@@ -1159,7 +1144,8 @@ file_import_dlg_new(void)
     gtk_box_pack_start(GTK_BOX(framelen_hb), framelen_lbl, FALSE, FALSE, 0);
 
     framelen_te = gtk_entry_new();
-    gtk_widget_set_tooltip_text(framelen_te, "The maximum size of the frames to write to the import capture file (max 64000)");
+    gtk_widget_set_tooltip_text(framelen_te,
+                                "The maximum size of the frames to write to the import capture file (max 64000)");
     gtk_box_pack_start(GTK_BOX(framelen_hb), framelen_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(import_frm), IMPORT_FRAME_LENGTH_TE_KEY, framelen_te);
