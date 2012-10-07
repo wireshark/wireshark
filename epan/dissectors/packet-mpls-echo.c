@@ -190,6 +190,21 @@ static int hf_mpls_echo_lspping_tlv_pw_dst_ac_id = -1;
 static int hf_mpls_echo_lspping_tlv_pw_agi_type = -1;
 static int hf_mpls_echo_lspping_tlv_pw_agi_len = -1;
 static int hf_mpls_echo_lspping_tlv_pw_agi_val = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_p2mp_id = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_mbz1 = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_tunnel_id = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_ext_tunnel_id = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_ipv4_sender = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_mbz2 = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_lsp_id = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_p2mp_id = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ext_tunnel_id = -1;
+static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ipv6_sender = -1;
+static int hf_mpls_echo_tlv_echo_jitter = -1;
+static int hf_mpls_echo_tlv_responder_indent_type = -1;
+static int hf_mpls_echo_tlv_responder_indent_len = -1;
+static int hf_mpls_echo_tlv_responder_indent_ipv4 = -1;
+static int hf_mpls_echo_tlv_responder_indent_ipv6 = -1;
 
 static gint ett_mpls_echo = -1;
 static gint ett_mpls_echo_gflags = -1;
@@ -251,8 +266,12 @@ static const value_string mpls_echo_returncode[] = {
 #define TLV_ILSO_IPv6              0x0008
 #define TLV_ERRORED_TLV            0x0009
 #define TLV_REPLY_TOS              0x000A
+#if 0
 #define TLV_RTO_IPv4               0x000B
 #define TLV_RTO_IPv6               0x000C
+#endif
+#define TLV_P2MP_RESPONDER_IDENT   0x000B
+#define TLV_P2MP_ECHO_JITTER       0x000C
 /* As per RFC 6426 http://tools.ietf.org/html/rfc6426 Section: 2.2.1 */
 #define TLV_SRC_IDENTIFIER         0x000D
 #define TLV_DST_IDENTIFIER         0x000E
@@ -275,8 +294,12 @@ static const value_string mpls_echo_tlv_type_names[] = {
     { TLV_ILSO_IPv6,                 "IPv6 Interface and Label Stack Object" },
     { TLV_ERRORED_TLV,               "Errored TLVs" },
     { TLV_REPLY_TOS,                 "Reply TOS Byte" },
+#if 0
     { TLV_RTO_IPv4,                  "IPv4 Reply-to Object" },
     { TLV_RTO_IPv6,                  "IPv6 Reply-to Object" },
+#endif
+    { TLV_P2MP_RESPONDER_IDENT,      "P2MP Responder Identifier" },
+    { TLV_P2MP_ECHO_JITTER,          "P2MP Echo Jitter" },
     { TLV_VENDOR_PRIVATE_START,      "Vendor Private" },
     { TLV_REVERSE_PATH_FEC_STACK,    "Reverse-path Target FEC Stack" },
     { TLV_SRC_IDENTIFIER,            "Source Identifier TLV" },
@@ -300,6 +323,9 @@ static const value_string mpls_echo_tlv_type_names[] = {
 #define TLV_FEC_STACK_GEN_IPv4             14
 #define TLV_FEC_STACK_GEN_IPv6             15
 #define TLV_FEC_STACK_NIL                  16
+/*As per RFC 6425, http://tools.ietf.org/html/rfc6425 Section: 3.1 */
+#define TLV_FEC_STACK_P2MP_IPv4            17
+#define TLV_FEC_STACK_P2MP_IPv6            18
 /*As per RFC 6426, http://tools.ietf.org/html/rfc6426 Section: 2.3 */
 #define TLV_FEC_STACK_STATIC_LSP           22
 #define TLV_FEC_STACK_STATIC_PW            23
@@ -324,6 +350,8 @@ static const value_string mpls_echo_tlv_fec_names[] = {
     { TLV_FEC_STACK_GEN_IPv4,       "Generic IPv4 prefix"},
     { TLV_FEC_STACK_GEN_IPv6,       "Generic IPv6 prefix"},
     { TLV_FEC_STACK_NIL,            "Nil FEC"},
+    { TLV_FEC_STACK_P2MP_IPv4,      "RSVP P2MP IPv4 Session Query"},
+    { TLV_FEC_STACK_P2MP_IPv6,      "RSVP P2MP IPv6 Session Query"},
     { TLV_FEC_STACK_STATIC_LSP,     "Static LSP"},
     { TLV_FEC_STACK_STATIC_PW,      "Static Pseudowire"},
     { TLV_FEC_VENDOR_PRIVATE_START, "Vendor Private"},
@@ -384,6 +412,19 @@ static const value_string mpls_echo_tlv_pad[] = {
     { 1, "Drop Pad TLV from reply" },
     { 2, "Copy Pad TLV to reply" },
     { 0, NULL}
+};
+
+/* [RFC 6425] */
+#define TLV_P2MP_RESPONDER_IDENT_IPV4_EGRESS_ADDR 1
+#define TLV_P2MP_RESPONDER_IDENT_IPV6_EGRESS_ADDR 2
+#define TLV_P2MP_RESPONDER_IDENT_IPV4_NODE_ADDR 3
+#define TLV_P2MP_RESPONDER_IDENT_IPV6_NODE_ADDR 4
+static const value_string mpls_echo_tlv_responder_ident_sub_tlv_type[] = {
+    { TLV_P2MP_RESPONDER_IDENT_IPV4_EGRESS_ADDR,    "IPv4 Egress Address P2MP Responder Identifier"},
+    { TLV_P2MP_RESPONDER_IDENT_IPV6_EGRESS_ADDR,    "IPv6 Egress Address P2MP Responder Identifier"},
+    { TLV_P2MP_RESPONDER_IDENT_IPV4_NODE_ADDR,      "IPv4 Node Address P2MP Responder Identifier"},
+    { TLV_P2MP_RESPONDER_IDENT_IPV6_NODE_ADDR,      "IPv6 Node Address P2MP Responder Identifier"},
+    {0, NULL}
 };
 
 #define TLV_ADDR_IPv4           1
@@ -630,6 +671,59 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                     offset += 4;
                     nil_idx++;
                 }
+                break;
+            case TLV_FEC_STACK_P2MP_IPv4:
+                if (length != 20) {
+                    proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
+                                        "Error processing sub-TLV: length is %d, should be 20",
+                                        length);
+                    return;
+                }
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_p2mp_id,
+                                    tvb, offset + 4, 4, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_mbz1,
+                                    tvb, offset + 8, 2, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_tunnel_id,
+                                    tvb, offset + 10, 2, FALSE);
+                proto_tree_add_text(tlv_fec_tree, tvb, offset + 12, 4,
+                                    "Extended Tunnel ID: 0x%08X (%s)", tvb_get_ntohl(tvb, offset + 12),
+                                    ip_to_str(tvb_get_ptr(tvb, offset + 12, 4)));
+                hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_ext_tunnel_id,
+                                                  tvb, offset + 12, 4, FALSE);
+                PROTO_ITEM_SET_HIDDEN(hidden_item);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_ipv4_sender,
+                                    tvb, offset + 16, 4, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_mbz2,
+                                    tvb, offset + 20, 2, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_lsp_id,
+                                    tvb, offset + 22, 2, FALSE);
+                break;
+
+            case TLV_FEC_STACK_P2MP_IPv6:
+                if (length != 56) {
+                    proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
+                                        "Error processing sub-TLV: length is %d, should be 56",
+                                        length);
+                    return;
+                }
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_p2mp_id,
+                                    tvb, offset + 4, 16, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_mbz1,
+                                    tvb, offset + 20, 2, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_tunnel_id,
+                                    tvb, offset + 22, 2, FALSE);
+                proto_tree_add_text(tlv_fec_tree, tvb, offset + 24, 16, "Extended Tunnel ID: 0x%s (%s)",
+                                    tvb_bytes_to_str(tvb, offset + 24, 16),
+                                    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 24, 16)));
+                hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ext_tunnel_id,
+                                                  tvb, offset + 24, 16, FALSE);
+                PROTO_ITEM_SET_HIDDEN(hidden_item);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ipv6_sender,
+                                    tvb, offset + 40, 16, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
+                                    tvb, offset + 56, 2, FALSE);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_lsp_id,
+                                    tvb, offset + 58, 2, FALSE);
                 break;
             case TLV_FEC_STACK_STATIC_LSP:
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_lspping_tlv_src_gid,
@@ -1240,6 +1334,8 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
     guint16     type, saved_type;
     int         length;
     proto_tree *ti = NULL, *mpls_echo_tlv_tree = NULL;
+    proto_item *hidden_item;
+    guint16     resp_ident_type = 0, resp_ident_len = 0;
 
     length = tvb_reported_length_remaining(tvb, offset);
     rem = MIN(rem, length);
@@ -1317,6 +1413,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
             }
             dissect_mpls_echo_tlv_ilso(tvb, offset + 4, mpls_echo_tlv_tree, length, TRUE);
             break;
+#if 0
         case TLV_RTO_IPv4:
             if (length != 4) {
                 proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
@@ -1336,6 +1433,57 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
             }
             proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_rto_ipv6,
                                 tvb, offset + 4, 16, ENC_NA);
+            break;
+#endif
+        case TLV_P2MP_ECHO_JITTER:
+            if (length != 4) {
+                proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
+                                    "Error processing TLV: length is %d, should be 4",
+                                    length);
+                break;
+            }
+            proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_echo_jitter,
+                                tvb, offset + 4, 4, FALSE);
+            break;
+        case TLV_P2MP_RESPONDER_IDENT:
+            resp_ident_type = tvb_get_ntohs(tvb, offset + 4);
+            resp_ident_len = tvb_get_ntohs(tvb, offset + 6);
+            /* Check addr length */
+            switch (resp_ident_type) {
+            case TLV_P2MP_RESPONDER_IDENT_IPV4_EGRESS_ADDR:
+            case TLV_P2MP_RESPONDER_IDENT_IPV4_NODE_ADDR:
+                if (resp_ident_len != 4) {
+                    proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
+                                        "Error processing TLV: length is %d, should be 4",
+                                        resp_ident_len);
+                    break;
+                }
+                proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_type,
+                                    tvb, offset + 4, 2, FALSE);
+                hidden_item = proto_tree_add_item(mpls_echo_tlv_tree,
+                                                  hf_mpls_echo_tlv_responder_indent_len, tvb,
+                                                  offset + 6, 2, FALSE);
+                PROTO_ITEM_SET_HIDDEN(hidden_item);
+                proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_ipv4,
+                                    tvb, offset + 8, 4, FALSE);
+                break;
+            case TLV_P2MP_RESPONDER_IDENT_IPV6_EGRESS_ADDR:
+            case TLV_P2MP_RESPONDER_IDENT_IPV6_NODE_ADDR:
+                if (resp_ident_len != 16) {
+                    proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
+                                        "Error processing TLV: length is %d, should be 16",
+                                        resp_ident_len);
+                    break;
+                }
+                proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_type,
+                                    tvb, offset + 4, 2, FALSE);
+                hidden_item = proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_len,
+                                                  tvb, offset + 6, 2, FALSE);
+                PROTO_ITEM_SET_HIDDEN(hidden_item);
+                proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_ipv4,
+                                    tvb, offset + 8, 16, FALSE);
+                break;
+            }
             break;
         case TLV_VENDOR_PRIVATE_START:
             if (length < 4) { /* SMI Enterprise code */
@@ -2115,6 +2263,66 @@ proto_register_mpls_echo(void)
         { &hf_mpls_echo_tlv_dd_map_value,
           { "Sub-TLV Value", "mpls_echo.subtlv.dd_map.value",
             FT_BYTES, BASE_NONE, NULL, 0x0, "Detailed Downstream Mapping TLV Value", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_p2mp_id,
+          { "P2MP ID", "mpls_echo.tlv.fec.rsvp_p2mp_ipv4_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP P2MP ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_mbz1,
+          { "Must Be Zero", "mpls_echo.tlv.fec.rsvp_p2mp_ip_mbz1",
+            FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP P2MP MBZ", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_tunnel_id,
+          { "Tunnel ID", "mpls_echo.tlv.fec.rsvp_p2mp_ip_tun_id",
+            FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP P2MP Tunnel ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_ext_tunnel_id,
+          { "Extended Tunnel ID", "mpls_echo.tlv.fec.rsvp_p2mp_ipv4_ext_tun_id",
+            FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP P2MP IPv4 Extended Tunnel ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_ipv4_sender,
+          { "IPv4 Tunnel sender address", "mpls_echo.tlv.fec.rsvp_p2mp_ipv4_sender",
+            FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP P2MP IPv4 Sender", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_mbz2,
+          { "Must Be Zero", "mpls_echo.tlv.fec.rsvp_p2mp_ip_mbz2",
+            FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP P2MP MBZ", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_lsp_id,
+          { "LSP ID", "mpls_echo.tlv.fec.rsvp_p2mp_ip_lsp_id",
+            FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP P2MP LSP ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_p2mp_id,
+          { "P2MP IPv6 Tunnel ID address", "mpls_echo.tlv.fec.rsvp_p2mp_ipv6_id",
+            FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP P2MP IPv6 ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ext_tunnel_id,
+          { "Extended Tunnel ID", "mpls_echo.tlv.fec.rsvp_p2mp_ipv6_ext_tun_id",
+            FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP P2MP IPv6 Extended Tunnel ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ipv6_sender,
+          { "P2MP IPv6 Tunnel sender address", "mpls_echo.tlv.fec.rsvp_p2mp_ipv6_sender",
+            FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP P2MP IPv6 Sender", HFILL}
+        },
+        { &hf_mpls_echo_tlv_responder_indent_type,
+          { "Target Type", "mpls_echo.tlv.resp_id.type",
+            FT_UINT16, BASE_DEC, VALS(mpls_echo_tlv_responder_ident_sub_tlv_type), 0x0, "P2MP Responder ID TLV", HFILL}
+        },
+        { &hf_mpls_echo_tlv_responder_indent_len,
+          { "Length", "mpls_echo.tlv.resp_id.length",
+            FT_UINT16, BASE_DEC, NULL, 0x0, "P2MP Responder ID TLV LENGTH", HFILL}
+        },
+        { &hf_mpls_echo_tlv_responder_indent_ipv4,
+          { "Target IPv4 Address", "mpls_echo.tlv.resp_id.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, "P2MP Responder ID TLV IPv4 Address", HFILL}
+        },
+        { &hf_mpls_echo_tlv_responder_indent_ipv6,
+          { "Target IPv6 Address", "mpls_echo.tlv.resp_id.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, "P2MP Responder ID TLV IPv6 Address", HFILL}
+        },
+        { &hf_mpls_echo_tlv_echo_jitter,
+          { "Echo Jitter time", "mpls_echo.tlv.echo_jitter",
+            FT_UINT32, BASE_DEC, NULL, 0x0, "MPLS ECHO Jitter time", HFILL}
         },
     };
 
