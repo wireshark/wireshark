@@ -210,6 +210,85 @@ static void after_array(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 	ep_stack_pop(data->stack);
 }
 
+static char *json_string_unescape(tvbparse_elem_t *tok)
+{
+	char *str = ep_alloc(tok->len - 1);
+	int i, j;
+
+	j = 0;
+	for (i = 1; i < tok->len - 1; i++) {
+		guint8 ch = tvb_get_guint8(tok->tvb, tok->offset + i);
+
+		if (ch == '\\') {
+			i++;
+
+			ch = tvb_get_guint8(tok->tvb, tok->offset + i);
+			switch (ch) {
+				case '\"':
+				case '\\':
+				case '/':
+				default:
+					str[j++] = ch;
+					break;
+
+				case 'b':
+					str[j++] = '\b';
+					break;
+				case 'f':
+					str[j++] = '\f';
+					break;
+				case 'n':
+					str[j++] = '\n';
+					break;
+				case 'r':
+					str[j++] = '\r';
+					break;
+				case 't':
+					str[j++] = '\t';
+					break;
+
+				case 'u':
+				{
+					guint16 unicode_hex = 0;
+					gboolean valid = TRUE;
+					int k;
+
+					for (k = 0; k < 4; k++) {
+						i++;
+						unicode_hex <<= 4;
+
+						ch = tvb_get_guint8(tok->tvb, tok->offset + i);
+						if (ch >= '0' && ch <= '9')
+							unicode_hex |= (ch - '0');
+						else if (ch >= 'a' && ch <= 'f')
+							unicode_hex |= (ch - 'a');
+						else if (ch >= 'A' && ch <= 'F')
+							unicode_hex |= (ch - 'A');
+						else {
+							valid = FALSE;
+							break;
+						}
+					}
+
+					if (valid) {
+						/* \uXXXX => 6 bytes */
+						int charlen = g_unichar_to_utf8(unicode_hex, &str[j]);
+						j += charlen;
+					} else
+						str[j++] = '?';
+					break;
+				}
+			}
+
+		} else 
+			str[j++] = ch;
+
+	}
+	str[j] = '\0';
+
+	return str;
+}
+
 static void after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
@@ -221,14 +300,9 @@ static void after_value(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 
 	switch (value_id) {
 		case JSON_TOKEN_STRING:
-			if (tok->len >= 2) {
-				char *str = ep_alloc(tok->len - 1);
-
-				/* XXX, for now only strip quotes, later we can unescape string */
-				tvb_memcpy(tok->tvb, str, tok->offset + 1, tok->len - 2);
-				str[tok->len - 2] = '\0';
-				proto_tree_add_string(tree, hf_json_value_string, tok->tvb, tok->offset, tok->len, str);
-			} else
+			if (tok->len >= 2)
+				proto_tree_add_unicode_string(tree, hf_json_value_string, tok->tvb, tok->offset, tok->len, json_string_unescape(tok));
+			else
 				proto_tree_add_item(tree, hf_json_value_string, tok->tvb, tok->offset, tok->len, ENC_ASCII|ENC_NA);
 			break;
 
