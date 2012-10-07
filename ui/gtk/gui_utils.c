@@ -159,8 +159,32 @@ window_new(GtkWindowType  type,
     /* a lot of people dislike GTK_WIN_POS_MOUSE */
 
     /* set the initial position (must be done, before show is called!) */
-/*  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);*/
     gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_NONE);
+
+    if (top_level) {
+        GdkScreen *default_screen;
+        gint x, y, n;
+
+        /* Ideally, new windows would open on the same monitor where the main
+         * window is located, but this doesn't happen when the main window is
+         * not located on the primary monitor.  So, if there's more than 1
+         * monitor and Wireshark's main window isn't located on the primary
+         * one, attempt to improve the situation by at least displaying the new
+         * window somewhere on the same monitor, even if it won't be positioned
+         * the same way as it would be when it's on the primary monitor.  Don't
+         * attempt to influence the placement on the primary monitor though,
+         * because that's probably the preferred placement strategy.  But how
+         * to make window placement behave the same way on any monitor?
+         */
+        default_screen = gdk_screen_get_default();
+        n = gdk_screen_get_n_monitors(default_screen);
+        if (n > 1) {
+            gtk_window_get_position(GTK_WINDOW(top_level), &x, &y);
+            n = gdk_screen_get_monitor_at_point(default_screen, x, y);
+            if (n > 0)
+                gtk_window_move(GTK_WINDOW(win), x + 40, y + 30);
+        }
+    }
 
     return win;
 }
