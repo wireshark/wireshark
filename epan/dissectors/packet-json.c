@@ -274,7 +274,27 @@ static void init_json_parser(void) {
 #define tvbparse_optional(id, private_data, before_cb, after_cb, wanted) \
 	tvbparse_some(id, 0, 1, private_data, before_cb, after_cb, wanted)
 
-	want_string = tvbparse_quoted(JSON_TOKEN_STRING, NULL, NULL, NULL, '\"', '\\');
+	tvbparse_wanted_t *want_quot = tvbparse_char(-1,"\"",NULL,NULL,NULL);
+
+	want_string = tvbparse_set_seq(JSON_TOKEN_STRING, NULL, NULL, NULL,
+			want_quot,
+			tvbparse_some(-1, 0, G_MAXINT, NULL, NULL, NULL,
+				tvbparse_set_oneof(-1, NULL, NULL, NULL,
+					tvbparse_not_chars(-1, 0, 0, "\"" "\\", NULL, NULL, NULL), /* XXX, without invalid unicode characters */
+					tvbparse_set_seq(-1, NULL, NULL, NULL,
+						tvbparse_char(-1, "\\", NULL, NULL, NULL),
+						tvbparse_set_oneof(-1, NULL, NULL, NULL,
+							tvbparse_chars(-1, 0, 1, "\"" "\\" "/bfnrt", NULL, NULL, NULL),
+							tvbparse_set_seq(-1, NULL, NULL, NULL,
+								tvbparse_char(-1, "u", NULL, NULL, NULL),
+								tvbparse_chars(-1, 4, 4, "0123456789abcdef", NULL, NULL, NULL),
+								NULL),
+							NULL),
+						NULL),
+					NULL)
+				),
+			want_quot,
+			NULL);
 
 	want_value_separator = tvbparse_char(-1, ",", NULL, NULL, NULL);
 
