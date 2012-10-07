@@ -261,9 +261,9 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 						if (ch >= '0' && ch <= '9')
 							unicode_hex |= (ch - '0');
 						else if (ch >= 'a' && ch <= 'f')
-							unicode_hex |= (ch - 'a');
+							unicode_hex |= (10 + (ch - 'a'));
 						else if (ch >= 'A' && ch <= 'F')
-							unicode_hex |= (ch - 'A');
+							unicode_hex |= (10 + (ch - 'A'));
 						else {
 							valid = FALSE;
 							break;
