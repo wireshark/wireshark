@@ -153,9 +153,6 @@ typedef struct _emem_header_t {
 } emem_header_t;
 
 static GSList *ep_pool_stack = NULL;
-/* Some functions use ep_ calls when there isn't actually a packet in scope.
- * These should perhaps be fixed, but in the meantime, ep_fake_pool is used
- * to handle those cases. */
 static emem_header_t ep_fake_pool;
 static emem_header_t *ep_packet_mem = &ep_fake_pool;
 static emem_header_t se_packet_mem;
@@ -1242,7 +1239,72 @@ emem_free_all(emem_header_t *mem)
 	}
 }
 
-emem_header_t *ep_create_pool(void)
+/* The ep_* memory pool manager has gone through three stages, and a bit
+ * of history of the previous stages is necessary to understand the current
+ * design.
+ *
+ * Originally, there was one static ep_packet_mem pool that was used similarly
+ * to the way that se_packet_mem is still used. The standard sequence looked
+ * like this:
+ * - dissect packet 1
+ * - empty the pool
+ * - dissect packet 2
+ * ...
+ *
+ * This design ran into the problem listed in bug #5284 [1]. Specifically,
+ * because of the way that gtk/glib callbacks and signals are designed, it
+ * was possible to start dissecting a second packet before the first packet
+ * was finished. This led to the following sequence:
+ * - start dissecting packet 1
+ * -- dissect packet 2
+ * -- empty the pool
+ * - continue dissecting packet 1
+ * ...
+ *
+ * This obviously led to use-after-free errors, as packet 1 would have its
+ * ep_* pool emptied out from underneath it. To solve this problem, the ep_*
+ * pool (by way of the edt struct) was ref-counted in revision 42254 [2].
+ *
+ * Unfortunately, as Jakub discovered and described in [3], this had its own
+ * problems. It turns out that in certain cases we needed to keep the old edt
+ * around until after the new one was created, but this meant that our refcount
+ * never hit zero - it was incremented before it was decremented - and so the
+ * pool never got emptied.
+ *
+ * The current state was commited in revision 45389 [4], and is a bit more
+ * involved. The truly *correct* solution would be have been to have each caller
+ * of ep_alloc() or related functions pass in their packet-ID and use that
+ * to determine which pool to use for the allocation. Unfortunately, that would
+ * have been a massive amount of work to change every single caller of the ep_*
+ * functions. Instead, we cheat.
+ *
+ * We did make each edt struct own its own ep_ pool the way they should, but
+ * instead of requiring the callers to pass in an ID and thus changing the API,
+ * we maintain a GSList ep_pool_stack of active pools and do some magic in the
+ * functions used to create and destroy ep pools (ep_create_pool() and
+ * ep_free_pool()). The GSList behaves almost, but not quite entirely like a
+ * stack. Specifically, new pools get added to the top of the stack, and all
+ * allocations occur in the pool at the top of the stack, but a finished
+ * pool can be removed from anywhere in the stack. The old, static
+ * ep_packet_mem was changed to a pointer to the pool at the top of the stack.
+ * The sequence of events during dissection is now a bit more convoluted than
+ * it was, but it does solve both original problems: memory is always freed,
+ * but never until everyone is done with it.
+ *
+ * The ep_fake_pool is a bonus addition that is needed because some functions
+ * use ep_ calls when there isn't actually a packet in scope. These should
+ * perhaps be fixed, but in the meantime, ep_fake_pool is used to handle those
+ * cases. Since it is never passed to ep_free_pool() itself, we make sure to
+ * empty it whenever we add a new pool to the stack, since presumably whatever
+ * is in it is stale, although we have no way of knowing for sure.
+ *
+ * [1] https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5284
+ * [2] https://anonsvn.wireshark.org/viewvc?view=revision&revision=42254
+ * [3] https://www.wireshark.org/lists/wireshark-dev/201208/msg00128.html
+ * [4] https://anonsvn.wireshark.org/viewvc?view=revision&revision=45389
+ */
+emem_header_t *
+ep_create_pool(void)
 {
 	emem_header_t *mem;
 	
@@ -1261,7 +1323,8 @@ emem_header_t *ep_create_pool(void)
 	return mem;
 }
 
-void ep_free_pool(emem_header_t *mem)
+void
+ep_free_pool(emem_header_t *mem)
 {
 	ep_pool_stack = g_slist_remove(ep_pool_stack, mem);
 
