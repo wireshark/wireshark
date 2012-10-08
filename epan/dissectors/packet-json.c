@@ -361,7 +361,7 @@ static void init_json_parser(void) {
 							tvbparse_chars(-1, 0, 1, "\"" "\\" "/bfnrt", NULL, NULL, NULL),
 							tvbparse_set_seq(-1, NULL, NULL, NULL,
 								tvbparse_char(-1, "u", NULL, NULL, NULL),
-								tvbparse_chars(-1, 4, 4, "0123456789abcdef", NULL, NULL, NULL),
+								tvbparse_chars(-1, 4, 4, "0123456789abcdefABCDEF", NULL, NULL, NULL),
 								NULL),
 							NULL),
 						NULL),
