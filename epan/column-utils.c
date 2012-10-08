@@ -43,6 +43,26 @@
 #include <epan/strutil.h>
 #include <epan/epan.h>
 
+/* Cleanup all the data structures for constructing column data */
+void
+col_cleanup(column_info *cinfo)
+{
+  g_free(cinfo->col_fmt);
+  g_free(cinfo->fmt_matx);
+  g_free(cinfo->col_first);
+  g_free(cinfo->col_last);
+  g_free(cinfo->col_title);
+  g_free(cinfo->col_custom_field);
+  g_free(cinfo->col_custom_occurrence);
+  g_free(cinfo->col_custom_field_id);
+  g_free(cinfo->col_custom_dfilter);
+  g_free(cinfo->col_data);
+  g_free(cinfo->col_buf);
+  g_free(cinfo->col_fence);
+  g_free(cinfo->col_expr.col_expr);
+  g_free(cinfo->col_expr.col_expr_val);
+}
+
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
 void

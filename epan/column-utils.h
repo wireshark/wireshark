@@ -39,6 +39,12 @@ extern "C" {
  *  Helper routines for column utility structures and routines.
  */
 
+/** Cleanup all the data structures for constructing column data
+ *
+ * Internal, don't use this in dissectors!
+ */
+extern void	col_cleanup(column_info *cinfo);
+
 /** Allocate all the data structures for constructing column data, given
  * the number of columns.
  *

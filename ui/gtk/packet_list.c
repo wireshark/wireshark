@@ -130,6 +130,7 @@ packet_list_recreate(void)
 
 	prefs.num_cols = g_list_length(prefs.col_list);
 
+	col_cleanup(&cfile.cinfo);
 	build_column_format_array(&cfile.cinfo, prefs.num_cols, FALSE);
 
 	pkt_scrollw = packet_list_create();
