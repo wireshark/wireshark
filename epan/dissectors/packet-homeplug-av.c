@@ -1074,8 +1074,6 @@ static const value_string homeplug_av_tone_map_status_vals[] = {
    { 0, NULL }
 };
 
-#define	HOMEPLUG_AV_MAX_CARRIERS	(1156 / 2)
-
 #define TVB_LEN_GREATEST  1
 #define TVB_LEN_UNDEF     0
 #define TVB_LEN_SHORTEST -1
@@ -2644,6 +2642,8 @@ dissect_homeplug_av_tone_map_cnf(ptvcursor_t *cursor)
 {
    proto_item *it;
    guint16     i;
+   guint16     num_act_carriers;
+   guint16     max_carriers;
 
    if (!ptvcursor_tree(cursor))
       return;
@@ -2655,10 +2655,20 @@ dissect_homeplug_av_tone_map_cnf(ptvcursor_t *cursor)
       ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_status, 1, ENC_BIG_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_slot, 1, ENC_BIG_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_num_tms, 1, ENC_BIG_ENDIAN);
+      num_act_carriers = tvb_get_letohs(ptvcursor_tvbuff(cursor),
+				ptvcursor_current_offset(cursor));
       ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_num_act, 2, ENC_LITTLE_ENDIAN);
 
-      for (i = 0; i < HOMEPLUG_AV_MAX_CARRIERS; i++) {
-         dissect_homeplug_av_tone_map_carrier(cursor);
+      if (num_act_carriers) {
+         max_carriers = num_act_carriers / 2;
+
+          /* check if number of carriers is odd */
+         if (num_act_carriers & 1)
+ 	    max_carriers += 1;
+
+         for (i = 0; i < max_carriers; i++) {
+            dissect_homeplug_av_tone_map_carrier(cursor);
+         }
       }
    }
    ptvcursor_pop_subtree(cursor);
