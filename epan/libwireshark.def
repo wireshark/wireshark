@@ -87,6 +87,7 @@ col_append_sep_fstr
 col_append_sep_str
 col_append_str
 col_based_on_frame_data
+col_cleanup
 col_clear
 col_custom_prime_edt
 col_fill_in
