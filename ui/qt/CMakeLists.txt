@@ -43,6 +43,7 @@ set(QTSHARK_H_SRC
 	monospace_font.h
 	packet_list.h
 	packet_list_model.h
+	packet_range_group_box.h
 	progress_bar.h
 	proto_tree.h
 	recent_file_status.h
@@ -77,12 +78,14 @@ set(QTSHARK_CPP_SRC
 	packet_list.cpp
 	packet_list_model.cpp
 	packet_list_record.cpp
+	packet_range_group_box.cpp
 	progress_bar.cpp
 	proto_tree.cpp
 	qt_ui_utils.cpp
 	recent_file_status.cpp
 	simple_dialog_qt.cpp
 	sparkline_delegate.cpp
+	syntax_line_edit.cpp
 	wireshark_application.cpp
 )
 
@@ -95,6 +98,7 @@ set(QTSHARK_UI
 	import_text_dialog.ui
 	main_welcome.ui
 	main_window.ui
+	packet_range_group_box.ui
 )
 
 set(QTSHARK_QRC

@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PacketRangeGroupBox</class>
+ <widget class="QGroupBox" name="PacketRangeGroupBox">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>454</width>
+    <height>241</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="title">
+   <string>Packet Range</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="3">
+    <widget class="QLabel" name="selectedDisplayedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QRadioButton" name="displayedButton">
+     <property name="text">
+      <string>Displayed</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <attribute name="buttonGroup">
+      <string notr="true">capturedDisplayedButtonGroup</string>
+     </attribute>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLabel" name="allCapturedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QRadioButton" name="markedButton">
+     <property name="text">
+      <string>&amp;Marked packets only</string>
+     </property>
+     <attribute name="buttonGroup">
+      <string notr="true">packetSelectionButtonGroup</string>
+     </attribute>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QRadioButton" name="rangeButton">
+     <property name="text">
+      <string>&amp;Range:</string>
+     </property>
+     <attribute name="buttonGroup">
+      <string notr="true">packetSelectionButtonGroup</string>
+     </attribute>
+    </widget>
+   </item>
+   <item row="5" column="3">
+    <widget class="QLabel" name="rangeDisplayedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <widget class="QCheckBox" name="ignoredCheckBox">
+     <property name="text">
+      <string>Remove &amp;ignored packets</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <widget class="QLabel" name="markedDisplayedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QRadioButton" name="ftlMarkedButton">
+     <property name="text">
+      <string>First &amp;to last marked</string>
+     </property>
+     <attribute name="buttonGroup">
+      <string notr="true">packetSelectionButtonGroup</string>
+     </attribute>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QLabel" name="selectedCapturedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QRadioButton" name="allButton">
+     <property name="text">
+      <string>&amp;All packets</string>
+     </property>
+     <attribute name="buttonGroup">
+      <string notr="true">packetSelectionButtonGroup</string>
+     </attribute>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="QLabel" name="ftlCapturedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QLabel" name="allDisplayedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="QLabel" name="rangeCapturedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QRadioButton" name="selectedButton">
+     <property name="text">
+      <string>&amp;Selected packets only</string>
+     </property>
+     <attribute name="buttonGroup">
+      <string notr="true">packetSelectionButtonGroup</string>
+     </attribute>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QRadioButton" name="capturedButton">
+     <property name="text">
+      <string>Captured</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <attribute name="buttonGroup">
+      <string notr="true">capturedDisplayedButtonGroup</string>
+     </attribute>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QLabel" name="markedCapturedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <spacer name="horizontalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>63</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="5" column="1">
+    <widget class="SyntaxLineEdit" name="rangeLineEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3">
+    <widget class="QLabel" name="ftlDisplayedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2">
+    <widget class="QLabel" name="ignoredCapturedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="3">
+    <widget class="QLabel" name="ignoredDisplayedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SyntaxLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>syntax_line_edit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+ <buttongroups>
+  <buttongroup name="packetSelectionButtonGroup"/>
+  <buttongroup name="capturedDisplayedButtonGroup"/>
+ </buttongroups>
+</ui>

@@ -25,6 +25,7 @@
 #define CAPTURE_FILE_DIALOG_H
 
 #include "display_filter_edit.h"
+#include "packet_range_group_box.h"
 
 #include "packet_list_record.h"
 #include "cfile.h"
@@ -61,11 +62,11 @@ class CaptureFileDialog : public QFileDialog
 
     Q_OBJECT
 public:
-    explicit CaptureFileDialog(QWidget *parent = NULL, QString &display_filter = *new QString());
+    explicit CaptureFileDialog(QWidget *parent = NULL, capture_file *cf = NULL, QString &display_filter = *new QString());
     static check_savability_t checkSaveAsWithComments(QWidget *
 #if defined(Q_WS_WIN)
             parent
-#endif
+#endif // Q_WS_WIN
             , capture_file *cf, int file_type);
 
     int mergeType();
@@ -83,8 +84,9 @@ private:
     QVBoxLayout right_v_box_;
 
     QString &display_filter_;
+    capture_file *cap_file_;
     DisplayFilterEdit* display_filter_edit_;
-    int df_row_;
+    int last_row_;
 
     QLabel preview_format_;
     QLabel preview_size_;
@@ -101,9 +103,10 @@ private:
 
 #if !defined(Q_WS_WIN)
     void addResolutionControls(QVBoxLayout &v_box);
-    void addGzipControls(QVBoxLayout &v_box, capture_file *cf);
+    void addGzipControls(QVBoxLayout &v_box);
+    void addRangeControls(packet_range_t *range);
 
-    QStringList buildFileSaveAsTypeList(capture_file *cf, bool must_support_comments);
+    QStringList buildFileSaveAsTypeList(bool must_support_comments);
 
     int default_ft_;
 
@@ -113,6 +116,10 @@ private:
     QCheckBox external_res_;
 
     QCheckBox compress_;
+
+    PacketRangeGroupBox packet_range_group_box_;
+    QPushButton *save_bt_;
+
 #else // Q_WS_WIN
     int file_type_;
     int merge_type_;
@@ -125,8 +132,12 @@ public slots:
 
     int exec();
     int open(QString &file_name);
-    check_savability_t saveAs(capture_file *cf, QString &file_name, bool must_support_comments);
+    check_savability_t saveAs(QString &file_name, bool must_support_comments);
+    check_savability_t exportSelectedPackets(QString &file_name, packet_range_t *range);
     int merge(QString &file_name);
+#if !defined(Q_WS_WIN)
+    void rangeValidityChanged(bool is_valid);
+#endif // Q_WS_WIN
 
 private slots:
     void preview(const QString & path);

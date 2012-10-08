@@ -100,6 +100,9 @@ private:
     void importCaptureFile();
     void saveCaptureFile(capture_file *cf, bool stay_closed);
     void saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool stay_closed);
+    void exportSelectedPackets();
+
+    void fileAddExtension(QString &file_name, int file_type, bool compressed);
     bool testCaptureFileClose(bool from_quit = false, QString& before_what = *new QString());
     void captureStop();
 
@@ -155,6 +158,7 @@ private slots:
     void on_actionFileSetListFiles_triggered();
     void on_actionFileSetNextFile_triggered();
     void on_actionFileSetPreviousFile_triggered();
+    void on_actionFileExportPackets_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();

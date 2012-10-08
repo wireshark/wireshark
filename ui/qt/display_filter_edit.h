@@ -25,18 +25,13 @@
 #define DISPLAYFILTEREDIT_H
 
 #include <QtGui>
+#include "syntax_line_edit.h"
 
-class DisplayFilterEdit : public QLineEdit
+class DisplayFilterEdit : public SyntaxLineEdit
 {
     Q_OBJECT
-    Q_PROPERTY(SyntaxState syntaxState READ syntaxState)
-    Q_ENUMS(SyntaxState)
 public:
     explicit DisplayFilterEdit(QWidget *parent = 0, bool plain = false);
-    enum SyntaxState { Empty, Invalid, Deprecated, Valid };
-    SyntaxState syntaxState() const
-    { return syntax_state_; }
-
 
 protected:
     void paintEvent(QPaintEvent *evt);
@@ -52,9 +47,7 @@ private slots:
 private:
     bool plain_;
     bool field_name_only_;
-    SyntaxState syntax_state_;
     QString empty_filter_message_;
-    QString syntax_style_sheet_;
     QToolButton *bookmark_button_;
     QToolButton *clear_button_;
     QToolButton *apply_button_;

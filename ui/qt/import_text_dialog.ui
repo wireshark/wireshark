@@ -186,12 +186,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="maxLengthLineEdit">
+      <widget class="SyntaxLineEdit" name="maxLengthLineEdit">
        <property name="toolTip">
         <string>The maximum size of the frames to write to the import capture file (max 64000)</string>
-       </property>
-       <property name="inputMask">
-        <string>90000; </string>
        </property>
       </widget>
      </item>
@@ -250,21 +247,21 @@
       <item row="1" column="0" colspan="2">
        <layout class="QGridLayout" name="headerGridLayout">
         <item row="3" column="2">
-         <widget class="QLineEdit" name="sourcePortLineEdit">
+         <widget class="SyntaxLineEdit" name="sourcePortLineEdit">
           <property name="toolTip">
            <string>The UDP, TCP or SCTP source port for each frame</string>
           </property>
          </widget>
         </item>
         <item row="6" column="2">
-         <widget class="QLineEdit" name="ppiLineEdit">
+         <widget class="SyntaxLineEdit" name="ppiLineEdit">
           <property name="toolTip">
            <string>The SCTP DATA payload protocol identifier for each frame</string>
           </property>
          </widget>
         </item>
         <item row="4" column="2">
-         <widget class="QLineEdit" name="destinationPortLineEdit">
+         <widget class="SyntaxLineEdit" name="destinationPortLineEdit">
           <property name="toolTip">
            <string>The UDP, TCP or SCTP destination port for each frame</string>
           </property>
@@ -355,7 +352,7 @@
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QLineEdit" name="ethertypeLineEdit">
+         <widget class="SyntaxLineEdit" name="ethertypeLineEdit">
           <property name="toolTip">
            <string>The Ethertype value of each frame</string>
           </property>
@@ -375,7 +372,7 @@
          </widget>
         </item>
         <item row="5" column="2">
-         <widget class="QLineEdit" name="tagLineEdit">
+         <widget class="SyntaxLineEdit" name="tagLineEdit">
           <property name="toolTip">
            <string>The SCTP verification tag for each frame</string>
           </property>
@@ -396,7 +393,7 @@
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QLineEdit" name="protocolLineEdit">
+         <widget class="SyntaxLineEdit" name="protocolLineEdit">
           <property name="toolTip">
            <string>The IPv4 protocol ID for each frame</string>
           </property>
@@ -429,6 +426,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SyntaxLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>syntax_line_edit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

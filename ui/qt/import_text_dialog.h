@@ -32,6 +32,8 @@
 
 #include "ui/text_import.h"
 
+#include <syntax_line_edit.h>
+
 #include <QDialog>
 #include <QPushButton>
 #include <QRadioButton>
@@ -52,8 +54,9 @@ public:
 private:
     void convertTextFile();
     void enableHeaderWidgets(bool enable_buttons = true);
+    void check_line_edit(SyntaxLineEdit *le, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr);
 
-    Ui::ImportTextDialog *ui;
+    Ui::ImportTextDialog *ti_ui_;
 
     QPushButton *ok_button_;
     QList<QRadioButton *>encap_buttons_;

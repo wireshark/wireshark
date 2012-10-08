@@ -86,6 +86,7 @@ range_check_validity(packet_range_t *range)
   }
 }
 
+#include <stdio.h>
 gboolean
 range_check_validity_modal(GtkWidget *parent, packet_range_t *range)
 {
@@ -153,6 +154,7 @@ range_update_dynamics(gpointer data)
     gtk_widget_set_sensitive(range_displayed_bt, FALSE);
   }
 
+  /* All / Captured */
   gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_C_KEY), !filtered_active);
   if (range->remove_ignored) {
     g_snprintf(label_text, sizeof(label_text), "%u", cfile.count - range->ignored_cnt);
@@ -160,6 +162,8 @@ range_update_dynamics(gpointer data)
     g_snprintf(label_text, sizeof(label_text), "%u", cfile.count);
   }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_C_KEY)), label_text);
+
+  /* All / Displayed */
   gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_D_KEY), filtered_active);
   if (range->include_dependents)
     displayed_cnt = range->displayed_plus_dependents_cnt;
@@ -172,6 +176,7 @@ range_update_dynamics(gpointer data)
   }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_D_KEY)), label_text);
 
+  /* Selected / Captured + Displayed */
   /* Enable saving the currently-selected packet only if there *is* a
      currently-selected packet. */
   selected_num = (cfile.current_frame) ? cfile.current_frame->num : 0;
@@ -206,6 +211,7 @@ range_update_dynamics(gpointer data)
   }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_CURR_D_KEY)), label_text);
 
+  /* Marked / Captured + Displayed */
   /* Enable the buttons for saving marked packets only if there *are*
      marked packets. */
   if (filtered_active)
@@ -239,6 +245,8 @@ range_update_dynamics(gpointer data)
     g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_marked_cnt);
   }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_D_KEY)), label_text);
+
+  /* First to last marked / Captured + Displayed */
 
   /* Enable the buttons for saving the range of marked packets only if
      there *is* a range of marked packets. */
@@ -275,6 +283,8 @@ range_update_dynamics(gpointer data)
   }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_D_KEY)), label_text);
 
+  /* User specified / Captured + Displayed */
+
   gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_KEY), TRUE);
   gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_C_KEY), !filtered_active);
   gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_D_KEY), filtered_active);
@@ -291,6 +301,7 @@ range_update_dynamics(gpointer data)
   }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_D_KEY)), label_text);
 
+  /* Ignored */
   switch(range->process) {
   case(range_process_all):
     ignored_cnt = range->ignored_cnt;
@@ -332,7 +343,8 @@ range_update_dynamics(gpointer data)
   }
 
   g_snprintf(label_text, sizeof(label_text), "%u", ignored_cnt);
-  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_IGNORED_C_KEY)), label_text);  g_snprintf(label_text, sizeof(label_text), "%u", displayed_ignored_cnt);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_IGNORED_C_KEY)), label_text);
+  g_snprintf(label_text, sizeof(label_text), "%u", displayed_ignored_cnt);
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_IGNORED_D_KEY)), label_text);
 }
 

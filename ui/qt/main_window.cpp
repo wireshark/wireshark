@@ -363,7 +363,7 @@ void MainWindow::mergeCaptureFile()
     }
 
     for (;;) {
-        CaptureFileDialog merge_dlg(this, display_filter);
+        CaptureFileDialog merge_dlg(this, cap_file_, display_filter);
         int file_type;
         cf_status_t  merge_status;
         char        *in_filenames[2];
@@ -593,10 +593,6 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
     int file_type;
     gboolean compressed;
     cf_write_status_t status;
-    QString file_name_lower;
-    QString file_suffix;
-    GSList  *extensions_list, *extension;
-    gboolean add_extension;
     gchar   *dirname;
     gboolean discard_comments = FALSE;
 
@@ -605,7 +601,7 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
     }
 
     for (;;) {
-        CaptureFileDialog save_as_dlg(this);
+        CaptureFileDialog save_as_dlg(this, cf);
 
         switch (prefs.gui_fileopen_style) {
 
@@ -630,7 +626,7 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
         /* If the file has comments, does the format the user selected
            support them?  If not, ask the user whether they want to
            discard the comments or choose a different format. */
-        switch(save_as_dlg.saveAs(cf, file_name, must_support_comments)) {
+        switch(save_as_dlg.saveAs(file_name, must_support_comments)) {
 
         case SAVE:
             /* The file can be saved in the specified format as is;
@@ -665,52 +661,7 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
         file_type = save_as_dlg.selectedFileType();
         compressed = save_as_dlg.isCompressed();
 
-        /*
-         * Append the default file extension if there's none given by
-         * the user or if they gave one that's not one of the valid
-         * extensions for the file type.
-         */
-        file_name_lower = file_name.toLower();
-        extensions_list = wtap_get_file_extensions_list(file_type, FALSE);
-        if (extensions_list != NULL) {
-            /* We have one or more extensions for this file type.
-               Start out assuming we need to add the default one. */
-            add_extension = TRUE;
-
-            /* OK, see if the file has one of those extensions. */
-            for (extension = extensions_list; extension != NULL;
-                 extension = g_slist_next(extension)) {
-                file_suffix += tr(".") + (char *)extension->data;
-                if (file_name_lower.endsWith(file_suffix)) {
-                    /*
-                     * The file name has one of the extensions for
-                     * this file type.
-                     */
-                    add_extension = FALSE;
-                    break;
-                }
-                file_suffix += ".gz";
-                if (file_name_lower.endsWith(file_suffix)) {
-                    /*
-                     * The file name has one of the extensions for
-                     * this file type.
-                     */
-                    add_extension = FALSE;
-                    break;
-                }
-            }
-        } else {
-            /* We have no extensions for this file type.  Don't add one. */
-            add_extension = FALSE;
-        }
-        if (add_extension) {
-            if (wtap_default_file_extension(file_type) != NULL) {
-                file_name += tr(".") + wtap_default_file_extension(file_type);
-                if (compressed) {
-                    file_name += ".gz";
-                }
-            }
-        }
+        fileAddExtension(file_name, file_type, compressed);
 
 //#ifndef _WIN32
 //        /* If the file exists and it's user-immutable or not writable,
@@ -747,6 +698,197 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
         }
     }
     return;
+}
+
+void MainWindow::exportSelectedPackets() {
+    QString file_name = "";
+    int file_type;
+    gboolean compressed;
+    packet_range_t range;
+    cf_write_status_t status;
+    gchar   *dirname;
+    gboolean discard_comments = FALSE;
+
+    if (!cap_file_)
+        return;
+
+    /* init the packet range */
+    packet_range_init(&range, cap_file_);
+    range.process_filtered = TRUE;
+    range.include_dependents = TRUE;
+
+    for (;;) {
+        CaptureFileDialog esp_dlg(this, cap_file_);
+
+        switch (prefs.gui_fileopen_style) {
+
+        case FO_STYLE_LAST_OPENED:
+            /* The user has specified that we should start out in the last directory
+               we looked in.  If we've already opened a file, use its containing
+               directory, if we could determine it, as the directory, otherwise
+               use the "last opened" directory saved in the preferences file if
+               there was one. */
+            /* This is now the default behaviour in file_selection_new() */
+            break;
+
+        case FO_STYLE_SPECIFIED:
+            /* The user has specified that we should always start out in a
+               specified directory; if they've specified that directory,
+               start out by showing the files in that dir. */
+            if (prefs.gui_fileopen_dir[0] != '\0')
+                esp_dlg.setDirectory(prefs.gui_fileopen_dir);
+            break;
+        }
+
+        /* If the file has comments, does the format the user selected
+           support them?  If not, ask the user whether they want to
+           discard the comments or choose a different format. */
+        switch(esp_dlg.exportSelectedPackets(file_name, &range)) {
+
+        case SAVE:
+            /* The file can be saved in the specified format as is;
+               just drive on and save in the format they selected. */
+            discard_comments = FALSE;
+            break;
+
+        case SAVE_WITHOUT_COMMENTS:
+            /* The file can't be saved in the specified format as is,
+               but it can be saved without the comments, and the user
+               said "OK, discard the comments", so save it in the
+               format they specified without the comments. */
+            discard_comments = TRUE;
+            break;
+
+        case SAVE_IN_ANOTHER_FORMAT:
+            /* There are file formats in which we can save this that
+               support comments, and the user said not to delete the
+               comments.  The combo box of file formats has had the
+               formats that don't support comments trimmed from it,
+               so run the dialog again, to let the user decide
+               whether to save in one of those formats or give up. */
+            discard_comments = FALSE;
+            continue;
+
+        case CANCELLED:
+            /* The user said "forget it".  Just get rid of the dialog box
+               and return. */
+            return;
+        }
+
+        /*
+         * Check that we're not going to save on top of the current
+         * capture file.
+         * We do it here so we catch all cases ...
+         * Unfortunately, the file requester gives us an absolute file
+         * name and the read file name may be relative (if supplied on
+         * the command line). From Joerg Mayer.
+         */
+        if (files_identical(cap_file_->filename, file_name.toUtf8().constData())) {
+            QMessageBox msg_box;
+            gchar *display_basename = g_filename_display_basename(file_name.toUtf8().constData());
+
+            msg_box.setIcon(QMessageBox::Critical);
+            msg_box.setText(QString(tr("Unable to export to \"%1\".").arg(display_basename)));
+            msg_box.setInformativeText(tr("You cannot export packets to the current capture file."));
+            msg_box.setStandardButtons(QMessageBox::Ok);
+            msg_box.setDefaultButton(QMessageBox::Ok);
+            msg_box.exec();
+            g_free(display_basename);
+            continue;
+        }
+
+        file_type = esp_dlg.selectedFileType();
+        compressed = esp_dlg.isCompressed();
+        fileAddExtension(file_name, file_type, compressed);
+
+//#ifndef _WIN32
+//        /* If the file exists and it's user-immutable or not writable,
+//                       ask the user whether they want to override that. */
+//        if (!file_target_unwritable_ui(top_level, file_name.toUtf8().constData())) {
+//            /* They don't.  Let them try another file name or cancel. */
+//            continue;
+//        }
+//#endif
+
+        /* Attempt to save the file */
+        status = cf_export_specified_packets(cap_file_, file_name.toUtf8().constData(), &range, file_type, compressed);
+        switch (status) {
+
+        case CF_WRITE_OK:
+            /* The save succeeded; we're done. */
+            /* Save the directory name for future file dialogs. */
+            dirname = get_dirname(file_name.toUtf8().data());  /* Overwrites cf_name */
+            set_last_open_dir(dirname);
+            /* If we discarded comments, redraw the packet list to reflect
+               any packets that no longer have comments. */
+            if (discard_comments)
+                packet_list_queue_draw();
+            return;
+
+        case CF_WRITE_ERROR:
+            /* The save failed; let the user try again. */
+            continue;
+
+        case CF_WRITE_ABORTED:
+            /* The user aborted the save; just return. */
+            return;
+        }
+    }
+    return;
+}
+
+void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compressed) {
+    QString file_name_lower;
+    QString file_suffix;
+    GSList  *extensions_list, *extension;
+    gboolean add_extension;
+
+    /*
+     * Append the default file extension if there's none given by
+     * the user or if they gave one that's not one of the valid
+     * extensions for the file type.
+     */
+    file_name_lower = file_name.toLower();
+    extensions_list = wtap_get_file_extensions_list(file_type, FALSE);
+    if (extensions_list != NULL) {
+        /* We have one or more extensions for this file type.
+           Start out assuming we need to add the default one. */
+        add_extension = TRUE;
+
+        /* OK, see if the file has one of those extensions. */
+        for (extension = extensions_list; extension != NULL;
+             extension = g_slist_next(extension)) {
+            file_suffix += tr(".") + (char *)extension->data;
+            if (file_name_lower.endsWith(file_suffix)) {
+                /*
+                 * The file name has one of the extensions for
+                 * this file type.
+                 */
+                add_extension = FALSE;
+                break;
+            }
+            file_suffix += ".gz";
+            if (file_name_lower.endsWith(file_suffix)) {
+                /*
+                 * The file name has one of the extensions for
+                 * this file type.
+                 */
+                add_extension = FALSE;
+                break;
+            }
+        }
+    } else {
+        /* We have no extensions for this file type.  Don't add one. */
+        add_extension = FALSE;
+    }
+    if (add_extension) {
+        if (wtap_default_file_extension(file_type) != NULL) {
+            file_name += tr(".") + wtap_default_file_extension(file_type);
+            if (compressed) {
+                file_name += ".gz";
+            }
+        }
+    }
 }
 
 bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
@@ -955,8 +1097,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
          * "Export Specified Packets..." should be available only if
          * we can write the file out in at least one format.
          */
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSpecifiedPackets",
-//                             cf_can_write_with_wiretap(cf));
+        main_ui_->actionFileExportPackets->setEnabled(cf_can_write_with_wiretap(cap_file_));
         main_ui_->actionFileExportPacketDissections->setEnabled(true);
         main_ui_->actionFileExportPacketBytes->setEnabled(true);
         main_ui_->actionFileExportSSLSessionKeys->setEnabled(true);
@@ -978,6 +1119,7 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     main_ui_->menuFileSet->setEnabled(!capture_in_progress);
     main_ui_->actionFileQuit->setEnabled(true);
 
+    qDebug() << "FIX: packet list heading menu sensitivity";
     //    set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortAscending",
     //                         !capture_in_progress);
     //    set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortDescending",

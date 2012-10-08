@@ -30,7 +30,7 @@
 #include <epan/proto.h>
 
 #include "display_filter_edit.h"
-#include "tango_colors.h"
+#include "syntax_line_edit.h"
 
 #include "ui/utf8_entities.h"
 
@@ -83,11 +83,10 @@ UIMiniCancelButton::UIMiniCancelButton(QWidget *pParent /* = 0 */)
 // XXX - We need simplified (button- and dropdown-free) versions for use in dialogs and field-only checking.
 
 DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
-    QLineEdit(parent), plain_(plain)
+    SyntaxLineEdit(parent),
+    plain_(plain),
+    field_name_only_(false)
 {
-    field_name_only_ = false;
-    syntax_state_ = Empty;
-
     setAccessibleName(tr("Display filter entry"));
 
     if (plain_) {
@@ -189,46 +188,21 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     } else {
         apsz.setHeight(0); apsz.setWidth(0);
     }
-    syntax_style_sheet_ = QString(
+    setStyleSheet(QString(
             "DisplayFilterEdit {"
             "  padding-left: %1px;"
             "  margin-left: %2px;"
             "  margin-right: %3px;"
-//            "  background: transparent;"
-            "}"
-
-            // Should the backgrounds fade away on the right?
-            "DisplayFilterEdit[syntaxState=\"%4\"] {"
-            "  color: white;"
-            "  background-color: #%7;"
-            "}"
-
-            "DisplayFilterEdit[syntaxState=\"%5\"] {"
-            "  color: #%8;"
-            "  background-color: #%9;"
-            "}"
-
-            "DisplayFilterEdit[syntaxState=\"%6\"] {"
-            "  color: #%8;"
-            "  background-color: #%10;"
             "}"
             )
             .arg(frameWidth + 1)
             .arg(bksz.width())
             .arg(cbsz.width() + apsz.width() + frameWidth + 1)
-            .arg(Invalid)
-            .arg(Deprecated)
-            .arg(Valid)
-            .arg(tango_scarlet_red_1, 6, 16, QChar('0'))   // Invalid
-            .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Deprecated/valid foreground
-            .arg(tango_butter_1, 6, 16, QChar('0'))   // Deprecated
-            .arg(tango_chameleon_1, 6, 16, QChar('0'))   // Valid
-            ;
-    setStyleSheet(syntax_style_sheet_);
+            );
 }
 
 void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
-    QLineEdit::paintEvent(evt);
+    SyntaxLineEdit::paintEvent(evt);
 
     // http://wiki.forum.nokia.com/index.php/Custom_QLineEdit
     if (text().isEmpty() && ! this->hasFocus()) {
@@ -282,17 +256,17 @@ void DisplayFilterEdit::checkFilter(const QString& text)
     popFilterSyntaxStatus();
 
     if (field_name_only_ && (c = proto_check_field_name(text.toUtf8().constData()))) {
-        syntax_state_ = Invalid;
+        setSyntaxState(Invalid);
         emit pushFilterSyntaxStatus(QString().sprintf("Illegal character in field name: '%c'", c));
     } else if (dfilter_compile(text.toUtf8().constData(), &dfp)) {
         if (dfp != NULL) {
             depr = dfilter_deprecated_tokens(dfp);
         }
         if (text.length() < 1) {
-            syntax_state_ = Empty;
+            setSyntaxState(Empty);
         } else if (depr) {
             /* You keep using that word. I do not think it means what you think it means. */
-            syntax_state_ = Deprecated;
+            setSyntaxState(Deprecated);
             /*
              * We're being lazy and only printing the first "problem" token.
              * Would it be better to print all of them?
@@ -300,11 +274,11 @@ void DisplayFilterEdit::checkFilter(const QString& text)
             emit pushFilterSyntaxWarning(QString().sprintf("\"%s\" may have unexpected results (see the User's Guide)",
                                                           (const char *) g_ptr_array_index(depr, 0)));
         } else {
-            syntax_state_ = Valid;
+            setSyntaxState(Valid);
         }
         dfilter_free(dfp);
     } else {
-        syntax_state_ = Invalid;
+        setSyntaxState(Invalid);
         QString invalidMsg(tr("Invalid filter"));
         if (dfilter_error_msg) {
             invalidMsg.append(QString().sprintf(": %s", dfilter_error_msg));
@@ -312,9 +286,8 @@ void DisplayFilterEdit::checkFilter(const QString& text)
         emit pushFilterSyntaxStatus(invalidMsg);
     }
 
-    setStyleSheet(syntax_style_sheet_);
     if (apply_button_) {
-        apply_button_->setEnabled(syntax_state_ == Empty || syntax_state_ == Valid);
+        apply_button_->setEnabled(SyntaxState() == Empty || syntaxState() == Valid);
     }
 }
 
@@ -329,7 +302,7 @@ void DisplayFilterEdit::applyDisplayFilter()
     gchar *dftext = NULL;
     cf_status_t cf_status;
 
-    if (syntax_state_ != Valid && syntax_state_ != Empty) {
+    if (syntaxState() != Valid && syntaxState() != Empty) {
         return;
     }
 

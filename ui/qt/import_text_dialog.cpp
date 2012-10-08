@@ -52,33 +52,33 @@
 
 ImportTextDialog::ImportTextDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ImportTextDialog),
+    ti_ui_(new Ui::ImportTextDialog),
     import_info_()
 {
     int encap;
     int i;
 
-    ui->setupUi(this);
+    ti_ui_->setupUi(this);
     memset(&import_info_, 0, sizeof(import_info_));
 
-    ok_button_ = ui->buttonBox->button(QDialogButtonBox::Ok);
+    ok_button_ = ti_ui_->buttonBox->button(QDialogButtonBox::Ok);
     ok_button_->setEnabled(false);
 
 #ifdef Q_WS_MAC
     // The grid layout squishes each line edit otherwise.
-    int le_height = ui->textFileLineEdit->sizeHint().height();
-    ui->ethertypeLineEdit->setMinimumHeight(le_height);
-    ui->protocolLineEdit->setMinimumHeight(le_height);
-    ui->sourcePortLineEdit->setMinimumHeight(le_height);
-    ui->destinationPortLineEdit->setMinimumHeight(le_height);
-    ui->tagLineEdit->setMinimumHeight(le_height);
-    ui->ppiLineEdit->setMinimumHeight(le_height);
+    int le_height = ti_ui_->textFileLineEdit->sizeHint().height();
+    ti_ui_->ethertypeLineEdit->setMinimumHeight(le_height);
+    ti_ui_->protocolLineEdit->setMinimumHeight(le_height);
+    ti_ui_->sourcePortLineEdit->setMinimumHeight(le_height);
+    ti_ui_->destinationPortLineEdit->setMinimumHeight(le_height);
+    ti_ui_->tagLineEdit->setMinimumHeight(le_height);
+    ti_ui_->ppiLineEdit->setMinimumHeight(le_height);
 #endif
 
-    on_dateTimeLineEdit_textChanged(ui->dateTimeLineEdit->text());
+    on_dateTimeLineEdit_textChanged(ti_ui_->dateTimeLineEdit->text());
 
-    for (i = 0; i < ui->headerGridLayout->count(); i++) {
-        QRadioButton *rb = qobject_cast<QRadioButton *>(ui->headerGridLayout->itemAt(i)->widget());
+    for (i = 0; i < ti_ui_->headerGridLayout->count(); i++) {
+        QRadioButton *rb = qobject_cast<QRadioButton *>(ti_ui_->headerGridLayout->itemAt(i)->widget());
 
         if (rb) encap_buttons_.append(rb);
     }
@@ -98,7 +98,7 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
             /* If it has got a name */
             if ((name = wtap_encap_string(encap)))
             {
-                ui->encapComboBox->addItem(name, QVariant(encap));
+                ti_ui_->encapComboBox->addItem(name, QVariant(encap));
             }
         }
     }
@@ -106,7 +106,7 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
 
 ImportTextDialog::~ImportTextDialog()
 {
-    delete ui;
+    delete ti_ui_;
 }
 
 QString &ImportTextDialog::capfileName() {
@@ -160,29 +160,29 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_buttons) {
     bool sctp_ppi = false;
 
     if (enable_buttons) {
-        if (ui->ethernetButton->isChecked()) {
+        if (ti_ui_->ethernetButton->isChecked()) {
             ethertype = true;
-            on_ethertypeLineEdit_textChanged(ui->ethertypeLabel->text());
-        } else  if (ui->ipv4Button->isChecked()) {
+            on_ethertypeLineEdit_textChanged(ti_ui_->ethertypeLineEdit->text());
+        } else  if (ti_ui_->ipv4Button->isChecked()) {
             ipv4_proto = true;
-            on_protocolLineEdit_textChanged(ui->protocolLineEdit->text());
-        } else if (ui->udpButton->isChecked() || ui->tcpButton->isChecked()) {
+            on_protocolLineEdit_textChanged(ti_ui_->protocolLineEdit->text());
+        } else if (ti_ui_->udpButton->isChecked() || ti_ui_->tcpButton->isChecked()) {
             port = true;
-            on_sourcePortLineEdit_textChanged(ui->sourcePortLineEdit->text());
-            on_destinationPortLineEdit_textChanged(ui->destinationPortLineEdit->text());
-        } else if (ui->sctpButton->isChecked()) {
+            on_sourcePortLineEdit_textChanged(ti_ui_->sourcePortLineEdit->text());
+            on_destinationPortLineEdit_textChanged(ti_ui_->destinationPortLineEdit->text());
+        } else if (ti_ui_->sctpButton->isChecked()) {
             port = true;
             sctp_tag = true;
-            on_sourcePortLineEdit_textChanged(ui->sourcePortLineEdit->text());
-            on_destinationPortLineEdit_textChanged(ui->destinationPortLineEdit->text());
-            on_tagLineEdit_textChanged(ui->tagLineEdit->text());
+            on_sourcePortLineEdit_textChanged(ti_ui_->sourcePortLineEdit->text());
+            on_destinationPortLineEdit_textChanged(ti_ui_->destinationPortLineEdit->text());
+            on_tagLineEdit_textChanged(ti_ui_->tagLineEdit->text());
         }
-        if (ui->sctpDataButton->isChecked()) {
+        if (ti_ui_->sctpDataButton->isChecked()) {
             port = true;
             sctp_ppi = true;
-            on_sourcePortLineEdit_textChanged(ui->sourcePortLineEdit->text());
-            on_destinationPortLineEdit_textChanged(ui->destinationPortLineEdit->text());
-            on_ppiLineEdit_textChanged(ui->ppiLineEdit->text());
+            on_sourcePortLineEdit_textChanged(ti_ui_->sourcePortLineEdit->text());
+            on_destinationPortLineEdit_textChanged(ti_ui_->destinationPortLineEdit->text());
+            on_ppiLineEdit_textChanged(ti_ui_->ppiLineEdit->text());
         }
     }
 
@@ -190,18 +190,18 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_buttons) {
         rb->setEnabled(enable_buttons);
     }
 
-    ui->ethertypeLabel->setEnabled(ethertype);
-    ui->ethertypeLineEdit->setEnabled(ethertype);
-    ui->protocolLabel->setEnabled(ipv4_proto);
-    ui->protocolLineEdit->setEnabled(ipv4_proto);
-    ui->sourcePortLabel->setEnabled(port);
-    ui->sourcePortLineEdit->setEnabled(port);
-    ui->destinationPortLabel->setEnabled(port);
-    ui->destinationPortLineEdit->setEnabled(port);
-    ui->tagLabel->setEnabled(sctp_tag);
-    ui->tagLineEdit->setEnabled(sctp_tag);
-    ui->ppiLabel->setEnabled(sctp_ppi);
-    ui->ppiLineEdit->setEnabled(sctp_ppi);
+    ti_ui_->ethertypeLabel->setEnabled(ethertype);
+    ti_ui_->ethertypeLineEdit->setEnabled(ethertype);
+    ti_ui_->protocolLabel->setEnabled(ipv4_proto);
+    ti_ui_->protocolLineEdit->setEnabled(ipv4_proto);
+    ti_ui_->sourcePortLabel->setEnabled(port);
+    ti_ui_->sourcePortLineEdit->setEnabled(port);
+    ti_ui_->destinationPortLabel->setEnabled(port);
+    ti_ui_->destinationPortLineEdit->setEnabled(port);
+    ti_ui_->tagLabel->setEnabled(sctp_tag);
+    ti_ui_->tagLineEdit->setEnabled(sctp_tag);
+    ti_ui_->ppiLabel->setEnabled(sctp_ppi);
+    ti_ui_->ppiLineEdit->setEnabled(sctp_ppi);
 }
 
 void ImportTextDialog::exec() {
@@ -213,7 +213,7 @@ void ImportTextDialog::exec() {
         return;
     }
 
-    import_info_.import_text_filename = ui->textFileLineEdit->text().toUtf8().data();
+    import_info_.import_text_filename = ti_ui_->textFileLineEdit->text().toUtf8().data();
     import_info_.import_text_file = ws_fopen(import_info_.import_text_filename, "rb");
     if (!import_info_.import_text_file) {
         open_failure_alert_box(import_info_.import_text_filename, errno, FALSE);
@@ -222,28 +222,28 @@ void ImportTextDialog::exec() {
     }
 
     import_info_.offset_type =
-        ui->hexOffsetButton->isChecked()     ? OFFSET_HEX :
-        ui->decimalOffsetButton->isChecked() ? OFFSET_DEC :
-        ui->octalOffsetButton->isChecked()   ? OFFSET_OCT :
+        ti_ui_->hexOffsetButton->isChecked()     ? OFFSET_HEX :
+        ti_ui_->decimalOffsetButton->isChecked() ? OFFSET_DEC :
+        ti_ui_->octalOffsetButton->isChecked()   ? OFFSET_OCT :
         OFFSET_NONE;
-    import_info_.date_timestamp = ui->dateTimeLineEdit->text().length() > 0;
-    import_info_.date_timestamp_format = ui->dateTimeLineEdit->text().toUtf8().data();
+    import_info_.date_timestamp = ti_ui_->dateTimeLineEdit->text().length() > 0;
+    import_info_.date_timestamp_format = ti_ui_->dateTimeLineEdit->text().toUtf8().data();
 
-    encap_val = ui->encapComboBox->itemData(ui->encapComboBox->currentIndex());
+    encap_val = ti_ui_->encapComboBox->itemData(ti_ui_->encapComboBox->currentIndex());
     import_info_.dummy_header_type = HEADER_NONE;
-    if (encap_val.isValid() && encap_val.toUInt() == WTAP_ENCAP_ETHERNET && !ui->noDummyButton->isChecked()) {
+    if (encap_val.isValid() && encap_val.toUInt() == WTAP_ENCAP_ETHERNET && !ti_ui_->noDummyButton->isChecked()) {
         // Inputs were validated in the on_xxx_textChanged slots.
-        if (ui->ethernetButton->isChecked()) {
+        if (ti_ui_->ethernetButton->isChecked()) {
             import_info_.dummy_header_type = HEADER_ETH;
-        } else if (ui->ipv4Button->isChecked()) {
+        } else if (ti_ui_->ipv4Button->isChecked()) {
             import_info_.dummy_header_type = HEADER_IPV4;
-        } else if(ui->udpButton->isChecked()) {
+        } else if(ti_ui_->udpButton->isChecked()) {
             import_info_.dummy_header_type = HEADER_UDP;
-        } else if(ui->tcpButton->isChecked()) {
+        } else if(ti_ui_->tcpButton->isChecked()) {
             import_info_.dummy_header_type = HEADER_TCP;
-        } else if(ui->sctpButton->isChecked()) {
+        } else if(ti_ui_->sctpButton->isChecked()) {
             import_info_.dummy_header_type = HEADER_SCTP;
-        } else if(ui->sctpDataButton->isChecked()) {
+        } else if(ti_ui_->sctpDataButton->isChecked()) {
             import_info_.dummy_header_type = HEADER_SCTP_DATA;
         }
     }
@@ -280,7 +280,7 @@ void ImportTextDialog::on_textFileBrowseButton_clicked()
     }
 
     QString file_name = QFileDialog::getOpenFileName(this, tr("Wireshark: Import text file"), open_dir);
-    ui->textFileLineEdit->setText(file_name);
+    ti_ui_->textFileLineEdit->setText(file_name);
 }
 
 void ImportTextDialog::on_textFileLineEdit_textChanged(const QString &file_name)
@@ -298,7 +298,7 @@ void ImportTextDialog::on_textFileLineEdit_textChanged(const QString &file_name)
 
 void ImportTextDialog::on_encapComboBox_currentIndexChanged(int index)
 {
-    QVariant val = ui->encapComboBox->itemData(index);
+    QVariant val = ti_ui_->encapComboBox->itemData(index);
     bool enabled = false;
 
     if (val != QVariant::Invalid) {
@@ -319,10 +319,10 @@ void ImportTextDialog::on_dateTimeLineEdit_textChanged(const QString &time_forma
 
         time(&cur_time);
         cur_tm = localtime(&cur_time);
-        strftime(time_str, 100, ui->dateTimeLineEdit->text().toUtf8().constData(), cur_tm);
-        ui->timestampExampleLabel->setText(QString(tr("Example: %1")).arg(time_str));
+        strftime(time_str, 100, ti_ui_->dateTimeLineEdit->text().toUtf8().constData(), cur_tm);
+        ti_ui_->timestampExampleLabel->setText(QString(tr("Example: %1")).arg(time_str));
     } else {
-        ui->timestampExampleLabel->setText(tr("<i>(No format will be applied)</i>"));
+        ti_ui_->timestampExampleLabel->setText(tr("<i>(No format will be applied)</i>"));
     }
 }
 
@@ -361,88 +361,66 @@ void ImportTextDialog::on_sctpDataButton_toggled(bool checked)
     on_noDummyButton_toggled(checked);
 }
 
+void ImportTextDialog::check_line_edit(SyntaxLineEdit *le, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr) {
+    bool conv_ok;
+    SyntaxLineEdit::SyntaxState syntax_state = SyntaxLineEdit::Empty;
+    bool ok_enabled = true;
+
+    if (!le || !val_ptr)
+        return;
+
+    if (num_str.length() < 1) {
+        *val_ptr = 0;
+    } else {
+        if (is_short) {
+            *val_ptr = num_str.toUShort(&conv_ok, base);
+        } else {
+            *val_ptr = num_str.toULong(&conv_ok, base);
+        }
+        if (conv_ok && *val_ptr <= max_val) {
+            syntax_state = SyntaxLineEdit::Valid;
+        } else {
+            syntax_state = SyntaxLineEdit::Invalid;
+            ok_enabled = false;
+        }
+    }
+    le->setSyntaxState(syntax_state);
+    ok_button_->setEnabled(ok_enabled);
+}
+
 void ImportTextDialog::on_ethertypeLineEdit_textChanged(const QString &ethertype_str)
 {
-    bool conv_ok;
-
-    import_info_.pid = ethertype_str.toUShort(&conv_ok, 16);
-    if (conv_ok && import_info_.pid <= 0xffff) {
-        ok_button_->setEnabled(true);
-    } else {
-        ok_button_->setEnabled(false);
-    }
+    check_line_edit(ti_ui_->ethertypeLineEdit, ethertype_str, 16, 0xffff, true, &import_info_.pid);
 }
 
 void ImportTextDialog::on_protocolLineEdit_textChanged(const QString &protocol_str)
 {
-    bool conv_ok;
-
-    import_info_.protocol = protocol_str.toUShort(&conv_ok, 10);
-    if (conv_ok && import_info_.protocol <= 0xff) {
-        ok_button_->setEnabled(true);
-    } else {
-        ok_button_->setEnabled(false);
-    }
+    check_line_edit(ti_ui_->protocolLineEdit, protocol_str, 10, 0xff, true, &import_info_.protocol);
 }
 
 void ImportTextDialog::on_sourcePortLineEdit_textChanged(const QString &source_port_str)
 {
-    bool conv_ok;
-
-    import_info_.src_port = source_port_str.toUShort(&conv_ok, 10);
-    if (conv_ok && import_info_.src_port <= 0xffff) {
-        ok_button_->setEnabled(true);
-    } else {
-        ok_button_->setEnabled(false);
-    }
+    check_line_edit(ti_ui_->sourcePortLineEdit, source_port_str, 10, 0xffff, true, &import_info_.src_port);
 }
 
 void ImportTextDialog::on_destinationPortLineEdit_textChanged(const QString &destination_port_str)
 {
-    bool conv_ok;
-
-    import_info_.dst_port = destination_port_str.toUShort(&conv_ok, 10);
-    if (conv_ok && import_info_.dst_port <= 0xffff) {
-        ok_button_->setEnabled(true);
-    } else {
-        ok_button_->setEnabled(false);
-    }
+    check_line_edit(ti_ui_->destinationPortLineEdit, destination_port_str, 10, 0xffff, true, &import_info_.dst_port);
 }
 
 void ImportTextDialog::on_tagLineEdit_textChanged(const QString &tag_str)
 {
-    bool conv_ok;
-
-    import_info_.tag = tag_str.toULong(&conv_ok, 10);
-    if (conv_ok && import_info_.tag <= 0xffffffff) {
-        ok_button_->setEnabled(true);
-    } else {
-        ok_button_->setEnabled(false);
-    }
+    check_line_edit(ti_ui_->tagLineEdit, tag_str, 10, 0xffffffff, false, &import_info_.tag);
 }
 
 void ImportTextDialog::on_ppiLineEdit_textChanged(const QString &ppi_str)
 {
-    bool conv_ok;
-
-    import_info_.ppi = ppi_str.toULong(&conv_ok, 10);
-    if (conv_ok && import_info_.ppi <= 0xffffffff) {
-        ok_button_->setEnabled(true);
-    } else {
-        ok_button_->setEnabled(false);
-    }
+    check_line_edit(ti_ui_->ppiLineEdit, ppi_str, 10, 0xffffffff, false, &import_info_.ppi);
 }
 
 void ImportTextDialog::on_maxLengthLineEdit_textChanged(const QString &max_frame_len_str)
 {
-    bool conv_ok;
-
-    import_info_.max_frame_length = max_frame_len_str.toUShort(&conv_ok, 10);
-    if (conv_ok && import_info_.max_frame_length <= IMPORT_MAX_PACKET) {
-        ok_button_->setEnabled(true);
-    } else {
-        ok_button_->setEnabled(false);
-    }
+    check_line_edit(ti_ui_->maxLengthLineEdit, max_frame_len_str, 10, IMPORT_MAX_PACKET, true, &import_info_.max_frame_length);
 }
 
 void ImportTextDialog::on_buttonBox_helpRequested()

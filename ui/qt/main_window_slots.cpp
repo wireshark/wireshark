@@ -78,7 +78,7 @@ void MainWindow::openCaptureFile(QString &cf_path)
     for (;;) {
 
         if (cf_path.isEmpty()) {
-            CaptureFileDialog open_dlg(this, display_filter);
+            CaptureFileDialog open_dlg(this, cap_file_, display_filter);
 
             switch (prefs.gui_fileopen_style) {
 
@@ -535,6 +535,11 @@ void MainWindow::on_actionFileSave_triggered()
 void MainWindow::on_actionFileSaveAs_triggered()
 {
     saveAsCaptureFile(cap_file_, FALSE, TRUE);
+}
+
+void MainWindow::on_actionFileExportPackets_triggered()
+{
+    exportSelectedPackets();
 }
 
 void MainWindow::on_actionFileSetListFiles_triggered()

@@ -172,74 +172,14 @@ win32:SOURCES_WS_C += \
     ../../capture_wpcap_packet.c \
     ../../ui/win32/file_dlg_win32.c
 
-
-SOURCES_QT_CPP = \
-    byte_view_tab.cpp \
-    byte_view_text.cpp \
-    capture_file_dialog.cpp \
-    capture_info_dialog.cpp \
-    capture_interface_dialog.cpp \
-    color_dialog.cpp \
-    color_utils.cpp \
-    display_filter_combo.cpp \
-    display_filter_edit.cpp \
-    file_set_dialog.cpp \
-    interface_tree.cpp \
-    label_stack.cpp \
-    main.cpp \
-    main_status_bar.cpp \
-    main_welcome.cpp \
-    main_window.cpp \
-    main_window_slots.cpp \
-    monospace_font.cpp \
-    packet_list.cpp \
-    packet_list_model.cpp \
-    packet_list_record.cpp \
-    progress_bar.cpp \
-    proto_tree.cpp \
-    qt_ui_utils.cpp \
-    recent_file_status.cpp \
-    simple_dialog_qt.cpp \
-    sparkline_delegate.cpp \
-    wireshark_application.cpp
-
-
 HEADERS_WS_C  = \
     ../../wsutil/privileges.h
-
-HEADERS_QT_CPP = \
-    byte_view_tab.h \
-    byte_view_text.h \
-    capture_file_dialog.h \
-    capture_info_dialog.h \
-    capture_interface_dialog.h \
-    color_dialog.h \
-    color_utils.h \
-    display_filter_combo.h \
-    display_filter_edit.h \
-    file_set_dialog.h \
-    interface_tree.h \
-    label_stack.h \
-    main_status_bar.h \
-    main_welcome.h \
-    main_window.h \
-    monospace_font.h \
-    packet_list.h \
-    packet_list_model.h \
-    packet_list_record.h \
-    progress_bar.h \
-    proto_tree.h \
-    qt_ui_utils.h \
-    qt_ui_utils.h \
-    recent_file_status.h \
-    simple_dialog_qt.h \
-    sparkline_delegate.h \
-    wireshark_application.h
 
 FORMS += main_window.ui \
     main_welcome.ui \
     import_text_dialog.ui \
-    file_set_dialog.ui
+    file_set_dialog.ui \
+    packet_range_group_box.ui
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
@@ -262,10 +202,9 @@ win32 { ## These should be in config.pri ??
     }
 }
 
+HEADERS += $$HEADERS_WS_C
+
 win32 {
-    SOURCES += $$SOURCES_QT_CPP
-    HEADERS += $$HEADERS_WS_C
-    HEADERS += $$HEADERS_QT_CPP
     OBJECTS_WS_C = $$SOURCES_WS_C
     OBJECTS_WS_C ~= s/[.]c/.obj/g
     OBJECTS_WS_C ~= s,/,\\,g
@@ -273,9 +212,6 @@ win32 {
 } else {
 ## XXX: Shouldn't need to (re)compile WS_C sources ??
     SOURCES += $$SOURCES_WS_C
-    SOURCES += $$SOURCES_QT_CPP
-    HEADERS += $$HEADERS_WS_C
-    HEADERS += $$HEADERS_QT_CPP
 }
 
 DEFINES += INET6 REENTRANT
@@ -409,7 +345,66 @@ RC_FILE = qtshark.rc
 win32: QMAKE_CLEAN += *.pdb
 
 HEADERS += \
-    import_text_dialog.h
+    byte_view_tab.h \
+    byte_view_text.h \
+    capture_file_dialog.h \
+    capture_info_dialog.h \
+    capture_interface_dialog.h \
+    color_dialog.h \
+    color_utils.h \
+    display_filter_combo.h \
+    display_filter_edit.h \
+    file_set_dialog.h \
+    import_text_dialog.h \
+    interface_tree.h \
+    label_stack.h \
+    main_status_bar.h \
+    main_welcome.h \
+    main_window.h \
+    monospace_font.h \
+    packet_list.h \
+    packet_list_model.h \
+    packet_list_record.h \
+    packet_range_group_box.h \
+    progress_bar.h \
+    proto_tree.h \
+    qt_ui_utils.h \
+    qt_ui_utils.h \
+    recent_file_status.h \
+    simple_dialog_qt.h \
+    sparkline_delegate.h \
+    syntax_line_edit.h \
+    wireshark_application.h
 
 SOURCES += \
-    import_text_dialog.cpp
+    byte_view_tab.cpp \
+    byte_view_text.cpp \
+    capture_file_dialog.cpp \
+    capture_info_dialog.cpp \
+    capture_interface_dialog.cpp \
+    color_dialog.cpp \
+    color_utils.cpp \
+    display_filter_combo.cpp \
+    display_filter_edit.cpp \
+    file_set_dialog.cpp \
+    import_text_dialog.cpp \
+    interface_tree.cpp \
+    label_stack.cpp \
+    main.cpp \
+    main_status_bar.cpp \
+    main_welcome.cpp \
+    main_window.cpp \
+    main_window_slots.cpp \
+    monospace_font.cpp \
+    packet_list.cpp \
+    packet_list_model.cpp \
+    packet_list_record.cpp \
+    packet_range_group_box.cpp \
+    progress_bar.cpp \
+    proto_tree.cpp \
+    qt_ui_utils.cpp \
+    recent_file_status.cpp \
+    simple_dialog_qt.cpp \
+    sparkline_delegate.cpp \
+    syntax_line_edit.cpp \
+    wireshark_application.cpp

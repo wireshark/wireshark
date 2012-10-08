@@ -1795,7 +1795,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                         if (files_identical(cfile.filename, file_name8_selected)) {
                             /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
                             gchar *str = g_strdup_printf(
-                                "Capture File \"%s\" identical to loaded file !!\n\n"
+                                "Capture File \"%s\" identical to loaded file.\n\n"
                                 "Please choose a different filename.",
                                 file_name8_selected);
                             MessageBox( parent, utf_8to16(str), _T("Error"), MB_ICONERROR | MB_APPLMODAL | MB_OK);
