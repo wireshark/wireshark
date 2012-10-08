@@ -36,6 +36,8 @@
 #include <epan/prefs.h>
 
 #include "packet-e212.h"
+#include "packet-gsm_a_common.h"
+#include "packet-gsm_sms.h"
 
 static int proto_cat = -1;
 
@@ -50,13 +52,41 @@ static int hf_ctlv_dur_time_intv = -1;
 static int hf_ctlv_dur_time_unit = -1;
 static int hf_ctlv_result_gen = -1;
 static int hf_ctlv_text_string_enc = -1;
+static int hf_ctlv_text_string = -1;
 static int hf_ctlv_event = -1;
 static int hf_ctlv_tone = -1;
 static int hf_ctlv_loc_status = -1;
 static int hf_ctlv_bearer = -1;
 static int hf_ctlv_bearer_descr = -1;
+static int hf_ctlv_bearer_csd_data_rate = -1;
+static int hf_ctlv_bearer_csd_bearer_serv = -1;
+static int hf_ctlv_bearer_csd_conn_elem = -1;
+static int hf_ctlv_bearer_gprs_precedence = -1;
+static int hf_ctlv_bearer_gprs_delay = -1;
+static int hf_ctlv_bearer_gprs_reliability = -1;
+static int hf_ctlv_bearer_gprs_peak = -1;
+static int hf_ctlv_bearer_gprs_mean = -1;
+static int hf_ctlv_bearer_gprs_prot_type = -1;
+static int hf_ctlv_bearer_utran_traffic_class = -1;
+static int hf_ctlv_bearer_utran_max_bitrate_ul = -1;
+static int hf_ctlv_bearer_utran_max_bitrate_dl = -1;
+static int hf_ctlv_bearer_utran_guaranteed_bitrate_ul = -1;
+static int hf_ctlv_bearer_utran_guaranteed_bitrate_dl = -1;
+static int hf_ctlv_bearer_utran_delivery_order = -1;
+static int hf_ctlv_bearer_utran_max_sdu_size = -1;
+static int hf_ctlv_bearer_utran_sdu_error_ratio = -1;
+static int hf_ctlv_bearer_utran_residual_bit_error_ratio = -1;
+static int hf_ctlv_bearer_utran_delivery_erroneous_sdus = -1;
+static int hf_ctlv_bearer_utran_transfer_delay = -1;
+static int hf_ctlv_bearer_utran_traffic_handling_prio = -1;
+static int hf_ctlv_bearer_utran_pdp_type = -1;
+static int hf_ctlv_bearer_params = -1;
+static int hf_ctlv_buffers_size = -1;
 static int hf_ctlv_transport_ptype = -1;
 static int hf_ctlv_transport_port = -1;
+static int hf_ctlv_other_address_coding = -1;
+static int hf_ctlv_other_address_ipv4 = -1;
+static int hf_ctlv_other_address_ipv6 = -1;
 static int hf_ctlv_access_tech = -1;
 static int hf_ctlv_loci_lac = -1;
 static int hf_ctlv_loci_cell_id = -1;
@@ -318,7 +348,7 @@ static const value_string result_vals[] = {
 
 static const value_string text_encoding_vals[] = {
 	{ 0x00, "GSM default alphabet, 7 bits packed" },
-	{ 0x01, "GSM default alphabet, 8 bits" },
+	{ 0x04, "GSM default alphabet, 8 bits" },
 	{ 0x08, "UCS2" },
 	{ 0, NULL }
 };
@@ -408,17 +438,116 @@ static const value_string bearer_vals[] = {
 /* TS 102 223 - Chapter 8.52 + TS 11.14 Chapter 12.52 */
 static const value_string bearer_descr_vals[] = {
 	{ 0x01, "CSD" },
-	{ 0x02, "GPRS" },
+	{ 0x02, "GPRS / UTRAN packet service / E-UTRAN" },
 	{ 0x03, "default bearer for requested transport layer" },
 	{ 0x04, "local link techonlogy independent" },
 	{ 0x05, "Bluetooth" },
 	{ 0x06, "IrDA" },
 	{ 0x07, "RS232" },
 	{ 0x08, "TIA/EIA/IS-820 packet data service" },
-	{ 0x09, "GSM/3GPP ???" },
-	{ 0x0a, "3GPP I-WLAN" },
-	{ 0x0b, "3GPP E-UTRAN / Mapped UTRAN packet service" },
+	{ 0x09, "UTRAN packet service with extended parameters / HSDPA / E-UTRAN" },
+	{ 0x0a, "I-WLAN" },
+	{ 0x0b, "E-UTRAN / Mapped UTRAN packet service" },
 	{ 0x10, "USB" },
+	{ 0, NULL }
+};
+
+/* 3GPP 31.111 - Chapter 8.52 */
+static const value_string csd_data_rate_vals[] = {
+	{   0, "autobauding" },
+	{   1, "300 bps (V.21)" },
+	{   2, "1200 bps (V.22)" },
+	{   3, "1200/75 bps (V.23)" },
+	{   4, "2400 bps (V.22bis)" },
+	{   5, "2400 bps (V.26ter)" },
+	{   6, "4800 bps (V.32)" },
+	{   7, "9600 bps (V.32)" },
+	{  12, "9600 bps (V.34)" },
+	{  14, "14400 bps (V.34)" },
+	{  15, "19200 bps (V.34)" },
+	{  16, "28800 bps (V.34)" },
+	{  17, "33600 bps (V.34)" },
+	{  34, "1200 bps (V.120)" },
+	{  36, "2400 bps (V.120)" },
+	{  38, "4800 bps (V.120)" },
+	{  39, "9600 bps (V.120)" },
+	{  43, "14400 bps (V.120)" },
+	{  47, "19200 bps (V.120)" },
+	{  48, "28800 bps (V.120)" },
+	{  49, "38400 bps (V.120)" },
+	{  50, "48000 bps (V.120)" },
+	{  51, "56000 bps (V.120)" },
+	{  65, "300 bps (V.110)" },
+	{  66, "1200 bps (V.110)" },
+	{  68, "2400 bps (V.110 or X.31 flag stuffing)" },
+	{  70, "4800 bps (V.110 or X.31 flag stuffing)" },
+	{  71, "9600 bps (V.110 or X.31 flag stuffing)" },
+	{  75, "14400 bps (V.110 or X.31 flag stuffing)" },
+	{  79, "19200 bps (V.110 or X.31 flag stuffing)" },
+	{  80, "28800 bps (V.110 or X.31 flag stuffing)" },
+	{  81, "38400 bps (V.110 or X.31 flag stuffing)" },
+	{  82, "48000 bps (V.110 or X.31 flag stuffing)" },
+	{  83, "56000 bps (V.110 or X.31 flag stuffing)" },
+	{  84, "64000 bps (X.31 flag stuffing)" },
+	{ 115, "56000 bps (bit transparent)" },
+	{ 116, "64000 bps (bit transparent)" },
+	{ 120, "32000 bps (PIAFS32k)" },
+	{ 121, "64000 bps (PIAFS64k)" },
+	{ 130, "28800 bps (multimedia)" },
+	{ 131, "32000 bps (multimedia)" },
+	{ 132, "33600 bps (multimedia)" },
+	{ 133, "56000 bps (multimedia)" },
+	{ 134, "64000 bps (multimedia)" },
+	{   0, NULL }
+};
+static const value_string csd_bearer_serv_vals[] = {
+	{ 0, "Data circuit asynchronous (UDI or 3.1 kHz modem)" },
+	{ 1, "Data circuit synchronous (UDI or 3.1 kHz modem)" },
+	{ 2, "PAD Access (asynchronous) (UDI)" },
+	{ 3, "Packet Access (synchronous) (UDI)" },
+	{ 4, "Data circuit asynchronous (RDI)" },
+	{ 5, "Data circuit synchronous (RDI)" },
+	{ 6, "PAD Access (asynchronous) (RDI)" },
+	{ 7, "Packet Access (synchronous) (RDI)" },
+	{ 0, NULL }
+};
+static const value_string csd_conn_elem_vals[] = {
+	{ 0, "Transparent" },
+	{ 1, "Non-transparent" },
+	{ 2, "Both, transparent preferred" },
+	{ 3, "Both, non-transparent preferred" },
+	{ 0, NULL }
+};
+static const value_string gprs_prot_type_vals[] = {
+	{ 2, "IP (Internet Protocol, IETF STD 5)" },
+	{ 0, NULL }
+};
+static const value_string utran_traffic_class_vals[] = {
+	{ 0, "Conversational" },
+	{ 1, "Streaming" },
+	{ 2, "Interactive" },
+	{ 3, "Background" },
+	{ 4, "Subscribed value" },
+	{ 0, NULL }
+};
+static const value_string utran_delivery_order_vals[] = {
+	{ 0, "No" },
+	{ 1, "Yes" },
+	{ 2, "Subscribed value" },
+	{ 0, NULL }
+};
+static const value_string utran_delivery_erroneous_sdus_vals[] = {
+	{ 0, "No" },
+	{ 1, "Yes" },
+	{ 2, "No detect" },
+	{ 3, "Subscribed value" },
+	{ 0, NULL }
+};
+
+/* TS 102 223 - Chapter 8.58 */
+static const value_string other_address_coding_vals[] = {
+	{ 0x21, "IPv4 address" },
+	{ 0x57, "IPv6 address" },
 	{ 0, NULL }
 };
 
@@ -429,6 +558,7 @@ static const value_string transport_ptype_vals[] = {
 	{ 0x03, "TCP, UICC in server mode" },
 	{ 0x04, "UDP, UICC in client mode, local connection" },
 	{ 0x05, "TCP, UICC in client mode, locel connection" },
+	{ 0x06, "direct communication channel" },
 	{ 0, NULL }
 };
 
@@ -506,16 +636,44 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x05:	/* alpha identifier */
 			break;
 		case 0x0d:	/* text string */
+			if (len == 0)
+				break;
 			/* 1st byte: encoding */
-			proto_tree_add_item(elem_tree, hf_ctlv_text_string_enc, tvb, pos, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_text_string_enc, tvb, pos, 1, ENC_ASCII|ENC_NA);
 			g8 = tvb_get_guint8(tvb, pos);
 			switch (g8) {
-			case 0x04: /* 8bit */
-				proto_tree_add_text(elem_tree, tvb, pos+1, len-1, "Text payload");
-				break;
 			case 0x00: /* 7bit */
+				{
+					int out_len;
+					unsigned char msgbuf[300];
+
+					out_len = gsm_sms_char_7bit_unpack(0, len-1, sizeof(msgbuf), tvb_get_ptr(tvb, pos+1, len-1), msgbuf);
+					msgbuf[out_len] = '\0';
+					proto_tree_add_unicode_string(elem_tree, hf_ctlv_text_string, tvb, pos+1,
+						len-1, gsm_sms_chars_to_utf8(msgbuf, out_len));
+				}
+				break;
+			case 0x04: /* 8bit */
+				proto_tree_add_item(elem_tree, hf_ctlv_text_string, tvb, pos+1, len-1, ENC_ASCII|ENC_NA);
+				break;
 			case 0x08: /* UCS2 */
-				/* FIXME: 7bit and UCS-2 */
+				{
+					GIConv cd;
+					GError *l_conv_error = NULL;
+					gchar *utf8_text;
+
+					if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1) {
+						utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb, pos+1, len-1), len-1, cd, NULL, NULL, &l_conv_error);
+						if(!l_conv_error) {
+							proto_tree_add_unicode_string(elem_tree, hf_ctlv_text_string, tvb,
+									pos+1, len-1, utf8_text);
+						} else {
+							proto_tree_add_text(elem_tree, tvb, pos+1, len-1, "Failed to decode UCS2");
+						}
+					}
+				}
+				break;
+			default:
 				break;
 			}
 			break;
@@ -545,9 +703,53 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(elem_tree, hf_ctlv_bearer, tvb, pos+i, 1, ENC_NA);
 			break;
 		case 0x35:	/* bearer description */
-			proto_tree_add_item(elem_tree, hf_ctlv_bearer, tvb, pos, 1, ENC_NA);
-			for (i = 1; i < len; i++)
-				proto_tree_add_item(elem_tree, hf_ctlv_bearer_descr, tvb, pos+i, 1, ENC_NA);
+			g8 = tvb_get_guint8(tvb, pos);
+			proto_tree_add_uint(elem_tree, hf_ctlv_bearer_descr, tvb, pos, 1, g8);
+			switch (g8) {
+			case 0x01:
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_csd_data_rate, tvb, pos+1, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_csd_bearer_serv, tvb, pos+2, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_csd_conn_elem, tvb, pos+3, 1, ENC_BIG_ENDIAN);
+				break;
+			case 0x02:
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_gprs_precedence, tvb, pos+1, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_gprs_delay, tvb, pos+2, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_gprs_reliability, tvb, pos+3, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_gprs_peak, tvb, pos+4, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_gprs_mean, tvb, pos+5, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_gprs_prot_type, tvb, pos+6, 1, ENC_BIG_ENDIAN);
+				break;
+			case 0x09:
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_traffic_class, tvb, pos+1, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_max_bitrate_ul, tvb, pos+2, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_max_bitrate_dl, tvb, pos+4, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_guaranteed_bitrate_ul, tvb, pos+6, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_guaranteed_bitrate_dl, tvb, pos+8, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_delivery_order, tvb, pos+10, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_max_sdu_size, tvb, pos+11, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_sdu_error_ratio, tvb, pos+12, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_residual_bit_error_ratio, tvb, pos+13, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_delivery_erroneous_sdus, tvb, pos+14, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_transfer_delay, tvb, pos+15, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_traffic_handling_prio, tvb, pos+16, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_pdp_type, tvb, pos+1, 17, ENC_BIG_ENDIAN);
+				break;
+			case 0x0a:
+				break;
+			case 0x0b:
+				{
+					tvbuff_t * esm_tvb;
+					esm_tvb = tvb_new_subset(tvb, pos+1, len-1, len-1);
+					de_esm_qos(esm_tvb, elem_tree, pinfo, 0, len-1, NULL, 0);
+				}
+				break;
+			default:
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_params, tvb, pos+1, len-1, ENC_NA);
+				break;
+			}
+			break;
+		case 0x39:	/* buffer size */
+			proto_tree_add_item(elem_tree, hf_ctlv_buffers_size, tvb, pos, 2, ENC_BIG_ENDIAN);
 			break;
 		case 0x3c:	/* UICC/terminal interface transport level */
 			if (len < 3)
@@ -555,9 +757,26 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(elem_tree, hf_ctlv_transport_ptype, tvb, pos, 1, ENC_NA);
 			proto_tree_add_item(elem_tree, hf_ctlv_transport_port, tvb, pos+1, 2, ENC_BIG_ENDIAN);
 			break;
+		case 0x3e:	/* other address */
+			g8 = tvb_get_guint8(tvb, pos);
+			proto_tree_add_uint(elem_tree, hf_ctlv_other_address_coding, tvb, pos, 1, g8);
+			switch (g8) {
+			case 0x21:
+				proto_tree_add_item(elem_tree, hf_ctlv_other_address_ipv4, tvb, pos+1, 4, ENC_NA);
+				break;
+			case 0x57:
+				proto_tree_add_item(elem_tree, hf_ctlv_other_address_ipv6, tvb, pos+1, 16, ENC_NA);
+				break;
+			default:
+				break;
+			}
+			break;
 		case 0x3f:	/* access technology */
 			for (i = 1; i < len; i++)
 				proto_tree_add_item(elem_tree, hf_ctlv_access_tech, tvb, pos+i, 1, ENC_NA);
+			break;
+		case 0x47:	/* network access name */
+			de_sm_apn(tvb, elem_tree, pinfo, pos, len, NULL, 0);
 			break;
 		}
 
@@ -623,6 +842,11 @@ proto_register_card_app_toolkit(void)
 			  FT_UINT8, BASE_HEX, VALS(text_encoding_vals), 0,
 			  NULL, HFILL },
 		},
+		{ &hf_ctlv_text_string,
+			{ "Text String", "etsi_cat.comp_tlv.text",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  NULL, HFILL },
+		},
 		{ &hf_ctlv_event,
 			{ "Event", "etsi_cat.comp_tlv.event",
 			  FT_UINT8, BASE_HEX, VALS(event_list_vals), 0,
@@ -644,8 +868,128 @@ proto_register_card_app_toolkit(void)
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_bearer_descr,
-			{ "Bearer Description", "etsi_cat.comp_tlv.bearer_descr",
+			{ "Bearer Description", "etsi_cat.comp_tlv.bearer.descr",
 			  FT_UINT8, BASE_HEX, VALS(bearer_descr_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_csd_data_rate,
+			{ "Data Rate", "etsi_cat.comp_tlv.bearer.csd.data_rate",
+			  FT_UINT8, BASE_DEC, VALS(csd_data_rate_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_csd_bearer_serv,
+			{ "Bearer Service", "etsi_cat.comp_tlv.bearer.csd.bearer_serv",
+			  FT_UINT8, BASE_DEC, VALS(csd_bearer_serv_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_csd_conn_elem,
+			{ "Connection Element", "etsi_cat.comp_tlv.bearer.csd.conn_elem",
+			  FT_UINT8, BASE_DEC, VALS(csd_conn_elem_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_gprs_precedence,
+			{ "Precedence Class", "etsi_cat.comp_tlv.bearer.gprs.precedence",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_gprs_delay,
+			{ "Delay Class", "etsi_cat.comp_tlv.bearer.gprs.delay",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_gprs_reliability,
+			{ "Reliability Class", "etsi_cat.comp_tlv.bearer.gprs.reliability",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_gprs_peak,
+			{ "Peak Throughput Class", "etsi_cat.comp_tlv.bearer.gprs.peak",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_gprs_mean,
+			{ "Mean Throuhgput Class", "etsi_cat.comp_tlv.bearer.gprs.mean",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_gprs_prot_type,
+			{ "Packet Data Protocol Type", "etsi_cat.comp_tlv.bearer.gprs.prot_type",
+			  FT_UINT8, BASE_DEC, VALS(gprs_prot_type_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_traffic_class,
+			{ "Traffic Class", "etsi_cat.comp_tlv.bearer.utran.traffic_class",
+			  FT_UINT8, BASE_DEC, VALS(utran_traffic_class_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_max_bitrate_ul,
+			{ "Maximum Bitrate UL", "etsi_cat.comp_tlv.bearer.utran.max_bitrate_ul",
+			  FT_UINT16, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_max_bitrate_dl,
+			{ "Maximum Bitrate DL", "etsi_cat.comp_tlv.bearer.utran.max_bitrate_dl",
+			  FT_UINT16, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_guaranteed_bitrate_ul,
+			{ "Guaranteed Bitrate DL", "etsi_cat.comp_tlv.bearer.utran.guaranteed_bitrate_ul",
+			  FT_UINT16, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_guaranteed_bitrate_dl,
+			{ "Guaranteed Bitrate DL", "etsi_cat.comp_tlv.bearer.utran.guaranteed_bitrate_dl",
+			  FT_UINT16, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_delivery_order,
+			{ "Delivery Order", "etsi_cat.comp_tlv.bearer.utran.delivery_order",
+			  FT_UINT8, BASE_DEC, VALS(utran_delivery_order_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_max_sdu_size,
+			{ "Maximum SDU Size", "etsi_cat.comp_tlv.bearer.utran.max_sdu_size",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_sdu_error_ratio,
+			{ "SDU Error Ratio", "etsi_cat.comp_tlv.bearer.utran.sdu_error_ratio",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_residual_bit_error_ratio,
+			{ "Residual Bit Error Ratio", "etsi_cat.comp_tlv.bearer.utran.residual_bit_error_ratio",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_delivery_erroneous_sdus,
+			{ "Delivery of Erroneous SDUs", "etsi_cat.comp_tlv.bearer.utran.delivery_erroneous_sdus",
+			  FT_UINT8, BASE_DEC, VALS(utran_delivery_erroneous_sdus_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_transfer_delay,
+			{ "Transfer Delay", "etsi_cat.comp_tlv.bearer.utran.transfer_delay",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_traffic_handling_prio,
+			{ "Traffic Handling Priority", "etsi_cat.comp_tlv.bearer.utran.traffic_handling_prio",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_utran_pdp_type,
+			{ "PDP Type", "etsi_cat.comp_tlv.bearer.utran.pdp_type",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_bearer_params,
+			{ "Bearer Parameters", "etsi_cat.comp_tlv.bearer.params",
+			  FT_BYTES, BASE_NONE, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_buffers_size,
+			{ "Buffer Size", "etsi_cat.comp_tlv.buffer_size",
+			  FT_UINT16, BASE_DEC, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_transport_ptype,
@@ -656,6 +1000,21 @@ proto_register_card_app_toolkit(void)
 		{ &hf_ctlv_transport_port,
 			{ "Transport port", "etsi_cat.comp_tlv.transport.port",
 			  FT_UINT16, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_other_address_coding,
+			{ "Coding of Type of address", "etsi_cat.comp_tlv.other_address.coding",
+			  FT_UINT8, BASE_HEX, VALS(other_address_coding_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_other_address_ipv4,
+			{ "IPv4 address", "etsi_cat.comp_tlv.other_address.ipv4",
+			  FT_IPv4, BASE_NONE, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_other_address_ipv6,
+			{ "IPv4 address", "etsi_cat.comp_tlv.other_address.ipv6",
+			  FT_IPv6, BASE_NONE, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_access_tech,
