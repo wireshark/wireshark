@@ -188,8 +188,10 @@ static gint hf_glusterfs_setattr_set_reserved = -1;
 static gint hf_glusterfs_oldbname = -1;
 static gint hf_glusterfs_newbname = -1;
 
-/* for FSYNCDIR */
-static gint hf_glusterfs_yncdir_data = -1;
+/* for FSYNC/FSYNCDIR */
+static gint hf_glusterfs_fsync_flags = -1;
+static gint hf_glusterfs_fsync_flag_datasync = -1;
+static gint hf_glusterfs_fsync_flag_unknown = -1;
 
 /* for entrylk */
 static gint hf_glusterfs_entrylk_namelen = -1;
@@ -204,6 +206,7 @@ static gint ett_glusterfs_parent_iatt = -1;
 static gint ett_glusterfs_iatt = -1;
 static gint ett_glusterfs_entry = -1;
 static gint ett_glusterfs_flock = -1;
+static gint ett_glusterfs_fsync_flags = -1;
 static gint ett_gluster_dict = -1;
 static gint ett_gluster_dict_items = -1;
 
@@ -566,6 +569,30 @@ gluster_dissect_common_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
+_glusterfs_gfs3_common_readdir_reply(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+	proto_item *errno_item;
+        guint op_errno;
+
+	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_entries, offset);
+
+        if (tree) {
+		op_errno = tvb_get_ntohl(tvb, offset);
+		errno_item = proto_tree_add_int(tree, hf_gluster_op_errno, tvb,
+					    offset, 4, op_errno);
+		if (op_errno == 0)
+			proto_item_append_text(errno_item,
+					    " (More replies follow)");
+		else if (op_errno == 2 /* ENOENT */)
+			proto_item_append_text(errno_item,
+					    " (Last reply)");
+	}
+	offset += 4;
+
+	return offset;
+}
+
+static int
 glusterfs_gfs3_op_unlink_reply(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -743,8 +770,8 @@ glusterfs_gfs3_op_inodelk_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_op_readdirp_entry(tvbuff_t *tvb, int offset,
-				packet_info *pinfo _U_, proto_tree *tree)
+_glusterfs_gfs_op_readdir_entry(tvbuff_t *tvb, int offset, proto_tree *tree,
+						gboolean iatt, gboolean dict)
 {
 	proto_item *entry_item;
 	proto_tree *entry_tree;
@@ -759,37 +786,46 @@ glusterfs_gfs3_op_readdirp_entry(tvbuff_t *tvb, int offset,
 	offset = dissect_rpc_uint32(tvb, entry_tree, hf_glusterfs_entry_type, offset);
 	offset = dissect_rpc_string(tvb, entry_tree, hf_glusterfs_entry_path, offset, &path);
 
-	proto_item_append_text(entry_item, " Path:%s", path);
+	proto_item_append_text(entry_item, " Path: %s", path);
 
-	offset = glusterfs_rpc_dissect_gf_iatt(entry_tree, tvb,
+	if (iatt)
+		offset = glusterfs_rpc_dissect_gf_iatt(entry_tree, tvb,
 						hf_glusterfs_iatt, offset);
+
+	if (dict)
+		offset = gluster_rpc_dissect_dict(entry_tree, tvb, hf_glusterfs_dict, offset);
 
 	return offset;
 }
+
+static int
+glusterfs_gfs3_op_readdirp_entry(tvbuff_t *tvb, int offset,
+				packet_info *pinfo _U_, proto_tree *tree)
+{
+	return _glusterfs_gfs_op_readdir_entry(tvb, offset, tree, TRUE, FALSE);
+}
+
+static int
+glusterfs_gfs3_3_op_readdir_entry(tvbuff_t *tvb, int offset,
+				packet_info *pinfo _U_, proto_tree *tree)
+{
+	return _glusterfs_gfs_op_readdir_entry(tvb, offset, tree, FALSE, FALSE);
+}
+
+static int
+glusterfs_gfs3_3_op_readdirp_entry(tvbuff_t *tvb, int offset,
+				packet_info *pinfo _U_, proto_tree *tree)
+{
+	return _glusterfs_gfs_op_readdir_entry(tvb, offset, tree, TRUE, TRUE);
+}
+
 
 /* details in xlators/storage/posix/src/posix.c:posix_fill_readdir() */
 static int
 glusterfs_gfs3_op_readdirp_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 							proto_tree *tree)
 {
-	proto_item *errno_item;
-	guint op_errno;
-
-	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_entries, offset);
-
-	if (tree) {
-		op_errno = tvb_get_ntohl(tvb, offset);
-		errno_item = proto_tree_add_int(tree, hf_gluster_op_errno, tvb,
-					    offset, 4, op_errno);
-		if (op_errno == 0)
-			proto_item_append_text(errno_item,
-					    " (More READDIRP replies follow)");
-		else if (op_errno == 2 /* ENOENT */)
-			proto_item_append_text(errno_item,
-					    " (Last READDIRP reply)");
-	}
-	offset += 4;
-
+	offset = _glusterfs_gfs3_common_readdir_reply(tvb, tree, offset);
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
 					    glusterfs_gfs3_op_readdirp_entry);
 
@@ -1208,16 +1244,6 @@ glusterfs_gfs3_3_op_flush_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_fsync_call(tvbuff_t *tvb, int offset,
-				packet_info *pinfo _U_, proto_tree *tree)
-{
-	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
-	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
-	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
-
-	return offset;
-}
-static int
 glusterfs_gfs3_3_op_setxattr_call(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -1268,12 +1294,24 @@ glusterfs_gfs3_3_op_removexattr_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_fsyncdir_call(tvbuff_t *tvb, int offset,
+glusterfs_gfs3_3_op_fsync_call(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree)
 {
+	static const int *flag_bits[] = {
+		&hf_glusterfs_fsync_flag_datasync,
+		&hf_glusterfs_fsync_flag_unknown,
+		NULL
+	};
+
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
-	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_yncdir_data, offset);
+
+	if (tree)
+		proto_tree_add_bitmask(tree, tvb, offset,
+			hf_glusterfs_fsync_flags,
+			ett_glusterfs_fsync_flags, flag_bits, ENC_NA);
+	offset += 4;
+
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 
 	return offset;
@@ -1418,6 +1456,18 @@ glusterfs_gfs3_3_op_lookup_call(tvbuff_t *tvb, int offset,
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 
 	return offset;
+}
+
+static int
+glusterfs_gfs3_3_op_readdir_reply(tvbuff_t *tvb, int offset,
+				packet_info *pinfo, proto_tree *tree)
+{
+	offset = _glusterfs_gfs3_common_readdir_reply(tvb, tree, offset);
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
+					    glusterfs_gfs3_3_op_readdir_entry);
+	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
+
+        return offset;
 }
 
 static int
@@ -1599,26 +1649,10 @@ static int
 glusterfs_gfs3_3_op_readdirp_reply(tvbuff_t *tvb, int offset,
 				packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *errno_item;
-        guint op_errno;
-
-	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_entries, offset);
-
-        if (tree) {
-		op_errno = tvb_get_ntohl(tvb, offset);
-		errno_item = proto_tree_add_int(tree, hf_gluster_op_errno, tvb,
-					    offset, 4, op_errno);
-		if (op_errno == 0)
-			proto_item_append_text(errno_item,
-					    " (More READDIRP replies follow)");
-		else if (op_errno == 2 /* ENOENT */)
-			proto_item_append_text(errno_item,
-					    " (Last READDIRP reply)");
-	}
-	offset += 4;
-
+	offset = _glusterfs_gfs3_common_readdir_reply(tvb, tree, offset);
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-					    glusterfs_gfs3_op_readdirp_entry);
+					    glusterfs_gfs3_3_op_readdirp_entry);
+	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 
         return offset;
 }
@@ -1660,7 +1694,7 @@ glusterfs_gfs3_3_op_releasedir_call(tvbuff_t *tvb, int offset,
 
 /* This function is for common replay. RELEASE , RELEASEDIR and some other function use this method */
 
-static int
+int
 glusterfs_gfs3_3_op_common_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 							proto_tree *tree)
 {
@@ -1845,7 +1879,7 @@ static const vsff glusterfs3_3_fop_proc[] = {
 	},
 	{
 		GFS3_OP_FSYNCDIR, "FSYNCDIR",
-		glusterfs_gfs3_3_op_fsyncdir_call, glusterfs_gfs3_3_op_common_reply
+		glusterfs_gfs3_3_op_fsync_call, glusterfs_gfs3_3_op_common_reply
 	},
 	{
 		GFS3_OP_ACCESS, "ACCESS",
@@ -1873,7 +1907,7 @@ static const vsff glusterfs3_3_fop_proc[] = {
 	},
 	{
 		GFS3_OP_READDIR, "READDIR",
-		glusterfs_gfs3_3_op_readdir_call, glusterfs_gfs3_3_op_common_reply
+		glusterfs_gfs3_3_op_readdir_call, glusterfs_gfs3_3_op_readdir_reply
 	},
 	{
 		GFS3_OP_INODELK, "INODELK",
@@ -2555,9 +2589,19 @@ proto_register_glusterfs(void)
 			{ "Name", "glusterfs.name", FT_STRING, BASE_NONE,
 				NULL, 0, NULL, HFILL }
 		},
-		{ &hf_glusterfs_yncdir_data,
-			{ "Data", "glusterfs.fsyncdir.data", FT_INT32, BASE_DEC,
+		{ &hf_glusterfs_fsync_flags,
+			{ "Flags", "glusterfs.fsync.flags", FT_UINT32, BASE_HEX,
 				NULL, 0, NULL, HFILL }
+		},
+		{ &hf_glusterfs_fsync_flag_datasync,
+			{ "DATASYNC", "glusterfs.fsync.datasync",
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x1,
+				NULL, HFILL }
+		},
+		{ &hf_glusterfs_fsync_flag_unknown,
+			{ "Unknown", "glusterfs.fsync.unknown",
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), ~0x1,
+				NULL, HFILL }
 		},
 		/* For entry an fentry lk */
 		{ &hf_glusterfs_entrylk_namelen,
@@ -2577,6 +2621,7 @@ proto_register_glusterfs(void)
 		&ett_glusterfs_parent_iatt,
 		&ett_glusterfs_iatt,
 		&ett_glusterfs_flock,
+		&ett_glusterfs_fsync_flags,
 		&ett_gluster_dict,
 		&ett_gluster_dict_items
 	};

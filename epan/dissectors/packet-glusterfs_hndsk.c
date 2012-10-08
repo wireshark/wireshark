@@ -194,7 +194,7 @@ static const vsff gluster_hndsk_2_proc[] = {
 		GF_HNDSK_GETSPEC, "GETSPEC",
 		gluster_hndsk_2_getspec_call, gluster_hndsk_2_getspec_reply
 	},
-	{ GF_HNDSK_PING, "PING", NULL, gluster_dissect_common_reply },
+	{ GF_HNDSK_PING, "PING", NULL, glusterfs_gfs3_3_op_common_reply },
 	{
 		GF_HNDSK_SET_LK_VER,"LOCK VERSION",
 		gluster_hndsk_2_set_lk_ver_call, gluster_hndsk_2_set_lk_ver_reply
