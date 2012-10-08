@@ -56,7 +56,6 @@ col_cleanup(column_info *cinfo)
   g_free(cinfo->col_custom_occurrence);
   g_free(cinfo->col_custom_field_id);
   g_free(cinfo->col_custom_dfilter);
-  g_free((gchar **)cinfo->col_data);
   g_free(cinfo->col_buf);
   g_free(cinfo->col_fence);
   g_free((gchar **)cinfo->col_expr.col_expr);
