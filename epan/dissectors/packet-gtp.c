@@ -314,6 +314,7 @@ static gboolean g_gtp_tpdu = TRUE;
 static gboolean g_gtp_etsi_order = FALSE;
 
 static int gtp_tap = -1;
+static int gtpv1_tap = -1;
 
 /* Definition of flags masks */
 #define GTP_VER_MASK 0xE0
@@ -1912,11 +1913,11 @@ static const gtp_opt_t gtpopt[] = {
 #define NUM_GTP_IES 255
 static gint ett_gtp_ies[NUM_GTP_IES];
 
-struct _gtp_hdr {
+/*struct _gtp_hdr {
     guint8 flags;
     guint8 message;
     guint16 length;
-};
+    };*/
 
 static guint8 gtp_version = 0;
 static const char *yesno[] = { "no", "yes" };
@@ -7757,7 +7758,7 @@ decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
 static void
 dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-    struct _gtp_hdr  gtp_hdr;
+    gtp_hdr_t       *gtp_hdr = NULL;
     proto_tree      *gtp_tree = NULL, *ext_tree;
     proto_item      *ti = NULL, *tf, *item;
     int              i, offset, length, gtp_prime, checked_field, mandatory;
@@ -7778,7 +7779,8 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     gtp_conv_info_t *gtp_info;
     void*            pd_save;
 
-
+    gtp_hdr = ep_new(gtp_hdr_t);
+    
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -7808,14 +7810,14 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     pd_save = pinfo->private_data;
     pinfo->private_data = gtp_info;
 
-    tvb_memcpy(tvb, (guint8 *) & gtp_hdr, 0, 4);
+    tvb_memcpy(tvb, (guint8 *) gtp_hdr, 0, 8); /* Includes TEID */
 
-    if (!(gtp_hdr.flags & 0x10))
+    if (!(gtp_hdr->flags & 0x10))
         gtp_prime = 1;
     else
         gtp_prime = 0;
 
-    switch ((gtp_hdr.flags >> 5) & 0x07) {
+    switch ((gtp_hdr->flags >> 5) & 0x07) {
         case 0:
             gtp_version = 0;
             break;
@@ -7826,25 +7828,25 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             gtp_version = 1;
             break;
     }
-    gtp_hdr.length = g_ntohs(gtp_hdr.length);
+    gtp_hdr->length = g_ntohs(gtp_hdr->length);
 
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(gtp_hdr.message, &gtp_message_type_ext, "Unknown"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(gtp_hdr->message, &gtp_message_type_ext, "Unknown"));
 
     if (tree) {
         proto_tree *flags_tree;
         ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, ENC_NA);
         gtp_tree = proto_item_add_subtree(ti, ett_gtp);
 
-        tf = proto_tree_add_uint(gtp_tree, hf_gtp_flags, tvb, 0, 1, gtp_hdr.flags);
+        tf = proto_tree_add_uint(gtp_tree, hf_gtp_flags, tvb, 0, 1, gtp_hdr->flags);
         flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
 
         if(gtp_prime == 1) {
             /* Octet  8    7    6    5    4    3    2    1
              * 1      Version   | PT| Spare '1 1 1 '| ' 0/1 '
              */
-            proto_tree_add_uint(flags_tree, hf_gtp_prime_flags_ver, tvb, 0, 1, gtp_hdr.flags);
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr.flags);
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr.flags);
+            proto_tree_add_uint(flags_tree, hf_gtp_prime_flags_ver, tvb, 0, 1, gtp_hdr->flags);
+            proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr->flags);
+            proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr->flags);
             /* Bit 1 of octet 1 is not used in GTP' (except in v0), and it is marked '0'
              * in the GTP' header. It is in use in GTP' v0 and distinguishes the used header-length.
              * In the case of GTP' v0, this bit being marked one (1) indicates the usage of the 6
@@ -7856,22 +7858,22 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 proto_tree_add_item(flags_tree, hf_gtp_flags_hdr_length, tvb, 0, 1, ENC_BIG_ENDIAN);
             }
         } else {
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr.flags);
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr.flags);
+            proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr->flags);
+            proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr->flags);
             if(gtp_version == 0) {
-                proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr.flags);
-                proto_tree_add_boolean(flags_tree, hf_gtp_flags_snn, tvb, 0, 1, gtp_hdr.flags);
+                proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr->flags);
+                proto_tree_add_boolean(flags_tree, hf_gtp_flags_snn, tvb, 0, 1, gtp_hdr->flags);
             } else {
-                proto_tree_add_uint(flags_tree, hf_gtp_flags_spare2, tvb, 0, 1, gtp_hdr.flags);
-                proto_tree_add_boolean(flags_tree, hf_gtp_flags_e, tvb, 0, 1, gtp_hdr.flags);
-                proto_tree_add_boolean(flags_tree, hf_gtp_flags_s, tvb, 0, 1, gtp_hdr.flags);
-                proto_tree_add_boolean(flags_tree, hf_gtp_flags_pn, tvb, 0, 1, gtp_hdr.flags);
+                proto_tree_add_uint(flags_tree, hf_gtp_flags_spare2, tvb, 0, 1, gtp_hdr->flags);
+                proto_tree_add_boolean(flags_tree, hf_gtp_flags_e, tvb, 0, 1, gtp_hdr->flags);
+                proto_tree_add_boolean(flags_tree, hf_gtp_flags_s, tvb, 0, 1, gtp_hdr->flags);
+                proto_tree_add_boolean(flags_tree, hf_gtp_flags_pn, tvb, 0, 1, gtp_hdr->flags);
             }
         }
 
-        proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, 1, 1, gtp_hdr.message);
+        proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, 1, 1, gtp_hdr->message);
 
-        proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr.length);
+        proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr->length);
     }
 
     offset = 4;
@@ -7881,7 +7883,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
         offset += 2;
         /* If GTP' version is 0 and bit 1 is 0 20 bytes header is used, step past it */
-        if( (gtp_version == 0) && ((gtp_hdr.flags & 0x01) == 0) ) {
+        if( (gtp_version == 0) && ((gtp_hdr->flags & 0x01) == 0) ) {
             offset = GTPv0_HDR_LENGTH;
         }
     } else {
@@ -7909,7 +7911,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             offset += 4;
 
             /* Are sequence number/N-PDU Number/extension header present? */
-            if (gtp_hdr.flags & 0x07) {
+            if (gtp_hdr->flags & 0x07) {
                 seq_no = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
                 offset += 2;
@@ -7977,7 +7979,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         }
     }
 
-    if (gtp_hdr.message != GTP_MSG_TPDU) {
+    if (gtp_hdr->message != GTP_MSG_TPDU) {
         /* TODO: This code should be cleaned up to handle more than one
          * header and possibly display the header content */
         if (next_hdr) {
@@ -8029,7 +8031,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 ext_hdr_val = tvb_get_guint8(tvb, offset);
 
             if (g_gtp_etsi_order) {
-                checked_field = check_field_presence(gtp_hdr.message, ext_hdr_val, (int *) &mandatory);
+                checked_field = check_field_presence(gtp_hdr->message, ext_hdr_val, (int *) &mandatory);
                 switch (checked_field) {
                 case -2:
                     proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] message not found");
@@ -8055,7 +8057,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
         /*Use sequence number to track Req/Resp pairs*/
         if (seq_no) {
-            gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr.message);
+            gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr->message);
             /*pass packet to tap for response time reporting*/
             if (gcrp) {
                 tap_queue_packet(gtp_tap,pinfo,gcrp);
@@ -8064,12 +8066,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
     proto_item_set_len (ti, offset);
 
-    if ((gtp_hdr.message == GTP_MSG_TPDU) && g_gtp_tpdu) {
+    if ((gtp_hdr->message == GTP_MSG_TPDU) && g_gtp_tpdu) {
 
         if (gtp_prime)
             offset = 6;
         else if (gtp_version == 1) {
-            if (gtp_hdr.flags & 0x07) {
+            if (gtp_hdr->flags & 0x07) {
                 offset = 11;
                 if (tvb_get_guint8(tvb, offset) == 0)
                     offset++;
@@ -8078,8 +8080,8 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         } else
             offset = 20;
 
-        if(gtp_hdr.length > offset){
-            proto_tree_add_text(tree, tvb, offset, gtp_hdr.length, "T-PDU Data %u bytes", gtp_hdr.length);
+        if(gtp_hdr->length > offset){
+            proto_tree_add_text(tree, tvb, offset, gtp_hdr->length, "T-PDU Data %u bytes", gtp_hdr->length);
         }
         /* Can only handle one extension header type... */
         if (noOfExtHdrs != 0) offset+= 1 + noOfExtHdrs*4;
@@ -8117,12 +8119,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
             col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
     }
-    #if 0
+#if 0
     else {
         if (gtp_prime)
             offset = 6;
         else if (gtp_version == 1) {
-            if (gtp_hdr.flags & 0x07) {
+            if (gtp_hdr->flags & 0x07) {
                 offset = 11;
                 if (tvb_get_guint8(tvb, offset) == 0)
                     offset++;
@@ -8133,6 +8135,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
 #endif
     pinfo->private_data = pd_save;
+    tap_queue_packet(gtpv1_tap,pinfo, gtp_hdr);
 }
 
 static void
@@ -9216,7 +9219,8 @@ proto_register_gtp(void)
     gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP DATA RECORD TYPE", FT_UINT16, BASE_DEC);
 
     register_init_routine(gtp_reinit);
-    gtp_tap=register_tap("gtp");
+    gtp_tap = register_tap("gtp");
+    gtpv1_tap = register_tap("gtpv1");
 }
 /* TS 132 295 V9.0.0 (2010-02)
  * 5.1.3 Port usage

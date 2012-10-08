@@ -33,6 +33,14 @@ typedef struct gtp_msg_hash_entry {
 	guint msgtype; 			/*messagetype*/
 } gtp_msg_hash_t;
 
+
+typedef struct _gtp_hdr {
+  guint8 flags;  /* GTP header flags */ 
+  guint8 message; /* Message type */
+  guint16 length; /* Length of header */
+  guint32 teid; /* Tunnel End-point ID */
+} gtp_hdr_t;
+
 /* definitions of GTP messages */
 #define GTP_MSG_UNKNOWN             0x00
 #define GTP_MSG_ECHO_REQ            0x01
