@@ -7268,6 +7268,8 @@ dissect_japan_chg_inf_type(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
 
 	proto_tree_add_item(parameter_tree, hf_japan_isup_charge_info_type, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 
+	proto_item_set_text(parameter_item, "Charge information type");
+
 }
 
 static const value_string japan_isup_sig_elem_type_values[] = {
@@ -7304,7 +7306,7 @@ static const value_string japan_isup_tariff_rate_pres_values[] = {
 };
 
 static void
-dissect_japan_chg_inf_type_acr(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_japan_chg_inf_type_acr(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_)
 {
     int offset = 0;
     guint8 ext_ind;
