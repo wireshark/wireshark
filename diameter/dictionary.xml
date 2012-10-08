@@ -23,7 +23,8 @@
 	<!ENTITY mobileipv6	SYSTEM "mobileipv6.xml">
 	<!ENTITY Cisco		SYSTEM "Cisco.xml">
 	<!ENTITY Vodafone	SYSTEM "Vodafone.xml">
-	<!ENTITY AlcatelLucent	SYSTEM "AlcatelLucent.xml">
+  <!ENTITY AlcatelLucent	SYSTEM "AlcatelLucent.xml">
+  <!ENTITY Nokia	SYSTEM "Nokia.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -182,21 +183,22 @@
 		<!-- ************************************************************** -->
 		<vendor vendor-id="None" code="0" name="None"/>
 		<vendor vendor-id="HP"    code="11"    name="Hewlett Packard"/>
-		<vendor vendor-id="Merit" code="61" name="Merit Networks"/>
 		<vendor vendor-id="Sun" code="42" name="Sun Microsystems, Inc."/>
-		<vendor vendor-id="USR" code="429" name="US Robotics Corp."/>
-		<vendor vendor-id="Huawei" code="2011" name="Huawei"/>
-		<vendor vendor-id="Cisco" code="5771" name="Cisco"/>
+    <vendor vendor-id="Merit" code="61" name="Merit Networks"/>
+    <vendor vendor-id="Nokia" code="94" name="Nokia"/>
+    <vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
+    <vendor vendor-id="USR" code="429" name="US Robotics Corp."/>
+    <vendor vendor-id="ALU" code="637" name="ALU Network"/>
+    <vendor vendor-id="Huawei" code="2011" name="Huawei"/>
+    <vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
+    <vendor vendor-id="Cisco" code="5771" name="Cisco"/>
 		<vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
 		<vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
-		<vendor vendor-id="TGPPCX" code="16777216" name="3GPP CX/DX"/>
-		<vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
-		<vendor vendor-id="ETSI"  code="13019" name="ETSI"/>
 		<vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
-		<vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
-		<vendor vendor-id="Tango" code="13421" name="Tango Telecom Limited"/>
-		<vendor vendor-id="ALU" code="637" name="ALU Network"/>
-		<!-- *********************** End Vendors ************************** -->
+    <vendor vendor-id="ETSI"  code="13019" name="ETSI"/>
+    <vendor vendor-id="Tango" code="13421" name="Tango Telecom Limited"/>
+    <vendor vendor-id="TGPPCX" code="16777216" name="3GPP CX/DX"/>
+    <!-- *********************** End Vendors ************************** -->
 
 
 		<!-- ************************************************************** -->
@@ -6181,4 +6183,5 @@
 	&Cisco;
   &Vodafone;
   &AlcatelLucent;
+  &Nokia;
 </dictionary>
