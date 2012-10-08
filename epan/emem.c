@@ -57,12 +57,16 @@
 
 #ifdef WANT_GUARD_PAGES
 /* Add guard pages at each end of our allocated memory */
+
 #if defined(HAVE_SYSCONF) && defined(HAVE_MMAP) && defined(HAVE_MPROTECT) && defined(HAVE_STDINT_H)
 #include <stdint.h>
+
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#endif
+#endif /* HAVE_SYS_TYPES_H */
+
 #include <sys/mman.h>
+
 #if defined(MAP_ANONYMOUS)
 #define ANON_PAGE_MODE	(MAP_ANONYMOUS|MAP_PRIVATE)
 #elif defined(MAP_ANON)
@@ -70,17 +74,19 @@
 #else
 #define ANON_PAGE_MODE	(MAP_PRIVATE)	/* have to map /dev/zero */
 #define NEED_DEV_ZERO
-#endif
+#endif /* defined(MAP_ANONYMOUS) */
+
 #ifdef NEED_DEV_ZERO
 #include <fcntl.h>
 static int dev_zero_fd;
 #define ANON_FD	dev_zero_fd
 #else
 #define ANON_FD	-1
-#endif
+#endif /* NEED_DEV_ZERO */
+
 #define USE_GUARD_PAGES 1
-#endif
-#endif
+#endif /* defined(HAVE_SYSCONF) && defined(HAVE_MMAP) && defined(HAVE_MPROTECT) && defined(HAVE_STDINT_H) */
+#endif /* WANT_GUARD_PAGES */
 
 /* When required, allocate more memory from the OS in this size chunks */
 #define EMEM_PACKET_CHUNK_SIZE (10 * 1024 * 1024)
