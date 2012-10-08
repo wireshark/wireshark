@@ -41,6 +41,7 @@
  * French ISUP Specification: SPIROU 1998 - 002-005 edition 1 ( Info found here http://www.icg-corp.com/docs/ISUP.pdf ).
  * Israeli ISUP Specification: excertp (for BCM messsage) found in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4231 .
  * Russian national ISUP-R 2000: RD 45.217-2001 book 4
+ * Japan ISUP http://www.ttc.or.jp/jp/document_list/sum/sum_JT-Q763v21.1.pdf 
  */
 
 #include "config.h"
@@ -1206,6 +1207,8 @@ static value_string_ext isup_parameter_type_value_ext = VALUE_STRING_EXT_INIT(is
 
 #define JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO               241 /* F1 */
 #define JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT         243 /* F3 */
+#define JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE            250 /* FA */
+#define JAPAN_ISUP_PARAM_TYPE_CHARGE_INF                 251 /* FB */
 #define JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO           253 /* FD */
 
 static const value_string japan_isup_parameter_type_value[] = {
@@ -1293,6 +1296,8 @@ static const value_string japan_isup_parameter_type_value[] = {
   { PARAM_TYPE_GENERIC_DIGITS,            "Generic digits (national use)"},
   { JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO,       "Carrier Information transfer"},      /* 241 F1 */
   { JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT, "Additional party's category"},       /* 243 F3 */
+  { JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE,    "Charge information type"},           /* 250 FA */
+  { JAPAN_ISUP_PARAM_TYPE_CHARGE_INF,         "Charge information"},                /* 250 FA */
   { JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO,   "Charge area information"},           /* 253 FD */
 
   { 0,                                 NULL}};
@@ -2874,17 +2879,26 @@ static int hf_isup_carrier_info_ca_even_no_digits = -1;
 static int hf_isup_carrier_info_poi_entry_HEI = -1;
 static int hf_isup_carrier_info_poi_exit_HEI = -1;
 
+static int hf_japan_isup_charge_info_type = -1;
+static int hf_japan_isup_sig_elem_type = -1;
+static int hf_japan_isup_activation_id = -1;
+static int hf_japan_isup_op_cls = -1;
+static int hf_japan_isup_op_type = -1;
+static int hf_japan_isup_charging_party_type = -1;
+static int hf_japan_isup_collecting_metod = -1;
+static int hf_japan_isup_tariff_rate_pres = -1;
+
 static int hf_japan_isup_charge_area_nat_of_info_value = -1;
 static int hf_japan_isup_charging_info_nc_odd_digits = -1;
 static int hf_japan_isup_charging_info_nc_even_digits = -1;
 static int hf_isup_charging_info_maca_odd_digits = -1;
 static int hf_isup_charging_info_maca_even_digits = -1;
 
-static int hf_isup_add_user_cat_type_of_info=-1;
-static int hf_isup_add_user_cat_type1=-1;
-static int hf_isup_add_user_cat_type1_fixed=-1;
-static int hf_isup_add_user_cat_type2=-1;
-static int hf_isup_add_user_cat_type3=-1;
+static int hf_isup_add_user_cat_type_of_info = -1;
+static int hf_isup_add_user_cat_type1 = -1;
+static int hf_isup_add_user_cat_type1_fixed = -1;
+static int hf_isup_add_user_cat_type2 = -1;
+static int hf_isup_add_user_cat_type3 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_isup                            = -1;
@@ -7079,7 +7093,7 @@ dissect_japan_isup_carrier_information(tvbuff_t *parameter_tvb, proto_tree *para
 */
 
 static void
-dissect_isup_add_user_cat(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_japan_isup_add_user_cat(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
     guint8 octet;
 
@@ -7148,7 +7162,7 @@ dissect_isup_add_user_cat(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 \-----------------------------------------------|
 */
 static void
-dissect_isup_charge_area_info(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_japan_isup_charge_area_info(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
     proto_item *digits_item;
     proto_tree *digits_tree;
@@ -7236,6 +7250,94 @@ dissect_isup_charge_area_info(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 
     /* Write to top of tree */
     proto_item_set_text(parameter_item, "Charge Area Information");
+}
+
+static const value_string japan_isup_chg_info_type_value[] = {
+  { 0,   "Spare" },
+  { 1,   "Reserved" },
+  { 2,   "Reserved" },
+  { 3,   "Advanced Charge Rate Transfer(TDS Service)" },
+  { 0xfe,   "Charge rate transfer (flexible charging)" },
+  { 0xff,   "Spare" },
+  { 0,   NULL}
+};
+
+static void
+dissect_japan_chg_inf_type(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+
+	proto_tree_add_item(parameter_tree, hf_japan_isup_charge_info_type, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+
+}
+
+static const value_string japan_isup_sig_elem_type_values[] = {
+  { 2,   "Activate" },
+  { 0,   NULL}
+};
+
+static const value_string japan_isup_op_cls_values[] = {
+  { 0,   "Class 1" },
+  { 1,   "Class 2" },
+  { 2,   "Class 3" },
+  { 3,   "Class 4" },
+  { 0,   NULL}
+};
+
+static const value_string japan_isup_op_type_values[] = {
+  { 6,   "Immediate charging" },
+  { 0,   NULL}
+};
+
+static const value_string japan_isup_charging_party_type_values[] = {
+  { 0,   "Originator charge" },
+  { 0,   NULL}
+};
+
+static const value_string japan_isup_collecting_metod_values[] = {
+  { 0,   "Subscriber will be claimed" },
+  { 0,   NULL}
+};
+
+static const value_string japan_isup_tariff_rate_pres_values[] = {
+  { 2,   "No charge rate information" },
+  { 0,   NULL}
+};
+
+static void
+dissect_japan_chg_inf_type_acr(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+    int offset = 0;
+    guint8 ext_ind;
+    /* length : 2-5 octets */
+    ext_ind = tvb_get_guint8(parameter_tvb, offset)>>7;
+    proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_japan_isup_sig_elem_type, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    if (!ext_ind) {
+        /* Activation ID */
+        ext_ind = tvb_get_guint8(parameter_tvb, offset)>>7;
+        proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(parameter_tree, hf_japan_isup_activation_id, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        if (!ext_ind) {
+            /* Operation type and class */
+            ext_ind = tvb_get_guint8(parameter_tvb, offset)>>7;
+            proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(parameter_tree, hf_japan_isup_op_cls, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(parameter_tree, hf_japan_isup_op_type, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            if (!ext_ind) {
+                /* Tariff collecting method and charging party type */
+                proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_japan_isup_charging_party_type, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_japan_isup_collecting_metod, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+            }
+        }
+    }
+    /* Tariff rate presentation */
+    proto_tree_add_item(parameter_tree, hf_japan_isup_tariff_rate_pres, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+
 }
 /* END Japan ISUP */
 
@@ -7550,10 +7652,10 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
                     dissect_japan_isup_carrier_information(parameter_tvb, parameter_tree, parameter_item);
                     break;
                 case JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT:
-                    dissect_isup_add_user_cat(parameter_tvb, parameter_tree, parameter_item);
+                    dissect_japan_isup_add_user_cat(parameter_tvb, parameter_tree, parameter_item);
                     break;
                 case JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO:
-                    dissect_isup_charge_area_info(parameter_tvb, parameter_tree, parameter_item);
+                    dissect_japan_isup_charge_area_info(parameter_tvb, parameter_tree, parameter_item);
                     break;
                 default:
                     dissect_isup_unknown_parameter(parameter_tvb, parameter_item);
@@ -8886,6 +8988,71 @@ dissect_israeli_traffic_change_message(tvbuff_t *message_tvb, proto_tree *isup_t
     return offset;
 }
 
+static int
+dissect_japan_chg_inf(tvbuff_t *message_tvb, proto_tree *isup_tree)
+{
+  proto_item *parameter_item;
+  proto_tree *parameter_tree;
+  tvbuff_t   *parameter_tvb;
+  gint        offset = 0;
+  gint        parameter_type, parameter_pointer, parameter_length, actual_length;
+  guint8      chg_inf_type;
+
+  /* Do stuff for first mandatory fixed parameter: Charge information type */
+  parameter_type = JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE;
+  parameter_item = proto_tree_add_text(isup_tree, message_tvb, offset, 1, "Charge information type");
+  parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
+  proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type,
+                             "Mandatory Parameter: %u (%s)",
+                             parameter_type,
+                             val_to_str_ext_const(parameter_type, &japan_isup_parameter_type_value_ext, "unknown"));
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
+  parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(1, actual_length), 1);
+  chg_inf_type = tvb_get_guint8(parameter_tvb,0);
+  dissect_japan_chg_inf_type(parameter_tvb, parameter_tree, parameter_item);
+  offset += 1;
+
+  /* Do stuff for mandatory variable parameter Charge information */
+  parameter_type = JAPAN_ISUP_PARAM_TYPE_CHARGE_INF;
+  parameter_pointer = tvb_get_guint8(message_tvb, offset);
+  parameter_length  = tvb_get_guint8(message_tvb, offset + parameter_pointer);
+
+  parameter_item = proto_tree_add_text(isup_tree, message_tvb,
+                                       offset +  parameter_pointer,
+                                       parameter_length + PARAMETER_LENGTH_IND_LENGTH,
+                                       "Charge information");
+  parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
+  proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type,
+                             "Mandatory Parameter: %u (%s)",
+                             parameter_type,
+                             val_to_str_ext_const(parameter_type, &japan_isup_parameter_type_value_ext, "unknown"));
+  proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset,
+                             PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);
+  proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer,
+                             PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
+  parameter_tvb = tvb_new_subset(message_tvb,
+                                 offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH,
+                                 MIN(parameter_length, actual_length),
+                                 parameter_length);
+
+  /* TODO: Dissect the parameter here, switch on type */
+  switch(chg_inf_type){
+  case 3:
+	  /* Advanced Charge Rate Transfer (TDS service) */
+	  dissect_japan_chg_inf_type_acr(parameter_tvb, parameter_tree, parameter_item);
+	  break;
+  default:
+      proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "Charge information data, not dissected yet");
+	  break;
+  }
+
+
+  offset += PARAMETER_POINTER_LENGTH;
+
+  return offset;
+
+}
 
 /* ------------------------------------------------------------------ */
 static void
@@ -9485,11 +9652,8 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
         case ISUP_JAPAN_VARIANT:
           switch (message_type) {
             case MESSAGE_TYPE_JAPAN_CHARG_INF:
-              /* TODO: Add dissection here */
-              bufferlength = tvb_length_remaining(message_tvb, offset);
-              if (bufferlength != 0)
-                proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength,
-                                    "Not dissected yet");
+              offset += dissect_japan_chg_inf(parameter_tvb, isup_tree);
+              opt_part_possible = TRUE;
               break;
             default:
               bufferlength = tvb_length_remaining(message_tvb, offset);
@@ -9627,16 +9791,39 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-  proto_item *ti;
-  proto_tree *bicc_tree = NULL;
-  tvbuff_t   *message_tvb;
-  guint32     bicc_cic;
-  guint8      message_type;
+  proto_item       *ti;
+  proto_tree       *bicc_tree = NULL;
+  tvbuff_t         *message_tvb;
+  guint32           bicc_cic;
+  guint8            message_type;
+  guint8            itu_isup_variant = g_isup_variant;
+  value_string_ext *used_value_string_ext;
 
   /*circuit_t *circuit;*/
 
 /* Make entries in Protocol column and Info column on summary display */
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "BICC");
+	switch(itu_isup_variant) {
+	case ISUP_FRENCH_VARIANT:
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BICC(French)");
+		used_value_string_ext = &french_isup_message_type_value_acro_ext;
+		break;
+	case ISUP_ISRAELI_VARIANT:
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BICC(Israeli)");
+		used_value_string_ext = &israeli_isup_message_type_value_acro_ext;
+		break;
+	case ISUP_RUSSIAN_VARIANT:
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BICC(Russian)");
+		used_value_string_ext = &russian_isup_message_type_value_acro_ext;
+		break;
+	case ISUP_JAPAN_VARIANT:
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BICC(Japan)");
+		used_value_string_ext = &japan_isup_message_type_value_acro_ext;
+		break;
+	default:
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BICC(ITU)");
+		used_value_string_ext = &isup_message_type_value_acro_ext;
+		break;
+	}
 
 /* Extract message type field */
   message_type = tvb_get_guint8(tvb, BICC_CIC_OFFSET + BICC_CIC_LENGTH);
@@ -9650,12 +9837,12 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (isup_show_cic_in_info) {
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
                  "%s (CIC %u)",
-                 val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"),
+                 val_to_str_ext_const(message_type, used_value_string_ext, "reserved"),
                  bicc_cic);
   } else {
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
                  "%s",
-                 val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"));
+                 val_to_str_ext_const(message_type, used_value_string_ext, "reserved"));
   }
   /* dissect CIC in main dissector since pass-along message type carrying complete BICC/ISUP message w/o CIC needs
    * recursive message dissector call
@@ -9670,7 +9857,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   message_tvb = tvb_new_subset_remaining(tvb, BICC_CIC_LENGTH);
-  dissect_isup_message(message_tvb, pinfo, bicc_tree, ISUP_ITU_STANDARD_VARIANT);
+  dissect_isup_message(message_tvb, pinfo, bicc_tree, itu_isup_variant);
   col_set_fence(pinfo->cinfo, COL_INFO);
 }
 
@@ -10906,7 +11093,47 @@ proto_register_isup(void)
     { &hf_isup_carrier_info_poi_entry_HEI,
       {"Entry POI Hierarchy", "isup.carrier_info_entry_hierarchy",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_poihie_value), 0xF0,
-      NULL, HFILL }}
+      NULL, HFILL }},
+
+    { &hf_japan_isup_charge_info_type,
+      {"Charge information type", "isup.japan.chg_inf_type",
+      FT_UINT8, BASE_DEC, VALS(japan_isup_chg_info_type_value), 0x0,
+      NULL, HFILL }},
+
+     { &hf_japan_isup_sig_elem_type,
+      {"Signal element type", "isup.japan.sig_elem_type",
+      FT_UINT8, BASE_DEC, VALS(japan_isup_sig_elem_type_values), 0x7f,
+      NULL, HFILL }},
+
+     { &hf_japan_isup_activation_id,
+      {"Activation id", "isup.japan.activation_id",
+      FT_UINT8, BASE_DEC, NULL, 0x7F,
+      NULL, HFILL }},
+
+     { &hf_japan_isup_op_cls,
+      {"Operation class", "isup.japan.op_cls",
+      FT_UINT8, BASE_DEC, VALS(japan_isup_op_cls_values), 0x60,
+      NULL, HFILL }},
+
+     { &hf_japan_isup_op_type,
+      {"Operation type", "isup.japan.op_type",
+      FT_UINT8, BASE_DEC, VALS(japan_isup_op_type_values), 0x1f,
+      NULL, HFILL }},
+
+     { &hf_japan_isup_charging_party_type,
+      {"Charging party type", "isup.japan.charging_party_type",
+      FT_UINT8, BASE_DEC, VALS(japan_isup_charging_party_type_values), 0x70,
+      NULL, HFILL }},
+
+     { &hf_japan_isup_collecting_metod,
+      {"Charging party type", "isup.japan.collecting_metod",
+      FT_UINT8, BASE_DEC, VALS(japan_isup_collecting_metod_values), 0x0f,
+      NULL, HFILL }},
+
+	{ &hf_japan_isup_tariff_rate_pres,
+      {"Tariff rate presentation", "isup.japan.tariff_rate_pres",
+      FT_UINT8, BASE_DEC, VALS(japan_isup_tariff_rate_pres_values), 0x7f,
+      NULL, HFILL }},
   };
 
 /* Setup protocol subtree array */
