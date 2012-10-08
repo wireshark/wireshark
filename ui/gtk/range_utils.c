@@ -86,7 +86,6 @@ range_check_validity(packet_range_t *range)
   }
 }
 
-#include <stdio.h>
 gboolean
 range_check_validity_modal(GtkWidget *parent, packet_range_t *range)
 {
