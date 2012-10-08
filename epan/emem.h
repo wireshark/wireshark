@@ -34,6 +34,8 @@
  */
 void emem_init(void);
 
+typedef struct _emem_header_t emem_header_t;
+
 /* Functions for handling memory allocation and garbage collection with
  * a packet lifetime scope.
  * These functions are used to allocate memory that will only remain persistent
@@ -45,6 +47,9 @@ void emem_init(void);
  * Everytime a new packet is dissected, all memory allocations done in
  * the previous packet is freed.
  */
+
+emem_header_t *ep_create_pool(void);
+void ep_free_pool(emem_header_t *ep_packet_mem);
 
 /** Allocate memory with a packet lifetime scope */
 void *ep_alloc(size_t size) G_GNUC_MALLOC;
@@ -86,9 +91,6 @@ gchar *ep_strconcat(const gchar *string, ...) G_GNUC_MALLOC G_GNUC_NULL_TERMINAT
  * The vector and all the strings are allocated with packet lifetime scope
  */
 gchar** ep_strsplit(const gchar* string, const gchar* delimiter, int max_tokens);
-
-/** release all memory allocated in the previous packet dissection */
-void ep_free_all(void);
 
 
 /** a stack implemented using ephemeral allocators */

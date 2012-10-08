@@ -65,13 +65,6 @@
 #include <ares_version.h>
 #endif
 
-/*
- * Refcount the edt:s and don't free ep memory until refcount = 0
- * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5284
- *
- */
-static guint edt_refs = 0;
-
 const gchar*
 epan_get_version(void) {
 	return VERSION;
@@ -171,7 +164,7 @@ epan_dissect_init(epan_dissect_t *edt, const gboolean create_proto_tree, const g
 
 	edt->pi.dependent_frames = NULL;
 
-	edt_refs++;
+	edt->mem = ep_create_pool();
 
 	return edt;
 }
@@ -217,10 +210,7 @@ epan_dissect_cleanup(epan_dissect_t* edt)
 		proto_tree_free(edt->tree);
 	}
 
-	edt_refs--;
-
-	if (edt_refs == 0)
-		ep_free_all();
+	ep_free_pool(edt->mem);
 }
 
 void
@@ -362,3 +352,16 @@ _U_
 	g_string_append_printf(str, ", Gcrypt %s", gcry_check_version(NULL));
 #endif /* HAVE_LIBGCRYPT */
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

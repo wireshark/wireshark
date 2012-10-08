@@ -31,6 +31,7 @@ extern "C" {
 #include "tvbuff.h"
 #include "proto.h"
 #include "packet_info.h"
+#include "emem.h"
 
 /* Dissection of a single byte array. Holds tvbuff info as
  * well as proto_tree info. As long as the epan_dissect_t for a byte
@@ -41,6 +42,7 @@ extern "C" {
 struct _epan_dissect_t {
 	tvbuff_t	*tvb;
 	proto_tree	*tree;
+	emem_header_t   *mem;
 	packet_info	pi;
 };
 
@@ -49,3 +51,16 @@ struct _epan_dissect_t {
 #endif /* __cplusplus */
 
 #endif /* EPAN_DISSECT_H */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
