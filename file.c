@@ -258,6 +258,10 @@ static void reset_elapsed(void)
   computed_elapsed = 0;
 }
 
+/*
+ * GLIB_CHECK_VERSION(2,28,0) adds g_get_real_time which could minimize or
+ * replace this
+ */
 static void compute_elapsed(GTimeVal *start_time)
 {
   gdouble  delta_time;

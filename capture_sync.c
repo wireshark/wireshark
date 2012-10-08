@@ -1738,6 +1738,15 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
 {
     int fork_child_status;
     int ret;
+    GTimeVal start_time;
+    GTimeVal end_time;
+    float elapsed;
+
+    /*
+     * GLIB_CHECK_VERSION(2,28,0) adds g_get_real_time which could minimize or
+     * replace this
+     */
+    g_get_current_time(&start_time);
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: wait till child closed");
     g_assert(fork_child != -1);
@@ -1792,7 +1801,10 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
     }
 #endif
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: capture child closed");
+    g_get_current_time(&end_time);
+    elapsed = (end_time.tv_sec - start_time.tv_sec) +
+    ((end_time.tv_usec - start_time.tv_usec) / 1e6);
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: capture child closed after %.3fs", elapsed);
     return ret;
 }
 
