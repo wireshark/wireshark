@@ -478,87 +478,78 @@ dissect_aprs_msg(	tvbuff_t *tvb,
 			)
 {
 	proto_tree *tc;
-	proto_tree *msg_tree;
-	int new_offset;
-	int data_len;
+	proto_tree *msg_tree = NULL;
 	guint8 ch;
 
 
-	data_len = 7;
-	new_offset = offset + data_len;
-
 	ch = tvb_get_guint8( tvb, offset );
 
-	if ( parent_tree )
-		{
-		tc = proto_tree_add_item( parent_tree, hf_aprs_msg, tvb, offset, data_len, ENC_ASCII );
+	if ( parent_tree ){
+		tc = proto_tree_add_item( parent_tree, hf_aprs_msg, tvb, offset, 7, ENC_ASCII );
 		msg_tree = proto_item_add_subtree( tc, ett_aprs_msg );
-
-		if ( isdigit( ch ) )
-			{
-			if ( wind )
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_dir, tvb, offset, 3, FALSE );
-			else
-				proto_tree_add_item( msg_tree, *msg_items->hf_msg_cse, tvb, offset, 3, FALSE );
-			offset += 3;
-			/* verify the separator */
-			offset += 1;
-			proto_tree_add_item( msg_tree, *msg_items->hf_msg_spd, tvb, offset, 3, FALSE );
-			offset += 3;
-			}
+	}
+	if ( isdigit( ch ) )
+		{
+		if ( wind )
+			proto_tree_add_item( msg_tree, *msg_items->hf_msg_dir, tvb, offset, 3, FALSE );
 		else
-			{
-			switch ( ch )
-				{
-				case 'D' :	/* dfs */
-					offset += 3;
-					proto_tree_add_item( msg_tree, *msg_items->hf_msg_dfs_p, tvb, offset, 1, FALSE );
-					offset += 1;
-					proto_tree_add_item( msg_tree, *msg_items->hf_msg_dfs_h, tvb, offset, 1, FALSE );
-					offset += 1;
-					proto_tree_add_item( msg_tree, *msg_items->hf_msg_dfs_g, tvb, offset, 1, FALSE );
-					offset += 1;
-					proto_tree_add_item( msg_tree, *msg_items->hf_msg_dfs_d, tvb, offset, 1, FALSE );
-					break;
-				case 'P' :	/* phgd */
-					offset += 3;
-					proto_tree_add_item( msg_tree, *msg_items->hf_msg_phg_p, tvb, offset, 1, FALSE );
-					offset += 1;
-					proto_tree_add_item( msg_tree, *msg_items->hf_msg_phg_h, tvb, offset, 1, FALSE );
-					offset += 1;
-					proto_tree_add_item( msg_tree, *msg_items->hf_msg_phg_g, tvb, offset, 1, FALSE );
-					offset += 1;
-					proto_tree_add_item( msg_tree, *msg_items->hf_msg_phg_d, tvb, offset, 1, FALSE );
-					break;
-				case 'R' :	/* rng */
-					proto_tree_add_item( msg_tree, *msg_items->hf_msg_rng, tvb, offset, data_len, FALSE );
-					break;
-				case 'T' :	/* aod */
-					offset += 1;
-					proto_tree_add_item( msg_tree, *msg_items->hf_msg_aod_t, tvb, offset, 2, FALSE );
-					offset += 2;
-					/* step over the /C */
-					offset += 2;
-					proto_tree_add_item( msg_tree, *msg_items->hf_msg_aod_c, tvb, offset, 2, FALSE );
-					break;
-				default  :	/* wtf */
-					break;
-				}
-			offset = offset + data_len;
-			}
-		if ( brg_nrq )
-			{
-			proto_tree_add_item( msg_tree, *msg_items->hf_msg_brg, tvb, offset, 3, ENC_ASCII );
-			offset += 3;
-			/* verify the separator */
-			offset += 1;
-			proto_tree_add_item( msg_tree, *msg_items->hf_msg_nrq, tvb, offset, 3, ENC_ASCII );
-			offset += 3;
-			new_offset += 7;
-			}
-
+			proto_tree_add_item( msg_tree, *msg_items->hf_msg_cse, tvb, offset, 3, FALSE );
+		offset += 3;
+		/* verify the separator */
+		offset += 1;
+		proto_tree_add_item( msg_tree, *msg_items->hf_msg_spd, tvb, offset, 3, FALSE );
+		offset += 3;
 		}
-	return new_offset;
+	else
+		{
+		switch ( ch )
+			{
+			case 'D' :	/* dfs */
+				offset += 3;
+				proto_tree_add_item( msg_tree, *msg_items->hf_msg_dfs_p, tvb, offset, 1, FALSE );
+				offset += 1;
+				proto_tree_add_item( msg_tree, *msg_items->hf_msg_dfs_h, tvb, offset, 1, FALSE );
+				offset += 1;
+				proto_tree_add_item( msg_tree, *msg_items->hf_msg_dfs_g, tvb, offset, 1, FALSE );
+				offset += 1;
+				proto_tree_add_item( msg_tree, *msg_items->hf_msg_dfs_d, tvb, offset, 1, FALSE );
+				break;
+			case 'P' :	/* phgd */
+				offset += 3;
+				proto_tree_add_item( msg_tree, *msg_items->hf_msg_phg_p, tvb, offset, 1, FALSE );
+				offset += 1;
+				proto_tree_add_item( msg_tree, *msg_items->hf_msg_phg_h, tvb, offset, 1, FALSE );
+				offset += 1;
+				proto_tree_add_item( msg_tree, *msg_items->hf_msg_phg_g, tvb, offset, 1, FALSE );
+				offset += 1;
+				proto_tree_add_item( msg_tree, *msg_items->hf_msg_phg_d, tvb, offset, 1, FALSE );
+				break;
+			case 'R' :	/* rng */
+				proto_tree_add_item( msg_tree, *msg_items->hf_msg_rng, tvb, offset, 7, FALSE );
+				break;
+			case 'T' :	/* aod */
+				offset += 1;
+				proto_tree_add_item( msg_tree, *msg_items->hf_msg_aod_t, tvb, offset, 2, FALSE );
+				offset += 2;
+				/* step over the /C */
+				offset += 2;
+				proto_tree_add_item( msg_tree, *msg_items->hf_msg_aod_c, tvb, offset, 2, FALSE );
+				break;
+			default  :	/* wtf */
+				break;
+			}
+		}
+	if ( brg_nrq )
+		{
+		proto_tree_add_item( msg_tree, *msg_items->hf_msg_brg, tvb, offset, 3, ENC_ASCII );
+		offset += 3;
+		/* verify the separator */
+		offset += 1;
+		proto_tree_add_item( msg_tree, *msg_items->hf_msg_nrq, tvb, offset, 3, ENC_ASCII );
+		offset += 3;
+		}
+
+	return offset;
 }
 
 static int
@@ -838,15 +829,13 @@ dissect_aprs_storm(	tvbuff_t *tvb,
 			)
 {
 	proto_tree *tc;
-	proto_tree *storm_tree;
-	int new_offset;
+	proto_tree *storm_tree = NULL;
 	int data_len;
 	char *info_buffer;
 	char *storm_format = " (%*.*s)";
 
 
 	data_len = tvb_length_remaining( tvb, offset );
-	new_offset = offset + data_len;
 	info_buffer = ep_alloc( STRLEN );
 
 	g_snprintf( info_buffer, STRLEN, storm_format, data_len, data_len, tvb_get_ptr( tvb, offset, data_len ) );
@@ -855,29 +844,28 @@ dissect_aprs_storm(	tvbuff_t *tvb,
 		{
 		tc = proto_tree_add_string( parent_tree, hf_aprs_storm, tvb, offset, data_len, info_buffer );
 		storm_tree = proto_item_add_subtree( tc, ett_aprs_storm );
+	}
+	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_dir,  tvb, offset, 3, FALSE );
+	offset += 3;
+	offset += 1;
+	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_spd,  tvb, offset, 3, FALSE );
+	offset += 3;
+	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_type, tvb, offset, 3, FALSE );
+	offset += 3;
+	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_sws,  tvb, offset, 4, FALSE );
+	offset += 4;
+	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_pwg,  tvb, offset, 4, FALSE );
+	offset += 4;
+	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_cp,   tvb, offset, 5, FALSE );
+	offset += 5;
+	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_rhw,  tvb, offset, 4, FALSE );
+	offset += 4;
+	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_rtsw, tvb, offset, 4, FALSE );
+	offset += 4;
+	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_rwg,  tvb, offset, 4, FALSE );
+	offset += 4;
 
-		proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_dir,  tvb, offset, 3, FALSE );
-		offset += 3;
-		offset += 1;
-		proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_spd,  tvb, offset, 3, FALSE );
-		offset += 3;
-		proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_type, tvb, offset, 3, FALSE );
-		offset += 3;
-		proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_sws,  tvb, offset, 4, FALSE );
-		offset += 4;
-		proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_pwg,  tvb, offset, 4, FALSE );
-		offset += 4;
-		proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_cp,   tvb, offset, 5, FALSE );
-		offset += 5;
-		proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_rhw,  tvb, offset, 4, FALSE );
-		offset += 4;
-		proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_rtsw, tvb, offset, 4, FALSE );
-		offset += 4;
-		proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_rwg,  tvb, offset, 4, FALSE );
-		offset += 4;
-		}
-
-	return new_offset;
+	return offset;
 }
 
 static int
@@ -1275,8 +1263,8 @@ aprs_description( tvbuff_t *tvb, int offset )
 	return dti_text;
 }
 
-static void
-dissect_aprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_aprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	proto_item *ti;
 	proto_tree *aprs_tree;
@@ -1498,6 +1486,7 @@ dissect_aprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			default	: break;
 			}
 		}
+	return offset;
 }
 
 void
@@ -1943,7 +1932,7 @@ proto_register_aprs(void)
 	proto_aprs = proto_register_protocol("Automatic Position Reporting System", "APRS", "aprs");
 
 	/* Register the dissector */
-	register_dissector( "aprs", dissect_aprs, proto_aprs);
+	new_register_dissector( "aprs", dissect_aprs, proto_aprs);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_aprs, hf, array_length(hf ) );
