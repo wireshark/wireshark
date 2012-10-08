@@ -1208,6 +1208,8 @@ emem_free_all(emem_pool_t *mem)
 	npc = mem->free_list;
 	while (npc != NULL) {
 		if (use_chunks) {
+			emem_chunk_t *next = npc->next;
+
 			while (npc->canary_last != NULL) {
 				npc->canary_last = emem_canary_next(mem->canary, npc->canary_last, NULL);
 				/* XXX, check if canary_last is inside allocated memory? */
@@ -1220,9 +1222,9 @@ emem_free_all(emem_pool_t *mem)
 					  (npc->free_offset - npc->free_offset_init),
 					  FALSE);
 
-			npc->amount_free = npc->amount_free_init;
-			npc->free_offset = npc->free_offset_init;
-			npc = npc->next;
+			emem_destroy_chunk(npc);
+
+			npc = next;
 		} else {
 			emem_chunk_t *next = npc->next;
 
@@ -1234,10 +1236,7 @@ emem_free_all(emem_pool_t *mem)
 		}
 	}
 
-	if (!use_chunks) {
-		/* We've freed all this memory already */
-		mem->free_list = NULL;
-	}
+	mem->free_list = NULL;
 
 	/* release/reset all allocated trees */
 	for(tree_list=mem->trees;tree_list;tree_list=tree_list->next){
