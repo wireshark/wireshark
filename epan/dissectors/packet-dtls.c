@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *
  * DTLS dissection and decryption.
@@ -599,12 +599,12 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
   /* if we can decrypt and decryption have success
    * add decrypted data to this packet info */
-  ssl_debug_printf("decrypt_dtls_record: app_data len %d, ssl state %X\n",
-                   record_length, ssl->state);
   if (!ssl || (!save_plaintext && !(ssl->state & SSL_HAVE_SESSION_KEY))) {
     ssl_debug_printf("decrypt_dtls_record: no session key\n");
     return ret;
   }
+  ssl_debug_printf("decrypt_dtls_record: app_data len %d, ssl state %X\n",
+                   record_length, ssl->state);
 
   /* retrieve decoder for this packet direction */
   if (ssl_packet_from_server(ssl, dtls_associations, pinfo) != 0) {
@@ -930,7 +930,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     proto_item_set_text(dtls_record_tree,
                         "%s Record Layer: %s Protocol: %s",
                         val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
-                        val_to_str(content_type, ssl_31_content_type, "unknown"),
+                        val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                         association?association->info:"Application Data");
 
     /* show decrypted data info, if available */
@@ -1018,7 +1018,7 @@ dissect_dtls_change_cipher_spec(tvbuff_t *tvb,
       proto_item_set_text(tree,
                           "%s Record Layer: %s Protocol: Change Cipher Spec",
                           val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
-                          val_to_str(content_type, ssl_31_content_type, "unknown"));
+                          val_to_str_const(content_type, ssl_31_content_type, "unknown"));
       proto_tree_add_item(tree, hf_dtls_change_cipher_spec, tvb,
                           offset, 1, ENC_NA);
     }
@@ -1258,7 +1258,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             {
               proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
                                   val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
-                                  val_to_str(content_type, ssl_31_content_type, "unknown"),
+                                  val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                                   (msg_type_str!=NULL) ? msg_type_str :
                                   "Encrypted Handshake Message",
                                   (frag_str!=NULL) ? frag_str : "");
@@ -1267,7 +1267,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             {
               proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
                                   val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
-                                  val_to_str(content_type, ssl_31_content_type, "unknown"),
+                                  val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                                   "Multiple Handshake Messages",
                                   (frag_str!=NULL) ? frag_str : "");
             }
@@ -2489,21 +2489,21 @@ proto_register_dtls(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "Hello Extension data", HFILL }
     },
-	{ &hf_dtls_handshake_session_ticket_lifetime_hint,
-	  { "Session Ticket Lifetime Hint", "dtls.handshake.session_ticket_lifetime_hint",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
-		"New DTLS Session Ticket Lifetime Hint", HFILL }
-	},
-	{ &hf_dtls_handshake_session_ticket_len,
-	  { "Session Ticket Length", "dtls.handshake.session_ticket_length",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"New DTLS Session Ticket Length", HFILL }
-	},
-	{ &hf_dtls_handshake_session_ticket,
-	  { "Session Ticket", "dtls.handshake.session_ticket",
-		FT_BYTES, BASE_NONE, NULL, 0x0,
-		"New DTLS Session Ticket", HFILL }
-	},
+    { &hf_dtls_handshake_session_ticket_lifetime_hint,
+      { "Session Ticket Lifetime Hint", "dtls.handshake.session_ticket_lifetime_hint",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "New DTLS Session Ticket Lifetime Hint", HFILL }
+    },
+    { &hf_dtls_handshake_session_ticket_len,
+      { "Session Ticket Length", "dtls.handshake.session_ticket_length",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "New DTLS Session Ticket Length", HFILL }
+    },
+    { &hf_dtls_handshake_session_ticket,
+      { "Session Ticket", "dtls.handshake.session_ticket",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "New DTLS Session Ticket", HFILL }
+    },
     { &hf_dtls_handshake_certificates_len,
       { "Certificates Length", "dtls.handshake.certificates_length",
         FT_UINT24, BASE_DEC, NULL, 0x0,
@@ -2724,7 +2724,6 @@ proto_register_dtls(void)
 
   register_dissector("dtls", dissect_dtls, proto_dtls);
   dtls_handle = find_dissector("dtls");
-  dissector_add_uint("sctp.ppi", DIAMETER_DTLS_PROTOCOL_ID, dtls_handle);
   dtls_associations = g_tree_new(ssl_association_cmp);
 
   register_init_routine(dtls_init);
@@ -2750,8 +2749,10 @@ proto_reg_handoff_dtls(void)
   dtls_parse_uat();
   dtls_parse_old_keys();
 
-  if (initialized == FALSE)
+  if (initialized == FALSE) {
     heur_dissector_add("udp", dissect_dtls_heur, proto_dtls);
+    dissector_add_uint("sctp.ppi", DIAMETER_DTLS_PROTOCOL_ID, find_dissector("dtls"));
+  }
 
   initialized = TRUE;
 }
