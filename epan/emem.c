@@ -113,7 +113,7 @@ typedef struct _emem_chunk_t {
 	void		*canary_last;
 } emem_chunk_t;
 
-typedef struct _emem_header_t {
+struct _emem_header_t {
 	emem_chunk_t *free_list;
 	emem_chunk_t *used_list;
 
@@ -150,7 +150,7 @@ typedef struct _emem_header_t {
 	 */
 	gboolean debug_verify_pointers;
 
-} emem_header_t;
+};
 
 static GSList *ep_pool_stack = NULL;
 static emem_header_t ep_fake_pool;
@@ -1307,7 +1307,7 @@ emem_header_t *
 ep_create_pool(void)
 {
 	emem_header_t *mem;
-	
+
 	mem = g_malloc(sizeof(emem_header_t));
 
 	ep_init_chunk(mem);
@@ -2234,7 +2234,7 @@ static void
 emem_print_subtree(emem_tree_t* emem_tree, guint32 level)
 {
 	guint32 i;
-        
+
 	if (!emem_tree)
 		return;
 
