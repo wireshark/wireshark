@@ -940,7 +940,6 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
 
             case CL_CM_MAC_ADDR :
                 opt_len = tlv_len;
-                field_len = tlv_len;
                 if (tlv_len != 6) {
                     proto_item_append_text(ti, "Bogus value length=%d",
                                            tlv_len);
@@ -950,15 +949,12 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                     proto_item_append_text(ti, "%s", tvb_bytes_to_str_punct(tvb, sub_off, opt_len, ':'));
                     /* tvb_bytes_to_str(tvb, sub_off, opt_len)); */
                 }
-                sub_off += field_len;
                 break;
 
             case CL_EROUTER_CONTAINER_OPTION :
                 opt_len = tlv_len;
-                field_len = tlv_len;
                 proto_item_append_text(ti, " %s (len=%d)",
                                        tvb_bytes_to_str(tvb, sub_off, opt_len), tlv_len);
-                sub_off += field_len;
                 break;
 
             case CL_OPTION_CCC :
@@ -972,7 +968,6 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                     sub_off += sub_value;
                     field_len += sub_value;
                 }
-                sub_off += field_len;
                 break;
 
             case CL_OPTION_CCCV6 :
@@ -986,7 +981,6 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                     sub_off += sub_value;
                     field_len += sub_value;
                 }
-                sub_off += field_len;
                 break;
 
             case CL_OPTION_CORRELATION_ID :
