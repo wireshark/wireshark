@@ -34,7 +34,7 @@
  */
 void emem_init(void);
 
-typedef struct _emem_header_t emem_header_t;
+typedef struct _emem_pool_t emem_pool_t;
 
 /* Functions for handling memory allocation and garbage collection with
  * a packet lifetime scope.
@@ -48,8 +48,8 @@ typedef struct _emem_header_t emem_header_t;
  * the previous packet is freed.
  */
 
-emem_header_t *ep_create_pool(void);
-void ep_free_pool(emem_header_t *ep_packet_mem);
+emem_pool_t *ep_create_pool(void);
+void ep_free_pool(emem_pool_t *ep_packet_mem);
 
 /** Allocate memory with a packet lifetime scope */
 void *ep_alloc(size_t size) G_GNUC_MALLOC;

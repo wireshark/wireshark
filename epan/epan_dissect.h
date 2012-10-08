@@ -42,7 +42,7 @@ extern "C" {
 struct _epan_dissect_t {
 	tvbuff_t	*tvb;
 	proto_tree	*tree;
-	emem_header_t   *mem;
+	emem_pool_t     *mem;
 	packet_info	pi;
 };
 

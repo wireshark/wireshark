@@ -113,14 +113,14 @@ typedef struct _emem_chunk_t {
 	void		*canary_last;
 } emem_chunk_t;
 
-struct _emem_header_t {
+struct _emem_pool_t {
 	emem_chunk_t *free_list;
 	emem_chunk_t *used_list;
 
 	emem_tree_t *trees;		/* only used by se_mem allocator */
 
 	guint8 canary[EMEM_CANARY_DATA_SIZE];
-	void *(*memory_alloc)(size_t size, struct _emem_header_t *);
+	void *(*memory_alloc)(size_t size, struct _emem_pool_t *);
 
 	/*
 	 * Tools like Valgrind and ElectricFence don't work well with memchunks.
@@ -153,9 +153,9 @@ struct _emem_header_t {
 };
 
 static GSList *ep_pool_stack = NULL;
-static emem_header_t ep_fake_pool;
-static emem_header_t *ep_packet_mem = &ep_fake_pool;
-static emem_header_t se_packet_mem;
+static emem_pool_t ep_fake_pool;
+static emem_pool_t *ep_packet_mem = &ep_fake_pool;
+static emem_pool_t se_packet_mem;
 
 /*
  *  Memory scrubbing is expensive but can be useful to ensure we don't:
@@ -173,8 +173,8 @@ static int pagesize;
 static intptr_t pagesize;
 #endif /* _WIN32 / USE_GUARD_PAGES */
 
-static void *emem_alloc_chunk(size_t size, emem_header_t *mem);
-static void *emem_alloc_glib(size_t size, emem_header_t *mem);
+static void *emem_alloc_chunk(size_t size, emem_pool_t *mem);
+static void *emem_alloc_glib(size_t size, emem_pool_t *mem);
 
 /*
  * Set a canary value to be placed between memchunks.
@@ -278,7 +278,7 @@ ep_check_canary_integrity(const char* fmt, ...)
 #endif
 
 static void
-emem_init_chunk(emem_header_t *mem)
+emem_init_chunk(emem_pool_t *mem)
 {
 	if (mem->debug_use_canary)
 		emem_canary_init(mem->canary);
@@ -295,7 +295,7 @@ emem_init_chunk(emem_header_t *mem)
  * up.
  */
 static void
-ep_init_chunk(emem_header_t *mem)
+ep_init_chunk(emem_pool_t *mem)
 {
 	mem->free_list=NULL;
 	mem->used_list=NULL;
@@ -549,7 +549,7 @@ emem_verify_pointer_list(const emem_chunk_t *chunk_list, const void *ptr)
 }
 
 static gboolean
-emem_verify_pointer(const emem_header_t *hdr, const void *ptr)
+emem_verify_pointer(const emem_pool_t *hdr, const void *ptr)
 {
 	return emem_verify_pointer_list(hdr->free_list, ptr) || emem_verify_pointer_list(hdr->used_list, ptr);
 }
@@ -738,7 +738,7 @@ emem_create_chunk_gp(size_t size)
 }
 
 static void *
-emem_alloc_chunk(size_t size, emem_header_t *mem)
+emem_alloc_chunk(size_t size, emem_pool_t *mem)
 {
 	void *buf;
 
@@ -829,7 +829,7 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 }
 
 static void *
-emem_alloc_glib(size_t size, emem_header_t *mem)
+emem_alloc_glib(size_t size, emem_pool_t *mem)
 {
 	emem_chunk_t *npc;
 
@@ -848,7 +848,7 @@ emem_alloc_glib(size_t size, emem_header_t *mem)
 
 /* allocate 'size' amount of memory. */
 static void *
-emem_alloc(size_t size, emem_header_t *mem)
+emem_alloc(size_t size, emem_pool_t *mem)
 {
 	void *buf = mem->memory_alloc(size, mem);
 
@@ -1183,7 +1183,7 @@ ep_strconcat(const gchar *string1, ...)
 
 /* release all allocated memory back to the pool. */
 static void
-emem_free_all(emem_header_t *mem)
+emem_free_all(emem_pool_t *mem)
 {
 	gboolean use_chunks = mem->debug_use_chunks;
 
@@ -1303,12 +1303,12 @@ emem_free_all(emem_header_t *mem)
  * [3] https://www.wireshark.org/lists/wireshark-dev/201208/msg00128.html
  * [4] https://anonsvn.wireshark.org/viewvc?view=revision&revision=45389
  */
-emem_header_t *
+emem_pool_t *
 ep_create_pool(void)
 {
-	emem_header_t *mem;
+	emem_pool_t *mem;
 
-	mem = g_malloc(sizeof(emem_header_t));
+	mem = g_malloc(sizeof(emem_pool_t));
 
 	ep_init_chunk(mem);
 
@@ -1324,7 +1324,7 @@ ep_create_pool(void)
 }
 
 void
-ep_free_pool(emem_header_t *mem)
+ep_free_pool(emem_pool_t *mem)
 {
 	ep_pool_stack = g_slist_remove(ep_pool_stack, mem);
 
