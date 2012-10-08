@@ -378,7 +378,6 @@ elem_v_short
 ep_address_to_str
 ep_alloc
 ep_alloc0
-ep_free_all
 ep_memdup
 ep_stack_new
 ep_stack_pop
