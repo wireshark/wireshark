@@ -766,7 +766,7 @@ static const gchar *get_sw_string(guint16 sw)
 	case 0x6e:
 		return "Wrong instruction class";
 	case 0x6f:
-		return "Technical problem with no diacnostic";
+		return "Technical problem with no diagnostic";
 	}
 	return val_to_str(sw, sw_vals, "%04x");
 }
@@ -953,14 +953,53 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3,
 	return offset;
 }
 
-static int
-dissect_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+static gint
+dissect_rsp_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, proto_tree *sim_tree)
 {
-	guint8 cla, ins, p1, p2, p3;
 	guint16 sw;
 	proto_item *ti;
+	guint tvb_len = tvb_length(tvb);
+
+	if (tree && !sim_tree) {
+		ti = proto_tree_add_item(tree, proto_gsm_sim, tvb, 0, -1, ENC_NA);
+		sim_tree = proto_item_add_subtree(ti, ett_sim);
+	}
+
+	if ((tvb_len-offset) > 2) {
+		proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, tvb_len - 2, ENC_NA);
+	}
+	offset = tvb_len - 2;
+
+	/* obtain status word */
+	sw = tvb_get_ntohs(tvb, offset);
+	/* proto_tree_add_item(sim_tree, hf_apdu_sw, tvb, offset, 2, ENC_BIG_ENDIAN); */
+	proto_tree_add_uint_format(sim_tree, hf_apdu_sw, tvb, offset, 2, sw,
+							"Status Word: %04x %s", sw, get_sw_string(sw));
+	offset += 2;
+
+	switch (sw >> 8) {
+	case 0x61:
+	case 0x90:
+	case 0x91:
+	case 0x92:
+	case 0x9e:
+	case 0x9f:
+		break;
+	default:
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s ", get_sw_string(sw));
+		break;
+	}
+
+	return offset;
+}
+
+static gint
+dissect_cmd_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean isSIMtrace)
+{
+	guint8 cla, ins, p1, p2, p3;
+	proto_item *ti;
 	proto_tree *sim_tree = NULL;
-	int rc = -1;
+	gint rc = -1;
 	guint tvb_len = tvb_length(tvb);
 
 	cla = tvb_get_guint8(tvb, offset);
@@ -991,33 +1030,31 @@ dissect_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 		proto_tree_add_item(sim_tree, hf_apdu_p3, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset+3, p3, ENC_NA);
 	}
-	offset += 3;
+	offset += 3+p3;
 
-	/* obtain status word */
-	sw = tvb_get_ntohs(tvb, tvb_len-2);
-	/* proto_tree_add_item(sim_tree, hf_apdu_sw, tvb, tvb_len-2, 2, ENC_BIG_ENDIAN); */
-	proto_tree_add_uint_format(sim_tree, hf_apdu_sw, tvb, tvb_len-2, 2, sw,
-				   "Status Word: %04x %s", sw, get_sw_string(sw));
-
-	switch (sw >> 8) {
-	case 0x61:
-	case 0x90:
-	case 0x91:
-	case 0x92:
-	case 0x9e:
-	case 0x9f:
-		break;
-	default:
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s ", get_sw_string(sw));
-		break;
+	if (isSIMtrace) {
+		return dissect_rsp_apdu_tvb(tvb, tvb_len-2, pinfo, tree, sim_tree);
 	}
+
 	return offset;
 }
 
 static void
 dissect_gsm_sim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_apdu_tvb(tvb, 0, pinfo, tree);
+	dissect_cmd_apdu_tvb(tvb, 0, pinfo, tree, TRUE);
+}
+
+static void
+dissect_gsm_sim_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_cmd_apdu_tvb(tvb, 0, pinfo, tree, FALSE);
+}
+
+static void
+dissect_gsm_sim_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_rsp_apdu_tvb(tvb, 0, pinfo, tree, NULL);
 }
 
 void
@@ -1669,6 +1706,8 @@ proto_register_gsm_sim(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("gsm_sim", dissect_gsm_sim, proto_gsm_sim);
+	register_dissector("gsm_sim.command", dissect_gsm_sim_command, proto_gsm_sim);
+	register_dissector("gsm_sim.response", dissect_gsm_sim_response, proto_gsm_sim);
 }
 
 /* This function is called once at startup and every time the user hits
@@ -1679,9 +1718,9 @@ proto_reg_handoff_gsm_sim(void)
 	static gboolean initialized = FALSE;
 
 	if (!initialized) {
-		dissector_handle_t dtap_handle;
-		dtap_handle = find_dissector("gsm_sim");
-		dissector_add_uint("gsmtap.type", 4, dtap_handle);
+		dissector_handle_t sim_handle;
+		sim_handle = find_dissector("gsm_sim");
+		dissector_add_uint("gsmtap.type", 4, sim_handle);
 
 		sub_handle_cap = find_dissector("etsi_cat");
 	} else {

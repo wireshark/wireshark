@@ -28,7 +28,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
 #include <epan/expert.h>
 
 #include "packet-btl2cap.h"
@@ -54,7 +53,6 @@ enum {
     PARAMETER_COMMAND_APDU_7816            = 0x10
 };
 
-/* Initialize the protocol and registered fields */
 static int proto_btsap                                                     = -1;
 static int hf_btsap_header_msg_id                                          = -1;
 static int hf_btsap_header_number_of_parameters                            = -1;
@@ -83,7 +81,8 @@ static int top_dissect                                                     = TOP
 static gint ett_btsap                                                      = -1;
 static gint ett_btsap_parameter                                            = -1;
 
-static dissector_handle_t gsm_sim_handle;
+static dissector_handle_t gsm_sim_cmd_handle;
+static dissector_handle_t gsm_sim_resp_handle;
 static dissector_handle_t iso7816_atr_handle;
 
 static const value_string msg_id_vals[] = {
@@ -246,15 +245,15 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto
             break;
         case 0x04: /* CommandAPDU */
             /* GSM 11.11 */
-            if (gsm_sim_handle && top_dissect != TOP_DISSECT_OFF) {
+            if (gsm_sim_cmd_handle && top_dissect != TOP_DISSECT_OFF) {
                 next_tvb = tvb_new_subset(tvb, offset, parameter_length, parameter_length);
                 col_append_str(pinfo->cinfo, COL_INFO, ": ");
 
                 if (top_dissect == TOP_DISSECT_INTERNAL) {
-                    call_dissector(gsm_sim_handle, next_tvb, pinfo, ptree);
+                    call_dissector(gsm_sim_cmd_handle, next_tvb, pinfo, ptree);
                 } else {
                     col_clear(pinfo->cinfo, COL_INFO);
-                    call_dissector(gsm_sim_handle, next_tvb, pinfo, top_tree);
+                    call_dissector(gsm_sim_cmd_handle, next_tvb, pinfo, top_tree);
                 }
             } else {
                 proto_tree_add_item(ptree, hf_btsap_data, tvb, offset, parameter_length, ENC_NA);
@@ -265,15 +264,15 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto
             break;
         case 0x05: /* ResponseAPDU */
             /* GSM 11.11 or ISO/IEC 7816-4; depend of TRANSFER_APDU_REQ */
-            if (gsm_sim_handle && top_dissect != TOP_DISSECT_OFF) {
+            if (gsm_sim_resp_handle && top_dissect != TOP_DISSECT_OFF) {
                 next_tvb = tvb_new_subset(tvb, offset, parameter_length, parameter_length);
                 col_append_str(pinfo->cinfo, COL_INFO, ": ");
 
                 if (top_dissect == TOP_DISSECT_INTERNAL) {
-                    call_dissector(gsm_sim_handle, next_tvb, pinfo, ptree);
+                    call_dissector(gsm_sim_resp_handle, next_tvb, pinfo, ptree);
                 } else {
                     col_clear(pinfo->cinfo, COL_INFO);
-                    call_dissector(gsm_sim_handle, next_tvb, pinfo, top_tree);
+                    call_dissector(gsm_sim_resp_handle, next_tvb, pinfo, top_tree);
                 }
             } else {
                 proto_tree_add_item(ptree, hf_btsap_data, tvb, offset, parameter_length, ENC_NA);
@@ -330,15 +329,15 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto
             break;
         case 0x10: /* CommandAPDU7816 */
             /* ISO/IEC 7816-4 */
-            if (gsm_sim_handle && top_dissect != TOP_DISSECT_OFF) {
+            if (gsm_sim_cmd_handle && top_dissect != TOP_DISSECT_OFF) {
                 next_tvb = tvb_new_subset(tvb, offset, parameter_length, parameter_length);
                 col_append_str(pinfo->cinfo, COL_INFO, ": ");
 
                 if (top_dissect == TOP_DISSECT_INTERNAL) {
-                    call_dissector(gsm_sim_handle, next_tvb, pinfo, ptree);
+                    call_dissector(gsm_sim_cmd_handle, next_tvb, pinfo, ptree);
                 } else {
                     col_clear(pinfo->cinfo, COL_INFO);
-                    call_dissector(gsm_sim_handle, next_tvb, pinfo, top_tree);
+                    call_dissector(gsm_sim_cmd_handle, next_tvb, pinfo, top_tree);
                 }
             } else {
                 proto_tree_add_item(ptree, hf_btsap_data, tvb, offset, parameter_length, ENC_NA);
@@ -732,7 +731,8 @@ proto_reg_handoff_btsap(void)
     dissector_handle_t btsap_handle;
 
     btsap_handle = find_dissector("btsap");
-    gsm_sim_handle = find_dissector("gsm_sim");
+    gsm_sim_cmd_handle = find_dissector("gsm_sim.command");
+    gsm_sim_resp_handle = find_dissector("gsm_sim.response");
     iso7816_atr_handle = find_dissector("iso7816.atr");
 
     dissector_add_uint("btrfcomm.service", BTSDP_SAP_SERVICE_UUID, btsap_handle);
