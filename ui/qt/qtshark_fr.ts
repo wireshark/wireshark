@@ -49,6 +49,31 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="capture_file_dialog.cpp" line="253"/>
+        <source>Format:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="258"/>
+        <source>Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="263"/>
+        <source>Packets:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="268"/>
+        <source>First Packet:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="273"/>
+        <source>Elapsed Time:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="capture_file_dialog.cpp" line="462"/>
         <source>Compress with g&amp;zip</source>
         <translation type="unfinished"></translation>
@@ -140,6 +165,51 @@
     <message>
         <location filename="file_set_dialog.ui" line="30"/>
         <source>Directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="file_set_dialog.cpp" line="65"/>
+        <source>Filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="file_set_dialog.cpp" line="66"/>
+        <source>Created</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="file_set_dialog.cpp" line="67"/>
+        <source>Modified</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="file_set_dialog.cpp" line="68"/>
+        <source>Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="file_set_dialog.cpp" line="102"/>
+        <source>Wireshark: No files in Set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="file_set_dialog.cpp" line="103"/>
+        <source>No capture loaded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="file_set_dialog.cpp" line="118"/>
+        <source>%1 Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="file_set_dialog.cpp" line="121"/>
+        <source>Open this capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="file_set_dialog.cpp" line="129"/>
+        <source>Wireshark: %1 File%2 in Set</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -381,6 +451,21 @@
         <source>IPv4</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="import_text_dialog.cpp" line="282"/>
+        <source>Wireshark: Import text file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="import_text_dialog.cpp" line="323"/>
+        <source>Example: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="import_text_dialog.cpp" line="325"/>
+        <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceTree</name>
@@ -398,6 +483,39 @@
     <message>
         <source>&lt;h3&gt;No interfaces found&lt;/h3&gt;%1</source>
         <translation type="obsolete">&lt;h3&gt;Interface non trouvée&lt;/h3&gt;%1</translation>
+    </message>
+</context>
+<context>
+    <name>MainStatusBar</name>
+    <message>
+        <location filename="main_status_bar.cpp" line="187"/>
+        <source> is the highest expert info level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="192"/>
+        <source>ERROR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="196"/>
+        <source>WARNING</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="200"/>
+        <source>NOTE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="204"/>
+        <source>CHAT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="211"/>
+        <source>No expert info</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1025,15 +1143,107 @@ more about Wireshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="400"/>
+        <location filename="main_window.cpp" line="333"/>
+        <source>Save packets before merging?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="334"/>
+        <source>A temporary capture file can&apos;t be merged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="340"/>
+        <source>Save changes in &quot;%1&quot; before merging?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="342"/>
+        <source>Changes must be saved before the files can be merged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="399"/>
         <location filename="main_window_slots.cpp" line="110"/>
         <source>Invalid Display Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="687"/>
-        <location filename="main_window.cpp" line="712"/>
+        <location filename="main_window.cpp" line="400"/>
+        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="485"/>
+        <source> before importing a new capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="683"/>
+        <location filename="main_window.cpp" line="708"/>
         <source>.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="783"/>
+        <source>You have unsaved packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="784"/>
+        <source>They will be lost if you don&apos;t save them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="787"/>
+        <location filename="main_window.cpp" line="800"/>
+        <source>Do you want to stop the capture and save the captured packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="789"/>
+        <source>Do you want to save the captured packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="791"/>
+        <location filename="main_window.cpp" line="801"/>
+        <source>?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="802"/>
+        <source>Your captured packets will be lost if you don&apos;t save them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="805"/>
+        <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="810"/>
+        <source>Your changes will be lost if you don&apos;t save them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="822"/>
+        <source>Stop and Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="830"/>
+        <source>Stop and Quit without Saving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="832"/>
+        <source>Quit without Saving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="836"/>
+        <source>Stop and Continue without Saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1073,6 +1283,26 @@ more about Wireshark</source>
         <translation> Prêt pour ouvrir un fichier</translation>
     </message>
     <message>
+        <location filename="main_status_bar.cpp" line="98"/>
+        <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
+        <translation type="unfinished">Paquets: %1 Affichés: %2 Marqués: %3 {1 %4 ?} {2 %4 ?}</translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="104"/>
+        <source> %1 Dropped: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="107"/>
+        <source> %1 Ignored: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="112"/>
+        <source> %1  Load time: %2:%3.%4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packets: %1 Displayed: %2 Marked: %3</source>
         <translation type="obsolete">Paquets: %1 Affichés: %2 Marqués: %3</translation>
     </message>
@@ -1089,7 +1319,7 @@ more about Wireshark</source>
         <translation type="obsolete"> Temps de Chargement: %1:%2.%3</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="123"/>
+        <location filename="main_status_bar.cpp" line="119"/>
         <source>No Packets</source>
         <translation>Pas de paquets</translation>
     </message>

@@ -74,6 +74,26 @@
         <source>Wireshark: Merge Capture File</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Format:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>First Packet:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Elapsed Time:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterCombo</name>
@@ -109,6 +129,42 @@
     </message>
     <message>
         <source>Directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: No files in Set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No capture loaded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open this capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: %1 File%2 in Set</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -302,6 +358,18 @@
         <source>IPv4</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Wireshark: Import text file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Example: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceTree</name>
@@ -312,6 +380,33 @@
     <message>
         <source>No interfaces found
 %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MainStatusBar</name>
+    <message>
+        <source> is the highest expert info level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ERROR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>WARNING</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NOTE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CHAT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No expert info</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -799,6 +894,78 @@ more about Wireshark</source>
         <source>You didn&apos;t specify an interface on which to capture packets.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Save packets before merging?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A temporary capture file can&apos;t be merged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save changes in &quot;%1&quot; before merging?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changes must be saved before the files can be merged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> before importing a new capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You have unsaved packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>They will be lost if you don&apos;t save them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to stop the capture and save the captured packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to save the captured packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your captured packets will be lost if you don&apos;t save them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your changes will be lost if you don&apos;t save them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop and Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop and Quit without Saving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quit without Saving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop and Continue without Saving</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ProtoTree</name>
@@ -828,6 +995,22 @@ more about Wireshark</source>
     <message>
         <source>No Packets</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> %1 Dropped: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> %1 Ignored: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> %1  Load time: %2:%3.%4</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

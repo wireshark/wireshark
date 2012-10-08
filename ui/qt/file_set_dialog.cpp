@@ -62,10 +62,10 @@ FileSetDialog::FileSetDialog(QWidget *parent) :
     fs_ui_->setupUi(this);
 
     header = fs_ui_->fileSetTree->headerItem();
-    header->setText(0, "Filename");
-    header->setText(1, "Created");
-    header->setText(2, "Modified");
-    header->setText(3, "Size");
+    header->setText(0, tr("Filename"));
+    header->setText(1, tr("Created"));
+    header->setText(2, tr("Modified"));
+    header->setText(3, tr("Size"));
 
     close_button_ = fs_ui_->buttonBox->button(QDialogButtonBox::Close);
     addFile();
@@ -99,8 +99,8 @@ void FileSetDialog::addFile(fileset_entry *entry) {
     QTreeWidgetItem *entry_item;
 
     if (!entry) {
-        setWindowTitle("Wireshark: No files in Set");
-        fs_ui_->directoryLabel->setText("No capture loaded");
+        setWindowTitle(tr("Wireshark: No files in Set"));
+        fs_ui_->directoryLabel->setText(tr("No capture loaded"));
         fs_ui_->directoryLabel->setEnabled(false);
         return;
     }
@@ -115,10 +115,10 @@ void FileSetDialog::addFile(fileset_entry *entry) {
 
     modified = QDateTime::fromTime_t(entry->mtime).toLocalTime().toString("yyyy-MM-dd HH:mm:ss");
 
-    size = QString("%1 Bytes").arg(entry->size);
+    size = QString(tr("%1 Bytes")).arg(entry->size);
 
     entry_item = new QTreeWidgetItem(fs_ui_->fileSetTree);
-    entry_item->setToolTip(0, QString("Open this capture file"));
+    entry_item->setToolTip(0, QString(tr("Open this capture file")));
     entry_item->setData(0, Qt::UserRole, qVariantFromValue(entry));
 
     entry_item->setText(0, entry->name);
@@ -126,7 +126,7 @@ void FileSetDialog::addFile(fileset_entry *entry) {
     entry_item->setText(2, modified);
     entry_item->setText(3, size);
 
-    setWindowTitle(QString("Wireshark: %1 File%2 in Set")
+    setWindowTitle(QString(tr("Wireshark: %1 File%2 in Set"))
                    .arg(fs_ui_->fileSetTree->topLevelItemCount())
                    .arg(plurality(fs_ui_->fileSetTree->topLevelItemCount(), "", "s")));
 
