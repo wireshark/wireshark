@@ -4170,7 +4170,7 @@ proto_register_homeplug_av(void)
       },
       { &hf_homeplug_av_tone_map_carrier_hi,
         { "Modulation (High carrier)", "homeplug_av.tone_map_cnf.carrier.hi",
-	  FT_UINT8, BASE_HEX, VALS(homeplug_av_tone_map_vals), 0xF0, NULL, HFILL }
+	  FT_UINT8, BASE_HEX, VALS(homeplug_av_tone_map_vals), HOMEPLUG_AV_TONE_MAP_MASK << 4, NULL, HFILL }
       }
    };
 
