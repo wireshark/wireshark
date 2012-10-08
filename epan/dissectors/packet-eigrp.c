@@ -2149,8 +2149,8 @@ dissect_eigrp_wide_metric_attr (proto_tree *tree, tvbuff_t *tvb,
     tvbuff_t   *sub_tvb;
     int         sub_offset;
 
-    gint8 attr_offset = 0;
-    gint8 attr_opcode = 0;
+    guint16 attr_offset = 0;
+    guint8  attr_opcode = 0;
 
     limit *= 2;   /* words to bytes */
 
