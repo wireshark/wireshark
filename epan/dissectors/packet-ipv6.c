@@ -2769,7 +2769,7 @@ proto_register_ipv6(void)
 
     { &hf_ipv6_traffic_class_dscp,
       { "Differentiated Services Field", "ipv6.traffic_class.dscp",
-                                FT_UINT32, BASE_HEX, &dscp_vals_ext, 0x0FC00000, NULL, HFILL }},
+                                FT_UINT32, BASE_HEX | BASE_EXT_STRING, &dscp_vals_ext, 0x0FC00000, NULL, HFILL }},
 
     { &hf_ipv6_traffic_class_ect,
       { "ECN-Capable Transport (ECT)", "ipv6.traffic_class.ect",

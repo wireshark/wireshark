@@ -1833,7 +1833,7 @@ local_network_control_block_addr_valid_ttl(guint32 addr)
   return IPLOCAL_NETWRK_CTRL_BLK_DEFAULT_TTL;
 }
 
-const value_string dscp_vals[] = {
+static const value_string dscp_vals[] = {
   { IPDSFIELD_DSCP_DEFAULT, "Default"               },
   { IPDSFIELD_DSCP_CS1,     "Class Selector 1"      },
   { IPDSFIELD_DSCP_AF11,    "Assured Forwarding 11" },

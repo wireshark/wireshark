@@ -350,7 +350,7 @@ dissector_try_heuristic
 dissector_try_string
 dissector_try_uint
 draw_tap_listeners
-dscp_vals                     DATA
+dscp_vals_ext                     DATA
 dtbl_entry_get_handle
 dtbl_entry_get_initial_handle
 EBCDIC_to_ASCII
