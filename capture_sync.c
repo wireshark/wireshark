@@ -1803,7 +1803,7 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
 
     g_get_current_time(&end_time);
     elapsed = (end_time.tv_sec - start_time.tv_sec) +
-    ((end_time.tv_usec - start_time.tv_usec) / 1e6);
+    ((end_time.tv_usec - start_time.tv_usec) / (float) 1e6);
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: capture child closed after %.3fs", elapsed);
     return ret;
 }
