@@ -104,6 +104,12 @@ static const value_string rtcp_version_vals[] =
     { 0, NULL },
 };
 
+#define RTCP_PT_MIN  192
+/* Supplemental H.261 specific RTCP packet types according to Section C.3.5 */
+#define RTCP_FIR     192
+#define RTCP_NACK    193
+#define RTCP_SMPTETC 194
+#define RTCP_IJ      195
 /* RTCP packet types according to Section A.11.1 */
 /* And http://www.iana.org/assignments/rtp-parameters */
 #define RTCP_SR      200
@@ -116,11 +122,9 @@ static const value_string rtcp_version_vals[] =
 #define RTCP_XR      207
 #define RTCP_AVB     208
 #define RTCP_RSI     209
-/* Supplemental H.261 specific RTCP packet types according to Section C.3.5 */
-#define RTCP_FIR     192
-#define RTCP_NACK    193
-#define RTCP_SMPTETC 194
-#define RTCP_IJ      195
+#define RTCP_TOKEN   210
+
+#define RTCP_PT_MAX  210
 
 static const value_string rtcp_packet_type_vals[] =
 {
@@ -134,6 +138,7 @@ static const value_string rtcp_packet_type_vals[] =
     { RTCP_XR,      "Extended report (RFC 3611)"},
     { RTCP_AVB,     "AVB RTCP packet (IEEE1733)" },
     { RTCP_RSI,     "Receiver Summary Information" },
+    { RTCP_TOKEN,   "Port Mapping" },
     { RTCP_FIR,     "Full Intra-frame Request (H.261)" },
     { RTCP_NACK,    "Negative Acknowledgement (H.261)" },
     { RTCP_SMPTETC, "SMPTE time-code mapping" },
@@ -152,6 +157,7 @@ static const value_string rtcp_packet_type_vals[] =
 #define RTCP_SDES_NOTE        7
 #define RTCP_SDES_PRIV        8
 #define RTCP_SDES_H323_CADDR  9
+#define RTCP_SDES_APSI       10
 
 static const value_string rtcp_sdes_type_vals[] =
 {
@@ -164,7 +170,8 @@ static const value_string rtcp_sdes_type_vals[] =
     { RTCP_SDES_TOOL,       "TOOL (name/version of source app)" },
     { RTCP_SDES_NOTE,       "NOTE (note about source)" },
     { RTCP_SDES_PRIV,       "PRIV (private extensions)" },
-    { RTCP_SDES_H323_CADDR, "H323-CADDR (H.323 callable address)"},
+    { RTCP_SDES_H323_CADDR, "H323-CADDR (H.323 callable address)" },
+    { RTCP_SDES_APSI,       "Application Specific Identifier" },
     { 0,               NULL }
 };
 
@@ -2252,6 +2259,76 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
 }
 
 static int
+dissect_rtcp_avb( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree,
+    unsigned int packet_length _U_ )
+{
+    /* SSRC / CSRC */
+    proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN );
+    offset += 4;
+
+    /* Name (ASCII) */
+    proto_tree_add_item( tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII );
+    offset += 4;
+    
+/*    32 bit wide 
+gmTimeBaseIndicator | gmIdentity – low 16 bit
+gmIdentity – mid 32 bit
+gmIdentity – high 32 bit
+stream_id – lower 32 bit
+stream_id – higher 32 bit
+as_timestamp
+*/
+    offset += 6 * 4;
+
+    /* RTP timestamp, 32 bits */
+    proto_tree_add_item( tree, hf_rtcp_rtp_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN );
+    offset += 4;
+
+    return offset;
+}
+
+static int
+dissect_rtcp_rsi( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree,
+    unsigned int packet_length )
+{
+    proto_item *item;
+
+    /* SSRC / CSRC */
+    proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN );
+    offset += 4;
+
+    /* SSRC / CSRC */
+    proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN );
+    offset += 4;
+
+    /* NTP timestamp */
+    proto_tree_add_item(tree, hf_rtcp_ntp_msw, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+
+    item = proto_tree_add_item(tree, hf_rtcp_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+    PROTO_ITEM_SET_GENERATED(item);
+    offset += 8;
+    
+    /* Sub report blocks */
+    
+    return offset + (packet_length - 16);
+}
+
+static int
+dissect_rtcp_token( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree,
+                    unsigned int packet_len, guint rtcp_subtype _U_ )
+{
+    /* SSRC / CSRC */
+    proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN );
+    offset += 4;
+
+    /* subtypes */
+
+    return offset + (packet_len - 4);
+}
+
+static int
 dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int count, unsigned int packet_length )
 {
@@ -2794,10 +2871,10 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         /*
          * Check if it's a valid type
          */
-        if ( ( packet_type < 192 ) || ( packet_type >  207 ) )
+        if ( ( packet_type < RTCP_PT_MIN ) || ( packet_type >  RTCP_PT_MAX ) )
             break;
 
-         col_add_fstr(pinfo->cinfo, COL_INFO, "%s   ",
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s   ",
                       val_to_str_const(packet_type, rtcp_packet_type_vals, "Unknown"));
 
         /*
@@ -2904,6 +2981,41 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 /* Packet length in 32 bit words MINUS one, 16 bits */
                 offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
                 offset = dissect_rtcp_xr( tvb, pinfo, offset, rtcp_tree, packet_length - 4 );
+                break;
+            case RTCP_AVB:
+                /* Subtype, 5 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_subtype, tvb, offset, 1, elem_count );
+                offset++;
+                /* Packet type, 8 bits */
+                proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, ENC_BIG_ENDIAN );
+                offset++;
+                /* Packet length in 32 bit words MINUS one, 16 bits */
+                offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
+                offset = dissect_rtcp_avb( tvb, pinfo, offset, rtcp_tree, packet_length - 4 );
+                break;
+            case RTCP_RSI:
+                /* Reserved, 5 bits, Ignore */
+                offset++;
+                /* Packet type, 8 bits */
+                proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, ENC_BIG_ENDIAN );
+                offset++;
+                /* Packet length in 32 bit words MINUS one, 16 bits */
+                offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
+                offset = dissect_rtcp_rsi( tvb, pinfo, offset, rtcp_tree, packet_length - 4 );
+                break;
+            case RTCP_TOKEN: {
+                /* Subtype, 5 bits */
+                guint rtcp_subtype;
+                rtcp_subtype = elem_count;
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_subtype, tvb, offset, 1, elem_count );
+                offset++;
+                /* Packet type, 8 bits */
+                proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, ENC_BIG_ENDIAN );
+                offset++;
+                /* Packet length in 32 bit words MINUS one, 16 bits */
+                offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
+                offset = dissect_rtcp_token( tvb, pinfo, offset, rtcp_tree, packet_length - 4, rtcp_subtype );
+            }
                 break;
             case RTCP_FIR:
                 offset = dissect_rtcp_fir( tvb, offset, rtcp_tree );
