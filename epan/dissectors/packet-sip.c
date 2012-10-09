@@ -3049,6 +3049,33 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			reported_datalen = content_length;
 	}
 
+	/* Add to info column interesting things learned from header fields. */
+	/* Registration requests */
+	if (current_method_idx == SIP_METHOD_REGISTER)
+	{
+		if (contact_is_star && expires_is_0)
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "    (remove all bindings)");
+		}
+		else
+		if (!contacts)
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "    (fetch bindings)");
+		}
+	}
+
+	/* Registration responses */
+	if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0))
+	{
+		col_append_fstr(pinfo->cinfo, COL_INFO, "    (%d bindings)", contacts);
+	}
+
+	/* We've finished writing to the info col for this SIP message
+	 * Set fence in case there is more than one (SIP)message in the frame 
+	 */
+	col_append_str(pinfo->cinfo, COL_INFO, " | ");
+	col_set_fence(pinfo->cinfo, COL_INFO);
+
 	if (datalen > 0) {
 		/*
 		 * There's a message body starting at "offset".
@@ -3075,7 +3102,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		}
 
 		/* give the content type parameters to sub dissectors */
-
 		if ( media_type_str_lower_case != NULL ) {
 			void *save_private_data = pinfo->private_data;
 			pinfo->private_data = content_type_parameter_str;
@@ -3115,26 +3141,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	}
 
 
-	/* Add to info column interesting things learned from header fields. */
-	/* Registration requests */
-	if (current_method_idx == SIP_METHOD_REGISTER)
-	{
-		if (contact_is_star && expires_is_0)
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "    (remove all bindings)");
-		}
-		else
-		if (!contacts)
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "    (fetch bindings)");
-		}
-	}
-
-	/* Registration responses */
-	if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0))
-	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "    (%d bindings)", contacts);
-	}
 	/* Find the total setup time, Must be done before checking for resend
 	 * As that will overwrite the "Request packet no".
 	 */
@@ -3214,7 +3220,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	else {
 		proto_item_append_text(ts, " (%u)", stat_info->response_code);
 	}
-
 	return offset - orig_offset;
 }
 
