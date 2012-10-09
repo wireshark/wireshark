@@ -5,8 +5,6 @@
 
 <application id="4" name="Diameter Credit Control Application" uri="http://www.ietf.org/rfc/rfc4006.txt">
 
-		<command name="Credit-Control" code="272" vendor-id="None"/>
-
 		<avp name="Nokia-IMS-Media-Component-Id" code="5101" vendor-id="Nokia">
 	   		<type type-name="Unsigned32"/>
 		</avp>
@@ -14,7 +12,6 @@
 		<avp name="Time-Of-First-Usage" code="5103" vendor-id="Nokia">
 		   <type type-name="Time"/>
 		</avp>
-
 
 		<avp name="Time-Of-Last-Usage" code="5104" vendor-id="Nokia">
 		   <type type-name="Time"/>
@@ -46,11 +43,9 @@
 			</grouped>				   		
 		</avp>
 
-
 		<avp name="Nokia-URI" code="5112" vendor-id="Nokia">
 		   <type type-name="UTF8String"/>
 		</avp>
-
 
 		<avp name="NSN-Token-Value" code="5113" vendor-id="Nokia">
 		   <type type-name="OctetString"/>

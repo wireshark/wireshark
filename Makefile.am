@@ -84,7 +84,8 @@ diameter_DATA = \
 	diameter/TGPPSh.xml	\
 	diameter/Vodafone.xml \
 	diameter/AlcatelLucent.xml \
-	diameter/Nokia.xml
+	diameter/Nokia.xml \
+	diameter/NokiaSiemensNetworks.xml 
 
 #
 # Install the DTDs directory files in the "dtds" subdirectory
