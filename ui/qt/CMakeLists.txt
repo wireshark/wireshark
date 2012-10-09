@@ -48,6 +48,7 @@ set(QTSHARK_H_SRC
 	proto_tree.h
 	recent_file_status.h
 	simple_dialog_qt.h
+	syntax_line_edit.h
 	wireshark_application.h
 
 	# No Q_OBJECT:
