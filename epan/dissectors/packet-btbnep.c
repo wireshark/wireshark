@@ -358,8 +358,8 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (bnep_type != BNEP_TYPE_CONTROL) {
         type = tvb_get_ntohs(tvb, offset);
         if (!top_dissect) {
-               proto_tree_add_item(btbnep_tree, hf_btbnep_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-	       col_append_fstr(pinfo->cinfo, COL_INFO, " - Type: %s", val_to_str(type, etype_vals, "unknown"));
+            proto_tree_add_item(btbnep_tree, hf_btbnep_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - Type: %s", val_to_str(type, etype_vals, "unknown"));
         }
         offset += 2;
     } else {
@@ -551,3 +551,16 @@ proto_reg_handoff_btbnep(void)
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_BNEP, btbnep_handle);
     dissector_add_handle("btl2cap.cid", btbnep_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

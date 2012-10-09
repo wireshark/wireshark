@@ -1038,7 +1038,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         if (length <= 6) {
             expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN,
                     "SDU length too short: %u", length);
-	    THROW(ReportedBoundsError);
+            THROW(ReportedBoundsError);
         }
 
         length -= 6; /*Control, SDUlength, FCS*/
@@ -1071,7 +1071,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         if (length <= 4) {
             expert_add_info_format(pinfo, btl2cap_tree, PI_MALFORMED, PI_WARN,
                     "Control / FCS length too short: %u", length);
-	    THROW(ReportedBoundsError);
+            THROW(ReportedBoundsError);
         }
         length -= 4; /*Control, FCS*/
     }
@@ -1908,3 +1908,16 @@ proto_reg_handoff_btl2cap(void)
        using the PSM channel so we know which sub-dissector to call */
     register_tap_listener("btsdp", NULL, NULL, TL_IS_DISSECTOR_HELPER, NULL, btl2cap_sdp_tap_packet, NULL);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
