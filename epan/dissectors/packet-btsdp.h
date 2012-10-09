@@ -125,6 +125,9 @@
 #define BTSDP_MAP_NOTIFICATION_SRV_SERVICE_UUID         0x1133
 #define BTSDP_MAP_SERVICE_UUID                          0x1134
 
+#define BTSDP_GNSS_UUID                                 0x1135
+#define BTSDP_GNSS_SERVER_UUID                          0x1136
+
 #define BTSDP_DID_SERVICE_UUID                          0x1200
 
 #define BTSDP_GENERIC_NETWORKING_SERVICE_UUID           0x1201
