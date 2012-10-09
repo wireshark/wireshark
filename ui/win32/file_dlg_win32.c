@@ -48,15 +48,16 @@
 #include "wsutil/file_util.h"
 #include "wsutil/unicode-utils.h"
 
-#include "../alert_box.h"
-#include "../color.h"
-#include "../print.h"
-#include "../simple_dialog.h"
-#include "../util.h"
-#include "../color_filters.h"
-#include "../merge.h"
+#include "color.h"
+#include "print.h"
+#include "color_filters.h"
+#include "merge.h"
 
+#include "ui/alert_box.h"
+#include "ui/file_dialog.h"
 #include "ui/last_open_dir.h"
+#include "ui/simple_dialog.h"
+#include "ui/util.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/file_dlg.h"
@@ -68,17 +69,9 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/export_sslkeys.h"
 
-typedef enum {
-    merge_append,
-    merge_chrono,
-    merge_prepend
-} merge_action_e;
-
 #define FILE_OPEN_DEFAULT 1 /* All Files */
 
 #define FILE_MERGE_DEFAULT FILE_OPEN_DEFAULT
-
-#define FILE_SAVE_DEFAULT 1 /* Wireshark/tcpdump */
 
 #define FILE_TYPES_EXPORT \
     _T("Plain text (*.txt)\0")                           _T("*.txt\0")   \

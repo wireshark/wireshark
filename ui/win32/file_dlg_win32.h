@@ -31,15 +31,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef enum {
-    export_type_text = 1,
-    export_type_ps,
-    export_type_csv,
-    export_type_psml,
-    export_type_pdml,
-    export_type_carrays
-} export_type_e;
-
 /** Open the "Open" dialog box.
  *
  * @param h_wnd HWND of the parent window.
