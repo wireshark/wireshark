@@ -635,6 +635,8 @@ enum fixed_field {
 #define TAG_CISCO_UNKNOWN_95         149  /* Cisco Compatible eXtensions */
 #define TAG_CISCO_UNKNOWN_96         150  /* Cisco Compatible eXtensions */
 #define TAG_SYMBOL_PROPRIETARY       173
+#define TAG_VHT_CAPABILITY           191  /* IEEE Stc 802.11ac/D3.1 */
+#define TAG_VHT_OPERATION            192  /* IEEE Stc 802.11ac/D3.1 */
 #define TAG_VENDOR_SPECIFIC_IE       221
 
 static const value_string tag_num_vals[] = {
@@ -716,6 +718,8 @@ static const value_string tag_num_vals[] = {
   { TAG_CISCO_UNKNOWN_95, "Cisco Unknown 95" },
   { TAG_CISCO_UNKNOWN_96, "Cisco Unknown 96" },
   { TAG_SYMBOL_PROPRIETARY, "Symbol Proprietary" },
+  { TAG_VHT_CAPABILITY, "VHT Capabilities (IEEE Stc 802.11ac/D3.1)" },
+  { TAG_VHT_OPERATION, "VHT Operation (IEEE Stc 802.11ac/D3.1)" },
   { TAG_VENDOR_SPECIFIC_IE, "Vendor Specific" },
   { 0, NULL }
 };
@@ -2200,6 +2204,69 @@ static int hf_ieee80211_tag_cisco_ccx1_unknown = -1;
 static int hf_ieee80211_tag_cisco_ccx1_name = -1;
 static int hf_ieee80211_tag_cisco_ccx1_clients = -1;
 
+static int hf_ieee80211_vht_cap = -1;
+static int hf_ieee80211_vht_max_mpdu_length = -1;
+static int hf_ieee80211_vht_supported_chan_width_set = -1;
+static int hf_ieee80211_vht_rx_ldpc = -1;
+static int hf_ieee80211_vht_short_gi_for_80 = -1;
+static int hf_ieee80211_vht_short_gi_for_160 = -1;
+static int hf_ieee80211_vht_tx_stbc = -1;
+static int hf_ieee80211_vht_rx_stbc = -1;
+static int hf_ieee80211_vht_su_beamformer_cap = -1;
+static int hf_ieee80211_vht_su_beamformee_cap = -1;
+static int hf_ieee80211_vht_beamformer_antennas = -1;
+static int hf_ieee80211_vht_sounding_dimensions = -1;
+static int hf_ieee80211_vht_mu_beamformer_cap = -1;
+static int hf_ieee80211_vht_mu_beamformee_cap = -1;
+static int hf_ieee80211_vht_txop_ps = -1;
+static int hf_ieee80211_vht_var_htc_field = -1;
+static int hf_ieee80211_vht_max_ampdu = -1;
+static int hf_ieee80211_vht_link_adaptation_cap = -1;
+static int hf_ieee80211_vht_rx_pattern = -1;
+static int hf_ieee80211_vht_tx_pattern = -1;
+static int hf_ieee80211_vht_reserv = -1;
+
+static int hf_ieee80211_vht_mcsset = -1;
+
+static int hf_ieee80211_vht_mcsset_rx_mcs_map = -1;
+static int hf_ieee80211_vht_mcsset_rx_max_mcs_for_0_ss = -1;
+static int hf_ieee80211_vht_mcsset_rx_max_mcs_for_1_ss = -1;
+static int hf_ieee80211_vht_mcsset_rx_max_mcs_for_2_ss = -1;
+static int hf_ieee80211_vht_mcsset_rx_max_mcs_for_3_ss = -1;
+static int hf_ieee80211_vht_mcsset_rx_max_mcs_for_4_ss = -1;
+static int hf_ieee80211_vht_mcsset_rx_max_mcs_for_5_ss = -1;
+static int hf_ieee80211_vht_mcsset_rx_max_mcs_for_6_ss = -1;
+static int hf_ieee80211_vht_mcsset_rx_max_mcs_for_7_ss = -1;
+
+static int hf_ieee80211_vht_mcsset_rx_highest_long_gi = -1;
+
+static int hf_ieee80211_vht_mcsset_tx_mcs_map = -1;
+static int hf_ieee80211_vht_mcsset_tx_max_mcs_for_0_ss = -1;
+static int hf_ieee80211_vht_mcsset_tx_max_mcs_for_1_ss = -1;
+static int hf_ieee80211_vht_mcsset_tx_max_mcs_for_2_ss = -1;
+static int hf_ieee80211_vht_mcsset_tx_max_mcs_for_3_ss = -1;
+static int hf_ieee80211_vht_mcsset_tx_max_mcs_for_4_ss = -1;
+static int hf_ieee80211_vht_mcsset_tx_max_mcs_for_5_ss = -1;
+static int hf_ieee80211_vht_mcsset_tx_max_mcs_for_6_ss = -1;
+static int hf_ieee80211_vht_mcsset_tx_max_mcs_for_7_ss = -1;
+
+static int hf_ieee80211_vht_op = -1;
+static int hf_ieee80211_vht_op_channel_width = -1;
+static int hf_ieee80211_vht_op_channel_center0 = -1;
+static int hf_ieee80211_vht_op_channel_center1 = -1;
+
+static int hf_ieee80211_vht_op_basic_mcs_map = -1;
+static int hf_ieee80211_vht_op_max_basic_mcs_for_0_ss = -1;
+static int hf_ieee80211_vht_op_max_basic_mcs_for_1_ss = -1;
+static int hf_ieee80211_vht_op_max_basic_mcs_for_2_ss = -1;
+static int hf_ieee80211_vht_op_max_basic_mcs_for_3_ss = -1;
+static int hf_ieee80211_vht_op_max_basic_mcs_for_4_ss = -1;
+static int hf_ieee80211_vht_op_max_basic_mcs_for_5_ss = -1;
+static int hf_ieee80211_vht_op_max_basic_mcs_for_6_ss = -1;
+static int hf_ieee80211_vht_op_max_basic_mcs_for_7_ss = -1;
+
+static int hf_ieee80211_vht_mcsset_tx_highest_long_gi = -1;
+
 static int hf_ieee80211_tag_neighbor_report_bssid = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_reachability = -1;
@@ -2642,6 +2709,14 @@ static gint ett_hta_cap_tree = -1;
 static gint ett_hta_cap1_tree = -1;
 static gint ett_hta_cap2_tree = -1;
 static gint ett_htc_tree = -1;
+
+static gint ett_vht_cap_tree = -1;
+static gint ett_vht_mcsset_tree = -1;
+static gint ett_vht_rx_mcsbit_tree = -1;
+static gint ett_vht_tx_mcsbit_tree = -1;
+static gint ett_vht_basic_mcsbit_tree = -1;
+
+static gint ett_vht_op_tree = -1;
 
 static gint ett_ht_info_delimiter1_tree = -1;
 static gint ett_ht_info_delimiter2_tree = -1;
@@ -6584,6 +6659,171 @@ dissect_rsn_ie(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb,
   return offset;
 }
 
+static int
+dissect_vht_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset) {
+  proto_item *ti;
+  proto_tree *mcs_tree, *rx_mcs_tree, *tx_mcs_tree;
+
+  /* 8 byte Supported MCS set */
+  ti = proto_tree_add_string(tree, hf_ieee80211_vht_mcsset, tvb, offset, 8, "VHT MCS Set");
+
+  mcs_tree = proto_item_add_subtree(ti, ett_vht_mcsset_tree);
+
+  ti = proto_tree_add_item(mcs_tree, hf_ieee80211_vht_mcsset_rx_mcs_map, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  rx_mcs_tree = proto_item_add_subtree(ti, ett_vht_rx_mcsbit_tree);
+
+  /* B0 - B15 */
+  proto_tree_add_item(rx_mcs_tree, hf_ieee80211_vht_mcsset_rx_max_mcs_for_0_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rx_mcs_tree, hf_ieee80211_vht_mcsset_rx_max_mcs_for_1_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rx_mcs_tree, hf_ieee80211_vht_mcsset_rx_max_mcs_for_2_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rx_mcs_tree, hf_ieee80211_vht_mcsset_rx_max_mcs_for_3_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rx_mcs_tree, hf_ieee80211_vht_mcsset_rx_max_mcs_for_4_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rx_mcs_tree, hf_ieee80211_vht_mcsset_rx_max_mcs_for_5_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rx_mcs_tree, hf_ieee80211_vht_mcsset_rx_max_mcs_for_6_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rx_mcs_tree, hf_ieee80211_vht_mcsset_rx_max_mcs_for_7_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+  offset += 2;
+  /* B16 - B28 13 bits*/
+  proto_tree_add_item(mcs_tree, hf_ieee80211_vht_mcsset_rx_highest_long_gi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+  /* B29 - B31 2 reserved bits*/
+
+  offset += 2;
+  /* B32 - B47 */
+
+  ti = proto_tree_add_item(mcs_tree, hf_ieee80211_vht_mcsset_tx_mcs_map, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  tx_mcs_tree = proto_item_add_subtree(ti, ett_vht_tx_mcsbit_tree);
+  proto_tree_add_item(tx_mcs_tree, hf_ieee80211_vht_mcsset_tx_max_mcs_for_0_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tx_mcs_tree, hf_ieee80211_vht_mcsset_tx_max_mcs_for_1_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tx_mcs_tree, hf_ieee80211_vht_mcsset_tx_max_mcs_for_2_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tx_mcs_tree, hf_ieee80211_vht_mcsset_tx_max_mcs_for_3_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tx_mcs_tree, hf_ieee80211_vht_mcsset_tx_max_mcs_for_4_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tx_mcs_tree, hf_ieee80211_vht_mcsset_tx_max_mcs_for_5_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tx_mcs_tree, hf_ieee80211_vht_mcsset_tx_max_mcs_for_6_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tx_mcs_tree, hf_ieee80211_vht_mcsset_tx_max_mcs_for_7_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+  offset += 2;
+  /* B48 - B60 13 bits */
+  proto_tree_add_item(mcs_tree, hf_ieee80211_vht_mcsset_tx_highest_long_gi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  /* B61 - B63 2 reserved bits*/
+
+  offset += 2;
+  return offset;
+}
+
+static int
+dissect_vht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+         guint32 tag_len, proto_item *ti_len)
+{
+  proto_item *cap_item;
+  proto_tree *cap_tree;
+
+  if (tag_len != 12) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "VHT Capabilities IE length %u wrong, must be = 12", tag_len);
+    return offset;
+  }
+
+  /* 4 byte VHT Capabilities  Info*/
+  cap_item = proto_tree_add_item(tree, hf_ieee80211_vht_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  cap_tree = proto_item_add_subtree(cap_item, ett_vht_cap_tree);
+
+  /* B0 - B1 2 bits */
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_max_mpdu_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  /* B2 - B3 2 bits*/
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_supported_chan_width_set, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  /* B4 - B7 4x 1 bit fields */
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_rx_ldpc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_short_gi_for_80, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_short_gi_for_160, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_tx_stbc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  /* End of first byte */
+
+  /* B8 - B10 3 bit field */
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_rx_stbc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  /* B11 - B12 2x 1 bit fields */
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_su_beamformer_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_su_beamformee_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  /* B13 - B15 3 bit field */
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_beamformer_antennas, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  /* End of second byte */
+
+  /* B16 - B18 */
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_sounding_dimensions, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  /* B19 */  
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_mu_beamformer_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  /* B20 - B22 2x 1 bit fields */ 
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_mu_beamformee_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_txop_ps, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_var_htc_field, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  /* B23 - B25 3 bit field which takes us 2 bits into next byte */
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_max_ampdu, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  /* B26 - B27 2 bit field */
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_link_adaptation_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  /* B28 - B29 2x 1 bit fields */
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_rx_pattern, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_tx_pattern, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  /* B30 - B31 Reserved */
+  proto_tree_add_item(cap_tree, hf_ieee80211_vht_reserv, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  offset += 4;
+
+  /* 8 byte MCS set */
+  offset = dissect_vht_mcs_set(tree, tvb, offset);
+
+  return offset;
+}
+
+static int
+dissect_vht_operation_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+         guint32 tag_len, proto_item *ti_len)
+{
+  proto_item *op_item, *ti;
+  proto_tree *op_tree, *basic_mcs_tree;
+
+  if (tag_len != 5) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "VHT Operation IE length %u wrong, must be = 5", tag_len);
+    return offset;
+  }
+
+  /* 3 byte VHT Operation Info*/
+  op_item = proto_tree_add_item(tree, hf_ieee80211_vht_op, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+  op_tree = proto_item_add_subtree(op_item, ett_vht_op_tree);
+  proto_tree_add_item(op_tree, hf_ieee80211_vht_op_channel_width, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(op_tree, hf_ieee80211_vht_op_channel_center0, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(op_tree, hf_ieee80211_vht_op_channel_center1, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
+
+  offset += 3;
+  /* VHT Basic MCS Set */
+  ti = proto_tree_add_item(tree, hf_ieee80211_vht_op_basic_mcs_map, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  basic_mcs_tree = proto_item_add_subtree(ti, ett_vht_basic_mcsbit_tree);
+  proto_tree_add_item(basic_mcs_tree, hf_ieee80211_vht_op_max_basic_mcs_for_0_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(basic_mcs_tree, hf_ieee80211_vht_op_max_basic_mcs_for_1_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(basic_mcs_tree, hf_ieee80211_vht_op_max_basic_mcs_for_2_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(basic_mcs_tree, hf_ieee80211_vht_op_max_basic_mcs_for_3_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(basic_mcs_tree, hf_ieee80211_vht_op_max_basic_mcs_for_4_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(basic_mcs_tree, hf_ieee80211_vht_op_max_basic_mcs_for_5_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(basic_mcs_tree, hf_ieee80211_vht_op_max_basic_mcs_for_6_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(basic_mcs_tree, hf_ieee80211_vht_op_max_basic_mcs_for_7_ss, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+  offset += 2;
+
+  return offset;
+}
+
+
 static void
 dissect_mobility_domain(proto_tree *tree, tvbuff_t *tvb, int offset,
                         guint32 tag_len)
@@ -9093,6 +9333,14 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       /* Total number off associated clients and repeater access points */
       proto_tree_add_item(tree, hf_ieee80211_tag_cisco_ccx1_clients, tvb, offset, 1, ENC_NA);
       offset += 1;
+      break;
+
+    case TAG_VHT_CAPABILITY:
+      dissect_vht_capability_ie(tvb, pinfo, tree, offset+2, tag_len, ti_len);
+      break;
+
+    case TAG_VHT_OPERATION:
+      dissect_vht_operation_ie(tvb, pinfo, tree, offset+2, tag_len, ti_len);
       break;
 
     case TAG_VENDOR_SPECIFIC_IE: /* 7.3.2.26 Vendor Specific information element (221) */
@@ -12548,6 +12796,86 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
+
+  static const value_string vht_max_mpdu_length_flag[] = {
+    {0x00, "3895 Octets"},
+    {0x01, "7991 Octets"},
+    {0x02, "11454 Octets"},
+    {0x03, "Reserved"},
+    {0x00, NULL}
+  };
+
+  static const value_string vht_supported_chan_width_set_flag[] = {
+    {0x00, "Neither 160MHz nor 80+80 supported"},
+    {0x01, "160MHz supported"},
+    {0x02, "160MHz and 80+80 Supported"},
+    {0x03, "Reserved"},
+    {0x00, NULL}
+  };
+
+  static const value_string vht_rx_stbc_flag[] = {
+    {0x00, "None"},
+    {0x01, "1 Spatial Stream Supported"},
+    {0x02, "1 to 2 Spatial Stream Supported"},
+    {0x03, "1 to 3 Spatial Stream Supported"},
+    {0x04, "1 to 4 Spatial Stream Supported"},
+    {0x02, "160MHz and 80+80 Supported"},
+    {0x05, "Reserved"},
+    {0x06, "Reserved"},
+    {0x07, "Reserved"},
+    {0x00, NULL}
+  };
+
+  static const value_string num_plus_one_3bit_flag[] = {
+    {0x00, "1"},
+    {0x01, "2"},
+    {0x02, "3"},
+    {0x03, "4"},
+    {0x04, "5"},
+    {0x05, "6"},
+    {0x06, "7"},
+    {0x07, "8"},
+    {0x00, NULL}
+  };
+
+  static const value_string vht_max_ampdu_flag[] = {
+    {0x00, "8,191"},
+    {0x01, "16,383"},
+    {0x02, "32,767"},
+    {0x03, "65,535"},
+    {0x04, "131,071"},
+    {0x05, "262,143"},
+    {0x06, "524,287"},
+    {0x07, "1,048,575"},
+    {0x00, NULL}
+  };
+
+  static const value_string vht_link_adapt_flag[] = {
+    {0x00, "No Feedback"},
+    {0x01, "Reserved (logically only solicited feedback)"},
+    {0x02, "Unsolicited feedback only"},
+    {0x03, "Both (can provide unsolicited feedback and respond to VHT MRQ)"},
+    {0x00, NULL}
+  };
+
+  static const value_string vht_supported_mcs_flag[] = {
+    {0x00, "MCS 0-7"},
+    {0x01, "MCS 0-8"},
+    {0x02, "MCS 0-9"},
+    {0x03, "Not Supported"},
+    {0x00, NULL}
+  };
+
+  static const value_string vht_op_channel_width_flag[] = {
+    {0x00, "20 MHz or 40 MHz"},
+    {0x01, "80 MHz"},
+    {0x02, "160 MHz"},
+    {0x03, "80+80 MHz"},
+    {0x00, NULL}
+  };
+
+
+
   static const true_false_string ht_delayed_block_ack_flag = {
     "Transmitter supports HT-Delayed BlockAck",
     "Transmitter does not support HT-Delayed BlockAck"
@@ -14609,6 +14937,249 @@ proto_register_ieee80211 (void)
       FT_UINT32, BASE_HEX, VALS (&txbf_min_group_flags), 0x00060000,
       NULL, HFILL }},
 
+    {&hf_ieee80211_vht_cap,
+     {"VHT Capabilities Info", "wlan_mgt.vht.capabilities", FT_UINT32, BASE_HEX,
+      NULL, 0, "VHT Capabilities information", HFILL }},
+
+    {&hf_ieee80211_vht_max_mpdu_length,
+     {"Maximum MPDU Length", "wlan_mgt.vht.capabilities.maxmpdulength",
+      FT_UINT32, BASE_HEX, VALS (&vht_max_mpdu_length_flag), 0x00000003,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_supported_chan_width_set,
+     {"Supported Channel Width Set", "wlan_mgt.vht.capabilities.supportedchanwidthset",
+      FT_UINT32, BASE_HEX, VALS (&vht_supported_chan_width_set_flag), 0x0000000c,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_rx_ldpc,
+     {"Rx LDPC", "wlan_mgt.vht.capabilities.rxldpc",
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000010,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_short_gi_for_80,
+     {"Short GI for 80Mhz", "wlan_mgt.vht.capabilities.short80",
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000020,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_short_gi_for_160,
+     {"Short GI for 160Mhz and 80+80MHz", "wlan_mgt.vht.capabilities.short160",
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000040,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_tx_stbc,
+     {"Tx STBC", "wlan_mgt.vht.capabilities.txstbc",
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000080,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_rx_stbc,
+     {"Rx STBC", "wlan_mgt.vht.capabilities.rxstbc",
+      FT_UINT32, BASE_HEX, VALS (&vht_rx_stbc_flag), 0x00000700,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_su_beamformer_cap,
+     {"SU Beam-former Capable", "wlan_mgt.vht.capabilities.subeamformer",
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000800,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_su_beamformee_cap,
+     {"SU Beam-formee Capable", "wlan_mgt.vht.capabilities.subeamformee",
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00001000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_beamformer_antennas,
+     {"Compressed Steering Number of Beamformer Antennas Supported", "wlan_mgt.vht.capabilities.beamformerants",
+      FT_UINT32, BASE_HEX, VALS (&num_plus_one_3bit_flag), 0x0000e000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_sounding_dimensions,
+     {"Number of Sounding Dimensions", "wlan_mgt.vht.capabilities.soundingdimensions",
+      FT_UINT32, BASE_HEX, VALS (&num_plus_one_3bit_flag), 0x00070000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mu_beamformer_cap,
+     {"MU Beam-former Capable", "wlan_mgt.vht.capabilities.mubeamformer",
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00080000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mu_beamformee_cap,
+     {"MU Beam-formee Capable", "wlan_mgt.vht.capabilities.mubeamformee",
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00100000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_txop_ps,
+     {"VHT TXOP PS", "wlan_mgt.vht.capabilities.vhttxopps",
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00200000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_var_htc_field,
+     {"+HTC-VHT Capable (VHT variant HT Control field)", "wlan_mgt.vht.capabilities.vhthtc",
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00400000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_max_ampdu,
+     {"Max A-MPDU Length", "wlan_mgt.vht.capabilities.maxampdu",
+      FT_UINT32, BASE_HEX, VALS (&vht_max_ampdu_flag), 0x03800000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_link_adaptation_cap,
+     {"VHT Link Adaptation", "wlan_mgt.vht.capabilities.linkadapt",
+      FT_UINT32, BASE_HEX, VALS (&vht_link_adapt_flag), 0x0c000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_rx_pattern,
+     {"Rx Antenna Pattern Consistency", "wlan_mgt.vht.capabilities.rxpatconsist",
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x10000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_tx_pattern,
+     {"Tx Antenna Pattern Consistency", "wlan_mgt.vht.capabilities.txpatconsist",
+      FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x20000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_reserv,
+     {"Reserved", "wlan_mgt.vht.reserved",
+      FT_BOOLEAN, 32, NULL, 0xc0000000,
+      NULL, HFILL }},
+
+     {&hf_ieee80211_vht_mcsset,
+      {"VHT Supported MCS Set", "wlan_mgt.vht.mcsset",
+       FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_rx_mcs_map,
+     {"Rx MCS Map", "wlan_mgt.vht.mcsset.rxmcsmap",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_rx_max_mcs_for_0_ss,
+     {"Rx SS 0", "wlan_mgt.vht.mcsset.rxmcsmap.ss0",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x0003, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_rx_max_mcs_for_1_ss,
+     {"Rx SS 1", "wlan_mgt.vht.mcsset.rxmcsmap.ss1",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x000c, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_rx_max_mcs_for_2_ss,
+     {"Rx SS 2", "wlan_mgt.vht.mcsset.rxmcsmap.ss2",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x0030, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_rx_max_mcs_for_3_ss,
+     {"Rx SS 3", "wlan_mgt.vht.mcsset.rxmcsmap.ss3",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x00c0, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_rx_max_mcs_for_4_ss,
+     {"Rx SS 4", "wlan_mgt.vht.mcsset.rxmcsmap.ss4",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x0300, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_rx_max_mcs_for_5_ss,
+     {"Rx SS 5", "wlan_mgt.vht.mcsset.rxmcsmap.ss5",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x0c00, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_rx_max_mcs_for_6_ss,
+     {"Rx SS 6", "wlan_mgt.vht.mcsset.rxmcsmap.ss6",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x3000, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_rx_max_mcs_for_7_ss,
+     {"Rx SS 7", "wlan_mgt.vht.mcsset.rxmcsmap.ss7",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0xc000, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_rx_highest_long_gi,
+     {"Rx Highest Long GI Data Rate (in Mb/s, 0 = subfield not in use)", "wlan_mgt.vht.mcsset.rxhighestlonggirate",
+      FT_UINT16, BASE_HEX, NULL, 0x1fff,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_tx_mcs_map,
+     {"Tx MCS Map", "wlan_mgt.vht.mcsset.txmcsmap",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_tx_max_mcs_for_0_ss,
+     {"Tx SS 0", "wlan_mgt.vht.mcsset.txmcsmap.ss0",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x0003, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_tx_max_mcs_for_1_ss,
+     {"Tx SS 1", "wlan_mgt.vht.mcsset.txmcsmap.ss1",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x000c, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_tx_max_mcs_for_2_ss,
+     {"Tx SS 2", "wlan_mgt.vht.mcsset.txmcsmap.ss2",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x0030, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_tx_max_mcs_for_3_ss,
+     {"Tx SS 3", "wlan_mgt.vht.mcsset.txmcsmap.ss3",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x00c0, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_tx_max_mcs_for_4_ss,
+     {"Tx SS 4", "wlan_mgt.vht.mcsset.txmcsmap.ss4",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x0300, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_tx_max_mcs_for_5_ss,
+     {"Tx SS 5", "wlan_mgt.vht.mcsset.txmcsmap.ss5",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x0c00, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_tx_max_mcs_for_6_ss,
+     {"Tx SS 6", "wlan_mgt.vht.mcsset.txmcsmap.ss6",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x3000, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_tx_max_mcs_for_7_ss,
+     {"Tx SS 7", "wlan_mgt.vht.mcsset.txmcsmap.ss7",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0xc000, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_mcsset_tx_highest_long_gi,
+     {"Tx Highest Long GI Data Rate  (in Mb/s, 0 = subfield not in use)", "wlan_mgt.vht.mcsset.txhighestlonggirate",
+      FT_UINT16, BASE_HEX, NULL, 0x1fff,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op,
+     {"VHT Operation Info", "wlan_mgt.vht.op", FT_NONE, BASE_NONE,
+      NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op_channel_width,
+     {"Channel Width", "wlan_mgt.vht.op.channelwidth",
+      FT_UINT8, BASE_HEX, VALS(vht_op_channel_width_flag), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op_channel_center0,
+     {"Channel Center Segment 0", "wlan_mgt.vht.op.channelcenter0",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op_channel_center1,
+     {"Channel Center Segment 1", "wlan_mgt.vht.op.channelcenter1",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op_basic_mcs_map,
+     {"Basic MCS Map", "wlan_mgt.vht.op.basicmcsmap",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op_max_basic_mcs_for_0_ss,
+     {"Basic SS 0", "wlan_mgt.vht.op.basicmcsmap.ss0",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x0003, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op_max_basic_mcs_for_1_ss,
+     {"Basic SS 1", "wlan_mgt.vht.op.basicmcsmap.ss1",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x000c, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op_max_basic_mcs_for_2_ss,
+     {"Basic SS 2", "wlan_mgt.vht.op.basicmcsmap.ss2",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x0030, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op_max_basic_mcs_for_3_ss,
+     {"Basic SS 3", "wlan_mgt.vht.op.basicmcsmap.ss3",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x00c0, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op_max_basic_mcs_for_4_ss,
+     {"Basic SS 4", "wlan_mgt.vht.op.basicmcsmap.ss4",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x0300, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op_max_basic_mcs_for_5_ss,
+     {"Basic SS 5", "wlan_mgt.vht.op.basicmcsmap.ss5",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x0c00, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op_max_basic_mcs_for_6_ss,
+     {"Basic SS 6", "wlan_mgt.vht.op.basicmcsmap.ss6",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0x3000, NULL, HFILL }},
+
+    {&hf_ieee80211_vht_op_max_basic_mcs_for_7_ss,
+     {"Basic SS 7", "wlan_mgt.vht.op.basicmcsmap.ss7",
+      FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0xc000, NULL, HFILL }},
+
+
     {&hf_ieee80211_txbf_csi_num_bf_ant,
      {"Max antennae STA can support when CSI feedback required", "wlan_mgt.txbf.csinumant",
       FT_UINT32, BASE_HEX, VALS (&txbf_antenna_flags), 0x00180000,
@@ -16459,6 +17030,12 @@ proto_register_ieee80211 (void)
     &ett_mimo_report,
     &ett_cntrl_wrapper_fc,
     &ett_cntrl_wrapper_payload,
+    &ett_vht_cap_tree,
+    &ett_vht_mcsset_tree,
+    &ett_vht_rx_mcsbit_tree,
+    &ett_vht_tx_mcsbit_tree,
+    &ett_vht_basic_mcsbit_tree,
+    &ett_vht_op_tree,
     &ett_ht_info_delimiter1_tree,
     &ett_ht_info_delimiter2_tree,
     &ett_ht_info_delimiter3_tree,
