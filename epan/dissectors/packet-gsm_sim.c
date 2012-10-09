@@ -55,6 +55,7 @@ static int hf_auth_sres = -1;
 static int hf_auth_kc = -1;
 static int hf_chan_op = -1;
 static int hf_chan_nr = -1;
+static int hf_le = -1;
 
 /* Chapter 5.2 TS 11.14 */
 static int hf_tprof_b1 = -1;
@@ -804,8 +805,8 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #define DATA_OFFS	3
 
 static int
-dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3,
-		 tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
+		 int offset, packet_info *pinfo, proto_tree *tree, gboolean isSIMtrace)
 {
 	guint8 g8;
 	guint16 g16;
@@ -943,7 +944,13 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3,
 			break;
 		}
 		break;
-	/* FIXME: Missing SLEEP, GET RESPONSE, ENVELOPE */
+	case 0xC0: /* GET RESPONSE */
+		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
+		if (isSIMtrace) {
+			proto_tree_add_item(tree, hf_apdu_data, tvb, offset+DATA_OFFS, p3, ENC_NA);
+		}
+		break;
+	/* FIXME: Missing SLEEP, ENVELOPE */
 	case 0x04: /* INVALIDATE */
 	case 0x44: /* REHABILITATE */
 	default:
@@ -1021,7 +1028,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 			val_to_str(cla, apdu_cla_vals, "%02x"));
 
 	/* if (cla == 0xA0) */
-		rc = dissect_gsm_apdu(ins, p1, p2, p3, tvb, offset, pinfo, sim_tree);
+		rc = dissect_gsm_apdu(ins, p1, p2, p3, tvb, offset, pinfo, sim_tree, isSIMtrace);
 
 	if (rc == -1 && sim_tree) {
 		/* default dissector */
@@ -1138,6 +1145,11 @@ proto_register_gsm_sim(void)
 			{ "Channel Number", "gsm_sim.chan_nr",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  "ISO 7816-4 Logical Channel Number", HFILL }
+		},
+		{ &hf_le,
+			{ "Length of Expected Response Data", "gsm_sim.le",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL }
 		},
 		{ &hf_chan_op,
 			{ "Channel Operation", "gsm_sim.chan_op",
