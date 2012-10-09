@@ -6170,7 +6170,7 @@
 	<application id="16777291"	name="3GPP SLh"			uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="16777292"	name="3GPP SGmb"		uri="http://www.3gpp.org/ftp/Specs/html-info/29061.htm"></application>
 	<application id="16777302"	name="3GPP Sy"			uri="http://www.3gpp.org/ftp/Specs/html-info/29219.htm"></application>
-	<application id="16777304"	name="Ericsson Sy"	uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
+	<application id="16777304"	name="Ericsson Sy"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 
 	&nasreq;
 	&eap;
@@ -6188,8 +6188,8 @@
 	&Ericsson;
 	&mobileipv6;
 	&Cisco;
-  &Vodafone;
-  &AlcatelLucent;
-  &Nokia;
-  &NokiaSiemensNetworks;
+	&Vodafone;
+	&AlcatelLucent;
+	&Nokia;
+	&NokiaSiemensNetworks;
 </dictionary>
