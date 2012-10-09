@@ -744,7 +744,9 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 				break;
 			default:
-				proto_tree_add_item(elem_tree, hf_ctlv_bearer_params, tvb, pos+1, len-1, ENC_NA);
+				if (len > 1) {
+					proto_tree_add_item(elem_tree, hf_ctlv_bearer_params, tvb, pos+1, len-1, ENC_NA);
+				}
 				break;
 			}
 			break;
