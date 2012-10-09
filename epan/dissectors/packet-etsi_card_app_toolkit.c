@@ -737,11 +737,8 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case 0x0a:
 				break;
 			case 0x0b:
-				{
-					tvbuff_t * esm_tvb;
-					esm_tvb = tvb_new_subset(tvb, pos+1, len-1, len-1);
-					de_esm_qos(esm_tvb, elem_tree, pinfo, 0, len-1, NULL, 0);
-				}
+				de_esm_qos(tvb, elem_tree, pinfo, pos+1, len-2, NULL, 0);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_pdp_type, tvb, pos+len-1, 1, ENC_BIG_ENDIAN);
 				break;
 			default:
 				if (len > 1) {
