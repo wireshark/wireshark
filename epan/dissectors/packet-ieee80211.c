@@ -7138,7 +7138,7 @@ dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
   if (tag_len != 26) {
     expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
-                           "HT Capability IE length %u wrong, must be = 26", tag_len);
+                           "HT Capabilities IE length %u wrong, must be = 26", tag_len);
     return offset;
   }
 
@@ -7155,23 +7155,22 @@ dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     cap_item = proto_tree_add_item(tree, hf_ieee80211_ht_cap, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   }
   cap_tree = proto_item_add_subtree(cap_item, ett_ht_cap_tree);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_ldpc_coding, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_chan_width, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_sm_pwsave, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_green, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_short20, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_short40, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_tx_stbc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  offset += 1;
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_ldpc_coding, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_chan_width, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_sm_pwsave, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_green, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_short20, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_short40, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_tx_stbc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_rx_stbc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_delayed_block_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_max_amsdu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_dss_cck_40, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_psmp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_40_mhz_intolerant, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_ht_l_sig, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  offset += 1;
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_rx_stbc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_delayed_block_ack, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_max_amsdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_dss_cck_40, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_psmp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_40_mhz_intolerant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ht_l_sig, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2; 
 
   /* 1 byte A-MPDU Parameters */
   if(vs)
@@ -14332,11 +14331,11 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ht_cap,
      {"HT Capabilities Info", "wlan_mgt.ht.capabilities", FT_UINT16, BASE_HEX,
-      NULL, 0, "HT Capability information", HFILL }},
+      NULL, 0, "HT Capabilities information", HFILL }},
 
     {&hf_ieee80211_ht_vs_cap,
      {"HT Capabilities Info (VS)", "wlan_mgt.vs.ht.capabilities", FT_UINT16, BASE_HEX,
-      NULL, 0, "Vendor Specific HT Capability information", HFILL }},
+      NULL, 0, "Vendor Specific HT Capabilities information", HFILL }},
 
     {&hf_ieee80211_ht_ldpc_coding,
      {"HT LDPC coding capability", "wlan_mgt.ht.capabilities.ldpccoding",
@@ -14409,11 +14408,11 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ampduparam,
-     {"A-MPDU Parameters", "wlan_mgt.ht.ampduparam", FT_UINT16, BASE_HEX,
+     {"A-MPDU Parameters", "wlan_mgt.ht.ampduparam", FT_UINT8, BASE_HEX,
       NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_ampduparam_vs,
-     {"A-MPDU Parameters (VS)", "wlan_mgt.vs.ht.ampduparam", FT_UINT16, BASE_HEX,
+     {"A-MPDU Parameters (VS)", "wlan_mgt.vs.ht.ampduparam", FT_UINT8, BASE_HEX,
       NULL, 0, "Vendor Specific A-MPDU Parameters", HFILL }},
 
     {&hf_ieee80211_ampduparam_mpdu,
