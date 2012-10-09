@@ -89,6 +89,15 @@ function exit_error() {
     echo -e "Processing failed. Capture info follows:\n"
     echo "  Input file: $CF"
 
+    ERR_SIZE=$(du -sk $TMP_DIR/$ERR_FILE | awk '{ print $1 }')
+    if [ $ERR_SIZE -ge 5000 ] ; then
+        mv $TMP_DIR/$ERR_FILE $TMP_DIR/${ERR_FILE}.full
+        head -n 2000 $TMP_DIR/${ERR_FILE}.full > $TMP_DIR/$ERR_FILE
+        echo -e "\n\n[ Output removed ]\n\n" >> $TMP_DIR/$ERR_FILE
+        tail -n 2000 $TMP_DIR/${ERR_FILE}.full >> $TMP_DIR/$ERR_FILE
+        rm -f $TMP_DIR/${ERR_FILE}.full
+    fi
+
     if [ -d .svn ] ; then
         echo -e "\nSubversion revision" >> $TMP_DIR/$ERR_FILE
         svn log -l 1 >> $TMP_DIR/$ERR_FILE
