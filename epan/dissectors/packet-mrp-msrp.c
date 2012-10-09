@@ -562,11 +562,11 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     /* Add Domain components to First Value tree */
                     proto_tree_add_item(first_value_tree, hf_msrp_sr_class_id, tvb,
-                                        MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset, 1, ENC_BIG_ENDIAN);
+                                        MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(first_value_tree, hf_msrp_sr_class_priority, tvb,
-                                        MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + 1, 1, ENC_BIG_ENDIAN);
+                                        MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset + 1, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(first_value_tree, hf_msrp_sr_class_vid, tvb,
-                                        MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + 2, 2, ENC_BIG_ENDIAN);
+                                        MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset + 2, 2, ENC_BIG_ENDIAN);
 
                     /* Decode three packed events. */
                     offset = dissect_msrp_three_packed_event(vect_attr_tree, tvb,

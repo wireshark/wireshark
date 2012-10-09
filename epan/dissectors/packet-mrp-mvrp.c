@@ -318,7 +318,7 @@ dissect_mvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     /* Add VLAN components to First Value tree */
                     proto_tree_add_item(first_value_tree, hf_mvrp_vid, tvb,
-                                        MVRP_FIRST_VALUE_GROUP_OFFSET + msg_offset, 2, ENC_BIG_ENDIAN);
+                                        MVRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset, 2, ENC_BIG_ENDIAN);
 
                     /* Decode three packed events. */
                     offset = dissect_mvrp_three_packed_event(vect_attr_tree, tvb,
