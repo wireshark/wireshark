@@ -463,7 +463,8 @@ static int hf_icmpv6_resp_to = -1;
 static int hf_icmpv6_resptime = -1;
 
 typedef struct _icmpv6_conv_info_t {
-    emem_tree_t *pdus;
+    emem_tree_t *unmatched_pdus;
+    emem_tree_t *matched_pdus;
 } icmpv6_conv_info_t;
 
 static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, guint32 *key);
@@ -1113,13 +1114,12 @@ static conversation_t *_find_or_create_conversation(packet_info *pinfo)
     /* Have we seen this conversation before? */
     conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
         pinfo->ptype, 0, 0, 0);
-    if ( conv == NULL )
-    {
+    if (conv == NULL) {
         /* No, this is a new conversation. */
         conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
             pinfo->ptype, 0, 0, 0);
     }
-    return (conv);
+    return conv;
 }
 
 /* ======================================================================= */
@@ -1128,49 +1128,65 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
     conversation_t     *conversation;
     icmpv6_conv_info_t *icmpv6_info;
     icmp_transaction_t *icmpv6_trans;
-    emem_tree_key_t     icmpv6_key[2];
+    emem_tree_key_t     icmpv6_key[3];
     proto_item         *it;
 
     /* Handle the conversation tracking */
     conversation = _find_or_create_conversation(pinfo);
     icmpv6_info = conversation_get_proto_data(conversation, proto_icmpv6);
-    if ( icmpv6_info == NULL )
-    {
+    if (icmpv6_info == NULL) {
         icmpv6_info = se_alloc(sizeof(icmpv6_conv_info_t));
-        icmpv6_info->pdus = se_tree_create_non_persistent(
-            EMEM_TREE_TYPE_RED_BLACK, "icmpv6_pdus");
+        icmpv6_info->unmatched_pdus = se_tree_create_non_persistent(
+            EMEM_TREE_TYPE_RED_BLACK, "icmpv6_unmatched_pdus");
+        icmpv6_info->matched_pdus = se_tree_create_non_persistent(
+            EMEM_TREE_TYPE_RED_BLACK, "icmpv6_matched_pdus");
         conversation_add_proto_data(conversation, proto_icmpv6, icmpv6_info);
     }
 
-    icmpv6_key[0].length = 2;
-    icmpv6_key[0].key = key;
-    icmpv6_key[1].length = 0;
-    icmpv6_key[1].key = NULL;
-    if ( !PINFO_FD_VISITED(pinfo) )
-    {
+    if (!PINFO_FD_VISITED(pinfo)) {
+        /*
+         * This is a new request, create a new transaction structure and map it
+         * to the unmatched table.
+         */
+        icmpv6_key[0].length = 2;
+        icmpv6_key[0].key = key;
+        icmpv6_key[1].length = 0;
+        icmpv6_key[1].key = NULL;
+
         icmpv6_trans = se_alloc(sizeof(icmp_transaction_t));
         icmpv6_trans->rqst_frame = PINFO_FD_NUM(pinfo);
         icmpv6_trans->resp_frame = 0;
         icmpv6_trans->rqst_time = pinfo->fd->abs_ts;
         nstime_set_zero(&icmpv6_trans->resp_time);
-        se_tree_insert32_array(icmpv6_info->pdus, icmpv6_key, (void *)icmpv6_trans);
-    }
-    else /* Already visited this frame */
-        icmpv6_trans = se_tree_lookup32_array(icmpv6_info->pdus, icmpv6_key);
+        se_tree_insert32_array(icmpv6_info->unmatched_pdus, icmpv6_key, (void *)icmpv6_trans);
+    } else {
+        /* Already visited this frame */
+        guint32 frame_num = pinfo->fd->num;
 
-    if ( icmpv6_trans == NULL )
-        return (NULL);
+        icmpv6_key[0].length = 2;
+        icmpv6_key[0].key = key;
+        icmpv6_key[1].length = 1;
+        icmpv6_key[1].key = &frame_num;
+        icmpv6_key[2].length = 0;
+        icmpv6_key[2].key = NULL;
+
+        icmpv6_trans = se_tree_lookup32_array(icmpv6_info->matched_pdus, icmpv6_key);
+    }
+
+    if (icmpv6_trans == NULL)
+        return NULL;
 
     /* Print state tracking in the tree */
-    if ( tree && icmpv6_trans->resp_frame &&
-        (icmpv6_trans->rqst_frame == PINFO_FD_NUM(pinfo)) )
-    {
-        it = proto_tree_add_uint(tree, hf_icmpv6_resp_in, NULL, 0, 0,
-            icmpv6_trans->resp_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+    if (icmpv6_trans->resp_frame) {
+        if (tree) {
+            it = proto_tree_add_uint(tree, hf_icmpv6_resp_in, NULL, 0, 0,
+                icmpv6_trans->resp_frame);
+            PROTO_ITEM_SET_GENERATED(it);
+        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (reply in %d)", icmpv6_trans->resp_frame);
     }
 
-    return (icmpv6_trans);
+    return icmpv6_trans;
 
 } /* transaction_start() */
 
@@ -1180,54 +1196,90 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
     conversation_t     *conversation;
     icmpv6_conv_info_t *icmpv6_info;
     icmp_transaction_t *icmpv6_trans;
-    emem_tree_key_t     icmpv6_key[2];
+    emem_tree_key_t     icmpv6_key[3];
     proto_item         *it;
     nstime_t            ns;
     double resp_time;
 
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
         pinfo->ptype, 0, 0, 0);
-    if ( conversation == NULL )
-        return (NULL);
+    if (conversation == NULL)
+        return NULL;
 
     icmpv6_info = conversation_get_proto_data(conversation, proto_icmpv6);
-    if ( icmpv6_info == NULL )
-        return (NULL);
+    if (icmpv6_info == NULL)
+        return NULL;
 
-    icmpv6_key[0].length = 2;
-    icmpv6_key[0].key = key;
-    icmpv6_key[1].length = 0;
-    icmpv6_key[1].key = NULL;
-    icmpv6_trans = se_tree_lookup32_array(icmpv6_info->pdus, icmpv6_key);
-    if ( icmpv6_trans == NULL )
-        return (NULL);
+    if (!PINFO_FD_VISITED(pinfo)) {
+        guint32 frame_num;
 
-    /* Print state tracking in the tree */
-    if ( icmpv6_trans->rqst_frame &&
-        (icmpv6_trans->rqst_frame < PINFO_FD_NUM(pinfo)) &&
-        ((icmpv6_trans->resp_frame == 0) ||
-        (icmpv6_trans->resp_frame == PINFO_FD_NUM(pinfo))) )
-    {
+        icmpv6_key[0].length = 2;
+        icmpv6_key[0].key = key;
+        icmpv6_key[1].length = 0;
+        icmpv6_key[1].key = NULL;
+
+        icmpv6_trans = se_tree_lookup32_array(icmpv6_info->unmatched_pdus, icmpv6_key);
+        if (icmpv6_trans == NULL)
+            return NULL;
+
+        /* we have already seen this response, or an identical one */
+        if (icmpv6_trans->resp_frame != 0)
+            return NULL;
+
         icmpv6_trans->resp_frame = PINFO_FD_NUM(pinfo);
-        if ( tree )
-        {
-            it = proto_tree_add_uint(tree, hf_icmpv6_resp_to, NULL, 0, 0,
-                icmpv6_trans->rqst_frame);
-            PROTO_ITEM_SET_GENERATED(it);
-        }
 
-        nstime_delta(&ns, &pinfo->fd->abs_ts, &icmpv6_trans->rqst_time);
-        icmpv6_trans->resp_time = ns;
-        if ( tree )
-        {
-            resp_time = nstime_to_msec(&ns);
-            it = proto_tree_add_double_format_value(tree, hf_icmpv6_resptime, NULL,
-                0, 0, resp_time, "%.3f ms", resp_time);
-            PROTO_ITEM_SET_GENERATED(it);
-        }
+        /*
+         * we found a match.  Add entries to the matched table for both
+         * request and reply frames
+         */
+        icmpv6_key[0].length = 2;
+        icmpv6_key[0].key = key;
+        icmpv6_key[1].length = 1;
+        icmpv6_key[1].key = &frame_num;
+        icmpv6_key[2].length = 0;
+        icmpv6_key[2].key = NULL;
+
+        frame_num = icmpv6_trans->rqst_frame;
+        se_tree_insert32_array(icmpv6_info->matched_pdus, icmpv6_key, (void *)icmpv6_trans);
+
+        frame_num = icmpv6_trans->resp_frame;
+        se_tree_insert32_array(icmpv6_info->matched_pdus, icmpv6_key, (void *)icmpv6_trans);
+    } else {
+        /* Already visited this frame */
+        guint32 frame_num = pinfo->fd->num;
+
+        icmpv6_key[0].length = 2;
+        icmpv6_key[0].key = key;
+        icmpv6_key[1].length = 1;
+        icmpv6_key[1].key = &frame_num;
+        icmpv6_key[2].length = 0;
+        icmpv6_key[2].key = NULL;
+
+        icmpv6_trans = se_tree_lookup32_array(icmpv6_info->matched_pdus, icmpv6_key);
+        if (icmpv6_trans == NULL)
+            return NULL;
     }
 
-    return (icmpv6_trans);
+    /* Print state tracking in the tree */
+    if (tree) {
+        it = proto_tree_add_uint(tree, hf_icmpv6_resp_to, NULL, 0, 0,
+            icmpv6_trans->rqst_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+    }
+
+    nstime_delta(&ns, &pinfo->fd->abs_ts, &icmpv6_trans->rqst_time);
+    icmpv6_trans->resp_time = ns;
+    if (tree) {
+        resp_time = nstime_to_msec(&ns);
+        it = proto_tree_add_double_format_value(tree, hf_icmpv6_resptime, NULL,
+            0, 0, resp_time, "%.3f ms", resp_time);
+        PROTO_ITEM_SET_GENERATED(it);
+    }
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (request in %d)",
+        icmpv6_trans->rqst_frame);
+
+    return icmpv6_trans;
 
 } /* transaction_end() */
 
