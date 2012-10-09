@@ -856,8 +856,8 @@ indexing_done:
 			case BER_CLASS_UNI|(BER_UNI_TAG_INTEGER<<4):
 			{
 				gint64 val=0;
-				unsigned int_val_offset = value_offset;
-				unsigned i;
+				unsigned int int_val_offset = value_offset;
+				unsigned int i;
 
 				max_len = 4; min_len = 1;
 				if (value_len > (guint)max_len || value_len < (guint)min_len) {
@@ -3226,7 +3226,7 @@ snmp_users_update_cb(void* p _U_, const char** err)
 {
 	snmp_ue_assoc_t* ue = (snmp_ue_assoc_t*)p;
 	emem_strbuf_t* es = ep_strbuf_new("");
-	unsigned i;
+	unsigned int i;
 
 	*err = NULL;
 

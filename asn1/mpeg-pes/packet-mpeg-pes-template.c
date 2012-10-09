@@ -167,7 +167,7 @@ static guint64 decode_time_stamp(tvbuff_t *tvb, gint offset, nstime_t *nst)
 		(bytes >> 33 & 0x0007) << 30 |
 		(bytes >> 17 & 0x7fff) << 15 |
 		(bytes >>  1 & 0x7fff) << 0;
-	unsigned rem = (unsigned)(ts % TSHZ);
+	unsigned int rem = (unsigned int)(ts % TSHZ);
 	nst->secs = (time_t)(ts / TSHZ);
 	nst->nsecs = (int)(G_GINT64_CONSTANT(1000000000) * rem / TSHZ);
 	return ts;
@@ -183,9 +183,9 @@ static guint64 decode_clock_reference(tvbuff_t *tvb, gint offset,
 		(bytes >> 43 & 0x0007) << 30 |
 		(bytes >> 27 & 0x7fff) << 15 |
 		(bytes >> 11 & 0x7fff) << 0;
-	unsigned ext = (unsigned)((bytes >> 1) & 0x1ff);
+	unsigned int ext = (unsigned int)((bytes >> 1) & 0x1ff);
 	guint64 cr = 300 * ts + ext;
-	unsigned rem = (unsigned)(cr % SCRHZ);
+	unsigned int rem = (unsigned int)(cr % SCRHZ);
 	nst->secs = (time_t)(cr / SCRHZ);
 	nst->nsecs = (int)(G_GINT64_CONSTANT(1000000000) * rem / SCRHZ);
 	return cr;
@@ -193,7 +193,7 @@ static guint64 decode_clock_reference(tvbuff_t *tvb, gint offset,
 
 static int
 dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
-		proto_tree *root, unsigned flags)
+		proto_tree *root, unsigned int flags)
 {
 	proto_item *item = proto_tree_add_item(root, hf_mpeg_pes_header_data, tvb,
 			0, -1, ENC_NA);
@@ -236,7 +236,7 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		offset += 6;
 	}
 	if (flags & ES_RATE_FLAG) {
-		unsigned es_rate = (tvb_get_ntohs(tvb, offset) >> 1 & 0x3fff) * 50;
+		unsigned int es_rate = (tvb_get_ntohs(tvb, offset) >> 1 & 0x3fff) * 50;
 		proto_tree_add_uint(tree, hf_mpeg_pes_es_rate, tvb,
 				offset, 3, es_rate);
 		offset += 3;
@@ -330,7 +330,7 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 			offset += 2;
 		}
 		if (flags2 & PSTD_BUFFER_FLAG) {
-			unsigned pstd = tvb_get_ntohs(tvb, offset);
+			unsigned int pstd = tvb_get_ntohs(tvb, offset);
 			proto_tree_add_uint(tree, hf_mpeg_pes_pstd_buffer, tvb,
 					offset, 2, (pstd & 0x2000 ? 1024 : 128) * (pstd & 0x1ff));
 			offset += 2;
@@ -348,7 +348,7 @@ static gint
 dissect_mpeg_pes_pack_header(tvbuff_t *tvb, gint offset,
 		packet_info *pinfo, proto_tree *root)
 {
-	unsigned program_mux_rate, stuffing_length;
+	unsigned int program_mux_rate, stuffing_length;
 
 	proto_item *item = proto_tree_add_item(root, hf_mpeg_pes_pack_header, tvb,
 			offset / 8, 10, ENC_NA);
@@ -469,7 +469,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 					offset / 8, 8, ENC_NA);
 		}
 	} else if (stream == STREAM_SYSTEM || stream == STREAM_PRIVATE2) {
-		unsigned data_length = tvb_get_ntohs(tvb, offset / 8);
+		unsigned int data_length = tvb_get_ntohs(tvb, offset / 8);
 		proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
 				offset / 8, 2, ENC_BIG_ENDIAN);
 		offset += 2 * 8;
@@ -477,7 +477,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
 				offset / 8, data_length, ENC_NA);
 	} else if (stream == STREAM_PADDING) {
-		unsigned padding_length = tvb_get_ntohs(tvb, offset / 8);
+		unsigned int padding_length = tvb_get_ntohs(tvb, offset / 8);
 		proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
 				offset / 8, 2, ENC_BIG_ENDIAN);
 		offset += 2 * 8;
@@ -532,7 +532,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				proto_tree_add_item(tree, hf_mpeg_pes_data, es,
 						0, -1, ENC_NA);
 		} else {
-			unsigned data_length = tvb_get_ntohs(tvb, offset / 8);
+			unsigned int data_length = tvb_get_ntohs(tvb, offset / 8);
 			proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
 					offset / 8, 2, ENC_BIG_ENDIAN);
 			offset += 2 * 8;

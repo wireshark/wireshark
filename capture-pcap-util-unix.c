@@ -151,7 +151,7 @@ get_interface_list(int *err, char **err_str)
 				goto fail;
 			}
 		} else {
-			if ((unsigned) ifc.ifc_len < sizeof(struct ifreq)) {
+			if ((unsigned int) ifc.ifc_len < sizeof(struct ifreq)) {
 				if (err_str != NULL) {
 					*err_str = g_strdup(
 					    "Can't get list of interfaces: SIOCGIFCONF ioctl gave too small return buffer");

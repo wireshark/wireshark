@@ -859,7 +859,7 @@ usage2arcfour(int usage)
 
 static int
 arcfour_mic_cksum(guint8 *key_data, int key_length,
-		  unsigned usage,
+		  unsigned int usage,
 		  guint8 sgn_cksum[8],
 		  const void *v1, size_t l1,
 		  const void *v2, size_t l2,
