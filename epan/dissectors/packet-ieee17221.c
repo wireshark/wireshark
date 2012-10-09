@@ -3525,7 +3525,7 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          proto_tree_add_item(aem_tree, hf_aem_control_domain, tvb,
                MIXER_OFFSET_CONTROL_DOMAIN, 2, ENC_BIG_ENDIAN);
 
-
+#if 0
          /*
          proto_tree_add_item(aem_tree, hf_aem_control_location_type, tvb,
                AEM_OFFSET_CONTROL_LOCATION_TYPE_MXR, 2, ENC_BIG_ENDIAN);
@@ -3574,6 +3574,7 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          dissect_17221_ctrl_val(tvb, aem_tree, num_ctrl_vals, ctrl_val_type,
                MIXER_OFFSET_SOURCES + (tvb_get_ntohs(tvb, AEM_OFFSET_NUMBER_OF_SOURCES_MXR) * 4));
          */
+#endif
          break;
       case AEM_DESCRIPTOR_MATRIX:
          proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
@@ -3725,14 +3726,14 @@ static void
 dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
 {
    guint16 c_type;
-   //guint16 addr_type;
-   guint16 ctrl_data_len;
+   /*guint16 addr_type;*/
+   /*guint16 ctrl_data_len;*/
    guint16 mess_status;
    guint16 mess_type;
    guint16 mr_counter;
-   //proto_item *mr_subtree;
-   //proto_item *mr_item;
-   //int i;
+   /*proto_item *mr_subtree;*/
+   /*proto_item *mr_item;*/
+   /*int i;*/
    /* next tvb for use in subdissection */
    tvbuff_t *next_tvb;
    proto_tree *flags_tree;
@@ -3763,7 +3764,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
    c_type = tvb_get_ntohs(tvb, AECP_OFFSET_COMMAND_TYPE) & AECP_COMMAND_TYPE_MASK;
 
    /* get the control data length field - number of octets following target_guid */
-   ctrl_data_len = tvb_get_ntohs(tvb, AECP_OFFSET_CD_LENGTH) & AECP_CD_LENGTH_MASK;
+   /*ctrl_data_len = tvb_get_ntohs(tvb, AECP_OFFSET_CD_LENGTH) & AECP_CD_LENGTH_MASK;*/
 
    /* get the message type */
    mess_type = tvb_get_ntohs(tvb, 0) & ACMP_MSG_TYPE_MASK;
