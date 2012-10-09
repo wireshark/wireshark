@@ -2271,11 +2271,11 @@ dissect_rtcp_avb( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree 
     offset += 4;
     
 /*    32 bit wide 
-gmTimeBaseIndicator | gmIdentity – low 16 bit
-gmIdentity – mid 32 bit
-gmIdentity – high 32 bit
-stream_id – lower 32 bit
-stream_id – higher 32 bit
+gmTimeBaseIndicator | gmIdentity - low 16 bit
+gmIdentity - mid 32 bit
+gmIdentity - high 32 bit
+stream_id - lower 32 bit
+stream_id - higher 32 bit
 as_timestamp
 */
     offset += 6 * 4;
