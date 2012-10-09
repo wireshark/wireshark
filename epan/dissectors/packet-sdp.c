@@ -356,8 +356,12 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   col_append_str(pinfo->cinfo, COL_PROTOCOL, "/SDP");
 
-  /* XXX: Needs description. */
-  col_append_str(pinfo->cinfo, COL_INFO, ", with session description");
+  /* XXX: Needs description.
+   * Putting with session description in info col is redundant when it's in the
+   * protocol col in my opinion, commenting it out for now 2012-10-09. Remove if no one complains.
+   * If some one want it consider " ,with SDP"
+   */
+  /*col_append_str(pinfo->cinfo, COL_INFO, ", with session description");*/
 
   ti = proto_tree_add_item(tree, proto_sdp, tvb, offset, -1, ENC_NA);
   sdp_tree = proto_item_add_subtree(ti, ett_sdp);
