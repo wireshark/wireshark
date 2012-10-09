@@ -122,7 +122,7 @@
 #define BTSDP_HSP_HS_SERVICE_UUID                       0x1131
 
 #define BTSDP_MAP_ACCESS_SRV_SERVICE_UUID               0x1132
-#define BTSDP_MAP_NOIYFY_SRV_SERVICE_UUID               0x1133
+#define BTSDP_MAP_NOTIFICATION_SRV_SERVICE_UUID         0x1133
 #define BTSDP_MAP_SERVICE_UUID                          0x1134
 
 #define BTSDP_DID_SERVICE_UUID                          0x1200
