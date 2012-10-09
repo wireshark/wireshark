@@ -158,7 +158,7 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
 #if defined(Q_WS_WIN)
     if (!parent || !cf)
         return CANCELLED;
-    return win32_check_save_as_with_comments(parent->effectiveWinId(), cap_file_, file_type);
+    return win32_check_save_as_with_comments(parent->effectiveWinId(), cf, file_type);
 #else // Q_WS_WIN
     QMessageBox msg_dialog;
     int response;
@@ -402,11 +402,11 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     return CANCELLED;
 }
 
-check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name) {
+check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range) {
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wespf_status;
 
-    wespf_status = win32_export_specified_packets_file(parentWidget()->effectiveWinId(), fname, &file_type_, &compressed_, &range_);
+    wespf_status = win32_export_specified_packets_file(parentWidget()->effectiveWinId(), fname, &file_type_, &compressed_, range);
     file_name = fname->str;
 
     g_string_free(fname, TRUE);
@@ -651,13 +651,14 @@ int CaptureFileDialog::mergeType() {
 
     return 0;
 }
-#endif // Q_WS_WINDOWS
-
-// Slots
 
 void CaptureFileDialog::rangeValidityChanged(bool is_valid) {
     if (save_bt_) save_bt_->setEnabled(is_valid);
 }
+#endif // Q_WS_WINDOWS
+
+// Slots
+
 
 
 /* do a preview run on the currently selected capture file */

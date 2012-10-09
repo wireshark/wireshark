@@ -1340,10 +1340,10 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
         if (dfp != NULL)
             dfilter_free(dfp);
         /* Valid (light green) */
-        SendMessage(hwnd, EM_SETBKGNDCOLOR, 0, 0x00afffaf);
+        SendMessage(hwnd, EM_SETBKGNDCOLOR, 0, RGB(0xe4, 0xff, 0xc7)); /* tango_chameleon_1 */
     } else {
         /* Invalid (light red) */
-        SendMessage(hwnd, EM_SETBKGNDCOLOR, 0, 0x00afafff);
+        SendMessage(hwnd, EM_SETBKGNDCOLOR, 0, RGB(0xff, 0xcc, 0xcc)); /* tango_scarlet_red_1 */
     }
 
     if (strval) g_free(strval);
@@ -1826,7 +1826,8 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     TCHAR    static_val[STATIC_LABEL_CHARS];
     gint     selected_num;
     guint32  ignored_cnt = 0, displayed_ignored_cnt = 0;
-    guint32       displayed_cnt;
+    guint32  displayed_cnt;
+    gboolean range_valid = TRUE;
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DISPLAYED_BTN);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
@@ -1920,23 +1921,51 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_USER */
-    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_CAP);
-    EnableWindow(cur_ctrl, !filtered_active);
-    if (range->remove_ignored) {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->user_range_cnt - range->ignored_user_range_cnt);
-    } else {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->user_range_cnt);
-    }
-    SetWindowText(cur_ctrl, static_val);
+    switch (packet_range_check(range)) {
+        case CVT_NO_ERROR:
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_EDIT);
+            SendMessage(cur_ctrl, EM_SETBKGNDCOLOR, (WPARAM) 1, COLOR_WINDOW);
 
-    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_DISP);
-    EnableWindow(cur_ctrl, filtered_active);
-    if (range->remove_ignored) {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_user_range_cnt - range->displayed_ignored_user_range_cnt);
-    } else {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_user_range_cnt);
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_CAP);
+            EnableWindow(cur_ctrl, !filtered_active);
+            if (range->remove_ignored) {
+                StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->user_range_cnt - range->ignored_user_range_cnt);
+            } else {
+                StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->user_range_cnt);
+            }
+            SetWindowText(cur_ctrl, static_val);
+        
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_DISP);
+            EnableWindow(cur_ctrl, filtered_active);
+            if (range->remove_ignored) {
+                StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_user_range_cnt - range->displayed_ignored_user_range_cnt);
+            } else {
+                StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_user_range_cnt);
+            }
+            SetWindowText(cur_ctrl, static_val);
+            break;
+        case CVT_SYNTAX_ERROR:
+            if (range->process == range_process_user_range) range_valid = FALSE;
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_EDIT);
+            SendMessage(cur_ctrl, EM_SETBKGNDCOLOR, 0, RGB(0xff, 0xcc, 0xcc));
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_CAP);
+            SetWindowText(cur_ctrl, _T("Bad range"));
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_DISP);
+            SetWindowText(cur_ctrl, _T("-"));
+            break;
+        case CVT_NUMBER_TOO_BIG:
+            if (range->process == range_process_user_range) range_valid = FALSE;
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_EDIT);
+            SendMessage(cur_ctrl, EM_SETBKGNDCOLOR, 0, RGB(0xff, 0xcc, 0xcc));
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_CAP);
+            SetWindowText(cur_ctrl, _T("Too large"));
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_DISP);
+            SetWindowText(cur_ctrl, _T("-"));
+           break;
+
+        default:
+            g_assert_not_reached();
     }
-    SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_REMOVE_IGNORED_PACKETS */
     switch(range->process) {
@@ -1976,6 +2005,9 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     EnableWindow(cur_ctrl, displayed_ignored_cnt && filtered_active);
     StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), displayed_ignored_cnt);
     SetWindowText(cur_ctrl, static_val);
+
+    cur_ctrl = GetDlgItem(GetParent(dlg_hwnd), IDOK);
+    EnableWindow(cur_ctrl, range_valid);
 }
 
 static void
@@ -1988,6 +2020,12 @@ range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range) {
     else
         cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_CAPTURED_BTN);
     SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
+
+    /* Retain the filter text, and fill it in. */
+    if(range->user_range != NULL) {
+        cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_EDIT);
+        SetWindowText(cur_ctrl, utf_8to16(range_convert_range(range->user_range)));
+    }
 
     /* dynamic values in the range frame */
     range_update_dynamics(dlg_hwnd, range);
@@ -2068,7 +2106,7 @@ range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t
             cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_BTN);
             SendMessage(cur_ctrl, BM_CLICK, 0, 0);
             break;
-        case (EN_CHANGE << 16) | EWFD_RANGE_EDIT:
+        case (EN_UPDATE << 16) | EWFD_RANGE_EDIT:
             SendMessage(ctrl, WM_GETTEXT, (WPARAM) RANGE_TEXT_MAX, (LPARAM) range_text);
             packet_range_convert_str(range, utf_16to8(range_text));
             range_update_dynamics(dlg_hwnd, range);
