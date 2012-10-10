@@ -30,7 +30,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -781,7 +781,7 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
 static gint sip_is_known_sip_header(gchar *header_name, guint header_len);
 static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset,
     guint meth_len, gint linelen);
-static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int line_end);
+static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint line_end, gint offset);
 static void tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static guint sip_is_packet_resend(packet_info *pinfo,
 				gchar* cseq_method,
@@ -823,7 +823,7 @@ static sip_info_value_t *stat_info;
  * For each call, keep track of the current cseq number and state of
  * transaction, in order to be able to detect retransmissions.
  *
- * Don't use the conservation mechanism, but instead:
+ * Don't use the conversation mechanism, but instead:
  * - store with each dissected packet original frame (if any)
  * - maintain a global hash table of
  *   (call_id, source_addr, dest_addr) -> (cseq, transaction_state, frame)
@@ -2196,7 +2196,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						offset, linelen, ENC_ASCII|ENC_NA);
 			reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
 		}
-		dfilter_sip_status_line(tvb, reqresp_tree, pinfo, linelen);
+		dfilter_sip_status_line(tvb, reqresp_tree, pinfo, linelen, offset);
 		break;
 
 	case OTHER_LINE:
@@ -3051,6 +3051,33 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			reported_datalen = content_length;
 	}
 
+	/* Add to info column interesting things learned from header fields. */
+	/* Registration requests */
+	if (current_method_idx == SIP_METHOD_REGISTER)
+	{
+		if (contact_is_star && expires_is_0)
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "    (remove all bindings)");
+		}
+		else
+		if (!contacts)
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "    (fetch bindings)");
+		}
+	}
+
+	/* Registration responses */
+	if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0))
+	{
+		col_append_fstr(pinfo->cinfo, COL_INFO, "    (%d bindings)", contacts);
+	}
+
+	/* We've finished writing to the info col for this SIP message
+	 * Set fence in case there is more than one (SIP)message in the frame 
+	 */
+	col_append_str(pinfo->cinfo, COL_INFO, " | ");
+	col_set_fence(pinfo->cinfo, COL_INFO);
+
 	if (datalen > 0) {
 		/*
 		 * There's a message body starting at "offset".
@@ -3077,7 +3104,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		}
 
 		/* give the content type parameters to sub dissectors */
-
 		if ( media_type_str_lower_case != NULL ) {
 			void *save_private_data = pinfo->private_data;
 			pinfo->private_data = content_type_parameter_str;
@@ -3117,26 +3143,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	}
 
 
-	/* Add to info column interesting things learned from header fields. */
-	/* Registration requests */
-	if (current_method_idx == SIP_METHOD_REGISTER)
-	{
-		if (contact_is_star && expires_is_0)
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "    (remove all bindings)");
-		}
-		else
-		if (!contacts)
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "    (fetch bindings)");
-		}
-	}
-
-	/* Registration responses */
-	if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0))
-	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "    (%d bindings)", contacts);
-	}
 	/* Find the total setup time, Must be done before checking for resend
 	 * As that will overwrite the "Request packet no".
 	 */
@@ -3209,6 +3215,13 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		tap_queue_packet(sip_tap, pinfo, stat_info);
 	}
 
+	/* Append a brief summary to the SIP root item */
+	if (stat_info->request_method) {
+		proto_item_append_text(ts, " (%s)", stat_info->request_method);
+	}
+	else {
+		proto_item_append_text(ts, " (%u)", stat_info->response_code);
+	}
 	return offset - orig_offset;
 }
 
@@ -3249,10 +3262,10 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gi
 
 /* Display filter for SIP Status-Line */
 static void
-dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int line_end)
+dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint line_end, gint offset)
 {
 	gint response_code = 0;
-	int offset, diag_len;
+	int diag_len;
 	tvbuff_t *next_tvb;
 
 	/*
@@ -3261,11 +3274,11 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
 	 * We also know that we have a version string followed by a
 	 * space at the beginning of the line, for the same reason.
 	 */
-	response_code = atoi((char*)tvb_get_ephemeral_string(tvb, SIP2_HDR_LEN + 1, 3));
+	response_code = atoi((char*)tvb_get_ephemeral_string(tvb, offset + SIP2_HDR_LEN + 1, 3));
 
 	/* Add numerical response code to tree */
 	if (tree) {
-		proto_tree_add_uint(tree, hf_sip_Status_Code, tvb, SIP2_HDR_LEN + 1,
+		proto_tree_add_uint(tree, hf_sip_Status_Code, tvb, offset + SIP2_HDR_LEN + 1,
 		                    3, response_code);
 	}
 
