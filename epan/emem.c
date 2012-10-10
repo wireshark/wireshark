@@ -307,7 +307,8 @@ ep_init_chunk(emem_pool_t *mem)
 	mem->used_list=NULL;
 	mem->trees=NULL;	/* not used by this allocator */
 
-	mem->debug_use_chunks = (getenv("WIRESHARK_DEBUG_EP_NO_CHUNKS") == NULL);
+	/* XXX Temporarily disable ep chunks until the bugs are fixed */
+	mem->debug_use_chunks = FALSE; /*(getenv("WIRESHARK_DEBUG_EP_NO_CHUNKS") == NULL); */
 	mem->debug_use_canary = mem->debug_use_chunks && (getenv("WIRESHARK_DEBUG_EP_NO_CANARY") == NULL);
 	mem->debug_verify_pointers = (getenv("WIRESHARK_EP_VERIFY_POINTERS") != NULL);
 
