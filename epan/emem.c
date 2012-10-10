@@ -119,7 +119,6 @@ typedef struct _emem_chunk_t {
 	unsigned int	free_offset_init;
 	unsigned int	free_offset;
 	void		*canary_last;
-	void            *org;
 } emem_chunk_t;
 
 struct _emem_pool_t {
