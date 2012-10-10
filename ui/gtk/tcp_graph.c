@@ -1888,7 +1888,11 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 		/* Need to take a deep copy of the tap struct, it may not be valid
 		   to read after this function returns? */
 		th->tcphdrs[th->num_hdrs] = g_malloc(sizeof(struct tcpheader));
-		*(th->tcphdrs[th->num_hdrs++]) = *header;
+		*(th->tcphdrs[th->num_hdrs]) = *header;
+		COPY_ADDRESS(&th->tcphdrs[th->num_hdrs]->ip_src, &header->ip_src);
+		COPY_ADDRESS(&th->tcphdrs[th->num_hdrs]->ip_dst, &header->ip_dst);
+
+		th->num_hdrs++;
 	}
 
 	return 0;
