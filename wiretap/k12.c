@@ -62,7 +62,7 @@
 FILE* dbg_out = NULL;
 char* env_file = NULL;
 
-static unsigned debug_level = 0;
+static unsigned int debug_level = 0;
 
 void k12_fprintf(char* fmt, ...) {
     va_list ap;
@@ -79,7 +79,7 @@ void k12_fprintf(char* fmt, ...) {
 	fprintf(dbg_out,"\n"); \
 } } while(0)
 
-void k12_hexdump(guint level, gint64 offset, char* label, unsigned char* b, unsigned len) {
+void k12_hexdump(guint level, gint64 offset, char* label, unsigned char* b, unsigned int len) {
     static const char* c2t[] = {
         "00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f",
         "10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f",
@@ -98,7 +98,7 @@ void k12_hexdump(guint level, gint64 offset, char* label, unsigned char* b, unsi
         "e0","e1","e2","e3","e4","e5","e6","e7","e8","e9","ea","eb","ec","ed","ee","ef",
         "f0","f1","f2","f3","f4","f5","f6","f7","f8","f9","fa","fb","fc","fd","fe","ff"
     };
-    unsigned i;
+    unsigned int i;
 
     if (debug_level < level) return;
 
@@ -680,8 +680,14 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 #ifdef DEBUG_K12
     gchar* env_level = getenv("K12_DEBUG_LEVEL");
     env_file = getenv("K12_DEBUG_FILENAME");
-    if ( env_file ) dbg_out = ws_fopen(env_file,"w");
-    else dbg_out = stderr;
+    if ( env_file ) {
+	dbg_out = ws_fopen(env_file,"w");
+	if (dog_out == NULL) {
+		dbg_out = stderr;
+		K12_DBG(1,("unable to open K12 DEBUG FILENAME for writing!  Logging to standard error"));
+	}
+    else
+	dbg_out = stderr;
     if ( env_level ) debug_level = strtoul(env_level,NULL,10);
     K12_DBG(1,("k12_open: ENTER debug_level=%u",debug_level));
 #endif
