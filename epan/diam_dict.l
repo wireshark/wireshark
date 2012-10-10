@@ -272,10 +272,11 @@ description_attr description=\042
 			yyin = ddict_open(sys_dir,e->file);
 			D(("entity: %s filename: %s yyin: %p\n",e->name,e->file,yyin));
 			if (!yyin) {
-				if (errno) {
+				if (errno)
 					fprintf(stderr, "Could not open file: '%s', error: %s\n", e->file, g_strerror(errno) );
-					yyterminate();
-				}
+				else
+					fprintf(stderr, "Could not open file: '%s', error unknown (errno == 0)\n", e->file );
+				yyterminate();
 			} else {
 				include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
 				yy_switch_to_buffer(yy_create_buffer( yyin, YY_BUF_SIZE ) );
@@ -814,6 +815,10 @@ int main(int argc, char** argv) {
 	}
 
 	d = ddict_scan(dname,fname,1);
+	if (d == NULL) {
+		fprintf(stderr, "Can't open dictionary\n");
+		return 2;
+	}
 
 	ddict_print(stdout, d);
 
