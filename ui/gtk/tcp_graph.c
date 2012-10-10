@@ -1885,7 +1885,10 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 
 	/* Add address if unique and have space for it */
 	if (is_unique && (th->num_hdrs < MAX_SUPPORTED_TCP_HEADERS)) {
-		th->tcphdrs[th->num_hdrs++] = header;
+		/* Need to take a deep copy of the tap struct, it may not be valid
+		   to read after this function returns? */
+		th->tcphdrs[th->num_hdrs] = g_malloc(sizeof(struct tcpheader));
+		*(th->tcphdrs[th->num_hdrs++]) = *header;
 	}
 
 	return 0;
