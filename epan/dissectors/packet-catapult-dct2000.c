@@ -1983,12 +1983,6 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
         oob_event = ltemac_send_preamble;
     }
     else
-    if (sscanf(string, ">> Schedule Request[UE =  %u] [RNTI = %u]", &ueids[0], &rntis[0]) == 2) {
-        /* Older, single SR format */
-        oob_event = ltemac_send_sr;
-        number_of_ues = 1;
-    }
-    else
     if (sscanf(string, ">> Schedule Requests (%u)  [UE=%u][RNTI=%u]",
                &number_of_ues, &ueids[0], &rntis[0]) == 3) {
         const char *current_position;
