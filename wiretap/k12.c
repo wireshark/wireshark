@@ -682,7 +682,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
     env_file = getenv("K12_DEBUG_FILENAME");
     if ( env_file ) {
 	dbg_out = ws_fopen(env_file,"w");
-	if (dog_out == NULL) {
+	if (dbg_out == NULL) {
 		dbg_out = stderr;
 		K12_DBG(1,("unable to open K12 DEBUG FILENAME for writing!  Logging to standard error"));
 	}
