@@ -1971,6 +1971,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
     guint                rntis[MAX_SRs];
     guint                rapid;
     guint                rach_attempt_number;
+    guint                temp;
     mac_lte_oob_event    oob_event;
     struct mac_lte_info *p_mac_lte_info;
     tvbuff_t            *mac_lte_tvb = NULL;
@@ -2022,7 +2023,8 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
         }
     }
     else
-    if (sscanf(string, ">> INFO MAC:    SR failed for UE %u (CRNTI=%u)", &ueids[0], &rntis[0]) == 2) {
+    if (sscanf(string, ">> INFO (inst %u) MAC:    [UE = %u]    SR failed (CRNTI=%u)",
+               &temp, &ueids[0], &rntis[0]) == 3) {
         oob_event = ltemac_sr_failure;
     }
     else {
