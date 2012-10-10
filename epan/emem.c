@@ -112,11 +112,14 @@ static int dev_zero_fd;
 typedef struct _emem_chunk_t {
 	struct _emem_chunk_t *next;
 	char		*buf;
+	char            *org;
+	size_t           size;
 	unsigned int	amount_free_init;
 	unsigned int	amount_free;
 	unsigned int	free_offset_init;
 	unsigned int	free_offset;
 	void		*canary_last;
+	void            *org;
 } emem_chunk_t;
 
 struct _emem_pool_t {
@@ -307,8 +310,7 @@ ep_init_chunk(emem_pool_t *mem)
 	mem->used_list=NULL;
 	mem->trees=NULL;	/* not used by this allocator */
 
-	/* XXX Temporarily disable ep chunks until the bugs are fixed */
-	mem->debug_use_chunks = FALSE; /*(getenv("WIRESHARK_DEBUG_EP_NO_CHUNKS") == NULL); */
+	mem->debug_use_chunks = (getenv("WIRESHARK_DEBUG_EP_NO_CHUNKS") == NULL);
 	mem->debug_use_canary = mem->debug_use_chunks && (getenv("WIRESHARK_DEBUG_EP_NO_CANARY") == NULL);
 	mem->debug_verify_pointers = (getenv("WIRESHARK_EP_VERIFY_POINTERS") != NULL);
 
@@ -669,6 +671,8 @@ emem_create_chunk(size_t size)
 #ifdef SHOW_EMEM_STATS
 	total_no_chunks++;
 #endif
+	npc->org = npc->buf;
+	npc->size = size;
 
 	npc->amount_free = npc->amount_free_init = (unsigned int) size;
 	npc->free_offset = npc->free_offset_init = 0;
@@ -679,9 +683,9 @@ static void
 emem_destroy_chunk(emem_chunk_t *npc)
 {
 #if defined (_WIN32)
-	VirtualFree(npc->buf, 0, MEM_RELEASE);
+	VirtualFree(npc->org, 0, MEM_RELEASE);
 #elif defined(USE_GUARD_PAGES)
-	munmap(npc->buf, npc->amount_free_init);
+	munmap(npc->org, npc->size);
 #else
 	g_free(npc->buf);
 #endif
