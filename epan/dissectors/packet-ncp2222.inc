@@ -1730,6 +1730,11 @@ ncp_postseq_cleanup(void)
      * needed during random-access processing of the proto_tree.*/
 }
 
+/* NCP sequence numbers are from 0 - 255. After reaching 255 the 
+ * sequence number wraps back to 0. Change nw_sequence to nw_sequence_long
+ * and use upper bits to make sequence numbers unique. This way
+ * future attempts to locate initiating packet will succeed. 
+ */
 static ncp_req_hash_value*
 ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
                 const ncp_record *ncp_rec, guint32 pkt_num)
@@ -1741,6 +1746,7 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
        a reply to it. */
     request_key = se_alloc(sizeof(ncp_req_hash_key));
     request_key->conversation = conversation;
+	/* Make sequence number unique */
     request_key->nw_sequence_long = (0x10000 + ((pkt_num/255)<<16)) | nw_sequence;
 
     request_value = se_alloc(sizeof(ncp_req_hash_value));
@@ -1784,12 +1790,22 @@ ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence, guint32 pkt_nu
 	ncp_req_hash_value *temp_value;
 
     request_key.conversation = conversation;
+	/* Find unique sequence number */
     request_key.nw_sequence_long = (0x10000+((pkt_num/255)<<16)) | nw_sequence;
 
+	/* Since masking of sequence number utilizes the packet number as
+	 * part of it's algorythm it is possible for a packet to sit right
+	 * on the boundary and fail. (depending on number of packets in trace)
+	 * Loop through all the previous sequence numbers in the hash to see
+	 * if the original request packet can be found.
+	 */
 	temp_value = g_hash_table_lookup(ncp_req_hash, &request_key);
-	if(!temp_value)
+	while(!temp_value)
 	{
        request_key.nw_sequence_long = request_key.nw_sequence_long-0x10000;
+	   if((request_key.nw_sequence_long & 0xffff0000) == 0){
+	        break;
+	   }  
        temp_value = g_hash_table_lookup(ncp_req_hash, &request_key);
 	}
 	
@@ -8911,7 +8927,14 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
     else {
-        request_value = p_get_proto_data(pinfo->fd, proto_ncp);
+        /*request_value = p_get_proto_data(pinfo->fd, proto_ncp);*/
+        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                         PT_NCP, nw_connection, nw_connection, 0);
+        if (conversation != NULL) {
+
+             request_value = ncp_hash_lookup(conversation,
+                               sequence, pinfo->fd->num);
+		}
         if (request_value) {
             ncp_rec = request_value->ncp_rec;
         }
