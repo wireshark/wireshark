@@ -35,6 +35,8 @@
 #include <epan/value_string.h>
 #include <epan/addr_resolv.h>
 
+#include <wsutil/str_util.h>
+
 #include "../file.h"
 #include "../capture.h"
 
@@ -1835,7 +1837,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     if (wpcap_packet_request_uint(adapter, OID_GEN_LINK_SPEED, &uint_value)) {
         entries++;
         uint_value *= 100;
-        size_str = format_size(stat_buf.st_size, format_size_unit_bits_s|format_size_prefix_si);
+        size_str = format_size(uint_value, format_size_unit_bits_s|format_size_prefix_si);
 	g_strlcpy(string_buff, size_str, DETAILS_STR_MAX);
 	g_free(size_str);
     } else {
