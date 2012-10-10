@@ -96,6 +96,7 @@ strptime
 ; str_util.c
 ascii_strdown_inplace
 ascii_strup_inplace
+format_size
 isprint_string
 isdigit_string
 

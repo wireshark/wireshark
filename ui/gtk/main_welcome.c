@@ -38,6 +38,7 @@
 #endif
 
 #include <wsutil/file_util.h>
+#include <wsutil/str_util.h>
 
 #ifdef HAVE_LIBPCAP
 #include "ui/iface_lists.h"
@@ -501,6 +502,7 @@ static void *get_recent_item_status(void *data)
 {
     recent_item_status *ri_stat = (recent_item_status *) data;
     ws_statb64 stat_buf;
+    gchar *size_str;
     int err;
 
     if (!ri_stat) {
@@ -515,18 +517,12 @@ static void *get_recent_item_status(void *data)
     g_mutex_lock(recent_mtx);
     ri_stat->err = err;
     if(err == 0) {
-        if (stat_buf.st_size/1024/1024/1024 > 10) {
-            g_string_append_printf(ri_stat->str, " (%" G_GINT64_MODIFIER "d GB)", (gint64) (stat_buf.st_size/1024/1024/1024));
-        } else if (stat_buf.st_size/1024/1024 > 10) {
-            g_string_append_printf(ri_stat->str, " (%" G_GINT64_MODIFIER "d MB)", (gint64) (stat_buf.st_size/1024/1024));
-        } else if (stat_buf.st_size/1024 > 10) {
-            g_string_append_printf(ri_stat->str, " (%" G_GINT64_MODIFIER "d KB)", (gint64) (stat_buf.st_size/1024));
-        } else {
-            g_string_append_printf(ri_stat->str, " (%" G_GINT64_MODIFIER "d Bytes)", (gint64) (stat_buf.st_size));
-        }
+        size_str = format_size(stat_buf.st_size, format_size_unit_bytes|format_size_prefix_si);
+
         /* pango format string */
         g_string_prepend(ri_stat->str, "<span foreground='blue'>");
-        g_string_append(ri_stat->str, "</span>");
+        g_string_append_printf(ri_stat->str, " (%s)</span>", size_str);
+        g_free(size_str);
     } else {
         g_string_append(ri_stat->str, " [not found]");
     }
@@ -1435,5 +1431,3 @@ GtkWidget* get_welcome_window(void)
 {
     return welcome_hb;
 }
-
-

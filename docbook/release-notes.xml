@@ -64,7 +64,8 @@ Wireshark Info
 
         <listitem>
           <para>
-            .
+            The main welcome screen and status bar now display file sizes using
+	    strict SI prefixes instead of old-style binary prefixes.
           </para>
         </listitem>
 

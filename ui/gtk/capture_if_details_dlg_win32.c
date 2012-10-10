@@ -1788,6 +1788,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     int             length;
     unsigned short  ushort_value;
     int             entries = 0;
+    gchar           *size_str;
 
 
     /* general */
@@ -1834,15 +1835,9 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     if (wpcap_packet_request_uint(adapter, OID_GEN_LINK_SPEED, &uint_value)) {
         entries++;
         uint_value *= 100;
-        if(uint_value >= 1000 * 1000) {
-            g_snprintf(string_buff, DETAILS_STR_MAX, "%d MBits/s", uint_value / 1000 / 1000);
-        } else {
-            if(uint_value >= 1000) {
-                g_snprintf(string_buff, DETAILS_STR_MAX, "%d KBits/s", uint_value / 1000);
-            } else {
-                g_snprintf(string_buff, DETAILS_STR_MAX, "%d Bits/s", uint_value);
-            }
-        }
+        size_str = format_size(stat_buf.st_size, format_size_unit_bits_s|format_size_prefix_si);
+	g_strlcpy(string_buff, size_str, DETAILS_STR_MAX);
+	g_free(size_str);
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
     }
@@ -2389,3 +2384,16 @@ capture_if_has_details(char *iface) {
 }
 
 #endif /* HAVE_LIBPCAP && _WIN32 */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

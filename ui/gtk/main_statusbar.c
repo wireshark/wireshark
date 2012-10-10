@@ -44,6 +44,8 @@
 #include "../capture.h"
 #endif
 
+#include <wsutil/str_util.h>
+
 #include "ui/main_statusbar.h"
 #include "ui/recent.h"
 #include "ui/utf8_entities.h"
@@ -699,20 +701,13 @@ status_capture_comment_update(void)
 static void
 statusbar_set_filename(const char *file_name, gint64 file_length, nstime_t *file_elapsed_time)
 {
-    gchar       *size_str;
+    gchar *size_str;
 
     /* expert info indicator */
     status_expert_update();
 
     /* statusbar */
-    /* convert file size */
-    if (file_length/1024/1024 > 10) {
-        size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d MB", file_length/1024/1024);
-    } else if (file_length/1024 > 10) {
-        size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d KB", file_length/1024);
-    } else {
-        size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d Bytes", file_length);
-    }
+    size_str = format_size(file_length, format_size_unit_bytes|format_size_prefix_si);
 
     statusbar_push_file_msg(" File: \"%s\" %s %02lu:%02lu:%02lu",
                             (file_name) ? file_name : "", size_str,
