@@ -164,8 +164,6 @@ epan_dissect_init(epan_dissect_t *edt, const gboolean create_proto_tree, const g
 
 	edt->pi.dependent_frames = NULL;
 
-	edt->mem = ep_create_pool();
-
 	return edt;
 }
 
@@ -190,6 +188,9 @@ void
 epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
         const guint8* data, frame_data *fd, column_info *cinfo)
 {
+	/* free all memory allocated during previous packet */
+	ep_free_all();
+
 	dissect_packet(edt, pseudo_header, data, fd, cinfo);
 }
 
@@ -209,8 +210,6 @@ epan_dissect_cleanup(epan_dissect_t* edt)
 	if (edt->tree) {
 		proto_tree_free(edt->tree);
 	}
-
-	ep_free_pool(edt->mem);
 }
 
 void

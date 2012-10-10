@@ -121,7 +121,7 @@ typedef struct _emem_chunk_t {
 	void		*canary_last;
 } emem_chunk_t;
 
-struct _emem_pool_t {
+typedef struct _emem_pool_t {
 	emem_chunk_t *free_list;
 	emem_chunk_t *used_list;
 
@@ -158,11 +158,9 @@ struct _emem_pool_t {
 	 */
 	gboolean debug_verify_pointers;
 
-};
+} emem_pool_t;
 
-static GSList *ep_pool_stack = NULL;
-static emem_pool_t ep_fake_pool;
-static emem_pool_t *ep_packet_mem = &ep_fake_pool;
+static emem_pool_t ep_packet_mem;
 static emem_pool_t se_packet_mem;
 
 /*
@@ -269,11 +267,11 @@ ep_check_canary_integrity(const char* fmt, ...)
 	g_vsnprintf(here, sizeof(here), fmt, ap);
 	va_end(ap);
 
-	for (npc = ep_packet_mem->free_list; npc != NULL; npc = npc->next) {
+	for (npc = ep_packet_mem.free_list; npc != NULL; npc = npc->next) {
 		void *canary_next = npc->canary_last;
 
 		while (canary_next != NULL) {
-			canary_next = emem_canary_next(ep_packet_mem->canary, canary_next, NULL);
+			canary_next = emem_canary_next(ep_packet_mem.canary, canary_next, NULL);
 			/* XXX, check if canary_next is inside allocated memory? */
 
 			if (canary_next == (void *) -1)
@@ -303,21 +301,21 @@ emem_init_chunk(emem_pool_t *mem)
  * up.
  */
 static void
-ep_init_chunk(emem_pool_t *mem)
+ep_init_chunk(void)
 {
-	mem->free_list=NULL;
-	mem->used_list=NULL;
-	mem->trees=NULL;	/* not used by this allocator */
+	ep_packet_mem.free_list=NULL;
+	ep_packet_mem.used_list=NULL;
+	ep_packet_mem.trees=NULL;	/* not used by this allocator */
 
-	mem->debug_use_chunks = (getenv("WIRESHARK_DEBUG_EP_NO_CHUNKS") == NULL);
-	mem->debug_use_canary = mem->debug_use_chunks && (getenv("WIRESHARK_DEBUG_EP_NO_CANARY") == NULL);
-	mem->debug_verify_pointers = (getenv("WIRESHARK_EP_VERIFY_POINTERS") != NULL);
+	ep_packet_mem.debug_use_chunks = (getenv("WIRESHARK_DEBUG_EP_NO_CHUNKS") == NULL);
+	ep_packet_mem.debug_use_canary = ep_packet_mem.debug_use_chunks && (getenv("WIRESHARK_DEBUG_EP_NO_CANARY") == NULL);
+	ep_packet_mem.debug_verify_pointers = (getenv("WIRESHARK_EP_VERIFY_POINTERS") != NULL);
 
 #ifdef DEBUG_INTENSE_CANARY_CHECKS
 	intense_canary_checking = (getenv("WIRESHARK_DEBUG_EP_INTENSE_CANARY") != NULL);
 #endif
 
-	emem_init_chunk(mem);
+	emem_init_chunk(&ep_packet_mem);
 }
 
 /* Initialize the capture-lifetime memory allocation pool.
@@ -345,8 +343,8 @@ se_init_chunk(void)
 void
 emem_init(void)
 {
+	ep_init_chunk();
 	se_init_chunk();
-	ep_init_chunk(&ep_fake_pool);
 
 	if (getenv("WIRESHARK_DEBUG_SCRUB_MEMORY"))
 		debug_use_memory_scrubber  = TRUE;
@@ -397,21 +395,21 @@ print_alloc_stats()
 
 	fprintf(stderr, "\n-------- EP allocator statistics --------\n");
 	fprintf(stderr, "%s chunks, %s canaries, %s memory scrubber\n",
-	       ep_packet_mem->debug_use_chunks ? "Using" : "Not using",
-	       ep_packet_mem->debug_use_canary ? "using" : "not using",
+	       ep_packet_mem.debug_use_chunks ? "Using" : "Not using",
+	       ep_packet_mem.debug_use_canary ? "using" : "not using",
 	       debug_use_memory_scrubber ? "using" : "not using");
 
-	if (! (ep_packet_mem->free_list || !ep_packet_mem->used_list)) {
+	if (! (ep_packet_mem.free_list || !ep_packet_mem.used_list)) {
 		fprintf(stderr, "No memory allocated\n");
 		ep_stat = FALSE;
 	}
-	if (ep_packet_mem->debug_use_chunks && ep_stat) {
+	if (ep_packet_mem.debug_use_chunks && ep_stat) {
 		/* Nothing interesting without chunks */
 		/*  Only look at the used_list since those chunks are fully
 		 *  used.  Looking at the free list would skew our view of what
 		 *  we have wasted.
 		 */
-		for (chunk = ep_packet_mem->used_list; chunk; chunk = chunk->next) {
+		for (chunk = ep_packet_mem.used_list; chunk; chunk = chunk->next) {
 			num_chunks++;
 			total_used += (chunk->amount_free_init - chunk->amount_free);
 			total_allocation += chunk->amount_free_init;
@@ -565,8 +563,8 @@ emem_verify_pointer(const emem_pool_t *hdr, const void *ptr)
 gboolean
 ep_verify_pointer(const void *ptr)
 {
-	if (ep_packet_mem->debug_verify_pointers)
-		return emem_verify_pointer(ep_packet_mem, ptr);
+	if (ep_packet_mem.debug_verify_pointers)
+		return emem_verify_pointer(&ep_packet_mem, ptr);
 	else
 		return FALSE;
 }
@@ -670,8 +668,6 @@ emem_create_chunk(size_t size)
 #ifdef SHOW_EMEM_STATS
 	total_no_chunks++;
 #endif
-	npc->org = npc->buf;
-	npc->size = size;
 
 	npc->amount_free = npc->amount_free_init = (unsigned int) size;
 	npc->free_offset = npc->free_offset_init = 0;
@@ -682,9 +678,9 @@ static void
 emem_destroy_chunk(emem_chunk_t *npc)
 {
 #if defined (_WIN32)
-	VirtualFree(npc->org, 0, MEM_RELEASE);
+	VirtualFree(npc->buf, 0, MEM_RELEASE);
 #elif defined(USE_GUARD_PAGES)
-	munmap(npc->org, npc->size);
+	munmap(npc->buf, npc->amount_free_init);
 #else
 	g_free(npc->buf);
 #endif
@@ -876,7 +872,7 @@ emem_alloc(size_t size, emem_pool_t *mem)
 void *
 ep_alloc(size_t size)
 {
-	return emem_alloc(size, ep_packet_mem);
+	return emem_alloc(size, &ep_packet_mem);
 }
 
 /* allocate 'size' amount of memory with an allocation lifetime until the
@@ -1212,8 +1208,6 @@ emem_free_all(emem_pool_t *mem)
 	npc = mem->free_list;
 	while (npc != NULL) {
 		if (use_chunks) {
-			emem_chunk_t *next = npc->next;
-
 			while (npc->canary_last != NULL) {
 				npc->canary_last = emem_canary_next(mem->canary, npc->canary_last, NULL);
 				/* XXX, check if canary_last is inside allocated memory? */
@@ -1226,9 +1220,9 @@ emem_free_all(emem_pool_t *mem)
 					  (npc->free_offset - npc->free_offset_init),
 					  FALSE);
 
-			emem_destroy_chunk(npc);
-
-			npc = next;
+			npc->amount_free = npc->amount_free_init;
+			npc->free_offset = npc->free_offset_init;
+			npc = npc->next;
 		} else {
 			emem_chunk_t *next = npc->next;
 
@@ -1240,7 +1234,10 @@ emem_free_all(emem_pool_t *mem)
 		}
 	}
 
-	mem->free_list = NULL;
+	if (!use_chunks) {
+		/* We've freed all this memory already */
+		mem->free_list = NULL;
+	}
 
 	/* release/reset all allocated trees */
 	for(tree_list=mem->trees;tree_list;tree_list=tree_list->next){
@@ -1248,105 +1245,11 @@ emem_free_all(emem_pool_t *mem)
 	}
 }
 
-/* The ep_* memory pool manager has gone through three stages, and a bit
- * of history of the previous stages is necessary to understand the current
- * design.
- *
- * Originally, there was one static ep_packet_mem pool that was used similarly
- * to the way that se_packet_mem is still used. The standard sequence looked
- * like this:
- * - dissect packet 1
- * - empty the pool
- * - dissect packet 2
- * ...
- *
- * This design ran into the problem listed in bug #5284 [1]. Specifically,
- * because of the way that gtk/glib callbacks and signals are designed, it
- * was possible to start dissecting a second packet before the first packet
- * was finished. This led to the following sequence:
- * - start dissecting packet 1
- * -- dissect packet 2
- * -- empty the pool
- * - continue dissecting packet 1
- * ...
- *
- * This obviously led to use-after-free errors, as packet 1 would have its
- * ep_* pool emptied out from underneath it. To solve this problem, the ep_*
- * pool (by way of the edt struct) was ref-counted in revision 42254 [2].
- *
- * Unfortunately, as Jakub discovered and described in [3], this had its own
- * problems. It turns out that in certain cases we needed to keep the old edt
- * around until after the new one was created, but this meant that our refcount
- * never hit zero - it was incremented before it was decremented - and so the
- * pool never got emptied.
- *
- * The current state was commited in revision 45389 [4], and is a bit more
- * involved. The truly *correct* solution would be have been to have each caller
- * of ep_alloc() or related functions pass in their packet-ID and use that
- * to determine which pool to use for the allocation. Unfortunately, that would
- * have been a massive amount of work to change every single caller of the ep_*
- * functions. Instead, we cheat.
- *
- * We did make each edt struct own its own ep_ pool the way they should, but
- * instead of requiring the callers to pass in an ID and thus changing the API,
- * we maintain a GSList ep_pool_stack of active pools and do some magic in the
- * functions used to create and destroy ep pools (ep_create_pool() and
- * ep_free_pool()). The GSList behaves almost, but not quite entirely like a
- * stack. Specifically, new pools get added to the top of the stack, and all
- * allocations occur in the pool at the top of the stack, but a finished
- * pool can be removed from anywhere in the stack. The old, static
- * ep_packet_mem was changed to a pointer to the pool at the top of the stack.
- * The sequence of events during dissection is now a bit more convoluted than
- * it was, but it does solve both original problems: memory is always freed,
- * but never until everyone is done with it.
- *
- * The ep_fake_pool is a bonus addition that is needed because some functions
- * use ep_ calls when there isn't actually a packet in scope. These should
- * perhaps be fixed, but in the meantime, ep_fake_pool is used to handle those
- * cases. Since it is never passed to ep_free_pool() itself, we make sure to
- * empty it whenever we add a new pool to the stack, since presumably whatever
- * is in it is stale, although we have no way of knowing for sure.
- *
- * [1] https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5284
- * [2] https://anonsvn.wireshark.org/viewvc?view=revision&revision=42254
- * [3] https://www.wireshark.org/lists/wireshark-dev/201208/msg00128.html
- * [4] https://anonsvn.wireshark.org/viewvc?view=revision&revision=45389
- */
-emem_pool_t *
-ep_create_pool(void)
-{
-	emem_pool_t *mem;
-
-	mem = g_malloc(sizeof(emem_pool_t));
-
-	ep_init_chunk(mem);
-
-	if (ep_pool_stack == NULL) {
-		emem_free_all(&ep_fake_pool);
-	}
-
-	ep_pool_stack = g_slist_prepend(ep_pool_stack, mem);
-
-	ep_packet_mem = mem;
-
-	return mem;
-}
-
+/* release all allocated memory back to the pool. */
 void
-ep_free_pool(emem_pool_t *mem)
+ep_free_all(void)
 {
-	ep_pool_stack = g_slist_remove(ep_pool_stack, mem);
-
-	emem_free_all(mem);
-
-	g_free(mem);
-
-	if (ep_pool_stack == NULL) {
-		ep_packet_mem = &ep_fake_pool;
-	}
-	else {
-		ep_packet_mem = ep_pool_stack->data;
-	}
+	emem_free_all(&ep_packet_mem);
 }
 
 /* release all allocated memory back to the pool. */

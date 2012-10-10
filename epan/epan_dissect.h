@@ -31,7 +31,6 @@ extern "C" {
 #include "tvbuff.h"
 #include "proto.h"
 #include "packet_info.h"
-#include "emem.h"
 
 /* Dissection of a single byte array. Holds tvbuff info as
  * well as proto_tree info. As long as the epan_dissect_t for a byte
@@ -42,7 +41,6 @@ extern "C" {
 struct _epan_dissect_t {
 	tvbuff_t	*tvb;
 	proto_tree	*tree;
-	emem_pool_t     *mem;
 	packet_info	pi;
 };
 
