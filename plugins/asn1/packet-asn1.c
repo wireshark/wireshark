@@ -3111,10 +3111,10 @@ static char eol[] = "\r\n";
 		logf = ws_fopen(asn1_logfile, "w");
 	}
 	if (logf) {
-	fputs(message, logf);
-	fputs(eol, logf);
-        fflush(logf);   /* debugging ... */
-        }
+		fputs(message, logf);
+		fputs(eol, logf);
+		fflush(logf);   /* debugging ... */
+	}
 }
 
 static void
@@ -4246,9 +4246,13 @@ create_message_window(void)
 				   G_TYPE_STRING, G_TYPE_STRING);
 
 	namelist = ws_fopen("namelist.txt", "w");
+	if (!namelist)
+		fprintf(stderr, "unable to open file: namelist.txt for writing!\n");
 	build_tree_view(model, PDUtree, NULL);
-	fclose(namelist);
-	namelist = 0;
+	if (namelist) {
+		fclose(namelist);
+		namelist = 0;
+	}
 
 	/* create tree view */
 	treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (model));
