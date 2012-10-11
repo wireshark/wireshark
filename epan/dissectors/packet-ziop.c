@@ -134,8 +134,8 @@ dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
   if ( tvb_memeql(tvb, 0, ZIOP_MAGIC ,4) != 0) {
 
-    if ( tvb_memeql(tvb, 0, GIOP_MAGIC ,4) == 0)
-      dissect_giop(tvb, pinfo, tree);
+      if (tvb_get_ntohl(tvb, 0) == GIOP_MAGIC_NUMBER)
+         dissect_giop(tvb, pinfo, tree);
 
     return;
   }
