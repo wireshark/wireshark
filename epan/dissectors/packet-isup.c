@@ -9994,7 +9994,7 @@ proto_register_isup(void)
   static hf_register_info hf[] = {
     { &hf_isup_cic,
       { "CIC",           "isup.cic",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_isup_message_type,
@@ -11223,7 +11223,7 @@ proto_register_bicc(void)
   static hf_register_info hf[] = {
     { &hf_bicc_cic,
       { "Call identification Code (CIC)",           "bicc.cic",
-        FT_UINT32, BASE_HEX, NULL, 0x0,
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
   };
 
