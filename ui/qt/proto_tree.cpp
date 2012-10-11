@@ -35,6 +35,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 
+QColor        expert_color_comment    ( 0x00, 0xff, 0x00 );        /* Green */
 QColor        expert_color_chat       ( 0x80, 0xb7, 0xf7 );        /* light blue */
 QColor        expert_color_note       ( 0xa0, 0xff, 0xff );        /* bright turquoise */
 QColor        expert_color_warn       ( 0xf7, 0xf2, 0x53 );        /* yellow */
@@ -109,6 +110,9 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     // XXX - Add routines to get our severity colors.
     if(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
         switch(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
+        case(PI_COMMENT):
+            item->setData(0, Qt::BackgroundRole, expert_color_comment);
+            break;
         case(PI_CHAT):
             item->setData(0, Qt::BackgroundRole, expert_color_chat);
             break;
