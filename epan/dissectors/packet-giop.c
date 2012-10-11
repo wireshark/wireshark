@@ -3338,10 +3338,9 @@ guint32 get_CDR_typeCode(tvbuff_t *tvb, /* packet_info* pinfo, */ proto_tree *tr
   gint16  s_octet2; /* signed int16 */
   guint16 u_octet2; /* unsigned int16 */
   guint32 u_octet4; /* unsigned int32 */
-  proto_item *ti;
 
   val = get_CDR_ulong(tvb,offset,stream_is_big_endian,boundary); /* get TCKind enum */
-  ti = proto_tree_add_uint(tree,hf_giop_TCKind, tvb, *offset-4, 4, val);
+  proto_tree_add_uint(tree,hf_giop_TCKind, tvb, *offset-4, 4, val);
 
   /* Grab the data according to Typecode Table - Corba Chapter 15 */
 
@@ -3868,7 +3867,7 @@ static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_t
   guint32 scid;
   gboolean encapsulation_is_be;
   guint32 encapsulation_boundary;
-  int temp_offset, temp_offset1;
+  int temp_offset;
   int start_offset = *offset;
 
   /* create a subtree */
@@ -3908,14 +3907,13 @@ static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_t
     proto_tree_add_uint(tree,hf_giop_iop_scid,tvb,
                           *offset-4, 4, scid);
 
-    temp_offset1 = *offset;
+    temp_offset = *offset;
     /* The OMG has vscid of 0 reserved */
     if( vscid != 0 || scid > max_service_context_id ) {
       decode_UnknownServiceContext(tvb, pinfo, tree, offset, stream_is_be, boundary);
       continue;
     }
 
-    temp_offset = *offset;
     /* get sequence length, new endianness and boundary for encapsulation */
     context_data_len = get_CDR_encap_info(tvb, sub_tree1, offset,
                                           stream_is_be, boundary,
@@ -3946,13 +3944,13 @@ static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_t
     default:
 
       /* Need to fill these in as we learn them */
-      *offset = temp_offset1;
+      *offset = temp_offset;
       decode_UnknownServiceContext(tvb, pinfo, sub_tree1, offset, stream_is_be,
                                    boundary);
       break;
     }
     /* Set the offset to the end of the context_data sequence */
-    *offset = temp_offset1 + 4 + context_data_len;
+    *offset = temp_offset + 4 + context_data_len;
 
   } /* for seqlen  */
 
@@ -4440,7 +4438,6 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   guint32 offset = 0;
   guint32 request_id;
   guint32 len = 0;
-  guint8 response_flags;
   gchar *reserved;
   gchar *operation = NULL;
   proto_tree *request_tree;
@@ -4459,7 +4456,6 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   col_append_fstr(pinfo->cinfo, COL_INFO, " id=%u", request_id);
   proto_tree_add_uint (request_tree, hf_giop_req_id, tvb, offset-4, 4, request_id);
 
-  response_flags = tvb_get_guint8( tvb, offset );
   proto_tree_add_item(request_tree, hf_giop_response_flag, tvb,
                              offset, 1, ENC_NA);
   offset += 1;
@@ -4834,7 +4830,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 }
 
 static guint
-get_giop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_giop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
 {
 
   MessageHeader header;
