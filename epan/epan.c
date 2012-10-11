@@ -90,10 +90,14 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	guids_init();
 
 	except_init();
+#ifdef HAVE_LIBGCRYPT
+	/* initialize libgcrypt (beware, it won't be thread-safe) */
+	gcry_check_version(NULL);
+	gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
+	gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+#endif
 #ifdef HAVE_LIBGNUTLS
 	gnutls_global_init();
-#elif defined(HAVE_LIBGCRYPT)
-	gcry_check_version(NULL);
 #endif
 	tap_init();
 	prefs_init();

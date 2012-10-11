@@ -1185,8 +1185,6 @@ ssl_data_set(StringInfo* str, const guchar* data, guint len)
 
 #if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
 
-static gint ver_major, ver_minor, ver_patch;
-
 /* hmac abstraction layer */
 #define SSL_HMAC gcry_md_hd_t
 
@@ -2654,14 +2652,6 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     return 0;
 }
 
-static void
-ssl_get_version(gint* major, gint* minor, gint* patch)
-{
-  *major = ver_major;
-  *minor = ver_minor;
-  *patch = ver_patch;
-}
-
 #define RSA_PARS 6
 SSL_PRIVATE_KEY*
 ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
@@ -2669,8 +2659,7 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
     gnutls_datum_t rsa_datum[RSA_PARS]; /* m, e, d, p, q, u */
     size_t         tmp_size;
     gcry_sexp_t    rsa_priv_key = NULL;
-    gint           major, minor, patch;
-    gint           i, p_idx, q_idx;
+    gint           i;
     int            ret;
     size_t         buf_len;
     unsigned char  buf_keyid[32];
@@ -2689,24 +2678,13 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
         ssl_debug_printf( "Private key imported: KeyID %s\n", bytes_to_str_punct(buf_keyid, (int) buf_len, ':'));
     }
 
-    /*
-     * note: openssl and gnutls use 'p' and 'q' with opposite meaning:
-     * our 'p' must be equal to 'q' as provided from openssl and viceversa
-     */
-
-#if (LIBGNUTLS_VERSION_MAJOR>2)||((LIBGNUTLS_VERSION_MAJOR==2)&&(LIBGNUTLS_VERSION_MINOR>=5))
-    p_idx = 3; q_idx = 4;
-#else /* versions 2.4.x and older need 'p' and 'q' swapped */
-    p_idx = 4; q_idx = 3;
-#endif
-
     /* RSA get parameter */
     if (gnutls_x509_privkey_export_rsa_raw(priv_key,
                                            &rsa_datum[0],
                                            &rsa_datum[1],
                                            &rsa_datum[2],
-                                           &rsa_datum[p_idx],
-                                           &rsa_datum[q_idx],
+                                           &rsa_datum[3],
+                                           &rsa_datum[4],
                                            &rsa_datum[5])  != 0) {
         ssl_debug_printf("ssl_load_key: can't export rsa param (is a rsa private key file ?!?)\n");
 #ifdef SSL_FAST
@@ -2726,16 +2704,12 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
       }
     }
 
-    ssl_get_version(&major, &minor, &patch);
-
-    /* certain versions of gnutls require swap of rsa params 'p' and 'q' */
-    if ((major <= 1) && (minor <= 0) && (patch <= 13))
+    /* libgcrypt expects p < q, and gnutls might not return it as such, depending on gnutls version and its crypto backend */
+    if (gcry_mpi_cmp(rsa_params[3], rsa_params[4]) > 0)
     {
-        gcry_mpi_t tmp;
-        ssl_debug_printf("ssl_load_key: swapping p and q parameters\n");
-        tmp = rsa_params[4];
-        rsa_params[4] = rsa_params[3];
-        rsa_params[3] = tmp;
+        ssl_debug_printf("ssl_load_key: swapping p and q parameters and recomputing u\n");
+        gcry_mpi_swap(rsa_params[3], rsa_params[4]);
+        gcry_mpi_invm(rsa_params[5], rsa_params[3], rsa_params[4]);
     }
 
     if  (gcry_sexp_build( &rsa_priv_key, NULL,
@@ -3081,13 +3055,7 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
 void
 ssl_lib_init(void)
 {
-    const gchar* str = gnutls_check_version(NULL);
-
-    /* get library version */
-    /* old relase of gnutls does not define the appropriate macros, so get
-     * them from the string*/
-    ssl_debug_printf("gnutls version: %s\n", str);
-    sscanf(str, "%d.%d.%d", &ver_major, &ver_minor, &ver_patch);
+    ssl_debug_printf("gnutls version: %s\n", gnutls_check_version(NULL));
 }
 
 #else /* defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT) */
