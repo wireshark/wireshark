@@ -99,6 +99,8 @@ static int hf_ah_sequence = -1;
 static int proto_esp = -1;
 static int hf_esp_spi = -1;
 static int hf_esp_iv = -1;
+static int hf_esp_icv_good = -1;
+static int hf_esp_icv_bad = -1;
 static int hf_esp_sequence = -1;
 static int hf_esp_pad_len = -1;
 static int hf_esp_protocol = -1;
@@ -108,6 +110,7 @@ static int hf_ipcomp_cpi = -1;
 
 static gint ett_ah = -1;
 static gint ett_esp = -1;
+static gint ett_esp_icv = -1;
 static gint ett_ipcomp = -1;
 
 static dissector_handle_t data_handle;
@@ -948,10 +951,15 @@ static void
 dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_auth_len, guint8 *authenticator_data_computed,
                            gboolean authentication_ok, gboolean authentication_checking_ok)
 {
+    proto_item *item;
+    proto_tree *icv_tree;
+    gboolean good = FALSE, bad = FALSE;
+
     if(esp_auth_len == 0)
     {
-        proto_tree_add_text(tree, tvb, len, 0,
+        item = proto_tree_add_text(tree, tvb, len, 0,
             "NULL Authentication");
+        good = TRUE;
     }
 
     /* Make sure we have the auth trailer data */
@@ -959,27 +967,40 @@ dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_a
     {
         if((authentication_ok) && (authentication_checking_ok))
         {
-            proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
+            item = proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
                 "Authentication Data [correct]");
+            good = TRUE;
         }
 
         else if((authentication_ok) && (!authentication_checking_ok))
         {
-            proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
+            item = proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
                 "Authentication Data [incorrect, should be 0x%s]", authenticator_data_computed);
+            bad = TRUE;
 
             g_free(authenticator_data_computed);
         }
 
-        else proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
+        else item = proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
             "Authentication Data");
     }
     else
     {
         /* Truncated so just display what we have */
-        proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len - (len - tvb_length(tvb)),
+        item = proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len - (len - tvb_length(tvb)),
             "Authentication Data (truncated)");
+        bad = TRUE;
     }
+
+    icv_tree = proto_item_add_subtree(item, ett_esp_icv);
+
+    item = proto_tree_add_boolean(icv_tree, hf_esp_icv_good,
+        tvb, len - esp_auth_len, esp_auth_len, good);
+    PROTO_ITEM_SET_GENERATED(item);
+
+    item = proto_tree_add_boolean(icv_tree, hf_esp_icv_bad,
+        tvb, len - esp_auth_len, esp_auth_len, bad);
+    PROTO_ITEM_SET_GENERATED(item);
 }
 #endif
 
@@ -2001,7 +2022,14 @@ proto_register_ipsec(void)
         "IP Encapsulating Security Payload Next Header", HFILL }},
     { &hf_esp_iv,
       { "ESP IV", "esp.iv", FT_BYTES, BASE_NONE, NULL, 0x0,
-        "IP Encapsulating Security Payload", HFILL }}
+        "IP Encapsulating Security Payload", HFILL }},
+
+    { &hf_esp_icv_good,
+      { "Good", "esp.icv_good", FT_BOOLEAN, BASE_NONE,  NULL, 0x0,
+        "True: ICV matches packet content; False: doesn't match content or not checked", HFILL }},
+    { &hf_esp_icv_bad,
+      { "Bad", "esp.icv_bad", FT_BOOLEAN, BASE_NONE,  NULL, 0x0,
+        "True: ICV doesn't match packet content; False: matches content or not checked", HFILL }},
   };
 
   static hf_register_info hf_ipcomp[] = {
@@ -2016,6 +2044,7 @@ proto_register_ipsec(void)
   static gint *ett[] = {
     &ett_ah,
     &ett_esp,
+    &ett_esp_icv,
     &ett_ipcomp,
   };
 
