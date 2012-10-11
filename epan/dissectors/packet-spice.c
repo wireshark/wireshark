@@ -2501,7 +2501,7 @@ dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
             num_channels = tvb_get_letohl(tvb, offset);
             proto_tree_add_text(tree, tvb, offset, 4, "Number of channels: %u", num_channels);
             offset += 4;
-            for (i = 1; i <= num_channels; i++ ) {
+            for (i = 0; i < num_channels; i++ ) {
                 channel_type = tvb_get_guint8(tvb, offset);
                 proto_tree_add_text(tree, tvb, offset, 1,
                                     "Type: %s [%d]", val_to_str_const(channel_type, channel_types_vs, "Unknown"), channel_type);

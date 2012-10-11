@@ -3156,7 +3156,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             }
                             case PTP_V2_MM_ID_FAULT_LOG:
                             {
-                                guint16 i, num = 0;
+                                guint16 ii, num = 0;
                                 proto_item  *ptpError_ti;
                                 proto_tree  *ptpError_subtree;
 
@@ -3166,7 +3166,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     Offset, 2, ENC_BIG_ENDIAN);
                                 Offset +=2;
 
-                                for (i = 1; i <= num; i++)
+                                for (ii = 0; ii < num; ii++)
                                 {
                                     ptpError_ti = proto_tree_add_text(ptp_managementData_tree, tvb, Offset, tvb_get_ntohs (tvb, Offset), "Fault record");
 
@@ -3535,7 +3535,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             {
                                 guint16 i = 0;
                                 /* one or more ClockIdentity */
-                                for (i = 1; i <= (tlv_length / 8); i++)
+                                for (i = 0; i < (tlv_length / 8); i++)
                                 {
                                     proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_clockidentity, tvb,
                                         Offset, 8, ENC_BIG_ENDIAN);

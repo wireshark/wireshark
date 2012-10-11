@@ -176,7 +176,7 @@ dissect_integer_range_interface_identifier_parameter(tvbuff_t *parameter_tvb, pr
 
   number_of_ranges = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / INTERVAL_LENGTH;
   offset = PARAMETER_VALUE_OFFSET;
-  for(range_number = 1; range_number <= number_of_ranges; range_number++) {
+  for(range_number = 0; range_number < number_of_ranges; range_number++) {
     proto_tree_add_item(parameter_tree, hf_interface_range_start,
                         parameter_tvb, offset + START_OFFSET, START_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(parameter_tree, hf_interface_range_end,

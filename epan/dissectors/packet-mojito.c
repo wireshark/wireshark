@@ -404,7 +404,7 @@ dissect_mojito_store_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
 	proto_tree *dht_tree, *version_tree;
 	proto_item *dht_item, *version_item;
-	guint8      i, contactcount;
+	guint8      ii, contactcount;
 	guint8      sectokenlen = tvb_get_guint8(tvb, offset);
 	guint16     dhtvaluelength;
 	int         contact_offset, start_offset;
@@ -421,9 +421,9 @@ dissect_mojito_store_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 1;
 
 	/* For each Contact, display the info */
-	for (i = 1; i <= contactcount; i++)
+	for (ii = 0; ii < contactcount; ii++)
 	{
-		dht_item = proto_tree_add_text(tree, tvb, offset, 1, "DHTValue #%d", i);
+		dht_item = proto_tree_add_text(tree, tvb, offset, 1, "DHTValue #%d", ii+1);
 		dht_tree = proto_item_add_subtree(dht_item, ett_mojito_dht);
 		start_offset = offset;
 		contact_offset = dissect_mojito_contact(tvb, pinfo, dht_tree, offset, -1);
@@ -462,7 +462,7 @@ dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 {
 	proto_tree *sc_tree;
 	proto_item *sc_item;
-	guint8      i, contactcount = tvb_get_guint8(tvb, offset);
+	guint8      ii, contactcount = tvb_get_guint8(tvb, offset);
 	guint16     dhtvaluelength;
 	int         start_offset;
 
@@ -470,9 +470,9 @@ dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	offset += 1;
 
 	/* For each Contact, display the info */
-	for (i = 1; i <= contactcount; i++)
+	for (ii = 0; ii < contactcount; ii++)
 	{
-		sc_item = proto_tree_add_text(tree, tvb, offset, 23, "Status Code %d", i);
+		sc_item = proto_tree_add_text(tree, tvb, offset, 23, "Status Code %d", ii+1);
 		sc_tree = proto_item_add_subtree(sc_item, ett_mojito_status_code);
 
 		start_offset = offset;
@@ -505,7 +505,7 @@ dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static void
 dissect_mojito_find_node_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint8 i, contactcount;
+	guint8 ii, contactcount;
 	guint8 sectokenlen = tvb_get_guint8(tvb, offset);
 	int    contact_offset;
 
@@ -520,9 +520,9 @@ dissect_mojito_find_node_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset += 1;
 
 	/* For each Contact, display the info */
-	for (i = 1; i <= contactcount; i++)
+	for (ii = 0; ii < contactcount; ii++)
 	{
-		contact_offset = dissect_mojito_contact(tvb, pinfo, tree, offset, i);
+		contact_offset = dissect_mojito_contact(tvb, pinfo, tree, offset, ii+1);
 		if (contact_offset == 0)
 			return;
 		offset += contact_offset;
@@ -568,7 +568,7 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_item *dht_item, *version_item, *kuid_item;
 	guint16     dhtvaluelength;
 	int         contact_offset, start_offset;
-	guint8      i, dhtvaluescount, kuidcount;
+	guint8      ii, dhtvaluescount, kuidcount;
 
 	proto_tree_add_item(tree, hf_mojito_requestload, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
@@ -578,9 +578,9 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	offset += 1;
 
 	/* For each Contact, display the info */
-	for (i = 1; i <= dhtvaluescount; i++)
+	for (ii = 0; ii < dhtvaluescount; ii++)
 	{
-		dht_item = proto_tree_add_text(tree, tvb, offset, 1, "DHTValue #%d", i);
+		dht_item = proto_tree_add_text(tree, tvb, offset, 1, "DHTValue #%d", ii+1);
 		dht_tree = proto_item_add_subtree(dht_item, ett_mojito_dht);
 		start_offset = offset;
 		contact_offset = dissect_mojito_contact(tvb, pinfo, dht_tree, offset, -1);
@@ -624,7 +624,7 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	offset += 1;
 
 	/* All the Secondary KUID's */
-	for (i = 0; i < kuidcount; i++)
+	for (ii = 0; ii < kuidcount; ii++)
 	{
 		proto_tree_add_item(kuid_tree, hf_mojito_kuid, tvb, offset, 20, ENC_NA);
 		offset += 20;

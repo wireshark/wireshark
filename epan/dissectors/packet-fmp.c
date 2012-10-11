@@ -357,8 +357,8 @@ dissect_fmp_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset = dissect_rpc_uint32(tvb, extListTree,
                                 hf_fmp_extentList_len, offset);
 
-    for (i = 1; i <= numExtents; i++) {
-        offset = dissect_fmp_extent(tvb, offset, pinfo, extListTree, i);
+    for (i = 0; i < numExtents; i++) {
+        offset = dissect_fmp_extent(tvb, offset, pinfo, extListTree, i+1);
     }
 
     return offset;
@@ -378,7 +378,7 @@ dissect_fmp_extentListEx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
     offset += 4;
 
-    for (i = 1; i <= numExtents; i++) {
+    for (i = 0; i < numExtents; i++) {
         extListItem =  proto_tree_add_text(tree, tvb, offset, 28,
                                            "Extent List");
         extListTree = proto_item_add_subtree(extListItem, ett_fmp_extList);

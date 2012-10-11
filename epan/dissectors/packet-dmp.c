@@ -3047,7 +3047,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     offset = dissect_dmp_originator (tvb, pinfo, envelope_tree, offset);
   }
 
-  for (i = 1; i <= no_rec; i++) {
+  for (i = 0; i < no_rec; i++) {
     /* Recipient(s) */
     offset = dissect_dmp_address (tvb, pinfo, envelope_tree, offset,
                                   &prev_rec_no, FALSE);

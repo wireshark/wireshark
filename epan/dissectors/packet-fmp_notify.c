@@ -620,8 +620,8 @@ dissect_fmp_notify_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_rpc_uint32(tvb, extListTree,
 	                            hf_fmp_extentList_len, offset);
 
-	for (i = 1; i <= numExtents; i++) {
-		offset = dissect_fmp_notify_extent(tvb, offset, pinfo, extListTree, i);
+	for (i = 0; i < numExtents; i++) {
+		offset = dissect_fmp_notify_extent(tvb, offset, pinfo, extListTree, i+1);
 	}
 
 	return offset;

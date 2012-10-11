@@ -3149,7 +3149,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
         mldr_offset += 16;
 
         /* Source Address */
-        for (i=1; i <= nb_sources; i++){
+        for (i=0; i < nb_sources; i++){
             proto_tree_add_item(mar_tree, hf_icmpv6_mldr_mar_source_address, tvb, mldr_offset, 16, ENC_NA);
             mldr_offset += 16;
         }

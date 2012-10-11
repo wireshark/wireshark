@@ -422,7 +422,7 @@ dissect_mongo_reply(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree 
   number_returned = tvb_get_letohl(tvb, offset);
   offset += 4;
 
-  for (i=1; i <= number_returned; i++)
+  for (i=0; i < number_returned; i++)
   {
     offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_document, 1);
   }

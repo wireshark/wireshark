@@ -1189,8 +1189,11 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
         }
     case 0x05: /* START TONE */
         {
-            guint8 i, tone_nb_entries, tone_direction, tone_id;
-/*          guint8 i, tone_nb_entries, tone_direction, tone_id, tone_duration tone_silence; */
+            guint8 ii, tone_nb_entries;
+            guint8 tone_direction, tone_id;
+#if 0
+            guint8 tone_direction, tone_id, tone_duration tone_silence; */
+#endif
             int tone_duration;
             static const value_string str_tone_direction[] = {
                 {0x00, "On The Phone"},
@@ -1199,7 +1202,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                 {0, NULL}
             };
 
-            tone_direction = tvb_get_guint8(tvb, offset) & 0xC0;
+            tone_direction  = tvb_get_guint8(tvb, offset) & 0xC0;
             tone_nb_entries = tvb_get_guint8(tvb, offset);
 
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
@@ -1209,7 +1212,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
             length--;
 
             while (length > 0 && tone_nb_entries) {
-                for (i = 1; i <= tone_nb_entries; i++) {
+                for (ii = 0; ii < tone_nb_entries; ii++) {
                     tone_id = tvb_get_guint8(tvb, offset);
                     tone_duration = tvb_get_ntohs(tvb, offset + 1);
 #if 0
@@ -1220,10 +1223,10 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset, 6,
 #if 0
                         "Tone Pair %d: Id: %d, Duration: %d ms, Silence: %d ms",
-                        i, tone_id, tone_duration, tone_silence);
+                        ii+1, tone_id, tone_duration, tone_silence);
 #endif
                         "Tone Pair %d: Id: %d, Duration: %d ms",
-                        i, tone_id, tone_duration);
+                        ii+1, tone_id, tone_duration);
                     ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
                     proto_tree_add_text(ua3g_param_tree, tvb, offset, 1,

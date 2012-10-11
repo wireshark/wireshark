@@ -426,7 +426,7 @@ dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 
   number_of_destinations = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) >> 2;
   destination_offset = PARAMETER_VALUE_OFFSET;
-  for(destination_number=1; destination_number <= number_of_destinations; destination_number++) {
+  for(destination_number=0; destination_number < number_of_destinations; destination_number++) {
     proto_tree_add_item(parameter_tree, hf_affected_point_code_mask, parameter_tvb, destination_offset + AFFECTED_MASK_OFFSET, AFFECTED_MASK_LENGTH, ENC_BIG_ENDIAN);
     item = proto_tree_add_item(parameter_tree, hf_affected_point_code_pc,   parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET,  AFFECTED_DPC_LENGTH,  ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
@@ -446,7 +446,7 @@ dissect_routing_context_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
 
   number_of_contexts = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) >> 2;
   context_offset = PARAMETER_VALUE_OFFSET;
-  for(context_number=1; context_number <= number_of_contexts; context_number++) {
+  for(context_number=0; context_number < number_of_contexts; context_number++) {
     proto_tree_add_item(parameter_tree, hf_routing_context, parameter_tvb, context_offset, ROUTING_CONTEXT_LENGTH, ENC_BIG_ENDIAN);
     context_offset += ROUTING_CONTEXT_LENGTH;
   };
@@ -992,7 +992,7 @@ dissect_service_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
   number_of_sis = length - PARAMETER_HEADER_LENGTH;
 
   si_offset = PARAMETER_VALUE_OFFSET;
-  for(si_number=1; si_number <= number_of_sis; si_number++) {
+  for(si_number=0; si_number < number_of_sis; si_number++) {
     proto_tree_add_item(parameter_tree, hf_si, parameter_tvb, si_offset, SI_LENGTH, ENC_BIG_ENDIAN);
     si_offset += SI_LENGTH;
   };
@@ -1011,7 +1011,7 @@ dissect_subsystem_numbers_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
   number_of_ssns = length - PARAMETER_HEADER_LENGTH;
 
   ssn_offset = PARAMETER_VALUE_OFFSET;
-  for(ssn_number=1; ssn_number <= number_of_ssns; ssn_number++) {
+  for(ssn_number=0; ssn_number < number_of_ssns; ssn_number++) {
     proto_tree_add_item(parameter_tree, hf_ssn, parameter_tvb, ssn_offset, SSN_LENGTH, ENC_BIG_ENDIAN);
     ssn_offset += SSN_LENGTH;
   };
@@ -1036,7 +1036,7 @@ dissect_originating_point_code_list_parameter(tvbuff_t *parameter_tvb, proto_tre
   number_of_point_codes = (length - PARAMETER_HEADER_LENGTH) / 4;
 
   point_code_offset = PARAMETER_VALUE_OFFSET;
-  for(point_code_number=1; point_code_number <= number_of_point_codes; point_code_number++) {
+  for(point_code_number=0; point_code_number < number_of_point_codes; point_code_number++) {
     proto_tree_add_item(parameter_tree, hf_opc_list_mask, parameter_tvb, point_code_offset + OPC_MASK_OFFSET, OPC_MASK_LENGTH, ENC_BIG_ENDIAN);
     item = proto_tree_add_item(parameter_tree, hf_opc_list_pc,   parameter_tvb, point_code_offset + OPC_PC_OFFSET,   OPC_PC_LENGTH,   ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
@@ -1070,7 +1070,7 @@ dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   number_of_point_codes = (length - PARAMETER_HEADER_LENGTH) / CIC_RANGE_LENGTH;
 
   point_code_offset = PARAMETER_VALUE_OFFSET;
-  for(point_code_number = 1; point_code_number <= number_of_point_codes; point_code_number++) {
+  for(point_code_number = 0; point_code_number < number_of_point_codes; point_code_number++) {
     cic_range_item = proto_tree_add_text(parameter_tree, parameter_tvb, point_code_offset + CIC_RANGE_MASK_OFFSET, CIC_RANGE_LENGTH, "CIC range");
     cic_range_tree = proto_item_add_subtree(cic_range_item, ett_parameter);
 

@@ -1474,7 +1474,7 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	per_packet_info->preferred_encoding = -1;
 
-	for(counter = 1; counter <= number_of_encodings; counter++) {
+	for(counter = 0; counter < number_of_encodings; counter++) {
 		proto_tree_add_item(tree,
 				    hf_vnc_client_set_encodings_encoding_type,
 				    tvb, *offset, 4, ENC_BIG_ENDIAN);
@@ -1604,7 +1604,7 @@ static guint
 vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			      proto_tree *tree)
 {
-	gint        i;
+	gint        ii;
 	guint16     num_rects, width, height;
 	guint       bytes_needed = 0;
 	guint32     encoding_type;
@@ -1632,10 +1632,10 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	 */
 	VNC_BYTES_NEEDED((guint)12*num_rects);
 
-	for(i = 1; i <= num_rects; i++) {
+	for(ii = 0; ii < num_rects; ii++) {
 
 		ti = proto_tree_add_text(tree, tvb, *offset, 12,
-					 "Rectangle #%d", i);
+					 "Rectangle #%d", ii+1);
 
 		vnc_rect_tree =
 			proto_item_add_subtree(ti, ett_vnc_rect);
@@ -1773,8 +1773,8 @@ vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 
 	VNC_BYTES_NEEDED((guint32)(3 + (num_of_screens * 16)));
 	*offset += 3;
-	for(i = 1; i <= num_of_screens; i++) {
-		ti = proto_tree_add_text(tree, tvb, *offset, 16, "Screen #%u", i);
+	for(i = 0; i < num_of_screens; i++) {
+		ti = proto_tree_add_text(tree, tvb, *offset, 16, "Screen #%u", i+1);
 		screen_tree = proto_item_add_subtree(ti, ett_vnc_desktop_screen);
 
 		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_id, tvb, *offset, 4, ENC_BIG_ENDIAN);
@@ -1861,10 +1861,10 @@ vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	 */
 	bytes_needed = bytes_per_pixel + 8;
 	VNC_BYTES_NEEDED(bytes_needed * num_subrects);
-	for(i = 1; i <= num_subrects; i++) {
+	for(i = 0; i < num_subrects; i++) {
 
 		ti = proto_tree_add_text(tree, tvb, *offset, bytes_per_pixel +
-					 8, "Subrectangle #%d", i);
+					 8, "Subrectangle #%d", i+1);
 		subrect_tree =
 			proto_item_add_subtree(ti, ett_vnc_rre_subrect);
 
@@ -1990,10 +1990,10 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 					num_subrects_tree =
 						proto_item_add_subtree(ti, ett_vnc_hextile_num_subrects);
 
-					for(i = 1; i <= num_subrects; i++) {
+					for(i = 0; i < num_subrects; i++) {
 						ti = proto_tree_add_text(num_subrects_tree, tvb,
 									 *offset, subrect_len,
-									 "Subrectangle #%d", i);
+									 "Subrectangle #%d", i+1);
 						subrect_tree =
 							proto_item_add_subtree(ti, ett_vnc_hextile_subrect);
 
@@ -2442,10 +2442,10 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	vnc_colormap_num_groups =
 		proto_item_add_subtree(ti, ett_vnc_colormap_num_groups);
 
-	for(counter = 1; counter <= number_of_colors; counter++) {
+	for(counter = 0; counter < number_of_colors; counter++) {
 		ti = proto_tree_add_text(vnc_colormap_num_groups, tvb,
 					 *offset, 6,
-					 "Color group #%d", counter);
+					 "Color group #%d", counter+1);
 
 		vnc_colormap_color_group =
 			proto_item_add_subtree(ti,
