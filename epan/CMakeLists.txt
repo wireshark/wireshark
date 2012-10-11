@@ -270,6 +270,8 @@ set(ASN1_DISSECTOR_SRC
 
 set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-ansi_map.c
+	dissectors/packet-coseventcomm.c
+	dissectors/packet-cosnaming.c
 	dissectors/packet-gnm.c
 	dissectors/packet-gprscdr.c
 	dissectors/packet-gsm_map.c
@@ -439,9 +441,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-collectd.c
 	dissectors/packet-componentstatus.c
 	dissectors/packet-cops.c
-	dissectors/packet-coseventcomm.c
 	dissectors/packet-cosine.c
-	dissectors/packet-cosnaming.c
 	dissectors/packet-cpfi.c
 	dissectors/packet-cpha.c
 	dissectors/packet-csm-encaps.c

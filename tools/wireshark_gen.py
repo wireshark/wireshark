@@ -198,13 +198,16 @@ class wireshark_gen_C:
         self.genDeclares(oplist,atlist,enlist,stlist,unlist)
         self.genProtocol()
         self.genRegisteredFields()
-        self.genAtList(atlist)          # string constant declares for Attributes
-        self.genEnList(enlist)          # string constant declares for Enums
+        if (len(atlist) > 0):
+            self.genAtList(atlist)          # string constant declares for Attributes
+        if (len(enlist) > 0):
+            self.genEnList(enlist)          # string constant declares for Enums
 
 
         self.genExceptionHelpers(oplist)   # helper function to decode user exceptions that have members
         self.genExceptionDelegator(oplist) # finds the helper function to decode a user exception
-        self.genAttributeHelpers(atlist)   # helper function to decode "attributes"
+        if (len(atlist) > 0):
+            self.genAttributeHelpers(atlist)   # helper function to decode "attributes"
 
         self.genHelpers(oplist,stlist,unlist)  # operation, struct and union decode helper functions
 
@@ -213,7 +216,7 @@ class wireshark_gen_C:
         self.genAtDelegator(atlist)
         self.genMainEntryEnd()
 
-        self.gen_proto_register()
+        self.gen_proto_register(oplist, atlist, stlist, unlist)
         self.gen_proto_reg_handoff(oplist)
 	# All the dissectors are now built-in
         #self.gen_plugin_register()
@@ -276,9 +279,108 @@ class wireshark_gen_C:
 
         self.st.out(self.template_Includes)
 
+    #
+    # genOpDeclares()
+    #
+    # Generate hf variables for operation filters
+    #
+    # in: opnode ( an operation node)
+    #
+
+    def genOpDeclares(self, op):
+        if self.DEBUG:
+            print "XXX genOpDeclares"
+            print "XXX return type  = " , op.returnType().kind()
+
+        sname = self.namespace(op, "_")
+        rt = op.returnType()
+
+        if (rt.kind() != idltype.tk_void):
+            if (rt.kind() == idltype.tk_alias): # a typdef return val possibly ?
+                #self.get_CDR_alias(rt, rt.name() )
+                self.st.out(self.template_hf, name=sname + "_return")
+            else:
+                self.st.out(self.template_hf, name=sname + "_return")
+
+        for p in op.parameters():
+             self.st.out(self.template_hf, name=sname + "_" + p.identifier())
 
     #
-    # denDeclares
+    # genAtDeclares()
+    #
+    # Generate hf variables for attributes
+    #
+    # in: at ( an attribute)
+    #
+
+    def genAtDeclares(self, at):
+        if self.DEBUG:
+            print "XXX genAtDeclares"
+
+        for decl in at.declarators():
+            sname = self.namespace(decl, "_")
+
+            self.st.out(self.template_hf, name="get" + "_" + sname + "_" + decl.identifier())
+            if not at.readonly():
+                self.st.out(self.template_hf, name="set" + "_" + sname + "_" + decl.identifier())
+
+    #
+    # genStDeclares()
+    #
+    # Generate hf variables for structs
+    #
+    # in: st ( a struct)
+    #
+
+    def genStDeclares(self, st):
+        if self.DEBUG:
+            print "XXX genStDeclares"
+
+        sname = self.namespace(st, "_")
+
+        for m in st.members():
+            for decl in m.declarators():
+                self.st.out(self.template_hf, name=sname + "_" + decl.identifier())
+
+    #
+    # genExDeclares()
+    #
+    # Generate hf variables for user exception filters
+    #
+    # in: exnode ( an exception node)
+    #
+
+    def genExDeclares(self,ex):
+        if self.DEBUG:
+            print "XXX genExDeclares"
+
+        sname = self.namespace(ex, "_")
+
+        for m in ex.members():
+            for decl in m.declarators():
+                self.st.out(self.template_hf, name=sname + "_" + decl.identifier())
+
+    #
+    # genUnionDeclares()
+    #
+    # Generate hf variables for union filters
+    #
+    # in: un ( an union)
+    #
+
+    def genUnionDeclares(self,un):
+        if self.DEBUG:
+            print "XXX genUnionDeclares"
+
+        sname = self.namespace(un, "_")
+        self.st.out(self.template_hf, name=sname + "_" + un.identifier())
+
+        for uc in un.cases():           # for all UnionCase objects in this union
+            for cl in uc.labels():      # for all Caselabel objects in this UnionCase
+                self.st.out(self.template_hf, name=sname + "_" + uc.declarator().identifier())
+
+    #
+    # genDeclares
     #
     # generate function prototypes if required
     #
@@ -290,29 +392,63 @@ class wireshark_gen_C:
         if self.DEBUG:
             print "XXX genDeclares"
 
+        # prototype for operation filters 
+        self.st.out(self.template_hf_operations)
+
+        #operation specific filters
+        if (len(oplist) > 0):
+            self.st.out(self.template_proto_register_op_filter_comment)
+        for op in oplist:
+            self.genOpDeclares(op)
+
+        #attribute filters
+        if (len(atlist) > 0):
+            self.st.out(self.template_proto_register_at_filter_comment)
+        for at in atlist:
+            self.genAtDeclares(at)
+
+        #struct filters
+        if (len(stlist) > 0):
+            self.st.out(self.template_proto_register_st_filter_comment)
+        for st in stlist:
+            self.genStDeclares(st)
+
+        # exception List filters
+        exlist = self.get_exceptionList(oplist) # grab list of exception nodes
+        if (len(exlist) > 0):
+            self.st.out(self.template_proto_register_ex_filter_comment)
+        for ex in exlist:
+            if (ex.members()):          # only if has members
+                self.genExDeclares(ex)
+
+        #union filters
+        if (len(unlist) > 0):
+            self.st.out(self.template_proto_register_un_filter_comment)
+        for un in unlist:
+            self.genUnionDeclares(un)
+
         # prototype for start_dissecting()
 
         self.st.out(self.template_prototype_start_dissecting)
 
         # struct prototypes
 
-        self.st.out(self.template_prototype_struct_start)
-        for st in stlist:
-            #print st.repoId()
-            sname = self.namespace(st, "_")
+        if len(stlist):
+            self.st.out(self.template_prototype_struct_start)
+            for st in stlist:
+                #print st.repoId()
+                sname = self.namespace(st, "_")
+                self.st.out(self.template_prototype_struct_body, stname=st.repoId(),name=sname)
 
-            self.st.out(self.template_prototype_struct_body, stname=st.repoId(),name=sname)
-        self.st.out(self.template_prototype_struct_end)
+            self.st.out(self.template_prototype_struct_end)
 
         # union prototypes
-
-        self.st.out(self.template_prototype_union_start)
-        for un in unlist:
-            sname = self.namespace(un, "_")
-            self.st.out(self.template_prototype_union_body, unname=un.repoId(),name=sname)
-        self.st.out(self.template_prototype_union_end)
-
-
+        if len(unlist):
+            self.st.out(self.template_prototype_union_start)
+            for un in unlist:
+                sname = self.namespace(un, "_")
+                self.st.out(self.template_prototype_union_body, unname=un.repoId(),name=sname)
+            self.st.out(self.template_prototype_union_end)
 
 
     #
@@ -527,32 +663,12 @@ class wireshark_gen_C:
         self.st.out(self.template_attribute_helper_function_start, sname=sname, atname=decl.repoId())
         self.st.inc_indent()
 
-        self.st.out(self.template_helper_function_vars_start)
-        self.dumpCvars(sname)
-        self.st.out(self.template_helper_function_vars_end )
+        if (len(self.fn_hash[sname]) > 0):
+            self.st.out(self.template_helper_function_vars_start)
+            self.dumpCvars(sname)
+            self.st.out(self.template_helper_function_vars_end )
 
-        #
-        # TODO - attributes are simple types, so remove array handling
-        #
-
-        if decl.sizes():        # an array
-            indices = self.get_indices_from_sizes(decl.sizes())
-            string_indices = '%i ' % indices # convert int to string
-            self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)
-            self.st.out(self.template_get_CDR_array_start, aname=decl.identifier(), aval=string_indices)
-            self.addvar(self.c_i + decl.identifier() + ";")
-
-            self.st.inc_indent()
-
-            self.getCDR3(attrib.attrType(), decl.identifier() )
-
-            self.st.dec_indent()
-            self.st.out(self.template_get_CDR_array_end)
-
-
-        else:
-
-            self.getCDR3(attrib.attrType(), decl.identifier() )
+        self.getCDR(attrib.attrType(), sname + "_" + decl.identifier() )
 
         self.st.dec_indent()
         self.st.out(self.template_attribute_helper_function_end)
@@ -604,10 +720,10 @@ class wireshark_gen_C:
         self.st.out(self.template_exception_helper_function_start, sname=sname, exname=ex.repoId())
         self.st.inc_indent()
 
-        self.st.out(self.template_helper_function_vars_start)
-        self.dumpCvars(sname)
-        self.st.out(self.template_helper_function_vars_end )
-
+        if (len(self.fn_hash[sname]) > 0):
+            self.st.out(self.template_helper_function_vars_start)
+            self.dumpCvars(sname)
+            self.st.out(self.template_helper_function_vars_end )
 
         for m in ex.members():
             #print "XXX genExhelper, member = ", m, "member type = ", m.memberType()
@@ -623,14 +739,14 @@ class wireshark_gen_C:
                     self.addvar(self.c_i + decl.identifier() + ";")
 
                     self.st.inc_indent()
-                    self.getCDR3(m.memberType(), ex.identifier() + "_" + decl.identifier() )
+                    self.getCDR(m.memberType(), sname + "_" + decl.identifier() )
 
                     self.st.dec_indent()
                     self.st.out(self.template_get_CDR_array_end)
 
 
                 else:
-                    self.getCDR3(m.memberType(), ex.identifier() + "_" + decl.identifier() )
+                    self.getCDR(m.memberType(), sname + "_" + decl.identifier() )
 
         self.st.dec_indent()
         self.st.out(self.template_exception_helper_function_end)
@@ -681,10 +797,10 @@ class wireshark_gen_C:
         self.st.out(self.template_helper_function_start, sname=sname)
         self.st.inc_indent()
 
-        self.st.out(self.template_helper_function_vars_start)
-        self.dumpCvars(sname)
-        self.st.out(self.template_helper_function_vars_end )
-
+        if (len(self.fn_hash[sname]) > 0):
+            self.st.out(self.template_helper_function_vars_start)
+            self.dumpCvars(sname)
+            self.st.out(self.template_helper_function_vars_end )
 
         self.st.out(self.template_helper_switch_msgtype_start)
 
@@ -744,7 +860,7 @@ class wireshark_gen_C:
                     print "XXX parameter type = " ,p.paramType()
                     print "XXX parameter type kind = " ,p.paramType().kind()
 
-                self.getCDR3(p.paramType(),p.identifier())
+                self.getCDR(p.paramType(), self.curr_sname + "_" + p.identifier())
 
 
     #
@@ -756,23 +872,25 @@ class wireshark_gen_C:
 
         rt = opnode.returnType()        # get return type
         if self.DEBUG:
+            print "XXX genOperationReply"
             print "XXX opnode  = " , opnode
             print "XXX return type  = " , rt
             print "XXX return type.unalias  = " , rt.unalias()
             print "XXX return type.kind()  = " , rt.kind();
 
+        sname = self.namespace(opnode, "_")
 
         if (rt.kind() == idltype.tk_alias): # a typdef return val possibly ?
-            #self.getCDR3(rt.decl().alias().aliasType(),"dummy")    # return value maybe a typedef
-            #self.get_CDR_alias(rt, "Operation_Return_Value" )
-            self.get_CDR_alias(rt, rt.name() )
+            #self.getCDR(rt.decl().alias().aliasType(),"dummy")    # return value maybe a typedef
+            self.get_CDR_alias(rt, sname + "_return" )
+            #self.get_CDR_alias(rt, rt.name() )
 
         else:
-            self.getCDR3(rt, "Operation_Return_Value")    # return value is NOT an alias
+            self.getCDR(rt, sname + "_return")    # return value is NOT an alias
 
         for p in opnode.parameters():
             if p.is_out():              # out or inout
-                self.getCDR3(p.paramType(),p.identifier())
+                self.getCDR(p.paramType(), self.curr_sname + "_" + p.identifier())
 
         #self.st.dec_indent()
 
@@ -898,13 +1016,14 @@ class wireshark_gen_C:
     # if I find nested structures etc.
     #
 
-    def getCDR3(self,type,name="fred"):
+    def getCDR(self,type,name="fred"):
 
         pt = type.unalias().kind()      # param CDR type
         pn = name                       # param name
 
         if self.DEBUG:
-            print "XXX getCDR3: kind = " , pt
+            print "XXX getCDR: kind = " , pt
+            print "XXX getCDR: name = " , pn
 
         if pt == idltype.tk_ulong:
             self.get_CDR_ulong(pn)
@@ -975,34 +1094,34 @@ class wireshark_gen_C:
 
 
     def get_CDR_ulong(self,pn):
-        self.st.out(self.template_get_CDR_ulong, varname=pn)
+        self.st.out(self.template_get_CDR_ulong, hfname=pn)
 
     def get_CDR_short(self,pn):
-        self.st.out(self.template_get_CDR_short, varname=pn)
+        self.st.out(self.template_get_CDR_short, hfname=pn)
 
     def get_CDR_void(self,pn):
-        self.st.out(self.template_get_CDR_void, varname=pn)
+        self.st.out(self.template_get_CDR_void, hfname=pn)
 
     def get_CDR_long(self,pn):
-        self.st.out(self.template_get_CDR_long, varname=pn)
+        self.st.out(self.template_get_CDR_long, hfname=pn)
 
     def get_CDR_ushort(self,pn):
-        self.st.out(self.template_get_CDR_ushort, varname=pn)
+        self.st.out(self.template_get_CDR_ushort, hfname=pn)
 
     def get_CDR_float(self,pn):
-        self.st.out(self.template_get_CDR_float, varname=pn)
+        self.st.out(self.template_get_CDR_float, hfname=pn)
 
     def get_CDR_double(self,pn):
-        self.st.out(self.template_get_CDR_double, varname=pn)
+        self.st.out(self.template_get_CDR_double, hfname=pn)
 
     def get_CDR_longlong(self,pn):
-        self.st.out(self.template_get_CDR_longlong, varname=pn)
+        self.st.out(self.template_get_CDR_longlong, hfname=pn)
 
     def get_CDR_ulonglong(self,pn):
-        self.st.out(self.template_get_CDR_ulonglong, varname=pn)
+        self.st.out(self.template_get_CDR_ulonglong, hfname=pn)
 
     def get_CDR_boolean(self,pn):
-        self.st.out(self.template_get_CDR_boolean, varname=pn)
+        self.st.out(self.template_get_CDR_boolean, hfname=pn)
 
     def get_CDR_fixed(self,type,pn):
         if self.DEBUG:
@@ -1019,18 +1138,18 @@ class wireshark_gen_C:
 
 
     def get_CDR_char(self,pn):
-        self.st.out(self.template_get_CDR_char, varname=pn)
+        self.st.out(self.template_get_CDR_char, hfname=pn)
 
     def get_CDR_octet(self,pn):
-        self.st.out(self.template_get_CDR_octet, varname=pn)
+        self.st.out(self.template_get_CDR_octet, hfname=pn)
 
     def get_CDR_any(self,pn):
         self.st.out(self.template_get_CDR_any, varname=pn)
 
     def get_CDR_enum(self,pn,type):
-        #self.st.out(self.template_get_CDR_enum, varname=pn)
+        #self.st.out(self.template_get_CDR_enum, hfname=pn)
         sname = self.namespace(type.unalias(), "_")
-        self.st.out(self.template_get_CDR_enum_symbolic, valstringarray=sname,varname=pn)
+        self.st.out(self.template_get_CDR_enum_symbolic, valstringarray=sname,hfname=pn)
         self.addvar(self.c_u_octet4)
 
     def get_CDR_string(self,pn):
@@ -1082,6 +1201,183 @@ class wireshark_gen_C:
 
         self.st.out(self.template_union_end, name=sname )
 
+    #
+    # getCDR_hf()
+    #
+    # This takes a node, and tries to output the appropriate item for the
+    # hf array. 
+    #
+
+    def getCDR_hf(self,type,desc,filter,hf_name="fred",):
+
+        pt = type.unalias().kind()      # param CDR type
+        pn = hf_name                       # param name
+
+        if self.DEBUG:
+            print "XXX getCDR_hf: kind = " , pt
+            print "XXX getCDR_hf: name = " , pn
+
+        if pt == idltype.tk_ulong:
+            self.get_CDR_ulong_hf(pn, desc, filter, self.dissname)
+        elif pt == idltype.tk_longlong:
+            self.get_CDR_longlong_hf(pn, desc, filter, self.dissname)
+        elif pt == idltype.tk_ulonglong:
+            self.get_CDR_ulonglong_hf(pn, desc, filter, self.dissname)
+        elif pt == idltype.tk_void:
+            pt = pt   # do nothing
+        elif pt ==  idltype.tk_short:
+            self.get_CDR_short_hf(pn, desc, filter, self.dissname)
+        elif pt ==  idltype.tk_long:
+            self.get_CDR_long_hf(pn, desc, filter, self.dissname)
+        elif pt ==  idltype.tk_ushort:
+            self.get_CDR_ushort_hf(pn, desc, filter, self.dissname)
+        elif pt ==  idltype.tk_float:
+            self.get_CDR_float_hf(pn, desc, filter, self.dissname)
+        elif pt ==  idltype.tk_double:
+            self.get_CDR_double_hf(pn, desc, filter, self.dissname)
+        elif pt == idltype.tk_fixed:
+            pt = pt   # XXX - do nothing (for now)
+            #self.get_CDR_fixed(type.unalias(),pn)
+        elif pt ==  idltype.tk_boolean:
+            self.get_CDR_boolean_hf(pn, desc, filter, self.dissname)
+        elif pt ==  idltype.tk_char:
+            self.get_CDR_char_hf(pn, desc, filter, self.dissname)
+        elif pt ==  idltype.tk_octet:
+            self.get_CDR_octet_hf(pn, desc, filter, self.dissname)
+        elif pt ==  idltype.tk_any:
+            pt = pt   # XXX - do nothing (for now)
+            #self.get_CDR_any(pn)
+        elif pt ==  idltype.tk_string:
+            self.get_CDR_string_hf(pn, desc, filter, self.dissname)
+        elif pt ==  idltype.tk_wstring:
+            self.get_CDR_wstring_hf(pn, desc, filter, self.dissname)
+        elif pt ==  idltype.tk_wchar:
+            self.get_CDR_wchar_hf(pn, desc, filter, self.dissname)
+        elif pt ==  idltype.tk_enum:
+            self.get_CDR_enum_hf(pn, type, desc, filter, self.dissname)
+        elif pt ==  idltype.tk_struct:
+            pt = pt   # XXX - do nothing (for now)
+            #self.get_CDR_struct(type,pn)
+        elif pt ==  idltype.tk_TypeCode: # will I ever get here ?
+            self.get_CDR_TypeCode_hf(pn, desc, filter, self.dissname)
+        elif pt == idltype.tk_sequence:
+            if type.unalias().seqType().kind() == idltype.tk_octet:
+                self.get_CDR_sequence_octet_hf(type, pn, desc, filter, self.dissname)
+            else:
+                self.get_CDR_sequence_hf(type, pn, desc, filter, self.dissname)
+        elif pt == idltype.tk_objref:
+            pt = pt   # XXX - do nothing (for now)
+            #self.get_CDR_objref(type,pn)
+        elif pt == idltype.tk_array:
+            pt = pt   # XXX - do nothing (for now)
+            #self.get_CDR_array(type,pn)
+        elif pt == idltype.tk_union:
+            pt = pt   # XXX - do nothing (for now)
+            #self.get_CDR_union(type,pn)
+        elif pt == idltype.tk_alias:
+            if self.DEBUG:
+                print "XXXXX Alias type hf XXXXX " , type
+            self.get_CDR_alias_hf(type,pn)
+        else:
+            self.genWARNING("Unknown typecode = " + '%i ' % pt) # put comment in source code
+
+    #
+    # get_CDR_XXX_hf methods are here ..
+    #
+    #
+
+
+    def get_CDR_ulong_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_ulong_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_short_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_short_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_long_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_long_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_ushort_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_ushort_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_float_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_float_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_double_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_double_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_longlong_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_longlong_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_ulonglong_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_ulonglong_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_boolean_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_boolean_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_char_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_char_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_octet_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_octet_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_enum_hf(self,pn,type,desc,filter,diss):
+        #self.st.out(self.template_get_CDR_enum_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+        sname = self.namespace(type.unalias(), "_")
+        self.st.out(self.template_get_CDR_enum_symbolic_hf, valstringarray=sname,hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+#        self.addvar(self.c_u_octet4)
+
+    def get_CDR_string_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_string_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_wstring_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_wstring_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+#        self.addvar(self.c_u_octet4)
+#        self.addvar(self.c_seq)
+
+    def get_CDR_wchar_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_wchar_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+#        self.addvar(self.c_s_octet1)
+#        self.addvar(self.c_seq)
+
+    def get_CDR_TypeCode_hf(self,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_TypeCode_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+#        self.addvar(self.c_u_octet4)
+
+    def get_CDR_sequence_octet_hf(self,type,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_sequence_octet_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_sequence_hf(self,type,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_sequence_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
+
+    def get_CDR_alias_hf(self,type,pn):
+        if self.DEBUG:
+            print "XXX get_CDR_alias_hf, type = " ,type , " pn = " , pn
+            print "XXX get_CDR_alias_hf, type.decl() = " ,type.decl()
+            print "XXX get_CDR_alias_hf, type.decl().alias() = " ,type.decl().alias()
+
+        decl = type.decl()              # get declarator object
+
+        if (decl.sizes()):        # a typedef array
+            #indices = self.get_indices_from_sizes(decl.sizes())
+            #string_indices = '%i ' % indices # convert int to string
+            #self.st.out(self.template_get_CDR_array_comment, aname=pn, asize=string_indices)
+
+            #self.st.out(self.template_get_CDR_array_start, aname=pn, aval=string_indices)
+            #self.addvar(self.c_i + pn + ";")
+            #self.st.inc_indent()
+            self.getCDR_hf(type.decl().alias().aliasType(),  pn )
+
+            #self.st.dec_indent()
+            #self.st.out(self.template_get_CDR_array_end)
+
+
+        else:                           # a simple typdef
+            if self.DEBUG:
+                print "XXX get_CDR_alias_hf, type = " ,type , " pn = " , pn
+                print "XXX get_CDR_alias_hf, type.decl() = " ,type.decl()
+
+            self.getCDR_hf(type, decl.identifier() )
+
 
     #
     # Code to generate Union Helper functions
@@ -1093,8 +1389,9 @@ class wireshark_gen_C:
 
     def genUnionHelper(self,un):
         if self.DEBUG:
+            print "XXX genUnionHelper called"
             print "XXX Union type =" , un
-            print "XXX Union type.decl()" , un.decl()
+            print "XXX Union type.switchType()" , un.switchType()
             print "XXX Union Scoped Name" , un.scopedName()
 
         sname = self.namespace(un, "_")
@@ -1106,15 +1403,16 @@ class wireshark_gen_C:
         self.st.out(self.template_union_helper_function_start, sname=sname, unname=un.repoId())
         self.st.inc_indent()
 
-        self.st.out(self.template_helper_function_vars_start)
-        self.dumpCvars(sname)
-        self.st.out(self.template_helper_function_vars_end )
+        if (len(self.fn_hash[sname]) > 0):
+            self.st.out(self.template_helper_function_vars_start)
+            self.dumpCvars(sname)
+            self.st.out(self.template_helper_function_vars_end )
 
         st = un.switchType().unalias() # may be typedef switch type, so find real type
 
         self.st.out(self.template_comment_union_code_start, uname=un.repoId() )
 
-        self.getCDR3(st,un.identifier());
+        self.getCDR(st, sname + "_" + un.identifier());
 
         # Depending on what kind of discriminant I come accross (enum,integer,char,
         # short, boolean), make sure I cast the return value of the get_XXX accessor
@@ -1214,7 +1512,7 @@ class wireshark_gen_C:
                     self.st.out(self.template_comment_union_code_label_default_start  )
 
 
-                self.getCDR3(uc.caseType(),uc.declarator().identifier())
+                self.getCDR(uc.caseType(),sname + "_" + uc.declarator().identifier())
 
                 if not cl.default():
                     self.st.dec_indent()
@@ -1247,7 +1545,7 @@ class wireshark_gen_C:
             self.st.out(self.template_get_CDR_array_start, aname=pn, aval=string_indices)
             self.addvar(self.c_i + pn + ";")
             self.st.inc_indent()
-            self.getCDR3(type.decl().alias().aliasType(),  pn )
+            self.getCDR(type.decl().alias().aliasType(),  pn )
 
             self.st.dec_indent()
             self.st.out(self.template_get_CDR_array_end)
@@ -1258,7 +1556,7 @@ class wireshark_gen_C:
                 print "XXX get_CDR_alias, type = " ,type , " pn = " , pn
                 print "XXX get_CDR_alias, type.decl() = " ,type.decl()
 
-            self.getCDR3(type, decl.identifier() )
+            self.getCDR(type, pn )
 
 
 
@@ -1308,9 +1606,10 @@ class wireshark_gen_C:
         self.st.out(self.template_struct_helper_function_start, sname=sname, stname=st.repoId())
         self.st.inc_indent()
 
-        self.st.out(self.template_helper_function_vars_start)
-        self.dumpCvars(sname)
-        self.st.out(self.template_helper_function_vars_end )
+        if (len(self.fn_hash[sname]) > 0):
+            self.st.out(self.template_helper_function_vars_start)
+            self.dumpCvars(sname)
+            self.st.out(self.template_helper_function_vars_end )
 
         for m in st.members():
             for decl in m.declarators():
@@ -1322,13 +1621,13 @@ class wireshark_gen_C:
                     self.addvar(self.c_i + decl.identifier() + ";")
 
                     self.st.inc_indent()
-                    self.getCDR3(m.memberType(), st.identifier() + "_" + decl.identifier() )
+                    self.getCDR(m.memberType(), sname + "_" + decl.identifier() )
                     self.st.dec_indent()
                     self.st.out(self.template_get_CDR_array_end)
 
 
                 else:
-                    self.getCDR3(m.memberType(), st.identifier() + "_" + decl.identifier() )
+                    self.getCDR(m.memberType(), sname + "_" + decl.identifier() )
 
         self.st.dec_indent()
         self.st.out(self.template_struct_helper_function_end)
@@ -1349,7 +1648,7 @@ class wireshark_gen_C:
         self.addvar(self.c_i + pn + ";")
 
         self.st.inc_indent()
-        self.getCDR3(type.unalias().seqType(), pn ) # and start all over with the type
+        self.getCDR(type.unalias().seqType(), pn ) # and start all over with the type
         self.st.dec_indent()
 
         self.st.out(self.template_get_CDR_sequence_loop_end)
@@ -1432,15 +1731,111 @@ class wireshark_gen_C:
 
         self.st.out(self.template_proto_reg_handoff_end)
 
+    #
+    # generate hf_ array element for operation, attribute, enums, struct and union lists
+    #
 
+    def genOp_hf(self,op):
+        sname = self.namespace(op, "_")
+        opname = sname[string.find(sname, "_")+1:]
+        opname = opname[:string.find(opname, "_")]
+        rt = op.returnType()
+
+        if (rt.kind() != idltype.tk_void):
+            if (rt.kind() == idltype.tk_alias): # a typdef return val possibly ?
+                self.getCDR_hf(rt, rt.name(),\
+                    opname + "." + op.identifier() + ".return", sname + "_return")
+            else:
+                self.getCDR_hf(rt, "Return value",\
+                    opname + "." + op.identifier() + ".return", sname + "_return")
+
+        for p in op.parameters():
+            self.getCDR_hf(p.paramType(), p.identifier(),\
+                opname + "." + op.identifier() + "." + p.identifier(), sname + "_" + p.identifier())
+
+    def genAt_hf(self,at):
+        for decl in at.declarators():
+            sname = self.namespace(decl, "_")
+            atname = sname[string.find(sname, "_")+1:]
+            atname = atname[:string.find(atname, "_")]
+
+            self.getCDR_hf(at.attrType(), decl.identifier(),\
+                     atname + "." + decl.identifier() + ".get", "get" + "_" + sname + "_" + decl.identifier())
+            if not at.readonly():
+                self.getCDR_hf(at.attrType(), decl.identifier(),\
+                    atname + "." + decl.identifier() + ".set", "set" + "_" + sname + "_" + decl.identifier())
+
+    def genSt_hf(self,st):
+        sname = self.namespace(st, "_")
+        stname = sname[string.find(sname, "_")+1:]
+        stname = stname[:string.find(stname, "_")]
+        for m in st.members():
+            for decl in m.declarators():
+                self.getCDR_hf(m.memberType(), st.identifier() + "_" + decl.identifier(),\
+                        st.identifier() + "." + decl.identifier(), sname + "_" + decl.identifier())
+
+    def genEx_hf(self,ex):
+        sname = self.namespace(ex, "_")
+        exname = sname[string.find(sname, "_")+1:]
+        exname = exname[:string.find(exname, "_")]
+        for m in ex.members():
+            for decl in m.declarators():
+                self.getCDR_hf(m.memberType(), ex.identifier() + "_" + decl.identifier(),\
+                        exname + "." + ex.identifier() + "_" + decl.identifier(), sname + "_" + decl.identifier())
+
+    def genUnion_hf(self,un):
+        sname = self.namespace(un, "_")
+        unname = sname[:string.rfind(sname, "_")]
+        unname = string.replace(unname, "_", ".")
+
+        self.getCDR_hf(un.switchType().unalias(), un.identifier(),\
+                unname + "." + un.identifier(), sname + "_" + un.identifier())
+
+        for uc in un.cases():           # for all UnionCase objects in this union
+            for cl in uc.labels():      # for all Caselabel objects in this UnionCase
+                self.getCDR_hf(uc.caseType(), un.identifier() + "_" + uc.declarator().identifier(),\
+                      unname + "." + un.identifier() + "." + uc.declarator().identifier(),\
+                      sname + "_" + uc.declarator().identifier())
 
     #
     # generate  proto_register_<protoname> code,
     #
+    # in - oplist[], atlist[], stline[], unlist[]
+    #
 
 
-    def gen_proto_register(self):
-        self.st.out(self.template_proto_register, description=self.description, protocol_name=self.protoname, dissector_name=self.dissname)
+    def gen_proto_register(self, oplist, atlist, stlist, unlist):
+        self.st.out(self.template_proto_register_start, dissector_name=self.dissname)
+        
+        #operation specific filters
+        self.st.out(self.template_proto_register_op_filter_comment)
+        for op in oplist:
+            self.genOp_hf(op)
+
+        #attribute filters
+        self.st.out(self.template_proto_register_at_filter_comment)
+        for at in atlist:
+            self.genAt_hf(at)
+
+        #struct filters
+        self.st.out(self.template_proto_register_st_filter_comment)
+        for st in stlist:
+            if (st.members()):          # only if has members
+                self.genSt_hf(st)
+
+        # exception List filters
+        exlist = self.get_exceptionList(oplist) # grab list of exception nodes
+        self.st.out(self.template_proto_register_ex_filter_comment)
+        for ex in exlist:
+            if (ex.members()):          # only if has members
+                self.genEx_hf(ex)
+
+        # Union filters
+        self.st.out(self.template_proto_register_un_filter_comment)
+        for un in unlist:
+            self.genUnion_hf(un)
+
+        self.st.out(self.template_proto_register_end, description=self.description, protocol_name=self.protoname, dissector_name=self.dissname)
 
 
     #
@@ -1536,17 +1931,17 @@ class wireshark_gen_C:
     template_helper_function_comment = """\
 /*
  * @repoid@
- */
-"""
-    template_helper_function_vars_start = """
-/* Operation specific Variable declarations Begin */
-"""
-    template_helper_function_vars_end = """
+ */"""
+    template_helper_function_vars_start = """\
+/* Operation specific Variable declarations Begin */"""
+
+    template_helper_function_vars_end = """\
 /* Operation specific Variable declarations End */
 """
+
     template_helper_function_start = """\
 static void
-decode_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+decode_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 """
     template_helper_function_end = """\
@@ -1582,9 +1977,7 @@ register_giop_user(dissect_@dissector_name@, \"@protocol_name@\" ,proto_@dissect
 
     template_protocol = """
 /* Initialise the protocol and subtree pointers */
-
 static int proto_@dissector_name@ = -1;
-
 static gint ett_@dissector_name@ = -1;
 """
     #
@@ -1593,7 +1986,6 @@ static gint ett_@dissector_name@ = -1;
 
     template_init_boundary = """
 /* Initialise the initial Alignment */
-
 static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 """
     #
@@ -1631,7 +2023,7 @@ plugin_reg_handoff(void){
     # proto_register_<dissector name>(void) templates
     #
 
-    template_proto_register = """
+    template_proto_register_start = """
 
 /* Register the protocol with Wireshark */
 
@@ -1641,10 +2033,9 @@ void proto_register_giop_@dissector_name@(void) {
 
    static hf_register_info hf[] = {
         /* field that indicates the currently ongoing request/reply exchange */
-		{&hf_operationrequest, {"Request_Operation","giop-@dissector_name@.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+		{&hf_operationrequest, {"Request_Operation","giop-@dissector_name@.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},"""
 
-      /* no fields yet */
-
+    template_proto_register_end = """
    };
 
    /* setup protocol subtree array */
@@ -1663,6 +2054,23 @@ void proto_register_giop_@dissector_name@(void) {
 
 }
 """
+
+    template_proto_register_op_filter_comment = """\
+        /* Operation filters */"""
+
+    template_proto_register_at_filter_comment = """\
+        /* Attribute filters */"""
+
+    template_proto_register_st_filter_comment = """\
+        /* Struct filters */"""
+
+    template_proto_register_ex_filter_comment = """\
+        /* User exception filters */"""
+
+    template_proto_register_un_filter_comment = """\
+        /* Union filters */"""
+
+
     #
     # template for delegation code
     #
@@ -1670,9 +2078,9 @@ void proto_register_giop_@dissector_name@(void) {
     template_op_delegate_code = """\
 if (strcmp(operation, "@opname@") == 0
     && (!idlname || strcmp(idlname, \"@interface@\") == 0)) {
-   process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
+   item = process_RequestOperation(tvb, pinfo, ptree, header, operation);  /* fill-up Request_Operation field & info column */
    tree = start_dissecting(tvb, pinfo, ptree, offset);
-   decode_@sname@(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
+   decode_@sname@(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
    return TRUE;
 }
 """
@@ -1689,11 +2097,8 @@ switch(header->message_type) {
     template_helper_switch_msgtype_default_start = """\
 default:
     {
-	proto_item *pi;
-
-	/* Unknown GIOP Message */
-	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
-	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+    /* Unknown GIOP Message */
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
     }
 """
     template_helper_switch_msgtype_default_end = """\
@@ -1726,11 +2131,8 @@ break;
     template_helper_switch_msgtype_reply_default_start = """\
 default:
     {
-	proto_item *pi;
-
-	/* Unknown Exception */
-	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown exception %d", header->rep_status);
-	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+    /* Unknown Exception */
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
     }
 """
     template_helper_switch_msgtype_reply_default_end = """\
@@ -1742,11 +2144,8 @@ break;
     template_helper_switch_msgtype_default_start = """\
 default:
     {
-	proto_item *pi;
-
-	/* Unknown GIOP Message */
-	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown GIOP message %d", header->message_type);
-	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+    /* Unknown GIOP Message */
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
     }
 """
     template_helper_switch_msgtype_default_end = """\
@@ -1758,11 +2157,9 @@ switch(header->rep_status) {
     template_helper_switch_rep_status_default_start = """\
 default:
     {
-	proto_item *pi;
 
-	/* Unknown Reply Status */
-	pi = proto_tree_add_text(tree, tvb, 0, 0, "Unknown reply status %d", header->rep_status);
-	expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown reply status %d", header->rep_status);
+    /* Unknown Reply Status */
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown reply status %d", header->rep_status);
     }
 
 """
@@ -1781,89 +2178,60 @@ break;
     #
 
     template_get_CDR_ulong = """\
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-4,4,"@varname@ = %u",get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
-}
+proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_short = """\
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-2,2,"@varname@ = %i",get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
-}
+proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_void = """\
 /* Function returns void */
 """
     template_get_CDR_long = """\
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-4,4,"@varname@ = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-}
+proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_ushort = """\
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-2,2,"@varname@ = %u",get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
-}
+proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_float = """\
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-4,4,"@varname@ = %.6e",get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
-}
+proto_tree_add_float(tree, hf_@hfname@, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_double = """\
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = %.15e",get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
-}
+proto_tree_add_double(tree, hf_@hfname@, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_longlong = """\
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = %" G_GINT64_MODIFIER "d",get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
-}
+proto_tree_add_uint64(tree, hf_@hfname@, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_ulonglong = """\
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = %" G_GINT64_MODIFIER "u",get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary));
-}
+proto_tree_add_uint64(tree, hf_@hfname@, tvb, *offset-8, 8, get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_boolean = """\
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-1,1,"@varname@ = %u",get_CDR_boolean(tvb,offset));
-}
+proto_tree_add_boolean(tree, hf_@hfname@, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 """
     template_get_CDR_char = """\
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-1,1,"@varname@ = %u",get_CDR_char(tvb,offset));
-}
+proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-1, 1, get_CDR_char(tvb,offset));
 """
     template_get_CDR_octet = """\
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-1,1,"@varname@ = %u",get_CDR_octet(tvb,offset));
-}
+proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-1, 1, get_CDR_octet(tvb,offset));
 """
     template_get_CDR_any = """\
 get_CDR_any(tvb,tree,offset,stream_is_big_endian, boundary, header);
 """
     template_get_CDR_fixed = """\
 get_CDR_fixed(tvb, &seq, offset, @digits@, @scale@);
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-@length@, @length@, "@varname@ < @digits@, @scale@> = %s",seq);
-}
+proto_tree_add_text(tree,tvb,*offset-@length@, @length@, "@varname@ < @digits@, @scale@> = %s",seq);
 """
     template_get_CDR_enum_symbolic = """\
 
 u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-4,4,"@varname@  = %u (%s)",u_octet4,val_to_str(u_octet4,@valstringarray@,"Unknown Enum Value"));
-}
+proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-4, 4, u_octet4);
 """
     template_get_CDR_string = """\
 giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "@varname@");
 """
     template_get_CDR_wstring = """\
 u_octet4 = get_CDR_wstring(tvb, &seq, offset, stream_is_big_endian, boundary, header);
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"@varname@ (%u) = %s",
+proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"@varname@ (%u) = %s",
       u_octet4, (u_octet4 > 0) ? seq : \"\");
-}
-
 """
     template_get_CDR_wchar = """\
 s_octet1 = get_CDR_wchar(tvb, &seq, offset, header);
@@ -1876,9 +2244,7 @@ if (tree) {
 
     if (s_octet1 > 0)
         proto_tree_add_text(tree,tvb,*offset-s_octet1,s_octet1,"@varname@ = %s",seq);
-
 }
-
 """
     template_get_CDR_TypeCode = """\
 u_octet4 = get_CDR_typeCode(tvb, tree, offset, stream_is_big_endian, boundary, header);
@@ -1891,9 +2257,7 @@ get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 """
     template_get_CDR_sequence_length = """\
 u_octet4_loop_@seqname@ = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of @seqname@ = %u",u_octet4_loop_@seqname@);
-}
+proto_tree_add_uint(tree, hf_@seqname@, tvb,*offset-4, 4, u_octet4_loop_@seqname@);
 """
     template_get_CDR_sequence_loop_start = """\
 for (i_@seqname@=0; i_@seqname@ < u_octet4_loop_@seqname@; i_@seqname@++) {
@@ -1922,18 +2286,74 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 /* Array: @aname@[ @asize@]  */
 """
     template_structure_start = """\
-/*  Begin struct \"@name@\"  */
-"""
+/*  Begin struct \"@name@\"  */"""
+
     template_structure_end = """\
-/*  End struct \"@name@\"  */
-"""
+/*  End struct \"@name@\"  */"""
 
     template_union_start = """\
-/*  Begin union \"@name@\"  */
-"""
+/*  Begin union \"@name@\"  */"""
+
     template_union_end = """\
-/*  End union \"@name@\"  */
-"""
+/*  End union \"@name@\"  */"""
+
+    #
+    # Templates for get_CDR_xxx_hf accessors
+    #
+
+    template_get_CDR_ulong_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_short_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_INT16,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_long_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_ushort_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_float_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_FLOAT,BASE_NONE,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_double_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_longlong_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_INT64,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_ulonglong_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_UINT64,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_boolean_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},"""
+
+    template_get_CDR_char_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_UINT8,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_octet_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_UINT8,BASE_HEX,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_enum_symbolic_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_UINT32,BASE_DEC,VALS(@valstringarray@),0x0,NULL,HFILL}},"""
+
+    template_get_CDR_string_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_wstring_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_wchar_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_TypeCode_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_sequence_hf = """\
+        {&hf_@hfname@, {"Seq length of @descname@","giop-@dissector_name@.@filtername@",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
+
+    template_get_CDR_sequence_octet_hf = """\
+        {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_UINT8,BASE_HEX,NULL,0x0,NULL,HFILL}},"""
 
 #
 # Program Header Template
@@ -1958,9 +2378,6 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
  * By Gerald Combs
  * Copyright 1999 - 2012 Gerald Combs
  */
-
-static int hf_operationrequest = -1;/* Request_Operation field */
-
 """
 
 
@@ -2045,7 +2462,7 @@ start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offs
     return tree;
 }
 
-static void
+static proto_item*
 process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, MessageHeader *header, gchar *operation)
 {
     proto_item *pi;
@@ -2054,8 +2471,9 @@ process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, M
         col_append_fstr(pinfo->cinfo, COL_INFO, " op = %s",operation);
     };
     /* fill-up the field */
-    pi=proto_tree_add_string_format_value(ptree,hf_operationrequest,tvb,0,0,operation," %s",operation);
+    pi=proto_tree_add_string(ptree, hf_operationrequest, tvb, 0, 0, operation);
     PROTO_ITEM_SET_GENERATED(pi);
+    return pi;
 }
 
 static gboolean
@@ -2063,6 +2481,7 @@ dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *of
 {
 
     gboolean stream_is_big_endian;                        /* big endianess */
+    proto_item *item _U_;
     proto_tree *tree _U_;
 
     stream_is_big_endian = is_big_endian(header);         /* get endianess  */
@@ -2147,7 +2566,6 @@ static gboolean
 decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    /*gboolean stream_is_big_endian _U_;*/                        /* big endianess */
     proto_tree *tree _U_;
 
     if (!header->exception_id)
@@ -2435,6 +2853,13 @@ if (disc_s_@discname@ == @labelval@) {
     # for structs and union helper functions.
     #
 
+    template_hf_operations = """
+static int hf_operationrequest = -1;/* Request_Operation field */
+"""
+
+    template_hf = """\
+static int hf_@name@ = -1;"""
+
     template_prototype_start_dissecting = """
 static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset);
 
@@ -2449,16 +2874,15 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 /* Struct = @stname@ */
 static void decode_@name@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 """
-    template_decode_struct = """
+    template_decode_struct = """\
+decode_@name@_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);"""
 
-decode_@name@_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
-"""
-    template_prototype_union_start = """
-/* Union prototype declaration Start */
-"""
-    template_prototype_union_end = """
-/* Union prototype declaration End */
-"""
+    template_prototype_union_start = """\
+/* Union prototype declaration Start */"""
+
+    template_prototype_union_end = """\
+/* Union prototype declaration End */"""
+
     template_prototype_union_body = """
 /* Union = @unname@ */
 static void decode_@name@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);

@@ -186,6 +186,8 @@ ASN1_DISSECTOR_SRC = \
 # and idl2wrs-generated dissectors
 DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-ansi_map.c \
+	packet-coseventcomm.c	\
+	packet-cosnaming.c	\
 	packet-gnm.c \
 	packet-gprscdr.c \
 	packet-gsm_map.c \
@@ -359,9 +361,7 @@ DISSECTOR_SRC = \
 	packet-collectd.c	\
 	packet-componentstatus.c \
 	packet-cops.c		\
-	packet-coseventcomm.c	\
 	packet-cosine.c		\
-	packet-cosnaming.c	\
 	packet-cpfi.c		\
 	packet-cpha.c		\
 	packet-csm-encaps.c	\
