@@ -57,7 +57,7 @@ static int hf_chan_op = -1;
 static int hf_chan_nr = -1;
 static int hf_le = -1;
 
-/* Chapter 5.2 TS 11.14 */
+/* Chapter 5.2 TS 11.14 and TS 31.111 */
 static int hf_tprof_b1 = -1;
 static int hf_tprof_b2 = -1;
 static int hf_tprof_b3 = -1;
@@ -77,21 +77,33 @@ static int hf_tprof_b16 = -1;
 static int hf_tprof_b17 = -1;
 static int hf_tprof_b18 = -1;
 static int hf_tprof_b19 = -1;
+static int hf_tprof_b20 = -1;
+static int hf_tprof_b21 = -1;
+static int hf_tprof_b22 = -1;
+static int hf_tprof_b23 = -1;
+static int hf_tprof_b24 = -1;
+static int hf_tprof_b25 = -1;
+static int hf_tprof_b26 = -1;
+static int hf_tprof_b27 = -1;
+static int hf_tprof_b28 = -1;
+static int hf_tprof_b29 = -1;
+static int hf_tprof_b30 = -1;
+static int hf_tprof_b31 = -1;
 /* First byte */
 static int hf_tp_prof_dld = -1;
 static int hf_tp_sms_data_dld = -1;
 static int hf_tp_cb_data_dld = -1;
 static int hf_tp_menu_sel = -1;
-static int hf_tp_9e_err = -1;
+static int hf_tp_sms_data_dld_support = -1;
 static int hf_tp_timer_exp = -1;
-static int hf_tp_ussd_cc = -1;
-static int hf_tp_auto_redial = -1;
+static int hf_tp_cc_sim_support = -1;
+static int hf_tp_cc_sim_support2 = -1;
 /* Second byte (Other) */
 static int hf_tp_cmd_res = -1;
 static int hf_tp_cc_sim = -1;
-static int hf_tp_cc_sim_cellid = -1;
+static int hf_tp_cc_sim_support3 = -1;
 static int hf_tp_mo_sms_sim = -1;
-static int hf_tp_alpha_id = -1;
+static int hf_tp_cc_sim_support4 = -1;
 static int hf_tp_ucs2_entry = -1;
 static int hf_tp_ucs2_display = -1;
 static int hf_tp_display_ext = -1;
@@ -127,12 +139,17 @@ static int hf_tp_ev_lang_sel = -1;
 static int hf_tp_ev_brows_term = -1;
 static int hf_tp_ev_data_avail = -1;
 static int hf_tp_ev_chan_status = -1;
+static int hf_tp_ev_access_techno_change = -1;
+static int hf_tp_ev_disp_params_changed = -1;
+static int hf_tp_ev_local_conn = -1;
+static int hf_tp_ev_nwk_search_mode_change = -1;
 /* 7th byte (Multiple card proactive commands) */
 static int hf_tp_pa_power_on = -1;
 static int hf_tp_pa_power_off = -1;
 static int hf_tp_pa_perform_card_apdu = -1;
 static int hf_tp_pa_get_reader_status = -1;
 static int hf_tp_pa_get_reader_status_id = -1;
+static int hf_tp_rfu = -1;
 /* 8th byte (Proactive SIM) */
 static int hf_tp_pa_timer_start_stop = -1;
 static int hf_tp_pa_timer_get_current = -1;
@@ -141,40 +158,153 @@ static int hf_tp_pa_get_inkey_binary = -1;
 static int hf_tp_pa_set_up_idle_mode_text = -1;
 static int hf_tp_pa_run_at_command = -1;
 static int hf_tp_pa_2nd_alpha_setup_call = -1;
-static int hf_tp_pa_2nd_capability_param = -1;
-
+static int hf_tp_pa_2nd_cc_sim_support = -1;
+/* 9th byte */
+static int hf_tp_display_text = -1;
+static int hf_tp_send_dtmf_cmd = -1;
+static int hf_tp_pa_prov_loci_nmr2 = -1;
+static int hf_tp_pa_prov_loci_lang = -1;
+static int hf_tp_pa_prov_loci_ta = -1;
+static int hf_tp_pa_lang_notif = -1;
+static int hf_tp_pa_launch_browser = -1;
+static int hf_tp_pa_prov_loci_access_techno = -1;
+/* 10th byte */
+static int hf_tp_soft_key_support_select_item = -1;
+static int hf_tp_soft_key_support_set_up_menu = -1;
+static int hf_tp_rfu2 = -1;
+/* 11th byte */
+static int hf_tp_soft_key_info_max_nb = -1;
 /* 12th byte (Proactive SIM) */
 static int hf_tp_pa_open_chan = -1;
 static int hf_tp_pa_close_chan = -1;
 static int hf_tp_pa_recv_data = -1;
 static int hf_tp_pa_send_data = -1;
 static int hf_tp_pa_get_chan_status = -1;
-
+static int hf_tp_pa_serv_search = -1;
+static int hf_tp_pa_get_serv_info = -1;
+static int hf_tp_pa_decl_serv = -1;
 /* 13th byte (Proactive SIM) */
 static int hf_tp_bip_csd = -1;
 static int hf_tp_bip_gprs = -1;
+static int hf_tp_bip_bluetooth = -1;
+static int hf_tp_bip_irda = -1;
+static int hf_tp_bip_rs232 = -1;
 static int hf_tp_num_chans = -1;
-
 /* 14th byte (Screen height) */
 static int hf_tp_char_height = -1;
+static int hf_tp_nd = -1;
+static int hf_tp_nk = -1;
 static int hf_tp_sizing_supp = -1;
-
 /* 15th byte (Screen width) */
 static int hf_tp_char_width = -1;
 static int hf_tp_var_fonts = -1;
-
 /* 16th byte (Screen effects) */
 static int hf_tp_display_resize = -1;
 static int hf_tp_text_wrapping = -1;
 static int hf_tp_text_scrolling = -1;
+static int hf_tp_text_attributes = -1;
+static int hf_tp_rfu3 = -1;
 static int hf_tp_width_red_menu = -1;
-
 /* 17th byte (Proactive SIM) */
-static int hf_tp_bip_tcp = -1;
-static int hf_tp_bip_udp = -1;
-
+static int hf_tp_bip_tcp_remote = -1;
+static int hf_tp_bip_udp_remote = -1;
+static int hf_tp_bip_tcp_server = -1;
+static int hf_tp_bip_tcp_local = -1;
+static int hf_tp_bip_udp_local = -1;
+static int hf_tp_bip_direct_com = -1;
+static int hf_tp_bip_eutran = -1;
+static int hf_tp_bip_hsdpa = -1;
+/* 18th byte */
+static int hf_tp_pa_display_text_var_time_out = -1;
+static int hf_tp_pa_get_inkey_help = -1;
+static int hf_tp_bip_usb = -1;
+static int hf_tp_pa_get_inkey_var_time_out = -1;
+static int hf_tp_pa_prov_loci_esn = -1;
+static int hf_tp_cc_gprs = -1;
+static int hf_tp_pa_prov_loci_imeisv = -1;
+static int hf_tp_pa_prov_loci_search_mode_change = -1;
 /* 19th byte (TIA/EIA-136) */
 static int hf_tp_tia_eia_version = -1;
+static int hf_tp_rfu4 = -1;
+/* 20th byte (TIA/EIA/IS-820-A) */
+static int hf_tp_tia_iea_is820a_reserved = -1;
+/* 21th byte (Extended Launch Browser Capability) */
+static int hf_tp_ext_launch_browser_wml = -1;
+static int hf_tp_ext_launch_browser_xhtml = -1;
+static int hf_tp_ext_launch_browser_html = -1;
+static int hf_tp_ext_launch_browser_chtml = -1;
+static int hf_tp_rfu5 = -1;
+/* 22th byte */
+static int hf_tp_utran_ps_ext_params = -1;
+static int hf_tp_pa_prov_loci_batt_state = -1;
+static int hf_tp_pa_play_tone_melody = -1;
+static int hf_tp_mm_call_set_up_call = -1;
+static int hf_tp_toolkit_initiated_gba = -1;
+static int hf_tp_pa_retrieve_mm_msg = -1;
+static int hf_tp_pa_submit_mm_msg = -1;
+static int hf_tp_pa_display_mm_msg = -1;
+/* 23th byte */
+static int hf_tp_pa_set_frames = -1;
+static int hf_tp_pa_get_frames_status = -1;
+static int hf_tp_mms_notif_download = -1;
+static int hf_tp_alpha_id_refresh_cmd = -1;
+static int hf_tp_geo_loc_report = -1;
+static int hf_tp_pa_prov_loci_meid = -1;
+static int hf_tp_pa_prov_loci_nmr_utran_eutran = -1;
+static int hf_tp_ussd_data_download = -1;
+/* 24th byte (Class "i") */
+static int hf_tp_class_i_max_nb_frames = -1;
+static int hf_tp_rfu6 = -1;
+/* 25th byte (Event driven information extensions) */
+static int hf_tp_evt_browsing_status = -1;
+static int hf_tp_evt_mms_transfer_status = -1;
+static int hf_tp_evt_frame_info_changed = -1;
+static int hf_tp_evt_iwlan_access_status = -1;
+static int hf_tp_evt_nw_reject_geran_utran = -1;
+static int hf_tp_evt_hci_connectivity = -1;
+static int hf_tp_evt_nw_reject_eutran = -1;
+static int hf_tp_evt_mult_access_techno_change = -1;
+/* 26th byte (Event driven information extensions) */
+static int hf_tp_evt_csg_cell_select = -1;
+static int hf_tp_evt_contactless_state_req = -1;
+static int hf_tp_rfu7 = -1;
+/* 27th byte (Event driven information extensions) */
+static int hf_tp_rfu8 = -1;
+/* 28th byte (Text attributes) */
+static int hf_tp_text_align_left = -1;
+static int hf_tp_text_align_centre = -1;
+static int hf_tp_text_align_right = -1;
+static int hf_tp_text_font_size_normal = -1;
+static int hf_tp_text_font_size_large = -1;
+static int hf_tp_text_font_size_small = -1;
+static int hf_tp_rfu9 = -1;
+/* 29th byte (Text attributes) */
+static int hf_tp_text_style_normal = -1;
+static int hf_tp_text_style_bold = -1;
+static int hf_tp_text_style_italic = -1;
+static int hf_tp_text_style_underlined = -1;
+static int hf_tp_text_style_strikethrough = -1;
+static int hf_tp_text_style_text_fg_colour = -1;
+static int hf_tp_text_style_text_bg_colour = -1;
+static int hf_tp_rfu10 = -1;
+/* 30th byte */
+static int hf_tp_bip_iwlan = -1;
+static int hf_tp_pa_prov_loci_wsid = -1;
+static int hf_tp_term_app = -1;
+static int hf_tp_steering_roaming_refresh = -1;
+static int hf_tp_pa_activate = -1;
+static int hf_tp_pa_geo_loc_req = -1;
+static int hf_tp_pa_prov_loci_broadcast_nw_info = -1;
+static int hf_tp_steering_roaming_iwlan_refresh = -1;
+/* 31th byte */
+static int hf_tp_pa_contactless_state_changed = -1;
+static int hf_tp_csg_cell_discovery = -1;
+static int hf_tp_cnf_params_support_open_chan_server_mode = -1;
+static int hf_tp_com_ctrl_ims = -1;
+static int hf_tp_cat_over_modem_itf = -1;
+static int hf_tp_evt_incoming_data_ims = -1;
+static int hf_tp_evt_ims_registration = -1;
+static int hf_tp_pa_prof_env_cont = -1;
 
 static int hf_cat_ber_tag = -1;
 
@@ -202,6 +332,18 @@ static int ett_tprof_b16 = -1;
 static int ett_tprof_b17 = -1;
 static int ett_tprof_b18 = -1;
 static int ett_tprof_b19 = -1;
+static int ett_tprof_b20 = -1;
+static int ett_tprof_b21 = -1;
+static int ett_tprof_b22 = -1;
+static int ett_tprof_b23 = -1;
+static int ett_tprof_b24 = -1;
+static int ett_tprof_b25 = -1;
+static int ett_tprof_b26 = -1;
+static int ett_tprof_b27 = -1;
+static int ett_tprof_b28 = -1;
+static int ett_tprof_b29 = -1;
+static int ett_tprof_b30 = -1;
+static int ett_tprof_b31 = -1;
 
 static dissector_handle_t sub_handle_cap;
 
@@ -211,19 +353,19 @@ static const int *tprof_b1_fields[] = {
 	&hf_tp_sms_data_dld,
 	&hf_tp_cb_data_dld,
 	&hf_tp_menu_sel,
-	&hf_tp_9e_err,
+	&hf_tp_sms_data_dld_support,
 	&hf_tp_timer_exp,
-	&hf_tp_ussd_cc,
-	&hf_tp_auto_redial,
+	&hf_tp_cc_sim_support,
+	&hf_tp_cc_sim_support2,
 	NULL
 };
 
 static const int *tprof_b2_fields[] = {
 	&hf_tp_cmd_res,
 	&hf_tp_cc_sim,
-	&hf_tp_cc_sim_cellid,
+	&hf_tp_cc_sim_support3,
 	&hf_tp_mo_sms_sim,
-	&hf_tp_alpha_id,
+	&hf_tp_cc_sim_support4,
 	&hf_tp_ucs2_entry,
 	&hf_tp_ucs2_display,
 	&hf_tp_display_ext,
@@ -271,6 +413,10 @@ static const int *tprof_b6_fields[] = {
 	&hf_tp_ev_brows_term,
 	&hf_tp_ev_data_avail,
 	&hf_tp_ev_chan_status,
+	&hf_tp_ev_access_techno_change,
+	&hf_tp_ev_disp_params_changed,
+	&hf_tp_ev_local_conn,
+	&hf_tp_ev_nwk_search_mode_change,
 	NULL
 };
 
@@ -280,6 +426,7 @@ static const int *tprof_b7_fields[] = {
 	&hf_tp_pa_perform_card_apdu,
 	&hf_tp_pa_get_reader_status,
 	&hf_tp_pa_get_reader_status_id,
+	&hf_tp_rfu,
 	NULL
 };
 
@@ -291,22 +438,31 @@ static const int *tprof_b8_fields[] = {
 	&hf_tp_pa_set_up_idle_mode_text,
 	&hf_tp_pa_run_at_command,
 	&hf_tp_pa_2nd_alpha_setup_call,
-	&hf_tp_pa_2nd_capability_param,
+	&hf_tp_pa_2nd_cc_sim_support,
 	NULL
 };
 
 static const int *tprof_b9_fields[] = {
-	/* FIXME: fill missing values */
+	&hf_tp_display_text,
+	&hf_tp_send_dtmf_cmd,
+	&hf_tp_pa_prov_loci_nmr2,
+	&hf_tp_pa_prov_loci_lang,
+	&hf_tp_pa_prov_loci_ta,
+	&hf_tp_pa_lang_notif,
+	&hf_tp_pa_launch_browser,
+	&hf_tp_pa_prov_loci_access_techno,
 	NULL
 };
 
 static const int *tprof_b10_fields[] = {
-	/* FIXME: fill missing values */
+	&hf_tp_soft_key_support_select_item,
+	&hf_tp_soft_key_support_set_up_menu,
+	&hf_tp_rfu2,
 	NULL
 };
 
 static const int *tprof_b11_fields[] = {
-	/* FIXME: fill missing values */
+	&hf_tp_soft_key_info_max_nb,
 	NULL
 };
 
@@ -316,18 +472,26 @@ static const int *tprof_b12_fields[] = {
 	&hf_tp_pa_recv_data,
 	&hf_tp_pa_send_data,
 	&hf_tp_pa_get_chan_status,
+	&hf_tp_pa_serv_search,
+	&hf_tp_pa_get_serv_info,
+	&hf_tp_pa_decl_serv,
 	NULL
 };
 
 static const int *tprof_b13_fields[] = {
 	&hf_tp_bip_csd,
 	&hf_tp_bip_gprs,
+	&hf_tp_bip_bluetooth,
+	&hf_tp_bip_irda,
+	&hf_tp_bip_rs232,
 	&hf_tp_num_chans,
 	NULL
 };
 
 static const int *tprof_b14_fields[] = {
 	&hf_tp_char_height,
+	&hf_tp_nd,
+	&hf_tp_nk,
 	&hf_tp_sizing_supp,
 	NULL
 };
@@ -342,22 +506,153 @@ static const int *tprof_b16_fields[] = {
 	&hf_tp_display_resize,
 	&hf_tp_text_wrapping,
 	&hf_tp_text_scrolling,
+	&hf_tp_text_attributes,
+	&hf_tp_rfu3,
 	&hf_tp_width_red_menu,
 	NULL
 };
 static const int *tprof_b17_fields[] = {
-	&hf_tp_bip_tcp,
-	&hf_tp_bip_udp,
+	&hf_tp_bip_tcp_remote,
+	&hf_tp_bip_udp_remote,
+	&hf_tp_bip_tcp_server,
+	&hf_tp_bip_tcp_local,
+	&hf_tp_bip_udp_local,
+	&hf_tp_bip_direct_com,
+	&hf_tp_bip_eutran,
+	&hf_tp_bip_hsdpa,
 	NULL
 };
 static const int *tprof_b18_fields[] = {
+	&hf_tp_pa_display_text_var_time_out,
+	&hf_tp_pa_get_inkey_help,
+	&hf_tp_bip_usb,
+	&hf_tp_pa_get_inkey_var_time_out,
+	&hf_tp_pa_prov_loci_esn,
+	&hf_tp_cc_gprs,
+	&hf_tp_pa_prov_loci_imeisv,
+	&hf_tp_pa_prov_loci_search_mode_change,
 	NULL
 };
 static const int *tprof_b19_fields[] = {
 	&hf_tp_tia_eia_version,
+	&hf_tp_rfu4,
 	NULL
 };
 
+static const int *tprof_b20_fields[] = {
+	&hf_tp_tia_iea_is820a_reserved,
+	NULL
+};
+
+static const int *tprof_b21_fields[] = {
+	&hf_tp_ext_launch_browser_wml,
+	&hf_tp_ext_launch_browser_xhtml,
+	&hf_tp_ext_launch_browser_html,
+	&hf_tp_ext_launch_browser_chtml,
+	&hf_tp_rfu5,
+	NULL
+};
+
+static const int *tprof_b22_fields[] = {
+	&hf_tp_utran_ps_ext_params,
+	&hf_tp_pa_prov_loci_batt_state,
+	&hf_tp_pa_play_tone_melody,
+	&hf_tp_mm_call_set_up_call,
+	&hf_tp_toolkit_initiated_gba,
+	&hf_tp_pa_retrieve_mm_msg,
+	&hf_tp_pa_submit_mm_msg,
+	&hf_tp_pa_display_mm_msg,
+	NULL
+};
+
+static const int *tprof_b23_fields[] = {
+	&hf_tp_pa_set_frames,
+	&hf_tp_pa_get_frames_status,
+	&hf_tp_mms_notif_download,
+	&hf_tp_alpha_id_refresh_cmd,
+	&hf_tp_geo_loc_report,
+	&hf_tp_pa_prov_loci_meid,
+	&hf_tp_pa_prov_loci_nmr_utran_eutran,
+	&hf_tp_ussd_data_download,
+	NULL
+};
+
+static const int *tprof_b24_fields[] = {
+	&hf_tp_class_i_max_nb_frames,
+	&hf_tp_rfu6,
+	NULL
+};
+
+static const int *tprof_b25_fields[] = {
+	&hf_tp_evt_browsing_status,
+	&hf_tp_evt_mms_transfer_status,
+	&hf_tp_evt_frame_info_changed,
+	&hf_tp_evt_iwlan_access_status,
+	&hf_tp_evt_nw_reject_geran_utran,
+	&hf_tp_evt_hci_connectivity,
+	&hf_tp_evt_nw_reject_eutran,
+	&hf_tp_evt_mult_access_techno_change,
+	NULL
+};
+
+static const int *tprof_b26_fields[] = {
+	&hf_tp_evt_csg_cell_select,
+	&hf_tp_evt_contactless_state_req,
+	&hf_tp_rfu7,
+	NULL
+};
+
+static const int *tprof_b27_fields[] = {
+	&hf_tp_rfu8,
+	NULL
+};
+
+static const int *tprof_b28_fields[] = {
+	&hf_tp_text_align_left,
+	&hf_tp_text_align_centre,
+	&hf_tp_text_align_right,
+	&hf_tp_text_font_size_normal,
+	&hf_tp_text_font_size_large,
+	&hf_tp_text_font_size_small,
+	&hf_tp_rfu9,
+	NULL
+};
+
+static const int *tprof_b29_fields[] = {
+	&hf_tp_text_style_normal,
+	&hf_tp_text_style_bold,
+	&hf_tp_text_style_italic,
+	&hf_tp_text_style_underlined,
+	&hf_tp_text_style_strikethrough,
+	&hf_tp_text_style_text_fg_colour,
+	&hf_tp_text_style_text_bg_colour,
+	&hf_tp_rfu10,
+	NULL
+};
+
+static const int *tprof_b30_fields[] = {
+	&hf_tp_bip_iwlan,
+	&hf_tp_pa_prov_loci_wsid,
+	&hf_tp_term_app,
+	&hf_tp_steering_roaming_refresh,
+	&hf_tp_pa_activate,
+	&hf_tp_pa_geo_loc_req,
+	&hf_tp_pa_prov_loci_broadcast_nw_info,
+	&hf_tp_steering_roaming_iwlan_refresh,
+	NULL
+};
+
+static const int *tprof_b31_fields[] = {
+	&hf_tp_pa_contactless_state_changed,
+	&hf_tp_csg_cell_discovery,
+	&hf_tp_cnf_params_support_open_chan_server_mode,
+	&hf_tp_com_ctrl_ims,
+	&hf_tp_cat_over_modem_itf,
+	&hf_tp_evt_incoming_data_ims,
+	&hf_tp_evt_ims_registration,
+	&hf_tp_pa_prof_env_cont,
+	NULL
+};
 
 /* According to Section 7.2 of ETSI TS 101 220 / Chapter 7.2 */
 /* BER-TLV tag CAT templates */
@@ -799,6 +1094,10 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
+#define ADD_TP_BYTE(byte) \
+		if ((offset - start_offset) >= p3) break; \
+		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b##byte, ett_tprof_b##byte, tprof_b##byte##_fields, ENC_BIG_ENDIAN);
+
 #define P1_OFFS		0
 #define P2_OFFS		1
 #define P3_OFFS		2
@@ -811,7 +1110,7 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 	guint8 g8;
 	guint16 g16;
 	tvbuff_t *subtvb;
-	int i;
+	int i, start_offset;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(ins, apdu_ins_vals, "%02x"));
@@ -914,25 +1213,38 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 		break;
 	case 0x10: /* TERMINAL PROFILE */
 		offset += DATA_OFFS;
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b1, ett_tprof_b1, tprof_b1_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b2, ett_tprof_b2, tprof_b2_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b3, ett_tprof_b3, tprof_b3_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b4, ett_tprof_b4, tprof_b4_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b5, ett_tprof_b5, tprof_b5_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b6, ett_tprof_b6, tprof_b6_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b7, ett_tprof_b7, tprof_b7_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b8, ett_tprof_b8, tprof_b8_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b9, ett_tprof_b9, tprof_b9_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b10, ett_tprof_b10, tprof_b10_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b11, ett_tprof_b11, tprof_b11_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b12, ett_tprof_b12, tprof_b12_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b13, ett_tprof_b13, tprof_b13_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b14, ett_tprof_b14, tprof_b14_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b15, ett_tprof_b15, tprof_b15_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b16, ett_tprof_b16, tprof_b16_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b17, ett_tprof_b17, tprof_b17_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b18, ett_tprof_b18, tprof_b18_fields, ENC_BIG_ENDIAN);
-		proto_tree_add_bitmask(tree, tvb, offset++, hf_tprof_b19, ett_tprof_b19, tprof_b19_fields, ENC_BIG_ENDIAN);
+		start_offset = offset;
+		ADD_TP_BYTE(1);
+		ADD_TP_BYTE(2);
+		ADD_TP_BYTE(3);
+		ADD_TP_BYTE(4);
+		ADD_TP_BYTE(5);
+		ADD_TP_BYTE(6);
+		ADD_TP_BYTE(7);
+		ADD_TP_BYTE(8);
+		ADD_TP_BYTE(9);
+		ADD_TP_BYTE(10);
+		ADD_TP_BYTE(11);
+		ADD_TP_BYTE(12);
+		ADD_TP_BYTE(13);
+		ADD_TP_BYTE(14);
+		ADD_TP_BYTE(15);
+		ADD_TP_BYTE(16);
+		ADD_TP_BYTE(17);
+		ADD_TP_BYTE(18);
+		ADD_TP_BYTE(19);
+		ADD_TP_BYTE(20);
+		ADD_TP_BYTE(21);
+		ADD_TP_BYTE(22);
+		ADD_TP_BYTE(23);
+		ADD_TP_BYTE(24);
+		ADD_TP_BYTE(25);
+		ADD_TP_BYTE(26);
+		ADD_TP_BYTE(27);
+		ADD_TP_BYTE(28);
+		ADD_TP_BYTE(29);
+		ADD_TP_BYTE(30);
+		ADD_TP_BYTE(31);
 		break;
 	case 0x12: /* FETCH */
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
@@ -1188,12 +1500,12 @@ proto_register_gsm_sim(void)
 		{ &hf_tp_prof_dld,
 			{ "Profile Download", "gsm_sim.tp.prof_dld",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
-			  "TP Profile Downolad", HFILL }
+			  "TP Profile Download", HFILL }
 		},
 		{ &hf_tp_sms_data_dld,
 			{ "SMS-PP Data Download", "gsm_sim.tp.sms_data_dld",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
-			  "TP SMS-PP Data Downolad", HFILL }
+			  "TP SMS-PP Data Download", HFILL }
 		},
 		{ &hf_tp_cb_data_dld,
 			{ "CB Data Download", "gsm_sim.tp.cb_data_dld",
@@ -1205,25 +1517,25 @@ proto_register_gsm_sim(void)
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
 			  "TP Menu Selection", HFILL }
 		},
-		{ &hf_tp_9e_err,
-			{ "Menu Selection", "gsm_sim.tp.9e_err",
-			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
-			  "TP 9EXX response code for SIM data download error", HFILL }
+		{ &hf_tp_sms_data_dld_support,
+			{ "SMS-PP data download is supported", "gsm_sim.tp.sms_data_dld_support",
+			  FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+			  "TP SMS-PP data download is supported", HFILL }
 		},
 		{ &hf_tp_timer_exp,
 			{ "Timer expiration", "gsm_sim.tp.timer_exp",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
 			  "TP Timer expiration", HFILL }
 		},
-		{ &hf_tp_ussd_cc,
-			{ "USSD string data in Call Control", "gsm_sim.tp.ussd_cc",
-			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
-			  "TP USSD string data object in Call Control", HFILL }
+		{ &hf_tp_cc_sim_support,
+			{ "Call Control by USIM is supported", "gsm_sim.tp.cc_sim_support",
+			  FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+			  "TP Call Control by USIM is supported", HFILL }
 		},
-		{ &hf_tp_auto_redial,
-			{ "Envelope CC during automatic redial", "gsm_sim.tp.auto_redial",
-			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
-			  "TP Envelope CC always sent to SIM during automatic redial", HFILL }
+		{ &hf_tp_cc_sim_support2,
+			{ "Call Control by USIM is supported", "gsm_sim.tp.cc_sim_support",
+			  FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+			  "TP Call Control by USIM is supported", HFILL }
 		},
 
 		/* Terminal Profile Byte 2 */
@@ -1238,24 +1550,24 @@ proto_register_gsm_sim(void)
 			  "TP Command result", HFILL }
 		},
 		{ &hf_tp_cc_sim,
-			{ "Call Control by SIM", "gsm_sim.tp.cc_sim",
+			{ "Call Control by USIM", "gsm_sim.tp.cc_sim",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
 			  "TP Call Control by SIM", HFILL }
 		},
-		{ &hf_tp_cc_sim_cellid,
-			{ "Cell ID in Call Control by SIM", "gsm_sim.tp.cc_sim_cellid",
-			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
-			  "TP Cell ID included in Call Control by SIM", HFILL }
+		{ &hf_tp_cc_sim_support3,
+			{ "Call Control by USIM is supported", "gsm_sim.tp.cc_sim_support",
+			  FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+			  "TP Call Control by USIM is supported", HFILL }
 		},
 		{ &hf_tp_mo_sms_sim,
 			{ "MO SMS control by SIM", "gsm_sim.tp.mo_sms_sim",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
 			  "TP MO short message control by SIM", HFILL }
 		},
-		{ &hf_tp_alpha_id,
-			{ "Alpha identifier according 9.1.3", "gsm_sim.tp.alpha_id",
-			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
-			  "TP Handling of alpha identifier according to 9.1.3", HFILL }
+		{ &hf_tp_cc_sim_support4,
+			{ "Call Control by USIM is supported", "gsm_sim.tp.cc_sim_support",
+			  FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+			  "TP Call Control by USIM is supported", HFILL }
 		},
 		{ &hf_tp_ucs2_entry,
 			{ "UCS2 Entry", "gsm_sim.tp.ucs2_entry",
@@ -1406,7 +1718,7 @@ proto_register_gsm_sim(void)
 			  NULL, HFILL }
 		},
 		{ &hf_tp_ev_cardreader_status,
-			{ "Event: Cardreader status", "gsm_sim.tp.evt.card_status",
+			{ "Event: Card reader status", "gsm_sim.tp.evt.card_status",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
 			  NULL, HFILL }
 		},
@@ -1434,6 +1746,26 @@ proto_register_gsm_sim(void)
 		{ &hf_tp_ev_chan_status,
 			{ "Event: Channel Status", "gsm_sim.tp.evt.chan_status",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_ev_access_techno_change,
+			{ "Event: Access Technology Change", "gsm_sim.tp.evt.access_techno_change",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_ev_disp_params_changed,
+			{ "Event: Display parameters changed", "gsm_sim.tp.evt.disp_params_changed",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_ev_local_conn,
+			{ "Event: Local Connection", "gsm_sim.tp.evt.local_conn",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_ev_nwk_search_mode_change,
+			{ "Event: Network Search Mode Change", "gsm_sim.tp.evt.nwk_search_mode_change",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
 			  NULL, HFILL }
 		},
 		/* Terminal Profile Byte 7 */
@@ -1467,6 +1799,11 @@ proto_register_gsm_sim(void)
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
 			  NULL, HFILL }
 		},
+		{ &hf_tp_rfu,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0xe0,
+			  NULL, HFILL },
+		},
 		/* Terminal Profile Byte 8 */
 		{ &hf_tprof_b8,
 			{ "Terminal Profile Byte 8 (Proactive SIM)", "gsm_sim.tp.b8",
@@ -1489,7 +1826,7 @@ proto_register_gsm_sim(void)
 			  NULL, HFILL }
 		},
 		{ &hf_tp_pa_get_inkey_binary,
-			{ "Proactive SIM: Binary choice in GET INKEY", "gsm_sim.tp.pa.get_inkey_bin",
+			{ "Proactive SIM: GET INKEY", "gsm_sim.tp.pa.get_inkey_bin",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
 			  NULL, HFILL }
 		},
@@ -1504,13 +1841,13 @@ proto_register_gsm_sim(void)
 			  NULL, HFILL }
 		},
 		{ &hf_tp_pa_2nd_alpha_setup_call,
-			{ "Proactive SIM: 2nd alpha identifier in SET UP CALL", "gsm_sim.tp.pa.2nd_alpha_id",
+			{ "Proactive SIM: SETUP CALL", "gsm_sim.tp.pa.2nd_alpha_id",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
 			  NULL, HFILL }
 		},
-		{ &hf_tp_pa_2nd_capability_param,
-			{ "Proactive SIM: 2nd capability config param", "gsm_sim.tp.pa.2nd_capa_conf",
-			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+		{ &hf_tp_pa_2nd_cc_sim_support,
+			{ "Proactive SIM: Call Control by USIM is supported", "gsm_sim.tp.pa.cc_sim_support",
+			  FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
 			  NULL, HFILL }
 		},
 
@@ -1520,24 +1857,84 @@ proto_register_gsm_sim(void)
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  NULL, HFILL },
 		},
+		{ &hf_tp_display_text,
+			{ "DISPLAY TEXT", "gsm_sim.tp.display_text",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_send_dtmf_cmd,
+			{ "SEND DTMF command", "gsm_sim.tp.send_dtmf_cmd",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_nmr2,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (NMR)", "gsm_sim.tp.pa.prov_loci_nmr",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_lang,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (language)", "gsm_sim.tp.pa.prov_loci_lang",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_ta,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (Timing Advance)", "gsm_sim.tp.pa.prov_loci_ta",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_lang_notif,
+			{ "Proactive SIM: LANGUAGE NOTIFICATION", "gsm_sim.tp.pa.lang_notif",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_launch_browser,
+			{ "Proactive SIM: LAUNCH BROWSER", "gsm_sim.tp.pa.launch_browser",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_access_techno,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (Access Technology)", "gsm_sim.tp.pa.prov_loci_access_techno",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+			  NULL, HFILL }
+		},
 
 		/* Terminal Profile Byte 10 */
 		{ &hf_tprof_b10,
-			{ "Terminal Profile Byte 10", "gsm_sim.tp.b10",
+			{ "Terminal Profile Byte 10 (Soft keys support)", "gsm_sim.tp.b10",
 			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_soft_key_support_select_item,
+			{ "Soft keys support for SELECT ITEM", "gsm_sim.tp.soft_key_support.select_item",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_soft_key_support_set_up_menu,
+			{ "Soft Keys support for SET UP MENU", "gsm_sim.tp.soft_key_support.set_up_menu",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_rfu2,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0xfc,
 			  NULL, HFILL },
 		},
 
 		/* Terminal Profile Byte 11 */
 		{ &hf_tprof_b11,
-			{ "Terminal Profile Byte 11", "gsm_sim.tp.b11",
+			{ "Terminal Profile Byte 11 (Soft keys information)", "gsm_sim.tp.b11",
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  NULL, HFILL },
+		},
+		{ &hf_tp_soft_key_info_max_nb,
+			{ "Maximum number of soft keys available", "gsm_sim.tp.soft_key_info.max_nb",
+			  FT_UINT8, BASE_DEC, NULL, 0xff,
+			  NULL, HFILL }
 		},
 
 		/* Terminal Profile Byte 12 */
 		{ &hf_tprof_b12,
-			{ "Terminal Profile Byte 12", "gsm_sim.tp.b12",
+			{ "Terminal Profile Byte 12 (Bearer Independent protocol proactive commands, class \"e\")", "gsm_sim.tp.b12",
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  NULL, HFILL },
 		},
@@ -1566,10 +1963,25 @@ proto_register_gsm_sim(void)
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
 			  NULL, HFILL }
 		},
+		{ &hf_tp_pa_serv_search,
+			{ "Proactive SIM: SERVICE SEARCH", "gsm_sim.tp.pa.serv_search",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_get_serv_info,
+			{ "Proactive SIM: GET SERVICE INFORMATION", "gsm_sim.tp.pa.get_serv_info",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_decl_serv,
+			{ "Proactive SIM: DECLARE SERVICE", "gsm_sim.tp.pa.decl_serv",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+			  NULL, HFILL }
+		},
 
 		/* Terminal Profile Byte 13 */
 		{ &hf_tprof_b13,
-			{ "Terminal Profile Byte 13 (Bearer Independent protocol)", "gsm_sim.tp.b13",
+			{ "Terminal Profile Byte 13 (Bearer Independent protocol supported bearers, class \"e\")", "gsm_sim.tp.b13",
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  NULL, HFILL },
 		},
@@ -1581,6 +1993,21 @@ proto_register_gsm_sim(void)
 		{ &hf_tp_bip_gprs,
 			{ "GPRS bearer", "gsm_sim.tp.bip.gprs",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_bip_bluetooth,
+			{ "Bluetooth bearer", "gsm_sim.tp.bip.bluetooth",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_bip_irda,
+			{ "IrDA bearer", "gsm_sim.tp.bip.irda",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_bip_rs232,
+			{ "RS232 bearer", "gsm_sim.tp.bip.rs232",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
 			  NULL, HFILL }
 		},
 		{ &hf_tp_num_chans,
@@ -1601,8 +2028,18 @@ proto_register_gsm_sim(void)
 			  FT_UINT8, BASE_DEC, NULL, 0x1f,
 			  NULL, HFILL },
 		},
+		{ &hf_tp_nd,
+			{ "No display capability", "gsm_sim.tp.nd",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_nk,
+			{ "No keypad available", "gsm_sim.tp.nk",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL },
+		},
 		{ &hf_tp_sizing_supp,
-			{ "Screen Sizing", "gsm_sim.tp.disp_sizing",
+			{ "Screen sizing parameters", "gsm_sim.tp.disp_sizing",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
 			  NULL, HFILL },
 		},
@@ -1615,11 +2052,11 @@ proto_register_gsm_sim(void)
 		},
 		{ &hf_tp_char_width,
 			{ "Display width (chars)", "gsm_sim.tp.display.width",
-			  FT_UINT8, BASE_DEC, NULL, 0x3f,
+			  FT_UINT8, BASE_DEC, NULL, 0x7f,
 			  NULL, HFILL },
 		},
 		{ &hf_tp_var_fonts,
-			{ "Variable-size fonts", "gsm_sim.tp.var_fonts",
+			{ "Variable size fonts", "gsm_sim.tp.var_fonts",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
 			  NULL, HFILL },
 		},
@@ -1645,6 +2082,16 @@ proto_register_gsm_sim(void)
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
 			  NULL, HFILL },
 		},
+		{ &hf_tp_text_attributes,
+			{ "Text Attributes", "gsm_sim.tp.display.attributes",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_rfu3,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0x10,
+			  NULL, HFILL },
+		},
 		{ &hf_tp_width_red_menu,
 			{ "Width reduction when in menu", "gsm_sim.tp.display.width_red_menu",
 			  FT_UINT8, BASE_DEC, NULL, 0xe0,
@@ -1653,18 +2100,48 @@ proto_register_gsm_sim(void)
 
 		/* Terminal Profile Byte 17 */
 		{ &hf_tprof_b17,
-			{ "Terminal Profile Byte 17 (Bearer independent protocol)", "gsm_sim.tp.b17",
+			{ "Terminal Profile Byte 17 (Bearer independent protocol supported transport interface/bearers, class \"e\")", "gsm_sim.tp.b17",
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  NULL, HFILL },
 		},
-		{ &hf_tp_bip_tcp,
-			{ "TCP transport", "gsm_sim.tp.bip.tcp",
+		{ &hf_tp_bip_tcp_remote,
+			{ "TCP client mode remote connection", "gsm_sim.tp.bip.tcp_remote",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
 			  NULL, HFILL }
 		},
-		{ &hf_tp_bip_udp,
-			{ "UDP transport", "gsm_sim.tp.bip.udp",
+		{ &hf_tp_bip_udp_remote,
+			{ "UDP client mode remote connection", "gsm_sim.tp.bip.udp_remote",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_bip_tcp_server,
+			{ "TCP server mode", "gsm_sim.tp.bip.tcp_server",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_bip_tcp_local,
+			{ "TCP client mode local connection", "gsm_sim.tp.bip.tcp_remote",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_bip_udp_local,
+			{ "UDP client mode local connection", "gsm_sim.tp.bip.udp_remote",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_bip_direct_com,
+			{ "Direct communication channel", "gsm_sim.tp.bip.direct_com",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_bip_eutran,
+			{ "E-UTRAN bearer", "gsm_sim.tp.bip.eutran",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_bip_hsdpa,
+			{ "HSDPA bearer", "gsm_sim.tp.bip.hsdpa",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
 			  NULL, HFILL }
 		},
 
@@ -1674,16 +2151,481 @@ proto_register_gsm_sim(void)
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  NULL, HFILL },
 		},
+		{ &hf_tp_pa_display_text_var_time_out,
+			{ "Proactive SIM: DISPLAY TEXT (Variable Time out)", "gsm_sim.tp.pa.display_text_var_time_out",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_get_inkey_help,
+			{ "Proactive SIM: GET INKEY (help is supported)", "gsm_sim.tp.pa.get_inkey_help",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_bip_usb,
+			{ "USB bearer", "gsm_sim.tp.bip.usb",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_get_inkey_var_time_out,
+			{ "Proactive SIM: GET INKEY (Variable Timeout)", "gsm_sim.tp.pa.get_inkey_var_time_out",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_esn,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (ESN)", "gsm_sim.tp.pa.prov_loci_esn",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_cc_gprs,
+			{ "CALL CONTROL on GPRS", "gsm_sim.tp.cc_gprs",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_imeisv,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (IMEISV)", "gsm_sim.tp.pa.prov_loci_imeisv",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_search_mode_change,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (Search Mode change)", "gsm_sim.tp.pa.prov_loci_search_mode_change",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+			  NULL, HFILL }
+		},
 
 		/* Terminal Profile Byte 19 */
 		{ &hf_tprof_b19,
-			{ "Terminal Profile Byte 19", "gsm_sim.tp.b19",
+			{ "Terminal Profile Byte 19 (TIA/EIA-136-C facilities)", "gsm_sim.tp.b19",
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_tp_tia_eia_version,
 			{ "TIA/EIA Version", "gsm_sim.tp.tia_eia_version",
 			  FT_UINT8, BASE_DEC, NULL, 0x0f,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_rfu4,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0xf0,
+			  NULL, HFILL },
+		},
+
+		/* Terminal Profile Byte 20 */
+		{ &hf_tprof_b20,
+			{ "Terminal Profile Byte 20 (TIA/EIA/IS-820-A facilities)", "gsm_sim.tp.b20",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_tia_iea_is820a_reserved,
+			{ "Reserved", "gsm_sim.tp.tia_iea_is820a_reserved",
+			  FT_UINT8, BASE_HEX, NULL, 0xff,
+			  NULL, HFILL }
+		},
+
+		/* Terminal Profile Byte 21 */
+		{ &hf_tprof_b21,
+			{ "Terminal Profile Byte 21 (Extended Launch Browser Capability)", "gsm_sim.tp.b21",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_ext_launch_browser_wml,
+			{ "WML", "gsm_sim.tp.ext_launch_browser.wml",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_ext_launch_browser_xhtml,
+			{ "XHTML", "gsm_sim.tp.ext_launch_browser.xhtml",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_ext_launch_browser_html,
+			{ "HTML", "gsm_sim.tp.ext_launch_browser.html",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_ext_launch_browser_chtml,
+			{ "CHTML", "gsm_sim.tp.ext_launch_browser.chtml",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_rfu5,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0xf0,
+			  NULL, HFILL },
+		},
+
+		/* Terminal Profile Byte 22 */
+		{ &hf_tprof_b22,
+			{ "Terminal Profile Byte 22", "gsm_sim.tp.b22",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_utran_ps_ext_params,
+			{ "UTRAN PS with extended parameters", "gsm_sim.tp.utran_ps_ext_params",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_batt_state,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (battery state)", "gsm_sim.tp.pa.prov_loci_batt_state",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_play_tone_melody,
+			{ "Proactive SIM: PLAY TONE (Melody tones and Themed tones supported)", "gsm_sim.tp.pa.play_tone_melody",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_mm_call_set_up_call,
+			{ "Multi-media Calls in SET UP CALL", "gsm_sim.tp.mm_call_set_up_call",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_toolkit_initiated_gba,
+			{ "Toolkit-initiated GBA", "gsm_sim.tp.toolkit_initiated_gba",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_retrieve_mm_msg,
+			{ "Proactive SIM: RETRIEVE MULTIMEDIA MESSAGE", "gsm_sim.tp.pa.retrieve_mm_msg",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_submit_mm_msg,
+			{ "Proactive SIM: SUBMIT MULTIMEDIA MESSAGE", "gsm_sim.tp.pa.submit_mm_msg",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_display_mm_msg,
+			{ "Proactive SIM: DISPLAY MULTIMEDIA MESSAGE", "gsm_sim.tp.pa.display_mm_msg",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+			  NULL, HFILL }
+		},
+
+		/* Terminal Profile Byte 23 */
+		{ &hf_tprof_b23,
+			{ "Terminal Profile Byte 23", "gsm_sim.tp.b23",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_pa_set_frames,
+			{ "Proactive SIM: SET FRAMES", "gsm_sim.tp.pa.set_frames",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_get_frames_status,
+			{ "Proactive SIM: GET FRAMES STATUS", "gsm_sim.tp.pa.get_frames_status",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_mms_notif_download,
+			{ "MMS notification download", "gsm_sim.tp.mms_notif_download",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_alpha_id_refresh_cmd,
+			{ "Alpha Identifier in REFRESH command", "gsm_sim.tp.alpha_id_refresh_cmd",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_geo_loc_report,
+			{ "Geographical Location Reporting", "gsm_sim.tp.geo_loc_report",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_meid,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (MEID)", "gsm_sim.tp.pa.prov_loci_meid",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_nmr_utran_eutran,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (NMR(UTRAN/E-UTRAN))", "gsm_sim.tp.pa.prov_loci_nmr_utran_eutran",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_ussd_data_download,
+			{ "USSD Data download and application mode", "gsm_sim.tp.ussd_data_download",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+			  NULL, HFILL }
+		},
+
+		/* Terminal Profile Byte 24 */
+		{ &hf_tprof_b24,
+			{ "Terminal Profile Byte 24 (Class \"i\")", "gsm_sim.tp.b24",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_class_i_max_nb_frames,
+			{ "Maximum number of frames supported", "gsm_sim.tp.class_i_max_nb_frames",
+			  FT_UINT8, BASE_DEC, NULL, 0x0f,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_rfu6,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0xf0,
+			  NULL, HFILL },
+		},
+
+		/* Terminal Profile Byte 25 */
+		{ &hf_tprof_b25,
+			{ "Terminal Profile Byte 25 (Event driven information extensions)", "gsm_sim.tp.b25",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_evt_browsing_status,
+			{ "Event: Browsing status", "gsm_sim.tp.evt.browsing_status",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_mms_transfer_status,
+			{ "Event: MMS Transfer status", "gsm_sim.tp.evt.mms_transfer_status",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_frame_info_changed,
+			{ "Event: Frame Information changed", "gsm_sim.tp.evt.frame_info_changed",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_iwlan_access_status,
+			{ "Event: I-WLAN Access status", "gsm_sim.tp.evt.iwlan_access_status",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_nw_reject_geran_utran,
+			{ "Event: Network Rejection for GERAN/UTRAN", "gsm_sim.tp.evt.nw_reject_geran_utran",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_hci_connectivity,
+			{ "Event: HCI connectivity", "gsm_sim.tp.evt.hci_connectivity",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_nw_reject_eutran,
+			{ "Event: Network Rejection for E-UTRAN", "gsm_sim.tp.evt.reject_eutran",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_mult_access_techno_change,
+			{ "Multiple access technologies supported in Event Access Technology Change and PROVIDE LOCAL INFORMATION",
+			  "gsm_sim.tp.evt.mult_access_techno_change",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+			  NULL, HFILL }
+		},
+
+		/* Terminal Profile Byte 26 */
+		{ &hf_tprof_b26,
+			{ "Terminal Profile Byte 26 (Event driven information extensions)", "gsm_sim.tp.b26",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_evt_csg_cell_select,
+			{ "Event: CSG Cell Selection", "gsm_sim.tp.evt.csg_cell_select",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_contactless_state_req,
+			{ "Event: Contactless state request", "gsm_sim.tp.evt.contactless_state_req",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_rfu7,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0xfc,
+			  NULL, HFILL },
+		},
+
+		/* Terminal Profile Byte 27 */
+		{ &hf_tprof_b27,
+			{ "Terminal Profile Byte 27 (Event driven information extensions)", "gsm_sim.tp.b27",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_rfu8,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0xff,
+			  NULL, HFILL },
+		},
+
+		/* Terminal Profile Byte 28 */
+		{ &hf_tprof_b28,
+			{ "Terminal Profile Byte 28 (Text attributes)", "gsm_sim.tp.b28",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_text_align_left,
+			{ "Alignment left", "gsm_sim.tp.text.align_left",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_text_align_centre,
+			{ "Alignment centre", "gsm_sim.tp.text.align_centre",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_text_align_right,
+			{ "Alignment right", "gsm_sim.tp.text.align_right",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_text_font_size_normal,
+			{ "Font size normal", "gsm_sim.tp.text.font_size_normal",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_text_font_size_large,
+			{ "Font size large", "gsm_sim.tp.text.font_size_large",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_text_font_size_small,
+			{ "Font size small", "gsm_sim.tp.text.font_size_small",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_rfu9,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0xc0,
+			  NULL, HFILL },
+		},
+
+		/* Terminal Profile Byte 29 */
+		{ &hf_tprof_b29,
+			{ "Terminal Profile Byte 29 (Text attributes)", "gsm_sim.tp.b29",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_text_style_normal,
+			{ "Style normal", "gsm_sim.tp.text.style_normal",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_text_style_bold,
+			{ "Style bold", "gsm_sim.tp.text.style_bold",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_text_style_italic,
+			{ "Style italic", "gsm_sim.tp.text.style_italic",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_text_style_underlined,
+			{ "Style underlined", "gsm_sim.tp.text.style_underlined",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_text_style_strikethrough,
+			{ "Style strikethrough", "gsm_sim.tp.text.style_strikethrough",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_text_style_text_fg_colour,
+			{ "Style text foreground colour", "gsm_sim.tp.text.style_text_fg_colour",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_text_style_text_bg_colour,
+			{ "Style text background colour", "gsm_sim.tp.text.style_text_bg_colour",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_rfu10,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0x80,
+			  NULL, HFILL },
+		},
+
+		/* Terminal Profile Byte 30 */
+		{ &hf_tprof_b30,
+			{ "Terminal Profile Byte 30", "gsm_sim.tp.b30",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_bip_iwlan,
+			{ "I-WLAN bearer", "gsm_sim.tp.bip.iwlan",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_wsid,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (WSID of the current I-WLAN connection)", "gsm_sim.tp.pa.prov_loci_wsid",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_term_app,
+			{ "TERMINAL APPLICATIONS", "gsm_sim.tp.term_app",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_steering_roaming_refresh,
+			{ "\"Steering of Roaming\" REFRESH", "gsm_sim.tp.steering_roaming_refresh",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_activate,
+			{ "Proactive SIM: ACTIVATE", "gsm_sim.tp.pa.activate",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_geo_loc_req,
+			{ "Proactive SIM: Geographical Location Request", "gsm_sim.tp.pa.geo_loc_req",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_broadcast_nw_info,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (Broadcast Network Information)", "gsm_sim.tp.pa.prov_loci_broadcast_nw_info",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_steering_roaming_iwlan_refresh,
+			{ "\"Steering of Roaming for I-WLAN\" REFRESH", "gsm_sim.tp.steering_roaming_iwlan_refresh",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+			  NULL, HFILL }
+		},
+
+		/* Terminal Profile Byte 31 */
+		{ &hf_tprof_b31,
+			{ "Terminal Profile Byte 31", "gsm_sim.tp.b31",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_pa_contactless_state_changed,
+			{ "Proactive SIM: Contactless State Changed", "gsm_sim.tp.pa.contactless_state_changed",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_csg_cell_discovery,
+			{ "CSG cell discovery", "gsm_sim.tp.csg_cell_discovery",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_cnf_params_support_open_chan_server_mode,
+			{ "Confirmation parameters supported for OPEN CHANNEL in Terminal Server Mode", "gsm_sim.tp.cnf_params_support_open_chan_server_mode",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_com_ctrl_ims,
+			{ "Communication Control for IMS", "gsm_sim.tp.com_ctrl_ims",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_cat_over_modem_itf,
+			{ "CAT over the modem interface", "gsm_sim.tp.cat_over_modem_itf",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_incoming_data_ims,
+			{ "Event: Incoming IMS Data", "gsm_sim.tp.evt.incoming_data_ims",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_ims_registration,
+			{ "Event: IMS Registration", "gsm_sim.tp.evt.ims_registration",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prof_env_cont,
+			{ "Proactive SIM: Profile Container, Envelope Container, COMMAND CONTAINER and ENCAPSULATED SESSION CONTROL", "gsm_sim.tp.pa.prof_env_cont",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
 			  NULL, HFILL }
 		},
 
@@ -1729,6 +2671,18 @@ proto_register_gsm_sim(void)
 		&ett_tprof_b17,
 		&ett_tprof_b18,
 		&ett_tprof_b19,
+		&ett_tprof_b20,
+		&ett_tprof_b21,
+		&ett_tprof_b22,
+		&ett_tprof_b23,
+		&ett_tprof_b24,
+		&ett_tprof_b25,
+		&ett_tprof_b26,
+		&ett_tprof_b27,
+		&ett_tprof_b28,
+		&ett_tprof_b29,
+		&ett_tprof_b30,
+		&ett_tprof_b31,
 	};
 
 	proto_gsm_sim = proto_register_protocol("GSM SIM 11.11", "GSM SIM",
