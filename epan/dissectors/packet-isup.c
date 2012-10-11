@@ -9736,7 +9736,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (tree) {
         ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, ENC_NA);
         isup_tree = proto_item_add_subtree(ti, ett_isup);
-        proto_tree_add_uint_format(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic, "CIC: %u", cic);
+        proto_tree_add_uint(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic);
       }
       message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
       dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT);
@@ -9780,7 +9780,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (tree) {
         ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, ENC_NA);
         isup_tree = proto_item_add_subtree(ti, ett_isup);
-        proto_tree_add_uint_format(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic, "CIC: %u", cic);
+        proto_tree_add_uint(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic);
       }
       message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
       dissect_isup_message(message_tvb, pinfo, isup_tree, itu_isup_variant);
