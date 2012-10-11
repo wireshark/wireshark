@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
+#include <epan/expert.h>
 
 
 static dissector_handle_t hartip_handle;
@@ -869,11 +870,12 @@ static void
 dissect_hartip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree      *hartip_tree, *hdr_tree, *body_tree;
-  proto_item      *ti, *hdr_node, *body_node;
+  proto_item      *ti, *hart_item;
   gint             offset       = 0;
   gint             bodylen;
   gint             packet_count = 0;
-  hartip_hdr       hdr;
+  guint8           message_type, message_id;
+  guint16          transaction_id, length;
   const char      *msg_id_str, *msg_type_str;
   hartip_tap_info *tapinfo;
 
@@ -884,88 +886,81 @@ dissect_hartip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_reported_length_remaining(tvb, offset) < HARTIP_HEADER_LENGTH)
       return;
 
-    tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hartip_hdr));
-    hdr.transaction_id = g_ntohs(hdr.transaction_id);
-    hdr.length = g_ntohs(hdr.length);
+    length  = tvb_get_ntohs(tvb, offset+6);
 
-    msg_id_str   = val_to_str(hdr.message_id, hartip_message_id_values, "Unknown message %d");
-    msg_type_str = val_to_str(hdr.message_type, hartip_message_type_values,
-      "Unknown message type %d");
-    bodylen      = hdr.length - HARTIP_HEADER_LENGTH;
+    hart_item = proto_tree_add_item(tree, proto_hartip, tvb, 0, length, ENC_NA );
+    hartip_tree = proto_item_add_subtree(hart_item, ett_hartip);
+
+    ti = proto_tree_add_text(hartip_tree, tvb, offset, HARTIP_HEADER_LENGTH, "HART_IP Header");
+    hdr_tree = proto_item_add_subtree(ti, ett_hartip_hdr);
+
+    proto_tree_add_item(hdr_tree, hf_hartip_hdr_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    message_type = tvb_get_guint8(tvb, offset);
+    msg_type_str = val_to_str(message_type, hartip_message_type_values, "Unknown message type %d");
+    proto_tree_add_item(hdr_tree, hf_hartip_hdr_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    message_id = tvb_get_guint8(tvb, offset);
+    msg_id_str = val_to_str(message_id, hartip_message_id_values, "Unknown message %d");
+    proto_tree_add_item(hdr_tree, hf_hartip_hdr_message_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
     /* Setup statistics for tap. */
     tapinfo = ep_alloc(sizeof(hartip_tap_info));
-    tapinfo->message_type = hdr.message_type;
-    tapinfo->message_id   = hdr.message_id;
+    tapinfo->message_type = message_type;
+    tapinfo->message_id   = message_id;
+    tap_queue_packet(hartip_tap, pinfo, tapinfo);
 
-    if (hdr.message_id == SESSION_INITIATE_ID) {
+    if (message_id == SESSION_INITIATE_ID) {
       hartip_set_conversation(pinfo);
     }
 
+    proto_tree_add_item(hdr_tree, hf_hartip_hdr_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    transaction_id = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(hdr_tree, hf_hartip_hdr_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_item_append_text(hart_item, ", %s %s, Sequence Number %d",
+          msg_id_str,
+          msg_type_str,
+          transaction_id);
+
     if (packet_count == 0) {
-      col_add_fstr(pinfo->cinfo, COL_INFO,
-		   "%s %s, Sequence Number %d",
-		   msg_id_str,
-		   msg_type_str,
-		   hdr.transaction_id);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s, Sequence Number %d",
+          msg_id_str,
+          msg_type_str,
+          transaction_id);
     }
-    else if (packet_count == 1) {
-      col_add_fstr(pinfo->cinfo, COL_INFO,
-		   "Multiple HART_IP Messages");
+    else {
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Multiple HART_IP Messages");
     }
     packet_count++;
 
-    if (tree) {
-      ti = proto_tree_add_protocol_format
-        (tree, proto_hartip, tvb, offset, hdr.length,
-          "HART_IP Protocol, %s %s, Sequence Number %d",
-          msg_id_str,
-          msg_type_str,
-          hdr.transaction_id);
-      hartip_tree = proto_item_add_subtree(ti, ett_hartip);
-
-      /* add header elements. */
-      hdr_node = proto_tree_add_text(hartip_tree, tvb, offset, HARTIP_HEADER_LENGTH,
-        "HART_IP Header");
-
-
-      hdr_tree = proto_item_add_subtree(hdr_node, ett_hartip_hdr);
-
-      proto_tree_add_uint(hdr_tree, hf_hartip_hdr_version, tvb, offset++, 1,
-        hdr.version);
-      ti = proto_tree_add_uint(hdr_tree, hf_hartip_hdr_message_type, tvb, offset++, 1,
-        hdr.message_type);
-      proto_item_set_text(ti, "Message Type: %s", msg_type_str);
-      ti = proto_tree_add_uint(hdr_tree, hf_hartip_hdr_message_id, tvb, offset++, 1,
-        hdr.message_id);
-      proto_item_set_text(ti, "Message ID: %s", msg_id_str);
-      proto_tree_add_uint(hdr_tree, hf_hartip_hdr_status, tvb, offset++, 1,
-        hdr.status);
-
-      proto_tree_add_uint(hdr_tree, hf_hartip_hdr_transaction_id, tvb, offset, 2,
-        hdr.transaction_id);
-      offset += 2;
-      proto_tree_add_uint(hdr_tree, hf_hartip_hdr_msg_length, tvb, offset, 2,
-        hdr.length);
-      offset += 2;
-
-      /* add body elements. */
-      if (bodylen < 0) {
-        proto_tree_add_text(hartip_tree, tvb, offset, hdr.length - HARTIP_HEADER_LENGTH,
-          "HART_IP Body - Invalid size");
+    ti = proto_tree_add_item(hdr_tree, hf_hartip_hdr_msg_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    if (length < HARTIP_HEADER_LENGTH) {
+        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Packet length should be at least %d", HARTIP_HEADER_LENGTH);
         return;
-      } else {
-        body_node = proto_tree_add_text
-          (hartip_tree, tvb, offset, bodylen, "HART_IP Body, %s, %s",
+    }
+
+    bodylen = length - HARTIP_HEADER_LENGTH;
+
+    if (tree) {
+      /* add body elements. */
+        ti = proto_tree_add_text(hartip_tree, tvb, offset, bodylen, "HART_IP Body, %s, %s",
             msg_id_str,
             msg_type_str);
-        body_tree = proto_item_add_subtree(body_node, ett_hartip_body);
+        body_tree = proto_item_add_subtree(ti, ett_hartip_body);
 
-        if (hdr.message_type == ERROR_MSG_TYPE) {
+        if (message_type == ERROR_MSG_TYPE) {
           offset += dissect_error(body_tree, tvb, offset, bodylen);
         } else {
           /*  Dissect the various HARTIP messages. */
-          switch(hdr.message_id) {
+          switch(message_id) {
           case SESSION_INITIATE_ID:
             offset += dissect_session_init(body_tree, tvb, offset, bodylen);
             break;
@@ -985,13 +980,10 @@ dissect_hartip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
           }
         }
-      }
     }
     else {
-      offset += hdr.length;
+      offset += length;
     }
-
-    tap_queue_packet(hartip_tap, pinfo, tapinfo);
   }
 }
 
@@ -1008,12 +1000,12 @@ proto_register_hartip(void)
     },
     { &hf_hartip_hdr_message_type,
       { "Message Type",           "hart_ip.message_type",
-        FT_UINT8, BASE_DEC, VALS(hartip_message_type_values), 0xFF,
+        FT_UINT8, BASE_DEC, VALS(hartip_message_type_values), 0,
         "HART_IP message type", HFILL }
     },
     { &hf_hartip_hdr_message_id,
       { "Message ID",           "hart_ip.message_id",
-        FT_UINT8, BASE_DEC, VALS(hartip_message_id_values), 0xFF,
+        FT_UINT8, BASE_DEC, VALS(hartip_message_id_values), 0,
         "HART_IP message id", HFILL }
     },
     { &hf_hartip_hdr_status,
@@ -1535,7 +1527,7 @@ proto_register_hartip(void)
     &ett_hartip_body
   };
 
-  proto_hartip = proto_register_protocol("HART_IP", "HART_IP", "hart_ip");
+  proto_hartip = proto_register_protocol("HART_IP Protocol", "HART_IP", "hart_ip");
   proto_register_field_array(proto_hartip, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
