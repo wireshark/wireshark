@@ -1400,6 +1400,13 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
 int
 sync_interface_stats_close(int *read_fd, int *fork_child, gchar **msg)
 {
+#ifndef _WIN32
+    /*
+     * Don't bother waiting for the child. sync_pipe_close_command
+     * does this for us on Windows.
+     */
+    sync_pipe_kill(*fork_child);
+#endif
     return sync_pipe_close_command(read_fd, NULL, fork_child, msg);
 }
 
