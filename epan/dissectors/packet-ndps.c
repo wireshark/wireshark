@@ -8150,7 +8150,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                             proto_tree_add_text(atree, tvb, foffset, -1, "[Truncated]");
                             break;
                         }
-                        bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Key %d", jj);
+                        bitem = proto_tree_add_text(atree, tvb, foffset, -1, "Key %d", jj+1);
                         btree = proto_item_add_subtree(bitem, ett_ndps);
                         foffset = ndps_string(tvb, hf_ndps_windows_key, btree, foffset, NULL);
                         proto_item_set_end(bitem, tvb, foffset);
