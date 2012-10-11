@@ -33,8 +33,7 @@
  */
 
 #define GIOP_HEADER_SIZE    12
-#define GIOP_MAGIC 	 "GIOP"
-#define MIOP_MAGIC 	 "MIOP"
+#define GIOP_MAGIC_NUMBER 	0x47494F50  /* "GIOP" */
 
 typedef struct Version {
   guint8 major;
@@ -255,8 +254,6 @@ extern guint32 get_CDR_enum(tvbuff_t *tvb, int *offset,
  * According to spec, digits <= 31
  * and scale is positive (except for constants eg: 1000 has digit=1 and implied scale = -3)
  * or <4,0> ?
- *
- * User must remember to free the buffer
  *
  */
 
