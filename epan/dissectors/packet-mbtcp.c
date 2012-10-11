@@ -453,7 +453,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     int           offset, group_offset, packet_type, temp_data;
     const char    *func_string = "";
     gint          payload_start, payload_len, event_index,
-                  i, byte_cnt, len, num_objects, object_index,
+                  ii, byte_cnt, len, num_objects, object_index,
                   object_len;
     guint32       group_byte_cnt, group_word_cnt;
     guint8        function_code, exception_code, mei_code, event_code, object_type;
@@ -802,9 +802,9 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
                     /* add subtrees to describe each group of packet */
                     group_offset = payload_start + 1;
-                    for (i = 0; i < byte_cnt / 7; i++) {
+                    for (ii = 0; ii < byte_cnt / 7; ii++) {
                         mi = proto_tree_add_text( modbus_tree, tvb, group_offset, 7,
-                                "Group %u", i);
+                                "Group %u", ii);
                         group_tree = proto_item_add_subtree(mi, ett_group_hdr);
                         proto_tree_add_item(group_tree, hf_modbus_reftype, tvb, group_offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(group_tree, hf_modbus_lreference, tvb, group_offset + 1, 4, ENC_BIG_ENDIAN);
@@ -819,11 +819,11 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
                     /* add subtrees to describe each group of packet */
                     group_offset = payload_start + 1;
-                    i = 0;
+                    ii = 0;
                     while (byte_cnt > 0) {
                         group_byte_cnt = (guint32)tvb_get_guint8(tvb, group_offset);
                         mi = proto_tree_add_text( modbus_tree, tvb, group_offset, group_byte_cnt + 1,
-                                "Group %u", i);
+                                "Group %u", ii);
                         group_tree = proto_item_add_subtree(mi, ett_group_hdr);
                         proto_tree_add_uint(group_tree, hf_modbus_bytecnt, tvb, group_offset, 1,
                                 group_byte_cnt);
@@ -831,7 +831,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                         dissect_mbtcp_data(tvb, pinfo, group_tree, function_code, group_offset + 2, group_byte_cnt - 1);
                         group_offset += (group_byte_cnt + 1);
                         byte_cnt -= (group_byte_cnt + 1);
-                        i++;
+                        ii++;
                     }
                 }
                 break;
@@ -844,12 +844,12 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
                     /* add subtrees to describe each group of packet */
                     group_offset = payload_start + 1;
-                    i = 0;
+                    ii = 0;
                     while (byte_cnt > 0) {
                         group_word_cnt = tvb_get_ntohs(tvb, group_offset + 5);
                         group_byte_cnt = (2 * group_word_cnt) + 7;
                         mi = proto_tree_add_text( modbus_tree, tvb, group_offset,
-                                group_byte_cnt, "Group %u", i);
+                                group_byte_cnt, "Group %u", ii);
                         group_tree = proto_item_add_subtree(mi, ett_group_hdr);
                         proto_tree_add_item(group_tree, hf_modbus_reftype, tvb, group_offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(group_tree, hf_modbus_lreference, tvb, group_offset + 1, 4, ENC_BIG_ENDIAN);
@@ -858,7 +858,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                         dissect_mbtcp_data(tvb, pinfo, group_tree, function_code, group_offset + 7, group_byte_cnt - 7);
                         group_offset += group_byte_cnt;
                         byte_cnt -= group_byte_cnt;
-                        i++;
+                        ii++;
                     }
                 }
                 break;
@@ -936,7 +936,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                             doe = proto_tree_add_text(modbus_tree, tvb, payload_start+6, payload_len-6, "Objects");
 
                             object_index = 0;
-                            for (i = 1; i <= num_objects; i++)
+                            for (ii = 0; ii < num_objects; ii++)
                             {
                                 device_objects_tree = proto_item_add_subtree(doe, ett_device_id_objects);
 
@@ -946,7 +946,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                                 object_type = tvb_get_guint8(tvb, payload_start+6+object_index);
                                 object_len = tvb_get_guint8(tvb, payload_start+6+object_index+1);
 
-                                doie = proto_tree_add_text(device_objects_tree, tvb, payload_start+6+object_index, 2+object_len, "Object #%d", i);
+                                doie = proto_tree_add_text(device_objects_tree, tvb, payload_start+6+object_index, 2+object_len, "Object #%d", ii+1);
                                 device_objects_item_tree = proto_item_add_subtree(doie, ett_device_id_object_items);
 
                                 proto_tree_add_item(device_objects_item_tree, hf_modbus_object_id, tvb, payload_start+6+object_index, 1, ENC_BIG_ENDIAN);

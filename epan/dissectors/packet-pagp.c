@@ -159,7 +159,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       guint16 num_tlvs;
       guint16 tlv;
       guint16 len;
-      guint16 i;
+      guint16 ii;
       guint16 offset = PAGP_FIRST_TLV;
       guint8  raw_octet;
 
@@ -334,7 +334,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    /* dump TLV entries */
 
-	    for ( i = 1; i <= num_tlvs; i++ ) {
+	    for ( ii = 0; ii < num_tlvs; ii++ ) {
 
 		tlv = tvb_get_ntohs(tvb, offset);
 		len = tvb_get_ntohs(tvb, offset + 2);
@@ -345,7 +345,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		tlv_item = proto_tree_add_text (pagp_tree, tvb, offset, len,
-			   "TLV Entry #%d", i);
+			   "TLV Entry #%d", ii+1);
 
 		tlv_tree = proto_item_add_subtree (tlv_item, ett_pagp_tlvs);
 		proto_tree_add_uint_format (tlv_tree, hf_pagp_tlv, tvb,

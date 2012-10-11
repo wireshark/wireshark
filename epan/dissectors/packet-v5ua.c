@@ -163,10 +163,10 @@ dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *
   offset = INT_IF_ID_LINK_OFFSET;
   identifier = tvb_get_ntohl(parameter_tvb,INT_IF_ID_LINK_OFFSET)>>5;
   proto_item_append_text(parameter_item, "(");
-  for (id_number = 1; id_number <= number_of_ids; id_number++) {
+  for (id_number = 0; id_number < number_of_ids; id_number++) {
     proto_tree_add_item(parameter_tree, hf_link_id, parameter_tvb, offset, INT_IF_ID_LINK_LENGTH, ENC_BIG_ENDIAN);
     identifier = tvb_get_ntohl(parameter_tvb,offset)>>5;
-    if (id_number < 2) {
+    if (id_number < 1) {
 	proto_item_append_text(parameter_item, "L:%d",identifier);
     } else {
 	proto_item_append_text(parameter_item, " | L:%d",identifier);
@@ -612,7 +612,7 @@ dissect_integer_range_interface_identifier_parameter(tvbuff_t *parameter_tvb, pr
 
   number_of_ranges = (tvb_get_ntohs(parameter_tvb, INT_RANGE_LENGTH_OFFSET) - INT_RANGE_HEADER_LENGTH) / IF_ID_INTERVAL_LENGTH;
   offset = INT_RANGE_START_OFFSET;
-  for(range_number = 1; range_number <= number_of_ranges; range_number++) {
+  for(range_number = 0; range_number < number_of_ranges; range_number++) {
     proto_tree_add_item(parameter_tree, hf_if_range_start, parameter_tvb, offset + IF_ID_START_OFFSET, IF_ID_START_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(parameter_tree, hf_if_range_end,   parameter_tvb, offset + IF_ID_END_OFFSET,   IF_ID_END_LENGTH,   ENC_BIG_ENDIAN);
     offset += IF_ID_INTERVAL_LENGTH;

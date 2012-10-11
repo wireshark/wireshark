@@ -197,7 +197,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 cmd, srp_i_len, srp_g_len, srp_n_len;
 	guint16 num_realms;
 	guint32 offset = 0;
-	gint len, i;
+	gint len, ii;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WOW");
 
@@ -383,7 +383,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				num_realms = tvb_get_letohs(tvb, offset);
 				offset += 2;
 
-				for(i = 1; i <= num_realms; i++) {
+				for(ii = 0; ii < num_realms; ii++) {
 					realm_name = tvb_get_ephemeral_stringz(tvb,
 								     offset + 3,
 								     &len);

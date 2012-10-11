@@ -111,9 +111,9 @@ dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *
   offset = PARAMETER_VALUE_OFFSET;
 
   proto_item_append_text(parameter_item, " (");
-  for (id_number = 1; id_number <= number_of_ids; id_number++) {
+  for (id_number = 0; id_number < number_of_ids; id_number++) {
     proto_tree_add_item(parameter_tree, hf_int_interface_id, parameter_tvb, offset, INT_INTERFACE_ID_LENGTH, ENC_BIG_ENDIAN);
-    proto_item_append_text(parameter_item, (id_number > 1) ? ", %d" : "%d", tvb_get_ntohl(parameter_tvb, offset));
+    proto_item_append_text(parameter_item, (id_number > 0) ? ", %d" : "%d", tvb_get_ntohl(parameter_tvb, offset));
     offset += INT_INTERFACE_ID_LENGTH;
   }
   proto_item_append_text(parameter_item, ")");
@@ -221,10 +221,10 @@ dissect_integer_range_interface_identifier_parameter(tvbuff_t *parameter_tvb, pr
   number_of_ranges = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / INTERVAL_LENGTH;
   offset = PARAMETER_VALUE_OFFSET;
   proto_item_append_text(parameter_item, " (");
-  for (range_number = 1; range_number <= number_of_ranges; range_number++) {
+  for (range_number = 0; range_number < number_of_ranges; range_number++) {
     proto_tree_add_item(parameter_tree, hf_interface_range_start, parameter_tvb, offset + START_OFFSET, START_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(parameter_tree, hf_interface_range_end,   parameter_tvb, offset + END_OFFSET,   END_LENGTH,   ENC_BIG_ENDIAN);
-    proto_item_append_text(parameter_item, (range_number > 1) ? ", %d-%d" : "%d-%d",
+    proto_item_append_text(parameter_item, (range_number > 0) ? ", %d-%d" : "%d-%d",
                            tvb_get_ntohl(parameter_tvb, offset + START_OFFSET), tvb_get_ntohl(parameter_tvb, offset + END_OFFSET));
     offset += INTERVAL_LENGTH;
   }

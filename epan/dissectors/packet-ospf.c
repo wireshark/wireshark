@@ -2655,7 +2655,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         /* nr_links links follow
          * maybe we should put each of the links into its own subtree ???
          */
-        for (link_counter = 1; link_counter <= nr_links; link_counter++) {
+        for (link_counter = 0; link_counter < nr_links; link_counter++) {
             proto_tree *ospf_lsa_router_link_tree;
             proto_item *ti_local;
 
@@ -2727,7 +2727,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
              * According to RFC4915 the TOS metrics was never deployed and was subsequently deprecated,
              * but decoding still present because MT-ID use the same structure.
              */
-            for (metric_counter = 1; metric_counter <= nr_metric; metric_counter++) {
+            for (metric_counter = 0; metric_counter < nr_metric; metric_counter++) {
                 proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset, 4, "%s: %u, Metric: %u",
                                     metric_type_str,
                                     tvb_get_guint8(tvb, offset),

@@ -358,7 +358,7 @@ dissect_vuze_dht_contacts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
   ti = proto_tree_add_none_format( tree, hf_vuze_dht_contacts, tvb, offset, 0, "%d contacts", contacts_count );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_contacts);
-  for( i=1; i<=contacts_count; i++ )
+  for( i=0; i<contacts_count; i++ )
     offset = dissect_vuze_dht_contact( tvb, pinfo, sub_tree, offset );
 
   return offset;
@@ -400,7 +400,7 @@ dissect_vuze_dht_keys(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
   ti = proto_tree_add_none_format( tree, hf_vuze_dht_keys, tvb, offset, 0, "%d keys", keys_count );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_keys);
-  for( i=1; i<=keys_count; i++ )
+  for( i=0; i<keys_count; i++ )
     offset = dissect_vuze_dht_key( tvb, pinfo, sub_tree, offset );
 
   return offset;
@@ -506,7 +506,7 @@ dissect_vuze_dht_value_group(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   proto_tree_add_item( sub_tree, hf_vuze_dht_values_count, tvb, offset, TL_SHORT, ENC_BIG_ENDIAN );
   offset += TL_SHORT;
 
-  for( i=1; i<=values_count; i++ )
+  for( i=0; i<values_count; i++ )
     offset = dissect_vuze_dht_value( tvb, pinfo, sub_tree, offset, ver );
 
   return offset;
@@ -524,7 +524,7 @@ dissect_vuze_dht_value_groups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
   ti = proto_tree_add_none_format( tree, hf_vuze_dht_value_groups, tvb, offset, 0, "%d value groups", value_groups_count );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_value_groups);
-  for( i=1; i<=value_groups_count; i++ )
+  for( i=0; i<value_groups_count; i++ )
     offset = dissect_vuze_dht_value_group( tvb, pinfo, sub_tree, offset, ver );
 
   return offset;
@@ -582,7 +582,7 @@ dissect_vuze_dht_network_coordinates(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     ti = proto_tree_add_none_format( tree, hf_vuze_dht_network_coordinates, tvb, offset, 0, "%d network coordinates", network_coordinates_count );
     sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_network_coordinates);
-    for( i=1; i<=network_coordinates_count; i++ )
+    for( i=0; i<network_coordinates_count; i++ )
       offset = dissect_vuze_dht_network_coordinate( tvb, pinfo, sub_tree, offset );
   }
   return offset;

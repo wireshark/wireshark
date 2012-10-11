@@ -127,7 +127,7 @@ dissect_sender_array(proto_tree *clique_rm_tree, int hf_header, gint ett_header,
   tree  = proto_item_add_subtree(ti, ett_header);
   offset++;
 
-  for (i = 1; i <= count; i++, offset += 4)
+  for (i = 0; i < count; i++, offset += 4)
     proto_tree_add_item(tree, hf_header_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
@@ -160,7 +160,7 @@ dissect_depends(proto_tree *clique_rm_tree, tvbuff_t *tvb, int offset)
 {
   proto_item *ti, *depend_item;
   proto_tree *tree, *depend_tree;
-  guint       i, count;
+  guint       ii, count;
   int         len;
 
   count = tvb_get_guint8(tvb, offset);
@@ -172,9 +172,9 @@ dissect_depends(proto_tree *clique_rm_tree, tvbuff_t *tvb, int offset)
   offset += 1;
 
   tree = proto_item_add_subtree(ti, ett_clique_rm_depends);
-  for (i = 1; i <= count; i++)
+  for (ii = 0; ii < count; ii++)
   {
-     depend_item = proto_tree_add_text(tree, tvb, offset, 8, "Depend item %d", i);
+     depend_item = proto_tree_add_text(tree, tvb, offset, 8, "Depend item %d", ii+1);
      depend_tree = proto_item_add_subtree(depend_item, ett_clique_rm_depends_item);
 
      proto_tree_add_item(depend_tree, hf_clique_rm_depend_sender,

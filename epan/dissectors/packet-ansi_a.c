@@ -5456,7 +5456,7 @@ elem_amps_hho_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 static guint8
 elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8      oct, num_con_rec, i;
+    guint8      oct, num_con_rec, ii;
     guint8      bit_mask, bit_offset;
     guint32     curr_offset, saved_offset;
     guint32     value;
@@ -5533,15 +5533,14 @@ elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
     curr_offset += 1;
 
-    for (i=1; i <= num_con_rec; i++)
+    for (ii=0; ii < num_con_rec; ii++)
     {
         oct = tvb_get_guint8(tvb, curr_offset);
 
         item =
             proto_tree_add_text(scr_subtree, tvb,
                 curr_offset, oct /* oct already includes the length octet itself */,
-                "Service option connection record [%u]",
-                i);
+                "Service option connection record [%u]", ii+1);
 
         subtree =
             proto_item_add_subtree(item, ett_srvc_con_rec);

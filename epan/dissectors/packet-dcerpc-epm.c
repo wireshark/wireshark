@@ -320,7 +320,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              guint8 *drep _U_)
 {
-    guint16 num_floors, i;
+    guint16 num_floors, ii;
     dcerpc_info *di;
     const char *uuid_name;
     guint8   u8little_endian = DREP_LITTLE_ENDIAN;
@@ -334,7 +334,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
     proto_tree_add_uint(tree, hf_epm_tower_num_floors, tvb, offset, 2, num_floors);
     offset += 2;
 
-    for(i=1;i<=num_floors;i++){
+    for(ii=0;ii<num_floors;ii++){
         proto_item *it = NULL;
         proto_tree *tr = NULL;
         int old_offset = offset;
@@ -343,7 +343,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         e_uuid_t uuid;
         proto_item *pi;
 
-        it = proto_tree_add_text(tree, tvb, offset, 0, "Floor %d ", i);
+        it = proto_tree_add_text(tree, tvb, offset, 0, "Floor %d ", ii+1);
         tr = proto_item_add_subtree(it, ett_epm_tower_floor);
 
         len = tvb_get_letohs(tvb, offset);

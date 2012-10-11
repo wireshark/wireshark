@@ -565,7 +565,7 @@ dissect_routing_context_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
 
   number_of_contexts = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / 4;
   context_offset = PARAMETER_VALUE_OFFSET;
-  for(context_number=1; context_number <= number_of_contexts; context_number++) {
+  for(context_number=0; context_number < number_of_contexts; context_number++) {
     proto_tree_add_item(parameter_tree, hf_sua_routing_context, parameter_tvb, context_offset, ROUTING_CONTEXT_LENGTH, ENC_BIG_ENDIAN);
     context_offset += ROUTING_CONTEXT_LENGTH;
   };
@@ -747,7 +747,7 @@ dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 
   number_of_destinations= (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / 4;
   destination_offset = PARAMETER_VALUE_OFFSET;
-  for(destination_number=1; destination_number <= number_of_destinations; destination_number++) {
+  for(destination_number=0; destination_number < number_of_destinations; destination_number++) {
     proto_tree_add_item(parameter_tree, hf_sua_mask, parameter_tvb, destination_offset + AFFECTED_MASK_OFFSET, AFFECTED_MASK_LENGTH, ENC_BIG_ENDIAN);
     dpc_item = proto_tree_add_item(parameter_tree, hf_sua_dpc,  parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET,  AFFECTED_DPC_LENGTH,  ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
