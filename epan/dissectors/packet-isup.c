@@ -7516,7 +7516,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     isup_tree = proto_item_add_subtree(ti, ett_isup);
 
 
-    proto_tree_add_uint_format(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic, "CIC: %u", cic);
+    proto_tree_add_uint(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic);
   }
 
   message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
@@ -7647,7 +7647,7 @@ proto_register_isup(void)
   static hf_register_info hf[] = {
     { &hf_isup_cic,
       { "CIC",           "isup.cic",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_isup_message_type,
