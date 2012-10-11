@@ -14243,6 +14243,7 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	smb_info_t           *si;
 	smb_transact2_info_t *t2i;
 	gboolean              resume_keys = FALSE;
+	guint32               bytes_needed = 0;
 
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
@@ -14254,11 +14255,22 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	}
 
 	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, *bcp);
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
 	}
+
+	/*
+	 * Figure out of there are enough bytes to display the whole entry.
+	 * This consistes of 22 bytes or 26 bytes if resume_keys, followed
+	 * by a length byte and that many chars.
+	 */
+	bytes_needed = 23 + (resume_keys ? 4 : 0);
+	tvb_ensure_bytes_exist(tvb, offset, bytes_needed);
+
+	/* Now, get the length */
+	fn_len = tvb_get_guint8(tvb, offset + bytes_needed - 1);
+	tvb_ensure_bytes_exist(tvb, offset, bytes_needed + fn_len);
 
 	if (resume_keys) {
 		/* resume key */
@@ -14344,6 +14356,7 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	smb_info_t           *si;
 	smb_transact2_info_t *t2i;
 	gboolean              resume_keys = FALSE;
+	guint32               bytes_needed = 0;
 
 
 	si = (smb_info_t *)pinfo->private_data;
@@ -14356,11 +14369,22 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	}
 
 	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, *bcp);
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
 	}
+
+	/*
+	 * Figure out of there are enough bytes to display the whole entry.
+	 * This consistes of 26 bytes or 30 bytes if resume_keys, followed
+	 * by a length byte and that many chars.
+	 */
+	bytes_needed = 27 + (resume_keys ? 4 : 0);
+	tvb_ensure_bytes_exist(tvb, offset, bytes_needed);
+
+	/* Now, get the length */
+	fn_len = tvb_get_guint8(tvb, offset + bytes_needed - 1);
+	tvb_ensure_bytes_exist(tvb, offset, bytes_needed + fn_len);
 
 	if (resume_keys) {
 		/* resume key */
@@ -14575,8 +14599,19 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
 
+	/*
+	 * We check this first before adding the sub-tree so things do not
+	 * get ugly.
+	 */
+
+	/* next entry offset */
+	CHECK_BYTE_COUNT_SUBR(4);
+	neo = tvb_get_letohl(tvb, offset);
+
+	/* Ensure we have the bytes we need, which is up to neo */
+	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp - ((unsigned)offset + 1));
+
 	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, *bcp);
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
@@ -14587,9 +14622,6 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	 * absence of a resume key, as appears to be the case for 4.3.4.6.
 	 */
 
-	/* next entry offset */
-	CHECK_BYTE_COUNT_SUBR(4);
-	neo = tvb_get_letohl(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
 	COUNT_BYTES_SUBR(4);
 
@@ -14674,8 +14706,19 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
 
+	/*
+	 * We check this first before adding the sub-tree so things do not
+	 * get ugly.
+	 */
+
+	/* next entry offset */
+	CHECK_BYTE_COUNT_SUBR(4);
+	neo = tvb_get_letohl(tvb, offset);
+
+	/* Ensure we have the bytes we need, which is up to neo */
+	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp - ((unsigned)offset + 1));
+
 	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, *bcp);
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
@@ -14686,9 +14729,6 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	 * absence of a resume key, as appears to be the case for 4.3.4.6.
 	 */
 
-	/* next entry offset */
-	CHECK_BYTE_COUNT_SUBR(4);
-	neo = tvb_get_letohl(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
 	COUNT_BYTES_SUBR(4);
 
@@ -14779,8 +14819,19 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
 
+	/*
+	 * We check this first before adding the sub-tree so things do not
+	 * get ugly.
+	 */
+
+	/* next entry offset */
+	CHECK_BYTE_COUNT_SUBR(4);
+	neo = tvb_get_letohl(tvb, offset);
+
+	/* Ensure we have the bytes we need, which is up to neo */
+	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp - ((unsigned)offset + 1));
+
 	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, *bcp);
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
@@ -14792,9 +14843,6 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	 * key" flag set.
 	 */
 
-	/* next entry offset */
-	CHECK_BYTE_COUNT_SUBR(4);
-	neo = tvb_get_letohl(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
 	COUNT_BYTES_SUBR(4);
 
@@ -14910,8 +14958,19 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
 
+	/*
+	 * We check this first before adding the sub-tree so things do not
+	 * get ugly.
+	 */
+
+	/* next entry offset */
+	CHECK_BYTE_COUNT_SUBR(4);
+	neo = tvb_get_letohl(tvb, offset);
+
+	/* Ensure we have the bytes we need, which is up to neo */
+	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp - ((unsigned)offset + 1));
+
 	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, *bcp);
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
@@ -14923,9 +14982,6 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	 * key" flag set.
 	 */
 
-	/* next entry offset */
-	CHECK_BYTE_COUNT_SUBR(4);
-	neo = tvb_get_letohl(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
 	COUNT_BYTES_SUBR(4);
 
@@ -15030,8 +15086,19 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
 
+	/*
+	 * We check this first before adding the sub-tree so things do not
+	 * get ugly.
+	 */
+
+	/* next entry offset */
+	CHECK_BYTE_COUNT_SUBR(4);
+	neo = tvb_get_letohl(tvb, offset);
+
+	/* Ensure we have the bytes we need, which is up to neo */
+	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp - ((unsigned)offset + 1));
+
 	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, *bcp);
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
@@ -15043,9 +15110,6 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	 * key" flag set.
 	 */
 
-	/* next entry offset */
-	CHECK_BYTE_COUNT_SUBR(4);
-	neo = tvb_get_letohl(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
 	COUNT_BYTES_SUBR(4);
 
@@ -15171,8 +15235,19 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
 
+	/*
+	 * We check this first before adding the sub-tree so things do not
+	 * get ugly.
+	 */
+
+	/* next entry offset */
+	CHECK_BYTE_COUNT_SUBR(4);
+	neo = tvb_get_letohl(tvb, offset);
+
+	/* Ensure we have the bytes we need, which is up to neo */
+	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp - ((unsigned)offset + 1));
+
 	if (parent_tree) {
-		tvb_ensure_bytes_exist(tvb, offset, *bcp);
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
 		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
@@ -15183,9 +15258,6 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	 * absence of a resume key, as appears to be the case for 4.3.4.6.
 	 */
 
-	/* next entry offset */
-	CHECK_BYTE_COUNT_SUBR(4);
-	neo = tvb_get_letohl(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
 	COUNT_BYTES_SUBR(4);
 
