@@ -12,39 +12,49 @@
 <context>
     <name>CaptureFileDialog</name>
     <message>
-        <location filename="capture_file_dialog.cpp" line="473"/>
+        <location filename="capture_file_dialog.cpp" line="499"/>
         <source>Wireshark: Open Capture File</source>
         <translation>Wireshark: Ouvrir un fichier de capture</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="435"/>
+        <location filename="capture_file_dialog.cpp" line="452"/>
         <source>Display Filter:</source>
         <translation>Filtre d&apos;affichage:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="444"/>
+        <location filename="capture_file_dialog.cpp" line="461"/>
         <source>&amp;MAC name resolution</source>
         <oldsource>Enable &amp;network name resolution</oldsource>
         <translation>Résolution d&apos;adresse &amp;MAC</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="448"/>
+        <location filename="capture_file_dialog.cpp" line="465"/>
         <source>&amp;Transport name resolution</source>
         <oldsource>Use &amp;external name resolver</oldsource>
         <translation>Résolution du nom de &amp;Transport</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="452"/>
+        <location filename="capture_file_dialog.cpp" line="469"/>
         <source>&amp;Network name resolution</source>
         <translation>Résolution de nom &amp;Réseau</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="456"/>
+        <location filename="capture_file_dialog.cpp" line="473"/>
         <source>&amp;External name resolver</source>
         <translation>Résolution de nom &amp;externe</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="349"/>
+        <location filename="capture_file_dialog.cpp" line="559"/>
+        <source>Wireshark: Export Specified Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="563"/>
+        <source>Export as:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="350"/>
         <source>All Files (*.*)</source>
         <translation>Tous les fichiers (*.*)</translation>
     </message>
@@ -69,27 +79,27 @@
         <translation type="obsolete">Le format de fichier dans lequel vous voulez sauvegarder ne prendre pas en charge les commentaires. Voulez-vous supprimer les commentaires et enregistrer dans le format que vous avez choisi?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="253"/>
+        <location filename="capture_file_dialog.cpp" line="254"/>
         <source>Format:</source>
         <translation>Format:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="258"/>
+        <location filename="capture_file_dialog.cpp" line="259"/>
         <source>Size:</source>
         <translation>Taille:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="263"/>
+        <location filename="capture_file_dialog.cpp" line="264"/>
         <source>Packets:</source>
         <translation>Paquets:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="268"/>
+        <location filename="capture_file_dialog.cpp" line="269"/>
         <source>First Packet:</source>
         <translation>Premier Paquet:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="273"/>
+        <location filename="capture_file_dialog.cpp" line="274"/>
         <source>Elapsed Time:</source>
         <translation>Heure:</translation>
     </message>
@@ -118,12 +128,12 @@
         <translation type="obsolete">Insérer des paquets à partir du fichier sélectionné après le fichier en cours. Horodatage des paquets seront ignorés.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="462"/>
+        <location filename="capture_file_dialog.cpp" line="479"/>
         <source>Compress with g&amp;zip</source>
         <translation>Compresser avec g&amp;zip</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="506"/>
+        <location filename="capture_file_dialog.cpp" line="532"/>
         <source>Wireshark: Save Capture File As</source>
         <translation>Wireshark: Sauvegarder le fichier de capture sous </translation>
     </message>
@@ -132,31 +142,31 @@
         <translation type="obsolete">Sauvegarder sous:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="531"/>
+        <location filename="capture_file_dialog.cpp" line="590"/>
         <source>Wireshark: Merge Capture File</source>
         <translation>Wireshark: Fusion de fichier de capture</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="623"/>
-        <location filename="capture_file_dialog.cpp" line="624"/>
-        <location filename="capture_file_dialog.cpp" line="625"/>
-        <location filename="capture_file_dialog.cpp" line="626"/>
-        <location filename="capture_file_dialog.cpp" line="627"/>
+        <location filename="capture_file_dialog.cpp" line="689"/>
+        <location filename="capture_file_dialog.cpp" line="690"/>
+        <location filename="capture_file_dialog.cpp" line="691"/>
+        <location filename="capture_file_dialog.cpp" line="692"/>
+        <location filename="capture_file_dialog.cpp" line="693"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="634"/>
+        <location filename="capture_file_dialog.cpp" line="700"/>
         <source>directory</source>
         <translation>dossier</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="641"/>
+        <location filename="capture_file_dialog.cpp" line="707"/>
         <source>unknown file format</source>
         <translation>Format du fichier inconnu</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="643"/>
+        <location filename="capture_file_dialog.cpp" line="709"/>
         <source>error opening file</source>
         <translation>erreur pour ouvrir le fichier</translation>
     </message>
@@ -173,12 +183,12 @@
         <translation type="obsolete">plus de %1 (aperçu timeout)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="711"/>
+        <location filename="capture_file_dialog.cpp" line="777"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="717"/>
+        <location filename="capture_file_dialog.cpp" line="783"/>
         <source>unknown</source>
         <translation>inconnu</translation>
     </message>
@@ -194,23 +204,23 @@
 <context>
     <name>DisplayFilterEdit</name>
     <message>
-        <location filename="display_filter_edit.cpp" line="96"/>
+        <location filename="display_filter_edit.cpp" line="95"/>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>Appliquer un filtre d&apos;affichage %1 &lt;%2/&gt;</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="91"/>
+        <location filename="display_filter_edit.cpp" line="90"/>
         <source>Display filter entry</source>
         <oldsource>Dispaly filter entry</oldsource>
         <translation>Filtre d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="94"/>
+        <location filename="display_filter_edit.cpp" line="93"/>
         <source>Enter a display filter %1</source>
         <translation>Entrer a filtrage d&apos;affichage %1</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="308"/>
+        <location filename="display_filter_edit.cpp" line="282"/>
         <source>Invalid filter</source>
         <translation>Filtre invalide</translation>
     </message>
@@ -362,152 +372,147 @@
         <translation>La taille maximale des trames&apos;écrire dans le fichier de capture d&apos;import (max 64000)</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="194"/>
-        <source>90000; </source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="import_text_dialog.ui" line="213"/>
+        <location filename="import_text_dialog.ui" line="210"/>
         <source>Encapsulation</source>
         <translation>Encapsulation</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="224"/>
+        <location filename="import_text_dialog.ui" line="221"/>
         <source>Encapsulation Type:</source>
         <translation>Type d&apos;Encapsulation:</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="231"/>
+        <location filename="import_text_dialog.ui" line="228"/>
         <source>Encapsulation type of the frames in the import capture file</source>
         <translation>Type d&apos;encapsulation des trames dans le fichier de capture d&apos;import</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="255"/>
+        <location filename="import_text_dialog.ui" line="252"/>
         <source>The UDP, TCP or SCTP source port for each frame</source>
         <translation>Le port source (UDP, TCP ou SCTP) pour chaque trame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="262"/>
+        <location filename="import_text_dialog.ui" line="259"/>
         <source>The SCTP DATA payload protocol identifier for each frame</source>
         <translation>L&apos;identifiant SCTP DATA payload pour chaque trame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="269"/>
+        <location filename="import_text_dialog.ui" line="266"/>
         <source>The UDP, TCP or SCTP destination port for each frame</source>
         <translation>Le port destination (UDP, TCP or SCTP) pour chaque trame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="276"/>
+        <location filename="import_text_dialog.ui" line="273"/>
         <source>Prefix each frame with an Ethernet header</source>
         <translation>Préfixe pour chaque trame avec un entête Ethernet</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="279"/>
+        <location filename="import_text_dialog.ui" line="276"/>
         <source>Ethernet</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="286"/>
+        <location filename="import_text_dialog.ui" line="283"/>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
         <translation>Préfixe pour chaque trame avec un entête Ethernet, IPv4 et SCTP</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="289"/>
+        <location filename="import_text_dialog.ui" line="286"/>
         <source>SCTP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="296"/>
+        <location filename="import_text_dialog.ui" line="293"/>
         <source>PPI:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="303"/>
+        <location filename="import_text_dialog.ui" line="300"/>
         <source>Protocol (dec):</source>
         <translation>Protocole (dec):</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="310"/>
+        <location filename="import_text_dialog.ui" line="307"/>
         <source>Leave frames unchanged</source>
         <translation>Laisser les trames inchangées</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="313"/>
+        <location filename="import_text_dialog.ui" line="310"/>
         <source>No dummy header</source>
         <translation>Aucune entête factice</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="336"/>
+        <location filename="import_text_dialog.ui" line="333"/>
         <source>Tag:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="343"/>
+        <location filename="import_text_dialog.ui" line="340"/>
         <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
         <translation>Préfixe pour chaque trame avec un entête Ethernet, IPv4 et UDP</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="346"/>
+        <location filename="import_text_dialog.ui" line="343"/>
         <source>UDP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="353"/>
+        <location filename="import_text_dialog.ui" line="350"/>
         <source>Source port:</source>
         <translation>Port source: </translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="360"/>
+        <location filename="import_text_dialog.ui" line="357"/>
         <source>The Ethertype value of each frame</source>
         <translation>La valeur Ethertype de chaque trame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="370"/>
+        <location filename="import_text_dialog.ui" line="367"/>
         <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
         <translation>Préfixe pour chaque trame avec un entête Ehternet, IPv4 et TCP</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="373"/>
+        <location filename="import_text_dialog.ui" line="370"/>
         <source>TCP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="380"/>
+        <location filename="import_text_dialog.ui" line="377"/>
         <source>The SCTP verification tag for each frame</source>
         <translation>La balise verification SCTP pour chaque trame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="387"/>
+        <location filename="import_text_dialog.ui" line="384"/>
         <source>Destination port:</source>
         <translation>Port de destination:</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="394"/>
+        <location filename="import_text_dialog.ui" line="391"/>
         <source>Ethertype (hex):</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="401"/>
+        <location filename="import_text_dialog.ui" line="398"/>
         <source>The IPv4 protocol ID for each frame</source>
         <translation>Le protocole ID IPv4 pour chaque trame</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="408"/>
+        <location filename="import_text_dialog.ui" line="405"/>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
         <translation>Préfixe pour chaque trame avec un entête Ethernet, IPV4 et SCTP (DATA)</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="411"/>
+        <location filename="import_text_dialog.ui" line="408"/>
         <source>SCTP (Data)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="418"/>
+        <location filename="import_text_dialog.ui" line="415"/>
         <source>Prefix each frame with an Ethernet and IPv4 header</source>
         <translation>Préfixe pour chaque trame avec un entête Ehternet, IPv4</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.ui" line="421"/>
+        <location filename="import_text_dialog.ui" line="418"/>
         <source>IPv4</source>
         <translation></translation>
     </message>
@@ -1233,72 +1238,82 @@ plus a propos de Wireshark</translation>
         <translation> avant l&apos;import d&apos;une nouvelle capture</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="683"/>
-        <location filename="main_window.cpp" line="708"/>
+        <location filename="main_window.cpp" line="791"/>
+        <source>Unable to export to &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="792"/>
+        <source>You cannot export packets to the current capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="861"/>
+        <location filename="main_window.cpp" line="886"/>
         <source>.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="783"/>
+        <location filename="main_window.cpp" line="925"/>
         <source>You have unsaved packets</source>
         <translation>Vous avez des paquets non sauvegardés</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="784"/>
+        <location filename="main_window.cpp" line="926"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>Ils seront perdues si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="787"/>
-        <location filename="main_window.cpp" line="800"/>
+        <location filename="main_window.cpp" line="929"/>
+        <location filename="main_window.cpp" line="942"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>
 Voulez-vous arrêter la capture et enregistrer les paquets capturés</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="789"/>
+        <location filename="main_window.cpp" line="931"/>
         <source>Do you want to save the captured packets</source>
         <translation>Voulez-vous  enregistrer les paquets capturés</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="791"/>
-        <location filename="main_window.cpp" line="801"/>
+        <location filename="main_window.cpp" line="933"/>
+        <location filename="main_window.cpp" line="943"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="802"/>
+        <location filename="main_window.cpp" line="944"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Votre capture de paquet sera perdu si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="805"/>
+        <location filename="main_window.cpp" line="947"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Voulez-vous enregistrer les modifications que vous avez apportées au fichier de capture &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="810"/>
+        <location filename="main_window.cpp" line="952"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Vos changements seront perdus si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="822"/>
+        <location filename="main_window.cpp" line="964"/>
         <source>Stop and Save</source>
         <translation>Arreter et Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="830"/>
+        <location filename="main_window.cpp" line="972"/>
         <source>Stop and Quit without Saving</source>
         <oldsource>Stop and Quit without Saving)</oldsource>
         <translation>Arreter et Quitter sans Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="832"/>
+        <location filename="main_window.cpp" line="974"/>
         <source>Quit without Saving</source>
         <translation>Quitter sans Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="836"/>
+        <location filename="main_window.cpp" line="978"/>
         <source>Stop and Continue without Saving</source>
         <translation>Arreter et Continuer sans Sauvegarder</translation>
     </message>
@@ -1312,12 +1327,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation>Effacer les fichiers récemment ouverts</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="713"/>
+        <location filename="main_window_slots.cpp" line="718"/>
         <source>No Interface Selected</source>
         <translation>Aucune Interface Sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="714"/>
+        <location filename="main_window_slots.cpp" line="719"/>
         <source>You didn&apos;t specify an interface on which to capture packets.</source>
         <translation>Vous n&apos;avez pas spécifié une interface sur laquelle capturer les paquets.</translation>
     </message>
@@ -1327,19 +1342,88 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     </message>
 </context>
 <context>
+    <name>PacketRangeGroupBox</name>
+    <message>
+        <location filename="packet_range_group_box.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="packet_range_group_box.ui" line="17"/>
+        <source>Packet Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="packet_range_group_box.ui" line="23"/>
+        <location filename="packet_range_group_box.ui" line="46"/>
+        <location filename="packet_range_group_box.ui" line="76"/>
+        <location filename="packet_range_group_box.ui" line="93"/>
+        <location filename="packet_range_group_box.ui" line="113"/>
+        <location filename="packet_range_group_box.ui" line="133"/>
+        <location filename="packet_range_group_box.ui" line="143"/>
+        <location filename="packet_range_group_box.ui" line="153"/>
+        <location filename="packet_range_group_box.ui" line="186"/>
+        <location filename="packet_range_group_box.ui" line="219"/>
+        <location filename="packet_range_group_box.ui" line="229"/>
+        <location filename="packet_range_group_box.ui" line="239"/>
+        <source>-</source>
+        <translation type="unfinished">-</translation>
+    </message>
+    <message>
+        <location filename="packet_range_group_box.ui" line="33"/>
+        <source>Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="packet_range_group_box.ui" line="56"/>
+        <source>&amp;Marked packets only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="packet_range_group_box.ui" line="66"/>
+        <source>&amp;Range:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="packet_range_group_box.ui" line="86"/>
+        <source>Remove &amp;ignored packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="packet_range_group_box.ui" line="103"/>
+        <source>First &amp;to last marked</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="packet_range_group_box.ui" line="123"/>
+        <source>&amp;All packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="packet_range_group_box.ui" line="163"/>
+        <source>&amp;Selected packets only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="packet_range_group_box.ui" line="173"/>
+        <source>Captured</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ProtoTree</name>
     <message>
-        <location filename="proto_tree.cpp" line="151"/>
+        <location filename="proto_tree.cpp" line="155"/>
         <source>Packet details</source>
         <translation>Détail du paquet</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="196"/>
+        <location filename="proto_tree.cpp" line="200"/>
         <source>, 1 byte</source>
         <translation>, 1 octet</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="198"/>
+        <location filename="proto_tree.cpp" line="202"/>
         <source>, %1 bytes</source>
         <translation>, %1 octets</translation>
     </message>

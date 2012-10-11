@@ -560,7 +560,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     // XXX See comment in ::saveAs regarding setNameFilters
     setNameFilters(buildFileSaveAsTypeList(false));
     setAcceptMode(QFileDialog::AcceptSave);
-    setLabelText(FileType, "Export as:");
+    setLabelText(FileType, tr("Export as:"));
 
     addGzipControls(left_v_box_);
     addRangeControls(range);

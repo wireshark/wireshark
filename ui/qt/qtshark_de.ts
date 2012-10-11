@@ -94,6 +94,14 @@
         <source>Elapsed Time:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Wireshark: Export Specified Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export as:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterCombo</name>
@@ -236,10 +244,6 @@
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 64000)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>90000; </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -964,6 +968,61 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Stop and Continue without Saving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export to &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You cannot export packets to the current capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PacketRangeGroupBox</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Marked packets only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Range:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove &amp;ignored packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>First &amp;to last marked</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;All packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Selected packets only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Captured</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
