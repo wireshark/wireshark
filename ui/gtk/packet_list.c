@@ -175,6 +175,8 @@ right_justify_column (gint col)
 	case COL_UNRES_SRC_PORT:
 	case COL_DEF_DST_PORT:
 	case COL_DEF_SRC_PORT:
+	case COL_DELTA_TIME:
+	case COL_DELTA_TIME_DIS:
 		right_justify = TRUE;
 		break;
 
