@@ -816,6 +816,23 @@ File "${STAGING_DIR}\tshark.exe"
 File "..\..\doc\tshark.html"
 SectionEnd
 
+!ifdef QT_DIR
+Section /o "QtShark (Experimental)" SecQtshark
+;-------------------------------------------
+; by default, QtShark is not installed  
+SetOutPath $INSTDIR
+File "${QT_DIR}\qtshark.exe"
+File "${QT_DIR}\QtCore4.dll"
+File "${QT_DIR}\QtGui4.dll"
+; Disable Qtshark shortcut if Qtshark isn't selected
+Push $0
+SectionGetFlags ${SecQtshark} $0
+IntOp  $0 $0 & 1
+CreateShortCut "$SMPROGRAMS\Qtshark.lnk" "$INSTDIR\qtshark.exe" "" "$INSTDIR\qtshark.exe" 0 "" "" "The new QtShark Network Protocol Analyzer"
+Pop $0
+SectionEnd
+!endif
+
 SectionGroup "Plugins / Extensions" SecPluginsGroup
 
 Section "Dissector Plugins" SecPlugins
@@ -937,6 +954,9 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWireshark} "${PROGRAM_NAME} is a GUI network protocol analyzer."
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "TShark is a text based network protocol analyzer."
+!ifdef QT_DIR
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecQtshark} "Qtshark is a new GUI network protocol analyzer. (Experimental)"
+!endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Some plugins and extensions for both Wireshark and TShark."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Plugin for some extended statistics."

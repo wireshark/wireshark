@@ -104,6 +104,12 @@ IfErrors 0 NoTSharkErrorMsg
 	Abort "Please note: tshark.exe could not be removed, it's probably in use! Abort uninstall process!"
 NoTSharkErrorMsg:
 
+Delete "$INSTDIR\Qtshark.exe"
+IfErrors 0 NoQtSharkErrorMsg
+	MessageBox MB_OK "Please note: qtshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if qtshark.exe removed
+	Abort "Please note: qtshark.exe could not be removed, it's probably in use! Abort uninstall process!"
+NoQtSharkErrorMsg:
+
 Delete "$INSTDIR\wireshark.exe"
 IfErrors 0 NoWiresharkErrorMsg
 	MessageBox MB_OK "Please note: wireshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if wireshark.exe removed
@@ -167,6 +173,7 @@ Delete "$INSTDIR\radius\*.*"
 Delete "$INSTDIR\dtds\*.*"
 Delete "$SMPROGRAMS\Wireshark\*.*"
 Delete "$SMPROGRAMS\Wireshark.lnk"
+Delete "$SMPROGRAMS\Qtshark.lnk"
 Delete "$DESKTOP\Wireshark.lnk"
 Delete "$QUICKLAUNCH\Wireshark.lnk"
 
