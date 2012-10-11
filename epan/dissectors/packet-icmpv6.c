@@ -3426,7 +3426,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     offset += 2;
 
                     /* Source Address */
-                    for (i=1; i <= nb_sources; i++){
+                    for (i=0; i < nb_sources; i++){
                         proto_tree_add_item(icmp6_tree, hf_icmpv6_mld_source_address, tvb, offset, 16, ENC_NA);
                         offset += 16;
                     }
