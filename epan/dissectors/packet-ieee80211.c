@@ -6665,7 +6665,7 @@ dissect_vht_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset) {
   proto_tree *mcs_tree, *rx_mcs_tree, *tx_mcs_tree;
 
   /* 8 byte Supported MCS set */
-  ti = proto_tree_add_string(tree, hf_ieee80211_vht_mcsset, tvb, offset, 8, "VHT MCS Set");
+  ti = proto_tree_add_item(tree, hf_ieee80211_vht_mcsset, tvb, offset, 8, ENC_NA);
 
   mcs_tree = proto_item_add_subtree(ti, ett_vht_mcsset_tree);
 
@@ -12796,6 +12796,7 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
+  /* IEEE Stc 802.11ac/D3.1 */
 
   static const value_string vht_max_mpdu_length_flag[] = {
     {0x00, "3895 Octets"},
@@ -15043,7 +15044,7 @@ proto_register_ieee80211 (void)
 
      {&hf_ieee80211_vht_mcsset,
       {"VHT Supported MCS Set", "wlan_mgt.vht.mcsset",
-       FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+       FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_vht_mcsset_rx_mcs_map,
      {"Rx MCS Map", "wlan_mgt.vht.mcsset.rxmcsmap",
