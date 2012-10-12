@@ -1978,9 +1978,9 @@
 		</avp>
 		<avp name="Auth-Request-Type" code="274" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
-			<enum name="Authenticate Only" code="1"/>
-			<enum name="Authorize Only" code="2"/>
-			<enum name="Authorize Authenticate" code="3"/>
+			<enum name="AUTHENTICATE_ONLY" code="1"/>
+			<enum name="AUTHORIZE_ONLY" code="2"/>
+			<enum name="AUTHORIZE_AUTHENTICATE" code="3"/>
 		</avp>
 		<avp name="Alternate-Peer" code="275" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
