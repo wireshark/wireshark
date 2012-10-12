@@ -57,7 +57,7 @@ typedef struct commview_header {
 	guint32		usecs;
 	guint8		flags;		/* Bit-field positions defined below */
 	guint8		signal_level_percent;
-	guint16		rate;
+	guint8		rate;
 	guint8		band;
 	guint8		channel;
 	guint8		direction;	/* Or for WiFi, high order byte of
@@ -143,7 +143,8 @@ commview_set_pseudo_header(commview_header_t *cv_hdrp, union wtap_pseudo_header
 		pseudo_header->ieee_802_11.fcs_len = -1; /* Unknown */
 		pseudo_header->ieee_802_11.decrypted = FALSE;
 		pseudo_header->ieee_802_11.channel = cv_hdrp->channel;
-		pseudo_header->ieee_802_11.data_rate = cv_hdrp->rate;
+		pseudo_header->ieee_802_11.data_rate =
+		    cv_hdrp->rate | (cv_hdrp->direction << 8);
 		pseudo_header->ieee_802_11.signal_level = cv_hdrp->signal_level_percent;
 		break;
 
