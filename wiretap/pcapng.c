@@ -379,7 +379,6 @@ typedef struct interface_data_s {
 
 typedef struct {
         gboolean shb_read;                                              /**< Set when first SHB read, second read will fail */
-        gboolean read_idbs;                                             /**< Indicates that it is the first read after a SHB, at least one IDB is expected */
         gboolean byte_swapped;
         guint16 version_major;
         guint16 version_minor;
@@ -1976,6 +1975,47 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
         return block_read;
 }
 
+/* Process an IDB that we've just read. */
+static void
+pcapng_process_idb(wtap *wth, pcapng_t *pcapng, wtapng_block_t *wblock)
+{
+        wtapng_if_descr_t int_data;
+        interface_data_t interface_data;
+
+        int_data.wtap_encap = wblock->data.if_descr.wtap_encap;
+        int_data.time_units_per_second = wblock->data.if_descr.time_units_per_second;
+        int_data.link_type = wblock->data.if_descr.link_type;
+        int_data.snap_len = wblock->data.if_descr.snap_len;
+        /* Options */
+        int_data.opt_comment = wblock->data.if_descr.opt_comment;
+        int_data.if_name = wblock->data.if_descr.if_name;
+        int_data.if_description = wblock->data.if_descr.if_description;
+        /* XXX: if_IPv4addr opt 4  Interface network address and netmask.*/
+        /* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
+        /* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
+        /* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
+        int_data.if_speed = wblock->data.if_descr.if_speed;
+        int_data.if_tsresol = wblock->data.if_descr.if_tsresol;
+        /* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
+        int_data.if_filter_str = wblock->data.if_descr.if_filter_str;
+        int_data.bpf_filter_len = wblock->data.if_descr.bpf_filter_len;
+        int_data.if_filter_bpf_bytes = wblock->data.if_descr.if_filter_bpf_bytes;
+        int_data.if_os = wblock->data.if_descr.if_os;
+        int_data.if_fcslen = wblock->data.if_descr.if_fcslen;
+        /* XXX if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
+        /* Interface statistics */
+        int_data.num_stat_entries = 0;
+        int_data.interface_statistics = NULL;
+
+        g_array_append_val(wth->interface_data, int_data);
+        wth->number_of_interfaces++;
+
+        interface_data.wtap_encap = wblock->data.if_descr.wtap_encap;
+        interface_data.time_units_per_second = wblock->data.if_descr.time_units_per_second;
+
+        g_array_append_val(pcapng->interface_data, interface_data);
+        pcapng->number_of_interfaces++;
+}
 
 /* classic wtap: open capture file */
 int
@@ -1985,13 +2025,10 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         pcapng_t pn;
         wtapng_block_t wblock;
         pcapng_t *pcapng;
-        wtapng_if_descr_t int_data;
-        interface_data_t interface_data;
         pcapng_block_header_t bh;
         gint64 saved_offset;
 
         pn.shb_read = FALSE;
-        pn.read_idbs = TRUE;            /* IDB expected after SHB */
         /* we don't know the byte swapping of the file yet */
         pn.byte_swapped = FALSE;
         pn.if_fcslen = -1;
@@ -2100,41 +2137,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                                 *err = WTAP_ERR_SHORT_READ;
                         return -1;
                 }
-                int_data.wtap_encap = wblock.data.if_descr.wtap_encap;
-                int_data.time_units_per_second = wblock.data.if_descr.time_units_per_second;
-                int_data.link_type = wblock.data.if_descr.link_type;
-                int_data.snap_len = wblock.data.if_descr.snap_len;
-                /* Options */
-                int_data.opt_comment = wblock.data.if_descr.opt_comment;
-                int_data.if_name = wblock.data.if_descr.if_name;
-                int_data.if_description = wblock.data.if_descr.if_description;
-                /* XXX: if_IPv4addr opt 4  Interface network address and netmask.*/
-                /* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
-                /* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
-                /* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
-                int_data.if_speed = wblock.data.if_descr.if_speed;
-                int_data.if_tsresol = wblock.data.if_descr.if_tsresol;
-                /* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
-                int_data.if_filter_str = wblock.data.if_descr.if_filter_str;
-                int_data.bpf_filter_len = wblock.data.if_descr.bpf_filter_len;
-                int_data.if_filter_bpf_bytes = wblock.data.if_descr.if_filter_bpf_bytes;
-                int_data.if_os = wblock.data.if_descr.if_os;
-                int_data.if_fcslen = wblock.data.if_descr.if_fcslen;
-                /* XXX if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
-                /* Interface statistics */
-                int_data.num_stat_entries = 0;
-                int_data.interface_statistics = NULL;
-
-                g_array_append_val(wth->interface_data, int_data);
-                wth->number_of_interfaces++;
-
-                interface_data.wtap_encap = wblock.data.if_descr.wtap_encap;
-                interface_data.time_units_per_second = wblock.data.if_descr.time_units_per_second;
-
-                g_array_append_val(pcapng->interface_data, interface_data);
-                pcapng->number_of_interfaces++;
-                pcapng->read_idbs = FALSE;
-
+                pcapng_process_idb(wth, pcapng, &wblock);
                 pcapng_debug2("pcapng_open: Read IDB number_of_interfaces %u, wtap_encap %i", wth->number_of_interfaces, int_data.wtap_encap);
         }
         return 1;
@@ -2180,49 +2183,78 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                         return FALSE;
                 }
 
-                /* block must be a "Packet Block" or an "Enhanced Packet Block" -> otherwise continue */
-                if (wblock.type == BLOCK_TYPE_PB || wblock.type == BLOCK_TYPE_EPB) {
+                switch (wblock.type) {
+
+                case(BLOCK_TYPE_SHB):
+                        /* We don't currently support multi-section files. */
+                        wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
+                        *err = WTAP_ERR_UNSUPPORTED;
+                        *err_info = g_strdup_printf("pcapng: multi-section files not currently supported.");
+                        return FALSE;
+
+                case(BLOCK_TYPE_PB):
+                case(BLOCK_TYPE_SPB):
+                case(BLOCK_TYPE_EPB):
+                        /* packet block - we've found a packet */
+                        goto got_packet;
+
+                case(BLOCK_TYPE_IDB):
+                        /* A new interface */
+                        pcapng_debug0("pcapng_read: block type BLOCK_TYPE_IDB");
+                        *data_offset += bytes_read;
+                        pcapng_process_idb(wth, pcapng, &wblock);
                         break;
-                }
-                if (wblock.type == BLOCK_TYPE_ISB ) {
-                    pcapng_debug0("pcapng_read: block type BLOCK_TYPE_ISB");
-                    *data_offset += bytes_read;
-                    pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "d", *data_offset);
-                    if (wth->number_of_interfaces < wblock.data.if_stats.interface_id) {
-                        pcapng_debug1("pcapng_read: BLOCK_TYPE_ISB wblock.if_stats.interface_id %u > number_of_interfaces", wblock.data.if_stats.interface_id);
-                    } else {
-                        /* Get the interface description */
-                        wtapng_if_descr = &g_array_index(wth->interface_data, wtapng_if_descr_t, wblock.data.if_stats.interface_id);
-                        if (wtapng_if_descr->num_stat_entries == 0) {
-                            /* First ISB found, no previous entry */
-                            pcapng_debug0("pcapng_read: block type BLOCK_TYPE_ISB. First ISB found, no previous entry");
-                            wtapng_if_descr->interface_statistics = g_array_new(FALSE, FALSE, sizeof(wtapng_if_stats_t));
+
+                case(BLOCK_TYPE_NRB):
+                        /* More name resolution entries */
+                        pcapng_debug0("pcapng_read: block type BLOCK_TYPE_NRB");
+                        *data_offset += bytes_read;
+                        break;
+
+                case(BLOCK_TYPE_ISB):
+                        /* Another interface statistics report */
+                        pcapng_debug0("pcapng_read: block type BLOCK_TYPE_ISB");
+                        *data_offset += bytes_read;
+                        pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "d", *data_offset);
+                        if (wth->number_of_interfaces < wblock.data.if_stats.interface_id) {
+                                pcapng_debug1("pcapng_read: BLOCK_TYPE_ISB wblock.if_stats.interface_id %u > number_of_interfaces", wblock.data.if_stats.interface_id);
+                        } else {
+                                /* Get the interface description */
+                                wtapng_if_descr = &g_array_index(wth->interface_data, wtapng_if_descr_t, wblock.data.if_stats.interface_id);
+                                if (wtapng_if_descr->num_stat_entries == 0) {
+                                    /* First ISB found, no previous entry */
+                                    pcapng_debug0("pcapng_read: block type BLOCK_TYPE_ISB. First ISB found, no previous entry");
+                                    wtapng_if_descr->interface_statistics = g_array_new(FALSE, FALSE, sizeof(wtapng_if_stats_t));
+                                }
+
+                                if_stats.interface_id       = wblock.data.if_stats.interface_id;
+                                if_stats.ts_high            = wblock.data.if_stats.ts_high;
+                                if_stats.ts_low             = wblock.data.if_stats.ts_low;
+                                /* options */
+                                if_stats.opt_comment        = wblock.data.if_stats.opt_comment;	/* NULL if not available */
+                                if_stats.isb_starttime      = wblock.data.if_stats.isb_starttime;
+                                if_stats.isb_endtime        = wblock.data.if_stats.isb_endtime;
+                                if_stats.isb_ifrecv         = wblock.data.if_stats.isb_ifrecv;
+                                if_stats.isb_ifdrop         = wblock.data.if_stats.isb_ifdrop;
+                                if_stats.isb_filteraccept   = wblock.data.if_stats.isb_filteraccept;
+                                if_stats.isb_osdrop         = wblock.data.if_stats.isb_osdrop;
+                                if_stats.isb_usrdeliv       = wblock.data.if_stats.isb_usrdeliv;
+
+                                g_array_append_val(wtapng_if_descr->interface_statistics, if_stats);
+                                wtapng_if_descr->num_stat_entries++;
                         }
+                        break;
 
-                        if_stats.interface_id       = wblock.data.if_stats.interface_id;
-                        if_stats.ts_high            = wblock.data.if_stats.ts_high;
-                        if_stats.ts_low             = wblock.data.if_stats.ts_low;
-                        /* options */
-                        if_stats.opt_comment        = wblock.data.if_stats.opt_comment;	/* NULL if not available */
-                        if_stats.isb_starttime      = wblock.data.if_stats.isb_starttime;
-                        if_stats.isb_endtime        = wblock.data.if_stats.isb_endtime;
-                        if_stats.isb_ifrecv         = wblock.data.if_stats.isb_ifrecv;
-                        if_stats.isb_ifdrop         = wblock.data.if_stats.isb_ifdrop;
-                        if_stats.isb_filteraccept   = wblock.data.if_stats.isb_filteraccept;
-                        if_stats.isb_osdrop         = wblock.data.if_stats.isb_osdrop;
-                        if_stats.isb_usrdeliv       = wblock.data.if_stats.isb_usrdeliv;
-
-                        g_array_append_val(wtapng_if_descr->interface_statistics, if_stats);
-                        wtapng_if_descr->num_stat_entries++;
-                    }
-                } else {
-                    /* XXX - improve handling of "unknown" blocks */
-                    pcapng_debug1("pcapng_read: block type 0x%x not PB/EPB", wblock.type);
-                    *data_offset += bytes_read;
-                    pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "d", *data_offset);
+                default:
+                        /* XXX - improve handling of "unknown" blocks */
+                        pcapng_debug1("pcapng_read: Unknown block type 0x%08x", wblock.type);
+                        *data_offset += bytes_read;
+                        pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "d", *data_offset);
+                        break;
                 }
         }
 
+got_packet:
         if (wblock.data.packet.interface_id < pcapng->number_of_interfaces) {
         } else {
                 wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
@@ -2273,9 +2305,11 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
                 return FALSE;
         }
 
-        /* block must be a "Packet Block" or an "Enhanced Packet Block" */
-        if (wblock.type != BLOCK_TYPE_PB && wblock.type != BLOCK_TYPE_EPB) {
-                pcapng_debug1("pcapng_seek_read: block type %u not PB/EPB", wblock.type);
+        /* block must be a "Packet Block", an "Enhanced Packet Block",
+           or a "Simple Packet Block" */
+        if (wblock.type != BLOCK_TYPE_PB && wblock.type != BLOCK_TYPE_EPB &&
+            wblock.type != BLOCK_TYPE_SPB) {
+                pcapng_debug1("pcapng_seek_read: block type %u not PB/EPB/SPB", wblock.type);
                 return FALSE;
         }
 
