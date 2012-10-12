@@ -33,6 +33,10 @@
 
 #include "packet-range.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * Print stream code; this provides a "print stream" class with subclasses
  * of various sorts.  Additional subclasses might be implemented elsewhere.
@@ -154,5 +158,9 @@ extern void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt
 extern void write_fields_finale(output_fields_t* fields, FILE *fh);
 
 extern const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* print.h */

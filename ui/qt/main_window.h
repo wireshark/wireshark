@@ -52,6 +52,7 @@
 #include "display_filter_combo.h"
 #include "progress_bar.h"
 #include "file_set_dialog.h"
+#include "capture_file_dialog.h"
 
 class QAction;
 
@@ -101,6 +102,7 @@ private:
     void saveCaptureFile(capture_file *cf, bool stay_closed);
     void saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool stay_closed);
     void exportSelectedPackets();
+    void exportDissections(export_type_e export_type);
 
     void fileAddExtension(QString &file_name, int file_type, bool compressed);
     bool testCaptureFileClose(bool from_quit = false, QString& before_what = *new QString());
@@ -159,6 +161,12 @@ private slots:
     void on_actionFileSetNextFile_triggered();
     void on_actionFileSetPreviousFile_triggered();
     void on_actionFileExportPackets_triggered();
+    void on_actionFileExportAsPlainText_triggered();
+    // We're dropping PostScript exports
+    void on_actionFileExportAsCSV_triggered();
+    void on_actionFileExportAsCArrays_triggered();
+    void on_actionFileExportAsPSML_triggered();
+    void on_actionFileExportAsPDML_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();

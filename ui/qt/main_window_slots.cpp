@@ -537,11 +537,6 @@ void MainWindow::on_actionFileSaveAs_triggered()
     saveAsCaptureFile(cap_file_, FALSE, TRUE);
 }
 
-void MainWindow::on_actionFileExportPackets_triggered()
-{
-    exportSelectedPackets();
-}
-
 void MainWindow::on_actionFileSetListFiles_triggered()
 {
     file_set_dialog_.exec();
@@ -566,6 +561,37 @@ void MainWindow::on_actionFileSetPreviousFile_triggered()
         openCaptureFile(new_cf_path);
     }
 }
+
+void MainWindow::on_actionFileExportPackets_triggered()
+{
+    exportSelectedPackets();
+}
+
+void MainWindow::on_actionFileExportAsPlainText_triggered()
+{
+    exportDissections(export_type_text);
+}
+
+void MainWindow::on_actionFileExportAsCSV_triggered()
+{
+    exportDissections(export_type_csv);
+}
+
+void MainWindow::on_actionFileExportAsCArrays_triggered()
+{
+    exportDissections(export_type_carrays);
+}
+
+void MainWindow::on_actionFileExportAsPSML_triggered()
+{
+    exportDissections(export_type_psml);
+}
+
+void MainWindow::on_actionFileExportAsPDML_triggered()
+{
+    exportDissections(export_type_pdml);
+}
+
 
 // View Menu
 

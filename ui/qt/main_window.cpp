@@ -44,9 +44,9 @@
 #include "wireshark_application.h"
 #include "proto_tree.h"
 #include "byte_view_tab.h"
-#include "capture_file_dialog.h"
 #include "display_filter_edit.h"
 #include "import_text_dialog.h"
+#include "export_dissection_dialog.h"
 
 #include "qt_ui_utils.h"
 
@@ -712,7 +712,7 @@ void MainWindow::exportSelectedPackets() {
     if (!cap_file_)
         return;
 
-    /* init the packet range */
+    /* Init the packet range */
     packet_range_init(&range, cap_file_);
     range.process_filtered = TRUE;
     range.include_dependents = TRUE;
@@ -835,6 +835,22 @@ void MainWindow::exportSelectedPackets() {
         }
     }
     return;
+}
+
+void MainWindow::exportDissections(export_type_e export_type) {
+    QString file_name = "";
+    ExportDissectionDialog ed_dlg(this, export_type, cap_file_);
+    packet_range_t range;
+
+    if (!cap_file_)
+        return;
+
+    /* Init the packet range */
+    packet_range_init(&range, cap_file_);
+    range.process_filtered = TRUE;
+    range.include_dependents = TRUE;
+
+    ed_dlg.exec();
 }
 
 void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compressed) {
@@ -1057,7 +1073,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         main_ui_->actionFileSave->setEnabled(false);
         main_ui_->actionFileSaveAs->setEnabled(false);
         main_ui_->actionFileExportPackets->setEnabled(false);
-        main_ui_->actionFileExportPacketDissections->setEnabled(false);
+        main_ui_->menuFileExportPacketDissections->setEnabled(false);
         main_ui_->actionFileExportPacketBytes->setEnabled(false);
         main_ui_->actionFileExportSSLSessionKeys->setEnabled(false);
         main_ui_->actionFileExportObjects->setEnabled(false);
@@ -1098,7 +1114,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
          * we can write the file out in at least one format.
          */
         main_ui_->actionFileExportPackets->setEnabled(cf_can_write_with_wiretap(cap_file_));
-        main_ui_->actionFileExportPacketDissections->setEnabled(true);
+        main_ui_->menuFileExportPacketDissections->setEnabled(true);
         main_ui_->actionFileExportPacketBytes->setEnabled(true);
         main_ui_->actionFileExportSSLSessionKeys->setEnabled(true);
         main_ui_->actionFileExportObjects->setEnabled(true);
@@ -1112,7 +1128,7 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
 
     main_ui_->actionFileOpen->setEnabled(!capture_in_progress);
     main_ui_->menuOpenRecentCaptureFile->setEnabled(!capture_in_progress);
-    main_ui_->actionFileExportPacketDissections->setEnabled(capture_in_progress);
+    main_ui_->menuFileExportPacketDissections->setEnabled(capture_in_progress);
     main_ui_->actionFileExportPacketBytes->setEnabled(capture_in_progress);
     main_ui_->actionFileExportSSLSessionKeys->setEnabled(capture_in_progress);
     main_ui_->actionFileExportObjects->setEnabled(capture_in_progress);

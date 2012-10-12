@@ -111,6 +111,17 @@
      <addaction name="actionFileSetNextFile"/>
      <addaction name="actionFileSetPreviousFile"/>
     </widget>
+    <widget class="QMenu" name="menuFileExportPacketDissections">
+     <property name="title">
+      <string>Export Packet Dissections</string>
+     </property>
+     <addaction name="actionFileExportAsPlainText"/>
+     <addaction name="actionFileExportAsCSV"/>
+     <addaction name="actionFileExportAsCArrays"/>
+     <addaction name="separator"/>
+     <addaction name="actionFileExportAsPSML"/>
+     <addaction name="actionFileExportAsPDML"/>
+    </widget>
     <addaction name="actionFileOpen"/>
     <addaction name="menuOpenRecentCaptureFile"/>
     <addaction name="actionFileMerge"/>
@@ -123,7 +134,7 @@
     <addaction name="menuFileSet"/>
     <addaction name="separator"/>
     <addaction name="actionFileExportPackets"/>
-    <addaction name="actionFileExportPacketDissections"/>
+    <addaction name="menuFileExportPacketDissections"/>
     <addaction name="actionFileExportPacketBytes"/>
     <addaction name="actionFileExportSSLSessionKeys"/>
     <addaction name="actionFileExportObjects"/>
@@ -581,15 +592,10 @@
   </action>
   <action name="actionFileExportPackets">
    <property name="text">
-    <string>Export Packets...</string>
+    <string>Export Specified Packets...</string>
    </property>
    <property name="toolTip">
     <string>Export specified packets</string>
-   </property>
-  </action>
-  <action name="actionFileExportPacketDissections">
-   <property name="text">
-    <string>Export Packet Dissections...</string>
    </property>
   </action>
   <action name="actionFileExportPacketBytes">
@@ -680,6 +686,36 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionFileExportAsPlainText">
+   <property name="text">
+    <string>As Plain &amp;Text...</string>
+   </property>
+  </action>
+  <action name="actionFileExportAsPostScript">
+   <property name="text">
+    <string>As PostScript...</string>
+   </property>
+  </action>
+  <action name="actionFileExportAsCSV">
+   <property name="text">
+    <string>As CSV...</string>
+   </property>
+  </action>
+  <action name="actionFileExportAsCArrays">
+   <property name="text">
+    <string>As &quot;C&quot; Arrays...</string>
+   </property>
+  </action>
+  <action name="actionFileExportAsPSML">
+   <property name="text">
+    <string>As PSML XML...</string>
+   </property>
+  </action>
+  <action name="actionFileExportAsPDML">
+   <property name="text">
+    <string>As PDML XML...</string>
    </property>
   </action>
  </widget>

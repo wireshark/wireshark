@@ -104,7 +104,7 @@ private:
 #if !defined(Q_WS_WIN)
     void addResolutionControls(QVBoxLayout &v_box);
     void addGzipControls(QVBoxLayout &v_box);
-    void addRangeControls(packet_range_t *range);
+    void addRangeControls(QVBoxLayout &v_box, packet_range_t *range);
 
     QStringList buildFileSaveAsTypeList(bool must_support_comments);
 
@@ -135,12 +135,11 @@ public slots:
     check_savability_t saveAs(QString &file_name, bool must_support_comments);
     check_savability_t exportSelectedPackets(QString &file_name, packet_range_t *range);
     int merge(QString &file_name);
-#if !defined(Q_WS_WIN)
-    void rangeValidityChanged(bool is_valid);
-#endif // Q_WS_WIN
 
 private slots:
+#if !defined(Q_WS_WIN)
     void preview(const QString & path);
+#endif // Q_WS_WIN
 };
 
 #endif // CAPTURE_FILE_DIALOG_H

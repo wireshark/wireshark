@@ -145,6 +145,9 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
     // Left and right boxes for controls and preview
     h_box->addLayout(&left_v_box_);
     h_box->addLayout(&right_v_box_);
+
+    qDebug() << "FIX: CaptureFileDialog help button";
+
 #else // Q_WS_WIN
     merge_type_ = 0;
 #endif // Q_WS_WIN
@@ -285,16 +288,16 @@ void CaptureFileDialog::addMergeControls(QVBoxLayout &v_box) {
 
     merge_prepend_.setText("Prepend packets");
     merge_prepend_.setToolTip("Insert packets from the selected file before the current file. Packet timestamps will be ignored.");
-    v_box.addWidget(&merge_prepend_);
+    v_box.addWidget(&merge_prepend_, 0, Qt::AlignTop);
 
     merge_chrono_.setText("Merge chronologically");
     merge_chrono_.setToolTip("Insert packets in chronological order.");
     merge_chrono_.setChecked(true);
-    v_box.addWidget(&merge_chrono_);
+    v_box.addWidget(&merge_chrono_, 0, Qt::AlignTop);
 
     merge_append_.setText("Append packets");
     merge_append_.setToolTip("Insert packets from the selected file after the current file. Packet timestamps will be ignored.");
-    v_box.addWidget(&merge_append_);
+    v_box.addWidget(&merge_append_, 0, Qt::AlignTop);
 }
 
 // You have to use open, merge, saveAs, or exportPackets. We should
@@ -460,19 +463,19 @@ void CaptureFileDialog::addDisplayFilterEdit() {
 void CaptureFileDialog::addResolutionControls(QVBoxLayout &v_box) {
     mac_res_.setText(tr("&MAC name resolution"));
     mac_res_.setChecked(gbl_resolv_flags.mac_name);
-    v_box.addWidget(&mac_res_);
+    v_box.addWidget(&mac_res_, 0, Qt::AlignTop);
 
     transport_res_.setText(tr("&Transport name resolution"));
     transport_res_.setChecked(gbl_resolv_flags.transport_name);
-    v_box.addWidget(&transport_res_);
+    v_box.addWidget(&transport_res_, 0, Qt::AlignTop);
 
     network_res_.setText(tr("&Network name resolution"));
     network_res_.setChecked(gbl_resolv_flags.network_name);
-    v_box.addWidget(&network_res_);
+    v_box.addWidget(&network_res_, 0, Qt::AlignTop);
 
     external_res_.setText(tr("&External name resolver"));
     external_res_.setChecked(gbl_resolv_flags.use_external_net_name_resolver);
-    v_box.addWidget(&external_res_);
+    v_box.addWidget(&external_res_, 0, Qt::AlignTop);
 }
 
 void CaptureFileDialog::addGzipControls(QVBoxLayout &v_box) {
@@ -482,17 +485,13 @@ void CaptureFileDialog::addGzipControls(QVBoxLayout &v_box) {
     } else {
         compress_.setChecked(false);
     }
-    v_box.addWidget(&compress_);
+    v_box.addWidget(&compress_, 0, Qt::AlignTop);
 
 }
 
-void CaptureFileDialog::addRangeControls(packet_range_t *range) {
-    QGridLayout *fd_grid = qobject_cast<QGridLayout*>(layout());
-
+void CaptureFileDialog::addRangeControls(QVBoxLayout &v_box, packet_range_t *range) {
     packet_range_group_box_.initRange(range);
-
-    fd_grid->addWidget(&packet_range_group_box_, last_row_, 1, 1, -1);
-    last_row_++;
+    v_box.addWidget(&packet_range_group_box_, 0, Qt::AlignTop);
 }
 
 int CaptureFileDialog::open(QString &file_name) {
@@ -562,18 +561,19 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     setAcceptMode(QFileDialog::AcceptSave);
     setLabelText(FileType, tr("Export as:"));
 
-    addGzipControls(left_v_box_);
-    addRangeControls(range);
+    addRangeControls(left_v_box_, range);
+    addGzipControls(right_v_box_);
 
     if (button_box) {
         save_bt_ = button_box->button(QDialogButtonBox::Save);
+        if (save_bt_) {
+            connect(&packet_range_group_box_, SIGNAL(validityChanged(bool)),
+                    save_bt_, SLOT(setEnabled(bool)));
+        }
     }
 
-    connect(&packet_range_group_box_, SIGNAL(validityChanged(bool)),
-            this, SLOT(rangeValidityChanged(bool)));
-
     // Grow the dialog to account for the extra widgets.
-    resize(width(), height() + (packet_range_group_box_.height() * 2 / 3) + left_v_box_.minimumSize().height());
+    resize(width(), height() + (packet_range_group_box_.height() * 2 / 3));
 
     if (!file_name.isEmpty()) {
         selectFile(file_name);
@@ -651,11 +651,6 @@ int CaptureFileDialog::mergeType() {
 
     return 0;
 }
-
-void CaptureFileDialog::rangeValidityChanged(bool is_valid) {
-    if (save_bt_) save_bt_->setEnabled(is_valid);
-}
-#endif // Q_WS_WINDOWS
 
 // Slots
 
@@ -791,6 +786,8 @@ void CaptureFileDialog::preview(const QString & path)
 
     wtap_close(wth);
 }
+
+#endif // Q_WS_WINDOWS
 
 /*
  * Editor modelines
