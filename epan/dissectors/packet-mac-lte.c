@@ -888,7 +888,11 @@ typedef struct dynamic_lcid_drb_mapping_t {
     guint8   ul_priority;
 } dynamic_lcid_drb_mapping_t;
 
-static dynamic_lcid_drb_mapping_t dynamic_lcid_drb_mapping[11];
+typedef struct ue_dynamic_drb_mappings_t {
+    dynamic_lcid_drb_mapping_t mapping[11];
+} ue_dynamic_drb_mappings_t;
+
+static GHashTable *mac_lte_ue_channels_hash = NULL;
 
 
 extern int proto_rlc_lte;
@@ -2537,7 +2541,8 @@ static void show_ues_tti(packet_info *pinfo, mac_lte_info *p_mac_lte_info, tvbuf
 
 
 /* Lookup channel details for lcid */
-static void lookup_rlc_channel_from_lcid(guint8 lcid,
+static void lookup_rlc_channel_from_lcid(guint16 ueid,
+                                         guint8 lcid,
                                          rlc_channel_type_t *rlc_channel_type,
                                          guint8 *UM_seqnum_length,
                                          gint *drb_id)
@@ -2575,12 +2580,18 @@ static void lookup_rlc_channel_from_lcid(guint8 lcid,
         }
     }
     else {
-        /* Look up setting gleaned from configuration protocol */
-        if (!dynamic_lcid_drb_mapping[lcid].valid) {
+        /* Look up the mappings for this UE */
+        ue_dynamic_drb_mappings_t *ue_mappings = g_hash_table_lookup(mac_lte_ue_channels_hash, GUINT_TO_POINTER((guint)ueid));
+        if (!ue_mappings) {
             return;
         }
 
-        *rlc_channel_type = dynamic_lcid_drb_mapping[lcid].channel_type;
+        /* Look up setting gleaned from configuration protocol */
+        if (!ue_mappings->mapping[lcid].valid) {
+            return;
+        }
+
+        *rlc_channel_type = ue_mappings->mapping[lcid].channel_type;
 
         /* Set UM_seqnum_length */
         switch (*rlc_channel_type) {
@@ -2595,7 +2606,7 @@ static void lookup_rlc_channel_from_lcid(guint8 lcid,
         }
 
         /* Set drb_id */
-        *drb_id = dynamic_lcid_drb_mapping[lcid].drbid;
+        *drb_id = ue_mappings->mapping[lcid].drbid;
     }
 }
 
@@ -3605,7 +3616,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             guint8 priority = get_mac_lte_channel_priority(p_mac_lte_info->ueid,
                                                            lcids[n], direction);
 
-            lookup_rlc_channel_from_lcid(lcids[n],
+            lookup_rlc_channel_from_lcid(p_mac_lte_info->ueid,
+                                         lcids[n],
                                          &rlc_channel_type,
                                          &UM_seqnum_length,
                                          &drb_id);
@@ -4597,6 +4609,9 @@ static void mac_lte_init_protocol(void)
     if (mac_lte_tti_info_result_hash) {
         g_hash_table_destroy(mac_lte_tti_info_result_hash);
     }
+    if (mac_lte_ue_channels_hash) {
+        g_hash_table_destroy(mac_lte_ue_channels_hash);
+    }
 
     /* Reset structs */
     memset(&UL_tti_info, 0, sizeof(UL_tti_info));
@@ -4618,6 +4633,8 @@ static void mac_lte_init_protocol(void)
     mac_lte_sr_request_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
 
     mac_lte_tti_info_result_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
+
+    mac_lte_ue_channels_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
 }
 
 
@@ -4635,13 +4652,14 @@ static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, size_t len _
 }
 
 
-/* Set LCID -> RLC channel mappings from signalling protocol (i.e. RRC or similar).
-   TODO: not using UEID yet - assume all UEs configured identically... */
-void set_mac_lte_channel_mapping(guint16 ueid _U_, guint8 lcid,
+/* Set LCID -> RLC channel mappings from signalling protocol (i.e. RRC or similar). */
+void set_mac_lte_channel_mapping(guint16 ueid, guint8 lcid,
                                  guint8  srbid, guint8 drbid,
                                  guint8  rlcMode, guint8 um_sn_length,
                                  guint8  ul_priority)
 {
+    ue_dynamic_drb_mappings_t *ue_mappings;
+
     /* Don't bother setting srb details - we just assume AM */
     if (srbid != 0) {
         return;
@@ -4652,21 +4670,28 @@ void set_mac_lte_channel_mapping(guint16 ueid _U_, guint8 lcid,
         return;
     }
 
+    /* Look for existing UE entry */
+    ue_mappings = g_hash_table_lookup(mac_lte_ue_channels_hash, GUINT_TO_POINTER((guint)ueid));
+    if (!ue_mappings) {
+        ue_mappings = se_alloc0(sizeof(ue_dynamic_drb_mappings_t));
+        g_hash_table_insert(mac_lte_ue_channels_hash, GUINT_TO_POINTER((guint)ueid), ue_mappings);
+    }
+
     /* Set array entry */
-    dynamic_lcid_drb_mapping[lcid].valid = TRUE;
-    dynamic_lcid_drb_mapping[lcid].drbid = drbid;
-    dynamic_lcid_drb_mapping[lcid].ul_priority = ul_priority;
+    ue_mappings->mapping[lcid].valid = TRUE;
+    ue_mappings->mapping[lcid].drbid = drbid;
+    ue_mappings->mapping[lcid].ul_priority = ul_priority;
 
     switch (rlcMode) {
         case RLC_AM_MODE:
-            dynamic_lcid_drb_mapping[lcid].channel_type = rlcAM;
+            ue_mappings->mapping[lcid].channel_type = rlcAM;
             break;
         case RLC_UM_MODE:
             if (um_sn_length == 5) {
-                dynamic_lcid_drb_mapping[lcid].channel_type = rlcUM5;
+                ue_mappings->mapping[lcid].channel_type = rlcUM5;
             }
             else {
-                dynamic_lcid_drb_mapping[lcid].channel_type = rlcUM10;
+                ue_mappings->mapping[lcid].channel_type = rlcUM10;
             }
             break;
 
@@ -4676,20 +4701,28 @@ void set_mac_lte_channel_mapping(guint16 ueid _U_, guint8 lcid,
 }
 
 /* Return the configured UL priority for the channel */
-static guint8 get_mac_lte_channel_priority(guint16 ueid _U_, guint8 lcid,
+static guint8 get_mac_lte_channel_priority(guint16 ueid, guint8 lcid,
                                            guint8 direction)
 {
+    ue_dynamic_drb_mappings_t *ue_mappings;
+
     /* Priority only affects UL */
     if (direction == DIRECTION_DOWNLINK) {
         return 0;
     }
 
+    /* Look up the mappings for this UE */
+    ue_mappings = g_hash_table_lookup(mac_lte_ue_channels_hash, GUINT_TO_POINTER((guint)ueid));
+    if (!ue_mappings) {
+        return 0;
+    }
+
     /* Won't report value if channel not configured */
-    if (!dynamic_lcid_drb_mapping[lcid].valid) {
+    if (!ue_mappings->mapping[lcid].valid) {
         return 0;
     }
     else {
-        return dynamic_lcid_drb_mapping[lcid].ul_priority;
+        return ue_mappings->mapping[lcid].ul_priority;
     }
 }
 
