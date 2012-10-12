@@ -221,7 +221,7 @@ dissect_handleList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_rpc_uint32(tvb,  handleListTree,
 	                            hf_fmp_handleListLen, offset);
 
-	for (i = 0; i <= numHandles; i++) {
+	for (i = 0; i < numHandles; i++) {
 		offset = dissect_rpc_data(tvb, handleListTree,
 		                          hf_fmp_fmpFHandle, offset);/*  changed */
 	}
