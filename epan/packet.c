@@ -128,6 +128,13 @@ init_dissection(void)
 	/* Reclaim and reinitialize all memory of seasonal scope */
 	se_free_all();
 
+	/*
+	 * Reinitialize resolution information. We do initialization here in
+	 * case we need to resolve between captures.
+	 */
+	host_name_lookup_cleanup();
+	host_name_lookup_init();
+
 	/* Initialize the table of conversations. */
 	epan_conversation_init();
 
@@ -167,6 +174,13 @@ cleanup_dissection(void)
 
 	/* Initialize the expert infos */
 	expert_cleanup();
+
+	/*
+	 * Reinitialize resolution information. We do initialization here in
+	 * case we need to resolve between captures.
+	 */
+	host_name_lookup_cleanup();
+	host_name_lookup_init();
 }
 
 /* Allow protocols to register a "cleanup" routine to be
@@ -895,7 +909,7 @@ dissector_reset_uint(const char *name, const guint32 pattern)
 
 gboolean
 dissector_try_uint_new(dissector_table_t sub_dissectors, const guint32 uint_val,
-		       tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
+		       tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		       const gboolean add_proto_name, void *data)
 {
 	dtbl_entry_t            *dtbl_entry;
@@ -1244,7 +1258,7 @@ dissector_compare_filter_name(gconstpointer dissector_a, gconstpointer dissector
 	else
 		b_name = proto_get_protocol_filter_name(proto_get_id(b->protocol));
 
-	ret = strcmp(a_name, b_name); 
+	ret = strcmp(a_name, b_name);
 	return ret;
 }
 

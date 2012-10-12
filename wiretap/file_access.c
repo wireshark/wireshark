@@ -742,11 +742,11 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_MPEG_2_TS */
 	{ "MPEG2 transport stream", "mp2t", "mp2t", "ts;mpg", FALSE, FALSE,
 	  NULL, NULL },
-  
+
 	/* WTAP_FILE_VWR_80211 */
 	{ "Ixia IxVeriWave .vwr Raw 802.11 Capture", "vwr80211", "*.vwr", ".vwr", FALSE, FALSE,
 	  NULL, NULL },
- 
+
 	/* WTAP_FILE_VWR_ETH */
 	{ "Ixia IxVeriWave .vwr Raw Ethernet Capture", "vwreth", "*.vwr", ".vwr", FALSE, FALSE,
 	  NULL, NULL }
@@ -827,7 +827,7 @@ wtap_dump_can_write_encaps(int ft, const GArray *file_encaps)
 	 */
 	if (!wtap_dump_can_write_encap(ft, wtap_dump_file_encap_type(file_encaps)))
 		return FALSE;
-	
+
 	/*
 	 * Yes.  Are all the individual encapsulation types supported?
 	 */

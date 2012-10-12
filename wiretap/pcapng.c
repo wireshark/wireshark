@@ -2138,7 +2138,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                         return -1;
                 }
                 pcapng_process_idb(wth, pcapng, &wblock);
-                pcapng_debug2("pcapng_open: Read IDB number_of_interfaces %u, wtap_encap %i", wth->number_of_interfaces, int_data.wtap_encap);
+                pcapng_debug2("pcapng_open: Read IDB number_of_interfaces %u, wtap_encap %i", wth->number_of_interfaces, *wblock.file_encap);
         }
         return 1;
 }

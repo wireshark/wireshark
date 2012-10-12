@@ -271,8 +271,8 @@ static subnet_length_entry_t subnet_length_entries[SUBNETLENGTHSIZE]; /* Ordered
 static gboolean have_subnet_entry = FALSE;
 
 static gboolean eth_resolution_initialized = FALSE;
-static int      ipxnet_resolution_initialized = 0;
-static int      service_resolution_initialized = 0;
+static gboolean ipxnet_resolution_initialized = FALSE;
+static gboolean service_resolution_initialized = FALSE;
 static gboolean new_resolved_objects = FALSE;
 
 static struct addrinfo *addrinfo_list = NULL; /* IPv4 and IPv6 */
@@ -454,14 +454,14 @@ add_service_name(hashport_t **proto_table, const guint port, const char *service
   tp = proto_table[hash_idx];
 
   if( tp == NULL ) {
-    tp = proto_table[hash_idx] = (hashport_t *)g_malloc(sizeof(hashport_t));
+    tp = proto_table[hash_idx] = se_new(hashport_t);
   } else {
     while(1) {
       if( tp->port == port ) {
         return;
       }
       if (tp->next == NULL) {
-        tp->next = (hashport_t *)g_malloc(sizeof(hashport_t));
+        tp->next = se_new(hashport_t);
         tp = tp->next;
         break;
       }
@@ -591,6 +591,7 @@ initialize_services(void)
   }
 
   parse_services_file(g_services_path);
+  service_resolution_initialized = TRUE;
 
 } /* initialize_services */
 
@@ -608,7 +609,6 @@ static gchar
 
   if (!service_resolution_initialized) {
     initialize_services();
-    service_resolution_initialized = 1;
   }
 
   switch(proto) {
@@ -638,14 +638,14 @@ static gchar
   tp = table[hash_idx];
 
   if( tp == NULL ) {
-    tp = table[hash_idx] = (hashport_t *)g_malloc(sizeof(hashport_t));
+    tp = table[hash_idx] = se_new(hashport_t);
   } else {
     while(1) {
       if( tp->port == port ) {
         return tp->name;
       }
       if (tp->next == NULL) {
-        tp->next = (hashport_t *)g_malloc(sizeof(hashport_t));
+        tp->next = se_new(hashport_t);
         tp = tp->next;
         break;
       }
@@ -756,7 +756,7 @@ c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
 static hashipv4_t *
 new_ipv4(const guint addr)
 {
-  hashipv4_t *tp = g_malloc(sizeof(hashipv4_t));
+  hashipv4_t *tp = se_new(hashipv4_t);
   tp->addr = addr;
   tp->next = NULL;
   tp->resolve = FALSE;
@@ -848,7 +848,7 @@ host_lookup(const guint addr, gboolean *found)
 static hashipv6_t *
 new_ipv6(const struct e_in6_addr *addr)
 {
-  hashipv6_t *tp = g_malloc(sizeof(hashipv6_t));
+  hashipv6_t *tp = se_new(hashipv6_t);
   tp->addr = *addr;
   tp->next = NULL;
   tp->resolve = FALSE;
@@ -1294,7 +1294,7 @@ manuf_hash_new_entry(const guint8 *addr, gchar *name)
 {
   hashmanuf_t *mtp;
 
-  mtp = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
+  mtp = se_new(hashmanuf_t);
   memcpy(mtp->addr, addr, sizeof(mtp->addr));
   /*  The length of this name is limited (in the number of UTF-8 characters,
    *  not bytes) in make-manuf.  That doesn't mean a user can't put a longer
@@ -1310,7 +1310,7 @@ wka_hash_new_entry(const guint8 *addr, gchar *name)
 {
   hashwka_t *wtp;
 
-  wtp =  (hashwka_t *)g_malloc(sizeof(hashwka_t));
+  wtp = se_new(hashwka_t);
   memcpy(wtp->addr, addr, sizeof(wtp->addr));
   g_strlcpy(wtp->name, name, MAXNAMELEN);
   wtp->next = NULL;
@@ -1361,7 +1361,7 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
      well-known-address table, creating that table if necessary. */
   wka_tp = wka_table[mask];
   if (wka_tp == NULL)
-    wka_tp = wka_table[mask] = g_malloc0(sizeof *wka_table[mask]);
+    wka_tp = wka_table[mask] = se_alloc0(sizeof *wka_table[mask]);
 
   hash_idx = hash_eth_wka(addr, mask);
 
@@ -1499,6 +1499,7 @@ initialize_ethers(void)
   end_ethent();
 
   g_free(manuf_path);
+  eth_resolution_initialized = TRUE;
 
 } /* initialize_ethers */
 
@@ -1624,7 +1625,7 @@ static hashether_t *
 eth_hash_new_entry(const guint8 *addr, const gboolean resolve) {
   hashether_t *tp;
 
-  tp = (hashether_t *)g_malloc(sizeof(hashether_t));
+  tp = se_new(hashether_t);
   memcpy(tp->addr, addr, sizeof(tp->addr));
   tp->status = HASHETHER_STATUS_UNRESOLVED;
   g_strlcpy(tp->hexaddr, bytestring_to_str(addr, sizeof(tp->addr), ':'), sizeof(tp->hexaddr));
@@ -1893,6 +1894,7 @@ initialize_ipxnets(void)
   if (g_pipxnets_path == NULL)
     g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, FALSE, FALSE);
 
+  ipxnet_resolution_initialized = TRUE;
 } /* initialize_ipxnets */
 
 static hashipxnet_t *
@@ -1906,11 +1908,11 @@ add_ipxnet_name(guint addr, const gchar *name)
   tp = ipxnet_table[hash_idx];
 
   if( tp == NULL ) {
-    tp = ipxnet_table[hash_idx] = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+    tp = ipxnet_table[hash_idx] = se_new(hashipxnet_t);
   } else {
     while(1) {
       if (tp->next == NULL) {
-        tp->next = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+        tp->next = se_new(hashipxnet_t);
         tp = tp->next;
         break;
       }
@@ -1939,14 +1941,14 @@ ipxnet_name_lookup(const guint addr)
   tp = ipxnet_table[hash_idx];
 
   if( tp == NULL ) {
-    tp = ipxnet_table[hash_idx] = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+    tp = ipxnet_table[hash_idx] = se_new(hashipxnet_t);
   } else {
     while(1) {
       if (tp->addr == addr) {
         return tp->name;
       }
       if (tp->next == NULL) {
-        tp->next = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+        tp->next = se_new(hashipxnet_t);
         tp = tp->next;
         break;
       }
@@ -2243,19 +2245,19 @@ subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* na
   hash_idx = HASH_IPV4_ADDRESS(subnet_addr);
 
   if(NULL == entry->subnet_addresses) {
-    entry->subnet_addresses = g_new0(hashipv4_t*,HASHHOSTSIZE);
+    entry->subnet_addresses = (hashipv4_t**) se_alloc0(sizeof(hashipv4_t*) * HASHHOSTSIZE);
   }
 
   if(NULL != (tp = entry->subnet_addresses[hash_idx])) {
     if(tp->addr == subnet_addr) {
       return;    /* XXX provide warning that an address was repeated? */
     } else {
-      hashipv4_t * new_tp = g_new(hashipv4_t,1);
+      hashipv4_t * new_tp = se_new(hashipv4_t);
       tp->next = new_tp;
       tp = new_tp;
     }
   } else {
-    tp = entry->subnet_addresses[hash_idx] = g_new(hashipv4_t,1);
+    tp = entry->subnet_addresses[hash_idx] = se_new(hashipv4_t);
   }
 
   tp->next = NULL;
@@ -2433,7 +2435,7 @@ host_name_lookup_init(void) {
 #endif /*GNU_ADNS */
 
   if (!addrinfo_list) {
-    ai = g_malloc0(sizeof(struct addrinfo));
+    ai = se_alloc0(sizeof(struct addrinfo));
     addrinfo_list = addrinfo_list_last = ai;
   }
 
@@ -2586,6 +2588,27 @@ host_name_lookup_cleanup(void) {
   ares_library_cleanup();
 #endif
   async_dns_initialized = FALSE;
+
+  memset(ipv4_table, 0, sizeof(ipv4_table));
+  memset(ipv6_table, 0, sizeof(ipv6_table));
+
+  memset(udp_port_table, 0, sizeof(udp_port_table));
+  memset(tcp_port_table, 0, sizeof(tcp_port_table));
+  memset(sctp_port_table, 0, sizeof(sctp_port_table));
+  memset(dccp_port_table, 0, sizeof(dccp_port_table));
+  memset(eth_table, 0, sizeof(eth_table));
+  memset(manuf_table, 0, sizeof(manuf_table));
+  memset(wka_table, 0, sizeof(wka_table));
+  memset(ipxnet_table, 0, sizeof(ipxnet_table));
+  memset(subnet_length_entries, 0, sizeof(subnet_length_entries));
+
+  addrinfo_list = addrinfo_list_last = NULL;
+
+  have_subnet_entry = FALSE;
+  eth_resolution_initialized = FALSE;
+  ipxnet_resolution_initialized = FALSE;
+  service_resolution_initialized = FALSE;
+  new_resolved_objects = FALSE;
 }
 
 #elif defined(HAVE_GNU_ADNS)
@@ -2754,15 +2777,15 @@ add_ipv4_name(const guint addr, const gchar *name)
   new_resolved_objects = TRUE;
 
   if (!addrinfo_list) {
-    ai = g_malloc0(sizeof(struct addrinfo));
+    ai = se_alloc0(sizeof(struct addrinfo));
     addrinfo_list = addrinfo_list_last = ai;
   }
 
-  sa4 = g_malloc0(sizeof(struct sockaddr_in));
+  sa4 = se_alloc0(sizeof(struct sockaddr_in));
   sa4->sin_family = AF_INET;
   sa4->sin_addr.s_addr = addr;
 
-  ai = g_malloc0(sizeof(struct addrinfo));
+  ai = se_alloc0(sizeof(struct addrinfo));
   ai->ai_family = AF_INET;
   ai->ai_addrlen = sizeof(struct sockaddr_in);
   ai->ai_canonname = (char *) tp->name;
@@ -2812,15 +2835,15 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
   new_resolved_objects = TRUE;
 
   if (!addrinfo_list) {
-    ai = g_malloc0(sizeof(struct addrinfo));
+    ai = se_alloc0(sizeof(struct addrinfo));
     addrinfo_list = addrinfo_list_last = ai;
   }
 
-  sa6 = g_malloc0(sizeof(struct sockaddr_in6));
+  sa6 = se_alloc0(sizeof(struct sockaddr_in6));
   sa6->sin6_family = AF_INET;
   memcpy(sa6->sin6_addr.s6_addr, addrp, 16);
 
-  ai = g_malloc0(sizeof(struct addrinfo));
+  ai = se_alloc0(sizeof(struct addrinfo));
   ai->ai_family = AF_INET6;
   ai->ai_addrlen = sizeof(struct sockaddr_in);
   ai->ai_canonname = (char *) tp->name;
@@ -2953,7 +2976,6 @@ get_ether_name(const guint8 *addr)
 
   if (resolve && !eth_resolution_initialized) {
     initialize_ethers();
-    eth_resolution_initialized = TRUE;
   }
 
   tp = eth_name_lookup(addr, resolve);
@@ -2977,7 +2999,6 @@ get_ether_name_if_known(const guint8 *addr)
 
   if (!eth_resolution_initialized) {
     initialize_ethers();
-    eth_resolution_initialized = TRUE;
   }
 
   /* eth_name_lookup will create a (resolved) hash entry if it doesn't exist */
@@ -3002,7 +3023,6 @@ get_ether_addr(const gchar *name)
 
   if (!eth_resolution_initialized) {
     initialize_ethers();
-    eth_resolution_initialized = TRUE;
   }
 
   return eth_addr_lookup(name);
@@ -3037,7 +3057,6 @@ get_ipxnet_name(const guint32 addr)
 
   if (!ipxnet_resolution_initialized) {
     initialize_ipxnets();
-    ipxnet_resolution_initialized = 1;
   }
 
   return ipxnet_name_lookup(addr);
@@ -3054,7 +3073,6 @@ get_ipxnet_addr(const gchar *name, gboolean *known)
 
   if (!ipxnet_resolution_initialized) {
     initialize_ipxnets();
-    ipxnet_resolution_initialized = 1;
   }
 
   addr =  ipxnet_addr_lookup(name, &success);
@@ -3072,7 +3090,6 @@ get_manuf_name(const guint8 *addr)
 
   if (gbl_resolv_flags.mac_name && !eth_resolution_initialized) {
     initialize_ethers();
-    eth_resolution_initialized = TRUE;
   }
 
   if (!gbl_resolv_flags.mac_name || ((mtp = manuf_name_lookup(addr)) == NULL)) {
@@ -3108,7 +3125,6 @@ get_manuf_name_if_known(const guint8 *addr)
 
   if (!eth_resolution_initialized) {
     initialize_ethers();
-    eth_resolution_initialized = TRUE;
   }
 
   if ((mtp = manuf_name_lookup(addr)) == NULL) {
@@ -3148,7 +3164,6 @@ get_eui64_name(const guint64 addr_eui64)
 
   if (gbl_resolv_flags.mac_name && !eth_resolution_initialized) {
     initialize_ethers();
-    eth_resolution_initialized = TRUE;
   }
 
   if (!gbl_resolv_flags.mac_name || ((mtp = manuf_name_lookup(addr)) == NULL)) {
@@ -3173,7 +3188,6 @@ get_eui64_name_if_known(const guint64 addr_eui64)
 
   if (!eth_resolution_initialized) {
     initialize_ethers();
-    eth_resolution_initialized = TRUE;
   }
 
   if ((mtp = manuf_name_lookup(addr)) == NULL) {
