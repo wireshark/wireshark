@@ -2765,6 +2765,10 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       pd_save = pinfo->private_data;
       pinfo->private_data = ikev2_dec_data;
       pd_changed = TRUE;
+    } else if (pinfo->private_data) {
+      pd_save = pinfo->private_data;
+      pinfo->private_data = NULL;
+      pd_changed = TRUE;
     }
   }
 #endif /* HAVE_LIBGCRYPT */
