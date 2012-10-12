@@ -33,7 +33,7 @@
 #include "packet-fmp.h"
 
 #define FMP_NOTIFY_PROG 	1001912
-#define FMP_NOTIFY_VERSION_2 	2
+#define FMP_NOTIFY_VERSION_2 	      2
 
 /*
  * FMP/NOTIFY Procedures
@@ -47,9 +47,9 @@
 #define FMP_NOTIFY_revokeHandleList	7
 
 typedef enum {
-	FMP_LIST_USER_QUOTA_EXCEEDED = 0,
+	FMP_LIST_USER_QUOTA_EXCEEDED  = 0,
 	FMP_LIST_GROUP_QUOTA_EXCEEDED = 1,
-	FMP_LIST_SERVER_RESOURCE_LOW = 2
+	FMP_LIST_SERVER_RESOURCE_LOW  = 2
 } revokeHandleListReason;
 
 static int proto_fmp_notify = -1;
@@ -200,9 +200,9 @@ dissect_handleList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                    proto_tree *tree)
 {
 
-	int numHandles;
-	int listLength;
-	int i;
+	int         numHandles;
+	int         listLength;
+	int         i;
 	proto_item *handleListItem;
 	proto_tree *handleListTree;
 
@@ -434,44 +434,105 @@ static const vsff fmp_notify2_proc[] = {
 };
 
 static const value_string fmp_notify_proc_vals[] = {
-        { 1,    "DownGrade" },
-        { 2,    "RevokeList" },
-        { 3,    "RevokeAll" },
-        { 4,    "FileSetEof" },
-        { 5,    "RequestDone" },
-        { 6,    "VolFreeze" },
-        { 7,    "RevokeHandleList" },
-        { 0,    "NULL" },
+        { 1, "DownGrade" },
+        { 2, "RevokeList" },
+        { 3, "RevokeAll" },
+        { 4, "FileSetEof" },
+        { 5, "RequestDone" },
+        { 6, "VolFreeze" },
+        { 7, "RevokeHandleList" },
+        { 0, "NULL" },
         { 0,NULL}
 };
 
-
 static const value_string fmp_status_vals[] = {
-        {0,"OK"},
-        {5,"IOERROR"},
-        {12,"NOMEM"},
-        {13,"NOACCESS"},
-        {22,"INVALIDARG"},
-        {28,"FSFULL"},
-        {79,"QUEUE_FULL"},
-        {500,"WRONG_MSG_NUM"},
-        {501,"SESSION_LOST"},
-        {502,"HOT_SESSION"},
-        {503,"COLD_SESSION"},
-        {504,"CLIENT_TERMINATED"},
-        {505,"WRITER_LOST_BLK"},
-        {506,"FMP_REQUEST_QUEUED"},
-        {507,"FMP_FALL_BACK"},
-        {508,"REQUEST_CANCELLED"},
-        {509,"WRITER_ZEROED_BLK"},
-        {510,"NOTIFY_ERROR"},
-        {511,"FMP_WRONG_HANDLE"},
-        {512,"DUPLICATE_OPEN"},
-        {600,"PLUGIN_NOFUNC"},
+        {  0, "OK"},
+        {  5, "IOERROR"},
+        { 12, "NOMEM"},
+        { 13, "NOACCESS"},
+        { 22, "INVALIDARG"},
+        { 28, "FSFULL"},
+        { 79, "QUEUE_FULL"},
+        {500, "WRONG_MSG_NUM"},
+        {501, "SESSION_LOST"},
+        {502, "HOT_SESSION"},
+        {503, "COLD_SESSION"},
+        {504, "CLIENT_TERMINATED"},
+        {505, "WRITER_LOST_BLK"},
+        {506, "FMP_REQUEST_QUEUED"},
+        {507, "FMP_FALL_BACK"},
+        {508, "REQUEST_CANCELLED"},
+        {509, "WRITER_ZEROED_BLK"},
+        {510, "NOTIFY_ERROR"},
+        {511, "FMP_WRONG_HANDLE"},
+        {512, "DUPLICATE_OPEN"},
+        {600, "PLUGIN_NOFUNC"},
 	{0,NULL}
 
 };
 
+
+static int
+dissect_fmp_notify_extentState(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_extent_state,
+	                            offset);
+
+	return offset;
+}
+
+static int
+dissect_fmp_notify_extent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                   proto_tree *tree, guint32 ext_num)
+{
+	proto_item *extItem;
+	proto_tree *extTree;
+
+	extItem = proto_tree_add_text(tree, tvb, offset, 20 ,
+	                              "Extent (%u)", (guint32) ext_num);
+
+
+	extTree = proto_item_add_subtree(extItem, ett_fmp_ext);
+
+	offset = dissect_rpc_uint32(tvb,  extTree, hf_fmp_firstLogBlk,
+	                            offset);
+	offset = dissect_rpc_uint32(tvb, extTree, hf_fmp_numBlks,
+	                            offset);
+	offset = dissect_rpc_uint32(tvb, extTree, hf_fmp_volID, offset);
+	offset = dissect_rpc_uint32(tvb, extTree, hf_fmp_startOffset,
+	                            offset);
+	offset = dissect_fmp_notify_extentState(tvb, offset, extTree);
+
+	return offset;
+}
+
+
+static int
+dissect_fmp_notify_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                       proto_tree *tree)
+{
+	guint32     numExtents;
+	guint32     totalLength;
+	proto_item *extListItem;
+	proto_tree *extListTree;
+	guint32     i;
+
+	numExtents = tvb_get_ntohl(tvb, offset);
+	totalLength = 4 + (20 * numExtents);
+
+	extListItem =  proto_tree_add_text(tree, tvb, offset, totalLength,
+	                                   "Extent List");
+	extListTree = proto_item_add_subtree(extListItem, ett_fmp_extList);
+
+	offset = dissect_rpc_uint32(tvb, extListTree,
+	                            hf_fmp_extentList_len, offset);
+
+	for (i = 0; i < numExtents; i++) {
+		offset = dissect_fmp_notify_extent(tvb, offset, pinfo, extListTree, i+1);
+	}
+
+	return offset;
+}
 
 void
 proto_register_fmp_notify(void)
@@ -562,67 +623,4 @@ proto_reg_handoff_fmp_notify(void)
 	/* Register the procedure tables */
 	rpc_init_proc_table(FMP_NOTIFY_PROG, FMP_NOTIFY_VERSION_2,
 	                    fmp_notify2_proc,hf_fmp_notify_procedure);
-}
-
-
-static int
-dissect_fmp_notify_extentState(tvbuff_t *tvb, int offset, proto_tree *tree)
-{
-	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_extent_state,
-	                            offset);
-
-	return offset;
-}
-
-static int
-dissect_fmp_notify_extent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                   proto_tree *tree, guint32 ext_num)
-{
-	proto_item *extItem;
-	proto_tree *extTree;
-
-	extItem = proto_tree_add_text(tree, tvb, offset, 20 ,
-	                              "Extent (%u)", (guint32) ext_num);
-
-
-	extTree = proto_item_add_subtree(extItem, ett_fmp_ext);
-
-	offset = dissect_rpc_uint32(tvb,  extTree, hf_fmp_firstLogBlk,
-	                            offset);
-	offset = dissect_rpc_uint32(tvb, extTree, hf_fmp_numBlks,
-	                            offset);
-	offset = dissect_rpc_uint32(tvb, extTree, hf_fmp_volID, offset);
-	offset = dissect_rpc_uint32(tvb, extTree, hf_fmp_startOffset,
-	                            offset);
-	offset = dissect_fmp_notify_extentState(tvb, offset, extTree);
-
-	return offset;
-}
-
-
-static int
-dissect_fmp_notify_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                       proto_tree *tree)
-{
-	guint32 numExtents;
-	guint32 totalLength;
-	proto_item *extListItem;
-	proto_tree *extListTree;
-	guint32 i;
-
-	numExtents = tvb_get_ntohl(tvb, offset);
-	totalLength = 4 + (20 * numExtents);
-
-	extListItem =  proto_tree_add_text(tree, tvb, offset, totalLength,
-	                                   "Extent List");
-	extListTree = proto_item_add_subtree(extListItem, ett_fmp_extList);
-
-	offset = dissect_rpc_uint32(tvb, extListTree,
-	                            hf_fmp_extentList_len, offset);
-
-	for (i = 0; i < numExtents; i++) {
-		offset = dissect_fmp_notify_extent(tvb, offset, pinfo, extListTree, i+1);
-	}
-
-	return offset;
 }
