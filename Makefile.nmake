@@ -1138,6 +1138,7 @@ install-all: install-generated-files
 	if not exist $(INSTALL_DIR)\lib\gtk-3.0 mkdir $(INSTALL_DIR)\lib\gtk-3.0
 	if not exist $(INSTALL_DIR)\lib\gtk-3.0\$(GTK_LIB_DIR) mkdir $(INSTALL_DIR)\lib\gtk-3.0\$(GTK_LIB_DIR)
 	xcopy $(GTK_DIR)\etc\gtk-3.0\*.* $(INSTALL_DIR)\etc\gtk-3.0 /d
+	xcopy ".\ui\win32\settings.ini" $(INSTALL_DIR)\etc\gtk-3.0 /d
 !IFDEF NEED_CAIRO_DLL
 	xcopy $(GTK_DIR)\bin\libcairo-2.dll $(INSTALL_DIR)  /d
 	xcopy $(GTK_DIR)\bin\libcairo-gobject-2.dll $(INSTALL_DIR)  /d
