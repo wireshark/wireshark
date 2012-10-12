@@ -145,8 +145,7 @@ commview_set_pseudo_header(commview_header_t *cv_hdrp, union wtap_pseudo_header
 	case MEDIUM_WIFI :
 		pseudo_header->ieee_802_11.fcs_len = -1; /* Unknown */
 		pseudo_header->ieee_802_11.channel = cv_hdrp->channel;
-		pseudo_header->ieee_802_11.data_rate =
-		    cv_hdrp->rate | (cv_hdrp->direction << 8);
+		pseudo_header->ieee_802_11.data_rate = cv_hdrp->rate;
 		pseudo_header->ieee_802_11.signal_level = cv_hdrp->signal_level_percent;
 		break;
 
@@ -362,8 +361,7 @@ static gboolean commview_dump(wtap_dumper *wdh,
 		cv_hdr.flags |=  MEDIUM_WIFI;
 
 		cv_hdr.channel = pseudo_header->ieee_802_11.channel;
-		cv_hdr.rate = (guint8)(pseudo_header->ieee_802_11.data_rate & 0xFF);
-		cv_hdr.direction = (guint8)((pseudo_header->ieee_802_11.data_rate >> 8) & 0xFF);
+		cv_hdr.rate = pseudo_header->ieee_802_11.data_rate;
 		cv_hdr.signal_level_percent = pseudo_header->ieee_802_11.signal_level;
 		break;
 
