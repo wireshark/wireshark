@@ -939,7 +939,7 @@ dissect_mc_rawlink_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct erf_mc_rawl_hdrx *mc_rawl;
 
     /* Multi Channel RAW Link Header */
-    mc_rawl_item = proto_tree_add_int(tree, hf_erf_mc_rawl, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
+    mc_rawl_item = proto_tree_add_uint(tree, hf_erf_mc_rawl, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
     mc_rawl_tree = proto_item_add_subtree(mc_rawl_item, ett_erf_mc_rawlink);
     mc_rawl = (struct erf_mc_rawl_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
 
@@ -960,7 +960,7 @@ dissect_mc_aal5_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct erf_mc_aal5_hdrx *mc_aal5;
 
     /* Multi Channel AAL5 Header */
-    mc_aal5_item = proto_tree_add_int(tree, hf_erf_mc_aal5, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
+    mc_aal5_item = proto_tree_add_uint(tree, hf_erf_mc_aal5, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
     mc_aal5_tree = proto_item_add_subtree(mc_aal5_item, ett_erf_mc_aal5);
     mc_aal5 = (struct erf_mc_aal5_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
 
@@ -988,7 +988,7 @@ dissect_mc_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct erf_mc_aal2_hdrx *mc_aal2;
 
     /* Multi Channel AAL2 Header */
-    mc_aal2_item = proto_tree_add_int(tree, hf_erf_mc_aal2, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
+    mc_aal2_item = proto_tree_add_uint(tree, hf_erf_mc_aal2, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
     mc_aal2_tree = proto_item_add_subtree(mc_aal2_item, ett_erf_mc_aal2);
     mc_aal2 = (struct erf_mc_aal2_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
 
@@ -1015,7 +1015,7 @@ dissect_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct erf_aal2_hdrx *aal2;
 
     /* AAL2 Header */
-    aal2_item = proto_tree_add_int(tree, hf_erf_aal2, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
+    aal2_item = proto_tree_add_uint(tree, hf_erf_aal2, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
     aal2_tree = proto_item_add_subtree(aal2_item, ett_erf_aal2);
     aal2 = (struct erf_aal2_hdrx*) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
 
