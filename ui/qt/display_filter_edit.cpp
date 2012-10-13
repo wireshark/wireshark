@@ -248,7 +248,6 @@ void DisplayFilterEdit::resizeEvent(QResizeEvent *)
 void DisplayFilterEdit::checkFilter(const QString& text)
 {
     dfilter_t *dfp;
-    GPtrArray *depr = NULL;
     guchar c;
 
     clear_button_->setVisible(!text.isEmpty());
@@ -259,6 +258,7 @@ void DisplayFilterEdit::checkFilter(const QString& text)
         setSyntaxState(Invalid);
         emit pushFilterSyntaxStatus(QString().sprintf("Illegal character in field name: '%c'", c));
     } else if (dfilter_compile(text.toUtf8().constData(), &dfp)) {
+        GPtrArray *depr = NULL;
         if (dfp != NULL) {
             depr = dfilter_deprecated_tokens(dfp);
         }

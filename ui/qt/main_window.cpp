@@ -498,7 +498,6 @@ void MainWindow::importCaptureFile() {
 void MainWindow::saveCaptureFile(capture_file *cf, bool stay_closed) {
     QString file_name;
     gboolean discard_comments;
-    cf_write_status_t status;
 
     if (cf->is_tempfile) {
         /* This is a temporary capture file, so saving it means saving
@@ -511,6 +510,8 @@ void MainWindow::saveCaptureFile(capture_file *cf, bool stay_closed) {
         saveAsCaptureFile(cf, FALSE, stay_closed);
     } else {
         if (cf->unsaved_changes) {
+            cf_write_status_t status;
+
             /* This is not a temporary capture file, but it has unsaved
                changes, so saving it means doing a "safe save" on top
                of the existing file, in the same format - no UI needed
@@ -855,7 +856,7 @@ void MainWindow::exportDissections(export_type_e export_type) {
 void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compressed) {
     QString file_name_lower;
     QString file_suffix;
-    GSList  *extensions_list, *extension;
+    GSList  *extensions_list;
     gboolean add_extension;
 
     /*
@@ -866,6 +867,8 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compre
     file_name_lower = file_name.toLower();
     extensions_list = wtap_get_file_extensions_list(file_type, FALSE);
     if (extensions_list != NULL) {
+        GSList *extension;
+
         /* We have one or more extensions for this file type.
            Start out assuming we need to add the default one. */
         add_extension = TRUE;

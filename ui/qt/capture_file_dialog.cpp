@@ -334,7 +334,7 @@ int CaptureFileDialog::mergeType() {
 QString CaptureFileDialog::fileType(int ft, bool extension_globs)
 {
     QString filter;
-    GSList *extensions_list, *extension;
+    GSList *extensions_list;
 
     filter = wtap_file_type_string(ft);
 
@@ -355,6 +355,7 @@ QString CaptureFileDialog::fileType(int ft, bool extension_globs)
            be "*".) */
            filter += "*.*";
     } else {
+        GSList *extension;
         /* Construct the list of patterns. */
         for (extension = extensions_list; extension != NULL;
              extension = g_slist_next(extension)) {
@@ -618,13 +619,13 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_comment
     QStringList filters;
     GArray *savable_file_types;
     guint i;
-    int ft;
 
     type_hash_.clear();
     savable_file_types = wtap_get_savable_file_types(cap_file_->cd_t, cap_file_->linktypes);
 
     if (savable_file_types != NULL) {
         QString file_type;
+        int ft;
         /* OK, we have at least one file type we can save this file as.
            (If we didn't, we shouldn't have gotten here in the first
            place.)  Add them all to the combo box.  */

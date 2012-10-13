@@ -181,7 +181,6 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
     if (item) {
         field_info *fi;
         QString itemInfo;
-        int finfo_length;
 
         fi = item->data(0, Qt::UserRole).value<field_info *>();
         if (!fi || !fi->hfinfo) return;
@@ -193,6 +192,7 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
         }
 
         if (!itemInfo.isEmpty()) {
+            int finfo_length;
             itemInfo.append(" (" + QString().fromUtf8(fi->hfinfo->abbrev) + ")");
 
             finfo_length = fi->length + fi->appendix_length;
@@ -327,7 +327,6 @@ void ProtoTree::collapseAll()
 void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int column) {
     Q_UNUSED(column);
 
-    gchar *url;
     field_info *fi;
 
     fi = item->data(0, Qt::UserRole).value<field_info *>();
@@ -337,6 +336,7 @@ void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int column) {
     }
 
     if(FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type)) {
+        gchar *url;
         url = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, NULL);
         if(url){
 //            browser_open_url(url);
