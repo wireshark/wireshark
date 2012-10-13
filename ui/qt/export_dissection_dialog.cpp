@@ -49,11 +49,11 @@
 
 ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type):
     QFileDialog(parent),
-    cap_file_(cap_file),
-    export_type_(export_type)
+    export_type_(export_type),
+    cap_file_(cap_file)
   #if !defined(Q_WS_WIN)
     , save_bt_(NULL)
- #endif Q_WS_WIN
+ #endif /* Q_WS_WIN */
 {
 #if !defined(Q_WS_WIN)
     QDialogButtonBox *button_box = findChild<QDialogButtonBox *>();
@@ -131,7 +131,6 @@ int ExportDissectionDialog::exec()
     retval = QFileDialog::exec();
 
     if (retval ==  QDialog::Accepted && selectedFiles().length() > 0) {
-        print_args_t print_args;
         cf_print_status_t status;
         QString file_name = selectedFiles()[0];
 
@@ -187,10 +186,10 @@ int ExportDissectionDialog::exec()
             case CF_PRINT_OK:
                 break;
             case CF_PRINT_OPEN_ERROR:
-                open_failure_alert_box(print_args.file, errno, TRUE);
+                open_failure_alert_box(print_args_.file, errno, TRUE);
                 break;
             case CF_PRINT_WRITE_ERROR:
-                write_failure_alert_box(print_args.file, errno);
+                write_failure_alert_box(print_args_.file, errno);
                 break;
         }
 
