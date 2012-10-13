@@ -811,9 +811,7 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 			proto_tree_add_text(int_name_object_tree, tvb,
 					    offset + 1, int_name_length,
 					    "Interface Name: %s",
-					    (const guchar *)
-					    tvb_get_ptr(tvb, offset + 1,
-							int_name_length));
+					    tvb_format_text(tvb, offset + 1, int_name_length));
 		}
 	}
 
