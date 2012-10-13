@@ -121,8 +121,8 @@ extern void topic_cb(gpointer *widget, int topic) {
 
 CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString &display_filter) :
     QFileDialog(parent),
-    display_filter_(display_filter),
     cap_file_(cf),
+    display_filter_(display_filter),
 #if !defined(Q_WS_WIN)
     default_ft_(-1),
     save_bt_(NULL)
