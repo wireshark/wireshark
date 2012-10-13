@@ -1003,7 +1003,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
                 /* strip off padding bytes */
                 if(ahs_offset&0x0003){
-                    ahs_offset=(ahs_offset+3)&0xfffc;
+                    ahs_offset=(ahs_offset+3)&0xfffffffc;
                 }
 
             }
