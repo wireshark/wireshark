@@ -529,7 +529,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
 
                 if (tag_len != 0) {
                     const guint8  *tag_data_ptr;
-                    guint8         isr;
+                    guint32        isr;
 
                     tag_data_ptr = tvb_get_ptr (tvb, offset + 36, tag_len);
 
