@@ -34,8 +34,8 @@
 #include "ui/file_dialog.h"
 
 #ifndef Q_WS_WIN
-#import "packet_range_group_box.h"
-#import "packet_format_group_box.h"
+#include "packet_range_group_box.h"
+#include "packet_format_group_box.h"
 #endif // Q_WS_WIN
 
 #include <QFileDialog>
@@ -45,20 +45,22 @@ class ExportDissectionDialog : public QFileDialog
     Q_OBJECT
     
 public:
-    explicit ExportDissectionDialog(QWidget *parent, export_type_e export_type, capture_file *cap_file);
+    explicit ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type);
     ~ExportDissectionDialog();
     
 public slots:
     int exec();
 
 private slots:
+#ifndef Q_WS_WIN
     void exportTypeChanged(QString name_filter);
     void checkValidity();
+#endif // Q_WS_WIN
 
 private:
     export_type_e export_type_;
-#if !defined(Q_WS_WIN)
     capture_file *cap_file_;
+#ifndef Q_WS_WIN
     print_args_t print_args_;
 
     QMap<QString, export_type_e> export_type_map_;

@@ -93,7 +93,7 @@ gboolean win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filt
  * @param h_wnd HWND of the parent window.
  * @param export_type The export type.
  */
-void win32_export_file (HWND h_wnd, export_type_e export_type);
+void win32_export_file (HWND h_wnd, capture_file *cf, export_type_e export_type);
 
 /** Open the "Export raw bytes" dialog box.
  *

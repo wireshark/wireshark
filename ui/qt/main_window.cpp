@@ -838,8 +838,7 @@ void MainWindow::exportSelectedPackets() {
 }
 
 void MainWindow::exportDissections(export_type_e export_type) {
-    QString file_name = "";
-    ExportDissectionDialog ed_dlg(this, export_type, cap_file_);
+    ExportDissectionDialog ed_dlg(this, cap_file_, export_type);
     packet_range_t range;
 
     if (!cap_file_)

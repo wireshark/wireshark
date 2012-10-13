@@ -74,6 +74,10 @@ public:
     bool isCompressed();
 
 private:
+    capture_file *cap_file_;
+    QString &display_filter_;
+
+#if !defined(Q_WS_WIN)
     void addMergeControls(QVBoxLayout &v_box);
     void addDisplayFilterEdit();
     void addPreview(QVBoxLayout &v_box);
@@ -83,8 +87,6 @@ private:
     QVBoxLayout left_v_box_;
     QVBoxLayout right_v_box_;
 
-    QString &display_filter_;
-    capture_file *cap_file_;
     DisplayFilterEdit* display_filter_edit_;
     int last_row_;
 
@@ -101,7 +103,6 @@ private:
 
     QHash<QString, int>type_hash_;
 
-#if !defined(Q_WS_WIN)
     void addResolutionControls(QVBoxLayout &v_box);
     void addGzipControls(QVBoxLayout &v_box);
     void addRangeControls(QVBoxLayout &v_box, packet_range_t *range);

@@ -30,7 +30,7 @@
 #include <windows.h>
 #include "packet-range.h"
 #include "ui/win32/file_dlg_win32.h"
-#endif
+#else // Q_WS_WIN
 
 #include <errno.h>
 #include "file.h"
@@ -47,6 +47,7 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QSpacerItem>
+#endif // Q_WS_WIN
 
 #include <QDebug>
 
@@ -244,61 +245,6 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
 #endif // Q_WS_WIN
 }
 
-void CaptureFileDialog::addPreview(QVBoxLayout &v_box) {
-    QGridLayout *preview_grid = new QGridLayout();
-    QLabel *lbl;
-
-    preview_labels_.clear();
-    v_box.addLayout(preview_grid);
-
-    preview_grid->setColumnStretch(0, 0);
-    preview_grid->setColumnStretch(1, 10);
-
-    lbl = new QLabel(tr("Format:"));
-    preview_grid->addWidget(lbl, 0, 0);
-    preview_grid->addWidget(&preview_format_, 0, 1);
-    preview_labels_ << lbl << &preview_format_;
-
-    lbl = new QLabel(tr("Size:"));
-    preview_grid->addWidget(lbl, 1, 0);
-    preview_grid->addWidget(&preview_size_, 1, 1);
-    preview_labels_ << lbl << &preview_size_;
-
-    lbl = new QLabel(tr("Packets:"));
-    preview_grid->addWidget(lbl, 2, 0);
-    preview_grid->addWidget(&preview_packets_, 2, 1);
-    preview_labels_ << lbl << &preview_packets_;
-
-    lbl = new QLabel(tr("First Packet:"));
-    preview_grid->addWidget(lbl, 3, 0);
-    preview_grid->addWidget(&preview_first_, 3, 1);
-    preview_labels_ << lbl << &preview_first_;
-
-    lbl = new QLabel(tr("Elapsed Time:"));
-    preview_grid->addWidget(lbl, 4, 0);
-    preview_grid->addWidget(&preview_elapsed_, 4, 1);
-    preview_labels_ << lbl << &preview_elapsed_;
-
-    connect(this, SIGNAL(currentChanged(const QString &)), this, SLOT(preview(const QString &)));
-
-    preview("");
-}
-
-void CaptureFileDialog::addMergeControls(QVBoxLayout &v_box) {
-
-    merge_prepend_.setText("Prepend packets");
-    merge_prepend_.setToolTip("Insert packets from the selected file before the current file. Packet timestamps will be ignored.");
-    v_box.addWidget(&merge_prepend_, 0, Qt::AlignTop);
-
-    merge_chrono_.setText("Merge chronologically");
-    merge_chrono_.setToolTip("Insert packets in chronological order.");
-    merge_chrono_.setChecked(true);
-    v_box.addWidget(&merge_chrono_, 0, Qt::AlignTop);
-
-    merge_append_.setText("Append packets");
-    merge_append_.setToolTip("Insert packets from the selected file after the current file. Packet timestamps will be ignored.");
-    v_box.addWidget(&merge_append_, 0, Qt::AlignTop);
-}
 
 // You have to use open, merge, saveAs, or exportPackets. We should
 // probably just make each type a subclass.
@@ -306,62 +252,6 @@ int CaptureFileDialog::exec() {
     return QDialog::Rejected;
 }
 
-QString CaptureFileDialog::fileType(int ft, bool extension_globs)
-{
-    QString filter;
-    GSList *extensions_list, *extension;
-
-    filter = wtap_file_type_string(ft);
-
-    if (!extension_globs) {
-        return filter;
-    }
-
-    filter += " (";
-
-    extensions_list = wtap_get_file_extensions_list(ft, TRUE);
-    if (extensions_list == NULL) {
-        /* This file type doesn't have any particular extension
-           conventionally used for it, so we'll just use "*.*"
-           as the pattern; on Windows, that matches all file names
-           - even those with no extension -  so we don't need to
-           worry about compressed file extensions.  (It does not
-           do so on UN*X; the right pattern on UN*X would just
-           be "*".) */
-           filter += "*.*";
-    } else {
-        /* Construct the list of patterns. */
-        for (extension = extensions_list; extension != NULL;
-             extension = g_slist_next(extension)) {
-            if (!filter.endsWith('('))
-                filter += ' ';
-            filter += "*.";
-            filter += (char *)extension->data;
-        }
-        wtap_free_file_extensions_list(extensions_list);
-    }
-    filter += ')';
-    return filter;
-    /* XXX - does QStringList's destructor destroy the strings in the list? */
-}
-
-QStringList CaptureFileDialog::buildFileOpenTypeList() {
-    QStringList filters;
-    int   ft;
-
-    /* Add the "All Files" entry. */
-    filters << QString(tr("All Files (*.*)"));
-
-    /* Include all the file types Wireshark supports. */
-    for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-        if (ft == WTAP_FILE_UNKNOWN)
-            continue;  /* not a real file type */
-
-        filters << fileType(ft);
-    }
-
-    return filters;
-}
 
 
 // Windows
@@ -441,6 +331,119 @@ int CaptureFileDialog::mergeType() {
 }
 
 #else // not Q_WS_WINDOWS
+QString CaptureFileDialog::fileType(int ft, bool extension_globs)
+{
+    QString filter;
+    GSList *extensions_list, *extension;
+
+    filter = wtap_file_type_string(ft);
+
+    if (!extension_globs) {
+        return filter;
+    }
+
+    filter += " (";
+
+    extensions_list = wtap_get_file_extensions_list(ft, TRUE);
+    if (extensions_list == NULL) {
+        /* This file type doesn't have any particular extension
+           conventionally used for it, so we'll just use "*.*"
+           as the pattern; on Windows, that matches all file names
+           - even those with no extension -  so we don't need to
+           worry about compressed file extensions.  (It does not
+           do so on UN*X; the right pattern on UN*X would just
+           be "*".) */
+           filter += "*.*";
+    } else {
+        /* Construct the list of patterns. */
+        for (extension = extensions_list; extension != NULL;
+             extension = g_slist_next(extension)) {
+            if (!filter.endsWith('('))
+                filter += ' ';
+            filter += "*.";
+            filter += (char *)extension->data;
+        }
+        wtap_free_file_extensions_list(extensions_list);
+    }
+    filter += ')';
+    return filter;
+    /* XXX - does QStringList's destructor destroy the strings in the list? */
+}
+
+QStringList CaptureFileDialog::buildFileOpenTypeList() {
+    QStringList filters;
+    int   ft;
+
+    /* Add the "All Files" entry. */
+    filters << QString(tr("All Files (*.*)"));
+
+    /* Include all the file types Wireshark supports. */
+    for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
+        if (ft == WTAP_FILE_UNKNOWN)
+            continue;  /* not a real file type */
+
+        filters << fileType(ft);
+    }
+
+    return filters;
+}
+
+void CaptureFileDialog::addPreview(QVBoxLayout &v_box) {
+    QGridLayout *preview_grid = new QGridLayout();
+    QLabel *lbl;
+
+    preview_labels_.clear();
+    v_box.addLayout(preview_grid);
+
+    preview_grid->setColumnStretch(0, 0);
+    preview_grid->setColumnStretch(1, 10);
+
+    lbl = new QLabel(tr("Format:"));
+    preview_grid->addWidget(lbl, 0, 0);
+    preview_grid->addWidget(&preview_format_, 0, 1);
+    preview_labels_ << lbl << &preview_format_;
+
+    lbl = new QLabel(tr("Size:"));
+    preview_grid->addWidget(lbl, 1, 0);
+    preview_grid->addWidget(&preview_size_, 1, 1);
+    preview_labels_ << lbl << &preview_size_;
+
+    lbl = new QLabel(tr("Packets:"));
+    preview_grid->addWidget(lbl, 2, 0);
+    preview_grid->addWidget(&preview_packets_, 2, 1);
+    preview_labels_ << lbl << &preview_packets_;
+
+    lbl = new QLabel(tr("First Packet:"));
+    preview_grid->addWidget(lbl, 3, 0);
+    preview_grid->addWidget(&preview_first_, 3, 1);
+    preview_labels_ << lbl << &preview_first_;
+
+    lbl = new QLabel(tr("Elapsed Time:"));
+    preview_grid->addWidget(lbl, 4, 0);
+    preview_grid->addWidget(&preview_elapsed_, 4, 1);
+    preview_labels_ << lbl << &preview_elapsed_;
+
+    connect(this, SIGNAL(currentChanged(const QString &)), this, SLOT(preview(const QString &)));
+
+    preview("");
+}
+
+void CaptureFileDialog::addMergeControls(QVBoxLayout &v_box) {
+
+    merge_prepend_.setText("Prepend packets");
+    merge_prepend_.setToolTip("Insert packets from the selected file before the current file. Packet timestamps will be ignored.");
+    v_box.addWidget(&merge_prepend_, 0, Qt::AlignTop);
+
+    merge_chrono_.setText("Merge chronologically");
+    merge_chrono_.setToolTip("Insert packets in chronological order.");
+    merge_chrono_.setChecked(true);
+    v_box.addWidget(&merge_chrono_, 0, Qt::AlignTop);
+
+    merge_append_.setText("Append packets");
+    merge_append_.setToolTip("Insert packets from the selected file after the current file. Packet timestamps will be ignored.");
+    v_box.addWidget(&merge_append_, 0, Qt::AlignTop);
+}
+
 int CaptureFileDialog::selectedFileType() {
     return type_hash_.value(selectedNameFilter(), -1);
 }

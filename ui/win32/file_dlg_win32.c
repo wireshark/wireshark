@@ -605,7 +605,7 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
 }
 
 void
-win32_export_file(HWND h_wnd, export_type_e export_type) {
+win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
     OPENFILENAME     *ofn;
     TCHAR             file_name[MAX_PATH] = _T("");
     char             *dirname;
@@ -670,7 +670,7 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
                     g_free( (void *) ofn);
                     return;
                 }
-                status = cf_print_packets(&cfile, &print_args);
+                status = cf_print_packets(cf, &print_args);
                 break;
             case export_type_ps:        /* PostScript (r) */
                 print_args.stream = print_stream_ps_new(TRUE, print_args.file);
@@ -679,19 +679,19 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
                     g_free( (void *) ofn);
                     return;
                 }
-                status = cf_print_packets(&cfile, &print_args);
+                status = cf_print_packets(cf, &print_args);
                 break;
             case export_type_csv:       /* CSV */
-                status = cf_write_csv_packets(&cfile, &print_args);
+                status = cf_write_csv_packets(cf, &print_args);
                 break;
             case export_type_carrays:   /* C Arrays */
-                status = cf_write_carrays_packets(&cfile, &print_args);
+                status = cf_write_carrays_packets(cf, &print_args);
                 break;
             case export_type_psml:      /* PSML */
-                status = cf_write_psml_packets(&cfile, &print_args);
+                status = cf_write_psml_packets(cf, &print_args);
                 break;
             case export_type_pdml:      /* PDML */
-                status = cf_write_pdml_packets(&cfile, &print_args);
+                status = cf_write_pdml_packets(cf, &print_args);
                 break;
             default:
                 g_free( (void *) ofn);

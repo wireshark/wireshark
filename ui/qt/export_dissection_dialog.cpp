@@ -23,7 +23,11 @@
 
 #include "export_dissection_dialog.h"
 
-#if !defined(Q_WS_WIN)
+#ifdef Q_WS_WIN
+#include <windows.h>
+#include "packet-range.h"
+#include "ui/win32/file_dlg_win32.h"
+#else // Q_WS_WIN
 #include "print.h"
 
 #include "ui/alert_box.h"
@@ -43,11 +47,13 @@
 #include <QDebug>
 #endif // Q_WS_WIN
 
-ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, export_type_e export_type, capture_file *cap_file):
+ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type):
     QFileDialog(parent),
-    export_type_(export_type),
     cap_file_(cap_file),
-    save_bt_(NULL)
+    export_type_(export_type)
+  #if !defined(Q_WS_WIN)
+    , save_bt_(NULL)
+ #endif Q_WS_WIN
 {
 #if !defined(Q_WS_WIN)
     QDialogButtonBox *button_box = findChild<QDialogButtonBox *>();
@@ -198,11 +204,12 @@ int ExportDissectionDialog::exec()
 
     return retval;
 #else // Q_WS_WIN
-    win32_export_file(parent->effectiveWinId(), export_type_);
+    win32_export_file(parentWidget()->effectiveWinId(), cap_file_, export_type_);
     return QDialog::Accepted;
 #endif // Q_WS_WIN
 }
 
+#ifndef Q_WS_WIN
 void ExportDissectionDialog::exportTypeChanged(QString name_filter)
 {
     export_type_ = export_type_map_.value(name_filter);
@@ -234,16 +241,4 @@ void ExportDissectionDialog::checkValidity()
 
     save_bt_->setEnabled(enable);
 }
-
-//#if !defined(Q_WS_WIN)
-//void ExportDissectionDialog::on_buttonBox_helpRequested()
-//{
-//    gchar *url = topic_action_url(HELP_EXPORT_FILE_DIALOG);
-
-//    if(url != NULL) {
-//        QDesktopServices::openUrl(QUrl(url));
-//        g_free(url);
-//    }
-//}
-
-//#endif // Q_WS_WIN
+#endif // Q_WS_WIN

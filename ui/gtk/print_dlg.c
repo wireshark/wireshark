@@ -184,7 +184,7 @@ static gboolean export_text_prefs_init = FALSE;
 void
 export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), export_type_text);
+  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), &cfile export_type_text);
   return;
 }
 #else
