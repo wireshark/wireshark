@@ -184,7 +184,7 @@ static gboolean export_text_prefs_init = FALSE;
 void
 export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), &cfile export_type_text);
+  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), &cfile, export_type_text);
   return;
 }
 #else
@@ -238,7 +238,7 @@ static gboolean export_ps_prefs_init = FALSE;
 void
 export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), export_type_ps);
+  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), &cfile, export_type_ps);
   return;
 }
 #else
@@ -292,7 +292,7 @@ static gboolean export_psml_prefs_init = FALSE;
 void
 export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), export_type_psml);
+  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), &cfile, export_type_psml);
   return;
 }
 #else
@@ -345,7 +345,7 @@ static gboolean export_pdml_prefs_init = FALSE;
 void
 export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), export_type_pdml);
+  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), &cfile, export_type_pdml);
   return;
 }
 #else
@@ -397,7 +397,7 @@ static gboolean export_csv_prefs_init = FALSE;
 void
 export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), export_type_csv);
+  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), &cfile, export_type_csv);
   return;
 }
 #else
@@ -449,7 +449,7 @@ static gboolean export_carrays_prefs_init = FALSE;
 void
 export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), export_type_carrays);
+  win32_export_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), &cfile, export_type_carrays);
   return;
 }
 #else
