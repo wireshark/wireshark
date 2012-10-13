@@ -28,9 +28,8 @@
 // Sigh. The Qt 4 documentation says we should subclass QThread here. Other sources
 // insist that we should subclass QObject, then move it to a newly created QThread.
 RecentFileStatus::RecentFileStatus(const QString &filename, QObject *parent) :
-    QObject(parent)
+    QObject(parent), m_filename(filename), m_size(0)
 {
-    m_filename = filename;
 }
 
 void RecentFileStatus::start(void) {

@@ -23,9 +23,9 @@
 
 #include "packet_list_record.h"
 
-PacketListRecord::PacketListRecord(frame_data *frameData)
+PacketListRecord::PacketListRecord(frame_data *frameData) :
+    col_text(NULL), col_text_len(NULL), fdata(frameData)
 {
-    fdata = frameData;
 }
 
 QVariant PacketListRecord::data(int col_num, column_info *cinfo) const

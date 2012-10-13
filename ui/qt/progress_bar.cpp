@@ -111,7 +111,7 @@ destroy_progress_dlg(progdlg_t *dlg)
 // XXX - We need to show the task and item titles. Maybe as a tooltip or popped
 //       into our sibling status message?
 ProgressBar::ProgressBar(QWidget *parent) :
-    QProgressBar(parent)
+    QProgressBar(parent), m_terminate_is_stop(false), m_stop_flag(NULL)
 {
     m_dlg.progressBar = this;
     m_dlg.topLevelWindow = window();
