@@ -422,6 +422,7 @@ get_interface_type(gchar *name, gchar *description)
             g_free(wireless_path);
             return IF_WIRELESS;
         }
+        g_free(wireless_path);
     }
     /*
      * Bluetooth devices.
