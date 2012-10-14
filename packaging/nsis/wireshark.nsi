@@ -19,7 +19,7 @@ SetCompressor /SOLID lzma
 ; ============================================================================
 
 ; The file to write
-OutFile "${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
+OutFile "${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-gtk3-${VERSION}.exe"
 
 ; Installer icon
 Icon "..\..\image\wiresharkinst.ico"
@@ -741,15 +741,18 @@ Section "Wireshark" SecWireshark
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\wireshark.exe"
-File "${STAGING_DIR}\libgdk-win32-2.0-0.dll"
+File "${STAGING_DIR}\${GDK_DLL}"
 File "${STAGING_DIR}\libgdk_pixbuf-2.0-0.dll"
-File "${STAGING_DIR}\libgtk-win32-2.0-0.dll"
+File "${STAGING_DIR}\${GTK_DLL}"
 File "${STAGING_DIR}\libatk-1.0-0.dll"
 File "${STAGING_DIR}\libpango-1.0-0.dll"
 File "${STAGING_DIR}\libpangowin32-1.0-0.dll"
 !ifdef NEED_CAIRO_DLL
 File "${STAGING_DIR}\libcairo-2.dll"
 File "${STAGING_DIR}\libpangocairo-1.0-0.dll"
+!if ${GTK_NAME} == "gtk3"
+File "${STAGING_DIR}\libcairo-gobject-2.dll"
+!endif
 !endif
 !ifdef NEED_EXPAT_DLL
 File "${STAGING_DIR}\${EXPAT_DLL}"
@@ -786,14 +789,21 @@ File "${STAGING_DIR}\${TIFF_DLL}"
 File "${STAGING_DIR}\${XML_DLL}"
 !endif
 
+!if ${GTK_NAME} == "gtk2"
 SetOutPath $INSTDIR\etc\gtk-2.0
 File "${GTK_DIR}\etc\gtk-2.0\*.*"
-
+!else
+SetOutPath $INSTDIR\etc\gtk-3.0
+File "${STAGING_DIR}\etc\gtk-3.0\*.*"
+SetOutPath $INSTDIR\share\glib-2.0\schemas
+File "${STAGING_DIR}\share\glib-2.0\schemas\*.*"
+!endif
 #!if ${WIRESHARK_TARGET_PLATFORM} == "win32"
 #SetOutPath $INSTDIR\etc\pango
 #File "${GTK_DIR}\etc\pango\pango.*"
 #!endif
 
+!if ${GTK_NAME} == "gtk2"
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines
 File "${STAGING_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libpixmap.dll"
 SetOutPath $INSTDIR\lib\gtk-2.0\modules
@@ -804,7 +814,7 @@ SetOutPath $INSTDIR\${GTK_WIMP_DLLDST_DIR}
 File "${STAGING_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libwimp.dll"
 SetOutPath $INSTDIR\${GTK_WIMP_RCDST_DIR}
 File "${GTK_WIMP_RCSRC_DIR}\gtkrc"
-
+!endif
 SectionEnd ; "Wireshark"
 !endif
 

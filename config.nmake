@@ -233,7 +233,7 @@ GLIB_VERSION=2.0
 # directory in which the "include" and "lib" directories reside.
 #
 # Set the name to gtk3 if you want to use gtk3 - Not yet working
-GTK_NAME=gtk2
+GTK_NAME=gtk3
 GTK_DIR=$(WIRESHARK_LIB_DIR)\$(GTK_NAME)
 
 # These macros are used by the nsis installer script and by the install target.
@@ -252,11 +252,15 @@ XML_DLL=libxml2-2.dll
 
 # This macro is used by the setup target.
 !IF "$(GTK_NAME)" == "gtk2"
+GDK_DLL=libgdk-win32-2.0-0.dll
+GTK_DLL=libgtk-win32-2.0-0.dll
 #GTK_PKG=2.16.6-20100912
 #GTK_PKG=2.22.1-20101227
 GTK_PKG=2.24.10-2.7
 PKG_SUFIX=ws
 !ELSE
+GDK_DLL=libgdk-3-0.dll
+GTK_DLL=libgtk-3-0.dll
 PKG_SUFIX=ws
 GTK_PKG=3.4.4-2.1
 !ENDIF
@@ -444,7 +448,7 @@ GLIB_VERSION=2.0
 #
 #
 # Set the name to gtk3 if you want to use gtk3 - Not yet working
-GTK_NAME=gtk2
+GTK_NAME=gtk3
 GTK_DIR=$(WIRESHARK_LIB_DIR)\$(GTK_NAME)
 
 # These macros are used by the nsis installer script and by the install target.
@@ -463,10 +467,14 @@ XML_DLL=libxml2-2.dll
 
 # These macros are used by the setup target.
 !IF "$(GTK_NAME)" == "gtk2"
+GDK_DLL=libgdk-win32-2.0-0.dll
+GTK_DLL=libgtk-win32-2.0-0.dll
 #GTK_PKG=2.16.6-20100912
 GTK_PKG=2.24.10-2.7
 PKG_SUFIX=ws
 !ELSE
+GDK_DLL=libgdk-3-0.dll
+GTK_DLL=libgtk-3-0.dll
 PKG_SUFIX=ws
 GTK_PKG=3.4.4-2.1
 !ENDIF
