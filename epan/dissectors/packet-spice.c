@@ -2909,7 +2909,6 @@ dissect_spice_common_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 /* TODO: save common and per-channel capabilities in spice_info ? */
     int         i;
     guint32     val;
-    proto_item *ti = NULL;
 
     for(i = 0; i != caps_len ; i++) {
         val = tvb_get_letohl(tvb, offset);
