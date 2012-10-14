@@ -766,7 +766,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			serverflag = tvb_get_guint8(tvb, offset);
 			proto_item_append_text(oi, ", %s (%d)",
-				val_to_str_const(reject_reason, serverflag_vals, "UNKNOWN FLAGS"),
+				val_to_str_const(serverflag, serverflag_vals, "UNKNOWN FLAGS"),
 				serverflag);
 			proto_tree_add_item(option_tree, hf_dhcpfo_serverflag, tvb, offset, option_length, ENC_BIG_ENDIAN);
 			break;
