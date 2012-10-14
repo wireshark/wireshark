@@ -438,7 +438,7 @@ atmarpsubaddr_to_str(const guint8 *ad, int ad_tl)
   return bytes_to_str(ad, ad_len);
 }
 
-static const value_string hrd_vals[] = {
+const value_string arp_hrd_vals[] = {
   {ARPHRD_NETROM,   "NET/ROM pseudo"       },
   {ARPHRD_ETHER,    "Ethernet"             },
   {ARPHRD_EETHER,   "Experimental Ethernet"},
@@ -479,11 +479,6 @@ static const value_string hrd_vals[] = {
   {ARPHDR_HFI,                "HFI"        },
   {ARPHDR_HW_EXP2,            "Experimental 2"},
   {0,                NULL                  } };
-
-const gchar *
-arphrdtype_to_str(guint16 hwtype, const char *fmt) {
-  return val_to_str(hwtype, hrd_vals, fmt);
-}
 
 /* Offsets of fields within an ARP packet. */
 #define AR_HRD          0
@@ -1804,7 +1799,7 @@ proto_register_arp(void)
   static hf_register_info hf[] = {
     { &hf_arp_hard_type,
       { "Hardware type",                "arp.hw.type",
-        FT_UINT16,      BASE_DEC,       VALS(hrd_vals), 0x0,
+        FT_UINT16,      BASE_DEC,       VALS(arp_hrd_vals), 0x0,
         NULL, HFILL }},
 
     { &hf_arp_proto_type,

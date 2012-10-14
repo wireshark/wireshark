@@ -143,6 +143,8 @@ static int hf_bootp_pkt_mta_cap_len = -1;
 static int hf_bootp_docsis_cm_cap_type = -1;
 static int hf_bootp_docsis_cm_cap_len = -1;
 static int hf_bootp_client_identifier_uuid = -1;
+static int hf_bootp_client_identifier_duid_llt_hw_type = -1;
+static int hf_bootp_client_identifier_duid_ll_hw_type = -1;
 static int hf_bootp_option_type = -1;
 static int hf_bootp_option_length = -1;
 static int hf_bootp_option_value = -1;
@@ -1709,14 +1711,14 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		   (e.g. a fully qualified domain name). */
 
 		if (optlen == 7 && byte > 0 && byte < 48) {
-			proto_tree_add_text(v_tree, tvb, optoff, 1,
-				"Hardware type: %s",
-				arphrdtype_to_str(byte,
-					"Unknown (0x%02x)"));
+			proto_tree_add_item(v_tree,
+					hf_bootp_hw_type, tvb, optoff, 1,
+					ENC_NA);
+
 			if (byte == ARPHRD_ETHER || byte == ARPHRD_IEEE802)
 				proto_tree_add_item(v_tree,
-				    hf_bootp_hw_ether_addr, tvb, optoff+1, 6,
-				    ENC_NA);
+					hf_bootp_hw_ether_addr, tvb, optoff+1, 6,
+					ENC_NA);
 			else
 				proto_tree_add_text(v_tree, tvb, optoff+1, 6,
 					"Client hardware address: %s",
@@ -1753,9 +1755,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					break;
 				}
 				hwtype=tvb_get_ntohs(tvb, optoff + 2);
-				proto_tree_add_text(v_tree, tvb, optoff + 2, 2,
-					"Hardware type: %s (%u)", arphrdtype_to_str(hwtype, "Unknown"),
-					hwtype);
+				proto_tree_add_item(v_tree, hf_bootp_client_identifier_duid_llt_hw_type,
+						tvb, optoff + 2, 2, ENC_BIG_ENDIAN);
+
 				/* XXX seconds since Jan 1 2000 */
 				proto_tree_add_text(v_tree, tvb, optoff + 4, 4,
 					"Time: %u", tvb_get_ntohl(tvb, optoff + 4));
@@ -1787,10 +1789,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					break;
 				}
 				hwtype=tvb_get_ntohs(tvb, optoff + 2);
-				proto_tree_add_text(v_tree, tvb, optoff + 2, 2,
-					"Hardware type: %s (%u)",
-					arphrdtype_to_str(hwtype, "Unknown"),
-					hwtype);
+				proto_tree_add_item(v_tree, hf_bootp_client_identifier_duid_ll_hw_type,
+						tvb, optoff + 2, 2, ENC_BIG_ENDIAN);
+
 				if (optlen > 4) {
 					proto_tree_add_text(v_tree, tvb, optoff + 4,
 						optlen - 9, "Link-layer address: %s",
@@ -1819,14 +1820,13 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		   (e.g. a fully qualified domain name). */
 
 		if (optlen == 7 && byte > 0 && byte < 48) {
-			proto_tree_add_text(v_tree, tvb, optoff, 1,
-				"Hardware type: %s",
-				arphrdtype_to_str(byte,
-					"Unknown (0x%02x)"));
+			proto_tree_add_item(v_tree,
+					hf_bootp_hw_type, tvb, optoff, 1,
+					ENC_NA);
 			if (byte == ARPHRD_ETHER || byte == ARPHRD_IEEE802)
 				proto_tree_add_item(v_tree,
-				    hf_bootp_hw_ether_addr, tvb, optoff+1, 6,
-				    ENC_NA);
+					hf_bootp_hw_ether_addr, tvb, optoff+1, 6,
+					ENC_NA);
 			else
 				proto_tree_add_text(v_tree, tvb, optoff+1, 6,
 					"Client hardware address: %s",
@@ -4829,12 +4829,8 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(bp_tree, hf_bootp_type, tvb,
 				   0, 1,
 				   op);
-	proto_tree_add_uint_format_value(bp_tree, hf_bootp_hw_type, tvb,
-					 1, 1,
-					 htype,
-					 "%s",
-					 arphrdtype_to_str(htype,
-						     "Unknown (0x%02x)"));
+	proto_tree_add_item(bp_tree, hf_bootp_hw_type, tvb,
+					 1, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_uint(bp_tree, hf_bootp_hw_len, tvb,
 			    2, 1, hlen);
 	proto_tree_add_item(bp_tree, hf_bootp_hops, tvb,
@@ -5019,7 +5015,7 @@ proto_register_bootp(void)
 
 		{ &hf_bootp_hw_type,
 		  { "Hardware type", "bootp.hw.type",
-		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    FT_UINT8, BASE_HEX, VALS(arp_hrd_vals), 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_bootp_hw_len,
@@ -5171,6 +5167,16 @@ proto_register_bootp(void)
 		  { "Client Identifier (UUID)", "bootp.client_id_uuid",
 		    FT_GUID, BASE_NONE, NULL, 0x0,
 		    "Client Machine Identifier (UUID)", HFILL }},
+
+		{ &hf_bootp_client_identifier_duid_llt_hw_type,
+		  { "Hardware type", "bootp.client_id_duid_llt_hw_type",
+		    FT_UINT16, BASE_DEC, VALS(arp_hrd_vals), 0x0,
+		    "Client Identifier DUID LLT Hardware type", HFILL }},
+
+		{ &hf_bootp_client_identifier_duid_ll_hw_type,
+		  { "Hardware type", "bootp.client_id_duid_ll_hw_type",
+		    FT_UINT16, BASE_DEC, VALS(arp_hrd_vals), 0x0,
+		    "Client Identifier DUID LL Hardware type", HFILL }},
 
 		{ &hf_bootp_option_type,
 		  { "Option", "bootp.option.type",
