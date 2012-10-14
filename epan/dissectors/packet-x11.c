@@ -3181,7 +3181,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
                   /* necessary processing even if tree == NULL */
 
                   v16 = VALUE16(tvb, 4);
-                  name = tvb_get_ephemeral_string(tvb, 8, v16);
+                  name = tvb_get_seasonal_string(tvb, 8, v16);
 
                   /* store string of extension, opcode will be set at reply */
                   i = 0;
@@ -4556,7 +4556,7 @@ x11_stateinit(conversation_t *conversation)
 {
       x11_conv_data_t *state;
       static x11_conv_data_t stateinit;
-      int i = 0;
+      int i;
 
       state = g_malloc(sizeof (x11_conv_data_t));
       *state = stateinit;
@@ -4564,44 +4564,33 @@ x11_stateinit(conversation_t *conversation)
       x11_conv_data_list = state;
 
       /* initialise opcodes */
-      while (1) {
-            if (opcode_vals[i].strptr == NULL) break;
+      for (i = 0; opcode_vals[i].strptr != NULL; i++) {
             state->opcode_vals[i].value = opcode_vals[i].value;
             state->opcode_vals[i].strptr = opcode_vals[i].strptr;
-            i++;
       }
-      while (i <= MAX_OPCODES) {
+      for (; i <= MAX_OPCODES; i++) {
             state->opcode_vals[i].value = 0;
             state->opcode_vals[i].strptr = NULL;
-            i++;
       }
 
       /* initialise errorcodes */
-      i = 0;
-      while (1) {
-            if (errorcode_vals[i].strptr == NULL) break;
+      for (i = 0; errorcode_vals[i].strptr != NULL; i++) {
             state->errorcode_vals[i].value = errorcode_vals[i].value;
             state->errorcode_vals[i].strptr = errorcode_vals[i].strptr;
-            i++;
       }
-      while (i <= LastExtensionError + 1) {
+      for (; i <= LastExtensionError + 1; i++) {
             state->errorcode_vals[i].value = 0;
             state->errorcode_vals[i].strptr = NULL;
-            i++;
       }
 
       /* initialise eventcodes */
-      i = 0;
-      while (1) {
-            if (eventcode_vals[i].strptr == NULL) break;
+      for (i = 0; eventcode_vals[i].strptr != NULL; i++) {
             state->eventcode_vals[i].value = eventcode_vals[i].value;
             state->eventcode_vals[i].strptr = eventcode_vals[i].strptr;
-            i++;
       }
-      while (i <= LastExtensionEvent + 1) {
+      for (; i <= LastExtensionEvent + 1; i++) {
             state->eventcode_vals[i].value = 0;
             state->eventcode_vals[i].strptr = NULL;
-            i++;
       }
       state->eventcode_funcs = g_hash_table_new(g_direct_hash, g_direct_equal);
       state->reply_funcs = g_hash_table_new(g_direct_hash, g_direct_equal);
