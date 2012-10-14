@@ -19,7 +19,7 @@ SetCompressor /SOLID lzma
 ; ============================================================================
 
 ; The file to write
-OutFile "${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-gtk3-${VERSION}.exe"
+OutFile "${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
 
 ; Installer icon
 Icon "..\..\image\wiresharkinst.ico"
