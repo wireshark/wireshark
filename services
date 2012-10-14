@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-10-05
+# 2012-10-12
 # 
 # Experts
 # 
@@ -12024,7 +12024,10 @@ hrd-ns-disc	6324/udp	# HR Device Network service    [Hall_Research]             
 dt-mgmtsvc	6325/tcp	# Double-Take Management       [Vision_Solutions]                                 [James_Wilkinson2]                                        2012-06-06
 # Service
 # 6325        udp    Reserved
-# 6326-6342            Unassigned
+dt-vra	6326/tcp	# Double-Take Virtual Recovery [Vision_Solutions]                                 [James_Wilkinson2]                                        2012-10-08
+# Assistant
+# 6326        udp    Reserved
+# 6327-6342            Unassigned
 sflow	6343/tcp	# sFlow traffic monitoring     [Peter_Phaal]                                      [Peter_Phaal]                                             2003-06
 sflow	6343/udp	# sFlow traffic monitoring     [Peter_Phaal]                                      [Peter_Phaal]                                             2003-06
 # 6344-6345            Unassigned
@@ -15543,7 +15546,10 @@ ew-disc-cmd	43440/udp	# Cisco EnergyWise Discovery   [John_Parello]             
 # and Command Flooding
 ciscocsdb	43441/tcp	# Cisco NetMgmt DB Ports       [Cisco_Systems]                                    [Cisco_Systems]                                           2005-11
 ciscocsdb	43441/udp	# Cisco NetMgmt DB Ports       [Cisco_Systems]                                    [Cisco_Systems]                                           2005-11
-# 43442-44320           Unassigned
+# 43442-44122           Unassigned
+z-wave-s	44123/tcp	# Z-Wave Secure Tunnel         [Sigma_Designs_Inc]                                [Anders_Brandt_3]                                         2012-10-12
+# 44123       udp    Reserved
+# 43124-44320           Unassigned
 pmcd	44321/tcp	# PCP server (pmcd)            [Ken_McDonell]                                     [Ken_McDonell]                                            2010-12-20
 pmcd	44321/udp	# PCP server (pmcd)            [Ken_McDonell]                                     [Ken_McDonell]                                            2010-12-20
 pmcdproxy	44322/tcp	# PCP server (pmcd) proxy      [Ken_McDonell]                                     [Ken_McDonell]                                            2003-07      2010-12-20
@@ -16400,6 +16406,10 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Defined TXT keys: None mxs.system.id=<system id>
 # mxs                                   MatrixStore                  [Object_Matrix]                                    [Object_Matrix]                                                                                                                                    mxs.system.version=<system layer version>
 # mxs.cluster.id=<cluster id the system belongs to>
+# nasmon                         tcp    Proprietary communication    [Infinite_Loop]                                    [Claus_Broch2]                                            2012-10-09                                                                               Defined TXT keys: Proprietary
+# protocol for NAS Monitor
+# nasmon                         udp    Proprietary communication    [Infinite_Loop]                                    [Claus_Broch2]                                            2012-10-09                                                                               Defined TXT keys: Proprietary
+# protocol for NAS Monitor
 # ncbroadcast                           Network Clipboard Broadcasts [Thom_McGrath]                                     [Thom_McGrath]                                                                                                                                     Defined TXT keys: Contact The ZAZ Software <networkclipboard
 # at thezaz.com>
 # ncdirect                              Network Clipboard Direct     [Thom_McGrath]                                     [Thom_McGrath]                                                                                                                                     Defined TXT keys: Contact The ZAZ Software <networkclipboard
@@ -16436,6 +16446,22 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # objective                             servers in an Objective      [Marc_Bailey]                                      [Marc_Bailey]                                                                                                                                      type={'production'|'standby'|'test'|'demo'}
 # (http://www.objective.com)                                                                                                                                                                                                         protocol={['SOAP'],['CORBA']} transport=['iiop']|['http']
 # instance.
+# Insecure OCP.1 protocol,
+# oca                            tcp    which is the insecure TCP/IP [OCA_Alliance]                                     [Stephan_van_Tienen]                                      2012-10-11                                                                               Defined TXT keys: txtvers=1 protovers=x
+# implementation of the Object
+# Control Architecture
+# Insecure OCP.1 protocol,
+# oca                            udp    which is the insecure TCP/IP [OCA_Alliance]                                     [Stephan_van_Tienen]                                      2012-10-11                                                                               Defined TXT keys: txtvers=1 protovers=x
+# implementation of the Object
+# Control Architecture
+# Secure OCP.1 protocol, which
+# ocasec                         tcp    is the secure TCP/IP         [OCA_Alliance]                                     [Stephan_van_Tienen]                                      2012-10-11                                                                               Defined TXT keys: txtvers=1 protovers=x
+# implementation of the Object
+# Control Architecture
+# Secure OCP.1 protocol, which
+# ocasec                         udp    is the secure TCP/IP         [OCA_Alliance]                                     [Stephan_van_Tienen]                                      2012-10-11                                                                               Defined TXT keys: txtvers=1 protovers=x
+# implementation of the Object
+# Control Architecture
 # oce                                   Oce Common Exchange Protocol [Dion_Slijp]                                       [Dion_Slijp]                                                                                                                                       Defined TXT keys: type, version
 # od-master                             OpenDirectory Master         [Jason_Thorpe]                                     [Jason_Thorpe]                                                                                                                                     Defined TXT keys: None
 # odabsharing                           OD4Contact                   [Objective_Decision]                               [Objective_Decision]                                                                                                                               Defined TXT keys: None
@@ -16720,6 +16746,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # spr-itunes                            netTunes                     [David_Nanian_2]                                   [David_Nanian_2]                                                                                                                                   Defined TXT keys: None
 # splashsync                            SplashData Synchronization   [Justin_Cepelak]                                   [Justin_Cepelak]                                                                                                                                   Defined TXT keys: Proprietary
 # Service
+# spres                          tcp    SongPresenter                [Tobias_Hoffmann]                                  [Tobias_Hoffmann]                                         2012-10-09                                                                               Defined TXT keys: version, name
 # Defined TXT keys: txtvers=1 cport= the port for the content
 # HTTP server (secondary HTTP server used for content
 # publishing) mode= the mode in which the HMP device is
@@ -17126,6 +17153,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Anders_Borg]                                             Anders Borg                                     mailto:anders.borg&solid.se                                   2004-11
 # [Anders_Brandt]                                           Anders Brandt             Zensys Inc.           mailto:abr&zen-sys.com                                        2007-02
 # [Anders_Brandt_2]                                         Anders Brandt             Sigma Designs, Inc.   mailto:anders_brandt&sigmadesigns.com                         2011-10-03
+# [Anders_Brandt_3]                                         Anders Brandt             Sigma Designs         mailto:anders_brandt&sigmadesigns.com                         2012-10-12
 # [Anders_Hjelm]                                            Anders Hjelm                                    mailto:anders.hjelm&ec.se                                     2006-03
 # [Anders_Klemets]                                          Anders Klemets                                  mailto:anderskl&microsoft.com
 # [Anders_Svensson]                                         Anders Svensson                                 mailto:pong&simusoft.dk
@@ -17735,6 +17763,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Claudio_Lastrucci]                                       Claudio Lastrucci         POWERSOFT S.R.L.      mailto:claudio.lastrucci&powersoft.it                         2012-01-03
 # [Claudio_Procida]                                         Claudio Procida                                 mailto:claudio&emeraldion.it                                  2007-05
 # [Claus_Broch]                                             Claus Broch               NextDay Aps           mailto:nextday&infinite-loop.dk                               2012-04-24
+# [Claus_Broch2]                                            Claus Broch               Infinite Loop         mailto:nasmon&infinite-loop.dk                                2012-10-09
 # [Claus_Jensen]                                            Claus Jensen              Libratone A/S         mailto:cjn&libratone.com                                      2011-10-27
 # [Claus_Thor_Barth]                                        Claus Thor Barth                                mailto:iana&barth.dk
 # [Clay_Maeckal]                                            Clay Maeckal                                    mailto:clay_maeckel&filemaker.com
@@ -18765,6 +18794,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ing_Tomas_Halabala]                                      Ing. Tomas Halabala                             mailto:tomas.halabala&regulace.org                            2010-10-06
 # [Ingersoll_Rand_Inc]                                                                Ingersoll Rand, Inc.  mailto:john.taylor&irco.com                                   2011-09-28
 # [Ingo_Franzki]                                            Ingo Franzki                                    mailto:ifranzki&de.ibm.com
+# [Infinite_Loop]                                                                     Infinite Loop         mailto:nasmon&infinite-loop.dk                                2012-10-09
 # [Insider_Software]                                                                  Insider Software      http://www.insidersoftware.com
 # [Insist]                                                                            Insist                mailto:support&isticky.net
 # [Intel]                                                                             Intel                 mailto:joshua.boelter&intel.com                               2011-10-18
@@ -20136,6 +20166,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Object_Matrix]                                                                     Object Matrix         mailto:support&object-matrix.com
 # [Objective_Decision]                                                                Objective Decision    mailto:od4contact&objective-decision.com
 # [Oblamatik_AG]                                                                      Oblamatik AG          mailto:info&oblamatik.ch                                      2012-09-05
+# [OCA_Alliance]                                                                      OCA Alliance          mailto:tina.lipscomb&oca-alliance.com                         2012-10-11
 # [Odo_Maletzki]                                            Odo Maletzki                                    mailto:Odo.Maletzki&ioag.de
 # [Oishi_Toshiaki]                                          Oishi Toshiaki            SEIKO EPSON           mailto:Oishi.Toshiaki&exc.epson.co.jp                         2002-02
 # Corporation
@@ -21047,6 +21078,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Stephen_Reid]                                            Stephen Reid                                    mailto:sreid&ti.com
 # [Stephen_Tsun]                                            Stephen Tsun                                    mailto:stsun&jetstream.com
 # [Stephen_Tsun_2]                                          Stephen Tsun                                    mailto:stsun&calient.net                                      2002-02
+# [Stephan_van_Tienen]                                      Stephan van Tienen        OCA Alliance          mailto:stephan.vantienen&bosch.com                            2012-10-11
 # [Steve_Bannister]                                         Steve Bannister                                 mailto:sbannister&stratacache.com
 # [Steve_Barton]                                            Steve Barton                                    mailto:steveb&pacom.com                                       2002-03
 # [Steve_Beigel]                                            Steve Beigel                                    mailto:ublueb!steve&uunet.uu.net
@@ -21326,6 +21358,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Timothy_Wayper]                                          Timothy Wayper                                  mailto:timmy&wunderbear.com
 # [TiVo_Inc]                                                                          TiVo Inc.             mailto:devsupport&tivo.com                                    2011-10-18
 # [Tobias_Erichsen]                                         Tobias Erichsen                                 mailto:erichsen&te-systems.de
+# [Tobias_Hoffmann]                                         Tobias Hoffmann                                 mailto:th55&gmx.de                                            2012-10-09
 # [Tobias_Wegner]                                           Tobias Wegner                                   mailto:wegner&novagate.de
 # [Tobin_Schuster]                                          Tobin Schuster                                  mailto:tobin.j.schuster&jci.com
 # [Toby_Hosterman]                                          Toby Hosterman                                  mailto:root&netspeak.com
