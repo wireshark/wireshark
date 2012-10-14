@@ -35,11 +35,12 @@ SUPPRESSIONS="--suppressions-list=$CPPCHECK_DIR/suppressions"
 INCLUDES="--includes-file=$CPPCHECK_DIR/includes"
 MODE="gcc"
 
-while getopts "ahj:" OPTCHAR ; do
+while getopts "ahj:v" OPTCHAR ; do
     case $OPTCHAR in
         a) SUPPRESSIONS=" " ;;
         h) MODE="html" ;;
         j) THREADS="$OPTARG" ;;
+        v) QUIET=" " ;;
     esac
 done
 shift $(($OPTIND-1))
