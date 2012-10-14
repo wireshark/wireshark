@@ -1314,7 +1314,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
     ipv6_tvb = lowpan_reassemble_ipv6(tvb, &ipv6, nhdr_list);
 
     /* Add a new data source for it. */
-    add_new_data_source(pinfo, ipv6_tvb, "6LoWPAN HC1");
+    add_new_data_source(pinfo, ipv6_tvb, "Decompressed 6LoWPAN HC1");
 
     return ipv6_tvb;
 } /* dissect_6lowpan_hc1 */
@@ -1735,7 +1735,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     ipv6_tvb = lowpan_reassemble_ipv6(tvb, &ipv6, nhdr_list);
 
     /* Add a new data source for it. */
-    add_new_data_source(pinfo, ipv6_tvb, "6LoWPAN IPHC");
+    add_new_data_source(pinfo, ipv6_tvb, "Decompressed 6LoWPAN IPHC");
 
     return ipv6_tvb;
 } /* dissect_6lowpan_iphc */
@@ -2330,7 +2330,7 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* Attempt reassembly. */
     new_tvb = process_reassembled_data(frag_tvb, 0, pinfo,
-                    "6LowPAN", frag_data, &lowpan_frag_items,
+                    "Reassembled 6LoWPAN", frag_data, &lowpan_frag_items,
                     NULL, tree);
 
     pinfo->fragmented = save_fragmented;
@@ -2422,7 +2422,7 @@ dissect_6lowpan_frag_middle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Attempt reassembly. */
     new_tvb = process_reassembled_data(tvb, offset, pinfo,
-                    "6LowPAN", frag_data, &lowpan_frag_items,
+                    "Reassembled 6LoWPAN", frag_data, &lowpan_frag_items,
                     NULL, tree);
 
     pinfo->fragmented = save_fragmented;
@@ -2711,7 +2711,7 @@ proto_register_6lowpan(void)
           { "Reassembled in",                 "6lowpan.reassembled.in",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }},
         { &hf_6lowpan_reassembled_length,
-          { "Reassembled 6LowPAN length",     "6lowpan.reassembled.length",
+          { "Reassembled 6LoWPAN length",     "6lowpan.reassembled.length",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }}
     };
 
