@@ -1942,7 +1942,7 @@ pipe_timer_cb(gpointer data)
 {
   HANDLE handle;
   DWORD avail = 0;
-  gboolean result, result1;
+  gboolean result;
   DWORD childstatus;
   pipe_input_t *pipe_input_p = data;
   gint iterations = 0;
@@ -1959,8 +1959,8 @@ pipe_timer_cb(gpointer data)
     result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
 
     /* Get the child process exit status */
-    result1 = GetExitCodeProcess((HANDLE)*(pipe_input_p->child_process),
-                                 &childstatus);
+    GetExitCodeProcess((HANDLE)*(pipe_input_p->child_process),
+                       &childstatus);
 
     /* If the Peek returned an error, or there are bytes to be read
        or the childwatcher thread has terminated then call the normal
