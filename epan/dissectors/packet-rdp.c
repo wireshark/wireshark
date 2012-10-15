@@ -796,11 +796,13 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 {
   rdp_field_info_t *c;
   int               base_offset = offset;
-  guint16           length      = 0;
+  gint              length;
   guint16           len         = 0;
   char             *string;
 
   length = tvb_length_remaining(tvb, offset);
+  if (length<0)
+    return -1;
 
   for (c = fields; (c->field != -1) && ((offset - base_offset) < length); c++) {
 
@@ -1211,6 +1213,7 @@ dissect_rdp_capabilitySets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
   guint16 length;
   guint32 lengthCapability;
   int     base_offset = offset;
+  int     ret;
 
   rdp_field_info_t cs_fields[] = {
     {hf_rdp_capabilitySetType, 2, NULL, 0, 0, NULL },
@@ -1227,7 +1230,10 @@ dissect_rdp_capabilitySets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
   length = tvb_length_remaining(tvb, offset);
 
   for(i = 0; (i < numberCapabilities) && (offset - base_offset < length); i++) {
-    offset = dissect_rdp_fields(tvb, offset, pinfo, tree, set_fields);
+   ret = dissect_rdp_fields(tvb, offset, pinfo, tree, set_fields);
+   if (ret<=0)
+     break;
+   offset += ret;
   }
 
   return offset;
