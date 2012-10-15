@@ -447,9 +447,11 @@ ui\qt\config.pri: config.nmake Makefile.nmake
 	@echo Creating <<ui\qt\config.pri
 # Automatically generated from Makefile.nmake. Edit there, not here.
 # qmake apparently requires a three-part numeric VERSION.
+PROGRAM_NAME = $(PROGRAM_NAME)
 VERSION = $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)
 VERSION_FULL = $(VERSION)
 WTAP_VERSION = $(WTAP_VERSION)
+INSTALL_DIR = $(INSTALL_DIR)
 !IFDEF MANIFEST_INFO_REQUIRED
 CONFIG += wireshark_manifest_info_required
 !ENDIF
