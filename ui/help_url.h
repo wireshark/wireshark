@@ -36,6 +36,8 @@ extern "C" {
  */
 
 typedef enum {
+    TOPIC_ACTION_NONE,
+
     /* pages online at www.wireshark.org */
     ONLINEPAGE_HOME,
     ONLINEPAGE_WIKI,

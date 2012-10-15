@@ -24,8 +24,11 @@
 #ifndef CAPTURE_FILE_DIALOG_H
 #define CAPTURE_FILE_DIALOG_H
 
+#ifndef Q_QS_WIN
 #include "display_filter_edit.h"
 #include "packet_range_group_box.h"
+#include "ui/help_url.h"
+#endif // Q_WS_WIN
 
 #include "packet_list_record.h"
 #include "cfile.h"
@@ -106,6 +109,7 @@ private:
     void addResolutionControls(QVBoxLayout &v_box);
     void addGzipControls(QVBoxLayout &v_box);
     void addRangeControls(QVBoxLayout &v_box, packet_range_t *range);
+    QDialogButtonBox *addHelpButton(topic_action_e help_topic);
 
     QStringList buildFileSaveAsTypeList(bool must_support_comments);
 
@@ -120,6 +124,7 @@ private:
 
     PacketRangeGroupBox packet_range_group_box_;
     QPushButton *save_bt_;
+    topic_action_e help_topic_;
 
 #else // Q_WS_WIN
     int file_type_;
@@ -140,6 +145,7 @@ public slots:
 private slots:
 #if !defined(Q_WS_WIN)
     void preview(const QString & path);
+    void on_buttonBox_helpRequested();
 #endif // Q_WS_WIN
 };
 

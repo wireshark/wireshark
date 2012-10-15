@@ -55,7 +55,6 @@ signals:
 
 private slots:
     void on_buttonBox_helpRequested();
-
     void on_fileSetTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 
 private:

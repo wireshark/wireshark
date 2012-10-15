@@ -55,6 +55,7 @@ private slots:
 #ifndef Q_WS_WIN
     void exportTypeChanged(QString name_filter);
     void checkValidity();
+    void on_buttonBox_helpRequested();
 #endif // Q_WS_WIN
 
 private:

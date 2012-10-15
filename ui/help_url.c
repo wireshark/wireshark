@@ -326,6 +326,7 @@ topic_action_url(topic_action_e action)
         url = user_guide_url("ChWorkFilterSaveSection.html");
         break;
 
+    case(TOPIC_ACTION_NONE):
     default:
         g_assert_not_reached();
     }

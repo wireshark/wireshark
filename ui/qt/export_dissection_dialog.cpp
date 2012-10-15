@@ -66,10 +66,6 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     setAcceptMode(QFileDialog::AcceptSave);
     setLabelText(FileType, "Export as:");
 
-    if (button_box) {
-        save_bt_ = button_box->button(QDialogButtonBox::Save);
-    }
-
     // export_type_map_keys() sorts alphabetically. We don't want that.
     name_filters
             << "Plain text (*.txt)"
@@ -99,6 +95,13 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     h_box->addWidget(&packet_range_group_box_);
 
     h_box->addWidget(&packet_format_group_box_, 0, Qt::AlignTop);
+
+    if (button_box) {
+        button_box->addButton(QDialogButtonBox::Help);
+        connect(button_box, SIGNAL(helpRequested()), this, SLOT(on_buttonBox_helpRequested()));
+
+        save_bt_ = button_box->button(QDialogButtonBox::Save);
+    }
 
     if (save_bt_) {
         connect(&packet_range_group_box_, SIGNAL(validityChanged(bool)),
@@ -239,5 +242,15 @@ void ExportDissectionDialog::checkValidity()
     }
 
     save_bt_->setEnabled(enable);
+}
+
+void ExportDissectionDialog::on_buttonBox_helpRequested()
+{
+    gchar *url = topic_action_url(HELP_EXPORT_FILE_DIALOG);
+
+    if(url != NULL) {
+        QDesktopServices::openUrl(QUrl(url));
+        g_free(url);
+    }
 }
 #endif // Q_WS_WIN

@@ -47,6 +47,8 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QSpacerItem>
+#include <QDesktopServices>
+#include <QUrl>
 #endif // Q_WS_WIN
 
 #include <QDebug>
@@ -125,7 +127,8 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
     display_filter_(display_filter),
 #if !defined(Q_WS_WIN)
     default_ft_(-1),
-    save_bt_(NULL)
+    save_bt_(NULL),
+    help_topic_(TOPIC_ACTION_NONE)
 #else
     file_type_(-1)
 #endif
@@ -146,8 +149,6 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
     // Left and right boxes for controls and preview
     h_box->addLayout(&left_v_box_);
     h_box->addLayout(&right_v_box_);
-
-    qDebug() << "FIX: CaptureFileDialog help button";
 
 #else // Q_WS_WIN
     merge_type_ = 0;
@@ -498,6 +499,21 @@ void CaptureFileDialog::addRangeControls(QVBoxLayout &v_box, packet_range_t *ran
     v_box.addWidget(&packet_range_group_box_, 0, Qt::AlignTop);
 }
 
+QDialogButtonBox *CaptureFileDialog::addHelpButton(topic_action_e help_topic)
+{
+    // This doesn't appear to be documented anywhere but it seems pretty obvious
+    // and it works.
+    QDialogButtonBox *button_box = findChild<QDialogButtonBox *>();
+
+    help_topic_ = help_topic;
+
+    if (button_box) {
+        button_box->addButton(QDialogButtonBox::Help);
+        connect(button_box, SIGNAL(helpRequested()), this, SLOT(on_buttonBox_helpRequested()));
+    }
+    return button_box;
+}
+
 int CaptureFileDialog::open(QString &file_name) {
     setWindowTitle(tr("Wireshark: Open Capture File"));
     setNameFilters(buildFileOpenTypeList());
@@ -506,6 +522,7 @@ int CaptureFileDialog::open(QString &file_name) {
     addDisplayFilterEdit();
     addResolutionControls(left_v_box_);
     addPreview(right_v_box_);
+    addHelpButton(HELP_OPEN_DIALOG);
 
     // Grow the dialog to account for the extra widgets.
     resize(width(), height() + left_v_box_.minimumSize().height() + display_filter_edit_->minimumSize().height());
@@ -541,6 +558,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     setLabelText(FileType, "Save as:");
 
     addGzipControls(left_v_box_);
+    addHelpButton(HELP_SAVE_DIALOG);
 
     // Grow the dialog to account for the extra widgets.
     resize(width(), height() + left_v_box_.minimumSize().height());
@@ -557,7 +575,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
 }
 
 check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range) {
-    QDialogButtonBox *button_box = findChild<QDialogButtonBox *>();
+    QDialogButtonBox *button_box;
 
     setWindowTitle(tr("Wireshark: Export Specified Packets"));
     // XXX See comment in ::saveAs regarding setNameFilters
@@ -567,6 +585,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
 
     addRangeControls(left_v_box_, range);
     addGzipControls(right_v_box_);
+    button_box = addHelpButton(HELP_EXPORT_FILE_DIALOG);
 
     if (button_box) {
         save_bt_ = button_box->button(QDialogButtonBox::Save);
@@ -598,6 +617,7 @@ int CaptureFileDialog::merge(QString &file_name) {
     addDisplayFilterEdit();
     addMergeControls(left_v_box_);
     addPreview(right_v_box_);
+    addHelpButton(HELP_MERGE_DIALOG);
 
     file_name.clear();
     display_filter_.clear();
@@ -789,6 +809,19 @@ void CaptureFileDialog::preview(const QString & path)
     }
 
     wtap_close(wth);
+}
+
+void CaptureFileDialog::on_buttonBox_helpRequested()
+{
+    gchar *url;
+
+    if (help_topic_ == TOPIC_ACTION_NONE) return;
+
+    url = topic_action_url(help_topic_);
+    if(url != NULL) {
+        QDesktopServices::openUrl(QUrl(url));
+        g_free(url);
+    }
 }
 
 #endif // Q_WS_WINDOWS
