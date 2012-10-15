@@ -380,7 +380,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 		{1,&vendorid},
 		{0,NULL}
 	};
-	diam_avp_t* a          = emem_tree_lookup32_array(dictionary.avps,k);
+	diam_avp_t* a          = (diam_avp_t*)emem_tree_lookup32_array(dictionary.avps,k);
 	proto_item *pi, *avp_item;
 	proto_tree *avp_tree, *save_tree;
 	tvbuff_t* subtvb;
@@ -393,7 +393,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 		a = &unknown_avp;
 
 		if (vendor_flag) {
-			if (! (vendor = emem_tree_lookup32(dictionary.vnds,vendorid) ))
+			if (! (vendor = (diam_vnd_t*)emem_tree_lookup32(dictionary.vnds,vendorid) ))
 				vendor = &unknown_vendor;
 		} else {
 			vendor = &no_vnd;
@@ -524,7 +524,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 static const char*
 address_rfc_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
-	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	char* label = (char*)ep_alloc(ITEM_LABEL_LENGTH+1);
 	address_avp_t* t = a->type_data;
 	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_BIG_ENDIAN);
 	proto_tree* pt = proto_item_add_subtree(pi,t->ett);
