@@ -127,6 +127,7 @@ win32 {
 INCLUDEPATH += ../.. ../../wiretap
 win32:INCLUDEPATH += \
     $${WIRESHARK_LIB_DIR}/gtk2/include/glib-2.0 $${WIRESHARK_LIB_DIR}/gtk2/lib/glib-2.0/include \
+    $${WIRESHARK_LIB_DIR}/gtk3/include/glib-2.0 $${WIRESHARK_LIB_DIR}/gtk3/lib/glib-2.0/include \
     $${WIRESHARK_LIB_DIR}/WpdPack/Include \
     $${WIRESHARK_LIB_DIR}/AirPcap_Devpack_4_1_0_1622/Airpcap_Devpack/include \
     $${WIRESHARK_LIB_DIR}/zlib125/include
