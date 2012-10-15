@@ -447,8 +447,8 @@ GLIB_VERSION=2.0
 # directory in which the "include" and "lib" directories reside.
 #
 #
-# Set the name to gtk3 if you want to use gtk3 - Not yet working
-GTK_NAME=gtk3
+# Set the name to gtk3 if you want to use gtk3 - experimental
+GTK_NAME=gtk2
 GTK_DIR=$(WIRESHARK_LIB_DIR)\$(GTK_NAME)
 
 # These macros are used by the nsis installer script and by the install target.
