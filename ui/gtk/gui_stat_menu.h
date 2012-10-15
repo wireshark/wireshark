@@ -168,6 +168,10 @@ void smb2_srt_cb(GtkAction *action, gpointer user_data);
 void smb_srt_cb(GtkAction *action, gpointer user_data);
 void rlc_lte_graph_cb(GtkAction *action, gpointer user_data);
 
+void rlc_lte_graph_known_channel_launch(guint16 ueid, guint8 rlcMode,
+                                        guint16 channelType, guint16 channelId,
+                                        guint8 direction);
+
 void gtk_stats_tree_cb(GtkAction *action, gpointer user_data);
 
 void tcp_graph_cb(GtkAction *action, gpointer user_data);

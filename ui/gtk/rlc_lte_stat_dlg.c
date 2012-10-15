@@ -196,6 +196,8 @@ typedef struct rlc_lte_stat_t {
     GtkWidget  *ul_filter_bt;
     GtkWidget  *dl_filter_bt;
     GtkWidget  *uldl_filter_bt;
+    GtkWidget  *ul_graph_bt;
+    GtkWidget  *dl_graph_bt;
     GtkWidget  *show_only_control_pdus_cb;
     GtkWidget  *show_mac_rach_cb;
     GtkWidget  *show_mac_srs_cb;
@@ -235,6 +237,8 @@ static void enable_filter_controls(guint8 enabled, guint8 rlcMode, rlc_lte_stat_
     gtk_widget_set_sensitive(hs->ul_filter_bt, enabled);
     gtk_widget_set_sensitive(hs->dl_filter_bt, enabled);
     gtk_widget_set_sensitive(hs->uldl_filter_bt, enabled);
+    gtk_widget_set_sensitive(hs->ul_graph_bt, enabled);
+    gtk_widget_set_sensitive(hs->dl_graph_bt, enabled);
     gtk_widget_set_sensitive(hs->show_mac_rach_cb, enabled);
     gtk_widget_set_sensitive(hs->show_mac_srs_cb, enabled);
     gtk_widget_set_sensitive(hs->show_dct_errors_cb, enabled);
@@ -1218,6 +1222,30 @@ static void uldl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
                                   hs);
 }
 
+/* Create a graph for the UL direction */
+static void ul_graph_clicked(GtkWidget *win _U_,  rlc_lte_stat_t* hs)
+{
+    guint16  ueid, channelType, channelId;
+    guint8   rlcMode;
+
+    if (!get_channel_selection(hs, &ueid, &rlcMode, &channelType, &channelId)) {
+        return;
+    }
+    rlc_lte_graph_known_channel_launch(ueid, rlcMode, channelType, channelId, DIRECTION_UPLINK);
+}
+
+/* Create a graph for the DL direction */
+static void dl_graph_clicked(GtkWidget *win _U_,  rlc_lte_stat_t* hs)
+{
+    guint16  ueid, channelType, channelId;
+    guint8   rlcMode;
+
+    if (!get_channel_selection(hs, &ueid, &rlcMode, &channelType, &channelId)) {
+        return;
+    }
+    rlc_lte_graph_known_channel_launch(ueid, rlcMode, channelType, channelId, DIRECTION_DOWNLINK);
+}
+
 
 /* Create a new RLC LTE stats dialog */
 static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
@@ -1233,14 +1261,14 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     GtkWidget         *pdu_source_lb;
     GtkWidget         *common_channel_lb;
     GtkWidget         *channels_lb;
-    GtkWidget         *filter_buttons_lb;
+    GtkWidget         *action_buttons_lb;
 
     GtkWidget         *common_row_hbox;
     GtkWidget         *show_mac_cb;
     GtkWidget         *ues_vb;
     GtkWidget         *channels_vb;
     GtkWidget         *filter_vb;
-    GtkWidget         *filter_buttons_hb;
+    GtkWidget         *action_buttons_hb;
     GtkWidget         *sn_filter_hb;
 
     GtkWidget         *close_bt;
@@ -1287,7 +1315,7 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     hs->dlg_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, title, "LTE RLC Statistics");
 
     /* Window size */
-    gtk_window_set_default_size(GTK_WINDOW(hs->dlg_w), 750, 300);
+    gtk_window_set_default_size(GTK_WINDOW(hs->dlg_w), 600, 300);
 
     /* Will stack widgets vertically inside dlg */
     top_level_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);       /* FALSE = not homogeneous */
@@ -1458,19 +1486,19 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     /* Channel filters                            */
     /**********************************************/
 
-    filter_buttons_lb = gtk_frame_new("Filter on selected channel");
+    action_buttons_lb = gtk_frame_new("Action on selected channel");
 
     filter_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
-    gtk_container_add(GTK_CONTAINER(filter_buttons_lb), filter_vb);
+    gtk_container_add(GTK_CONTAINER(action_buttons_lb), filter_vb);
 
     /* Horizontal row of filter buttons */
-    filter_buttons_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6, FALSE);
-    gtk_container_add(GTK_CONTAINER(filter_vb), filter_buttons_hb);
-    gtk_container_set_border_width(GTK_CONTAINER(filter_buttons_hb), 2);
+    action_buttons_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6, FALSE);
+    gtk_container_add(GTK_CONTAINER(filter_vb), action_buttons_hb);
+    gtk_container_set_border_width(GTK_CONTAINER(action_buttons_hb), 2);
 
     /* UL only */
-    hs->ul_filter_bt = gtk_button_new_with_label("Set UL display filter for this channel");
-    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->ul_filter_bt, TRUE, TRUE, 0);
+    hs->ul_filter_bt = gtk_button_new_with_label("UL display filter for this channel");
+    gtk_box_pack_start(GTK_BOX(action_buttons_hb), hs->ul_filter_bt, TRUE, TRUE, 0);
     g_signal_connect(hs->ul_filter_bt, "clicked", G_CALLBACK(ul_filter_clicked), hs);
     gtk_widget_show(hs->ul_filter_bt);
     gtk_widget_set_tooltip_text(hs->ul_filter_bt, "Generate and set a display filter to show frames "
@@ -1478,8 +1506,8 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
                          "N.B. DL Status PDUs sent on this channel will also be shown for AM");
 
     /* DL only */
-    hs->dl_filter_bt = gtk_button_new_with_label("Set DL display filter for this channel");
-    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->dl_filter_bt, TRUE, TRUE, 0);
+    hs->dl_filter_bt = gtk_button_new_with_label("DL display filter for this channel");
+    gtk_box_pack_start(GTK_BOX(action_buttons_hb), hs->dl_filter_bt, TRUE, TRUE, 0);
     g_signal_connect(hs->dl_filter_bt, "clicked", G_CALLBACK(dl_filter_clicked), hs);
     gtk_widget_show(hs->dl_filter_bt);
     gtk_widget_set_tooltip_text(hs->dl_filter_bt, "Generate and set a display filter to show frames "
@@ -1487,12 +1515,26 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
                          "N.B. UL Status PDUs sent on this channel will also be shown for AM");
 
     /* UL and DL */
-    hs->uldl_filter_bt = gtk_button_new_with_label("Set UL / DL display filter for this channel");
-    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->uldl_filter_bt, TRUE, TRUE, 0);
+    hs->uldl_filter_bt = gtk_button_new_with_label("UL / DL display filter for this channel");
+    gtk_box_pack_start(GTK_BOX(action_buttons_hb), hs->uldl_filter_bt, TRUE, TRUE, 0);
     g_signal_connect(hs->uldl_filter_bt, "clicked", G_CALLBACK(uldl_filter_clicked), hs);
     gtk_widget_show(hs->uldl_filter_bt);
     gtk_widget_set_tooltip_text(hs->uldl_filter_bt, "Generate and set a display filter to show frames "
                          "associated with the channel, in UL and DL");
+
+    /* UL graph */
+    hs->ul_graph_bt = gtk_button_new_with_label("UL Graph");
+    gtk_box_pack_start(GTK_BOX(action_buttons_hb), hs->ul_graph_bt, TRUE, TRUE, 0);
+    g_signal_connect(hs->ul_graph_bt, "clicked", G_CALLBACK(ul_graph_clicked), hs);
+    gtk_widget_show(hs->ul_graph_bt);
+    gtk_widget_set_tooltip_text(hs->ul_graph_bt, "Launch RLC graph for this channel in UL");
+
+    /* DL graph */
+    hs->dl_graph_bt = gtk_button_new_with_label("DL Graph");
+    gtk_box_pack_start(GTK_BOX(action_buttons_hb), hs->dl_graph_bt, TRUE, TRUE, 0);
+    g_signal_connect(hs->dl_graph_bt, "clicked", G_CALLBACK(dl_graph_clicked), hs);
+    gtk_widget_show(hs->dl_graph_bt);
+    gtk_widget_set_tooltip_text(hs->dl_graph_bt, "Launch RLC graph for this channel in DL");
 
     /* Allow filtering on specific SN number. */
     /* Row with label and text entry control  */
@@ -1553,7 +1595,7 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
 
 
     /* Add filters box to top-level window */
-    gtk_box_pack_start(GTK_BOX(top_level_vbox), filter_buttons_lb, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(top_level_vbox), action_buttons_lb, FALSE, FALSE, 0);
 
     enable_filter_controls(FALSE, 0, hs);
 

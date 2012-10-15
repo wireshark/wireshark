@@ -236,7 +236,12 @@ struct graph {
     /* List of segments to show */
     struct segment *segments;
 
-    struct segment *current;
+    /* These are filled in with the channel/direction this graph is showing */
+    guint16         ueid;
+    guint16         channelType;
+    guint16         channelId;
+    guint8          rlcMode;
+    guint8          direction;
 
     /* Lists of elements to draw */
     struct element_list *elists;		/* element lists */
@@ -293,7 +298,7 @@ static void graph_element_lists_initialize(struct graph * );
 static void graph_title_pixmap_create(struct graph * );
 static void graph_title_pixmap_draw(struct graph * );
 static void graph_title_pixmap_display(struct graph * );
-static void graph_segment_list_get(struct graph * );
+static void graph_segment_list_get(struct graph *, gboolean channel_known );
 static void graph_segment_list_free(struct graph * );
 static void graph_select_segment(struct graph * , int , int );
 static int line_detect_collision(struct element * , int , int );
@@ -414,11 +419,41 @@ void rlc_lte_graph_cb(GtkAction *action _U_, gpointer user_data _U_)
     graph_initialize_values(g);
 
     /* Get our list of segments from the packet list */
-    graph_segment_list_get(g);
+    graph_segment_list_get(g, FALSE);
 
     create_gui(g);
     graph_init_sequence(g);
 }
+
+void rlc_lte_graph_known_channel_launch(guint16 ueid, guint8 rlcMode,
+                                        guint16 channelType, guint16 channelId,
+                                        guint8 direction)
+{
+    struct graph *g;
+
+    debug(DBS_FENTRY) puts("rlc_lte_graph_known_channel()");
+
+    if (!(g = graph_new())) {
+        return;
+    }
+
+    refnum++;
+    graph_initialize_values(g);
+
+    /* Can set channel info for graph now */
+    g->ueid = ueid;
+    g->rlcMode = rlcMode;
+    g->channelType = channelType;
+    g->channelId = channelId;
+    g->direction = direction;
+
+    /* Get our list of segments from the packet list */
+    graph_segment_list_get(g, TRUE);
+
+    create_gui(g);
+    graph_init_sequence(g);
+}
+
 
 static void create_gui(struct graph *g)
 {
@@ -444,10 +479,10 @@ static void create_drawing_area(struct graph *g)
     /* Set channel details in title */
     g_snprintf(window_title, WINDOW_TITLE_LENGTH, "LTE RLC Graph %d: %s (UE-%u, chan=%s%u %s - %s)",
                refnum, display_name,
-               g->current->ueid, (g->current->channelType == CHANNEL_TYPE_SRB) ? "SRB" : "DRB",
-               g->current->channelId,
-               (g->current->direction == DIRECTION_UPLINK) ? "UL" : "DL",
-               (g->current->rlcMode == RLC_UM_MODE) ? "UM" : "AM");
+               g->ueid, (g->channelType == CHANNEL_TYPE_SRB) ? "SRB" : "DRB",
+               g->channelId,
+               (g->direction == DIRECTION_UPLINK) ? "UL" : "DL",
+               (g->rlcMode == RLC_UM_MODE) ? "UM" : "AM");
     g_free(display_name);
     g->toplevel = dlg_window_new("RLC Graph");
     gtk_window_set_title(GTK_WINDOW(g->toplevel), window_title);
@@ -706,8 +741,6 @@ static void graph_destroy(struct graph *g)
 
 
 typedef struct rlc_scan_t {
-    struct segment *current;
-    int direction;
     struct graph *g;
     struct segment *last;
 } rlc_scan_t;
@@ -717,11 +750,12 @@ static int
 tapall_rlc_lte_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     rlc_scan_t *ts=(rlc_scan_t *)pct;
+    struct graph *g = ts->g;
     rlc_lte_tap_info *rlchdr=(rlc_lte_tap_info*)vip;
 
     /* See if this one matches current channel */
-    if (compare_headers(ts->current->ueid, ts->current->channelType, ts->current->channelId, ts->current->rlcMode, ts->current->direction,
-                        rlchdr->ueid,      rlchdr->channelType,      rlchdr->channelId,      rlchdr->rlcMode, rlchdr->direction,
+    if (compare_headers(g->ueid,       g->channelType,       g->channelId,       g->rlcMode,       g->direction,
+                        rlchdr->ueid,  rlchdr->channelType,  rlchdr->channelId,  rlchdr->rlcMode,  rlchdr->direction,
                         rlchdr->isControlPDU)) {
 
         struct segment *segment = g_malloc(sizeof(struct segment));
@@ -764,10 +798,6 @@ tapall_rlc_lte_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
         /* This one is now the last one */
         ts->last = segment;
-
-        if (pinfo->fd->num == ts->current->num){
-            ts->g->current = segment;
-        }
     }
 
     return 0;
@@ -775,20 +805,29 @@ tapall_rlc_lte_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 
 /* Here we collect all the external data we will ever need */
-static void graph_segment_list_get(struct graph *g)
+static void graph_segment_list_get(struct graph *g, gboolean channel_known)
 {
     struct segment current;
     GString *error_string;
     rlc_scan_t ts;
 
     debug(DBS_FENTRY) puts("graph_segment_list_get()");
-    select_rlc_lte_session(&cfile, &current);
+
+    if (!channel_known) {
+        select_rlc_lte_session(&cfile, &current);
+
+        g->ueid = current.ueid;
+        g->rlcMode = current.rlcMode;
+        g->channelType = current.channelType;
+        g->channelId = current.channelId;
+        g->direction = (!current.isControlPDU) ? current.direction : !current.direction;
+    }
 
     /* rescan all the packets and pick up all frames for this channel.
      * we only filter for LTE RLC here for speed and do the actual compare
      * in the tap listener
      */
-    ts.current = &current;
+
     ts.g = g;
     ts.last = NULL;
     error_string = register_tap_listener("rlc-lte", &ts, "rlc-lte", 0, NULL, tapall_rlc_lte_packet, NULL);
