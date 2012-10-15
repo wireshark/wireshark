@@ -40,6 +40,21 @@
 #include <epan/emem.h>
 #include <epan/expert.h>
 
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>     /* needed to define AF_ values on UNIX */
+#endif
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>       /* needed to define AF_ values on Windows */
+#endif
+#ifdef NEED_INET_V6DEFS_H
+#include "wsutil/inet_v6defs.h" /* if not a *NIX system */
+#endif
+
+
+
 static int proto_ftp = -1;
 static int proto_ftp_data = -1;
 static int hf_ftp_response = -1;
@@ -56,6 +71,7 @@ static int hf_ftp_active_port = -1;
 static int hf_ftp_active_nat = -1;
 static int hf_ftp_eprt_af = -1;
 static int hf_ftp_eprt_ip = -1;
+static int hf_ftp_eprt_ipv6 = -1;
 static int hf_ftp_eprt_port = -1;
 
 static gint ett_ftp = -1;
@@ -266,20 +282,6 @@ isvalid_rfc2428_delimiter(const guchar c)
         return TRUE;
 }
 
-static gboolean
-rfc2428_ipstr_to_ipv4(guint32 *addr, gchar* str)
-{
-    int ip_addr[4];
-
-    if (sscanf(str, "%d.%d.%d.%d", &ip_addr[0], &ip_addr[1], 
-                &ip_addr[2], &ip_addr[3]) != 4)
-        return FALSE;
-
-    *addr = g_htonl((ip_addr[0] << 24) | (ip_addr[1] << 16) | 
-                    (ip_addr[2] << 8)  |  ip_addr[3]);
-
-    return TRUE;
-}
 
 /*
  * RFC2428 states...
@@ -313,7 +315,7 @@ rfc2428_ipstr_to_ipv4(guint32 *addr, gchar* str)
  */
 static gboolean
 parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af, 
-        guint32 *eprt_ip, guint16 *eprt_ipv6 _U_, guint16 *ftp_port, 
+        guint32 *eprt_ip, guint16 *eprt_ipv6, guint16 *ftp_port, 
         guint32 *eprt_ip_len, guint32 *ftp_port_len) 
 {
     gint      delimiters_seen = 0;
@@ -383,11 +385,16 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
             ip_str = ep_strndup(field, fieldlen);
 
             if (*eprt_af == EPRT_AF_IPv4) {
-                ret = rfc2428_ipstr_to_ipv4(eprt_ip, ip_str);
+                if (inet_pton(AF_INET, ip_str, eprt_ip) == 1)
+                   ret = TRUE;
+                else
+                   ret = FALSE;
             }
             else if (*eprt_af == EPRT_AF_IPv6) {
-                /* XXX - parse IPv6 */
-                ret = TRUE;
+                if (inet_pton(AF_INET6, ip_str, eprt_ipv6) == 1)
+                   ret = TRUE;
+                else
+                   ret = FALSE;
             }
             else
                 return FALSE; /* invalid/unknown address family */
@@ -781,7 +788,10 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 (const guint8 *)&eprt_ip);
                     }
                     else if (eprt_af == EPRT_AF_IPv6) {
-                        /* XXX - display and store IPv6 address */
+                        proto_tree_add_ipv6(reqresp_tree, hf_ftp_eprt_ipv6,
+                                tvb, eprt_offset, eprt_ip_len, (const guint8 *)eprt_ipv6);
+                        SET_ADDRESS(&ftp_ip_address, AT_IPv6, 16,
+                                (const guint8 *)&eprt_ipv6);
                     }
                     eprt_offset += eprt_ip_len + 1; /* addr, 3rd delimiter */
 
@@ -789,19 +799,16 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             tvb, eprt_offset, ftp_port_len, ftp_port);
                 }
 
-                /* XXX - when we handle IPv6, we'll remove the check */
-                if (eprt_af == EPRT_AF_IPv4) {
-                    /* Find/create conversation for data */
-                    conversation = find_conversation(pinfo->fd->num,
-                            &pinfo->src, &ftp_ip_address,
-                            PT_TCP, ftp_port, 0, NO_PORT_B);
-                    if (conversation == NULL) {
-                        conversation = conversation_new(
-                                pinfo->fd->num, &pinfo->src, &ftp_ip_address, 
-                                PT_TCP, ftp_port, 0, NO_PORT2);
-                        conversation_set_dissector(conversation,
-                                ftpdata_handle);
-                    }
+                /* Find/create conversation for data */
+                conversation = find_conversation(pinfo->fd->num,
+                        &pinfo->src, &ftp_ip_address,
+                        PT_TCP, ftp_port, 0, NO_PORT_B);
+                if (conversation == NULL) {
+                    conversation = conversation_new(
+                            pinfo->fd->num, &pinfo->src, &ftp_ip_address, 
+                            PT_TCP, ftp_port, 0, NO_PORT2);
+                    conversation_set_dissector(conversation,
+                            ftpdata_handle);
                 }
             }
             else {
@@ -977,6 +984,11 @@ proto_register_ftp(void)
           { "Extended active IP address", "ftp.eprt.ip",
             FT_IPv4, BASE_NONE, NULL, 0,
             "Extended active FTP client IPv4 address", HFILL }},
+
+        { &hf_ftp_eprt_ipv6,
+          { "Extended active IPv6 address", "ftp.eprt.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0,
+            "Extended active FTP client IPv6 address", HFILL }},
 
         { &hf_ftp_eprt_port,
           { "Extended active port", "ftp.eprt.port",
