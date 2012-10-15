@@ -296,10 +296,10 @@ wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan ui gtk win32 image\wireshark.res image\file_dlg_win32.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_OBJECTS) image\wireshark.res image\file_dlg_win32.res
+		/OUT:$(PROGRAM_NAME).exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_OBJECTS) image\wireshark.res image\file_dlg_win32.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
-	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
+	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:$(PROGRAM_NAME).exe;1
 !ENDIF
 
 tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan ui cli image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
@@ -1046,9 +1046,9 @@ install-generated-files:
 	xcopy ".\wsutil\libwsutil.dll" $(INSTALL_DIR) /d
 	if exist ".\wsutil\libwsutil.lib" xcopy ".\wsutil\libwsutil.lib" $(INSTALL_DIR) /d
 	if exist ".\wsutil\libwsutil.pdb" xcopy ".\wsutil\libwsutil.pdb" $(INSTALL_DIR) /d
-	if exist wireshark.exe xcopy wireshark.exe $(INSTALL_DIR) /d
-	if exist wireshark.pdb xcopy wireshark.pdb $(INSTALL_DIR) /d
-	if exist wireshark.bsc xcopy wireshark.bsc $(INSTALL_DIR) /d
+	if exist $(PROGRAM_NAME).exe xcopy $(PROGRAM_NAME).exe $(INSTALL_DIR) /d
+	if exist $(PROGRAM_NAME).pdb xcopy $(PROGRAM_NAME).pdb $(INSTALL_DIR) /d
+	if exist $(PROGRAM_NAME).bsc xcopy $(PROGRAM_NAME).bsc $(INSTALL_DIR) /d
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL_DIR) /d
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d

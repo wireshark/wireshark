@@ -3,6 +3,10 @@
 # Some more information about the settings in this file can be found in
 # the file README.windows and the Developer's Guide (available online).
 
+##### Program name #####
+# Do not change as it will break the installer and possibly other stuff
+PROGRAM_NAME=wireshark
+
 ##### Target platform #####
 # Only "win32" and "win64" are valid (for now).
 # This can be defined in the system environment.
@@ -40,7 +44,7 @@ WTAP_VERSION_MICRO=0
 # This can be defined in the system environment.
 #
 !IFNDEF WIRESHARK_LIB_DIR
-WIRESHARK_LIB_DIR=C:\wireshark-$(WIRESHARK_TARGET_PLATFORM)-libs
+WIRESHARK_LIB_DIR=C:\$(PROGRAM_NAME)-$(WIRESHARK_TARGET_PLATFORM)-libs
 !ENDIF
 
 #
