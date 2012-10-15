@@ -19,8 +19,11 @@ SetCompressor /SOLID lzma
 ; ============================================================================
 
 ; The file to write
+!if ${GTK_NAME} == "gtk3"
+OutFile "${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
+!else
 OutFile "${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-gtk3-${VERSION}.exe"
-
+!endif
 ; Installer icon
 Icon "..\..\image\wiresharkinst.ico"
 

@@ -12,6 +12,8 @@ my %u3locs = qw(
 	$INSTDIR\diameter device
 	$INSTDIR\dtds device
 	$INSTDIR\etc\gtk-2.0 host
+	$INSTDIR\etc\gtk-3.0 host
+	$INSTDIR\share\glib-2.0\schemas
 	$INSTDIR\etc\pango host
 	$INSTDIR\help device
 	$INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines host
