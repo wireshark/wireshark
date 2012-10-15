@@ -948,7 +948,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
           packet->key_source.addr64 = tvb_get_ntoh64(tvb, offset);
           proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, offset, 8, packet->key_source.addr64);
           proto_item_set_len(ti, 1 + 8);
-          offset += 4;
+          offset += 8;
         }
         /* Add key identifier. */
         packet->key_index = tvb_get_guint8(tvb, offset);
