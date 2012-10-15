@@ -65,6 +65,8 @@
 
 #include "svnversion.h"
 
+#include "ringbuffer.h" /* For RINGBUFFER_MAX_NUM_FILES */
+
 /*
  * Some globals so we can pass things to various routines
  */
@@ -179,7 +181,7 @@ fileset_get_filename_by_pattern(guint idx,    const struct wtap_nstime *time_val
     gchar *abs_str;
 
     timestr = abs_time_to_str_with_sec_resolution(time_val);
-    g_snprintf(filenum, sizeof(filenum), "%05u", idx);
+    g_snprintf(filenum, sizeof(filenum), "%05u", idx % RINGBUFFER_MAX_NUM_FILES);
     abs_str = g_strconcat(fprefix, "_", filenum, "_", timestr, fsuffix, NULL);
     g_free(timestr);
 
