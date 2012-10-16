@@ -41,8 +41,6 @@
 #include <QGridLayout>
 #include <QPushButton>
 #include <QMessageBox>
-#include <QDesktopServices>
-#include <QUrl>
 
 #include <QDebug>
 #endif // Q_WS_WIN
@@ -246,11 +244,6 @@ void ExportDissectionDialog::checkValidity()
 
 void ExportDissectionDialog::on_buttonBox_helpRequested()
 {
-    gchar *url = topic_action_url(HELP_EXPORT_FILE_DIALOG);
-
-    if(url != NULL) {
-        QDesktopServices::openUrl(QUrl(url));
-        g_free(url);
-    }
+    wsApp->helpTopicAction(HELP_EXPORT_FILE_DIALOG);
 }
 #endif // Q_WS_WIN

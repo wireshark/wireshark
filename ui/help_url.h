@@ -148,6 +148,12 @@ gchar *user_guide_url(const gchar *page);
  */
 gchar *topic_action_url(topic_action_e action);
 
+/** Open a specific topic (create a "Help" dialog box or open a webpage).
+ *
+ * @param topic the topic to display
+ */
+void topic_action(topic_action_e topic);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -33,6 +33,8 @@
 
 #include <QDir>
 #include <QTimer>
+#include <QDesktopServices>
+#include <QUrl>
 
 #ifdef Q_WS_WIN
 #include <QLibrary>
@@ -47,6 +49,12 @@ WiresharkApplication *wsApp = NULL;
 static char *last_open_dir = NULL;
 static bool updated_last_open_dir = FALSE;
 static QList<recent_item_status *> recent_items;
+
+void
+topic_action(topic_action_e action)
+{
+    if (wsApp) wsApp->helpTopicAction(action);
+}
 
 extern "C" char *
 get_last_open_dir(void)
@@ -268,6 +276,18 @@ QDir WiresharkApplication::lastOpenDir() {
 
 void WiresharkApplication::setLastOpenDir(QString *dir_str) {
     setLastOpenDir(dir_str->toUtf8().constData());
+}
+
+void WiresharkApplication::helpTopicAction(topic_action_e action)
+{
+    char *url;
+
+    url = topic_action_url(action);
+
+    if(url != NULL) {
+        QDesktopServices::openUrl(QUrl(url));
+        g_free(url);
+    }
 }
 
 void WiresharkApplication::setLastOpenDir(const char *dir_name)

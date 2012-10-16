@@ -38,6 +38,9 @@
 #include "../../epan/prefs.h"
 #include "../../epan/filesystem.h"
 #include "../../epan/nstime.h"
+
+#include <wireshark_application.h>
+
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -47,8 +50,6 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QSpacerItem>
-#include <QDesktopServices>
-#include <QUrl>
 #endif // Q_WS_WIN
 
 #include <QDebug>
@@ -86,18 +87,7 @@ extern void menu_name_resolution_changed(void) {
 
 }
 
-// From gtk/help_dlg.[ch]
-/** Open a specific topic (create a "Help" dialog box or open a webpage).
- *
- * @param widget parent widget (unused)
- * @param topic the topic to display
- */
-extern void topic_cb(gpointer *widget, int topic) {
-    Q_UNUSED(widget);
-    Q_UNUSED(topic);
-}
-
-}
+} // extern "C"
 // End stub routines
 #endif // Q_WS_WIN
 
@@ -793,15 +783,7 @@ void CaptureFileDialog::preview(const QString & path)
 
 void CaptureFileDialog::on_buttonBox_helpRequested()
 {
-    gchar *url;
-
-    if (help_topic_ == TOPIC_ACTION_NONE) return;
-
-    url = topic_action_url(help_topic_);
-    if(url != NULL) {
-        QDesktopServices::openUrl(QUrl(url));
-        g_free(url);
-    }
+    if (help_topic_ != TOPIC_ACTION_NONE) wsApp->helpTopicAction(help_topic_);
 }
 
 #endif // Q_WS_WINDOWS

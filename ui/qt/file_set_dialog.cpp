@@ -32,15 +32,14 @@
 
 #include "file_set_dialog.h"
 #include "ui_file_set_dialog.h"
+#include "wireshark_application.h"
 
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QDateTime>
 #include <QFontMetrics>
-#include <QDesktopServices>
-#include <QUrl>
 #include <QFont>
-
+#include <QUrl>
 
 Q_DECLARE_METATYPE(fileset_entry *)
 
@@ -169,12 +168,7 @@ QString FileSetDialog::nameToDate(const char *name) {
 
 void FileSetDialog::on_buttonBox_helpRequested()
 {
-    gchar *url = topic_action_url(HELP_FILESET_DIALOG);
-
-    if(url != NULL) {
-        QDesktopServices::openUrl(QUrl(url));
-        g_free(url);
-    }
+    wsApp->helpTopicAction(HELP_FILESET_DIALOG);
 }
 
 void FileSetDialog::on_fileSetTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)

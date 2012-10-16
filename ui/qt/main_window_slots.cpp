@@ -61,21 +61,6 @@
 #include "wireshark_application.h"
 #include "capture_file_dialog.h"
 
-// Copied from gtk/help_dlg.[ch]. Need to move to qt/help_dlg.[ch].
-// Required for on_actionHelp* below.
-static void
-topic_action(topic_action_e action)
-{
-    char *url;
-
-    url = topic_action_url(action);
-
-    if(url != NULL) {
-        QDesktopServices::openUrl(QUrl(url));
-        g_free(url);
-    }
-}
-
 //
 // Public slots
 //
@@ -825,70 +810,70 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
 // Help Menu
 void MainWindow::on_actionHelpContents_triggered() {
 
-    topic_action(HELP_CONTENT);
+    wsApp->helpTopicAction(HELP_CONTENT);
 }
 
 void MainWindow::on_actionHelpMPWireshark_triggered() {
 
-    topic_action(LOCALPAGE_MAN_WIRESHARK);
+    wsApp->helpTopicAction(LOCALPAGE_MAN_WIRESHARK);
 }
 void MainWindow::on_actionHelpMPWireshark_Filter_triggered() {
 
-    topic_action(LOCALPAGE_MAN_WIRESHARK_FILTER);
+    wsApp->helpTopicAction(LOCALPAGE_MAN_WIRESHARK_FILTER);
 }
 void MainWindow::on_actionHelpMPTShark_triggered() {
 
-    topic_action(LOCALPAGE_MAN_TSHARK);
+    wsApp->helpTopicAction(LOCALPAGE_MAN_TSHARK);
 }
 void MainWindow::on_actionHelpMPRawShark_triggered() {
 
-    topic_action(LOCALPAGE_MAN_RAWSHARK);
+    wsApp->helpTopicAction(LOCALPAGE_MAN_RAWSHARK);
 }
 void MainWindow::on_actionHelpMPDumpcap_triggered() {
 
-    topic_action(LOCALPAGE_MAN_DUMPCAP);
+    wsApp->helpTopicAction(LOCALPAGE_MAN_DUMPCAP);
 }
 void MainWindow::on_actionHelpMPMergecap_triggered() {
 
-    topic_action(LOCALPAGE_MAN_MERGECAP);
+    wsApp->helpTopicAction(LOCALPAGE_MAN_MERGECAP);
 }
 void MainWindow::on_actionHelpMPEditcap_triggered() {
 
-    topic_action(LOCALPAGE_MAN_EDITCAP);
+    wsApp->helpTopicAction(LOCALPAGE_MAN_EDITCAP);
 }
 void MainWindow::on_actionHelpMPText2cap_triggered() {
 
-    topic_action(LOCALPAGE_MAN_TEXT2PCAP);
+    wsApp->helpTopicAction(LOCALPAGE_MAN_TEXT2PCAP);
 }
 
 void MainWindow::on_actionHelpWebsite_triggered() {
 
-    topic_action(ONLINEPAGE_HOME);
+    wsApp->helpTopicAction(ONLINEPAGE_HOME);
 }
 
 void MainWindow::on_actionHelpFAQ_triggered() {
 
-    topic_action(ONLINEPAGE_FAQ);
+    wsApp->helpTopicAction(ONLINEPAGE_FAQ);
 }
 
 void MainWindow::on_actionHelpAsk_triggered() {
 
-    topic_action(ONLINEPAGE_ASK);
+    wsApp->helpTopicAction(ONLINEPAGE_ASK);
 }
 
 void MainWindow::on_actionHelpDownloads_triggered() {
 
-    topic_action(ONLINEPAGE_DOWNLOAD);
+    wsApp->helpTopicAction(ONLINEPAGE_DOWNLOAD);
 }
 
 void MainWindow::on_actionHelpWiki_triggered() {
 
-    topic_action(ONLINEPAGE_WIKI);
+    wsApp->helpTopicAction(ONLINEPAGE_WIKI);
 }
 
 void MainWindow::on_actionHelpSampleCaptures_triggered() {
 
-    topic_action(ONLINEPAGE_SAMPLE_FILES);
+    wsApp->helpTopicAction(ONLINEPAGE_SAMPLE_FILES);
 }
 
 void MainWindow::on_actionGoGoToPacket_triggered() {

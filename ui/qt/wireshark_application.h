@@ -31,6 +31,8 @@
 #include "capture_opts.h"
 #include "file.h"
 
+#include "ui/help_url.h"
+
 #include <QApplication>
 #include <QList>
 #include <QFileInfo>
@@ -63,6 +65,7 @@ public:
     QDir lastOpenDir();
     void setLastOpenDir(const char *dir_name);
     void setLastOpenDir(QString *dir_str);
+    void helpTopicAction(topic_action_e action);
 
 private:
     QTimer *recent_timer_;

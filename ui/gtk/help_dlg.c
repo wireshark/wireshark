@@ -83,7 +83,7 @@ void help_redraw(void)
     }
 }
 
-static void
+void
 topic_action(topic_action_e action)
 {
     char *url;

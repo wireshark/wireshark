@@ -52,6 +52,7 @@
 #include "merge.h"
 
 #include "ui/alert_box.h"
+#include "ui/help_url.h"
 #include "ui/file_dialog.h"
 #include "ui/last_open_dir.h"
 #include "ui/simple_dialog.h"
@@ -65,7 +66,6 @@
 #include "ui/gtk/drag_and_drop.h"
 #include "ui/gtk/capture_dlg.h"
 #include "file_dlg_win32.h"
-#include "ui/gtk/help_dlg.h"
 #include "ui/gtk/export_sslkeys.h"
 
 #define FILE_OPEN_DEFAULT 1 /* All Files */
@@ -1399,7 +1399,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     preview_set_file_info(of_hwnd, utf_16to8(sel_name));
                     break;
                 case CDN_HELP:
-                    topic_cb(NULL, HELP_OPEN_WIN32_DIALOG);
+                    topic_action(HELP_OPEN_WIN32_DIALOG);
                     break;
                 default:
                     break;
@@ -1659,7 +1659,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
         case WM_NOTIFY:
             switch (notify->hdr.code) {
                 case CDN_HELP:
-                    topic_cb(NULL, HELP_SAVE_WIN32_DIALOG);
+                    topic_action(HELP_SAVE_WIN32_DIALOG);
                     break;
                 case CDN_FILEOK: {
                     HWND   parent;
@@ -1764,7 +1764,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
         case WM_NOTIFY:
             switch (notify->hdr.code) {
                 case CDN_HELP:
-                    topic_cb(NULL, HELP_SAVE_WIN32_DIALOG);
+                    topic_action(HELP_SAVE_WIN32_DIALOG);
                     break;
                 case CDN_FILEOK: {
                     HWND   parent;
@@ -2163,7 +2163,7 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     preview_set_file_info(mf_hwnd, utf_16to8(sel_name));
                     break;
                 case CDN_HELP:
-                    topic_cb(NULL, HELP_MERGE_WIN32_DIALOG);
+                    topic_action(HELP_MERGE_WIN32_DIALOG);
                     break;
                 default:
                     break;
@@ -2234,7 +2234,7 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     }
                     break;
                 case CDN_HELP:
-                    topic_cb(NULL, HELP_EXPORT_FILE_WIN32_DIALOG);
+                    topic_action(HELP_EXPORT_FILE_WIN32_DIALOG);
                     break;
                 default:
                     break;
@@ -2263,7 +2263,7 @@ export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param
         case WM_NOTIFY:
             switch (notify->hdr.code) {
                 case CDN_HELP:
-                    topic_cb(NULL, HELP_EXPORT_BYTES_WIN32_DIALOG);
+                    topic_action(HELP_EXPORT_BYTES_WIN32_DIALOG);
                     break;
                 default:
                     break;
@@ -2291,7 +2291,7 @@ export_sslkeys_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_p
         case WM_NOTIFY:
             switch (notify->hdr.code) {
                 case CDN_HELP:
-                    topic_cb(NULL, HELP_EXPORT_BYTES_WIN32_DIALOG);
+                    topic_action(HELP_EXPORT_BYTES_WIN32_DIALOG);
                     break;
                 default:
                     break;
