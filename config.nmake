@@ -4,8 +4,14 @@
 # the file README.windows and the Developer's Guide (available online).
 
 ##### Program name #####
-# Do not change as it will break the installer and possibly other stuff
-PROGRAM_NAME=wireshark
+# Changing the name is experimental and may break the installer/unistaller and possibly other stuff.
+# Application data will still be under the same dir as Wireshark so perference files profiles etc
+# will be shared with a "normal" Wireshark installation.
+# Note that suport libararies needs to be in PROGRAM_NAME-libs...
+
+!IFNDEF PROGRAM_NAME
+PROGRAM_NAME=Wireshark
+!ENDIF
 
 ##### Target platform #####
 # Only "win32" and "win64" are valid (for now).

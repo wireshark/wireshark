@@ -24,9 +24,9 @@ UninstallIcon "..\..\image\wiresharkinst.ico"
 !define MUI_UNICON "..\..\image\wiresharkinst.ico"
 
 ; Uninstall stuff (NSIS 2.08: "\r\n" don't work here)
-!define MUI_UNCONFIRMPAGE_TEXT_TOP "The following Wireshark installation will be removed. Click 'Next' to continue."
+!define MUI_UNCONFIRMPAGE_TEXT_TOP "The following ${PROGRAM_NAME} installation will be removed. Click 'Next' to continue."
 ; Uninstall stuff (this text isn't used with the MODERN_UI!)
-;UninstallText "This will uninstall Wireshark.\r\nBefore starting the uninstallation, make sure Wireshark is not running.\r\nClick 'Next' to continue."
+;UninstallText "This will uninstall ${PROGRAM_NAME}.\r\nBefore starting the uninstallation, make sure ${PROGRAM_NAME} is not running.\r\nClick 'Next' to continue."
 
 !define MUI_UNFINISHPAGE_NOAUTOCLOSE
 
@@ -110,15 +110,15 @@ IfErrors 0 NoQtSharkErrorMsg
 	Abort "Please note: qtshark.exe could not be removed, it's probably in use! Abort uninstall process!"
 NoQtSharkErrorMsg:
 
-Delete "$INSTDIR\wireshark.exe"
+Delete "$INSTDIR\${PROGRAM_NAME}.exe"
 IfErrors 0 NoWiresharkErrorMsg
-	MessageBox MB_OK "Please note: wireshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if wireshark.exe removed
-	Abort "Please note: wireshark.exe could not be removed, it's probably in use! Abort uninstall process!"
+	MessageBox MB_OK "Please note: ${PROGRAM_NAME}.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if ${PROGRAM_NAME}.exe removed
+	Abort "Please note: ${PROGRAM_NAME}.exe could not be removed, it's probably in use! Abort uninstall process!"
 NoWiresharkErrorMsg:
 
-DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark"
-DeleteRegKey HKEY_LOCAL_MACHINE "Software\Wireshark"
-DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\wireshark.exe"
+DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}"
+DeleteRegKey HKEY_LOCAL_MACHINE "Software\${PROGRAM_NAME}"
+DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\${PROGRAM_NAME}.exe"
 
 Call un.Disassociate
 
@@ -173,11 +173,11 @@ Delete "$INSTDIR\example_snmp_users_file"
 Delete "$INSTDIR\ipmap.html"
 Delete "$INSTDIR\radius\*.*"
 Delete "$INSTDIR\dtds\*.*"
-Delete "$SMPROGRAMS\Wireshark\*.*"
-Delete "$SMPROGRAMS\Wireshark.lnk"
+Delete "$SMPROGRAMS\${PROGRAM_NAME}\*.*"
+Delete "$SMPROGRAMS\${PROGRAM_NAME}.lnk"
 Delete "$SMPROGRAMS\Qtshark.lnk"
-Delete "$DESKTOP\Wireshark.lnk"
-Delete "$QUICKLAUNCH\Wireshark.lnk"
+Delete "$DESKTOP\${PROGRAM_NAME}.lnk"
+Delete "$QUICKLAUNCH\${PROGRAM_NAME}.lnk"
 
 RMDir "$INSTDIR\etc\gtk-2.0"
 RMDir "$INSTDIR\etc\pango"
@@ -208,7 +208,7 @@ RMDir "$INSTDIR\share\themes\Default\gtk-2.0"
 RMDir "$INSTDIR\share\themes\Default"
 RMDir "$INSTDIR\share\themes"
 RMDir "$INSTDIR\share"
-RMDir "$SMPROGRAMS\Wireshark"
+RMDir "$SMPROGRAMS\${PROGRAM_NAME}"
 RMDir "$INSTDIR\help"
 RMDir "$INSTDIR\diameter"
 RMDir "$INSTDIR\snmp\mibs"
@@ -249,8 +249,8 @@ Section /o "Un.Personal Settings" un.SecPersonalSettings
 ;-------------------------------------------
 SectionIn 2
 SetShellVarContext current
-Delete "$APPDATA\Wireshark\*.*"
-RMDir "$APPDATA\Wireshark"
+Delete "$APPDATA\${PROGRAM_NAME}\*.*"
+RMDir "$APPDATA\${PROGRAM_NAME}"
 SectionEnd
 
 ;VAR un.WINPCAP_UNINSTALL
@@ -277,8 +277,8 @@ NoFinalErrorMsg:
 SectionEnd
 
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all Wireshark components."
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous Wireshark versions)."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all ${PROGRAM_NAME} components."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous ${PROGRAM_NAME} versions)."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecWinPcap} "Call WinPcap's uninstall program."
