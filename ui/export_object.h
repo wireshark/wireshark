@@ -3,7 +3,7 @@
  * Copyright 2007, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
- * 
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -27,15 +27,14 @@
 #ifndef __EXPORT_OBJECT_H__
 #define __EXPORT_OBJECT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /* Common between protocols */
-typedef struct _export_object_list_t {
-	GSList *entries;
-	GtkWidget *tree, *dlg;
-	GtkTreeView *tree_view;
-	GtkTreeIter *iter;
-	GtkTreeStore *store;
-	gint row_selected;
-} export_object_list_t;
+
+struct _export_object_list_t;
+typedef struct _export_object_list_t export_object_list_t;
 
 typedef struct _export_object_entry_t {
 	guint32 pkt_num;
@@ -48,21 +47,22 @@ typedef struct _export_object_entry_t {
 	guint8 *payload_data;
 } export_object_entry_t;
 
-/* When a protocol needs intermediate data structures to construct the
-export objects, then it must specifiy a function that cleans up all 
-those data structures. This function is passed to export_object_window
-and called when tap reset or windows closes occurs. If no function is needed
-a NULL value should be passed instead */
-typedef void (*eo_protocoldata_reset_cb)(void);
-
-
-void export_object_window(const gchar *tapname, const gchar *name,
-			  tap_packet_cb tap_packet,
-			  eo_protocoldata_reset_cb eo_protocoldata_resetfn);
+void object_list_add_entry(export_object_list_t *object_list, export_object_entry_t *entry);
+export_object_entry_t *object_list_get_entry(export_object_list_t *object_list, int row);
 
 /* Protocol specific */
-void eo_http_cb(GtkWidget *widget _U_, gpointer data _U_);
-void eo_dicom_cb(GtkWidget *widget _U_, gpointer data _U_);
-void eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_);
+gboolean eo_dicom_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
+		const void *data);
+gboolean eo_http_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
+		const void *data);
+gboolean eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
+		const void *data);
+
+void eo_smb_cleanup(void);
+
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __EXPORT_OBJECT_H__ */

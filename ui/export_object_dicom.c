@@ -3,7 +3,7 @@
  * Routines for tracking & saving objects found in DICOM streams
  * See also: export_object.c / export_object.h for common code
  * Copyright 2008, David Aggeler <david_aggeler@hispeed.ch>
- * 
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -36,9 +36,9 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 
-#include "ui/gtk/export_object.h"
+#include "export_object.h"
 
-static int
+gboolean
 eo_dicom_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 	       const void *data)
 {
@@ -47,9 +47,9 @@ eo_dicom_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 	export_object_entry_t *entry;
 
 	if (eo_info) { /* We have data waiting for us */
-		/* 
-		   Don't copy any data. dcm_export_create_object() is already g_malloc() the items	
-		   Still, the values will be freed when the export Object window is closed. 
+		/*
+		   Don't copy any data. dcm_export_create_object() is already g_malloc() the items
+		   Still, the values will be freed when the export Object window is closed.
 		   Therefore, strings and buffers must be copied
 		*/
 		entry = g_malloc(sizeof(export_object_entry_t));
@@ -61,16 +61,10 @@ eo_dicom_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 		entry->payload_len  = eo_info->payload_len;
 		entry->payload_data = eo_info->payload_data;
 
-		object_list->entries = g_slist_append(object_list->entries, entry);
+		object_list_add_entry(object_list, entry);
 
-		return 1; /* State changed - window should be redrawn */
+		return TRUE; /* State changed - window should be redrawn */
 	} else {
-		return 0; /* State unchanged - no window updates needed */
+		return FALSE; /* State unchanged - no window updates needed */
 	}
-}
-
-void
-eo_dicom_cb(GtkWidget *widget _U_, gpointer data _U_)
-{
-	export_object_window("dicom_eo", "DICOM", eo_dicom_packet, NULL);
 }

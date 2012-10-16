@@ -45,6 +45,9 @@ GENERATOR_FILES = \
 
 WIRESHARK_UI_SRC = \
 	alert_box.c		\
+	export_object_dicom.c	\
+	export_object_http.c	\
+	export_object_smb.c	\
 	iface_lists.c		\
 	help_url.c		\
 	ssl_key_export.c	\
@@ -54,6 +57,7 @@ WIRESHARK_UI_SRC = \
 noinst_HEADERS = \
 	alert_box.h		\
 	capture_globals.h	\
+	export_object.h		\
 	last_open_dir.h		\
 	file_dialog.h		\
 	help_url.h		\

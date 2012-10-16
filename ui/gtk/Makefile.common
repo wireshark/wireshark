@@ -65,9 +65,6 @@ WIRESHARK_GTK_SRC = \
 	edit_packet_comment_dlg.c	\
 	expert_comp_table.c    \
 	export_object.c	       \
-	export_object_dicom.c	\
-	export_object_http.c   \
-	export_object_smb.c   \
 	export_sslkeys.c   \
 	filter_autocomplete.c	\
 	file_dlg.c	\
@@ -255,7 +252,7 @@ noinst_HEADERS = \
 	expert_comp_dlg.h	\
 	expert_comp_table.h	\
 	expert_indicators.h	\
-	export_object.h	\
+	export_object_gtk.h	\
 	export_sslkeys.h	\
 	file_dlg.h	\
 	file_import_dlg.h	\

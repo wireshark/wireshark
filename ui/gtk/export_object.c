@@ -45,15 +45,23 @@
 #include <wsutil/file_util.h>
 
 #include <ui/alert_box.h>
+#include <ui/export_object.h>
 #include <ui/simple_dialog.h>
 
-#include "ui/gtk/dlg_utils.h"
-#include "ui/gtk/file_dlg.h"
-#include "ui/gtk/gui_utils.h"
-#include "ui/gtk/help_dlg.h"
-#include "ui/gtk/main.h"
-#include "ui/gtk/stock_icons.h"
-#include "ui/gtk/export_object.h"
+#include "dlg_utils.h"
+#include "file_dlg.h"
+#include "gui_utils.h"
+#include "help_dlg.h"
+#include "main.h"
+#include "stock_icons.h"
+#include "export_object_gtk.h"
+
+/* When a protocol needs intermediate data structures to construct the
+export objects, then it must specifiy a function that cleans up all
+those data structures. This function is passed to export_object_window
+and called when tap reset or windows closes occurs. If no function is needed
+a NULL value should be passed instead */
+typedef void (*eo_protocoldata_reset_cb)(void);
 
 enum {
 	EO_PKT_NUM_COLUMN,
@@ -64,8 +72,16 @@ enum {
 	EO_NUM_COLUMNS /* must be last */
 };
 
-static eo_protocoldata_reset_cb eo_protocoldata_reset = NULL;
+struct _export_object_list_t {
+	GSList *entries;
+	GtkWidget *tree, *dlg;
+	GtkTreeView *tree_view;
+	GtkTreeIter *iter;
+	GtkTreeStore *store;
+	gint row_selected;
+};
 
+static eo_protocoldata_reset_cb eo_protocoldata_reset = NULL;
 
 static void
 eo_remember_this_row(GtkTreeModel *model _U_, GtkTreePath *path,
@@ -411,7 +427,16 @@ eo_draw(void *tapdata)
 	}
 }
 
-void
+void object_list_add_entry(export_object_list_t *object_list, export_object_entry_t *entry)
+{
+	object_list->entries = g_slist_append(object_list->entries, entry);
+}
+
+export_object_entry_t *object_list_get_entry(export_object_list_t *object_list, int row) {
+		return g_slist_nth_data(object_list->entries, row);
+}
+
+static void
 export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_packet, eo_protocoldata_reset_cb eo_protocoldata_resetfn)
 {
 	GtkWidget *sw;
@@ -562,4 +587,23 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	window_present(object_list->dlg);
 
 	cf_retap_packets(&cfile);
+}
+
+void
+eo_dicom_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+	export_object_window("dicom_eo", "DICOM", eo_dicom_packet, NULL);
+}
+
+void
+eo_http_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+	export_object_window("http_eo", "HTTP", eo_http_packet, NULL);
+}
+
+void
+eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+	/* Call the export_object window */
+	export_object_window("smb_eo", "SMB", eo_smb_packet, eo_smb_cleanup);
 }

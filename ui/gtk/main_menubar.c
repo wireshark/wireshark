@@ -45,12 +45,12 @@
 
 #include <epan/filesystem.h>
 
-#include "../cfile.h"
-#include "../globals.h"
-#include "../print.h"
-#include "../color_filters.h"
-#include "../stat_menu.h"
-#include "../u3.h"
+#include "cfile.h"
+#include "globals.h"
+#include "print.h"
+#include "color_filters.h"
+#include "stat_menu.h"
+#include "u3.h"
 
 #include "ui/iface_lists.h"
 #include "ui/main_statusbar.h"
@@ -63,6 +63,7 @@
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/capture_if_dlg.h"
 #include "ui/gtk/color_dlg.h"
+#include "ui/gtk/export_object_gtk.h"
 #include "ui/gtk/filter_dlg.h"
 #include "ui/gtk/profile_dlg.h"
 #include "ui/gtk/dlg_utils.h"
@@ -92,7 +93,6 @@
 #include "ui/gtk/sctp_stat.h"
 #include "ui/gtk/firewall_dlg.h"
 #include "ui/gtk/macros_dlg.h"
-#include "ui/gtk/export_object.h"
 #include "epan/dissectors/packet-ssl-utils.h"
 #include "ui/gtk/export_sslkeys.h"
 #include "ui/gtk/gui_stat_menu.h"
@@ -5316,7 +5316,7 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
         g_free (label);
         break;
 
-    case PREF_COLOR: 
+    case PREF_COLOR:
     case PREF_CUSTOM:
         /* currently not supported */
 
@@ -5642,4 +5642,3 @@ void set_menus_for_profiles(gboolean default_profile)
  * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

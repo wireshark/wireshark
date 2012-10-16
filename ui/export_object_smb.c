@@ -30,13 +30,13 @@
 
 #include "config.h"
 
-#include <gtk/gtk.h>
+#include <glib.h>
 
 #include <epan/packet.h>
 #include <epan/dissectors/packet-smb.h>
 #include <epan/tap.h>
 
-#include "ui/gtk/export_object.h"
+#include "export_object.h"
 
 
 /* These flags show what kind of data the object contains
@@ -260,7 +260,7 @@ find_incoming_file(GSList *GSL_active_files,active_file *incoming_file)
 }
 
 /* This is the function answering to the registered tap listener call */
-static gboolean
+gboolean
 eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
 	export_object_list_t *object_list = tapdata;
@@ -352,8 +352,7 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 						percent);
 		}
 
-		object_list->entries =
-			g_slist_append(object_list->entries, entry);
+		object_list_add_entry(object_list, entry);
 		GSL_active_files =
 			g_slist_append(GSL_active_files, new_file);
 	}
@@ -361,7 +360,7 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		current_file=g_slist_nth_data(GSL_active_files,active_row);
 		/* Recalculate the current file flags */
 		current_file->flag_contains=current_file->flag_contains|contains;
-		current_entry=g_slist_nth_data(object_list->entries,active_row);
+		current_entry = object_list_get_entry(object_list, active_row);
 
 		insert_chunk(current_file, current_entry, eo_info);
 
@@ -390,7 +389,7 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 /* This is the eo_protocoldata_reset function that is used in the export_object module
    to cleanup any previous private data of the export object functionality before perform
    the eo_reset function or when the window closes */
-static void
+void
 eo_smb_cleanup(void)
 {
 	int 	         i,last;
@@ -411,11 +410,4 @@ eo_smb_cleanup(void)
 		g_slist_free(GSL_active_files);
 		GSL_active_files=NULL;
 	}
-}
-
-void
-eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_)
-{
-	/* Call the export_object window */
-	export_object_window("smb_eo", "SMB", eo_smb_packet, eo_smb_cleanup);
 }

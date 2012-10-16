@@ -4,7 +4,7 @@
  * Copyright 2007, Stephen Fisher (see AUTHORS file)
  *
  * $Id$
- * 
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -33,10 +33,10 @@
 #include <epan/dissectors/packet-http.h>
 #include <epan/tap.h>
 
-#include "ui/gtk/export_object.h"
+#include "export_object.h"
 
 
-static int
+gboolean
 eo_http_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 	       const void *data)
 {
@@ -57,17 +57,10 @@ eo_http_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 		entry->payload_data = g_memdup(eo_info->payload_data,
 					       eo_info->payload_len);
 
-		object_list->entries =
-			g_slist_append(object_list->entries, entry);
+		object_list_add_entry(object_list, entry);
 
-		return 1; /* State changed - window should be redrawn */
+		return TRUE; /* State changed - window should be redrawn */
 	} else {
-		return 0; /* State unchanged - no window updates needed */
+		return FALSE; /* State unchanged - no window updates needed */
 	}
-}
-
-void
-eo_http_cb(GtkWidget *widget _U_, gpointer data _U_)
-{
-	export_object_window("http_eo", "HTTP", eo_http_packet, NULL);
 }
