@@ -693,11 +693,6 @@
     <string>As Plain &amp;Text...</string>
    </property>
   </action>
-  <action name="actionFileExportAsPostScript">
-   <property name="text">
-    <string>As PostScript...</string>
-   </property>
-  </action>
   <action name="actionFileExportAsCSV">
    <property name="text">
     <string>As CSV...</string>

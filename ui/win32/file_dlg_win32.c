@@ -43,8 +43,6 @@
 #include "epan/filesystem.h"
 #include "epan/addr_resolv.h"
 #include "epan/prefs.h"
-#include "epan/dissectors/packet-ssl.h"
-#include "epan/dissectors/packet-ssl-utils.h"
 #include "wsutil/file_util.h"
 #include "wsutil/unicode-utils.h"
 
@@ -57,6 +55,7 @@
 #include "ui/file_dialog.h"
 #include "ui/last_open_dir.h"
 #include "ui/simple_dialog.h"
+#include "ui/ssl_key_export.h"
 #include "ui/util.h"
 
 #include "ui/gtk/main.h"
@@ -809,7 +808,7 @@ win32_export_sslkeys_file(HWND h_wnd) {
     OPENFILENAME *ofn;
     TCHAR         file_name[MAX_PATH] = _T("");
     char         *dirname;
-    StringInfo   *keylist;
+    gchar        *keylist;
     char         *file_name8;
     int           fd;
     int           ofnsize;
@@ -818,7 +817,7 @@ win32_export_sslkeys_file(HWND h_wnd) {
     OSVERSIONINFO osvi;
 #endif
 
-    keylist_size = g_hash_table_size(ssl_session_hash);
+    keylist_size = ssl_session_key_count();
     if (keylist_size==0) {
         /* This shouldn't happen */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No SSL Session Keys to export.");
@@ -864,7 +863,7 @@ win32_export_sslkeys_file(HWND h_wnd) {
     if (GetSaveFileName(ofn)) {
         g_free( (void *) ofn);
         file_name8 = utf_16to8(file_name);
-        keylist = ssl_export_sessions(ssl_session_hash);
+        keylist = ssl_export_sessions();
         fd = ws_open(file_name8, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
         if (fd == -1) {
             open_failure_alert_box(file_name8, errno, TRUE);
@@ -875,7 +874,7 @@ win32_export_sslkeys_file(HWND h_wnd) {
          * Thanks, Microsoft, for not using size_t for the third argument to
          * _write().  Presumably this string will be <= 4GiB long....
          */
-        if (ws_write(fd, keylist->data, (unsigned int)strlen(keylist->data)) < 0) {
+        if (ws_write(fd, keylist, (unsigned int)strlen(keylist)) < 0) {
             write_failure_alert_box(file_name8, errno);
             ws_close(fd);
             g_free(keylist);
@@ -1927,7 +1926,7 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
                 StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->user_range_cnt);
             }
             SetWindowText(cur_ctrl, static_val);
-        
+
             cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_DISP);
             EnableWindow(cur_ctrl, filtered_active);
             if (range->remove_ignored) {

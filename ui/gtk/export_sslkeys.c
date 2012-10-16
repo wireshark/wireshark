@@ -50,8 +50,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/charsets.h>
 #include <epan/prefs.h>
-#include <epan/dissectors/packet-ssl.h>
-#include <epan/dissectors/packet-ssl-utils.h>
 
 #include "../isprint.h"
 
@@ -60,6 +58,7 @@
 #include "ui/progress_dlg.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
+#include "ui/ssl_key_export.h"
 #include "ui/ui_util.h"
 
 #include "ui/gtk/keys.h"
@@ -79,59 +78,6 @@
 #include "ui/win32/file_dlg_win32.h"
 #endif
 
-static void
-ssl_export_sessions_func(gpointer key, gpointer value, gpointer user_data)
-{
-    guint i;
-    size_t offset;
-    StringInfo* sslid = (StringInfo*)key;
-    StringInfo* mastersecret = (StringInfo*)value;
-    StringInfo* keylist = (StringInfo*)user_data;
-
-    offset = strlen(keylist->data);
-
-    /*
-     * XXX - should this be a string that grows as necessary to hold
-     * everything in it?
-     */
-    g_snprintf(keylist->data+offset,(gulong)(keylist->data_len-offset),"RSA Session-ID:");
-    offset += 15;
-
-    for( i=0; i<sslid->data_len; i++) {
-        g_snprintf(keylist->data+offset,(gulong)(keylist->data_len-offset),"%.2x",sslid->data[i]&255);
-        offset += 2;
-    }
-
-    g_snprintf(keylist->data+offset,(gulong)(keylist->data_len-offset)," Master-Key:");
-    offset += 12;
-
-    for( i=0; i<mastersecret->data_len; i++) {
-        g_snprintf(keylist->data+offset,(gulong)(keylist->data_len-offset),"%.2x",mastersecret->data[i]&255);
-        offset += 2;
-    }
-
-    g_snprintf(keylist->data+offset,(gulong)(keylist->data_len-offset),"\n");
-}
-
-StringInfo*
-ssl_export_sessions(GHashTable *session_hash)
-{
-    StringInfo* keylist;
-
-    /* Output format is:
-     * "RSA Session-ID:xxxx Master-Key:yyyy\n"
-     * Where xxxx is the session ID in hex (max 64 chars)
-     * Where yyyy is the Master Key in hex (always 96 chars)
-     * So in total max 3+1+11+64+1+11+96+2 = 189 chars
-     */
-    keylist = g_malloc0(sizeof(StringInfo)+189*g_hash_table_size (session_hash));
-    keylist->data = ((guchar*)keylist+sizeof(StringInfo));
-    keylist->data_len = sizeof(StringInfo)+189*g_hash_table_size (session_hash);
-
-    g_hash_table_foreach(session_hash, ssl_export_sessions_func, (gpointer)keylist);
-
-    return keylist;
-}
 static GtkWidget *savesslkeys_dlg=NULL;
 
 static void
@@ -146,7 +92,7 @@ savesslkeys_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 {
     int fd;
     char *file;
-    StringInfo *keylist;
+    gchar *keylist;
 
     file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(savesslkeys_dlg));
 
@@ -162,18 +108,17 @@ savesslkeys_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 
     /* XXX: Must check if file name exists first */
 
-    /*
-     * Retrieve the info we need
-     */
-    keylist = ssl_export_sessions(ssl_session_hash);
-
-    if (keylist->data_len == 0 ) {
+    if (ssl_session_key_count() < 1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "No SSL Session Keys to export!");
-        g_free(keylist);
         g_free(file);
         return TRUE;
     }
+
+    /*
+     * Retrieve the info we need
+     */
+    keylist = ssl_export_sessions();
 
     fd = ws_open(file, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
     if (fd == -1) {
@@ -186,7 +131,7 @@ savesslkeys_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
      * Thanks, Microsoft, for not using size_t for the third argument to
      * _write().  Presumably this string will be <= 4GiB long....
      */
-    if (ws_write(fd, keylist->data, (unsigned int)strlen(keylist->data)) < 0) {
+    if (ws_write(fd, keylist, (unsigned int)strlen(keylist)) < 0) {
         write_failure_alert_box(file, errno);
         ws_close(fd);
         g_free(keylist);
@@ -223,7 +168,7 @@ savesslkeys_cb(GtkWidget * w _U_, gpointer data _U_)
     GtkWidget   *dlg_lb;
     guint keylist_len;
 
-    keylist_len = g_hash_table_size(ssl_session_hash);
+    keylist_len = ssl_session_key_count();
     /* don't show up the dialog, if no data has to be saved */
     if (keylist_len==0) {
         /* shouldn't happen as the menu item should have been greyed out */

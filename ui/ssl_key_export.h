@@ -2,7 +2,7 @@
  *
  * $Id$
  *
- * Export SSL Session Keys dialog
+ * SSL session key utilities. Copied from ui/gkt/export_sslkeys.c
  * by Sake Blok <sake@euronet.nl> (20110526)
  *
  * Wireshark - Network traffic analyzer
@@ -24,14 +24,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __EXPORT_SSLKEYS_H__
-#define __EXPORT_SSLKEYS_H__
+#ifndef __SSL_KEY_EXPORT_H__
+#define __SSL_KEY_EXPORT_H__
 
-/** Callback for "Export SSL Session Keys" operation.
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+/** Return the number of available SSL session keys.
  *
- * @param w unused
- * @param data unused
+ * @return The number of available SSL session keys.
  */
-extern void savesslkeys_cb(GtkWidget * w, gpointer data);
+extern int ssl_session_key_count();
 
-#endif /* __EXPORT_SSLKEYS_H__ */
+/** Dump our SSL Session Keys to a string
+ *
+ * @return A string containing all the SSL Session Keys. Must be freed with
+ * g_free().
+ */
+extern gchar* ssl_export_sessions();
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __SSL_KEY_EXPORT_H__ */

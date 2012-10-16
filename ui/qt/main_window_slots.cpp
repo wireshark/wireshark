@@ -56,6 +56,7 @@
 #include "ui/capture_globals.h"
 #include "ui/help_url.h"
 #include "ui/main_statusbar.h"
+#include "ui/ssl_key_export.h"
 
 #include "wireshark_application.h"
 #include "capture_file_dialog.h"
@@ -724,7 +725,7 @@ void MainWindow::on_actionFileExportPacketBytes_triggered()
 
     file_name = QFileDialog::getSaveFileName(this,
                                              tr("Wireshark: Export Selected Packet Bytes"),
-                                             wsApp->lastOpenDir().absolutePath(),
+                                             wsApp->lastOpenDir().canonicalPath(),
                                              tr("Raw data (*.bin *.dat *.raw);;Any File (*.*)")
                                              );
 
@@ -751,6 +752,65 @@ void MainWindow::on_actionFileExportPacketBytes_triggered()
 
         /* Save the directory name for future file dialogs. */
         wsApp->setLastOpenDir(&file_name);
+    }
+}
+
+void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
+{
+    QString file_name;
+    QString save_title;
+    int keylist_len;
+
+    keylist_len = ssl_session_key_count();
+    /* don't show up the dialog, if no data has to be saved */
+    if (keylist_len < 1) {
+        /* shouldn't happen as the menu item should have been greyed out */
+        QMessageBox::warning(
+                    this,
+                    tr("No Keys"),
+                    tr("There are no SSL Session Keys to save."),
+                    QMessageBox::Ok
+                    );
+        return;
+    }
+
+    save_title.append("Wireshark: Export SSL Session Keys (%1 key%2").
+            arg(keylist_len).arg(plurality(keylist_len, "", "s"));
+    file_name = QFileDialog::getSaveFileName(this,
+                                             save_title,
+                                             wsApp->lastOpenDir().canonicalPath(),
+                                             tr("SSL Session Keys (*.keys *.txt);;Any File (*.*)")
+                                             );
+    if (file_name.length() > 0) {
+        gchar *keylist;
+        int fd;
+
+        keylist = ssl_export_sessions();
+        fd = ws_open(file_name.toUtf8().constData(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+        if (fd == -1) {
+            open_failure_alert_box(file_name.toUtf8().constData(), errno, TRUE);
+            g_free(keylist);
+            return;
+        }
+        /*
+         * Thanks, Microsoft, for not using size_t for the third argument to
+         * _write().  Presumably this string will be <= 4GiB long....
+         */
+        if (ws_write(fd, keylist, (unsigned int)strlen(keylist)) < 0) {
+            write_failure_alert_box(file_name.toUtf8().constData(), errno);
+            ::close(fd);
+            g_free(keylist);
+            return;
+        }
+        if (::close(fd) < 0) {
+            write_failure_alert_box(file_name.toUtf8().constData(), errno);
+            g_free(keylist);
+            return;
+        }
+
+        /* Save the directory name for future file dialogs. */
+        wsApp->setLastOpenDir(&file_name);
+        g_free(keylist);
     }
 }
 

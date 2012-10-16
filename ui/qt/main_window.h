@@ -193,6 +193,7 @@ private slots:
     void on_goToLineEdit_returnPressed();
     void on_actionStartCapture_triggered();
     void on_actionStopCapture_triggered();
+    void on_actionFileExportSSLSessionKeys_triggered();
 };
 
 

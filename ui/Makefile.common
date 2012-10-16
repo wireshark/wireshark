@@ -44,10 +44,11 @@ GENERATOR_FILES = \
 	text_import_scanner.l
 
 WIRESHARK_UI_SRC = \
-	alert_box.c	\
-	iface_lists.c	\
-	help_url.c	\
-	text_import.c	\
+	alert_box.c		\
+	iface_lists.c		\
+	help_url.c		\
+	ssl_key_export.c	\
+	text_import.c		\
 	util.c
 
 noinst_HEADERS = \
@@ -62,6 +63,7 @@ noinst_HEADERS = \
 	recent.h		\
 	recent_utils.h		\
 	simple_dialog.h		\
+	ssl_key_export.h	\
 	text_import.h		\
 	text_import_scanner.h	\
 	ui_util.h		\
