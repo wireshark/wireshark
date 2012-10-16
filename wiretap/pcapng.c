@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /* File format reference:
@@ -949,6 +949,8 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                         wblock->data.packet.cap_len             = epb.captured_len;
                         wblock->data.packet.packet_len          = epb.packet_len;
                 }
+                pcapng_debug3("pcapng_read_packet_block: EPB on interface_id %d, cap_len %d, packet_len %d",
+                              wblock->data.packet.interface_id, wblock->data.packet.cap_len, wblock->data.packet.packet_len);
         } else {
                 /*
                  * Is this block long enough to be a PB?
@@ -985,6 +987,8 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                         wblock->data.packet.cap_len             = pb.captured_len;
                         wblock->data.packet.packet_len          = pb.packet_len;
                 }
+                pcapng_debug3("pcapng_read_packet_block: PB on interface_id %d, cap_len %d, packet_len %d",
+                              wblock->data.packet.interface_id, wblock->data.packet.cap_len, wblock->data.packet.packet_len);
         }
 
         /*
@@ -1002,6 +1006,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         } else {
                 block_total_length = bh->block_total_length;
         }
+        pcapng_debug1("pcapng_read_packet_block: block_total_length %d", block_total_length);
 
         /*
          * Is this block long enough to hold the packet data?
@@ -3378,7 +3383,6 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int 
         rec_off += 4;
 
         memcpy(rec_data + rec_off, &bh.block_total_length, sizeof(bh.block_total_length));
-        rec_off += 4;
 
         pcapng_debug2("pcapng_write_name_resolution_block: Write bh.block_total_length bytes %d, rec_off %u", bh.block_total_length, rec_off);
 
