@@ -1073,7 +1073,8 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	unsigned int pos = 0;
 
 	while (pos < tvb_length(tvb)) {
-		guint8 tag, len;
+		guint8 tag;
+		guint32 len;
 		tvbuff_t *subtvb;
 
 		proto_tree_add_item(tree, hf_cat_ber_tag, tvb, pos, 1, ENC_BIG_ENDIAN);
@@ -1081,6 +1082,21 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* FIXME: properly follow BER coding rules */
 		tag = tvb_get_guint8(tvb, pos++);
 		len = tvb_get_guint8(tvb, pos++);
+		switch (len) {
+		case 0x81:
+			len = tvb_get_guint8(tvb, pos++);
+			break;
+		case 0x82:
+			len = tvb_get_ntohs(tvb, pos);
+			pos += 2;
+			break;
+		case 0x83:
+			len = tvb_get_ntoh24(tvb, pos);
+			pos += 3;
+			break;
+		default:
+			break;
+		}
 
 		subtvb = tvb_new_subset(tvb, pos, len, len);
 		switch (tag) {

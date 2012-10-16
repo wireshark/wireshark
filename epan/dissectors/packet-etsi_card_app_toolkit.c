@@ -170,7 +170,7 @@ static const value_string comp_tlv_tag_vals[] = {
 	{ 0x28, "AT Command" },
 	{ 0x29, "AT Response" },
 	{ 0x2a, "GSM/3G BC Repeat Indicator" },
-	{ 0x2b, "Immedaite response" },
+	{ 0x2b, "Immediate response" },
 	{ 0x2c, "DTMF string" },
 	{ 0x2d, "Language" },
 	{ 0x2e, "GSM/3G Timing Advance" },
@@ -199,7 +199,7 @@ static const value_string comp_tlv_tag_vals[] = {
 	{ 0x46, "3GPP2 ESN" },
 	{ 0x47, "Network Access Name" },
 	{ 0x48, "3GPP2 CDMA-SMS-TPDU" },
-	{ 0x49, "remote Entity Address" },
+	{ 0x49, "Remote Entity Address" },
 	{ 0x4a, "3GPP I-WLAN Identifier" },
 	{ 0x4b, "3GPP I-WLAN Access Status" },
 	{ 0x50, "Text attribute" },
@@ -668,26 +668,47 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	cat_tree = proto_item_add_subtree(cat_ti, ett_cat);
 	while (pos < tvb_length(tvb)) {
 		proto_item *ti;
-		guint8 tag, len, g8;
+		guint8 g8;
+		guint16 tag;
+		guint32 len;
 		void *ptr = NULL;
 		unsigned int i;
 
-		tag = tvb_get_guint8(tvb, pos++);
+		tag = tvb_get_guint8(tvb, pos++) & 0x7f;
+		if (tag == 0x7f) {
+			tag = tvb_get_ntohs(tvb, pos) & 0x7fff;
+			pos += 2;
+		}
 		len = tvb_get_guint8(tvb, pos++);
+		switch (len) {
+		case 0x81:
+			len = tvb_get_guint8(tvb, pos++);
+			break;
+		case 0x82:
+			len = tvb_get_ntohs(tvb, pos);
+			pos += 2;
+			break;
+		case 0x83:
+			len = tvb_get_ntoh24(tvb, pos);
+			pos += 3;
+			break;
+		default:
+			break;
+		}
 
 #if 1
 		ti = proto_tree_add_bytes_format(cat_tree, hf_cat_tlv, tvb, pos,
 					    len, ptr, "%s: %s",
-					    val_to_str(tag&0x7f, comp_tlv_tag_vals, "%02x"),
+					    val_to_str(tag, comp_tlv_tag_vals, "%02x"),
 					    tvb_bytes_to_str(tvb, pos, len));
 #else
 		ti = proto_tree_add_bytes_format(cat_tree, hf_cat_tlv, tvb, pos,
 					    len, ptr, "%s:   ",
-					    val_to_str(tag&0x7f, comp_tlv_tag_vals, "%02x"));
+					    val_to_str(tag, comp_tlv_tag_vals, "%02x"));
 #endif
 		elem_tree = proto_item_add_subtree(ti, ett_elem);
 
-		switch (tag & 0x7f) {
+		switch (tag) {
 		case 0x01:	/* command details */
 			if (len < 3)
 				break;
