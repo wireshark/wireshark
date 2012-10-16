@@ -602,6 +602,15 @@ static const value_string utran_delivery_erroneous_sdus_vals[] = {
 	{ 3, "Subscribed value" },
 	{ 0, NULL }
 };
+static const value_string pdp_type_vals[] = {
+	{ 1, "X.25" },
+	{ 2, "IP" },
+	{ 3, "IPV6" },
+	{ 4, "IPV4V6" },
+	{ 5, "OSPIH" },
+	{ 6, "PPP" },
+	{ 0, NULL }
+};
 
 /* TS 102 223 - Chapter 8.58 */
 static const value_string other_address_coding_vals[] = {
@@ -1192,7 +1201,7 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_bearer_utran_pdp_type,
 			{ "PDP Type", "etsi_cat.comp_tlv.bearer.utran.pdp_type",
-			  FT_UINT8, BASE_DEC, NULL, 0,
+			  FT_UINT8, BASE_DEC, VALS(pdp_type_vals), 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_bearer_params,
