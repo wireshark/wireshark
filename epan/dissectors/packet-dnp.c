@@ -562,7 +562,8 @@ static int hf_dnp3_al_size32 = -1;
 
 /*static int hf_dnp3_al_objq = -1;
   static int hf_dnp3_al_nobj = -1; */
-static int hf_dnp3_al_ptnum = -1;
+/* XXX - unused
+static int hf_dnp3_al_ptnum = -1; */
 static int hf_dnp3_al_biq_b0 = -1;
 static int hf_dnp3_al_biq_b1 = -1;
 static int hf_dnp3_al_biq_b2 = -1;
@@ -638,9 +639,9 @@ static int hf_dnp3_al_file_status = -1;
 static int hf_dnp3_al_file_blocknum = -1;
 static int hf_dnp3_al_file_lastblock = -1;
 static int hf_dnp3_al_file_data = -1;
-static int hf_dnp3_ctlobj_code_c;
-static int hf_dnp3_ctlobj_code_m;
-static int hf_dnp3_ctlobj_code_tc;
+static int hf_dnp3_ctlobj_code_c = -1;
+static int hf_dnp3_ctlobj_code_m = -1;
+static int hf_dnp3_ctlobj_code_tc = -1;
 
 /***************************************************************************/
 /* Value String Look-Ups */
@@ -1835,17 +1836,17 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             proto_item_append_text(point_item, " [%s]", val_to_str( (al_tcc_code & AL_OBJCTLC_CODE), dnp3_al_ctlc_code_vals, "Invalid Operation"));
 
             /* Control Code 'Operation Type' */
-            proto_tree_add_item(tcc_item, hf_dnp3_ctlobj_code_c, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tcc_tree, hf_dnp3_ctlobj_code_c, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
 
             /* Control Code Misc Values */
-            proto_tree_add_item(tcc_item, hf_dnp3_ctlobj_code_m, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tcc_tree, hf_dnp3_ctlobj_code_m, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
 
             /* Control Code 'Trip Close Code' */
-            proto_tree_add_item(tcc_item, hf_dnp3_ctlobj_code_tc, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tcc_tree, hf_dnp3_ctlobj_code_tc, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
             data_pos += 1;
 
             al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
-            proto_tree_add_item(point_item, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
             ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
             data_pos += 1;
 
@@ -3294,8 +3295,9 @@ proto_register_dnp3(void)
     { &hf_dnp3_al_index32,
     { "Index (32 bit)", "dnp3.al.index", FT_UINT32, BASE_DEC, NULL, 0x0, "Object Index", HFILL }},
 
+    /* XXX - unused
     { &hf_dnp3_al_ptnum,
-    { "Object Point Number", "dnp3.al.ptnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { "Object Point Number", "dnp3.al.ptnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}, */
 
     { &hf_dnp3_al_size8,
     { "Size (8 bit)", "dnp3.al.size", FT_UINT8, BASE_DEC, NULL, 0x0, "Object Size", HFILL }},
