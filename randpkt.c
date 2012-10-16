@@ -498,7 +498,7 @@ main(int argc, char **argv)
 
 	wtap_dumper		*dump;
 	struct wtap_pkthdr	pkthdr;
-	union wtap_pseudo_header	ps_header;
+	union wtap_pseudo_header *ps_header = &pkthdr.pseudo_header;
 	int 			i, j, len_this_pkt, len_random, err;
 	guint8			buffer[65536];
 
@@ -575,14 +575,13 @@ main(int argc, char **argv)
 	}
 
 	memset(&pkthdr, 0, sizeof(pkthdr));
-	memset(&ps_header, 0, sizeof(ps_header));
 	memset(buffer, 0, sizeof(buffer));
 
 	pkthdr.pkt_encap = example->sample_wtap_encap;
 
 	/* Load the sample pseudoheader into our pseudoheader buffer */
 	if (example->pseudo_buffer)
-		memcpy(&ps_header, example->pseudo_buffer, example->pseudo_length);
+		memcpy(ps_header, example->pseudo_buffer, example->pseudo_length);
 
 	/* Load the sample into our buffer */
 	if (example->sample_buffer)
@@ -603,8 +602,8 @@ main(int argc, char **argv)
 		pkthdr.len = len_this_pkt;
 		pkthdr.ts.secs = i; /* just for variety */
 
-		for (j = example->pseudo_length; j < (int) sizeof(ps_header); j++) {
-			((guint8*)&ps_header)[j] = (rand() % 0x100);
+		for (j = example->pseudo_length; j < (int) sizeof(*ps_header); j++) {
+			((guint8*)ps_header)[j] = (rand() % 0x100);
 		}
 
 		for (j = example->sample_length; j < len_this_pkt; j++) {
@@ -617,7 +616,7 @@ main(int argc, char **argv)
 			}
 		}
 
-		wtap_dump(dump, &pkthdr, &ps_header, &buffer[0], &err);
+		wtap_dump(dump, &pkthdr, &buffer[0], &err);
 	}
 
 	wtap_dump_close(dump, &err);

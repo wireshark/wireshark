@@ -503,7 +503,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info,
 static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info,
 		 gint64 *data_offset);
 static gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
-		      union wtap_pseudo_header *pseudo_header,
+		      struct wtap_pkthdr *phdr,
 		      guint8 *pd, int length,
 		      int *err, gchar **err_info);
 static void nstrace_close(wtap *wth);
@@ -514,7 +514,7 @@ static gboolean nstrace_set_start_time(wtap *wth);
 static guint64 ns_hrtime2nsec(guint32 tm);
 
 static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
+	const guint8 *pd, int *err);
 
 
 #define GET_READ_PAGE_SIZE(remaining_file_size) ((gint32)((remaining_file_size>NSPR_PAGESIZE)?NSPR_PAGESIZE:remaining_file_size))
@@ -751,10 +751,10 @@ static gboolean nstrace_set_start_time(wtap *wth)
 }
 
 #define __TNO(enumprefix,structprefix,structname,hdrname,structfieldname) \
-	wth->pseudo_header.nstr.hdrname##_offset =  enumprefix##_##hdrname##_offset;
+	wth->phdr.pseudo_header.nstr.hdrname##_offset =  enumprefix##_##hdrname##_offset;
 
 #define __TNL(enumprefix,structprefix,structname,hdrname,structfieldname) \
-	wth->pseudo_header.nstr.hdrname##_len = enumprefix##_##hdrname##_len;
+	wth->phdr.pseudo_header.nstr.hdrname##_len = enumprefix##_##hdrname##_len;
 
 #define __TNV1O(enumprefix,structprefix,structname,hdrname,structfieldname) \
 	__TNO(enumprefix,structprefix,structname,hdrname,structfieldname)
@@ -932,7 +932,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 		nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
 		nstrace->nstrace_buflen = nstrace_buflen;\
 		nstrace->nsg_creltime = nsg_creltime;\
-		wth->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##TYPE;\
+		wth->phdr.pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##TYPE;\
 		return TRUE;\
 	}while(0)
 
@@ -1072,9 +1072,10 @@ static gboolean nstrace_read(wtap *wth, int *err, gchar **err_info, gint64 *data
 
 
 static gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int bytes_read;
 
 	*err = 0;
@@ -1341,8 +1342,9 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err)
+    const guint8 *pd, int *err)
 {
+	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 
 	if (nstrace->page_offset == 0)

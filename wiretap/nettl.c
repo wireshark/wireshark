@@ -180,7 +180,7 @@ typedef struct {
 static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 		gint64 *data_offset);
 static gboolean nettl_seek_read(wtap *wth, gint64 seek_off,
-		union wtap_pseudo_header *pseudo_header, guint8 *pd,
+		struct wtap_pkthdr *phdr, guint8 *pd,
 		int length, int *err, gchar **err_info);
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 		struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
@@ -188,7 +188,7 @@ static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 static gboolean nettl_read_rec_data(FILE_T fh, guint8 *pd, int length,
 		int *err, gchar **err_info, gboolean fddihack);
 static gboolean nettl_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
+    const guint8 *pd, int *err);
 
 int nettl_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -307,7 +307,7 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 
     /* Read record header. */
     *data_offset = file_tell(wth->fh);
-    ret = nettl_read_rec_header(wth, wth->fh, &wth->phdr, &wth->pseudo_header,
+    ret = nettl_read_rec_header(wth, wth->fh, &wth->phdr, &wth->phdr.pseudo_header,
         err, err_info, &fddihack);
     if (ret <= 0) {
 	/* Read error or EOF */
@@ -352,18 +352,18 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 nettl_seek_read(wtap *wth, gint64 seek_off,
-		union wtap_pseudo_header *pseudo_header, guint8 *pd,
+		struct wtap_pkthdr *phdr, guint8 *pd,
 		int length, int *err, gchar **err_info)
 {
+    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     int ret;
-    struct wtap_pkthdr phdr;
     gboolean fddihack=FALSE;
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	return FALSE;
 
     /* Read record header. */
-    ret = nettl_read_rec_header(wth, wth->random_fh, &phdr, pseudo_header,
+    ret = nettl_read_rec_header(wth, wth->random_fh, phdr, pseudo_header,
         err, err_info, &fddihack);
     if (ret <= 0) {
 	/* Read error or EOF */
@@ -773,9 +773,9 @@ gboolean nettl_dump_open(wtap_dumper *wdh, int *err)
    Returns TRUE on success, FALSE on failure. */
 static gboolean nettl_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header _U_,
 	const guint8 *pd, int *err)
 {
+	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	struct nettlrec_hdr rec_hdr;
 	guint8 dummyc[24];
 

@@ -149,7 +149,7 @@ cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
  * @return TRUE if the read succeeded, FALSE if there was an error
  */
 gboolean cf_read_frame_r(capture_file *cf, frame_data *fdata,
-                         union wtap_pseudo_header *pseudo_header, guint8 *pd);
+                         struct wtap_pkthdr *phdr, guint8 *pd);
 
 /**
  * Read the pseudo-header and raw data for a packet into a

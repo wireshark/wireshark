@@ -276,7 +276,7 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 	wth->phdr.caplen = wth->phdr.len = ii;
 
 	wth->phdr.pkt_encap = g_encap;
-	k12text_set_pseudo_header(g_encap, &wth->pseudo_header);
+	k12text_set_pseudo_header(g_encap, &wth->phdr.pseudo_header);
 
 	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 	memcpy(buffer_start_ptr(wth->frame_buffer), bb, wth->phdr.caplen);
@@ -285,9 +285,9 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 }
 
 static gboolean
-k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guint8 *pd, int length, int *err, char **err_info)
+k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, guint8 *pd, int length, int *err, char **err_info)
 {
-
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
@@ -364,7 +364,6 @@ static const struct { int e; const char* s; } encaps[] = {
 
 static gboolean
 k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
-	     const union wtap_pseudo_header *pseudo_header _U_,
 	     const guint8 *pd, int *err) {
 #define K12BUF_SIZE 196808
 	char *buf;

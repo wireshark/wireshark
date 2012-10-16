@@ -95,7 +95,7 @@ typedef struct {
 static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean peektagged_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 
 static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err,
@@ -552,15 +552,15 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 	 * whether it's an FCS or not, we should use that to determine
 	 * whether to supply it as an FCS or discard it.
 	 */
-	wth->pseudo_header.ieee_802_11 = hdr_info.ieee_802_11;
+	wth->phdr.pseudo_header.ieee_802_11 = hdr_info.ieee_802_11;
 	if (peektagged->has_fcs)
-	    wth->pseudo_header.ieee_802_11.fcs_len = 4;
+	    wth->phdr.pseudo_header.ieee_802_11.fcs_len = 4;
 	else {
-	    wth->pseudo_header.ieee_802_11.fcs_len = 0;
+	    wth->phdr.pseudo_header.ieee_802_11.fcs_len = 0;
 	    wth->phdr.len -= 4;
 	    wth->phdr.caplen -= 4;
 	}
-	wth->pseudo_header.ieee_802_11.decrypted = FALSE;
+	wth->phdr.pseudo_header.ieee_802_11.decrypted = FALSE;
 	break;
 
     case WTAP_ENCAP_ETHERNET:
@@ -568,7 +568,7 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 	 * The last 4 bytes appear to be 0 in the captures I've seen;
 	 * are there any captures where it's an FCS?
 	 */
-	wth->pseudo_header.eth.fcs_len = 0;
+	wth->phdr.pseudo_header.eth.fcs_len = 0;
 	wth->phdr.len -= 4;
 	wth->phdr.caplen -= 4;
 	break;
@@ -580,9 +580,10 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 peektagged_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
+    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     peektagged_t *peektagged = (peektagged_t *)wth->priv;
     hdr_info_t hdr_info;
 

@@ -144,7 +144,7 @@ to handle them.
 static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean vms_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+    struct wtap_pkthdr *phdr, guint8 *pd, int len,
     int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
     long byte_offset, int in_off, int remaining_bytes);
@@ -312,7 +312,7 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
 /* Used to read packets in random-access fashion */
 static gboolean
 vms_seek_read (wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header _U_,
+    struct wtap_pkthdr *phdr _U_,
     guint8 *pd, int len, int *err, gchar **err_info)
 {
     int    pkt_len;

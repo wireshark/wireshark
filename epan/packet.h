@@ -436,7 +436,7 @@ extern void mark_frame_as_depended_upon(packet_info *pinfo, guint32 frame_num);
  * Dissectors should never modify the packet data.
  */
 extern void dissect_packet(epan_dissect_t *edt,
-    union wtap_pseudo_header *pseudo_header, const guchar *pd,
+    struct wtap_pkthdr *phdr, const guchar *pd,
     frame_data *fd, column_info *cinfo);
 
 /* These functions are in packet-ethertype.c */

@@ -466,39 +466,40 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
     buffer_assure_space(&(k12->extra_info), extra_len);
     memcpy(buffer_start_ptr(&(k12->extra_info)),
            buffer + K12_PACKET_FRAME + wth->phdr.caplen, extra_len);
-    wth->pseudo_header.k12.extra_info = (void*)buffer_start_ptr(&(k12->extra_info));
-    wth->pseudo_header.k12.extra_length = extra_len;
+    wth->phdr.pseudo_header.k12.extra_info = (void*)buffer_start_ptr(&(k12->extra_info));
+    wth->phdr.pseudo_header.k12.extra_length = extra_len;
 
-    wth->pseudo_header.k12.input = src_id;
+    wth->phdr.pseudo_header.k12.input = src_id;
 
     K12_DBG(5,("k12_read: wth->pseudo_header.k12.input=%x wth->phdr.len=%i input_name='%s' stack_file='%s' type=%x",
                wth->pseudo_header.k12.input,wth->phdr.len,src_desc->input_name,src_desc->stack_file,src_desc->input_type));\
 
-    wth->pseudo_header.k12.input_name = src_desc->input_name;
-    wth->pseudo_header.k12.stack_file = src_desc->stack_file;
-    wth->pseudo_header.k12.input_type = src_desc->input_type;
+    wth->phdr.pseudo_header.k12.input_name = src_desc->input_name;
+    wth->phdr.pseudo_header.k12.stack_file = src_desc->stack_file;
+    wth->phdr.pseudo_header.k12.input_type = src_desc->input_type;
 
     switch(src_desc->input_type) {
         case K12_PORT_ATMPVC:
             if ((long)(K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID) < len) {
-                wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VP));
-                wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VC));
-                wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID));
+                wth->phdr.pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VP));
+                wth->phdr.pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VC));
+                wth->phdr.pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID));
                 break;
             }
             /* Fall through */
         default:
-            memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
+            memcpy(&(wth->phdr.pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
             break;
     }
 
-    wth->pseudo_header.k12.stuff = k12;
+    wth->phdr.pseudo_header.k12.stuff = k12;
 
     return TRUE;
 }
 
 
-static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guint8 *pd, int length, int *err _U_, gchar **err_info) {
+static gboolean k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, guint8 *pd, int length, int *err _U_, gchar **err_info) {
+    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     k12_t *k12 = (k12_t *)wth->priv;
     k12_src_desc_t* src_desc;
     guint8* buffer;
@@ -530,8 +531,8 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
     buffer_assure_space(&(k12->extra_info), extra_len);
     memcpy(buffer_start_ptr(&(k12->extra_info)),
            buffer + K12_PACKET_FRAME + length, extra_len);
-    wth->pseudo_header.k12.extra_info = (void*)buffer_start_ptr(&(k12->extra_info));
-    wth->pseudo_header.k12.extra_length = extra_len;
+    wth->phdr.pseudo_header.k12.extra_info = (void*)buffer_start_ptr(&(k12->extra_info));
+    wth->phdr.pseudo_header.k12.extra_length = extra_len;
     if (pseudo_header) {
         pseudo_header->k12.extra_info = (void*)buffer_start_ptr(&(k12->extra_info));
         pseudo_header->k12.extra_length = extra_len;
@@ -573,21 +574,21 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
             }
         }
 
-        wth->pseudo_header.k12.input_name = src_desc->input_name;
-        wth->pseudo_header.k12.stack_file = src_desc->stack_file;
-        wth->pseudo_header.k12.input_type = src_desc->input_type;
+        wth->phdr.pseudo_header.k12.input_name = src_desc->input_name;
+        wth->phdr.pseudo_header.k12.stack_file = src_desc->stack_file;
+        wth->phdr.pseudo_header.k12.input_type = src_desc->input_type;
 
         switch(src_desc->input_type) {
             case K12_PORT_ATMPVC:
                 if ((long)(K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID) < len) {
-                    wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
-                    wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
-                    wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
+                    wth->phdr.pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
+                    wth->phdr.pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
+                    wth->phdr.pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
                 }
                 break;
                 /* Fall through */
             default:
-                memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
+                memcpy(&(wth->phdr.pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
                 break;
         }
 
@@ -600,9 +601,9 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
             pseudo_header->k12.stack_file = "unknown stack file";
         }
 
-        memset(&(wth->pseudo_header.k12),0,sizeof(wth->pseudo_header.k12));
-        wth->pseudo_header.k12.input_name = "unknown port";
-        wth->pseudo_header.k12.stack_file = "unknown stack file";
+        memset(&(wth->phdr.pseudo_header.k12),0,sizeof(wth->phdr.pseudo_header.k12));
+        wth->phdr.pseudo_header.k12.input_name = "unknown port";
+        wth->phdr.pseudo_header.k12.stack_file = "unknown stack file";
 
     }
 
@@ -611,8 +612,8 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
         pseudo_header->k12.stuff = k12;
     }
 
-    wth->pseudo_header.k12.input = input;
-    wth->pseudo_header.k12.stuff = k12;
+    wth->phdr.pseudo_header.k12.input = input;
+    wth->phdr.pseudo_header.k12.stuff = k12;
 
     K12_DBG(5,("k12_seek_read: DONE OK"));
 
@@ -982,8 +983,8 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
 }
 
 static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-                         const union wtap_pseudo_header *pseudo_header,
                          const guint8 *pd, int *err) {
+    const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
     guint32 len;
     union {

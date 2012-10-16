@@ -108,13 +108,12 @@ static const gchar catapult_dct2000_magic[] = "Session Transcript";
 static gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
                                       gint64 *data_offset);
 static gboolean catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
-                                           union wtap_pseudo_header *pseudo_header,
+                                           struct wtap_pkthdr *phdr,
                                            guint8 *pd, int length,
                                            int *err, gchar **err_info);
 static void catapult_dct2000_close(wtap *wth);
 
 static gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-                                      const union wtap_pseudo_header *pseudo_header,
                                       const guint8 *pd, int *err);
 
 
@@ -480,7 +479,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             g_hash_table_insert(file_externals->packet_prefix_table, pkey, line_prefix_info);
 
             /* Set pseudo-header if necessary */
-            set_pseudo_header_info(wth, encap, this_offset, &wth->pseudo_header,
+            set_pseudo_header_info(wth, encap, this_offset, &wth->phdr.pseudo_header,
                                    direction, aal_header_chars);
 
             /* OK, we have packet details to return */
@@ -500,9 +499,10 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
 /**************************************************/
 static gboolean
 catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
-                           union wtap_pseudo_header *pseudo_header, guint8 *pd,
+                           struct wtap_pkthdr *phdr, guint8 *pd,
                            int length, int *err, gchar **err_info)
 {
+    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     gint64 offset = 0;
     long dollar_offset, before_time_offset, after_time_offset;
     static gchar linebuff[MAX_LINE_LENGTH+1];
@@ -671,9 +671,9 @@ catapult_dct2000_dump_can_write_encap(int encap)
 
 static gboolean
 catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-                      const union wtap_pseudo_header *pseudo_header,
                       const guint8 *pd, int *err)
 {
+    const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     guint32 n;
     line_prefix_info_t *prefix = NULL;
     gchar time_string[16];

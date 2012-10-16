@@ -163,12 +163,12 @@ struct visual_write_info
 static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int packet_size,
+    struct wtap_pkthdr *phdr, guint8 *pd, int packet_size,
     int *err, gchar **err_info);
 static void visual_set_pseudo_header(int encap, struct visual_pkt_hdr *vpkt_hdr,
     struct visual_atm_hdr *vatm_hdr, union wtap_pseudo_header *pseudo_header);
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
+    const guint8 *pd, int *err);
 static gboolean visual_dump_close(wtap_dumper *wdh, int *err);
 static void visual_dump_free(wtap_dumper *wdh);
 
@@ -429,7 +429,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     }
 
     /* Set the pseudo_header. */
-    visual_set_pseudo_header(wth->file_encap, &vpkt_hdr, &vatm_hdr, &wth->pseudo_header);
+    visual_set_pseudo_header(wth->file_encap, &vpkt_hdr, &vatm_hdr, &wth->phdr.pseudo_header);
 
     /* Fill in the encapsulation.  Visual files have a media type in the
        file header and an encapsulation type in each packet header.  Files
@@ -479,9 +479,10 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
    This gets the packet data and rebuilds the pseudo header so that
    the direction flag works. */
 static gboolean visual_seek_read (wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+    struct wtap_pkthdr *phdr, guint8 *pd, int len,
     int *err, gchar **err_info)
 {
+    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     struct visual_pkt_hdr vpkt_hdr;
     struct visual_atm_hdr vatm_hdr;
     int phdr_size = sizeof(vpkt_hdr);
@@ -695,8 +696,9 @@ gboolean visual_dump_open(wtap_dumper *wdh, int *err)
 /* Write a packet to a Visual dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err)
+    const guint8 *pd, int *err)
 {
+    const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     struct visual_write_info * visual = (struct visual_write_info *)wdh->priv;
     struct visual_pkt_hdr vpkt_hdr;
     size_t hdr_size = sizeof vpkt_hdr;

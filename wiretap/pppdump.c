@@ -100,7 +100,7 @@ typedef enum {
 static gboolean pppdump_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean pppdump_seek_read(wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info);
 
 /*
@@ -361,7 +361,7 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	wth->phdr.ts.nsecs	= state->tenths * 100000000;
 	wth->phdr.pkt_encap	= WTAP_ENCAP_PPP_WITH_PHDR;
 
-	wth->pseudo_header.p2p.sent = (direction == DIRECTION_SENT ? TRUE : FALSE);
+	wth->phdr.pseudo_header.p2p.sent = (direction == DIRECTION_SENT ? TRUE : FALSE);
 
 	return TRUE;
 }
@@ -707,12 +707,13 @@ done:
 static gboolean
 pppdump_seek_read(wtap *wth,
 		 gint64 seek_off,
-		 union wtap_pseudo_header *pseudo_header,
+		 struct wtap_pkthdr *phdr,
 		 guint8 *pd,
 		 int len,
 		 int *err,
 		 gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int		num_bytes;
 	direction_enum	direction;
 	pppdump_t	*state;

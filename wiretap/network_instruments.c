@@ -101,7 +101,7 @@ static void init_gmt_to_localtime_offset(void)
 static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 static int read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
     packet_entry_header *packet_header, int *err, gchar **err_info);
@@ -110,7 +110,7 @@ static int read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_f
 static gboolean skip_to_next_packet(wtap *wth, int offset_to_next_packet,
     int current_offset_from_packet_header, int *err, char **err_info);
 static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
+    const guint8 *pd, int *err);
 static gint observer_to_wtap_encap(int observer_encap);
 static gint wtap_to_observer_encap(int wtap_encap);
 
@@ -272,7 +272,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
         *data_offset = file_tell(wth->fh);
 
         /* process the packet header, including TLVs */
-        header_bytes_consumed = read_packet_header(wth->fh, &wth->pseudo_header, &packet_header, err,
+        header_bytes_consumed = read_packet_header(wth->fh, &wth->phdr.pseudo_header, &packet_header, err,
             err_info);
         if (header_bytes_consumed <= 0)
             return FALSE;    /* EOF or error */
@@ -336,7 +336,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
     switch (wth->file_encap) {
     case WTAP_ENCAP_ETHERNET:
         /* There is no FCS in the frame */
-        wth->pseudo_header.eth.fcs_len = 0;
+        wth->phdr.pseudo_header.eth.fcs_len = 0;
         break;
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
         /* Updated in read_packet_header */
@@ -365,9 +365,10 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 
 /* Reads a packet at an offset. */
 static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
+    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     packet_entry_header packet_header;
     int offset;
     int data_bytes_consumed;
@@ -669,7 +670,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header _U_, const guint8 *pd,
+    const guint8 *pd,
     int *err)
 {
     observer_dump_private_state * private_state = NULL;

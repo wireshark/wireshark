@@ -880,7 +880,7 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 
 	epan_dissect_init(&edt, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);
-	epan_dissect_run(&edt, &cf->pseudo_header, cf->pd, fdata, NULL);
+	epan_dissect_run(&edt, &cf->phdr, cf->pd, fdata, NULL);
 	frame_matched = dfilter_apply_edt(sfcode, &edt);
 
 	/* if it is not an sctp frame, show the dialog */

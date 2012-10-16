@@ -89,7 +89,7 @@ static const char dbs_etherwatch_rec_magic[]  =
 static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean dbs_etherwatch_seek_read(wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info);
 static int parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf,
 	int *err, gchar **err_info);
@@ -234,7 +234,7 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
 	/*
 	 * We don't have an FCS in this frame.
 	 */
-	wth->pseudo_header.eth.fcs_len = 0;
+	wth->phdr.pseudo_header.eth.fcs_len = 0;
 
 	*data_offset = offset;
 	return TRUE;
@@ -243,9 +243,10 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
 /* Used to read packets in random-access fashion */
 static gboolean
 dbs_etherwatch_seek_read (wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header _U_,
+	struct wtap_pkthdr *phdr,
 	guint8 *pd, int len, int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int	pkt_len;
 
 	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)

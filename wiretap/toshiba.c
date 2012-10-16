@@ -110,7 +110,7 @@ static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
 static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean toshiba_seek_read(wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
 	guint byte_offset);
@@ -243,7 +243,7 @@ static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 
 	/* Parse the header */
-	pkt_len = parse_toshiba_rec_hdr(wth, wth->fh, &wth->pseudo_header,
+	pkt_len = parse_toshiba_rec_hdr(wth, wth->fh, &wth->phdr.pseudo_header,
 	    err, err_info);
 	if (pkt_len == -1)
 		return FALSE;
@@ -263,9 +263,10 @@ static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 /* Used to read packets in random-access fashion */
 static gboolean
 toshiba_seek_read (wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int	pkt_len;
 
 	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)

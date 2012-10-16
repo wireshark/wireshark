@@ -68,7 +68,7 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err);
 static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean libpcap_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
     struct pcaprec_ss990915_hdr *hdr);
@@ -76,7 +76,7 @@ static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
 static gboolean libpcap_read_rec_data(FILE_T fh, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
+    const guint8 *pd, int *err);
 
 int libpcap_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -651,7 +651,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	libpcap = (libpcap_t *)wth->priv;
 	phdr_len = pcap_process_pseudo_header(wth->fh, wth->file_type,
 	    wth->file_encap, packet_size, TRUE, &wth->phdr,
-	    &wth->pseudo_header, err, err_info);
+	    &wth->phdr.pseudo_header, err, err_info);
 	if (phdr_len < 0)
 		return FALSE;	/* error */
 
@@ -679,22 +679,23 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	} else {
 	  /* Set interface ID for ERF format */
 	  wth->phdr.presence_flags |= WTAP_HAS_INTERFACE_ID;
-	  wth->phdr.interface_id = wth->pseudo_header.erf.phdr.flags & 0x03;
+	  wth->phdr.interface_id = wth->phdr.pseudo_header.erf.phdr.flags & 0x03;
 	}
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
 
 	pcap_read_post_process(wth->file_type, wth->file_encap,
-	    &wth->pseudo_header, buffer_start_ptr(wth->frame_buffer),
+	    &wth->phdr.pseudo_header, buffer_start_ptr(wth->frame_buffer),
 	    wth->phdr.caplen, libpcap->byte_swapped, -1);
 	return TRUE;
 }
 
 static gboolean
 libpcap_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int phdr_len;
 	libpcap_t *libpcap;
 
@@ -945,9 +946,9 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
    Returns TRUE on success, FALSE on failure. */
 static gboolean libpcap_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header,
 	const guint8 *pd, int *err)
 {
+	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	struct pcaprec_ss990915_hdr rec_hdr;
 	size_t hdr_size;
 	int phdrsize;

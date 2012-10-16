@@ -49,7 +49,7 @@ typedef struct packetlogger_header {
 static gboolean packetlogger_read(wtap *wth, int *err, gchar **err_info,
 				  gint64 *data_offset);
 static gboolean packetlogger_seek_read(wtap *wth, gint64 seek_off,
-				       union wtap_pseudo_header *pseudo_header _U_,
+				       struct wtap_pkthdr *phdr,
 				       guint8 *pd, int length, int *err,
 				       gchar **err_info);
 static gboolean packetlogger_read_header(packetlogger_header_t *pl_hdr,
@@ -138,8 +138,8 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 }
 
 static gboolean
-packetlogger_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
-		       *pseudo_header _U_, guint8 *pd, int length, int *err,
+packetlogger_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr _U_,
+		       guint8 *pd, int length, int *err,
 		       gchar **err_info)
 {
 	packetlogger_header_t pl_hdr;

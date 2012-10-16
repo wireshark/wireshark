@@ -448,8 +448,7 @@ main(int argc, char *argv[])
       phdr = &snap_phdr;
     }
 
-    if (!wtap_dump(pdh, phdr, wtap_pseudoheader(in_file->wth),
-         wtap_buf_ptr(in_file->wth), &write_err)) {
+    if (!wtap_dump(pdh, phdr, wtap_buf_ptr(in_file->wth), &write_err)) {
       got_write_error = TRUE;
       break;
     }

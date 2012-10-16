@@ -83,13 +83,12 @@ typedef struct commview_header {
 static gboolean commview_read(wtap *wth, int *err, gchar **err_info,
 			      gint64 *data_offset);
 static gboolean commview_seek_read(wtap *wth, gint64 seek_off,
-				   union wtap_pseudo_header *pseudo_header,
+				   struct wtap_pkthdr *phdr,
 				   guint8 *pd, int length, int *err,
 				   gchar **err_info);
 static gboolean commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
 				     int *err, gchar **err_info);
 static gboolean commview_dump(wtap_dumper *wdh,	const struct wtap_pkthdr *phdr,
-			      const union wtap_pseudo_header *pseudo_header,
 			      const guint8 *pd, int *err);
 
 int commview_open(wtap *wth, int *err, gchar **err_info)
@@ -187,7 +186,7 @@ commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		return FALSE;
 	}
 
-	commview_set_pseudo_header(&cv_hdr, &wth->pseudo_header);
+	commview_set_pseudo_header(&cv_hdr, &wth->phdr.pseudo_header);
 
 	buffer_assure_space(wth->frame_buffer, cv_hdr.data_len);
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
@@ -219,10 +218,11 @@ commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 }
 
 static gboolean
-commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
-		   *pseudo_header, guint8 *pd, int length, int *err,
+commview_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+		   guint8 *pd, int length, int *err,
 		   gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	commview_header_t cv_hdr;
 	int bytes_read;
 
@@ -323,9 +323,9 @@ gboolean commview_dump_open(wtap_dumper *wdh, int *err _U_)
  * Returns TRUE on success, FALSE on failure. */
 static gboolean commview_dump(wtap_dumper *wdh,
 			      const struct wtap_pkthdr *phdr,
-			      const union wtap_pseudo_header *pseudo_header,
 			      const guint8 *pd, int *err)
 {
+        const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	commview_header_t cv_hdr;
 	struct tm *tm;
 

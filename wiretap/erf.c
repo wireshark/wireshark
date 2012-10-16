@@ -69,7 +69,7 @@ static int erf_read_header(FILE_T fh,
 static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
                          gint64 *data_offset);
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
-                              union wtap_pseudo_header *pseudo_header, guint8 *pd,
+                              struct wtap_pkthdr *phdr, guint8 *pd,
                               int length, int *err, gchar **err_info);
 
 static const struct {
@@ -290,7 +290,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 
   do {
     if (!erf_read_header(wth->fh,
-                         &wth->phdr, &wth->pseudo_header, &erf_header,
+                         &wth->phdr, &wth->phdr.pseudo_header, &erf_header,
                          err, err_info, &bytes_read, &packet_size)) {
       return FALSE;
     }
@@ -306,9 +306,10 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
-                              union wtap_pseudo_header *pseudo_header, guint8 *pd,
+                              struct wtap_pkthdr *phdr, guint8 *pd,
                               int length _U_, int *err, gchar **err_info)
 {
+  union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
   erf_header_t erf_header;
   guint32      packet_size;
 
@@ -577,10 +578,10 @@ static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pse
 static gboolean erf_dump(
     wtap_dumper                    *wdh,
     const struct wtap_pkthdr       *phdr,
-    const union wtap_pseudo_header *pseudo_header,
     const guint8                   *pd,
     int                            *err)
 {
+  const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
   union wtap_pseudo_header other_phdr;
   int      encap;
   gint64   alignbytes   = 0;

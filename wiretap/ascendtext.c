@@ -85,7 +85,7 @@ typedef struct {
 static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_head, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info);
 
 /* Seeks to the beginning of the next packet, and returns the
@@ -166,7 +166,7 @@ found:
   if (file_seek(wth->fh, packet_off, SEEK_SET, err) == -1)
     return -1;
 
-  wth->pseudo_header.ascend.type = type;
+  wth->phdr.pseudo_header.ascend.type = type;
 
   return packet_off;
 }
@@ -195,14 +195,14 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
 
   /* Do a trial parse of the first packet just found to see if we might really have an Ascend file */
   init_parse_ascend();
-  if (parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header,
+  if (parse_ascend(wth->fh, buf, &wth->phdr.pseudo_header.ascend, &header,
       &dummy_seek_start) != PARSED_RECORD) {
     return 0;
   }
 
   wth->file_type = WTAP_FILE_ASCEND;
 
-  switch(wth->pseudo_header.ascend.type) {
+  switch(wth->phdr.pseudo_header.ascend.type) {
     case ASCEND_PFX_ISDN_X:
     case ASCEND_PFX_ISDN_R:
       wth->file_encap = WTAP_ENCAP_ISDN;
@@ -284,7 +284,7 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
     offset = ascend_seek(wth, err, err_info);
     if (offset == -1)
       return FALSE;
-  if (parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header,
+  if (parse_ascend(wth->fh, buf, &wth->phdr.pseudo_header.ascend, &header,
       &(ascend->next_packet_seek_start)) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
@@ -293,7 +293,7 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 
   buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
 
-  config_pseudo_header(&wth->pseudo_header);
+  config_pseudo_header(&wth->phdr.pseudo_header);
 
   if (! ascend->adjusted) {
     ascend->adjusted = 1;
@@ -325,9 +325,10 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_head, guint8 *pd, int len _U_,
+	struct wtap_pkthdr *phdr, guint8 *pd, int len _U_,
 	int *err, gchar **err_info)
 {
+  union wtap_pseudo_header *pseudo_head = &phdr->pseudo_header;
   ascend_t *ascend = (ascend_t *)wth->priv;
 
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)

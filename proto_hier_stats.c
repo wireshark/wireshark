@@ -140,7 +140,7 @@ static gboolean
 process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 {
 	epan_dissect_t			edt;
-	union wtap_pseudo_header	phdr;
+	struct wtap_pkthdr              phdr;
 	guint8				pd[WTAP_MAX_PACKET_SIZE];
 	double				cur_time;
 

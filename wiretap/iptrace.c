@@ -33,13 +33,13 @@
 static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int packet_size,
+    struct wtap_pkthdr *phdr, guint8 *pd, int packet_size,
     int *err, gchar **err_info);
 
 static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int packet_size,
+    struct wtap_pkthdr *phdr, guint8 *pd, int packet_size,
     int *err, gchar **err_info);
 
 static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
@@ -221,7 +221,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 
 	/* Fill in the pseudo-header. */
 	fill_in_pseudo_header(wth->phdr.pkt_encap, data_ptr, wth->phdr.caplen,
-	    &wth->pseudo_header, header);
+	    &wth->phdr.pseudo_header, header);
 
 	/* If the per-file encapsulation isn't known, set it to this
 	   packet's encapsulation.
@@ -240,9 +240,10 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int packet_size,
+    struct wtap_pkthdr *phdr, guint8 *pd, int packet_size,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int			ret;
 	guint8			header[IPTRACE_1_0_PHDR_SIZE];
 	int			pkt_encap;
@@ -433,7 +434,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 
 	/* Fill in the pseudo-header. */
 	fill_in_pseudo_header(wth->phdr.pkt_encap, data_ptr, wth->phdr.caplen,
-	    &wth->pseudo_header, header);
+	    &wth->phdr.pseudo_header, header);
 
 	/* If the per-file encapsulation isn't known, set it to this
 	   packet's encapsulation.
@@ -452,9 +453,10 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int packet_size,
+    struct wtap_pkthdr *phdr, guint8 *pd, int packet_size,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int			ret;
 	guint8			header[IPTRACE_2_0_PHDR_SIZE];
 	int			pkt_encap;

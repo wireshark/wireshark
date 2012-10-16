@@ -1139,7 +1139,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	column_info *cinfo;
 	gint col;
 	gboolean create_proto_tree;
-	union wtap_pseudo_header pseudo_header; /* Packet pseudo_header */
+	struct wtap_pkthdr phdr; /* Packet header */
 	guint8 pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
 
 	g_return_if_fail(packet_list);
@@ -1160,7 +1160,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	else
 		cinfo = NULL;
 
-	if (!cf_read_frame_r(&cfile, fdata, &pseudo_header, pd)) {
+	if (!cf_read_frame_r(&cfile, fdata, &phdr, pd)) {
 		/*
 		 * Error reading the frame.
 		 *
@@ -1201,7 +1201,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	 * XXX - need to catch an OutOfMemoryError exception and
 	 * attempt to recover from it.
 	 */
-	epan_dissect_run(&edt, &pseudo_header, pd, fdata, cinfo);
+	epan_dissect_run(&edt, &phdr, pd, fdata, cinfo);
 
 	if (dissect_color)
 		fdata->color_filter = color_filters_colorize_packet(&edt);

@@ -95,7 +95,7 @@ static const unsigned char eyesdn_hdr_magic[]  =
 static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean eyesdn_seek_read(wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info);
 static gboolean parse_eyesdn_packet_data(FILE_T fh, int pkt_len, guint8* buf,
 	int *err, gchar **err_info);
@@ -172,7 +172,7 @@ static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 
 	/* Parse the header */
-	pkt_len = parse_eyesdn_rec_hdr(wth, wth->fh, &wth->pseudo_header, err,
+	pkt_len = parse_eyesdn_rec_hdr(wth, wth->fh, &wth->phdr.pseudo_header, err,
 	    err_info);
 	if (pkt_len == -1)
 		return FALSE;
@@ -192,9 +192,10 @@ static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 /* Used to read packets in random-access fashion */
 static gboolean
 eyesdn_seek_read (wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int	pkt_len;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -431,7 +432,6 @@ esc_write(wtap_dumper *wdh, const guint8 *buf, int len, int *err)
 
 static gboolean eyesdn_dump(wtap_dumper *wdh,
 			    const struct wtap_pkthdr *phdr,
-			    const union wtap_pseudo_header *pseudo_header _U_,
 			    const guint8 *pd, int *err);
 
 gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err)
@@ -469,10 +469,10 @@ int eyesdn_dump_can_write_encap(int encap)
  *    Returns TRUE on success, FALSE on failure. */
 static gboolean eyesdn_dump(wtap_dumper *wdh,
 			    const struct wtap_pkthdr *phdr,
-			    const union wtap_pseudo_header *pseudo_header _U_,
 			    const guint8 *pd, int *err)
 {
 	static const guint8 start_flag = 0xff;
+	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	guint8 buf[EYESDN_HDR_LENGTH];
 	int usecs;
 	time_t secs;

@@ -171,7 +171,7 @@ static gboolean cosine_check_file_type(wtap *wth, int *err, gchar **err_info);
 static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean cosine_seek_read(wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd,
+	struct wtap_pkthdr *phdr, guint8 *pd,
 	int len, int *err, gchar **err_info);
 static int parse_cosine_rec_hdr(wtap *wth, const char *line,
 	union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
@@ -317,7 +317,7 @@ static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 
 	/* Parse the header */
-	pkt_len = parse_cosine_rec_hdr(wth, line, &wth->pseudo_header, err,
+	pkt_len = parse_cosine_rec_hdr(wth, line, &wth->phdr.pseudo_header, err,
 	    err_info);
 	if (pkt_len == -1)
 		return FALSE;
@@ -340,9 +340,10 @@ static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 /* Used to read packets in random-access fashion */
 static gboolean
 cosine_seek_read (wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	char	line[COSINE_LINE_LENGTH];
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)

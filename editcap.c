@@ -1458,7 +1458,7 @@ main(int argc, char *argv[])
           }
         }
 
-        if (!wtap_dump(pdh, phdr, wtap_pseudoheader(wth), buf, &err)) {
+        if (!wtap_dump(pdh, phdr, buf, &err)) {
           switch (err) {
 
           case WTAP_ERR_UNSUPPORTED_ENCAP:

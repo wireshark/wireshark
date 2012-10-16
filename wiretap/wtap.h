@@ -867,6 +867,8 @@ struct wtap_pkthdr {
 	gchar			*opt_comment;	/* NULL if not available */
 	guint64			drop_count;	/* number of packets lost (by the interface and the operating system) between this packet and the preceding one. */
 	guint32			pack_flags;     /* XXX - 0 for now (any value for "we don't have it"?) */
+
+	union wtap_pseudo_header pseudo_header;
 };
 
 /*
@@ -1075,12 +1077,11 @@ gboolean wtap_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 
 gboolean wtap_seek_read (wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info);
 
 /*** get various information snippets about the current packet ***/
 struct wtap_pkthdr *wtap_phdr(wtap *wth);
-union wtap_pseudo_header *wtap_pseudoheader(wtap *wth);
 guint8 *wtap_buf_ptr(wtap *wth);
 
 /*** get various information snippets about the current file ***/
@@ -1140,8 +1141,7 @@ wtap_dumper* wtap_dump_fdopen_ng(int fd, int filetype, int encap, int snaplen,
 				gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err);
 
 
-gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *,
-	const union wtap_pseudo_header *pseudo_header, const guint8 *, int *err);
+gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const guint8 *, int *err);
 void wtap_dump_flush(wtap_dumper *);
 gint64 wtap_get_bytes_dumped(wtap_dumper *);
 void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);

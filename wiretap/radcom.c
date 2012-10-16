@@ -89,7 +89,7 @@ struct radcomrec_hdr {
 static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean radcom_seek_read(wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+	struct wtap_pkthdr *pkhdr, guint8 *pd, int length,
 	int *err, gchar **err_info);
 static int radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr,
 	int *err, gchar **err_info);
@@ -312,11 +312,11 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 
 	case WTAP_ENCAP_ETHERNET:
 		/* XXX - is there an FCS? */
-		wth->pseudo_header.eth.fcs_len = -1;
+		wth->phdr.pseudo_header.eth.fcs_len = -1;
 		break;
 
 	case WTAP_ENCAP_LAPB:
-		wth->pseudo_header.x25.flags = (hdr.dce & 0x1) ?
+		wth->phdr.pseudo_header.x25.flags = (hdr.dce & 0x1) ?
 		    0x00 : FROM_DCE;
 		break;
 
@@ -362,9 +362,10 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 radcom_seek_read(wtap *wth, gint64 seek_off,
-		 union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+		 struct wtap_pkthdr *pkhdr, guint8 *pd, int length,
 		 int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &pkhdr->pseudo_header;
 	int	ret;
 	struct radcomrec_hdr hdr;
 	guint8	phdr[8];

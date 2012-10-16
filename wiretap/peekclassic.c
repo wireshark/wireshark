@@ -143,12 +143,12 @@ typedef struct {
 static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 
 int
@@ -399,15 +399,15 @@ peekclassic_read_v7(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_IEEE_802_11_AIROPEEK:
-		wth->pseudo_header.ieee_802_11.fcs_len = 0;		/* no FCS */
-		wth->pseudo_header.ieee_802_11.decrypted = FALSE;
+		wth->phdr.pseudo_header.ieee_802_11.fcs_len = 0;		/* no FCS */
+		wth->phdr.pseudo_header.ieee_802_11.decrypted = FALSE;
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
 		/* XXX - it appears that if the low-order bit of
 		   "status" is 0, there's an FCS in this frame,
 		   and if it's 1, there's 4 bytes of 0. */
-		wth->pseudo_header.eth.fcs_len = (status & 0x01) ? 0 : 4;
+		wth->phdr.pseudo_header.eth.fcs_len = (status & 0x01) ? 0 : 4;
 		break;
 	}
 
@@ -440,9 +440,10 @@ peekclassic_read_v7(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 static gboolean
 peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	guint8 ep_pkt[PEEKCLASSIC_V7_PKT_SIZE];
 	guint8  status;
 
@@ -563,7 +564,7 @@ peekclassic_read_v56(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	case WTAP_ENCAP_ETHERNET:
 		/* We assume there's no FCS in this frame. */
-		wth->pseudo_header.eth.fcs_len = 0;
+		wth->phdr.pseudo_header.eth.fcs_len = 0;
 		break;
 	}
 	return TRUE;
@@ -571,9 +572,10 @@ peekclassic_read_v56(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 static gboolean
 peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	guint8 ep_pkt[PEEKCLASSIC_V56_PKT_SIZE];
 	int pkt_encap;
 	guint16 protoNum;

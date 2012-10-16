@@ -236,7 +236,7 @@ void capture_info_new_packets(int to_read)
     int err;
     gchar *err_info;
     gint64 data_offset;
-    const struct wtap_pkthdr *phdr;
+    struct wtap_pkthdr *phdr;
     union wtap_pseudo_header *pseudo_header;
     int wtap_linktype;
     const guchar *buf;
@@ -250,7 +250,7 @@ void capture_info_new_packets(int to_read)
         wtap_cleareof(info_data.wtap);
         if (wtap_read(info_data.wtap, &err, &err_info, &data_offset)) {
             phdr = wtap_phdr(info_data.wtap);
-            pseudo_header = wtap_pseudoheader(info_data.wtap);
+            pseudo_header = &phdr->pseudo_header;
             wtap_linktype = phdr->pkt_encap;
             buf = wtap_buf_ptr(info_data.wtap);
 

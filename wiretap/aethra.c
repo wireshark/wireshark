@@ -117,7 +117,7 @@ typedef struct {
 static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean aethra_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean aethra_read_rec_header(FILE_T fh, struct aethrarec_hdr *hdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
@@ -204,7 +204,7 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 		*data_offset = file_tell(wth->fh);
 
 		/* Read record header. */
-		if (!aethra_read_rec_header(wth->fh, &hdr, &wth->pseudo_header,
+		if (!aethra_read_rec_header(wth->fh, &hdr, &wth->phdr.pseudo_header,
 		    err, err_info))
 			return FALSE;
 
@@ -303,9 +303,10 @@ found:
 
 static gboolean
 aethra_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	struct aethrarec_hdr hdr;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)

@@ -108,12 +108,11 @@ static gboolean _5views_read_rec_data(FILE_T fh, guint8 *pd, int length,
 static int _5views_read_header(wtap *wth, FILE_T fh,
     t_5VW_TimeStamped_Header  *hdr, int *err, gchar **err_info);
 static gboolean _5views_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 
 
-static gboolean _5views_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-							 const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
+static gboolean _5views_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr, const guint8 *pd, int *err);
 static gboolean _5views_dump_close(wtap_dumper *wdh, int *err);
 
 
@@ -268,7 +267,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	case WTAP_ENCAP_ETHERNET:
 		/* We assume there's no FCS in this frame. */
-		wth->pseudo_header.eth.fcs_len = 0;
+		wth->phdr.pseudo_header.eth.fcs_len = 0;
 		break;
 	}
 
@@ -323,9 +322,10 @@ _5views_read_header(wtap *wth _U_, FILE_T fh, t_5VW_TimeStamped_Header  *hdr,   
 
 static gboolean
 _5views_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 	/*
@@ -400,7 +400,6 @@ gboolean _5views_dump_open(wtap_dumper *wdh, int *err)
    Returns TRUE on success, FALSE on failure. */
 static gboolean _5views_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header _U_,
 	const guint8 *pd, int *err)
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;

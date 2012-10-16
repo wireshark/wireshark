@@ -189,13 +189,13 @@ epan_dissect_fake_protocols(epan_dissect_t *edt, const gboolean fake_protocols)
 }
 
 void
-epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
+epan_dissect_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
         const guint8* data, frame_data *fd, column_info *cinfo)
 {
 	/* free all memory allocated during previous packet */
 	ep_free_all();
 
-	dissect_packet(edt, pseudo_header, data, fd, cinfo);
+	dissect_packet(edt, phdr, data, fd, cinfo);
 }
 
 void

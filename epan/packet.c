@@ -294,7 +294,7 @@ final_registration_all_protocols(void)
 
 /* Creates the top-most tvbuff and calls dissect_frame() */
 void
-dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
+dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	       const guchar *pd, frame_data *fd, column_info *cinfo)
 {
 	if (cinfo != NULL)
@@ -303,7 +303,8 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.current_proto = "<Missing Protocol Name>";
 	edt->pi.cinfo = cinfo;
 	edt->pi.fd = fd;
-	edt->pi.pseudo_header = pseudo_header;
+	edt->pi.phdr = phdr;
+	edt->pi.pseudo_header = &phdr->pseudo_header;
 	edt->pi.dl_src.type = AT_NONE;
 	edt->pi.dl_dst.type = AT_NONE;
 	edt->pi.net_src.type = AT_NONE;

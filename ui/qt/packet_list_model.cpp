@@ -165,7 +165,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     epan_dissect_t edt;
     column_info *cinfo;
     gboolean create_proto_tree;
-    union wtap_pseudo_header pseudo_header; /* Packet pseudo_header */
+    struct wtap_pkthdr phdr; /* Packet header */
     guint8 pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
     gboolean dissect_columns = TRUE; // XXX - Currently only a placeholder
 
@@ -214,7 +214,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     if (dissect_columns)
         col_custom_prime_edt(&edt, cinfo);
 
-    epan_dissect_run(&edt, &pseudo_header, pd, fdata, cinfo);
+    epan_dissect_run(&edt, &phdr, pd, fdata, cinfo);
 
     if (enable_color_)
         fdata->color_filter = color_filters_colorize_packet(&edt);

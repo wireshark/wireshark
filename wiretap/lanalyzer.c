@@ -268,7 +268,7 @@ typedef struct {
 static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
 
@@ -571,7 +571,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 
 	case WTAP_ENCAP_ETHERNET:
 		/* We assume there's no FCS in this frame. */
-		wth->pseudo_header.eth.fcs_len = 0;
+		wth->phdr.pseudo_header.eth.fcs_len = 0;
 		break;
 	}
 
@@ -579,9 +579,10 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int bytes_read;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -675,7 +676,6 @@ static void my_timersub(const struct timeval *a,
  *---------------------------------------------------*/
 static gboolean lanalyzer_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header _U_,
 	const guint8 *pd, int *err)
 {
       double x;

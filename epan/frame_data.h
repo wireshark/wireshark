@@ -74,8 +74,8 @@ typedef struct _frame_data {
 #ifdef WANT_PACKET_EDITOR
 /* XXX, where this struct should go? */
 typedef struct {
-  union wtap_pseudo_header ph; /**< Modified pseudo header */
-  char *pd;                    /**< Modified packet data */
+  struct wtap_pkthdr phdr; /**< Modified packet header */
+  char *pd;                /**< Modified packet data */
 } modified_frame_data;
 #endif
 

@@ -164,7 +164,7 @@ static void report_counts_siginfo(int);
 
 static int load_cap_file(capture_file *, char *, int, gboolean, int, gint64);
 static gboolean process_packet(capture_file *cf, gint64 offset,
-    const struct wtap_pkthdr *whdr, union wtap_pseudo_header *pseudo_header,
+    struct wtap_pkthdr *whdr,
     const guchar *pd, gboolean filtering_tap_listeners, guint tap_flags);
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void show_print_file_io_error(int err);
@@ -2350,7 +2350,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
         cf->wth = NULL;
       } else {
         ret = process_packet(cf, data_offset, wtap_phdr(cf->wth),
-                             wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
+                             wtap_buf_ptr(cf->wth),
                              filtering_tap_listeners, tap_flags);
       }
       if (ret != FALSE) {
@@ -2519,8 +2519,8 @@ capture_cleanup(int signum _U_)
 
 static gboolean
 process_packet_first_pass(capture_file *cf,
-               gint64 offset, const struct wtap_pkthdr *whdr,
-               union wtap_pseudo_header *pseudo_header, const guchar *pd)
+               gint64 offset, struct wtap_pkthdr *whdr,
+               const guchar *pd)
 {
   frame_data fdlocal;
   guint32 framenum;
@@ -2565,7 +2565,7 @@ process_packet_first_pass(capture_file *cf,
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
                                   &first_ts, prev_dis, prev_cap);
 
-    epan_dissect_run(&edt, pseudo_header, pd, &fdlocal, NULL);
+    epan_dissect_run(&edt, whdr, pd, &fdlocal, NULL);
 
     /* Run the read filter if we have one. */
     if (cf->rfcode)
@@ -2591,7 +2591,7 @@ process_packet_first_pass(capture_file *cf,
 
 static gboolean
 process_packet_second_pass(capture_file *cf, frame_data *fdata,
-               union wtap_pseudo_header *pseudo_header, const guchar *pd,
+               struct wtap_pkthdr *phdr, const guchar *pd,
                gboolean filtering_tap_listeners, guint tap_flags)
 {
   gboolean create_proto_tree;
@@ -2647,7 +2647,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
     else
       cinfo = NULL;
 
-    epan_dissect_run(&edt, pseudo_header, pd, fdata, cinfo);
+    epan_dissect_run(&edt, phdr, pd, fdata, cinfo);
 
     tap_push_tapped_queue(&edt);
 
@@ -2817,7 +2817,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
       if (process_packet_first_pass(cf, data_offset, wtap_phdr(cf->wth),
-                         wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth))) {
+                         wtap_buf_ptr(cf->wth))) {
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
          * starts at 0, which practically means, never stop reading.
@@ -2841,18 +2841,16 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
-      if (wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
+      if (wtap_seek_read(cf->wth, fdata->file_off, &cf->phdr,
           cf->pd, fdata->cap_len, &err, &err_info)) {
         if (process_packet_second_pass(cf, fdata,
-                           &cf->pseudo_header, cf->pd,
+                           &cf->phdr, cf->pd,
                            filtering_tap_listeners, tap_flags)) {
           /* Either there's no read filtering or this packet passed the
              filter, so, if we're writing to a capture file, write
              this packet out. */
           if (pdh != NULL) {
-            if (!wtap_dump(pdh, wtap_phdr(cf->wth),
-                           wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
-                           &err)) {
+            if (!wtap_dump(pdh, wtap_phdr(cf->wth), wtap_buf_ptr(cf->wth), &err)) {
               /* Error writing to a capture file */
               switch (err) {
 
@@ -2898,15 +2896,13 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       framenum++;
 
       if (process_packet(cf, data_offset, wtap_phdr(cf->wth),
-                         wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
+                         wtap_buf_ptr(cf->wth),
                          filtering_tap_listeners, tap_flags)) {
         /* Either there's no read filtering or this packet passed the
            filter, so, if we're writing to a capture file, write
            this packet out. */
         if (pdh != NULL) {
-          if (!wtap_dump(pdh, wtap_phdr(cf->wth),
-                         wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
-                         &err)) {
+          if (!wtap_dump(pdh, wtap_phdr(cf->wth), wtap_buf_ptr(cf->wth), &err)) {
             /* Error writing to a capture file */
             switch (err) {
 
@@ -3039,8 +3035,8 @@ out:
 }
 
 static gboolean
-process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
-               union wtap_pseudo_header *pseudo_header, const guchar *pd,
+process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
+               const guchar *pd,
                gboolean filtering_tap_listeners, guint tap_flags)
 {
   frame_data fdata;
@@ -3105,7 +3101,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
     frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
                                   &first_ts, prev_dis, prev_cap);
 
-    epan_dissect_run(&edt, pseudo_header, pd, &fdata, cinfo);
+    epan_dissect_run(&edt, whdr, pd, &fdata, cinfo);
 
     tap_push_tapped_queue(&edt);
 

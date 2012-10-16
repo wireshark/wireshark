@@ -499,7 +499,7 @@ static int process_rec_header2_v145(wtap *wth, unsigned char *buffer,
 static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean ngsniffer_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int packet_size,
+    struct wtap_pkthdr *phdr, guint8 *pd, int packet_size,
     int *err, gchar **err_info);
 static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
     guint16 *typep, guint16 *lengthp, int *err, gchar **err_info);
@@ -523,7 +523,7 @@ static int fix_pseudo_header(int encap, const guint8 *pd, int len,
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
+    const guint8 *pd, int *err);
 static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
 static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
     unsigned char * outbuf, size_t outlen, int *err );
@@ -1105,7 +1105,7 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 			length -= sizeof frame2;	/* we already read that much */
 
-			set_pseudo_header_frame2(wth, &wth->pseudo_header,
+			set_pseudo_header_frame2(wth, &wth->phdr.pseudo_header,
 			    &frame2);
 			goto found;
 
@@ -1147,7 +1147,7 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 					length -= sizeof frame4;
 			}
 
-			set_pseudo_header_frame4(&wth->pseudo_header, &frame4);
+			set_pseudo_header_frame4(&wth->phdr.pseudo_header, &frame4);
 			goto found;
 
 		case REC_FRAME6:
@@ -1166,7 +1166,7 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 			length -= sizeof frame6;	/* we already read that much */
 
-			set_pseudo_header_frame6(wth, &wth->pseudo_header,
+			set_pseudo_header_frame6(wth, &wth->phdr.pseudo_header,
 			    &frame6);
 			goto found;
 
@@ -1217,7 +1217,7 @@ found:
 		return FALSE;	/* Read error */
 
 	wth->phdr.pkt_encap = fix_pseudo_header(wth->file_encap, pd, length,
-	    &wth->pseudo_header);
+	    &wth->phdr.pseudo_header);
 
 	/*
 	 * 40-bit time stamp, in units of timeunit picoseconds.
@@ -1254,9 +1254,10 @@ found:
 
 static gboolean
 ngsniffer_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int packet_size,
+    struct wtap_pkthdr *phdr, guint8 *pd, int packet_size,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int	ret;
 	guint16	type, length;
 	struct frame2_rec frame2;
@@ -2091,8 +2092,9 @@ ngsniffer_dump_open(wtap_dumper *wdh, int *err)
    Returns TRUE on success, FALSE on failure. */
 static gboolean
 ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-	       const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err)
+	       const guint8 *pd, int *err)
 {
+	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	ngsniffer_dump_t *ngsniffer = (ngsniffer_dump_t *)wdh->priv;
 	struct frame2_rec rec_hdr;
 	char buf[6];

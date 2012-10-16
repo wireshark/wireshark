@@ -89,7 +89,7 @@ struct shomiti_trailer {
 static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
@@ -99,7 +99,7 @@ static gboolean snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 static gboolean snoop_read_rec_data(FILE_T fh, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
+    const guint8 *pd, int *err);
 
 /*
  * See
@@ -532,7 +532,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 			    packet_size);
 			return FALSE;
 		}
-		if (!snoop_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
+		if (!snoop_read_atm_pseudoheader(wth->fh, &wth->phdr.pseudo_header,
 		    err, err_info))
 			return FALSE;	/* Read error */
 
@@ -551,9 +551,9 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		 * is.  (XXX - or should we treat it a "maybe"?)
 		 */
 		if (wth->file_type == WTAP_FILE_SHOMITI)
-			wth->pseudo_header.eth.fcs_len = 4;
+			wth->phdr.pseudo_header.eth.fcs_len = 4;
 		else
-			wth->pseudo_header.eth.fcs_len = 0;
+			wth->phdr.pseudo_header.eth.fcs_len = 0;
 		break;
 
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
@@ -568,7 +568,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 			return FALSE;
 		}
 		if (!snoop_read_shomiti_wireless_pseudoheader(wth->fh,
-		    &wth->pseudo_header, err, err_info, &header_size))
+		    &wth->phdr.pseudo_header, err, err_info, &header_size))
 			return FALSE;	/* Read error */
 
 		/*
@@ -596,9 +596,9 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 	 * traffic it is based on the packet contents.
 	 */
 	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
-	    wth->pseudo_header.atm.type == TRAF_LANE) {
+	    wth->phdr.pseudo_header.atm.type == TRAF_LANE) {
 		atm_guess_lane_type(buffer_start_ptr(wth->frame_buffer),
-		    wth->phdr.caplen, &wth->pseudo_header);
+		    wth->phdr.caplen, &wth->phdr.pseudo_header);
 	}
 
 	/*
@@ -638,9 +638,10 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 snoop_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
@@ -916,9 +917,9 @@ gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
    Returns TRUE on success, FALSE on failure. */
 static gboolean snoop_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header _U_,
 	const guint8 *pd, int *err)
 {
+	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	struct snooprec_hdr rec_hdr;
 	int reclen;
 	guint padlen;

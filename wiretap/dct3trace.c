@@ -76,7 +76,7 @@ static const char dct3trace_magic_end[]  = "</dump>";
 static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info);
 
 /*
@@ -347,7 +347,7 @@ static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
 	int buf_len;
 	unsigned char buf[MAX_PACKET_LEN];
 
-	if( !dct3trace_get_packet(wth->fh, &wth->pseudo_header, buf, &buf_len, err, err_info) )
+	if( !dct3trace_get_packet(wth->fh, &wth->phdr.pseudo_header, buf, &buf_len, err, err_info) )
 	{
 		return FALSE;
 	}
@@ -371,9 +371,10 @@ static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean dct3trace_seek_read (wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int buf_len;
 	unsigned char buf[MAX_PACKET_LEN];
 

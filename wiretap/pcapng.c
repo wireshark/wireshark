@@ -85,7 +85,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean
 pcapng_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 static void
 pcapng_close(wtap *wth);
@@ -2167,7 +2167,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         }
 
         wblock.frame_buffer  = buffer_start_ptr(wth->frame_buffer);
-        wblock.pseudo_header = &wth->pseudo_header;
+        wblock.pseudo_header = &wth->phdr.pseudo_header;
         wblock.packet_header = &wth->phdr;
         wblock.file_encap    = &wth->file_encap;
 
@@ -2275,9 +2275,10 @@ got_packet:
 /* classic wtap: seek to file position and read packet */
 static gboolean
 pcapng_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length _U_,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length _U_,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
         pcapng_t *pcapng = (pcapng_t *)wth->priv;
         guint64 bytes_read64;
         int bytes_read;
@@ -3414,9 +3415,9 @@ pcapng_lookup_interface_id_by_encap(int wtap_encap, wtap_dumper *wdh)
 
 static gboolean pcapng_dump(wtap_dumper *wdh,
         const struct wtap_pkthdr *phdr,
-        const union wtap_pseudo_header *pseudo_header,
         const guint8 *pd, int *err)
 {
+        const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
         /*interface_data_t int_data;*/
         pcapng_dump_t *pcapng = (pcapng_dump_t *)wdh->priv;
         /*int pcap_encap;*/

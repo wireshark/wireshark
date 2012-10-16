@@ -167,7 +167,7 @@ typedef struct {
 static gboolean iseries_read (wtap * wth, int *err, gchar ** err_info,
                               gint64 *data_offset);
 static gboolean iseries_seek_read (wtap * wth, gint64 seek_off,
-                                   union wtap_pseudo_header *pseudo_header,
+                                   struct wtap_pkthdr *phdr,
                                    guint8 * pd, int len, int *err,
                                    gchar ** err_info);
 static gboolean iseries_check_file_type (wtap * wth, int *err, gchar **err_info,
@@ -420,7 +420,7 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
    * Parse the packet and extract the various fields
    */
   pkt_len =
-    iseries_parse_packet (wth, wth->fh, &wth->pseudo_header, NULL, err,
+    iseries_parse_packet (wth, wth->fh, &wth->phdr.pseudo_header, NULL, err,
                           err_info);
   if (pkt_len == -1)
     return FALSE;
@@ -510,9 +510,10 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
  */
 static gboolean
 iseries_seek_read (wtap * wth, gint64 seek_off,
-                   union wtap_pseudo_header *pseudo_header, guint8 * pd,
+                   struct wtap_pkthdr *phdr, guint8 * pd,
                    int len, int *err, gchar ** err_info)
 {
+  union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
   int pkt_len;
 
   /* seek to packet location */

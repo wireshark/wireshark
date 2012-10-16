@@ -74,7 +74,7 @@ const gint64 KUnixTimeBase = G_GINT64_CONSTANT(0x00dcddb30f2f8000); /* offset fr
 static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean snoop_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
     gchar **err_info);
@@ -207,33 +207,34 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.len = orig_size;
 	if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
 	{
-		wth->pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
+		wth->phdr.pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
 	}
 	else if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_HCI)
 	{
-		wth->pseudo_header.bthci.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
+		wth->phdr.pseudo_header.bthci.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
 		if(flags & KHciLoggerCommandOrEvent)
 		{
-			if(wth->pseudo_header.bthci.sent)
+			if(wth->phdr.pseudo_header.bthci.sent)
 			{
-				wth->pseudo_header.bthci.channel = BTHCI_CHANNEL_COMMAND;
+				wth->phdr.pseudo_header.bthci.channel = BTHCI_CHANNEL_COMMAND;
 			}
 			else
 			{
-				wth->pseudo_header.bthci.channel = BTHCI_CHANNEL_EVENT;
+				wth->phdr.pseudo_header.bthci.channel = BTHCI_CHANNEL_EVENT;
 			}
 		}
 		else
 		{
-			wth->pseudo_header.bthci.channel = BTHCI_CHANNEL_ACL;
+			wth->phdr.pseudo_header.bthci.channel = BTHCI_CHANNEL_ACL;
 		}
 	}
 	return TRUE;
 }
 
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info) {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int	bytes_read;
 	struct btsnooprec_hdr hdr;
 	guint32 flags;
@@ -374,9 +375,9 @@ static gboolean btsnoop_dump_partial_rec_hdr(wtap_dumper *wdh _U_,
 /* FIXME: How do we support multiple backends?*/
 static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header,
     const guint8 *pd, int *err)
 {
+    const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     struct btsnooprec_hdr rec_hdr;
 
     if (!btsnoop_dump_partial_rec_hdr(wdh, phdr, pseudo_header, pd, err, &rec_hdr))
@@ -403,9 +404,9 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
 
 static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header,
     const guint8 *pd, int *err)
 {
+    const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     struct btsnooprec_hdr rec_hdr;
 
     if (!btsnoop_dump_partial_rec_hdr(wdh, phdr, pseudo_header, pd, err, &rec_hdr))

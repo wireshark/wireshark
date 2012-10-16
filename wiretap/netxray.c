@@ -319,7 +319,7 @@ typedef struct {
 static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean netxray_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 static int netxray_read_rec_header(wtap *wth, FILE_T fh,
     union netxrayrec_hdr *hdr, int *err, gchar **err_info);
@@ -329,11 +329,11 @@ static gboolean netxray_read_rec_data(FILE_T fh, guint8 *data_ptr,
     guint32 packet_size, int *err, gchar **err_info);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
+    const guint8 *pd, int *err);
 static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err);
 static gboolean netxray_dump_2_0(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
+    const guint8 *pd, int *err);
 static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err);
 
 int netxray_open(wtap *wth, int *err, gchar **err_info)
@@ -998,7 +998,7 @@ reread:
 	 * Set the pseudo-header.
 	 */
 	padding = netxray_set_pseudo_header(wth, pd, packet_size,
-	    &wth->pseudo_header, &hdr);
+	    &wth->phdr.pseudo_header, &hdr);
 
 	if (netxray->version_major == 0) {
 		wth->phdr.presence_flags = WTAP_HAS_TS;
@@ -1037,9 +1037,10 @@ reread:
 
 static gboolean
 netxray_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	union netxrayrec_hdr hdr;
 	gboolean ret;
 
@@ -1536,7 +1537,6 @@ gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
    Returns TRUE on success, FALSE on failure. */
 static gboolean netxray_dump_1_1(wtap_dumper *wdh,
 				 const struct wtap_pkthdr *phdr,
-				 const union wtap_pseudo_header *pseudo_header _U_,
 				 const guint8 *pd, int *err)
 {
 	netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
@@ -1696,9 +1696,9 @@ gboolean netxray_dump_open_2_0(wtap_dumper *wdh, int *err)
    Returns TRUE on success, FALSE on failure. */
 static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 				 const struct wtap_pkthdr *phdr,
-				 const union wtap_pseudo_header *pseudo_header _U_,
 				 const guint8 *pd, int *err)
 {
+	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
 	guint64 timestamp;
 	guint32 t32;

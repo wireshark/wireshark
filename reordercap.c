@@ -84,12 +84,10 @@ typedef struct FrameRecord_t {
 static void
 frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh)
 {
-    union wtap_pseudo_header pseudo_header;
     int    err;
     gchar  *errinfo;
-    const struct wtap_pkthdr *phdr;
+    struct wtap_pkthdr phdr;
     guint8 buf[65535];
-    struct wtap_pkthdr new_phdr;
 
     DEBUG_PRINT("\nDumping frame (offset=%" G_GINT64_MODIFIER "u, length=%u)\n", 
                 frame->offset, frame->length);
@@ -97,25 +95,21 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh)
     /* Re-read the first frame from the stored location */
     wtap_seek_read(wth,
                    frame->offset,
-                   &pseudo_header,
+                   &phdr,
                    buf,
                    frame->length,
                    &err,
                    &errinfo);
     DEBUG_PRINT("re-read: err is %d, buf is (%s)\n", err, buf);
 
-    /* Get packet header */
-    /* XXX, this might not work */
-    phdr = wtap_phdr(wth);
-
     /* Copy, and set length and timestamp from item. */
-    new_phdr = *phdr;
-    new_phdr.len = frame->length;
-    new_phdr.caplen = frame->length;
-    new_phdr.ts = frame->time;
+    /* TODO: remove when wtap_seek_read() will read phdr */
+    phdr.len = frame->length;
+    phdr.caplen = frame->length;
+    phdr.ts = frame->time;
 
     /* Dump frame to outfile */
-    if (!wtap_dump(pdh, &new_phdr, &pseudo_header, buf, &err)) {
+    if (!wtap_dump(pdh, &phdr, buf, &err)) {
         printf("Error (%s) writing frame to outfile\n", wtap_strerror(err));
         exit(1);
     }

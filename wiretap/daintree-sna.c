@@ -83,7 +83,7 @@ static gboolean daintree_sna_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 
 static gboolean daintree_sna_seek_read(wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header _U_,
+	struct wtap_pkthdr *phdr _U_,
 	guint8 *pd, int len, int *err,
 	gchar **err_info);
 
@@ -190,8 +190,8 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 /* Read the capture file randomly 
  * Wireshark opens the capture file for random access when displaying user-selected packets */
 static gboolean
-daintree_sna_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
-	*pseudo_header _U_, guint8 *pd, int len, int *err,
+daintree_sna_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr _U_,
+	guint8 *pd, int len, int *err,
 	gchar **err_info)
 {
 	char readLine[DAINTREE_MAX_LINE_SIZE];

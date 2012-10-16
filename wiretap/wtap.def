@@ -64,7 +64,6 @@ wtap_iscompressed
 wtap_open_offline
 wtap_pcap_encap_to_wtap_encap
 wtap_phdr
-wtap_pseudoheader
 wtap_read
 wtap_read_so_far
 wtap_register_encap_type

@@ -531,7 +531,7 @@ write_current_packet (void)
 			pkthdr.pack_flags = 0;
 			pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
 
-            wtap_dump(wdh, &pkthdr, NULL, packet_buf, &err);
+            wtap_dump(wdh, &pkthdr, packet_buf, &err);
         }
     }
 

@@ -42,7 +42,7 @@
 int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
 
 typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
-typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, union wtap_pseudo_header*,
+typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, struct wtap_pkthdr *,
                                            guint8*, int, int *, char **);
 /**
  * Struct holding data of the currently read file.
@@ -57,7 +57,6 @@ struct wtap {
     struct wtapng_section_s     shb_hdr;
     guint                       number_of_interfaces;   /**< The number of interfaces a capture was made on, number of IDB:s in a pcapng file or equivalent(?)*/
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
-    union wtap_pseudo_header    pseudo_header;
 
     void                        *priv;
 
@@ -87,7 +86,6 @@ typedef void *WFILE_T;
 
 typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
                                        const struct wtap_pkthdr*,
-                                       const union wtap_pseudo_header*,
                                        const guint8*, int*);
 typedef gboolean (*subtype_close_func)(struct wtap_dumper*, int*);
 

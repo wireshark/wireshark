@@ -82,15 +82,16 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = packet_size;
 
-	wth->pseudo_header.p2p.sent = (dh.in ? FALSE : TRUE);
+	wth->phdr.pseudo_header.p2p.sent = (dh.in ? FALSE : TRUE);
 
 	return TRUE;
 }
 
 static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
+	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	struct dump_hdr dh;
 	int bytes_read;
 

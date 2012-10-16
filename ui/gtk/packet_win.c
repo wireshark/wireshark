@@ -74,8 +74,8 @@
 /* Data structure holding information about a packet-detail window. */
 struct PacketWinData {
 	frame_data *frame;	   /* The frame being displayed */
-	union wtap_pseudo_header pseudo_header; /* Pseudo-header for packet */
-	guint8     *pd;		   /* Data for packet */
+	struct wtap_pkthdr phdr;   /* Packet header */
+	guint8     *pd;		   /* Packet data */
 	GtkWidget  *main;
 	GtkWidget  *tv_scrollw;
 	GtkWidget  *tree_view;
@@ -90,8 +90,8 @@ struct PacketWinData {
 #ifdef WANT_PACKET_EDITOR
 struct FieldinfoWinData {
 	frame_data *frame;	   /* The frame being displayed */
-	union wtap_pseudo_header pseudo_header; /* Pseudo-header for packet */
-	guint8     *pd;		   /* Data for packet */
+	struct wtap_pkthdr phdr;   /* Packet header */
+	guint8     *pd;		   /* Packet data */
 	int start_offset;
 
 	field_info *finfo;
@@ -222,7 +222,7 @@ finfo_window_refresh(struct FieldinfoWinData *DataPtr)
 	if (old_finfo->hfinfo)
 		proto_tree_prime_hfid(edt.tree, old_finfo->hfinfo->id);
 	*/
-	epan_dissect_run(&edt, &DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame, NULL);
+	epan_dissect_run(&edt, &DataPtr->phdr, DataPtr->pd, DataPtr->frame, NULL);
 
 	/* Try to find finfo which looks like old_finfo.
 	 * We might not found one, if protocol requires specific magic values, etc... */
@@ -667,7 +667,7 @@ edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTre
 		struct FieldinfoWinData data;
 
 		data.frame = DataPtr->frame;
-		data.pseudo_header = DataPtr->pseudo_header;
+		data.phdr  = DataPtr->phdr;
 		data.pd = g_memdup(DataPtr->pd, DataPtr->frame->cap_len);
 		data.start_offset = (int) (finfo->ds_tvb->real_data - DataPtr->pd);
 
@@ -679,13 +679,13 @@ edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTre
 		data.pd_bitoffset = 0;
 
 		if (new_finfo_window(DataPtr->main, &data) == GTK_RESPONSE_ACCEPT) {
-			/* DataPtr->pseudo_header = data.pseudo_header; */
+			/* DataPtr->phdr = data.phdr; */
 			memcpy(DataPtr->pd, data.pd, DataPtr->frame->cap_len);
 
 			proto_tree_draw(NULL, DataPtr->tree_view);
 			epan_dissect_cleanup(&(DataPtr->edt));
 			epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
-			epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame, NULL);
+			epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, DataPtr->pd, DataPtr->frame, NULL);
 			add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
 			proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
 		}
@@ -808,7 +808,7 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 		proto_tree_draw(NULL, DataPtr->tree_view);
 		epan_dissect_cleanup(&(DataPtr->edt));
 		epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
-		epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame, NULL);
+		epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, DataPtr->pd, DataPtr->frame, NULL);
 		add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
 		proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
 	}
@@ -892,12 +892,12 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 	DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
 
 	DataPtr->frame = cfile.current_frame;
-	memcpy(&DataPtr->pseudo_header, &cfile.pseudo_header, sizeof DataPtr->pseudo_header);
+	DataPtr->phdr  = cfile.phdr;
 	DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
 	memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
 
 	epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
-	epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd,
+	epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, DataPtr->pd,
 			 DataPtr->frame, &cfile.cinfo);
 	epan_dissect_fill_in_columns(&(DataPtr->edt), FALSE, TRUE);
 
@@ -975,7 +975,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 		modified_frame_data *mfd = g_malloc(sizeof(modified_frame_data));
 
 		mfd->pd = DataPtr->pd;
-		mfd->ph = DataPtr->pseudo_header;
+		mfd->phdr = DataPtr->phdr;
 
 		if (cfile.edited_frames == NULL)
 			cfile.edited_frames = g_tree_new_full(g_direct_compare_func, NULL, NULL, modifed_frame_data_free);

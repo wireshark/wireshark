@@ -3633,7 +3633,7 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 		return;	/* error reading the frame */
 	epan_dissect_init(&edt, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);
-	epan_dissect_run(&edt, &cf->pseudo_header, cf->pd, fdata, NULL);
+	epan_dissect_run(&edt, &cf->phdr, cf->pd, fdata, NULL);
 
 	/* if it is not an iax2 frame, show an error dialog */
 	frame_matched = dfilter_apply_edt(sfcode, &edt);
