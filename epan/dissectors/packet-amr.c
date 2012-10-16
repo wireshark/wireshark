@@ -211,17 +211,18 @@ static const true_false_string amr_sti_vals = {
 
 /* See 3GPP TS 26.101 chapter 4 for AMR-NB IF1 */
 static void
-dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
+dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
 	guint8 octet;
+	proto_item *ti;
 
 	proto_tree_add_item(tree, hf_amr_nb_if1_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_amr_if1_fqi, tvb, offset, 1, ENC_BIG_ENDIAN);
 	octet = (tvb_get_guint8(tvb,offset) & 0xf0) >> 4;
 	if (octet == AMR_NB_SID){
-		proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 		if (tvb_get_guint8(tvb,offset+1) & 0x1f)
-			proto_tree_add_text(tree, tvb, offset+1, 1, "Error:Spare bits not 0");
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Error:Spare bits not 0");
 		proto_tree_add_text(tree, tvb, offset+2, 5, "Speech data");
 		proto_tree_add_item(tree, hf_amr_if1_sti, tvb, offset+7, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_amr_nb_if1_sti_mode_ind, tvb, offset+7, 1, ENC_BIG_ENDIAN);
@@ -230,9 +231,9 @@ dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 
 	proto_tree_add_item(tree, hf_amr_nb_if1_mode_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset, 1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (tvb_get_guint8(tvb,offset) & 0x1f)
-		proto_tree_add_text(tree, tvb, offset, 1, "Error:Spare bits not 0");
+		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Error:Spare bits not 0");
 	offset++;
 	proto_tree_add_text(tree, tvb, offset, -1, "Speech data");
 
@@ -240,13 +241,15 @@ dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 
 /* See 3GPP TS 26.201 for AMR-WB */
 static void
-dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
+dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
 	guint8 octet;
+	proto_item *ti;
+
 	proto_tree_add_item(tree, hf_amr_wb_if1_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_amr_if1_fqi, tvb, offset, 1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, hf_amr_if1_fqi, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (tvb_get_guint8(tvb,offset) & 0x03)
-		proto_tree_add_text(tree, tvb, offset, 1, "Error:Spare bits not 0");
+		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Error:Spare bits not 0");
 	octet = (tvb_get_guint8(tvb,offset) & 0xf0) >> 4;
 	if (octet == AMR_WB_SID){
 		proto_tree_add_item(tree, hf_amr_wb_if1_mode_req, tvb, offset+1, 1, ENC_BIG_ENDIAN);

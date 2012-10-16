@@ -43,6 +43,13 @@ static int hf_caddr = -1;
 static int hf_vaddr = -1;
 static int hf_daddr = -1;
 static int hf_flags = -1;
+static int hf_flags_conn_type = -1;
+static int hf_flags_hashed_entry = -1;
+static int hf_flags_no_output_packets = -1;
+static int hf_flags_conn_not_established = -1;
+static int hf_flags_adjust_output_seq = -1;
+static int hf_flags_adjust_input_seq = -1;
+static int hf_flags_no_client_port_set = -1;
 static int hf_state = -1;
 static int hf_in_seq_init = -1;
 static int hf_in_seq_delta = -1;
@@ -88,6 +95,14 @@ static const value_string state_strings[] = {
 #define IP_VS_CONN_F_IN_SEQ           0x0400    /* must do input seq adjust */
 #define IP_VS_CONN_F_SEQ_MASK         0x0600    /* in/out sequence mask */
 #define IP_VS_CONN_F_NO_CPORT         0x0800    /* no client port set yet */
+
+static const value_string connection_type_strings[] = {
+	{IP_VS_CONN_F_MASQ, "Masquerade"},
+	{IP_VS_CONN_F_LOCALNODE, "Local Node"},
+	{IP_VS_CONN_F_TUNNEL, "Tunnel"},
+	{IP_VS_CONN_F_DROUTE, "Direct Routing"},
+	{0x00, NULL},
+};
 
 
 static void
@@ -152,58 +167,13 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		flags = tvb_get_ntohs(tvb, offset);
 		fi = proto_tree_add_item(ctree, hf_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
 		ftree = proto_item_add_subtree(fi, ett_flags);
-
-		if ( (flags & 0x0F) == IP_VS_CONN_F_MASQ )
-		{
-			proto_tree_add_text(ftree, tvb, offset+1, 1, "Connection Type: Masquerade");
-		}
-		else if ( (flags & 0x0F) == IP_VS_CONN_F_LOCALNODE )
-		{
-			proto_tree_add_text(ftree, tvb, offset+1, 1, "Connection Type: Local Node");
-		}
-		else if ( (flags & 0x0F) == IP_VS_CONN_F_TUNNEL )
-		{
-			proto_tree_add_text(ftree, tvb, offset+1, 1, "Connection Type: Tunnel");
-		}
-		else if ( (flags & 0x0F) == IP_VS_CONN_F_DROUTE )
-		{
-			proto_tree_add_text(ftree, tvb, offset+1, 1, "Connection Type: Direct Routing");
-		}
-		else
-		{
-			proto_tree_add_text(ftree, tvb, offset+1, 1, "Connection Type: Unknown (%d)",
-				flags & IP_VS_CONN_F_FWD_MASK);
-		}
-
-		if ( flags & IP_VS_CONN_F_HASHED )
-		{
-			proto_tree_add_text(ftree, tvb, offset+1, 1, "Hashed Entry");
-		}
-
-		if ( flags & IP_VS_CONN_F_NOOUTPUT )
-		{
-			proto_tree_add_text(ftree, tvb, offset+1, 1, "No Output Packets");
-		}
-
-		if ( flags & IP_VS_CONN_F_INACTIVE )
-		{
-			proto_tree_add_text(ftree, tvb, offset, 1, "Connection Not Established");
-		}
-
-		if ( flags & IP_VS_CONN_F_OUT_SEQ )
-		{
-			proto_tree_add_text(ftree, tvb, offset, 1, "Adjust Output Sequence");
-		}
-
-		if ( flags & IP_VS_CONN_F_IN_SEQ )
-		{
-			proto_tree_add_text(ftree, tvb, offset, 1, "Adjust Input Sequence");
-		}
-
-		if ( flags & IP_VS_CONN_F_NO_CPORT )
-		{
-			proto_tree_add_text(ftree, tvb, offset, 1, "No Client Port Set");
-		}
+		proto_tree_add_item(ctree, hf_flags_conn_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ctree, hf_flags_hashed_entry, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ctree, hf_flags_no_output_packets, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ctree, hf_flags_conn_not_established, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ctree, hf_flags_adjust_output_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ctree, hf_flags_adjust_input_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ctree, hf_flags_no_client_port_set, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		offset += 2;
 
@@ -286,6 +256,34 @@ proto_register_ipvs_syncd(void)
 		{ &hf_flags,
 			{ "Flags", "ipvs.flags", FT_UINT16, BASE_HEX,
 			  NULL, 0, NULL, HFILL }},
+
+		{ &hf_flags_conn_type,
+			{ "Connection Type", "ipvs.flags.conn_type", FT_UINT16, BASE_HEX,
+			  VALS(connection_type_strings), 0x0F, NULL, HFILL }},
+
+		{ &hf_flags_hashed_entry,
+			{ "Hashed Entry", "ipvs.flags.hashed_entry", FT_BOOLEAN, 16,
+			  TFS(&tfs_true_false), IP_VS_CONN_F_HASHED, NULL, HFILL }},
+
+		{ &hf_flags_no_output_packets,
+			{ "No Output Packets", "ipvs.flags.no_output_packets", FT_BOOLEAN, 16,
+			  TFS(&tfs_true_false), IP_VS_CONN_F_NOOUTPUT, NULL, HFILL }},
+
+		{ &hf_flags_conn_not_established,
+			{ "Connection Not Established", "ipvs.flags.conn_not_established", FT_BOOLEAN, 16,
+			  TFS(&tfs_true_false), IP_VS_CONN_F_INACTIVE, NULL, HFILL }},
+
+		{ &hf_flags_adjust_output_seq,
+			{ "Adjust Output Sequence", "ipvs.flags.adjust_output_seq", FT_BOOLEAN, 16,
+			  TFS(&tfs_true_false), IP_VS_CONN_F_OUT_SEQ, NULL, HFILL }},
+
+		{ &hf_flags_adjust_input_seq,
+			{ "Adjust Input Sequence", "ipvs.flags.adjust_input_seq", FT_BOOLEAN, 16,
+			  TFS(&tfs_true_false), IP_VS_CONN_F_IN_SEQ, NULL, HFILL }},
+
+		{ &hf_flags_no_client_port_set,
+			{ "No Client Port Set", "ipvs.flags.no_client_port_set", FT_BOOLEAN, 16,
+			  TFS(&tfs_true_false), IP_VS_CONN_F_NO_CPORT, NULL, HFILL }},
 
 		{ &hf_state,
 			{ "State", "ipvs.state", FT_UINT16, BASE_HEX,

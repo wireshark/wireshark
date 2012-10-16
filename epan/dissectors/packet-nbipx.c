@@ -31,6 +31,7 @@
 #include "packet-netbios.h"
 
 static int proto_nbipx = -1;
+static int hf_nbipx_packettype = -1;
 static int hf_nbipx_name_flags = -1;
 static int hf_nbipx_name_flags_group = -1;
 static int hf_nbipx_name_flags_in_use = -1;
@@ -43,14 +44,20 @@ static int hf_nbipx_conn_control_ack = -1;
 static int hf_nbipx_conn_control_attention = -1;
 static int hf_nbipx_conn_control_end_msg = -1;
 static int hf_nbipx_conn_control_resend = -1;
+static int hf_nbipx_session_src_conn_id = -1;
+static int hf_nbipx_session_dest_conn_id = -1;
+static int hf_nbipx_session_send_seq_number = -1;
+static int hf_nbipx_session_total_data_length = -1;
+static int hf_nbipx_session_offset = -1;
+static int hf_nbipx_session_data_length = -1;
+static int hf_nbipx_session_recv_seq_number = -1;
+static int hf_nbipx_session_bytes_received = -1;
 
 static gint ett_nbipx = -1;
 static gint ett_nbipx_conn_ctrl = -1;
 static gint ett_nbipx_name_type_flags = -1;
 
 static void dissect_conn_control(tvbuff_t *tvb, int offset, proto_tree *tree);
-static void dissect_packet_type(tvbuff_t *tvb, int offset, guint8 packet_type,
-    proto_tree *tree);
 
 /* There is no RFC or public specification of Netware or Microsoft
  * NetBIOS over IPX packets. I have had to decode the protocol myself,
@@ -208,6 +215,7 @@ add_routers(proto_tree *tree, tvbuff_t *tvb, int offset)
 		rtr_offset = offset + (i << 2);
 		tvb_memcpy(tvb, (guint8 *)&router, rtr_offset, 4);
 		if (router != 0) {
+            /* XXX - proto_tree_add_item with FT_IPXNET type? */
 			proto_tree_add_text(tree, tvb, rtr_offset, 4,
 			    "IPX Network: %s",
 			    ipxnet_to_string((guint8*)&router));
@@ -309,7 +317,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		offset += 1;
 
-		dissect_packet_type(tvb, offset, packet_type, nbipx_tree);
+		proto_tree_add_uint(nbipx_tree, hf_nbipx_packettype, tvb, offset, 1, packet_type);
 		offset += 1;
 
 		if (nbipx_tree)
@@ -332,63 +340,31 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_conn_control(tvb, offset, nbipx_tree);
 		offset += 1;
 
-		dissect_packet_type(tvb, offset, packet_type, nbipx_tree);
+		proto_tree_add_uint(nbipx_tree, hf_nbipx_packettype, tvb, offset, 1, packet_type);
 		offset += 1;
 
-		if (nbipx_tree) {
-			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
-			    "Source connection ID: 0x%04X",
-			    tvb_get_letohs(tvb, offset));
-		}
+		proto_tree_add_item(nbipx_tree, hf_nbipx_session_src_conn_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		if (nbipx_tree) {
-			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
-			    "Destination connection ID: 0x%04X",
-			    tvb_get_letohs(tvb, offset));
-		}
+		proto_tree_add_item(nbipx_tree, hf_nbipx_session_dest_conn_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		if (nbipx_tree) {
-			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
-			    "Send sequence number: %u",
-			    tvb_get_letohs(tvb, offset));
-		}
+		proto_tree_add_item(nbipx_tree, hf_nbipx_session_send_seq_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		if (nbipx_tree) {
-			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
-			    "Total data length: %u",
-			    tvb_get_letohs(tvb, offset));
-		}
+		proto_tree_add_item(nbipx_tree, hf_nbipx_session_total_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		if (nbipx_tree) {
-			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
-			    "Offset: %u",
-			    tvb_get_letohs(tvb, offset));
-		}
+		proto_tree_add_item(nbipx_tree, hf_nbipx_session_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		if (nbipx_tree) {
-			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
-			    "Data length: %u",
-			    tvb_get_letohs(tvb, offset));
-		}
+		proto_tree_add_item(nbipx_tree, hf_nbipx_session_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		if (nbipx_tree) {
-			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
-			    "Receive sequence number: %u",
-			    tvb_get_letohs(tvb, offset));
-		}
+		proto_tree_add_item(nbipx_tree, hf_nbipx_session_recv_seq_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		if (nbipx_tree) {
-			proto_tree_add_text(nbipx_tree, tvb, offset, 2,
-			    "Bytes received: %u",
-			    tvb_get_letohs(tvb, offset));
-		}
+		proto_tree_add_item(nbipx_tree, hf_nbipx_session_bytes_received, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/*
@@ -405,7 +381,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_conn_control(tvb, offset, nbipx_tree);
 		offset += 1;
 
-		dissect_packet_type(tvb, offset, packet_type, nbipx_tree);
+		proto_tree_add_uint(nbipx_tree, hf_nbipx_packettype, tvb, offset, 1, packet_type);
 		offset += 1;
 
 		if (nbipx_tree)
@@ -438,7 +414,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * The second byte is a data stream type byte.
 		 */
-		dissect_packet_type(tvb, offset, packet_type, nbipx_tree);
+		proto_tree_add_uint(nbipx_tree, hf_nbipx_packettype, tvb, offset, 1, packet_type);
 		offset += 1;
 
 		/*
@@ -476,22 +452,15 @@ dissect_conn_control(tvbuff_t *tvb, int offset, proto_tree *tree)
 	}
 }
 
-static void
-dissect_packet_type(tvbuff_t *tvb, int offset, guint8 packet_type,
-    proto_tree *tree)
-{
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 1,
-				"Packet Type: %s (%02X)",
-				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"),
-				packet_type);
-	}
-}
-
 void
 proto_register_nbipx(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_nbipx_packettype,
+		  { "Packet Type",   "nmpi.packettype",
+			FT_UINT8, BASE_HEX, VALS(nbipx_data_stream_type_vals), 0,
+			NULL, HFILL }
+		},
 		{ &hf_nbipx_name_flags,
 		  { "Name type flag",   "nmpi.name_flags",
 			FT_UINT8, BASE_HEX, NULL, 0,
@@ -550,6 +519,46 @@ proto_register_nbipx(void)
 		{ &hf_nbipx_conn_control_resend,
 		  { "Resend",   "nmpi.conn_control.resend",
 			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_session_src_conn_id,
+		  { "Source connection ID",   "nmpi.session.src_conn_id",
+			FT_UINT16, BASE_HEX, NULL, 0,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_session_dest_conn_id,
+		  { "Destination connection ID",   "nmpi.session.dest_conn_id",
+			FT_UINT16, BASE_HEX, NULL, 0,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_session_send_seq_number,
+		  { "Send sequence number",   "nmpi.session.send_seq_number",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_session_total_data_length,
+		  { "Total data length",   "nmpi.session.total_data_length",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_session_offset,
+		  { "Offset",   "nmpi.session.offset",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_session_data_length,
+		  { "Data length",   "nmpi.session.data_length",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_session_recv_seq_number,
+		  { "Receive sequence number",   "nmpi.session.recv_seq_number",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			NULL, HFILL }
+		},
+		{ &hf_nbipx_session_bytes_received,
+		  { "Bytes received",   "nmpi.session.bytes_received",
+			FT_UINT16, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
     };

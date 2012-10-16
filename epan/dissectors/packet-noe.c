@@ -592,18 +592,29 @@ static gint ett_noe             = -1;
 static gint ett_body            = -1;
 static gint ett_property        = -1;
 static gint ett_value           = -1;
-static int  hf_noe_length       = -1;
-static int  hf_noe_server       = -1;
-static int  hf_noe_method_ack   = -1;
-static int  hf_noe_method       = -1;
-static int  hf_noe_class        = -1;
-static int  hf_noe_event        = -1;
-static int  hf_noe_objectid     = -1;
-static int  hf_noe_method_index = -1;
-static int  hf_noe_pcode        = -1;
-static int  hf_noe_psize        = -1;
-static int  hf_noe_aindx        = -1;
-static int  hf_noe_errcode      = -1;
+
+static int  hf_noe_length               = -1;
+static int  hf_noe_server               = -1;
+static int  hf_noe_method_ack           = -1;
+static int  hf_noe_method               = -1;
+static int  hf_noe_class                = -1;
+static int  hf_noe_event                = -1;
+static int  hf_noe_objectid             = -1;
+static int  hf_noe_method_index         = -1;
+static int  hf_noe_pcode                = -1;
+static int  hf_noe_psize                = -1;
+static int  hf_noe_aindx                = -1;
+static int  hf_noe_errcode              = -1;
+static int  hf_noe_value                = -1;
+static int  hf_noe_message              = -1;
+static int  hf_noe_property_item_u8     = -1;
+static int  hf_noe_property_item_u16    = -1;
+static int  hf_noe_property_item_u24    = -1;
+static int  hf_noe_property_item_u32    = -1;
+static int  hf_noe_property_item_bytes  = -1;
+static int  hf_event_value_u8           = -1;
+static int  hf_event_context_switch     = -1;
+static int  hf_event_widget_gc          = -1;
 
 static const value_string servers_vals[] = {
     {0x15,  "Call Server"},
@@ -768,6 +779,12 @@ static const value_string str_key_name[] = {
 };
 static value_string_ext str_key_name_ext = VALUE_STRING_EXT_INIT(str_key_name);
 
+static const value_string noe_event_str_struct[] = {
+    {0x00, "RJ9 Plug"},
+    {0x01, "BT Handset Link"},
+    {0, NULL}
+    };
+
 /*-----------------------------------------------------------------------------
     DECODE UTF8 TO UNICODE
     This function translates an UTF8 vale to an UNICODE one.
@@ -871,38 +888,26 @@ static void decode_evt_error(proto_tree *tree,
                              guint       offset,
                              guint       length)
 {
-    guint8  method, class, property;
-    guint16 errcode;
-    guint32 Pdata;
-
     if (!tree)
         return;
 
-    errcode = tvb_get_ntohs (tvb, offset);
-    proto_tree_add_uint_format_value(tree, hf_noe_errcode, tvb, offset, 2,
-        errcode, "%s (%d)", val_to_str_ext_const(errcode, &errcode_vals_ext, "Unknown"), errcode);
+    proto_tree_add_item(tree, hf_noe_errcode, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     length -= 2;
 
-    method = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint_format_value(tree, hf_noe_method, tvb, offset, 1,
-        method, "%s (%d)", val_to_str_const(method, methods_vals, "Unknown"), method);
+    proto_tree_add_item(tree, hf_noe_method, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset  += 1;
     length  -= 1;
 
-    class = tvb_get_guint8(tvb, offset);
-    proto_tree_add_int_format_value(tree, hf_noe_class, tvb, offset, 1,
-        class, "%s (%d)", val_to_str_ext_const(class, &val_str_class_ext, "Unknown"), class);
+    proto_tree_add_item(tree, hf_noe_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset  += 1;
     length  -= 1;
 
-    proto_tree_add_uint(tree, hf_noe_objectid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+    proto_tree_add_item(tree, hf_noe_objectid, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     length -= 2;
 
-    property = tvb_get_guint8(tvb, offset);
-    proto_tree_add_int_format_value(tree, hf_noe_pcode, tvb, offset, 1,
-        property, "%s (0x%02x)", val_to_str_ext_const(property, &val_str_props_ext, "Unknown"), property);
+    proto_tree_add_item(tree, hf_noe_pcode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset  += 1;
     length  -= 1;
 
@@ -910,26 +915,15 @@ static void decode_evt_error(proto_tree *tree,
     offset  += 1;
     length  -= 1;
 
-    proto_tree_add_uint(tree, hf_noe_length, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+    proto_tree_add_item(tree, hf_noe_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     length -= 2;
 
-    Pdata = tvb_get_ntohl (tvb, offset);
-    proto_tree_add_text(tree,
-        tvb,
-        offset,
-        4,
-        "Value: %x",
-        Pdata);
+    proto_tree_add_item(tree, hf_noe_value, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     length -= 4;
 
-    proto_tree_add_text(tree,
-        tvb,
-        offset,
-        length,
-        "Message: %s",
-        tvb_bytes_to_str(tvb, offset, length));
+    proto_tree_add_item(tree, hf_noe_message, tvb, offset, length, ENC_NA);
 }
 
 
@@ -942,10 +936,10 @@ static void decode_tlv(proto_tree *tree,
                        guint       offset,
                        guint       length)
 {
-    proto_item *property_item, *value_item;
-    proto_tree *property_tree, *value_tree;
+    proto_item *property_item;
+    proto_tree *property_tree;
     guint8      property_type;
-    guint16     property_length, property_value_index;
+    guint16     property_length;
 /*  guint64     property_index;*/
 
     /* add text to the frame tree */
@@ -959,8 +953,7 @@ static void decode_tlv(proto_tree *tree,
     while(length > 0)
     {
         property_type = tvb_get_guint8(tvb, offset);
-        proto_tree_add_int_format_value(property_tree, hf_noe_pcode, tvb, offset, 1,
-            property_type, "%s (0x%02x)", val_to_str_ext_const(property_type, &val_str_props_ext, "Unknown"), property_type);
+        proto_tree_add_item(property_tree, hf_noe_pcode, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         length -= 1;
 
@@ -996,86 +989,30 @@ static void decode_tlv(proto_tree *tree,
                 break;
             }
         case 1:
-            {
-                proto_tree_add_text(property_item,
-                    tvb,
-                    offset,
-                    1,
-                    "Value: %d",
-                    tvb_get_guint8(tvb, offset));
-                offset += 1;
-                length -= 1;
-                break;
-            }
+            proto_tree_add_item(property_tree, hf_noe_property_item_u8, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            length -= 1;
+            break;
         case 2:
-            {
-                guint16 property_value;
-                property_value = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_text(property_item,
-                    tvb,
-                    offset,
-                    2,
-                    "Value: %d",
-                    property_value);
-                offset += 2;
-                length -= 2;
-                break;
-            }
+            proto_tree_add_item(property_tree, hf_noe_property_item_u16, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            length -= 2;
+            break;
         case 3:
-            {
-                guint32 property_value;
-                property_value = tvb_get_ntoh24(tvb, offset);
-                proto_tree_add_text(property_item,
-                    tvb,
-                    offset,
-                    3,
-                    "Value: %u",
-                    property_value);
-                offset += 3;
-                length -= 3;
-                break;
-            }
+            proto_tree_add_item(property_tree, hf_noe_property_item_u24, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+            length -= 3;
+            break;
         case 4:
-            {
-                guint32 property_value;
-                property_value = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_text(property_item,
-                    tvb,
-                    offset,
-                    4,
-                    "Value: %u",
-                    property_value);
-                offset += 4;
-                length -= 4;
-                break;
-            }
+            proto_tree_add_item(property_tree, hf_noe_property_item_u32, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            length -= 4;
+            break;
         default:
-            {
-                /* add text to the frame tree */
-                value_item = proto_tree_add_text(property_item,
-                    tvb,
-                    offset,
-                    property_length,
-                    "Value (> 4 bytes)");
-
-                value_tree = proto_item_add_subtree(value_item, ett_value);
-
-                property_value_index = 0;
-                while(property_length > 0)
-                {
-                    property_value_index += 1;
-                    proto_tree_add_text(value_tree,
-                        tvb,
-                        offset,
-                        1,
-                        "Value %5d: 0x%02x",
-                        property_value_index, tvb_get_guint8(tvb, offset));
-                    offset += 1;
-                    length -= 1;
-                    property_length -= 1;
-                }
-                break;
-            }
+            proto_tree_add_item(property_tree, hf_noe_property_item_bytes, tvb, offset, property_length, ENC_NA);
+            offset += property_length;
+            length -= property_length;
+            break;
         }
     }
 }
@@ -1106,8 +1043,7 @@ static void decode_getproperty_tlv(proto_tree *tree,
     while(length > 0)
     {
         body_type = tvb_get_guint8(tvb, offset);
-        proto_tree_add_int_format_value(body_tree, hf_noe_pcode, tvb, offset, 1,
-            body_type, "%s (0x%02x)", val_to_str_ext_const(body_type, &val_str_props_ext, "Unknown"), body_type);
+        proto_tree_add_item(body_tree, hf_noe_pcode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         offset += 1;
         length -= 1;
@@ -1133,24 +1069,16 @@ static void decode_evt(proto_tree  *tree,
                        guint        offset,
                        guint        length)
 {
+    proto_item *ti;
     guint8 event = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_uint_format_value(tree,
-        hf_noe_event,
-        tvb,
-        offset,
-        1,
-        event,
-        "%s (%d)",
-        val_to_str_ext_const(event, &val_str_event_ext, "Unknown"),
-        event);
+    proto_tree_add_item(tree, hf_noe_event, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* add text to the frame "INFO" column */
     if (check_col(pinfo->cinfo, COL_INFO))
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
         val_to_str_ext_const(event, &val_str_event_ext, "Unknown"));
     /* update text of the main proto item */
-    /* XXX: Just dups the above proto_tree_add_uint_format_value() ?? */
     proto_item_append_text(tree, ", %s",
         val_to_str_ext_const(event, &val_str_event_ext, "Unknown"));
 
@@ -1165,20 +1093,9 @@ static void decode_evt(proto_tree  *tree,
     case OPCODE_EVT_KEY_LINE:
     case OPCODE_EVT_ONHOOK:
     case OPCODE_EVT_OFFHOOK:
-        {
-            static const value_string str_struct[] = {
-                {0x00, "RJ9 Plug"},
-                {0x01, "BT Handset Link"},
-                {0, NULL}
-                };
-            proto_tree_add_text(tree,
-                tvb,
-                offset,
-                length,
-                "Value: %s (%d)",
-                val_to_str_const(tvb_get_guint8(tvb, offset), str_struct, "Unknown"), tvb_get_guint8(tvb, offset));
-            break;
-        }
+        ti = proto_tree_add_item(tree, hf_event_value_u8, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_item_set_len(ti, length);
+        break;
     case OPCODE_EVT_KEY_PRESS:
     case OPCODE_EVT_KEY_RELEASE:
     case OPCODE_EVT_KEY_SHORTPRESS:
@@ -1230,42 +1147,25 @@ static void decode_evt(proto_tree  *tree,
             break;
         }
     case OPCODE_EVT_CONTEXT_SWITCH:
-        {
-            proto_tree_add_text(tree,
-                tvb,
-                offset,
-                1,
-                "Context: %s",
-                val_to_str_const(tvb_get_guint8(tvb, offset),
-                                 servers_vals,
-                                 "Unknown"));
-            break;
-        }
+        proto_tree_add_item(tree, hf_event_context_switch, tvb, offset, 1, ENC_BIG_ENDIAN);
+        break;
     case OPCODE_EVT_SUCCESS_CREATE:
     case OPCODE_EVT_SUCCESS_DELETE:
     case OPCODE_EVT_SUCCESS_SET_PROPERTY:
     case OPCODE_EVT_SUCCESS_INSERT_ITEM:
     case OPCODE_EVT_SUCCESS_DELETE_ITEM:
-        {
-            proto_tree_add_uint(tree, hf_noe_objectid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
-            break;
-        }
+        proto_tree_add_item(tree, hf_noe_objectid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
     case OPCODE_EVT_WIDGETS_GC:
-        {
-            proto_tree_add_text(tree,
-                tvb,
-                offset,
-                4,
-                "FreeMem: %d bytes",
-                tvb_get_ntohl(tvb, offset));
-            break;
-        }
+        proto_tree_add_item(tree, hf_event_widget_gc, tvb, offset, 4, ENC_BIG_ENDIAN);
+        break;
     case OPCODE_EVT_BT_BONDING_RESULT:
         {
-            proto_tree_add_uint(tree, hf_noe_objectid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+            proto_tree_add_item(tree, hf_noe_objectid, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             /*length -= 2;*/
 
+            /* XXX - should a 16-bit value be gotten if the size is only 8-bit? */
             proto_tree_add_text(tree,
                 tvb,
                 offset,
@@ -1284,15 +1184,13 @@ static void decode_evt(proto_tree  *tree,
             break;
         }
     default:
-        {
-            proto_tree_add_uint(tree, hf_noe_objectid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
-            offset += 2;
-            length -= 2;
+        proto_tree_add_item(tree, hf_noe_objectid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        length -= 2;
 
-            if (length > 0)
-                decode_tlv(tree, tvb, offset, length);
-            break;
-        }
+        if (length > 0)
+            decode_tlv(tree, tvb, offset, length);
+        break;
     }
 }
 
@@ -1311,22 +1209,13 @@ static void decode_mtd(proto_tree  *tree,
 {
     guint8 class = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_int_format_value(tree,
-        hf_noe_class,
-        tvb,
-        offset,
-        1,
-        class,
-        "%s (%d)",
-        val_to_str_ext_const(class, &val_str_class_ext, "Unknown"),
-        class);
+    proto_tree_add_item(tree, hf_noe_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* add text to the frame "INFO" column */
     if (check_col(pinfo->cinfo, COL_INFO))
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
         val_to_str_ext_const(class, &val_str_class_ext, "Unknown"));
     /* update text of the main proto item */
-    /* XXX: Just dups the above proto_tree_add_int_format_value() ?? */
     proto_item_append_text(tree, ", %s",
         val_to_str_ext_const(class, &val_str_class_ext, "Unknown"));
 
@@ -1335,7 +1224,7 @@ static void decode_mtd(proto_tree  *tree,
 
     if (class >= C_DYNAMIC)
     {
-        proto_tree_add_uint(tree, hf_noe_objectid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+        proto_tree_add_item(tree, hf_noe_objectid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         length -= 2;
     }
@@ -1344,12 +1233,7 @@ static void decode_mtd(proto_tree  *tree,
     {
     case METHOD_INSERT_ITEM:
         {
-            proto_tree_add_uint(tree,
-                hf_noe_method_index,
-                tvb,
-                offset,
-                1,
-                tvb_get_guint8(tvb, offset));
+            proto_tree_add_item(tree, hf_noe_method_index, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             length -= 1;
             if (length > 0)
@@ -1358,12 +1242,7 @@ static void decode_mtd(proto_tree  *tree,
         }
     case METHOD_DELETE_ITEM:
         {
-            proto_tree_add_uint(tree,
-                hf_noe_method_index,
-                tvb,
-                offset,
-                1,
-                tvb_get_guint8(tvb, offset));
+            proto_tree_add_item(tree, hf_noe_method_index, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         }
     case METHOD_GET_PROPERTY:
@@ -1537,9 +1416,9 @@ void proto_register_noe(void)
               {
                   "Class",
                   "noe.class",
-                  FT_INT8,
-                  BASE_DEC,
-                  NULL,
+                  FT_UINT8,
+                  BASE_DEC|BASE_EXT_STRING,
+                  &val_str_class_ext,
                   0x0,
                   "Class Opcode",
                   HFILL
@@ -1550,8 +1429,8 @@ void proto_register_noe(void)
                   "Event",
                   "noe.event",
                   FT_UINT8,
-                  BASE_DEC,
-                  NULL,
+                  BASE_DEC|BASE_EXT_STRING,
+                  &val_str_event_ext,
                   0x0,
                   "Event Opcode",
                   HFILL
@@ -1585,9 +1464,9 @@ void proto_register_noe(void)
               {
                   "Property",
                   "noe.property",
-                  FT_INT8,
-                  BASE_DEC,
-                  NULL,
+                  FT_UINT8,
+                  BASE_HEX|BASE_EXT_STRING,
+                  &val_str_props_ext,
                   0x0,
                   "Property Identifier",
                   HFILL
@@ -1610,8 +1489,8 @@ void proto_register_noe(void)
                   "ErrCode",
                   "noe.errcode",
                   FT_UINT16,
-                  BASE_DEC,
-                  NULL,
+                  BASE_DEC|BASE_EXT_STRING,
+                  &errcode_vals_ext,
                   0x0,
                   "Error Code",
                   HFILL
@@ -1628,7 +1507,127 @@ void proto_register_noe(void)
                   "Array Index",
                   HFILL
               }
-            }
+            },
+            { &hf_noe_value,
+              {
+                  "Value",
+                  "noe.value",
+                  FT_UINT32,
+                  BASE_HEX,
+                  NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_noe_message,
+              {
+                  "Message",
+                  "noe.messages",
+                  FT_BYTES,
+                  BASE_NONE,
+                  NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_noe_property_item_u8,
+              {
+                  "Value",
+                  "noe.property_item.uint",
+                  FT_UINT8,
+                  BASE_DEC,
+                  NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_noe_property_item_u16,
+              {
+                  "Value",
+                  "noe.property_item.uint",
+                  FT_UINT16,
+                  BASE_DEC,
+                  NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_noe_property_item_u24,
+              {
+                  "Value",
+                  "noe.property_item.uint",
+                  FT_UINT24,
+                  BASE_DEC,
+                  NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_noe_property_item_u32,
+              {
+                  "Value",
+                  "noe.property_item.uint",
+                  FT_UINT32,
+                  BASE_DEC,
+                  NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_noe_property_item_bytes,
+              {
+                  "Value",
+                  "noe.property_item.bytes",
+                  FT_BYTES,
+                  BASE_NONE,
+                  NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_event_value_u8,
+              {
+                  "Value",
+                  "noe.event_value.uint",
+                  FT_UINT8,
+                  BASE_DEC,
+                  VALS(noe_event_str_struct),
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_event_context_switch,
+              {
+                  "Context",
+                  "noe.event_context_switch",
+                  FT_UINT8,
+                  BASE_DEC,
+                  VALS(servers_vals),
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
+            { &hf_event_widget_gc,
+              {
+                  "FreeMem (bytes)",
+                  "noe.event_widget_gc",
+                  FT_UINT32,
+                  BASE_DEC,
+                  NULL,
+                  0x0,
+                  NULL,
+                  HFILL
+              }
+            },
         };
 
     static gint *ett[] =

@@ -26,6 +26,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-ipx.h"
 
 /*
@@ -53,6 +54,11 @@ static int hf_ipxwan_delta_time = -1;
 static int hf_ipxwan_extended_node_id = -1;
 static int hf_ipxwan_node_number = -1;
 static int hf_ipxwan_compression_type = -1;
+static int hf_ipxwan_compression_options = -1;
+static int hf_ipxwan_compression_slots = -1;
+static int hf_ipxwan_compression_parameters = -1;
+static int hf_ipxwan_padding = -1;
+static int hf_ipxwan_option_value = -1;
 
 static gint ett_ipxwan = -1;
 static gint ett_ipxwan_option = -1;
@@ -190,10 +196,8 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_ROUTING_TYPE:
 				if (option_data_len != 1) {
-					proto_tree_add_text(option_tree,
-					    tvb, offset, option_data_len,
-					    "Bogus length: %u, should be 1",
-					    option_data_len);
+					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+						"Bogus length: %u, should be 1", option_data_len);
 				} else {
 					proto_tree_add_item(option_tree,
 					    hf_ipxwan_routing_type, tvb,
@@ -203,10 +207,8 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_RIP_SAP_INFO_EXCHANGE:
 				if (option_data_len != 54) {
-					proto_tree_add_text(option_tree,
-					    tvb, offset, option_data_len,
-					    "Bogus length: %u, should be 54",
-					    option_data_len);
+					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+						"Bogus length: %u, should be 54", option_data_len);
 				} else {
 					wan_link_delay = tvb_get_ntohs(tvb,
 					    offset);
@@ -226,10 +228,8 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_NLSP_INFORMATION:
 				if (option_data_len != 8) {
-					proto_tree_add_text(option_tree,
-					    tvb, offset, option_data_len,
-					    "Bogus length: %u, should be 8",
-					    option_data_len);
+					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+						"Bogus length: %u, should be 8", option_data_len);
 				} else {
 					delay = tvb_get_ntohl(tvb, offset);
 					proto_tree_add_uint_format(option_tree,
@@ -247,10 +247,8 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_NLSP_RAW_THROUGHPUT_DATA:
 				if (option_data_len != 8) {
-					proto_tree_add_text(option_tree,
-					    tvb, offset, option_data_len,
-					    "Bogus length: %u, should be 8",
-					    option_data_len);
+					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+						"Bogus length: %u, should be 8", option_data_len);
 				} else {
 					proto_tree_add_item(option_tree,
 					    hf_ipxwan_request_size, tvb,
@@ -266,10 +264,8 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_EXTENDED_NODE_ID:
 				if (option_data_len != 4) {
-					proto_tree_add_text(option_tree,
-					    tvb, offset, option_data_len,
-					    "Bogus length: %u, should be 4",
-					    option_data_len);
+					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+						"Bogus length: %u, should be 4", option_data_len);
 				} else {
 					proto_tree_add_item(option_tree,
 					    hf_ipxwan_extended_node_id, tvb,
@@ -279,10 +275,8 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_NODE_NUMBER:
 				if (option_data_len != 6) {
-					proto_tree_add_text(option_tree,
-					    tvb, offset, option_data_len,
-					    "Bogus length: %u, should be 6",
-					    option_data_len);
+					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+						"Bogus length: %u, should be 6", option_data_len);
 				} else {
 					proto_tree_add_item(option_tree,
 					    hf_ipxwan_node_number, tvb,
@@ -292,61 +286,44 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_COMPRESSION:
 				if (option_data_len < 1) {
-					proto_tree_add_text(option_tree,
-					    tvb, offset, option_data_len,
-					    "Bogus length: %u, should be >= 1",
-					    option_data_len);
+					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+						"Bogus length: %u, should be >= 1", option_data_len);
 				} else {
 					compression_type = tvb_get_guint8(tvb,
 					    offset);
-					proto_tree_add_uint(option_tree,
+					ti = proto_tree_add_uint(option_tree,
 					    hf_ipxwan_compression_type, tvb,
 					    offset, 1, compression_type);
 					switch (compression_type) {
 
 					case COMP_TYPE_TELEBIT:
 						if (option_data_len < 3) {
-							proto_tree_add_text(option_tree,
-							    tvb, offset+1,
-							    option_data_len-1,
-							    "Bogus length: %u, should be >= 3",
-							    option_data_len);
+							expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+								"Bogus length: %u, should be >= 3", option_data_len);
 						} else {
-							proto_tree_add_text(
-							    option_tree,
-							    tvb, offset+1, 1,
-							    "Compression options: 0x%02x",
-							    tvb_get_guint8(tvb,
-							        offset+1));
-							proto_tree_add_text(
-							    option_tree,
-							    tvb, offset+2, 1,
-							    "Number of compression slots: %u",
-							    tvb_get_guint8(tvb,
-							        offset+2));
+							proto_tree_add_item(option_tree, hf_ipxwan_compression_options, 
+								tvb, offset+1, 1, ENC_BIG_ENDIAN);
+							proto_tree_add_item(option_tree, hf_ipxwan_compression_slots, 
+								tvb, offset+2, 1, ENC_BIG_ENDIAN);
 						}
 						break;
 
 					default:
-						proto_tree_add_text(option_tree,
-						    tvb, offset+1,
-						    option_data_len-1,
-						    "Option parameters");
+						proto_tree_add_item(option_tree, hf_ipxwan_compression_parameters, 
+							tvb, offset+1, option_data_len-1, ENC_NA);
 						break;
 					}
 				}
 				break;
 
 			case OPT_PAD:
-				proto_tree_add_text(option_tree,
-				    tvb, offset, option_data_len,
-				    "Padding");
+				proto_tree_add_item(option_tree, hf_ipxwan_padding, 
+					tvb, offset, option_data_len, ENC_NA);
 				break;
 
 			default:
-				proto_tree_add_text(option_tree,
-				    tvb, offset, option_data_len,
-				    "Option value");
+				proto_tree_add_item(option_tree, hf_ipxwan_option_value, 
+					tvb, offset, option_data_len, ENC_NA);
 				break;
 			}
 
@@ -437,6 +414,28 @@ proto_register_ipxwan(void)
 	      { "Compression Type", "ipxwan.compression.type",
 	         FT_UINT8, BASE_DEC, VALS(ipxwan_compression_type_vals), 0x0,
 	         NULL, HFILL }},
+
+	    { &hf_ipxwan_compression_options,
+	      { "Compression options", "ipxwan.compression.options",
+	         FT_UINT8, BASE_HEX, NULL, 0x0,
+	         NULL, HFILL }},
+
+	    { &hf_ipxwan_compression_slots,
+	      { "Number of compression slots", "ipxwan.compression.slots",
+	         FT_UINT8, BASE_DEC, NULL, 0x0,
+	         NULL, HFILL }},
+
+	    { &hf_ipxwan_compression_parameters,
+	      { "Option parameters", "ipxwan.compression.parameters",
+	         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+	    { &hf_ipxwan_padding,
+	      { "Padding", "ipxwan.padding",
+	         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+	    { &hf_ipxwan_option_value,
+	      { "Option value", "ipxwan.option_value",
+	         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_ipxwan,
