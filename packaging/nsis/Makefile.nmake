@@ -89,6 +89,7 @@ user-guide.chm::
 	if exist $(WIRESHARK_LIB_DIR)\user-guide\user-guide.chm xcopy $(WIRESHARK_LIB_DIR)\user-guide\user-guide.chm . /Y /D
 
 NSIS_FLAGS=\
+	/DPROGRAM_NAME=$(PROGRAM_NAME) \
 	/DMAKEDIR=$(MAKEDIR) \
 	/DSTAGING_DIR=$(STAGING_DIR) \
 	/DWIRESHARK_TARGET_PLATFORM=$(WIRESHARK_TARGET_PLATFORM) \
