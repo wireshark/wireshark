@@ -3,7 +3,6 @@
 ; Name and version information
 ; ============================================================================
 
-!define PROGRAM_NAME "Wireshark"
 !if ${WIRESHARK_TARGET_PLATFORM} == "win32"
 !define BITS 32
 !else
