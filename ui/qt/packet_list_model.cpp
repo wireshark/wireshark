@@ -174,7 +174,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     else
         cinfo = NULL;
 
-    if (!cf_read_frame_r(cf, fdata, &cf->phdr, pd)) {
+    if (!cf_read_frame_r(cf, fdata, &phdr, pd)) {
         /*
          * Error reading the frame.
          *
