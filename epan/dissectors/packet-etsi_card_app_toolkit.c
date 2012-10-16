@@ -48,8 +48,10 @@ static int hf_ctlv_devid_dst = -1;
 static int hf_ctlv_cmd_nr = -1;
 static int hf_ctlv_cmd_type = -1;
 static int hf_ctlv_cmd_qual_refresh = -1;
+static int hf_ctlv_cmd_qual_send_short_msg = -1;
 static int hf_ctlv_cmd_qual_loci = -1;
 static int hf_ctlv_cmd_qual_timer_mgmt = -1;
+static int hf_ctlv_cmd_qual_send_data = -1;
 static int hf_ctlv_cmd_qual = -1;
 static int hf_ctlv_dur_time_intv = -1;
 static int hf_ctlv_dur_time_unit = -1;
@@ -255,6 +257,10 @@ static const value_string cmd_qual_refresh_vals[] = {
 	{ 0x08, "Steering of Roaming for I-WLAN" },
 	{ 0, NULL }
 };
+static const true_false_string cmd_qual_send_short_msg_value = {
+	"SMS packing by the terminal required",
+	"Packing not required"
+};
 static const value_string cmd_qual_loci_vals[] = {
 	{ 0x00,	"Location Information (MCC, MNC, LAC/TAC, Cell Identity and Extended Cell Identity)" },
 	{ 0x01,	"IMEI of the terminal" },
@@ -281,6 +287,10 @@ static const value_string cmd_qual_timer_mgmt_vals[] = {
 	{ 0x01,	"Deactivate" },
 	{ 0x02, "Get current value" },
 	{ 0, NULL }
+};
+static const true_false_string cmd_qual_send_data_value = {
+	"Send data immediately",
+	"Store data in Tx buffer"
 };
 
 /* TS 102 223 Chapter 8.7 */
@@ -722,11 +732,17 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case 0x01:
 				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_refresh, tvb, pos+2, 1, ENC_NA);
 				break;
+			case 0x13:
+				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_send_short_msg, tvb, pos+2, 1, ENC_NA);
+				break;
 			case 0x26:
 				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_loci, tvb, pos+2, 1, ENC_NA);
 				break;
 			case 0x27:
 				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_timer_mgmt, tvb, pos+2, 1, ENC_NA);
+				break;
+			case 0x43:
+				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_send_data, tvb, pos+2, 1, ENC_NA);
 				break;
 			default:
 				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual, tvb, pos+2, 1, ENC_NA);
@@ -995,6 +1011,11 @@ proto_register_card_app_toolkit(void)
 			  FT_UINT8, BASE_HEX, VALS(cmd_qual_refresh_vals), 0,
 			  NULL, HFILL },
 		},
+		{ &hf_ctlv_cmd_qual_send_short_msg,
+			{ "Command Qualifier", "etsi_cat.comp_tlv.cmd_qual.send_short_msg",
+			  FT_BOOLEAN, 8, TFS(&cmd_qual_send_short_msg_value), 0x01,
+			  NULL, HFILL },
+		},
 		{ &hf_ctlv_cmd_qual_loci,
 			{ "Command Qualifier", "etsi_cat.comp_tlv.cmd_qual.loci",
 			  FT_UINT8, BASE_HEX, VALS(cmd_qual_loci_vals), 0,
@@ -1003,6 +1024,11 @@ proto_register_card_app_toolkit(void)
 		{ &hf_ctlv_cmd_qual_timer_mgmt,
 			{ "Command Qualifier", "etsi_cat.comp_tlv.cmd_qual.timer_mgmt",
 			  FT_UINT8, BASE_HEX, VALS(cmd_qual_timer_mgmt_vals), 0x03,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_cmd_qual_send_data,
+			{ "Command Qualifier", "etsi_cat.comp_tlv.cmd_qual.send_data",
+			  FT_BOOLEAN, 8, TFS(&cmd_qual_send_data_value), 0x01,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_cmd_qual,
