@@ -167,13 +167,13 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		flags = tvb_get_ntohs(tvb, offset);
 		fi = proto_tree_add_item(ctree, hf_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
 		ftree = proto_item_add_subtree(fi, ett_flags);
-		proto_tree_add_item(ctree, hf_flags_conn_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ctree, hf_flags_hashed_entry, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ctree, hf_flags_no_output_packets, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ctree, hf_flags_conn_not_established, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ctree, hf_flags_adjust_output_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ctree, hf_flags_adjust_input_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ctree, hf_flags_no_client_port_set, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ftree, hf_flags_conn_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ftree, hf_flags_hashed_entry, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ftree, hf_flags_no_output_packets, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ftree, hf_flags_conn_not_established, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ftree, hf_flags_adjust_output_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ftree, hf_flags_adjust_input_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ftree, hf_flags_no_client_port_set, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		offset += 2;
 
