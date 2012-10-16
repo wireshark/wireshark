@@ -1275,6 +1275,7 @@ Jouni Malinen           <jkmaline[AT]cc.hut.fi> {
 
 Paul E. Erkkila         <pee[AT]erkkila.org> {
 	Skinny Client Control Protocol enhancements
+	Hazelcast Dissector
 }
 
 Jakob Schlyter          <jakob[AT]openbsd.org> {
@@ -3405,10 +3406,6 @@ Per Liedberg		<per.liedberg[AT]ericsson.com> {
 Gaurav Tungatkar	<gauravstt[AT]gmail.com> {
 	Extended ICMP - Multipart Message Support (RFC 4884)
 	and Extension for Interface and Next-Hop
-}
-
-Paul Erkkila		<pee[AT]erkkila.org> {
-	Hazelcast Dissector
 }
 
 Bill Schiller		<bill.schiller[AT]emerson.com> {
