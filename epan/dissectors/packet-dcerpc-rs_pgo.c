@@ -1020,7 +1020,7 @@ rs_pgo_dissect_add_resp (tvbuff_t * tvb, int offset,
 			 guint8 * drep)
 {
   dcerpc_info *di;
-  guint32 buff_remain;
+  gint         buff_remain;
 
   di = pinfo->private_data;
   if (di->conformant_run)
@@ -1078,7 +1078,7 @@ rs_pgo_dissect_delete_resp (tvbuff_t * tvb, int offset,
 			    guint8 * drep)
 {
   dcerpc_info *di;
-  guint32 buff_remain;
+  gint         buff_remain;
 
   di = pinfo->private_data;
   if (di->conformant_run)
@@ -1261,7 +1261,7 @@ rs_pgo_dissect_add_member_resp (tvbuff_t * tvb, int offset,
 				guint8 * drep)
 {
   dcerpc_info *di;
-  guint32 buff_remain;
+  gint         buff_remain;
 
   di = pinfo->private_data;
   if (di->conformant_run)
