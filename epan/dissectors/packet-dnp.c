@@ -274,7 +274,7 @@
                         /* 0x0C03      12 03 Pattern Mask */
 
 #define AL_OBJCTLC_CODE    0x0F    /* Bit-Mask xxxx1111 for Control Code 'Code' */
-#define AL_OBJCTLC_MISC    0x30    /* Bit-Mask xx11xxxx for Control Code Misc Values */
+#define AL_OBJCTLC_MISC    0x30    /* Bit-Mask xx11xxxx for Control Code Queue (obsolete) and Clear Fields */
 #define AL_OBJCTLC_TC      0xC0    /* Bit-Mask 11xxxxxx for Control Code 'Trip/Close' */
 
 #define AL_OBJCTLC_CODE0   0x00    /* xxxx0000 NUL Operation; only process R attribute */
@@ -284,12 +284,15 @@
 #define AL_OBJCTLC_CODE4   0x04    /* xxxx0100 Latch Off */
                         /* 0x05-0x15  Reserved */
 
-#define AL_OBJCTLC_QUEUE   0x10    /* xxx1xxxx for Control Code 'Queue' */
-#define AL_OBJCTLC_CLEAR   0x20    /* xx1xxxxx for Control Code 'Clear' */
+#define AL_OBJCTLC_QUEUE   0x10    /* xxx1xxxx for Control Code, Clear Field 'Queue' */
+#define AL_OBJCTLC_CLEAR   0x20    /* xx1xxxxx for Control Code, Clear Field 'Clear' */
+#define AL_OBJCTLC_NOTSET  0x00    /* xxxxxxxx for Control Code, Clear and Queue not set */
+#define AL_OBJCTLC_BOTHSET 0x30    /* xx11xxxx for Control Code, Clear and Queue both set */
 
 #define AL_OBJCTLC_TC0     0x00    /* 00xxxxxx NUL */
 #define AL_OBJCTLC_TC1     0x40    /* 01xxxxxx Close */
 #define AL_OBJCTLC_TC2     0x80    /* 10xxxxxx Trip */
+#define AL_OBJCTLC_TC3     0xC0    /* 11xxxxxx Reserved */
 
 #define AL_OBJCTL_STAT0    0x00    /* Request Accepted, Initiated or Queued */
 #define AL_OBJCTL_STAT1    0x01    /* Request Not Accepted; Arm-timer expired */
@@ -635,6 +638,9 @@ static int hf_dnp3_al_file_status = -1;
 static int hf_dnp3_al_file_blocknum = -1;
 static int hf_dnp3_al_file_lastblock = -1;
 static int hf_dnp3_al_file_data = -1;
+static int hf_dnp3_ctlobj_code_c;
+static int hf_dnp3_ctlobj_code_m;
+static int hf_dnp3_ctlobj_code_tc;
 
 /***************************************************************************/
 /* Value String Look-Ups */
@@ -908,7 +914,7 @@ static const value_string dnp3_al_obj_vals[] = {
 };
 static value_string_ext dnp3_al_obj_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_obj_vals);
 
-/* Application Layer Control Code 'Code' Values */
+/* Application Layer Control Code 'Operation Type' Values */
 static const value_string dnp3_al_ctlc_code_vals[] = {
   { AL_OBJCTLC_CODE0,     "NUL Operation" },
   { AL_OBJCTLC_CODE1,     "Pulse On" },
@@ -918,18 +924,21 @@ static const value_string dnp3_al_ctlc_code_vals[] = {
   { 0, NULL }
 };
 
-/* Application Layer Control Code 'Misc' Values */
+/* Application Layer Control Code 'Clear Field' Values */
 static const value_string dnp3_al_ctlc_misc_vals[] = {
   { AL_OBJCTLC_QUEUE,     "Queue" },
   { AL_OBJCTLC_CLEAR,     "Clear" },
+  { AL_OBJCTLC_NOTSET,    "Not Set" },
+  { AL_OBJCTLC_BOTHSET,   "Queue and Clear" },
   { 0, NULL }
 };
 
-/* Application Layer Control Code 'Trip/Close' Values */
+/* Application Layer Control Code 'Trip Close Code' Values */
 static const value_string dnp3_al_ctlc_tc_vals[] = {
   { AL_OBJCTLC_TC0,     "NUL" },
   { AL_OBJCTLC_TC1,     "Close" },
   { AL_OBJCTLC_TC2,     "Trip" },
+  { AL_OBJCTLC_TC3,     "Reserved" },
   { 0, NULL }
 };
 
@@ -1023,6 +1032,7 @@ static gint ett_dnp3_tr_ctl = -1;
 static gint ett_dnp3_al_data = -1;
 static gint ett_dnp3_al = -1;
 static gint ett_dnp3_al_ctl = -1;
+static gint ett_dnp3_al_obj_point_tcc = -1;
 
 /* Added for Application Layer Decoding */
 static gint ett_dnp3_al_iin = -1;
@@ -1469,8 +1479,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                        guint16 *al_objtype, nstime_t *al_cto)
 {
 
-  guint8        al_2bit, al_objq, al_objq_index, al_objq_code, al_ptflags, al_ctlobj_code, al_oct_len=0,
-                al_ctlobj_code_c, al_ctlobj_code_m, al_ctlobj_code_tc, al_ctlobj_count, al_bi_val, bitindex=0;
+  guint8        al_2bit, al_objq, al_objq_index, al_objq_code, al_ptflags, al_oct_len=0,
+                al_ctlobj_count, al_bi_val, bitindex=0, al_tcc_code;
   guint16       al_obj, al_val16=0, al_ctlobj_stat, al_relms, al_filename_offs, al_filename_len, al_file_ctrl_mode,
                 temp;
   guint32       al_val32, al_ptaddr=0, al_ctlobj_on, al_ctlobj_off, file_data_size;
@@ -1481,9 +1491,9 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   gdouble       al_valdbl;
   int           item_num, num_items=0;
   int           orig_offset, start_offset, rangebytes=0, indexbytes=0;
-  proto_item    *object_item = NULL, *point_item = NULL, *qualifier_item = NULL, *range_item = NULL, *perms_item = NULL;
-  proto_tree    *object_tree = NULL, *point_tree, *qualifier_tree, *range_tree, *perms_tree;
-  const gchar   *ctl_code_str, *ctl_misc_str, *ctl_tc_str, *ctl_status_str, *al_filename;
+  proto_item    *object_item = NULL, *point_item = NULL, *qualifier_item = NULL, *range_item = NULL, *perms_item = NULL, *tcc_item = NULL;
+  proto_tree    *object_tree = NULL, *point_tree, *qualifier_tree, *range_tree, *perms_tree, *tcc_tree;
+  const gchar   *ctl_status_str, *al_filename;
 
   orig_offset = offset;
 
@@ -1816,20 +1826,28 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
           case AL_OBJ_CTLOP_BLK:  /* Control Relay Output Block (Obj:12, Var:01) */
 
-            al_ctlobj_code = tvb_get_guint8(tvb, data_pos);
+            /* Add a expand/collapse for TCC */
+            al_tcc_code = tvb_get_guint8(tvb, data_pos);
+            tcc_item = proto_tree_add_text(point_tree, tvb, data_pos, 1, "Control Code [0x%02x]",al_tcc_code);
+            tcc_tree = proto_item_add_subtree(tcc_item, ett_dnp3_al_obj_point_tcc);
+
+            /* Add the Control Code to the Point number list for quick visual reference as to the operation */
+            proto_item_append_text(point_item, " [%s]", val_to_str( (al_tcc_code & AL_OBJCTLC_CODE), dnp3_al_ctlc_code_vals, "Invalid Operation"));
+
+            /* Control Code 'Operation Type' */
+            proto_tree_add_item(tcc_item, hf_dnp3_ctlobj_code_c, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+
+            /* Control Code Misc Values */
+            proto_tree_add_item(tcc_item, hf_dnp3_ctlobj_code_m, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+
+            /* Control Code 'Trip Close Code' */
+            proto_tree_add_item(tcc_item, hf_dnp3_ctlobj_code_tc, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
             data_pos += 1;
 
-            /* Bit-Mask xxxx1111 for Control Code 'Code' */
-            al_ctlobj_code_c = al_ctlobj_code & AL_OBJCTLC_CODE;
-            ctl_code_str = val_to_str(al_ctlobj_code_c, dnp3_al_ctlc_code_vals, "Ctrl Code Invalid (0x%02x)");
-
-            /* Bit-Mask xx11xxxx for Control Code Misc Values */
-            al_ctlobj_code_m = al_ctlobj_code & AL_OBJCTLC_MISC;
-            ctl_misc_str = val_to_str_const(al_ctlobj_code_m, dnp3_al_ctlc_misc_vals, "");
-
-            /* Bit-Mask 11xxxxxx for Control Code 'Trip/Close' */
-            al_ctlobj_code_tc = al_ctlobj_code & AL_OBJCTLC_TC;
-            ctl_tc_str = val_to_str_const(al_ctlobj_code_tc, dnp3_al_ctlc_tc_vals, "");
+            al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
+            proto_tree_add_item(point_item, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+            ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
+            data_pos += 1;
 
             /* Get "Count" Field */
             al_ctlobj_count = tvb_get_guint8(tvb, data_pos);
@@ -1843,15 +1861,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             al_ctlobj_off = tvb_get_letohl(tvb, data_pos);
             data_pos += 4;
 
-            al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
-            proto_tree_add_item(point_item, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
-            ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
-            data_pos += 1;
-
-            proto_item_append_text(point_item, ", Control Code: [%s,%s,%s (0x%02x)]",
-                 ctl_code_str, ctl_misc_str, ctl_tc_str, al_ctlobj_code);
-
-            proto_tree_add_text(point_tree, tvb, data_pos - 11, 11,
+            proto_tree_add_text(point_tree, tvb, data_pos - 9, 9,
                "  [Count: %u] [On-Time: %u] [Off-Time: %u] [Status: %s (0x%02x)]",
                    al_ctlobj_count, al_ctlobj_on, al_ctlobj_off, ctl_status_str, al_ctlobj_stat);
 
@@ -3112,6 +3122,18 @@ proto_register_dnp3(void)
     { "Control Function Code", "dnp3.ctl.secfunc", FT_UINT8, BASE_DEC,
       VALS(dnp3_ctl_func_sec_vals), DNP3_CTL_FUNC, "Frame Control Function Code", HFILL }},
 
+    { &hf_dnp3_ctlobj_code_c,
+    { "Operation Type", "dnp3.ctl.op", FT_UINT8, BASE_DEC,
+      VALS(dnp3_al_ctlc_code_vals), AL_OBJCTLC_CODE, "Control Code, Operation Type", HFILL }},
+            
+    { &hf_dnp3_ctlobj_code_m,
+    { "Queue / Clear Field", "dnp3.ctl.clr", FT_UINT8, BASE_DEC,
+      VALS(dnp3_al_ctlc_misc_vals), AL_OBJCTLC_MISC, "Control Code, Clear Field", HFILL }},
+     
+    { &hf_dnp3_ctlobj_code_tc,
+    { "Trip Control Code", "dnp3.ctl.trip", FT_UINT8, BASE_DEC,
+      VALS(dnp3_al_ctlc_tc_vals), AL_OBJCTLC_TC, "Control Code, Trip Close Control", HFILL }},
+
     { &hf_dnp3_ctl_dir,
     { "Direction", "dnp3.ctl.dir", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_CTL_DIR, NULL, HFILL }},
 
@@ -3556,6 +3578,7 @@ proto_register_dnp3(void)
     &ett_dnp3_al_data,
     &ett_dnp3_al,
     &ett_dnp3_al_ctl,
+    &ett_dnp3_al_obj_point_tcc,
     &ett_dnp3_al_iin,
     &ett_dnp3_al_obj,
     &ett_dnp3_al_obj_qualifier,
