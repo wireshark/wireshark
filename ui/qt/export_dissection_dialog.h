@@ -39,6 +39,7 @@
 #endif // Q_WS_WIN
 
 #include <QFileDialog>
+#include <QMap>
 
 class ExportDissectionDialog : public QFileDialog
 {
