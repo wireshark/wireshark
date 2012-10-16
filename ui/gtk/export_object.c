@@ -43,6 +43,7 @@
 #include <epan/tap.h>
 
 #include <wsutil/file_util.h>
+#include <wsutil/str_util.h>
 
 #include <ui/alert_box.h>
 #include <ui/export_object.h>
@@ -399,6 +400,7 @@ eo_draw(void *tapdata)
 {
 	export_object_list_t *object_list = tapdata;
 	export_object_entry_t *eo_entry;
+	gchar *size_str;
 
 	GSList *slist = object_list->entries;
 	GtkTreeIter new_iter;
@@ -415,13 +417,15 @@ eo_draw(void *tapdata)
 		gtk_tree_store_append(object_list->store, &new_iter,
 				      object_list->iter);
 
+		size_str = format_size(eo_entry->payload_len, format_size_unit_bytes|format_size_prefix_si);
 		gtk_tree_store_set(object_list->store, &new_iter,
 				   EO_PKT_NUM_COLUMN, eo_entry->pkt_num,
 				   EO_HOSTNAME_COLUMN, eo_entry->hostname,
 				   EO_CONTENT_TYPE_COLUMN, eo_entry->content_type,
-				   EO_BYTES_COLUMN, eo_entry->payload_len,
+				   EO_BYTES_COLUMN, size_str,
 				   EO_FILENAME_COLUMN, eo_entry->filename,
 				   -1);
+		g_free(size_str);
 
 		slist = slist->next;
 	}
@@ -490,8 +494,8 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	object_list->store = gtk_tree_store_new(EO_NUM_COLUMNS,
 						 G_TYPE_INT, G_TYPE_STRING,
 						 /* we need a UINT64
-                                                    (was G_TYPE_STRING, G_TYPE_INT,) */
-                                                 G_TYPE_STRING, G_TYPE_INT64,
+						    (was G_TYPE_STRING, G_TYPE_INT,) */
+						 G_TYPE_STRING, G_TYPE_STRING,
 						 G_TYPE_STRING);
 
 	object_list->tree = tree_view_new(GTK_TREE_MODEL(object_list->store));
@@ -527,7 +531,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	gtk_tree_view_append_column(object_list->tree_view, column);
 
 	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("Bytes",
+	column = gtk_tree_view_column_new_with_attributes("Size",
 							  renderer,
 							  "text",
 							  EO_BYTES_COLUMN,
