@@ -595,8 +595,10 @@ filter_address_match(gchar *addr, gchar *filter, gint typ)
   guint addr_len = (guint)strlen(addr);
   guint filter_len = (guint)strlen(filter);
 
-  if(addr_len != filter_len)
-     return FALSE;
+   if((filter_len == 1) && (filter[0] == IPSEC_SA_WILDCARDS_ANY))
+      return TRUE;
+   else if(addr_len != filter_len)
+	  return FALSE;
 
   /* No length specified */
    if( ((typ == IPSEC_SA_IPV6) && (filter_len > IPSEC_IPV6_ADDR_LEN))
