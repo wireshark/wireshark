@@ -333,7 +333,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  caddrs_offset += 2;
 
 	  connection_ti = proto_tree_add_text(clist_tree, NULL, 0, 0,
-					      "Connection %d%", n);
+					      "Connection %d", n);
 	  connection_tree = proto_item_add_subtree(connection_ti,
 						   ett_xdmcp_connection);
 
