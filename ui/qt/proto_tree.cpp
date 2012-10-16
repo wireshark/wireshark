@@ -202,10 +202,10 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
                 itemInfo.append(QString(tr(", %1 bytes")).arg(finfo_length));
             }
 
-            emit protoItemSelected(new QString());
-            emit protoItemSelected(false);
+            emit protoItemSelected(*new QString());
+            emit protoItemSelected(NULL);
             emit protoItemSelected(itemInfo);
-            emit protoItemSelected(true);
+            emit protoItemSelected(fi);
         } // else the GTK+ version pushes an empty string as described below.
         /*
          * Don't show anything if the field name is zero-length;
@@ -228,8 +228,8 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
          */
 
     } else {
-        emit protoItemSelected(new QString());
-        emit protoItemSelected(false);
+        emit protoItemSelected(*new QString());
+        emit protoItemSelected(NULL);
     }
 }
 

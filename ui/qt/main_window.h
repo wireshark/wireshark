@@ -150,6 +150,7 @@ private slots:
 
     void updateRecentFiles();
     void recentActionTriggered();
+    void setMenusForSelectedTreeRow(field_info *fi = NULL);
 
     void on_actionFileOpen_triggered();
     void on_actionFileMerge_triggered();
@@ -167,6 +168,7 @@ private slots:
     void on_actionFileExportAsCArrays_triggered();
     void on_actionFileExportAsPSML_triggered();
     void on_actionFileExportAsPDML_triggered();
+    void on_actionFileExportPacketBytes_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();

@@ -86,6 +86,7 @@ MainWindow::MainWindow(QWidget *parent) :
     gbl_cur_main_window = this;
     main_ui_->setupUi(this);
     setMenusForCaptureFile();
+    setMenusForSelectedTreeRow();
     setForCaptureInProgress(false);
     setMenusForFileSet(false);
 
@@ -203,6 +204,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(proto_tree, SIGNAL(protoItemSelected(bool)),
             main_ui_->actionViewExpandSubtrees, SLOT(setEnabled(bool)));
+    connect(proto_tree, SIGNAL(protoItemSelected(field_info *)),
+            this, SLOT(setMenusForSelectedTreeRow(field_info *)));
 
     connect(&file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString&)),
             this, SLOT(openCaptureFile(QString&)));

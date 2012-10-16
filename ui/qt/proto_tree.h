@@ -44,7 +44,7 @@ private:
 
 signals:
     void protoItemSelected(QString &);
-    void protoItemSelected(bool);
+    void protoItemSelected(field_info *);
     void goToFrame(int);
 
 public slots:
