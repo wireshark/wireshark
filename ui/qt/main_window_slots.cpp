@@ -517,8 +517,8 @@ void MainWindow::recentActionTriggered() {
 }
 
 void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
-    gboolean properties;
-    gint id;
+    //gboolean properties;
+    //gint id;
 
     // XXX Add commented items below
 
@@ -527,9 +527,10 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     }
 
     if (cap_file_ != NULL && fi != NULL) {
+        /*
         header_field_info *hfinfo = fi->hfinfo;
         const char *abbrev;
-//        char *prev_abbrev;
+        char *prev_abbrev;
 
         if (hfinfo->parent == -1) {
             abbrev = hfinfo->abbrev;
@@ -539,6 +540,7 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
             id = hfinfo->parent;
         }
         properties = prefs_is_registered_protocol(abbrev);
+        */
 
 //        set_menu_sensitivity(ui_manager_tree_view_menu,
 //                             "/TreeViewPopup/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
