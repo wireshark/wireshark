@@ -299,7 +299,7 @@ win32 {
     }
     PLUGINS_DIR = $(DESTDIR)\\plugins\\$${VERSION_FULL}
     QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLUGINS_DIR} $(MKDIR) $${PLUGINS_DIR}$$escape_expand(\\n\\t))
-    QMAKE_POST_LINK +=$$quote($(COPY_FILE) ..\\..\\wireshark-gtk2\\plugins\\$${VERSION_FULL}\\*.dll $(DESTDIR)\\plugins\\$${VERSION_FULL}$$escape_expand(\\n\\t))
+    QMAKE_POST_LINK +=$$quote($(COPY_FILE) ..\\..\\$${INSTALL_DIR}\\plugins\\$${VERSION_FULL}\\*.dll $(DESTDIR)\\plugins\\$${VERSION_FULL}$$escape_expand(\\n\\t))
 
     # This doesn't depend on wireshark-gtk2. It also doesn't work.
     #PLUGINS_IN_PWD=$${IN_PWD}
