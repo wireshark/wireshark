@@ -380,13 +380,14 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     pkthdr.len       = tvb_reported_length(tvb);
     pkthdr.caplen    = tvb_length(tvb);
     pkthdr.pkt_encap = lua_pinfo->fd->lnk_t;
+    pkthdr.pseudo_header = lua_pinfo->pseudo_header;
 
     if (lua_pinfo->fd->opt_comment)
         pkthdr.opt_comment = ep_strdup(lua_pinfo->fd->opt_comment);
 
     data = ep_tvb_memdup(tvb,0,pkthdr.caplen);
 
-    if (! wtap_dump(d, &pkthdr, lua_pinfo->pseudo_header, data, &err)) {
+    if (! wtap_dump(d, &pkthdr, data, &err)) {
         luaL_error(L,"error while dumping: %s",
                    wtap_strerror(err));
     }
