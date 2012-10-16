@@ -403,11 +403,13 @@ static const value_string result_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string text_encoding_vals[] = {
-	{ 0x00, "GSM default alphabet, 7 bits packed" },
-	{ 0x04, "GSM default alphabet, 8 bits" },
-	{ 0x08, "UCS2" },
-	{ 0, NULL }
+static const range_string text_encoding_vals[] = {
+	{ 0x00, 0x03, "GSM default alphabet, 7 bits packed" },
+	{ 0x04, 0x07, "GSM default alphabet, 8 bits" },
+	{ 0x08, 0x0b, "UCS2" },
+	{ 0xf0, 0xf3, "GSM default alphabet, 7 bits packed" },
+	{ 0xf4, 0xf7, "GSM default alphabet, 8 bits" },
+	{ 0, 0, NULL }
 };
 
 /* TS 102 223 - Chapter 8.16 */
@@ -722,8 +724,18 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (len == 0)
 				break;
 			/* 1st byte: encoding */
-			proto_tree_add_item(elem_tree, hf_ctlv_text_string_enc, tvb, pos, 1, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_text_string_enc, tvb, pos, 1, ENC_NA);
 			g8 = tvb_get_guint8(tvb, pos);
+			switch (g8 & 0xf0) {
+			case 0x00:
+				g8 &= 0x0c;
+				break;
+			case 0xf0:
+				g8 &= 0x04;
+				break;
+			default:
+				break;
+			}
 			switch (g8) {
 			case 0x00: /* 7bit */
 				{
@@ -985,7 +997,7 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_text_string_enc,
 			{ "Text String Encoding", "etsi_cat.comp_tlv.text_encoding",
-			  FT_UINT8, BASE_HEX, VALS(text_encoding_vals), 0,
+			  FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(text_encoding_vals), 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_text_string,
