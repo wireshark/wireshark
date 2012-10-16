@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 /*
  * It should be compliant to
@@ -1053,7 +1053,7 @@ dissect_supported_address_types_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 
   offset = PARAMETER_VALUE_OFFSET;
   proto_item_append_text(parameter_item, " (Supported types: ");
-  for(addr_type_number = 1; addr_type_number <= number_of_addr_types; addr_type_number++) {
+  for(addr_type_number = 0; addr_type_number < number_of_addr_types; addr_type_number++) {
     proto_tree_add_item(parameter_tree, hf_supported_address_type, parameter_tvb, offset, SUPPORTED_ADDRESS_TYPE_PARAMETER_ADDRESS_TYPE_LENGTH, ENC_BIG_ENDIAN);
     addr_type = tvb_get_ntohs(parameter_tvb, offset);
     switch (addr_type) {
@@ -1069,7 +1069,7 @@ dissect_supported_address_types_parameter(tvbuff_t *parameter_tvb, proto_tree *p
     default:
       proto_item_append_text(parameter_item, "%u", addr_type);
     }
-    if (addr_type_number < number_of_addr_types)
+    if (addr_type_number < (number_of_addr_types-1))
       proto_item_append_text(parameter_item, ", ");
     offset += SUPPORTED_ADDRESS_TYPE_PARAMETER_ADDRESS_TYPE_LENGTH;
   }
@@ -1097,7 +1097,7 @@ dissect_outgoing_ssn_reset_request_parameter(tvbuff_t *parameter_tvb, proto_tree
   sid_offset = SENDERS_LAST_ASSIGNED_TSN_OFFSET + SENDERS_LAST_ASSIGNED_TSN_LENGTH;
   if (length > PARAMETER_HEADER_LENGTH + STREAM_RESET_SEQ_NR_LENGTH + STREAM_RESET_SEQ_NR_LENGTH + SENDERS_LAST_ASSIGNED_TSN_LENGTH) {
     number_of_sids = (length - (PARAMETER_HEADER_LENGTH + STREAM_RESET_SEQ_NR_LENGTH + STREAM_RESET_SEQ_NR_LENGTH + SENDERS_LAST_ASSIGNED_TSN_LENGTH)) / SID_LENGTH;
-    for(sid_number = 1; sid_number <= number_of_sids; sid_number++) {
+    for(sid_number = 0; sid_number < number_of_sids; sid_number++) {
       proto_tree_add_item(parameter_tree, hf_stream_reset_sid, parameter_tvb, sid_offset, SID_LENGTH, ENC_BIG_ENDIAN);
       sid_offset += SID_LENGTH;
     }
@@ -1115,7 +1115,7 @@ dissect_incoming_ssn_reset_request_parameter(tvbuff_t *parameter_tvb, proto_tree
   sid_offset = STREAM_RESET_REQ_SEQ_NR_OFFSET + STREAM_RESET_SEQ_NR_LENGTH;
   if (length > PARAMETER_HEADER_LENGTH + STREAM_RESET_SEQ_NR_LENGTH) {
     number_of_sids = (length - (PARAMETER_HEADER_LENGTH + STREAM_RESET_SEQ_NR_LENGTH)) / SID_LENGTH;
-    for(sid_number = 1; sid_number <= number_of_sids; sid_number++) {
+    for(sid_number = 0; sid_number < number_of_sids; sid_number++) {
       proto_tree_add_item(parameter_tree, hf_stream_reset_sid, parameter_tvb, sid_offset, SID_LENGTH, ENC_BIG_ENDIAN);
       sid_offset += SID_LENGTH;
     }
@@ -1234,7 +1234,7 @@ dissect_chunks_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
   guint16 chunk_number, offset;
 
   number_of_chunks = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  for(chunk_number = 1, offset = PARAMETER_VALUE_OFFSET; chunk_number <= number_of_chunks; chunk_number++, offset +=  CHUNK_TYPE_LENGTH)
+  for(chunk_number = 0, offset = PARAMETER_VALUE_OFFSET; chunk_number < number_of_chunks; chunk_number++, offset +=  CHUNK_TYPE_LENGTH)
     proto_tree_add_item(parameter_tree, hf_chunks_to_auth, parameter_tvb, offset, CHUNK_TYPE_LENGTH, ENC_BIG_ENDIAN);
 }
 
@@ -1257,7 +1257,7 @@ dissect_hmac_algo_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
   guint16 id_number, offset;
 
   number_of_ids = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / HMAC_ID_LENGTH;
-  for(id_number = 1, offset = PARAMETER_VALUE_OFFSET; id_number <= number_of_ids; id_number++, offset +=  HMAC_ID_LENGTH)
+  for(id_number = 0, offset = PARAMETER_VALUE_OFFSET; id_number < number_of_ids; id_number++, offset +=  HMAC_ID_LENGTH)
     proto_tree_add_item(parameter_tree, hf_hmac_id, parameter_tvb, offset, HMAC_ID_LENGTH, ENC_BIG_ENDIAN);
 }
 
@@ -1269,10 +1269,10 @@ dissect_supported_extensions_parameter(tvbuff_t *parameter_tvb, proto_tree *para
 
   proto_item_append_text(parameter_item, " (Supported types: ");
   number_of_types = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / CHUNK_TYPE_LENGTH;
-  for(type_number = 1, offset = PARAMETER_VALUE_OFFSET; type_number <= number_of_types; type_number++, offset +=  CHUNK_TYPE_LENGTH) {
+  for(type_number = 0, offset = PARAMETER_VALUE_OFFSET; type_number < number_of_types; type_number++, offset +=  CHUNK_TYPE_LENGTH) {
     proto_tree_add_item(parameter_tree, hf_supported_chunk_type, parameter_tvb, offset, CHUNK_TYPE_LENGTH, ENC_BIG_ENDIAN);
-    proto_item_append_text(parameter_item, "%s", val_to_str(tvb_get_guint8(parameter_tvb, offset), chunk_type_values, "Unknown"));
-    if (type_number < number_of_types)
+    proto_item_append_text(parameter_item, "%s", val_to_str_const(tvb_get_guint8(parameter_tvb, offset), chunk_type_values, "Unknown"));
+    if (type_number < (number_of_types-1))
       proto_item_append_text(parameter_item, ", ");
 
   }
@@ -1474,7 +1474,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
     return;
 
   if (chunk_tree) {
-    parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_reported_length(parameter_tvb), "%s parameter", val_to_str(type, parameter_identifier_values, "Unknown"));
+    parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_reported_length(parameter_tvb), "%s parameter", val_to_str_const(type, parameter_identifier_values, "Unknown"));
     parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
 
     type_item = proto_tree_add_item(parameter_tree, hf_parameter_type,   parameter_tvb, PARAMETER_TYPE_OFFSET,   PARAMETER_TYPE_LENGTH,   ENC_BIG_ENDIAN);
@@ -1653,7 +1653,7 @@ dissect_missing_mandatory_parameters_cause(tvbuff_t *cause_tvb, proto_tree *caus
   number_of_missing_parameters = tvb_get_ntohl(cause_tvb, CAUSE_NUMBER_OF_MISSING_PARAMETERS_OFFSET);
   proto_tree_add_item(cause_tree, hf_cause_number_of_missing_parameters, cause_tvb, CAUSE_NUMBER_OF_MISSING_PARAMETERS_OFFSET, CAUSE_NUMBER_OF_MISSING_PARAMETERS_LENGTH, ENC_BIG_ENDIAN);
   offset = CAUSE_FIRST_MISSING_PARAMETER_TYPE_OFFSET;
-  for(missing_parameter_number = 1; missing_parameter_number <= number_of_missing_parameters; missing_parameter_number++) {
+  for(missing_parameter_number = 0; missing_parameter_number < number_of_missing_parameters; missing_parameter_number++) {
     proto_tree_add_item(cause_tree, hf_cause_missing_parameter_type, cause_tvb, offset, CAUSE_MISSING_PARAMETER_TYPE_LENGTH, ENC_BIG_ENDIAN);
     offset +=  CAUSE_MISSING_PARAMETER_TYPE_LENGTH;
   }
@@ -1705,7 +1705,7 @@ dissect_unrecognized_chunk_type_cause(tvbuff_t *cause_tvb,  packet_info *pinfo, 
                                           MIN(chunk_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
   dissect_sctp_chunk(unrecognized_chunk_tvb, pinfo, cause_tree,cause_tree, NULL, FALSE);
   unrecognized_type   = tvb_get_guint8(unrecognized_chunk_tvb, CHUNK_TYPE_OFFSET);
-  proto_item_append_text(cause_item, " (Type: %u (%s))", unrecognized_type, val_to_str(unrecognized_type, chunk_type_values, "unknown"));
+  proto_item_append_text(cause_item, " (Type: %u (%s))", unrecognized_type, val_to_str_const(unrecognized_type, chunk_type_values, "unknown"));
 }
 
 static void
@@ -1904,7 +1904,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
   padding_length = tvb_reported_length(cause_tvb) - length;
 
-  cause_item = proto_tree_add_text(chunk_tree, cause_tvb, CAUSE_HEADER_OFFSET, tvb_reported_length(cause_tvb), "%s cause", val_to_str(code, cause_code_values, "Unknown"));
+  cause_item = proto_tree_add_text(chunk_tree, cause_tvb, CAUSE_HEADER_OFFSET, tvb_reported_length(cause_tvb), "%s cause", val_to_str_const(code, cause_code_values, "Unknown"));
   cause_tree = proto_item_add_subtree(cause_item, ett_sctp_chunk_cause);
 
   proto_tree_add_item(cause_tree, hf_cause_code, cause_tvb,   CAUSE_CODE_OFFSET,   CAUSE_CODE_LENGTH,   ENC_BIG_ENDIAN);
@@ -2128,58 +2128,11 @@ frag_hash(gconstpointer k)
          key->stream_id ^ key->stream_seq_num;
 }
 
-
-
-static void
-frag_free_msgs(sctp_frag_msg *msg)
-{
-  sctp_frag_be *beginend;
-  sctp_fragment *fragment;
-
-  /* free all begins */
-  while (msg->begins) {
-    beginend = msg->begins;
-    msg->begins = msg->begins->next;
-    g_free(beginend);
-  }
-
-  /* free all ends */
-  while (msg->ends) {
-    beginend = msg->ends;
-    msg->ends = msg->ends->next;
-    g_free(beginend);
-  }
-
-  /* free all fragments */
-  while (msg->fragments) {
-    fragment = msg->fragments;
-    msg->fragments = msg->fragments->next;
-    g_free(fragment->data);
-    g_free(fragment);
-  }
-
-  /* msg->messages is se_ allocated, no need to free it */
-
-  g_free(msg);
-}
-
-static gboolean
-free_table_entry(gpointer key, gpointer value, gpointer user_data _U_)
-{
-  sctp_frag_msg *msg = value;
-  frag_key *fkey = key;
-
-  frag_free_msgs(msg);
-  g_free(fkey);
-  return TRUE;
-}
-
 static void
 frag_table_init(void)
 {
   /* destroy an existing hash table and create a new one */
   if (frag_table) {
-    g_hash_table_foreach_remove(frag_table, free_table_entry, NULL);
     g_hash_table_destroy(frag_table);
     frag_table=NULL;
   }
@@ -2237,14 +2190,14 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
   msg = find_message(stream_id, stream_seq_num);
 
   if (!msg) {
-    msg = g_malloc (sizeof (sctp_frag_msg));
+    msg = se_alloc (sizeof (sctp_frag_msg));
     msg->begins = NULL;
     msg->ends = NULL;
     msg->fragments = NULL;
     msg->messages = NULL;
     msg->next = NULL;
 
-    key = g_malloc(sizeof (frag_key));
+    key = se_alloc(sizeof (frag_key));
     key->sport = sctp_info.sport;
     key->dport = sctp_info.dport;
     key->verification_tag = sctp_info.verification_tag;
@@ -2284,12 +2237,12 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     return NULL;
 
   /* create new fragment */
-  fragment = g_malloc (sizeof (sctp_fragment));
+  fragment = se_alloc (sizeof (sctp_fragment));
   fragment->frame_num = pinfo->fd->num;
   fragment->tsn = tsn;
   fragment->len = tvb_length(tvb);
   fragment->next = NULL;
-  fragment->data = g_malloc (fragment->len);
+  fragment->data = se_alloc (fragment->len);
   tvb_memcpy(tvb, fragment->data, 0, fragment->len);
 
   /* add new fragment to linked list. sort ascending by tsn */
@@ -2313,7 +2266,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
 
   /* save begin or end if neccessary */
   if (b_bit && !e_bit) {
-    beginend = g_malloc (sizeof (sctp_frag_be));
+    beginend = se_alloc (sizeof (sctp_frag_be));
     beginend->fragment = fragment;
     beginend->next = NULL;
 
@@ -2338,7 +2291,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
   }
 
   if (!b_bit && e_bit) {
-    beginend = g_malloc (sizeof (sctp_frag_be));
+    beginend = se_alloc (sizeof (sctp_frag_be));
     beginend->fragment = fragment;
     beginend->next = NULL;
 
@@ -2572,7 +2525,6 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
       offset += frag_i->len;
 
       /* release fragment data */
-      g_free(frag_i->data);
       frag_i->data = NULL;
     }
 
@@ -2585,7 +2537,6 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
       offset += frag_i->len;
 
       /* release fragment data */
-      g_free(frag_i->data);
       frag_i->data = NULL;
     }
 
@@ -2599,7 +2550,6 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
       offset += frag_i->len;
 
       /* release fragment data */
-      g_free(frag_i->data);
       frag_i->data = NULL;
     }
   }
@@ -2625,7 +2575,6 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     if (beginend && beginend->next == begin)
       beginend->next = begin->next;
   }
-  g_free(begin);
 
   if (msg->ends == end) {
     msg->ends = end->next;
@@ -2636,7 +2585,6 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     if (beginend && beginend->next == end)
       beginend->next = end->next;
   }
-   g_free(end);
 
   /* create data source */
   new_tvb = tvb_new_child_real_data(tvb, message->data, len, len);
@@ -3043,7 +2991,7 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   sctp_ack_block(pinfo, ha, chunk_tvb, acks_tree, NULL, cum_tsn_ack);
 
   last_end = 0;
-  for(gap_block_number = 1; gap_block_number <= number_of_gap_blocks; gap_block_number++) {
+  for(gap_block_number = 0; gap_block_number < number_of_gap_blocks; gap_block_number++) {
     proto_item *pi;
     proto_tree *pt;
     guint32 tsn_start;
@@ -3100,7 +3048,7 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   /* handle the duplicate TSNs */
   number_of_dup_tsns = tvb_get_ntohs(chunk_tvb, SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET);
   dup_tsn_offset     = SACK_CHUNK_GAP_BLOCK_OFFSET + number_of_gap_blocks * SACK_CHUNK_GAP_BLOCK_LENGTH;
-  for(dup_tsn_number = 1; dup_tsn_number <= number_of_dup_tsns; dup_tsn_number++) {
+  for(dup_tsn_number = 0; dup_tsn_number < number_of_dup_tsns; dup_tsn_number++) {
     proto_tree_add_item(chunk_tree, hf_sack_chunk_duplicate_tsn, chunk_tvb, dup_tsn_offset, SACK_CHUNK_DUP_TSN_LENGTH, ENC_BIG_ENDIAN);
     dup_tsn_offset += SACK_CHUNK_DUP_TSN_LENGTH;
   }
@@ -3179,7 +3127,7 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
   sctp_ack_block(pinfo, ha, chunk_tvb, acks_tree, NULL, cum_tsn_ack);
 
   last_end = 0;
-  for(gap_block_number = 1; gap_block_number <= number_of_gap_blocks; gap_block_number++) {
+  for(gap_block_number = 0; gap_block_number < number_of_gap_blocks; gap_block_number++) {
     proto_item *pi;
     proto_tree *pt;
     guint32 tsn_start;
@@ -3236,7 +3184,7 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
   nr_gap_block_offset     = gap_block_offset;
 
   last_end = 0;
-  for(nr_gap_block_number = 1; nr_gap_block_number <= number_of_nr_gap_blocks; nr_gap_block_number++) {
+  for(nr_gap_block_number = 0; nr_gap_block_number < number_of_nr_gap_blocks; nr_gap_block_number++) {
     proto_item *pi;
     proto_tree *pt;
     /*guint32 tsn_start;*/
@@ -3293,7 +3241,7 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
     + number_of_nr_gap_blocks * NR_SACK_CHUNK_NR_GAP_BLOCK_LENGTH;
 
 
-  for(dup_tsn_number = 1; dup_tsn_number <= number_of_dup_tsns; dup_tsn_number++) {
+  for(dup_tsn_number = 0; dup_tsn_number < number_of_dup_tsns; dup_tsn_number++) {
     proto_tree_add_item(chunk_tree, hf_sack_chunk_duplicate_tsn, chunk_tvb, dup_tsn_offset, NR_SACK_CHUNK_DUP_TSN_LENGTH, ENC_BIG_ENDIAN);
     dup_tsn_offset += NR_SACK_CHUNK_DUP_TSN_LENGTH;
   }
@@ -3690,11 +3638,11 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   padding_length  = reported_length - length;
 
  if (useinfo)
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, chunk_type_values, "RESERVED"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(type, chunk_type_values, "RESERVED"));
 
   if (tree) {
     /* create proto_tree stuff */
-    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, reported_length, "%s chunk", val_to_str(type, chunk_type_values, "RESERVED"));
+    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, reported_length, "%s chunk", val_to_str_const(type, chunk_type_values, "RESERVED"));
     chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
 
     /* then insert the chunk header components into the protocol tree */

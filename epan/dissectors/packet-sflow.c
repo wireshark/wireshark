@@ -33,7 +33,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *
  * This file (mostly) implements a dissector for sFlow (RFC3176),
@@ -58,6 +58,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 #define SFLOW_UDP_PORTS "6343"
 
@@ -76,8 +77,9 @@ static gboolean global_analyze_samp_ip_headers = FALSE;
 
 #define ENTERPRISE_DEFAULT 0
 
-#define ADDR_TYPE_IPV4 1
-#define ADDR_TYPE_IPV6 2
+#define ADDR_TYPE_UNKNOWN 0
+#define ADDR_TYPE_IPV4    1
+#define ADDR_TYPE_IPV6    2
 
 #define FLOWSAMPLE 1
 #define COUNTERSSAMPLE 2
@@ -864,16 +866,21 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static gint
-dissect_sflow_245_address_type(tvbuff_t *tvb, proto_tree *tree, gint offset,
+dissect_sflow_245_address_type(tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree, gint offset,
                                struct sflow_address_type *hf_type,
                                struct sflow_address_details *addr_detail) {
     guint32 addr_type;
     int len;
+    proto_item *pi;
 
     addr_type = tvb_get_ntohl(tvb, offset);
     offset += 4;
 
     switch (addr_type) {
+    case ADDR_TYPE_UNKNOWN:
+        len = 0;
+        break;
     case ADDR_TYPE_IPV4:
         len = 4;
         proto_tree_add_item(tree, hf_type->hf_addr_v4, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -883,15 +890,14 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, proto_tree *tree, gint offset,
         proto_tree_add_item(tree, hf_type->hf_addr_v6, tvb, offset, 16, ENC_NA);
         break;
     default:
-        /* acferen:  November 10, 2010
-         *
-         * We should never get here, but if we do we don't know
-         * the length for this address type.  Not knowing the
-         * length this default case is doomed to failure.  Might
-         * as well acknowledge that as soon as possible.
-         */
-        proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", addr_type);
-        return 0;               /* malformed packet */
+        /* Invalid address type, or a type we don't understand; we don't
+           know the length. W e treat it as having no contents; that
+           doesn't trap us in an endless loop, as we at least include
+           the address type and thus at least advance the offset by 4.
+           Note that we have a problem, though. */
+        len = 0;
+        pi = proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", addr_type);
+        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown/invalid address type");
     }
 
     if (addr_detail) {
@@ -926,10 +932,10 @@ dissect_sflow_245_extended_switch(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 
 /* extended router data, after the packet data */
 static gint
-dissect_sflow_245_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset) {
+dissect_sflow_245_extended_router(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
 
-    offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
+    offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
     proto_tree_add_item(tree, hf_sflow_245_nexthop_src_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_sflow_245_nexthop_dst_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -939,7 +945,7 @@ dissect_sflow_245_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 
 /* extended MPLS data */
 static gint
-dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, proto_tree *tree, gint offset) {
+dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     guint32 in_label_count, out_label_count, i, j;
     proto_tree *in_stack;
     proto_item *ti_in;
@@ -947,7 +953,7 @@ dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, proto_tree *tree, gint offset)
     proto_item *ti_out;
 
     struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
-    offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
+    offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
 
     in_label_count = tvb_get_ntohl(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 4, "In Label Stack Entries: %u", in_label_count);
@@ -982,22 +988,22 @@ dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 /* extended NAT data */
 static gint
-dissect_sflow_5_extended_nat(tvbuff_t *tvb, proto_tree *tree, gint offset) {
+dissect_sflow_5_extended_nat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     struct sflow_address_type addr_type = {hf_sflow_245_ipv4_src,
                                            hf_sflow_245_ipv6_src};
-    offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
+    offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
 
     addr_type.hf_addr_v4 = hf_sflow_245_ipv4_dst;
     addr_type.hf_addr_v6 = hf_sflow_245_ipv6_dst;
 
-    offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
+    offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
 
     return offset;
 }
 
 /* extended gateway data, after the packet data */
 static gint
-dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset) {
+dissect_sflow_245_extended_gateway(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     gint32 len = 0;
     gint32 i, j, comm_len, dst_len, dst_seg_len;
     guint32 path_type;
@@ -1013,7 +1019,7 @@ dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
     if (version == 5) {
         struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
 
-        offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
+        offset = dissect_sflow_245_address_type(tvb, pinfo, tree, offset, &addr_type, NULL);
     }
 
     proto_tree_add_item(tree, hf_sflow_245_as, tvb, offset + len, 4, ENC_BIG_ENDIAN);
@@ -1059,7 +1065,7 @@ dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
             len += 4;
             kludge = 8;
             ti = proto_tree_add_text(tree, tvb, offset + len - kludge, kludge,
-                    "%s, (%u entries)", val_to_str(path_type, sflow_245_as_types, "Unknown AS type"), dst_seg_len);
+                    "%s, (%u entries)", val_to_str_const(path_type, sflow_245_as_types, "Unknown AS type"), dst_seg_len);
             sflow_245_dst_as_seg_tree = proto_item_add_subtree(ti, ett_sflow_245_gw_as_dst_seg);
         }
 
@@ -1188,7 +1194,7 @@ dissect_sflow_5_ipv4(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     /* 7 bits for type of service, plus 1 reserved bit */
     tos = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 1, "%s",
-            val_to_str(tos >> 5, sflow_245_ipv4_precedence_types, "Unknown precedence type"));
+            val_to_str_const(tos >> 5, sflow_245_ipv4_precedence_types, "Unknown precedence type"));
     (tos & 0x10) >> 4 ?
             proto_tree_add_text(tree, tvb, offset, 1, "Delay: ...1... (Low)") :
             proto_tree_add_text(tree, tvb, offset, 1, "Delay: ...0... (Normal)");
@@ -1592,7 +1598,7 @@ dissect_sflow_5_extended_80211_rx(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 
     version = tvb_get_ntohl(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 4, "Version: %s",
-            val_to_str(version, sflow_5_ieee80211_versions, "Unknown"));
+            val_to_str_const(version, sflow_5_ieee80211_versions, "Unknown"));
     offset += 4;
 
     channel = tvb_get_ntohl(tvb, offset);
@@ -1648,7 +1654,7 @@ dissect_sflow_5_extended_80211_tx(tvbuff_t *tvb, proto_tree *tree, gint offset) 
 
     version = tvb_get_ntohl(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 4, "Version: %s",
-            val_to_str(version, sflow_5_ieee80211_versions, "Unknown"));
+            val_to_str_const(version, sflow_5_ieee80211_versions, "Unknown"));
     offset += 4;
 
     transmissions = tvb_get_ntohl(tvb, offset);
@@ -1769,7 +1775,7 @@ dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
          * the end, so more info can be correct.
          */
         ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                val_to_str(ext_type, sflow_245_extended_data_types, "Unknown extended information"));
+                val_to_str_const(ext_type, sflow_245_extended_data_types, "Unknown extended information"));
         extended_data_tree = proto_item_add_subtree(ti, ett_sflow_245_extended_data);
         proto_tree_add_uint(extended_data_tree, hf_sflow_245_extended_information_type, tvb, offset, 4, ext_type);
         offset += 4;
@@ -1779,10 +1785,10 @@ dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
                 offset = dissect_sflow_245_extended_switch(tvb, extended_data_tree, offset);
                 break;
             case SFLOW_245_EXTENDED_ROUTER:
-                offset = dissect_sflow_245_extended_router(tvb, extended_data_tree, offset);
+                offset = dissect_sflow_245_extended_router(tvb, pinfo, extended_data_tree, offset);
                 break;
             case SFLOW_245_EXTENDED_GATEWAY:
-                offset = dissect_sflow_245_extended_gateway(tvb, extended_data_tree, offset);
+                offset = dissect_sflow_245_extended_gateway(tvb, pinfo, extended_data_tree, offset);
                 break;
             case SFLOW_245_EXTENDED_USER:
                 break;
@@ -1813,7 +1819,7 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* only accept default enterprise 0 (InMon sFlow) */
     if (enterprise == ENTERPRISE_DEFAULT) {
         ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                val_to_str(format, sflow_5_flow_record_type, "Unknown sample format"));
+                val_to_str_const(format, sflow_5_flow_record_type, "Unknown sample format"));
         flow_data_tree = proto_item_add_subtree(ti, ett_sflow_5_flow_record);
 
         proto_tree_add_text(flow_data_tree, tvb, offset, 4, "Enterprise: standard sFlow (%u)", enterprise);
@@ -1840,10 +1846,10 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset = dissect_sflow_245_extended_switch(tvb, flow_data_tree, offset);
                 break;
             case SFLOW_5_ROUTER:
-                offset = dissect_sflow_245_extended_router(tvb, flow_data_tree, offset);
+                offset = dissect_sflow_245_extended_router(tvb, pinfo, flow_data_tree, offset);
                 break;
             case SFLOW_5_GATEWAY:
-                offset = dissect_sflow_245_extended_gateway(tvb, flow_data_tree, offset);
+                offset = dissect_sflow_245_extended_gateway(tvb, pinfo, flow_data_tree, offset);
                 break;
             case SFLOW_5_USER:
                 offset = dissect_sflow_5_extended_user(tvb, flow_data_tree, offset);
@@ -1852,10 +1858,10 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset = dissect_sflow_5_extended_url(tvb, flow_data_tree, offset);
                 break;
             case SFLOW_5_MPLS_DATA:
-                offset = dissect_sflow_5_extended_mpls_data(tvb, flow_data_tree, offset);
+                offset = dissect_sflow_5_extended_mpls_data(tvb, pinfo, flow_data_tree, offset);
                 break;
             case SFLOW_5_NAT:
-                offset = dissect_sflow_5_extended_nat(tvb, flow_data_tree, offset);
+                offset = dissect_sflow_5_extended_nat(tvb, pinfo, flow_data_tree, offset);
                 break;
             case SFLOW_5_MPLS_TUNNEL:
                 offset = dissect_sflow_5_extended_mpls_tunnel(tvb, flow_data_tree, offset);
@@ -2212,7 +2218,7 @@ dissect_sflow_5_counters_record(tvbuff_t *tvb, proto_tree *tree, gint offset) {
 
     if (enterprise == ENTERPRISE_DEFAULT) { /* only accept default enterprise 0 (InMon sFlow) */
         ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                val_to_str(format, sflow_5_counters_record_type, "Unknown sample format"));
+                val_to_str_const(format, sflow_5_counters_record_type, "Unknown sample format"));
         counter_data_tree = proto_item_add_subtree(ti, ett_sflow_5_counters_record);
 
         proto_tree_add_text(counter_data_tree, tvb, offset, 4, "Enterprise: standard sFlow (%u)", enterprise);
@@ -2414,7 +2420,7 @@ dissect_sflow_24_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint offset, p
             "Sampling Interval: %u",
             g_ntohl(counters_header.sampling_interval));
     proto_tree_add_text(tree, tvb, offset + 12, 4, "Counters type: %s",
-            val_to_str(g_ntohl(counters_header.counters_type),
+            val_to_str_const(g_ntohl(counters_header.counters_type),
             sflow_245_counterstype, "Unknown type"));
 
     offset += sizeof (counters_header);
@@ -2591,7 +2597,7 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
         if (enterprise == ENTERPRISE_DEFAULT) { /* only accept default enterprise 0 (InMon sFlow) */
             ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                    val_to_str(format, sflow_245_sampletype, "Unknown sample format"));
+                    val_to_str_const(format, sflow_245_sampletype, "Unknown sample format"));
             sflow_245_sample_tree = proto_item_add_subtree(ti, ett_sflow_245_sample);
 
             proto_tree_add_text(sflow_245_sample_tree, tvb, offset, 4, "Enterprise: standard sFlow (%u)", enterprise);
@@ -2630,7 +2636,7 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     } else { /* version 2 or 4 */
         ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                val_to_str(sample_type, sflow_245_sampletype, "Unknown sample type"));
+                val_to_str_const(sample_type, sflow_245_sampletype, "Unknown sample type"));
         sflow_245_sample_tree = proto_item_add_subtree(ti, ett_sflow_245_sample);
 
         proto_tree_add_item(sflow_245_sample_tree, hf_sflow_245_sampletype, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2667,23 +2673,51 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     volatile guint offset = 0;
     guint          i      = 0;
 
+    /*
+     * We fetch the version and address type so that we can determine,
+     * ahead of time, whether this is an sFlow packet or not, before
+     * we do *anything* to the columns or the protocol tree.
+     *
+     * XXX - we might want to deem this "not sFlow" if we don't have at
+     * least 8 bytes worth of data.
+     */
+    version = tvb_get_ntohl(tvb, offset);
+    if (version != 2 && version != 4 && version != 5) {
+       /* Unknown version; assume it's not an sFlow packet. */
+       return 0;
+    }
+    addr_details.addr_type = tvb_get_ntohl(tvb, offset + 4);
+    switch (addr_details.addr_type) {
+        case ADDR_TYPE_UNKNOWN:
+        case ADDR_TYPE_IPV4:
+        case ADDR_TYPE_IPV6:
+            break;
+
+        default:
+            /*
+             * Address type we don't know about; assume it's not an sFlow
+             * packet.
+             */
+            return 0;
+    }
+
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "sFlow");
-
 
     /* create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_sflow, tvb, 0, -1, ENC_NA);
 
     sflow_245_tree = proto_item_add_subtree(ti, ett_sflow_245);
 
-    version = tvb_get_ntohl(tvb, offset);
     col_add_fstr(pinfo->cinfo, COL_INFO, "V%u", version);
     proto_tree_add_item(sflow_245_tree, hf_sflow_version, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    offset = dissect_sflow_245_address_type(tvb, sflow_245_tree, offset,
+    offset = dissect_sflow_245_address_type(tvb, pinfo, sflow_245_tree, offset,
                                             &addr_type, &addr_details);
     switch (addr_details.addr_type) {
+        case ADDR_TYPE_UNKNOWN:
+            break;
         case ADDR_TYPE_IPV4:
             col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s", ip_to_str(addr_details.agent_address.v4));
             break;
@@ -2691,9 +2725,6 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s",
                     ip6_to_str((struct e_in6_addr *) addr_details.agent_address.v6));
             break;
-        default:
-            /* unknown address.  this will cause a malformed packet.  */
-            return 0;
     }
 
     if (version == 5) {
