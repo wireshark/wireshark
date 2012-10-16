@@ -86,26 +86,6 @@ extern void menu_name_resolution_changed(void) {
 
 }
 
-// From gtk/export_sslkeys.[ch]
-/** Callback for "Export SSL Session Keys" operation.
- *
- * @param w unused
- * @param data unused
- */
-extern void savesslkeys_cb(gpointer * w, gpointer data) {
-    Q_UNUSED(w);
-    Q_UNUSED(data);
-}
-
-/** Dump the SSL Session Keys to a StringInfo string
- *
- * @param session_hash contains all the SSL Session Keys
- */
-extern gpointer ssl_export_sessions(GHashTable *session_hash) {
-    Q_UNUSED(session_hash);
-    return NULL;
-}
-
 // From gtk/help_dlg.[ch]
 /** Open a specific topic (create a "Help" dialog box or open a webpage).
  *
