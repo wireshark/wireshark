@@ -3172,7 +3172,7 @@ match_ascii_and_unicode(capture_file *cf, frame_data *fdata, void *criterion)
   }
 
   result = MR_NOTMATCHED;
-  buf_len = fdata->pkt_len;
+  buf_len = fdata->cap_len;
   i = 0;
   while (i < buf_len) {
     c_char = cf->pd[i];
@@ -3218,7 +3218,7 @@ match_ascii(capture_file *cf, frame_data *fdata, void *criterion)
   }
 
   result = MR_NOTMATCHED;
-  buf_len = fdata->pkt_len;
+  buf_len = fdata->cap_len;
   i = 0;
   while (i < buf_len) {
     c_char = cf->pd[i];
@@ -3263,7 +3263,7 @@ match_unicode(capture_file *cf, frame_data *fdata, void *criterion)
   }
 
   result = MR_NOTMATCHED;
-  buf_len = fdata->pkt_len;
+  buf_len = fdata->cap_len;
   i = 0;
   while (i < buf_len) {
     c_char = cf->pd[i];
@@ -3307,7 +3307,7 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
   }
 
   result = MR_NOTMATCHED;
-  buf_len = fdata->pkt_len;
+  buf_len = fdata->cap_len;
   i = 0;
   while (i < buf_len) {
     if (cf->pd[i] == binary_data[c_match]) {
