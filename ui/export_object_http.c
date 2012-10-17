@@ -28,7 +28,6 @@
 #include "config.h"
 
 #include <glib.h>
-#include <gtk/gtk.h>
 
 #include <epan/dissectors/packet-http.h>
 #include <epan/tap.h>
