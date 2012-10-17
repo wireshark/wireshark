@@ -3931,7 +3931,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
   hdr.presence_flags = 0;
   if (fdata->flags.has_ts)
     hdr.presence_flags |= WTAP_HAS_TS;
-  if (fdata->flags.has_ts)
+  if (fdata->flags.has_if_id)
     hdr.presence_flags |= WTAP_HAS_INTERFACE_ID;
   hdr.ts.secs      = fdata->abs_ts.secs;
   hdr.ts.nsecs     = fdata->abs_ts.nsecs;
