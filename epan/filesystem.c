@@ -1018,15 +1018,8 @@ get_persconffile_dir_no_profile(void)
             /*
              * Concatenate %APPDATA% with "\Wireshark".
              */
-			gchar *program_name, *dotp;
-				
-			program_name = g_strdup(g_get_prgname());
-			dotp = strchr(program_name, '.');
-			*dotp = '\0';
-
             persconffile_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-                               appdatadir, program_name);
-			g_free(program_name);
+                               appdatadir, PF_DIR);
         } else {
             /*
              * OK, %APPDATA% wasn't set, so use
