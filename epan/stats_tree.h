@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -35,7 +35,7 @@
 
 #define STAT_TREE_ROOT "root"
 
-/* obscure information regarding the stats_tree */ 
+/* obscure information regarding the stats_tree */
 typedef struct _stats_tree stats_tree;
 
 /* tap packet callback for stats_tree */
@@ -59,7 +59,7 @@ typedef void  (*stat_tree_cleanup_cb)(stats_tree*);
  * cleanup: cleanup callback
  */
 extern void stats_tree_register(const gchar *tapname,
-				const gchar *abbr, 
+				const gchar *abbr,
 				const gchar *name,
 				guint flags,
 				stat_tree_packet_cb packet,
@@ -75,14 +75,14 @@ extern void stats_tree_register(const gchar *tapname,
  * cleanup: cleanup callback
  */
 extern void stats_tree_register_plugin(const gchar *tapname,
-				const gchar *abbr, 
+				const gchar *abbr,
 				const gchar *name,
 				guint flags,
 				stat_tree_packet_cb packet,
 				stat_tree_init_cb init,
 				stat_tree_cleanup_cb cleanup);
 
-/* registers a new stats tree 
+/* registers a new stats tree
  * abbr: protocol abbr
  * name: protocol display name
  * flags: tap listener flags for per-packet callback
@@ -92,7 +92,7 @@ extern void stats_tree_register_plugin(const gchar *tapname,
  * stat_group: the group this stat belongs to
  */
 extern void stats_tree_register_with_group(const gchar *tapname,
-				const gchar *abbr, 
+				const gchar *abbr,
 				const gchar *name,
 				guint flags,
 				stat_tree_packet_cb packet,
@@ -113,7 +113,7 @@ extern int stats_tree_create_node(stats_tree *st,
 				  int parent_id,
 				  gboolean with_children);
 
-/* creates a node using it's parent's tree name */ 
+/* creates a node using it's parent's tree name */
 extern int stats_tree_create_node_by_pname(stats_tree *st,
 					   const gchar *name,
 					   const gchar *parent_name,
