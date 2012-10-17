@@ -620,7 +620,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (fCon) {			/* Now, analyze variable part	*/
 	    unsigned char	 tCon;
 	    unsigned char	 tByte;
-	    unsigned char	 tpiLen;
+	    guint		tpiLen;
 	    tvbuff_t		*tmp_tvb;
 
 	    vHeader = 0;		/* Start scan all over	*/
