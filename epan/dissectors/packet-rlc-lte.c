@@ -1096,17 +1096,13 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
             /* UM                                       */
             /********************************************/
 
-            /* Previous channel frame */
-            if (p->previousFrameNum != 0) {
-                ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_previous_frame,
-                                         tvb, 0, 0, p->previousFrameNum);
-                PROTO_ITEM_SET_GENERATED(ti);
-            }
-
             /* Expected sequence number */
             ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_expected_sn,
                                     tvb, 0, 0, p->sequenceExpected);
             PROTO_ITEM_SET_GENERATED(ti);
+            if (p->sequenceExpectedCorrect) {
+                PROTO_ITEM_SET_HIDDEN(ti);
+            }
 
             if (!p->sequenceExpectedCorrect) {
                 /* Work out SN wrap (in case needed below) */
@@ -1177,19 +1173,6 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                                                p_rlc_lte_info->ueid);
                         break;
 
-                    case SN_OK:
-                        ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
-                                                    tvb, 0, 0, TRUE);
-                        PROTO_ITEM_SET_GENERATED(ti);
-                        proto_item_append_text(seqnum_ti, " - OK");
-
-                        /* Link to next SN in channel (if known) */
-                        if (p->nextFrameNum != 0) {
-                            proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_next_frame,
-                                                tvb, 0, 0, p->nextFrameNum);
-                        }
-                        break;
-
                     default:
                         /* Incorrect sequence number */
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
@@ -1216,6 +1199,7 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     else {
                        ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
                                                    tvb, 0, 0, TRUE);
+                       PROTO_ITEM_SET_HIDDEN(ti);
                     }
                 }
                 else {
@@ -1231,9 +1215,23 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     else {
                        ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
                                                    tvb, 0, 0, TRUE);
+                       PROTO_ITEM_SET_HIDDEN(ti);
                     }
 
                 }
+                PROTO_ITEM_SET_GENERATED(ti);
+
+                /* Set OK here! */
+                ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
+                                            tvb, 0, 0, TRUE);
+                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_append_text(seqnum_ti, " - OK");
+            }
+
+            /* Next channel frame */
+            if (p->nextFrameNum != 0) {
+                ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_next_frame,
+                                         tvb, 0, 0, p->nextFrameNum);
                 PROTO_ITEM_SET_GENERATED(ti);
             }
     }
@@ -1381,7 +1379,6 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                 p_channel_status->previousSegmentIncomplete = !last_includes_end;
 
                 if (p_channel_status->reassembly_info) {
-
                     /* Add next segment to reassembly info */
                     reassembly_add_segment(p_channel_status, sequenceNumber, pinfo->fd->num,
                                            tvb, firstSegmentOffset, firstSegmentLength);
@@ -2060,7 +2057,10 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         seq_anal_state = checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info,
                                                   FALSE,
                                                   s_number_of_extensions+1,
-                                                  offset, s_lengths[0],
+                                                  offset,
+                                                  s_number_of_extensions ?
+                                                      s_lengths[0] :
+                                                      p_rlc_lte_info->pduLength - offset,
                                                   lastSegmentOffset,
                                                   (guint16)sn, first_includes_start, last_includes_end,
                                                   FALSE, /* UM doesn't re-segment */
