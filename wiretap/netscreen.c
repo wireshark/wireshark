@@ -65,9 +65,9 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 static gboolean netscreen_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, guint8 *pd,
 	int len, int *err, gchar **err_info);
-static int parse_netscreen_rec_hdr(wtap *wth, const char *line,
+static int parse_netscreen_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 	char *cap_int, gboolean *cap_dir, char *cap_dst,
-	union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
+	int *err, gchar **err_info);
 static int parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
 	int *err, gchar **err_info);
 static int parse_single_hex_dump_line(char* rec, guint8 *buf,
@@ -230,11 +230,9 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 	if (offset < 0)
 		return FALSE;
 
-	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-
 	/* Parse the header */
-	pkt_len = parse_netscreen_rec_hdr(wth, line, cap_int, &cap_dir, cap_dst,
-		&wth->phdr.pseudo_header, err, err_info);
+	pkt_len = parse_netscreen_rec_hdr(&wth->phdr, line, cap_int, &cap_dir, cap_dst,
+		err, err_info);
 	if (pkt_len == -1)
 		return FALSE;
 
@@ -300,11 +298,11 @@ netscreen_seek_read (wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {
-	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	char		line[NETSCREEN_LINE_LENGTH];
 	char		cap_int[NETSCREEN_MAX_INT_NAME_LENGTH];
 	gboolean	cap_dir;
 	char		cap_dst[13];
+	int             caplen;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
@@ -318,15 +316,15 @@ netscreen_seek_read (wtap *wth, gint64 seek_off,
 		return FALSE;
 	}
 
-	if (parse_netscreen_rec_hdr(NULL, line, cap_int, &cap_dir, cap_dst,
-           pseudo_header, err, err_info) == -1) {
+	if (parse_netscreen_rec_hdr(phdr, line, cap_int, &cap_dir, cap_dst,
+           err, err_info) == -1) {
 		return FALSE;
 	}
 
-	if (parse_netscreen_hex_dump(wth->random_fh, len, pd, err, err_info)
-	    == -1) {
+	caplen = parse_netscreen_hex_dump(wth->random_fh, len, pd, err, err_info);
+	if (caplen == -1)
 		return FALSE;
-	}
+	phdr->caplen = caplen;
 	return TRUE;
 }
 
@@ -348,14 +346,15 @@ netscreen_seek_read (wtap *wth, gint64 seek_off,
 
  */
 static int
-parse_netscreen_rec_hdr(wtap *wth, const char *line, char *cap_int,
-    gboolean *cap_dir, char *cap_dst, union wtap_pseudo_header *pseudo_header _U_,
-    int *err, gchar **err_info)
+parse_netscreen_rec_hdr(struct wtap_pkthdr *phdr, const char *line, char *cap_int,
+    gboolean *cap_dir, char *cap_dst, int *err, gchar **err_info)
 {
 	int	sec;
 	int	dsec, pkt_len;
 	char	direction[2];
 	char	cap_src[13];
+
+	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
 	if (sscanf(line, "%9d.%9d: %15[a-z0-9/:.-](%1[io]) len=%9d:%12s->%12s/",
 		   &sec, &dsec, cap_int, direction, &pkt_len, cap_src, cap_dst) < 5) {
@@ -366,11 +365,9 @@ parse_netscreen_rec_hdr(wtap *wth, const char *line, char *cap_int,
 
 	*cap_dir = (direction[0] == 'o' ? NETSCREEN_EGRESS : NETSCREEN_INGRESS);
 
-	if (wth) {
-		wth->phdr.ts.secs  = sec;
-		wth->phdr.ts.nsecs = dsec * 100000000;
-		wth->phdr.len = pkt_len;
-	}
+	phdr->ts.secs  = sec;
+	phdr->ts.nsecs = dsec * 100000000;
+	phdr->len = pkt_len;
 
 	return pkt_len;
 }

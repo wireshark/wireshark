@@ -183,7 +183,7 @@ static gboolean nettl_seek_read(wtap *wth, gint64 seek_off,
 		struct wtap_pkthdr *phdr, guint8 *pd,
 		int length, int *err, gchar **err_info);
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
-		struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
+		struct wtap_pkthdr *phdr,
 		int *err, gchar **err_info, gboolean *fddihack);
 static gboolean nettl_read_rec_data(FILE_T fh, guint8 *pd, int length,
 		int *err, gchar **err_info, gboolean fddihack);
@@ -307,7 +307,7 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 
     /* Read record header. */
     *data_offset = file_tell(wth->fh);
-    ret = nettl_read_rec_header(wth, wth->fh, &wth->phdr, &wth->phdr.pseudo_header,
+    ret = nettl_read_rec_header(wth, wth->fh, &wth->phdr,
         err, err_info, &fddihack);
     if (ret <= 0) {
 	/* Read error or EOF */
@@ -355,7 +355,6 @@ nettl_seek_read(wtap *wth, gint64 seek_off,
 		struct wtap_pkthdr *phdr, guint8 *pd,
 		int length, int *err, gchar **err_info)
 {
-    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     int ret;
     gboolean fddihack=FALSE;
 
@@ -363,7 +362,7 @@ nettl_seek_read(wtap *wth, gint64 seek_off,
 	return FALSE;
 
     /* Read record header. */
-    ret = nettl_read_rec_header(wth, wth->random_fh, phdr, pseudo_header,
+    ret = nettl_read_rec_header(wth, wth->random_fh, phdr,
         err, err_info, &fddihack);
     if (ret <= 0) {
 	/* Read error or EOF */
@@ -383,9 +382,9 @@ nettl_seek_read(wtap *wth, gint64 seek_off,
 
 static int
 nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
-		union wtap_pseudo_header *pseudo_header, int *err,
-		gchar **err_info, gboolean *fddihack)
+		int *err, gchar **err_info, gboolean *fddihack)
 {
+    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     nettl_t *nettl = (nettl_t *)wth->priv;
     int bytes_read;
     struct nettlrec_hdr rec_hdr;

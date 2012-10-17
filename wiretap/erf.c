@@ -60,7 +60,6 @@
 
 static int erf_read_header(FILE_T fh,
                            struct wtap_pkthdr *phdr,
-                           union wtap_pseudo_header *pseudo_header,
                            erf_header_t *erf_header,
                            int *err,
                            gchar **err_info,
@@ -290,7 +289,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 
   do {
     if (!erf_read_header(wth->fh,
-                         &wth->phdr, &wth->phdr.pseudo_header, &erf_header,
+                         &wth->phdr, &erf_header,
                          err, err_info, &bytes_read, &packet_size)) {
       return FALSE;
     }
@@ -309,7 +308,6 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
                               struct wtap_pkthdr *phdr, guint8 *pd,
                               int length _U_, int *err, gchar **err_info)
 {
-  union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
   erf_header_t erf_header;
   guint32      packet_size;
 
@@ -317,7 +315,7 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
     return FALSE;
 
   do {
-    if (!erf_read_header(wth->random_fh, NULL, pseudo_header, &erf_header,
+    if (!erf_read_header(wth->random_fh, phdr, &erf_header,
                          err, err_info, NULL, &packet_size))
       return FALSE;
   } while ( erf_header.type == ERF_TYPE_PAD );
@@ -330,13 +328,13 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
 
 static int erf_read_header(FILE_T fh,
                            struct wtap_pkthdr *phdr,
-                           union wtap_pseudo_header *pseudo_header,
                            erf_header_t *erf_header,
                            int *err,
                            gchar **err_info,
                            guint32 *bytes_read,
                            guint32 *packet_size)
 {
+  union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
   guint32 mc_hdr;
   guint8  erf_exhdr[8];
   guint64 erf_exhdr_sw;
@@ -375,7 +373,7 @@ static int erf_read_header(FILE_T fh,
     }
   }
 
-  if (phdr != NULL) {
+  {
     guint64 ts = pletohll(&erf_header->ts);
 
     phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
@@ -422,7 +420,7 @@ static int erf_read_header(FILE_T fh,
     case ERF_TYPE_INFINIBAND:
     case ERF_TYPE_INFINIBAND_LINK:
 #if 0
-      if (phdr != NULL) {
+      {
         phdr->len =  g_htons(erf_header->wlen);
         phdr->caplen = g_htons(erf_header->wlen);
       }
@@ -476,7 +474,7 @@ static int erf_read_header(FILE_T fh,
       return FALSE;
   }
 
-  if (phdr != NULL) {
+  {
     phdr->len = g_htons(erf_header->wlen);
     phdr->caplen = MIN( g_htons(erf_header->wlen),
                         g_htons(erf_header->rlen) - (guint32)sizeof(*erf_header) - skiplen );

@@ -911,6 +911,17 @@ wtap_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {
-	return wth->subtype_seek_read(wth, seek_off, phdr, pd, len,
-		err, err_info);
+	phdr->presence_flags = 0;
+	phdr->pkt_encap = wth->file_encap;
+	phdr->len = phdr->caplen = len;
+
+	if (!wth->subtype_seek_read(wth, seek_off, phdr, pd, len, err, err_info))
+		return FALSE;
+
+	if (phdr->caplen > phdr->len)
+		phdr->caplen = phdr->len;
+			
+	/* g_assert(phdr->pkt_encap != WTAP_ENCAP_PER_PACKET); */
+
+	return TRUE;
 }

@@ -104,8 +104,6 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh)
 
     /* Copy, and set length and timestamp from item. */
     /* TODO: remove when wtap_seek_read() will read phdr */
-    phdr.len = frame->length;
-    phdr.caplen = frame->length;
     phdr.ts = frame->time;
 
     /* Dump frame to outfile */
