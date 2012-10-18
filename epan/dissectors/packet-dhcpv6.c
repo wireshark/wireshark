@@ -941,7 +941,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
 
                 if ((tlv_len % field_len) == 0) {
                     for (i = 0; i < tlv_len/field_len; i++) {
-                        proto_tree_add_item(v_tree, hf_cablelabs_ipv6_server, tvb, sub_off, 16, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(subtree, hf_cablelabs_ipv6_server, tvb, sub_off, 16, ENC_BIG_ENDIAN);
                         sub_off += field_len;
                     }
                 }
