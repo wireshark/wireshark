@@ -30,9 +30,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
-/* Include files */
-
 #include "config.h"
 
 #include <glib.h>
@@ -177,13 +174,15 @@ static GArray           *gbl_symbols_array  = NULL;
 static value_string_ext *gbl_symbols_vs_ext = NULL;
 
 static void
-gbl_symbols_new(void) {
+gbl_symbols_new(void)
+{
   DISSECTOR_ASSERT(gbl_symbols_array == NULL);
   gbl_symbols_array = g_array_new(TRUE, TRUE, sizeof(value_string));
 }
 
 static void
-gbl_symbols_free(void) {
+gbl_symbols_free(void)
+{
   g_free(gbl_symbols_vs_ext);
   gbl_symbols_vs_ext = NULL;
 
@@ -200,7 +199,8 @@ gbl_symbols_free(void) {
 }
 
 static void
-gbl_symbols_array_append(int hash, gchar *symbol) {
+gbl_symbols_array_append(int hash, gchar *symbol)
+{
   value_string vs = {hash, symbol};
   DISSECTOR_ASSERT(gbl_symbols_array != NULL);
   g_array_append_val(gbl_symbols_array, vs);
@@ -221,7 +221,8 @@ gbl_symbols_compare_vs(gconstpointer  a, gconstpointer  b)
 }
 
 static void
-gbl_symbols_vs_ext_new(void) {
+gbl_symbols_vs_ext_new(void)
+{
   DISSECTOR_ASSERT(gbl_symbols_vs_ext == NULL);
   DISSECTOR_ASSERT(gbl_symbols_array != NULL);
   g_array_sort(gbl_symbols_array, gbl_symbols_compare_vs);
@@ -284,6 +285,7 @@ static void
 add_symbols_of_file(const char *filename)
 {
   FILE *pFile;
+
   pFile = ws_fopen(filename, "r");
 
   if (pFile != NULL) {
@@ -324,11 +326,11 @@ add_symbols_of_file(const char *filename)
 static void
 read_hashed_symbols_from_dir(const char *dirname)
 {
-  WS_DIR       *dir;
-  WS_DIRENT    *file;
-  const char   *name;
-  char         *filename;
-  GError       *err_p = NULL;
+  WS_DIR     *dir;
+  WS_DIRENT  *file;
+  const char *name;
+  char       *filename;
+  GError     *err_p = NULL;
 
   if(gbl_current_keytab_folder != NULL) {
     g_free(gbl_current_keytab_folder);
@@ -410,8 +412,8 @@ static guint32
 read_length(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 {
   guint32 length;
-  int length_of_array_length_type;
-  guint8 tiny;
+  int     length_of_array_length_type;
+  guint8  tiny;
 
   tiny = tvb_get_guint8(tvb, *offset);
 
@@ -482,6 +484,7 @@ static void
 read_bytes(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 {
   int length;
+
   read_type(offset, tvb, etch_tree);
   length = read_length(offset, tvb, etch_tree);
   proto_tree_add_item(etch_tree, hf_etch_bytes, tvb, *offset, length,
@@ -496,6 +499,7 @@ static void
 read_string(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 {
   int byteLength;
+
   read_type(offset, tvb, etch_tree);
 
   byteLength = read_length(offset, tvb, etch_tree);
@@ -604,8 +608,8 @@ read_struct(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
 {
   proto_item *ti;
   proto_tree *new_tree;
-  int length;
-  int i;
+  int         length;
+  int         i;
 
   ti = proto_tree_add_item(etch_tree, hf_etch_struct, tvb, *offset,
                            tvb_length(tvb) - *offset, ENC_NA);
@@ -671,7 +675,7 @@ read_key_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 static emem_strbuf_t*
 get_column_info(tvbuff_t *tvb)
 {
-  int byte_length;
+  int            byte_length;
   guint8         type_code;
   emem_strbuf_t *result_buf;
   int            my_offset = 0;
@@ -724,7 +728,7 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     gbl_old_frame_num = pinfo->fd->num;
 
-    col_set_writable(pinfo->cinfo, 1);
+    col_set_writable(pinfo->cinfo, TRUE);
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", colInfo->str);
   }
 
@@ -778,7 +782,7 @@ dissect_etch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                    dissect_etch_message);
 
   if (gbl_pdu_counter > 0) {
-    col_set_writable(pinfo->cinfo, 1);
+    col_set_writable(pinfo->cinfo, TRUE);
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "[%d] ", gbl_pdu_counter + 1);
   }
 
@@ -982,8 +986,8 @@ void proto_reg_handoff_etch(void)
   /* read config folder files, if filename has changed
    * (while protecting strcmp() from NULLs)
    */
-  if(gbl_keytab_folder == NULL || gbl_current_keytab_folder == NULL ||
-     strcmp(gbl_keytab_folder, gbl_current_keytab_folder) != 0) {
+  if((gbl_keytab_folder == NULL) || (gbl_current_keytab_folder == NULL) ||
+     (strcmp(gbl_keytab_folder, gbl_current_keytab_folder) != 0)) {
     read_hashed_symbols_from_dir(gbl_keytab_folder);
   }
 }
