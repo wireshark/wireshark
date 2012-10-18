@@ -214,7 +214,7 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
 {
   proto_item *td;
   proto_tree *dest_tree;
-  guint16 tag;
+  guint16     tag;
   proto_tree *rd_tree;
 
   td = proto_tree_add_text(tree, tvb, offset, 8, "%s LAN destination",
@@ -301,8 +301,8 @@ static void
 dissect_le_control_tlvs(tvbuff_t *tvb, int offset, guint num_tlvs,
                         proto_tree *tree)
 {
-  guint32 tlv_type;
-  guint8 tlv_length;
+  guint32     tlv_type;
+  guint8      tlv_length;
   proto_item *ttlv;
   proto_tree *tlv_tree;
 
@@ -488,11 +488,11 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *lane_tree = NULL;
-  int offset = 0;
+  int         offset    = 0;
   proto_item *tf;
   proto_tree *flags_tree;
-  guint16 opcode;
-  guint16 flags;
+  guint16     opcode;
+  guint16     flags;
 
   col_set_str(pinfo->cinfo, COL_INFO, "LE Control");
 
@@ -691,7 +691,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ilmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_ilmi, ett_ilmi, ENC_BIG_ENDIAN);
+  dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_ilmi, ett_ilmi, FALSE);
 }
 
 /* AAL types */
@@ -915,13 +915,13 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *atm_ti,
     proto_tree *atm_tree, gboolean truncated)
 {
-  guint        length, reported_length;
-  guint16      aal5_length;
-  int          pad_length;
-  tvbuff_t     *next_tvb;
-  guint32      crc;
-  guint32      calc_crc;
-  gint         type;
+  guint     length, reported_length;
+  guint16   aal5_length;
+  int       pad_length;
+  tvbuff_t *next_tvb;
+  guint32   crc;
+  guint32   calc_crc;
+  gint      type;
   /*
    * ATM dissector is used as "sub-dissector" for ATM pseudowires.
    * In such cases, pinfo->private_data is used to pass info from/to
@@ -1200,24 +1200,20 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       type = unknown_aal2_type;
     }
     switch (type) {
-      case TRAF_UMTS_FP:
-          call_dissector(fp_handle, next_tvb, pinfo, tree);
-          break;
+    case TRAF_UMTS_FP:
+      call_dissector(fp_handle, next_tvb, pinfo, tree);
+      break;
 
-      default:
-        if (tree) {
-          /* Dump it as raw data. */
-          call_dissector(data_handle, next_tvb, pinfo, tree);
-          break;
-        }
+    default:
+      /* Dump it as raw data. */
+      call_dissector(data_handle, next_tvb, pinfo, tree);
+      break;
     }
     break;
 
   default:
-    if (tree) {
-      /* Dump it as raw data. */
-      call_dissector(data_handle, next_tvb, pinfo, tree);
-    }
+    /* Dump it as raw data. */
+    call_dissector(data_handle, next_tvb, pinfo, tree);
     break;
   }
 }
@@ -1412,7 +1408,7 @@ static int
 get_header_err(const guint8 *cell_header)
 {
   register guint8 syndrome;
-  register int i, err_posn;
+  register int    i, err_posn;
 
   syndrome = 0;
   for (i = 0;  i < 4;  i++)
@@ -1545,7 +1541,8 @@ static const value_string ft_ad_vals[] = {
  * OAM F4 is VCI 3 or 4 and PT 0X0.
  * OAM F5 is PT 10X.
  */
-gboolean atm_is_oam_cell(const guint16 vci, const guint8 pt)
+gboolean
+atm_is_oam_cell(const guint16 vci, const guint8 pt)
 {
   return  (((vci == 3 || vci == 4) && ((pt & 0x5) == 0))
            || ((pt & 0x6) == 0x4));
@@ -1557,20 +1554,20 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  proto_tree *atm_tree, guint aal, gboolean nni,
                  gboolean crc_stripped)
 {
-  int          offset;
-  proto_tree   *aal_tree;
-  proto_item   *ti;
-  guint8       octet;
-  int          err;
-  guint16      vpi;
-  guint16      vci;
-  guint8       pt;
-  guint16      aal3_4_hdr, aal3_4_trlr;
-  guint16      oam_crc;
-  gint         length;
-  guint16      crc10;
-  tvbuff_t     *next_tvb;
-  const pwatm_private_data_t * pwpd = pinfo->private_data;
+  int         offset;
+  proto_tree *aal_tree;
+  proto_item *ti;
+  guint8      octet;
+  int         err;
+  guint16     vpi;
+  guint16     vci;
+  guint8      pt;
+  guint16     aal3_4_hdr, aal3_4_trlr;
+  guint16     oam_crc;
+  gint        length;
+  guint16     crc10;
+  tvbuff_t   *next_tvb;
+  const pwatm_private_data_t *pwpd = pinfo->private_data;
 
   if (NULL == pwpd) {
     if (!nni) {
@@ -1799,9 +1796,9 @@ static void
 dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean truncated)
 {
-  proto_tree   *atm_tree = NULL;
-  proto_item   *atm_ti = NULL;
-  gboolean     pseudowire_mode = (NULL != pinfo->private_data);
+  proto_tree *atm_tree        = NULL;
+  proto_item *atm_ti          = NULL;
+  gboolean    pseudowire_mode = (NULL != pinfo->private_data);
 
   if ( pinfo->pseudo_header->atm.aal == AAL_5 &&
        pinfo->pseudo_header->atm.type == TRAF_LANE &&
@@ -1894,26 +1891,26 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_atm_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_atm_common(tvb, pinfo, tree, ENC_BIG_ENDIAN);
+  dissect_atm_common(tvb, pinfo, tree, FALSE);
 }
 
 static void
 dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree   *atm_tree = NULL;
-  proto_item   *atm_ti = NULL;
-  gboolean     pseudowire_mode = (NULL != pinfo->private_data);
+  proto_tree *atm_tree        = NULL;
+  proto_item *atm_ti          = NULL;
+  gboolean    pseudowire_mode = (NULL != pinfo->private_data);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
 
   if (!pseudowire_mode) {
     if (tree) {
-      atm_ti = proto_tree_add_protocol_format(tree, proto_atm, tvb, 0, 0, "ATM");
+      atm_ti   = proto_tree_add_protocol_format(tree, proto_atm, tvb, 0, 0, "ATM");
       atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
     }
   }
 
-  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, ENC_BIG_ENDIAN);
+  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, FALSE);
 }
 
 
@@ -1990,8 +1987,8 @@ proto_register_atm(void)
 
   module_t *atm_module;
 
-  proto_atm = proto_register_protocol("Asynchronous Transfer Mode", "ATM", "atm");
-  proto_aal1 = proto_register_protocol("ATM AAL1", "AAL1", "aal1");
+  proto_atm    = proto_register_protocol("Asynchronous Transfer Mode", "ATM", "atm");
+  proto_aal1   = proto_register_protocol("ATM AAL1", "AAL1", "aal1");
   proto_aal3_4 = proto_register_protocol("ATM AAL3/4", "AAL3/4", "aal3_4");
   proto_oamaal = proto_register_protocol("ATM OAM AAL", "OAM AAL", "oamaal");
   proto_register_field_array(proto_atm, hf, array_length(hf));
@@ -2010,13 +2007,13 @@ proto_register_atm(void)
   register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
 
   atm_module = prefs_register_protocol ( proto_atm, NULL );
-  prefs_register_bool_preference ( atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",
-                                   "Autodection between LANE and SSCOP is hard. As default LANE is preferred",
-                                   &dissect_lanesscop);
-  prefs_register_enum_preference ( atm_module, "unknown_aal2_type",
-                                   "Decode unknown AAL2 traffic as",
-                                   "Type used to dissect unknown AAL2 traffic",
-                                   &unknown_aal2_type, unknown_aal2_options, ENC_BIG_ENDIAN);
+  prefs_register_bool_preference(atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",
+                                 "Autodection between LANE and SSCOP is hard. As default LANE is preferred",
+                                 &dissect_lanesscop);
+  prefs_register_enum_preference(atm_module, "unknown_aal2_type",
+                                 "Decode unknown AAL2 traffic as",
+                                 "Type used to dissect unknown AAL2 traffic",
+                                 &unknown_aal2_type, unknown_aal2_options, FALSE);
 
 }
 
@@ -2030,18 +2027,18 @@ proto_reg_handoff_atm(void)
    * SSCOP, LANE, and ILMI dissectors.
    */
   eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-  tr_handle = find_dissector("tr");
-  fr_handle = find_dissector("fr");
-  llc_handle = find_dissector("llc");
-  sscop_handle = find_dissector("sscop");
-  lane_handle = find_dissector("lane");
-  ilmi_handle = find_dissector("ilmi");
-  ppp_handle = find_dissector("ppp");
-  eth_handle = find_dissector("eth");
-  ip_handle = find_dissector("ip");
-  data_handle = find_dissector("data");
-  fp_handle = find_dissector("fp");
-  gprs_ns_handle = find_dissector("gprs_ns");
+  tr_handle             = find_dissector("tr");
+  fr_handle             = find_dissector("fr");
+  llc_handle            = find_dissector("llc");
+  sscop_handle          = find_dissector("sscop");
+  lane_handle           = find_dissector("lane");
+  ilmi_handle           = find_dissector("ilmi");
+  ppp_handle            = find_dissector("ppp");
+  eth_handle            = find_dissector("eth");
+  ip_handle             = find_dissector("ip");
+  data_handle           = find_dissector("data");
+  fp_handle             = find_dissector("fp");
+  gprs_ns_handle        = find_dissector("gprs_ns");
 
   atm_handle = create_dissector_handle(dissect_atm, proto_atm);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);
