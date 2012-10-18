@@ -1685,7 +1685,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			(tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP20,
 				(int)strlen(PACKETCABLE_CM_CAP20)) == 0 ))
 		{
-			dissect_docsis_cm_cap(v_tree, tvb, optoff, optlen, ENC_BIG_ENDIAN);
+			dissect_docsis_cm_cap(v_tree, tvb, optoff, optlen, FALSE);
 		} else
 			if (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP30,
 				(int)strlen(PACKETCABLE_CM_CAP30)) == 0 )
@@ -6503,7 +6503,7 @@ proto_register_bootp(void)
 				       "The PacketCable CCC protocol version",
 				       &pkt_ccc_protocol_version,
 				       pkt_ccc_protocol_versions,
-				       ENC_BIG_ENDIAN);
+				       FALSE);
 
 	prefs_register_uint_preference(bootp_module, "pkt.ccc.option",
 				       "PacketCable CCC option",

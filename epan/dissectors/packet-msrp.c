@@ -303,7 +303,7 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
     while (tvb_offset_exists(tvb, offset)) {
         /* 'desegment' is FALSE so will set next_offset to beyond the end of
            the buffer if no line ending is found */
-        tvb_find_line_end(tvb, offset, -1, &next_offset, ENC_BIG_ENDIAN);
+        tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         linelen = next_offset - offset;
         if(tree) {
             proto_tree_add_text(tree, tvb, offset, linelen,
@@ -355,7 +355,7 @@ check_msrp_header(tvbuff_t *tvb)
         return FALSE;
     }
 
-    linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, ENC_BIG_ENDIAN);
+    linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
     /* Find the first SP */
     space_offset = tvb_find_guint8(tvb, 0, linelen, ' ');
 
@@ -403,7 +403,7 @@ find_end_line(tvbuff_t *tvb, gint start)
     while (tvb_length_remaining(tvb, offset) > 0) {
         /* 'desegment' is FALSE so will set next_offset to beyond the end of
            the buffer if no line ending is found */
-        linelen =  tvb_find_line_end(tvb, offset, -1, &next_offset, ENC_BIG_ENDIAN);
+        linelen =  tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         if (linelen == -1) {
             return -1;
         }
@@ -490,7 +490,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
      * "tvb_get_ptr()" calls below won't throw exceptions.   *
      */
     offset = 0;
-    linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, ENC_BIG_ENDIAN);
+    linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
 
     /* Find the first SP and skip the first token */
     token_2_start = tvb_find_guint8(tvb, 0, linelen, ' ') + 1;
@@ -556,7 +556,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     offset = next_offset;
     end_line_offset = find_end_line(tvb,offset);
     /* TODO if -1 (No end line found, is returned do something) */
-    end_line_len =  tvb_find_line_end(tvb, end_line_offset, -1, &next_offset, ENC_BIG_ENDIAN);
+    end_line_len =  tvb_find_line_end(tvb, end_line_offset, -1, &next_offset, FALSE);
     message_end_offset = end_line_offset + end_line_len + 2;
 
 
@@ -594,7 +594,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         while (tvb_reported_length_remaining(tvb, offset) > 0 && offset < end_line_offset  ) {
             /* 'desegment' is FALSE so will set next_offset to beyond the end of
                the buffer if no line ending is found */
-            linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, ENC_BIG_ENDIAN);
+            linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
             if (linelen == 0) {
                 /*
                  * This is a blank line separating the
@@ -706,7 +706,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             {
                 offset = 0;
                 while (tvb_offset_exists(next_tvb, offset)) {
-                    tvb_find_line_end(next_tvb, offset, -1, &next_offset, ENC_BIG_ENDIAN);
+                    tvb_find_line_end(next_tvb, offset, -1, &next_offset, FALSE);
                     linelen = next_offset - offset;
                     proto_tree_add_text(msrp_data_tree, next_tvb, offset, linelen,
                                     "%s", tvb_format_text(next_tvb, offset, linelen));

@@ -264,7 +264,7 @@ dissect_arcnet (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_arcnet_linux (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_arcnet_common (tvb, pinfo, tree, TRUE, ENC_BIG_ENDIAN);
+  dissect_arcnet_common (tvb, pinfo, tree, TRUE, FALSE);
 }
 
 static const value_string arcnet_prot_id_vals[] = {

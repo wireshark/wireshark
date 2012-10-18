@@ -1667,7 +1667,7 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
         if (disc != 0x0b)
             curr_offset = dissect_e212_mcc_mnc(tvb, g_pinfo, tree, curr_offset, TRUE);
         else
-            curr_offset = dissect_e212_mcc_mnc(tvb, g_pinfo, tree, curr_offset, ENC_BIG_ENDIAN);
+            curr_offset = dissect_e212_mcc_mnc(tvb, g_pinfo, tree, curr_offset, FALSE);
         /* FALLTHRU */
 
     case 0x01:
