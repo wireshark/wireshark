@@ -62,11 +62,13 @@ public:
     explicit ExportObjectDialog(QWidget *parent, capture_file *cf, ObjectType object_type);
     ~ExportObjectDialog();
 
-    void show();
 
     void addObjectEntry(export_object_entry_t *entry);
     export_object_entry_t *objectEntry(int row);
     void resetObjects();
+
+public slots:
+    void show();
 
 private slots:
     void accept();

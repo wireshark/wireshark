@@ -56,7 +56,7 @@ static void
 eo_reset(void *tapdata)
 {
     export_object_list_t *object_list = (export_object_list_t *) tapdata;
-    if (object_list) object_list->eod->resetObjects();
+    if (object_list && object_list->eod) object_list->eod->resetObjects();
 }
 
 } // extern "C"
@@ -113,42 +113,17 @@ ExportObjectDialog::ExportObjectDialog(QWidget *parent, capture_file *cf, Object
 
     connect(wsApp, SIGNAL(captureFileClosing(const capture_file*)),
             this, SLOT(captureFileClosing(const capture_file*)));
+
+    show();
+    raise();
+    activateWindow();
 }
 
 ExportObjectDialog::~ExportObjectDialog()
 {
     delete eo_ui_;
-}
-
-void ExportObjectDialog::show()
-{
-    GString *error_msg;
-
-    if (!cap_file_) destroy(); // Assert?
-
-    /* Data will be gathered via a tap callback */
-    error_msg = register_tap_listener(tap_name_, (void *)&export_object_list_, NULL, 0,
-                                      eo_reset,
-                                      tap_packet_,
-                                      NULL);
-
-    if (error_msg) {
-        QMessageBox::warning(
-                    this,
-                    tr("Tap registration error"),
-                    QString("Unable to register ") + name_ + QString(" tap: ") + error_msg->str,
-                    QMessageBox::Ok
-                    );
-        g_string_free(error_msg, TRUE);
-        return;
-    }
-
-    QDialog::show();
-    cf_retap_packets(cap_file_);
-    eo_ui_->progressFrame->hide();
-    for (int i = 0; i < eo_ui_->objectTree->columnCount(); i++)
-        eo_ui_->objectTree->resizeColumnToContents(i);
-
+    export_object_list_.eod = NULL;
+    remove_tap_listener((void *)&export_object_list_);
 }
 
 void ExportObjectDialog::addObjectEntry(export_object_entry_t *entry)
@@ -189,6 +164,37 @@ void ExportObjectDialog::resetObjects()
     if (eo_protocoldata_resetfn_) eo_protocoldata_resetfn_();
     if (save_bt_) save_bt_->setEnabled(false);
     if (save_all_bt_) save_all_bt_->setEnabled(false);
+}
+
+void ExportObjectDialog::show()
+{
+    GString *error_msg;
+
+    if (!cap_file_) destroy(); // Assert?
+
+    /* Data will be gathered via a tap callback */
+    error_msg = register_tap_listener(tap_name_, (void *)&export_object_list_, NULL, 0,
+                                      eo_reset,
+                                      tap_packet_,
+                                      NULL);
+
+    if (error_msg) {
+        QMessageBox::warning(
+                    this,
+                    tr("Tap registration error"),
+                    QString("Unable to register ") + name_ + QString(" tap: ") + error_msg->str,
+                    QMessageBox::Ok
+                    );
+        g_string_free(error_msg, TRUE);
+        return;
+    }
+
+    QDialog::show();
+    cf_retap_packets(cap_file_);
+    eo_ui_->progressFrame->hide();
+    for (int i = 0; i < eo_ui_->objectTree->columnCount(); i++)
+        eo_ui_->objectTree->resizeColumnToContents(i);
+
 }
 
 void ExportObjectDialog::accept()

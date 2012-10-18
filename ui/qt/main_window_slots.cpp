@@ -801,20 +801,17 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
 
 void MainWindow::on_actionFileExportObjectsDICOM_triggered()
 {
-    ExportObjectDialog *eod = new ExportObjectDialog(this, cap_file_, ExportObjectDialog::Dicom);
-    eod->show();
+    new ExportObjectDialog(this, cap_file_, ExportObjectDialog::Dicom);
 }
 
 void MainWindow::on_actionFileExportObjectsHTTP_triggered()
 {
-    ExportObjectDialog *eod = new ExportObjectDialog(this, cap_file_, ExportObjectDialog::Http);
-    eod->show();
+    new ExportObjectDialog(this, cap_file_, ExportObjectDialog::Http);
 }
 
 void MainWindow::on_actionFileExportObjectsSMB_triggered()
 {
-    ExportObjectDialog *eod = new ExportObjectDialog(this, cap_file_, ExportObjectDialog::Smb);
-    eod->show();
+    new ExportObjectDialog(this, cap_file_, ExportObjectDialog::Smb);
 }
 
 // View Menu
