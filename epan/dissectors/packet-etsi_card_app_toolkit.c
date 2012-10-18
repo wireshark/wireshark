@@ -2,7 +2,7 @@
  * Routines for packet dissection of
  *	ETSI TS 102 223 v10.0.0  (Release 10 / 2010-10)
  *	3GPP TS 11.14 v8.17.0 (Release 1999 / 2004-09)
- *	3GPP TS 31.111
+ *	3GPP TS 31.111 v9.7.0 (Release 9 / 2012-03)
  * Copyright 2010-2011 by Harald Welte <laforge@gnumonks.org>
  *
  * $Id$
@@ -56,6 +56,12 @@ static int hf_ctlv_cmd_qual = -1;
 static int hf_ctlv_dur_time_intv = -1;
 static int hf_ctlv_dur_time_unit = -1;
 static int hf_ctlv_result_gen = -1;
+static int hf_ctlv_result_term = -1;
+static int hf_ctlv_result_launch_browser = -1;
+static int hf_ctlv_result_multiplecard = -1;
+static int hf_ctlv_result_cc_ctrl_mo_sm_ctrl = -1;
+static int hf_ctlv_result_bip = -1;
+static int hf_ctlv_result_frames_cmd = -1;
 static int hf_ctlv_text_string_enc = -1;
 static int hf_ctlv_text_string = -1;
 static int hf_ctlv_event = -1;
@@ -375,7 +381,7 @@ static const value_string time_unit_vals[] = {
 	{ 0, NULL }
 };
 
-/* TS 102 223 Chapter 7.12 */
+/* TS 102 223 Chapter 8.12 */
 static const value_string result_vals[] = {
 	{ 0x00, "Command performed successfully" },
 	{ 0x01, "Command performed with partial comprehension" },
@@ -391,6 +397,7 @@ static const value_string result_vals[] = {
 	{ 0x11, "Backward move in the proactive UICC session requested by user" },
 	{ 0x12, "No response from user" },
 	{ 0x13, "Help information required by the user" },
+	{ 0x14, "USSD or SS transaction terminated by the user" },
 	{ 0x20, "Terminal currently unable to process command" },
 	{ 0x21, "Network currently unable to process command" },
 	{ 0x22, "User did not accept the proactive command" },
@@ -403,15 +410,84 @@ static const value_string result_vals[] = {
 	{ 0x31, "Command type not understood by terminal" },
 	{ 0x32, "Command data not understood by terminal" },
 	{ 0x33, "Command number not known by terminal" },
+	{ 0x34, "SS Return Error" },
+	{ 0x35, "SMS RP-ERROR" },
 	{ 0x36, "Error, required values are missing" },
+	{ 0x37, "USSD Return Error" },
 	{ 0x38, "MultipleCard commands error" },
-	{ 0x39, "Interaction with call control by NAA, permanent problem" },
+	{ 0x39, "Interaction with call control by USIM or MO short message control by USIM, permanent problem" },
 	{ 0x3a, "Bearer Independent Protocol error" },
 	{ 0x3b, "Access Technology unable to process command" },
 	{ 0x3c, "Frames error" },
 	{ 0x3d, "MMS error" },
 	{ 0, NULL }
 };
+static const value_string result_term_vals[] = {
+	{ 0x00, "No specific cause can be given" },
+	{ 0x01, "Screen is busy" },
+	{ 0x02, "Terminal currently busy on call" },
+	{ 0x03, "ME currently busy on SS transaction" },
+	{ 0x04, "No service" },
+	{ 0x05, "Access control class bar" },
+	{ 0x06, "Radio resource not granted" },
+	{ 0x07, "Not in speech call" },
+	{ 0x08, "ME currently busy on USSD transaction" },
+	{ 0x09, "Terminal currently busy on SEND DTMF command" },
+	{ 0x0a, "No NAA active" },
+	{ 0, NULL }
+};
+static const value_string result_launch_browser_vals[] = {
+	{ 0x00, "No specific cause can be given" },
+	{ 0x01, "Bearer unavailable" },
+	{ 0x02, "Browser unavailable" },
+	{ 0x03, "Terminal unable to read the provisioning data" },
+	{ 0, NULL }
+};
+static const value_string result_multiplecard_vals[] = {
+	{ 0x00, "No specific cause can be given" },
+	{ 0x01, "Card reader removed or not present" },
+	{ 0x02, "Card removed or not present" },
+	{ 0x03, "Card reader busy" },
+	{ 0x04, "Card powered off" },
+	{ 0x05, "C-APDU format error" },
+	{ 0x06, "Mute card" },
+	{ 0x07, "Transmission error" },
+	{ 0x08, "Protocol not supported" },
+	{ 0x09, "Specified reader not valid" },
+	{ 0, NULL }
+};
+static const value_string result_cc_ctrl_mo_sm_ctrl_vals[] = {
+	{ 0x00, "No specific cause can be given" },
+	{ 0x01, "Action not allowed" },
+	{ 0x02, "The type of request has changed" },
+	{ 0, NULL }
+};
+static const value_string result_bip_vals[] = {
+	{ 0x00, "No specific cause can be given" },
+	{ 0x01, "No channel available" },
+	{ 0x02, "Channel closed" },
+	{ 0x03, "Channel identifier not valid" },
+	{ 0x04, "Requested buffer size not available" },
+	{ 0x05, "Security error (unsuccessful authentication)" },
+	{ 0x06, "Requested UICC/terminal interface transport level not available" },
+	{ 0x07, "Remote device is not reachable" },
+	{ 0x08, "Service error" },
+	{ 0x09, "Service identifier unknown" },
+	{ 0x10, "Port not available" },
+	{ 0x11, "Launch parameters missing or incorrect" },
+	{ 0x12, "Application launch failed" },
+	{ 0, NULL }
+};
+static const value_string result_frames_cmd_vals[] = {
+	{ 0x00, "No specific cause can be given" },
+	{ 0x01, "Frame identifier is not valid" },
+	{ 0x02, "Number of frames beyond the terminal's capabilities" },
+	{ 0x03, "No Frame defined" },
+	{ 0x04, "Requested size not supported" },
+	{ 0x05, "Default Active Frame is not valid" },
+	{ 0, NULL }
+};
+
 
 static const range_string text_encoding_vals[] = {
 	{ 0x00, 0x03, "GSM default alphabet, 7 bits packed" },
@@ -756,7 +832,30 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(elem_tree, hf_ctlv_devid_dst, tvb, pos+1, 1, ENC_NA);
 			break;
 		case 0x03:	/* Result */
+			g8 = tvb_get_guint8(tvb, pos);
 			proto_tree_add_item(elem_tree, hf_ctlv_result_gen, tvb, pos, 1, ENC_NA);
+			switch (g8) {
+			case 0x20:
+				proto_tree_add_item(elem_tree, hf_ctlv_result_term, tvb, pos+1, 1, ENC_NA);
+				break; 
+			case 0x26:
+				proto_tree_add_item(elem_tree, hf_ctlv_result_launch_browser, tvb, pos+1, 1, ENC_NA);
+				break; 
+			case 0x38:
+				proto_tree_add_item(elem_tree, hf_ctlv_result_multiplecard, tvb, pos+1, 1, ENC_NA);
+				break;
+			case 0x39:
+				proto_tree_add_item(elem_tree, hf_ctlv_result_cc_ctrl_mo_sm_ctrl, tvb, pos+1, 1, ENC_NA);
+				break;
+			case 0x3a:
+				proto_tree_add_item(elem_tree, hf_ctlv_result_bip, tvb, pos+1, 1, ENC_NA);
+				break;
+			case 0x3c:
+				proto_tree_add_item(elem_tree, hf_ctlv_result_frames_cmd, tvb, pos+1, 1, ENC_NA);
+				break;
+			default:
+				break;
+			}
 			break;
 		case 0x04:	/* Duration */
 			if (len < 2)
@@ -1049,6 +1148,36 @@ proto_register_card_app_toolkit(void)
 		{ &hf_ctlv_result_gen,
 			{ "Result", "etsi_cat.comp_tlv.result",
 			  FT_UINT8, BASE_HEX, VALS(result_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_result_term,
+			{ "Additional information", "etsi_cat.comp_tlv.result.term",
+			  FT_UINT8, BASE_HEX, VALS(result_term_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_result_launch_browser,
+			{ "Additional information", "etsi_cat.comp_tlv.result.launch_browser",
+			  FT_UINT8, BASE_HEX, VALS(result_launch_browser_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_result_multiplecard,
+			{ "Additional information", "etsi_cat.comp_tlv.result.multiplecard",
+			  FT_UINT8, BASE_HEX, VALS(result_multiplecard_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_result_cc_ctrl_mo_sm_ctrl,
+			{ "Additional information", "etsi_cat.comp_tlv.result.cc_ctrl_mo_sm_ctrl",
+			  FT_UINT8, BASE_HEX, VALS(result_cc_ctrl_mo_sm_ctrl_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_result_bip,
+			{ "Additional information", "etsi_cat.comp_tlv.result.bip",
+			  FT_UINT8, BASE_HEX, VALS(result_bip_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_result_frames_cmd,
+			{ "Additional information", "etsi_cat.comp_tlv.result.frames_cmd",
+			  FT_UINT8, BASE_HEX, VALS(result_frames_cmd_vals), 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_text_string_enc,
