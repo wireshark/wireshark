@@ -34,6 +34,7 @@ set(QTSHARK_H_SRC
 	display_filter_combo.h
 	display_filter_edit.h
 	export_dissection_dialog.h
+	export_object_dialog.h
 	file_set_dialog.h
 	import_text_dialog.h
 	interface_tree.h
@@ -69,6 +70,7 @@ set(QTSHARK_CPP_SRC
 	display_filter_combo.cpp
 	display_filter_edit.cpp
 	export_dissection_dialog.cpp
+	export_object_dialog.cpp
 	file_set_dialog.cpp
 	import_text_dialog.cpp
 	interface_tree.cpp
@@ -100,6 +102,7 @@ set(QTSHARK_SRC
 
 set(QTSHARK_UI
 	file_set_dialog.ui
+	export_object_dialog.ui
 	import_text_dialog.ui
 	main_welcome.ui
 	main_window.ui

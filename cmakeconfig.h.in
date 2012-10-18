@@ -391,8 +391,5 @@
 #cmakedefine YYTEXT_POINTER
 
 /* _U_ isn't needed for C++, simply don't name the variable.
-   Also, running moc with -D_U_... breaks cmake's auto escaping magic. */
-#ifndef __cplusplus
-# define _U_ ${C_UNUSED}
-#endif
-
+   However, we do need it for some headers that are shared between C and C++. */
+#define _U_ ${C_UNUSED}
