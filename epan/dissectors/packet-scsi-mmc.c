@@ -36,8 +36,8 @@
 #include "packet-scsi-sbc.h"
 
 
-static int proto_scsi_mmc		= -1;
-int hf_scsi_mmc_opcode			= -1;
+static int proto_scsi_mmc = -1;
+int hf_scsi_mmc_opcode = -1;
 static int hf_scsi_mmc_setstreaming_type = -1;
 static int hf_scsi_mmc_setstreaming_param_len = -1;
 static int hf_scsi_mmc_setstreaming_wrc = -1;
@@ -294,92 +294,92 @@ static const value_string scsi_read_dvd_formats[] = {
 };
 
 static const value_string scsi_data_mode_vals[] = {
-    {0x01,	"Mode 1 (ISO/IEC 10149)"},
-    {0x02,	"Mode 2 (ISO/IEC 10149 or CD-ROM XA) DDCD"},
-    {0x0f,	"Data Block Type unknown (no track descriptor block)"},
+    {0x01, "Mode 1 (ISO/IEC 10149)"},
+    {0x02, "Mode 2 (ISO/IEC 10149 or CD-ROM XA) DDCD"},
+    {0x0f, "Data Block Type unknown (no track descriptor block)"},
     {0,NULL}
 };
 static const value_string scsi_getconf_rt_val[] = {
-    {0x00,	"Return all features"},
-    {0x01,	"Return all current features"},
-    {0x02,	"Return all identified by Starting Feature"},
+    {0x00, "Return all features"},
+    {0x01, "Return all current features"},
+    {0x02, "Return all identified by Starting Feature"},
     {0,NULL}
 };
 static const value_string scsi_getconf_current_profile_val[] = {
-    {0x0000,	"Reserved"},
-    {0x0001,	"Non-removable disk"},
-    {0x0002,	"Removable disk"},
-    {0x0003,	"MO Erasable"},
-    {0x0004,	"Optical Write Once"},
-    {0x0005,	"AS-MO"},
-    {0x0008,	"CD-ROM"},
-    {0x0009,	"CD-R"},
-    {0x000a,	"CD-RW"},
-    {0x0010,	"DVD-ROM"},
-    {0x0011,	"DVD-R"},
-    {0x0012,	"DVD-RAM"},
-    {0x0013,	"DVD-RW Restricted Overwrite"},
-    {0x0014,	"DVD-RW Sequential recording"},
-    {0x001a,	"DVD+RW"},
-    {0x001b,	"DVD+R"},
-    {0x0020,	"DDCD-ROM"},
-    {0x0021,	"DDCD-R"},
-    {0x0022,	"DDCD-RW"},
-    {0xffff,	"Logical unit not conforming to a standard profile"},
+    {0x0000, "Reserved"},
+    {0x0001, "Non-removable disk"},
+    {0x0002, "Removable disk"},
+    {0x0003, "MO Erasable"},
+    {0x0004, "Optical Write Once"},
+    {0x0005, "AS-MO"},
+    {0x0008, "CD-ROM"},
+    {0x0009, "CD-R"},
+    {0x000a, "CD-RW"},
+    {0x0010, "DVD-ROM"},
+    {0x0011, "DVD-R"},
+    {0x0012, "DVD-RAM"},
+    {0x0013, "DVD-RW Restricted Overwrite"},
+    {0x0014, "DVD-RW Sequential recording"},
+    {0x001a, "DVD+RW"},
+    {0x001b, "DVD+R"},
+    {0x0020, "DDCD-ROM"},
+    {0x0021, "DDCD-R"},
+    {0x0022, "DDCD-RW"},
+    {0xffff, "Logical unit not conforming to a standard profile"},
     {0,NULL}
 };
 
 static const value_string scsi_feature_val[] = {
-    {0x0000,	"Profile List"},
-    {0x0001,	"Core"},
-    {0x0002,	"Morphing"},
-    {0x0003,	"Removable Medium"},
-    {0x0004,	"Write Protect"},
-    {0x0010,	"Random Readable"},
-    {0x001d,	"Multi-read"},
-    {0x001e,	"CD Read"},
-    {0x001f,	"DVD Read"},
-    {0x0020,	"Random Writeable"},
-    {0x0021,	"Incremental Streaming Writeable"},
-    {0x0022,	"Sector Erasable"},
-    {0x0023,	"Formattable"},
-    {0x0024,	"Defect Management"},
-    {0x0025,	"Write Once"},
-    {0x0026,	"Restricted Overwrite"},
-    {0x0027,	"CD-RW CAV Write"},
-    {0x0028,	"MRW"},
-    {0x0029,	"Enhanced Defect Reporting"},
-    {0x002a,	"DVD+RW"},
-    {0x002b,	"DVD+R"},
-    {0x002c,	"Rigid Restricted Overwrite"},
-    {0x002d,	"CD Track At Once"},
-    {0x002e,	"CD Mastering"},
-    {0x002f,	"DVD-R/-RW Write"},
-    {0x0030,	"DDCD Read"},
-    {0x0031,	"DDCD-R Write"},
-    {0x0032,	"DDCD-RW Write"},
-    {0x0037,	"CD-RW Media Write Support"},
-    {0x0100,	"Power Management"},
-    {0x0101,	"SMART"},
-    {0x0102,	"Embedded Changer"},
-    {0x0103,	"CD Audio analog play"},
-    {0x0104,	"Microcode Upgrade"},
-    {0x0105,	"Timeout"},
-    {0x0106,	"DVD-CSS"},
-    {0x0107,	"Real Time Streaming"},
-    {0x0108,	"Logical Unit serial number"},
-    {0x010a,	"Disc control Block"},
-    {0x010b,	"DVD CPRM"},
-    {0x010c,	"Firmware Information"},
+    {0x0000, "Profile List"},
+    {0x0001, "Core"},
+    {0x0002, "Morphing"},
+    {0x0003, "Removable Medium"},
+    {0x0004, "Write Protect"},
+    {0x0010, "Random Readable"},
+    {0x001d, "Multi-read"},
+    {0x001e, "CD Read"},
+    {0x001f, "DVD Read"},
+    {0x0020, "Random Writeable"},
+    {0x0021, "Incremental Streaming Writeable"},
+    {0x0022, "Sector Erasable"},
+    {0x0023, "Formattable"},
+    {0x0024, "Defect Management"},
+    {0x0025, "Write Once"},
+    {0x0026, "Restricted Overwrite"},
+    {0x0027, "CD-RW CAV Write"},
+    {0x0028, "MRW"},
+    {0x0029, "Enhanced Defect Reporting"},
+    {0x002a, "DVD+RW"},
+    {0x002b, "DVD+R"},
+    {0x002c, "Rigid Restricted Overwrite"},
+    {0x002d, "CD Track At Once"},
+    {0x002e, "CD Mastering"},
+    {0x002f, "DVD-R/-RW Write"},
+    {0x0030, "DDCD Read"},
+    {0x0031, "DDCD-R Write"},
+    {0x0032, "DDCD-RW Write"},
+    {0x0037, "CD-RW Media Write Support"},
+    {0x0100, "Power Management"},
+    {0x0101, "SMART"},
+    {0x0102, "Embedded Changer"},
+    {0x0103, "CD Audio analog play"},
+    {0x0104, "Microcode Upgrade"},
+    {0x0105, "Timeout"},
+    {0x0106, "DVD-CSS"},
+    {0x0107, "Real Time Streaming"},
+    {0x0108, "Logical Unit serial number"},
+    {0x010a, "Disc control Block"},
+    {0x010b, "DVD CPRM"},
+    {0x010c, "Firmware Information"},
     {0,NULL}
 };
 
 static void
-dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_,
-			       proto_tree *tree, guint offset,
-			       gboolean isreq, gboolean iscdb,
-			       guint payload_len _U_,
-			       scsi_task_data_t *cdata _U_)
+dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree, guint offset,
+                               gboolean isreq, gboolean iscdb,
+                               guint payload_len _U_,
+                               scsi_task_data_t *cdata)
 
 {
     gint32 len;
@@ -391,24 +391,24 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_item (tree, hf_scsi_mmc_getconf_rt, tvb_v, offset_v+0, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_getconf_starting_feature, tvb_v, offset_v+1, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb_v, offset_v+6, 2, ENC_BIG_ENDIAN);
-	/* we need the alloc_len in the response */
-	if(cdata){
+        /* we need the alloc_len in the response */
+        if(cdata){
             cdata->itlq->alloc_len=tvb_get_ntohs(tvb_v, offset_v+6);
-	}
+        }
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
     if(!isreq) {
-	if(!cdata){
+        if(!cdata){
             return;
-	}
+        }
 
-	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb_v, offset_v, cdata->itlq->alloc_len);
+        TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb_v, offset_v, cdata->itlq->alloc_len);
 
         len=tvb_get_ntohl(tvb_v, offset_v+0);
         proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb_v, offset_v, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_getconf_current_profile, tvb_v, offset_v+6, 2, ENC_BIG_ENDIAN);
-	offset_v+=8;
+        offset_v+=8;
         len-=4;
         while(len>0){
             guint16 feature;
@@ -517,38 +517,38 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_,
             offset_v=old_offset+additional_length;
             len-=4+additional_length;
         }
-	END_TRY_SCSI_CDB_ALLOC_LEN;
+        END_TRY_SCSI_CDB_ALLOC_LEN;
     }
 }
 
 
 static const value_string scsi_q_subchannel_adr_val[] = {
-    {0x0,	"Q-Subchannel mode info not supplied"},
-    {0x1,	"Q-Subchannel encodes current position data"},
-    {0x2,	"Q-Subchannel encodes media catalog number"},
-    {0x3,	"Q-Subchannel encodes ISRC"},
+    {0x0, "Q-Subchannel mode info not supplied"},
+    {0x1, "Q-Subchannel encodes current position data"},
+    {0x2, "Q-Subchannel encodes media catalog number"},
+    {0x3, "Q-Subchannel encodes ISRC"},
     {0,NULL}
 };
 static const value_string scsi_q_subchannel_control_val[] = {
-    {0x0,	"2 Audio channels without pre-emphasis (digital copy prohibited)"},
-    {0x2,	"2 Audio channels without pre-emphasis (digital copy permitted)"},
-    {0x1,	"2 Audio channels with pre-emphasis of 50/15us (digital copy prohibited)"},
-    {0x3,	"2 Audio channels with pre-emphasis of 50/15us (digital copy permitted)"},
-    {0x8,	"audio channels without pre-emphasis (digital copy prohibited)"},
-    {0xa,	"audio channels without pre-emphasis (digital copy permitted)"},
-    {0x9,	"2 Audio channels with pre-emphasis of 50/15us (digital copy prohibited)"},
-    {0xb,	"2 Audio channels with pre-emphasis of 50/15us (digital copy permitted)"},
-    {0x4,	"Data track, recorded uninterrupted (digital copy prohibited)"},
-    {0x6,	"Data track, recorded uninterrupted (digital copy permitted)"},
-    {0x5,	"Data track, recorded incremental (digital copy prohibited)"},
-    {0x7,	"Data track, recorded incremental (digital copy permitted)"},
+    {0x0, "2 Audio channels without pre-emphasis (digital copy prohibited)"},
+    {0x2, "2 Audio channels without pre-emphasis (digital copy permitted)"},
+    {0x1, "2 Audio channels with pre-emphasis of 50/15us (digital copy prohibited)"},
+    {0x3, "2 Audio channels with pre-emphasis of 50/15us (digital copy permitted)"},
+    {0x8, "audio channels without pre-emphasis (digital copy prohibited)"},
+    {0xa, "audio channels without pre-emphasis (digital copy permitted)"},
+    {0x9, "2 Audio channels with pre-emphasis of 50/15us (digital copy prohibited)"},
+    {0xb, "2 Audio channels with pre-emphasis of 50/15us (digital copy permitted)"},
+    {0x4, "Data track, recorded uninterrupted (digital copy prohibited)"},
+    {0x6, "Data track, recorded uninterrupted (digital copy permitted)"},
+    {0x5, "Data track, recorded incremental (digital copy prohibited)"},
+    {0x7, "Data track, recorded incremental (digital copy permitted)"},
     {0,NULL}
 };
 
 static void
-dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                     guint payload_len _U_, scsi_task_data_t *cdata)
 
 {
     guint8 format;
@@ -556,7 +556,7 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
     if (isreq && iscdb) {
         format=tvb_get_guint8(tvb, offset+1)&0x0f;
-	/* save format so we can decode the response */
+        /* save format so we can decode the response */
         cdata->itlq->flags=format;
 
         switch(format){
@@ -622,48 +622,48 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             }
             break;
         default:
-	    proto_tree_add_text (tree, tvb, offset, len,
-		"SCSI/MMC Unknown READ TOC Format:0x%04x",cdata->itlq->flags&0x000f);
-	    break;
+            proto_tree_add_text (tree, tvb, offset, len,
+                "SCSI/MMC Unknown READ TOC Format:0x%04x",cdata->itlq->flags&0x000f);
+            break;
         }
         END_TRY_SCSI_CDB_ALLOC_LEN;
     }
 }
 
 static const value_string scsi_disc_info_sols_val[] = {
-    {0x00,	"Empty Session"},
-    {0x01,	"Incomplete Session"},
-    {0x02,	"Reserved/Damaged Session"},
-    {0x03,	"Complete Session"},
+    {0x00, "Empty Session"},
+    {0x01, "Incomplete Session"},
+    {0x02, "Reserved/Damaged Session"},
+    {0x03, "Complete Session"},
     {0,NULL}
 };
 
 static const value_string scsi_disc_info_disc_status_val[] = {
-    {0x00,	"Empty Disc"},
-    {0x01,	"Incomplete Disc"},
-    {0x02,	"Finalized Disc"},
-    {0x03,	"Others"},
+    {0x00, "Empty Disc"},
+    {0x01, "Incomplete Disc"},
+    {0x02, "Finalized Disc"},
+    {0x03, "Others"},
     {0,NULL}
 };
 
 static const value_string scsi_disc_info_bgfs_val[] = {
-    {0x00,	"Blank or not CD-RW/DVD-RW"},
-    {0x01,	"Background Format started but is not running nor complete"},
-    {0x02,	"Background Format in progress"},
-    {0x03,	"Background Format has completed"},
+    {0x00, "Blank or not CD-RW/DVD-RW"},
+    {0x01, "Background Format started but is not running nor complete"},
+    {0x02, "Background Format in progress"},
+    {0x03, "Background Format has completed"},
     {0,NULL}
 };
 
 static const value_string scsi_disc_info_disc_type_val[] = {
-    {0x00,	"CD-DA or CD-ROM Disc"},
-    {0x10,	"CD-I Disc"},
-    {0x20,	"CD-ROM XA Disc or DDCD"},
-    {0xff,	"Undefined"},
+    {0x00, "CD-DA or CD-ROM Disc"},
+    {0x10, "CD-I Disc"},
+    {0x20, "CD-ROM XA Disc or DDCD"},
+    {0xff, "Undefined"},
     {0,NULL}
 };
 
 static void
-dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata)
 {
@@ -694,12 +694,12 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
         TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->itlq->alloc_len);
         proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb, 0, 2, ENC_BIG_ENDIAN);
- 
+
         proto_tree_add_bitmask(tree, tvb, offset + 2, hf_scsi_mmc_disk_flags,
              ett_scsi_disk_flags, disk_fields, ENC_BIG_ENDIAN);
 
         proto_tree_add_item (tree, hf_scsi_mmc_first_track, tvb, offset+3, 1, ENC_BIG_ENDIAN);
- 
+
        /* number of session  offset+4 and offset+9 */
         proto_tree_add_uint (tree, hf_scsi_mmc_disc_info_number_of_sessions, tvb, 4, 1, (tvb_get_guint8(tvb, offset+9)<<8)|tvb_get_guint8(tvb, offset+4));
 
@@ -721,7 +721,7 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         proto_tree_add_item (tree, hf_scsi_mmc_disc_info_last_possible_lead_out_start_address, tvb, offset+20, 4, ENC_BIG_ENDIAN);
 
         proto_tree_add_item (tree, hf_scsi_mmc_disc_info_disc_bar_code, tvb, offset+24, 8, ENC_BIG_ENDIAN);
-	/* XXX should add OPC table decoding here ... */
+        /* XXX should add OPC table decoding here ... */
         END_TRY_SCSI_CDB_ALLOC_LEN;
     }
 }
@@ -762,78 +762,78 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         PROTO_ITEM_SET_GENERATED(ti);
 
         proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 4;
+        offset += 4;
 
 
         switch(cdata->itlq->flags) {
-	case 0x00: /* Physical Format information */
+        case 0x00: /* Physical Format information */
         case 0x11: /* ADIP Information */
 
-	    /* disc category */
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_book_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_book_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+        /* disc category */
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_book_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (tree, hf_scsi_mmc_disc_book_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-	    /* disc size */
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_size_size, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_size_rate, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        /* disc size */
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_size_size, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_size_rate, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
-	    /* number of layers */
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_num_layers, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        /* number of layers */
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_num_layers, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 
-	    /* track path */
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_track_path, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        /* track path */
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_track_path, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 
-	    /* disc structure */
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_structure_layer, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        /* disc structure */
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_structure_layer, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 
-	    /* recording density */
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_density_length, tvb, offset+3, 1, ENC_BIG_ENDIAN);
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_density_pitch, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        /* recording density */
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_density_length, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_density_pitch, tvb, offset+3, 1, ENC_BIG_ENDIAN);
 
-	    /* first physical sector of data zone */
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_first_physical, tvb, offset+5, 3, ENC_BIG_ENDIAN);
+        /* first physical sector of data zone */
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_first_physical, tvb, offset+5, 3, ENC_BIG_ENDIAN);
 
-	    /* last physical sector of data zone */
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_last_physical, tvb, offset+9, 3, ENC_BIG_ENDIAN);
+        /* last physical sector of data zone */
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_last_physical, tvb, offset+9, 3, ENC_BIG_ENDIAN);
 
-	    if (cdata->itlq->flags == 0x00) {
+        if (cdata->itlq->flags == 0x00) {
                 /* last physical sector of layer 0 */
                 proto_tree_add_item (tree, hf_scsi_mmc_disc_last_physical_layer0, tvb, offset+13, 3, ENC_BIG_ENDIAN);
-	    }
+        }
 
-	    /* extended format info */
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_extended_format_info, tvb, offset+16, 1, ENC_BIG_ENDIAN);
+        /* extended format info */
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_extended_format_info, tvb, offset+16, 1, ENC_BIG_ENDIAN);
 
-	    /* disk application code */
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_application_code, tvb, offset+17, 1, ENC_BIG_ENDIAN);
+        /* disk application code */
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_application_code, tvb, offset+17, 1, ENC_BIG_ENDIAN);
 
-	    /* extended information blocks */
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib5, tvb, offset+18, 1, ENC_BIG_ENDIAN);
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib4, tvb, offset+18, 1, ENC_BIG_ENDIAN);
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib3, tvb, offset+18, 1, ENC_BIG_ENDIAN);
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib2, tvb, offset+18, 1, ENC_BIG_ENDIAN);
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib1, tvb, offset+18, 1, ENC_BIG_ENDIAN);
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib0, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+        /* extended information blocks */
+        proto_tree_add_item (tree, hf_scsi_mmc_adip_eib5, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_adip_eib4, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_adip_eib3, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_adip_eib2, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_adip_eib1, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_adip_eib0, tvb, offset+18, 1, ENC_BIG_ENDIAN);
 
-	    /* disk manufacturer id */
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_device_manuf_id, tvb, offset+19, 8, ENC_ASCII|ENC_NA);
+        /* disk manufacturer id */
+        proto_tree_add_item (tree, hf_scsi_mmc_adip_device_manuf_id, tvb, offset+19, 8, ENC_ASCII|ENC_NA);
 
-	    /* media type id */
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_media_type_id, tvb, offset+27, 3, ENC_ASCII|ENC_NA);
+        /* media type id */
+        proto_tree_add_item (tree, hf_scsi_mmc_adip_media_type_id, tvb, offset+27, 3, ENC_ASCII|ENC_NA);
 
-	    /* product revision number */
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_product_revision_number, tvb, offset+30, 1, ENC_BIG_ENDIAN);
+        /* product revision number */
+        proto_tree_add_item (tree, hf_scsi_mmc_adip_product_revision_number, tvb, offset+30, 1, ENC_BIG_ENDIAN);
 
-	    /* number of bytes of physical info */
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_number_of_physical_info, tvb, offset+31, 1, ENC_BIG_ENDIAN);
+        /* number of bytes of physical info */
+        proto_tree_add_item (tree, hf_scsi_mmc_adip_number_of_physical_info, tvb, offset+31, 1, ENC_BIG_ENDIAN);
 
 
-	    break;
-	default:
-	    ti = proto_tree_add_text (tree, tvb, 0, 0,
-		"SCSI/MMC Unknown Read DVD Format:0x%02x",
-		cdata->itlq->flags);
-	    PROTO_ITEM_SET_GENERATED(ti);
+        break;
+        default:
+            ti = proto_tree_add_text (tree, tvb, 0, 0,
+                "SCSI/MMC Unknown Read DVD Format:0x%02x",
+                cdata->itlq->flags);
+            PROTO_ITEM_SET_GENERATED(ti);
         }
     }
 }
@@ -891,33 +891,33 @@ static const value_string scsi_key_class_val[] = {
     {0,NULL}
 };
 static const value_string scsi_key_format_val[] = {
-    {0x00,	"AGID for CSS/CPPM"},
-    {0x01,	"Challenge Key"},
-    {0x02,	"Key 1"},
-    {0x04,	"Title Key"},
-    {0x05,	"Authentication Success Flag"},
-    {0x08,	"RPC State"},
-    {0x11,	"AGID for CPRM"},
-    {0x3f,	"None"},
+    {0x00, "AGID for CSS/CPPM"},
+    {0x01, "Challenge Key"},
+    {0x02, "Key 1"},
+    {0x04, "Title Key"},
+    {0x05, "Authentication Success Flag"},
+    {0x08, "RPC State"},
+    {0x11, "AGID for CPRM"},
+    {0x3f, "None"},
     {0,NULL}
 };
 static const value_string scsi_report_key_type_code_val[] = {
-    {0x00,	"NONE"},
-    {0x01,	"SET"},
-    {0x02,	"LAST CHANCE"},
-    {0x03,	"PERM"},
+    {0x00, "NONE"},
+    {0x01, "SET"},
+    {0x02, "LAST CHANCE"},
+    {0x03, "PERM"},
     {0,NULL}
 };
 static const value_string scsi_report_key_rpc_scheme_val[] = {
-    {0x00,	"Unknown (RPC not enforced)"},
-    {0x01,	"RPC Phase II"},
+    {0x00, "Unknown (RPC not enforced)"},
+    {0x01, "RPC Phase II"},
     {0,NULL}
 };
 
 static void
 dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                     guint payload_len _U_, scsi_task_data_t *cdata)
 
 {
     guint8 agid, key_format, key_class;
@@ -931,9 +931,9 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                              1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+7, 2, ENC_BIG_ENDIAN);
 
-	agid=tvb_get_guint8(tvb, offset+9)&0xc0;
-	key_format=tvb_get_guint8(tvb, offset+9)&0x3f;
-	switch(key_format){
+        agid=tvb_get_guint8(tvb, offset+9)&0xc0;
+        key_format=tvb_get_guint8(tvb, offset+9)&0x3f;
+        switch(key_format){
         case 0x01:
         case 0x02:
         case 0x04:
@@ -943,8 +943,8 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             break;
         }
         proto_tree_add_uint (tree, hf_scsi_mmc_key_format, tvb, offset+9, 1, key_format);
-	/* save key_class/key_format so we can decode the response */
-	cdata->itlq->flags=(key_format<<8)|key_class;
+        /* save key_class/key_format so we can decode the response */
+        cdata->itlq->flags=(key_format<<8)|key_class;
 
         proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
@@ -960,26 +960,26 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_item (tree, hf_scsi_mmc_report_key_rpc_scheme, tvb, offset+6, 1, ENC_BIG_ENDIAN);
             break;
         default:
-	    ti = proto_tree_add_text (tree, tvb, 0, 0,
-		"SCSI/MMC Unknown Format:0x%02x/Class:0x%02x combination",
-		cdata->itlq->flags>>8,cdata->itlq->flags&0xff);
-	    PROTO_ITEM_SET_GENERATED(ti);
-	    break;
+            ti = proto_tree_add_text (tree, tvb, 0, 0,
+                "SCSI/MMC Unknown Format:0x%02x/Class:0x%02x combination",
+                cdata->itlq->flags>>8,cdata->itlq->flags&0xff);
+            PROTO_ITEM_SET_GENERATED(ti);
+            break;
         }
     }
 }
 
 static const value_string scsi_rti_address_type_val[] = {
-    {0x00,	"Logical Block Address"},
-    {0x01,	"Logical Track Number"},
-    {0x02,	"Session Number"},
+    {0x00, "Logical Block Address"},
+    {0x01, "Logical Track Number"},
+    {0x02, "Session Number"},
     {0,NULL}
 };
 
 static void
-dissect_mmc4_readtrackinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_mmc4_readtrackinformation (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                     guint payload_len _U_, scsi_task_data_t *cdata)
 
 {
     guint8 addresstype;
@@ -1114,13 +1114,13 @@ dissect_mmc4_reservetrack (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 
 static const value_string scsi_closetrack_func_val[] = {
-	{0,	"Stop background format"},
-	{1,	"Close track"},
-	{2,	"Close last incomplete session"},
-	{3,	"Special case close session"},
-	{5,	"Close last session and finalize disk, special case"},
-	{6,	"Close last session and finalize disk"},
-	{0, NULL}
+    {0, "Stop background format"},
+    {1, "Close track"},
+    {2, "Close last incomplete session"},
+    {3, "Special case close session"},
+    {5, "Close last session and finalize disk, special case"},
+    {6, "Close last session and finalize disk"},
+    {0, NULL}
 };
 
 static void
@@ -1130,23 +1130,23 @@ dissect_mmc4_close_track (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 {
     if (tree && isreq && iscdb) {
-	/* immediate */
+        /* immediate */
         proto_tree_add_item (tree, hf_scsi_mmc_closetrack_immed, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+        offset++;
 
-	/* close function */
+        /* close function */
         proto_tree_add_item (tree, hf_scsi_mmc_closetrack_func, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+        offset++;
 
-	/* reserved */
-	offset++;
+        /* reserved */
+        offset++;
 
-	/* track number */
-	proto_tree_add_item (tree, hf_scsi_mmc_track, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset+=2;
+        /* track number */
+        proto_tree_add_item (tree, hf_scsi_mmc_track, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
 
-	/* reserved */
-	offset+=3;
+        /* reserved */
+        offset+=3;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
@@ -1157,7 +1157,7 @@ dissect_mmc4_close_track (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static void
 dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                     guint payload_len _U_, scsi_task_data_t *cdata)
 
 {
     if (tree && isreq && iscdb) {
@@ -1185,10 +1185,10 @@ dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 
 static const value_string scsi_setcdspeed_rc_val[] = {
-    {0x00,	"CLV and none-pure CAV"},
-    {0x01,	"Pure CAV"},
-    {0x02,	"Reserved"},
-    {0x03,	"Reserved"},
+    {0x00, "CLV and none-pure CAV"},
+    {0x01, "Pure CAV"},
+    {0x02, "Reserved"},
+    {0x03, "Reserved"},
     {0,NULL}
 };
 
@@ -1213,15 +1213,15 @@ dissect_mmc4_setcdspeed (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 
 static const value_string scsi_setstreaming_type_val[] = {
-    {0x00,	"Performance Descriptor"},
-    {0x05,	"DBI cache zone descriptor"},
+    {0x00, "Performance Descriptor"},
+    {0x05, "DBI cache zone descriptor"},
     {0,NULL}
 };
 
 static void
 dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                     guint payload_len _U_, scsi_task_data_t *cdata)
 
 {
     guint8 type;
@@ -1229,7 +1229,7 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     if (tree && isreq && iscdb) {
         type=tvb_get_guint8(tvb, offset+7);
-	cdata->itlq->flags=type;
+        cdata->itlq->flags=type;
         proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_type, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_param_len, tvb, offset+8, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
@@ -1250,10 +1250,10 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_write_time, tvb, offset+24, 4, ENC_BIG_ENDIAN);
             break;
         default:
-	    ti = proto_tree_add_text (tree, tvb, 0, 0,
-		"SCSI/MMC Unknown SetStreaming Type:0x%02x",cdata->itlq->flags);
-	    PROTO_ITEM_SET_GENERATED(ti);
-	    break;
+            ti = proto_tree_add_text (tree, tvb, 0, 0,
+                "SCSI/MMC Unknown SetStreaming Type:0x%02x",cdata->itlq->flags);
+            PROTO_ITEM_SET_GENERATED(ti);
+            break;
         }
     }
 }
@@ -1277,12 +1277,12 @@ dissect_mmc_preventallowmediaremoval(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         flags = tvb_get_guint8(tvb, offset + 3);
         if (flags & 0x01) {
             col_append_str(pinfo->cinfo, COL_INFO, " PREVENT");
-	} else {
+        } else {
             col_append_str(pinfo->cinfo, COL_INFO, " ALLOW");
         }
         if (flags & 0x02) {
             col_append_str(pinfo->cinfo, COL_INFO, " (PERSISTENT)");
-	}
+        }
 
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
                                ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
@@ -1300,9 +1300,9 @@ dissect_mmc_preventallowmediaremoval(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 #define SCSI_MMC4_READDISCINFORMATION    0x51
 #define SCSI_MMC4_READTRACKINFORMATION   0x52
 #define SCSI_MMC4_RESERVETRACK           0x53
-#define SCSI_MMC4_CLOSETRACK		 0x5b
+#define SCSI_MMC4_CLOSETRACK             0x5b
 #define SCSI_MMC4_READBUFFERCAPACITY     0x5c
-#define SCSI_MMC4_REPORTKEY		 0xa4
+#define SCSI_MMC4_REPORTKEY              0xa4
 #define SCSI_MMC4_READ12                 0xa8
 #define SCSI_MMC4_WRITE12                0xaa
 #define SCSI_MMC4_GETPERFORMANCE         0xac
@@ -2000,19 +2000,19 @@ proto_register_scsi_mmc(void)
         { &hf_scsi_mmc_disc_structure_layer,
           { "Structure", "scsi_mmc.disc.structure", FT_UINT8, BASE_HEX,
             VALS(scsi_disc_structure), 0x0f, NULL, HFILL}},
-	{ &hf_scsi_mmc_disc_density_length,
+        { &hf_scsi_mmc_disc_density_length,
           { "Channel bith length", "scsi_mmc.density.channel_bit_length", FT_UINT8, BASE_HEX,
             VALS(scsi_density_length), 0xf0, NULL, HFILL}},
-	{ &hf_scsi_mmc_disc_density_pitch,
+        { &hf_scsi_mmc_disc_density_pitch,
           { "Average Track Pitch", "scsi_mmc.density.average_track_pitch", FT_UINT8, BASE_HEX,
             VALS(scsi_density_pitch), 0x0f, NULL, HFILL}},
-	{ &hf_scsi_mmc_disc_first_physical,
+        { &hf_scsi_mmc_disc_first_physical,
           { "First physical sector of data zone", "scsi_mmc.first_physical", FT_UINT24, BASE_HEX,
             NULL, 0, NULL, HFILL}},
-	{ &hf_scsi_mmc_disc_last_physical,
+        { &hf_scsi_mmc_disc_last_physical,
           { "Last physical sector of data zone", "scsi_mmc.last_physical", FT_UINT24, BASE_HEX,
             NULL, 0, NULL, HFILL}},
-	{ &hf_scsi_mmc_disc_last_physical_layer0,
+        { &hf_scsi_mmc_disc_last_physical_layer0,
           { "Last physical sector of layer 0", "scsi_mmc.last_physical_layer0", FT_UINT24, BASE_HEX,
             NULL, 0, NULL, HFILL}},
         { &hf_scsi_mmc_disc_extended_format_info,
@@ -2057,13 +2057,13 @@ proto_register_scsi_mmc(void)
         { &hf_scsi_mmc_disc_track_path,
           { "Track Path", "scsi_mmc.disk.track_path", FT_BOOLEAN, 8,
             TFS(&scsi_track_path), 0x10, NULL, HFILL}},
-	{ &hf_scsi_mmc_gesn_polled,
+        { &hf_scsi_mmc_gesn_polled,
           { "Polled", "scsi_mmc.gesn.polled", FT_BOOLEAN, 8,
             TFS(&scsi_gesn_path), 0x01, NULL, HFILL}},
         { &hf_scsi_mmc_notification_flags,
           {"Notification Class Request", "scsi_mmc.notification.flags", FT_UINT8, BASE_HEX, NULL, 0,
            NULL, HFILL}},
-	{ &hf_scsi_mmc_gesn_device_busy,
+        { &hf_scsi_mmc_gesn_device_busy,
           { "DEVICE BUSY", "scsi_mmc.gesn.device_busy", FT_BOOLEAN, 8,
             NULL, 0x40, NULL, HFILL}},
         { &hf_scsi_mmc_gesn_multi_initiator,
@@ -2081,7 +2081,7 @@ proto_register_scsi_mmc(void)
         { &hf_scsi_mmc_gesn_operational_change,
           { "OPERATIONAL_CHANGE", "scsi_mmc.gesn.operational_change", FT_BOOLEAN, 8,
             NULL, 0x02, NULL, HFILL}},
-	{ &hf_scsi_mmc_prevent_allow_flags,
+        { &hf_scsi_mmc_prevent_allow_flags,
           {"Prevent Allow Flags", "scsi_mmc.prevent_allow.flags", FT_UINT8, BASE_HEX, NULL, 0,
            NULL, HFILL}},
         { &hf_scsi_mmc_prevent_allow_persistent,
