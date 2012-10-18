@@ -78,8 +78,7 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		guint8         v;
 		unsigned       offset   = 0;
 
-		proto_tree    *ti = proto_tree_add_item(tree, proto_dmx_chan, tvb,
-							offset, -1, FALSE);
+		proto_tree    *ti = proto_tree_add_item(tree, proto_dmx_chan, tvb, offset, -1, ENC_NA);
 		proto_tree    *dmx_chan_tree = proto_item_add_subtree(ti, ett_dmx_chan);
 
 		length = tvb_reported_length_remaining(tvb, offset);
@@ -154,7 +153,7 @@ proto_register_dmx_chan(void)
 	};
 
 	static enum_val_t col_count[] = {
-		{ "6", "6", 6 },
+		{  "6",  "6",  6 },
 		{ "10", "10", 10 },
 		{ "12", "12", 12 },
 		{ "16", "16", 16 },
@@ -173,18 +172,18 @@ proto_register_dmx_chan(void)
 					"DMX Display channel value type",
 					"The way DMX values are displayed",
 					&global_disp_chan_val_type,
-					disp_chan_val_types, ENC_BIG_ENDIAN);
+					disp_chan_val_types, FALSE);
 
 	prefs_register_enum_preference(dmx_chan_module, "dmx_disp_chan_nr_type",
 					"DMX Display channel nr. type",
 					"The way DMX channel numbers are displayed",
 					&global_disp_chan_nr_type,
-					disp_chan_nr_types, ENC_BIG_ENDIAN);
+					disp_chan_nr_types, FALSE);
 
 	prefs_register_enum_preference(dmx_chan_module, "dmx_disp_col_count",
 					"DMX Display Column Count",
 					"The number of columns for the DMX display",
 					&global_disp_col_count,
-					col_count, ENC_BIG_ENDIAN);
+					col_count, FALSE);
 }
 
