@@ -4,7 +4,7 @@
  * $Id$
  *
  * This dissector is written by
- * 
+ *
  *  Erwin Rol <erwin@erwinrol.com>
  *  Copyright 2003, 2011, 2012 Erwin Rol
  *
@@ -80,115 +80,115 @@ static const value_string rdm_rt_vals[] = {
 	{ 0, NULL },
 };
 
-#define RDM_PARAM_ID_DISC_UNIQUE_BRANCH		0x0001
-#define RDM_PARAM_ID_DISC_MUTE			0x0002
-#define RDM_PARAM_ID_DISC_UN_MUTE		0x0003
-#define RDM_PARAM_ID_PROXIED_DEVICES		0x0010
-#define RDM_PARAM_ID_PROXIED_DEVICE_COUNT	0x0011
-#define RDM_PARAM_ID_COMMS_STATUS		0x0015
-#define RDM_PARAM_ID_QUEUED_MESSAGE		0x0020
-#define RDM_PARAM_ID_STATUS_MESSAGES		0x0030
-#define RDM_PARAM_ID_STATUS_ID_DESCRIPTION	0x0031
-#define RDM_PARAM_ID_CLEAR_STATUS_ID		0x0032
+#define RDM_PARAM_ID_DISC_UNIQUE_BRANCH			0x0001
+#define RDM_PARAM_ID_DISC_MUTE				0x0002
+#define RDM_PARAM_ID_DISC_UN_MUTE			0x0003
+#define RDM_PARAM_ID_PROXIED_DEVICES			0x0010
+#define RDM_PARAM_ID_PROXIED_DEVICE_COUNT		0x0011
+#define RDM_PARAM_ID_COMMS_STATUS			0x0015
+#define RDM_PARAM_ID_QUEUED_MESSAGE			0x0020
+#define RDM_PARAM_ID_STATUS_MESSAGES			0x0030
+#define RDM_PARAM_ID_STATUS_ID_DESCRIPTION		0x0031
+#define RDM_PARAM_ID_CLEAR_STATUS_ID			0x0032
 #define RDM_PARAM_ID_SUB_DEVICE_STATUS_REPORT_THRESHOLD 0x0033
-#define RDM_PARAM_ID_SUPPORTED_PARAMETERS	0x0050
-#define RDM_PARAM_ID_PARAMETER_DESCRIPTION	0x0051
-#define RDM_PARAM_ID_DEVICE_INFO		0x0060
-#define RDM_PARAM_ID_PRODUCT_DETAIL_ID_LIST	0x0070
-#define RDM_PARAM_ID_DEVICE_MODEL_DESCRIPTION	0x0080
-#define RDM_PARAM_ID_MANUFACTURER_LABEL		0x0081
-#define RDM_PARAM_ID_DEVICE_LABEL		0x0082
-#define RDM_PARAM_ID_FACTORY_DEFAULTS		0x0090
-#define RDM_PARAM_ID_LANGUAGE_CAPABILITIES	0x00A0
-#define RDM_PARAM_ID_LANGUAGE			0x00B0
-#define RDM_PARAM_ID_SOFTWARE_VERSION_LABEL	0x00C0
-#define RDM_PARAM_ID_BOOT_SOFTWARE_VERSION_ID	0x00C1
-#define RDM_PARAM_ID_BOOT_SOFTWARE_VERSION_LABEL 0x00C2
-#define RDM_PARAM_ID_DMX_PERSONALITY		0x00E0
-#define RDM_PARAM_ID_DMX_PERSONALITY_DESCRIPTION 0x00E1
-#define RDM_PARAM_ID_DMX_START_ADDRESS		0x00F0
-#define RDM_PARAM_ID_SLOT_INFO			0x0120
-#define RDM_PARAM_ID_SLOT_DESCRIPTION		0x0121
-#define RDM_PARAM_ID_DEFAULT_SLOT_VALUE		0x0122
-#define RDM_PARAM_ID_SENSOR_DEFINITION		0x0200
-#define RDM_PARAM_ID_SENSOR_VALUE		0x0201
-#define RDM_PARAM_ID_RECORD_SENSORS		0x0202
-#define RDM_PARAM_ID_DEVICE_HOURS 		0x0400
-#define RDM_PARAM_ID_LAMP_HOURS 		0x0401
-#define RDM_PARAM_ID_LAMP_STRIKES 		0x0402
-#define RDM_PARAM_ID_LAMP_STATE 		0x0403
-#define RDM_PARAM_ID_LAMP_ON_MODE 		0x0404
-#define RDM_PARAM_ID_DEVICE_POWER_CYCLES 	0x0405
-#define RDM_PARAM_ID_DISPLAY_INVERT		0x0500 
-#define RDM_PARAM_ID_DISPLAY_LEVEL 		0x0501
-#define RDM_PARAM_ID_PAN_INVERT 		0x0600
-#define RDM_PARAM_ID_TILT_INVERT 		0x0601
-#define RDM_PARAM_ID_PAN_TILT_SWAP 		0x0602
-#define RDM_PARAM_ID_REAL_TIME_CLOCK 		0x0603
-#define RDM_PARAM_ID_IDENTIFY_DEVICE 		0x1000
-#define RDM_PARAM_ID_RESET_DEVICE 		0x1001
-#define RDM_PARAM_ID_POWER_STATE 		0x1010
-#define RDM_PARAM_ID_PERFORM_SELFTEST 		0x1020
-#define RDM_PARAM_ID_SELF_TEST_DESCRIPTION 	0x1021
-#define RDM_PARAM_ID_CAPTURE_PRESET 		0x1030
-#define RDM_PARAM_ID_PRESET_PLAYBACK 		0x1031
+#define RDM_PARAM_ID_SUPPORTED_PARAMETERS		0x0050
+#define RDM_PARAM_ID_PARAMETER_DESCRIPTION		0x0051
+#define RDM_PARAM_ID_DEVICE_INFO			0x0060
+#define RDM_PARAM_ID_PRODUCT_DETAIL_ID_LIST		0x0070
+#define RDM_PARAM_ID_DEVICE_MODEL_DESCRIPTION		0x0080
+#define RDM_PARAM_ID_MANUFACTURER_LABEL			0x0081
+#define RDM_PARAM_ID_DEVICE_LABEL			0x0082
+#define RDM_PARAM_ID_FACTORY_DEFAULTS			0x0090
+#define RDM_PARAM_ID_LANGUAGE_CAPABILITIES		0x00A0
+#define RDM_PARAM_ID_LANGUAGE				0x00B0
+#define RDM_PARAM_ID_SOFTWARE_VERSION_LABEL		0x00C0
+#define RDM_PARAM_ID_BOOT_SOFTWARE_VERSION_ID		0x00C1
+#define RDM_PARAM_ID_BOOT_SOFTWARE_VERSION_LABEL	0x00C2
+#define RDM_PARAM_ID_DMX_PERSONALITY			0x00E0
+#define RDM_PARAM_ID_DMX_PERSONALITY_DESCRIPTION	0x00E1
+#define RDM_PARAM_ID_DMX_START_ADDRESS			0x00F0
+#define RDM_PARAM_ID_SLOT_INFO				0x0120
+#define RDM_PARAM_ID_SLOT_DESCRIPTION			0x0121
+#define RDM_PARAM_ID_DEFAULT_SLOT_VALUE			0x0122
+#define RDM_PARAM_ID_SENSOR_DEFINITION			0x0200
+#define RDM_PARAM_ID_SENSOR_VALUE			0x0201
+#define RDM_PARAM_ID_RECORD_SENSORS			0x0202
+#define RDM_PARAM_ID_DEVICE_HOURS			0x0400
+#define RDM_PARAM_ID_LAMP_HOURS				0x0401
+#define RDM_PARAM_ID_LAMP_STRIKES			0x0402
+#define RDM_PARAM_ID_LAMP_STATE				0x0403
+#define RDM_PARAM_ID_LAMP_ON_MODE			0x0404
+#define RDM_PARAM_ID_DEVICE_POWER_CYCLES		0x0405
+#define RDM_PARAM_ID_DISPLAY_INVERT			0x0500
+#define RDM_PARAM_ID_DISPLAY_LEVEL			0x0501
+#define RDM_PARAM_ID_PAN_INVERT				0x0600
+#define RDM_PARAM_ID_TILT_INVERT			0x0601
+#define RDM_PARAM_ID_PAN_TILT_SWAP			0x0602
+#define RDM_PARAM_ID_REAL_TIME_CLOCK			0x0603
+#define RDM_PARAM_ID_IDENTIFY_DEVICE			0x1000
+#define RDM_PARAM_ID_RESET_DEVICE			0x1001
+#define RDM_PARAM_ID_POWER_STATE			0x1010
+#define RDM_PARAM_ID_PERFORM_SELFTEST			0x1020
+#define RDM_PARAM_ID_SELF_TEST_DESCRIPTION		0x1021
+#define RDM_PARAM_ID_CAPTURE_PRESET			0x1030
+#define RDM_PARAM_ID_PRESET_PLAYBACK			0x1031
 
 static const value_string rdm_param_id_vals[] = {
-	{ RDM_PARAM_ID_DISC_UNIQUE_BRANCH,	"DISC_UNIQUE_BRANCH" },
-	{ RDM_PARAM_ID_DISC_MUTE,		"DISC_MUTE" },
-	{ RDM_PARAM_ID_DISC_UN_MUTE,		"DISC_UN_MUTE" },
-	{ RDM_PARAM_ID_PROXIED_DEVICES,		"PROXIED_DEVICES" },
-	{ RDM_PARAM_ID_PROXIED_DEVICE_COUNT,	"PROXIED_DEVICE_COUNT" },
-	{ RDM_PARAM_ID_COMMS_STATUS,		"COMMS_STATUS" },
-	{ RDM_PARAM_ID_QUEUED_MESSAGE,		"QUEUED_MESSAGE" },
-	{ RDM_PARAM_ID_STATUS_MESSAGES,		"STATUS_MESSAGES" },
-	{ RDM_PARAM_ID_STATUS_ID_DESCRIPTION,	"STATUS_ID_DESCRIPTION" },
-	{ RDM_PARAM_ID_CLEAR_STATUS_ID,		"CLEAR_STATUS_ID" },
+	{ RDM_PARAM_ID_DISC_UNIQUE_BRANCH,		   "DISC_UNIQUE_BRANCH" },
+	{ RDM_PARAM_ID_DISC_MUTE,			   "DISC_MUTE" },
+	{ RDM_PARAM_ID_DISC_UN_MUTE,			   "DISC_UN_MUTE" },
+	{ RDM_PARAM_ID_PROXIED_DEVICES,			   "PROXIED_DEVICES" },
+	{ RDM_PARAM_ID_PROXIED_DEVICE_COUNT,		   "PROXIED_DEVICE_COUNT" },
+	{ RDM_PARAM_ID_COMMS_STATUS,			   "COMMS_STATUS" },
+	{ RDM_PARAM_ID_QUEUED_MESSAGE,			   "QUEUED_MESSAGE" },
+	{ RDM_PARAM_ID_STATUS_MESSAGES,			   "STATUS_MESSAGES" },
+	{ RDM_PARAM_ID_STATUS_ID_DESCRIPTION,		   "STATUS_ID_DESCRIPTION" },
+	{ RDM_PARAM_ID_CLEAR_STATUS_ID,			   "CLEAR_STATUS_ID" },
 	{ RDM_PARAM_ID_SUB_DEVICE_STATUS_REPORT_THRESHOLD, "DEVICE_STATUS_REPORT_THRESHOLD" },
-	{ RDM_PARAM_ID_SUPPORTED_PARAMETERS,	"SUPPORTED_PARAMETERS" },
-	{ RDM_PARAM_ID_PARAMETER_DESCRIPTION,	"PARAMETER_DESCRIPTION" },
-	{ RDM_PARAM_ID_DEVICE_INFO,		"DEVICE_INFO" },
-	{ RDM_PARAM_ID_PRODUCT_DETAIL_ID_LIST,	"PRODUCT_DETAIL_ID_LIST" },
-	{ RDM_PARAM_ID_DEVICE_MODEL_DESCRIPTION, "DEVICE_MODEL_DESCRIPTION" },
-	{ RDM_PARAM_ID_MANUFACTURER_LABEL,	"MANUFACTURER_LABEL" },
-	{ RDM_PARAM_ID_DEVICE_LABEL,		"DEVICE_LABEL" },
-	{ RDM_PARAM_ID_FACTORY_DEFAULTS,	"FACTORY_DEFAULTS" },
-	{ RDM_PARAM_ID_LANGUAGE_CAPABILITIES,	"LANGUAGE_CAPABILITIES" },
-	{ RDM_PARAM_ID_LANGUAGE,		"LANGUAGE" },
-	{ RDM_PARAM_ID_SOFTWARE_VERSION_LABEL,	"SOFTWARE_VERSION_LABEL" },
-	{ RDM_PARAM_ID_BOOT_SOFTWARE_VERSION_ID, "BOOT_SOFTWARE_VERSION_ID" },
-	{ RDM_PARAM_ID_BOOT_SOFTWARE_VERSION_LABEL, "BOOT_SOFTWARE_VERSION_LABEL" },
-	{ RDM_PARAM_ID_DMX_PERSONALITY,		"DMX_PERSONALITY" },
-	{ RDM_PARAM_ID_DMX_PERSONALITY_DESCRIPTION, "DMX_PERSONALITY_DESCRIPTION" },
-	{ RDM_PARAM_ID_DMX_START_ADDRESS,	"DMX_START_ADDRESS" },
-	{ RDM_PARAM_ID_SLOT_INFO,		"SLOT_INFO" },
-	{ RDM_PARAM_ID_SLOT_DESCRIPTION,	"SLOT_DESCRIPTION" },
-	{ RDM_PARAM_ID_DEFAULT_SLOT_VALUE,	"DEFAULT_SLOT_VALUE" },
-	{ RDM_PARAM_ID_SENSOR_DEFINITION,	"SENSOR_DEFINITION" },
-	{ RDM_PARAM_ID_SENSOR_VALUE,		"SENSOR_VALUE" },
-	{ RDM_PARAM_ID_RECORD_SENSORS,		"RECORD_SENSORS" },
-	{ RDM_PARAM_ID_DEVICE_HOURS,		"DEVICE_HOURS" },
-	{ RDM_PARAM_ID_LAMP_HOURS,		"LAMP_HOURS" },
-	{ RDM_PARAM_ID_LAMP_STRIKES,		"LAMP_STRIKES" },
-	{ RDM_PARAM_ID_LAMP_STATE,		"LAMP_STATE" },
-	{ RDM_PARAM_ID_LAMP_ON_MODE,		"LAMP_ON_MODE" },
-	{ RDM_PARAM_ID_DEVICE_POWER_CYCLES,	"DEVICE_POWER_CYCLES" },
-	{ RDM_PARAM_ID_DISPLAY_INVERT,		"DISPLAY_INVERT" },
-	{ RDM_PARAM_ID_DISPLAY_LEVEL,		"DISPLAY_LEVEL" },
-	{ RDM_PARAM_ID_PAN_INVERT,		"PAN_INVERT" },
-	{ RDM_PARAM_ID_TILT_INVERT,		"TILT_INVERT" },
-	{ RDM_PARAM_ID_PAN_TILT_SWAP,		"PAN_TILT_SWAP" },
-	{ RDM_PARAM_ID_REAL_TIME_CLOCK,		"REAL_TIME_CLOCK" },
-	{ RDM_PARAM_ID_IDENTIFY_DEVICE,		"IDENTIFY_DEVICE" },
-	{ RDM_PARAM_ID_RESET_DEVICE,		"RESET_DEVICE" },
-	{ RDM_PARAM_ID_POWER_STATE,		"POWER_STATE" },
-	{ RDM_PARAM_ID_PERFORM_SELFTEST,	"PERFORM_SELFTEST" },
-	{ RDM_PARAM_ID_SELF_TEST_DESCRIPTION,	"SELF_TEST_DESCRIPTION" },
-	{ RDM_PARAM_ID_CAPTURE_PRESET,		"CAPTURE_PRESET" },
-	{ RDM_PARAM_ID_PRESET_PLAYBACK,		"PRESET_PLAYBACK" },
+	{ RDM_PARAM_ID_SUPPORTED_PARAMETERS,		   "SUPPORTED_PARAMETERS" },
+	{ RDM_PARAM_ID_PARAMETER_DESCRIPTION,		   "PARAMETER_DESCRIPTION" },
+	{ RDM_PARAM_ID_DEVICE_INFO,			   "DEVICE_INFO" },
+	{ RDM_PARAM_ID_PRODUCT_DETAIL_ID_LIST,		   "PRODUCT_DETAIL_ID_LIST" },
+	{ RDM_PARAM_ID_DEVICE_MODEL_DESCRIPTION,	   "DEVICE_MODEL_DESCRIPTION" },
+	{ RDM_PARAM_ID_MANUFACTURER_LABEL,		   "MANUFACTURER_LABEL" },
+	{ RDM_PARAM_ID_DEVICE_LABEL,			   "DEVICE_LABEL" },
+	{ RDM_PARAM_ID_FACTORY_DEFAULTS,		   "FACTORY_DEFAULTS" },
+	{ RDM_PARAM_ID_LANGUAGE_CAPABILITIES,		   "LANGUAGE_CAPABILITIES" },
+	{ RDM_PARAM_ID_LANGUAGE,			   "LANGUAGE" },
+	{ RDM_PARAM_ID_SOFTWARE_VERSION_LABEL,		   "SOFTWARE_VERSION_LABEL" },
+	{ RDM_PARAM_ID_BOOT_SOFTWARE_VERSION_ID,	   "BOOT_SOFTWARE_VERSION_ID" },
+	{ RDM_PARAM_ID_BOOT_SOFTWARE_VERSION_LABEL,	   "BOOT_SOFTWARE_VERSION_LABEL" },
+	{ RDM_PARAM_ID_DMX_PERSONALITY,			   "DMX_PERSONALITY" },
+	{ RDM_PARAM_ID_DMX_PERSONALITY_DESCRIPTION,	   "DMX_PERSONALITY_DESCRIPTION" },
+	{ RDM_PARAM_ID_DMX_START_ADDRESS,		   "DMX_START_ADDRESS" },
+	{ RDM_PARAM_ID_SLOT_INFO,			   "SLOT_INFO" },
+	{ RDM_PARAM_ID_SLOT_DESCRIPTION,		   "SLOT_DESCRIPTION" },
+	{ RDM_PARAM_ID_DEFAULT_SLOT_VALUE,		   "DEFAULT_SLOT_VALUE" },
+	{ RDM_PARAM_ID_SENSOR_DEFINITION,		   "SENSOR_DEFINITION" },
+	{ RDM_PARAM_ID_SENSOR_VALUE,			   "SENSOR_VALUE" },
+	{ RDM_PARAM_ID_RECORD_SENSORS,			   "RECORD_SENSORS" },
+	{ RDM_PARAM_ID_DEVICE_HOURS,			   "DEVICE_HOURS" },
+	{ RDM_PARAM_ID_LAMP_HOURS,			   "LAMP_HOURS" },
+	{ RDM_PARAM_ID_LAMP_STRIKES,			   "LAMP_STRIKES" },
+	{ RDM_PARAM_ID_LAMP_STATE,			   "LAMP_STATE" },
+	{ RDM_PARAM_ID_LAMP_ON_MODE,			   "LAMP_ON_MODE" },
+	{ RDM_PARAM_ID_DEVICE_POWER_CYCLES,		   "DEVICE_POWER_CYCLES" },
+	{ RDM_PARAM_ID_DISPLAY_INVERT,			   "DISPLAY_INVERT" },
+	{ RDM_PARAM_ID_DISPLAY_LEVEL,			   "DISPLAY_LEVEL" },
+	{ RDM_PARAM_ID_PAN_INVERT,			   "PAN_INVERT" },
+	{ RDM_PARAM_ID_TILT_INVERT,			   "TILT_INVERT" },
+	{ RDM_PARAM_ID_PAN_TILT_SWAP,			   "PAN_TILT_SWAP" },
+	{ RDM_PARAM_ID_REAL_TIME_CLOCK,			   "REAL_TIME_CLOCK" },
+	{ RDM_PARAM_ID_IDENTIFY_DEVICE,			   "IDENTIFY_DEVICE" },
+	{ RDM_PARAM_ID_RESET_DEVICE,			   "RESET_DEVICE" },
+	{ RDM_PARAM_ID_POWER_STATE,			   "POWER_STATE" },
+	{ RDM_PARAM_ID_PERFORM_SELFTEST,		   "PERFORM_SELFTEST" },
+	{ RDM_PARAM_ID_SELF_TEST_DESCRIPTION,		   "SELF_TEST_DESCRIPTION" },
+	{ RDM_PARAM_ID_CAPTURE_PRESET,			   "CAPTURE_PRESET" },
+	{ RDM_PARAM_ID_PRESET_PLAYBACK,			   "PRESET_PLAYBACK" },
 	{ 0, NULL },
 };
-
+static value_string_ext rdm_param_id_vals_ext = VALUE_STRING_EXT_INIT(rdm_param_id_vals);
 
 #define RDM_STATUS_NONE				0x00
 #define RMD_STATUS_GET_LAST_MESSAGE		0x01
@@ -251,104 +251,106 @@ static const value_string rdm_prefix_vals[] = {
 	{ RDM_PREFIX_YOTTA,	"yotta (x10^24)" },
 	{ 0, NULL },
 };
+static value_string_ext rdm_prefix_vals_ext = VALUE_STRING_EXT_INIT(rdm_prefix_vals);
 
-#define RDM_UNITS_NONE			0x00
-#define RDM_UNITS_CENTIGRADE		0x01
-#define RDM_UNITS_VOLTS_DC		0x02
-#define RDM_UNITS_VOLTS_AC_PEAK		0x03
-#define RDM_UNITS_VOLTS_AC_RMS		0x04
-#define RDM_UNITS_AMPERE_DC		0x05
-#define RDM_UNITS_AMPERE_AC_PEAK	0x06
-#define RDM_UNITS_AMPERE_AC_RMS		0x07
-#define RDM_UNITS_HERTZ			0x08
-#define RDM_UNITS_OHM			0x09
-#define RDM_UNITS_WATT			0x0A
-#define RDM_UNITS_KILOGRAM		0x0B
-#define RDM_UNITS_METERS		0x0C
-#define RDM_UNITS_METERS_SQUARED	0x0D
-#define RDM_UNITS_METERS_CUBED		0x0E
+#define RDM_UNITS_NONE			      0x00
+#define RDM_UNITS_CENTIGRADE		      0x01
+#define RDM_UNITS_VOLTS_DC		      0x02
+#define RDM_UNITS_VOLTS_AC_PEAK		      0x03
+#define RDM_UNITS_VOLTS_AC_RMS		      0x04
+#define RDM_UNITS_AMPERE_DC		      0x05
+#define RDM_UNITS_AMPERE_AC_PEAK	      0x06
+#define RDM_UNITS_AMPERE_AC_RMS		      0x07
+#define RDM_UNITS_HERTZ			      0x08
+#define RDM_UNITS_OHM			      0x09
+#define RDM_UNITS_WATT			      0x0A
+#define RDM_UNITS_KILOGRAM		      0x0B
+#define RDM_UNITS_METERS		      0x0C
+#define RDM_UNITS_METERS_SQUARED	      0x0D
+#define RDM_UNITS_METERS_CUBED		      0x0E
 #define RDM_UNITS_KILOGRAMMES_PER_METER_CUBED 0x0F
-#define RDM_UNITS_METERS_PER_SECOND	0x10
-#define RDM_UNITS_METERS_PER_SECOND_SQUARED 0x11
-#define RDM_UNITS_NEWTON		0x12
-#define RDM_UNITS_JOULE			0x13
-#define RDM_UNITS_PASCAL		0x14
-#define RDM_UNITS_SECOND		0x15
-#define RDM_UNITS_DEGREE		0x16
-#define RDM_UNITS_STERADIAN		0x17
-#define RDM_UNITS_CANDELA		0x18
-#define RDM_UNITS_LUMEN			0x19
-#define RDM_UNITS_LUX			0x1A
-#define RDM_UNITS_IRE			0x1B
-#define RDM_UNITS_BYTE			0x1C
+#define RDM_UNITS_METERS_PER_SECOND	      0x10
+#define RDM_UNITS_METERS_PER_SECOND_SQUARED   0x11
+#define RDM_UNITS_NEWTON		      0x12
+#define RDM_UNITS_JOULE			      0x13
+#define RDM_UNITS_PASCAL		      0x14
+#define RDM_UNITS_SECOND		      0x15
+#define RDM_UNITS_DEGREE		      0x16
+#define RDM_UNITS_STERADIAN		      0x17
+#define RDM_UNITS_CANDELA		      0x18
+#define RDM_UNITS_LUMEN			      0x19
+#define RDM_UNITS_LUX			      0x1A
+#define RDM_UNITS_IRE			      0x1B
+#define RDM_UNITS_BYTE			      0x1C
 
 static const value_string rdm_unit_vals[] = {
-	{ RDM_UNITS_NONE,		"NONE" },
-	{ RDM_UNITS_CENTIGRADE,		"Centigrade" },
-	{ RDM_UNITS_VOLTS_DC,		"Volts DC" },
-	{ RDM_UNITS_VOLTS_AC_PEAK,	"Volts AC Peak" },
-	{ RDM_UNITS_VOLTS_AC_RMS,	"Volts AC RMS" },
-	{ RDM_UNITS_AMPERE_DC,		"Ampere DC" },
-	{ RDM_UNITS_AMPERE_AC_PEAK,	"Ampere AC Peak" },
-	{ RDM_UNITS_AMPERE_AC_RMS,	"Ampere AC RMS" },
-	{ RDM_UNITS_HERTZ,		"Hertz" },
-	{ RDM_UNITS_OHM,		"Ohm" },
-	{ RDM_UNITS_WATT,		"Watt" },
-	{ RDM_UNITS_KILOGRAM,		"Kilogram" },
-	{ RDM_UNITS_METERS,		"Meters" },
-	{ RDM_UNITS_METERS_SQUARED,	"Meters Squared" },
-	{ RDM_UNITS_METERS_CUBED,	"Meters Cubed" },
+	{ RDM_UNITS_NONE,			 "NONE" },
+	{ RDM_UNITS_CENTIGRADE,			 "Centigrade" },
+	{ RDM_UNITS_VOLTS_DC,			 "Volts DC" },
+	{ RDM_UNITS_VOLTS_AC_PEAK,		 "Volts AC Peak" },
+	{ RDM_UNITS_VOLTS_AC_RMS,		 "Volts AC RMS" },
+	{ RDM_UNITS_AMPERE_DC,			 "Ampere DC" },
+	{ RDM_UNITS_AMPERE_AC_PEAK,		 "Ampere AC Peak" },
+	{ RDM_UNITS_AMPERE_AC_RMS,		 "Ampere AC RMS" },
+	{ RDM_UNITS_HERTZ,			 "Hertz" },
+	{ RDM_UNITS_OHM,			 "Ohm" },
+	{ RDM_UNITS_WATT,			 "Watt" },
+	{ RDM_UNITS_KILOGRAM,			 "Kilogram" },
+	{ RDM_UNITS_METERS,			 "Meters" },
+	{ RDM_UNITS_METERS_SQUARED,		 "Meters Squared" },
+	{ RDM_UNITS_METERS_CUBED,		 "Meters Cubed" },
 	{ RDM_UNITS_KILOGRAMMES_PER_METER_CUBED, "Kilogrammes per Meter Cubed" },
-	{ RDM_UNITS_METERS_PER_SECOND,	"Meters per Second" },
-	{ RDM_UNITS_METERS_PER_SECOND_SQUARED, "Meters per Second Squared" },
-	{ RDM_UNITS_NEWTON,		"Newton" },
-	{ RDM_UNITS_JOULE,		"Joule" },
-	{ RDM_UNITS_PASCAL,		"Pascal" },
-	{ RDM_UNITS_SECOND,		"Second" },
-	{ RDM_UNITS_DEGREE,		"Degree" },
-	{ RDM_UNITS_STERADIAN,		"Steradian" },
-	{ RDM_UNITS_CANDELA,		"Candela" },
-	{ RDM_UNITS_LUMEN,		"Lumen" },
-	{ RDM_UNITS_LUX,		"Lux" },
-	{ RDM_UNITS_IRE,		"Ire" },
-	{ RDM_UNITS_BYTE,		"Byte" },
+	{ RDM_UNITS_METERS_PER_SECOND,		 "Meters per Second" },
+	{ RDM_UNITS_METERS_PER_SECOND_SQUARED,	 "Meters per Second Squared" },
+	{ RDM_UNITS_NEWTON,			 "Newton" },
+	{ RDM_UNITS_JOULE,			 "Joule" },
+	{ RDM_UNITS_PASCAL,			 "Pascal" },
+	{ RDM_UNITS_SECOND,			 "Second" },
+	{ RDM_UNITS_DEGREE,			 "Degree" },
+	{ RDM_UNITS_STERADIAN,			 "Steradian" },
+	{ RDM_UNITS_CANDELA,			 "Candela" },
+	{ RDM_UNITS_LUMEN,			 "Lumen" },
+	{ RDM_UNITS_LUX,			 "Lux" },
+	{ RDM_UNITS_IRE,			 "Ire" },
+	{ RDM_UNITS_BYTE,			 "Byte" },
 	{ 0, NULL },
 };
+static value_string_ext rdm_unit_vals_ext = VALUE_STRING_EXT_INIT(rdm_unit_vals);
 
-#define RDM_SENS_TEMPERATURE	0x00
-#define RDM_SENS_VOLTAGE	0x01
-#define RDM_SENS_CURRENT	0x02
-#define RDM_SENS_FREQUENCY	0x03
-#define RDM_SENS_RESISTANCE	0x04
-#define RDM_SENS_POWER		0x05
-#define RDM_SENS_MASS		0x06
-#define RDM_SENS_LENGTH		0x07
-#define RDM_SENS_AREA		0x08
-#define RDM_SENS_VOLUME		0x09
-#define RDM_SENS_DENSITY	0x0A
-#define RDM_SENS_VELOCITY	0x0B
-#define RDM_SENS_ACCELERATION	0x0C
-#define RDM_SENS_FORCE		0x0D
-#define RDM_SENS_ENERGY		0x0E
-#define RDM_SENS_PRESSURE	0x0F
-#define RDM_SENS_TIME		0x10
-#define RDM_SENS_ANGLE		0x11
-#define RDM_SENS_POSITION_X	0x12
-#define RDM_SENS_POSITION_Y	0x13 
-#define RDM_SENS_POSITION_Z	0x14 
-#define RDM_SENS_ANGULAR_VELOCITY	0x15 
-#define RDM_SENS_LUMINOUS_INTENSITY	0x16 
-#define RDM_SENS_LUMINOUS_FLUX	0x17 
-#define RDM_SENS_ILLUMINANCE	0x18 
-#define RDM_SENS_CHROMINANCE_RED	0x19 
-#define RDM_SENS_CHROMINANCE_GREEN	0x1A 
-#define RDM_SENS_CHROMINANCE_BLUE	0x1B 
-#define RDM_SENS_CONTACTS	0x1C
-#define RDM_SENS_MEMORY		0x1D
-#define RDM_SENS_ITEMS		0x1E
-#define RDM_SENS_HUMIDITY	0x1F 
-#define RDM_SENS_COUNTER_16BIT	0x20 
-#define RDM_SENS_OTHER		0x7F 
+#define RDM_SENS_TEMPERATURE	    0x00
+#define RDM_SENS_VOLTAGE	    0x01
+#define RDM_SENS_CURRENT	    0x02
+#define RDM_SENS_FREQUENCY	    0x03
+#define RDM_SENS_RESISTANCE	    0x04
+#define RDM_SENS_POWER		    0x05
+#define RDM_SENS_MASS		    0x06
+#define RDM_SENS_LENGTH		    0x07
+#define RDM_SENS_AREA		    0x08
+#define RDM_SENS_VOLUME		    0x09
+#define RDM_SENS_DENSITY	    0x0A
+#define RDM_SENS_VELOCITY	    0x0B
+#define RDM_SENS_ACCELERATION	    0x0C
+#define RDM_SENS_FORCE		    0x0D
+#define RDM_SENS_ENERGY		    0x0E
+#define RDM_SENS_PRESSURE	    0x0F
+#define RDM_SENS_TIME		    0x10
+#define RDM_SENS_ANGLE		    0x11
+#define RDM_SENS_POSITION_X	    0x12
+#define RDM_SENS_POSITION_Y	    0x13
+#define RDM_SENS_POSITION_Z	    0x14
+#define RDM_SENS_ANGULAR_VELOCITY   0x15
+#define RDM_SENS_LUMINOUS_INTENSITY 0x16
+#define RDM_SENS_LUMINOUS_FLUX	    0x17
+#define RDM_SENS_ILLUMINANCE	    0x18
+#define RDM_SENS_CHROMINANCE_RED    0x19
+#define RDM_SENS_CHROMINANCE_GREEN  0x1A
+#define RDM_SENS_CHROMINANCE_BLUE   0x1B
+#define RDM_SENS_CONTACTS	    0x1C
+#define RDM_SENS_MEMORY		    0x1D
+#define RDM_SENS_ITEMS		    0x1E
+#define RDM_SENS_HUMIDITY	    0x1F
+#define RDM_SENS_COUNTER_16BIT	    0x20
+#define RDM_SENS_OTHER		    0x7F
 
 static const value_string rdm_sensor_type_vals[] = {
 	{ RDM_SENS_TEMPERATURE,		"Temperature" },
@@ -387,12 +389,13 @@ static const value_string rdm_sensor_type_vals[] = {
 	{ RDM_SENS_OTHER,		"Other" },
 	{ 0, NULL} ,
 };
+static value_string_ext rdm_sensor_type_vals_ext = VALUE_STRING_EXT_INIT(rdm_sensor_type_vals);
 
 #define RDM_PRODUCT_CATEGORY_NOT_DECLARED		0x0000
 #define RDM_PRODUCT_CATEGORY_FIXTURE			0x0100
 #define RDM_PRODUCT_CATEGORY_FIXTURE_FIXED		0x0101
-#define RDM_PRODUCT_CATEGORY_FIXTURE_MOVING_YOKE	0x0102 
-#define RDM_PRODUCT_CATEGORY_FIXTURE_MOVING_MIRROR	0x0103 
+#define RDM_PRODUCT_CATEGORY_FIXTURE_MOVING_YOKE	0x0102
+#define RDM_PRODUCT_CATEGORY_FIXTURE_MOVING_MIRROR	0x0103
 #define RDM_PRODUCT_CATEGORY_FIXTURE_OTHER		0x01FF
 #define RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY		0x0200
 #define RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_COLOR	0x0201
@@ -400,120 +403,121 @@ static const value_string rdm_sensor_type_vals[] = {
 #define RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_MIRROR	0x0203
 #define RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_EFFECT	0x0204
 #define RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_BEAM	0x0205
-#define RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_OTHER	0x02FF 
+#define RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_OTHER	0x02FF
 #define RDM_PRODUCT_CATEGORY_PROJECTOR			0x0300
 #define RDM_PRODUCT_CATEGORY_PROJECTOR_FIXED		0x0301
-#define RDM_PRODUCT_CATEGORY_PROJECTOR_MOVING_YOKE	0x0302 
-#define RDM_PRODUCT_CATEGORY_PROJECTOR_MOVING_MIRROR	0x0303 
-#define RDM_PRODUCT_CATEGORY_PROJECTOR_OTHER		0x03FF 
+#define RDM_PRODUCT_CATEGORY_PROJECTOR_MOVING_YOKE	0x0302
+#define RDM_PRODUCT_CATEGORY_PROJECTOR_MOVING_MIRROR	0x0303
+#define RDM_PRODUCT_CATEGORY_PROJECTOR_OTHER		0x03FF
 #define RDM_PRODUCT_CATEGORY_ATMOSPHERIC		0x0400
 #define RDM_PRODUCT_CATEGORY_ATMOSPHERIC_EFFECT		0x0401
 #define RDM_PRODUCT_CATEGORY_ATMOSPHERIC_PYRO		0x0402
 #define RDM_PRODUCT_CATEGORY_ATMOSPHERIC_OTHER		0x04FF
-#define RDM_PRODUCT_CATEGORY_DIMMER			0x0500  
-#define RDM_PRODUCT_CATEGORY_DIMMER_AC_INCANDESCENT	0x0501 
-#define RDM_PRODUCT_CATEGORY_DIMMER_AC_FLUORESCENT	0x0502 
-#define RDM_PRODUCT_CATEGORY_DIMMER_AC_COLDCATHODE	0x0503 
-#define RDM_PRODUCT_CATEGORY_DIMMER_AC_NONDIM		0x0504 
-#define RDM_PRODUCT_CATEGORY_DIMMER_AC_ELV		0x0505 
-#define RDM_PRODUCT_CATEGORY_DIMMER_AC_OTHER		0x0506 
+#define RDM_PRODUCT_CATEGORY_DIMMER			0x0500
+#define RDM_PRODUCT_CATEGORY_DIMMER_AC_INCANDESCENT	0x0501
+#define RDM_PRODUCT_CATEGORY_DIMMER_AC_FLUORESCENT	0x0502
+#define RDM_PRODUCT_CATEGORY_DIMMER_AC_COLDCATHODE	0x0503
+#define RDM_PRODUCT_CATEGORY_DIMMER_AC_NONDIM		0x0504
+#define RDM_PRODUCT_CATEGORY_DIMMER_AC_ELV		0x0505
+#define RDM_PRODUCT_CATEGORY_DIMMER_AC_OTHER		0x0506
 #define RDM_PRODUCT_CATEGORY_DIMMER_DC_LEVEL		0x0507
 #define RDM_PRODUCT_CATEGORY_DIMMER_DC_PWM		0x0508
 #define RDM_PRODUCT_CATEGORY_DIMMER_CS_LED		0x0509
-#define RDM_PRODUCT_CATEGORY_DIMMER_OTHER		0x05FF 
+#define RDM_PRODUCT_CATEGORY_DIMMER_OTHER		0x05FF
 #define RDM_PRODUCT_CATEGORY_POWER			0x0600
-#define RDM_PRODUCT_CATEGORY_POWER_CONTROL		0x0601 
+#define RDM_PRODUCT_CATEGORY_POWER_CONTROL		0x0601
 #define RDM_PRODUCT_CATEGORY_POWER_SOURCE		0x0602
 #define RDM_PRODUCT_CATEGORY_POWER_OTHER		0x06FF
 #define RDM_PRODUCT_CATEGORY_SCENIC			0x0700
 #define RDM_PRODUCT_CATEGORY_SCENIC_DRIVE		0x0701
-#define RDM_PRODUCT_CATEGORY_SCENIC_OTHER		0x07FF 
+#define RDM_PRODUCT_CATEGORY_SCENIC_OTHER		0x07FF
 #define RDM_PRODUCT_CATEGORY_DATA			0x0800
 #define RDM_PRODUCT_CATEGORY_DATA_DISTRIBUTION		0x0801
 #define RDM_PRODUCT_CATEGORY_DATA_CONVERSION		0x0802
-#define RDM_PRODUCT_CATEGORY_DATA_OTHER			0x08FF 
+#define RDM_PRODUCT_CATEGORY_DATA_OTHER			0x08FF
 #define RDM_PRODUCT_CATEGORY_AV				0x0900
 #define RDM_PRODUCT_CATEGORY_AV_AUDIO			0x0901
 #define RDM_PRODUCT_CATEGORY_AV_VIDEO			0x0902
-#define RDM_PRODUCT_CATEGORY_AV_OTHER			0x09FF 
+#define RDM_PRODUCT_CATEGORY_AV_OTHER			0x09FF
 #define RDM_PRODUCT_CATEGORY_MONITOR			0x0A00
 #define RDM_PRODUCT_CATEGORY_MONITOR_ACLINEPOWER	0x0A01
-#define RDM_PRODUCT_CATEGORY_MONITOR_DCPOWER		0x0A02 
+#define RDM_PRODUCT_CATEGORY_MONITOR_DCPOWER		0x0A02
 #define RDM_PRODUCT_CATEGORY_MONITOR_ENVIRONMENTAL	0x0A03
-#define RDM_PRODUCT_CATEGORY_MONITOR_OTHER		0x0AFF 
-#define RDM_PRODUCT_CATEGORY_CONTROL			0x7000 
-#define RDM_PRODUCT_CATEGORY_CONTROL_CONTROLLER		0x7001 
-#define RDM_PRODUCT_CATEGORY_CONTROL_BACKUPDEVICE	0x7002 
-#define RDM_PRODUCT_CATEGORY_CONTROL_OTHER		0x70FF 
-#define RDM_PRODUCT_CATEGORY_TEST			0x7100 
-#define RDM_PRODUCT_CATEGORY_TEST_EQUIPMENT		0x7101 
-#define RDM_PRODUCT_CATEGORY_TEST_EQUIPMENT_OTHER	0x71FF 
-#define RDM_PRODUCT_CATEGORY_OTHER			0x7FFF 
+#define RDM_PRODUCT_CATEGORY_MONITOR_OTHER		0x0AFF
+#define RDM_PRODUCT_CATEGORY_CONTROL			0x7000
+#define RDM_PRODUCT_CATEGORY_CONTROL_CONTROLLER		0x7001
+#define RDM_PRODUCT_CATEGORY_CONTROL_BACKUPDEVICE	0x7002
+#define RDM_PRODUCT_CATEGORY_CONTROL_OTHER		0x70FF
+#define RDM_PRODUCT_CATEGORY_TEST			0x7100
+#define RDM_PRODUCT_CATEGORY_TEST_EQUIPMENT		0x7101
+#define RDM_PRODUCT_CATEGORY_TEST_EQUIPMENT_OTHER	0x71FF
+#define RDM_PRODUCT_CATEGORY_OTHER			0x7FFF
 
 static const value_string rdm_product_cat_vals[] = {
-	{ RDM_PRODUCT_CATEGORY_NOT_DECLARED,		"Not Declared" },
-	{ RDM_PRODUCT_CATEGORY_FIXTURE,			"Fixture" },
-	{ RDM_PRODUCT_CATEGORY_FIXTURE_FIXED,		"Fixture Fixed" },
-	{ RDM_PRODUCT_CATEGORY_FIXTURE_MOVING_YOKE,	"Fixture Moving Yoke" },
-	{ RDM_PRODUCT_CATEGORY_FIXTURE_MOVING_MIRROR,	"Fixture Moving Mirror" },
-	{ RDM_PRODUCT_CATEGORY_FIXTURE_OTHER,		"Fixture Other" },
-	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY,	"Fixture Accessory" },
-	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_COLOR,	"Fixture Accessory Color" },
-	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_YOKE,	"Fixture Accessory Yoke" },
-	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_MIRROR,"Fixture Accessory Mirror" },
-	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_EFFECT,"Fixture Accessory Effect" },
-	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_BEAM,	"Fixture Accessory Beam" },
-	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_OTHER,	"Fixture Accessory Other" },
-	{ RDM_PRODUCT_CATEGORY_PROJECTOR,		"Projector" },
-	{ RDM_PRODUCT_CATEGORY_PROJECTOR_FIXED,		"Projector Fixed" },
-	{ RDM_PRODUCT_CATEGORY_PROJECTOR_MOVING_YOKE,	"Projector Moving Yoke" },
-	{ RDM_PRODUCT_CATEGORY_PROJECTOR_MOVING_MIRROR,	"Projector Moving Mirror" },
-	{ RDM_PRODUCT_CATEGORY_PROJECTOR_OTHER,		"Projector Other" },
-	{ RDM_PRODUCT_CATEGORY_ATMOSPHERIC,		"Atmospheric" },
-	{ RDM_PRODUCT_CATEGORY_ATMOSPHERIC_EFFECT,	"Atmospheric Effect" },
-	{ RDM_PRODUCT_CATEGORY_ATMOSPHERIC_PYRO,	"Atmospheric Pyro" },
-	{ RDM_PRODUCT_CATEGORY_ATMOSPHERIC_OTHER,	"Atmospheric Other" },
-	{ RDM_PRODUCT_CATEGORY_DIMMER,			"Dimmer" },
-	{ RDM_PRODUCT_CATEGORY_DIMMER_AC_INCANDESCENT,	"Dimmer AC Incandescent" },
-	{ RDM_PRODUCT_CATEGORY_DIMMER_AC_FLUORESCENT,	"Dimmer AC Fluorescent" },
-	{ RDM_PRODUCT_CATEGORY_DIMMER_AC_COLDCATHODE,	"Dimmer AC Coldcathode" },
-	{ RDM_PRODUCT_CATEGORY_DIMMER_AC_NONDIM,	"Dimmer AC Nondim" },
-	{ RDM_PRODUCT_CATEGORY_DIMMER_AC_ELV,		"Dimmer AC ELV" },
-	{ RDM_PRODUCT_CATEGORY_DIMMER_AC_OTHER,		"Dimmer AC Other" },
-	{ RDM_PRODUCT_CATEGORY_DIMMER_DC_LEVEL,		"Dimmer DC Level" },
-	{ RDM_PRODUCT_CATEGORY_DIMMER_DC_PWM,		"Dimmer DC PWM" },
-	{ RDM_PRODUCT_CATEGORY_DIMMER_CS_LED,		"Dimmer CS LED" },
-	{ RDM_PRODUCT_CATEGORY_DIMMER_OTHER,		"Dimmer Other" },
-	{ RDM_PRODUCT_CATEGORY_POWER,			"Power" },
-	{ RDM_PRODUCT_CATEGORY_POWER_CONTROL,		"Power Control" },
-	{ RDM_PRODUCT_CATEGORY_POWER_SOURCE,		"Power Source" },
-	{ RDM_PRODUCT_CATEGORY_POWER_OTHER,		"Power Other" },
-	{ RDM_PRODUCT_CATEGORY_SCENIC,			"Scenic" },
-	{ RDM_PRODUCT_CATEGORY_SCENIC_DRIVE,		"Scenic Drive" },
-	{ RDM_PRODUCT_CATEGORY_SCENIC_OTHER,		"Scenic Other" },
-	{ RDM_PRODUCT_CATEGORY_DATA,			"Data" },
-	{ RDM_PRODUCT_CATEGORY_DATA_DISTRIBUTION,	"Data Distribution" },
-	{ RDM_PRODUCT_CATEGORY_DATA_CONVERSION,		"Data Conversion" },
-	{ RDM_PRODUCT_CATEGORY_DATA_OTHER,		"Data Other" },
-	{ RDM_PRODUCT_CATEGORY_AV,			"AV" },
-	{ RDM_PRODUCT_CATEGORY_AV_AUDIO,		"AV Audio" },
-	{ RDM_PRODUCT_CATEGORY_AV_VIDEO,		"AV Video" },
-	{ RDM_PRODUCT_CATEGORY_AV_OTHER,		"AV Other" },
-	{ RDM_PRODUCT_CATEGORY_MONITOR,			"Monitor" },
-	{ RDM_PRODUCT_CATEGORY_MONITOR_ACLINEPOWER,	"Monitor AC Line Power" },
-	{ RDM_PRODUCT_CATEGORY_MONITOR_DCPOWER,		"Monitor DC Power" },
-	{ RDM_PRODUCT_CATEGORY_MONITOR_ENVIRONMENTAL,	"Monitor Environmental" },
-	{ RDM_PRODUCT_CATEGORY_MONITOR_OTHER,		"Monitor Other" },
-	{ RDM_PRODUCT_CATEGORY_CONTROL,			"Control" },
-	{ RDM_PRODUCT_CATEGORY_CONTROL_CONTROLLER,	"Control Controller" },
-	{ RDM_PRODUCT_CATEGORY_CONTROL_BACKUPDEVICE,	"Control Backup Device" },
-	{ RDM_PRODUCT_CATEGORY_CONTROL_OTHER,		"Control Other" },
-	{ RDM_PRODUCT_CATEGORY_TEST,			"Test" },
-	{ RDM_PRODUCT_CATEGORY_TEST_EQUIPMENT,		"Test Equipment" },
-	{ RDM_PRODUCT_CATEGORY_TEST_EQUIPMENT_OTHER,	"Test Equipment Other" },
-	{ RDM_PRODUCT_CATEGORY_OTHER,			"Other" },
+	{ RDM_PRODUCT_CATEGORY_NOT_DECLARED,		 "Not Declared" },
+	{ RDM_PRODUCT_CATEGORY_FIXTURE,			 "Fixture" },
+	{ RDM_PRODUCT_CATEGORY_FIXTURE_FIXED,		 "Fixture Fixed" },
+	{ RDM_PRODUCT_CATEGORY_FIXTURE_MOVING_YOKE,	 "Fixture Moving Yoke" },
+	{ RDM_PRODUCT_CATEGORY_FIXTURE_MOVING_MIRROR,	 "Fixture Moving Mirror" },
+	{ RDM_PRODUCT_CATEGORY_FIXTURE_OTHER,		 "Fixture Other" },
+	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY,	 "Fixture Accessory" },
+	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_COLOR,	 "Fixture Accessory Color" },
+	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_YOKE,	 "Fixture Accessory Yoke" },
+	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_MIRROR, "Fixture Accessory Mirror" },
+	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_EFFECT, "Fixture Accessory Effect" },
+	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_BEAM,	 "Fixture Accessory Beam" },
+	{ RDM_PRODUCT_CATEGORY_FIXTURE_ACCESSORY_OTHER,	 "Fixture Accessory Other" },
+	{ RDM_PRODUCT_CATEGORY_PROJECTOR,		 "Projector" },
+	{ RDM_PRODUCT_CATEGORY_PROJECTOR_FIXED,		 "Projector Fixed" },
+	{ RDM_PRODUCT_CATEGORY_PROJECTOR_MOVING_YOKE,	 "Projector Moving Yoke" },
+	{ RDM_PRODUCT_CATEGORY_PROJECTOR_MOVING_MIRROR,	 "Projector Moving Mirror" },
+	{ RDM_PRODUCT_CATEGORY_PROJECTOR_OTHER,		 "Projector Other" },
+	{ RDM_PRODUCT_CATEGORY_ATMOSPHERIC,		 "Atmospheric" },
+	{ RDM_PRODUCT_CATEGORY_ATMOSPHERIC_EFFECT,	 "Atmospheric Effect" },
+	{ RDM_PRODUCT_CATEGORY_ATMOSPHERIC_PYRO,	 "Atmospheric Pyro" },
+	{ RDM_PRODUCT_CATEGORY_ATMOSPHERIC_OTHER,	 "Atmospheric Other" },
+	{ RDM_PRODUCT_CATEGORY_DIMMER,			 "Dimmer" },
+	{ RDM_PRODUCT_CATEGORY_DIMMER_AC_INCANDESCENT,	 "Dimmer AC Incandescent" },
+	{ RDM_PRODUCT_CATEGORY_DIMMER_AC_FLUORESCENT,	 "Dimmer AC Fluorescent" },
+	{ RDM_PRODUCT_CATEGORY_DIMMER_AC_COLDCATHODE,	 "Dimmer AC Coldcathode" },
+	{ RDM_PRODUCT_CATEGORY_DIMMER_AC_NONDIM,	 "Dimmer AC Nondim" },
+	{ RDM_PRODUCT_CATEGORY_DIMMER_AC_ELV,		 "Dimmer AC ELV" },
+	{ RDM_PRODUCT_CATEGORY_DIMMER_AC_OTHER,		 "Dimmer AC Other" },
+	{ RDM_PRODUCT_CATEGORY_DIMMER_DC_LEVEL,		 "Dimmer DC Level" },
+	{ RDM_PRODUCT_CATEGORY_DIMMER_DC_PWM,		 "Dimmer DC PWM" },
+	{ RDM_PRODUCT_CATEGORY_DIMMER_CS_LED,		 "Dimmer CS LED" },
+	{ RDM_PRODUCT_CATEGORY_DIMMER_OTHER,		 "Dimmer Other" },
+	{ RDM_PRODUCT_CATEGORY_POWER,			 "Power" },
+	{ RDM_PRODUCT_CATEGORY_POWER_CONTROL,		 "Power Control" },
+	{ RDM_PRODUCT_CATEGORY_POWER_SOURCE,		 "Power Source" },
+	{ RDM_PRODUCT_CATEGORY_POWER_OTHER,		 "Power Other" },
+	{ RDM_PRODUCT_CATEGORY_SCENIC,			 "Scenic" },
+	{ RDM_PRODUCT_CATEGORY_SCENIC_DRIVE,		 "Scenic Drive" },
+	{ RDM_PRODUCT_CATEGORY_SCENIC_OTHER,		 "Scenic Other" },
+	{ RDM_PRODUCT_CATEGORY_DATA,			 "Data" },
+	{ RDM_PRODUCT_CATEGORY_DATA_DISTRIBUTION,	 "Data Distribution" },
+	{ RDM_PRODUCT_CATEGORY_DATA_CONVERSION,		 "Data Conversion" },
+	{ RDM_PRODUCT_CATEGORY_DATA_OTHER,		 "Data Other" },
+	{ RDM_PRODUCT_CATEGORY_AV,			 "AV" },
+	{ RDM_PRODUCT_CATEGORY_AV_AUDIO,		 "AV Audio" },
+	{ RDM_PRODUCT_CATEGORY_AV_VIDEO,		 "AV Video" },
+	{ RDM_PRODUCT_CATEGORY_AV_OTHER,		 "AV Other" },
+	{ RDM_PRODUCT_CATEGORY_MONITOR,			 "Monitor" },
+	{ RDM_PRODUCT_CATEGORY_MONITOR_ACLINEPOWER,	 "Monitor AC Line Power" },
+	{ RDM_PRODUCT_CATEGORY_MONITOR_DCPOWER,		 "Monitor DC Power" },
+	{ RDM_PRODUCT_CATEGORY_MONITOR_ENVIRONMENTAL,	 "Monitor Environmental" },
+	{ RDM_PRODUCT_CATEGORY_MONITOR_OTHER,		 "Monitor Other" },
+	{ RDM_PRODUCT_CATEGORY_CONTROL,			 "Control" },
+	{ RDM_PRODUCT_CATEGORY_CONTROL_CONTROLLER,	 "Control Controller" },
+	{ RDM_PRODUCT_CATEGORY_CONTROL_BACKUPDEVICE,	 "Control Backup Device" },
+	{ RDM_PRODUCT_CATEGORY_CONTROL_OTHER,		 "Control Other" },
+	{ RDM_PRODUCT_CATEGORY_TEST,			 "Test" },
+	{ RDM_PRODUCT_CATEGORY_TEST_EQUIPMENT,		 "Test Equipment" },
+	{ RDM_PRODUCT_CATEGORY_TEST_EQUIPMENT_OTHER,	 "Test Equipment Other" },
+	{ RDM_PRODUCT_CATEGORY_OTHER,			 "Other" },
 	{ 0, NULL },
 };
+static value_string_ext rdm_product_cat_vals_ext = VALUE_STRING_EXT_INIT(rdm_product_cat_vals);
 
 static int proto_rdm = -1;
 
@@ -656,14 +660,13 @@ static int hf_rdm_pd_slot_description = -1;
 static int hf_rdm_pd_slot_value = -1;
 static int hf_rdm_pd_rec_value_support = -1;
 
-
 static int ett_rdm = -1;
 
 static guint16
-rdm_checksum(tvbuff_t *tvb, unsigned length)
+rdm_checksum(tvbuff_t *tvb, guint length)
 {
 	guint16 sum = RDM_SC_RDM;
-	unsigned i;
+	guint	i;
 	for (i = 0; i < length; i++)
 		sum += tvb_get_guint8(tvb, i);
 	return sum;
@@ -676,7 +679,7 @@ dissect_rdm_pd_queued_message(tvbuff_t *tvb, guint offset, proto_tree *tree, gui
 	case RDM_CC_GET_COMMAND:
 		proto_tree_add_item(tree, hf_rdm_pd_queued_message_status, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 		break;
 	}
 
@@ -691,7 +694,7 @@ dissect_rdm_pd_dmx_start_address(tvbuff_t *tvb, guint offset, proto_tree *tree, 
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_start_address, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset +=  2;
 		break;
 	}
 
@@ -705,43 +708,43 @@ dissect_rdm_pd_device_info(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_proto_vers, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset +=  2;
 
 		proto_tree_add_item(tree, hf_rdm_pd_device_model_id, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset +=  2;
 
 		proto_tree_add_item(tree, hf_rdm_pd_product_cat, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset +=  2;
 
 		proto_tree_add_item(tree, hf_rdm_pd_software_vers_id, tvb,
 			offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset +=  4;
 
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_footprint, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset +=  2;
 
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_pers_current, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_pers_total, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_start_address, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset +=  2;
 
 		proto_tree_add_item(tree, hf_rdm_pd_sub_device_count, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset +=  2;
 
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_count, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 
 		break;
 	}
@@ -749,7 +752,7 @@ dissect_rdm_pd_device_info(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_
 	return offset;
 }
 
-			
+
 static guint
 dissect_rdm_pd_device_model_description(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 cc, guint8 len)
 {
@@ -757,14 +760,14 @@ dissect_rdm_pd_device_model_description(tvbuff_t *tvb, guint offset, proto_tree 
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_device_model_description, tvb,
 			offset, len, ENC_BIG_ENDIAN);
-		offset+=len;
+		offset +=  len;
 		break;
 	}
 
 	return offset;
 }
 
-			
+
 static guint
 dissect_rdm_pd_device_label(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 cc, guint8 len)
 {
@@ -773,14 +776,14 @@ dissect_rdm_pd_device_label(tvbuff_t *tvb, guint offset, proto_tree *tree, guint
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_device_label, tvb,
 			offset, len, ENC_BIG_ENDIAN);
-		offset+=len;
+		offset +=  len;
 		break;
 	}
 
 	return offset;
 }
 
-			
+
 static guint
 dissect_rdm_pd_device_hours(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 cc, guint8 len _U_)
 {
@@ -789,14 +792,14 @@ dissect_rdm_pd_device_hours(tvbuff_t *tvb, guint offset, proto_tree *tree, guint
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_device_hours, tvb,
 			offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset +=  4;
 		break;
 	}
 
 	return offset;
 }
 
-			
+
 static guint
 dissect_rdm_pd_lamp_hours(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 cc, guint8 len _U_)
 {
@@ -805,14 +808,14 @@ dissect_rdm_pd_lamp_hours(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_lamp_hours, tvb,
 			offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset +=  4;
 		break;
 	}
 
 	return offset;
 }
 
-			
+
 static guint
 dissect_rdm_pd_lamp_strikes(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 cc, guint8 len _U_)
 {
@@ -821,14 +824,14 @@ dissect_rdm_pd_lamp_strikes(tvbuff_t *tvb, guint offset, proto_tree *tree, guint
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_lamp_strikes, tvb,
 			offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset +=  4;
 		break;
 	}
 
 	return offset;
 }
 
-			
+
 static guint
 dissect_rdm_pd_sensor_definition(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 cc, guint8 len)
 {
@@ -836,45 +839,45 @@ dissect_rdm_pd_sensor_definition(tvbuff_t *tvb, guint offset, proto_tree *tree, 
 	case RDM_CC_GET_COMMAND:
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_nr, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 		break;
 
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_nr, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_type, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_unit, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_prefix, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_range_min_value, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset +=  2;
 
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_range_max_value, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset +=  2;
 
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_normal_min_value, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset +=  2;
 
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_normal_max_value, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset +=  2;
 
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_recorded_value_support, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_description, tvb,
 			offset, len - 13, ENC_BIG_ENDIAN);
@@ -893,31 +896,31 @@ dissect_rdm_pd_sensor_value(tvbuff_t *tvb, guint offset, proto_tree *tree, guint
 	case RDM_CC_SET_COMMAND:
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_nr, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 		break;
 
 	case RDM_CC_GET_COMMAND_RESPONSE:
 	case RDM_CC_SET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_nr, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_value_pres, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset +=  2;
 
 		if (len == 7 || len == 9) {
 			proto_tree_add_item(tree, hf_rdm_pd_sensor_value_low, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
-			offset+=2;
+			offset +=  2;
 			proto_tree_add_item(tree, hf_rdm_pd_sensor_value_high, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
-			offset+=2;
+			offset +=  2;
 		}
-	
+
 		if (len == 5 || len == 9) {
 			proto_tree_add_item(tree, hf_rdm_pd_sensor_value_rec, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
-			offset+=2;
+			offset +=  2;
 		}
 
 		break;
@@ -925,7 +928,7 @@ dissect_rdm_pd_sensor_value(tvbuff_t *tvb, guint offset, proto_tree *tree, guint
 
 	return offset;
 }
-			
+
 static guint
 dissect_rdm_pd_manufacturer_label(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 cc, guint8 len)
 {
@@ -933,8 +936,8 @@ dissect_rdm_pd_manufacturer_label(tvbuff_t *tvb, guint offset, proto_tree *tree,
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_manu_label, tvb,
 			offset, len, ENC_BIG_ENDIAN);
-		offset+=len;
-		break;	
+		offset +=  len;
+		break;
 	}
 
 	return offset;
@@ -948,10 +951,10 @@ dissect_rdm_pd_disc_unique_branch(tvbuff_t *tvb, guint offset, proto_tree *tree,
 		proto_tree_add_item(tree, hf_rdm_pd_disc_unique_branch_lb_uid, tvb,
 			offset, 6, ENC_NA);
 		offset += 6;
-		
+
 		proto_tree_add_item(tree, hf_rdm_pd_disc_unique_branch_ub_uid, tvb,
 			offset, 6, ENC_NA);
-		offset += 6;		
+		offset += 6;
 		break;
 	}
 
@@ -961,17 +964,17 @@ dissect_rdm_pd_disc_unique_branch(tvbuff_t *tvb, guint offset, proto_tree *tree,
 static guint
 dissect_rdm_pd_disc_mute(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 cc, guint8 len)
 {
-	switch(cc) {		
+	switch(cc) {
 	case RDM_CC_DISCOVERY_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_disc_mute_control_field, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;		
+		offset += 2;
 		if (len > 2) {
 			proto_tree_add_item(tree, hf_rdm_pd_disc_mute_binding_uid, tvb,
 				offset, 6, ENC_NA);
 			offset += 6;
 		}
-		break;	
+		break;
 	}
 
 	return offset;
@@ -984,13 +987,13 @@ dissect_rdm_pd_disc_un_mute(tvbuff_t *tvb, guint offset, proto_tree *tree, guint
 	case RDM_CC_DISCOVERY_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_disc_unmute_control_field, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;		
+		offset += 2;
 		if (len > 2) {
 			proto_tree_add_item(tree, hf_rdm_pd_disc_unmute_binding_uid, tvb,
 				offset, 6, ENC_NA);
 			offset += 6;
 		}
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1005,9 +1008,9 @@ dissect_rdm_pd_proxied_devices(tvbuff_t *tvb, guint offset, proto_tree *tree, gu
 			proto_tree_add_item(tree, hf_rdm_pd_proxied_devices_uid, tvb,
 				offset, 6, ENC_NA);
 			offset += 6;
-			len -= 6;
+			len    -= 6;
 		}
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1020,11 +1023,11 @@ dissect_rdm_pd_proxied_device_count(tvbuff_t *tvb, guint offset, proto_tree *tre
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_proxied_device_count, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;		
+		offset += 2;
 		proto_tree_add_item(tree, hf_rdm_pd_proxied_device_list_change, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1037,14 +1040,14 @@ dissect_rdm_pd_comms_status(tvbuff_t *tvb, guint offset, proto_tree *tree, guint
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_comms_status_short_msg, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;		
+		offset += 2;
 		proto_tree_add_item(tree, hf_rdm_pd_comms_status_len_mismatch, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;		
+		offset += 2;
 		proto_tree_add_item(tree, hf_rdm_pd_comms_status_csum_fail, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1057,33 +1060,33 @@ dissect_rdm_pd_status_messages(tvbuff_t *tvb, guint offset, proto_tree *tree, gu
 	case RDM_CC_GET_COMMAND:
 		proto_tree_add_item(tree, hf_rdm_pd_status_messages_type, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;			
+		offset += 1;
 		break;
-		
+
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		while (len >= 9) {
 			proto_tree_add_item(tree, hf_rdm_pd_status_messages_sub_device_id, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;			
-			len -= 2;
+			offset += 2;
+			len    -= 2;
 			proto_tree_add_item(tree, hf_rdm_pd_status_messages_type, tvb,
 				offset, 1, ENC_BIG_ENDIAN);
-			offset += 1;			
-			len -= 1;
+			offset += 1;
+			len    -= 1;
 			proto_tree_add_item(tree, hf_rdm_pd_status_messages_id, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;			
-			len -= 2;
+			offset += 2;
+			len    -= 2;
 			proto_tree_add_item(tree, hf_rdm_pd_status_messages_data_value_1, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;			
-			len -= 2;
+			offset += 2;
+			len    -= 2;
 			proto_tree_add_item(tree, hf_rdm_pd_status_messages_data_value_2, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;			
-			len -= 2;
+			offset += 2;
+			len    -= 2;
 		}
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1098,7 +1101,7 @@ dissect_rdm_pd_status_id_description(tvbuff_t *tvb, guint offset, proto_tree *tr
 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		break;
-		
+
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_status_id_description, tvb,
 			offset, len, ENC_BIG_ENDIAN);
@@ -1139,9 +1142,9 @@ dissect_rdm_pd_supported_parameters(tvbuff_t *tvb, guint offset, proto_tree *tre
 			proto_tree_add_item(tree, hf_rdm_pd_parameter_id, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
-			len -= 2;
+			len    -= 2;
 		}
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1156,7 +1159,7 @@ dissect_rdm_pd_parameter_description(tvbuff_t *tvb, guint offset, proto_tree *tr
 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		break;
-		
+
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_parameter_id, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
@@ -1190,7 +1193,7 @@ dissect_rdm_pd_parameter_description(tvbuff_t *tvb, guint offset, proto_tree *tr
 		offset += 4;
 		proto_tree_add_item(tree, hf_rdm_pd_parameter_description, tvb,
 			offset, len - 0x14, ENC_BIG_ENDIAN);
-		offset += (len - 0x14);		
+		offset += (len - 0x14);
 		break;
 	}
 
@@ -1206,9 +1209,9 @@ dissect_rdm_pd_product_detail_id_list(tvbuff_t *tvb, guint offset, proto_tree *t
 			proto_tree_add_item(tree, hf_rdm_pd_product_detail_id_list, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
-			len -= 2;
+			len    -= 2;
 		}
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1222,7 +1225,7 @@ dissect_rdm_pd_factory_defaults(tvbuff_t *tvb, guint offset, proto_tree *tree, g
 		proto_tree_add_item(tree, hf_rdm_pd_factory_defaults, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1237,7 +1240,7 @@ dissect_rdm_pd_language_capabilities(tvbuff_t *tvb, guint offset, proto_tree *tr
 			proto_tree_add_item(tree, hf_rdm_pd_language_code, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
-			len -= 2;
+			len    -= 2;
 		}
 		break;
 	}
@@ -1268,8 +1271,8 @@ dissect_rdm_pd_software_version_label(tvbuff_t *tvb, guint offset, proto_tree *t
 		proto_tree_add_item(tree, hf_rdm_pd_software_version_label, tvb,
 			offset, len, ENC_BIG_ENDIAN);
 		offset += len;
-	
-		break;	
+
+		break;
 	}
 
 	return offset;
@@ -1284,7 +1287,7 @@ dissect_rdm_pd_boot_software_version_id(tvbuff_t *tvb, guint offset, proto_tree 
 			offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1298,8 +1301,8 @@ dissect_rdm_pd_boot_software_version_label(tvbuff_t *tvb, guint offset, proto_tr
 		proto_tree_add_item(tree, hf_rdm_pd_boot_software_version_label, tvb,
 			offset, len, ENC_BIG_ENDIAN);
 		offset += len;
-	
-		break;	
+
+		break;
 	}
 
 	return offset;
@@ -1314,7 +1317,7 @@ dissect_rdm_pd_dmx_personality(tvbuff_t *tvb, guint offset, proto_tree *tree, gu
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		break;
-		
+
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_pers_current, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
@@ -1322,7 +1325,7 @@ dissect_rdm_pd_dmx_personality(tvbuff_t *tvb, guint offset, proto_tree *tree, gu
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_pers_count, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1337,7 +1340,7 @@ dissect_rdm_pd_dmx_personality_description(tvbuff_t *tvb, guint offset, proto_tr
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		break;
-		
+
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_pers_description, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
@@ -1348,7 +1351,7 @@ dissect_rdm_pd_dmx_personality_description(tvbuff_t *tvb, guint offset, proto_tr
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_pers_text, tvb,
 			offset, (len - 3), ENC_BIG_ENDIAN);
 		offset += (len - 3);
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1363,17 +1366,17 @@ dissect_rdm_pd_slot_info(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 c
 			proto_tree_add_item(tree, hf_rdm_pd_slot_offset, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
-			len -= 2;
+			len    -= 2;
 			proto_tree_add_item(tree, hf_rdm_pd_slot_type, tvb,
 				offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
-			len -= 1;
+			len    -= 1;
 			proto_tree_add_item(tree, hf_rdm_pd_slot_label_id, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
-			len -= 2;
+			len    -= 2;
 		}
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1388,7 +1391,7 @@ dissect_rdm_pd_slot_description(tvbuff_t *tvb, guint offset, proto_tree *tree, g
 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		break;
-		
+
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_slot_nr, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
@@ -1396,7 +1399,7 @@ dissect_rdm_pd_slot_description(tvbuff_t *tvb, guint offset, proto_tree *tree, g
 		proto_tree_add_item(tree, hf_rdm_pd_slot_description, tvb,
 			offset, (len - 2), ENC_BIG_ENDIAN);
 		offset += (len - 2);
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1411,13 +1414,13 @@ dissect_rdm_pd_slot_value(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 
 			proto_tree_add_item(tree, hf_rdm_pd_slot_offset, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
-			len -= 2;
+			len    -= 2;
 			proto_tree_add_item(tree, hf_rdm_pd_slot_value, tvb,
 				offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
-			len -= 1;
+			len    -= 1;
 		}
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1430,42 +1433,42 @@ dissect_rdm_pd_record_sensors(tvbuff_t *tvb, guint offset, proto_tree *tree, gui
 	case RDM_CC_GET_COMMAND:
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_nr, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;	
+		offset += 1;
 		break;
-		
+
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_nr, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;	
+		offset += 1;
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_type, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;	
+		offset += 1;
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_unit, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;	
+		offset += 1;
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_prefix, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;	
+		offset += 1;
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_range_min_value, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;	
+		offset += 2;
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_range_max_value, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;	
+		offset += 2;
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_normal_min_value, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;	
+		offset += 2;
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_normal_max_value, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;	
+		offset += 2;
 		proto_tree_add_item(tree, hf_rdm_pd_rec_value_support, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;	
+		offset += 1;
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_description, tvb,
 			offset, (len - 13), ENC_BIG_ENDIAN);
-		offset += (len - 13);	
-	
-		break;	
+		offset += (len - 13);
+
+		break;
 	}
 
 	return offset;
@@ -1480,7 +1483,7 @@ dissect_rdm_pd_lamp_state(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 
 		proto_tree_add_item(tree, hf_rdm_pd_lamp_state, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1495,7 +1498,7 @@ dissect_rdm_pd_lamp_on_mode(tvbuff_t *tvb, guint offset, proto_tree *tree, guint
 		proto_tree_add_item(tree, hf_rdm_pd_lamp_on_mode, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1509,8 +1512,8 @@ dissect_rdm_pd_device_power_cycles(tvbuff_t *tvb, guint offset, proto_tree *tree
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_device_power_cycles, tvb,
 			offset, 4, ENC_BIG_ENDIAN);
-		offset +=4;
-		break;	
+		offset += 4;
+		break;
 	}
 
 	return offset;
@@ -1525,7 +1528,7 @@ dissect_rdm_pd_display_invert(tvbuff_t *tvb, guint offset, proto_tree *tree, gui
 		proto_tree_add_item(tree, hf_rdm_pd_display_invert, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1540,7 +1543,7 @@ dissect_rdm_pd_display_level(tvbuff_t *tvb, guint offset, proto_tree *tree, guin
 		proto_tree_add_item(tree, hf_rdm_pd_display_level, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1555,7 +1558,7 @@ dissect_rdm_pd_pan_invert(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 
 		proto_tree_add_item(tree, hf_rdm_pd_pan_invert, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1570,7 +1573,7 @@ dissect_rdm_pd_tilt_invert(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8
 		proto_tree_add_item(tree, hf_rdm_pd_tilt_invert, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1585,7 +1588,7 @@ dissect_rdm_pd_pan_tilt_swap(tvbuff_t *tvb, guint offset, proto_tree *tree, guin
 		proto_tree_add_item(tree, hf_rdm_pd_tilt_swap, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1615,7 +1618,7 @@ dissect_rdm_pd_real_time_clock(tvbuff_t *tvb, guint offset, proto_tree *tree, gu
 		proto_tree_add_item(tree, hf_rdm_pd_real_time_clock_second, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1630,12 +1633,12 @@ dissect_rdm_pd_identify_device(tvbuff_t *tvb, guint offset, proto_tree *tree, gu
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		break;
-		
+
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_identify_device_state, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		break;	
+		break;
 	}
 
 	return offset;
@@ -1648,7 +1651,7 @@ dissect_rdm_pd_reset_device(tvbuff_t *tvb, guint offset, proto_tree *tree, guint
 	case RDM_CC_SET_COMMAND:
 		proto_tree_add_item(tree, hf_rdm_pd_reset_device, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;	
+		offset += 1;
 		break;
 	}
 
@@ -1663,8 +1666,8 @@ dissect_rdm_pd_power_state(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_power_state, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;		
-		break;	
+		offset += 1;
+		break;
 	}
 
 	return offset;
@@ -1677,14 +1680,14 @@ dissect_rdm_pd_perform_selftest(tvbuff_t *tvb, guint offset, proto_tree *tree, g
 	case RDM_CC_SET_COMMAND:
 		proto_tree_add_item(tree, hf_rdm_pd_selftest_nr, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;		
+		offset += 1;
 		break;
-		
+
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_selftest_state, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;		
-		break;	
+		offset += 1;
+		break;
 	}
 
 	return offset;
@@ -1697,17 +1700,17 @@ dissect_rdm_pd_self_test_description(tvbuff_t *tvb, guint offset, proto_tree *tr
 	case RDM_CC_GET_COMMAND:
 		proto_tree_add_item(tree, hf_rdm_pd_selftest_nr, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;		
+		offset += 1;
 		break;
-		
+
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_selftest_nr, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;		
+		offset += 1;
 		proto_tree_add_item(tree, hf_rdm_pd_selftest_description, tvb,
 			offset, (len - 1), ENC_BIG_ENDIAN);
-		offset += (len - 1);		
-		break;	
+		offset += (len - 1);
+		break;
 	}
 
 	return offset;
@@ -1730,7 +1733,7 @@ dissect_rdm_pd_capture_preset(tvbuff_t *tvb, guint offset, proto_tree *tree, gui
 		proto_tree_add_item(tree, hf_rdm_pd_capture_preset_wait_time, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		
+
 		break;
 	}
 
@@ -1748,8 +1751,8 @@ dissect_rdm_pd_preset_playback(tvbuff_t *tvb, guint offset, proto_tree *tree, gu
 		offset += 2;
 		proto_tree_add_item(tree, hf_rdm_pd_preset_playback_level, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;	
-		break;	
+		offset += 1;
+		break;
 	}
 
 	return offset;
@@ -1758,9 +1761,9 @@ dissect_rdm_pd_preset_playback(tvbuff_t *tvb, guint offset, proto_tree *tree, gu
 static guint
 dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-	guint8 cc;
-	guint16 param_id;
-	guint8 parameter_data_length;
+	guint8	    cc;
+	guint16	    param_id;
+	guint8	    parameter_data_length;
 	proto_tree *hi,*si, *mdb_tree;
 
 	cc = tvb_get_guint8(tvb, offset + 4);
@@ -1771,7 +1774,7 @@ dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	case RDM_CC_SET_COMMAND:
 		proto_tree_add_item(tree, hf_rdm_port_id, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 		break;
 
 	case RDM_CC_DISCOVERY_COMMAND_RESPONSE:
@@ -1779,13 +1782,13 @@ dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	case RDM_CC_SET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_response_type, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 		break;
 	}
 
 	proto_tree_add_item(tree, hf_rdm_message_count, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+	offset += 1;
 
 	proto_tree_add_item(tree, hf_rdm_sub_device, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
@@ -1798,7 +1801,7 @@ dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 	proto_tree_add_item(mdb_tree, hf_rdm_command_class, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+	offset += 1;
 
 	param_id = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(mdb_tree, hf_rdm_parameter_id, tvb,
@@ -1808,7 +1811,7 @@ dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	parameter_data_length = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(mdb_tree, hf_rdm_parameter_data_length, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+	offset += 1;
 	proto_item_set_len( mdb_tree,  parameter_data_length + 4);
 
 	if (parameter_data_length > 0) {
@@ -1864,7 +1867,7 @@ dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		case RDM_PARAM_ID_DISC_UNIQUE_BRANCH:
 			offset = dissect_rdm_pd_disc_unique_branch(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_DISC_MUTE:
 			offset = dissect_rdm_pd_disc_mute(tvb, offset, si, cc, parameter_data_length);
 			break;
@@ -1880,7 +1883,7 @@ dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		case RDM_PARAM_ID_PROXIED_DEVICE_COUNT:
 			offset = dissect_rdm_pd_proxied_device_count(tvb, offset, si, cc, parameter_data_length);
 			break;
-			
+
 		case RDM_PARAM_ID_COMMS_STATUS:
 			offset = dissect_rdm_pd_comms_status(tvb, offset, si, cc, parameter_data_length);
 			break;
@@ -1928,39 +1931,39 @@ dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		case RDM_PARAM_ID_SOFTWARE_VERSION_LABEL:
 			offset = dissect_rdm_pd_software_version_label(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_BOOT_SOFTWARE_VERSION_ID:
 			offset = dissect_rdm_pd_boot_software_version_id(tvb, offset, si, cc, parameter_data_length);
 			break;
-				
+
 		case RDM_PARAM_ID_BOOT_SOFTWARE_VERSION_LABEL:
 			offset = dissect_rdm_pd_boot_software_version_label(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_DMX_PERSONALITY:
 			offset = dissect_rdm_pd_dmx_personality(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_DMX_PERSONALITY_DESCRIPTION:
 			offset = dissect_rdm_pd_dmx_personality_description(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_SLOT_INFO:
 			offset = dissect_rdm_pd_slot_info(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_SLOT_DESCRIPTION:
 			offset = dissect_rdm_pd_slot_description(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_DEFAULT_SLOT_VALUE:
 			offset = dissect_rdm_pd_slot_value(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_RECORD_SENSORS:
 			offset = dissect_rdm_pd_record_sensors(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_LAMP_STATE:
 			offset = dissect_rdm_pd_lamp_state(tvb, offset, si, cc, parameter_data_length);
 			break;
@@ -1968,63 +1971,63 @@ dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		case RDM_PARAM_ID_LAMP_ON_MODE:
 			offset = dissect_rdm_pd_lamp_on_mode(tvb, offset, si, cc, parameter_data_length);
 			break;
-	
+
 		case RDM_PARAM_ID_DEVICE_POWER_CYCLES:
 			offset = dissect_rdm_pd_device_power_cycles(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_DISPLAY_INVERT:
 			offset = dissect_rdm_pd_display_invert(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_DISPLAY_LEVEL:
 			offset = dissect_rdm_pd_display_level(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_PAN_INVERT:
 			offset = dissect_rdm_pd_pan_invert(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_TILT_INVERT:
 			offset = dissect_rdm_pd_tilt_invert(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_PAN_TILT_SWAP:
 			offset = dissect_rdm_pd_pan_tilt_swap(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_REAL_TIME_CLOCK:
 			offset = dissect_rdm_pd_real_time_clock(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_IDENTIFY_DEVICE:
 			offset = dissect_rdm_pd_identify_device(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_RESET_DEVICE:
 			offset = dissect_rdm_pd_reset_device(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_POWER_STATE:
 			offset = dissect_rdm_pd_power_state(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_PERFORM_SELFTEST:
 			offset = dissect_rdm_pd_perform_selftest(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_SELF_TEST_DESCRIPTION:
 			offset = dissect_rdm_pd_self_test_description(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_CAPTURE_PRESET:
 			offset = dissect_rdm_pd_capture_preset(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		case RDM_PARAM_ID_PRESET_PLAYBACK:
 			offset = dissect_rdm_pd_preset_playback(tvb, offset, si, cc, parameter_data_length);
 			break;
-		
+
 		default:
 			proto_tree_add_item(si, hf_rdm_parameter_data_raw, tvb,
 				offset, parameter_data_length, ENC_NA);
@@ -2032,7 +2035,7 @@ dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 			break;
 		}
 	}
-	
+
 	return offset;
 }
 
@@ -2042,11 +2045,11 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDM");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree != NULL) {
-		gint padding_size;
-		guint16 man_id;
-		guint32 dev_id;
-		unsigned message_length, checksum, checksum_shouldbe, offset = 0;
+	if (tree) {
+		gint	    padding_size;
+		guint16	    man_id;
+		guint32	    dev_id;
+		guint       message_length, checksum, checksum_shouldbe, offset = 0;
 		proto_item *item;
 		proto_tree *checksum_tree;
 
@@ -2056,12 +2059,12 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(rdm_tree, hf_rdm_sub_start_code, tvb,
 				offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 
 		message_length = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(rdm_tree, hf_rdm_message_length, tvb,
 				offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 
 		man_id = tvb_get_ntohs(tvb, offset);
 		dev_id = tvb_get_ntohl(tvb, offset + 2);
@@ -2080,7 +2083,7 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(rdm_tree, hf_rdm_transaction_number, tvb,
 				offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 
 		offset = dissect_rdm_mdb(tvb, offset, rdm_tree);
 
@@ -2186,7 +2189,7 @@ proto_register_rdm(void)
 
 		{ &hf_rdm_parameter_id,
 			{ "Parameter ID", "rdm.pid",
-				FT_UINT16, BASE_HEX, VALS(rdm_param_id_vals), 0x0,
+				FT_UINT16, BASE_HEX | BASE_EXT_STRING, &rdm_param_id_vals_ext, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_rdm_parameter_data_length,
@@ -2215,12 +2218,12 @@ proto_register_rdm(void)
 				NULL, HFILL }},
 
 		{ &hf_rdm_checksum_good,
-			{ "Good Checksum", "rdm.checksum_good", 
+			{ "Good Checksum", "rdm.checksum_good",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 				"True: checksum matches packet content; False: doesn't match content", HFILL }},
 
 		{ &hf_rdm_checksum_bad,
-			{ "Bad Checksum", "rdm.checksum_bad", 
+			{ "Bad Checksum", "rdm.checksum_bad",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 				"True: checksum doesn't match packet content; False: matches content", HFILL }},
 
@@ -2286,17 +2289,17 @@ proto_register_rdm(void)
 
 		{ &hf_rdm_pd_sensor_type,
 			{ "Sensor Type", "rdm.pd.sensor_type",
-				FT_UINT8, BASE_HEX, VALS(rdm_sensor_type_vals), 0x0,
+				FT_UINT8, BASE_HEX | BASE_EXT_STRING, &rdm_sensor_type_vals_ext, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_rdm_pd_sensor_unit,
 			{ "Sensor Unit", "rdm.pd.sensor_unit",
-				FT_UINT8, BASE_HEX, VALS(rdm_unit_vals), 0x0,
+				FT_UINT8, BASE_HEX | BASE_EXT_STRING, &rdm_unit_vals_ext, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_rdm_pd_sensor_prefix,
 			{ "Sensor Prefix", "rdm.pd.sensor_prefix",
-				FT_UINT8, BASE_HEX, VALS(rdm_prefix_vals), 0x0,
+				FT_UINT8, BASE_HEX | BASE_EXT_STRING, &rdm_prefix_vals_ext, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_rdm_pd_sensor_description,
@@ -2347,7 +2350,7 @@ proto_register_rdm(void)
 
 		{ &hf_rdm_pd_product_cat,
 			{ "Product Category", "rdm.pd.product_cat",
-				FT_UINT16, BASE_HEX, VALS(rdm_product_cat_vals), 0x0,
+				FT_UINT16, BASE_HEX | BASE_EXT_STRING, &rdm_product_cat_vals_ext, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_rdm_pd_software_vers_id,
@@ -2777,7 +2780,3 @@ proto_register_rdm(void)
 	register_dissector("rdm", dissect_rdm, proto_rdm);
 }
 
-void
-proto_reg_handoff_rdm(void)
-{
-}
