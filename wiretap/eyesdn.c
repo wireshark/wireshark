@@ -99,8 +99,8 @@ static gboolean eyesdn_seek_read(wtap *wth, gint64 seek_off,
 	int *err, gchar **err_info);
 static gboolean parse_eyesdn_packet_data(FILE_T fh, int pkt_len, guint8* buf,
 	int *err, gchar **err_info);
-static int parse_eyesdn_rec_hdr(FILE_T fh,
-	struct wtap_pkthdr *phdr, int *err, gchar **err_info);
+static int parse_eyesdn_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr,
+	int *err, gchar **err_info);
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error
@@ -190,9 +190,8 @@ static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-eyesdn_seek_read (wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, guint8 *pd, int len,
-	int *err, gchar **err_info)
+eyesdn_seek_read (wtap *wth, gint64 seek_off,struct wtap_pkthdr *phdr,
+	guint8 *pd, int len, int *err, gchar **err_info)
 {
 	int	pkt_len;
 
@@ -260,11 +259,8 @@ parse_eyesdn_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr,
 		pseudo_header->isdn.uton = direction & 1;
 		pseudo_header->isdn.channel = channel;
 		if(channel) { /* bearer channels */
-			{
-				phdr->pkt_encap = WTAP_ENCAP_ISDN; /* recognises PPP */
-				pseudo_header->isdn.uton=!pseudo_header->isdn.uton; /* bug */
-			}
-
+			phdr->pkt_encap = WTAP_ENCAP_ISDN; /* recognises PPP */
+			pseudo_header->isdn.uton=!pseudo_header->isdn.uton; /* bug */
 		} else { /* D channel */
 			phdr->pkt_encap = WTAP_ENCAP_ISDN;
 		}
@@ -348,17 +344,15 @@ parse_eyesdn_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr,
 	if(pkt_len > EYESDN_MAX_PACKET_LEN) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("eyesdn: File has %u-byte packet, bigger than maximum of %u",
-		pkt_len, EYESDN_MAX_PACKET_LEN);
+		    pkt_len, EYESDN_MAX_PACKET_LEN);
 		return -1;
 	}
 
-	{
-		phdr->presence_flags = WTAP_HAS_TS;
-		phdr->ts.secs = secs;
-		phdr->ts.nsecs = usecs * 1000;
-		phdr->caplen = pkt_len;
-		phdr->len = pkt_len;
-	}
+	phdr->presence_flags = WTAP_HAS_TS;
+	phdr->ts.secs = secs;
+	phdr->ts.nsecs = usecs * 1000;
+	phdr->caplen = pkt_len;
+	phdr->len = pkt_len;
 
 	return pkt_len;
 }
