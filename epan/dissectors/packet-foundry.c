@@ -267,10 +267,10 @@ dissect_fdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *fdp_tree = NULL;
-	guint32 offset = 0;
+	gint offset = 0;
 	guint16 tlv_type;
 	guint16 tlv_length;
-	guint16 data_length;
+	gint data_length;
 	const char *type_string;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
