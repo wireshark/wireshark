@@ -284,6 +284,8 @@
 #define CC_ID_KEY_REGISTER       0x1C
 #define CC_ID_URI_VERSIONS       0x1D
 #define CC_ID_STATUS_FIELD       0x1E
+#define CC_ID_SRM_DATA           0x1F
+#define CC_ID_SRM_CONFIRM        0x20
 #define CC_ID_CICAM_LICENSE      0x21
 #define CC_ID_LICENSE_STATUS     0x22
 #define CC_ID_LICENSE_RCV_STATUS 0x23
@@ -1296,6 +1298,8 @@ static const value_string dvbci_cc_dat_id[] = {
     { CC_ID_KEY_REGISTER,       "Key register" },
     { CC_ID_URI_VERSIONS,       "Supported URI versions" },
     { CC_ID_STATUS_FIELD,       "Status field" },
+    { CC_ID_SRM_DATA,           "SRM for HDCP" },
+    { CC_ID_SRM_CONFIRM,        "SRM confirmation hash" },
     { CC_ID_CICAM_LICENSE,      "License received from the cicam" },
     { CC_ID_LICENSE_STATUS,     "Current status of the license" },
     { CC_ID_LICENSE_RCV_STATUS, "Status of the license exchange" },
