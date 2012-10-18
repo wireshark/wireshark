@@ -79,8 +79,8 @@ typedef enum {
     /* XXX Do we use bytes/s anywhere? */
     format_size_unit_bits    = 2,       /**< "bits" for un-prefixed sizes, "b" otherwise. */
     format_size_unit_bits_s  = 3,       /**< "bits/s" for un-prefixed sizes, "bps" otherwise. */
-    format_size_prefix_si    = 0 << 16, /**< SI (power of 1000) prefixes will be used. */
-    format_size_prefix_iec   = 1 << 16  /**< IEC (power of 1024) prefixes will be used. */
+    format_size_prefix_si    = 0 << 8,  /**< SI (power of 1000) prefixes will be used. */
+    format_size_prefix_iec   = 1 << 8   /**< IEC (power of 1024) prefixes will be used. */
     /* XXX format_size_prefix_default_for_this_particular_os ? */
 } format_size_flags_e;
 
