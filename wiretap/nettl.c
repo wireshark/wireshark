@@ -351,9 +351,8 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean
-nettl_seek_read(wtap *wth, gint64 seek_off,
-		struct wtap_pkthdr *phdr, guint8 *pd,
-		int length, int *err, gchar **err_info)
+nettl_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+		guint8 *pd, int length, int *err, gchar **err_info)
 {
     int ret;
     gboolean fddihack=FALSE;
@@ -362,8 +361,8 @@ nettl_seek_read(wtap *wth, gint64 seek_off,
 	return FALSE;
 
     /* Read record header. */
-    ret = nettl_read_rec_header(wth, wth->random_fh, phdr,
-        err, err_info, &fddihack);
+    ret = nettl_read_rec_header(wth, wth->random_fh, phdr, err, err_info,
+                                &fddihack);
     if (ret <= 0) {
 	/* Read error or EOF */
 	if (ret == 0) {
