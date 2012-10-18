@@ -603,8 +603,8 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   gint64     cur_off;
   gboolean   isValid, isCurrentPacket;
   int        num_items_scanned, line, pktline, buflen;
-  int        pkt_len, pktnum, hr, min, sec, csec;
-  char       direction[2], destmac[13], srcmac[13], type[5];
+  int        pkt_len, pktnum, hr, min, sec;
+  char       direction[2], destmac[13], srcmac[13], type[5], csec[9+1];
   char       data[ISERIES_LINE_LENGTH * 2];
   int        offset;
   guint8    *buf;
@@ -637,17 +637,17 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       ascii_strup_inplace (data);
       num_items_scanned =
         sscanf (data,
-                "%*[ \n\t]%6d%*[ *\n\t]%1s%*[ \n\t]%6d%*[ \n\t]%2d:%2d:%2d.%9d%*[ \n\t]"
+                "%*[ \n\t]%6d%*[ *\n\t]%1s%*[ \n\t]%6d%*[ \n\t]%2d:%2d:%2d.%9[0-9]%*[ \n\t]"
                 "%12s%*[ \n\t]%12s%*[ \n\t]ETHV2%*[ \n\t]TYPE:%*[ \n\t]%4s",
-                &pktnum, direction, &pkt_len, &hr, &min, &sec, &csec, destmac,
+                &pktnum, direction, &pkt_len, &hr, &min, &sec, csec, destmac,
                 srcmac, type);
       if (num_items_scanned == 10)
         {
           /* OK! We found the packet header line */
           isValid = TRUE;
           /*
-           * XXX - The Capture length returned by the iSeries trace doesn't seem to include the src/dest MAC
-           * addresses or the packet type. So we add them here.
+           * XXX - The Capture length returned by the iSeries trace doesn't
+           * seem to include the Ethernet header, so we add its length here.
            */
           pkt_len += 14;
           break;
@@ -669,9 +669,8 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   /*
    * If we have Wiretap Header then populate it here
    *
-   * XXX - Timer resolution on the iSeries is hardware dependant; the value for csec may be
-   * different on other platforms though all the traces I've seen seem to show resolution
-   * to Milliseconds (i.e HH:MM:SS.nnnnn) or Nanoseconds (i.e HH:MM:SS.nnnnnn)
+   * Timer resolution on the iSeries is hardware dependent.  We determine
+   * the resolution based on how many digits we see.
    */
   if (iseries->have_date)
     {
@@ -684,15 +683,38 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       tm.tm_sec         = sec;
       tm.tm_isdst       = -1;
       wth->phdr.ts.secs = mktime (&tm);
-      /* Handle Millisecond precision for timer */
-      if (csec > 99999)
+      switch (strlen(csec))
         {
-          wth->phdr.ts.nsecs = csec * 1000;
-        }
-      /* Handle Nanosecond precision for timer */
-      else
-        {
-          wth->phdr.ts.nsecs = csec * 10000;
+          case 0:
+            wth->phdr.ts.nsecs = 0;
+            break;
+          case 1:
+            wth->phdr.ts.nsecs = atoi(csec) * 100000000;
+            break;
+          case 2:
+            wth->phdr.ts.nsecs = atoi(csec) * 10000000;
+            break;
+          case 3:
+            wth->phdr.ts.nsecs = atoi(csec) * 1000000;
+            break;
+          case 4:
+            wth->phdr.ts.nsecs = atoi(csec) * 100000;
+            break;
+          case 5:
+            wth->phdr.ts.nsecs = atoi(csec) * 10000;
+            break;
+          case 6:
+            wth->phdr.ts.nsecs = atoi(csec) * 1000;
+            break;
+          case 7:
+            wth->phdr.ts.nsecs = atoi(csec) * 100;
+            break;
+          case 8:
+            wth->phdr.ts.nsecs = atoi(csec) * 10;
+            break;
+          case 9:
+            wth->phdr.ts.nsecs = atoi(csec);
+            break;
         }
     }
 
