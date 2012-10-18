@@ -39,6 +39,12 @@
     <item row="0" column="0">
      <widget class="QFrame" name="goToFrame">
       <layout class="QHBoxLayout" name="goToHB">
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <spacer name="horizontalSpacer">
          <property name="orientation">
@@ -122,6 +128,14 @@
      <addaction name="actionFileExportAsPSML"/>
      <addaction name="actionFileExportAsPDML"/>
     </widget>
+    <widget class="QMenu" name="menuFileExportObjects">
+     <property name="title">
+      <string>Export Objects</string>
+     </property>
+     <addaction name="actionFileExportObjectsDICOM"/>
+     <addaction name="actionFileExportObjectsHTTP"/>
+     <addaction name="actionFileExportObjectsSMB"/>
+    </widget>
     <addaction name="actionFileOpen"/>
     <addaction name="menuOpenRecentCaptureFile"/>
     <addaction name="actionFileMerge"/>
@@ -137,7 +151,7 @@
     <addaction name="menuFileExportPacketDissections"/>
     <addaction name="actionFileExportPacketBytes"/>
     <addaction name="actionFileExportSSLSessionKeys"/>
-    <addaction name="actionFileExportObjects"/>
+    <addaction name="menuFileExportObjects"/>
     <addaction name="separator"/>
     <addaction name="actionFilePrint"/>
     <addaction name="separator"/>
@@ -611,11 +625,6 @@
     <string>Export SSL Session Keys...</string>
    </property>
   </action>
-  <action name="actionFileExportObjects">
-   <property name="text">
-    <string>Export Objects...</string>
-   </property>
-  </action>
   <action name="actionFilePrint">
    <property name="text">
     <string>&amp;Print...</string>
@@ -711,6 +720,21 @@
   <action name="actionFileExportAsPDML">
    <property name="text">
     <string>As PDML XML...</string>
+   </property>
+  </action>
+  <action name="actionFileExportObjectsHTTP">
+   <property name="text">
+    <string>&amp;HTTP...</string>
+   </property>
+  </action>
+  <action name="actionFileExportObjectsDICOM">
+   <property name="text">
+    <string>&amp;DICOM...</string>
+   </property>
+  </action>
+  <action name="actionFileExportObjectsSMB">
+   <property name="text">
+    <string>&amp;SMB...</string>
    </property>
   </action>
  </widget>

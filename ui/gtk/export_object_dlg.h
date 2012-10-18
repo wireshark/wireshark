@@ -24,12 +24,12 @@
  * USA.
  */
 
-#ifndef __EXPORT_OBJECT_GTK_H__
-#define __EXPORT_OBJECT_GTK_H__
+#ifndef __EXPORT_OBJECT_DLG_H__
+#define __EXPORT_OBJECT_DLG_H__
 
 /* Protocol specific */
 void eo_dicom_cb(GtkWidget *widget _U_, gpointer data _U_);
 void eo_http_cb(GtkWidget *widget _U_, gpointer data _U_);
 void eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_);
 
-#endif /* __EXPORT_OBJECT_GTK_H__ */
+#endif /* __EXPORT_OBJECT_DLG_H__ */

@@ -60,6 +60,7 @@
 
 #include "wireshark_application.h"
 #include "capture_file_dialog.h"
+#include "export_object_dialog.h"
 
 //
 // Public slots
@@ -573,8 +574,7 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 //                             proto_can_match_selected(cf->finfo_selected, cf->edt));
 //        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/PrepareaFilter",
 //                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandSubtrees",
-//                             cf->finfo_selected->tree_type != -1);
+        main_ui_->actionViewExpandSubtrees->setEnabled(cap_file_->finfo_selected->tree_type != -1);
 //        prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev");
 //        if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
 //            /* No previous protocol or protocol changed - update Protocol Preferences menu */
@@ -610,7 +610,7 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 //        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ApplyasColumn", FALSE);
 //        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ApplyAsFilter", FALSE);
 //        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/PrepareaFilter", FALSE);
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandSubtrees", FALSE);
+        main_ui_->actionViewExpandSubtrees->setEnabled(false);
     }
 }
 
@@ -797,6 +797,24 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
         wsApp->setLastOpenDir(&file_name);
         g_free(keylist);
     }
+}
+
+void MainWindow::on_actionFileExportObjectsDICOM_triggered()
+{
+    ExportObjectDialog *eod = new ExportObjectDialog(this, cap_file_, ExportObjectDialog::Dicom);
+    eod->show();
+}
+
+void MainWindow::on_actionFileExportObjectsHTTP_triggered()
+{
+    ExportObjectDialog *eod = new ExportObjectDialog(this, cap_file_, ExportObjectDialog::Http);
+    eod->show();
+}
+
+void MainWindow::on_actionFileExportObjectsSMB_triggered()
+{
+    ExportObjectDialog *eod = new ExportObjectDialog(this, cap_file_, ExportObjectDialog::Smb);
+    eod->show();
 }
 
 // View Menu

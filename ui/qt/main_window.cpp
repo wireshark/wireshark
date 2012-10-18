@@ -104,8 +104,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     main_ui_->goToFrame->hide();
     go_to_margins = main_ui_->goToHB->contentsMargins();
-    go_to_margins.setTop(0);
-    go_to_margins.setBottom(0);
+//    go_to_margins.setTop(0);
+//    go_to_margins.setBottom(0);
     main_ui_->goToHB->setContentsMargins(go_to_margins);
     // XXX For some reason the cursor is drawn funny with an input mask set
     // https://bugreports.qt-project.org/browse/QTBUG-7174
@@ -202,8 +202,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(proto_tree, SIGNAL(protoItemSelected(QString&)),
             main_ui_->statusBar, SLOT(pushFieldStatus(QString&)));
 
-    connect(proto_tree, SIGNAL(protoItemSelected(bool)),
-            main_ui_->actionViewExpandSubtrees, SLOT(setEnabled(bool)));
     connect(proto_tree, SIGNAL(protoItemSelected(field_info *)),
             this, SLOT(setMenusForSelectedTreeRow(field_info *)));
 
@@ -1081,7 +1079,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         main_ui_->menuFileExportPacketDissections->setEnabled(false);
         main_ui_->actionFileExportPacketBytes->setEnabled(false);
         main_ui_->actionFileExportSSLSessionKeys->setEnabled(false);
-        main_ui_->actionFileExportObjects->setEnabled(false);
+        main_ui_->menuFileExportObjects->setEnabled(false);
         main_ui_->actionViewReload->setEnabled(false);
     } else {
         main_ui_->actionFileMerge->setEnabled(cf_can_write_with_wiretap(cap_file_));
@@ -1122,7 +1120,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         main_ui_->menuFileExportPacketDissections->setEnabled(true);
         main_ui_->actionFileExportPacketBytes->setEnabled(true);
         main_ui_->actionFileExportSSLSessionKeys->setEnabled(true);
-        main_ui_->actionFileExportObjects->setEnabled(true);
+        main_ui_->menuFileExportObjects->setEnabled(true);
         main_ui_->actionViewReload->setEnabled(true);
     }
 }
@@ -1136,7 +1134,7 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     main_ui_->menuFileExportPacketDissections->setEnabled(capture_in_progress);
     main_ui_->actionFileExportPacketBytes->setEnabled(capture_in_progress);
     main_ui_->actionFileExportSSLSessionKeys->setEnabled(capture_in_progress);
-    main_ui_->actionFileExportObjects->setEnabled(capture_in_progress);
+    main_ui_->menuFileExportObjects->setEnabled(capture_in_progress);
     main_ui_->menuFileSet->setEnabled(!capture_in_progress);
     main_ui_->actionFileQuit->setEnabled(true);
 

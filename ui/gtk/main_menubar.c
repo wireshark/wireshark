@@ -63,7 +63,7 @@
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/capture_if_dlg.h"
 #include "ui/gtk/color_dlg.h"
-#include "ui/gtk/export_object_gtk.h"
+#include "ui/gtk/export_object_dlg.h"
 #include "ui/gtk/filter_dlg.h"
 #include "ui/gtk/profile_dlg.h"
 #include "ui/gtk/dlg_utils.h"

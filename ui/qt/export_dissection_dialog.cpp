@@ -42,7 +42,6 @@
 #include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QPushButton>
-#include <QMessageBox>
 
 #include <QDebug>
 #endif // Q_WS_WIN
@@ -113,8 +112,6 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
 
     // Grow the dialog to account for the extra widgets.
     resize(width(), height() + (packet_range_group_box_.height() * 2 / 3));
-
-    qDebug() << "FIX: ExportDissectionDialog help button";
 
 #else // Q_WS_WIN
 #endif // Q_WS_WIN

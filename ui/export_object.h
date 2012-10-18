@@ -50,6 +50,11 @@ typedef struct _export_object_entry_t {
 void object_list_add_entry(export_object_list_t *object_list, export_object_entry_t *entry);
 export_object_entry_t *object_list_get_entry(export_object_list_t *object_list, int row);
 
+gboolean eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gboolean show_err);
+GString *eo_massage_str(const gchar *in_str, gsize maxlen, int dup);
+const char *ct2ext(const char *content_type);
+
+
 /* Protocol specific */
 gboolean eo_dicom_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 		const void *data);

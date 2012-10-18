@@ -21,8 +21,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EPAN_H
-#define EPAN_H
+#ifndef __EPAN_H__
+#define __EPAN_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,16 +47,16 @@ typedef struct _epan_dissect_t epan_dissect_t;
 	@b Sections:
 	- \ref proto_pub
 */
-/* 
+/*
 Ref 1
 Epan
-Ethereal Packet ANalyzer (XXX - is this correct?) the packet analyzing engine. Source code can be found in the epan directory. 
+Ethereal Packet ANalyzer (XXX - is this correct?) the packet analyzing engine. Source code can be found in the epan directory.
 
-Protocol-Tree - Keep data of the capture file protocol information. 
+Protocol-Tree - Keep data of the capture file protocol information.
 
-Dissectors - The various protocol dissectors in epan/dissectors. 
+Dissectors - The various protocol dissectors in epan/dissectors.
 
-Plugins - Some of the protocol dissectors are implemented as plugins. Source code can be found at plugins. 
+Plugins - Some of the protocol dissectors are implemented as plugins. Source code can be found at plugins.
 
 Display-Filters - the display filter engine at epan/dfilter
 
@@ -191,4 +191,4 @@ epan_get_runtime_version_info(GString *str);
 }
 #endif /* __cplusplus */
 
-#endif /* EPAN_H */
+#endif /* __EPAN_H__ */

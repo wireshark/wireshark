@@ -169,6 +169,9 @@ private slots:
     void on_actionFileExportAsPSML_triggered();
     void on_actionFileExportAsPDML_triggered();
     void on_actionFileExportPacketBytes_triggered();
+    void on_actionFileExportObjectsDICOM_triggered();
+    void on_actionFileExportObjectsHTTP_triggered();
+    void on_actionFileExportObjectsSMB_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();

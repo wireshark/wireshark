@@ -145,11 +145,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\export_object.c"
-				>
-			</File>
-			<File
-				RelativePath=".\export_object_http.c"
+				RelativePath=".\export_object_dlg.c"
 				>
 			</File>
 			<File
@@ -783,7 +779,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\export_object.h"
+				RelativePath=".\export_object_dlg.h"
 				>
 			</File>
 			<File

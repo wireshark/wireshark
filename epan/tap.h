@@ -22,10 +22,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _TAP_H_
-#define _TAP_H_
+#ifndef __TAP_H__
+#define __TAP_H__
 
 #include <epan/epan.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 typedef void (*tap_reset_cb)(void *tapdata);
 typedef gboolean (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data);
@@ -61,4 +65,8 @@ extern gboolean have_filtering_tap_listeners(void);
 extern guint union_of_tap_listener_flags(void);
 extern const void *fetch_tapped_data(int tap_id, int idx);
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __TAP_H__ */
