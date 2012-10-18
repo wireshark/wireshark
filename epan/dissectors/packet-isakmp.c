@@ -1612,16 +1612,20 @@ typedef struct _ikev2_auth_alg_spec {
 #define IKEV2_AUTH_NONE         1
 #define IKEV2_AUTH_HMAC_MD5_96  2
 #define IKEV2_AUTH_HMAC_SHA1_96 3
-#define IKEV2_AUTH_ANY_96BITS   4
-#define IKEV2_AUTH_ANY_128BITS  5
-#define IKEV2_AUTH_ANY_160BITS  6
-#define IKEV2_AUTH_ANY_192BITS  7
-#define IKEV2_AUTH_ANY_256BITS  8
+#define IKEV2_AUTH_HMAC_SHA2_256_96 4
+#define IKEV2_AUTH_HMAC_SHA2_256_128 5
+#define IKEV2_AUTH_ANY_96BITS   6
+#define IKEV2_AUTH_ANY_128BITS  7
+#define IKEV2_AUTH_ANY_160BITS  8
+#define IKEV2_AUTH_ANY_192BITS  9
+#define IKEV2_AUTH_ANY_256BITS  10
 
 static ikev2_auth_alg_spec_t ikev2_auth_algs[] = {
   {IKEV2_AUTH_NONE, 0, 0, 0, GCRY_MD_NONE, 0},
   {IKEV2_AUTH_HMAC_MD5_96, 16, 16, 12, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC},
   {IKEV2_AUTH_HMAC_SHA1_96, 20, 20, 12, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC},
+  {IKEV2_AUTH_HMAC_SHA2_256_96, 32, 32, 12, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC},
+  {IKEV2_AUTH_HMAC_SHA2_256_128, 32, 32, 16, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC},
   {IKEV2_AUTH_ANY_96BITS, 0, 0, 12, 0, 0},
   {IKEV2_AUTH_ANY_128BITS, 0, 0, 16, 0, 0},
   {IKEV2_AUTH_ANY_160BITS, 0, 0, 20, 0, 0},
@@ -1680,6 +1684,8 @@ static const value_string vs_ikev2_encr_algs[] = {
 static const value_string vs_ikev2_auth_algs[] = {
   {IKEV2_AUTH_HMAC_MD5_96,  "HMAC_MD5_96 [RFC2403]"},
   {IKEV2_AUTH_HMAC_SHA1_96, IKEV2_AUTH_HMAC_SHA1_96_STR},
+  {IKEV2_AUTH_HMAC_SHA2_256_96, "HMAC_SHA2_256_96 [draft-ietf-ipsec-ciph-sha-256-00]"},
+  {IKEV2_AUTH_HMAC_SHA2_256_128, "HMAC_SHA2_256_128 [RFC4868]"},
   {IKEV2_AUTH_NONE,         "NONE [RFC4306]"},
   {IKEV2_AUTH_ANY_96BITS,   "ANY 96-bits of Authentication [No Checking]"},
   {IKEV2_AUTH_ANY_128BITS,  "ANY 128-bits of Authentication [No Checking]"},
