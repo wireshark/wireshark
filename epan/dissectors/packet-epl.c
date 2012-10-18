@@ -16,7 +16,7 @@
  *
  * $Id$
  *
- * A plugin for:
+ * A dissector for:
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
@@ -52,11 +52,12 @@
 /* Allow heuristic dissection */
 static heur_dissector_list_t heur_epl_subdissector_list;
 
+#if 0
 /* Container for tapping relevant data */
 typedef struct _epl_info_t {
     unsigned char epl_mtyp;
 } epl_info_t;
-
+#endif
 
 /*EPL Addressing*/
 #define EPL_INVALID_NODEID                        0
@@ -187,6 +188,10 @@ static const value_string asnd_svid_vals[] = {
 #define EPL_ASND_NMTCOMMAND_NMTINVALIDSERVICE           0xFF
 
 static const value_string asnd_cid_vals[] = {
+    /* "special" values to cover all possibilities of CommandID in NMTRequests */
+    {EPL_ASND_IDENTRESPONSE,                          "IdentResponse"             },
+    {EPL_ASND_STATUSRESPONSE,                         "StatusResponse"            },
+    /* ... */
     {EPL_ASND_NMTCOMMAND_NMTSTARTNODE,                "NMTStartNode"              },
     {EPL_ASND_NMTCOMMAND_NMTSTOPNODE,                 "NMTStopNode"               },
     {EPL_ASND_NMTCOMMAND_NMTENTERPREOPERATIONAL2,     "NMTEnterPreOperational2"   },
@@ -215,11 +220,9 @@ static const value_string asnd_cid_vals[] = {
     {EPL_ASND_NMTCOMMAND_NMTPUBLISHEMERGENCYNEW,      "NMTPublishEmergencyNew"    },
     {EPL_ASND_NMTCOMMAND_NMTPUBLISHTIME,              "NMTPublishTime"            },
     {EPL_ASND_NMTCOMMAND_NMTINVALIDSERVICE,           "NMTInvalidService"         },
-    /* "special" values to cover all possibilities of CommandID in NMTRequests */
-    {EPL_ASND_IDENTRESPONSE,                          "IdentResponse"             },
-    {EPL_ASND_STATUSRESPONSE,                         "StatusResponse"            },
     {0,NULL}
 };
+static value_string_ext asnd_cid_vals_ext = VALUE_STRING_EXT_INIT(asnd_cid_vals);
 
 /* Priority values for EPL message type "ASnd", "", "", field PR */
 #define EPL_PR_GENERICREQUEST   0x03
@@ -389,7 +392,7 @@ static const value_string sdo_cmd_abort_code[] = {
     {0x08000024, "EDS, DCF or Concise DCF Data set empty." },
     {0,NULL}
 };
-
+static value_string_ext sdo_cmd_abort_code_ext = VALUE_STRING_EXT_INIT(sdo_cmd_abort_code);
 
 #define EPL_ASND_SDO_CMD_RESPONSE_RESPONSE      0
 #define EPL_ASND_SDO_CMD_RESPONSE_REQUEST       1
@@ -452,6 +455,8 @@ static const value_string epl_sdo_asnd_commands[] = {
     {EPL_ASND_SDO_COMMAND_LINK_NAME_TO_INDEX               , "Link objects only accessible via name to an index/sub-index"},
     {0,NULL}
 };
+static value_string_ext epl_sdo_asnd_commands_ext = VALUE_STRING_EXT_INIT(epl_sdo_asnd_commands);
+
 static const gchar* addr_str_cn  = " (Controlled Node)";
 static const gchar* addr_str_res = " (reserved)";
 
@@ -1123,7 +1128,7 @@ dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_append_str(pinfo->cinfo, COL_INFO,
-                        val_to_str(rcid, asnd_cid_vals, "Unknown (%d)"));
+                        val_to_str_ext(rcid, &asnd_cid_vals_ext, "Unknown (%d)"));
     }
 
     return offset;
@@ -1164,7 +1169,7 @@ dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_append_str(pinfo->cinfo, COL_INFO,
-                        val_to_str(epl_asnd_nmtcommand_cid, asnd_cid_vals, "Unknown (%d)"));
+                        val_to_str_ext(epl_asnd_nmtcommand_cid, &asnd_cid_vals_ext, "Unknown (%d)"));
     }
 
     return offset;
@@ -1697,164 +1702,664 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
 void
 proto_register_epl(void)
 {
-static hf_register_info hf[] = {
+    static hf_register_info hf[] = {
 
 /* Common data fields (same for all message types) */
-{ &hf_epl_mtyp,         { "MessageType",                        "epl.mtyp",             FT_UINT8,   BASE_DEC, VALS(mtyp_vals),      0x7F, NULL, HFILL }},
-{ &hf_epl_dest,         { "Destination",                        "epl.dest",             FT_UINT8,   BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_src,          { "Source",                             "epl.src",              FT_UINT8,   BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
+        { &hf_epl_mtyp,
+          { "MessageType", "epl.mtyp",
+            FT_UINT8, BASE_DEC, VALS(mtyp_vals), 0x7F,
+            NULL, HFILL }
+        },
+        { &hf_epl_dest,
+          { "Destination", "epl.dest",
+            FT_UINT8, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_src,
+          { "Source", "epl.src",
+            FT_UINT8, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
 
 /* SoC data fields*/
-{ &hf_epl_soc_mc,       { "MC (Multiplexed Cycle Completed)",   "epl.soc.mc",           FT_BOOLEAN,   8, NULL,                 EPL_SOC_MC_MASK, NULL, HFILL }},
-{ &hf_epl_soc_ps,       { "PS (Prescaled Slot)",                "epl.soc.ps",           FT_BOOLEAN,   8, NULL,                 EPL_SOC_PS_MASK, NULL, HFILL }},
-{ &hf_epl_soc_nettime,  { "NetTime",                            "epl.soc.nettime",      FT_ABSOLUTE_TIME,   ABSOLUTE_TIME_LOCAL, NULL,                 0x0,  NULL, HFILL }},
-{ &hf_epl_soc_relativetime,{ "RelativeTime",                    "epl.soc.relativetime", FT_UINT64,  BASE_DEC, NULL,                 0x0,  NULL, HFILL }},
+        { &hf_epl_soc_mc,
+          { "MC (Multiplexed Cycle Completed)", "epl.soc.mc",
+            FT_BOOLEAN, 8, NULL, EPL_SOC_MC_MASK,
+            NULL, HFILL }
+        },
+        { &hf_epl_soc_ps,
+          { "PS (Prescaled Slot)", "epl.soc.ps",
+            FT_BOOLEAN, 8, NULL, EPL_SOC_PS_MASK,
+            NULL, HFILL }
+        },
+        { &hf_epl_soc_nettime,
+          { "NetTime", "epl.soc.nettime",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_epl_soc_relativetime,
+          { "RelativeTime", "epl.soc.relativetime",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
 
 /* PReq data fields*/
-{ &hf_epl_preq_ms,      { "MS (Multiplexed Slot)",              "epl.preq.ms",          FT_BOOLEAN,   8, NULL,                 0x20, NULL, HFILL }},
-{ &hf_epl_preq_ea,      { "EA (Exception Acknowledge)",         "epl.preq.ea",          FT_BOOLEAN,   8, NULL,                 0x04, NULL, HFILL }},
-{ &hf_epl_preq_rd,      { "RD (Ready)",                         "epl.preq.rd",          FT_BOOLEAN,   8, NULL,                 EPL_PDO_RD_MASK, NULL, HFILL }},
-{ &hf_epl_preq_pdov,    { "PDOVersion",                         "epl.preq.pdov",        FT_STRING,  BASE_NONE, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_preq_size,    { "Size",                               "epl.preq.size",        FT_UINT16,  BASE_DEC, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_preq_pl,      { "Payload",                            "epl.preq.pl",          FT_BYTES,   BASE_NONE, NULL,                 0x00, NULL, HFILL }},
+        { &hf_epl_preq_ms,
+          { "MS (Multiplexed Slot)", "epl.preq.ms",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_epl_preq_ea,
+          { "EA (Exception Acknowledge)", "epl.preq.ea",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_epl_preq_rd,
+          { "RD (Ready)", "epl.preq.rd",
+            FT_BOOLEAN, 8, NULL, EPL_PDO_RD_MASK,
+            NULL, HFILL }
+        },
+        { &hf_epl_preq_pdov,
+          { "PDOVersion", "epl.preq.pdov",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_preq_size,
+          { "Size", "epl.preq.size",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_preq_pl,
+          { "Payload", "epl.preq.pl",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
 
 /* PRes data fields*/
-{ &hf_epl_pres_stat_ms, { "NMTStatus",                          "epl.pres.stat",        FT_UINT8,   BASE_HEX, VALS(epl_nmt_ms_vals),0x00, NULL, HFILL }},
-{ &hf_epl_pres_stat_cs, { "NMTStatus",                          "epl.pres.stat",        FT_UINT8,   BASE_HEX, VALS(epl_nmt_cs_vals),0x00, NULL, HFILL }},
-{ &hf_epl_pres_ms,      { "MS (Multiplexed Slot)",              "epl.pres.ms",          FT_BOOLEAN,   8, NULL,                 0x20, NULL, HFILL }},
-{ &hf_epl_pres_en,      { "EN (Exception New)",                 "epl.pres.en",          FT_BOOLEAN,   8, NULL,                 0x10, NULL, HFILL }},
-{ &hf_epl_pres_rd,      { "RD (Ready)",                         "epl.pres.rd",          FT_BOOLEAN,   8, NULL,                 EPL_PDO_RD_MASK, NULL, HFILL }},
-{ &hf_epl_pres_pr,      { "PR (Priority)",                      "epl.pres.pr",          FT_UINT8,   BASE_DEC, VALS(epl_pr_vals),    0x38, NULL, HFILL }},
-{ &hf_epl_pres_rs,      { "RS (RequestToSend)",                 "epl.pres.rs",          FT_UINT8,   BASE_DEC, NULL,                 0x07, NULL, HFILL }},
-{ &hf_epl_pres_pdov,    { "PDOVersion",                         "epl.pres.pdov",        FT_STRING,  BASE_NONE, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_pres_size,    { "Size",                               "epl.pres.size",        FT_UINT16,  BASE_DEC, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_pres_pl,      { "Payload",                            "epl.pres.pl",          FT_BYTES,   BASE_NONE, NULL,                 0x00, NULL, HFILL }},
+        { &hf_epl_pres_stat_ms,
+          { "NMTStatus", "epl.pres.stat",
+            FT_UINT8, BASE_HEX, VALS(epl_nmt_ms_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_pres_stat_cs,
+          { "NMTStatus", "epl.pres.stat",
+            FT_UINT8, BASE_HEX, VALS(epl_nmt_cs_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_pres_ms,
+          { "MS (Multiplexed Slot)", "epl.pres.ms",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_epl_pres_en,
+          { "EN (Exception New)", "epl.pres.en",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_epl_pres_rd,
+          { "RD (Ready)", "epl.pres.rd",
+            FT_BOOLEAN, 8, NULL, EPL_PDO_RD_MASK,
+            NULL, HFILL }
+        },
+        { &hf_epl_pres_pr,
+          { "PR (Priority)", "epl.pres.pr",
+            FT_UINT8, BASE_DEC, VALS(epl_pr_vals), 0x38,
+            NULL, HFILL }
+        },
+        { &hf_epl_pres_rs,
+          { "RS (RequestToSend)", "epl.pres.rs",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_epl_pres_pdov,
+          { "PDOVersion", "epl.pres.pdov",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_pres_size,
+          { "Size", "epl.pres.size",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_pres_pl,
+          { "Payload", "epl.pres.pl",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
 
 /* SoA data fields*/
-{ &hf_epl_soa_stat_ms,  { "NMTStatus",                          "epl.soa.stat",         FT_UINT8,   BASE_HEX, VALS(epl_nmt_ms_vals),0x00, NULL, HFILL }},
-{ &hf_epl_soa_stat_cs,  { "NMTStatus",                          "epl.soa.stat",         FT_UINT8,   BASE_HEX, VALS(epl_nmt_cs_vals),0x00, NULL, HFILL }},
-{ &hf_epl_soa_ea,       { "EA (Exception Acknowledge)",         "epl.soa.ea",           FT_BOOLEAN,        8, NULL,                 0x04, NULL, HFILL }},
-{ &hf_epl_soa_er,       { "ER (Exception Reset)",               "epl.soa.er",           FT_BOOLEAN,        8, NULL,                 0x02, NULL, HFILL }},
-{ &hf_epl_soa_svid,     { "RequestedServiceID",                 "epl.soa.svid",         FT_UINT8,   BASE_DEC, VALS(soa_svid_vals),  0x00, NULL, HFILL }},
-{ &hf_epl_soa_svtg,     { "RequestedServiceTarget",             "epl.soa.svtg",         FT_UINT8,   BASE_DEC, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_soa_eplv,     { "EPLVersion",                         "epl.soa.eplv",         FT_STRING,  BASE_NONE, NULL,                 0x00, NULL, HFILL }},
+        { &hf_epl_soa_stat_ms,
+          { "NMTStatus", "epl.soa.stat",
+            FT_UINT8, BASE_HEX, VALS(epl_nmt_ms_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_soa_stat_cs,
+          { "NMTStatus", "epl.soa.stat",
+            FT_UINT8, BASE_HEX, VALS(epl_nmt_cs_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_soa_ea,
+          { "EA (Exception Acknowledge)", "epl.soa.ea",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_epl_soa_er,
+          { "ER (Exception Reset)", "epl.soa.er",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_epl_soa_svid,
+          { "RequestedServiceID", "epl.soa.svid",
+            FT_UINT8, BASE_DEC, VALS(soa_svid_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_soa_svtg,
+          { "RequestedServiceTarget", "epl.soa.svtg",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_soa_eplv,
+          { "EPLVersion", "epl.soa.eplv",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
 
 /* ASnd header */
-{ &hf_epl_asnd_svid,    { "ServiceID",                          "epl.asnd.svid",    FT_UINT8, BASE_DEC, VALS(asnd_svid_vals),   0x00,NULL, HFILL }},
-{ &hf_epl_asnd_data,    { "Data",                               "epl.asnd.data",    FT_BYTES, BASE_NONE, NULL,                   0x00,NULL, HFILL }},
+        { &hf_epl_asnd_svid,
+          { "ServiceID", "epl.asnd.svid",
+            FT_UINT8, BASE_DEC, VALS(asnd_svid_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_data,
+          { "Data", "epl.asnd.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
 
 /* ASnd-->IdentResponse */
-{ &hf_epl_asnd_identresponse_en,      { "EN (Exception New)",       "epl.asnd.ires.en",             FT_BOOLEAN,        8, NULL,                 0x10, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_ec,      { "EC (Exception Clear)",     "epl.asnd.ires.ec",             FT_BOOLEAN,        8, NULL,                 0x08, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_pr,      { "PR (Priority)",            "epl.asnd.ires.pr",             FT_UINT8,   BASE_DEC, VALS(epl_pr_vals),    0x38, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_rs,      { "RS (RequestToSend)",       "epl.asnd.ires.rs",             FT_UINT8,   BASE_DEC, NULL,                 0x07, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_stat_ms, { "NMTStatus",                "epl.asnd.ires.state",          FT_UINT8,   BASE_HEX, VALS(epl_nmt_ms_vals),0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_stat_cs, { "NMTStatus",                "epl.asnd.ires.state",          FT_UINT8,   BASE_HEX, VALS(epl_nmt_cs_vals),0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_ever,    { "EPLVersion",               "epl.asnd.ires.eplver",         FT_STRING,  BASE_NONE, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat,    { "FeatureFlags",             "epl.asnd.ires.features",       FT_UINT32,  BASE_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bit0,   { "Isochronous",              "epl.asnd.ires.features.bit0",  FT_BOOLEAN,  32, NULL,           0x0001, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bit1,   { "SDO by UDP/IP",            "epl.asnd.ires.features.bit1",  FT_BOOLEAN,  32, NULL,           0x0002, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bit2,   { "SDO by ASnd",              "epl.asnd.ires.features.bit2",  FT_BOOLEAN,  32, NULL,           0x0004, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bit3,   { "SDO by PDO",               "epl.asnd.ires.features.bit3",  FT_BOOLEAN,  32, NULL,           0x0008, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bit4,   { "NMT Info Services",        "epl.asnd.ires.features.bit4",  FT_BOOLEAN,  32, NULL,           0x0010, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bit5,   { "Ext. NMT State Commands",  "epl.asnd.ires.features.bit5",  FT_BOOLEAN,  32, NULL,           0x0020, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bit6,   { "Dynamic PDO Mapping",      "epl.asnd.ires.features.bit6",  FT_BOOLEAN,  32, NULL,           0x0040, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bit7,   { "NMT Service by UDP/IP",    "epl.asnd.ires.features.bit7",  FT_BOOLEAN,  32, NULL,           0x0080, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bit8,   { "Configuration Manager",    "epl.asnd.ires.features.bit8",  FT_BOOLEAN,  32, NULL,           0x0100, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bit9,   { "Multiplexed Access",       "epl.asnd.ires.features.bit9",  FT_BOOLEAN,  32, NULL,           0x0200, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bitA,   { "NodeID setup by SW",       "epl.asnd.ires.features.bitA",  FT_BOOLEAN,  32, NULL,           0x0400, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bitB,   { "MN Basic Ethernet Mode",   "epl.asnd.ires.features.bitB",  FT_BOOLEAN,  32, NULL,           0x0800, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bitC,   { "Routing Type 1 Support",   "epl.asnd.ires.features.bitC",  FT_BOOLEAN,  32, NULL,           0x1000, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_feat_bitD,   { "Routing Type 2 Support",   "epl.asnd.ires.features.bitD",  FT_BOOLEAN,  32, NULL,           0x2000, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_mtu,     { "MTU",                      "epl.asnd.ires.mtu",            FT_UINT16,  BASE_DEC, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_pis,     { "PollInSize",               "epl.asnd.ires.pollinsize",     FT_UINT16,  BASE_DEC, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_pos,     { "PollOutSize",              "epl.asnd.ires.polloutsizes",   FT_UINT16,  BASE_DEC, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_rst,     { "ResponseTime",             "epl.asnd.ires.resptime",       FT_UINT32,  BASE_DEC, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_dt,      { "DeviceType",               "epl.asnd.ires.devicetype",     FT_STRING,  BASE_NONE, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_profile, { "Profile",                  "epl.asnd.ires.profile",        FT_UINT16,  BASE_DEC, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_vid,     { "VendorId",                 "epl.asnd.ires.vendorid",       FT_UINT32,  BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_productcode,{ "ProductCode",           "epl.asnd.ires.productcode",    FT_UINT32,  BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_rno,     { "RevisionNumber",           "epl.asnd.ires.revisionno",     FT_UINT32,  BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_sno,     { "SerialNumber",             "epl.asnd.ires.serialno",       FT_UINT32,  BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_vex1,    { "VendorSpecificExtension1", "epl.asnd.ires.vendorext1",     FT_UINT64,  BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_vcd,     { "VerifyConfigurationDate",  "epl.asnd.ires.confdate",       FT_UINT32,  BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_vct,     { "VerifyConfigurationTime",  "epl.asnd.ires.conftime",       FT_UINT32,  BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_ad,      { "applicationSwDate",        "epl.asnd.ires.appswdate",      FT_UINT32,  BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_at,      { "applicationSwTime",        "epl.asnd.ires.appswtime",      FT_UINT32,  BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_ipa,     { "IPAddress",                "epl.asnd.ires.ip",             FT_IPv4,    BASE_NONE, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_snm,     { "SubnetMask",               "epl.asnd.ires.subnet",         FT_IPv4,    BASE_NONE, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_gtw,     { "DefaultGateway",           "epl.asnd.ires.gateway",        FT_IPv4,    BASE_NONE, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_hn,      { "HostName",                 "epl.asnd.ires.hostname",       FT_STRING,  BASE_NONE, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_identresponse_vex2,    { "VendorSpecificExtension2", "epl.asnd.ires.vendorext2",     FT_BYTES,   BASE_NONE, NULL,                 0x00, NULL, HFILL }},
+        { &hf_epl_asnd_identresponse_en,
+          { "EN (Exception New)", "epl.asnd.ires.en",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_ec,
+          { "EC (Exception Clear)", "epl.asnd.ires.ec",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_pr,
+          { "PR (Priority)", "epl.asnd.ires.pr",
+            FT_UINT8, BASE_DEC, VALS(epl_pr_vals), 0x38,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_rs,
+          { "RS (RequestToSend)", "epl.asnd.ires.rs",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_stat_ms,
+          { "NMTStatus", "epl.asnd.ires.state",
+            FT_UINT8, BASE_HEX, VALS(epl_nmt_ms_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_stat_cs,
+          { "NMTStatus", "epl.asnd.ires.state",
+            FT_UINT8, BASE_HEX, VALS(epl_nmt_cs_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_ever,
+          { "EPLVersion", "epl.asnd.ires.eplver",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat,
+          { "FeatureFlags", "epl.asnd.ires.features",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bit0,
+          { "Isochronous", "epl.asnd.ires.features.bit0",
+            FT_BOOLEAN, 32, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bit1,
+          { "SDO by UDP/IP", "epl.asnd.ires.features.bit1",
+            FT_BOOLEAN, 32, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bit2,
+          { "SDO by ASnd", "epl.asnd.ires.features.bit2",
+            FT_BOOLEAN, 32, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bit3,
+          { "SDO by PDO", "epl.asnd.ires.features.bit3",
+            FT_BOOLEAN, 32, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bit4,
+          { "NMT Info Services", "epl.asnd.ires.features.bit4",
+            FT_BOOLEAN, 32, NULL, 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bit5,
+          { "Ext. NMT State Commands", "epl.asnd.ires.features.bit5",
+            FT_BOOLEAN, 32, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bit6,
+          { "Dynamic PDO Mapping", "epl.asnd.ires.features.bit6",
+            FT_BOOLEAN, 32, NULL, 0x0040,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bit7,
+          { "NMT Service by UDP/IP", "epl.asnd.ires.features.bit7",
+            FT_BOOLEAN, 32, NULL, 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bit8,
+          { "Configuration Manager", "epl.asnd.ires.features.bit8",
+            FT_BOOLEAN, 32, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bit9,
+          { "Multiplexed Access", "epl.asnd.ires.features.bit9",
+            FT_BOOLEAN, 32, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bitA,
+          { "NodeID setup by SW", "epl.asnd.ires.features.bitA",
+            FT_BOOLEAN, 32, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bitB,
+          { "MN Basic Ethernet Mode", "epl.asnd.ires.features.bitB",
+            FT_BOOLEAN, 32, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bitC,
+          { "Routing Type 1 Support", "epl.asnd.ires.features.bitC",
+            FT_BOOLEAN, 32, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_feat_bitD,
+          { "Routing Type 2 Support", "epl.asnd.ires.features.bitD",
+            FT_BOOLEAN, 32, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_mtu,
+          { "MTU", "epl.asnd.ires.mtu",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_pis,
+          { "PollInSize", "epl.asnd.ires.pollinsize",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_pos,
+          { "PollOutSize", "epl.asnd.ires.polloutsizes",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_rst,
+          { "ResponseTime", "epl.asnd.ires.resptime",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_dt,
+          { "DeviceType", "epl.asnd.ires.devicetype",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_profile,
+          { "Profile", "epl.asnd.ires.profile",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_vid,
+          { "VendorId", "epl.asnd.ires.vendorid",
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_productcode,
+          { "ProductCode", "epl.asnd.ires.productcode",
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_rno,
+          { "RevisionNumber", "epl.asnd.ires.revisionno",
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_sno,
+          { "SerialNumber", "epl.asnd.ires.serialno",
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_vex1,
+          { "VendorSpecificExtension1", "epl.asnd.ires.vendorext1",
+            FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_vcd,
+          { "VerifyConfigurationDate", "epl.asnd.ires.confdate",
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_vct,
+          { "VerifyConfigurationTime", "epl.asnd.ires.conftime",
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_ad,
+          { "applicationSwDate", "epl.asnd.ires.appswdate",
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_at,
+          { "applicationSwTime", "epl.asnd.ires.appswtime",
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_ipa,
+          { "IPAddress", "epl.asnd.ires.ip",
+            FT_IPv4, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_snm,
+          { "SubnetMask", "epl.asnd.ires.subnet",
+            FT_IPv4, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_gtw,
+          { "DefaultGateway", "epl.asnd.ires.gateway",
+            FT_IPv4, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_hn,
+          { "HostName", "epl.asnd.ires.hostname",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_identresponse_vex2,
+          { "VendorSpecificExtension2", "epl.asnd.ires.vendorext2",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
 
 
 /* ASnd-->StatusResponse */
-{ &hf_epl_asnd_statusresponse_en,                               { "EN (Exception New)",         "epl.asnd.sres.en",                     FT_BOOLEAN,      8, NULL,                   0x10, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_ec,                               { "EC (Exception Clear)",       "epl.asnd.sres.ec",                     FT_BOOLEAN,      8, NULL,                   0x08, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_pr,                               { "PR (Priority)",              "epl.asnd.sres.pr",                     FT_UINT8, BASE_DEC, VALS(epl_pr_vals),      0x38, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_rs,                               { "RS (RequestToSend)",         "epl.asnd.sres.rs",                     FT_UINT8, BASE_DEC, NULL,                   0x07, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_stat_ms,                          { "NMTStatus",                  "epl.asnd.sres.stat",                   FT_UINT8, BASE_HEX, VALS(epl_nmt_ms_vals),  0x00, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_stat_cs,                          { "NMTStatus",                  "epl.asnd.sres.stat",                   FT_UINT8, BASE_HEX, VALS(epl_nmt_cs_vals),  0x00, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_seb,                              { "StaticErrorBitField",        "epl.asnd.sres.seb",                    FT_BYTES, BASE_NONE, NULL,                   0x00, NULL, HFILL }},
+        { &hf_epl_asnd_statusresponse_en,
+          { "EN (Exception New)", "epl.asnd.sres.en",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_ec,
+          { "EC (Exception Clear)", "epl.asnd.sres.ec",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_pr,
+          { "PR (Priority)", "epl.asnd.sres.pr",
+            FT_UINT8, BASE_DEC, VALS(epl_pr_vals), 0x38,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_rs,
+          { "RS (RequestToSend)", "epl.asnd.sres.rs",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_stat_ms,
+          { "NMTStatus", "epl.asnd.sres.stat",
+            FT_UINT8, BASE_HEX, VALS(epl_nmt_ms_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_stat_cs,
+          { "NMTStatus", "epl.asnd.sres.stat",
+            FT_UINT8, BASE_HEX, VALS(epl_nmt_cs_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_seb,
+          { "StaticErrorBitField", "epl.asnd.sres.seb",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
 
 /*StaticErrorBitField */
-{ &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit0,    { "Generic error",              "epl.asnd.res.seb.bit0",                FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit1,    { "Current",                    "epl.asnd.res.seb.bit1",                FT_UINT8, BASE_DEC, NULL, 0x02, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit2,    { "Voltage",                    "epl.asnd.res.seb.bit2",                FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit3,    { "Temperature",                "epl.asnd.res.seb.bit3",                FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit4,    { "Communication error",        "epl.asnd.res.seb.bit4",                FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit5,    { "Device profile specific",    "epl.asnd.res.seb.bit5",                FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit7,    { "Manufacturer specific",      "epl.asnd.res.seb.bit7",                FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_seb_devicespecific_err,           { "Device profile specific",    "epl.asnd.res.seb.devicespecific_err",FT_BYTES, BASE_NONE,NULL, 0x00, NULL, HFILL }},
+        { &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit0,
+          { "Generic error", "epl.asnd.res.seb.bit0",
+            FT_UINT8, BASE_DEC, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit1,
+          { "Current", "epl.asnd.res.seb.bit1",
+            FT_UINT8, BASE_DEC, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit2,
+          { "Voltage", "epl.asnd.res.seb.bit2",
+            FT_UINT8, BASE_DEC, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit3,
+          { "Temperature", "epl.asnd.res.seb.bit3",
+            FT_UINT8, BASE_DEC, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit4,
+          { "Communication error", "epl.asnd.res.seb.bit4",
+            FT_UINT8, BASE_DEC, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit5,
+          { "Device profile specific", "epl.asnd.res.seb.bit5",
+            FT_UINT8, BASE_DEC, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit7,
+          { "Manufacturer specific", "epl.asnd.res.seb.bit7",
+            FT_UINT8, BASE_DEC, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_seb_devicespecific_err,
+          { "Device profile specific", "epl.asnd.res.seb.devicespecific_err",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
 
-{ &hf_epl_asnd_statusresponse_el,                               { "ErrorCodesList",             "epl.asnd.sres.el",                     FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_el_entry,                         { "Entry",                      "epl.asnd.sres.el.entry",               FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        { &hf_epl_asnd_statusresponse_el,
+          { "ErrorCodesList", "epl.asnd.sres.el",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_el_entry,
+          { "Entry", "epl.asnd.sres.el.entry",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
 
 /*List of Errors/Events*/
-{ &hf_epl_asnd_statusresponse_el_entry_type,                    { "Entry Type",                 "epl.asnd.sres.el.entry.type",          FT_UINT16, BASE_HEX, NULL, 0x00,    NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_el_entry_type_profile,            { "Profile",                    "epl.asnd.sres.el.entry.type.profile",  FT_UINT16, BASE_DEC, NULL, 0x0FFF,  NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_el_entry_type_mode,               { "Mode",                       "epl.asnd.sres.el.entry.type.mode",     FT_UINT16, BASE_DEC, NULL, 0x3000,  NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_el_entry_type_bit14,              { "Bit14",                      "epl.asnd.sres.el.entry.type.bit14",    FT_UINT16, BASE_DEC, NULL, 0x4000,  NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_el_entry_type_bit15,              { "Bit15",                      "epl.asnd.sres.el.entry.type.bit15",    FT_UINT16, BASE_DEC, NULL, 0x8000,  NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_el_entry_code,                    { "Error Code",                 "epl.asnd.sres.el.entry.code",          FT_UINT16, BASE_DEC, NULL, 0x00,    NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_el_entry_time,                    { "Time Stamp",                 "epl.asnd.sres.el.entry.time",          FT_UINT64, BASE_DEC, NULL, 0x00,    NULL, HFILL }},
-{ &hf_epl_asnd_statusresponse_el_entry_add,                     { "Additional Information",     "epl.asnd.sres.el.entry.add",           FT_UINT64, BASE_DEC, NULL, 0x00,    NULL, HFILL }},
+        { &hf_epl_asnd_statusresponse_el_entry_type,
+          { "Entry Type", "epl.asnd.sres.el.entry.type",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_el_entry_type_profile,
+          { "Profile", "epl.asnd.sres.el.entry.type.profile",
+            FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_el_entry_type_mode,
+          { "Mode", "epl.asnd.sres.el.entry.type.mode",
+            FT_UINT16, BASE_DEC, NULL, 0x3000,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_el_entry_type_bit14,
+          { "Bit14", "epl.asnd.sres.el.entry.type.bit14",
+            FT_UINT16, BASE_DEC, NULL, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_el_entry_type_bit15,
+          { "Bit15", "epl.asnd.sres.el.entry.type.bit15",
+            FT_UINT16, BASE_DEC, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_el_entry_code,
+          { "Error Code", "epl.asnd.sres.el.entry.code",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_el_entry_time,
+          { "Time Stamp", "epl.asnd.sres.el.entry.time",
+            FT_UINT64, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_statusresponse_el_entry_add,
+          { "Additional Information", "epl.asnd.sres.el.entry.add",
+            FT_UINT64, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
 
 
 /* ASnd-->NMTRequest */
-{ &hf_epl_asnd_nmtrequest_rcid,                     { "NMTRequestedCommandID",      "epl.asnd.nmtrequest.rcid",                     FT_UINT8,   BASE_HEX_DEC, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_nmtrequest_rct,                      { "NMTRequestedCommandTarget",  "epl.asnd.nmtrequest.rct",                      FT_UINT8,   BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_nmtrequest_rcd,                      { "NMTRequestedCommandData",    "epl.asnd.nmtrequest.rcd",                      FT_BYTES,   BASE_NONE, NULL,                 0x00, NULL, HFILL }},
+        { &hf_epl_asnd_nmtrequest_rcid,
+          { "NMTRequestedCommandID", "epl.asnd.nmtrequest.rcid",
+            FT_UINT8, BASE_HEX_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_nmtrequest_rct,
+          { "NMTRequestedCommandTarget", "epl.asnd.nmtrequest.rct",
+            FT_UINT8, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_nmtrequest_rcd,
+          { "NMTRequestedCommandData", "epl.asnd.nmtrequest.rcd",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
 
 /* ASnd-->NMTCommand */
-{ &hf_epl_asnd_nmtcommand_cid,                      { "NMTCommandId",               "epl.asnd.nmtcommand.cid",                      FT_UINT8,   BASE_HEX_DEC, VALS(asnd_cid_vals),  0x00, NULL, HFILL }},
-{ &hf_epl_asnd_nmtcommand_cdat,                     { "NMTCommandData",             "epl.asnd.nmtcommand.cdat",                     FT_BYTES,   BASE_NONE, NULL,                 0x00, NULL, HFILL }},
+        { &hf_epl_asnd_nmtcommand_cid,
+          { "NMTCommandId", "epl.asnd.nmtcommand.cid",
+            FT_UINT8, BASE_HEX_DEC | BASE_EXT_STRING, &asnd_cid_vals_ext, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_nmtcommand_cdat,
+          { "NMTCommandData", "epl.asnd.nmtcommand.cdat",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
 
-{ &hf_epl_asnd_nmtcommand_nmtnethostnameset_hn,     { "HostName",                   "epl.asnd.nmtcommand.nmtnethostnameset.hn",     FT_BYTES,   BASE_NONE, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_nmtcommand_nmtflusharpentry_nid,     { "NodeID",                     "epl.asnd.nmtcommand.nmtflusharpentry.nid",     FT_UINT8,   BASE_DEC_HEX, NULL,                 0x00, NULL, HFILL }},
-{ &hf_epl_asnd_nmtcommand_nmtpublishtime_dt,        { "DateTime",                   "epl.asnd.nmtcommand.nmtpublishtime.dt",        FT_BYTES,   BASE_NONE, NULL,                 0x00, NULL, HFILL }},
+        { &hf_epl_asnd_nmtcommand_nmtnethostnameset_hn,
+          { "HostName", "epl.asnd.nmtcommand.nmtnethostnameset.hn",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_nmtcommand_nmtflusharpentry_nid,
+          { "NodeID", "epl.asnd.nmtcommand.nmtflusharpentry.nid",
+            FT_UINT8, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_nmtcommand_nmtpublishtime_dt,
+          { "DateTime", "epl.asnd.nmtcommand.nmtpublishtime.dt",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
 
 /* ASnd-->SDO */
-{ &hf_epl_asnd_sdo_seq_receive_sequence_number, { "ReceiveSequenceNumber",          "epl.asnd.sdo.seq.receive.sequence.number", FT_UINT8,   BASE_DEC, NULL,                             0xfc, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_seq_receive_con,             { "ReceiveCon",                     "epl.asnd.sdo.seq.receive.con",             FT_UINT8,   BASE_DEC, VALS(epl_sdo_receive_con_vals),   0x03, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_seq_send_sequence_number,    { "SendSequenceNumber",             "epl.asnd.sdo.seq.send.sequence.number",    FT_UINT8,   BASE_DEC, NULL,                             0xfc, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_seq_send_con,                { "SendCon",                        "epl.asnd.sdo.seq.send.con",                FT_UINT8,   BASE_DEC, VALS(epl_sdo_send_con_vals),      0x03, NULL, HFILL }},
+        { &hf_epl_asnd_sdo_seq_receive_sequence_number,
+          { "ReceiveSequenceNumber", "epl.asnd.sdo.seq.receive.sequence.number",
+            FT_UINT8, BASE_DEC, NULL, 0xfc,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_seq_receive_con,
+          { "ReceiveCon", "epl.asnd.sdo.seq.receive.con",
+            FT_UINT8, BASE_DEC, VALS(epl_sdo_receive_con_vals), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_seq_send_sequence_number,
+          { "SendSequenceNumber", "epl.asnd.sdo.seq.send.sequence.number",
+            FT_UINT8, BASE_DEC, NULL, 0xfc,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_seq_send_con,
+          { "SendCon", "epl.asnd.sdo.seq.send.con",
+            FT_UINT8, BASE_DEC, VALS(epl_sdo_send_con_vals), 0x03,
+            NULL, HFILL }
+        },
 
-{ &hf_epl_asnd_sdo_cmd_transaction_id,          { "SDO Transaction ID",             "epl.asnd.sdo.cmd.transaction.id",          FT_UINT8,   BASE_DEC, NULL,                             0x00, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_cmd_response,                { "SDO Response",                   "epl.asnd.sdo.cmd.response",                FT_UINT8,   BASE_DEC, VALS(epl_sdo_asnd_cmd_response),  0x80, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_cmd_abort,                   { "SDO Abort",                      "epl.asnd.sdo.cmd.abort",                   FT_UINT8,   BASE_DEC, VALS(epl_sdo_asnd_cmd_abort),     0x40, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_cmd_segmentation,            { "SDO Segmentation",               "epl.asnd.sdo.cmd.segmentation",            FT_UINT8,   BASE_DEC, VALS(epl_sdo_asnd_cmd_segmentation), 0x30, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_cmd_command_id,              { "SDO Command ID",                 "epl.asnd.sdo.cmd.command.id",              FT_UINT8,   BASE_DEC, VALS(epl_sdo_asnd_commands),      0x00, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_cmd_segment_size,            { "SDO Segment size",               "epl.asnd.sdo.cmd.segment.size",            FT_UINT8,   BASE_DEC, NULL,                             0x00, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_cmd_data_size,               { "SDO Data size",                  "epl.asnd.sdo.cmd.data.size",               FT_UINT8,   BASE_DEC, NULL,                             0x00, NULL, HFILL } },
-{ &hf_epl_asnd_sdo_cmd_abort_code,              { "SDO Transfer Abort",             "epl.asnd.sdo.cmd.abort.code",              FT_UINT8,   BASE_HEX, VALS(sdo_cmd_abort_code),         0x00, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_cmd_write_by_index_index,    { "SDO Write by Index, Index",      "epl.asnd.sdo.cmd.write.by.index.index",    FT_UINT16,  BASE_HEX, NULL,                             0x00, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_cmd_write_by_index_subindex, { "SDO Write by Index, SubIndex",   "epl.asnd.sdo.cmd.write.by.index.subindex", FT_UINT8,   BASE_HEX, NULL,                             0x00, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_cmd_read_by_index_index,     { "SDO Read by Index, Index",       "epl.asnd.sdo.cmd.read.by.index.index",     FT_UINT16,  BASE_HEX, NULL,                             0x00, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_cmd_read_by_index_subindex,  { "SDO Read by Index, SubIndex",    "epl.asnd.sdo.cmd.read.by.index.subindex",  FT_UINT8,   BASE_HEX, NULL,                             0x00, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_cmd_write_by_index_data,     { "Payload",                        "epl.asnd.sdo.cmd.write.by.index.data",     FT_BYTES,   BASE_NONE, NULL,                             0x00, NULL, HFILL }},
-{ &hf_epl_asnd_sdo_cmd_read_by_index_data,      { "Payload",                        "epl.asnd.sdo.cmd.read.by.index.data",      FT_BYTES,   BASE_NONE, NULL,                             0x00, NULL, HFILL }},
-};
+        { &hf_epl_asnd_sdo_cmd_transaction_id,
+          { "SDO Transaction ID", "epl.asnd.sdo.cmd.transaction.id",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_response,
+          { "SDO Response", "epl.asnd.sdo.cmd.response",
+            FT_UINT8, BASE_DEC, VALS(epl_sdo_asnd_cmd_response), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_abort,
+          { "SDO Abort", "epl.asnd.sdo.cmd.abort",
+            FT_UINT8, BASE_DEC, VALS(epl_sdo_asnd_cmd_abort), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_segmentation,
+          { "SDO Segmentation", "epl.asnd.sdo.cmd.segmentation",
+            FT_UINT8, BASE_DEC, VALS(epl_sdo_asnd_cmd_segmentation), 0x30,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_command_id,
+          { "SDO Command ID", "epl.asnd.sdo.cmd.command.id",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &epl_sdo_asnd_commands_ext, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_segment_size,
+          { "SDO Segment size", "epl.asnd.sdo.cmd.segment.size",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_data_size,
+          { "SDO Data size", "epl.asnd.sdo.cmd.data.size",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_abort_code,
+          { "SDO Transfer Abort", "epl.asnd.sdo.cmd.abort.code",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &sdo_cmd_abort_code_ext, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_write_by_index_index,
+          { "SDO Write by Index, Index",
+            "epl.asnd.sdo.cmd.write.by.index.index", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_write_by_index_subindex,
+          { "SDO Write by Index, SubIndex",
+            "epl.asnd.sdo.cmd.write.by.index.subindex", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_read_by_index_index,
+          { "SDO Read by Index, Index",
+            "epl.asnd.sdo.cmd.read.by.index.index", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_read_by_index_subindex,
+          { "SDO Read by Index, SubIndex",
+            "epl.asnd.sdo.cmd.read.by.index.subindex", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_write_by_index_data,
+          { "Payload", "epl.asnd.sdo.cmd.write.by.index.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_read_by_index_data,
+          { "Payload", "epl.asnd.sdo.cmd.read.by.index.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+    };
 
 
     /* Setup protocol subtree array */
