@@ -246,6 +246,7 @@ GLIB_VERSION=2.0
 GTK_NAME=gtk2
 GTK_DIR=$(WIRESHARK_LIB_DIR)\$(GTK_NAME)
 
+
 # These macros are used by the nsis installer script and by the install target.
 #EXPAT_DLL=libexpat-1.dll
 FFI_DLL=libffi-5.dll
@@ -653,6 +654,18 @@ SMI_PKG=svn-40773
 GEOIP_PKG=1.4.8-2
 
 !endif
+# win32 / win64
+
+!IF "$(GTK_NAME)" == "gtk2"
+GTK_ETC_DIR=etc\gtk-2.0
+GTK_ENGINES_DIR=lib\gtk-2.0\$(GTK_LIB_DIR)\engines
+GTK_MODULES_DIR=lib\gtk-2.0\modules
+GTK_THEMES_DIR=share\themes\MS-Windows\gtk-2.0
+!ELSE
+GTK_ETC_DIR=etc\gtk-3.0
+GTK_SCHEMAS_DIR=\share\glib-2.0\schemas
+!ENDIF
+
 
 ##### Tools #####
 
@@ -1171,15 +1184,10 @@ NEED_JPEG_DLL=USE
 NEED_TIFF_DLL=USE
 NEED_LZMA_DLL=USE
 
-GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines
-GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\$(GTK_LIB_DIR)\engines
-GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
-GTK_WIMP_RCDST_DIR=etc\gtk-2.0
 #
 # Use of GTK3+ is experimental/not working
 #
 !ELSEIF "$(GTK_INST_VERSION)" == "3.4"
-GTK_SCHEMAS_INST_DIR=\share\glib-2.0\schemas
 
 # GTK+
 GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-3.0 \
@@ -1203,6 +1211,7 @@ GTK_LIB_DIR=3.4
 !IFDEF _DLL
 !ENDIF
 
+NEED_CAIRO_GOBJECT_DLL=USE
 NEED_CAIRO_DLL=USE
 
 !IFDEF EXPAT_DLL

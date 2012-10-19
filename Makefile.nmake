@@ -1132,38 +1132,40 @@ install-all: install-generated-files
 	xcopy $(GTK_DIR)\bin\libatk-1.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libpango-1.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libpangowin32-1.0-0.dll $(INSTALL_DIR) /d
-	if not exist $(INSTALL_DIR)\etc mkdir $(INSTALL_DIR)\etc
-!IF "$(GTK_INST_VERSION)" == "3.4"
-	if not exist $(INSTALL_DIR)\etc\gtk-3.0 mkdir $(INSTALL_DIR)\etc\gtk-3.0
-	if not exist $(INSTALL_DIR)\etc\pango mkdir $(INSTALL_DIR)\etc\pango
 	if not exist $(INSTALL_DIR)\lib mkdir $(INSTALL_DIR)\lib
+	if not exist $(INSTALL_DIR)\etc mkdir $(INSTALL_DIR)\etc
+	if not exist $(INSTALL_DIR)\$(GTK_ETC_DIR) mkdir $(INSTALL_DIR)\$(GTK_ETC_DIR)
+	xcopy $(GTK_DIR)\$(GTK_ETC_DIR)\*.* $(INSTALL_DIR)\$(GTK_ETC_DIR) /d
+#	if not exist $(INSTALL_DIR)\etc\pango mkdir $(INSTALL_DIR)\etc\pango
+#	xcopy $(GTK_DIR)\etc\pango\pango.* $(INSTALL_DIR)\etc\pango /d
+!IF "$(GTK_INST_VERSION)" == "3.4"
 	if not exist $(INSTALL_DIR)\lib\gtk-3.0 mkdir $(INSTALL_DIR)\lib\gtk-3.0
 	if not exist $(INSTALL_DIR)\lib\gtk-3.0\$(GTK_LIB_DIR) mkdir $(INSTALL_DIR)\lib\gtk-3.0\$(GTK_LIB_DIR)
-	xcopy $(GTK_DIR)\etc\gtk-3.0\*.* $(INSTALL_DIR)\etc\gtk-3.0 /d
-	xcopy ".\ui\win32\settings.ini" $(INSTALL_DIR)\etc\gtk-3.0 /d
-!IFDEF NEED_CAIRO_DLL
-	xcopy $(GTK_DIR)\bin\libcairo-2.dll $(INSTALL_DIR)  /d
-	xcopy $(GTK_DIR)\bin\libcairo-gobject-2.dll $(INSTALL_DIR)  /d
-	xcopy $(GTK_DIR)\bin\libpangocairo-1.0-0.dll $(INSTALL_DIR) /d
-!ENDIF
+	xcopy ".\ui\win32\settings.ini" $(INSTALL_DIR)\$(GTK_ETC_DIR) /d
 !ELSE
-	if not exist $(INSTALL_DIR)\etc\gtk-2.0 mkdir $(INSTALL_DIR)\etc\gtk-2.0
-	if not exist $(INSTALL_DIR)\etc\pango mkdir $(INSTALL_DIR)\etc\pango
-	if not exist $(INSTALL_DIR)\lib mkdir $(INSTALL_DIR)\lib
 	if not exist $(INSTALL_DIR)\lib\gtk-2.0 mkdir $(INSTALL_DIR)\lib\gtk-2.0
-	if not exist $(INSTALL_DIR)\lib\gtk-2.0\modules mkdir $(INSTALL_DIR)\lib\gtk-2.0\modules
 	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR) mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)
 	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders
-	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines
-	xcopy $(GTK_DIR)\etc\gtk-2.0\*.* $(INSTALL_DIR)\etc\gtk-2.0 /d
-	if exist $(GTK_DIR)\etc\pango xcopy $(GTK_DIR)\etc\pango\pango.* $(INSTALL_DIR)\etc\pango /d
 	if exist $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders /d
-	xcopy $(GTK_DIR)\lib\gtk-2.0\modules\libgail.dll $(INSTALL_DIR)\lib\gtk-2.0\modules /d
-	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines\libpixmap.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines /d
+!ENDIF
+!IFDEF GTK_ENGINES_DIR
+	if not exist $(INSTALL_DIR)\$(GTK_ENGINES_DIR) mkdir $(INSTALL_DIR)\$(GTK_ENGINES_DIR)
+	xcopy $(GTK_DIR)\$(GTK_ENGINES_DIR)\libpixmap.dll $(INSTALL_DIR)\$(GTK_ENGINES_DIR) /d
+	xcopy $(GTK_DIR)\$(GTK_ENGINES_DIR)\libwimp.dll $(INSTALL_DIR)\$(GTK_ENGINES_DIR) /d
+!ENDIF
+!IFDEF GTK_THEMES_DIR
+	xcopy "$(GTK_DIR)\$(GTK_THEMES_DIR)\gtkrc" $(INSTALL_DIR)\$(GTK_ETC_DIR) /d
+!ENDIF
+!IFDEF GTK_MODULES_DIR
+	if not exist $(INSTALL_DIR)\$(GTK_MODULES_DIR) mkdir $(INSTALL_DIR)\$(GTK_MODULES_DIR)
+	xcopy $(GTK_DIR)\$(GTK_MODULES_DIR)\libgail.dll $(INSTALL_DIR)\$(GTK_MODULES_DIR) /d
+!ENDIF
+!IFDEF NEED_CAIRO_GOBJECT_DLL
+	xcopy $(GTK_DIR)\bin\libcairo-gobject-2.dll $(INSTALL_DIR)  /d
+!ENDIF
 !IFDEF NEED_CAIRO_DLL
 	xcopy $(GTK_DIR)\bin\libcairo-2.dll $(INSTALL_DIR)  /d
 	xcopy $(GTK_DIR)\bin\libpangocairo-1.0-0.dll $(INSTALL_DIR) /d
-!ENDIF
 !ENDIF
 !IFDEF NEED_EXPAT_DLL
 	xcopy $(GTK_DIR)\bin\$(EXPAT_DLL) $(INSTALL_DIR) /d
@@ -1199,15 +1201,10 @@ install-all: install-generated-files
 !IFDEF NEED_XML_DLL
 	xcopy $(GTK_DIR)\bin\$(XML_DLL) $(INSTALL_DIR) /d
 !ENDIF
-!IF "$(GTK_INST_VERSION)" == "3.4"
-	if not exist $(INSTALL_DIR)\$(GTK_SCHEMAS_INST_DIR) mkdir $(INSTALL_DIR)\$(GTK_SCHEMAS_INST_DIR)
-	if not exist $(GTK_DIR)\$(GTK_SCHEMAS_INST_DIR)\gschemas.compiled $(GTK_DIR)\bin\glib-compile-schemas $(GTK_DIR)\$(GTK_SCHEMAS_INST_DIR)
-	xcopy $(GTK_DIR)\$(GTK_SCHEMAS_INST_DIR)\gschemas.compiled  $(INSTALL_DIR)\$(GTK_SCHEMAS_INST_DIR) /d
-!ELSE
-	if not exist $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR)
-	xcopy "$(GTK_WIMP_DLLSRC_DIR)\libwimp.dll" $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) /d
-	if not exist $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR)
-	xcopy "$(GTK_WIMP_RCSRC_DIR)\gtkrc" $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR) /d
+!IFDEF GTK_SCHEMAS_DIR
+	if not exist $(INSTALL_DIR)\$(GTK_SCHEMAS_DIR) mkdir $(INSTALL_DIR)\$(GTK_SCHEMAS_DIR)
+	if not exist $(GTK_DIR)\$(GTK_SCHEMAS_DIR)\gschemas.compiled $(GTK_DIR)\bin\glib-compile-schemas $(GTK_DIR)\$(GTK_SCHEMAS_DIR)
+	xcopy $(GTK_DIR)\$(GTK_SCHEMAS_DIR)\gschemas.compiled  $(INSTALL_DIR)\$(GTK_SCHEMAS_DIR) /d
 !ENDIF
 	xcopy $(GTK_DIR)\bin\libgio-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR) /d

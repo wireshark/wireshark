@@ -278,7 +278,9 @@ FunctionEnd
 Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
 ;Var WIRESHARK_UNINSTALL ;declare variable for holding the value of a registry key
 
+!ifdef VCREDIST_EXE
 Var VCREDIST_FLAGS ; silent vs passive, norestart
+!endif
 
 Section "-Required"
 ;-------------------------------------------
@@ -750,12 +752,12 @@ File "${STAGING_DIR}\${GTK_DLL}"
 File "${STAGING_DIR}\libatk-1.0-0.dll"
 File "${STAGING_DIR}\libpango-1.0-0.dll"
 File "${STAGING_DIR}\libpangowin32-1.0-0.dll"
+!ifdef NEED_CAIRO_GOBJECT_DLL
+File "${STAGING_DIR}\libcairo-gobject-2.dll"
+!endif
 !ifdef NEED_CAIRO_DLL
 File "${STAGING_DIR}\libcairo-2.dll"
 File "${STAGING_DIR}\libpangocairo-1.0-0.dll"
-!if ${GTK_NAME} == "gtk3"
-File "${STAGING_DIR}\libcairo-gobject-2.dll"
-!endif
 !endif
 !ifdef NEED_EXPAT_DLL
 File "${STAGING_DIR}\${EXPAT_DLL}"
@@ -792,32 +794,25 @@ File "${STAGING_DIR}\${TIFF_DLL}"
 File "${STAGING_DIR}\${XML_DLL}"
 !endif
 
-!if ${GTK_NAME} == "gtk2"
-SetOutPath $INSTDIR\etc\gtk-2.0
-File "${GTK_DIR}\etc\gtk-2.0\*.*"
-!else
-SetOutPath $INSTDIR\etc\gtk-3.0
-File "${STAGING_DIR}\etc\gtk-3.0\*.*"
-SetOutPath $INSTDIR\share\glib-2.0\schemas
-File "${STAGING_DIR}\share\glib-2.0\schemas\*.*"
-!endif
-#!if ${WIRESHARK_TARGET_PLATFORM} == "win32"
-#SetOutPath $INSTDIR\etc\pango
-#File "${GTK_DIR}\etc\pango\pango.*"
-#!endif
+SetOutPath $INSTDIR\${GTK_ETC_DIR}
+File "${GTK_DIR}\${GTK_ETC_DIR}\*.*"
 
-!if ${GTK_NAME} == "gtk2"
-SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines
-File "${STAGING_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libpixmap.dll"
-SetOutPath $INSTDIR\lib\gtk-2.0\modules
-File "${STAGING_DIR}\lib\gtk-2.0\modules\libgail.dll"
-
-; GTK MS-Windows Engine (GTK-Wimp)
-SetOutPath $INSTDIR\${GTK_WIMP_DLLDST_DIR}
-File "${STAGING_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libwimp.dll"
-SetOutPath $INSTDIR\${GTK_WIMP_RCDST_DIR}
-File "${GTK_WIMP_RCSRC_DIR}\gtkrc"
+!ifdef GTK_ENGINES_DIR
+SetOutPath $INSTDIR\${GTK_ENGINES_DIR}
+File "${STAGING_DIR}\${GTK_ENGINES_DIR}\libpixmap.dll"
+File "${STAGING_DIR}\${GTK_ENGINES_DIR}\libwimp.dll"
 !endif
+
+!ifdef GTK_MODULES_DIR
+SetOutPath $INSTDIR\${GTK_MODULES_DIR}
+File "${STAGING_DIR}\${GTK_MODULES_DIR}\libgail.dll"
+!endif
+
+!ifdef GTK_SCHEMAS_DIR
+SetOutPath $INSTDIR\${GTK_SCHEMAS_DIR}
+File "${STAGING_DIR}\${GTK_SCHEMAS_DIR}\*.*"
+!endif
+
 SectionEnd ; "Wireshark"
 !endif
 
