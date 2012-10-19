@@ -150,7 +150,8 @@ static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
     long byte_offset, int in_off, int remaining_bytes);
 static gboolean parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
     int *err, gchar **err_info);
-static int parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info);
+static gboolean parse_vms_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr,
+    int *err, gchar **err_info);
 
 #ifdef TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE
 /* Seeks to the beginning of the next packet, and returns the
@@ -279,7 +280,6 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
 {
     gint64   offset = 0;
     guint8    *buf;
-    int    pkt_len;
 
     /* Find the next packet */
 #ifdef TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE
@@ -293,16 +293,15 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     }
 
     /* Parse the header */
-    pkt_len = parse_vms_rec_hdr(wth, wth->fh, err, err_info);
-    if (pkt_len == -1)
+    if (!parse_vms_rec_hdr(wth->fh, &wth->phdr, err, err_info))
 	return FALSE;
 
     /* Make sure we have enough room for the packet */
-    buffer_assure_space(wth->frame_buffer, pkt_len);
+    buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
     buf = buffer_start_ptr(wth->frame_buffer);
 
     /* Convert the ASCII hex dump to binary data */
-    if (!parse_vms_hex_dump(wth->fh, pkt_len, buf, err, err_info))
+    if (!parse_vms_hex_dump(wth->fh, wth->phdr.caplen, buf, err, err_info))
         return FALSE;
 
     *data_offset = offset;
@@ -311,27 +310,23 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-vms_seek_read (wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr _U_,
+vms_seek_read (wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
     guint8 *pd, int len, int *err, gchar **err_info)
 {
-    int    pkt_len;
-
     if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
         return FALSE;
 
-    pkt_len = parse_vms_rec_hdr(NULL, wth->random_fh, err, err_info);
+    if (!parse_vms_rec_hdr(wth->random_fh, phdr, err, err_info))
+        return FALSE;
 
-    if (pkt_len != len) {
-        if (pkt_len != -1) {
-            *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("vms: requested length %d doesn't match length %d",
-                len, pkt_len);
-        }
+    if (phdr->caplen != (guint32)len) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("vms: requested length %d doesn't match length %d",
+            len, phdr->caplen);
         return FALSE;
     }
 
-    return parse_vms_hex_dump(wth->random_fh, pkt_len, pd, err, err_info);
+    return parse_vms_hex_dump(wth->random_fh, phdr->caplen, pd, err, err_info);
 }
 
 /* isdumpline assumes that dump lines start with some non-alphanumerics
@@ -360,8 +355,8 @@ isdumpline( gchar *line )
 }
 
 /* Parses a packet record header. */
-static int
-parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
+static gboolean
+parse_vms_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr, int *err, gchar **err_info)
 {
     char   line[VMS_LINE_LENGTH + 1];
     int    num_items_scanned;
@@ -387,7 +382,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
 	    if ((*err == 0) && (csec != 101)) {
 		*err = WTAP_ERR_SHORT_READ;
             }
-            return -1;
+            return FALSE;
         }
 	line[VMS_LINE_LENGTH] = '\0';
 
@@ -414,7 +409,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
 	    if (num_items_scanned != 8) {
 	        *err = WTAP_ERR_BAD_FILE;
 	        *err_info = g_strdup_printf("vms: header line not valid");
-		return -1;
+		return FALSE;
 	    }
 	}
         if ( (! pkt_len) && (p = strstr(line, "Length"))) {
@@ -425,7 +420,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
             if ( !*p ) {
                 *err = WTAP_ERR_BAD_FILE;
 	        *err_info = g_strdup_printf("vms: Length field not valid");
-                return -1;
+                return FALSE;
             }
 
             pkt_len = atoi(p);
@@ -433,21 +428,19 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
         }
     } while (! isdumpline(line));
 
-    if (wth) {
-        p = strstr(months, mon);
-        if (p)
-            tm.tm_mon = (int) (p - months) / 3;
-        tm.tm_year -= 1900;
+    p = strstr(months, mon);
+    if (p)
+        tm.tm_mon = (int) (p - months) / 3;
+    tm.tm_year -= 1900;
+    tm.tm_isdst = -1;
 
-	tm.tm_isdst = -1;
-        wth->phdr.presence_flags = WTAP_HAS_TS;
-        wth->phdr.ts.secs = mktime(&tm);
-        wth->phdr.ts.nsecs = csec * 10000000;
-        wth->phdr.caplen = pkt_len;
-        wth->phdr.len = pkt_len;
-    }
+    phdr->presence_flags = WTAP_HAS_TS;
+    phdr->ts.secs = mktime(&tm);
+    phdr->ts.nsecs = csec * 10000000;
+    phdr->caplen = pkt_len;
+    phdr->len = pkt_len;
 
-    return pkt_len;
+    return TRUE;
 }
 
 /* Converts ASCII hex dump to binary data */
