@@ -35,7 +35,7 @@
      </column>
      <column>
       <property name="text">
-       <string>New Column</string>
+       <string>Hostname</string>
       </property>
      </column>
      <column>

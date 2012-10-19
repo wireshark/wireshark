@@ -142,7 +142,7 @@ void ExportObjectDialog::addObjectEntry(export_object_entry_t *entry)
     entry_item->setText(1, entry->hostname);
     entry_item->setText(2, entry->content_type);
     entry_item->setText(3, size_str);
-    entry_item->setText(2, entry->filename);
+    entry_item->setText(4, entry->filename);
     g_free(size_str);
     // Not perfect but better than nothing.
     entry_item->setTextAlignment(3, Qt::AlignRight);
