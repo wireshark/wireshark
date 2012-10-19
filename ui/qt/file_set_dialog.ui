@@ -73,27 +73,36 @@
        <property name="textElideMode">
         <enum>Qt::ElideLeft</enum>
        </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="itemsExpandable">
+        <bool>false</bool>
+       </property>
+       <property name="expandsOnDoubleClick">
+        <bool>false</bool>
+       </property>
        <property name="columnCount">
         <number>4</number>
        </property>
        <column>
         <property name="text">
-         <string notr="true">1</string>
+         <string notr="true">Filename</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string notr="true">2</string>
+         <string notr="true">Created</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string notr="true">3</string>
+         <string notr="true">Modified</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string notr="true">4</string>
+         <string notr="true">Size</string>
         </property>
        </column>
       </widget>

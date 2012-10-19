@@ -90,9 +90,7 @@ typedef enum {
 
 #ifdef __cplusplus
 /* Should we just have separate unit and prefix enums instead? */
-format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs) {
-    return (format_size_flags_e) ((int)lhs| (int)rhs);
-}
+extern format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs);
 #endif /* __cplusplus */
 
 /** Given a size, return its value in a human-readable format

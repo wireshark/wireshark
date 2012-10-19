@@ -26,8 +26,10 @@
 
 #include "qt_ui_utils.h"
 
-#include "ui/recent.h"
-#include "ui/ui_util.h"
+#include <ui/recent.h>
+#include <ui/ui_util.h>
+
+#include <wsutil/str_util.h>
 
 // XXX - Copied from ui/gtk/gui_utils.c
 
@@ -155,6 +157,11 @@ window_geom_recent_write_all(gpointer rf)
     }
 
     g_hash_table_foreach(window_geom_hash, write_recent_geom, rf);
+}
+
+/* Make the format_size_flags_e enum usable in C++ */
+format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs) {
+    return (format_size_flags_e) ((int)lhs| (int)rhs);
 }
 
 /*
