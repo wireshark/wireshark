@@ -607,13 +607,13 @@ dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "New Connection");
 
-	if (tvb_length_remaining(tvb, offset) > 0) {
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_tree_add_item(tree, hf_aim_version, tvb, offset, 4, ENC_NA);
 		offset+=4;
 		offset = dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, aim_client_tlvs);
 	}
 
-	if (tvb_length_remaining(tvb, offset) > 0)
+	if (tvb_reported_length_remaining(tvb, offset) > 0)
 		proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, ENC_NA);
 }
 
@@ -769,7 +769,7 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			proto_item_append_text(ti, ", %s", subtype->name);
 	}
 
-	if((tvb_length_remaining(tvb, offset) > 0) && (subtype != NULL) && subtype->dissector)
+	if((tvb_reported_length_remaining(tvb, offset) > 0) && (subtype != NULL) && subtype->dissector)
 	{
 		subtype->dissector(subtvb, pinfo, family_tree);
 	}
@@ -784,7 +784,7 @@ dissect_aim_flap_err(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	col_set_str(pinfo->cinfo, COL_INFO, "FLAP error");
 
 	/* Show the undissected payload */
-	if (tvb_length_remaining(tvb, offset) > 0)
+	if (tvb_reported_length_remaining(tvb, offset) > 0)
 		proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, ENC_NA);
 }
 
@@ -795,7 +795,7 @@ dissect_aim_keep_alive(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	col_set_str(pinfo->cinfo, COL_INFO, "Keep Alive");
 
 	/* Show the undissected payload */
-	if (tvb_length_remaining(tvb, offset) > 0)
+	if (tvb_reported_length_remaining(tvb, offset) > 0)
 		proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, ENC_NA);
 }
 
@@ -815,7 +815,7 @@ dissect_aim_unknown_channel(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	col_set_str(pinfo->cinfo, COL_INFO, "Unknown Channel");
 
 	/* Show the undissected payload */
-	if (tvb_length_remaining(tvb, offset) > 0)
+	if (tvb_reported_length_remaining(tvb, offset) > 0)
 		proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, ENC_NA);
 }
 
@@ -1059,7 +1059,7 @@ dissect_aim_tlv_value_client_capabilities(proto_item *ti _U_, guint16 valueid _U
 
 	entry = proto_item_add_subtree(ti, ett_aim_nickinfo_caps);
 
-  	while (tvb_length_remaining(tvb, offset) > 0) {
+  	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_capability(entry, tvb, offset);
 	}
 
@@ -1076,7 +1076,7 @@ dissect_aim_tlv_value_client_short_capabilities(proto_item *ti _U_, guint16 valu
 
 	entry = proto_item_add_subtree(ti, ett_aim_nickinfo_short_caps);
 
-  	while (tvb_length_remaining(tvb, offset) > 0) {
+  	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_short_capability(entry, tvb, offset);
 	}
 
@@ -1178,7 +1178,7 @@ dissect_aim_tlv_value_string08_array (proto_item *ti, guint16 valueid _U_, tvbuf
 
 	entry = proto_item_add_subtree(ti, ett_aim_string08_array);
 
-	while (tvb_length_remaining(tvb, offset) > 1)
+	while (tvb_reported_length_remaining(tvb, offset) > 1)
 	{
 		guint8 string_len = tvb_get_guint8(tvb, offset++);
 		guint8 *buf = tvb_get_ephemeral_string(tvb, offset, string_len);
@@ -1257,7 +1257,7 @@ dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_
 	offset += featurelen;
 
 	/* There can be multiple messages in this message block */
-	while (tvb_length_remaining(tvb, offset) > 0) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		/* Info field */
 		proto_tree_add_item(entry, hf_aim_messageblock_info, tvb,
 				    offset, 2, ENC_BIG_ENDIAN);
@@ -1287,12 +1287,12 @@ dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_
 
 		/* The actual message */
 		buf = tvb_get_ephemeral_string(tvb, offset, blocklen - 4);
-		proto_item_set_text(ti, "Message: %s",
+		proto_item_append_text(ti, "Message: %s ",
 				    format_text(buf, blocklen - 4));
 		proto_tree_add_item(entry, hf_aim_messageblock_message, tvb,
 				    offset, blocklen-4, ENC_ASCII|ENC_NA);
 
-		offset += tvb_length_remaining(tvb, offset);
+		offset += blocklen-4;
 	}
 
 	return offset;
@@ -1375,7 +1375,7 @@ int
 dissect_aim_tlv_sequence(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			 proto_tree *tree, const aim_tlv *tlv_table)
 {
-	while (tvb_length_remaining(tvb, offset) > 0) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, tlv_table);
 	}
 
