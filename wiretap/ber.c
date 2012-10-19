@@ -40,6 +40,17 @@
 #define BER_UNI_TAG_SEQ	16	/* SEQUENCE, SEQUENCE OF */
 #define BER_UNI_TAG_SET	17	/* SET, SET OF */
 
+static void ber_set_pkthdr(struct wtap_pkthdr *phdr, int packet_size)
+{
+  phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+
+  phdr->caplen = packet_size;
+  phdr->len = packet_size;
+
+  phdr->ts.secs = 0;
+  phdr->ts.nsecs = 0;
+}
+
 static gboolean ber_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
   gint64 offset;
@@ -75,15 +86,9 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
   buffer_assure_space(wth->frame_buffer, packet_size);
   buf = buffer_start_ptr(wth->frame_buffer);
 
+  ber_set_pkthdr(&wth->phdr, packet_size);
+
   wtap_file_read_expected_bytes(buf, packet_size, wth->fh, err, err_info);
-
-  wth->phdr.presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
-
-  wth->phdr.caplen = packet_size;
-  wth->phdr.len = packet_size;
-
-  wth->phdr.ts.secs = 0;
-  wth->phdr.ts.nsecs = 0;
 
   return TRUE;
 }
@@ -101,6 +106,8 @@ static gboolean ber_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *ph
 
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
+
+  ber_set_pkthdr(phdr, packet_size);
 
   wtap_file_read_expected_bytes(pd, packet_size, wth->random_fh, err, err_info);
 
