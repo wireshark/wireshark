@@ -58,11 +58,9 @@ FileSetDialog::FileSetDialog(QWidget *parent) :
     fs_ui_(new Ui::FileSetDialog),
     close_button_(NULL)
 {
-    QTreeWidgetItem *header;
-
     fs_ui_->setupUi(this);
 
-    header = fs_ui_->fileSetTree->headerItem();
+    fs_ui_->fileSetTree->headerItem();
 
     close_button_ = fs_ui_->buttonBox->button(QDialogButtonBox::Close);
     addFile();
