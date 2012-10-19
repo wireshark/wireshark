@@ -289,13 +289,10 @@ ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 /* classic wtap: seek to file position and read packet */
 static gboolean
 ipfix_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length _U_,
+    struct wtap_pkthdr *phdr _U_, guint8 *pd, int length _U_,
     int *err, gchar **err_info)
 {
-    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     ipfix_message_header_t msg_hdr;
-
-    (void) pseudo_header; /* avoids compiler warning about unused variable */
 
     /* seek to the right file position */
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
