@@ -411,6 +411,7 @@ epan_dissect_init
 epan_dissect_new
 epan_dissect_prime_dfilter
 epan_dissect_run
+epan_dissect_run_with_taps
 epan_dissect_reset
 epan_get_compiled_version_info
 epan_get_runtime_version_info
@@ -1050,9 +1051,7 @@ t38_T30_data_vals               DATA
 t38_T30_indicator_vals          DATA
 t38_add_address
 T_h323_message_body_vals        DATA
-tap_push_tapped_queue
 tap_build_interesting
-tap_queue_init
 tap_queue_packet
 tcp_dissect_pdus
 tap_listeners_require_dissection

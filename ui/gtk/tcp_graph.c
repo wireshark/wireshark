@@ -1935,9 +1935,7 @@ static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment 
 
 	epan_dissect_init(&edt, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);
-	tap_queue_init(&edt);
-	epan_dissect_run(&edt, &cf->phdr, cf->pd, fdata, NULL);
-	tap_push_tapped_queue(&edt);
+	epan_dissect_run_with_taps(&edt, &cf->phdr, cf->pd, fdata, NULL);
 	epan_dissect_cleanup(&edt);
 	remove_tap_listener(&th);
 

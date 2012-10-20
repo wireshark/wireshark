@@ -2632,8 +2632,6 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
 
     col_custom_prime_edt(&edt, &cf->cinfo);
 
-    tap_queue_init(&edt);
-
     /* We only need the columns if either
 
          1) some tap needs the columns
@@ -2647,9 +2645,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
     else
       cinfo = NULL;
 
-    epan_dissect_run(&edt, phdr, pd, fdata, cinfo);
-
-    tap_push_tapped_queue(&edt);
+    epan_dissect_run_with_taps(&edt, phdr, pd, fdata, cinfo);
 
     /* Run the read filter if we have one. */
     if (cf->rfcode)
@@ -3083,8 +3079,6 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
 
     col_custom_prime_edt(&edt, &cf->cinfo);
 
-    tap_queue_init(&edt);
-
     /* We only need the columns if either
 
          1) some tap needs the columns
@@ -3101,9 +3095,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
     frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
                                   &first_ts, prev_dis, prev_cap);
 
-    epan_dissect_run(&edt, whdr, pd, &fdata, cinfo);
-
-    tap_push_tapped_queue(&edt);
+    epan_dissect_run_with_taps(&edt, whdr, pd, &fdata, cinfo);
 
     /* Run the read filter if we have one. */
     if (cf->rfcode)

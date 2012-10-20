@@ -1121,9 +1121,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
                                 &first_ts, prev_dis, prev_cap);
   prev_cap = fdata;
 
-  tap_queue_init(edt);
-  epan_dissect_run(edt, phdr, buf, fdata, cinfo);
-  tap_push_tapped_queue(edt);
+  epan_dissect_run_with_taps(edt, phdr, buf, fdata, cinfo);
 
   /* If we don't have a display filter, set "passed_dfilter" to 1. */
   if (dfcode != NULL) {
@@ -2286,9 +2284,7 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
   epan_dissect_t         edt;
 
   epan_dissect_init(&edt, args->construct_protocol_tree, FALSE);
-  tap_queue_init(&edt);
-  epan_dissect_run(&edt, phdr, pd, fdata, args->cinfo);
-  tap_push_tapped_queue(&edt);
+  epan_dissect_run_with_taps(&edt, phdr, pd, fdata, args->cinfo);
   epan_dissect_cleanup(&edt);
 
   return TRUE;

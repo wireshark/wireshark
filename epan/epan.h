@@ -154,6 +154,10 @@ void
 epan_dissect_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
         const guint8* data, frame_data *fd, column_info *cinfo);
 
+void
+epan_dissect_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
+        const guint8* data, frame_data *fd, column_info *cinfo);
+
 /** Prime a proto_tree using the fields/protocols used in a dfilter. */
 void
 epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t *dfcode);
