@@ -2568,8 +2568,8 @@ host_name_lookup_process(void) {
   return nro;
 }
 
-void
-host_name_lookup_cleanup(void) {
+static void
+_host_name_lookup_cleanup(void) {
   GList *cur;
 
   cur = g_list_first(async_dns_queue_head);
@@ -2588,27 +2588,6 @@ host_name_lookup_cleanup(void) {
   ares_library_cleanup();
 #endif
   async_dns_initialized = FALSE;
-
-  memset(ipv4_table, 0, sizeof(ipv4_table));
-  memset(ipv6_table, 0, sizeof(ipv6_table));
-
-  memset(udp_port_table, 0, sizeof(udp_port_table));
-  memset(tcp_port_table, 0, sizeof(tcp_port_table));
-  memset(sctp_port_table, 0, sizeof(sctp_port_table));
-  memset(dccp_port_table, 0, sizeof(dccp_port_table));
-  memset(eth_table, 0, sizeof(eth_table));
-  memset(manuf_table, 0, sizeof(manuf_table));
-  memset(wka_table, 0, sizeof(wka_table));
-  memset(ipxnet_table, 0, sizeof(ipxnet_table));
-  memset(subnet_length_entries, 0, sizeof(subnet_length_entries));
-
-  addrinfo_list = addrinfo_list_last = NULL;
-
-  have_subnet_entry = FALSE;
-  eth_resolution_initialized = FALSE;
-  ipxnet_resolution_initialized = FALSE;
-  service_resolution_initialized = FALSE;
-  new_resolved_objects = FALSE;
 }
 
 #elif defined(HAVE_GNU_ADNS)
@@ -2671,8 +2650,8 @@ host_name_lookup_process(void) {
   return nro;
 }
 
-void
-host_name_lookup_cleanup(void) {
+static void
+_host_name_lookup_cleanup(void) {
   void *qdata;
 
   async_dns_queue_head = g_list_first(async_dns_queue_head);
@@ -2698,11 +2677,37 @@ host_name_lookup_process(void) {
   return nro;
 }
 
-void
-host_name_lookup_cleanup(void) {
+static void
+_host_name_lookup_cleanup(void) {
 }
 
 #endif /* HAVE_C_ARES */
+
+void
+host_name_lookup_cleanup(void) {
+  _host_name_lookup_cleanup();
+
+  memset(ipv4_table, 0, sizeof(ipv4_table));
+  memset(ipv6_table, 0, sizeof(ipv6_table));
+
+  memset(udp_port_table, 0, sizeof(udp_port_table));
+  memset(tcp_port_table, 0, sizeof(tcp_port_table));
+  memset(sctp_port_table, 0, sizeof(sctp_port_table));
+  memset(dccp_port_table, 0, sizeof(dccp_port_table));
+  memset(eth_table, 0, sizeof(eth_table));
+  memset(manuf_table, 0, sizeof(manuf_table));
+  memset(wka_table, 0, sizeof(wka_table));
+  memset(ipxnet_table, 0, sizeof(ipxnet_table));
+  memset(subnet_length_entries, 0, sizeof(subnet_length_entries));
+
+  addrinfo_list = addrinfo_list_last = NULL;
+
+  have_subnet_entry = FALSE;
+  eth_resolution_initialized = FALSE;
+  ipxnet_resolution_initialized = FALSE;
+  service_resolution_initialized = FALSE;
+  new_resolved_objects = FALSE;
+}
 
 const gchar *
 get_hostname(const guint addr)
