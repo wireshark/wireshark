@@ -780,7 +780,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   gchar        *err_info;
   volatile int  newly_displayed_packets = 0;
   dfilter_t    *dfcode;
-  column_info  *cinfo;
+  volatile column_info  *cinfo;
   epan_dissect_t  edt;
   gboolean      create_proto_tree;
   guint         tap_flags;
