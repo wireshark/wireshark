@@ -709,7 +709,7 @@ proto_tree_write_carrays(guint32 num, FILE *fh, epan_dissect_t *edt)
 {
 	guint32 i = 0, src_num = 0;
 	GSList *src_le;
-	data_source *src;
+	struct data_source *src;
 	tvbuff_t *tvb;
 	const char *name;
 	const guchar *cp;
@@ -718,8 +718,8 @@ proto_tree_write_carrays(guint32 num, FILE *fh, epan_dissect_t *edt)
 
 	for (src_le = edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
 		memset(ascii, 0, sizeof(ascii));
-		src = (data_source *)src_le->data;
-		tvb = src->tvb;
+		src = (struct data_source *)src_le->data;
+		tvb = get_data_source_tvb(src);
 		length = tvb_length(tvb);
 		if (length == 0)
 			continue;
@@ -779,13 +779,13 @@ static const guint8 *
 get_field_data(GSList *src_list, field_info *fi)
 {
 	GSList *src_le;
-	data_source *src;
+	struct data_source *src;
 	tvbuff_t *src_tvb;
 	gint length, tvbuff_length;
 
 	for (src_le = src_list; src_le != NULL; src_le = src_le->next) {
-		src = (data_source *)src_le->data;
-		src_tvb = src->tvb;
+		src = (struct data_source *)src_le->data;
+		src_tvb = get_data_source_tvb(src);
 		if (fi->ds_tvb == src_tvb) {
 			/*
 			 * Found it.
@@ -878,7 +878,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 {
 	gboolean multiple_sources;
 	GSList *src_le;
-	data_source *src;
+	struct data_source *src;
 	tvbuff_t *tvb;
 	const char *name;
 	char *line;
@@ -895,8 +895,8 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 
 	for (src_le = edt->pi.data_src; src_le != NULL;
 	    src_le = src_le->next) {
-		src = (data_source *)src_le->data;
-		tvb = src->tvb;
+		src = (struct data_source *)src_le->data;
+		tvb = get_data_source_tvb(src);
 		if (multiple_sources) {
 			name = get_data_source_name(src);
 			print_line(stream, 0, "");

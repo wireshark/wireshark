@@ -414,10 +414,13 @@ final_registration_all_protocols(void);
 extern void add_new_data_source(packet_info *pinfo, tvbuff_t *tvb,
     const char *name);
 
+
 /*
- * Return the data source name.
+ * Return the data source name, tvb.
  */
-extern const char* get_data_source_name(data_source *src);
+struct data_source;
+extern const char *get_data_source_name(const struct data_source *src);
+extern tvbuff_t *get_data_source_tvb(const struct data_source *src);
 
 /*
  * Free up a frame's list of data sources.

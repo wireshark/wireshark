@@ -499,7 +499,7 @@ add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
                GtkWidget *byte_nb_ptr)
 {
     GSList *src_le;
-    data_source *src;
+    struct data_source *src;
 
     /*
      * Get rid of all the old notebook tabs.
@@ -513,7 +513,7 @@ add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
      */
     for (src_le = edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
         src = src_le->data;
-        add_byte_tab(byte_nb_ptr, get_data_source_name(src), src->tvb, edt->tree,
+        add_byte_tab(byte_nb_ptr, get_data_source_name(src), get_data_source_tvb(src), edt->tree,
                      tree_view);
     }
 

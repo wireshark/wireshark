@@ -814,8 +814,8 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 	}
 
 	for (src_le = DataPtr->edt.pi.data_src; src_le != NULL; src_le = src_le->next) {
-		const data_source *src = src_le->data;
-		tvbuff_t *tvb = src->tvb;
+		const struct data_source *src = src_le->data;
+		tvbuff_t *tvb = get_data_source_tvb(src);
 
 		if (tvb && tvb->real_data == DataPtr->pd) {
 			ds_tvb = tvb;

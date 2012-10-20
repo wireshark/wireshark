@@ -282,7 +282,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
     if (byte_view_tab_ && cfile.edt) {
         GSList *src_le;
-        data_source *source;
+        struct data_source *source;
 
         // Clear out existing tabs
         while (byte_view_tab_->currentWidget()) {
@@ -290,8 +290,8 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
         }
 
         for (src_le = cfile.edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
-            source = (data_source *)src_le->data;
-            byte_view_tab_->addTab(get_data_source_name(source), source->tvb, cfile.edt->tree, proto_tree_, cfile.current_frame->flags.encoding);
+            source = (struct data_source *)src_le->data;
+            byte_view_tab_->addTab(get_data_source_name(source), get_data_source_tvb(source), cfile.edt->tree, proto_tree_, cfile.current_frame->flags.encoding);
         }
     }
 

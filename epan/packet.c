@@ -60,6 +60,15 @@ static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
 static dissector_handle_t data_handle = NULL;
 
+/**
+ * A data source.
+ * Has a tvbuff and a name.
+ */
+struct data_source {
+  tvbuff_t *tvb;
+  const char *name;
+};
+
 void
 packet_init(void)
 {
@@ -218,24 +227,24 @@ postseq_cleanup_all_protocols(void)
 void
 add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 {
-	data_source *src;
+	struct data_source *src;
 
-	src = ep_alloc(sizeof (data_source));
+	src = ep_alloc(sizeof (struct data_source));
 	src->tvb = tvb;
-	src->name_initialized = FALSE;
 	src->name = name;
 	pinfo->data_src = g_slist_append(pinfo->data_src, src);
 }
 
 const char*
-get_data_source_name(data_source *src)
+get_data_source_name(const struct data_source *src)
 {
-	if (!src->name_initialized) {
-		src->name = ep_strdup_printf("%s (%u bytes)", src->name, tvb_length(src->tvb));
-		src->name_initialized = TRUE;
-	}
+	return ep_strdup_printf("%s (%u bytes)", src->name, tvb_length(src->tvb));
+}
 
-	return src->name;
+tvbuff_t *
+get_data_source_tvb(const struct data_source *src)
+{
+	return src->tvb;
 }
 
 /*

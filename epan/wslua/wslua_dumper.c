@@ -361,18 +361,18 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     struct wtap_pkthdr pkthdr;
     const guchar* data;
     tvbuff_t* tvb;
-    data_source *data_src;
+    struct data_source *data_src;
     int err = 0;
 
     if (!d) return 0;
 
     if (! lua_pinfo ) WSLUA_ERROR(Dumper_new_for_current,"Cannot be used outside a tap or a dissector");
 
-    data_src = (data_source*) (lua_pinfo->data_src->data);
+    data_src = (struct data_source*) (lua_pinfo->data_src->data);
     if (!data_src)
         return 0;
 
-    tvb = data_src->tvb;
+    tvb = get_data_source_tvb(data_src);
 
     memset(&pkthdr, 0, sizeof(pkthdr));
 

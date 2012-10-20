@@ -79,16 +79,6 @@ typedef struct {
 } modified_frame_data;
 #endif
 
-/**
- * A data source.
- * Has a tvbuff and a name.
- */
-typedef struct {
-  tvbuff_t *tvb;
-  gboolean name_initialized;
-  const char *name;
-} data_source;
-
 /* Utility routines used by packet*.c */
 
 extern void p_add_proto_data(frame_data *fd, int proto, void *proto_data);
