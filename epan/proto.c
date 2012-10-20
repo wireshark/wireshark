@@ -532,9 +532,8 @@ proto_tree_children_foreach(proto_tree *tree, proto_tree_foreach_func func,
 }
 
 static void
-free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
+unref_GPtrArray_value(gpointer key, gpointer value _U_, gpointer user_data _U_)
 {
-	GPtrArray         *ptrs = value;
 	gint               hfid = (gint)(long)key;
 	header_field_info *hfinfo;
 
@@ -551,6 +550,12 @@ free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 		}
 		hfinfo->ref_type = HF_REF_TYPE_NONE;
 	}
+}
+
+static void
+free_GPtrArray_value(gpointer value)
+{
+	GPtrArray *ptrs = value;
 
 	g_ptr_array_free(ptrs, TRUE);
 }
@@ -561,7 +566,7 @@ free_node_tree_data(tree_data_t *tree_data)
 	if (tree_data->interesting_hfids) {
 		/* Free all the GPtrArray's in the interesting_hfids hash. */
 		g_hash_table_foreach(tree_data->interesting_hfids,
-			free_GPtrArray_value, NULL);
+			unref_GPtrArray_value, NULL);
 
 		/* And then destroy the hash. */
 		g_hash_table_destroy(tree_data->interesting_hfids);
@@ -607,6 +612,28 @@ proto_tree_free(proto_tree *tree)
 
 	/* free tree data */
 	free_node_tree_data(tree_data);
+}
+
+void
+proto_tree_reset(proto_tree *tree)
+{
+	tree_data_t *tree_data = PTREE_DATA(tree);
+  
+	proto_tree_children_foreach(tree, proto_tree_free_node, NULL);
+
+	/* reset tree */
+	tree->parent = NULL;
+	tree->first_child = NULL;
+	tree->last_child = NULL;
+	tree->next = NULL;
+	PNODE_FINFO(tree) = NULL;
+
+	/* reset tree_data */
+	if (tree_data->interesting_hfids) {
+		g_hash_table_destroy(tree_data->interesting_hfids);
+		tree_data->interesting_hfids = NULL;
+	}
+	tree_data->count = 0;
 }
 
 /* Is the parsing being done for a visible proto_tree or an invisible one?
@@ -1172,7 +1199,7 @@ proto_lookup_or_create_interesting_hfids(proto_tree *tree,
 		if (PTREE_DATA(tree)->interesting_hfids == NULL) {
 			/* Initialize the hash because we now know that it is needed */
 			PTREE_DATA(tree)->interesting_hfids =
-				g_hash_table_new(g_direct_hash, NULL /* g_direct_equal */);
+				g_hash_table_new_full(g_direct_hash, NULL /* g_direct_equal */, NULL, free_GPtrArray_value);
 		}
 
 		ptrs = g_hash_table_lookup(PTREE_DATA(tree)->interesting_hfids,
