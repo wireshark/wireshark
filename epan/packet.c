@@ -66,7 +66,7 @@ static dissector_handle_t data_handle = NULL;
  */
 struct data_source {
   tvbuff_t *tvb;
-  const char *name;
+  char *name;
 };
 
 void
@@ -229,9 +229,9 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 {
 	struct data_source *src;
 
-	src = ep_alloc(sizeof (struct data_source));
+	src = g_malloc(sizeof(struct data_source));
 	src->tvb = tvb;
-	src->name = name;
+	src->name = g_strdup(name);
 	pinfo->data_src = g_slist_append(pinfo->data_src, src);
 }
 
@@ -254,6 +254,14 @@ void
 free_data_sources(packet_info *pinfo)
 {
 	if (pinfo->data_src) {
+		GSList *l;
+
+		for (l = pinfo->data_src; l; l = l->next) {
+			struct data_source *src = l->data;
+
+			g_free(src->name);
+			g_free(src);
+		}
 		g_slist_free(pinfo->data_src);
 		pinfo->data_src = NULL;
 	}

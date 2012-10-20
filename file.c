@@ -822,7 +822,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
       break;
     }
     TRY{
-      if (read_packet(cf, dfcode, &edt, cinfo,
+      if (read_packet(cf, dfcode, &edt, (column_info *) cinfo,
                       data_offset) != -1) {
         newly_displayed_packets++;
       }

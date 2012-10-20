@@ -192,22 +192,22 @@ void
 epan_dissect_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
         const guint8* data, frame_data *fd, column_info *cinfo)
 {
-	/* free all memory allocated during previous packet */
-	ep_free_all();
-
 	dissect_packet(edt, phdr, data, fd, cinfo);
+
+	/* free all memory allocated */
+	ep_free_all();
 }
 
 void
 epan_dissect_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
         const guint8* data, frame_data *fd, column_info *cinfo)
 {
-	/* free all memory allocated during previous packet */
-	ep_free_all();
-
 	tap_queue_init(edt);
 	dissect_packet(edt, phdr, data, fd, cinfo);
 	tap_push_tapped_queue(edt);
+
+	/* free all memory allocated */
+	ep_free_all();
 }
 
 void
