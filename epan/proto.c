@@ -136,9 +136,6 @@ wrs_count_bitshift(const guint32 bitmask)
 		return pi; \
 	}
 
-static gboolean
-proto_tree_free_node(proto_node *node, gpointer data);
-
 static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_uint(field_info *fi, gchar *label_str);
 static void fill_label_uint64(field_info *fi, gchar *label_str);
@@ -534,13 +531,6 @@ proto_tree_children_foreach(proto_tree *tree, proto_tree_foreach_func func,
 	}
 }
 
-/* frees the resources that the dissection a proto_tree uses */
-void
-proto_tree_free(proto_tree *tree)
-{
-	proto_tree_traverse_post_order(tree, proto_tree_free_node, NULL);
-}
-
 static void
 free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 {
@@ -590,57 +580,33 @@ free_node_tree_data(tree_data_t *tree_data)
 	FVALUE_CLEANUP(&finfo->value);	\
 	FIELD_INFO_FREE(finfo);
 
-static gboolean
+static void
 proto_tree_free_node(proto_node *node, gpointer data _U_)
 {
 	field_info *finfo  = PNODE_FINFO(node);
-#if 0
-	proto_node *parent = node->parent;
-#endif
 
-	if (finfo == NULL) {
-		/* This is the root node. Destroy the per-tree data.
-		 * There is no field_info to destroy. */
-		if (PTREE_DATA(node))
-			free_node_tree_data(PTREE_DATA(node));
-	}
-	else {
-		/* This is a child node. Don't free the per-tree data, but
-		 * do free the field_info data. */
-		FREE_NODE_FIELD_INFO(finfo);
-	}
+	proto_tree_children_foreach(node, proto_tree_free_node, NULL);
 
-#if 0
-	/* NOTE: This code is required when this function is used to free individual
-	 * nodes only. Current use is for the destruction of complete trees, so the
-	 * inconsistancies have no ill effect.
-	 */
-	/* Remove node from parent */
-	if (parent) {
-		proto_item *prev_item = NULL;
-		if (parent->first_child == node) {
-			parent->first_child = node->next;
-		} else {
-			/* find previous and change its next */
-			for (prev_item = parent->first_child; prev_item; prev_item = prev_item->next) {
-				if (prev_item->next == node) {
-					break;
-				}
-			}
-			DISSECTOR_ASSERT(prev_item);
-			prev_item->next = node->next;
-		}
-		/* fix last_child if required */
-		if (parent->last_child == node) {
-			parent->last_child = prev_item;
-		}
-	}
-	DISSECTOR_ASSERT(node->first_child == NULL && node->last_child == NULL);
-#endif
+	/* free the field_info data. */
+	FREE_NODE_FIELD_INFO(finfo);
+
 	/* Free the proto_node. */
 	PROTO_NODE_FREE(node);
+}
 
-	return FALSE; /* FALSE = do not end traversal of protocol tree */
+/* frees the resources that the dissection a proto_tree uses */
+void
+proto_tree_free(proto_tree *tree)
+{
+	tree_data_t *tree_data = PTREE_DATA(tree);
+
+	proto_tree_children_foreach(tree, proto_tree_free_node, NULL);
+
+	/* free root node */
+	PROTO_NODE_FREE(tree);
+
+	/* free tree data */
+	free_node_tree_data(tree_data);
 }
 
 /* Is the parsing being done for a visible proto_tree or an invisible one?
