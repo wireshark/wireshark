@@ -91,8 +91,7 @@ static void cf_reset_state(capture_file *cf);
 static int read_packet(capture_file *cf, dfilter_t *dfcode,
     gboolean filtering_tap_listeners, guint tap_flags, gint64 offset);
 
-static void rescan_packets(capture_file *cf, const char *action, const char *action_item,
-    gboolean refilter, gboolean redissect);
+static void rescan_packets(capture_file *cf, const char *action, const char *action_item, gboolean redissect);
 
 typedef enum {
   MR_NOTMATCHED,
@@ -1090,7 +1089,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     dfilter_t *dfcode, gboolean filtering_tap_listeners,
     guint tap_flags,
     struct wtap_pkthdr *phdr, const guchar *buf,
-    gboolean refilter,
     gboolean add_to_packet_list)
 {
   gboolean        create_proto_tree = FALSE;
@@ -1112,14 +1110,13 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      allocate a protocol tree root node, so that we'll construct
      a protocol tree against which a filter expression can be
      evaluated. */
-  if ((dfcode != NULL && refilter) ||
-      filtering_tap_listeners || (tap_flags & TL_REQUIRES_PROTO_TREE))
+  if (dfcode != NULL || filtering_tap_listeners || (tap_flags & TL_REQUIRES_PROTO_TREE))
       create_proto_tree = TRUE;
 
   /* Dissect the frame. */
   epan_dissect_init(&edt, create_proto_tree, FALSE);
 
-  if (dfcode != NULL && refilter) {
+  if (dfcode != NULL) {
       epan_dissect_prime_dfilter(&edt, dfcode);
   }
 
@@ -1127,21 +1124,16 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   epan_dissect_run(&edt, phdr, buf, fdata, cinfo);
   tap_push_tapped_queue(&edt);
 
-  /* If we have a display filter, apply it if we're refiltering, otherwise
-     leave the "passed_dfilter" flag alone.
-
-     If we don't have a display filter, set "passed_dfilter" to 1. */
+  /* If we don't have a display filter, set "passed_dfilter" to 1. */
   if (dfcode != NULL) {
-    if (refilter) {
-      fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, &edt) ? 1 : 0;
+    fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, &edt) ? 1 : 0;
 
-      if (fdata->flags.passed_dfilter) {
-        /* This frame passed the display filter but it may depend on other
-         * (potentially not displayed) frames.  Find those frames and mark them
-         * as depended upon.
-         */
-        g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf);
-      }
+    if (fdata->flags.passed_dfilter) {
+      /* This frame passed the display filter but it may depend on other
+       * (potentially not displayed) frames.  Find those frames and mark them
+       * as depended upon.
+       */
+      g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf);
     }
   } else
     fdata->flags.passed_dfilter = 1;
@@ -1233,7 +1225,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
     if (!cf->redissecting) {
       row = add_packet_to_packet_list(fdata, cf, dfcode,
                                       filtering_tap_listeners, tap_flags,
-                                      phdr, buf, TRUE, TRUE);
+                                      phdr, buf, TRUE);
     }
   }
 
@@ -1660,9 +1652,9 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   /* Now rescan the packet list, applying the new filter, but not
      throwing away information constructed on a previous pass. */
   if (dftext == NULL) {
-    rescan_packets(cf, "Resetting", "Filter", TRUE, FALSE);
+    rescan_packets(cf, "Resetting", "Filter", FALSE);
   } else {
-    rescan_packets(cf, "Filtering", dftext, TRUE, FALSE);
+    rescan_packets(cf, "Filtering", dftext, FALSE);
   }
 
   /* Cleanup and release all dfilter resources */
@@ -1680,7 +1672,7 @@ cf_reftime_packets(capture_file *cf)
 void
 cf_redissect_packets(capture_file *cf)
 {
-  rescan_packets(cf, "Reprocessing", "all packets", TRUE, TRUE);
+  rescan_packets(cf, "Reprocessing", "all packets", TRUE);
 }
 
 gboolean
@@ -1750,15 +1742,12 @@ cf_read_frame(capture_file *cf, frame_data *fdata)
    "action_item" describes what we're doing; it's used in the progress
    dialog box.
 
-   "refilter" is TRUE if we need to re-evaluate the filter expression.
-
    "redissect" is TRUE if we need to make the dissectors reconstruct
    any state information they have (because a preference that affects
    some dissector has changed, meaning some dissector might construct
    its state differently from the way it was constructed the last time). */
 static void
-rescan_packets(capture_file *cf, const char *action, const char *action_item,
-        gboolean refilter, gboolean redissect)
+rescan_packets(capture_file *cf, const char *action, const char *action_item, gboolean redissect)
 {
   /* Rescan packets new packet list */
   guint32     framenum;
@@ -1931,12 +1920,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
       frames_count = cf->count;
     }
 
-    if (redissect || refilter) {
-      /* If we're redissecting or refiltering then any frame dependencies
-       * from the previous dissection/filtering are no longer valid.
-       */
-      fdata->flags.dependent_of_displayed = 0;
-    }
+    /* Frame dependencies from the previous dissection/filtering are no longer valid. */
+    fdata->flags.dependent_of_displayed = 0;
 
     if (!cf_read_frame(cf, fdata))
       break; /* error reading the frame */
@@ -1950,7 +1935,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     }
     add_packet_to_packet_list(fdata, cf, dfcode, filtering_tap_listeners,
                                     tap_flags, &cf->phdr, cf->pd,
-                                    refilter,
                                     add_to_packet_list);
 
     /* If this frame is displayed, and this is the first frame we've
