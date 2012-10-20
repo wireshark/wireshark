@@ -513,7 +513,7 @@ cf_read(capture_file *cf, gboolean reloading)
   volatile gint64      progbar_quantum;
   dfilter_t           *dfcode;
   column_info         *cinfo;
-  gboolean             create_proto_tree;
+  volatile gboolean    create_proto_tree;
   guint                tap_flags;
   volatile int         count          = 0;
 #ifdef HAVE_LIBPCAP
@@ -764,14 +764,14 @@ cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *er
 cf_read_status_t
 cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 {
-  gint64        data_offset             = 0;
-  gchar        *err_info;
-  volatile int  newly_displayed_packets = 0;
-  dfilter_t    *dfcode;
-  column_info  *cinfo;
-  gboolean      create_proto_tree;
-  guint         tap_flags;
-  gboolean      compiled;
+  gint64            data_offset             = 0;
+  gchar            *err_info;
+  volatile int      newly_displayed_packets = 0;
+  dfilter_t        *dfcode;
+  column_info      *cinfo;
+  volatile gboolean create_proto_tree;
+  guint             tap_flags;
+  gboolean          compiled;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
