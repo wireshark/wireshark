@@ -114,7 +114,7 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
                 proto_tree_add_string(cl_tree, hf_quake2_connectionless_text,
                         tvb, offset, len, text);
         }
-        offset += len;
+        /*offset += len;*/
 
 	/* we should analyse the result 'text' a bit further */
 	/* for this we need the direction parameter */
