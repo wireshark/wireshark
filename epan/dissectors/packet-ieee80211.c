@@ -17369,16 +17369,16 @@ void set_airpdcap_keys(void)
         keys->Keys[keys->nKeys] = key;
         keys->nKeys++;
       }
-      else if(dk->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
+      else if(dk->type == AIRPDCAP_KEY_TYPE_WPA_PSK)
       {
-        key.KeyType = AIRPDCAP_KEY_TYPE_WPA_PMK;
+        key.KeyType = AIRPDCAP_KEY_TYPE_WPA_PSK;
 
         bytes = g_byte_array_new();
         hex_str_to_bytes(dk->key->str, bytes, FALSE);
 
         /* XXX - Pass the correct array of bytes... */
-        if (bytes->len <= AIRPDCAP_WPA_PMK_LEN) {
-          memcpy(key.KeyData.Wpa.Pmk, bytes->data, bytes->len);
+        if (bytes->len <= AIRPDCAP_WPA_PSK_LEN) {
+          memcpy(key.KeyData.Wpa.Psk, bytes->data, bytes->len);
 
           keys->Keys[keys->nKeys] = key;
           keys->nKeys++;
