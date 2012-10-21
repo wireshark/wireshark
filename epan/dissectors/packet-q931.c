@@ -1046,16 +1046,16 @@ l2_done:
 			octet = tvb_get_guint8(tvb, offset);
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Packet window size: %u", octet & 0x7F);
-			offset += 1;
-			len -= 1;
+			/*offset += 1;*/
+			/*len -= 1;*/
 			break;
 
 		case Q931_UIL3_USER_SPEC:
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Default packet size: %u octets",
 			    1 << (octet & 0x0F));
-			offset += 1;
-			len -= 1;
+			/*offset += 1;*/
+			/*len -= 1;*/
 			break;
 
 		case Q931_UIL3_TR_9577:
@@ -1070,8 +1070,8 @@ l2_done:
 			    "Additional layer 3 protocol information: %s",
 			    val_to_str(add_l3_info, nlpid_vals,
 			      "Unknown (0x%02X)"));
-			offset += 2;
-			len -= 2;
+			/*offset += 2;*/
+			/*len -= 2;*/
 			break;
 		}
 	}
@@ -1952,7 +1952,7 @@ dissect_q931_guint16_value(tvbuff_t *tvb, int offset, int len,
 	}
 	value |= (octet & 0x7F);
 	offset += 1;
-	len -= 1;
+	/*len -= 1;*/
 	value_len++;
 
 	proto_tree_add_text(tree, tvb, offset, value_len, "%s: %u ms", label,
@@ -1999,7 +1999,7 @@ dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, int offset, int len,
 
 	if (len == 0)
 		return;
-	value_len = dissect_q931_guint16_value(tvb, offset, len, tree,
+	/*value_len =*/ dissect_q931_guint16_value(tvb, offset, len, tree,
 	    "Maximum end-to-end transit delay");
 }
 
@@ -2538,7 +2538,7 @@ dissect_q931_party_category_ie(tvbuff_t *tvb, int offset, int len,
 	    "Party category: %s",
 	    val_to_str(octet&0x07, q931_party_category_vals,
 	    "Unknown (0x%02x)"));
-	offset += 1;
+	/*offset += 1;*/
 	len -= 1;
 
 	if (len == 0)
@@ -2727,7 +2727,6 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 	e164_info.e164_number_type = NONE;
 
 	codeset = locked_codeset = initial_codeset;
-	non_locking_shift = TRUE;
 	first_segment = FALSE;
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		info_element = tvb_get_guint8(tvb, offset);
