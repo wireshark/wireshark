@@ -1856,7 +1856,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     */
     if(!g_esp_enable_encryption_decode && g_esp_enable_authentication_check && sad_is_present)
     {
-        sad_is_present = FALSE;
         call_dissector(data_handle,
             tvb_new_subset(tvb, sizeof(struct newesp), len - sizeof(struct newesp) - esp_auth_len, -1),
             pinfo, esp_tree);
