@@ -45,7 +45,6 @@ static int hf_btavrcp_company_id                                           = -1;
 static int hf_btavrcp_length                                               = -1;
 static int hf_btavrcp_pdu_id                                               = -1;
 static int hf_btavrcp_bt_pdu_id                                            = -1;
-static int hf_btavrcp_continuing_pdu_id                                    = -1;
 static int hf_btavrcp_bt_continuing_pdu_id                                 = -1;
 static int hf_btavrcp_browsing_pdu_id                                      = -1;
 static int hf_btavrcp_reserved                                             = -1;
@@ -992,6 +991,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint packet_type;
     guint parameter_length;
     guint status;
+    guint length;
 
     proto_tree_add_item(tree, hf_btavrcp_company_id, tvb, offset, 3, ENC_BIG_ENDIAN);
     company_id = tvb_get_ntoh24(tvb, offset);
@@ -1001,13 +1001,12 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(tree, hf_btavrcp_bt_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     } else {
 
-        if (tvb_length_remaining(tvb, offset) == 0) {
+        if (tvb_ensure_length_remaining(tvb, offset) == 0) {
             col_append_str(pinfo->cinfo, COL_INFO, " - No PDU ID");
             return offset;
         }
 
         proto_tree_add_item(tree, hf_btavrcp_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
     }
     pdu_id = tvb_get_guint8(tvb, offset);
     *op = pdu_id | (company_id << 8);
@@ -1016,7 +1015,6 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (company_id != COMPANY_BT_SIG) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
                 val_to_str(pdu_id, NULL, "Unknown PDU ID"));
-        return offset;
     }
 
     proto_tree_add_item(tree, hf_btavrcp_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1028,13 +1026,15 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     parameter_length = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
-    if (company_id == COMPANY_BT_SIG) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                        val_to_str(pdu_id, pdu_id_vals, "Unknown PDU ID"));
-    }
+    if (company_id != COMPANY_BT_SIG)
+        return offset;
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
+            val_to_str(pdu_id, pdu_id_vals, "Unknown PDU ID"));
 
     if (parameter_length == 0) return offset;
 
+    length = tvb_ensure_length_remaining(tvb, offset);
     if (packet_type == PACKET_TYPE_START) {
         if (pinfo->fd->flags.visited == 0) {
             fragment_t       *fragment;
@@ -1056,7 +1056,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             fragment->fragments = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btavctp fragments");
 
             data_fragment = se_alloc(sizeof(data_fragment_t));
-            data_fragment->length = tvb_length_remaining(tvb, offset);
+            data_fragment->length = length;
             data_fragment->data = se_alloc(data_fragment->length);
             tvb_memcpy(tvb, data_fragment->data, offset, data_fragment->length);
 
@@ -1098,7 +1098,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 fragment->state = 0;
 
                 data_fragment = se_alloc(sizeof(data_fragment_t));
-                data_fragment->length = tvb_length_remaining(tvb, offset);
+                data_fragment->length = length;
                 data_fragment->data = se_alloc(data_fragment->length);
                 tvb_memcpy(tvb, data_fragment->data, offset, data_fragment->length);
                 se_tree_insert32(fragment->fragments, fragment->count, data_fragment);
@@ -1113,11 +1113,10 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         emem_tree_key_t  key[3];
         guint32          f_op;
         guint32          f_frame_number;
-        guint     i_frame;
+        guint            i_frame;
         tvbuff_t         *next_tvb;
-        guint     length = 0;
-        guint     i_length = 0;
-        guint8 * reassembled;
+        guint            i_length = 0;
+        guint8           *reassembled;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " [end]");
 
@@ -1139,12 +1138,13 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 fragment->state = 2;
 
                 data_fragment = se_alloc(sizeof(data_fragment_t));
-                data_fragment->length = tvb_length_remaining(tvb, offset);
+                data_fragment->length = length;
                 data_fragment->data = se_alloc(data_fragment->length);
                 tvb_memcpy(tvb, data_fragment->data, offset, data_fragment->length);
                 se_tree_insert32(fragment->fragments, fragment->count, data_fragment);
             }
             /* reassembling*/
+            length = 0;
             if  (fragment->state == 2) {
                 proto_item *pitem = NULL;
 
@@ -1583,7 +1583,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         break;
                     default:
                         proto_tree_add_item(tree, hf_btavrcp_data, tvb, offset, -1, ENC_NA);
-                        offset += tvb_length_remaining(tvb, offset);
+                        offset += tvb_ensure_length_remaining(tvb, offset);
                 }
             }
 
@@ -1592,14 +1592,10 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (is_command)  {
                 guint continuing_op;
 
-                if (company_id == COMPANY_BT_SIG) {
-                    proto_tree_add_item(tree, hf_btavrcp_bt_continuing_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                        val_to_str(tvb_get_guint8(tvb, offset), pdu_id_vals, "Unknown opcode"));
-                } else {
-                    proto_tree_add_item(tree, hf_btavrcp_continuing_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-                }
+                proto_tree_add_item(tree, hf_btavrcp_bt_continuing_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                 continuing_op = tvb_get_guint8(tvb, offset) | (company_id << 8);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
+                        val_to_str(tvb_get_guint8(tvb, offset), pdu_id_vals, "Unknown opcode"));
                 offset += 1;
 
                 if (pinfo->fd->flags.visited == 0) {
@@ -1633,14 +1629,10 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (is_command)  {
                 guint continuing_op;
 
-                if (company_id == COMPANY_BT_SIG) {
-                    proto_tree_add_item(tree, hf_btavrcp_bt_continuing_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                        val_to_str(tvb_get_guint8(tvb, offset), pdu_id_vals, "Unknown opcode"));
-                } else {
-                    proto_tree_add_item(tree, hf_btavrcp_continuing_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-                }
+                proto_tree_add_item(tree, hf_btavrcp_bt_continuing_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                 continuing_op = tvb_get_guint8(tvb, offset) | (company_id << 8);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
+                        val_to_str(tvb_get_guint8(tvb, offset), pdu_id_vals, "Unknown opcode"));
                 offset += 1;
 
                 if (pinfo->fd->flags.visited == 0) {
@@ -2286,11 +2278,6 @@ proto_register_btavrcp(void)
         { &hf_btavrcp_bt_continuing_pdu_id,
             { "Continuing PDU ID",               "btavrcp.pdu_id",
             FT_UINT8, BASE_HEX, VALS(pdu_id_vals), 0x00,
-            NULL, HFILL }
-        },
-        { &hf_btavrcp_continuing_pdu_id,
-            { "Continuing PDU ID",               "btavrcp.pdu_id",
-            FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_browsing_pdu_id,
