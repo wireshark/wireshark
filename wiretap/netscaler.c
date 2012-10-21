@@ -1061,9 +1061,9 @@ static gboolean nstrace_read(wtap *wth, int *err, gchar **err_info, gint64 *data
 
 
 #define __TNO(enumprefix,structprefix,structname,hdrname,structfieldname) \
-    pseudo_header->nstr.hdrname##_offset = (guint8) enumprefix##_##hdrname##_offset;
+    phdr->pseudo_header.nstr.hdrname##_offset = (guint8) enumprefix##_##hdrname##_offset;
 #define __TNL(enumprefix,structprefix,structname,hdrname,structfieldname) \
-    pseudo_header->nstr.hdrname##_len = (guint8) enumprefix##_##hdrname##_len;
+    phdr->pseudo_header.nstr.hdrname##_len = (guint8) enumprefix##_##hdrname##_len;
 
 #define __TNV1O(enumprefix,structprefix,structname,hdrname,structfieldname) \
     __TNO(enumprefix,structprefix,structname,hdrname,structfieldname)
@@ -1344,7 +1344,6 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err)
 {
-    const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 
     if (nstrace->page_offset == 0)
@@ -1367,7 +1366,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         }
     }
 
-    switch (pseudo_header->nstr.rec_type)
+    switch (phdr->pseudo_header.nstr.rec_type)
     {
     case NSPR_HEADER_VERSION100:
 
