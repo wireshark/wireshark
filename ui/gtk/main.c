@@ -54,6 +54,7 @@
 #endif
 #include <fcntl.h>
 #include <conio.h>
+#include <ui/win32/console_win32.h>
 #endif
 
 #ifdef HAVE_LIBPORTAUDIO
@@ -93,7 +94,6 @@
 #include "../ringbuffer.h"
 #include "ui/util.h"
 #include "../clopts_common.h"
-#include "../console_io.h"
 #include "../cmdarg_err.h"
 #include "../version_info.h"
 #include "../merge.h"
@@ -233,12 +233,6 @@ static gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cf
 
 static guint  tap_update_timer_id;
 
-#ifdef _WIN32
-static gboolean has_console;	/* TRUE if app has console */
-static gboolean console_wait;	/* "Press any key..." */
-static void destroy_console(void);
-static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
-#endif
 static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
 
@@ -2134,7 +2128,7 @@ check_and_warn_user_startup(gchar *cf_name _U_)
 
 #ifdef _WIN32
   /* Warn the user if npf.sys isn't loaded. */
-  if (!stdin_capture && !cf_name && !npf_sys_is_running() && recent.privs_warn_if_no_npf && get_os_major_version() >= 6) {
+  if (!get_stdin_capture() && !cf_name && !npf_sys_is_running() && recent.privs_warn_if_no_npf && get_os_major_version() >= 6) {
     priv_warning_dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
       "The NPF driver isn't running.  You may have trouble\n"
       "capturing or listing interfaces.");
@@ -2372,7 +2366,7 @@ main(int argc, char *argv[])
 #ifdef _WIN32
       case 'i':
         if (strcmp(optarg, "-") == 0)
-          stdin_capture = TRUE;
+          set_stdin_capture(TRUE);
         break;
 #endif
       case 'P':        /* Path settings - change these before the Preferences and alike are processed */
@@ -3271,79 +3265,11 @@ WinMain (struct HINSTANCE__ *hInstance,
   /* RichEd20.DLL is needed for filter entries. */
   ws_load_library("riched20.dll");
 
-  has_console = FALSE;
-  console_wait = FALSE;
+  set_has_console(FALSE);
+  set_console_wait(FALSE);
   return main (__argc, __argv);
 }
 
-/* The code to create and desstroy console windows should not be necessary,
-   at least as I read the GLib source code, as it looks as if GLib is, on
-   Win32, *supposed* to create a console window into which to display its
-   output.
-
-   That doesn't happen, however.  I suspect there's something completely
-   broken about that code in GLib-for-Win32, and that it may be related
-   to the breakage that forces us to just call "printf()" on the message
-   rather than passing the message on to "g_log_default_handler()"
-   (which is the routine that does the aforementioned non-functional
-   console window creation).  */
-
-/*
- * If this application has no console window to which its standard output
- * would go, create one.
- */
-void
-create_console(void)
-{
-  if (stdin_capture) {
-    /* We've been handed "-i -". Don't mess with stdio. */
-    return;
-  }
-
-  if (!has_console) {
-    /* We have no console to which to print the version string, so
-       create one and make it the standard input, output, and error. */
-
-    /*
-     * See if we have an existing console (i.e. we were run from a
-     * command prompt)
-     */
-    if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
-      if (AllocConsole()) {
-        console_wait = TRUE;
-        SetConsoleTitle(_T("Wireshark Debug Console"));
-      } else {
-        return;   /* couldn't create console */
-      }
-    }
-
-    ws_freopen("CONIN$", "r", stdin);
-    ws_freopen("CONOUT$", "w", stdout);
-    ws_freopen("CONOUT$", "w", stderr);
-    fprintf(stdout, "\n");
-    fprintf(stderr, "\n");
-
-    /* Now register "destroy_console()" as a routine to be called just
-       before the application exits, so that we can destroy the console
-       after the user has typed a key (so that the console doesn't just
-       disappear out from under them, giving the user no chance to see
-       the message(s) we put in there). */
-    atexit(destroy_console);
-
-    /* Well, we have a console now. */
-    has_console = TRUE;
-  }
-}
-
-static void
-destroy_console(void)
-{
-  if (console_wait) {
-    printf("\n\nPress any key to exit\n");
-    _getch();
-  }
-  FreeConsole();
-}
 #endif /* _WIN32 */
 
 
@@ -3374,7 +3300,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
     /* the user wants a console or the application will terminate immediately */
     create_console();
   }
-  if (has_console) {
+  if (get_has_console()) {
     /* For some unknown reason, the above doesn't appear to actually cause
        anything to be sent to the standard output, so we'll just splat the
        message out directly, just to make sure it gets out. */

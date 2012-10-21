@@ -53,7 +53,8 @@ WIRESHARK_UI_SRC = \
 	help_url.c		\
 	ssl_key_export.c	\
 	text_import.c		\
-	util.c
+	util.c			\
+	win32/console_win32.c
 
 noinst_HEADERS = \
 	alert_box.h		\
@@ -73,4 +74,5 @@ noinst_HEADERS = \
 	text_import_scanner.h	\
 	ui_util.h		\
 	utf8_entities.h		\
-	util.h
+	util.h 			\
+	win32/console_win32.h
