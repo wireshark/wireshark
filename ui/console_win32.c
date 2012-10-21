@@ -1,7 +1,7 @@
 /* console_win32.c
  * Console support for MSWindows
  *
- * $Id: console_win32.c 45689 2012-10-21 15:04:50Z alagoutte $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -32,7 +32,7 @@
 #include <wsutil/file_util.h>
 
 #include "console_win32.h"
-#include "../../console_io.h"
+#include "../console_io.h"
 
 #ifdef _WIN32 /* Needed for console I/O */
 #if _MSC_VER < 1500

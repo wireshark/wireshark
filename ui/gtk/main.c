@@ -54,7 +54,7 @@
 #endif
 #include <fcntl.h>
 #include <conio.h>
-#include <ui/win32/console_win32.h>
+#include <ui/console_win32.h>
 #endif
 
 #ifdef HAVE_LIBPORTAUDIO
