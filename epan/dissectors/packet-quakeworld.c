@@ -540,7 +540,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_string(text_tree, hf_quakeworld_connectionless_command,
 			tvb, offset, command_len, command);
 	}
-        offset += len + 1;
+        /*offset += len + 1;*/
 }
 
 
