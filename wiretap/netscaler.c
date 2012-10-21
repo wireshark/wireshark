@@ -243,40 +243,40 @@ typedef struct nspr_pktracefull_v23
 #define nspr_pktracefull_v23_s    (sizeof(nspr_pktracefull_v23_t) - 2)
 
 /* New full packet trace structure v24 for cluster tracing */
-typedef struct  nspr_pktracefull_v24
+typedef struct nspr_pktracefull_v24
 {
-    NSPR_HEADER3B_V22(fp);  /* long performance header */
-    guint8 fp_DevNo;   /* Network Device (NIC) number */
-    guint8 fp_AbsTimeHr[8];  /*High resolution absolute time in nanosec*/
-    guint8 fp_PcbDevNo[4];    /* PCB devno */
-    guint8 fp_lPcbDevNo[4];   /* link PCB devno */
-    guint8 fp_VlanTag[2]; /* vlan tag */
-    guint8 fp_Coreid[2]; /* coreid of the packet */
-    guint8 fp_srcNodeId[2]; /* source node # */
+    NSPR_HEADER3B_V22(fp);   /* long performance header */
+    guint8 fp_DevNo;         /* Network Device (NIC) number */
+    guint8 fp_AbsTimeHr[8];  /* High resolution absolute time in nanosec */
+    guint8 fp_PcbDevNo[4];   /* PCB devno */
+    guint8 fp_lPcbDevNo[4];  /* link PCB devno */
+    guint8 fp_VlanTag[2];    /* vlan tag */
+    guint8 fp_Coreid[2];     /* coreid of the packet */
+    guint8 fp_srcNodeId[2];  /* source node # */
     guint8 fp_destNodeId[2]; /* destination node # */
-    guint8 fp_clFlags; /* cluster flags */
-    guint8 fp_Data[2]; /* packet data starts here */
+    guint8 fp_clFlags;       /* cluster flags */
+    guint8 fp_Data[2];       /* packet data starts here */
 } nspr_pktracefull_v24_t;
-#define nspr_pktracefull_v24_s  (sizeof(nspr_pktracefull_v24_t) - 4)
+#define nspr_pktracefull_v24_s    (sizeof(nspr_pktracefull_v24_t) - 4)
 
 /* New full packet trace structure v25 for vm info tracing */
-typedef struct  nspr_pktracefull_v25
+typedef struct nspr_pktracefull_v25
 {
-    NSPR_HEADER3B_V22(fp);  /* long performance header */
-    guint8 fp_DevNo;   /* Network Device (NIC) number */
-    guint8 fp_AbsTimeHr[8];  /*High resolution absolute time in nanosec*/
+    NSPR_HEADER3B_V22(fp);    /* long performance header */
+    guint8 fp_DevNo;          /* Network Device (NIC) number */
+    guint8 fp_AbsTimeHr[8];   /* High resolution absolute time in nanosec */
     guint8 fp_PcbDevNo[4];    /* PCB devno */
     guint8 fp_lPcbDevNo[4];   /* link PCB devno */
-    guint8 fp_VlanTag[2]; /* vlan tag */
-    guint8 fp_Coreid[2]; /* coreid of the packet */
-    guint8 fp_srcNodeId[2]; /* source node # */
-    guint8 fp_destNodeId[2]; /* destination node # */
-    guint8 fp_clFlags; /* cluster flags */
+    guint8 fp_VlanTag[2];     /* vlan tag */
+    guint8 fp_Coreid[2];      /* coreid of the packet */
+    guint8 fp_srcNodeId[2];   /* source node # */
+    guint8 fp_destNodeId[2];  /* destination node # */
+    guint8 fp_clFlags;        /* cluster flags */
     guint8 fp_src_vmname_len; /* vm src info */
     guint8 fp_dst_vmname_len; /* vm src info */
-    guint8 fp_Data[4]; /* packet data starts here */
+    guint8 fp_Data[4];        /* packet data starts here */
 } nspr_pktracefull_v25_t;
-#define nspr_pktracefull_v25_s  (sizeof(nspr_pktracefull_v25_t) - 4)
+#define nspr_pktracefull_v25_s    (sizeof(nspr_pktracefull_v25_t) - 4)
 #define fp_src_vmname    fp_Data
 #define fp_src_vmname    fp_Data
 
