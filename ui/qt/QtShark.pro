@@ -171,6 +171,7 @@ unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
 win32:SOURCES_WS_C += \
     ../../capture-wpcap.c \
     ../../capture_wpcap_packet.c \
+    ../../ui/win32/console_win32.c \
     ../../ui/win32/file_dlg_win32.c
 
 HEADERS_WS_C  = \
