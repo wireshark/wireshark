@@ -322,7 +322,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 					val_to_str_const(command, names_command, "Unknown"));
         }
 
-        offset += len + 1;
+        /*offset += len + 1;*/
 
 }
 
