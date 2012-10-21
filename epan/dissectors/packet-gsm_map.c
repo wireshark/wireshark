@@ -2944,6 +2944,9 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
  proto_tree_add_item(tree, hf_gsm_map_nature_of_number, tvb, 0,1,ENC_BIG_ENDIAN);
  proto_tree_add_item(tree, hf_gsm_map_number_plan, tvb, 0,1,ENC_BIG_ENDIAN);
 
+ if(tvb_length(tvb)==1)
+	 return;
+
  digit_str = unpack_digits(tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
@@ -17916,7 +17919,7 @@ dissect_gsm_map_ericsson_EnhancedCheckIMEI_Arg(gboolean implicit_tag _U_, tvbuff
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 835 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 838 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -18132,7 +18135,7 @@ const value_string gsm_map_opr_code_strings[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 846 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 849 "../../asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -18341,7 +18344,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 850 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 853 "../../asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -25994,7 +25997,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2604 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2607 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -26628,7 +26631,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ericsson_EnhancedCheckIMEI_Arg,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2635 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2638 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static enum_val_t application_context_modes[] = {
@@ -26721,7 +26724,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2666 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2669 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

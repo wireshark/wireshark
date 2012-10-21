@@ -817,6 +817,9 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
  proto_tree_add_item(tree, hf_gsm_map_nature_of_number, tvb, 0,1,ENC_BIG_ENDIAN);
  proto_tree_add_item(tree, hf_gsm_map_number_plan, tvb, 0,1,ENC_BIG_ENDIAN);
 
+ if(tvb_length(tvb)==1)
+	 return;
+
  digit_str = unpack_digits(tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
