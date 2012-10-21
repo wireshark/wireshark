@@ -55,7 +55,7 @@ static dissector_handle_t btavrcp_handle = NULL;
 static dissector_handle_t data_handle    = NULL;
 
 typedef struct _fragment_t {
-    guint32 length;
+    guint   length;
     guint8  *data;
 } fragment_t;
 
@@ -100,12 +100,13 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     btl2cap_data_t  *l2cap_data;
     tvbuff_t        *next_tvb;
     gint            offset = 0;
-    unsigned int    packet_type;
-    unsigned int    cr;
-    unsigned int    pid = 0;
-    unsigned int    transaction;
-    unsigned int    number_of_packets = 0;
-    unsigned int    i_frame;
+    guint           packet_type;
+    guint           cr;
+    guint           pid = 0;
+    guint           transaction;
+    guint           number_of_packets = 0;
+    guint           length;
+    guint           i_frame;
     fragment_t      *fragment;
     void            *save_private_data;
 
@@ -174,8 +175,10 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             val_to_str_const(cr, cr_vals, "unknown CR"), transaction,
             val_to_str_const(packet_type, packet_type_vals, "unknown packet type"));
 
+    length = tvb_ensure_length_remaining(tvb, offset);
+
     /* reassembling */
-    next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
+    next_tvb = tvb_new_subset(tvb, offset, length, length);
     if (packet_type == PACKET_TYPE_SINGLE) {
         if (pid == BTSDP_AVRCP_SERVICE_UUID && btavrcp_handle != NULL)
             call_dissector(btavrcp_handle, next_tvb, pinfo, tree);
@@ -185,7 +188,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (packet_type == PACKET_TYPE_START) {
             if(!pinfo->fd->flags.visited){
                 fragment = se_alloc(sizeof(fragment_t));
-                fragment->length = tvb_length_remaining(tvb, offset);
+                fragment->length = length;
                 fragment->data = se_alloc(fragment->length);
                 tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
@@ -209,7 +212,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if(!pinfo->fd->flags.visited) {
                 if (fragments != NULL) {
                     fragment = se_alloc(sizeof(fragment_t));
-                    fragment->length = tvb_length_remaining(tvb, offset);
+                    fragment->length = length;
                     fragment->data = se_alloc(fragment->length);
                     tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
@@ -225,15 +228,14 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             call_dissector(data_handle, next_tvb, pinfo, tree);
 
         } else if (packet_type == PACKET_TYPE_END) {
-            unsigned int length = 0;
-            unsigned int i_length = 0;
-            guint8       *reassembled;
+            guint    i_length = 0;
+            guint8   *reassembled;
 
             if(!pinfo->fd->flags.visited){
 
                 if (fragments != NULL) {
                     fragment = se_alloc(sizeof(fragment_t));
-                    fragment->length = tvb_length_remaining(tvb, offset);
+                    fragment->length = length;
                     fragment->data = se_alloc(fragment->length);
                     tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
@@ -246,7 +248,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 fragments = se_tree_lookup32_le(reassembling, pinfo->fd->num);
             }
 
-
+            length = 0;
             if (!fragments || fragments->count != fragments->number_of_packets) {
                 expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
                     "Unexpected frame");
