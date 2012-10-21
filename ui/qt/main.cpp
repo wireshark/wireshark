@@ -106,7 +106,7 @@
 #  include <commctrl.h>
 #  include <shellapi.h>
 #  include <conio.h>
-#  include "ui/console_win32.h"
+#  include "ui/win32/console_win32.h"
 #endif /* _WIN32 */
 
 #ifdef HAVE_AIRPCAP

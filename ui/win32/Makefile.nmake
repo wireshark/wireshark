@@ -20,6 +20,7 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 
 # if you add files here, be sure to include them also in Makefile.am EXTRA_DIST in the main Wireshark directory
 WIRESHARK_WIN32_SRC = \
+	console_win32.c \
 	file_dlg_win32.c \
 	print_win32.c \
 

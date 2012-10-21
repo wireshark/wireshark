@@ -904,6 +904,8 @@ EXTRA_DIST = \
 	cmake/modules/UseMakeTapReg.cmake	\
 	cmake/modules/readme.txt		\
 	ui/win32/Makefile.nmake			\
+	ui/win32/console_win32.c		\
+	ui/win32/console_win32.h		\
 	ui/win32/file_dlg_win32.c		\
 	ui/win32/file_dlg_win32.h		\
 	ui/win32/print_win32.c			\
