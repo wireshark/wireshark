@@ -57,7 +57,6 @@ static int hf_btavrcp_passthrough_vendor_unique_id                         = -1;
 static int hf_btavrcp_unit_unknown                                         = -1;
 static int hf_btavrcp_unit_type                                            = -1;
 static int hf_btavrcp_unit_id                                              = -1;
-static int hf_btavrcp_unit_company_id                                      = -1;
 static int hf_btavrcp_subunit_page                                         = -1;
 static int hf_btavrcp_subunit_extention_code                               = -1;
 static int hf_btavrcp_player_id                                            = -1;
@@ -634,7 +633,7 @@ dissect_attribute_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;
         proto_tree_add_item(entry_tree, hf_btavrcp_setting_value_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        proto_tree_add_item(entry_tree, hf_btavrcp_setting_value, tvb, offset, value_length, ENC_BIG_ENDIAN);
+        proto_tree_add_item(entry_tree, hf_btavrcp_setting_value, tvb, offset, value_length, ENC_ASCII|ENC_NA);
         offset += value_length;
     }
 
@@ -800,7 +799,7 @@ dissect_item_mediaplayer(tvbuff_t *tvb, proto_tree *tree, gint offset)
     displayable_name_length = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
-    proto_tree_add_item(ptree, hf_btavrcp_displayable_name, tvb, offset, displayable_name_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ptree, hf_btavrcp_displayable_name, tvb, offset, displayable_name_length, ENC_ASCII|ENC_NA);
     offset += displayable_name_length;
 
     return offset;
@@ -845,7 +844,7 @@ dissect_item_media_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     displayable_name_length = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
-    proto_tree_add_item(ptree, hf_btavrcp_displayable_name, tvb, offset, displayable_name_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ptree, hf_btavrcp_displayable_name, tvb, offset, displayable_name_length, ENC_ASCII|ENC_NA);
     offset += displayable_name_length;
 
     proto_tree_add_item(ptree, hf_btavrcp_number_of_attributes, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -900,7 +899,7 @@ dissect_item_folder(tvbuff_t *tvb, proto_tree *tree, gint offset)
     displayable_name_length = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
-    proto_tree_add_item(ptree, hf_btavrcp_displayable_name, tvb, offset, displayable_name_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ptree, hf_btavrcp_displayable_name, tvb, offset, displayable_name_length, ENC_ASCII|ENC_NA);
     offset += displayable_name_length;
 
     return offset;
@@ -1336,7 +1335,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     attribute_name_length = tvb_get_ntohs(tvb, offset);
                     offset += 1;
 
-                    proto_tree_add_item(tree, hf_btavrcp_attribute_name, tvb, offset, attribute_name_length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavrcp_attribute_name, tvb, offset, attribute_name_length, ENC_ASCII|ENC_NA);
                     offset += attribute_name_length;
                 }
             }
@@ -1376,7 +1375,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     attribute_value_length = tvb_get_ntohs(tvb, offset);
                     offset += 1;
 
-                    proto_tree_add_item(tree, hf_btavrcp_attribute_value, tvb, offset, attribute_value_length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavrcp_attribute_value, tvb, offset, attribute_value_length, ENC_ASCII|ENC_NA);
                     offset += attribute_value_length;
                 }
             }
@@ -1836,7 +1835,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_item(ptree, hf_btavrcp_folder_name_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                     folder_name_length = tvb_get_ntohs(tvb, offset);
                     offset += 2;
-                    proto_tree_add_item(ptree, hf_btavrcp_folder_name, tvb, offset, folder_name_length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ptree, hf_btavrcp_folder_name, tvb, offset, folder_name_length, ENC_NA);
                     folder_name = tvb_get_string(tvb, offset, folder_name_length);
                     offset += folder_name_length;
                     proto_item_append_text(pitem, "%s/", folder_name);
@@ -1975,7 +1974,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tree, hf_btavrcp_search_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                 search_length = tvb_get_ntohs(tvb, offset);
                 offset += 2;
-                proto_tree_add_item(tree, hf_btavrcp_search, tvb, offset, search_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, hf_btavrcp_search, tvb, offset, search_length, ENC_NA);
                 offset += search_length;
             } else {
                 proto_tree_add_item(tree, hf_btavrcp_uid_counter, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2249,12 +2248,6 @@ proto_register_btavrcp(void)
             FT_UINT8, BASE_HEX, NULL, 0x07,
             NULL, HFILL }
         },
-        { &hf_btavrcp_unit_company_id,
-            { "Company ID",                      "btavrcp.unit.company_id",
-            FT_UINT24, BASE_HEX, VALS(company_id_vals), 0x00,
-            NULL, HFILL }
-        },
-
         { &hf_btavrcp_subunit_page,
             { "Page",                            "btavrcp.subunit.page",
             FT_UINT8, BASE_HEX, VALS(subunit_type_vals), 0xF8,
