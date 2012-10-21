@@ -744,8 +744,8 @@ dissect_q2931_bband_hi_layer_info_ie(tvbuff_t *tvb, int offset, int len,
 	    "High layer information type: %s",
 	    val_to_str(octet & 0x7F, q2931_hi_layer_info_type_vals,
 	    "Unknown (0x%02X)"));
-	offset += 1;
-	len -= 1;
+	/*offset += 1; */
+	/* len -= 1; */
 }
 
 /*
@@ -929,16 +929,16 @@ l2_done:
 			octet = tvb_get_guint8(tvb, offset);
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Packet window size: %u", octet & 0x7F);
-			offset += 1;
-			len -= 1;
+			/*offset += 1;*/
+			/*len -= 1;*/
 			break;
 
 		case Q2931_UIL3_USER_SPEC:
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Default packet size: %u octets",
 			    1 << (octet & 0x0F));
-			offset += 1;
-			len -= 1;
+			/*offset += 1;*/
+			/*len -= 1;*/
 			break;
 
 		case Q2931_UIL3_TR_9577:
