@@ -77,3 +77,16 @@ gboolean get_stdin_capture(void);
 #endif /* __cplusplus */
 
 #endif /* __CONSOLE_WIN32_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

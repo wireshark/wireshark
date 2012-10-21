@@ -24,15 +24,12 @@
  *
  */
 
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <glib.h>
 #include <wsutil/file_util.h>
-#include <windows.h>
-#include <tchar.h>
 
 #include "console_win32.h"
 #include "../../console_io.h"
@@ -44,11 +41,13 @@
 #endif
 #include <fcntl.h>
 #include <conio.h>
+#include <windows.h>
+#include <tchar.h>
 #endif
 
 #ifdef _WIN32
-static gboolean has_console;	/* TRUE if app has console */
-static gboolean console_wait;	/* "Press any key..." */
+static gboolean has_console;  /* TRUE if app has console */
+static gboolean console_wait; /* "Press any key..." */
 static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
 #endif
 
@@ -125,33 +124,48 @@ destroy_console(void)
 void
 set_console_wait(gboolean set_console_wait)
 {
-	console_wait = set_console_wait;
+  console_wait = set_console_wait;
 }
 gboolean
 get_console_wait(void)
 {
-	return console_wait;
+  return console_wait;
 }
 
 void
 set_has_console(gboolean set_has_console)
 {
-	has_console = has_console;
+  has_console = has_console;
 }
+
 gboolean
 get_has_console(void)
 {
-	return has_console;
+  return has_console;
 }
 
 void
 set_stdin_capture(gboolean set_stdin_capture)
 {
-	stdin_capture = set_stdin_capture;
+  stdin_capture = set_stdin_capture;
 }
+
 gboolean
 get_stdin_capture(void)
 {
-	return stdin_capture;
+  return stdin_capture;
 }
 #endif /* _WIN32 */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
