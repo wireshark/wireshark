@@ -1,7 +1,7 @@
 /* console_win32.c
  * Console support for MSWindows
  *
- * $Id$
+ * $Id: console_win32.c 45689 2012-10-21 15:04:50Z alagoutte $
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

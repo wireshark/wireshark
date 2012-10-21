@@ -2726,7 +2726,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 	e164_info_t e164_info;
 	e164_info.e164_number_type = NONE;
 	e164_info.nature_of_address = NONE;
-	e164_info.E164_number_str = NONE;
+	e164_info.E164_number_str = "";
 	e164_info.E164_number_length = NONE;
 
 	codeset = locked_codeset = initial_codeset;
