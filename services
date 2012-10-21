@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-10-12
+# 2012-10-15
 # 
 # Experts
 # 
@@ -2127,7 +2127,7 @@ blackjack	1025/tcp	# network blackjack
 blackjack	1025/udp	# network blackjack
 cap	1026/tcp	# Calendar Access Protocol     [Doug_Royer]                                       [Doug_Royer]                                              2010-12-09
 cap	1026/udp	# Calendar Access Protocol     [Doug_Royer]                                       [Doug_Royer]                                              2010-12-09
-6a44	1027/udp	# IPv6 Behind NAT44 CPEs       [IESG]                                             [IETF_Chair]                                              2012-08-02                [RFC-despres-6a44-02]
+6a44	1027/udp	# IPv6 Behind NAT44 CPEs       [IESG]                                             [IETF_Chair]                                              2012-08-02                [RFC6751]
 # 1027        tcp    Reserved
 # 1028               Deprecated                                                                                                                                             2004-02
 solid-mux	1029/tcp	# Solid Mux Server             [Anders_Borg]                                      [Anders_Borg]                                             2004-11
@@ -15240,7 +15240,12 @@ otmp	29167/udp	# ObTools Message Protocol     [Paul_Clark]                      
 sbcap	29168/sctp	# SBcAP in 3GPP                [GPP_Specifications]                               [GPP_Specifications]                                      2009-06-11
 iuhsctpassoc	29169/sctp	# HNBAP and RUA Common         [John_Meredith]                                    [John_Meredith]                                           2009-09-08
 # Association
-# 29170-30000           Unassigned
+# 29170-29998           Unassigned
+# data exchange protocol for
+bingbang	29999/tcp	# IEC61850 in wind power       [DEIF_AS]                                          [Armin_Solies]                                            2012-10-15
+# plants
+# 29999       udp    Reserved
+# 30000              Unassigned
 pago-services1	30001/tcp	# Pago Services 1              [Balduin_Mueller_Plat]                             [Balduin_Mueller_Plat]                                    2002-03
 pago-services1	30001/udp	# Pago Services 1              [Balduin_Mueller_Plat]                             [Balduin_Mueller_Plat]                                    2002-03
 pago-services2	30002/tcp	# Pago Services 2              [Balduin_Mueller_Plat]                             [Balduin_Mueller_Plat]                                    2002-03
@@ -17280,6 +17285,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Arman_Bedonian]                                          Arman Bedonian                                  mailto:Arman.Bedonian&asg.com                                 2009-07-15
 # [Armin_Liebchen]                                          Armin Liebchen                                  mailto:armin&anteradesign.com                                 2007-06
 # [Armin_Sawusch]                                           Armin Sawusch                                   mailto:armin&esd1.esd.de
+# [Armin_Solies]                                            Armin Solies              DEIF A/S              mailto:aes&deif.com                                           2012-10-15
 # [Arnaud_Clermonte]                                        Arnaud Clermonte                                mailto:clermonte&4xtechnologies.com
 # [Arne_Dirks]                                              Arne Dirks                                      mailto:ad&bnc.net
 # [Arne_Haugland]                                           Arne Haugland                                   mailto:Arne.Haugland&parasoldev.com
@@ -18098,6 +18104,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Dean_Robson]                                             Dean Robson                                     mailto:dean.robson&fujitsu.com.au
 # [Dean_Skelton]                                            Dean Skelton                                    mailto:mdskel&ftw.rsc.raytheon.com
 # [Dean_Webb]                                               Dean Webb                                       mailto:dean.webb&ascend.com
+# [DEIF_AS]                                                                           DEIF A/S              mailto:aes&deif.com                                           2012-10-15
 # [Delcio_Prizon]                                           Delcio Prizon                                   mailto:dprizon&smar.com.br
 # [Delphix_Corp]                                                                      Delphix Corp          mailto:peng.dai&delphix.com                                   2012-10-02
 # [Denis_Ducharme]                                          Denis Ducharme                                  mailto:dducharme&softek.com

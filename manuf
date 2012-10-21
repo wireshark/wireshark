@@ -5528,7 +5528,7 @@
 00:15:7F	ChuangIn               # ChuanG International Holding CO.,LTD.
 00:15:80	U-Way                  # U-WAY CORPORATION
 00:15:81	Makus                  # MAKUS Inc.
-00:15:82	Tvonics                # TVonics Ltd
+00:15:82	PulseEig               # Pulse Eight Limited
 00:15:83	Ivt                    # IVT corporation
 00:15:84	SchenckP               # Schenck Process GmbH
 00:15:85	Aonvisio               # Aonvision Technolopy Corp.
@@ -5602,7 +5602,7 @@
 00:15:C9	Gumstix                # Gumstix, Inc
 00:15:CA	Terareco               # TeraRecon, Inc.
 00:15:CB	SurfComm               # Surf Communication Solutions Ltd.
-00:15:CC	TepcoUqu               # TEPCO UQUEST, LTD.
+00:15:CC	Uquest                 # UQUEST, LTD.
 00:15:CD	Exartech               # Exartech International Corp.
 00:15:CE	ArrisInt               # ARRIS International
 00:15:CF	ArrisInt               # ARRIS International
@@ -12177,7 +12177,7 @@
 00:50:C2:59:40:00/36	PixelVel               # Pixel Velocity, Inc.
 00:50:C2:59:50:00/36	Callpod                # Callpod, Inc.
 00:50:C2:59:60:00/36	Spansion
-00:50:C2:59:70:00/36	Nautel                 # Nautel Ltd.
+00:50:C2:59:70:00/36	Nautel                 # Nautel Limited
 00:50:C2:59:80:00/36	Bundesam               # Bundesamt fÃÂ¼r Strahlenschutz
 00:50:C2:59:90:00/36	FenTechn               # Fen Technology Limited
 00:50:C2:59:A0:00/36	Multitro               # MultiTrode Pty Ltd
@@ -15401,7 +15401,9 @@
 00:80:FD	ExsceedC               # EXSCEED CORPRATION
 00:80:FE	AzureTec               # AZURE TECHNOLOGIES, INC.
 00:80:FF	SocDeTel               # SOC. DE TELEINFORMATIQUE RTC
+00:88:65	Apple
 00:8C:10	BlackBox               # Black Box Corp.
+00:8C:54	AdbBroad               # ADB Broadband Italia
 00:8C:FA	Inventec               # Inventec Corporation
 00:8D:4E	CjscNiiS               # CJSC NII STT
 00:8D:DA	LinkOne                # Link One Co., Ltd.
@@ -17041,6 +17043,7 @@
 08:2E:5F	HewlettP               # Hewlett Packard
 08:37:9C	Topaz                  # Topaz Co. LTD.
 08:38:A5	Funkwerk               # Funkwerk plettac electronic GmbH
+08:3A:B8	ShinodaP               # Shinoda Plasma Co., Ltd.
 08:3E:8E	HonHaiPr               # Hon Hai Precision Ind.Co.Ltd
 08:4E:1C	H2aLlc                 # H2A Systems, LLC
 08:4E:BF	BroadNet               # Broad Net Mux Corporation
@@ -17078,6 +17081,7 @@
 08:E5:DA	NanjingF               # NANJING FUJITSU COMPUTER PRODUCTS CO.,LTD.
 08:E6:72	JebseeEl               # JEBSEE ELECTRONICS CO.,LTD.
 08:EA:44	Aerohive               # Aerohive Networks, Inc.
+08:EB:74	Humax
 08:EB:ED	WorldEli               # World Elite Technology Co.,LTD
 08:ED:B9	HonHaiPr               # Hon Hai Precision Ind. Co.,Ltd.
 08:F2:F4	NetOnePa               # Net One Partners Co.,Ltd.
@@ -17298,6 +17302,7 @@
 14:F4:2A	SamsungE               # Samsung Electronics
 14:FE:AF	Sagittar               # SAGITTAR LIMITED
 14:FE:B5	Dell                   # Dell Inc
+18:00:2D	SonyMobi               # Sony Mobile Communications AB
 18:01:E3	Elektrob               # Elektrobit Wireless Communications Ltd
 18:03:73	Dell                   # Dell Inc
 18:03:FA	IbtInter               # IBT Interfaces
@@ -17686,6 +17691,7 @@
 2C:DD:0C	Discover               # Discovergy GmbH
 2C:E2:A8	Devicede               # DeviceDesign
 2C:E4:12	Sagemcom               # SAGEMCOM SAS
+2C:E8:71	AlertMet               # Alert Metalguard ApS
 2C:ED:EB	AlpheusD               # Alpheus Digital Company Limited
 2C:EE:26	Petroleu               # Petroleum Geo-Services
 2C:F4:C5	Avaya                  # Avaya Inc
@@ -17742,6 +17748,7 @@
 30:EF:D1	AlstomSt               # Alstom Strongwish (Shenzhen) Co., Ltd.
 30:F3:3A	+PluggSr               # +plugg srl
 30:F7:0D	Cisco                  # Cisco Systems
+30:F7:C5	Apple
 30:F9:ED	Sony                   # Sony Corporation
 30:FD:11	Macrotec               # MACROTECH (USA) INC.
 34:07:FB	Ericsson               # Ericsson AB
@@ -18040,6 +18047,15 @@
 40:D8:55:02:30:00/36	Shanghai               # Shanghai o-solution electronics & Technology Co., Ltd.
 40:D8:55:02:40:00/36	Electric               # Electrical Geodesics Incorporated
 40:D8:55:02:50:00/36	Rosemoun               # Rosemount Analytical
+40:D8:55:02:60:00/36	Symetric               # Symetrics Industries
+40:D8:55:02:70:00/36	GrupoEpe               # GRUPO EPELSA S.L.
+40:D8:55:02:80:00/36	Integrat               # Integrated Control Corp.
+40:D8:55:02:90:00/36	DeproEle               # Depro Electronique
+40:D8:55:02:A0:00/36	Tinkerfo               # Tinkerforge GmbH
+40:D8:55:02:B0:00/36	Nomatron               # Nomatronics
+40:D8:55:02:C0:00/36	Inventla               # InventLab s.c.
+40:D8:55:02:D0:00/36	ElgamaSi               # Elgama Sistemos
+40:D8:55:02:E0:00/36	Circuite               # Circuitec Ind. Equip. Eletr. Ltda
 40:E7:93	Shenzhen               # Shenzhen Siviton Technology Co.,Ltd
 40:EC:F8	Siemens                # Siemens AG
 40:EF:4C	Fihonest               # Fihonest communication co.,Ltd
@@ -18399,6 +18415,7 @@
 58:C2:32	Nec                    # NEC Corporation
 58:C3:8B	SamsungE               # Samsung Electronics
 58:CF:4B	LufkinIn               # Lufkin Industries
+58:D0:71	BwBroadc               # BW Broadcast
 58:D0:8F	Ieee1904               # IEEE 1904.1 Working Group
 58:D6:D3	DairyChe               # Dairy Cheq Inc
 58:DB:8D	Fast                   # Fast Co., Ltd.
@@ -18451,6 +18468,7 @@
 5C:95:AE	Apple                  # Apple Inc
 5C:96:9D	Apple
 5C:9A:D8	Fujitsu                # Fujitsu Limited
+5C:A3:9D	SamsungE               # SAMSUNG ELECTRO-MECHANICS CO., LTD.
 5C:AC:4C	HonHaiPr               # Hon Hai Precision Ind. Co.,Ltd.
 5C:B5:24	SonyEric               # Sony Ericsson Mobile Communications AB
 5C:BD:9E	Hongkong               # HONGKONG MIRACLE EAGLE TECHNOLOGY(GROUP) LIMITED
@@ -18786,6 +18804,8 @@
 70:41:B7	EdwardsL               # Edwards Lifesciences LLC
 70:46:42	ChyngHon               # CHYNG HONG ELECTRONIC CO., LTD.
 70:4A:AE	XstreamF               # Xstream Flow (Pty) Ltd
+70:4A:E4	Rinstrum               # Rinstrum Pty Ltd
+70:54:D2	Pegatron               # PEGATRON CORPORATION
 70:56:81	Apple                  # Apple Inc
 70:58:12	Panasoni               # Panasonic AVC Networks Company
 70:5A:B6	CompalIn               # COMPAL INFORMATION (KUNSHAN) CO., LTD.
@@ -18902,6 +18922,7 @@
 74:F6:12	Motorola               # Motorola Mobility, Inc.
 74:F7:26	NeuronRo               # Neuron Robotics
 74:FD:A0	Compupal               # Compupal (Group) Corporation
+74:FE:48	Advantec               # ADVANTECH CO., LTD.
 74:FF:7D	WrenSoun               # Wren Sound Systems, LLC
 78:02:8F	Adaptive               # Adaptive Spectrum and Signal Alignment (ASSIA), Inc.
 78:07:38	ZUKElzab               # Z.U.K. Elzab S.A.
@@ -18944,6 +18965,7 @@
 78:98:FD	Q9Networ               # Q9 Networks Inc.
 78:99:5C	NationzT               # Nationz Technologies Inc
 78:99:8F	Mediline               # MEDILINE ITALIA SRL
+78:9E:D0	SamsungE               # Samsung Electronics
 78:9F:87	SiemensI               # Siemens AG I IA PP PRM
 78:A0:51	IinetLab               # iiNet Labs Pty Ltd
 78:A1:83	Advidia
@@ -19159,6 +19181,7 @@
 84:6A:ED	Wireless               # Wireless Tsukamoto.,co.LTD
 84:6E:B1	ParkAssi               # Park Assist LLC
 84:74:2A	Zte                    # zte corporation
+84:78:AC	Cisco
 84:7E:40	TexasIns               # Texas Instruments
 84:82:F4	BeijingH               # Beijing Huasun Unicreate Technology Co., Ltd
 84:85:06	Apple                  # Apple Inc
@@ -19212,6 +19235,7 @@
 88:97:DF	Entrypas               # Entrypass Corporation Sdn. Bhd.
 88:98:21	Teraon
 88:9F:FA	HonHaiPr               # Hon Hai Precision Ind. Co.,Ltd.
+88:A3:CC	AmatisCo               # Amatis Controls
 88:A5:BD	Qpcom                  # QPCOM INC.
 88:AC:C1	Generito               # Generiton Co., Ltd.
 88:AE:1D	CompalIn               # COMPAL INFORMATION(KUNSHAN)CO.,LTD
@@ -19236,6 +19260,7 @@
 8C:04:FF	Technico               # Technicolor USA Inc.
 8C:0C:90	RuckusWi               # Ruckus Wireless
 8C:0C:A3	Amper
+8C:0E:E3	Guangdon               # GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD.
 8C:11:CB	AbusSecu               # ABUS Security-Center GmbH & Co. KG
 8C:1F:94	RfSurgic               # RF Surgical System Inc.
 8C:21:0A	Tp-LinkT               # TP-LINK TECHNOLOGIES CO., LTD.
@@ -19450,6 +19475,7 @@
 98:03:D8	Apple                  # Apple, Inc.
 98:0C:82	SamsungE               # Samsung Electro Mechanics
 98:0E:E4	Private
+98:20:8E	Definium               # Definium Technologies
 98:26:2A	AppliedR               # Applied Research Associates, Inc
 98:29:1D	JaguarDe               # Jaguar de Mexico, SA de CV
 98:29:3F	FujianSt               # Fujian Start Computer Equipment Co.,Ltd
@@ -19633,6 +19659,7 @@ A0:DD:97	Polarlin               # PolarLink Technologies, Ltd
 A0:DD:E5	Sharp                  # SHARP CORPORATION
 A0:DE:05	Jsc"Irbi               # JSC "Irbis-T"
 A0:E2:01	AvtraceC               # AVTrace Ltd.(China)
+A0:E2:5A	AmicusSk               # Amicus SK, s.r.o.
 A0:E2:95	DatSyste               # DAT System Co.,Ltd
 A0:E5:34	StratecB               # Stratec Biomedical AG
 A0:E9:DB	NingboFr               # Ningbo FreeWings Technologies Co.,Ltd
@@ -19946,6 +19973,7 @@ B4:82:C5	Relay2                 # Relay2, Inc.
 B4:82:FE	AskeyCom               # Askey Computer Corp
 B4:89:10	CosterTE               # Coster T.E. S.P.A.
 B4:94:4E	Weteleco               # WeTelecom Co., Ltd.
+B4:98:42	Zte                    # zte corporation
 B4:99:BA	Hewlett-               # Hewlett-Packard Company
 B4:9D:B4	AxionTec               # Axion Technologies Inc.
 B4:9E:E6	Shenzhen               # SHENZHEN TECHNOLOGY CO LTD
@@ -20077,6 +20105,7 @@ BC:43:77	HangZhou               # Hang Zhou Huite Technology Co.,ltd.
 BC:47:60	SamsungE               # Samsung Electronics Co.,Ltd
 BC:4B:79	Sensingt               # SensingTek
 BC:4E:3C	CoreStaf               # CORE STAFF CO., LTD.
+BC:51:FE	SwannCom               # Swann Communications Pty Ltd
 BC:52:B7	Apple                  # Apple Inc
 BC:5F:F4	AsrockIn               # ASRock Incorporation
 BC:67:78	Apple                  # Apple Inc
@@ -20153,6 +20182,7 @@ C0:91:32	PatriotM               # Patriot Memory
 C0:91:34	Procurve               # ProCurve Networking by HP
 C0:9C:92	Coby
 C0:9F:42	Apple                  # Apple Inc
+C0:A0:C7	Fairfiel               # FAIRFIELD INDUSTRIES
 C0:A0:DE	MultiTou               # Multi Touch Oy
 C0:A0:E2	EdenInno               # Eden Innovations
 C0:A2:6D	AbbottPo               # Abbott Point of Care
@@ -20371,6 +20401,7 @@ CC:CC:4E	SunFount               # Sun Fountainhead USA. Corp
 CC:CC:81	HuaweiTe               # HUAWEI TECHNOLOGIES CO.,LTD
 CC:CD:64	Sm-Elect               # SM-Electronic GmbH
 CC:CE:40	Janteq                 # Janteq Corp
+CC:D5:39	Cisco
 CC:D8:11	AiconnTe               # Aiconn Technology Corporation
 CC:D9:E9	ScrEngin               # SCR Engineers Ltd.
 CC:E7:98	MySocial               # My Social Stuff
@@ -20434,6 +20465,7 @@ D0:D0:FD	Cisco                  # Cisco Systems
 D0:D2:12	K2net                  # K2NET Co.,Ltd.
 D0:D2:86	BeckmanC               # Beckman Coulter Biomedical K.K.
 D0:D3:FC	Mios                   # Mios, Ltd.
+D0:D6:CC	Wintop
 D0:DB:32	Nokia                  # Nokia Corporation
 D0:DF:9A	LiteonTe               # Liteon Technology Corporation
 D0:DF:C7	SamsungE               # Samsung Electronics Co.,Ltd
@@ -20446,6 +20478,7 @@ D0:F7:3B	HelmutMa               # Helmut Mauell GmbH
 D4:00:0D	PhoenixB               # Phoenix Broadband Technologies, LLC.
 D4:00:57	McTechno               # MC Technologies GmbH
 D4:02:4A	Delphian               # Delphian Systems LLC
+D4:0F:B2	AppliedM               # Applied Micro Electronics AME bv
 D4:10:CF	Huanshun               # Huanshun Network Science and Technology Co., Ltd.
 D4:11:D6	Shotspot               # ShotSpotter, Inc.
 D4:12:96	AnobitTe               # Anobit Technologies Ltd.
@@ -20533,6 +20566,7 @@ D8:29:86	BestWish               # Best Wish Technology LTD
 D8:2A:7E	Nokia                  # Nokia Corporation
 D8:2D:E1	Tricasca               # Tricascade Inc.
 D8:30:62	Apple                  # Apple, Inc
+D8:31:CF	SamsungE               # Samsung Electronics Co.,Ltd
 D8:33:7F	OfficeFa               # Office FA.com Co.,Ltd.
 D8:42:AC	Freecomm               # FreeComm Data Communication Co.,Ltd.
 D8:46:06	SiliconV               # Silicon Valley Global Marketing
@@ -20810,6 +20844,7 @@ E8:99:5A	PiigabPr               # PiiGAB, Processinformation i Goteborg AB
 E8:99:C4	Htc                    # HTC Corporation
 E8:9A:8F	QuantaCo               # Quanta Computer Inc.
 E8:9D:87	Toshiba
+E8:A3:64	SignalPa               # Signal Path International / Peachtree Audio
 E8:A4:C1	DeepSeaE               # Deep Sea Electronics PLC
 E8:AB:FA	Shenzhen               # Shenzhen Reecam Tech.Ltd.
 E8:B4:AE	Shenzhen               # Shenzhen C&D Electronics Co.,Ltd
@@ -20864,6 +20899,7 @@ EC:7D:9D	Mei
 EC:83:6C	RmTech                 # RM Tech Co., Ltd.
 EC:85:2F	Apple                  # Apple, Inc.
 EC:88:8F	Tp-LinkT               # TP-LINK TECHNOLOGIES CO., LTD.
+EC:89:F5	LenovoMo               # Lenovo Mobile Communication Technology Ltd.
 EC:8E:AD	Dlx
 EC:92:33	EddyfiNd               # Eddyfi NDT Inc
 EC:93:27	Memmert+               # MEMMERT GmbH + Co. KG
@@ -21056,6 +21092,7 @@ F8:69:71	SeibuEle               # Seibu Electric Co.,
 F8:6E:CF	Arcx                   # Arcx Inc
 F8:71:FE	GoldmanS               # The Goldman Sachs Group, Inc.
 F8:76:9B	Neopis                 # Neopis Co., Ltd.
+F8:7B:62	FastwelI               # FASTWEL INTERNATIONAL CO., LTD. Taiwan Branch
 F8:7B:7A	Motorola               # Motorola Mobility, Inc.
 F8:7B:8C	AmpedWir               # Amped Wireless
 F8:81:1A	Overkiz
@@ -21107,6 +21144,7 @@ FC:0F:E6	SonyComp               # Sony Computer Entertainment Inc.
 FC:10:BD	ControlS               # Control Sistematizado S.A.
 FC:17:94	Intercre               # InterCreative Co., Ltd
 FC:1D:59	ISmartCi               # I Smart Cities HK Ltd
+FC:1F:19	SamsungE               # SAMSUNG ELECTRO-MECHANICS CO., LTD.
 FC:1F:C0	Eurecam
 FC:25:3F	Apple                  # Apple, Inc.
 FC:2A:54	Connecte               # connected data
