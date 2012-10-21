@@ -1,7 +1,7 @@
 /* console_win32.c
  * Console support for MSWindows
  *
- * $Id: console_win32.c 45689 2012-10-21 15:04:50Z alagoutte $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -24,6 +24,8 @@
  *
  */
 
+#ifdef _WIN32
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +36,6 @@
 #include "console_win32.h"
 #include "../../console_io.h"
 
-#ifdef _WIN32 /* Needed for console I/O */
 #if _MSC_VER < 1500
 /* AttachConsole() needs this #define! */
 #define _WIN32_WINNT 0x0501
@@ -43,15 +44,11 @@
 #include <conio.h>
 #include <windows.h>
 #include <tchar.h>
-#endif
 
-#ifdef _WIN32
 static gboolean has_console;  /* TRUE if app has console */
 static gboolean console_wait; /* "Press any key..." */
 static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
-#endif
 
-#ifdef _WIN32
 /* The code to create and desstroy console windows should not be necessary,
    at least as I read the GLib source code, as it looks as if GLib is, on
    Win32, *supposed* to create a console window into which to display its
@@ -126,6 +123,7 @@ set_console_wait(gboolean set_console_wait)
 {
   console_wait = set_console_wait;
 }
+
 gboolean
 get_console_wait(void)
 {
@@ -155,6 +153,7 @@ get_stdin_capture(void)
 {
   return stdin_capture;
 }
+
 #endif /* _WIN32 */
 
 /*
