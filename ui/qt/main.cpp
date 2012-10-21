@@ -25,7 +25,7 @@
 #include "main_window.h"
 
 #include "config.h"
-
+#include <ctype.h>
 #include "globals.h"
 
 #include <glib.h>
@@ -105,6 +105,8 @@
 #  include <wsutil/unicode-utils.h>
 #  include <commctrl.h>
 #  include <shellapi.h>
+#  include <conio.h>
+#  include "ui/win32/console_win32.h"
 #endif /* _WIN32 */
 
 #ifdef HAVE_AIRPCAP
@@ -137,17 +139,9 @@ GString *comp_info_str, *runtime_info_str;
 
 //static guint  tap_update_timer_id;
 
-#ifdef _WIN32
-static gboolean has_console;	/* TRUE if app has console */
-static gboolean console_wait;	/* "Press any key..." */
-//static void destroy_console(void);
-static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
-#endif
-
 static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
 
-void create_console(void);
 
 #ifdef HAVE_LIBPCAP
 extern capture_options global_capture_opts;
@@ -394,7 +388,7 @@ print_usage(gboolean print_ver) {
 #endif
 
 #ifdef _WIN32
-//    destroy_console();
+    destroy_console();
 #endif
 }
 
@@ -417,7 +411,7 @@ show_version(void)
            runtime_info_str->str);
 
 #ifdef _WIN32
-//    destroy_console();
+    destroy_console();
 #endif
 }
 
@@ -826,7 +820,7 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
         case 'i':
             if (strcmp(optarg, "-") == 0)
-                stdin_capture = TRUE;
+                set_stdin_capture(TRUE);
             break;
 #endif
         case 'P':        /* Path settings - change these before the Preferences and alike are processed */
@@ -1145,11 +1139,6 @@ int main(int argc, char *argv[])
 
     g_main_loop_new(NULL, FALSE);
     return a.exec();
-}
-
-void
-create_console(void) {
-
 }
 
 /*
