@@ -251,7 +251,6 @@ static void
 dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int offset = 0;
-    gchar *col_info = "";
     proto_item *ti, *item;
     proto_tree *st, *ltree;
     guint8 opcode;
@@ -296,7 +295,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(st, hf_btatt_handle_in_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, " - %s, Handle: 0x%04x",
                         val_to_str(tvb_get_guint8(tvb, offset+2), error_vals, "<unknown>"),
-                        tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset));
+                        tvb_get_letohs(tvb, offset));
         offset += 2;
         proto_tree_add_item(st, hf_btatt_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
