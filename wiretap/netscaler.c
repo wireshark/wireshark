@@ -405,11 +405,22 @@ typedef struct nspr_pktracepart_v25
     guint8 enumprefix##_##hdrname##_len = (guint8)sizeof(((nspr_##structname##_t*)0)->structfieldname);
 
 #define TRACE_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
-        __TNV1O(phdr,enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
-        __TNV1L(phdr,enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
-        __TNV1O(phdr,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
-        __TNV1L(phdr,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
-        __TNO(phdr,enumprefix,structprefix,structname,eth,Data)
+    __TNV1O(phdr,enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
+    __TNV1L(phdr,enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
+    __TNV1O(phdr,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
+    __TNV1L(phdr,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
+    __TNO(phdr,enumprefix,structprefix,structname,eth,Data)
+
+#define TRACE_FULL_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
+    (phdr)->len = pletohs(&(fp)->nsprRecordSize);\
+    (phdr)->caplen = (phdr)->len;\
+    TRACE_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)        
+
+#define TRACE_PART_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
+    (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
+    (phdr)->len =  pletohs(&pp->pp_PktSizeOrg) + nspr_pktracepart_v10_s;\
+    (phdr)->caplen =  pletohs(&pp->nsprRecordSize);\
+    TRACE_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)        
 
 #define TRACE_V20_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
         __TNO(phdr,enumprefix,structprefix,structname,dir,RecordType)\
@@ -795,17 +806,18 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
             case NSPR_PDPKTRACEFULLTXB_V10:
             case NSPR_PDPKTRACEFULLRX_V10:
 
+                /*
+                 * XXX - we can't do this in the seek-read routine,
+                 * as the time stamps in the records are relative to
+                 * the previous packet.
+                 */
                 wth->phdr.presence_flags = WTAP_HAS_TS;
 
                 nsg_creltime += ns_hrtime2nsec(pletohl(&fp->fp_RelTimeHr));
                 wth->phdr.ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);
                 wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);
 
-                wth->phdr.len = pletohs(&fp->nsprRecordSize);
-                wth->phdr.caplen = wth->phdr.len;
-
-
-                TRACE_V10_REC_LEN_OFF(&wth->phdr,v10_full,fp,pktracefull_v10);
+                TRACE_FULL_V10_REC_LEN_OFF(&wth->phdr,v10_full,fp,pktracefull_v10);
 
                 buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
                 memcpy(buffer_start_ptr(wth->frame_buffer), fp, wth->phdr.caplen);
@@ -821,16 +833,18 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
             case NSPR_PDPKTRACEPARTTXB_V10:
             case NSPR_PDPKTRACEPARTRX_V10:
 
-                wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+                /*
+                 * XXX - we can't do this in the seek-read routine,
+                 * as the time stamps in the records are relative to
+                 * the previous packet.
+                 */
+                wth->phdr.presence_flags = WTAP_HAS_TS;
 
                 nsg_creltime += ns_hrtime2nsec(pletohl(&pp->pp_RelTimeHr));
                 wth->phdr.ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);
                 wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);
 
-                wth->phdr.len =  pletohs(&pp->pp_PktSizeOrg) + nspr_pktracepart_v10_s;
-                wth->phdr.caplen =  pletohs(&pp->nsprRecordSize);
-
-                TRACE_V10_REC_LEN_OFF(&wth->phdr,v10_part,pp,pktracepart_v10);
+                TRACE_PART_V10_REC_LEN_OFF(&wth->phdr,v10_part,pp,pktracepart_v10);
 
                 buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
                 memcpy(buffer_start_ptr(wth->frame_buffer), pp, wth->phdr.caplen);
@@ -895,36 +909,36 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 #define TIMEDEFV22(fp,type) TIMEDEFV20(fp,type)
 #define TIMEDEFV24(fp,type) TIMEDEFV23(fp,type)
 #define TIMEDEFV25(fp,type) TIMEDEFV24(fp,type)
-#define PPSIZEDEFV20(pp,ver) \
+#define PPSIZEDEFV20(phdr,pp,ver) \
     do {\
-        wth->phdr.presence_flags |= WTAP_HAS_CAP_LEN;\
-        wth->phdr.len = pletohs(&pp->pp_PktSizeOrg) + nspr_pktracepart_v##ver##_s;\
-        wth->phdr.caplen = nspr_getv20recordsize((nspr_hd_v20_t *)pp);\
+        (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
+        (phdr)->len = pletohs(&pp->pp_PktSizeOrg) + nspr_pktracepart_v##ver##_s;\
+        (phdr)->caplen = nspr_getv20recordsize((nspr_hd_v20_t *)pp);\
     }while(0)
 
-#define PPSIZEDEFV21(pp,ver) PPSIZEDEFV20(pp,ver)
-#define PPSIZEDEFV22(pp,ver) PPSIZEDEFV20(pp,ver)
-#define PPSIZEDEFV23(pp,ver) PPSIZEDEFV20(pp,ver)
-#define PPSIZEDEFV24(pp,ver) PPSIZEDEFV20(pp,ver)
-#define PPSIZEDEFV25(pp,ver) PPSIZEDEFV20(pp,ver)
+#define PPSIZEDEFV21(phdr,pp,ver) PPSIZEDEFV20(phdr,pp,ver)
+#define PPSIZEDEFV22(phdr,pp,ver) PPSIZEDEFV20(phdr,pp,ver)
+#define PPSIZEDEFV23(phdr,pp,ver) PPSIZEDEFV20(phdr,pp,ver)
+#define PPSIZEDEFV24(phdr,pp,ver) PPSIZEDEFV20(phdr,pp,ver)
+#define PPSIZEDEFV25(phdr,pp,ver) PPSIZEDEFV20(phdr,pp,ver)
 
-#define FPSIZEDEFV20(fp,ver)\
+#define FPSIZEDEFV20(phdr,fp,ver)\
     do {\
-        wth->phdr.len = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
-        wth->phdr.caplen = wth->phdr.len;\
+        (phdr)->len = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
+        (phdr)->caplen = (phdr)->len;\
     }while(0)
 
-#define FPSIZEDEFV21(pp,ver) FPSIZEDEFV20(fp,ver)
-#define FPSIZEDEFV22(pp,ver) FPSIZEDEFV20(fp,ver)
-#define FPSIZEDEFV23(pp,ver) FPSIZEDEFV20(fp,ver)
-#define FPSIZEDEFV24(pp,ver) FPSIZEDEFV20(fp,ver)
-#define FPSIZEDEFV25(pp,ver) FPSIZEDEFV20(fp,ver)
+#define FPSIZEDEFV21(phdr,fp,ver) FPSIZEDEFV20(phdr,fp,ver)
+#define FPSIZEDEFV22(phdr,fp,ver) FPSIZEDEFV20(phdr,fp,ver)
+#define FPSIZEDEFV23(phdr,fp,ver) FPSIZEDEFV20(phdr,fp,ver)
+#define FPSIZEDEFV24(phdr,fp,ver) FPSIZEDEFV20(phdr,fp,ver)
+#define FPSIZEDEFV25(phdr,fp,ver) FPSIZEDEFV20(phdr,fp,ver)
 
 #define PACKET_DESCRIBE(phdr,FPTIMEDEF,SIZEDEF,ver,enumprefix,type,structname,TYPE)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)&nstrace_buf[nstrace_buf_offset];\
         TIMEDEFV##ver(fp,type);\
-        SIZEDEF##ver(fp,ver);\
+        SIZEDEF##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
         buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
         memcpy(buffer_start_ptr(wth->frame_buffer), fp, (phdr)->caplen);\
