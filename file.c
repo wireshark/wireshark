@@ -508,25 +508,15 @@ cf_read(capture_file *cf, gboolean reloading)
   int                  err;
   gchar               *err_info;
   gchar               *name_ptr;
-  gint64               data_offset;
-  gint64               file_pos;
   progdlg_t           *progbar        = NULL;
   gboolean             stop_flag;
-  gint64               size;
-  float                progbar_val;
   GTimeVal             start_time;
   gchar                status_str[100];
-  gint64               progbar_nextstep;
-  volatile gint64      progbar_quantum;
   dfilter_t           *dfcode;
   column_info         *cinfo;
   epan_dissect_t       edt;
   gboolean             create_proto_tree;
   guint                tap_flags;
-  int                  count          = 0;
-#ifdef HAVE_LIBPCAP
-  int                  displayed_once = 0;
-#endif
   gboolean             compiled;
 
   /* Compile the current display filter.
@@ -558,81 +548,95 @@ cf_read(capture_file *cf, gboolean reloading)
      XXX - do we know this at open time? */
   cf->iscompressed = wtap_iscompressed(cf->wth);
 
-  /* Find the size of the file. */
-  size = wtap_file_size(cf->wth, NULL);
-
-  /* Update the progress bar when it gets to this value. */
-  progbar_nextstep = 0;
-  /* When we reach the value that triggers a progress bar update,
-     bump that value by this amount. */
-  if (size >= 0) {
-    progbar_quantum = size/N_PROGBAR_UPDATES;
-    if (progbar_quantum < MIN_QUANTUM)
-      progbar_quantum = MIN_QUANTUM;
-  }else
-    progbar_quantum = 0;
-  /* Progress so far. */
-  progbar_val = 0.0f;
-
   /* The packet list window will be empty until the file is completly loaded */
   packet_list_freeze();
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
 
-  TRY
-  while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
-    if (size >= 0) {
-      count++;
-      file_pos = wtap_read_so_far(cf->wth);
-
-      /* Create the progress bar if necessary.
-       * Check whether it should be created or not every MIN_NUMBER_OF_PACKET
-       */
-      if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)) {
-        progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
-        if (reloading)
-          progbar = delayed_create_progress_dlg(cf->window, "Reloading", name_ptr,
-                                                TRUE, &stop_flag, &start_time, progbar_val);
-        else
-          progbar = delayed_create_progress_dlg(cf->window, "Loading", name_ptr,
-                                                TRUE, &stop_flag, &start_time, progbar_val);
-      }
-
-      /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-         when we update it, we have to run the GTK+ main loop to get it
-         to repaint what's pending, and doing so may involve an "ioctl()"
-         to see if there's any pending input from an X server, and doing
-         that for every packet can be costly, especially on a big file. */
-      if (file_pos >= progbar_nextstep) {
-        if (progbar != NULL) {
-          progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
-          /* update the packet bar content on the first run or frequently on very large files */
+  TRY {
 #ifdef HAVE_LIBPCAP
-          if (progbar_quantum > 500000 || displayed_once == 0) {
-            if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->count != 0) {
-              displayed_once = 1;
-              packets_bar_update();
-            }
-          }
-#endif /* HAVE_LIBPCAP */
-          update_progress_dlg(progbar, progbar_val, status_str);
-        }
-        progbar_nextstep += progbar_quantum;
-      }
-    }
+    int     displayed_once    = 0;
+#endif
+    int     count             = 0;
 
-    if (stop_flag) {
-      /* Well, the user decided to abort the read. He/She will be warned and
-         it might be enough for him/her to work with the already loaded
-         packets.
-         This is especially true for very large capture files, where you don't
-         want to wait loading the whole file (which may last minutes or even
-         hours even on fast machines) just to see that it was the wrong file. */
-      break;
-    }
-    read_packet(cf, dfcode, &edt, cinfo, data_offset);
-  } 
+    gint64  size;
+    gint64  file_pos;
+    gint64  data_offset;
+
+    gint64  progbar_quantum;
+    gint64  progbar_nextstep;
+    float   progbar_val;
+
+    /* Find the size of the file. */
+    size = wtap_file_size(cf->wth, NULL);
+
+    /* Update the progress bar when it gets to this value. */
+    progbar_nextstep = 0;
+    /* When we reach the value that triggers a progress bar update,
+       bump that value by this amount. */
+    if (size >= 0) {
+      progbar_quantum = size/N_PROGBAR_UPDATES;
+      if (progbar_quantum < MIN_QUANTUM)
+	progbar_quantum = MIN_QUANTUM;
+    }else
+      progbar_quantum = 0;
+    /* Progress so far. */
+    progbar_val = 0.0f;
+
+    while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
+      if (size >= 0) {
+	count++;
+	file_pos = wtap_read_so_far(cf->wth);
+
+	/* Create the progress bar if necessary.
+	 * Check whether it should be created or not every MIN_NUMBER_OF_PACKET
+	 */
+	if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)) {
+	  progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
+	  if (reloading)
+	    progbar = delayed_create_progress_dlg(cf->window, "Reloading", name_ptr,
+		TRUE, &stop_flag, &start_time, progbar_val);
+	  else
+	    progbar = delayed_create_progress_dlg(cf->window, "Loading", name_ptr,
+		TRUE, &stop_flag, &start_time, progbar_val);
+	}
+
+	/* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+	   when we update it, we have to run the GTK+ main loop to get it
+	   to repaint what's pending, and doing so may involve an "ioctl()"
+	   to see if there's any pending input from an X server, and doing
+	   that for every packet can be costly, especially on a big file. */
+	if (file_pos >= progbar_nextstep) {
+	  if (progbar != NULL) {
+	    progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
+	    /* update the packet bar content on the first run or frequently on very large files */
+#ifdef HAVE_LIBPCAP
+	    if (progbar_quantum > 500000 || displayed_once == 0) {
+	      if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->count != 0) {
+		displayed_once = 1;
+		packets_bar_update();
+	      }
+	    }
+#endif /* HAVE_LIBPCAP */
+	    update_progress_dlg(progbar, progbar_val, status_str);
+	  }
+	  progbar_nextstep += progbar_quantum;
+	}
+      }
+
+      if (stop_flag) {
+	/* Well, the user decided to abort the read. He/She will be warned and
+	   it might be enough for him/her to work with the already loaded
+	   packets.
+	   This is especially true for very large capture files, where you don't
+	   want to wait loading the whole file (which may last minutes or even
+	   hours even on fast machines) just to see that it was the wrong file. */
+	break;
+      }
+      read_packet(cf, dfcode, &edt, cinfo, data_offset);
+    } 
+  }
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
                    "Some infos / workarounds can be found at:\n"
@@ -774,7 +778,6 @@ cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *er
 cf_read_status_t
 cf_continue_tail(capture_file *cf, int to_read, int *err)
 {
-  gint64        data_offset             = 0;
   gchar        *err_info;
   int           newly_displayed_packets = 0;
   dfilter_t    *dfcode;
@@ -808,22 +811,25 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
 
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: %u new: %u", cf->count, to_read);*/
 
-  TRY
-  while (to_read != 0) {
-    wtap_cleareof(cf->wth);
-    if (!wtap_read(cf->wth, err, &err_info, &data_offset)) {
-      break;
+  TRY {
+    gint64 data_offset = 0;
+
+    while (to_read != 0) {
+      wtap_cleareof(cf->wth);
+      if (!wtap_read(cf->wth, err, &err_info, &data_offset)) {
+	break;
+      }
+      if (cf->state == FILE_READ_ABORTED) {
+	/* Well, the user decided to exit Wireshark.  Break out of the
+	   loop, and let the code below (which is called even if there
+	   aren't any packets left to read) exit. */
+	break;
+      }
+      if (read_packet(cf, dfcode, &edt, (column_info *) cinfo, data_offset) != -1) {
+	newly_displayed_packets++;
+      }
+      to_read--;
     }
-    if (cf->state == FILE_READ_ABORTED) {
-      /* Well, the user decided to exit Wireshark.  Break out of the
-         loop, and let the code below (which is called even if there
-         aren't any packets left to read) exit. */
-      break;
-    }
-    if (read_packet(cf, dfcode, &edt, (column_info *) cinfo, data_offset) != -1) {
-      newly_displayed_packets++;
-    }
-    to_read--;
   }
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
