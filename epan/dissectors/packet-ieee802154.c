@@ -697,8 +697,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Get destination address. */
     if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        /* Dynamic (not stack) memory required for address column. */
-        gchar   *dst_addr = ep_alloc(32);
+        static char dst_addr[32]; /* has to be static due to SET_ADDRESS */
 
         /* Get the address. */
         packet->dst16 = tvb_get_letohs(tvb, offset);
@@ -729,22 +728,21 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         offset += 2;
     }
     else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
-        /* Dynamic (not stack) memory required for address column. */
-        void     *addr = ep_alloc(8);
+        static guint64 addr; /* has to be static due to SET_ADDRESS */
 
         /* Get the address */
         packet->dst64 = tvb_get_letoh64(tvb, offset);
 
         /* Copy and convert the address to network byte order. */
-        *(guint64 *)(addr) = pntoh64(&(packet->dst64));
+        addr = pntoh64(&(packet->dst64));
 
         /* Display the destination address. */
         /* NOTE: OUI resolution doesn't happen when displaying EUI64 addresses
          *          might want to switch to AT_STRINZ type to display the OUI in
          *          the address columns.
          */
-        SET_ADDRESS(&pinfo->dl_dst, AT_EUI64, 8, addr);
-        SET_ADDRESS(&pinfo->dst, AT_EUI64, 8, addr);
+        SET_ADDRESS(&pinfo->dl_dst, AT_EUI64, 8, &addr);
+        SET_ADDRESS(&pinfo->dst, AT_EUI64, 8, &addr);
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_append_text(proto_root, ", Dst: %s", get_eui64_name(packet->dst64));
@@ -785,8 +783,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Get short source address if present. */
     if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        /* Dynamic (not stack) memory required for address column. */
-        gchar   *src_addr = ep_alloc(32);
+        static char src_addr[32]; /* has to be static due to SET_ADDRESS */
 
         /* Get the address. */
         packet->src16 = tvb_get_letohs(tvb, offset);
@@ -843,22 +840,21 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         offset += 2;
     }
     else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
-        /* Dynamic (not stack) memory required for address column. */
-        void    *addr = ep_alloc(8);
+        static guint64 addr; /* has to be static due to SET_ADDRESS */
 
         /* Get the address. */
         packet->src64 = tvb_get_letoh64(tvb, offset);
 
         /* Copy and convert the address to network byte order. */
-        *(guint64 *)(addr) = pntoh64(&(packet->src64));
+        addr = pntoh64(&(packet->src64));
 
         /* Display the source address. */
         /* NOTE: OUI resolution doesn't happen when displaying EUI64 addresses
          *          might want to switch to AT_STRINZ type to display the OUI in
          *          the address columns.
          */
-        SET_ADDRESS(&pinfo->dl_src, AT_EUI64, 8, addr);
-        SET_ADDRESS(&pinfo->src, AT_EUI64, 8, addr);
+        SET_ADDRESS(&pinfo->dl_src, AT_EUI64, 8, &addr);
+        SET_ADDRESS(&pinfo->src, AT_EUI64, 8, &addr);
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_append_text(proto_root, ", Src: %s", get_eui64_name(packet->src64));
