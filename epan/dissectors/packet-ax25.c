@@ -6,8 +6,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /*
@@ -46,13 +46,8 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
-#include <epan/strutil.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/xdlc.h>
@@ -65,12 +60,9 @@
 
 #define STRLEN	80
 
-#define AX25_ADDR_LEN		7  /* length of an AX.25 address */
+#define AX25_ADDR_LEN		 7 /* length of an AX.25 address */
 #define AX25_HEADER_SIZE	15 /* length of src_addr + dst_addr + cntl */
-#define AX25_MAX_DIGIS		8
-
-/* Forward declaration we need below */
-void proto_reg_handoff_ax25(void);
+#define AX25_MAX_DIGIS		 8
 
 /* Dissector table */
 static dissector_table_t ax25_dissector_table;
@@ -113,28 +105,26 @@ static const xdlc_cf_items ax25_cf_items = {
 };
 
 static const value_string pid_vals[] = {
-	{ AX25_P_ROSE, "Rose" },
+	{ AX25_P_ROSE,	   "Rose" },
 	{ AX25_P_RFC1144C, "RFC1144 (compressed)" },
-	{ AX25_P_RFC1144, "RFC1144 (uncompressed)" },
-	{ AX25_P_SEGMENT, "Segment" },
-	{ AX25_P_TEXNET, "Texnet" },
-	{ AX25_P_LCP, "Link Quality protocol" },
-	{ AX25_P_ATALK, "AppleTalk" },
+	{ AX25_P_RFC1144,  "RFC1144 (uncompressed)" },
+	{ AX25_P_SEGMENT,  "Segment" },
+	{ AX25_P_TEXNET,   "Texnet" },
+	{ AX25_P_LCP,	   "Link Quality protocol" },
+	{ AX25_P_ATALK,	   "AppleTalk" },
 	{ AX25_P_ATALKARP, "AppleTalk ARP" },
-	{ AX25_P_IP, "IP" },
-	{ AX25_P_ARP, "ARP" },
-	{ AX25_P_FLEXNET, "FlexNet" },
-	{ AX25_P_NETROM, "NetRom" },
-	{ AX25_P_NO_L3, "No L3" },
-	{ AX25_P_L3_ESC, "L3 esc" },
+	{ AX25_P_IP,	   "IP" },
+	{ AX25_P_ARP,	   "ARP" },
+	{ AX25_P_FLEXNET,  "FlexNet" },
+	{ AX25_P_NETROM,   "NetRom" },
+	{ AX25_P_NO_L3,	   "No L3" },
+	{ AX25_P_L3_ESC,   "L3 esc" },
 	{ 0, NULL }
 };
 
-/* Initialize the subtree pointers */
 static gint ett_ax25 = -1;
 static gint ett_ax25_ctl = -1;
 
-/* Code to actually dissect the packets */
 static void
 dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 {
@@ -158,10 +148,9 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 
 	info_buffer = ep_alloc( STRLEN );
-	info_buffer[0]='\0';
+	info_buffer[0] = '\0';
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "AX.25" );
-
 	col_clear( pinfo->cinfo, COL_INFO );
 
 	/* start at the dst addr */
@@ -276,6 +265,44 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 }
 
 void
+capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld)
+{
+	guint8 control;
+	guint8 pid;
+	int l_offset;
+
+	if ( ! BYTES_ARE_IN_FRAME( offset, len, AX25_HEADER_SIZE ) )
+		{
+		ld->other++;
+		return;
+		}
+
+	l_offset = offset;
+	l_offset += AX25_ADDR_LEN; /* step over dst addr point at src addr */
+	l_offset += AX25_ADDR_LEN; /* step over src addr point at either 1st via addr or control byte */
+	while ( ( pd[ l_offset - 1 ] & 0x01 ) == 0 )
+		l_offset += AX25_ADDR_LEN; /* step over a via addr */
+
+	control = pd[ l_offset ];
+
+	/* decode the pid field (if appropriate) */
+	if ( XDLC_IS_INFORMATION( control ) )
+		{
+		l_offset += 1; /* step over control byte point at pid */
+		pid = pd[ l_offset ];
+
+		l_offset += 1; /* step over the pid and point to the first byte of the payload */
+		switch ( pid & 0x0ff )
+			{
+			case AX25_P_NETROM	: capture_netrom( pd, l_offset, len, ld ); break;
+			case AX25_P_IP		: capture_ip( pd, l_offset, len, ld ); break;
+			case AX25_P_ARP		: ld->arp++; break;
+			default			: ld->other++; break;
+			}
+		}
+}
+
+void
 proto_register_ax25(void)
 {
 	static const true_false_string flags_set_truth =
@@ -345,47 +372,47 @@ proto_register_ax25(void)
 		{ &hf_ax25_n_r,
 			{ "n(r)",			"ax25.ctl.n_r",
 			FT_UINT8, BASE_DEC, NULL, XDLC_N_R_MASK,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_n_s,
 			{ "n(s)",			"ax25.ctl.n_s",
 			FT_UINT8, BASE_DEC, NULL, XDLC_N_S_MASK,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_p,
 			{ "Poll",			"ax25.ctl.p",
 			FT_BOOLEAN, 8, TFS(&flags_set_truth), XDLC_P_F,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_f,
 			{ "Final",			"ax25.ctl.f",
 			FT_BOOLEAN, 8, TFS(&flags_set_truth), XDLC_P_F,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_ftype_s,
 			{ "Frame type",			"ax25.ctl.ftype_s",
 			FT_UINT8, BASE_HEX, VALS(stype_vals), XDLC_S_FTYPE_MASK,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_ftype_i,
 			{ "Frame type",			"ax25.ctl.ftype_i",
 			FT_UINT8, BASE_HEX, VALS(ftype_vals), XDLC_I_MASK,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_ftype_su,
 			{ "Frame type",			"ax25.ctl.ftype_su",
 			FT_UINT8, BASE_HEX, VALS(ftype_vals), XDLC_S_U_MASK,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_u_cmd,
 			{ "Frame type",			"ax25.ctl.u_cmd",
 			FT_UINT8, BASE_HEX, VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_u_resp,
 			{ "Frame type",			"ax25.ctl.u_resp",
 			FT_UINT8, BASE_HEX, VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK,
-			"", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_ax25_pid,
 			{ "Protocol ID",		"ax25.pid",
@@ -417,56 +444,13 @@ proto_register_ax25(void)
 void
 proto_reg_handoff_ax25(void)
 {
-        static gboolean inited = FALSE;
+	dissector_handle_t ax25_handle;
 
-        if( !inited ) {
+	ax25_handle = create_dissector_handle( dissect_ax25, proto_ax25 );
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_AX25, ax25_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_AX25, ax25_handle);
 
-		dissector_handle_t ax25_handle;
+	data_handle  = find_dissector( "data" );
 
-		ax25_handle = create_dissector_handle( dissect_ax25, proto_ax25 );
-		dissector_add_uint("wtap_encap", WTAP_ENCAP_AX25, ax25_handle);
-		dissector_add_uint("ip.proto", IP_PROTO_AX25, ax25_handle);
-
-		data_handle  = find_dissector( "data" );
-
-	        inited = TRUE;
-        }
 }
 
-void
-capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld)
-{
-	guint8 control;
-	guint8 pid;
-	int l_offset;
-
-	if ( ! BYTES_ARE_IN_FRAME( offset, len, AX25_HEADER_SIZE ) )
-		{
-		ld->other++;
-		return;
-		}
-
-	l_offset = offset;
-	l_offset += AX25_ADDR_LEN; /* step over dst addr point at src addr */
-	l_offset += AX25_ADDR_LEN; /* step over src addr point at either 1st via addr or control byte */
-	while ( ( pd[ l_offset - 1 ] & 0x01 ) == 0 )
-		l_offset += AX25_ADDR_LEN; /* step over a via addr */
-
-	control = pd[ l_offset ];
-
-	/* decode the pid field (if appropriate) */
-	if ( XDLC_IS_INFORMATION( control ) )
-		{
-		l_offset += 1; /* step over control byte point at pid */
-		pid = pd[ l_offset ];
-
-		l_offset += 1; /* step over the pid and point to the first byte of the payload */
-		switch ( pid & 0x0ff )
-			{
-			case AX25_P_NETROM	: capture_netrom( pd, l_offset, len, ld ); break;
-			case AX25_P_IP		: capture_ip( pd, l_offset, len, ld ); break;
-			case AX25_P_ARP		: ld->arp++; break;
-			default			: ld->other++; break;
-			}
-		}
-}

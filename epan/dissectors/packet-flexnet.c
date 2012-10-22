@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /*
@@ -38,53 +38,40 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
-#include <epan/strutil.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/ax25_pids.h>
 
 #define FLEXNET_ADRLEN  15
 #define FLEXNET_CTLLEN  15
 #define FLEXNET_HDRLEN  (FLEXNET_ADRLEN + FLEXNET_ADRLEN + FLEXNET_CTLLEN)
 
-/* Forward declaration we need below */
-void proto_reg_handoff_flexnet(void);
-
-/* Dissector handles - all the possibles are listed */
 static dissector_handle_t default_handle;
 
-/* Initialize the protocol and registered fields */
 static int proto_flexnet	= -1;
 static int hf_flexnet_dst	= -1;
 static int hf_flexnet_src	= -1;
 static int hf_flexnet_ctl	= -1;
 
-/* Initialize the subtree pointers */
 static gint ett_flexnet = -1;
 static gint ett_flexnet_ctl = -1;
 
-/* Code to actually dissect the packets */
 static void
 dissect_flexnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	proto_item *ti;
-	proto_tree *flexnet_tree;
-	int offset;
-	void *saved_private_data;
-	tvbuff_t *next_tvb = NULL;
+	void	   *saved_private_data;
+	tvbuff_t   *next_tvb;
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "Flexnet");
-
 	col_clear( pinfo->cinfo, COL_INFO );
 
 	if ( parent_tree )
 		{
+		proto_item *ti;
+		proto_tree *flexnet_tree;
+		int	    offset;
+
 		/* create display subtree for the protocol */
 
 		ti = proto_tree_add_protocol_format( parent_tree, proto_flexnet, tvb, 0, FLEXNET_HDRLEN, "FLEXNET" );
@@ -93,14 +80,14 @@ dissect_flexnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		offset = 0;
 
-		proto_tree_add_item( flexnet_tree, hf_flexnet_dst, tvb, offset, FLEXNET_ADRLEN, FALSE );
+		proto_tree_add_item( flexnet_tree, hf_flexnet_dst, tvb, offset, FLEXNET_ADRLEN, ENC_NA );
 		offset +=FLEXNET_ADRLEN;
 
-		proto_tree_add_item( flexnet_tree, hf_flexnet_src, tvb, offset, FLEXNET_ADRLEN, FALSE );
+		proto_tree_add_item( flexnet_tree, hf_flexnet_src, tvb, offset, FLEXNET_ADRLEN, ENC_NA );
 		offset +=FLEXNET_ADRLEN;
 
-		proto_tree_add_item( flexnet_tree, hf_flexnet_ctl, tvb, offset, FLEXNET_CTLLEN, FALSE );
-		offset +=FLEXNET_CTLLEN;
+		proto_tree_add_item( flexnet_tree, hf_flexnet_ctl, tvb, offset, FLEXNET_CTLLEN, ENC_NA );
+		/* offset +=FLEXNET_CTLLEN; */
 		}
 
 	/* Call sub-dissectors here */
@@ -152,15 +139,10 @@ proto_register_flexnet(void)
 void
 proto_reg_handoff_flexnet(void)
 {
-	static gboolean inited = FALSE;
+	dissector_add_uint( "ax25.pid", AX25_P_FLEXNET, create_dissector_handle( dissect_flexnet, proto_flexnet ) );
 
-	if( !inited ) {
-		dissector_add_uint( "ax25.pid", AX25_P_FLEXNET, create_dissector_handle( dissect_flexnet, proto_flexnet ) );
+	/*
+	 */
+	default_handle  = find_dissector( "data" );
 
-		/*
-		*/
-		default_handle  = find_dissector( "data" );
-
-		inited = TRUE;
-	}
 }

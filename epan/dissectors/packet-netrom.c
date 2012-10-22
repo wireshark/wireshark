@@ -6,8 +6,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /*
@@ -45,13 +45,8 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
-#include <epan/strutil.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/ax25_pids.h>
@@ -60,10 +55,10 @@
 
 #define STRLEN 80
 
-#define AX25_ADDR_LEN		7	/* length of an AX.25 address */
+#define AX25_ADDR_LEN		   7	/* length of an AX.25 address */
 
-#define NETROM_MIN_SIZE		7	/* minumum payload for a routing packet */
-#define NETROM_HEADER_SIZE	20	/* minumum payload for a normal packet */
+#define NETROM_MIN_SIZE		   7	/* minumum payload for a routing packet */
+#define NETROM_HEADER_SIZE	  20	/* minumum payload for a normal packet */
 
 #define	NETROM_PROTOEXT		0x00
 #define	NETROM_CONNREQ		0x01
@@ -129,7 +124,7 @@ static const netrom_tf_items netrom_type_items = {
 };
 
 
-const value_string op_copde_vals[] = {
+const value_string op_code_vals_abbrev[] = {
 	{ NETROM_PROTOEXT	, "PROTOEXT"},
 	{ NETROM_CONNREQ	, "CONNREQ"},
 	{ NETROM_CONNACK	, "CONNACK"},
@@ -137,11 +132,22 @@ const value_string op_copde_vals[] = {
 	{ NETROM_DISCACK	, "DISCACK"},
 	{ NETROM_INFO		, "INFO"},
 	{ NETROM_INFOACK	, "INFOACK"},
-	{ 0			, NULL }
+	{ 0			, NULL}
+};
+
+const value_string op_code_vals_text[] = {
+	{ NETROM_PROTOEXT	, "Protocol extension"},
+	{ NETROM_CONNREQ	, "Connect request"},
+	{ NETROM_CONNACK	, "Connect acknowledge"},
+	{ NETROM_DISCREQ	, "Disconnect request"},
+	{ NETROM_DISCACK	, "Disconnect acknowledge"},
+	{ NETROM_INFO		, "Information"},
+	{ NETROM_INFOACK	, "Information acknowledge"},
+	{ 0			, NULL}
 };
 
 /* Initialize the subtree pointers */
-static gint ett_netrom = -1;
+static gint ett_netrom      = -1;
 static gint ett_netrom_type = -1;
 
 static void
@@ -150,34 +156,19 @@ dissect_netrom_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 {
 	proto_tree *tc;
 	proto_tree *type_tree;
-	char *info_buffer;
-	char *op_text_ptr;
-	guint8 type;
-	guint8 op_code;
+	char       *info_buffer;
+	guint8      type;
+	guint8      op_code;
 
-	info_buffer = ep_alloc( STRLEN );
-	info_buffer[0] = '\0';
-
-	type =  tvb_get_guint8( tvb, offset );
+	type    =  tvb_get_guint8( tvb, offset );
 	op_code = type &0x0f;
 
-	switch ( op_code )
-		{
-		case NETROM_PROTOEXT	: op_text_ptr = "Protocol extension"		; break;
-		case NETROM_CONNREQ	: op_text_ptr = "Connect request"		; break;
-		case NETROM_CONNACK	: op_text_ptr = "Connect acknowledge"		; break;
-		case NETROM_DISCREQ	: op_text_ptr = "Disconnect request"		; break;
-		case NETROM_DISCACK	: op_text_ptr = "Disconnect acknowledge"	; break;
-		case NETROM_INFO	: op_text_ptr = "Information"			; break;
-		case NETROM_INFOACK	: op_text_ptr = "Information acknowledge"	; break;
-		default			: op_text_ptr = "Unknown"			; break;
-		}
-	g_snprintf( info_buffer, STRLEN, "%s%s%s%s (0x%02x)",
-						op_text_ptr,
-						( type & NETROM_MORE_FLAG  ) ? ", More"  : "",
-						( type & NETROM_NAK_FLAG   ) ? ", NAK"   : "",
-						( type & NETROM_CHOKE_FLAG ) ? ", Choke" : "",
-						type );
+	info_buffer = ep_strdup_printf( "%s%s%s%s (0x%02x)",
+					val_to_str_const( op_code, op_code_vals_text, "Unknown" ),
+					( type & NETROM_MORE_FLAG  ) ? ", More"  : "",
+					( type & NETROM_NAK_FLAG   ) ? ", NAK"   : "",
+					( type & NETROM_CHOKE_FLAG ) ? ", Choke" : "",
+					type );
 	col_add_str( pinfo->cinfo, COL_INFO, info_buffer );
 
 	if ( tree )
@@ -203,24 +194,24 @@ dissect_netrom_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static void
 dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti;
-	proto_tree *netrom_tree;
-	int offset;
-	char *op_text_ptr;
+	proto_item   *ti;
+	proto_tree   *netrom_tree;
+	int           offset;
 	const guint8 *src_addr;
 	const guint8 *dst_addr;
 	const guint8 *user_addr;
 	const guint8 *node_addr;
-	/* guint8 src_ssid;
-	guint8 dst_ssid; */
-	guint8 op_code;
-	guint8 cct_index;
-	guint8 cct_id;
-	void *saved_private_data;
-	tvbuff_t *next_tvb = NULL;
+#if 0
+	guint8        src_ssid;
+	guint8        dst_ssid;
+#endif
+	guint8        op_code;
+	guint8        cct_index;
+	guint8        cct_id;
+	void         *saved_private_data;
+	tvbuff_t     *next_tvb = NULL;
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "NET/ROM" );
-
 	col_clear( pinfo->cinfo, COL_INFO );
 
 	offset = 0;
@@ -251,19 +242,7 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	op_code =  tvb_get_guint8( tvb, offset ) & 0x0f;
 	offset += 1; /* step over op_code */
 
-	switch ( op_code )
-		{
-		case NETROM_PROTOEXT	: op_text_ptr = "Protocol extension"		; break;
-		case NETROM_CONNREQ	: op_text_ptr = "Connect request"		; break;
-		case NETROM_CONNACK	: op_text_ptr = "Connect acknowledge"		; break;
-		case NETROM_DISCREQ	: op_text_ptr = "Disconnect request"		; break;
-		case NETROM_DISCACK	: op_text_ptr = "Disconnect acknowledge"	; break;
-		case NETROM_INFO	: op_text_ptr = "Information"			; break;
-		case NETROM_INFOACK	: op_text_ptr = "Information acknowledge"	; break;
-		default			: op_text_ptr = "Unknown"			; break;
-		}
-
-	col_add_fstr( pinfo->cinfo, COL_INFO, "%s", op_text_ptr );
+	col_add_fstr( pinfo->cinfo, COL_INFO, "%s", val_to_str_const( op_code, op_code_vals_text, "Unknown" ));
 
 	if ( tree )
 		{
@@ -289,18 +268,18 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += AX25_ADDR_LEN;
 
 		/* ttl */
-		proto_tree_add_item( netrom_tree, hf_netrom_ttl, tvb, offset, 1, FALSE );
+		proto_tree_add_item( netrom_tree, hf_netrom_ttl, tvb, offset, 1, ENC_BIG_ENDIAN );
 		offset += 1;
 
 		switch ( op_code )
 			{
 			case NETROM_PROTOEXT	:
 						/* cct index */
-						proto_tree_add_item( netrom_tree, hf_netrom_my_cct_index, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_my_cct_index, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* cct id */
-						proto_tree_add_item( netrom_tree, hf_netrom_my_cct_id, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_my_cct_id, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* unused */
@@ -311,11 +290,11 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						break;
 			case NETROM_CONNREQ	:
 						/* cct index */
-						proto_tree_add_item( netrom_tree, hf_netrom_my_cct_index, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_my_cct_index, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* cct id */
-						proto_tree_add_item( netrom_tree, hf_netrom_my_cct_id, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_my_cct_id, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* unused */
@@ -327,29 +306,29 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						break;
 			case NETROM_CONNACK	:
 						/* your cct index */
-						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_index, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_index, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* your cct id */
-						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_id, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_id, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* my cct index */
-						proto_tree_add_item( netrom_tree, hf_netrom_my_cct_index, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_my_cct_index, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* my cct id */
-						proto_tree_add_item( netrom_tree, hf_netrom_my_cct_id, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_my_cct_id, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						break;
 			case NETROM_DISCREQ	:
 						/* your cct index */
-						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_index, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_index, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* your cct id */
-						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_id, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_id, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* unused */
@@ -361,11 +340,11 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						break;
 			case NETROM_DISCACK	:
 						/* your cct index */
-						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_index, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_index, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* your cct id */
-						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_id, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_id, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* unused */
@@ -377,36 +356,36 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						break;
 			case NETROM_INFO	:
 						/* your cct index */
-						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_index, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_index, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* your cct id */
-						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_id, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_id, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* n_s */
-						proto_tree_add_item( netrom_tree, hf_netrom_n_s, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_n_s, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* n_r */
-						proto_tree_add_item( netrom_tree, hf_netrom_n_r, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_n_r, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						break;
 			case NETROM_INFOACK	:
 						/* your cct index */
-						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_index, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_index, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* your cct id */
-						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_id, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_your_cct_id, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						/* unused */
 						offset += 1;
 
 						/* n_r */
-						proto_tree_add_item( netrom_tree, hf_netrom_n_r, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_n_r, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						break;
@@ -436,7 +415,7 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						break;
 			case NETROM_CONNREQ	:
 						/* proposed window size */
-						proto_tree_add_item( netrom_tree, hf_netrom_pwindow, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_pwindow, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						user_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
@@ -450,7 +429,7 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						break;
 			case NETROM_CONNACK	:
 						/* accepted window size */
-						proto_tree_add_item( netrom_tree, hf_netrom_awindow, tvb, offset, 1, FALSE );
+						proto_tree_add_item( netrom_tree, hf_netrom_awindow, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
 						break;
@@ -493,18 +472,16 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_netrom_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti;
-	proto_tree *netrom_tree;
-	int offset;
-	void *saved_private_data;
-	tvbuff_t *next_tvb = NULL;
+	void     *saved_private_data;
+	tvbuff_t *next_tvb;
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "NET/ROM");
-
 	col_set_str( pinfo->cinfo, COL_INFO, "routing table frame");
 
 	if (tree)
 		{
+		proto_item *ti;
+		proto_tree *netrom_tree;
 		ti = proto_tree_add_protocol_format( tree, proto_netrom, tvb, 0, -1,
 			"NET/ROM, routing table frame, Node: %.6s",
 			tvb_get_ptr( tvb,  1, 6 )
@@ -512,18 +489,15 @@ dissect_netrom_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		netrom_tree = proto_item_add_subtree( ti, ett_netrom );
 
-		offset = 1;
-
-		proto_tree_add_item( netrom_tree, hf_netrom_mnemonic, tvb, offset, 6, FALSE );
-		offset += 6;
-
-		saved_private_data = pinfo->private_data;
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-
-		call_dissector( default_handle , next_tvb, pinfo, tree );
-
-		pinfo->private_data = saved_private_data;
+		proto_tree_add_item( netrom_tree, hf_netrom_mnemonic, tvb, 1, 6, ENC_ASCII|ENC_NA );
 		}
+
+	saved_private_data = pinfo->private_data;
+	next_tvb = tvb_new_subset(tvb, 7, -1, -1);
+
+	call_dissector( default_handle , next_tvb, pinfo, tree );
+
+	pinfo->private_data = saved_private_data;
 
 }
 
@@ -535,6 +509,18 @@ dissect_netrom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_netrom_routing( tvb, pinfo, tree );
 	else
 		dissect_netrom_proto( tvb, pinfo, tree );
+}
+
+void
+capture_netrom( const guchar *pd _U_, int offset, int len, packet_counts *ld)
+{
+	if ( ! BYTES_ARE_IN_FRAME( offset, len, NETROM_MIN_SIZE ) )
+		{
+		ld->other++;
+		return;
+		}
+	/* XXX - check for IP-over-NetROM here! */
+	ld->other++;
 }
 
 void
@@ -601,7 +587,7 @@ proto_register_netrom(void)
 		},
 		{ &hf_netrom_op,
 			{ "OP code",			"netrom.op",
-			FT_UINT8, BASE_HEX, VALS( op_copde_vals ), 0x0f,
+			FT_UINT8, BASE_HEX, VALS( op_code_vals_abbrev ), 0x0f,
 			"Protocol operation code", HFILL }
 		},
 		{ &hf_netrom_more,
@@ -663,26 +649,10 @@ proto_register_netrom(void)
 void
 proto_reg_handoff_netrom(void)
 {
-	static gboolean inited = FALSE;
+	dissector_add_uint( "ax25.pid", AX25_P_NETROM, create_dissector_handle( dissect_netrom, proto_netrom ) );
 
-	if( !inited ) {
-		dissector_add_uint( "ax25.pid", AX25_P_NETROM, create_dissector_handle( dissect_netrom, proto_netrom ) );
+	ip_handle       = find_dissector( "ip" );
+	default_handle  = find_dissector( "data" );
 
-		ip_handle  = find_dissector( "ip" );
-		default_handle  = find_dissector( "data" );
-
-		inited = TRUE;
-	}
 }
 
-void
-capture_netrom( const guchar *pd _U_, int offset, int len, packet_counts *ld)
-{
-	if ( ! BYTES_ARE_IN_FRAME( offset, len, NETROM_MIN_SIZE ) )
-		{
-		ld->other++;
-		return;
-		}
-	/* XXX - check fr IP-over-NetROM here! */
-	ld->other++;
-}

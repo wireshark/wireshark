@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /*
@@ -37,16 +37,9 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
-#include <epan/strutil.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
-#include <epan/emem.h>
 #include <epan/etypes.h>
 
 #include "packet-bpq.h"
@@ -56,29 +49,22 @@
 
 #define BPQ_HEADER_SIZE	2 /* length of bpq_len */
 
-/* Forward declaration we need below */
-void proto_reg_handoff_bpq(void);
-
-/* Dissector handles - all the possibles are listed */
 static dissector_handle_t ax25_handle;
 
-/* Initialize the protocol and registered fields */
 static int proto_bpq            = -1;
 static int hf_bpq_len		= -1;
 
-/* Initialize the subtree pointers */
 static gint ett_bpq = -1;
 
-/* Code to actually dissect the packets */
 static void
 dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 {
 	proto_item *ti;
 	proto_tree *bpq_tree;
-	int offset;
-	guint16 bpq_len;
-	void *saved_private_data;
-	tvbuff_t *next_tvb = NULL;
+	int	    offset;
+	guint16	    bpq_len;
+	void	   *saved_private_data;
+	tvbuff_t   *next_tvb;
 
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "BPQ" );
@@ -105,10 +91,9 @@ dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 		bpq_tree = proto_item_add_subtree( ti, ett_bpq );
 
-		proto_tree_add_item( bpq_tree, hf_bpq_len, tvb, offset, BPQ_HEADER_SIZE, TRUE );
+		proto_tree_add_item( bpq_tree, hf_bpq_len, tvb, offset, BPQ_HEADER_SIZE, ENC_LITTLE_ENDIAN );
 
 	}
-	/* Call sub-dissectors here */
 
 	offset += BPQ_HEADER_SIZE;
 
@@ -117,6 +102,22 @@ dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	next_tvb = tvb_new_subset( tvb, offset, -1, -1 );
 	call_dissector( ax25_handle, next_tvb, pinfo, parent_tree );
 	pinfo->private_data = saved_private_data;
+}
+
+void
+capture_bpq( const guchar *pd, int offset, int len, packet_counts *ld)
+{
+	int l_offset;
+
+	if ( ! BYTES_ARE_IN_FRAME( offset, len, BPQ_HEADER_SIZE ) )
+		{
+		ld->other++;
+		return;
+		}
+
+	l_offset = offset;
+	l_offset += BPQ_HEADER_SIZE; /* step over bpq header to point at the AX.25 packet*/
+	capture_ax25( pd, l_offset, len, ld );
 }
 
 void
@@ -150,34 +151,12 @@ proto_register_bpq(void)
 void
 proto_reg_handoff_bpq(void)
 {
-        static gboolean inited = FALSE;
+	dissector_handle_t bpq_handle;
 
-        if(!inited) {
+	bpq_handle = create_dissector_handle( dissect_bpq, proto_bpq );
+	dissector_add_uint("ethertype", ETHERTYPE_BPQ, bpq_handle);
 
-		dissector_handle_t bpq_handle;
+	/* BPQ is only implemented for AX.25 */
+	ax25_handle     = find_dissector( "ax25" );
 
-		bpq_handle = create_dissector_handle( dissect_bpq, proto_bpq );
-		dissector_add_uint("ethertype", ETHERTYPE_BPQ, bpq_handle);
-
-		/* BPQ is only implemented for AX.25 */
-		ax25_handle     = find_dissector( "ax25" );
-
-	        inited = TRUE;
-        }
-}
-
-void
-capture_bpq( const guchar *pd, int offset, int len, packet_counts *ld)
-{
-	int l_offset;
-
-	if ( ! BYTES_ARE_IN_FRAME( offset, len, BPQ_HEADER_SIZE ) )
-		{
-		ld->other++;
-		return;
-		}
-
-	l_offset = offset;
-	l_offset += BPQ_HEADER_SIZE; /* step over bpq header to point at the AX.25 packet*/
-	capture_ax25( pd, l_offset, len, ld );
 }

@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /*
@@ -48,24 +48,14 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <math.h>
-
 #include <glib.h>
 
-#include <epan/strutil.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/ax25_pids.h>
 
 #define STRLEN	80
-
-/* Forward declaration we need below */
-void proto_reg_handoff_ax25_nol3(void);
 
 /* Dissector handles - all the possibles are listed */
 static dissector_handle_t aprs_handle;
@@ -116,7 +106,7 @@ dissect_dx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		dx_tree = proto_item_add_subtree( ti, ett_dx );
 		offset = 0;
 
-		proto_tree_add_item( dx_tree, hf_dx_report, tvb, offset, data_len, FALSE );
+		proto_tree_add_item( dx_tree, hf_dx_report, tvb, offset, data_len, ENC_ASCII|ENC_NA );
 	}
 }
 
@@ -127,33 +117,33 @@ isaprs( guint8 dti )
 
 	switch ( dti )
 		{
-		case '<'	:
-		case '>'	:
-		case '?'	:
-		case '$'	:
-		case '%'	:
-		case 'T'	:
-		case '['	:
-		case ')'	:
-		case '_'	:
-		case ','	:
-		case '{'	:
-		case '}'	:
-		case ':'	:
-		case ';'	:
 		case 0x1c	:
 		case 0x1d	:
-		case '\''	:
-		case '`'	:
-		case '#'	:
-		case '*'	:
-		case '&'	:
-		case '+'	:
-		case '.'	:
-		case '='	:
 		case '!'	:
+		case '#'	:
+		case '$'	:
+		case '%'	:
+		case '&'	:
+		case ')'	:
+		case '*'	:
+		case '+'	:
+		case ','	:
+		case '.'	:
+		case '/'	:
+		case ':'	:
+		case ';'	:
+		case '<'	:
+		case '='	:
+		case '>'	:
+		case '?'	:
 		case '@'	:
-		case '/'	: b = TRUE; break;
+		case 'T'	:
+		case '['	:
+		case '\''	:
+		case '_'	:
+		case '`'	:
+		case '{'	:
+		case '}'	: b = TRUE; break;
 		default		: break;
 		}
 	return b;
@@ -271,7 +261,7 @@ proto_register_ax25_nol3(void)
 	proto_register_subtree_array( ett, array_length( ett ) );
 
 	/* Register preferences module */
-        ax25_nol3_module = prefs_register_protocol( proto_ax25_nol3, proto_reg_handoff_ax25_nol3);
+        ax25_nol3_module = prefs_register_protocol( proto_ax25_nol3, NULL);
 
 	/* Register any preference */
         prefs_register_bool_preference(ax25_nol3_module, "showaprs",
@@ -300,16 +290,11 @@ proto_register_ax25_nol3(void)
 void
 proto_reg_handoff_ax25_nol3(void)
 {
-        static gboolean inited = FALSE;
+	dissector_add_uint( "ax25.pid", AX25_P_NO_L3, create_dissector_handle( dissect_ax25_nol3, proto_ax25_nol3 ) );
 
-        if( !inited ) {
-		dissector_add_uint( "ax25.pid", AX25_P_NO_L3, create_dissector_handle( dissect_ax25_nol3, proto_ax25_nol3 ) );
+	/*
+	 */
+	aprs_handle     = find_dissector( "aprs" );
+	default_handle  = find_dissector( "data" );
 
-		/*
-		*/
-		aprs_handle     = find_dissector( "aprs" );
-		default_handle  = find_dissector( "data" );
-
-	        inited = TRUE;
-        }
 }

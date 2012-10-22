@@ -5,8 +5,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /*
@@ -41,29 +41,17 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
 #include <math.h>
 
 #include <glib.h>
 
-#include <epan/strutil.h>
 #include <epan/packet.h>
-#include <epan/address.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
-#include <epan/ftypes/ftypes.h>
 
 #define AX25_ADDR_LEN		7  /* length of an AX.25 address */
 #define STRLEN	100
-
-/* Forward declaration we need below */
-void proto_reg_handoff_aprs(void);
-
-/* Dissector handles - all the possibles are listed */
-static dissector_handle_t default_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_aprs			= -1;
@@ -485,7 +473,7 @@ dissect_aprs_msg(	tvbuff_t *tvb,
 	ch = tvb_get_guint8( tvb, offset );
 
 	if ( parent_tree ){
-		tc = proto_tree_add_item( parent_tree, hf_aprs_msg, tvb, offset, 7, ENC_ASCII );
+		tc = proto_tree_add_item( parent_tree, hf_aprs_msg, tvb, offset, 7, ENC_ASCII|ENC_NA );
 		msg_tree = proto_item_add_subtree( tc, ett_aprs_msg );
 	}
 	if ( isdigit( ch ) )
@@ -991,7 +979,7 @@ aprs_timestamp( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 	g_snprintf( info_buffer, STRLEN, "%*.*s", data_len, data_len, tvb_get_ptr( tvb, offset, data_len ) );
 	if ( isdigit( info_buffer[ 6 ] ) )
 		{ /* MDHM */
-		proto_tree_add_item( aprs_tree, hf_aprs_mdhm, tvb, offset, data_len, FALSE );
+		proto_tree_add_item( aprs_tree, hf_aprs_mdhm, tvb, offset, data_len, ENC_ASCII|ENC_NA );
 		proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset, data_len, timezone );
 		}
 	else
@@ -999,7 +987,7 @@ aprs_timestamp( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 		data_len--;
 		if ( info_buffer[ 6 ] == 'h' )
 			{ /* HMS */
-			proto_tree_add_item( aprs_tree, hf_aprs_hms, tvb, offset, data_len, FALSE );
+			proto_tree_add_item( aprs_tree, hf_aprs_hms, tvb, offset, data_len, ENC_ASCII|ENC_NA );
 			proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset, data_len, timezone );
 			}
 		else
@@ -1010,7 +998,7 @@ aprs_timestamp( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 				case '/' : timezone = "local"; break;
 				default  : timezone = "unknown"; break;
 				}
-			proto_tree_add_item( aprs_tree, hf_aprs_dhm, tvb, offset, data_len, FALSE );
+			proto_tree_add_item( aprs_tree, hf_aprs_dhm, tvb, offset, data_len, ENC_ASCII|ENC_NA );
 			proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset + 6, 1, timezone );
 			}
 		}
@@ -1072,14 +1060,14 @@ aprs_status( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 	g_snprintf( info_buffer, STRLEN, "%*.*s", data_len, data_len, tvb_get_ptr( tvb, offset, data_len ) );
 	if ( data_len > 7 && info_buffer[ 6 ] == 'z' )
 		{
-		proto_tree_add_item( aprs_tree, hf_aprs_dhm, tvb, offset, 6, FALSE );
+		proto_tree_add_item( aprs_tree, hf_aprs_dhm, tvb, offset, 6, ENC_ASCII|ENC_NA );
 		offset += 6;
 		data_len -= 6;
 		proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset, 1, "zulu" );
 		offset += 1;
 		data_len -= 1;
 		}
-	proto_tree_add_item( aprs_tree, hf_aprs_status, tvb, offset, data_len, FALSE );
+	proto_tree_add_item( aprs_tree, hf_aprs_status, tvb, offset, data_len, ENC_ASCII|ENC_NA );
 
 	return offset + data_len;
 }
@@ -1118,7 +1106,7 @@ aprs_item( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 static int
 aprs_3rd_party( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, int data_len )
 {
-	proto_tree_add_item( aprs_tree, hf_aprs_third_party, tvb, offset, data_len, FALSE );
+	proto_tree_add_item( aprs_tree, hf_aprs_third_party, tvb, offset, data_len, ENC_NA );
 	/* tnc-2 */
 	/* aea */
 	return offset + data_len;
@@ -1344,7 +1332,7 @@ dissect_aprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 		offset = 0;
 
 		dti = tvb_get_guint8( tvb, offset );
-		proto_tree_add_item( aprs_tree, hf_aprs_dti, tvb, offset, 1, FALSE );
+		proto_tree_add_item( aprs_tree, hf_aprs_dti, tvb, offset, 1, ENC_ASCII|ENC_NA );
 		offset += 1;
 		switch ( dti )
 			{
@@ -1939,7 +1927,7 @@ proto_register_aprs(void)
 	proto_register_subtree_array( ett, array_length( ett ) );
 
 	/* Register preferences module */
-        aprs_module = prefs_register_protocol( proto_aprs, proto_reg_handoff_aprs);
+        aprs_module = prefs_register_protocol( proto_aprs, NULL);
 
 	/* Register any preference */
         prefs_register_bool_preference(aprs_module, "showaprslax",
@@ -1949,15 +1937,3 @@ proto_register_aprs(void)
 
 }
 
-void
-proto_reg_handoff_aprs(void)
-{
-        static gboolean inited = FALSE;
-
-        if( !inited ) {
-
-		default_handle  = find_dissector( "data" );
-
-        	inited = TRUE;
-        }
-}
