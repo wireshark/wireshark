@@ -392,71 +392,71 @@ typedef struct nspr_pktracepart_v25
 
 #define myoffsetof(type,fieldname) (&(((type*)0)->fieldname))
 
-#define __TNO(enumprefix,structprefix,structname,hdrname,structfieldname) \
+#define __TNO(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
     guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(myoffsetof(nspr_##structname##_t,structprefix##_##structfieldname));
 
-#define __TNL(enumprefix,structprefix,structname,hdrname,structfieldname) \
+#define __TNL(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
     guint8 enumprefix##_##hdrname##_len = (guint8)sizeof(((nspr_##structname##_t*)0)->structprefix##_##structfieldname);
 
-#define __TNV1O(enumprefix,structprefix,structname,hdrname,structfieldname) \
+#define __TNV1O(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
     guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(myoffsetof(nspr_##structname##_t,structfieldname));
 
-#define __TNV1L(enumprefix,structprefix,structname,hdrname,structfieldname) \
+#define __TNV1L(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
     guint8 enumprefix##_##hdrname##_len = (guint8)sizeof(((nspr_##structname##_t*)0)->structfieldname);
 
-#define TRACE_V10_REC_LEN_OFF(enumprefix,structprefix,structname) \
-        __TNV1O(enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
-        __TNV1L(enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
-        __TNV1O(enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
-        __TNV1L(enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
-        __TNO(enumprefix,structprefix,structname,eth,Data)
+#define TRACE_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
+        __TNV1O(phdr,enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
+        __TNV1L(phdr,enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
+        __TNV1O(phdr,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
+        __TNV1L(phdr,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
+        __TNO(phdr,enumprefix,structprefix,structname,eth,Data)
 
-#define TRACE_V20_REC_LEN_OFF(enumprefix,structprefix,structname) \
-        __TNO(enumprefix,structprefix,structname,dir,RecordType)\
-        __TNL(enumprefix,structprefix,structname,dir,RecordType)\
-        __TNO(enumprefix,structprefix,structname,nicno,DevNo)\
-        __TNL(enumprefix,structprefix,structname,nicno,DevNo)\
-        __TNO(enumprefix,structprefix,structname,eth,Data)
+#define TRACE_V20_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
+        __TNO(phdr,enumprefix,structprefix,structname,dir,RecordType)\
+        __TNL(phdr,enumprefix,structprefix,structname,dir,RecordType)\
+        __TNO(phdr,enumprefix,structprefix,structname,nicno,DevNo)\
+        __TNL(phdr,enumprefix,structprefix,structname,nicno,DevNo)\
+        __TNO(phdr,enumprefix,structprefix,structname,eth,Data)
 
-#define TRACE_V21_REC_LEN_OFF(enumprefix,structprefix,structname) \
-        TRACE_V20_REC_LEN_OFF(enumprefix,structprefix,structname)\
-        __TNO(enumprefix,structprefix,structname,pcb,PcbDevNo)\
-        __TNO(enumprefix,structprefix,structname,l_pcb,lPcbDevNo)
+#define TRACE_V21_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
+        TRACE_V20_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
+        __TNO(phdr,enumprefix,structprefix,structname,pcb,PcbDevNo)\
+        __TNO(phdr,enumprefix,structprefix,structname,l_pcb,lPcbDevNo)
 
-#define TRACE_V22_REC_LEN_OFF(enumprefix,structprefix,structname) \
-        TRACE_V21_REC_LEN_OFF(enumprefix,structprefix,structname)\
-        __TNO(enumprefix,structprefix,structname,vlantag,VlanTag)
+#define TRACE_V22_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
+        TRACE_V21_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
+        __TNO(phdr,enumprefix,structprefix,structname,vlantag,VlanTag)
 
-#define TRACE_V23_REC_LEN_OFF(enumprefix,structprefix,structname) \
-        TRACE_V22_REC_LEN_OFF(enumprefix,structprefix,structname)\
-        __TNO(enumprefix,structprefix,structname,coreid,Coreid)
+#define TRACE_V23_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
+        TRACE_V22_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
+        __TNO(phdr,enumprefix,structprefix,structname,coreid,Coreid)
 
-#define TRACE_V24_REC_LEN_OFF(enumprefix,structprefix,structname) \
-        TRACE_V23_REC_LEN_OFF(enumprefix,structprefix,structname)\
-        __TNO(enumprefix,structprefix,structname,srcnodeid,srcNodeId)\
-        __TNO(enumprefix,structprefix,structname,destnodeid,destNodeId)\
-        __TNO(enumprefix,structprefix,structname,clflags,clFlags)
+#define TRACE_V24_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
+        TRACE_V23_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
+        __TNO(phdr,enumprefix,structprefix,structname,srcnodeid,srcNodeId)\
+        __TNO(phdr,enumprefix,structprefix,structname,destnodeid,destNodeId)\
+        __TNO(phdr,enumprefix,structprefix,structname,clflags,clFlags)
 
-#define TRACE_V25_REC_LEN_OFF(enumprefix,structprefix,structname) \
-            TRACE_V24_REC_LEN_OFF(enumprefix,structprefix,structname)\
-            __TNO(enumprefix,structprefix,structname,src_vmname_len,src_vmname_len)\
-            __TNO(enumprefix,structprefix,structname,dst_vmname_len,dst_vmname_len)\
-            __TNO(enumprefix,structprefix,structname,data,Data)
+#define TRACE_V25_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
+            TRACE_V24_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
+            __TNO(phdr,enumprefix,structprefix,structname,src_vmname_len,src_vmname_len)\
+            __TNO(phdr,enumprefix,structprefix,structname,dst_vmname_len,dst_vmname_len)\
+            __TNO(phdr,enumprefix,structprefix,structname,data,Data)
     
-    TRACE_V10_REC_LEN_OFF(v10_part,pp,pktracepart_v10)
-    TRACE_V10_REC_LEN_OFF(v10_full,fp,pktracefull_v10)
-    TRACE_V20_REC_LEN_OFF(v20_part,pp,pktracepart_v20)
-    TRACE_V20_REC_LEN_OFF(v20_full,fp,pktracefull_v20)
-    TRACE_V21_REC_LEN_OFF(v21_part,pp,pktracepart_v21)
-    TRACE_V21_REC_LEN_OFF(v21_full,fp,pktracefull_v21)
-    TRACE_V22_REC_LEN_OFF(v22_part,pp,pktracepart_v22)
-    TRACE_V22_REC_LEN_OFF(v22_full,fp,pktracefull_v22)
-    TRACE_V23_REC_LEN_OFF(v23_part,pp,pktracepart_v23)
-    TRACE_V23_REC_LEN_OFF(v23_full,fp,pktracefull_v23)
-    TRACE_V24_REC_LEN_OFF(v24_part,pp,pktracepart_v24)
-    TRACE_V24_REC_LEN_OFF(v24_full,fp,pktracefull_v24)
-    TRACE_V25_REC_LEN_OFF(v25_part,pp,pktracepart_v25)
-    TRACE_V25_REC_LEN_OFF(v25_full,fp,pktracefull_v25)
+    TRACE_V10_REC_LEN_OFF(NULL,v10_part,pp,pktracepart_v10)
+    TRACE_V10_REC_LEN_OFF(NULL,v10_full,fp,pktracefull_v10)
+    TRACE_V20_REC_LEN_OFF(NULL,v20_part,pp,pktracepart_v20)
+    TRACE_V20_REC_LEN_OFF(NULL,v20_full,fp,pktracefull_v20)
+    TRACE_V21_REC_LEN_OFF(NULL,v21_part,pp,pktracepart_v21)
+    TRACE_V21_REC_LEN_OFF(NULL,v21_full,fp,pktracefull_v21)
+    TRACE_V22_REC_LEN_OFF(NULL,v22_part,pp,pktracepart_v22)
+    TRACE_V22_REC_LEN_OFF(NULL,v22_full,fp,pktracefull_v22)
+    TRACE_V23_REC_LEN_OFF(NULL,v23_part,pp,pktracepart_v23)
+    TRACE_V23_REC_LEN_OFF(NULL,v23_full,fp,pktracefull_v23)
+    TRACE_V24_REC_LEN_OFF(NULL,v24_part,pp,pktracepart_v24)
+    TRACE_V24_REC_LEN_OFF(NULL,v24_full,fp,pktracefull_v24)
+    TRACE_V25_REC_LEN_OFF(NULL,v25_part,pp,pktracepart_v25)
+    TRACE_V25_REC_LEN_OFF(NULL,v25_full,fp,pktracefull_v25)
 
 #undef __TNV1O
 #undef __TNV1L
@@ -750,17 +750,17 @@ static gboolean nstrace_set_start_time(wtap *wth)
     return FALSE;
 }
 
-#define __TNO(enumprefix,structprefix,structname,hdrname,structfieldname) \
-    wth->phdr.pseudo_header.nstr.hdrname##_offset =  enumprefix##_##hdrname##_offset;
+#define __TNO(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
+    (phdr)->pseudo_header.nstr.hdrname##_offset = enumprefix##_##hdrname##_offset;
 
-#define __TNL(enumprefix,structprefix,structname,hdrname,structfieldname) \
-    wth->phdr.pseudo_header.nstr.hdrname##_len = enumprefix##_##hdrname##_len;
+#define __TNL(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
+    (phdr)->pseudo_header.nstr.hdrname##_len = enumprefix##_##hdrname##_len;
 
-#define __TNV1O(enumprefix,structprefix,structname,hdrname,structfieldname) \
-    __TNO(enumprefix,structprefix,structname,hdrname,structfieldname)
+#define __TNV1O(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
+    __TNO(phdr,enumprefix,structprefix,structname,hdrname,structfieldname)
 
-#define __TNV1L(enumprefix,structprefix,structname,hdrname,structfieldname) \
-    __TNL(enumprefix,structprefix,structname,hdrname,structfieldname)
+#define __TNV1L(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
+    __TNL(phdr,enumprefix,structprefix,structname,hdrname,structfieldname)
 
 
 
@@ -805,7 +805,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
                 wth->phdr.caplen = wth->phdr.len;
 
 
-                TRACE_V10_REC_LEN_OFF(v10_full,fp,pktracefull_v10);
+                TRACE_V10_REC_LEN_OFF(&wth->phdr,v10_full,fp,pktracefull_v10);
 
                 buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
                 memcpy(buffer_start_ptr(wth->frame_buffer), fp, wth->phdr.caplen);
@@ -830,7 +830,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
                 wth->phdr.len =  pletohs(&pp->pp_PktSizeOrg) + nspr_pktracepart_v10_s;
                 wth->phdr.caplen =  pletohs(&pp->nsprRecordSize);
 
-                TRACE_V10_REC_LEN_OFF(v10_part,pp,pktracepart_v10);
+                TRACE_V10_REC_LEN_OFF(&wth->phdr,v10_part,pp,pktracepart_v10);
 
                 buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
                 memcpy(buffer_start_ptr(wth->frame_buffer), pp, wth->phdr.caplen);
@@ -920,19 +920,19 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 #define FPSIZEDEFV24(pp,ver) FPSIZEDEFV20(fp,ver)
 #define FPSIZEDEFV25(pp,ver) FPSIZEDEFV20(fp,ver)
 
-#define PACKET_DESCRIBE(FPTIMEDEF,SIZEDEF,ver,enumprefix,type,structname,TYPE)\
+#define PACKET_DESCRIBE(phdr,FPTIMEDEF,SIZEDEF,ver,enumprefix,type,structname,TYPE)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)&nstrace_buf[nstrace_buf_offset];\
         TIMEDEFV##ver(fp,type);\
         SIZEDEF##ver(fp,ver);\
-        TRACE_V##ver##_REC_LEN_OFF(enumprefix,type,structname);\
-        buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);\
-        memcpy(buffer_start_ptr(wth->frame_buffer), fp, wth->phdr.caplen);\
+        TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
+        buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
+        memcpy(buffer_start_ptr(wth->frame_buffer), fp, (phdr)->caplen);\
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
         nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
         nstrace->nstrace_buflen = nstrace_buflen;\
         nstrace->nsg_creltime = nsg_creltime;\
-        wth->phdr.pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##TYPE;\
+        (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##TYPE;\
         return TRUE;\
     }while(0)
 
@@ -959,43 +959,43 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
             switch (fp21->fp_RecordType)
             {
 
-#define GENERATE_CASE(type,acttype) \
+#define GENERATE_CASE(phdr,type,acttype) \
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
-            PACKET_DESCRIBE(TIMEDEF,FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,acttype);
-#define GENERATE_CASE_V25(type,acttype) \
+            PACKET_DESCRIBE(phdr,TIMEDEF,FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,acttype);
+#define GENERATE_CASE_V25(phdr,type,acttype) \
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
         case NSPR_PDPKTRACEFULLNEWRX_V##type:\
-            PACKET_DESCRIBE(TIMEDEF,FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,acttype);
-                GENERATE_CASE_V25(25,205);
-                GENERATE_CASE_V25(24,204);
-                GENERATE_CASE(23,203);
-                GENERATE_CASE(22,202);
-                GENERATE_CASE(21,201);
-                GENERATE_CASE(20,200);
+            PACKET_DESCRIBE(phdr,TIMEDEF,FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,acttype);
+                GENERATE_CASE_V25(&wth->phdr,25,205);
+                GENERATE_CASE_V25(&wth->phdr,24,204);
+                GENERATE_CASE(&wth->phdr,23,203);
+                GENERATE_CASE(&wth->phdr,22,202);
+                GENERATE_CASE(&wth->phdr,21,201);
+                GENERATE_CASE(&wth->phdr,20,200);
 #undef GENERATE_CASE
 #undef GENERATE_CASE_V25
 
-#define GENERATE_CASE(type,acttype) \
+#define GENERATE_CASE(phdr,type,acttype) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
-            PACKET_DESCRIBE(TIMEDEF,PPSIZEDEFV,type,v##type##_part,pp,pktracepart_v##type,acttype);
-#define GENERATE_CASE_V25(type,acttype) \
+            PACKET_DESCRIBE(phdr,TIMEDEF,PPSIZEDEFV,type,v##type##_part,pp,pktracepart_v##type,acttype);
+#define GENERATE_CASE_V25(phdr,type,acttype) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
         case NSPR_PDPKTRACEPARTNEWRX_V##type:\
-            PACKET_DESCRIBE(TIMEDEF,PPSIZEDEFV,type,v##type##_part,pp,pktracepart_v##type,acttype);
-                GENERATE_CASE_V25(25,205);
-                GENERATE_CASE_V25(24,204);
-                GENERATE_CASE(23,203);
-                GENERATE_CASE(22,202);
-                GENERATE_CASE(21,201);
-                GENERATE_CASE(20,200);
+            PACKET_DESCRIBE(phdr,TIMEDEF,PPSIZEDEFV,type,v##type##_part,pp,pktracepart_v##type,acttype);
+                GENERATE_CASE_V25(&wth->phdr,25,205);
+                GENERATE_CASE_V25(&wth->phdr,24,204);
+                GENERATE_CASE(&wth->phdr,23,203);
+                GENERATE_CASE(&wth->phdr,22,202);
+                GENERATE_CASE(&wth->phdr,21,201);
+                GENERATE_CASE(&wth->phdr,20,200);
 #undef GENERATE_CASE
 #undef GENERATE_CASE_V25
 
@@ -1041,13 +1041,6 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
     return FALSE;
 }
 
-#undef __TNO
-#undef __TNL
-#undef __TNV1O
-#undef __TNV1L
-
-
-
 static gboolean nstrace_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 
@@ -1059,23 +1052,10 @@ static gboolean nstrace_read(wtap *wth, int *err, gchar **err_info, gint64 *data
     return FALSE;
 }
 
-
-#define __TNO(enumprefix,structprefix,structname,hdrname,structfieldname) \
-    phdr->pseudo_header.nstr.hdrname##_offset = (guint8) enumprefix##_##hdrname##_offset;
-#define __TNL(enumprefix,structprefix,structname,hdrname,structfieldname) \
-    phdr->pseudo_header.nstr.hdrname##_len = (guint8) enumprefix##_##hdrname##_len;
-
-#define __TNV1O(enumprefix,structprefix,structname,hdrname,structfieldname) \
-    __TNO(enumprefix,structprefix,structname,hdrname,structfieldname)
-#define __TNV1L(enumprefix,structprefix,structname,hdrname,structfieldname) \
-    __TNL(enumprefix,structprefix,structname,hdrname,structfieldname)
-
-
 static gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
-    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     int bytes_read;
 
     *err = 0;
@@ -1097,72 +1077,66 @@ static gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
     if (wth->file_type == WTAP_FILE_NETSCALER_1_0)
     {
 
-#define GENERATE_CASE_FULL(type,acttype) \
+#define GENERATE_CASE_FULL(phdr,type,acttype) \
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
-            TRACE_V##type##_REC_LEN_OFF(v##type##_full,fp,pktracefull_v##type);\
-            pseudo_header->nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
+            TRACE_V##type##_REC_LEN_OFF(phdr,v##type##_full,fp,pktracefull_v##type);\
+            (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
             break;\
 
-#define GENERATE_CASE_PART(type,acttype) \
+#define GENERATE_CASE_PART(phdr,type,acttype) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
-            TRACE_V##type##_REC_LEN_OFF(v##type##_part,pp,pktracepart_v##type);\
-            pseudo_header->nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
+            TRACE_V##type##_REC_LEN_OFF(phdr,v##type##_part,pp,pktracepart_v##type);\
+            (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
             break;\
 
         switch (pletohs(&(( nspr_header_v10_t*)pd)->ph_RecordType))
         {
-            GENERATE_CASE_FULL(10,100)
-            GENERATE_CASE_PART(10,100)
+            GENERATE_CASE_FULL(phdr,10,100)
+            GENERATE_CASE_PART(phdr,10,100)
         }
     } else if (wth->file_type == WTAP_FILE_NETSCALER_2_0)
     {
-#define GENERATE_CASE_FULL_V25(type,acttype) \
+#define GENERATE_CASE_FULL_V25(phdr,type,acttype) \
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
         case NSPR_PDPKTRACEFULLNEWRX_V##type:\
-            TRACE_V##type##_REC_LEN_OFF(v##type##_full,fp,pktracefull_v##type);\
-            pseudo_header->nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
+            TRACE_V##type##_REC_LEN_OFF(phdr,v##type##_full,fp,pktracefull_v##type);\
+            (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
             break;\
 
-#define GENERATE_CASE_PART_V25(type,acttype) \
+#define GENERATE_CASE_PART_V25(phdr,type,acttype) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
         case NSPR_PDPKTRACEPARTNEWRX_V##type:\
-            TRACE_V##type##_REC_LEN_OFF(v##type##_part,pp,pktracepart_v##type);\
-            pseudo_header->nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
+            TRACE_V##type##_REC_LEN_OFF(phdr,v##type##_part,pp,pktracepart_v##type);\
+            (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
             break;\
 
         switch ((( nspr_hd_v20_t*)pd)->phd_RecordType)
         {
-            GENERATE_CASE_FULL(20,200)
-            GENERATE_CASE_PART(20,200)
-            GENERATE_CASE_FULL(21,201)
-            GENERATE_CASE_PART(21,201)
-            GENERATE_CASE_FULL(22,202)
-            GENERATE_CASE_PART(22,202)
-            GENERATE_CASE_FULL(23,203)
-            GENERATE_CASE_PART(23,203)
-            GENERATE_CASE_FULL_V25(24,204)
-            GENERATE_CASE_PART_V25(24,204)
-            GENERATE_CASE_FULL_V25(25,205)
-            GENERATE_CASE_PART_V25(25,205)
+            GENERATE_CASE_FULL(phdr,20,200)
+            GENERATE_CASE_PART(phdr,20,200)
+            GENERATE_CASE_FULL(phdr,21,201)
+            GENERATE_CASE_PART(phdr,21,201)
+            GENERATE_CASE_FULL(phdr,22,202)
+            GENERATE_CASE_PART(phdr,22,202)
+            GENERATE_CASE_FULL(phdr,23,203)
+            GENERATE_CASE_PART(phdr,23,203)
+            GENERATE_CASE_FULL_V25(phdr,24,204)
+            GENERATE_CASE_PART_V25(phdr,24,204)
+            GENERATE_CASE_FULL_V25(phdr,25,205)
+            GENERATE_CASE_PART_V25(phdr,25,205)
         }
     }
 
     return TRUE;
 }
-
-#undef __TNL
-#undef __TNO
-#undef __TNV1L
-#undef __TNV1O
-
 
 /*
 ** Netscaler trace format close routines.
