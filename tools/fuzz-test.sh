@@ -140,8 +140,8 @@ fi
 DISSECTOR_PLUGINS=`$TSHARK -G plugins | grep dissector | wc -l`
 # 10 is an arbritary value.
 if [ $DISSECTOR_PLUGINS -lt 10 ] ; then
-    echo "Error: Found fewer plugins than expected."
-    exit 1
+    echo "Warning: Found fewer plugins than expected."
+    #exit 1
 fi
 
 HOWMANY="forever"
