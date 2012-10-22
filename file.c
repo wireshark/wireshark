@@ -510,22 +510,22 @@ cf_read(capture_file *cf, gboolean reloading)
   gchar               *name_ptr;
   gint64               data_offset;
   gint64               file_pos;
-  progdlg_t *volatile  progbar        = NULL;
+  progdlg_t           *progbar        = NULL;
   gboolean             stop_flag;
-  volatile gint64      size;
-  volatile float       progbar_val;
+  gint64               size;
+  float                progbar_val;
   GTimeVal             start_time;
   gchar                status_str[100];
-  volatile gint64      progbar_nextstep;
-  volatile gint64      progbar_quantum;
+  gint64               progbar_nextstep;
+  gint64               progbar_quantum;
   dfilter_t           *dfcode;
   column_info         *cinfo;
   epan_dissect_t       edt;
   gboolean             create_proto_tree;
   guint                tap_flags;
-  volatile int         count          = 0;
+  int                  count          = 0;
 #ifdef HAVE_LIBPCAP
-  volatile int         displayed_once = 0;
+  int                  displayed_once = 0;
 #endif
   gboolean             compiled;
 
@@ -580,6 +580,7 @@ cf_read(capture_file *cf, gboolean reloading)
   stop_flag = FALSE;
   g_get_current_time(&start_time);
 
+  TRY
   while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
     if (size >= 0) {
       count++;
@@ -630,24 +631,21 @@ cf_read(capture_file *cf, gboolean reloading)
          hours even on fast machines) just to see that it was the wrong file. */
       break;
     }
-    TRY {
-      read_packet(cf, dfcode, &edt, cinfo, data_offset);
-    }
-    CATCH(OutOfMemoryError) {
-      simple_message_box(ESD_TYPE_ERROR, NULL,
-                     "Some infos / workarounds can be found at:\n"
-                     "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
-                     "Sorry, but Wireshark has run out of memory and has to terminate now!");
+    read_packet(cf, dfcode, &edt, cinfo, data_offset);
+  } 
+  CATCH(OutOfMemoryError) {
+    simple_message_box(ESD_TYPE_ERROR, NULL,
+                   "Some infos / workarounds can be found at:\n"
+                   "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
+                   "Sorry, but Wireshark has run out of memory and has to terminate now!");
 #if 0
-      /* Could we close the current capture and free up memory from that? */
-      break;
+    /* Could we close the current capture and free up memory from that? */
 #else
-      /* we have to terminate, as we cannot recover from the memory error */
-      exit(1);
+    /* we have to terminate, as we cannot recover from the memory error */
+    exit(1);
 #endif
-    }
-    ENDTRY;
   }
+  ENDTRY;
   epan_dissect_finish(&edt);
 
   /* Free the display name */
@@ -774,14 +772,14 @@ cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *er
 }
 
 cf_read_status_t
-cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
+cf_continue_tail(capture_file *cf, int to_read, int *err)
 {
   gint64        data_offset             = 0;
   gchar        *err_info;
-  volatile int  newly_displayed_packets = 0;
+  int           newly_displayed_packets = 0;
   dfilter_t    *dfcode;
-  volatile column_info  *cinfo;
-  epan_dissect_t  edt;
+  column_info  *cinfo;
+  epan_dissect_t edt;
   gboolean      create_proto_tree;
   guint         tap_flags;
   gboolean      compiled;
@@ -810,6 +808,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: %u new: %u", cf->count, to_read);*/
 
+  TRY
   while (to_read != 0) {
     wtap_cleareof(cf->wth);
     if (!wtap_read(cf->wth, err, &err_info, &data_offset)) {
@@ -821,28 +820,25 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
          aren't any packets left to read) exit. */
       break;
     }
-    TRY{
-      if (read_packet(cf, dfcode, &edt, (column_info *) cinfo,
-                      data_offset) != -1) {
-        newly_displayed_packets++;
-      }
+    if (read_packet(cf, dfcode, &edt, (column_info *) cinfo, data_offset) != -1) {
+      newly_displayed_packets++;
     }
-    CATCH(OutOfMemoryError) {
-      simple_message_box(ESD_TYPE_ERROR, NULL,
-                     "Some infos / workarounds can be found at:\n"
-                     "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
-                     "Sorry, but Wireshark has run out of memory and has to terminate now!");
-#if 0
-      /* Could we close the current capture and free up memory from that? */
-      return CF_READ_ABORTED;
-#else
-      /* we have to terminate, as we cannot recover from the memory error */
-      exit(1);
-#endif
-    }
-    ENDTRY;
     to_read--;
   }
+  CATCH(OutOfMemoryError) {
+    simple_message_box(ESD_TYPE_ERROR, NULL,
+                   "Some infos / workarounds can be found at:\n"
+                   "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
+                   "Sorry, but Wireshark has run out of memory and has to terminate now!");
+#if 0
+    /* Could we close the current capture and free up memory from that? */
+    return CF_READ_ABORTED;
+#else
+    /* we have to terminate, as we cannot recover from the memory error */
+    exit(1);
+#endif
+  }
+  ENDTRY;
   epan_dissect_finish(&edt);
 
   /* Update the file encapsulation; it might have changed based on the
@@ -4006,19 +4002,19 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   gchar               *name_ptr;
   gint64               data_offset;
   gint64               file_pos;
-  progdlg_t *volatile  progbar        = NULL;
+  progdlg_t           *progbar        = NULL;
   gboolean             stop_flag;
-  volatile gint64      size;
-  volatile float       progbar_val;
+  gint64               size;
+  float                progbar_val;
   GTimeVal             start_time;
   gchar                status_str[100];
-  volatile gint64      progbar_nextstep;
-  volatile gint64      progbar_quantum;
+  gint64               progbar_nextstep;
+  gint64               progbar_quantum;
   guint32              framenum;
   frame_data          *fdata;
-  volatile int         count          = 0;
+  int                  count          = 0;
 #ifdef HAVE_LIBPCAP
-  volatile int         displayed_once = 0;
+  int                  displayed_once = 0;
 #endif
 
   /* Close the old handle. */
