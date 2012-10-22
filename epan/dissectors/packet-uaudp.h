@@ -56,7 +56,7 @@ typedef enum _e_ua_direction {
 	DIR_UNKNOWN   /* unknown direction */
 } e_ua_direction;
 
-/* struct for tap ethereal */
+/* struct for tap wireshark */
 typedef struct _tap_struct_uaudp {
 	guint opcode;
 	guint expseq; /* expected sequence number */
