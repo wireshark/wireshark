@@ -267,7 +267,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item      *ti, *hidden_item;
   const gchar     *fc_str;
   proto_tree      *fc_tree;
-  static guchar    src[6], dst[6];
+  static guchar    src[6], dst[6]; /* has to be static due to SET_ADDRESS */
   guchar           src_swapped[6], dst_swapped[6];
   tvbuff_t        *next_tvb;
   static fddi_hdr  fddihdrs[4];

@@ -1722,7 +1722,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   e_ddp                         ddp;
   proto_tree                   *ddp_tree;
   proto_item                   *ti, *hidden_item;
-  static struct atalk_ddp_addr  src, dst;
+  static struct atalk_ddp_addr  src, dst; /* has to be static due to SET_ADDRESS */
   tvbuff_t                     *new_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");

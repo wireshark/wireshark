@@ -1885,7 +1885,7 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		th_word;
 	guint16		def, oef;
 	guint32		dsaf, osaf;
-	static struct sna_fid_type_4_addr src, dst;
+	static struct sna_fid_type_4_addr src, dst; /* has to be static due to SET_ADDRESS */
 
 	const int bytes_in_header = 26;
 

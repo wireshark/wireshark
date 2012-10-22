@@ -340,7 +340,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tr_hdr *volatile trh;
 
 	/* non-source-routed version of source addr */
-	static guint8		trn_shost_nonsr[6];
+	static guint8		trn_shost_nonsr[6]; /* has to be static due to SET_ADDRESS */
 	int			x;
 
 	/* Token-Ring Strings */
