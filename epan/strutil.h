@@ -272,6 +272,14 @@ gchar* ws_strdup_unescape_char (const gchar *str, const gchar chr);
  */
 gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_val);
 
+/**
+ * g_strcmp0 appears first in GLIB 2.16, define it locally for earlier versions. 
+ */
+
+#if !GLIB_CHECK_VERSION(2,16,0)
+int     g_strcmp0                       (const char     *str1,
+                                         const char     *str2);
+#endif /* GLIB_CHECK_VERSION(2,16,0) */
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
