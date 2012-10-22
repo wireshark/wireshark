@@ -118,6 +118,11 @@ static int hf_btl2cap_fcs = -1;
 static int hf_btl2cap_sdulength = -1;
 static int hf_btl2cap_continuation_to = -1;
 static int hf_btl2cap_reassembled_in = -1;
+static int hf_btl2cap_min_interval = -1;
+static int hf_btl2cap_max_interval = -1;
+static int hf_btl2cap_slave_latency = -1;
+static int hf_btl2cap_timeout_multiplier = -1;
+static int hf_btl2cap_conn_param_result = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_btl2cap = -1;
@@ -174,6 +179,8 @@ static const value_string command_code_vals[] = {
     { 0x0F,   "Move Channel Response" },
     { 0x10,   "Move Channel Confirmation" },
     { 0x11,   "Move Channel Confirmation Response" },
+    { 0x12,   "Connection Parameter Update Request" },
+    { 0x13,   "Connection Parameter Update Response" },
     { 0, NULL }
 };
 
@@ -229,6 +236,12 @@ static const value_string configuration_result_vals[] = {
     { 0x0003, "Failure - unknown options" },
     { 0x0004, "Pending" },
     { 0x0005, "Failure - flow spec rejected" },
+    { 0, NULL }
+};
+
+static const value_string conn_param_result_vals[] = {
+    { 0x0000,   "Accepted" },
+    { 0x0001,   "Rejected" },
     { 0, NULL }
 };
 
@@ -914,6 +927,49 @@ dissect_movechanconfirmationresponse(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 static int
+dissect_connparamrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_item *item;
+    guint16 max_interval, slave_latency;
+
+    item = proto_tree_add_item(tree, hf_btl2cap_min_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*1.25);
+    offset += 2;
+    item = proto_tree_add_item(tree, hf_btl2cap_max_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*1.25);
+    max_interval = tvb_get_letohs(tvb, offset);
+    offset += 2;
+    item = proto_tree_add_item(tree, hf_btl2cap_slave_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(item, " LL Connection Events");
+    slave_latency = tvb_get_letohs(tvb, offset);
+
+    if(slave_latency >= 500 || slave_latency > 10.0*tvb_get_letohs(tvb, offset+2)/(max_interval *1.25)) 
+        expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Parameter mismatch");
+    
+    offset += 2;
+    item = proto_tree_add_item(tree, hf_btl2cap_timeout_multiplier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(item, " (%g sec)",  tvb_get_letohs(tvb, offset)*0.01);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_connparamresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint16 result;
+
+    result = tvb_get_letohs(tvb, offset);
+    proto_tree_add_item(tree, hf_btl2cap_conn_param_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                    val_to_str_const(result, conn_param_result_vals, "Unknown result"));
+    
+    return offset;
+}
+
+static int
 dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     guint16 scid, dcid;
@@ -1234,7 +1290,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pd_save             = pinfo->private_data;
     pinfo->private_data = l2cap_data;
 
-    if (cid == BTL2CAP_FIXED_CID_SIGNAL) { /* This is a command packet*/
+    if (cid == BTL2CAP_FIXED_CID_SIGNAL || cid == BTL2CAP_FIXED_CID_LE_SIGNAL) {
+        /* This is a command packet*/
         while (offset < (length+4)) {
             proto_item  *ti_command;
             proto_tree  *btl2cap_cmd_tree;
@@ -1333,6 +1390,14 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset  = dissect_movechanconfirmationresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
                 break;
 
+            case 0x12: /* Connection Parameter Request */
+                offset  = dissect_connparamrequest(tvb, offset, pinfo, btl2cap_cmd_tree);
+                break;
+
+            case 0x13: /* Connection Parameter Response */
+                offset  = dissect_connparamresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
+                break;
+                
             default:
                 proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_data, tvb, offset, -1, ENC_NA);
                 offset += tvb_reported_length_remaining(tvb, offset);
@@ -1868,6 +1933,31 @@ proto_register_btl2cap(void)
           { "This is a continuation to the SDU in frame",           "btl2cap.continuation_to",
             FT_FRAMENUM, BASE_NONE, NULL, 0,
             "This is a continuation to the SDU in frame #", HFILL }
+        },
+        { &hf_btl2cap_min_interval,
+          { "Min. Interval",           "btl2cap.min_interval",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_max_interval,
+          { "Max. Interval",           "btl2cap.max_interval",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_slave_latency,
+          { "Slave Latency",           "btl2cap.slave_latency",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_timeout_multiplier,
+          { "Timeout Multiplier",           "btl2cap.timeout_multiplier",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_conn_param_result,
+          { "Move Result",           "btl2cap.move_result",
+            FT_UINT16, BASE_HEX, VALS(conn_param_result_vals), 0x0,
+            NULL, HFILL }
         }
     };
 

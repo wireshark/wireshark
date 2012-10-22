@@ -393,6 +393,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bt-dht.c
 	dissectors/packet-bt-utp.c
 	dissectors/packet-btamp.c
+	dissectors/packet-btatt.c
 	dissectors/packet-btbnep.c
 	dissectors/packet-btavctp.c
 	dissectors/packet-btavrcp.c
@@ -407,6 +408,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-btrfcomm.c
 	dissectors/packet-btsap.c
 	dissectors/packet-btsdp.c
+	dissectors/packet-btsmp.c
 	dissectors/packet-bvlc.c
 	dissectors/packet-bzr.c
 	dissectors/packet-calcappprotocol.c

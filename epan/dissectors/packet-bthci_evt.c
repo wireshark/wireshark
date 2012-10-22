@@ -8,6 +8,8 @@
  *
  * Updated to HCI specification 2.1 + EDR
  *   Allan M. Madsen 2007
+ * Updated to HCI specification 3.0+HS & 4.0
+ *   Allan M. Madsen 2012
  *
  * $Id$
  *
@@ -175,6 +177,10 @@ static int hf_bthci_evt_hold_mode_act_page = -1;
 static int hf_bthci_evt_hold_mode_act_inquiry = -1;
 static int hf_bthci_evt_hold_mode_act_periodic = -1;
 static int hf_bthci_evt_transmit_power_level = -1;
+static int hf_bthci_evt_transmit_power_level_gfsk = -1;
+static int hf_bthci_evt_transmit_power_level_dqpsk = -1;
+static int hf_bthci_evt_transmit_power_level_8dpsk = -1;
+static int hf_bthci_evt_flush_to_us = -1;
 static int hf_bthci_evt_num_supp_iac = -1;
 static int hf_bthci_evt_num_curr_iac = -1;
 static int hf_bthci_evt_iac_lap = -1;
@@ -224,13 +230,106 @@ static int hf_bthci_evt_auth_requirements = -1;
 static int hf_bthci_evt_numeric_value = -1;
 static int hf_bthci_evt_passkey = -1;
 static int hf_bthci_evt_notification_type = -1;
-static int hf_bthci_evt_eir_data = -1;
+static int hf_bthci_evt_data = -1;
 static int hf_bthci_evt_eir_struct_length = -1;
 static int hf_bthci_evt_eir_struct_type = -1;
 static int hf_bthci_evt_sc_uuid16 = -1;
 static int hf_bthci_evt_sc_uuid32 = -1;
 static int hf_bthci_evt_sc_uuid128 = -1;
+static int hf_bthci_evt_data_length = -1;
 
+static int hf_bthci_evt_location_domain_aware = -1;
+static int hf_bthci_evt_location_domain = -1;
+static int hf_bthci_evt_location_domain_options = -1;
+static int hf_bthci_evt_location_options = -1;
+static int hf_bthci_evt_flow_control_mode = -1;
+static int hf_bthci_evt_physical_link_handle = -1;
+static int hf_bthci_evt_flow_spec_identifier = -1;
+static int hf_bthci_evt_logical_link_handle = -1;
+static int hf_bthci_evt_max_acl_data_packet_length = -1;
+static int hf_bthci_evt_data_block_length = -1;
+static int hf_bthci_evt_total_num_data_blocks = -1;
+static int hf_bthci_evt_enc_key_size = -1;
+static int hf_bthci_evt_amp_remaining_assoc_length = -1;
+static int hf_bthci_evt_amp_assoc_fragment = -1;
+static int hf_bthci_evt_amp_status = -1;
+static int hf_bthci_evt_total_bandwidth = -1;
+static int hf_bthci_evt_max_guaranteed_bandwidth = -1;
+static int hf_bthci_evt_min_latency = -1;
+static int hf_bthci_evt_max_pdu_size = -1;
+static int hf_bthci_evt_amp_controller_type = -1;
+static int hf_bthci_evt_pal_capabilities_00 = -1;
+static int hf_bthci_evt_max_amp_assoc_length = -1;
+static int hf_bthci_evt_max_flush_to_us = -1;
+static int hf_bthci_evt_best_effort_flush_to_us = -1;
+static int hf_bthci_evt_link_loss_reason = -1;
+static int hf_bthci_evt_num_compl_blocks = -1;
+static int hf_bthci_evt_test_scenario = -1;
+static int hf_bthci_evt_report_reason = -1;
+static int hf_bthci_evt_report_event_type = -1;
+static int hf_bthci_evt_num_frames = -1;
+static int hf_bthci_evt_num_error_frames = -1;
+static int hf_bthci_evt_num_bits = -1;
+static int hf_bthci_evt_num_error_bits = -1;
+static int hf_bthci_evt_short_range_mode_state = -1;
+static int hf_bthci_evt_le_supported_host = -1;
+static int hf_bthci_evt_le_simultaneous_host = -1;
+static int hf_bthci_evt_le_acl_data_pkt_len = -1;
+static int hf_bthci_evt_total_num_le_acl_data_pkts = -1;
+static int hf_bthci_evt_le_feature_00 = -1;
+static int hf_bthci_evt_white_list_size = -1;
+static int hf_bthci_evt_le_channel_map = -1;
+static int hf_bthci_evt_encrypted_data = -1;
+static int hf_bthci_evt_random_number = -1;
+static int hf_bthci_evt_le_num_packets = -1;
+static int hf_bthci_evt_le_meta_subevent = -1;
+static int hf_bthci_evt_le_peer_address_type = -1;
+static int hf_bthci_evt_le_con_interval = -1;
+static int hf_bthci_evt_le_con_latency = -1;
+static int hf_bthci_evt_le_supervision_timeout = -1;
+static int hf_bthci_evt_encrypted_diversifier = -1;
+static int hf_bthci_evt_le_master_clock_accuracy = -1;
+static int hf_bthci_evt_num_reports = -1;
+static int hf_bthci_evt_advts_event_type = -1;
+static int hf_bthci_evt_appearance = -1;
+static int hf_bthci_evt_flags_limited_disc_mode = -1;
+static int hf_bthci_evt_flags_general_disc_mode = -1;
+static int hf_bthci_evt_flags_bredr_not_support = -1;
+static int hf_bthci_evt_flags_le_bredr_support_ctrl = -1;
+static int hf_bthci_evt_flags_le_bredr_support_host = -1;
+static int hf_bthci_evt_flags_le_oob_data_present = -1;
+static int hf_bthci_evt_flags_le_oob_le_supported_host = -1;
+static int hf_bthci_evt_flags_le_oob_le_bredr_support = -1;
+static int hf_bthci_evt_flags_le_oob_address_type = -1;
+static int hf_bthci_evt_le_states_00 = -1;
+static int hf_bthci_evt_le_states_01 = -1;
+static int hf_bthci_evt_le_states_02 = -1;
+static int hf_bthci_evt_le_states_03 = -1;
+static int hf_bthci_evt_le_states_04 = -1;
+static int hf_bthci_evt_le_states_05 = -1;
+static int hf_bthci_evt_le_states_06 = -1;
+static int hf_bthci_evt_le_states_07 = -1;
+static int hf_bthci_evt_le_states_10 = -1;
+static int hf_bthci_evt_le_states_11 = -1;
+static int hf_bthci_evt_le_states_12 = -1;
+static int hf_bthci_evt_le_states_13 = -1;
+static int hf_bthci_evt_le_states_14 = -1;
+static int hf_bthci_evt_le_states_15 = -1;
+static int hf_bthci_evt_le_states_16 = -1;
+static int hf_bthci_evt_le_states_17 = -1;
+static int hf_bthci_evt_le_states_20 = -1;
+static int hf_bthci_evt_le_states_21 = -1;
+static int hf_bthci_evt_le_states_22 = -1;
+static int hf_bthci_evt_le_states_23 = -1;
+static int hf_bthci_evt_le_states_24 = -1;
+static int hf_bthci_evt_le_states_25 = -1;
+static int hf_bthci_evt_le_states_26 = -1;
+static int hf_bthci_evt_le_states_27 = -1;
+static int hf_bthci_evt_le_states_30 = -1;
+static int hf_bthci_evt_le_states_31 = -1;
+static int hf_bthci_evt_le_states_32 = -1;
+static int hf_bthci_evt_le_states_33 = -1;
+static int hf_bthci_evt_le_states_34 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bthci_evt = -1;
@@ -239,6 +338,7 @@ static gint ett_lmp_subtree = -1;
 static gint ett_ptype_subtree = -1;
 static gint ett_eir_subtree = -1;
 static gint ett_eir_struct_subtree = -1;
+static gint ett_le_state_subtree = -1;
 
 static const value_string evt_code_vals[] = {
     {0x01, "Inquiry Complete"},
@@ -292,6 +392,21 @@ static const value_string evt_code_vals[] = {
     {0x3b, "User Passkey Notification"},
     {0x3c, "Keypress Notification"},
     {0x3d, "Remote Host Supported Features Notification"},
+    {0x3e, "LE Meta"},
+    {0x40, "Physical Link Complete"},
+    {0x41, "Channel Selected"},
+    {0x42, "Disconnect Physical Link Complete"},
+    {0x43, "Physical Link Loss Early Warning"},
+    {0x44, "Physical Link Recovery"},
+    {0x45, "Logical Link Complete"},
+    {0x46, "Disconnect Logical Link Complete"},
+    {0x47, "Flow Spec Modify Complete"},
+    {0x48, "Number Of Completed Data Blocks"},
+    {0x49, "AMP Start Test"},
+    {0x4a, "AMP Test End"},
+    {0x4b, "AMP Receiver Report"},
+    {0x4c, "Short Range Mode Change Complete"},
+    {0x4d, "AMP Status Change"},
     {0xfe, "Bluetooth Logo Testing"},
     {0xff, "Vendor-Specific"},
     {0, NULL}
@@ -361,7 +476,7 @@ static const value_string evt_hci_vers_nr[] = {
 };
 
 /* Taken from https://www.bluetooth.org/technical/assignednumbers/identifiers.htm */
-static const value_string evt_comp_id[] = {
+static const value_string bthci_evt_comp_id[] = {
     {0x0000, "Ericsson Technology Licensing"},
     {0x0001, "Nokia Mobile Phones"},
     {0x0002, "Intel Corp."},
@@ -488,9 +603,50 @@ static const value_string evt_comp_id[] = {
     {0x007B, "Hanlynn Technologies"},
     {0x007C, "A & R Cambridge"},
     {0x007D, "Seers Technology Co. Ltd."},
+    {0x007E, "Sports Tracking Technologies Ltd."},
+    {0x007F, "Autonet Mobile"},
+    {0x0080, "DeLorme Publishing Company, Inc."},
+    {0x0081, "WuXi Vimicro"},
+    {0x0082, "Sennheiser Communications A/S"},
+    {0x0083, "TimeKeeping Systems, Inc."},
+    {0x0084, "Ludus Helsinki Ltd."},
+    {0x0085, "BlueRadios, Inc."},
+    {0x0086, "equinux AG"},
+    {0x0087, "Garmin International, Inc."},
+    {0x0088, "Ecotest"},
+    {0x0089, "GN ReSound A/S"},
+    {0x008A, "Jawbone"},
+    {0x008B, "Topcon Positioning Systems, LLC"},
+    {0x008C, "Qualcomm Labs, Inc."},
+    {0x008D, "Zscan Software"},
+    {0x008E, "Quintic Corp."},
+    {0x008F, "Stollmann E+V GmbH"},
+    {0x0090, "Funai Electric Co., Ltd."},
+    {0x0091, "Advanced PANMOBIL systems GmbH & Co. KG"},
+    {0x0092, "ThinkOptics, Inc."},
+    {0x0093, "Universal Electronics, Inc."},
+    {0x0094, "Airoha Technology Corp."},
+    {0x0095, "NEC Lighting, Ltd."},
+    {0x0096, "ODM Technology, Inc."},
+    {0x0097, "Bluetrek Technologies Limited"},
+    {0x0098, "zero1.tv GmbH"},
+    {0x0099, "i.Tech Dynamic Global Distribution Ltd."},
+    {0x009A, "Alpwise"},
+    {0x009B, "Jiangsu Toppower Automotive Electronics Co., Ltd."},
+    {0x009C, "Colorfy, Inc."},
+    {0x009D, "Geoforce Inc."},
+    {0x009E, "Bose Corporation"},
+    {0x009F, "Suunto Oy"},
+    {0x00A0, "Kensington Computer Products Group"},
+    {0x00A1, "SR-Medizinelektronik"},
+    {0x00A2, "Vertu Corporation Limited"},
+    {0x00A3, "Meta Watch Ltd."},
+    {0x00A4, "LINAK A/S"},
+    {0x00A5, "OTL Dynamics LLC"},
     {0xFFFF, "For use in internal and interoperability tests."},
     {0, NULL }
 };
+value_string_ext bthci_evt_comp_id_ext = VALUE_STRING_EXT_INIT(bthci_evt_comp_id);
 
 static const value_string evt_service_types[] = {
     {0x00, "No Traffic Available"},
@@ -530,28 +686,6 @@ static const value_string evt_key_types[] = {
     {0, NULL }
 };
 
-static const value_string evt_page_scan_modes[] = {
-    {0x00, "Mandatory Page Scan Mode"},
-    {0x01, "Optional Page Scan Mode I"},
-    {0x02, "Optional Page Scan Mode II"},
-    {0x03, "Optional Page Scan Mode III"},
-    {0, NULL }
-};
-
-static const value_string evt_page_scan_repetition_modes[] = {
-    {0x00, "R0"},
-    {0x01, "R1"},
-    {0x02, "R2"},
-    {0, NULL }
-};
-
-static const value_string evt_page_scan_period_modes[] = {
-    {0x00, "P0"},
-    {0x01, "P1"},
-    {0x02, "P2"},
-    {0, NULL }
-};
-
 static const value_string evt_scan_types[] = {
     {0x00, "Standard Scan" },
     {0x01, "Interlaced Scan" },
@@ -580,14 +714,6 @@ static const value_string evt_boolean[] = {
 static const value_string evt_pin_types[] = {
     {0x00, "Variable PIN" },
     {0x01, "Fixed PIN" },
-    {0, NULL }
-};
-
-static const value_string evt_scan_enable_values[] = {
-    {0x00, "No Scans enabled" },
-    {0x01, "Inquiry Scan enabled/Page Scan disable" },
-    {0x02, "Inquiry Scan disabled/Page Scan enabled" },
-    {0x03, "Inquiry Scan enabled/Page Scan enabled" },
     {0, NULL }
 };
 
@@ -650,16 +776,81 @@ static const value_string evt_flow_direction_values[] = {
     {0, NULL }
 };
 
-static const value_string evt_notification_type_vals[] = {
-    {0x0, "Passkey Entry Started" },
-    {0x1, "Passkey Digit Entered" },
-    {0x2, "Passkey Digit Erased" },
-    {0x3, "Passkey Cleared" },
-    {0x4, "Passkey Entry Completed" },
-    {0, NULL }
+static const value_string evt_flow_ctrl_mode[] = {
+    { 0x00, "Packet based" },
+    { 0x01, "Data Block based" },
+    { 0, NULL }
 };
 
-static int
+static const value_string evt_amp_status[] = {
+    { 0x00, "Controller available but currently physically powered down" },
+    { 0x01, "Controller available exclusively for Bluetooth" },
+    { 0x02, "No capacity available for Bluetooth operation" },
+    { 0x03, "Low capacity available for Bluetooth operation" },
+    { 0x04, "Medium capacity available for Bluetooth operation" },
+    { 0x05, "High capacity available for Bluetooth operation" },
+    { 0x06, "Full capacity available for Bluetooth operation" },
+    { 0, NULL }
+};
+
+static const value_string evt_controller_types[] = {
+    { 0x00, "Primary BR/EDR" },
+    { 0x01, "802.11 AMP" },
+    { 0, NULL }
+};
+
+static const value_string evt_link_loss_reasons[] = {
+    { 0x00, "Unknown" },
+    { 0x01, "Range related" },
+    { 0x02, "Bandwidth related" },
+    { 0x03, "Resolving Conflict" },
+    { 0x04, "Interference" },
+    { 0, NULL }
+};
+
+static const value_string evt_report_reasons[] = {
+    { 0x00, "Configured Interval" },
+    { 0x01, "Test Ended" },
+    { 0, NULL }
+};
+
+static const value_string evt_report_event_types[] = {
+    { 0x00, "Frames Received" },
+    { 0x01, "Frames Received & Bits in Error" },
+    { 0, NULL }
+};
+
+static const value_string evt_le_meta_subevent[] = {
+    { 0x01, "LE Connection Complete" },
+    { 0x02, "LE Advertising Report" },
+    { 0x03, "LE Connection Update Complete" },
+    { 0x04, "LE Read Remote Used Features Complete" },
+    { 0x05, "LE Long Term Key Request" },
+    { 0, NULL }
+};
+
+static const value_string evt_le_advertising_evt_types[] = {
+    { 0x00, "Connectable Unidirected Advertising" },
+    { 0x01, "Connectable Directed Advertising" },
+    { 0x02, "Scannable Unidirected Advertising" },
+    { 0x03, "Non-Connectable Unidirected Advertising" },
+    { 0x04, "Scan Response" },
+    { 0, NULL }
+};
+
+static const value_string evt_master_clock_accuray[] = {
+    { 0x00, "500 ppm" },
+    { 0x01, "250 ppm" },
+    { 0x02, "150 ppm" },
+    { 0x03, "100 ppm" },
+    { 0x04, "75 ppm" },
+    { 0x05, "50 ppm" },
+    { 0x06, "30 ppm" },
+    { 0x07, "20 ppm" },
+    { 0, NULL }
+};
+
+static int 
 dissect_bthci_evt_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     guint8      i, bd_addr[6];
@@ -1261,22 +1452,26 @@ dissect_bthci_evt_inq_result_with_rssi(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 static int
-dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 size)
 {
-    guint8      length, type;
-    guint       i, j;
-    proto_item *ti_eir         = NULL;
-    proto_item *ti_eir_subtree = NULL;
+    guint8 i, j, length, type;
+    proto_item *ti_eir=NULL;
+    proto_item *ti_eir_subtree=NULL;
 
     if(tree){
-        ti_eir=proto_tree_add_text(tree, tvb, offset, 240, "Extended Inquiry Response Data");
+        if(size == 240 ) { /* EIR data */
+            ti_eir=proto_tree_add_text(tree, tvb, offset, 240, "Extended Inquiry Response Data");
+        }
+        else { /*  Advertising data */
+            ti_eir=proto_tree_add_text(tree, tvb, offset, size, "Advertising Data");
+        }
         ti_eir_subtree=proto_item_add_subtree(ti_eir, ett_eir_subtree);
     }
 
     i=0;
-    while(i<240){
+    while(i<size){
         length = tvb_get_guint8(tvb, offset+i);
-        if (length != 0) {
+        if( length != 0 ){
 
             proto_item *ti_eir_struct=NULL;
             proto_tree *ti_eir_struct_subtree=NULL;
@@ -1292,10 +1487,21 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
             proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_evt_eir_struct_type, tvb, offset+i+1, 1, ENC_LITTLE_ENDIAN);
 
             switch(type) {
+                case 0x01: /* Flags */
+                    if(length-1 > 0)
+                    {
+                        proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_flags_limited_disc_mode, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_flags_general_disc_mode, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_flags_bredr_not_support, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_flags_le_bredr_support_ctrl, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_flags_le_bredr_support_host, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
+                    }
+                    break;
                 case 0x02: /* 16-bit Service Class UUIDs, incomplete list */
                 case 0x03: /* 16-bit Service Class UUIDs, complete list */
+                case 0x14: /* 16-bit Service Solicitation UUIDs */
                     j=0;
-                    while(j<(guint)(length-1))
+                    while(j<(guint8)(length-1))
                     {
                         proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_sc_uuid16, tvb, offset+i+j+2, 2, ENC_LITTLE_ENDIAN);
                         j+=2;
@@ -1304,7 +1510,7 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
                 case 0x04: /* 32-bit Service Class UUIDs, incomplete list */
                 case 0x05: /* 32-bit Service Class UUIDs, complete list */
                     j=0;
-                    while(j<(guint)(length-1))
+                    while(j<(guint8)(length-1))
                     {
                         proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_sc_uuid32, tvb, offset+i+j+2, 4, ENC_LITTLE_ENDIAN);
                         j+=4;
@@ -1313,7 +1519,7 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
                 case 0x06: /* 128-bit Service Class UUIDs, incomplete list */
                 case 0x07: /* 128-bit Service Class UUIDs, complete list */
                     j=0;
-                    while(j<(guint)(length-1))
+                    while(j<(guint8)(length-1))
                     {
                         proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_sc_uuid128, tvb, offset+i+j+2, 16, ENC_NA);
                         j+=16;
@@ -1327,8 +1533,56 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
                 case 0x0A: /* Tx Power Level */
                     proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_transmit_power_level, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
                     break;
+                case 0x0D: /* Class of Device */
+                    dissect_bthci_evt_cod(tvb, offset+i+2, pinfo, ti_eir_struct_subtree);
+                    break;
+                case 0x0E: /* Simple Pairing Hash C */
+                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_hash_c, tvb, offset+i+2, 16, ENC_NA);
+                    break;
+                case 0x0F: /* Simple Pairing Randomizer R */
+                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_randomizer_r, tvb, offset+i+2, 16, ENC_NA);
+                    break;
+                case 0x11: /* Security Manager OOB Flags */
+                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_flags_le_oob_data_present, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_flags_le_oob_le_supported_host, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_flags_le_oob_le_bredr_support, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_flags_le_oob_address_type, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
+                    break;
+                case 0x12: /* Slave Connection Interval Range */
+                {
+                    proto_item *item;
+
+                    item = proto_tree_add_item(tree, hf_bthci_evt_le_con_interval, tvb, offset+i+2, 2, ENC_LITTLE_ENDIAN);
+                    proto_item_append_text(item, " Min (%g msec)",  tvb_get_letohs(tvb, offset+i+2)*1.25);
+                    item = proto_tree_add_item(tree, hf_bthci_evt_le_con_interval, tvb, offset+i+4, 2, ENC_LITTLE_ENDIAN);
+                    proto_item_append_text(item, " Max (%g msec)",  tvb_get_letohs(tvb, offset+i+4)*1.25);
+                    proto_item_append_text(ti_eir_struct,": %g - %g msec", tvb_get_letohs(tvb, offset+i+2)*1.25, tvb_get_letohs(tvb, offset+i+4)*1.25);
+                    break;
+                }
+                case 0x16: /* Service Data */
+                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_sc_uuid16, tvb, offset+i+2, 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset+i+4, length-3, ENC_LITTLE_ENDIAN);
+                    break;
+                case 0x17: /* Public Target Address */
+                case 0x18: /* Random Target Address */
+                {
+                    j=0;
+                    while(j<(guint8)(length-1))
+                    {
+                        dissect_bthci_evt_bd_addr(tvb, offset+i+j+2, pinfo, ti_eir_struct_subtree);
+                        j+=6;
+                    }
+                    break;
+                }
+                case 0x19: /* Appearance */
+                {
+                    guint16 appearance = tvb_get_letohs(tvb, offset+i+2);
+                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_appearance, tvb, offset+i+2, 2, ENC_LITTLE_ENDIAN);
+                    proto_item_append_text(ti_eir_struct,": %s", val_to_str_ext(appearance, &bthci_cmd_appearance_vals_ext, "Unknown"));
+                    break;
+                }
                 default:
-                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_eir_data, tvb, offset+i+2, length-1, ENC_NA);
+                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset+i+2, length-1, ENC_NA);
                     break;
             }
             i += length+1;
@@ -1338,7 +1592,7 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
         }
     }
 
-    return offset+240;
+    return offset+size;
 }
 
 static int
@@ -1438,6 +1692,254 @@ dissect_bthci_evt_remote_host_sup_feat_notification(tvbuff_t *tvb, int offset, p
 }
 
 static int
+dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_item *item;
+    guint8 subevent_code;
+
+    subevent_code = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_bthci_evt_le_meta_subevent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(subevent_code, evt_le_meta_subevent, "Unknown 0x%02x"));
+
+    offset++;
+
+    switch(subevent_code) {
+        case 0x01: /* LE Connection Complete */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_role, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree);
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_con_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*1.25);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (number events)");
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)",  tvb_get_letohs(tvb, offset)*0.01);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_le_master_clock_accuracy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            break;
+        case 0x02: /* LE Advertising Report */
+        {
+            guint8 i, num_reports, length;
+
+            num_reports = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_bthci_evt_num_reports, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            for(i=0; i<num_reports; i++) {
+                proto_tree_add_item(tree, hf_bthci_evt_advts_event_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                proto_tree_add_item(tree, hf_bthci_evt_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree);
+                length = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(tree, hf_bthci_evt_data_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                offset=dissect_bthci_evt_eir_ad_data(tvb, offset, pinfo, tree, length);
+                proto_tree_add_item(tree, hf_bthci_evt_rssi, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                }
+            }
+            break;
+        case 0x03: /* LE Connection Update Complete */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_con_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*1.25);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (number events)");
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)",  tvb_get_letohs(tvb, offset)*0.01);
+            offset+=2;
+            break;
+        case 0x04: /* LE Read Remote Used Features Complete */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_le_feature_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset+=8;
+            break;
+        case 0x05: /* LE Long Term Key Request */
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_random_number, tvb, offset, 8, ENC_NA);
+            offset+=8;
+            proto_tree_add_item(tree, hf_bthci_evt_encrypted_diversifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            break;
+        default:
+            break;
+    }
+    return offset;
+}
+
+static int
+dissect_bthci_evt_physical_link_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_physical_link_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    return offset;
+}
+
+static int
+dissect_bthci_evt_channel_select_physical_link_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_bthci_evt_physical_link_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    return offset;
+}
+
+static int
+dissect_bthci_evt_disconnect_physical_link_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_bthci_evt_physical_link_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    return offset;
+}
+
+static int
+dissect_bthci_evt_physical_link_loss_early_warning(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_bthci_evt_physical_link_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_link_loss_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    return offset;
+}
+
+static int
+dissect_bthci_evt_logical_link_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_logical_link_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset+=2;
+    proto_tree_add_item(tree, hf_bthci_evt_physical_link_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_flow_spec_identifier, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    return offset;
+}
+
+static int
+dissect_bthci_evt_disconnect_logical_link_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_logical_link_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset+=2;
+    proto_tree_add_item(tree, hf_bthci_evt_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    return offset;
+}
+
+static int
+dissect_bthci_evt_flow_spec_modify_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset+=2;
+    return offset;
+}
+
+static int
+dissect_bthci_evt_num_completed_data_blocks(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint8 evt_num_handles;
+
+    proto_tree_add_item(tree, hf_bthci_evt_total_num_data_blocks, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset+=2;
+
+    evt_num_handles = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_bthci_evt_num_handles, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    while(evt_num_handles--){
+        proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(tree, hf_bthci_evt_num_compl_packets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(tree, hf_bthci_evt_num_compl_blocks, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+    }  
+    return offset;
+}
+
+static int
+dissect_bthci_evt_amp_start_stop_test
+(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_test_scenario, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    return offset;
+}
+
+static int
+dissect_bthci_evt_amp_receiver_test(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_bthci_evt_amp_controller_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_report_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_report_event_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_num_frames, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset+=2;
+    proto_tree_add_item(tree, hf_bthci_evt_num_error_frames, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset+=2;
+    proto_tree_add_item(tree, hf_bthci_evt_num_bits, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset+=4;
+    proto_tree_add_item(tree, hf_bthci_evt_num_error_bits, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset+=4;
+    return offset;
+}
+
+static int
+dissect_bthci_evt_short_range_mode_change_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_physical_link_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_short_range_mode_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    return offset;
+}
+
+static int
+dissect_bthci_evt_amp_status_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_bthci_evt_amp_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    return offset;
+}
+
+static int
 dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *ti_opcode=NULL;
@@ -1500,10 +2002,34 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
         case 0x0c56: /* Write Simple Pairing Mode */
         case 0x0c59: /* Write Inquiry Tx Power Level */
         case 0x0c5b: /* Write Default Erroneous Data Reporting */
-        case 0x0c60: /* Send Keypress Notification */
+        case 0x0c62: /* Write Logical Link Accept Timeout */
+        case 0x0c63: /* Set Event Mask Page 2 */
+        case 0x0c65: /* Write Location Data */
+        case 0x0c67: /* Write Flow Control Mode */
+        case 0x0c6a: /* Write Best Effort Timeout */
+        case 0x0c6b: /* Short Range Mode */
+        case 0x0c6d: /* Write LE Host Supported */
         case 0x1802: /* Write Loopback Mode */
         case 0x1803: /* Enable Device Under Test Mode */
         case 0x1804: /* Write Simple Pairing Debug Mode */
+        case 0x1807: /* Enable AMP Receiver Reports */
+        case 0x1808: /* AMP Test End */
+        case 0x1809: /* AMP Test */
+        case 0x2001: /* LE Set Event Mask */
+        case 0x2005: /* LE Set Random Address */
+        case 0x2006: /* LE Set Advertising Parameters */
+        case 0x2008: /* LE Set Advertising Data */
+        case 0x2009: /* LE Set Scan Response Data */
+        case 0x200a: /* LE Set Advertise Enable */
+        case 0x200b: /* LE Set Scan Parameters */
+        case 0x200c: /* LE Set Scan Enable */
+        case 0x200e: /* LE Create Connection Cancel */
+        case 0x2010: /* LE Clear White List */
+        case 0x2011: /* LE Add Device To White List */
+        case 0x2012: /* LE Remove Device From White List */
+        case 0x2014: /* LE Set Host Channel Classification */
+        case 0x201d: /* LE Receiver Test */
+        case 0x201e: /* LE Transmitter Test */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             break;
@@ -1515,13 +2041,15 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
         case 0x040d: /* PIN Code Request Reply */
         case 0x040e: /* PIN Code Request Negative Reply */
         case 0x041a: /* Remote Name Request Cancel */
-        case 0x042b: /* IO Capability Response */
+        case 0x042b: /* IO Capability Request Reply */
+        case 0x0434: /* IO Capability Request Negative Reply */
         case 0x042c: /* User Confirmation Request Reply */
         case 0x042d: /* User Confirmation Request Negative Reply */
         case 0x042e: /* User Passkey Request Reply */
         case 0x042f: /* User Passkey Request Negative Reply */
         case 0x0430: /* Remote OOB Data Request Reply */
         case 0x0433: /* Remote OOB Data Request Negative Reply */
+        case 0x0c60: /* Send Keypress Notification */
         case 0x1009: /* Read BD_ADDR */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -1538,6 +2066,8 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
         case 0x0c37: /* Write Link Supervision Timeout */
         case 0x0c5f: /* Enhanced Flush */
         case 0x1402: /* Reset Failed Contact Counter */
+        case 0x201a: /* LE Long Term Key Request Reply */
+        case 0x201b: /* LE Long Term Key Request Neg Reply */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
@@ -1603,6 +2133,17 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             offset+=4;
             break;
 
+        case 0x043b: /* Logical Link Cancel */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+
+            proto_tree_add_item(tree, hf_bthci_evt_physical_link_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+
+            proto_tree_add_item(tree, hf_bthci_evt_flow_spec_identifier, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+
+            break;
         case 0x0809: /* Role Discovery */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -1848,7 +2389,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             proto_tree_add_item(tree, hf_bthci_evt_fec_required, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            offset=dissect_bthci_evt_ext_inquiry_response(tvb, offset, pinfo, tree);
+            offset=dissect_bthci_evt_eir_ad_data(tvb, offset, pinfo, tree, 240);
             break;
 
         case 0x0c55: /* Read Simple Pairing Mode */
@@ -1862,10 +2403,10 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
         case 0x0c57: /* Read Local OOB Data */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            proto_tree_add_item(tree, hf_bthci_evt_hash_c, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset+=2;
-            proto_tree_add_item(tree, hf_bthci_evt_randomizer_r, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_hash_c, tvb, offset, 16, ENC_NA);
+            offset+=16;
+            proto_tree_add_item(tree, hf_bthci_evt_randomizer_r, tvb, offset, 16, ENC_NA);
+            offset+=16;
             break;
 
         case 0x0c58: /* Read Inquiry Response Tx Power Level */
@@ -1883,6 +2424,63 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             proto_tree_add_item(tree, hf_bthci_evt_err_data_reporting, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
+            break;
+
+        case 0x0c61: /* Read Logical Link Accept Timeout */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            item = proto_tree_add_item(tree, hf_bthci_evt_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
+            offset+=2;
+            break;
+
+        case 0x0c64: /* Read Location Data */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_location_domain_aware, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_location_domain, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_location_domain_options, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_location_options, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            break;
+
+        case 0x0c66: /* Read Flow Control Mode */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_flow_control_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            break;
+
+        case 0x0c68: /* Read Enhanced Tx Power Level */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_transmit_power_level_gfsk, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_transmit_power_level_dqpsk, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_transmit_power_level_8dpsk, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            break;
+
+        case 0x0c69: /* Read Best Effort Timeout */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_flush_to_us, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+            break;
+
+        case 0x0c6c: /* Read LE Host Supported */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_le_supported_host, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_le_simultaneous_host, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
             break;
 
         case 0x1001: /* Read Local Version Information */
@@ -1966,6 +2564,17 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 
             break;
 
+        case 0x100a: /* Read Data Block Size */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_max_acl_data_packet_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_data_block_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_total_num_data_blocks, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            break;
+
         case 0x1007: /* Read Country Code */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -2040,17 +2649,198 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             item = proto_tree_add_item(tree, hf_bthci_evt_clock_accuracy, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " %g msec", accuracy*0.3125);
             offset+=2;
-
             break;
 
+        case 0x1408: /* Read Encryption Key Size */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++; 
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_enc_key_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            break;
+
+        case 0x1409: /* Read Local AMP Info */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_amp_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_total_bandwidth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+            proto_tree_add_item(tree, hf_bthci_evt_max_guaranteed_bandwidth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+            proto_tree_add_item(tree, hf_bthci_evt_min_latency, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+            proto_tree_add_item(tree, hf_bthci_evt_max_pdu_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+            proto_tree_add_item(tree, hf_bthci_evt_amp_controller_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_pal_capabilities_00, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_max_amp_assoc_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_max_flush_to_us, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+            proto_tree_add_item(tree, hf_bthci_evt_best_effort_flush_to_us, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+            break;
+
+        case 0x140a: /* Read Local AMP Assoc */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_physical_link_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_amp_remaining_assoc_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_amp_assoc_fragment, tvb, offset, -1, ENC_NA);
+            offset+=tvb_length_remaining(tvb, offset);
+            break;
+
+        case 0x140b: /* Write Remote AMP Assoc */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_physical_link_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            break;
+            
         case 0x1801: /* Read Loopback Mode */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-
             proto_tree_add_item(tree, hf_bthci_evt_loopback_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-
             break;
+
+        case 0x2002: /* LE Read Buffer Size */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_acl_data_pkt_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            if( (tvb_get_letohs(tvb, offset) == 0) && (tvb_get_guint8(tvb, offset+2) == 0) )
+                proto_item_append_text(item, " (buffers shared between BR/EDR and LE) ");
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_total_num_le_acl_data_pkts, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            break;
+
+        case 0x2003: /* LE Read Local Supported Features */
+        {
+            proto_item *ti_le_features=NULL;
+            proto_item *ti_le_subtree=NULL;
+
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+
+            if(tree){
+                ti_le_features=proto_tree_add_text(tree, tvb, offset, 8, "LE Features");
+                ti_le_subtree=proto_item_add_subtree(ti_le_features, ett_lmp_subtree);
+
+                proto_tree_add_item(ti_le_subtree,hf_bthci_evt_le_feature_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset+=8;
+            }
+            break;
+        }
+
+        case 0x2007: /* LE Read Advertising Channel Tx Power */
+        {
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_transmit_power_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            break;
+        }
+
+        case 0x200f: /* LE Read White List Size */
+        {
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_white_list_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            break;
+        }
+
+        case 0x2015: /* LE Read Channel Map */
+        {
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(tree, hf_bthci_evt_le_channel_map, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset+=5;
+            break;
+        }
+
+        case 0x2017: /* LE Encrypt */
+        {
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_encrypted_data, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+            offset+=16;
+            break;
+        }
+
+        case 0x2018: /* LE Rand */
+        {
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_random_number, tvb, offset, 8, ENC_NA);
+            offset+=8;
+            break;
+        }
+
+        case 0x201c: /* LE Read Supported States */
+        {
+            proto_item *ti_le_states=NULL;
+            proto_item *ti_le_states_subtree=NULL;
+
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+
+            ti_le_states=proto_tree_add_text(tree, tvb, offset, 8, "Supported LE States");
+            ti_le_states_subtree=proto_item_add_subtree(ti_le_states, ett_le_state_subtree);
+
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_01, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_02, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_03, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_04, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_05, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_06, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_07, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_10, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_11, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_12, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_13, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_14, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_15, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_16, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_17, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_20, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_21, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_22, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_23, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_24, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_25, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_26, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_27, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_30, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_31, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_32, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_33, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_le_states_subtree,hf_bthci_evt_le_states_34, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset+=5;
+            break;
+        }
+
+        case 0x201f: /* LE Test End */
+        {
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_evt_le_num_packets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            break;
+        }
 
         default:
             proto_tree_add_item(tree, hf_bthci_evt_ret_params, tvb, offset, -1, ENC_NA);
@@ -2540,7 +3330,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         case 0x2f: /* Extended Inquiry Result */
             offset=dissect_bthci_evt_inq_result_with_rssi(tvb, offset, pinfo, bthci_evt_tree);
-            offset=dissect_bthci_evt_ext_inquiry_response(tvb, offset, pinfo, bthci_evt_tree);
+            offset =dissect_bthci_evt_eir_ad_data(tvb, offset, pinfo, bthci_evt_tree, 240);
             break;
 
         case 0x30: /* Encryption Key Refresh Complete */
@@ -2591,6 +3381,60 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             offset=dissect_bthci_evt_remote_host_sup_feat_notification(tvb, offset, pinfo, bthci_evt_tree);
             break;
 
+        case 0x3e: /* LE Meta */
+            offset=dissect_bthci_evt_le_meta(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
+        case 0x40: /* Physical Link Complete */
+            offset=dissect_bthci_evt_physical_link_complete(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
+        case 0x41: /* Channel Selected */
+        case 0x44: /* Physical Link Recovery */
+            offset=dissect_bthci_evt_channel_select_physical_link_recovery(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
+        case 0x42: /* Disconnect Physical Link Complete */
+            offset=dissect_bthci_evt_disconnect_physical_link_complete(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
+        case 0x43: /* Physical Link Loss Early Warning */
+            offset=dissect_bthci_evt_physical_link_loss_early_warning(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
+        case 0x45: /* Logical Link Complete */
+            offset=dissect_bthci_evt_logical_link_complete(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
+        case 0x46: /* Disconnect Logical Link Complete */
+            offset=dissect_bthci_evt_disconnect_logical_link_complete(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
+        case 0x47: /* Flow Spec Modify Complete */
+            offset=dissect_bthci_evt_flow_spec_modify_complete(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
+        case 0x48: /* Number Of Completed Data Blocks */
+            offset=dissect_bthci_evt_num_completed_data_blocks(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
+        case 0x49: /* AMP Start Test */
+        case 0x4a: /* AMP Test End */
+            offset=dissect_bthci_evt_amp_start_stop_test(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
+        case 0x4b: /* AMP Receiver Test */
+            offset=dissect_bthci_evt_amp_receiver_test(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
+        case 0x4c: /* Short Range Mode Change Complete */
+            offset=dissect_bthci_evt_short_range_mode_change_complete(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
+        case 0x4d: /* AMP Status Change */
+            offset=dissect_bthci_evt_amp_status_change(tvb, offset, pinfo, bthci_evt_tree);
+            break;
+
         default:
             proto_tree_add_item(bthci_evt_tree, hf_bthci_evt_params, tvb, 2, -1, ENC_NA);
             offset+=tvb_length_remaining(tvb, offset);
@@ -2598,7 +3442,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
 
     }
-return offset;
+    return offset;
 }
 
 
@@ -2738,7 +3582,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_comp_id,
           { "Manufacturer Name",        "bthci_evt.comp_id",
-            FT_UINT16, BASE_HEX, VALS(evt_comp_id), 0x0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0x0,
             "Manufacturer Name of Bluetooth Hardware", HFILL }
         },
         { &hf_bthci_evt_sub_vers_nr,
@@ -2818,17 +3662,17 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_page_scan_mode,
           { "Page Scan Mode",        "bthci_evt.page_scan_mode",
-            FT_UINT8, BASE_HEX, VALS(evt_page_scan_modes), 0x0,
+            FT_UINT8, BASE_HEX, VALS(bthci_cmd_page_scan_modes), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_page_scan_repetition_mode,
           { "Page Scan Repetition Mode",        "bthci_evt.page_scan_repetition_mode",
-            FT_UINT8, BASE_HEX, VALS(evt_page_scan_repetition_modes), 0x0,
+            FT_UINT8, BASE_HEX, VALS(bthci_cmd_page_scan_repetition_modes), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_page_scan_period_mode,
           { "Page Scan Period Mode",        "bthci_evt.page_scan_period_mode",
-            FT_UINT8, BASE_HEX, VALS(evt_page_scan_period_modes), 0x0,
+            FT_UINT8, BASE_HEX, VALS(bthci_cmd_page_scan_period_modes), 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_link_type_2dh1,
@@ -3228,7 +4072,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_scan_enable,
           { "Scan", "bthci_evt.scan_enable",
-            FT_UINT8, BASE_HEX, VALS(evt_scan_enable_values), 0x0,
+            FT_UINT8, BASE_HEX, VALS(bthci_cmd_scan_enable_values), 0x0,
             "Scan Enable", HFILL }
         },
         { &hf_bthci_evt_authentication_enable,
@@ -3493,12 +4337,12 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_hash_c,
           {"Hash C", "bthci_evt.hash_c",
-           FT_UINT16, BASE_DEC, NULL, 0x0,
+           FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_bthci_evt_randomizer_r,
           {"Randomizer R", "bthci_evt.randomizer_r",
-           FT_UINT16, BASE_DEC, NULL, 0x0,
+           FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_bthci_evt_io_capability,
@@ -3528,13 +4372,13 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_notification_type,
           {"Notification Type", "bthci_evt.notification_type",
-           FT_UINT8, BASE_DEC, VALS(evt_notification_type_vals), 0x0,
+           FT_UINT8, BASE_DEC, VALS(bthci_cmd_notification_types), 0x0,
            NULL, HFILL}
         },
-        { &hf_bthci_evt_eir_data,
-          {"Data", "bthci_evt.eir_data",
+        { &hf_bthci_evt_data,
+          {"Data", "bthci_evt.data",
            FT_BYTES, BASE_NONE, NULL, 0x0,
-           "EIR Data", HFILL}
+           NULL, HFILL}
         },
         { &hf_bthci_evt_eir_struct_length,
           { "Length",           "bthci_evt.eir_struct_length",
@@ -3560,7 +4404,492 @@ proto_register_bthci_evt(void)
           { "UUID",           "bthci_evt.service_class_uuid128",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "128-bit Service Class UUID", HFILL }
-        }
+        },
+        { &hf_bthci_evt_data_length,
+          { "Data Length",           "bthci_evt.data_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_location_domain_aware,
+          { "Location Domain Aware", "bthci_evt.location_domain_aware",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_location_domain,
+          { "Location Domain", "bthci_evt.location_domain",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            "ISO 3166-1 Country Code", HFILL }
+        },
+        { &hf_bthci_evt_location_domain_options,
+          { "Location Domain Options", "bthci_evt.location_domain_options",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_location_options,
+          { "Location Options", "bthci_evt.location_options",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_flow_control_mode,
+          { "Flow Control Mode", "bthci_evt.flow_control_mode",
+            FT_UINT8, BASE_HEX, VALS(evt_flow_ctrl_mode), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_physical_link_handle,
+          { "Physical Link Handle", "bthci_evt.physical_link_handle",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_flow_spec_identifier,
+          { "Flow Spec Identifier", "bthci_evt.flow_spec_id",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_logical_link_handle,
+          { "Logical Link Handle", "bthci_evt.logical_link_handle",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_bthci_evt_max_acl_data_packet_length,
+          { "Max. ACL Data Packet Length", "bthci_evt.max_acl_data_packet_length",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_bthci_evt_data_block_length,
+          { "Max. Data Block Length", "bthci_evt.data_block_length",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_bthci_evt_total_num_data_blocks,
+          { "Total Number of Data Blocks", "bthci_evt.total_num_data_blocks",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_bthci_evt_enc_key_size,
+          { "Encryption Key Size", "bthci_evt.enc_key_size",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_amp_remaining_assoc_length,
+          { "AMP Remaining Assoc Length", "bthci_evt.amp_remaining_assoc_length",
+            FT_UINT16, BASE_DEC, 0x0, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_amp_assoc_fragment,
+          { "AMP Assoc Fragment", "bthci_evt.amp_assoc_fragment",
+            FT_BYTES, BASE_NONE, 0x0, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_amp_status,
+          { "AMP Status", "bthci_evt.amp_status",
+            FT_UINT8, BASE_HEX, VALS(evt_amp_status), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_total_bandwidth,
+          { "Total Bandwidth (kbps)", "bthci_evt.total_bandwidth",
+            FT_UINT32, BASE_DEC, 0x0, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_max_guaranteed_bandwidth,
+          { "Max Guaranteed Bandwidth (kbps)", "bthci_evt.max_guaranteed_bandwidth",
+            FT_UINT32, BASE_DEC, 0x0, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_min_latency,
+          { "Min Latency (us)", "bthci_evt.min_latency",
+            FT_UINT32, BASE_DEC, 0x0, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_max_pdu_size,
+          { "Max PDU Size", "bthci_evt.max_pdu_size",
+            FT_UINT32, BASE_DEC, 0x0, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_amp_controller_type,
+          { "Controller Type", "bthci_evt.controller_type",
+            FT_UINT8, BASE_HEX, VALS(evt_controller_types), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_pal_capabilities_00,
+          { "Guaranteed Service",        "bthci_evt.pal_capabilities",
+            FT_UINT16, BASE_HEX, VALS(evt_boolean), 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_max_amp_assoc_length,
+          { "Max AMP Assoc Length", "bthci_evt.max_amp_assoc_length",
+            FT_UINT32, BASE_DEC, 0x0, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_max_flush_to_us,
+          { "Max Flush Timeout (us)", "bthci_evt.max_flush_to",
+            FT_UINT32, BASE_DEC, 0x0, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_best_effort_flush_to_us,
+          { "Best Effort Flush Timeout (us)", "bthci_evt.best_effort_flush_to",
+            FT_UINT32, BASE_DEC, 0x0, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_link_loss_reason,
+          { "Reason", "bthci_evt.link_loss_reason",
+            FT_UINT8, BASE_HEX, VALS(evt_link_loss_reasons), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_num_compl_blocks,
+          { "Number Of Completed Blocks", "bthci_evt.num_compl_blocks",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_test_scenario,
+          { "Test Scenario", "bthci_evt.test_scenario",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_report_reason,
+          { "Reason", "bthci_evt.report_reason",
+            FT_UINT8, BASE_HEX, VALS(evt_report_reasons), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_report_event_type,
+          { "Report Event Type", "bthci_evt.report_event_type",
+            FT_UINT8, BASE_HEX, VALS(evt_report_event_types), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_num_frames,
+          { "Number Of Frames", "bthci_evt.num_frames",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_num_error_frames,
+          { "Number Of Error Frames", "bthci_evt.num_error_frames",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_num_bits,
+          { "Number Of Bits", "bthci_evt.num_bits",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_num_error_bits,
+          { "Number Of Error Bits", "bthci_evt.num_error_bits",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_short_range_mode_state,
+          { "Short Range Mode State",        "bthci_evt.short_range_mode_state",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_transmit_power_level_gfsk,
+          { "Transmit Power Level GFSK (dBm)", "bthci_evt.transmit_power_level_gfsk",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_transmit_power_level_dqpsk,
+          { "Transmit Power Level DQPSK (dBm)", "bthci_evt.transmit_power_level_dqpsk",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_transmit_power_level_8dpsk,
+          { "Transmit Power Level 8DPSK (dBm)", "bthci_evt.transmit_power_level_8dpsk",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_flush_to_us,
+          { "Flush Timeout (us)",  "bthci_evt.flushto",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_supported_host,
+          { "LE Supported Host", "bthci_evt.le_supported_host",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_simultaneous_host,
+          { "Simultaneous LE Host", "bthci_evt.le_simlutaneous_host",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x0,
+            "Support for both LE and BR/EDR to same device", HFILL }
+        },
+        { &hf_bthci_evt_le_acl_data_pkt_len,
+          { "LE ACL Data Packet Length", "bthci_evt.le_acl_data_pkt_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_total_num_le_acl_data_pkts,
+          { "Total Number LE ACL Data Packets", "bthci_evt.le_total_num_acl_data_pkts",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_feature_00,
+          { "LE Encryption",        "bthci_evt.le_feature",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_white_list_size,
+          { "White List Size",        "bthci_evt.le_white_list_size",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Max. total whitelist entries storable in controller", HFILL }
+        },
+        { &hf_bthci_evt_le_channel_map,
+          { "Channel Map", "bthci_evt.le_channel_map",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_encrypted_data,
+          { "Plaintext",        "bthci_evt.le_encrypted_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_random_number,
+          { "Random Number",        "bthci_evt.le_random_number",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_num_packets,
+          { "Number of Packets",        "bthci_evt.le_num_packets",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_meta_subevent,
+          { "Sub Event",        "bthci_evt.le_meta_subevent",
+            FT_UINT8, BASE_HEX, VALS(evt_le_meta_subevent), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_peer_address_type,
+          { "Peer Address Type", "bthci_evt.le_peer_address_type",
+            FT_UINT8, BASE_HEX, VALS(bthci_cmd_address_types_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_con_interval,
+          { "Connection Interval", "bthci_evt.le_con_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_con_latency,
+          { "Connection Latency", "bthci_evt.le_con_latency",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_supervision_timeout,
+          { "Supervision Timeout", "bthci_evt.le_supv_timeout",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_encrypted_diversifier,
+          { "Encrypted Diversifier", "bthci_evt.le_encrypted_diversifier",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_master_clock_accuracy,
+          { "Master Clock Accuracy", "bthci_evt.le_master_clock_accuracy",
+            FT_UINT8, BASE_HEX, VALS(evt_master_clock_accuray), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_num_reports,
+          { "Num Reports", "bthci_evt.le_num_reports",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_advts_event_type,
+          { "Event Type", "bthci_evt.le_advts_event_type",
+            FT_UINT8, BASE_HEX, VALS(evt_le_advertising_evt_types), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_appearance,
+          { "Appearance", "bthci_evt.le_appearance",
+            FT_UINT16, BASE_HEX |BASE_EXT_STRING, &bthci_cmd_appearance_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_flags_limited_disc_mode,
+          { "LE Limited Discoverable Mode",        "bthci_evt.le_flags_limit_disc_mode",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_flags_general_disc_mode,
+          { "LE General Discoverable Mode",        "bthci_evt.le_flags_general_disc_mode",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_flags_bredr_not_support,
+          { "BR/EDR Not Supported",        "bthci_evt.le_flags_bredr_not_supported",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_flags_le_bredr_support_ctrl,
+          { "Simultaneous LE and BR/EDR to Same Device Capable (Controller)",        "bthci_evt.le_flags_bredr_support_ctrl",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_flags_le_bredr_support_host,
+          { "Simultaneous LE and BR/EDR to Same Device Capable (Host)",        "bthci_evt.le_flags_bredr_support_host",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_flags_le_oob_data_present,
+          { "OOB Data Present",        "bthci_evt.le_flags_le_oob_data_present",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_flags_le_oob_le_supported_host,
+          { "LE Supported By Host",        "bthci_evt.le_flags_le_oob_le_supported_host",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_flags_le_oob_le_bredr_support,
+          { "Simultaneous LE and BR/EDR to Same Device Capable (Host)",        "bthci_evt.le_flags_le_oob_le_bredr_support",
+            FT_UINT8, BASE_HEX, VALS(evt_boolean), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_flags_le_oob_address_type,
+          { "Address Type",        "bthci_evt.le_flags_le_oob_address_type",
+            FT_UINT8, BASE_HEX, VALS(bthci_cmd_address_types_vals), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_00,
+          { "Non-connectable Advertising State", "bthci_evt.le_states_00",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_01,
+          { "Scannable Advertising State", "bthci_evt.le_states_01",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_02,
+          { "Connectable Advertising State", "bthci_evt.le_states_02",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_03,
+          { "Directed Advertising State", "bthci_evt.le_states_03",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_04,
+          { "Passive Scanning State", "bthci_evt.le_states_04",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_05,
+          { "Active Scanning State", "bthci_evt.le_states_05",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_06,
+          { "Initiating State. Connection State in Master Role", "bthci_evt.le_states_06",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_07,
+          { "Connection State in Slave Role", "bthci_evt.le_states_07",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_10,
+          { "Non-connectable Advertising State and Passive Scanning State combination", "bthci_evt.le_states_10",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_11,
+          { "Scannable Advertising State and Passive Scanning State combination", "bthci_evt.le_states_11",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_12,
+          { "Connectable Advertising State and Passive Scanning State combination", "bthci_evt.le_states_12",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_13,
+          { "Directed Advertising State and Passive Scanning State combination", "bthci_evt.le_states_13",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_14,
+          { "Non-connectable Advertising State and Active Scanning State combination", "bthci_evt.le_states_14",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_15,
+          { "Scannable Advertising State and Active Scanning State combination", "bthci_evt.le_states_15",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_16,
+          { "Connectable Advertising State and Active Scanning State combination", "bthci_evt.le_states_16",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_17,
+          { "Directed Advertising State and Active Scanning State combination", "bthci_evt.le_states_17",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_20,
+          { "Non-connectable Advertising State and Initiating State combination", "bthci_evt.le_states_20",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_21,
+          { "Scannable Advertising State and Initiating State combination", "bthci_evt.le_states_21",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_22,
+          { "Non-connectable Advertising State and Master Role combination", "bthci_evt.le_states_22",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_23,
+          { "Scannable Advertising State and Master Role combination", "bthci_evt.le_states_23",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_24,
+          { "Non-connectable Advertising State and Slave Role combination", "bthci_evt.le_states_24",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_25,
+          { "Scannable Advertising State and Slave Role combination", "bthci_evt.le_states_25",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_26,
+          { "Passive Scanning State and Initiating State combination", "bthci_evt.le_states_26",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_27,
+          { "Active Scanning State and Initiating State combination", "bthci_evt.le_states_27",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_30,
+          { "Passive Scanning State and Master Role combination", "bthci_evt.le_states_30",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_31,
+          { "Active Scanning State and Master Role combination", "bthci_evt.le_states_31",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_32,
+          { "Passive Scanning state and Slave Role combination", "bthci_evt.le_states_32",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_33,
+          { "Active Scanning state and Slave Role combination", "bthci_evt.le_states_33",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_states_34,
+          { "Initiating State and Master Role combination. Master Role and Master Role combination", "bthci_evt.le_states_34",
+            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
@@ -3570,7 +4899,8 @@ proto_register_bthci_evt(void)
         &ett_lmp_subtree,
         &ett_ptype_subtree,
         &ett_eir_subtree,
-        &ett_eir_struct_subtree
+        &ett_eir_struct_subtree,
+        &ett_le_state_subtree
     };
 
     /* Register the protocol name and description */

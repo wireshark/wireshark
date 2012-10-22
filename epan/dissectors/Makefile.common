@@ -313,6 +313,7 @@ DISSECTOR_SRC = \
 	packet-bt-dht.c		\
 	packet-bt-utp.c		\
 	packet-btamp.c		\
+	packet-btatt.c		\
 	packet-btbnep.c		\
 	packet-btavctp.c	\
 	packet-btavrcp.c	\
@@ -327,6 +328,7 @@ DISSECTOR_SRC = \
 	packet-btrfcomm.c	\
 	packet-btsap.c		\
 	packet-btsdp.c		\
+	packet-btsmp.c		\
 	packet-bvlc.c		\
 	packet-bzr.c		\
 	packet-calcappprotocol.c  \
