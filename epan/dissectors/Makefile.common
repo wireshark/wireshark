@@ -261,6 +261,7 @@ DISSECTOR_SRC = \
 	packet-ansi_a.c		\
 	packet-aodv.c		\
 	packet-aoe.c		\
+	packet-aol.c		\
 	packet-ap1394.c		\
 	packet-app-pkix-cert.c	\
 	packet-applemidi.c	\

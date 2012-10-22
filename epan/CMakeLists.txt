@@ -341,6 +341,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ansi_a.c
 	dissectors/packet-aodv.c
 	dissectors/packet-aoe.c
+	dissectors/packet-aol.c
 	dissectors/packet-ap1394.c
 	dissectors/packet-app-pkix-cert.c
 	dissectors/packet-applemidi.c
