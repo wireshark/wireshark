@@ -62,6 +62,6 @@ extern void decode_mpls_label(tvbuff_t *tvb, int offset,
 
 extern gboolean dissect_try_cw_first_nibble(tvbuff_t *tvb, packet_info *pinfo,
                                             proto_tree *tree );
-void dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+int dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
 
 #endif

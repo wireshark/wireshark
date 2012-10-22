@@ -388,7 +388,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case ACH_TYPE_ONDEMAND_CV:
-            dissect_mpls_echo(next_tvb, pinfo, tree);
+            dissect_mpls_echo(next_tvb, pinfo, tree, NULL);
             break;
 
         case 0x21:   /* IPv4, RFC4385 clause 6. */

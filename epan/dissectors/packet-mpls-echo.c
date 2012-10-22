@@ -37,6 +37,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
+#include <epan/expert.h>
 #include "packet-ldp.h"
 #include "packet-mpls.h"
 
@@ -482,7 +483,7 @@ static const value_string mpls_echo_tlv_ds_map_mp_proto[] = {
  * Dissector for FEC sub-TLVs
  */
 static void
-dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti  = NULL, *tlv_fec_tree = NULL;
     proto_item *hidden_item;
@@ -511,13 +512,13 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                                        offset, 2, saved_type, "Type: %s (%u)",
                                        val_to_str_const(type, mpls_echo_tlv_fec_names, "Unknown sub-TLV type"), saved_type);
 
-            proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_len, tvb, offset + 2,
+            ti = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_len, tvb, offset + 2,
                                 2, ENC_BIG_ENDIAN);
 
             if (length + 4 > rem) {
-                proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
-                                    "Error processing FEC sub-TLV: length is %u and reminder is %u",
-                                    length, rem - 4);
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "Invalid FEC Sub-TLV Length (claimed %u, found %u)", 
+                                       length, rem - 4);
                 return;
             }
 
@@ -541,8 +542,10 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 break;
             case TLV_FEC_STACK_RSVP_IPv4:
                 if (length != 20) {
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
-                                        "Error processing sub-TLV: length is %d, should be 20", length);
+                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                           "Invalid FEC Sub-TLV Length "
+                                           "(claimed %u, should be %u)",
+                                           length, 20);
                     return;
                 }
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_endpoint,
@@ -566,8 +569,10 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 break;
             case TLV_FEC_STACK_RSVP_IPv6:
                 if (length != 56) {
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
-                                        "Error processing sub-TLV: length is %d, should be 56", length);
+                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                           "Invalid FEC Sub-TLV Length "
+                                           "(claimed %u, should be %u)",
+                                           length, 56);
                     return;
                 }
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_endpoint,
@@ -602,8 +607,10 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 break;
             case TLV_FEC_STACK_L2_CID_NEW:
                 if (length < 14) {
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
-                                        "Error processing sub-TLV: length is %d, should be 14", length);
+                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                           "Invalid FEC Sub-TLV Length "
+                                           "(claimed %u, should be %u)",
+                                           length, 14);
                     return;
                 }
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_sender,
@@ -619,9 +626,10 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 break;
             case TLV_FEC_VENDOR_PRIVATE_START:
                 if (length < 4) { /* SMI Enterprise code */
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset + 4, length,
-                                        "Error processing Vendor Private sub-TLV: length is %d, should be >= 4",
-                                        length);
+                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                           "Invalid FEC Sub-TLV Length "
+                                           "(claimed %u, should be >= %u)",
+                                           length, 4);
                 } else {
                     proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_vendor, tvb,
                                         offset + 4, 4, ENC_BIG_ENDIAN);
@@ -674,9 +682,10 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 break;
             case TLV_FEC_STACK_P2MP_IPv4:
                 if (length != 20) {
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
-                                        "Error processing sub-TLV: length is %d, should be 20",
-                                        length);
+                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                           "Invalid FEC Sub-TLV Length "
+                                           "(claimed %u, should be %u)",
+                                           length, 20);
                     return;
                 }
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_p2mp_id,
@@ -701,9 +710,10 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 
             case TLV_FEC_STACK_P2MP_IPv6:
                 if (length != 56) {
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
-                                        "Error processing sub-TLV: length is %d, should be 56",
-                                        length);
+                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                           "Invalid FEC Sub-TLV Length "
+                                           "(claimed %u, should be %u)",
+                                           length, 56);
                     return;
                 }
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_p2mp_id,
@@ -777,9 +787,9 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
             if (length  % 4) {
                 pad = 4 - (length % 4);
                 if (length + 4 + pad > rem) {
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
-                                        "Error processing FEC sub-TLV: padded length is %u and reminder is %u",
-                                        length + pad, rem - 4);
+                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                           "Invalid FEC Sub-TLV Padded Length (claimed %u, found %u)",
+                                           length + pad, rem - 4);
                     return;
                 } else {
                     proto_tree_add_text(tlv_fec_tree, tvb, offset + 4 + length, pad, "Padding");
@@ -799,9 +809,10 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
  * Dissector for Downstream Mapping TLV
  */
 static void
-dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti = NULL, *tlv_ds_map_tree = NULL;
+    proto_tree *addr_ti = NULL;
     guint16     mplen, idx = 1;
     guint32     label;
     guint8      exp, bos, proto;
@@ -809,7 +820,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 
     proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_mtu, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_addr_type, tvb,
+    addr_ti = proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_addr_type, tvb,
                         offset + 2, 1, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_res, tvb,
                              offset + 3, 1, ENC_BIG_ENDIAN);
@@ -852,16 +863,15 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
                              (offset + 8), 4, ENC_BIG_ENDIAN);
         break;
     default:
-        proto_tree_add_text(tree, tvb, offset + 4, 8,
-                            "Error processing TLV: Unknown Address Type of %u",
-                            addr_type);
+        expert_add_info_format(pinfo, addr_ti, PI_UNDECODED, PI_WARN,
+                               "Unknown Address Type (%u)", addr_type);
         break;
     }
     proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_hash_type, tvb,
                         offset + 12, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_depth, tvb,
                         offset + 13, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_muti_len, tvb,
+    ti = proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_muti_len, tvb,
                         offset + 14, 2, ENC_BIG_ENDIAN);
 
     /* Get the Multipath Length and Hash Type */
@@ -871,9 +881,9 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
     rem -= 16;
     offset += 16;
     if (rem < mplen) {
-        proto_tree_add_text(tree, tvb, offset, rem,
-                            "Error processing TLV: Multi Path length is %d and reminder is %u",
-                            mplen, rem);
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                               "Invalid FEC Multipath (claimed %u, found %u)",
+                                mplen, rem);
         return;
     }
     rem -= mplen;
@@ -881,8 +891,9 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
         switch(hash_type) {
         case TLV_DS_MAP_HASH_IP:
             if (mplen != 4) {
-                proto_tree_add_text(tree, tvb, offset, mplen,
-                                    "Multi Path length is %u and should be 4", mplen);
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "Invalid FEC Multipath (claimed %u, should be 4)",
+                                       mplen);
                 break;
             }
             ti = proto_tree_add_text(tree, tvb, offset, 4,
@@ -893,8 +904,9 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
             break;
         case TLV_DS_MAP_HASH_IP_RANGE:
             if (mplen != 8) {
-                proto_tree_add_text(tree, tvb, offset, mplen,
-                                    "Multi Path length is %u and should be 8", mplen);
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "Invalid FEC Multipath (claimed %u, should be 8)",
+                                       mplen);
                 break;
             }
             ti = proto_tree_add_text(tree, tvb, offset, 8,
@@ -914,8 +926,9 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
             break;
         case TLV_DS_MAP_HASH_BITMASK_IP:
             if (mplen < 4) {
-                proto_tree_add_text(tree, tvb, offset, mplen,
-                                    "Multi Path length is %u and should be >= 4", mplen);
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "Invalid FEC Multipath (claimed %u, should be 4)",
+                                       mplen);
                 break;
             }
             ti = proto_tree_add_text(tree, tvb, offset, mplen,
@@ -969,7 +982,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 
 /* Dissector for Detailed Downstream Mapping TLV - RFC [6424] */
 static void
-dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ddti, *tlv_dd_map_tree, *tlv_ddstlv_map_tree = NULL;
     proto_tree *ddsti = NULL, *ddsti2 = NULL;
@@ -991,7 +1004,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
                         offset + 3, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_tlv_dd_map_flag_i, tvb,
                         offset + 3, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_tlv_dd_map_flag_n, tvb,
+    ddti = proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_tlv_dd_map_flag_n, tvb,
                         offset + 3, 1, ENC_BIG_ENDIAN);
 
     addr_type = tvb_get_guint8(tvb, offset + 2);
@@ -1017,17 +1030,16 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
                              (offset + 8), 4, ENC_BIG_ENDIAN);
         break;
     default:
-        proto_tree_add_text(tree, tvb, offset + 4, 8,
-                            "Error processing TLV: Unknown Address Type of %u",
-                            addr_type);
+        expert_add_info_format(pinfo, ddti, PI_UNDECODED, PI_WARN,
+                               "Unknown Address Type (%u)", addr_type);
         break;
     }
     proto_tree_add_item(tree, hf_mpls_echo_tlv_dd_map_return_code, tvb,
                         offset + 12, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpls_echo_tlv_dd_map_return_subcode, tvb,
                         offset + 13, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_mpls_echo_tlv_dd_map_subtlv_len, tvb,
-                        offset + 14, 2, ENC_BIG_ENDIAN);
+    ddti = proto_tree_add_item(tree, hf_mpls_echo_tlv_dd_map_subtlv_len, tvb,
+                               offset + 14, 2, ENC_BIG_ENDIAN);
 
     /* Get the Sub-tlv Type and Length */
     subtlv_type = tvb_get_ntohs(tvb, offset + 16);
@@ -1036,9 +1048,9 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
     rem -= 20;
     offset += 20;
     if (rem < subtlv_length){
-        proto_tree_add_text(tree, tvb, offset, rem,
-                            "Error processing TLV: Sub-tlv length is %d and reminder is %u",
-                            subtlv_length, rem);
+        expert_add_info_format(pinfo, ddti, PI_MALFORMED, PI_ERROR,
+                               "Invalid Sub-tlv Length (claimed %u, found %u)",
+                               subtlv_length, rem);
         return;
     }
 
@@ -1068,8 +1080,9 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 
             case TLV_MULTIPATH_IP_ADDRESS:
                 if(multipath_length != 4) {
-                    proto_tree_add_text(tlv_dd_map_tree, tvb, offset, multipath_length,
-                                        "Multi Path length is %u and should be 4", multipath_length);
+                    expert_add_info_format(pinfo, ddsti, PI_MALFORMED, PI_ERROR,
+                               "Invalid Sub-tlv Length (claimed %u, should be 4)",
+                               multipath_length);
                     break;
                 }
                 proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_sub_tlv_multipath_type, tvb,
@@ -1088,8 +1101,9 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 
             case TLV_MULTIPATH_IP_ADDRESS_RANGE:
                 if(multipath_length != 8) {
-                    proto_tree_add_text(tlv_dd_map_tree, tvb, offset, multipath_length,
-                                        "Multi Path length is %u and should be 8", multipath_length);
+                    expert_add_info_format(pinfo, ddsti, PI_MALFORMED, PI_ERROR,
+                               "Invalid Sub-tlv Length (claimed %u, should be 8)",
+                               multipath_length);
                     break;
                 }
                 proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_sub_tlv_multipath_type, tvb,
@@ -1110,8 +1124,9 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 
             case TLV_MULTIPATH_BIT_MASKED_IP:
                 if(multipath_length < 4) {
-                    proto_tree_add_text(tlv_dd_map_tree, tvb, offset, multipath_length,
-                                        "Multi Path length is %u and should be >= 4", multipath_length);
+                    expert_add_info_format(pinfo, ddsti, PI_MALFORMED, PI_ERROR,
+                               "Invalid Sub-tlv Length (claimed %u, should be >= 4)",
+                               multipath_length);
                     break;
                 }
                 proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_sub_tlv_multipath_type, tvb,
@@ -1200,7 +1215,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
             }
 
             offset -= 8;
-            dissect_mpls_echo_tlv_fec(tvb, offset, tlv_dd_map_tree, fec_tlv_length);
+            dissect_mpls_echo_tlv_fec(tvb, pinfo, offset, tlv_dd_map_tree, fec_tlv_length);
 
             rem -= (fec_tlv_length + 8);
             break;
@@ -1221,7 +1236,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
  * Dissector for IPv4 and IPv6 Interface and Label Stack Object
  */
 static void
-dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gboolean is_ipv6)
+dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem, gboolean is_ipv6)
 {
     proto_tree *ti  = NULL, *tlv_ilso = NULL;
     guint8      type;
@@ -1229,7 +1244,7 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
     guint32     label;
     guint8      exp, bos, ttl;
 
-    proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     type = tvb_get_guint8(tvb, offset);
     offset += 1;
     rem -= 1;
@@ -1240,7 +1255,8 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
 
     if ((type == TLV_ADDR_IPv4) || (type == TLV_ADDR_UNNUM_IPv4)) {
         if (is_ipv6) {
-            proto_tree_add_text(tree, tvb, offset, 4, "Incorrect address type for TLV ?");
+            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, 
+                                   "Incorrect address type for TLV?");
         }
         proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv4_addr, tvb,
                             offset, 4, ENC_BIG_ENDIAN);
@@ -1255,7 +1271,8 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
         rem -= 8;
     } else if ((type == TLV_ADDR_IPv6) || (type == TLV_ADDR_UNNUM_IPv6)) {
         if (!is_ipv6) {
-            proto_tree_add_text(tree, tvb, offset, 16, "Incorrect address type for TLV ?");
+            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, 
+                                   "Incorrect address type for TLV?");
         }
 
         proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv6_addr, tvb,
@@ -1272,7 +1289,8 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
             rem -= 20;
         }
     } else {
-        proto_tree_add_text(tree, tvb, offset, 0, "Incorrect address type for TLV");
+        expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
+                               "Incorrect address type for TLV?");
         return;
     }
 
@@ -1308,18 +1326,18 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
 }
 
 static int
-dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gboolean in_errored);
+dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem, gboolean in_errored);
 
 /*
  * Dissector for Errored TLVs
  */
 static void
-dissect_mpls_echo_tlv_errored(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_mpls_echo_tlv_errored(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     int errored_tlv_length;
 
     while(rem >= 4) {
-        errored_tlv_length = dissect_mpls_echo_tlv(tvb, offset, tree, rem, TRUE);
+        errored_tlv_length = dissect_mpls_echo_tlv(tvb, pinfo, offset, tree, rem, TRUE);
         rem -= errored_tlv_length;
         offset += errored_tlv_length;
     }
@@ -1329,7 +1347,7 @@ dissect_mpls_echo_tlv_errored(tvbuff_t *tvb, guint offset, proto_tree *tree, int
  * Dissector for MPLS Echo TLVs and return bytes consumed
  */
 static int
-dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gboolean in_errored)
+dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem, gboolean in_errored)
 {
     guint16     type, saved_type;
     int         length;
@@ -1382,7 +1400,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
 
         switch (type) {
         case TLV_TARGET_FEC_STACK:
-            dissect_mpls_echo_tlv_fec(tvb, offset + 4, mpls_echo_tlv_tree, length);
+            dissect_mpls_echo_tlv_fec(tvb, pinfo, offset + 4, mpls_echo_tlv_tree, length);
             break;
         case TLV_PAD:
             proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_padaction, tvb,
@@ -1397,21 +1415,21 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
             break;
         case TLV_ILSO_IPv4:
             if (length < 12) {
-                proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-                                    "Error processing TLV: length is %d, should be >= 12",
-                                    length);
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "Invalid TLV Length (claimed %u, should be >= 12)",
+                                       length);
                 break;
             }
-            dissect_mpls_echo_tlv_ilso(tvb, offset + 4, mpls_echo_tlv_tree, length, FALSE);
+            dissect_mpls_echo_tlv_ilso(tvb, pinfo, offset + 4, mpls_echo_tlv_tree, length, FALSE);
             break;
         case TLV_ILSO_IPv6:
             if (length < 24) {
-                proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-                                    "Error processing TLV: length is %d, should be >= 24",
-                                    length);
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "Invalid TLV Length (claimed %u, should be >= 24)",
+                                       length);
                 break;
             }
-            dissect_mpls_echo_tlv_ilso(tvb, offset + 4, mpls_echo_tlv_tree, length, TRUE);
+            dissect_mpls_echo_tlv_ilso(tvb, pinfo, offset + 4, mpls_echo_tlv_tree, length, TRUE);
             break;
 #if 0
         case TLV_RTO_IPv4:
@@ -1437,9 +1455,9 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
 #endif
         case TLV_P2MP_ECHO_JITTER:
             if (length != 4) {
-                proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-                                    "Error processing TLV: length is %d, should be 4",
-                                    length);
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "Invalid TLV Length (claimed %u, should be 4)",
+                                       length);
                 break;
             }
             proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_echo_jitter,
@@ -1453,9 +1471,9 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
             case TLV_P2MP_RESPONDER_IDENT_IPV4_EGRESS_ADDR:
             case TLV_P2MP_RESPONDER_IDENT_IPV4_NODE_ADDR:
                 if (resp_ident_len != 4) {
-                    proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-                                        "Error processing TLV: length is %d, should be 4",
-                                        resp_ident_len);
+                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                           "Invalid TLV Length (claimed %u, should be 4)",
+                                           length);
                     break;
                 }
                 proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_type,
@@ -1470,9 +1488,9 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
             case TLV_P2MP_RESPONDER_IDENT_IPV6_EGRESS_ADDR:
             case TLV_P2MP_RESPONDER_IDENT_IPV6_NODE_ADDR:
                 if (resp_ident_len != 16) {
-                    proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-                                        "Error processing TLV: length is %d, should be 16",
-                                        resp_ident_len);
+                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                           "Invalid TLV Length (claimed %u, should be 16)",
+                                           length);
                     break;
                 }
                 proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_type,
@@ -1487,9 +1505,9 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
             break;
         case TLV_VENDOR_PRIVATE_START:
             if (length < 4) { /* SMI Enterprise code */
-                proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-                                    "Error processing Vendor Private TLV: length is %d, should be >= 4",
-                                    length);
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "Invalid TLV Length (claimed %u, should be >= 4)",
+                                       length);
             } else {
                 proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_vendor, tvb,
                                     offset + 4, 4, ENC_BIG_ENDIAN);
@@ -1499,34 +1517,34 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
             break;
         case TLV_DOWNSTREAM_MAPPING:
             if (length < 16) {
-                proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-                                    "Error processing TLV: length is %d, should be >= 16",
-                                    length);
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "Invalid TLV Length (claimed %u, should be >= 16)",
+                                       length);
                 break;
             }
-            dissect_mpls_echo_tlv_ds_map(tvb, offset + 4, mpls_echo_tlv_tree, length);
+            dissect_mpls_echo_tlv_ds_map(tvb, pinfo, offset + 4, mpls_echo_tlv_tree, length);
             break;
         case TLV_DETAILED_DOWNSTREAM:   /* [RFC 6424] */
             if(length < 16) {
-                proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-                                    "Error processing TLV: length is %d, should be >= 16",
-                                    length);
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "Invalid TLV Length (claimed %u, should be >= 16)",
+                                       length);
                 break;
             }
-            dissect_mpls_echo_tlv_dd_map(tvb, offset + 4, mpls_echo_tlv_tree, length);
+            dissect_mpls_echo_tlv_dd_map(tvb, pinfo, offset + 4, mpls_echo_tlv_tree, length);
             break;
         case TLV_ERRORED_TLV:
             if (in_errored)
                 proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_value, tvb,
                                     offset + 4, length, ENC_NA);
             else
-                dissect_mpls_echo_tlv_errored(tvb, offset + 4, mpls_echo_tlv_tree, length);
+                dissect_mpls_echo_tlv_errored(tvb, pinfo, offset + 4, mpls_echo_tlv_tree, length);
             break;
         case TLV_REPLY_TOS:
             if (length != 4) {
-                proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-                                    "Error processing TLV: length is %d, should be 4",
-                                    length);
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "Invalid TLV Length (claimed %u, should be 4)",
+                                       length);
                 break;
             }
             proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_reply_tos, tvb,
@@ -1547,7 +1565,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
                                  tvb, (offset + 8), 4, ENC_BIG_ENDIAN);
             break;
         case TLV_REVERSE_PATH_FEC_STACK:
-            dissect_mpls_echo_tlv_fec (tvb, (offset + 4), mpls_echo_tlv_tree, length);
+            dissect_mpls_echo_tlv_fec (tvb, pinfo, (offset + 4), mpls_echo_tlv_tree, length);
             break ;
         case TLV_ERROR_CODE:
         default:
@@ -1565,8 +1583,8 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
 /*
  * Dissector for MPLS Echo (LSP PING) packets
  */
-void
-dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+int 
+dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int         offset         = 0, rem = 0, len;
     proto_item *ti             = NULL;
@@ -1575,13 +1593,18 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* If version != 1 we assume it's not an mpls ping packet */
     if (tvb_length(tvb) < 5) {
-        return; /* Not enough information to tell version and message type. */
+        return 0; /* Not enough information to tell version and message type. */
     }
     if (tvb_get_ntohs(tvb, 0) != 1) {
-        return; /* Not version 1. */
+        return 0; /* Not version 1. */
     }
 
+    /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPLS ECHO");
+
+    /* Clear the info column so it's sane if we crash. We fill it in later when
+     * we've dissected more of the packet. */
+    col_clear(pinfo->cinfo, COL_INFO);
 
     rem = tvb_reported_length_remaining(tvb, offset);
 
@@ -1599,7 +1622,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 "Error processing Message: length is %d, should be >= %u",
                                 rem, (MSGTYPE_MPLS_ECHO(msgtype)) ? 32 : 16);
         }
-        return;
+        return 0;
     }
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -1665,13 +1688,13 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Dissect all TLVs */
     while(tvb_reported_length_remaining(tvb, offset) > 0 ) {
-        len = dissect_mpls_echo_tlv(tvb, offset, mpls_echo_tree, rem, FALSE);
+        len = dissect_mpls_echo_tlv(tvb, pinfo, offset, mpls_echo_tree, rem, FALSE);
         offset += len;
         rem    -= len;
     }
 
+    return tvb_length(tvb);
 }
-
 
 /* Register the protocol with Wireshark */
 
@@ -2361,8 +2384,8 @@ proto_reg_handoff_mpls_echo(void)
     static guint              mpls_echo_udp_port;
 
     if (!mpls_echo_prefs_initialized) {
-        mpls_echo_handle = create_dissector_handle(dissect_mpls_echo,
-                                                   proto_mpls_echo);
+        mpls_echo_handle = new_create_dissector_handle(dissect_mpls_echo,
+                                                       proto_mpls_echo);
         mpls_echo_prefs_initialized = TRUE;
     } else {
         dissector_delete_uint("udp.port", mpls_echo_udp_port, mpls_echo_handle);
