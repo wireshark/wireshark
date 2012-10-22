@@ -135,13 +135,15 @@ static dissector_table_t ip_dissector_table;
 #define IPSEC_AUTH_HMAC_SHA1_96 1
 #define IPSEC_AUTH_HMAC_SHA256_96 2
 #define IPSEC_AUTH_HMAC_SHA256_128 3
-#define IPSEC_AUTH_HMAC_MD5_96 4
-#define IPSEC_AUTH_HMAC_RIPEMD160_96 5
+#define IPSEC_AUTH_HMAC_SHA384_192 4
+#define IPSEC_AUTH_HMAC_SHA512_256 5
+#define IPSEC_AUTH_HMAC_MD5_96 6
+#define IPSEC_AUTH_HMAC_RIPEMD160_96 7
 /* define IPSEC_AUTH_AES_XCBC_MAC_96 6 */
-#define IPSEC_AUTH_ANY_96BIT 7
-#define IPSEC_AUTH_ANY_128BIT 8
-#define IPSEC_AUTH_ANY_192BIT 9
-#define IPSEC_AUTH_ANY_256BIT 10
+#define IPSEC_AUTH_ANY_96BIT 8
+#define IPSEC_AUTH_ANY_128BIT 9
+#define IPSEC_AUTH_ANY_192BIT 10
+#define IPSEC_AUTH_ANY_256BIT 11
 
 #define IPSEC_IPV6_ADDR_LEN 128
 #define IPSEC_IPV4_ADDR_LEN 32
@@ -1166,10 +1168,12 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     esp_auth_len = 16;
                     break;
 
+				case IPSEC_AUTH_HMAC_SHA512_256:
                 case IPSEC_AUTH_ANY_256BIT:
                     esp_auth_len = 32;
                     break;
 
+				case IPSEC_AUTH_HMAC_SHA384_192:
                 case IPSEC_AUTH_ANY_192BIT:
                     esp_auth_len = 24;
                     break;
@@ -1223,6 +1227,16 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     case IPSEC_AUTH_HMAC_SHA256_96:
                     case IPSEC_AUTH_HMAC_SHA256_128:
                         auth_algo_libgcrypt = GCRY_MD_SHA256;
+                        authentication_check_using_hmac_libgcrypt = TRUE;
+                        break;
+
+					case IPSEC_AUTH_HMAC_SHA384_192:
+                        auth_algo_libgcrypt = GCRY_MD_SHA384;
+                        authentication_check_using_hmac_libgcrypt = TRUE;
+                        break;
+
+					case IPSEC_AUTH_HMAC_SHA512_256:
+                        auth_algo_libgcrypt = GCRY_MD_SHA512;
                         authentication_check_using_hmac_libgcrypt = TRUE;
                         break;
 
@@ -2074,6 +2088,8 @@ proto_register_ipsec(void)
     { IPSEC_AUTH_HMAC_SHA1_96, "HMAC-SHA-1-96 [RFC2404]" },
     { IPSEC_AUTH_HMAC_SHA256_96, "HMAC-SHA-256-96 [draft-ietf-ipsec-ciph-sha-256-00]" },
     { IPSEC_AUTH_HMAC_SHA256_128, "HMAC-SHA-256-128 [RFC4868]" },
+    { IPSEC_AUTH_HMAC_SHA384_192, "HMAC-SHA-384-192 [RFC4868]" },
+    { IPSEC_AUTH_HMAC_SHA512_256, "HMAC-SHA-512-256 [RFC4868]" },
     { IPSEC_AUTH_HMAC_MD5_96, "HMAC-MD5-96 [RFC2403]" },
     { IPSEC_AUTH_HMAC_RIPEMD160_96, "MAC-RIPEMD-160-96 [RFC2857]" },
 /*    { IPSEC_AUTH_AES_XCBC_MAC_96, "AES-XCBC-MAC-96 [RFC3566]" }, */
