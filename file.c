@@ -2475,6 +2475,10 @@ print_packet(capture_file *cf, frame_data *fdata,
   }
 
   if (args->print_args->print_hex) {
+    if (args->print_args->print_summary || (args->print_args->print_dissections != print_dissections_none)) {
+      if (!print_line(args->print_args->stream, 0, ""))
+        goto fail;
+    }
     /* Print the full packet data as hex. */
     if (!print_hex_data(args->print_args->stream, &edt))
       goto fail;

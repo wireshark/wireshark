@@ -219,6 +219,10 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 		 */
 		pd = get_field_data(pdata->src_list, fi);
 		if (pd) {
+			if (!print_line(pdata->stream, 0, "")) {
+				pdata->success = FALSE;
+				return;
+			}
 			if (!print_hex_data_buffer(pdata->stream, pd,
 			    fi->length, pdata->encoding)) {
 				pdata->success = FALSE;
@@ -899,7 +903,6 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 		tvb = get_data_source_tvb(src);
 		if (multiple_sources) {
 			name = get_data_source_name(src);
-			print_line(stream, 0, "");
 			line = g_strdup_printf("%s:", name);
 			print_line(stream, 0, line);
 			g_free(line);
@@ -948,9 +951,6 @@ print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
 	static guchar binhex[16] = {
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-
-	if (!print_line(stream, 0, ""))
-		return FALSE;
 
 	/*
 	 * How many of the leading digits of the offset will we supply?

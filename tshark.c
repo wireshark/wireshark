@@ -108,7 +108,6 @@ static frame_data prev_dis_frame;
 static frame_data *prev_cap;
 static frame_data prev_cap_frame;
 
-static gboolean print_packet_info;      /* TRUE if we're to print packet information */
 static const char* prev_display_dissector_name = NULL;
 
 static gboolean perform_two_pass_analysis;
@@ -125,8 +124,10 @@ typedef enum {
 
 static output_action_e output_action;
 static gboolean do_dissection;  /* TRUE if we have to dissect each packet */
-static gboolean verbose;
-static gboolean print_hex;
+static gboolean print_packet_info;/* TRUE if we're to print packet information */
+static gint print_summary = -1; /* TRUE if we're to print packet summary information */
+static gboolean print_details;  /* TRUE if we're to print packet details information */
+static gboolean print_hex;      /* TRUE if we're to print hex/ascci information */
 static gboolean line_buffered;
 
 static print_format_e print_format = PR_FMT_TEXT;
@@ -301,7 +302,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
   fprintf(output, "  -O <protocols>           Only show packet details of these protocols, comma\n");
   fprintf(output, "                           separated\n");
-  fprintf(output, "  -P                       print packets even when writing to a file\n");
+  fprintf(output, "  -P                       print packet summary even when writing to a file\n");
   fprintf(output, "  -S <separator>           the line separator to print between packets\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|text|fields\n");
@@ -927,6 +928,24 @@ main(int argc, char *argv[])
         return 1;
       }
       break;
+    case 'P':        /* Print packet summary info even when writing to a file */
+      print_packet_info = TRUE;
+      print_summary = TRUE;
+      break;
+    case 'O':        /* Only output these protocols */
+      output_only = g_strdup(optarg);
+      /* FALLTHROUGH */
+    case 'V':        /* Verbose */
+      print_details = TRUE;
+      print_packet_info = TRUE;
+      break;
+    case 'x':        /* Print packet data in hex (and ASCII) */
+      print_hex = TRUE;
+      /*  The user asked for hex output, so let's ensure they get it,
+       *  even if they're writing to a file.
+       */
+      print_packet_info = TRUE;
+      break;
     case 'X':
       ex_opt_add(optarg);
       break;
@@ -934,6 +953,15 @@ main(int argc, char *argv[])
       break;
     }
   }
+
+  /*
+   * Print packet summary information is the default, unless either -V or -x
+   * were specified and -P was not.  Note that this is new behavior, which
+   * allows for the possibility of printing only hex/ascii output without
+   * necessarily requiring that either the summary or details be printed too.
+   */
+  if (print_summary == -1)
+    print_summary = (print_details || print_hex) ? FALSE : TRUE;
 
   optind = optind_initial;
   opterr = 1;
@@ -1285,9 +1313,9 @@ main(int argc, char *argv[])
     case 'R':        /* Read file filter */
       rfilter = optarg;
       break;
-    case 'P':        /* Print packets even when writing to a file */
-      print_packet_info = TRUE;
-      break;
+    case 'P':
+        /* already processed; just ignore it now */
+        break;
     case 'S':        /* Set the line Separator to be printed between packets */
       separator = strdup(optarg);
       break;
@@ -1325,13 +1353,16 @@ main(int argc, char *argv[])
         print_format = PR_FMT_PS;
       } else if (strcmp(optarg, "pdml") == 0) {
         output_action = WRITE_XML;
-        verbose = TRUE;
+        print_details = TRUE;   /* Need details */
+        print_summary = FALSE;  /* Don't allow summary */
       } else if (strcmp(optarg, "psml") == 0) {
         output_action = WRITE_XML;
-        verbose = FALSE;
+        print_details = FALSE;  /* Don't allow details */
+        print_summary = TRUE;   /* Need summary */
       } else if(strcmp(optarg, "fields") == 0) {
         output_action = WRITE_FIELDS;
-        verbose = TRUE; /* Need full tree info */
+        print_details = TRUE;   /* Need full tree info */
+        print_summary = FALSE;  /* Don't allow summary */
       } else {
         cmdarg_err("Invalid -T parameter.");
         cmdarg_err_cont("It must be \"ps\", \"text\", \"pdml\", \"psml\" or \"fields\".");
@@ -1366,21 +1397,13 @@ main(int argc, char *argv[])
       return 0;
     }
     case 'O':        /* Only output these protocols */
-      output_only = g_strdup(optarg);
-      /* FALLTHROUGH */
+      /* already processed; just ignore it now */
+      break;
     case 'V':        /* Verbose */
-      verbose = TRUE;
-      /*  The user asked for a verbose output, so let's ensure they get it,
-       *  even if they're writing to a file.
-       */
-      print_packet_info = TRUE;
+      /* already processed; just ignore it now */
       break;
     case 'x':        /* Print packet data in hex (and ASCII) */
-      print_hex = TRUE;
-      /*  The user asked for hex output, so let's ensure they get it,
-       *  even if they're writing to a file.
-       */
-      print_packet_info = TRUE;
+      /* already processed; just ignore it now */
       break;
     case 'X':
       break;
@@ -1518,7 +1541,7 @@ main(int argc, char *argv[])
   if (output_only != NULL) {
     char *ps;
 
-    if (!verbose) {
+    if (!print_details) {
       cmdarg_err("-O requires -V");
       return 1;
     }
@@ -2613,7 +2636,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
       /* Grab any resolved addresses */
       host_name_lookup_process();
 
-    if (cf->rfcode || verbose || filtering_tap_listeners ||
+    if (cf->rfcode || print_details || filtering_tap_listeners ||
         (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
       create_proto_tree = TRUE;
     else
@@ -2621,9 +2644,9 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
 
     /* The protocol tree will be "visible", i.e., printed, only if we're
        printing packet details, which is true if we're printing stuff
-       ("print_packet_info" is true) and we're in verbose mode ("verbose"
-       is true). */
-    epan_dissect_init(&edt, create_proto_tree, print_packet_info && verbose);
+       ("print_packet_info" is true) and we're in verbose mode
+       ("packet_details" is true). */
+    epan_dissect_init(&edt, create_proto_tree, print_packet_info && print_details);
 
     /* If we're running a read filter, prime the epan_dissect_t with that
        filter. */
@@ -2633,14 +2656,12 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
     col_custom_prime_edt(&edt, &cf->cinfo);
 
     /* We only need the columns if either
-
          1) some tap needs the columns
-
        or
-
          2) we're printing packet info but we're *not* verbose; in verbose
-            mode, we print the protocol tree, not the protocol summary. */
-    if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && !verbose))
+            mode, we print the protocol tree, not the protocol summary.
+     */
+    if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && print_summary))
       cinfo = &cf->cinfo;
     else
       cinfo = NULL;
@@ -3060,7 +3081,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
       /* Grab any resolved addresses */
       host_name_lookup_process();
 
-    if (cf->rfcode || verbose || filtering_tap_listeners ||
+    if (cf->rfcode || print_details || filtering_tap_listeners ||
         (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
       create_proto_tree = TRUE;
     else
@@ -3068,9 +3089,9 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
 
     /* The protocol tree will be "visible", i.e., printed, only if we're
        printing packet details, which is true if we're printing stuff
-       ("print_packet_info" is true) and we're in verbose mode ("verbose"
-       is true). */
-    epan_dissect_init(&edt, create_proto_tree, print_packet_info && verbose);
+       ("print_packet_info" is true) and we're in verbose mode
+       ("packet_details" is true). */
+    epan_dissect_init(&edt, create_proto_tree, print_packet_info && print_details);
 
     /* If we're running a read filter, prime the epan_dissect_t with that
        filter. */
@@ -3080,14 +3101,11 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
     col_custom_prime_edt(&edt, &cf->cinfo);
 
     /* We only need the columns if either
-
          1) some tap needs the columns
-
        or
-
          2) we're printing packet info but we're *not* verbose; in verbose
             mode, we print the protocol tree, not the protocol summary. */
-    if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && !verbose))
+    if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && print_summary))
       cinfo = &cf->cinfo;
     else
       cinfo = NULL;
@@ -3165,7 +3183,7 @@ write_preamble(capture_file *cf)
     return print_preamble(print_stream, cf ? cf->filename : NULL);
 
   case WRITE_XML:
-    if (verbose)
+    if (print_details)
       write_pdml_preamble(stdout, cf ? cf->filename : NULL);
     else
       write_psml_preamble(stdout);
@@ -3441,7 +3459,27 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
 {
   print_args_t  print_args;
 
-  if (verbose) {
+  if (print_summary) {
+    /* Just fill in the columns. */
+    epan_dissect_fill_in_columns(edt, FALSE, TRUE);
+
+    /* Now print them. */
+    switch (output_action) {
+
+    case WRITE_TEXT:
+        if (!print_columns(cf))
+          return FALSE;
+        break;
+
+    case WRITE_XML:
+        proto_tree_write_psml(edt, stdout);
+        return !ferror(stdout);
+    case WRITE_FIELDS: /*No non-verbose "fields" format */
+        g_assert_not_reached();
+        break;
+    }
+  }
+  if (print_details) {
     /* Print the information in the protocol tree. */
     switch (output_action) {
 
@@ -3451,12 +3489,12 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
        * we would otherwise have to g_free().
       print_args.to_file = TRUE;
       print_args.format = print_format;
-      print_args.print_summary = !verbose;
+      print_args.print_summary = print_summary;
       print_args.print_formfeed = FALSE;
       packet_range_init(&print_args.range, &cfile);
       */
-      print_args.print_hex = verbose && print_hex;
-      print_args.print_dissections = verbose ? print_dissections_expanded : print_dissections_none;
+      print_args.print_hex = print_hex;
+      print_args.print_dissections = print_details ? print_dissections_expanded : print_dissections_none;
 
       if (!proto_tree_print(&print_args, edt, print_stream))
         return FALSE;
@@ -3478,30 +3516,15 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       printf("\n");
       return !ferror(stdout);
     }
-  } else {
-    /* Just fill in the columns. */
-    epan_dissect_fill_in_columns(edt, FALSE, TRUE);
-
-    /* Now print them. */
-    switch (output_action) {
-
-    case WRITE_TEXT:
-        if (!print_columns(cf))
-          return FALSE;
-        break;
-
-    case WRITE_XML:
-        proto_tree_write_psml(edt, stdout);
-        return !ferror(stdout);
-    case WRITE_FIELDS: /*No non-verbose "fields" format */
-        g_assert_not_reached();
-        break;
-    }
   }
   if (print_hex) {
+    if (print_summary || print_details) {
+      if (!print_line(print_stream, 0, ""))
+        return FALSE;
+    }
     if (!print_hex_data(print_stream, edt))
       return FALSE;
-    if (!print_line(print_stream, 0, ""))
+    if (!print_line(print_stream, 0, separator))
       return FALSE;
   }
   return TRUE;
@@ -3516,7 +3539,7 @@ write_finale(void)
     return print_finale(print_stream);
 
   case WRITE_XML:
-    if (verbose)
+    if (print_details)
       write_pdml_finale(stdout);
     else
       write_psml_finale(stdout);
