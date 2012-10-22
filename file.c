@@ -511,9 +511,7 @@ cf_read(capture_file *cf, gboolean reloading)
   progdlg_t           *progbar        = NULL;
   gboolean             stop_flag;
   GTimeVal             start_time;
-  gchar                status_str[100];
   dfilter_t           *dfcode;
-  column_info         *cinfo;
   epan_dissect_t       edt;
   gboolean             create_proto_tree;
   guint                tap_flags;
@@ -528,7 +526,6 @@ cf_read(capture_file *cf, gboolean reloading)
 
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
-  cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
   create_proto_tree =
     (dfcode != NULL || have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
   epan_dissect_init(&edt, create_proto_tree, FALSE);
@@ -567,6 +564,11 @@ cf_read(capture_file *cf, gboolean reloading)
     gint64  progbar_quantum;
     gint64  progbar_nextstep;
     float   progbar_val;
+    gchar   status_str[100];
+
+    column_info *cinfo;
+
+    cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
     /* Find the size of the file. */
     size = wtap_file_size(cf->wth, NULL);
@@ -776,12 +778,11 @@ cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *er
 }
 
 cf_read_status_t
-cf_continue_tail(capture_file *cf, int to_read, int *err)
+cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 {
   gchar        *err_info;
   int           newly_displayed_packets = 0;
   dfilter_t    *dfcode;
-  column_info  *cinfo;
   epan_dissect_t edt;
   gboolean      create_proto_tree;
   guint         tap_flags;
@@ -796,7 +797,6 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
 
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
-  cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
   create_proto_tree =
     (dfcode != NULL || have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
   epan_dissect_init(&edt, create_proto_tree, FALSE);
@@ -813,6 +813,9 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
 
   TRY {
     gint64 data_offset = 0;
+    column_info *cinfo;
+
+    cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
     while (to_read != 0) {
       wtap_cleareof(cf->wth);
