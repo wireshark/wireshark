@@ -517,7 +517,7 @@ cf_read(capture_file *cf, gboolean reloading)
   GTimeVal             start_time;
   gchar                status_str[100];
   gint64               progbar_nextstep;
-  gint64               progbar_quantum;
+  volatile gint64      progbar_quantum;
   dfilter_t           *dfcode;
   column_info         *cinfo;
   epan_dissect_t       edt;
