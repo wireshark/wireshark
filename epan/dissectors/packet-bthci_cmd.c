@@ -2608,13 +2608,13 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 
         case 0x001d: /* LE Receiver Test */
             item = proto_tree_add_item(tree, hf_bthci_cmd_rx_freqency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(item, " (%g MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
+            proto_item_append_text(item, " (%d MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
             offset++;
             break;
 
         case 0x001e: /* LE Transmitter Test */
             item = proto_tree_add_item(tree, hf_bthci_cmd_tx_freqency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(item, " (%g MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
+            proto_item_append_text(item, " (%d MHz)",  2402 + 2*tvb_get_guint8(tvb, offset));
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_test_data_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
