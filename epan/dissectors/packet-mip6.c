@@ -81,6 +81,9 @@ static const value_string mip6_mh_types[] = {
     {MIP6_HI,     "Handover Initiate"},                 /* [RFC5568] */
     {MIP6_HAck,   "Handover Acknowledge"},              /* [RFC5568] */
     {MIP6_BR,     "Binding Revocation"},                /* [RFC5846] */
+    {17,          "Localized Routing Initiation"},      /* [RFC6705] */
+    {18,          "Localized Routing Acknowledgment"},  /* [RFC6705] */ 
+
     {0,      NULL}
 };
 
@@ -134,7 +137,14 @@ typedef enum {
     MIP6_MNLLAII   = 42,        /* 42 Mobile Node Link-local Address Interface Identifier Option [RFC5949] */
     MIP6_TB        = 43,        /* 43 Transient Binding [RFC-ietf-mipshop-transient-bce-pmipv6-07] */
     MIP6_FS        = 44,        /* 44 Flow Summary Mobility Option [RFC-ietf-mext-flow-binding-11] */
-    MIP6_FI        = 45         /* 45 Flow Identification Mobility Option [RFC-ietf-mext-flow-binding-11]] */
+    MIP6_FI        = 45,        /* 45 Flow Identification Mobility Option [RFC-ietf-mext-flow-binding-11]] */
+    MIP6_RECAP     = 46,        /* 46 Redirect-Capability Mobility Option [RFC6463] */ 
+    MIP6_REDIR     = 47,        /* 47 Redirect Mobility Option [RFC6463] */
+    MIP6_LOAD_INF  = 48,        /* 48 Load Information Mobility Option [RFC6463] */
+    MIP6_ALT_IP4_CO= 49,        /* 49 Alternate IPv4 Care-of Address [RFC6463] */
+    MIP6_MNG       = 50,        /* 50 Mobile Node Group Identifier [RFC6602] */
+    MIP6_MAG_IPv6  = 51,        /* 51 MAG IPv6 Address [RFC6705] */
+    MIP6_ACC_NET_ID= 45,        /* 52 Access Network Identifier [RFC6757] */ 
 
 } optTypes;
 
@@ -372,7 +382,7 @@ static const value_string pmip6_att_opttype_value[] = {
 
 /* PMIP6 BRI R. Trigger values */
 static const value_string pmip6_bri_rtrigger[] = {
-    { 0x00, "Unspecified"},
+    { 0x00,     "Unspecified"},
     { 0x01,     "Administrative Reason"},
     { 0x02,     "Inter-MAG Handover - same Access Type"},
     { 0x03,     "Inter-MAG Handover - different Access Type"},
@@ -417,52 +427,59 @@ static const range_string handoff_indicator[] = {
  */
 
 static const value_string mip6_mobility_options[] = {
-    { MIP6_PAD1,   "Pad1"},                                         /* RFC3775 */
-    { MIP6_PADN,   "PadN"},                                         /* RFC3775 */
-    { MIP6_BRA,    "Binding Refresh Advice"},                       /* RFC3775 */
-    { MIP6_ACOA,   "Alternate Care-of Address"},                    /* RFC3775 */
-    { MIP6_NI,     "Nonce Indices"},                                /* RFC3775 */
-    { MIP6_AUTD,   "Authorization Data"},                           /* RFC3775 */
-    { MIP6_MNP,    "Mobile Network Prefix Option"},                 /* RFC3963 */
-    { MIP6_MHLLA,  "Mobility Header Link-Layer Address option"},    /* RFC5568 */
-    { MIP6_MNID,   "MN-ID-OPTION-TYPE"},                            /* RFC4283 */
-    { MIP6_AUTH,   "AUTH-OPTION-TYPE"},                             /* RFC4285 */
-    { MIP6_MESGID, "MESG-ID-OPTION-TYPE"},                          /* RFC4285 */
-    { MIP6_CGAPR,  "CGA Parameters Request"},                       /* RFC4866 */
-    { MIP6_CGAR,   "CGA Parameters"},                               /* RFC4866 */
-    { MIP6_SIGN,   "Signature"},                                    /* RFC4866 */
-    { MIP6_PHKT,   "Permanent Home Keygen Token"},                  /* RFC4866 */
-    { MIP6_MOCOTI, "Care-of Test Init"},                            /* RFC4866 */
-    { MIP6_MOCOT,  "Care-of Test"},                                 /* RFC4866 */
-    { MIP6_DNSU,   "DNS-UPDATE-TYPE"},                              /* RFC5026 */
-    { MIP6_EM,     "Experimental Mobility Option"},                 /* RFC5096 */
-    { MIP6_VSM,    "Vendor Specific Mobility Option"},              /* RFC5094 */
-    { MIP6_SSM,    "Service Selection Mobility Option"},            /* RFC5149 */
-    { MIP6_BADFF,  "Binding Authorization Data for FMIPv6 (BADF)"}, /* RFC5568 */
-    { MIP6_HNP,    "Home Network Prefix Option"},                   /* RFC5213 */
-    { MIP6_MOHI,   "Handoff Indicator Option"},                     /* RFC5213 */
-    { MIP6_ATT,    "Access Technology Type Option"},                /* RFC5213 */
-    { MIP6_MNLLI,  "Mobile Node Link-layer Identifier Option"},     /* RFC5213 */
-    { MIP6_LLA,    "Link-local Address Option"},                    /* RFC5213 */
-    { MIP6_TS,     "Timestamp Option"},                             /* RFC5213 */
-    { MIP6_RC,     "Restart Counter"},                              /* RFC5847 */
-    { MIP6_IPV4HA, "IPv4 Home Address"},                            /* RFC5555 */
-    { MIP6_IPV4AA, "IPv4 Address Acknowledgement"},                 /* RFC5555 */
-    { MIP6_NATD,   "NAT Detection"},                                /* RFC5555 */
-    { MIP6_IPV4COA,"IPv4 Care-of Address"},                         /* RFC5555 */
-    { MIP6_GREK,   "GRE Key Option"},                               /* RFC5845 */
-    { MIP6_MHIPV6AP,  "Mobility Header IPv6 Address/Prefix"},       /* RFC5568 */
-    { MIP6_BI,        "Binding Identifier"},                        /* RFC5648 */
-    { MIP6_IPV4HAREQ, "IPv4 Home Address Request"},                 /* RFC5844 */
-    { MIP6_IPV4HAREP, "IPv4 Home Address Reply"},                   /* RFC5844 */
-    { MIP6_IPV4DRA,   "IPv4 Default-Router Address"},               /* RFC5844 */
-    { MIP6_IPV4DSM,   "IPv4 DHCP Support Mode"},                    /* RFC5844 */
-    { MIP6_CR,        "Context Request Option"},                    /* RFC5949 */
-    { MIP6_LMAA,      "Local Mobility Anchor Address Option"},      /* RFC5949 */
-    { MIP6_MNLLAII,   "Mobile Node Link-local Address Interface Identifier Option"}, /* RFC5949 */
-    { MIP6_TB,        "Transient Binding"},                         /* [RFC-ietf-mipshop-transient-bce-pmipv6-07] */
-    { MIP6_FS,        "Flow Summary"},                              /* [RFC-ietf-mext-flow-binding-11] */
-    { MIP6_FI,        "Flow Identification"},                       /* [RFC-ietf-mext-flow-binding-11]] */
+    { MIP6_PAD1,       "Pad1"},                                         /* RFC3775 */
+    { MIP6_PADN,       "PadN"},                                         /* RFC3775 */
+    { MIP6_BRA,        "Binding Refresh Advice"},                       /* RFC3775 */
+    { MIP6_ACOA,       "Alternate Care-of Address"},                    /* RFC3775 */
+    { MIP6_NI,         "Nonce Indices"},                                /* RFC3775 */
+    { MIP6_AUTD,       "Authorization Data"},                           /* RFC3775 */
+    { MIP6_MNP,        "Mobile Network Prefix Option"},                 /* RFC3963 */
+    { MIP6_MHLLA,      "Mobility Header Link-Layer Address option"},    /* RFC5568 */
+    { MIP6_MNID,       "MN-ID-OPTION-TYPE"},                            /* RFC4283 */
+    { MIP6_AUTH,       "AUTH-OPTION-TYPE"},                             /* RFC4285 */
+    { MIP6_MESGID,     "MESG-ID-OPTION-TYPE"},                          /* RFC4285 */
+    { MIP6_CGAPR,      "CGA Parameters Request"},                       /* RFC4866 */
+    { MIP6_CGAR,       "CGA Parameters"},                               /* RFC4866 */
+    { MIP6_SIGN,       "Signature"},                                    /* RFC4866 */
+    { MIP6_PHKT,       "Permanent Home Keygen Token"},                  /* RFC4866 */
+    { MIP6_MOCOTI,     "Care-of Test Init"},                            /* RFC4866 */
+    { MIP6_MOCOT,      "Care-of Test"},                                 /* RFC4866 */
+    { MIP6_DNSU,       "DNS-UPDATE-TYPE"},                              /* RFC5026 */
+    { MIP6_EM,         "Experimental Mobility Option"},                 /* RFC5096 */
+    { MIP6_VSM,        "Vendor Specific Mobility Option"},              /* RFC5094 */
+    { MIP6_SSM,        "Service Selection Mobility Option"},            /* RFC5149 */
+    { MIP6_BADFF,      "Binding Authorization Data for FMIPv6 (BADF)"}, /* RFC5568 */
+    { MIP6_HNP,        "Home Network Prefix Option"},                   /* RFC5213 */
+    { MIP6_MOHI,       "Handoff Indicator Option"},                     /* RFC5213 */
+    { MIP6_ATT,        "Access Technology Type Option"},                /* RFC5213 */
+    { MIP6_MNLLI,      "Mobile Node Link-layer Identifier Option"},     /* RFC5213 */
+    { MIP6_LLA,        "Link-local Address Option"},                    /* RFC5213 */
+    { MIP6_TS,         "Timestamp Option"},                             /* RFC5213 */
+    { MIP6_RC,         "Restart Counter"},                              /* RFC5847 */
+    { MIP6_IPV4HA,     "IPv4 Home Address"},                            /* RFC5555 */
+    { MIP6_IPV4AA,     "IPv4 Address Acknowledgement"},                 /* RFC5555 */
+    { MIP6_NATD,       "NAT Detection"},                                /* RFC5555 */
+    { MIP6_IPV4COA,    "IPv4 Care-of Address"},                         /* RFC5555 */
+    { MIP6_GREK,       "GRE Key Option"},                               /* RFC5845 */
+    { MIP6_MHIPV6AP,   "Mobility Header IPv6 Address/Prefix"},          /* RFC5568 */
+    { MIP6_BI,         "Binding Identifier"},                           /* RFC5648 */
+    { MIP6_IPV4HAREQ,  "IPv4 Home Address Request"},                    /* RFC5844 */
+    { MIP6_IPV4HAREP,  "IPv4 Home Address Reply"},                      /* RFC5844 */
+    { MIP6_IPV4DRA,    "IPv4 Default-Router Address"},                  /* RFC5844 */
+    { MIP6_IPV4DSM,    "IPv4 DHCP Support Mode"},                       /* RFC5844 */
+    { MIP6_CR,         "Context Request Option"},                       /* RFC5949 */
+    { MIP6_LMAA,       "Local Mobility Anchor Address Option"},         /* RFC5949 */
+    { MIP6_MNLLAII,    "Mobile Node Link-local Address Interface Identifier Option"}, /* RFC5949 */
+    { MIP6_TB,         "Transient Binding"},                            /* RFC6058 */
+    { MIP6_FS,         "Flow Summary"},                                 /* RFC6089 */
+    { MIP6_FI,         "Flow Identification"},                          /* RFC6089 */
+    { MIP6_RECAP,      "Redirect-Capability Mobility Option"},          /* RFC6463 */ 
+    { MIP6_REDIR,      "Redirect Mobility Option"},                     /* RFC6463 */
+    { MIP6_LOAD_INF,   "Load Information Mobility Option"},             /* RFC6463 */
+    { MIP6_ALT_IP4_CO, "Alternate IPv4 Care-of Address"},               /* RFC6463 */
+    { MIP6_MNG,        "Mobile Node Group Identifier"},                 /* RFC6602 */
+	{ MIP6_MAG_IPv6,   "MAG IPv6 Address"},                             /* RFC6705 */
+    { MIP6_ACC_NET_ID, "Access Network Identifier"},                    /* RFC6757 */ 
 
     { 0, NULL }
 };
