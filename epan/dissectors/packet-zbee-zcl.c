@@ -30,7 +30,6 @@
 /*  Include Files */
 #include "config.h"
 
-#include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
 
@@ -682,15 +681,15 @@ static const value_string zbee_zcl_dis_names[] = {
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
 static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree  *zcl_tree = NULL;
-    proto_tree  *sub_tree = NULL;
+    proto_tree *zcl_tree = NULL;
+    proto_tree *sub_tree = NULL;
 
     proto_item  *proto_root = NULL;
     proto_item  *ti;
@@ -885,7 +884,7 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - pointer to offset from caller
  *  RETURNS
  *      guint               - offset after command dissection.
@@ -912,7 +911,7 @@ static void dissect_zcl_read_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - pointer to offset from caller
  *  RETURNS
  *      guint               - offset after command dissection.
@@ -920,8 +919,8 @@ static void dissect_zcl_read_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
  */
 static void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *sub_tree = NULL;
+    proto_item *ti       = NULL;
+    proto_tree *sub_tree = NULL;
 
     guint tvb_len;
     guint i = 0;
@@ -957,7 +956,7 @@ static void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, pr
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - pointer to offset from caller
  *  RETURNS
  *      guint               - offset after command dissection.
@@ -965,8 +964,8 @@ static void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, pr
  */
 static void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *sub_tree = NULL;
+    proto_item *ti       = NULL;
+    proto_tree *sub_tree = NULL;
 
     guint tvb_len;
     guint i = 0;
@@ -997,7 +996,7 @@ static void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - pointer to offset from caller
  *  RETURNS
  *      guint               - offset after command dissection.
@@ -1005,8 +1004,8 @@ static void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
  */
 static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *sub_tree = NULL;
+    proto_item *ti       = NULL;
+    proto_tree *sub_tree = NULL;
 
     guint tvb_len;
     guint i = 0;
@@ -1039,15 +1038,15 @@ static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, p
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - pointer to offset from caller
  *---------------------------------------------------------------
  */
 static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 guint *offset)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *sub_tree = NULL;
+    proto_item *ti       = NULL;
+    proto_tree *sub_tree = NULL;
 
     guint tvb_len;
     guint i = 0;
@@ -1108,14 +1107,14 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - pointer to offset from caller
  *---------------------------------------------------------------
  */
 static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *sub_tree = NULL;
+    proto_item *ti       = NULL;
+    proto_tree *sub_tree = NULL;
 
     guint tvb_len;
     guint i = 0;
@@ -1170,7 +1169,7 @@ static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, pro
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - pointer to offset from caller
  *  RETURNS
  *      guint               - offset after command dissection.
@@ -1179,8 +1178,8 @@ static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 guint *offset)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *sub_tree = NULL;
+    proto_item *ti       = NULL;
+    proto_tree *sub_tree = NULL;
 
     guint tvb_len;
     guint i = 0;
@@ -1215,7 +1214,7 @@ static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo _U_
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - pointer to offset from caller
  *  RETURNS
  *      guint               - offset after command dissection.
@@ -1224,8 +1223,8 @@ static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo _U_
 static void dissect_zcl_read_report_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 guint *offset)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *sub_tree = NULL;
+    proto_item *ti       = NULL;
+    proto_tree *sub_tree = NULL;
 
     guint tvb_len;
     guint i = 0;
@@ -1256,7 +1255,7 @@ static void dissect_zcl_read_report_config(tvbuff_t *tvb, packet_info *pinfo _U_
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - pointer to offset from caller
  *  RETURNS
  *      void
@@ -1286,7 +1285,7 @@ static void dissect_zcl_default_resp(tvbuff_t *tvb, packet_info *pinfo _U_, prot
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - pointer to offset from caller
  *  RETURNS
  *      void
@@ -1312,7 +1311,7 @@ static void dissect_zcl_discover_attr(tvbuff_t *tvb, packet_info *pinfo _U_, pro
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - pointer to offset from caller
  *  RETURNS
  *      void
@@ -1321,8 +1320,8 @@ static void dissect_zcl_discover_attr(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 guint *offset)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *sub_tree = NULL;
+    proto_item *ti       = NULL;
+    proto_tree *sub_tree = NULL;
 
     guint tvb_len;
     guint i = 0;
@@ -1355,7 +1354,7 @@ static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_
  *      Helper dissector for ZCL Attribute commands.
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - offset into the tvb to begin dissection.
  *  RETURNS
  *      guint               - attribute data type
@@ -1387,7 +1386,7 @@ static guint dissect_zcl_attr_data_type(tvbuff_t *tvb, proto_tree *tree, guint *
  *      so we can dissect the attr_id with a hash in the future.
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - offset into the tvb to begin dissection.
  *  RETURNS
  *      void
@@ -1414,7 +1413,7 @@ static void dissect_zcl_attr_id(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *      Helper dissector for ZCL Attribute commands.
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - offset into the tvb to begin dissection.
  *  RETURNS
  *      void
@@ -1436,7 +1435,7 @@ static void dissect_zcl_attr_data_type_val(tvbuff_t *tvb, proto_tree *tree, guin
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - offset into the tvb to begin dissection.
  *      data_type           - the type of ZCL data in the packet buffer
  *  RETURNS
@@ -1445,13 +1444,13 @@ static void dissect_zcl_attr_data_type_val(tvbuff_t *tvb, proto_tree *tree, guin
  */
 static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint data_type)
 {
-    guint attr_uint;
-    gint attr_int;
-    guint8 *attr_string;
-    guint8 attr_uint8[4];
-    gfloat attr_float;
-    gdouble attr_double;
-    nstime_t attr_time;
+    guint     attr_uint;
+    gint      attr_int;
+    guint8   *attr_string;
+    guint8    attr_uint8[4];
+    gfloat    attr_float;
+    gdouble   attr_double;
+    nstime_t  attr_time;
 
     /* Dissect attribute data type and data */
     switch ( data_type ) {
@@ -1826,7 +1825,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - offset into the tvb to begin dissection.
  *      signed_flag         - if TRUE, dissect a signed int
  *  RETURNS
@@ -1866,7 +1865,7 @@ static void dissect_zcl_big_int(tvbuff_t *tvb, proto_tree *tree, guint *offset, 
  *      Helper dissector for ZCL Attribute commands.
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - offset into the tvb to begin dissection.
  *      hf_zbee_zcl         - pointer to header field index
  *  RETURNS
@@ -1891,7 +1890,7 @@ static guint dissect_zcl_attr_uint8(tvbuff_t *tvb, proto_tree *tree, guint *offs
  *      Helper dissector for ZCL Attribute commands.
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - offset into the tvb to begin dissection.
  *      hf_zbee_zcl         - pointer to header field index
  *  RETURNS
@@ -1916,7 +1915,7 @@ static guint dissect_zcl_attr_uint16(tvbuff_t *tvb, proto_tree *tree, guint *off
  *      Helper dissector for ZCL Attribute commands.
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
  *      offset              - offset into the tvb to begin dissection.
  *      length              - number of bytes to dissect
  *  RETURNS
@@ -1947,9 +1946,9 @@ static void dissect_zcl_attr_bytes(tvbuff_t *tvb, proto_tree *tree, guint *offse
  */
 static void zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree  *root = proto_tree_get_root(tree);
+    proto_tree *root   = proto_tree_get_root(tree);
     guint       length = tvb_length_remaining(tvb, offset);
-    tvbuff_t    *remainder;
+    tvbuff_t   *remainder;
 
     if (length > 0) {
         remainder = tvb_new_subset(tvb, offset, length, length);
@@ -1974,7 +1973,7 @@ static void zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto
 static guint64 tvb_get_letohi(tvbuff_t *tvb, guint offset, guint length, gboolean signed_flag)
 {
         guint64 result;
-        guint shift;
+        guint   shift;
 
         DISSECTOR_ASSERT((length>=1) && (length<=8));
 
