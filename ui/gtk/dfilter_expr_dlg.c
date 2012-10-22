@@ -908,7 +908,8 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkWidget *range_label, *range_entry;
 
     GtkWidget *list_bb, *ok_bt, *cancel_bt;
-    ProtoHierTreeModel *store;
+    ProtoHierTreeModel *store_proto;
+    GtkTreeModel *store;
     GtkTreeSelection *selection;
     GtkCellRenderer *renderer;
     GtkTreeViewColumn *column;
@@ -1085,7 +1086,11 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      * we're ready to cope with the selection signal.
      */
 
-    store = proto_hier_tree_model_new();
+    store_proto = proto_hier_tree_model_new();
+    store = gtk_tree_model_sort_new_with_model(GTK_TREE_MODEL(store_proto));
+    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), 1, GTK_SORT_ASCENDING);
+    g_object_unref(G_OBJECT(store_proto));
+
     gtk_tree_view_set_model(GTK_TREE_VIEW(field_tree), GTK_TREE_MODEL(store));
     gtk_tree_view_set_search_column(GTK_TREE_VIEW(field_tree), 1);
     gtk_tree_view_set_enable_search(GTK_TREE_VIEW(field_tree), TRUE);
