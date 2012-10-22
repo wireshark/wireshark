@@ -351,8 +351,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ieee802154_packet   *ieee_packet = (ieee802154_packet *)pinfo->private_data;
 
     guint               offset = 0;
-    gchar               *src_addr = (gchar *)ep_alloc(32);
-    gchar               *dst_addr = (gchar *)ep_alloc(32);
+    static gchar        src_addr[32], dst_addr[32]; /* has to be static due to SET_ADDRESS */
 
     guint16             fcf;
 
