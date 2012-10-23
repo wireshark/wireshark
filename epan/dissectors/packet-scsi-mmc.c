@@ -585,9 +585,7 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
 
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
-        if (cdata) {
-            cdata->itlq->alloc_len = tvb_get_ntohs(tvb, offset + 6);
-        }
+        cdata->itlq->alloc_len = tvb_get_ntohs(tvb, offset + 6);
 
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
