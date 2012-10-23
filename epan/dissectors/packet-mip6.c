@@ -28,6 +28,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * References:
+ * IETF RFC 3775, "Mobility Support in IPv6".
+ * Mobility Support in IPv6 RFC 6275 
+ * Bulk Binding Update Support for Proxy Mobile IPv6 RFC 6602
+ * 
  */
 
 #include "config.h"
@@ -194,6 +200,16 @@ static const true_false_string mip6_bu_f_flag_value = {
 static const true_false_string pmip6_bu_t_flag_value = {
     "TLV-header format used",
     "No TLV-header format"
+};
+
+static const true_false_string pmip6_bu_b_flag_value = {
+    "Enable bulk binding update support",
+    "Disable bulk binding update support"
+};
+
+static const true_false_string pmip6_ba_b_flag_value = {
+    "Enabled bulk binding update support",
+    "Disabled bulk binding update support"
 };
 
 /* Binding Acknowledgement status values
@@ -795,6 +811,7 @@ static int hf_mip6_nemo_bu_r_flag = -1;
 static int hf_pmip6_bu_p_flag = -1;
 static int hf_mip6_bu_f_flag = -1;
 static int hf_pmip6_bu_t_flag = -1;
+static int hf_pmip6_bu_b_flag = -1;
 static int hf_mip6_bu_lifetime = -1;
 
 static int hf_mip6_ba_status = -1;
@@ -802,6 +819,7 @@ static int hf_mip6_ba_k_flag = -1;
 static int hf_mip6_nemo_ba_r_flag = -1;
 static int hf_pmip6_ba_p_flag = -1;
 static int hf_pmip6_ba_t_flag = -1;
+static int hf_pmip6_ba_b_flag = -1;
 static int hf_mip6_ba_seqnr = -1;
 static int hf_mip6_ba_lifetime = -1;
 
@@ -992,6 +1010,20 @@ dissect_mip6_cot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 }
 
 /* RFC3775 */
+
+/*
+http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xml#mobility-parameters-11
+A 0x8000 [RFC6275] 
+H 0x4000 [RFC6275] 
+L 0x2000 [RFC6275] 
+K 0x1000 [RFC6275] 
+M 0x0800 [RFC4140] 
+R 0x0400 [RFC3963] 
+P 0x0200 [RFC5213] 
+F 0x0100 [RFC5555] 
+T 0x0080 [RFC5845] 
+B 0x0040 [RFC6602] 
+*/
 static int
 dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
@@ -1024,6 +1056,8 @@ dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
         proto_tree_add_item(data_tree, hf_mip6_bu_f_flag, tvb,
                 MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_pmip6_bu_t_flag, tvb,
+                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
+        proto_tree_add_item(data_tree, hf_pmip6_bu_b_flag, tvb,
                 MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
 
         if ((tvb_get_guint8(tvb, MIP6_BU_FLAGS_OFF) & 0x0004 ) == 0x0004)
@@ -1061,6 +1095,8 @@ dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
         proto_tree_add_item(data_tree, hf_pmip6_ba_p_flag, tvb,
                 MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_pmip6_ba_t_flag, tvb,
+                MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, ENC_BIG_ENDIAN);
+        proto_tree_add_item(data_tree, hf_pmip6_ba_b_flag, tvb,
                 MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, ENC_BIG_ENDIAN);
         if ((tvb_get_guint8(tvb, MIP6_BA_FLAGS_OFF) & 0x0040 ) == 0x0040)
             proto_nemo = 1;
@@ -2221,6 +2257,11 @@ proto_register_mip6(void)
                                   FT_BOOLEAN, 16, TFS(&pmip6_bu_t_flag_value),
                                   0x0080, NULL,
                                   HFILL }},
+    { &hf_pmip6_bu_b_flag,      { "Bulk-Binding-Update flag (B)",
+                                  "mip6.bu.b_flag",
+                                  FT_BOOLEAN, 16, TFS(&pmip6_bu_b_flag_value),
+                                  0x0040, NULL,
+                                  HFILL }},
     { &hf_mip6_bu_lifetime,     { "Lifetime", "mip6.bu.lifetime",
                                   FT_UINT16, BASE_DEC, NULL, 0,
                                   NULL, HFILL }},
@@ -2248,6 +2289,11 @@ proto_register_mip6(void)
                                   "mip6.ba.t_flag",
                                   FT_BOOLEAN, 8, TFS(&pmip6_bu_t_flag_value),
                                   0x10, NULL,
+                                  HFILL }},
+    { &hf_pmip6_ba_b_flag,      { "Bulk-Binding-Update flag (B)",
+                                  "mip6.ba.b_flag",
+                                  FT_BOOLEAN, 8, TFS(&pmip6_ba_b_flag_value),
+                                  0x08, NULL,
                                   HFILL }},
 
     { &hf_mip6_ba_seqnr,        { "Sequence number", "mip6.ba.seqnr",
