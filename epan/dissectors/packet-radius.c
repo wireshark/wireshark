@@ -1024,10 +1024,8 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 			offset += 4;
 
 			vendor = g_hash_table_lookup(dict->vendors_by_id,GUINT_TO_POINTER(vendor_id));
-			if (vendor) {
-				vendor_str = vendor->name;
-			} else {
-				vendor_str = val_to_str_ext_const(vendor_id, &sminmpec_values_ext, "Unknown");
+			vendor_str = val_to_str_ext_const(vendor_id, &sminmpec_values_ext, "Unknown");
+			if (!vendor) {
 				vendor = &no_vendor;
 			}
 			proto_item_append_text(avp_item, " v=%s(%u)", vendor_str,
