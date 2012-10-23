@@ -59,6 +59,7 @@ typedef enum {
                           * (0xffffffff represents the host) */
   AT_AX25,               /* AX.25 */
   AT_IEEE_802_15_4_SHORT /* IEEE 802.15.4 16-bit short address */
+                         /* (the long addresses are EUI-64's */
 } address_type;
 
 typedef enum {
