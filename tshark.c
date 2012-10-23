@@ -510,7 +510,7 @@ static gboolean
 add_decode_as(const gchar *cl_param)
 {
   gchar                        *table_name;
-  guint32                       selector;
+  guint32                       selector, selector2;
   gchar                        *decoded_param;
   gchar                        *remaining_param;
   gchar                        *selector_str;
@@ -519,6 +519,8 @@ add_decode_as(const gchar *cl_param)
   dissector_table_t             table_matching;
   ftenum_t                      dissector_table_selector_type;
   struct protocol_name_search   user_protocol_name;
+  guint64                       i;
+  char                          op;
 
   /* The following code will allocate and copy the command-line options in a string pointed by decoded_param */
 
@@ -613,10 +615,35 @@ add_decode_as(const gchar *cl_param)
     /* The selector for this table is an unsigned number.  Parse it as such.
        There's no need to remove leading and trailing spaces from the
        selector number string, because sscanf will do that for us. */
-    if ( sscanf(selector_str, "%u", &selector) != 1 ) {
-      cmdarg_err("Invalid selector number \"%s\"", selector_str);
-      g_free(decoded_param);
-      return FALSE;
+    switch (sscanf(selector_str, "%u%c%u", &selector, &op, &selector2)) {
+      case 1:
+        op = '\0';
+        break;
+      case 3:
+        if (op != ':' && op != '-') {
+            cmdarg_err("Invalid selector numeric range \"%s\"", selector_str);
+            g_free(decoded_param);
+            return FALSE;
+        }
+        if (op == ':') {
+            if ((selector2 == 0) || ((guint64)selector + selector2 - 1) > G_MAXUINT32) {
+                cmdarg_err("Invalid selector numeric range \"%s\"", selector_str);
+                g_free(decoded_param);
+                return FALSE;
+            }
+        }
+        else if (selector2 < selector) {
+            /* We could swap them for the user, but maybe it's better to call
+             * this out as an error in case it's not what was intended? */
+            cmdarg_err("Invalid selector numeric range \"%s\"", selector_str);
+            g_free(decoded_param);
+            return FALSE;
+        }
+        break;
+      default:
+        cmdarg_err("Invalid selector number \"%s\"", selector_str);
+        g_free(decoded_param);
+        return FALSE;
     }
     break;
 
@@ -713,7 +740,17 @@ add_decode_as(const gchar *cl_param)
   case FT_UINT24:
   case FT_UINT32:
     /* The selector for this table is an unsigned number. */
-    dissector_change_uint(table_name, selector, dissector_matching);
+    if (op == '\0') {
+      dissector_change_uint(table_name, selector, dissector_matching);
+    } else if (op == ':') {
+      for (i = selector; i < (guint64)selector + selector2; i++) {
+        dissector_change_uint(table_name, (guint32)i, dissector_matching);
+      }
+    } else { /* op == '-' */
+      for (i = selector; i <= selector2; i++) {
+        dissector_change_uint(table_name, (guint32)i, dissector_matching);
+      }
+    }
     break;
 
   case FT_STRING:
@@ -3499,9 +3536,6 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       if (!proto_tree_print(&print_args, edt, print_stream))
         return FALSE;
       if (!print_hex) {
-        /* "print_hex_data()" will put out a leading blank line, as well
-         as a trailing one; print one here, to separate the packets,
-         only if "print_hex_data()" won't be called. */
         if (!print_line(print_stream, 0, separator))
           return FALSE;
       }

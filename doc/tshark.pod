@@ -246,6 +246,12 @@ selector value, packets should be dissected as the specified protocol.
 Example: B<-d tcp.port==8888,http> will decode any traffic running over
 TCP port 8888 as HTTP.
 
+Example: B<-d tcp.port==8888:3,http> will decode any traffic running over
+TCP ports 8888, 8889 or 8890 as HTTP.
+
+Example: B<-d tcp.port==8888-8890,http> will decode any traffic running over
+TCP ports 8888, 8889 or 8890 as HTTP.
+
 Using an invalid selector or protocol will print out a list of valid selectors
 and protocol names, respectively.
 
