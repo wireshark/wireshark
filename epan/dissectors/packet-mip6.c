@@ -59,7 +59,9 @@ typedef enum {
     MIP6_HB     = 13,
     MIP6_HI     = 14,
     MIP6_HAck   = 15,
-    MIP6_BR     = 16
+    MIP6_BR     = 16,
+    MIP6_LRI    = 17,
+    MIP6_LRA    = 18
 } mhTypes;
 
 /* http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xhtml */
@@ -81,8 +83,8 @@ static const value_string mip6_mh_types[] = {
     {MIP6_HI,     "Handover Initiate"},                 /* [RFC5568] */
     {MIP6_HAck,   "Handover Acknowledge"},              /* [RFC5568] */
     {MIP6_BR,     "Binding Revocation"},                /* [RFC5846] */
-    {17,          "Localized Routing Initiation"},      /* [RFC6705] */
-    {18,          "Localized Routing Acknowledgment"},  /* [RFC6705] */ 
+    {MIP6_LRI,    "Localized Routing Initiation"},      /* [RFC6705] */
+    {MIP6_LRA,    "Localized Routing Acknowledgment"},  /* [RFC6705] */ 
 
     {0,      NULL}
 };
@@ -900,8 +902,6 @@ dissect_mip6_brr(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     /*proto_tree *data_tree = NULL;*/
     /*proto_item *ti;*/
 
-    col_set_str(pinfo->cinfo, COL_INFO, "Binding Refresh Request");
-
     if (mip6_tree) {
         /*ti = */proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
                                      MIP6_BRR_LEN, "Binding Refresh Request");
@@ -916,8 +916,6 @@ dissect_mip6_hoti(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
-
-    col_set_str(pinfo->cinfo, COL_INFO, "Home Test Init");
 
     if (mip6_tree) {
         ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
@@ -937,8 +935,6 @@ dissect_mip6_coti(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     proto_tree *data_tree = NULL;
     proto_item *ti;
 
-    col_set_str(pinfo->cinfo, COL_INFO, "Care-of Test Init");
-
     if (mip6_tree) {
         ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
                 MIP6_COTI_LEN, "Care-of Test Init");
@@ -956,8 +952,6 @@ dissect_mip6_hot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
-
-    col_set_str(pinfo->cinfo, COL_INFO, "Home Test");
 
     if (mip6_tree) {
         ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
@@ -980,8 +974,6 @@ dissect_mip6_cot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
-
-    col_set_str(pinfo->cinfo, COL_INFO, "Care-of Test");
 
     if (mip6_tree) {
         ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
@@ -1006,8 +998,6 @@ dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     proto_tree *data_tree = NULL;
     proto_item *ti;
     int lifetime;
-
-    col_set_str(pinfo->cinfo, COL_INFO, "Binding Update");
 
     if (mip6_tree) {
         ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
@@ -1057,8 +1047,6 @@ dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     proto_item *ti;
     int lifetime;
 
-    col_set_str(pinfo->cinfo, COL_INFO, "Binding Acknowledgement");
-
     if (mip6_tree) {
         ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
                 MIP6_BA_LEN, "Binding Acknowledgement");
@@ -1097,8 +1085,6 @@ dissect_mip6_be(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     proto_tree *data_tree = NULL;
     proto_item *ti;
 
-    col_set_str(pinfo->cinfo, COL_INFO, "Binding Error");
-
     if (mip6_tree) {
         ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
                 MIP6_BE_LEN, "Binding Error");
@@ -1118,8 +1104,6 @@ dissect_mip6_hb(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
-
-    col_set_str(pinfo->cinfo, COL_INFO, "Heartbeat");
 
     if (mip6_tree) {
         ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
@@ -1145,8 +1129,6 @@ dissect_mip6_unknown(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     /*proto_tree *data_tree = NULL;*/
     /*proto_item *ti;*/
 
-    col_set_str(pinfo->cinfo, COL_INFO, "Unknown MH Type");
-
     if (mip6_tree) {
         /*ti = */proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
                 MIP6_DATA_OFF + 1, "Unknown MH Type");
@@ -1162,8 +1144,6 @@ dissect_fmip6_fbu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     proto_tree *data_tree = NULL;
     proto_item *ti;
     int lifetime;
-
-    col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Update");
 
     if (mip6_tree) {
         ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
@@ -1200,8 +1180,6 @@ dissect_fmip6_fback(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     proto_item *ti;
     int lifetime;
 
-    col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Acknowledgement");
-
     if (mip6_tree) {
         ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
                 FMIP6_FBACK_LEN, "Fast Binding Acknowledgement");
@@ -1230,8 +1208,6 @@ dissect_fmip6_fna(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     /*proto_tree *data_tree = NULL;*/
     /*proto_item *ti;*/
 
-    col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement");
-
     if (mip6_tree) {
         /*ti = */proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF,
                 FMIP6_FNA_LEN, "Fast Neighbor Advertisement");
@@ -1257,7 +1233,7 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     /* Branch between BR Indication and BR Acknowledge */
     if ( br_type == INDICATION )
     {
-        col_set_str(pinfo->cinfo, COL_INFO, "Binding Revocation Indication");
+        col_append_str(pinfo->cinfo, COL_INFO, " Indication");
 
         if (mip6_tree)
         {
@@ -1288,8 +1264,8 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
                 PMIP6_BRI_RES_OFF, PMIP6_BRI_RES_LEN, ENC_BIG_ENDIAN);
         }
     } else if ( br_type == ACKNOWLEDGE ) {
-        if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "Binding Revocation Acknowledge");
+
+        col_append_str(pinfo->cinfo, COL_INFO, " Acknowledge");
 
         if (mip6_tree)
         {
@@ -2040,13 +2016,8 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         mip6_tree = proto_item_add_subtree(ti, ett_mip6);
 
         /* Process header fields */
-        proto_tree_add_uint_format(mip6_tree, hf_mip6_proto, tvb,
-                MIP6_PROTO_OFF, 1,
-                tvb_get_guint8(tvb, MIP6_PROTO_OFF),
-                "Payload protocol: %s (0x%02x)",
-                ipprotostr(
-                    tvb_get_guint8(tvb, MIP6_PROTO_OFF)),
-                tvb_get_guint8(tvb, MIP6_PROTO_OFF));
+        proto_tree_add_item(mip6_tree, hf_mip6_proto, tvb,
+                MIP6_PROTO_OFF, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_uint_format(mip6_tree, hf_mip6_hlen, tvb,
                 MIP6_HLEN_OFF, 1,
@@ -2067,6 +2038,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Process mobility header */
     type = tvb_get_guint8(tvb, MIP6_TYPE_OFF);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(type, mip6_mh_types, "<unknown>"));
     switch (type) {
     case MIP6_BRR:
         /* Binding Refresh Request */
@@ -2162,7 +2134,7 @@ proto_register_mip6(void)
     static hf_register_info hf[] = {
 
     { &hf_mip6_proto,           { "Payload protocol", "mip6.proto",
-                                  FT_UINT8, BASE_DEC, NULL, 0,
+                                  FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0,
                                   NULL, HFILL }},
     { &hf_mip6_hlen,            { "Header length", "mip6.hlen",
                                   FT_UINT8, BASE_DEC, NULL, 0,
