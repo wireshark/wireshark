@@ -538,6 +538,7 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
 {
   const guint8 *addrdata;
   struct atalk_ddp_addr ddp_addr;
+  guint16 ieee_802_15_4_short_addr;
 
   char temp[32];
   char *tempptr = temp;
@@ -615,6 +616,13 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
         (addrdata[3] >> 1) & 0x7f, (addrdata[4] >> 1) & 0x7f, (addrdata[5] >> 1) & 0x7f,
         (addrdata[6] >> 1) & 0x0f );
     break;
+  case AT_IEEE_802_15_4_SHORT:
+    ieee_802_15_4_short_addr = pletohs(addr->data);
+    if (ieee_802_15_4_short_addr == 0xffff)
+      g_snprintf(buf, buf_len, "Broadcast");
+    else
+      g_snprintf(buf, buf_len, "0x%04x", ieee_802_15_4_short_addr);
+    break;    
   default:
     g_assert_not_reached();
   }

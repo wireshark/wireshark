@@ -38,26 +38,27 @@ extern "C" {
 /* also be included in address_to_str_buf defined in to_str.c, for presentation purposes */
 
 typedef enum {
-  AT_NONE,		/* no link-layer address */
-  AT_ETHER,		/* MAC (Ethernet, 802.x, FDDI) address */
-  AT_IPv4,		/* IPv4 */
-  AT_IPv6,		/* IPv6 */
-  AT_IPX,		/* IPX */
-  AT_SNA,		/* SNA */
-  AT_ATALK,		/* Appletalk DDP */
-  AT_VINES,		/* Banyan Vines */
-  AT_OSI,		/* OSI NSAP */
-  AT_ARCNET,		/* ARCNET */
-  AT_FC,		/* Fibre Channel */
-  AT_SS7PC,		/* SS7 Point Code */
-  AT_STRINGZ,		/* null-terminated string */
-  AT_EUI64,		/* IEEE EUI-64 */
-  AT_URI,		/* URI/URL/URN */
-  AT_TIPC,		/* TIPC Address Zone,Subnetwork,Processor */
-  AT_IB,		/* Infiniband GID/LID */
-  AT_USB,		/* USB Device address
-			 * (0xffffffff represents the host) */
-  AT_AX25		/* AX.25 */
+  AT_NONE,               /* no link-layer address */
+  AT_ETHER,              /* MAC (Ethernet, 802.x, FDDI) address */
+  AT_IPv4,               /* IPv4 */
+  AT_IPv6,               /* IPv6 */
+  AT_IPX,                /* IPX */
+  AT_SNA,                /* SNA */
+  AT_ATALK,              /* Appletalk DDP */
+  AT_VINES,              /* Banyan Vines */
+  AT_OSI,                /* OSI NSAP */
+  AT_ARCNET,             /* ARCNET */
+  AT_FC,                 /* Fibre Channel */
+  AT_SS7PC,              /* SS7 Point Code */
+  AT_STRINGZ,            /* null-terminated string */
+  AT_EUI64,              /* IEEE EUI-64 */
+  AT_URI,                /* URI/URL/URN */
+  AT_TIPC,               /* TIPC Address Zone,Subnetwork,Processor */
+  AT_IB,                 /* Infiniband GID/LID */
+  AT_USB,                /* USB Device address
+                          * (0xffffffff represents the host) */
+  AT_AX25,               /* AX.25 */
+  AT_IEEE_802_15_4_SHORT /* IEEE 802.15.4 16-bit short address */
 } address_type;
 
 typedef enum {

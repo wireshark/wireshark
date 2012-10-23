@@ -697,7 +697,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Get destination address. */
     if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        static char dst_addr[32]; /* has to be static due to SET_ADDRESS */
+        char dst_addr[32];
 
         /* Get the address. */
         packet->dst16 = tvb_get_letohs(tvb, offset);
@@ -714,8 +714,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             ieee_hints->dst16 = packet->dst16;
         }
 
-        SET_ADDRESS(&pinfo->dl_dst, AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
+        SET_ADDRESS(&pinfo->dl_dst, AT_IEEE_802_15_4_SHORT, 2, tvb_get_ptr(tvb, offset, 2));
+        SET_ADDRESS(&pinfo->dst, AT_IEEE_802_15_4_SHORT, 2, tvb_get_ptr(tvb, offset, 2));
 
         if (tree) {
             proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst16, tvb, offset, 2, packet->dst16);
@@ -737,9 +737,9 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         addr = pntoh64(&(packet->dst64));
 
         /* Display the destination address. */
-        /* NOTE: OUI resolution doesn't happen when displaying EUI64 addresses
-         *          might want to switch to AT_STRINZ type to display the OUI in
-         *          the address columns.
+        /* XXX - OUI resolution doesn't happen when displaying resolved
+         * EUI64 addresses; that should probably be fixed in
+         * epan/addr_resolv.c.
          */
         SET_ADDRESS(&pinfo->dl_dst, AT_EUI64, 8, &addr);
         SET_ADDRESS(&pinfo->dst, AT_EUI64, 8, &addr);
@@ -783,7 +783,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Get short source address if present. */
     if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        static char src_addr[32]; /* has to be static due to SET_ADDRESS */
+        char src_addr[32];
 
         /* Get the address. */
         packet->src16 = tvb_get_letohs(tvb, offset);
@@ -809,8 +809,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             }
         }
 
-        SET_ADDRESS(&pinfo->dl_src, AT_STRINGZ, (int)strlen(src_addr)+1, src_addr);
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr)+1, src_addr);
+        SET_ADDRESS(&pinfo->dl_src, AT_IEEE_802_15_4_SHORT, 2, tvb_get_ptr(tvb, offset, 2));
+        SET_ADDRESS(&pinfo->src, AT_IEEE_802_15_4_SHORT, 2, tvb_get_ptr(tvb, offset, 2));
 
         /* Add the addressing info to the tree. */
         if (tree) {
@@ -849,9 +849,9 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         addr = pntoh64(&(packet->src64));
 
         /* Display the source address. */
-        /* NOTE: OUI resolution doesn't happen when displaying EUI64 addresses
-         *          might want to switch to AT_STRINZ type to display the OUI in
-         *          the address columns.
+        /* XXX - OUI resolution doesn't happen when displaying resolved
+         * EUI64 addresses; that should probably be fixed in
+         * epan/addr_resolv.c.
          */
         SET_ADDRESS(&pinfo->dl_src, AT_EUI64, 8, &addr);
         SET_ADDRESS(&pinfo->src, AT_EUI64, 8, &addr);
