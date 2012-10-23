@@ -1101,8 +1101,9 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
     if(item){
         proto_item_set_len(item, len);
     }
-    if (offset != old_offset + len) {
-        /* unknown records */
+    if (offset < old_offset+len) {
+        /* skip unknown records */
+        offset = old_offset + len;
     }
 
     return offset;
@@ -1225,8 +1226,9 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
     if(item){
         proto_item_set_len(item, len);
     }
-    if (offset != old_offset + len) {
-        /* unknown records */
+    if (offset < old_offset+len) {
+        /* skip unknown records */
+        offset = old_offset + len;
     }
 
     return offset;
