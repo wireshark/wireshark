@@ -897,7 +897,7 @@ static gint ett_mip6_opt_ipv4dra = -1;
 /* Functions to dissect the mobility headers */
 
 static int
-dissect_mip6_brr(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_mip6_brr(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     /*proto_tree *data_tree = NULL;*/
     /*proto_item *ti;*/
@@ -912,7 +912,7 @@ dissect_mip6_brr(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 }
 
 static int
-dissect_mip6_hoti(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_mip6_hoti(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
@@ -930,7 +930,7 @@ dissect_mip6_hoti(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 }
 
 static int
-dissect_mip6_coti(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_mip6_coti(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
@@ -948,7 +948,7 @@ dissect_mip6_coti(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 }
 
 static int
-dissect_mip6_hot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_mip6_hot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
@@ -970,7 +970,7 @@ dissect_mip6_hot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 }
 
 static int
-dissect_mip6_cot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_mip6_cot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
@@ -993,7 +993,7 @@ dissect_mip6_cot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 
 /* RFC3775 */
 static int
-dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
@@ -1041,7 +1041,7 @@ dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 }
 
 static int
-dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
@@ -1080,7 +1080,7 @@ dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 }
 
 static int
-dissect_mip6_be(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_mip6_be(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
@@ -1100,7 +1100,7 @@ dissect_mip6_be(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 }
 
 static int
-dissect_mip6_hb(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_mip6_hb(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
@@ -1124,7 +1124,7 @@ dissect_mip6_hb(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 }
 
 static int
-dissect_mip6_unknown(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_mip6_unknown(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     /*proto_tree *data_tree = NULL;*/
     /*proto_item *ti;*/
@@ -1139,7 +1139,7 @@ dissect_mip6_unknown(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 }
 
 static int
-dissect_fmip6_fbu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_fmip6_fbu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
@@ -1174,7 +1174,7 @@ dissect_fmip6_fbu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 }
 
 static int
-dissect_fmip6_fback(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_fmip6_fback(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     proto_tree *data_tree = NULL;
     proto_item *ti;
@@ -1203,7 +1203,7 @@ dissect_fmip6_fback(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 }
 
 static int
-dissect_fmip6_fna(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
+dissect_fmip6_fna(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
     /*proto_tree *data_tree = NULL;*/
     /*proto_item *ti;*/
