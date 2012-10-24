@@ -1357,7 +1357,6 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
 
     while ( frameOffset < length )
     {
-        /** This case can occurs only during fuzztest or randpkt testing. */
         if ( ( length - frameOffset ) <= 0 )
             break;
 
