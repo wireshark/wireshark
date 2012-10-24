@@ -2054,7 +2054,7 @@ call_dop_oid_callback(char *base_string, tvbuff_t *tvb, int offset, packet_info 
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
 
   if (dissector_try_string(dop_dissector_table, binding_param, tvb, pinfo, tree)) {
-     offset += tvb_length_remaining (tvb, offset);
+     offset = tvb_reported_length (tvb);
   } else {
      proto_item *item=NULL;
      proto_tree *next_tree=NULL;
