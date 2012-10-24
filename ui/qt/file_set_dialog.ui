@@ -87,22 +87,22 @@
        </property>
        <column>
         <property name="text">
-         <string notr="true">Filename</string>
+         <string>Filename</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string notr="true">Created</string>
+         <string>Created</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string notr="true">Modified</string>
+         <string>Modified</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string notr="true">Size</string>
+         <string>Size</string>
         </property>
        </column>
       </widget>

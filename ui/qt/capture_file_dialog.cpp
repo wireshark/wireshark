@@ -162,24 +162,24 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
            format you selected", or "Cancel", meaning "don't bother
            saving the file at all". */
         msg_dialog.setIcon(QMessageBox::Question);
-        msg_dialog.setText("This capture file contains comments.");
-        msg_dialog.setInformativeText("The file format you chose doesn't support comments. "
+        msg_dialog.setText(tr("This capture file contains comments."));
+        msg_dialog.setInformativeText(tr("The file format you chose doesn't support comments. "
                                       "Do you want to save the capture in a format that supports comments "
-                                      "or discard the comments and save in the format you chose?");
+                                      "or discard the comments and save in the format you chose?"));
         msg_dialog.setStandardButtons(QMessageBox::Cancel);
         // The predefined roles don't really match the tasks at hand...
-        msg_dialog.addButton("Discard comments and save", QMessageBox::DestructiveRole);
-        default_button = msg_dialog.addButton("Save in another format", QMessageBox::AcceptRole);
+        msg_dialog.addButton(tr("Discard comments and save"), QMessageBox::DestructiveRole);
+        default_button = msg_dialog.addButton(tr("Save in another format"), QMessageBox::AcceptRole);
         msg_dialog.setDefaultButton(default_button);
     } else {
         /* No.  Offer the user a choice of "Discard comments and
            save in the format you selected" or "Cancel". */
         msg_dialog.setIcon(QMessageBox::Question);
-        msg_dialog.setText("This capture file contains comments.");
-        msg_dialog.setInformativeText("No file format in which it can be saved supports comments. "
-                                      "Do you want to discard the comments and save in the format you chose?");
+        msg_dialog.setText(tr("This capture file contains comments."));
+        msg_dialog.setInformativeText(tr("No file format in which it can be saved supports comments. "
+                                      "Do you want to discard the comments and save in the format you chose?"));
         msg_dialog.setStandardButtons(QMessageBox::Cancel);
-        msg_dialog.addButton("Discard comments and save", QMessageBox::DestructiveRole);
+        msg_dialog.addButton(tr("Discard comments and save"), QMessageBox::DestructiveRole);
         msg_dialog.setDefaultButton(QMessageBox::Cancel);
     }
 
@@ -402,17 +402,17 @@ void CaptureFileDialog::addPreview(QVBoxLayout &v_box) {
 
 void CaptureFileDialog::addMergeControls(QVBoxLayout &v_box) {
 
-    merge_prepend_.setText("Prepend packets");
-    merge_prepend_.setToolTip("Insert packets from the selected file before the current file. Packet timestamps will be ignored.");
+    merge_prepend_.setText(tr("Prepend packets"));
+    merge_prepend_.setToolTip(tr("Insert packets from the selected file before the current file. Packet timestamps will be ignored."));
     v_box.addWidget(&merge_prepend_, 0, Qt::AlignTop);
 
-    merge_chrono_.setText("Merge chronologically");
-    merge_chrono_.setToolTip("Insert packets in chronological order.");
+    merge_chrono_.setText(tr("Merge chronologically"));
+    merge_chrono_.setToolTip(tr("Insert packets in chronological order."));
     merge_chrono_.setChecked(true);
     v_box.addWidget(&merge_chrono_, 0, Qt::AlignTop);
 
-    merge_append_.setText("Append packets");
-    merge_append_.setToolTip("Insert packets from the selected file after the current file. Packet timestamps will be ignored.");
+    merge_append_.setText(tr("Append packets"));
+    merge_append_.setToolTip(tr("Insert packets from the selected file after the current file. Packet timestamps will be ignored."));
     v_box.addWidget(&merge_append_, 0, Qt::AlignTop);
 }
 
@@ -525,7 +525,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     // let the user select anything.
     setNameFilters(buildFileSaveAsTypeList(must_support_comments));
     setAcceptMode(QFileDialog::AcceptSave);
-    setLabelText(FileType, "Save as:");
+    setLabelText(FileType, tr("Save as:"));
 
     addGzipControls(left_v_box_);
     addHelpButton(HELP_SAVE_DIALOG);
@@ -709,7 +709,7 @@ void CaptureFileDialog::preview(const QString & path)
     preview_format_.setText(QString::fromUtf8(wtap_file_type_string(wtap_file_type(wth))));
 
     // Size
-    preview_size_.setText(QString("%1 bytes").arg(wtap_file_size(wth, &err)));
+    preview_size_.setText(QString(tr("%1 bytes")).arg(wtap_file_size(wth, &err)));
 
     time(&time_preview);
     while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
@@ -738,13 +738,13 @@ void CaptureFileDialog::preview(const QString & path)
     }
 
     if(err != 0) {
-        preview_packets_.setText(QString("error after reading %1 packets").arg(packets));
+        preview_packets_.setText(QString(tr("error after reading %1 packets")).arg(packets));
         return;
     }
 
     // Packet count
     if(timed_out) {
-        preview_packets_.setText(QString("more than %1 (preview timeout)").arg(packets));
+        preview_packets_.setText(QString(tr("more than %1 (preview timeout)")).arg(packets));
     } else {
         preview_packets_.setText(QString("%1").arg(packets));
     }

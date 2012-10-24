@@ -182,7 +182,7 @@ void ExportObjectDialog::show()
         QMessageBox::warning(
                     this,
                     tr("Tap registration error"),
-                    QString("Unable to register ") + name_ + QString(" tap: ") + error_msg->str,
+                    QString(tr("Unable to register ")) + name_ + QString(tr(" tap: ")) + error_msg->str,
                     QMessageBox::Ok
                     );
         g_string_free(error_msg, TRUE);

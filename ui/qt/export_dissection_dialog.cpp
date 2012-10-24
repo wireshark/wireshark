@@ -63,15 +63,15 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
 
     setWindowTitle(tr("Wireshark: Export Packet Dissections"));
     setAcceptMode(QFileDialog::AcceptSave);
-    setLabelText(FileType, "Export as:");
+    setLabelText(FileType, tr("Export as:"));
 
     // export_type_map_keys() sorts alphabetically. We don't want that.
     name_filters
-            << "Plain text (*.txt)"
-            << "Comma Separated Values - summary (*.csv)"
-            << "PSML - summary (*.psml, *.xml)"
-            << "PDML - details (*.pdml, *.xml)"
-            << "C Arrays - bytes (*.c, *.h)";
+            << tr("Plain text (*.txt)")
+            << tr("Comma Separated Values - summary (*.csv)")
+            << tr("PSML - summary (*.psml, *.xml)")
+            << tr("PDML - details (*.pdml, *.xml)")
+            << tr("C Arrays - bytes (*.c, *.h)");
     export_type_map_[name_filters[0]] = export_type_text;
     export_type_map_[name_filters[1]] = export_type_csv;
     export_type_map_[name_filters[2]] = export_type_psml;
