@@ -53,8 +53,17 @@ static void
 wmem_glib_free_all(void *private_data)
 {
     wmem_glib_allocator_t *allocator = (wmem_glib_allocator_t*) private_data;
+    GSList                *tmp;
 
-    g_slist_free_full(allocator->block_list, &g_free);
+    /* We can't use g_slist_free_full() as it was only introduced in GLIB 2.28
+     * while we support way back to 2.14. So loop through and manually free
+     * each block, then call g_slist_free(). */
+    tmp = allocator->block_list;
+    while (tmp) {
+        g_free(tmp->data);
+        tmp = tmp->next;
+    }
+    g_slist_free(allocator->block_list);
 
     allocator->block_list = NULL;
 }
