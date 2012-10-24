@@ -39,31 +39,43 @@
 
 gboolean
 eo_dicom_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
-	       const void *data)
+                const void *data)
 {
-	export_object_list_t *object_list = tapdata;
-	const dicom_eo_t *eo_info = data;
-	export_object_entry_t *entry;
+    export_object_list_t *object_list = tapdata;
+    const dicom_eo_t *eo_info = data;
+    export_object_entry_t *entry;
 
-	if (eo_info) { /* We have data waiting for us */
-		/*
-		   Don't copy any data. dcm_export_create_object() is already g_malloc() the items
-		   Still, the values will be freed when the export Object window is closed.
-		   Therefore, strings and buffers must be copied
-		*/
-		entry = g_malloc(sizeof(export_object_entry_t));
+    if (eo_info) { /* We have data waiting for us */
+        /*
+           Don't copy any data. dcm_export_create_object() is already g_malloc() the items
+           Still, the values will be freed when the export Object window is closed.
+           Therefore, strings and buffers must be copied
+        */
+        entry = g_malloc(sizeof(export_object_entry_t));
 
-		entry->pkt_num = pinfo->fd->num;
-		entry->hostname = eo_info->hostname;
-		entry->content_type = eo_info->content_type;
-		entry->filename = g_strdup(g_path_get_basename(eo_info->filename));
-		entry->payload_len  = eo_info->payload_len;
-		entry->payload_data = eo_info->payload_data;
+        entry->pkt_num = pinfo->fd->num;
+        entry->hostname = eo_info->hostname;
+        entry->content_type = eo_info->content_type;
+        entry->filename = g_strdup(g_path_get_basename(eo_info->filename));
+        entry->payload_len  = eo_info->payload_len;
+        entry->payload_data = eo_info->payload_data;
 
-		object_list_add_entry(object_list, entry);
+        object_list_add_entry(object_list, entry);
 
-		return TRUE; /* State changed - window should be redrawn */
-	} else {
-		return FALSE; /* State unchanged - no window updates needed */
-	}
+        return TRUE; /* State changed - window should be redrawn */
+    } else {
+        return FALSE; /* State unchanged - no window updates needed */
+    }
 }
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

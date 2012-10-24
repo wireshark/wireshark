@@ -37,14 +37,14 @@ struct _export_object_list_t;
 typedef struct _export_object_list_t export_object_list_t;
 
 typedef struct _export_object_entry_t {
-	guint32 pkt_num;
-	gchar *hostname;
-	gchar *content_type;
-	gchar *filename;
-        /* We need to store a 64 bit integer to hold a file length
-           (was guint payload_len;) */
-        gint64 payload_len;
-	guint8 *payload_data;
+    guint32 pkt_num;
+    gchar *hostname;
+    gchar *content_type;
+    gchar *filename;
+    /* We need to store a 64 bit integer to hold a file length
+      (was guint payload_len;) */
+    gint64 payload_len;
+    guint8 *payload_data;
 } export_object_entry_t;
 
 void object_list_add_entry(export_object_list_t *object_list, export_object_entry_t *entry);
@@ -57,11 +57,11 @@ const char *ct2ext(const char *content_type);
 
 /* Protocol specific */
 gboolean eo_dicom_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
-		const void *data);
+        const void *data);
 gboolean eo_http_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
-		const void *data);
+        const void *data);
 gboolean eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
-		const void *data);
+        const void *data);
 
 void eo_smb_cleanup(void);
 
@@ -71,3 +71,16 @@ void eo_smb_cleanup(void);
 #endif /* __cplusplus */
 
 #endif /* __EXPORT_OBJECT_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
