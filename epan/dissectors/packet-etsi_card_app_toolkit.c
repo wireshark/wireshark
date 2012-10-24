@@ -41,6 +41,8 @@
 
 static int proto_cat = -1;
 
+static dissector_table_t sms_dissector_table;	/* SMS TPDU */
+
 static int hf_cat_tlv = -1;
 
 static int hf_ctlv_devid_src = -1;
@@ -144,10 +146,10 @@ static const value_string comp_tlv_tag_vals[] = {
 	{ 0x06, "Address" },
 	{ 0x07, "Capability configuration parameters" },
 	{ 0x08, "Subaddress" },
-	{ 0x09, "GSM/3G SS string" },
-	{ 0x0a, "GSM/3G USSD string" },
-	{ 0x0b, "GSM/3G SMS TPDU" },
-	{ 0x0c, "GSM/3G Cell Broadcast page" },
+	{ 0x09, "3GPP SS string" },
+	{ 0x0a, "3GPP USSD string" },
+	{ 0x0b, "3GPP SMS TPDU" },
+	{ 0x0c, "3GPP Cell Broadcast page" },
 	{ 0x0d, "Text string" },
 	{ 0x0e, "Tone" },
 	{ 0x0f, "Item" },
@@ -333,8 +335,8 @@ static const value_string cmd_type_vals[] = {
 	{ 0x04, "POLLING OFF" },
 	{ 0x05, "SET UP EVENT LIST" },
 	{ 0x10, "SET UP CALL" },
-	{ 0x11, "GSM/3G SEND SS" },
-	{ 0x12, "GSM/3G SEND USSD" },
+	{ 0x11, "SEND SS" },
+	{ 0x12, "SEND USSD" },
 	{ 0x13, "SEND SHORT MESSAGE" },
 	{ 0x14, "SEND DTMF" },
 	{ 0x15, "LAUNCH BROWSER" },
@@ -749,6 +751,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *cat_ti;
 	proto_tree *cat_tree, *elem_tree;
 	unsigned int pos = 0;
+	tvbuff_t *new_tvb;
 
 	cat_ti = proto_tree_add_item(tree, proto_cat, tvb, 0, -1, ENC_NA);
 	cat_tree = proto_item_add_subtree(cat_ti, ett_cat);
@@ -864,6 +867,12 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(elem_tree, hf_ctlv_dur_time_unit, tvb, pos, 1, ENC_NA);
 			break;
 		case 0x05:	/* alpha identifier */
+			break;
+		case 0x0b:	/* sms tpdu */
+			new_tvb = tvb_new_subset(tvb, pos, len, len);
+			if (new_tvb) {
+				dissector_try_uint(sms_dissector_table, 0, new_tvb, pinfo, elem_tree);
+			}
 			break;
 		case 0x0d:	/* text string */
 			if (len == 0)
@@ -1461,4 +1470,7 @@ proto_register_card_app_toolkit(void)
 void
 proto_reg_handoff_card_app_toolkit(void)
 {
+	sms_dissector_table =
+		register_dissector_table("etsi_cat.sms_tpdu", "3GPP SMS TPDU",
+		FT_UINT8, BASE_DEC);
 }

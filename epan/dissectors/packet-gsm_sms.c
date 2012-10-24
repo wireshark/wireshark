@@ -3787,4 +3787,5 @@ proto_reg_handoff_gsm_sms(void)
 
     dissector_add_uint("gsm_a.sms_tpdu", 0, gsm_sms_handle);
     dissector_add_uint("gsm_map.sms_tpdu", 0, gsm_sms_handle);
+    dissector_add_uint("etsi_cat.sms_tpdu", 0, gsm_sms_handle);
 }

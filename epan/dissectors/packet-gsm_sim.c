@@ -1109,6 +1109,7 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		subtvb = tvb_new_subset(tvb, pos, len, len);
 		switch (tag) {
 		case 0xD0:	/* proactive command */
+		case 0xD1:	/* sms-pp download */
 		case 0xD6:	/* event download */
 		case 0xD7:	/* timer expiration */
 			call_dissector(sub_handle_cap, subtvb, pinfo, tree);
