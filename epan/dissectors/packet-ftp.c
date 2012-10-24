@@ -500,7 +500,7 @@ parse_extended_pasv_response(const guchar *line, gint linelen, guint16 *ftp_port
          * We didn't run out of text without finding anything.
          */
         *ftp_port = atoi(p);
-        *pasv_offset = p - args;
+        *pasv_offset = (guint32)(p - args);
 
         ret = TRUE;
 
