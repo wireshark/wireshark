@@ -27,6 +27,7 @@
 
 #include <glib.h>
 
+#include "wmem_core.h"
 #include "wmem_allocator.h"
 
 /* In this trivial allocator, we just store a GSList of g_malloc()ed
