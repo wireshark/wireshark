@@ -21,13 +21,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-INCLUDES = -I$(top_srcdir)
-
-include Makefile.common
-
 if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS = -Werror
 endif
+
+include Makefile.common
 
 AM_CPPFLAGS = $(LIBWMEM_CFLAGS)
 
@@ -43,19 +41,19 @@ DISTCLEANFILES =
 MAINTAINERCLEANFILES =	\
 	Makefile.in
 
+INCLUDES = -I$(top_srcdir)
+
 libwmem_la_SOURCES =	\
 	$(LIBWMEM_SRC)	\
 	$(LIBWMEM_INCLUDES)
 
 EXTRA_DIST = \
-	Custom.common \
 	Makefile.common	\
 	Makefile.nmake
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
 	$(LIBWMEM_SRC)
-
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
