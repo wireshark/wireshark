@@ -181,7 +181,7 @@ static unsigned long packet_start = 0;
 static void start_new_packet (void);
 
 /* This buffer contains strings present before the packet offset 0 */
-#define PACKET_PREAMBLE_MAX_LEN	2048
+#define PACKET_PREAMBLE_MAX_LEN    2048
 static unsigned char packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
 static int packet_preamble_len = 0;
 
@@ -524,12 +524,12 @@ write_current_packet (void)
             if (ts_fmt == NULL) { ts_usec++; }  /* fake packet counter */
             pkthdr.caplen = pkthdr.len = prefix_length + curr_offset + eth_trailer_length;
             pkthdr.pkt_encap = pcap_link_type;
-			pkthdr.interface_id = 0;
-			pkthdr.presence_flags = 0;
-			pkthdr.opt_comment = NULL;
-			pkthdr.drop_count = 0;
-			pkthdr.pack_flags = 0;
-			pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
+            pkthdr.interface_id = 0;
+            pkthdr.presence_flags = 0;
+            pkthdr.opt_comment = NULL;
+            pkthdr.drop_count = 0;
+            pkthdr.pack_flags = 0;
+            pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
 
             wtap_dump(wdh, &pkthdr, packet_buf, &err);
         }
@@ -550,14 +550,14 @@ append_to_preamble(char *str)
 
     if (packet_preamble_len != 0) {
         if (packet_preamble_len == PACKET_PREAMBLE_MAX_LEN)
-            return;	/* no room to add more preamble */
+            return;    /* no room to add more preamble */
         /* Add a blank separator between the previous token and this token. */
         packet_preamble[packet_preamble_len++] = ' ';
     }
     toklen = strlen(str);
     if (toklen != 0) {
         if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
-            return;	/* no room to add the token to the preamble */
+            return;    /* no room to add the token to the preamble */
         g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
         packet_preamble_len += (int) toklen;
         if (debug >= 2) {
@@ -577,103 +577,103 @@ append_to_preamble(char *str)
 static void
 parse_preamble (void)
 {
-	struct tm timecode;
-	char *subsecs;
-	char *p;
-	int  subseclen;
-	int  i;
+    struct tm timecode;
+    char *subsecs;
+    char *p;
+    int  subseclen;
+    int  i;
 
-	/*
-	 * If no "-t" flag was specified, don't attempt to parse a packet
-	 * preamble to extract a time stamp.
-	 */
-	if (ts_fmt == NULL)
-	    return;
+    /*
+     * If no "-t" flag was specified, don't attempt to parse a packet
+     * preamble to extract a time stamp.
+     */
+    if (ts_fmt == NULL)
+        return;
 
-	/*
-	 * Initialize to today localtime, just in case not all fields
-	 * of the date and time are specified.
-	 */
+    /*
+     * Initialize to today localtime, just in case not all fields
+     * of the date and time are specified.
+     */
 
-	timecode = timecode_default;
-	ts_usec = 0;
+    timecode = timecode_default;
+    ts_usec = 0;
 
-	/*
-	 * Null-terminate the preamble.
-	 */
-	packet_preamble[packet_preamble_len] = '\0';
+    /*
+     * Null-terminate the preamble.
+     */
+    packet_preamble[packet_preamble_len] = '\0';
 
-	/* Ensure preamble has more than two chars before atempting to parse.
-	 * This should cover line breaks etc that get counted.
-	 */
-	if ( strlen(packet_preamble) > 2 ) {
-		/* Get Time leaving subseconds */
-		subsecs = strptime( packet_preamble, ts_fmt, &timecode );
-		if (subsecs != NULL) {
-			/* Get the long time from the tm structure */
-                        /*  (will return -1 if failure)            */
-			ts_sec  = mktime( &timecode );
-		} else
-			ts_sec = -1;	/* we failed to parse it */
+    /* Ensure preamble has more than two chars before atempting to parse.
+     * This should cover line breaks etc that get counted.
+     */
+    if ( strlen(packet_preamble) > 2 ) {
+        /* Get Time leaving subseconds */
+        subsecs = strptime( packet_preamble, ts_fmt, &timecode );
+        if (subsecs != NULL) {
+            /* Get the long time from the tm structure */
+            /*  (will return -1 if failure)            */
+            ts_sec  = mktime( &timecode );
+        } else
+            ts_sec = -1;    /* we failed to parse it */
 
-		/* This will ensure incorrectly parsed dates get set to zero */
-		if ( -1 == ts_sec )
-		{
-			/* Sanitize - remove all '\r' */
-			char *c;
-			while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-			fprintf (stderr, "Failure processing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00 GMT)\n",
-				 packet_preamble, ts_fmt);
-			if (debug >= 2) {
-				fprintf(stderr, "timecode: %02d/%02d/%d %02d:%02d:%02d %d\n",
-					timecode.tm_mday, timecode.tm_mon, timecode.tm_year,
-					timecode.tm_hour, timecode.tm_min, timecode.tm_sec, timecode.tm_isdst);
-			}
-			ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
-			ts_usec = 0;
-		}
-		else
-		{
-			/* Parse subseconds */
-			ts_usec = strtol(subsecs, &p, 10);
-			if (subsecs == p) {
-				/* Error */
-				ts_usec = 0;
-			} else {
-				/*
-				 * Convert that number to a number
-				 * of microseconds; if it's N digits
-				 * long, it's in units of 10^(-N) seconds,
-				 * so, to convert it to units of
-				 * 10^-6 seconds, we multiply by
-				 * 10^(6-N).
-				 */
-				subseclen = (int) (p - subsecs);
-				if (subseclen > 6) {
-					/*
-					 * *More* than 6 digits; 6-N is
-					 * negative, so we divide by
-					 * 10^(N-6).
-					 */
-					for (i = subseclen - 6; i != 0; i--)
-						ts_usec /= 10;
-				} else if (subseclen < 6) {
-					for (i = 6 - subseclen; i != 0; i--)
-						ts_usec *= 10;
-				}
-			}
-		}
-	}
-	if (debug >= 2) {
-		char *c;
-		while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-		fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
-		fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_usec);
-	}
+        /* This will ensure incorrectly parsed dates get set to zero */
+        if ( -1 == ts_sec )
+        {
+            /* Sanitize - remove all '\r' */
+            char *c;
+            while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
+            fprintf (stderr, "Failure processing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00 GMT)\n",
+                 packet_preamble, ts_fmt);
+            if (debug >= 2) {
+                fprintf(stderr, "timecode: %02d/%02d/%d %02d:%02d:%02d %d\n",
+                    timecode.tm_mday, timecode.tm_mon, timecode.tm_year,
+                    timecode.tm_hour, timecode.tm_min, timecode.tm_sec, timecode.tm_isdst);
+            }
+            ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
+            ts_usec = 0;
+        }
+        else
+        {
+            /* Parse subseconds */
+            ts_usec = strtol(subsecs, &p, 10);
+            if (subsecs == p) {
+                /* Error */
+                ts_usec = 0;
+            } else {
+                /*
+                 * Convert that number to a number
+                 * of microseconds; if it's N digits
+                 * long, it's in units of 10^(-N) seconds,
+                 * so, to convert it to units of
+                 * 10^-6 seconds, we multiply by
+                 * 10^(6-N).
+                 */
+                subseclen = (int) (p - subsecs);
+                if (subseclen > 6) {
+                    /*
+                     * *More* than 6 digits; 6-N is
+                     * negative, so we divide by
+                     * 10^(N-6).
+                     */
+                    for (i = subseclen - 6; i != 0; i--)
+                        ts_usec /= 10;
+                } else if (subseclen < 6) {
+                    for (i = 6 - subseclen; i != 0; i--)
+                        ts_usec *= 10;
+                }
+            }
+        }
+    }
+    if (debug >= 2) {
+        char *c;
+        while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
+        fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
+        fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_usec);
+    }
 
 
-	/* Clear Preamble */
-	packet_preamble_len = 0;
+    /* Clear Preamble */
+    packet_preamble_len = 0;
 }
 
 /*----------------------------------------------------------------------
@@ -978,3 +978,16 @@ text_import_cleanup(void)
 {
     g_free(packet_buf);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
