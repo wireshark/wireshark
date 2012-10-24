@@ -1611,59 +1611,59 @@ dissect_mip6_opt_mnid(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
  */
 static void
 dissect_mip6_opt_auth(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
-	/* offset points to tag(opt) */
-	offset++;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_auth_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_auth_mobility_spi, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset+=4;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_auth_auth_data, tvb, offset, -1, ENC_NA);
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_auth_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_auth_mobility_spi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset+=4;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_auth_auth_data, tvb, offset, -1, ENC_NA);
 
 }
 
 /* 12 CGA Parameters [RFC4866]  */
 static void
 dissect_mip6_opt_cgar(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
-	/* offset points to tag(opt) */
-	offset++;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-	proto_tree_add_item(opt_tree, hf_mip6_opt_cgar_cga_par, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_cgar_cga_par, tvb, offset, -1, ENC_NA);
 
 }
 
 /* 13 Signature [RFC4866]  */
 static void
 dissect_mip6_opt_sign(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
-	/* offset points to tag(opt) */
-	offset++;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-	proto_tree_add_item(opt_tree, hf_mip6_opt_sign_sign, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_sign_sign, tvb, offset, -1, ENC_NA);
 
 }
 
 /* 14 Permanent Home Keygen Token [RFC4866]  */
 static void
 dissect_mip6_opt_phkt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
-	/* offset points to tag(opt) */
-	offset++;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-	proto_tree_add_item(opt_tree, hf_mip6_opt_phkt_phkt, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_phkt_phkt, tvb, offset, -1, ENC_NA);
 
 }
 /* 15 Care-of Test Init [RFC4866]  
@@ -1673,14 +1673,14 @@ dissect_mip6_opt_phkt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 /* 16 Care-of Test [RFC4866]  */
 static void
 dissect_mip6_opt_mocot(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
-	/* offset points to tag(opt) */
-	offset++;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-	proto_tree_add_item(opt_tree, hf_mip6_opt_mocot_co_keygen_tok, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_mocot_co_keygen_tok, tvb, offset, -1, ENC_NA);
 
 }
 
@@ -1701,33 +1701,33 @@ dissect_mip6_opt_mocot(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 */
 static void
 dissect_mip6_opt_dnsu(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
-	/* offset points to tag(opt) */
-	offset++;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-	proto_tree_add_item(opt_tree, hf_mip6_opt_dnsu_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_dnsu_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-	proto_tree_add_item(opt_tree, hf_mip6_opt_dnsu_flag_r, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_dnsu_flag_r, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-	proto_tree_add_item(opt_tree, hf_mip6_opt_dnsu_mn_id, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_dnsu_mn_id, tvb, offset, -1, ENC_NA);
 }
 
 /* 18 Experimental Mobility Option [RFC5096] */
 static void
 dissect_mip6_opt_em(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
-	/* offset points to tag(opt) */
-	offset++;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-	proto_tree_add_item(opt_tree, hf_mip6_opt_em_data, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_em_data, tvb, offset, -1, ENC_NA);
 
 }
 
@@ -1913,9 +1913,9 @@ dissect_pmip6_opt_grek(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 static void
 dissect_pmip6_opt_mhipv6ap(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
-	guint8 prefix_l;
+    guint8 prefix_l;
     /* offset points to tag(opt) */
     offset++;
     proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1923,10 +1923,10 @@ dissect_pmip6_opt_mhipv6ap(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset
 
     proto_tree_add_item(opt_tree, hf_mip6_opt_mhipv6ap_opt_code, tvb, offset, -1, ENC_NA);
     offset++;
-	prefix_l = tvb_get_guint8(tvb,offset);
+    prefix_l = tvb_get_guint8(tvb,offset);
     proto_tree_add_item(opt_tree, hf_mip6_opt_mhipv6ap_prefix_l, tvb, offset, -1, ENC_NA);
     offset++;
-	proto_tree_add_text(opt_tree, tvb, offset, prefix_l, "IPv6 Address/Prefix");
+    proto_tree_add_text(opt_tree, tvb, offset, prefix_l, "IPv6 Address/Prefix");
 
 }
 /* 35 Binding Identifier [RFC5648]  */
@@ -2002,23 +2002,23 @@ dissect_pmip6_opt_ipv4dra(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 static void
 dissect_pmip6_opt_mng(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
     proto_item *item;
-	guint32 mng_id;
-	/* offset points to tag(opt) */
-	offset++;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_mng_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
-	proto_tree_add_item(opt_tree, hf_mip6_opt_mng_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
-	mng_id = tvb_get_ntohl(tvb, offset);
-	item = proto_tree_add_item(opt_tree, hf_mip6_opt_mng_mng_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-	if(mng_id==1){
-		proto_item_append_text(item, " - ALL-SESSIONS");
-	}
+    guint32 mng_id;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_mng_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_mng_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    mng_id = tvb_get_ntohl(tvb, offset);
+    item = proto_tree_add_item(opt_tree, hf_mip6_opt_mng_mng_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    if(mng_id==1){
+        proto_item_append_text(item, " - ALL-SESSIONS");
+    }
 
 }
 
