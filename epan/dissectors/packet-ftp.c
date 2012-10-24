@@ -73,6 +73,9 @@ static int hf_ftp_eprt_af = -1;
 static int hf_ftp_eprt_ip = -1;
 static int hf_ftp_eprt_ipv6 = -1;
 static int hf_ftp_eprt_port = -1;
+static int hf_ftp_epsv_ip = -1;
+static int hf_ftp_epsv_ipv6 = -1;
+static int hf_ftp_epsv_port = -1;
 
 static gint ett_ftp = -1;
 static gint ett_ftp_reqresp = -1;
@@ -415,15 +418,39 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
     return ret;
 }
 
+/*
+ * RFC2428 states ....
+ *
+ *   The first two fields contained in the parenthesis MUST be blank. The   
+ *   third field MUST be the string representation of the TCP port number    
+ *   on which the server is listening for a data connection. 
+ *     
+ *   The network protocol used by the data connection will be the same network
+ *   protocol used by the control connection. In addition, the network    
+ *   address used to establish the data connection will be the same    
+ *   network address used for the control connection.
+ *     
+ *   An example response    string follows:         
+ *         
+ *       Entering Extended Passive Mode (|||6446|)
+ * 
+ * ... which in fact means that again both address families IPv4 and IPv6
+ * are supported. But gladly it's not necessary to parse because it doesn't
+ * occur in EPSV responses. We can leverage ftp_ip_address which is 
+ * protocol independent and already set.
+ * 
+ */
 static gboolean
-parse_extended_pasv_response(const guchar *line, int linelen, guint16 *ftp_port)
+parse_extended_pasv_response(const guchar *line, gint linelen, guint16 *ftp_port,
+        guint *pasv_offset, guint *ftp_port_len)
 {
-    int       n;
-    char     *args;
-    char     *p;
-    guchar    c;
-    gboolean  ret             = FALSE;
-    gboolean  delimiters_seen = FALSE;
+    gint       n;
+    gchar     *args;
+    gchar     *p;
+    gchar     *e;
+    guchar     c;
+    gboolean   ret             = FALSE;
+    gboolean   delimiters_seen = FALSE;
 
     /*
      * Copy the rest of the line into a null-terminated buffer.
@@ -450,7 +477,7 @@ parse_extended_pasv_response(const guchar *line, int linelen, guint16 *ftp_port)
         /* Make sure same delimiter is used 3 times */
         for (n=0; n<3; n++) {
             if ((c = *p) != '\0') {
-                if (delimiter == '\0') {
+                if (delimiter == '\0' && isvalid_rfc2428_delimiter(c)) {
                     delimiter = c;
                 }
                 if (c != delimiter) {
@@ -473,7 +500,17 @@ parse_extended_pasv_response(const guchar *line, int linelen, guint16 *ftp_port)
          * We didn't run out of text without finding anything.
          */
         *ftp_port = atoi(p);
+        *pasv_offset = p - args;
+
         ret = TRUE;
+
+        /* get port string length */
+        if ((e=strchr(p,')')) == NULL) {
+            ret = FALSE;
+        }
+        else {
+            *ftp_port_len = (guint)(--e - p);
+        }
     }
 
     return ret;
@@ -628,7 +665,6 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             /*
              * Responses to EPSV command, as per RFC 2428
-             * XXX - handle IPv6?
              */
             if (code == 229)
                 is_epasv_response = TRUE;
@@ -823,29 +859,53 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (is_epasv_response) {
         if (linelen != 0) {
+            proto_item *addr_it;
             /*
+             * RFC2428 - sect. 3
              * This frame contains an  EPSV response; set up a
              * conversation for the data.
              */
-            if (parse_extended_pasv_response(line, linelen, &ftp_port)) {
-                /* Add port number to tree */
+            if (parse_extended_pasv_response(line, linelen,
+                        &ftp_port, &pasv_offset, &ftp_port_len)) {
+                /* Add IP address and port number to tree */
                 if (tree) {
-                    proto_tree_add_uint(reqresp_tree,
-                                        hf_ftp_pasv_port, tvb, 0, 0,
-                                        ftp_port);
+                    if (ftp_ip_address.type == AT_IPv4) {
+                        guint32 addr;
+                        memcpy(&addr, ftp_ip_address.data, 4);
+                        addr_it = proto_tree_add_ipv4(reqresp_tree,
+                                hf_ftp_epsv_ip, tvb, 0, 0, addr);
+                        PROTO_ITEM_SET_GENERATED(addr_it);
+                    }
+                    else if (ftp_ip_address.type == AT_IPv6) {
+                        addr_it = proto_tree_add_ipv6(reqresp_tree,
+                                hf_ftp_epsv_ipv6, tvb, 0, 0,
+                                (guint8*)ftp_ip_address.data);
+                        PROTO_ITEM_SET_GENERATED(addr_it);
+                    }
+
+                    proto_tree_add_uint(reqresp_tree, 
+                            hf_ftp_epsv_port, tvb, pasv_offset + 4, 
+                            ftp_port_len, ftp_port);
                 }
 
                 /* Find/create conversation for data */
-                conversation = find_conversation(pinfo->fd->num, &pinfo->src,
+                conversation = find_conversation(pinfo->fd->num, &ftp_ip_address,
                                                  &pinfo->dst, PT_TCP, ftp_port, 0,
                                                  NO_PORT_B);
                 if (conversation == NULL) {
                     conversation = conversation_new(
-                        pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                        pinfo->fd->num, &ftp_ip_address, &pinfo->dst,
                         PT_TCP, ftp_port, 0, NO_PORT2);
                     conversation_set_dissector(conversation,
                         ftpdata_handle);
                 }
+            }
+            else {
+                proto_item *item;
+                item = proto_tree_add_text(reqresp_tree,
+                        tvb, offset - linelen - 1, linelen, "Invalid EPSV arguments");
+                expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
+                        "EPSV arguments must have the form (|||<port>|)");
             }
         }
     }
@@ -993,7 +1053,23 @@ proto_register_ftp(void)
         { &hf_ftp_eprt_port,
           { "Extended active port", "ftp.eprt.port",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "Extended active FTP client listener port", HFILL }}
+            "Extended active FTP client listener port", HFILL }},
+
+        { &hf_ftp_epsv_ip,
+          { "Extended passive IPv4 address", "ftp.epsv.ip",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "Extended passive FTP server IPv4 address", HFILL }},
+
+        { &hf_ftp_epsv_ipv6,
+          { "Extended passive IPv6 address", "ftp.epsv.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0,
+            "Extended passive FTP server IPv6 address", HFILL }},
+
+        { &hf_ftp_epsv_port,
+          { "Extended passive port", "ftp.epsv.port",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "Extended passive FTP server port", HFILL }}
+
     };
     static gint *ett[] = {
         &ett_ftp,
