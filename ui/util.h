@@ -41,14 +41,14 @@ void compute_timestamp_diff(gint *diffsec, gint *diffusec,
                             guint32 sec1, guint32 usec1, guint32 sec2, guint32 usec2);
 
 /* Try to figure out if we're remotely connected, e.g. via ssh or
-   Terminal Server, and create a capture filter that matches aspects of the
-   connection.  We match the following environment variables:
+    Terminal Server, and create a capture filter that matches aspects of the
+    connection.  We match the following environment variables:
 
-   SSH_CONNECTION (ssh): <remote IP> <remote port> <local IP> <local port>
-   SSH_CLIENT (ssh): <remote IP> <remote port> <local port>
-   REMOTEHOST (tcsh, others?): <remote name>
-   DISPLAY (x11): [remote name]:<display num>
-   CLIENTNAME (terminal server): <remote name>
+    SSH_CONNECTION (ssh): <remote IP> <remote port> <local IP> <local port>
+    SSH_CLIENT (ssh): <remote IP> <remote port> <local port>
+    REMOTEHOST (tcsh, others?): <remote name>
+    DISPLAY (x11): [remote name]:<display num>
+    CLIENTNAME (terminal server): <remote name>
  */
 const char *get_conn_cfilter(void);
 
@@ -58,3 +58,16 @@ const char *get_conn_cfilter(void);
 #endif /* __cplusplus */
 
 #endif /* __UTIL_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
