@@ -37,7 +37,7 @@ struct _wmem_allocator_t {
     void  (*free_all)(void *private_data);
 
     void *private_data;
-} wmem_allocator_t;
+};
 
 #ifdef __cplusplus
 }
