@@ -1,0 +1,44 @@
+## Makefile for building wmem.lib with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id$
+
+include ..\..\config.nmake
+include Makefile.common
+
+############### no need to modify below this line #########
+
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
+	 /I../.. $(GLIB_CFLAGS)
+
+.c.obj::
+	$(CC) $(CFLAGS)  -Fd.\ -c $<
+
+WMEM_OBJECTS = $(LIBWMEM_SRC:.c=.obj)
+
+wmem.lib: $(WMEM_OBJECTS)
+	link /lib /out:wmem.lib $(WMEM_OBJECTS)
+
+clean:
+	rm -f $(WMEM_OBJECTS) wmem.lib *.pdb *.sbr
+
+distclean: clean
+
+maintainer-clean: distclean
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
+	$(WMEM_SRC)
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#

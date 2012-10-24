@@ -1340,6 +1340,12 @@ set(FTYPE_FILES
 	ftypes/ftype-tvbuff.c
 )
 
+set(WMEM_FILES
+	wmem/wmem_core.c
+	wmem/wmem_allocator_glib.c
+	wmem/wmem_strutl.c
+)
+
 ADD_CUSTOM_COMMAND(
     OUTPUT
       sminmpec.c
@@ -1478,6 +1484,7 @@ set(CLEAN_FILES
 	# ${DISSECTOR_FILES } end
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
+	${WMEM_FILES}
 	${WSLUA_FILES}
 	${WSPYTHON_FILES}
 )
@@ -1498,6 +1505,7 @@ add_library(epan ${LINK_MODE_LIB}
 	${CRYPT_FILES}
 	${DFILTER_FILES}
 	${FTYPE_FILES}
+	${WMEM_FILES}
 	${WSLUA_FILES}
 	${WSPYTHON_FILES}
 	${DISSECTOR_FILES}
@@ -1522,3 +1530,15 @@ if(NOT ${ENABLE_STATIC})
 	)
 endif()
 
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#
