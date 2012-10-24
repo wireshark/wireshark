@@ -30,9 +30,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * References:
- * IETF RFC 3775, "Mobility Support in IPv6".
- * Mobility Support in IPv6 RFC 6275 
- * Bulk Binding Update Support for Proxy Mobile IPv6 RFC 6602
+ * RFC 3775, "Mobility Support in IPv6".
+ * RFC 6275, Mobility Support in IPv6  
+ * RFC 6602, Bulk Binding Update Support for Proxy Mobile IPv6 
  * 
  */
 
@@ -152,7 +152,7 @@ typedef enum {
     MIP6_ALT_IP4_CO= 49,        /* 49 Alternate IPv4 Care-of Address [RFC6463] */
     MIP6_MNG       = 50,        /* 50 Mobile Node Group Identifier [RFC6602] */
     MIP6_MAG_IPv6  = 51,        /* 51 MAG IPv6 Address [RFC6705] */
-    MIP6_ACC_NET_ID= 45,        /* 52 Access Network Identifier [RFC6757] */ 
+    MIP6_ACC_NET_ID= 52,        /* 52 Access Network Identifier [RFC6757] */ 
 
 } optTypes;
 
@@ -778,6 +778,8 @@ static const value_string mip6_mobility_options[] = {
 #define MIP6_IPV4DRA_DRA_OFF  4
 #define MIP6_IPV4DRA_DRA_LEN  4
 
+#define MIP6_MNG_LEN          6
+
 static dissector_table_t ip_dissector_table;
 
 /* Initialize the protocol and registered header fields */
@@ -1362,8 +1364,8 @@ dissect_mip6_opt_acoa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen, packet_info *pinfo _U_,
               proto_tree *opt_tree)
 {
-    proto_tree_add_ipv6(opt_tree, hf_mip6_acoa_acoa, tvb, offset, optlen,
-            tvb_get_ptr(tvb, offset + MIP6_ACOA_ACOA_OFF, MIP6_ACOA_ACOA_LEN));
+    proto_tree_add_item(opt_tree, hf_mip6_acoa_acoa, tvb,
+        offset + MIP6_ACOA_ACOA_OFF, MIP6_ACOA_ACOA_LEN, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -1375,7 +1377,7 @@ dissect_mip6_nemo_opt_mnp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
     proto_item *tf;
     tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
     field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-    proto_tree_add_item(field_tree, hf_mip6_nemo_mnp_pfl, tvb,
+    proto_tree_add_item(opt_tree, hf_mip6_nemo_mnp_pfl, tvb,
             offset + MIP6_NEMO_MNP_PL_OFF, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(field_tree, hf_mip6_nemo_mnp_mnp, tvb,
@@ -1704,6 +1706,14 @@ dissect_pmip6_opt_ipv4dra(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
             offset + MIP6_IPV4DRA_DRA_OFF, MIP6_IPV4DRA_DRA_LEN, ENC_BIG_ENDIAN);
 
 }
+#if 0
+static void
+dissect_pmip6_opt_mng(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+
+}
+#endif
 
 static const ip_tcp_opt mip6_opts[] = {
 {
@@ -1778,6 +1788,16 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_MNID_MINLEN,
     dissect_mip6_opt_mnid
 },
+/*  9 AUTH-OPTION-TYPE */
+/* 10 MESG-ID-OPTION-TYPE [RFC4285]  */
+/* 11 CGA Parameters Request [RFC4866]  */
+/* 12 CGA Parameters [RFC4866]  */
+/* 13 Signature [RFC4866]  */
+/* 14 Permanent Home Keygen Token [RFC4866]  */
+/* 15 Care-of Test Init [RFC4866]  */
+/* 16 Care-of Test [RFC4866]  */
+/* 17 DNS-UPDATE-TYPE [RFC5026]  */
+/* 18 Experimental Mobility Option [RFC5096]  */
 {
     MIP6_VSM,                   /* 19 Vendor Specific Mobility Option [RFC5094]  */
     "Vendor Specific Mobility",
@@ -1891,6 +1911,30 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_IPV4DRA_LEN,
     dissect_pmip6_opt_ipv4dra
 },
+/* 39 IPv4 DHCP Support Mode [RFC5844] */
+/* 40 Context Request Option [RFC5949] */
+/* 41 Local Mobility Anchor Address Option [RFC5949] */
+/* 42 Mobile Node Link-local Address Interface Identifier Option [RFC5949] */
+/* 43 Transient Binding [RFC-ietf-mipshop-transient-bce-pmipv6-07] */
+/* 44 Flow Summary Mobility Option [RFC-ietf-mext-flow-binding-11] */
+/* 45 Flow Identification Mobility Option [RFC-ietf-mext-flow-binding-11]] */
+/* 46 Redirect-Capability Mobility Option [RFC6463] */ 
+/* 47 Redirect Mobility Option [RFC6463] */
+/* 48 Load Information Mobility Option [RFC6463] */
+/* 49 Alternate IPv4 Care-of Address [RFC6463] */
+#if 0
+{
+    MIP6_MNG,               /* 50 Mobile Node Group Identifier [RFC6602] */
+    "Mobile Node Group Identifier",
+    &ett_mip6_opt_mng,
+    OPT_LEN_FIXED_LENGTH,
+    MIP6_MNG_LEN,
+    dissect_pmip6_opt_mng
+},
+#endif
+/* 51 MAG IPv6 Address [RFC6705] */
+/* 52 Access Network Identifier [RFC6757] */ 
+
 };
 
 #define N_MIP6_OPTS (sizeof mip6_opts / sizeof mip6_opts[0])
