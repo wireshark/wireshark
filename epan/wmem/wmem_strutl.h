@@ -34,8 +34,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct _wmem_allocator_t wmem_allocator_t;
-
 gchar *
 wmem_strdup(wmem_allocator_t *allocator, const gchar *src);
 
