@@ -800,7 +800,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* encapsulated payload */
     next_tvb = tvb_new_subset_remaining(tvb, 4);
     call_dissector(ip_handle, next_tvb, pinfo, mip_tree);
-    offset += tvb_reported_length_remaining(tvb, offset);
+    offset = tvb_reported_length(tvb);
     break;
   case MIP_REGISTRATION_REVOCATION:
     col_add_fstr(pinfo->cinfo, COL_INFO,
