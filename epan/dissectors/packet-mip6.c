@@ -30,7 +30,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * References:
- * RFC 3775, "Mobility Support in IPv6".
+ * RFC 3775, Mobility Support in IPv6
+ * RFC 4285, Authentication Protocol for Mobile IPv6
+ * RFC 4866, Enhanced Route Optimization for Mobile IPv6
+ * RFC 5026, Mobile IPv6 Bootstrapping in Split Scenario
+ * RFC 5096, Mobile IPv6 Experimental Messages
+ * RFC 5568. Mobile IPv6 Fast Handovers
  * RFC 6275, Mobility Support in IPv6  
  * RFC 6602, Bulk Binding Update Support for Proxy Mobile IPv6 
  * 
@@ -156,6 +161,90 @@ typedef enum {
 
 } optTypes;
 
+/* Mobility Option types
+ * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xhtml
+ */
+
+static const value_string mip6_mobility_options[] = {
+    { MIP6_PAD1,       "Pad1"},                                         /* RFC3775 */
+    { MIP6_PADN,       "PadN"},                                         /* RFC3775 */
+    { MIP6_BRA,        "Binding Refresh Advice"},                       /* RFC3775 */
+    { MIP6_ACOA,       "Alternate Care-of Address"},                    /* RFC3775 */
+    { MIP6_NI,         "Nonce Indices"},                                /* RFC3775 */
+    { MIP6_AUTD,       "Authorization Data"},                           /* RFC3775 */
+    { MIP6_MNP,        "Mobile Network Prefix Option"},                 /* RFC3963 */
+    { MIP6_MHLLA,      "Mobility Header Link-Layer Address option"},    /* RFC5568 */
+    { MIP6_MNID,       "MN-ID-OPTION-TYPE"},                            /* RFC4283 */
+    { MIP6_AUTH,       "AUTH-OPTION-TYPE"},                             /* RFC4285 */
+    { MIP6_MESGID,     "MESG-ID-OPTION-TYPE"},                          /* RFC4285 */
+    { MIP6_CGAPR,      "CGA Parameters Request"},                       /* RFC4866 */
+    { MIP6_CGAR,       "CGA Parameters"},                               /* RFC4866 */
+    { MIP6_SIGN,       "Signature"},                                    /* RFC4866 */
+    { MIP6_PHKT,       "Permanent Home Keygen Token"},                  /* RFC4866 */
+    { MIP6_MOCOTI,     "Care-of Test Init"},                            /* RFC4866 */
+    { MIP6_MOCOT,      "Care-of Test"},                                 /* RFC4866 */
+    { MIP6_DNSU,       "DNS-UPDATE-TYPE"},                              /* RFC5026 */
+    { MIP6_EM,         "Experimental Mobility Option"},                 /* RFC5096 */
+    { MIP6_VSM,        "Vendor Specific Mobility Option"},              /* RFC5094 */
+    { MIP6_SSM,        "Service Selection Mobility Option"},            /* RFC5149 */
+    { MIP6_BADFF,      "Binding Authorization Data for FMIPv6 (BADF)"}, /* RFC5568 */
+    { MIP6_HNP,        "Home Network Prefix Option"},                   /* RFC5213 */
+    { MIP6_MOHI,       "Handoff Indicator Option"},                     /* RFC5213 */
+    { MIP6_ATT,        "Access Technology Type Option"},                /* RFC5213 */
+    { MIP6_MNLLI,      "Mobile Node Link-layer Identifier Option"},     /* RFC5213 */
+    { MIP6_LLA,        "Link-local Address Option"},                    /* RFC5213 */
+    { MIP6_TS,         "Timestamp Option"},                             /* RFC5213 */
+    { MIP6_RC,         "Restart Counter"},                              /* RFC5847 */
+    { MIP6_IPV4HA,     "IPv4 Home Address"},                            /* RFC5555 */
+    { MIP6_IPV4AA,     "IPv4 Address Acknowledgement"},                 /* RFC5555 */
+    { MIP6_NATD,       "NAT Detection"},                                /* RFC5555 */
+    { MIP6_IPV4COA,    "IPv4 Care-of Address"},                         /* RFC5555 */
+    { MIP6_GREK,       "GRE Key Option"},                               /* RFC5845 */
+    { MIP6_MHIPV6AP,   "Mobility Header IPv6 Address/Prefix"},          /* RFC5568 */
+    { MIP6_BI,         "Binding Identifier"},                           /* RFC5648 */
+    { MIP6_IPV4HAREQ,  "IPv4 Home Address Request"},                    /* RFC5844 */
+    { MIP6_IPV4HAREP,  "IPv4 Home Address Reply"},                      /* RFC5844 */
+    { MIP6_IPV4DRA,    "IPv4 Default-Router Address"},                  /* RFC5844 */
+    { MIP6_IPV4DSM,    "IPv4 DHCP Support Mode"},                       /* RFC5844 */
+    { MIP6_CR,         "Context Request Option"},                       /* RFC5949 */
+    { MIP6_LMAA,       "Local Mobility Anchor Address Option"},         /* RFC5949 */
+    { MIP6_MNLLAII,    "Mobile Node Link-local Address Interface Identifier Option"}, /* RFC5949 */
+    { MIP6_TB,         "Transient Binding"},                            /* RFC6058 */
+    { MIP6_FS,         "Flow Summary"},                                 /* RFC6089 */
+    { MIP6_FI,         "Flow Identification"},                          /* RFC6089 */
+    { MIP6_RECAP,      "Redirect-Capability Mobility Option"},          /* RFC6463 */ 
+    { MIP6_REDIR,      "Redirect Mobility Option"},                     /* RFC6463 */
+    { MIP6_LOAD_INF,   "Load Information Mobility Option"},             /* RFC6463 */
+    { MIP6_ALT_IP4_CO, "Alternate IPv4 Care-of Address"},               /* RFC6463 */
+    { MIP6_MNG,        "Mobile Node Group Identifier"},                 /* RFC6602 */
+	{ MIP6_MAG_IPv6,   "MAG IPv6 Address"},                             /* RFC6705 */
+    { MIP6_ACC_NET_ID, "Access Network Identifier"},                    /* RFC6757 */ 
+
+    { 0, NULL }
+};
+
+/* 
+ * Status Codes (DNS Update Mobility Option)
+ * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xml#mobility-parameters-3
+ */
+
+static const value_string mip6_dnsu_status_values[] = {
+    { 0, "DNS update performed"},                    /* [RFC5026] */
+    /* 1-127 Unassigned   */
+    { 128, "Reason unspecified"},                    /* [RFC5026] */
+    { 129, "Administratively prohibited"},           /* [RFC5026] */
+    { 130, "DNS Update Failed"},                     /* [RFC5026] */
+    /* 131-255 Unassigned  */
+
+    {   0, NULL }
+};
+
+static const true_false_string mip6_dnsu_r_flag_value = {
+    "Mobile Node is requesting the HA to remove the DNS entry",
+    "Mobile Node is requesting the HA to create or update a DNS entry"
+};
+
+
 /* Binding Update flag description */
 static const true_false_string mip6_bu_a_flag_value = {
     "Binding Acknowledgement requested",
@@ -270,6 +359,9 @@ static const value_string mip6_ba_status_value[] = {
     { 171, "NOT_AUTHORIZED_FOR_IPV4_HOME_ADDRESS" },                /* [RFC5844] */
     { 172, "NOT_AUTHORIZED_FOR_IPV6_MOBILITY_SERVICE" },            /* [RFC5844] */
     { 173, "MULTIPLE_IPV4_HOME_ADDRESS_ASSIGNMENT_NOT_SUPPORTED" }, /* [RFC5844] */
+    { 174, "Invalid Care-of Address" },                             /* [RFC6275] */
+    { 175, "INVALID_MOBILE_NODE_GROUP_IDENTIFIER" },                /* [RFC6602] */
+    { 176, "REINIT_SA_WITH_HAC" },                                  /* [RFC6618] */
 
     {   0, NULL }
 };
@@ -336,6 +428,15 @@ static const value_string mip6_mnid_subtype_value[] = {
     {   0, NULL }
 };
 
+
+/* Enumerating Algorithms */
+static const value_string mip6_auth_subtype_value[] = {
+    {   0, "Reserved (not available for assignment)" },
+    {   3, "HMAC_SHA1_SPI" },
+    {   5, "Reserved for use by 3GPP2" },
+    {   0, NULL }
+};
+
 /* mobile network prefix flag description */
 static const true_false_string mip6_ipv4ha_p_flag_value = {
     "mobile network prefixt requested",
@@ -368,6 +469,8 @@ static const value_string mip6_vsm_subtype_3gpp_value[] = {
     {  17, "PDN Connection ID" },
     {   0, NULL }
 };
+
+
 
 /* Handoff Indicator Option type */
 static const value_string pmip6_hi_opttype_value[] = {
@@ -440,67 +543,16 @@ static const range_string handoff_indicator[] = {
     { 0,    0,      NULL                                                            }
 };
 
-/* Mobility Option types
- * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xhtml
+/* Mobile Node Group Identifier Type 
+ * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xml#mobile-node-group-id-type
  */
 
-static const value_string mip6_mobility_options[] = {
-    { MIP6_PAD1,       "Pad1"},                                         /* RFC3775 */
-    { MIP6_PADN,       "PadN"},                                         /* RFC3775 */
-    { MIP6_BRA,        "Binding Refresh Advice"},                       /* RFC3775 */
-    { MIP6_ACOA,       "Alternate Care-of Address"},                    /* RFC3775 */
-    { MIP6_NI,         "Nonce Indices"},                                /* RFC3775 */
-    { MIP6_AUTD,       "Authorization Data"},                           /* RFC3775 */
-    { MIP6_MNP,        "Mobile Network Prefix Option"},                 /* RFC3963 */
-    { MIP6_MHLLA,      "Mobility Header Link-Layer Address option"},    /* RFC5568 */
-    { MIP6_MNID,       "MN-ID-OPTION-TYPE"},                            /* RFC4283 */
-    { MIP6_AUTH,       "AUTH-OPTION-TYPE"},                             /* RFC4285 */
-    { MIP6_MESGID,     "MESG-ID-OPTION-TYPE"},                          /* RFC4285 */
-    { MIP6_CGAPR,      "CGA Parameters Request"},                       /* RFC4866 */
-    { MIP6_CGAR,       "CGA Parameters"},                               /* RFC4866 */
-    { MIP6_SIGN,       "Signature"},                                    /* RFC4866 */
-    { MIP6_PHKT,       "Permanent Home Keygen Token"},                  /* RFC4866 */
-    { MIP6_MOCOTI,     "Care-of Test Init"},                            /* RFC4866 */
-    { MIP6_MOCOT,      "Care-of Test"},                                 /* RFC4866 */
-    { MIP6_DNSU,       "DNS-UPDATE-TYPE"},                              /* RFC5026 */
-    { MIP6_EM,         "Experimental Mobility Option"},                 /* RFC5096 */
-    { MIP6_VSM,        "Vendor Specific Mobility Option"},              /* RFC5094 */
-    { MIP6_SSM,        "Service Selection Mobility Option"},            /* RFC5149 */
-    { MIP6_BADFF,      "Binding Authorization Data for FMIPv6 (BADF)"}, /* RFC5568 */
-    { MIP6_HNP,        "Home Network Prefix Option"},                   /* RFC5213 */
-    { MIP6_MOHI,       "Handoff Indicator Option"},                     /* RFC5213 */
-    { MIP6_ATT,        "Access Technology Type Option"},                /* RFC5213 */
-    { MIP6_MNLLI,      "Mobile Node Link-layer Identifier Option"},     /* RFC5213 */
-    { MIP6_LLA,        "Link-local Address Option"},                    /* RFC5213 */
-    { MIP6_TS,         "Timestamp Option"},                             /* RFC5213 */
-    { MIP6_RC,         "Restart Counter"},                              /* RFC5847 */
-    { MIP6_IPV4HA,     "IPv4 Home Address"},                            /* RFC5555 */
-    { MIP6_IPV4AA,     "IPv4 Address Acknowledgement"},                 /* RFC5555 */
-    { MIP6_NATD,       "NAT Detection"},                                /* RFC5555 */
-    { MIP6_IPV4COA,    "IPv4 Care-of Address"},                         /* RFC5555 */
-    { MIP6_GREK,       "GRE Key Option"},                               /* RFC5845 */
-    { MIP6_MHIPV6AP,   "Mobility Header IPv6 Address/Prefix"},          /* RFC5568 */
-    { MIP6_BI,         "Binding Identifier"},                           /* RFC5648 */
-    { MIP6_IPV4HAREQ,  "IPv4 Home Address Request"},                    /* RFC5844 */
-    { MIP6_IPV4HAREP,  "IPv4 Home Address Reply"},                      /* RFC5844 */
-    { MIP6_IPV4DRA,    "IPv4 Default-Router Address"},                  /* RFC5844 */
-    { MIP6_IPV4DSM,    "IPv4 DHCP Support Mode"},                       /* RFC5844 */
-    { MIP6_CR,         "Context Request Option"},                       /* RFC5949 */
-    { MIP6_LMAA,       "Local Mobility Anchor Address Option"},         /* RFC5949 */
-    { MIP6_MNLLAII,    "Mobile Node Link-local Address Interface Identifier Option"}, /* RFC5949 */
-    { MIP6_TB,         "Transient Binding"},                            /* RFC6058 */
-    { MIP6_FS,         "Flow Summary"},                                 /* RFC6089 */
-    { MIP6_FI,         "Flow Identification"},                          /* RFC6089 */
-    { MIP6_RECAP,      "Redirect-Capability Mobility Option"},          /* RFC6463 */ 
-    { MIP6_REDIR,      "Redirect Mobility Option"},                     /* RFC6463 */
-    { MIP6_LOAD_INF,   "Load Information Mobility Option"},             /* RFC6463 */
-    { MIP6_ALT_IP4_CO, "Alternate IPv4 Care-of Address"},               /* RFC6463 */
-    { MIP6_MNG,        "Mobile Node Group Identifier"},                 /* RFC6602 */
-	{ MIP6_MAG_IPv6,   "MAG IPv6 Address"},                             /* RFC6705 */
-    { MIP6_ACC_NET_ID, "Access Network Identifier"},                    /* RFC6757 */ 
-
-    { 0, NULL }
+static const value_string mip6_mng_id_type_vals[] = {
+    { 0x00,     "Reserved"},
+    { 0x01,     "Bulk Binding Update Group"},
+    { 0,        NULL},
 };
+
 
 /* Message lengths */
 #define MIP6_BRR_LEN          2
@@ -713,6 +765,16 @@ static const value_string mip6_mobility_options[] = {
 #define MIP6_MNID_SUBTYPE_LEN 1
 #define MIP6_MNID_MNID_OFF    3
 
+#define MIP6_AUTH_MINLEN      6
+#define MIP6_CGAPR_MINLEN     0
+#define MIP6_CGAR_MINLEN      1
+#define MIP6_SIGN_MINLEN      1
+#define MIP6_PHKT_MINLEN      1
+#define MIP6_MOCOTI_MINLEN    0
+#define MIP6_MOCOT_MINLEN     8
+#define MIP6_DNSU_MINLEN      5
+#define MIP6_EM_MINLEN        1
+
 #define MIP6_VSM_MINLEN       2
 #define MIP6_VSM_VID_OFF      2
 #define MIP6_VSM_VID_LEN      4
@@ -754,9 +816,11 @@ static const value_string mip6_mobility_options[] = {
 #define MIP6_IPV4AA_HA_OFF      4
 #define MIP6_IPV4AA_HA_LEN      4
 
-#define PMIP6_GREK_LEN        6
-#define PMIP6_GREK_ID_OFF     4
-#define PMIP6_GREK_ID_LEN     4
+#define PMIP6_GREK_LEN             6
+#define PMIP6_GREK_ID_OFF          4
+#define PMIP6_GREK_ID_LEN          4
+
+#define MIP6_MHIPV6AP_MIN_LEN      2 
 
 #define MIP6_IPV4HAREQ_LEN         6
 #define MIP6_IPV4HAREQ_PREFIXL_OFF 2
@@ -862,6 +926,21 @@ static int hf_mip6_vsm_vid = -1;
 static int hf_mip6_vsm_subtype = -1;
 static int hf_mip6_vsm_subtype_3gpp = -1;
 
+static int hf_mip6_opt_auth_sub_type = -1;
+static int hf_mip6_opt_auth_mobility_spi = -1;
+static int hf_mip6_opt_auth_auth_data = -1;
+
+static int hf_mip6_opt_cgar_cga_par = -1;
+static int hf_mip6_opt_sign_sign = -1;
+static int hf_mip6_opt_phkt_phkt = -1;
+static int hf_mip6_opt_mocot_co_keygen_tok = -1;
+
+static int hf_mip6_opt_dnsu_status = -1;
+static int hf_mip6_opt_dnsu_flag_r = -1;
+static int hf_mip6_opt_dnsu_mn_id = -1;
+
+static int hf_mip6_opt_em_data = -1;
+
 static int hf_pmip6_hi_opttype = -1;
 static int hf_pmip6_att_opttype = -1;
 
@@ -872,8 +951,11 @@ static int hf_mip6_ipv4ha_p_flag = -1;
 static int hf_mip6_ipv4ha_ha = -1;
 static int hf_mip6_ipv4aa_status = -1;
 static int hf_pmip6_gre_key = -1;
+static int hf_mip6_opt_mhipv6ap_opt_code = -1;
+static int hf_mip6_opt_mhipv6ap_prefix_l = -1;
 static int hf_mip6_ipv4dra_dra = -1;
 static int hf_mip6_mobility_opt = -1;
+static int hf_mip6_opt_len = -1;
 
 /* PMIP BRI */
 static int hf_pmip6_bri_brtype = -1;
@@ -887,6 +969,11 @@ static int hf_pmip6_bri_ig_flag = -1;
 static int hf_pmip6_bri_ag_flag = -1;
 static int hf_pmip6_bri_res = -1;
 
+/* Mobile Node Group Identifier Optionm */
+static int hf_mip6_opt_mng_sub_type = -1;
+static int hf_mip6_opt_mng_reserved = -1;
+static int hf_mip6_opt_mng_mng_id = -1;
+
 static int hf_pmip6_opt_lila_lla = -1;
 
 /* Initialize the subtree pointers */
@@ -899,6 +986,16 @@ static gint ett_mip6_opt_bad = -1;
 static gint ett_mip6_nemo_opt_mnp = -1;
 static gint ett_fmip6_opt_lla = -1;
 static gint ett_mip6_opt_mnid = -1;
+static gint ett_mip6_opt_auth = -1;
+static gint ett_mip6_opt_mesgid = -1;
+static gint ett_mip6_opt_cgapr = -1;
+static gint ett_mip6_opt_cgar = -1;
+static gint ett_mip6_opt_sign = -1;
+static gint ett_mip6_opt_phkt = -1;
+static gint ett_mip6_opt_mocoti = -1;
+static gint ett_mip6_opt_mocot = -1;
+static gint ett_mip6_opt_dnsu = -1;
+static gint ett_mip6_opt_em = -1;
 static gint ett_mip6_opt_vsm = -1;
 static gint ett_mip6_opt_ssm = -1;
 static gint ett_pmip6_opt_hnp = -1;
@@ -910,9 +1007,11 @@ static gint ett_pmip6_opt_rc = -1;
 static gint ett_mip6_opt_ipv4ha = -1;
 static gint ett_mip6_opt_ipv4aa = -1;
 static gint ett_pmip6_opt_grek = -1;
+static gint ett_pmip6_opt_mhipv6ap = -1;
 static gint ett_mip6_opt_ipv4hareq = -1;
 static gint ett_mip6_opt_ipv4harep = -1;
 static gint ett_mip6_opt_ipv4dra = -1;
+static gint ett_mip6_opt_mng = -1;
 
 /* Functions to dissect the mobility headers */
 
@@ -1491,6 +1590,147 @@ dissect_mip6_opt_mnid(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
         proto_tree_add_text(field_tree, tvb, p, len, "Identifier: %s", tvb_format_text(tvb, p, len));
 }
 
+/*  9 AUTH-OPTION-TYPE
+ * http://tools.ietf.org/html/rfc4285
+ *
+ *        0                   1                   2                   3
+ *       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *                       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *                       |  Option Type  | Option Length |  Subtype      |
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       |                  Mobility SPI                                 |
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       |                  Authentication Data ....
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       Figure 2: Mobility Message Authentication Option
+ */
+/*  10 MESG-ID-OPTION-TYPE [RFC4285]  
+ *       5.1.  MN-HA Mobility Message Authentication Option
+ *       The format of the MN-HA mobility message authentication option is as
+ *       defined in Figure 2.
+ */
+static void
+dissect_mip6_opt_auth(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	/* offset points to tag(opt) */
+	offset++;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_auth_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_auth_mobility_spi, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset+=4;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_auth_auth_data, tvb, offset, -1, ENC_NA);
+
+}
+
+/* 12 CGA Parameters [RFC4866]  */
+static void
+dissect_mip6_opt_cgar(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	/* offset points to tag(opt) */
+	offset++;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(opt_tree, hf_mip6_opt_cgar_cga_par, tvb, offset, -1, ENC_NA);
+
+}
+
+/* 13 Signature [RFC4866]  */
+static void
+dissect_mip6_opt_sign(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	/* offset points to tag(opt) */
+	offset++;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(opt_tree, hf_mip6_opt_sign_sign, tvb, offset, -1, ENC_NA);
+
+}
+
+/* 14 Permanent Home Keygen Token [RFC4866]  */
+static void
+dissect_mip6_opt_phkt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	/* offset points to tag(opt) */
+	offset++;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(opt_tree, hf_mip6_opt_phkt_phkt, tvb, offset, -1, ENC_NA);
+
+}
+/* 15 Care-of Test Init [RFC4866]  
+ * No data in this option.
+ */
+
+/* 16 Care-of Test [RFC4866]  */
+static void
+dissect_mip6_opt_mocot(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	/* offset points to tag(opt) */
+	offset++;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(opt_tree, hf_mip6_opt_mocot_co_keygen_tok, tvb, offset, -1, ENC_NA);
+
+}
+
+/* 17 DNS-UPDATE-TYPE [RFC5026] 
+
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                                      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                      |  Option Type  | Option Length |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |   Status      |R|  Reserved   |     MN identity (FQDN) ...
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+   Option Type
+
+      DNS-UPDATE-TYPE (17)
+
+*/
+static void
+dissect_mip6_opt_dnsu(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	/* offset points to tag(opt) */
+	offset++;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(opt_tree, hf_mip6_opt_dnsu_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(opt_tree, hf_mip6_opt_dnsu_flag_r, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(opt_tree, hf_mip6_opt_dnsu_mn_id, tvb, offset, -1, ENC_NA);
+}
+
+/* 18 Experimental Mobility Option [RFC5096] */
+static void
+dissect_mip6_opt_em(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	/* offset points to tag(opt) */
+	offset++;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(opt_tree, hf_mip6_opt_em_data, tvb, offset, -1, ENC_NA);
+
+}
+
 /* 19 Vendor Specific Mobility Option [RFC5094]  */
 static void
 dissect_mip6_opt_vsm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
@@ -1541,7 +1781,9 @@ dissect_mip6_opt_ssm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
         proto_tree_add_text(opt_tree, tvb, p, len, "Identifier: %s", tvb_format_text(tvb, p, len));
 }
 
- /* 23 Handoff Indicator Option [RFC5213]   */
+/* 21 Binding Authorization Data for FMIPv6 (BADF) [RFC5568]  */
+
+/* 23 Handoff Indicator Option [RFC5213]   */
 static void
 dissect_pmip6_opt_hi(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
@@ -1639,6 +1881,8 @@ dissect_pmip6_opt_ipv4aa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
             offset + MIP6_IPV4AA_HA_OFF, MIP6_IPV4AA_HA_LEN, ENC_BIG_ENDIAN);
 
 }
+/* 31 NAT Detection [RFC5555]  */
+/* 32 IPv4 Care-of Address [RFC5555]  */
 
 /* 33 GRE Key Option [RFC5845]  */
 static void
@@ -1650,6 +1894,42 @@ dissect_pmip6_opt_grek(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 }
 
+/* 34 Mobility Header IPv6 Address/Prefix [RFC5568] 
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |     Type      |   Length      | Option-Code   | Prefix Length |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                                                               |
+     +                                                               +
+     |                                                               |
+     +                    IPv6 Address/Prefix                        +
+     |                                                               |
+     +                                                               +
+     |                                                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+ */
+
+static void
+dissect_pmip6_opt_mhipv6ap(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+	guint8 prefix_l;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(opt_tree, hf_mip6_opt_mhipv6ap_opt_code, tvb, offset, -1, ENC_NA);
+    offset++;
+	prefix_l = tvb_get_guint8(tvb,offset);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_mhipv6ap_prefix_l, tvb, offset, -1, ENC_NA);
+    offset++;
+	proto_tree_add_text(opt_tree, tvb, offset, prefix_l, "IPv6 Address/Prefix");
+
+}
+/* 35 Binding Identifier [RFC5648]  */
 /* 36 IPv4 Home Address Request [RFC5844] */
 static void
 dissect_pmip6_opt_ipv4hareq(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
@@ -1706,14 +1986,41 @@ dissect_pmip6_opt_ipv4dra(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
             offset + MIP6_IPV4DRA_DRA_OFF, MIP6_IPV4DRA_DRA_LEN, ENC_BIG_ENDIAN);
 
 }
-#if 0
+/* RFC 6602
+ *
+ *    The type value for this option is 50.
+ *
+ *   0                   1                   2                   3
+ *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |      Type     |   Length      |  Sub-type   |    Reserved     |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |                  Mobile Node Group Identifier                 |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+ */
+
 static void
 dissect_pmip6_opt_mng(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
+    proto_item *item;
+	guint32 mng_id;
+	/* offset points to tag(opt) */
+	offset++;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_mng_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	proto_tree_add_item(opt_tree, hf_mip6_opt_mng_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	mng_id = tvb_get_ntohl(tvb, offset);
+	item = proto_tree_add_item(opt_tree, hf_mip6_opt_mng_mng_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+	if(mng_id==1){
+		proto_item_append_text(item, " - ALL-SESSIONS");
+	}
 
 }
-#endif
 
 static const ip_tcp_opt mip6_opts[] = {
 {
@@ -1788,16 +2095,89 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_MNID_MINLEN,
     dissect_mip6_opt_mnid
 },
-/*  9 AUTH-OPTION-TYPE */
-/* 10 MESG-ID-OPTION-TYPE [RFC4285]  */
-/* 11 CGA Parameters Request [RFC4866]  */
-/* 12 CGA Parameters [RFC4866]  */
-/* 13 Signature [RFC4866]  */
-/* 14 Permanent Home Keygen Token [RFC4866]  */
-/* 15 Care-of Test Init [RFC4866]  */
-/* 16 Care-of Test [RFC4866]  */
-/* 17 DNS-UPDATE-TYPE [RFC5026]  */
-/* 18 Experimental Mobility Option [RFC5096]  */
+{
+    MIP6_AUTH,                  /*  9 AUTH-OPTION-TYPE */
+    "AUTH-OPTION-TYPE",
+    &ett_mip6_opt_auth,
+    OPT_LEN_VARIABLE_LENGTH,
+    MIP6_AUTH_MINLEN,
+    dissect_mip6_opt_auth
+},
+{
+    MIP6_MESGID,                  /* 10 MESG-ID-OPTION-TYPE [RFC4285]  */
+    "MESG-ID-OPTION-TYPE",
+    &ett_mip6_opt_mesgid,
+    OPT_LEN_VARIABLE_LENGTH,
+    MIP6_AUTH_MINLEN,
+    dissect_mip6_opt_auth
+},
+{
+    MIP6_CGAPR,                  /* 11 CGA Parameters Request [RFC4866]  */
+    " CGA Parameters Request ",
+    &ett_mip6_opt_cgapr,
+    OPT_LEN_FIXED_LENGTH,
+    MIP6_CGAPR_MINLEN,
+    NULL
+},
+
+{
+    MIP6_CGAR,                  /* 12 CGA Parameters [RFC4866]  */
+    "CGA Parameters",
+    &ett_mip6_opt_cgar,
+    OPT_LEN_VARIABLE_LENGTH,
+    MIP6_CGAR_MINLEN,
+    dissect_mip6_opt_cgar
+},
+
+{
+    MIP6_SIGN,                  /* 13 Signature [RFC4866]  */
+    "Signature",
+    &ett_mip6_opt_sign,
+    OPT_LEN_VARIABLE_LENGTH,
+    MIP6_SIGN_MINLEN,
+    dissect_mip6_opt_sign
+},
+{
+    MIP6_PHKT,                  /* 14 Permanent Home Keygen Token [RFC4866]  */
+    "Permanent Home Keygen Token",
+    &ett_mip6_opt_phkt,
+    OPT_LEN_VARIABLE_LENGTH,
+    MIP6_PHKT_MINLEN,
+    dissect_mip6_opt_phkt
+},
+{
+    MIP6_MOCOTI,                  /* 15 Care-of Test Init [RFC4866]  */
+    "Care-of Test Init",
+    &ett_mip6_opt_mocoti,
+    OPT_LEN_FIXED_LENGTH,
+    MIP6_MOCOTI_MINLEN,
+    NULL
+},
+{
+    MIP6_MOCOT,                  /* 16 Care-of Test [RFC4866]  */
+    "Care-of Test",
+    &ett_mip6_opt_mocot,
+    OPT_LEN_FIXED_LENGTH,
+    MIP6_MOCOT_MINLEN,
+    dissect_mip6_opt_mocot
+},
+{
+    MIP6_DNSU,                  /* 17 DNS-UPDATE-TYPE [RFC5026]  */
+    "DNS-UPDATE-TYPE",
+    &ett_mip6_opt_dnsu,
+    OPT_LEN_VARIABLE_LENGTH,
+    MIP6_DNSU_MINLEN,
+    dissect_mip6_opt_dnsu
+},
+{
+    MIP6_EM,                 /* 18 Experimental Mobility Option [RFC5096]  */
+    "Experimental Mobility",
+    &ett_mip6_opt_em,
+    OPT_LEN_VARIABLE_LENGTH,
+    MIP6_EM_MINLEN,
+    dissect_mip6_opt_em
+},
+
 {
     MIP6_VSM,                   /* 19 Vendor Specific Mobility Option [RFC5094]  */
     "Vendor Specific Mobility",
@@ -1814,6 +2194,7 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_SSM_MINLEN,
     dissect_mip6_opt_ssm
 },
+/* 21 Binding Authorization Data for FMIPv6 (BADF) [RFC5568]  */
 {
     MIP6_HNP,                   /* 22 Home Network Prefix Option [RFC5213]   */
     "Home Network Prefix",
@@ -1879,6 +2260,9 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_IPV4AA_LEN,
     dissect_pmip6_opt_ipv4aa
 },
+/* 31 NAT Detection [RFC5555]  */
+/* 32 IPv4 Care-of Address [RFC5555]  */
+
 {
     MIP6_GREK,                  /* 33 GRE Key Option [RFC5845]  */
     "GRE Key",
@@ -1887,6 +2271,16 @@ static const ip_tcp_opt mip6_opts[] = {
     PMIP6_GREK_LEN,
     dissect_pmip6_opt_grek
 },
+
+{
+    MIP6_MHIPV6AP,                 /* 34 Mobility Header IPv6 Address/Prefix [RFC5568] Note Errata to RFC */
+    "Mobility Header IPv6 Address/Prefix",
+    &ett_pmip6_opt_mhipv6ap,
+    OPT_LEN_VARIABLE_LENGTH,
+    MIP6_MHIPV6AP_MIN_LEN,
+    dissect_pmip6_opt_mhipv6ap
+},
+/* 35 Binding Identifier [RFC5648]  */
 {
     MIP6_IPV4HAREQ,             /* 36 IPv4 Home Address Request [RFC5844] */
     "IPv4 Home Address Request",
@@ -1922,7 +2316,6 @@ static const ip_tcp_opt mip6_opts[] = {
 /* 47 Redirect Mobility Option [RFC6463] */
 /* 48 Load Information Mobility Option [RFC6463] */
 /* 49 Alternate IPv4 Care-of Address [RFC6463] */
-#if 0
 {
     MIP6_MNG,               /* 50 Mobile Node Group Identifier [RFC6602] */
     "Mobile Node Group Identifier",
@@ -1931,7 +2324,6 @@ static const ip_tcp_opt mip6_opts[] = {
     MIP6_MNG_LEN,
     dissect_pmip6_opt_mng
 },
-#endif
 /* 51 MAG IPv6 Address [RFC6705] */
 /* 52 Access Network Identifier [RFC6757] */ 
 
@@ -2435,9 +2827,68 @@ proto_register_mip6(void)
                                   FT_IPv6, BASE_NONE, NULL, 0,
                                   NULL, HFILL }},
 
-    { &hf_mip6_mnid_subtype,    { "Subtype", "mip6.mnid.subtype",
-                      FT_UINT8, BASE_DEC, VALS(mip6_mnid_subtype_value), 0,
-                      NULL, HFILL }},
+
+    { &hf_mip6_mnid_subtype,
+        { "Subtype", "mip6.mnid.subtype",
+         FT_UINT8, BASE_DEC, VALS(mip6_mnid_subtype_value), 0,
+         NULL, HFILL }
+    },
+    { &hf_mip6_opt_auth_sub_type,
+        { "Subtype", "mip6.auth.subtype",
+         FT_UINT8, BASE_DEC, VALS(mip6_auth_subtype_value), 0,
+         NULL, HFILL }
+    },
+    { &hf_mip6_opt_auth_mobility_spi,
+        { "Mobility SPI", "mip6.auth.mobility_spi",
+         FT_UINT32, BASE_DEC, NULL, 0,
+         NULL, HFILL }
+    },
+    { &hf_mip6_opt_auth_auth_data,
+        { "Authentication Data", "mip6.auth.auth_data",
+         FT_BYTES, BASE_NONE, NULL, 0,
+         NULL, HFILL }
+    },
+    { &hf_mip6_opt_cgar_cga_par,
+        { "CGA Parameters", "mip6.cgar.cga_par",
+         FT_BYTES, BASE_NONE, NULL, 0,
+         NULL, HFILL }
+    },
+    { &hf_mip6_opt_sign_sign,
+        { "CGA Parameters", "mip6.sign.sign",
+         FT_BYTES, BASE_NONE, NULL, 0,
+         NULL, HFILL }
+    },
+    { &hf_mip6_opt_phkt_phkt,
+        { "Permanent Home Keygen Token", "mip6.phkt.phkt",
+         FT_BYTES, BASE_NONE, NULL, 0,
+         NULL, HFILL }
+    },
+    { &hf_mip6_opt_mocot_co_keygen_tok,
+        { "Care-of Keygen Token", "mip6.mocot.co_keygen_tok",
+         FT_BYTES, BASE_NONE, NULL, 0,
+         NULL, HFILL }
+    },
+    { &hf_mip6_opt_dnsu_status,
+        { "Status", "mip6.dnsu.status",
+         FT_UINT8, BASE_DEC, VALS(mip6_dnsu_status_values), 0,
+         NULL, HFILL }
+    },
+    { &hf_mip6_opt_dnsu_flag_r,
+        { "R flag", "mip6.dnsu.flag.r",
+         FT_BOOLEAN, 8, TFS(&mip6_dnsu_r_flag_value), 0x80,
+         NULL, HFILL }
+    },
+    { &hf_mip6_opt_dnsu_mn_id,
+        { "MN identity (FQDN)", "mip6.dnsu.mn_id",
+         FT_BYTES, BASE_NONE, NULL, 0,
+         NULL, HFILL }
+    },
+    { &hf_mip6_opt_em_data,
+        { "Data", "mip6.em.data",
+         FT_BYTES, BASE_NONE, NULL, 0,
+         NULL, HFILL }
+    },
+
 
     { &hf_mip6_vsm_vid,         { "VendorId", "mip6.vsm.vendorId",
                       FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
@@ -2485,9 +2936,22 @@ proto_register_mip6(void)
                       FT_UINT8, BASE_DEC, NULL, 0x0,
                       NULL, HFILL}},
 
-    { &hf_pmip6_gre_key,        { "GRE Key", "mip6.gre_key",
-                      FT_UINT32, BASE_DEC, NULL, 0x0,
-                      NULL, HFILL}},
+    { &hf_pmip6_gre_key,
+        { "GRE Key", "mip6.gre_key",
+         FT_UINT32, BASE_DEC, NULL, 0x0,
+         NULL, HFILL}
+    },
+
+    { &hf_mip6_opt_mhipv6ap_opt_code,    
+        { "Option-Code", "mip6.mhipv6ap.opt_code",
+         FT_UINT8, BASE_DEC, NULL, 0,
+         NULL, HFILL }
+    },
+    { &hf_mip6_opt_mhipv6ap_prefix_l,    
+        { "Prefix Length", "mip6.mhipv6ap.len",
+         FT_UINT8, BASE_DEC, NULL, 0,
+         NULL, HFILL }
+    },
 
     { &hf_mip6_ipv4dra_dra,       { "IPv4 Default-Router Address", "mip6.ipv4dra.dra",
                     FT_IPv4, BASE_NONE, NULL, 0x0,
@@ -2496,6 +2960,11 @@ proto_register_mip6(void)
     { &hf_mip6_mobility_opt,    { "Mobility Options", "mip6.mobility_opt",
                       FT_UINT8, BASE_DEC, VALS(mip6_mobility_options), 0,
                       NULL, HFILL }},
+    { &hf_mip6_opt_len,    
+        { "Length", "mip6.mobility_opt.len",
+         FT_UINT8, BASE_DEC, NULL, 0,
+         NULL, HFILL }
+    },
     { &hf_pmip6_bri_brtype,     { "B.R. Type",  "mip6.bri_br.type",
                     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
@@ -2528,10 +2997,30 @@ proto_register_mip6(void)
                     FT_BOOLEAN, 8, TFS(&tfs_set_notset),
                     0x40, NULL, HFILL }},
 
-    { &hf_pmip6_bri_res,        { "Reserved: 1 byte", "mip6.bri_res",
-                    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_pmip6_bri_res,        
+        { "Reserved: 1 byte", "mip6.bri_res",
+         FT_UINT8, BASE_DEC, NULL, 0x0, 
+         NULL, HFILL }
+    },
 
-    };
+    { &hf_mip6_opt_mng_sub_type,
+        { "Sub Type", "mip6.mng.sub_type",
+         FT_UINT8, BASE_DEC, VALS(mip6_mng_id_type_vals), 0x0, 
+         NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_mng_reserved,
+        { "Reserved", "mip6.mng.reserved",
+         FT_UINT8, BASE_DEC, NULL, 0x0, 
+         NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_mng_mng_id,
+        { "Mobile Node Group Identifier", "mip6.mng._mng_id",
+         FT_UINT32, BASE_DEC, NULL, 0x0, 
+         NULL, HFILL }
+    },
+};
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
@@ -2544,6 +3033,16 @@ proto_register_mip6(void)
         &ett_fmip6_opt_lla,
         &ett_mip6_nemo_opt_mnp,
         &ett_mip6_opt_mnid,
+		&ett_mip6_opt_auth,
+		&ett_mip6_opt_mesgid,
+		&ett_mip6_opt_cgapr,
+		&ett_mip6_opt_cgar,
+		&ett_mip6_opt_sign,
+		&ett_mip6_opt_phkt,
+		&ett_mip6_opt_mocoti,
+		&ett_mip6_opt_mocot,
+		&ett_mip6_opt_dnsu,
+		&ett_mip6_opt_em,
         &ett_mip6_opt_vsm,
         &ett_mip6_opt_ssm,
         &ett_pmip6_opt_hnp,
@@ -2555,9 +3054,11 @@ proto_register_mip6(void)
         &ett_mip6_opt_ipv4ha,
         &ett_mip6_opt_ipv4aa,
         &ett_pmip6_opt_grek,
+		&ett_pmip6_opt_mhipv6ap,
         &ett_mip6_opt_ipv4hareq,
         &ett_mip6_opt_ipv4harep,
         &ett_mip6_opt_ipv4dra,
+		&ett_mip6_opt_mng,
     };
 
     /* Register the protocol name and description */
