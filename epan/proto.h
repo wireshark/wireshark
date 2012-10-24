@@ -497,42 +497,42 @@ typedef proto_node proto_item;
  */
 
 /* expert severities */
-#define PI_SEVERITY_MASK	0x00F00000	/**< mask usually for internal use only! */
+#define PI_SEVERITY_MASK        0x00F00000	/**< mask usually for internal use only! */
 /** Packet is commented */
-#define PI_COMMENT		0x00100000
+#define PI_COMMENT              0x00100000
 /** Usual workflow, e.g. TCP connection establishing */
-#define PI_CHAT			0x00200000
+#define PI_CHAT                 0x00200000
 /** Notable messages, e.g. an application returned an "usual" error code like HTTP 404 */
-#define PI_NOTE			0x00400000
+#define PI_NOTE                 0x00400000
 /** Warning, e.g. application returned an "unusual" error code */
-#define PI_WARN			0x00600000
+#define PI_WARN                 0x00600000
 /** Serious problems, e.g. [Malformed Packet] */
-#define PI_ERROR		0x00800000
+#define PI_ERROR                0x00800000
 
 /* expert "event groups" */
-#define PI_GROUP_MASK		0xFF000000	/**< mask usually for internal use only! */
+#define PI_GROUP_MASK           0xFF000000	/**< mask usually for internal use only! */
 /** The protocol field has a bad checksum, usually PI_WARN */
-#define PI_CHECKSUM		0x01000000
+#define PI_CHECKSUM             0x01000000
 /** The protocol field indicates a sequence problem (e.g. TCP window is zero) */
-#define PI_SEQUENCE		0x02000000
+#define PI_SEQUENCE             0x02000000
 /** The protocol field indicates a bad application response code (e.g. HTTP 404), usually PI_NOTE */
-#define PI_RESPONSE_CODE	0x03000000
+#define PI_RESPONSE_CODE        0x03000000
 /** The protocol field indicates an application request (e.g. File Handle == xxxx), usually PI_CHAT */
-#define PI_REQUEST_CODE		0x04000000
+#define PI_REQUEST_CODE         0x04000000
 /** The data is undecoded, the protocol dissection is incomplete here, usually PI_WARN */
-#define PI_UNDECODED		0x05000000
+#define PI_UNDECODED            0x05000000
 /** The protocol field indicates a reassemble (e.g. DCE/RPC defragmentation), usually PI_CHAT (or PI_ERROR) */
-#define PI_REASSEMBLE		0x06000000
+#define PI_REASSEMBLE           0x06000000
 /** The packet data is malformed, the dissector has "given up", usually PI_ERROR */
-#define PI_MALFORMED		0x07000000
+#define PI_MALFORMED            0x07000000
 /** A generic debugging message (shouldn't remain in production code!), usually PI_ERROR */
-#define PI_DEBUG		0x08000000
+#define PI_DEBUG                0x08000000
 /** The protocol field violates a protocol specification, usually PI_WARN */
 #define PI_PROTOCOL             0x09000000
 /** The protocol field indicates a security probem (e.g. unsecure implementation) */
-#define PI_SECURITY		0x0a000000
+#define PI_SECURITY             0x0a000000
 /** The protocol field indicates a packet comment */
-#define PI_COMMENTS_GROUP		0x0b000000
+#define PI_COMMENTS_GROUP       0x0b000000
 
 /* add more, see http://wiki.wireshark.org/Development/ExpertInfo */
 
