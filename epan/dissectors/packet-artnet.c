@@ -3113,19 +3113,16 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 
     default:
-      if (tree) {
+      if (tree && tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_text(artnet_tree, tvb, offset, -1,
           "Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
-        offset += tvb_reported_length_remaining(tvb, offset);
       }
-      break;
+      return;
   }
 
-  if (tree) {
-    if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_item(artnet_tree, hf_artnet_excess_bytes, tvb,
-            offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-    }
+  if (tree && tvb_reported_length_remaining(tvb, offset) > 0) {
+    proto_tree_add_item(artnet_tree, hf_artnet_excess_bytes, tvb,
+      offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
   }
 }
 
