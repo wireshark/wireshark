@@ -43,7 +43,7 @@ DISTCLEANFILES =
 MAINTAINERCLEANFILES =	\
 	Makefile.in
 
-libairpdcap_la_SOURCES =	\
+libwmem_la_SOURCES =	\
 	$(LIBWMEM_SRC)	\
 	$(LIBWMEM_INCLUDES)
 
