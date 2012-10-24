@@ -1582,7 +1582,8 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         break;
                     default:
                         proto_tree_add_item(tree, hf_btavrcp_data, tvb, offset, -1, ENC_NA);
-                        offset += tvb_ensure_length_remaining(tvb, offset);
+                        offset = tvb_reported_length(tvb);
+                        break;
                 }
             }
 
