@@ -86,3 +86,16 @@ void packet_list_resize_column(gint col);
 #endif /* __cplusplus */
 
 #endif /* __UI_UTIL_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

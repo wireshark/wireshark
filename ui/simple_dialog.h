@@ -169,7 +169,7 @@ extern void simple_message_box(ESD_TYPE_E type, gboolean *notagain,
                                const char *secondary_msg,
                                const char *msg_format, ...)
 #if __GNUC__ >= 2
-	__attribute__((format(printf, 4, 5)))
+    __attribute__((format(printf, 4, 5)))
 #endif
 ;
 
@@ -188,3 +188,16 @@ extern void simple_error_message_box(const char *msg_format, ...);
 #endif /* __cplusplus */
 
 #endif /* __DIALOG_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
