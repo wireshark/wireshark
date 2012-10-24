@@ -198,14 +198,14 @@ dissect_discoverresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     proto_tree_add_item(tree, hf_btamp_extfeatures, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
     ti_controller_list = proto_tree_add_none_format(tree,
             hf_btamp_controller_list, tvb,
             offset, length,
             "Controller list");
     btamp_controller_list_tree = proto_item_add_subtree(ti_controller_list, ett_btamp_controller_list);
 
-    while (tvb_length_remaining(tvb, offset) >= 3) {
+    while (tvb_reported_length_remaining(tvb, offset) >= 3) {
         offset = dissect_controller_entry(tvb, offset, pinfo, btamp_controller_list_tree, idx);
         idx += 1;
     }
@@ -221,14 +221,14 @@ dissect_changenotify(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
     proto_item *ti_controller_list;
     proto_tree *btamp_controller_list_tree;
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
     ti_controller_list = proto_tree_add_none_format(tree,
             hf_btamp_controller_list, tvb,
             offset, length,
             "Controller list");
     btamp_controller_list_tree = proto_item_add_subtree(ti_controller_list, ett_btamp_controller_list);
 
-    while (tvb_length_remaining(tvb, offset) >= 3) {
+    while (tvb_reported_length_remaining(tvb, offset) >= 3) {
         offset = dissect_controller_entry(tvb, offset, pinfo, btamp_controller_list_tree, idx);
         idx += 1;
     }
@@ -298,10 +298,8 @@ dissect_getampassocrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 static int
 dissect_ampassoc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_btamp_amp_assoc, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
-    offset += tvb_length_remaining(tvb, offset);
-
-    return offset;
+    proto_tree_add_item(tree, hf_btamp_amp_assoc, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+    return tvb_reported_length(tvb);
 }
 
 static int
@@ -412,7 +410,7 @@ dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         btamp_tree = proto_item_add_subtree(ti, ett_btamp);
     }
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
     ti_command = proto_tree_add_none_format(btamp_tree,
             hf_btamp_command, tvb,
             offset, length,
@@ -486,7 +484,7 @@ dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     default:
         proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_data, tvb, offset, -1, ENC_NA);
-        offset += tvb_length_remaining(tvb, offset);
+        offset = tvb_reported_length(tvb);
         break;
     }
 
