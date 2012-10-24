@@ -32,7 +32,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct _wmem_allocator_t {
+struct _wmem_allocator_t {
     void *(*alloc)(void *private_data, size_t size);
     void  (*free_all)(void *private_data);
 

@@ -32,6 +32,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+struct _wmem_allocator_t;
+
 typedef struct _wmem_allocator_t wmem_allocator_t;
 
 void *
