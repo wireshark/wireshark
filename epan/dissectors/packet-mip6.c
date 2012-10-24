@@ -1361,7 +1361,7 @@ dissect_mip6_opt_bra(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 static void
 dissect_mip6_opt_acoa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_,
+              guint optlen _U_, packet_info *pinfo _U_,
               proto_tree *opt_tree)
 {
     proto_tree_add_item(opt_tree, hf_mip6_acoa_acoa, tvb,
