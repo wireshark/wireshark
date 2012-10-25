@@ -1031,8 +1031,8 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      *  Dissect the message
      */
-    if(pinfo->private_data == (void *)MTP_SI_MTN || /* ITU */
-       pinfo->private_data == (void *)MTP_SI_MTNS)  /* ANSI */
+    if(pinfo->match_uint == MTP_SI_MTN || /* ITU */
+       pinfo->match_uint == MTP_SI_MTNS)  /* ANSI */
     {	/* Test messages */
 
 	if (mtp3_standard == JAPAN_STANDARD)

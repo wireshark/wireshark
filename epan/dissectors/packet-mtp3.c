@@ -451,7 +451,7 @@ dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset, proto_tree *tree, gint ett_pc
 }
 
 static void
-dissect_mtp3_sio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree, void ** const pd_save)
+dissect_mtp3_sio(tvbuff_t *tvb, proto_tree *mtp3_tree)
 {
   guint8 sio;
   proto_item *sio_item;
@@ -486,10 +486,6 @@ dissect_mtp3_sio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree, void 
   }
 
   proto_tree_add_uint(sio_tree, hf_mtp3_service_indicator, tvb, SIO_OFFSET, SIO_LENGTH, sio);
-
-  /* Store the SI so that subidissectors know what SI this msg is */
-  *pd_save = pinfo->private_data;
-  pinfo->private_data = GUINT_TO_POINTER(sio & SERVICE_INDICATOR_MASK);
 }
 
 static void
@@ -702,7 +698,6 @@ reset_mtp3_standard(void)
 static void
 dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    void* pd_save;
     mtp3_tap_rec_t* tap_rec = ep_alloc0(sizeof(mtp3_tap_rec_t));
     gint heuristic_standard;
     guint8 si;
@@ -762,7 +757,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Dissect the packet (even if !tree so can call sub-dissectors and update
      * the source and destination address columns) */
-    dissect_mtp3_sio(tvb, pinfo, mtp3_tree, &pd_save);
+    dissect_mtp3_sio(tvb, mtp3_tree);
     dissect_mtp3_routing_label(tvb, pinfo, mtp3_tree);
 
     memcpy(&(tap_rec->addr_opc), mtp3_addr_opc, sizeof(mtp3_addr_pc_t));
@@ -774,7 +769,6 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_queue_packet(mtp3_tap, pinfo, tap_rec);
 
     dissect_mtp3_payload(tvb, pinfo, tree);
-    pinfo->private_data = pd_save;
 
     mtp3_standard = pref_mtp3_standard;
 }
