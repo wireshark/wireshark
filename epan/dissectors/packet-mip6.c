@@ -34,6 +34,7 @@
  * RFC 4285, Authentication Protocol for Mobile IPv6
  * RFC 4866, Enhanced Route Optimization for Mobile IPv6
  * RFC 5026, Mobile IPv6 Bootstrapping in Split Scenario
+ * RFC 5094, Mobile IPv6 Vendor Specific Option
  * RFC 5096, Mobile IPv6 Experimental Messages
  * RFC 5213, Proxy Mobile IPv6
  * RFC 5555, Mobile IPv6 Support for Dual Stack Hosts and Routers (Errata)
@@ -188,9 +189,9 @@ static const value_string mip6_mobility_options[] = {
     { MIP6_MOCOTI,     "Care-of Test Init"},                            /* RFC4866 */
     { MIP6_MOCOT,      "Care-of Test"},                                 /* RFC4866 */
     { MIP6_DNSU,       "DNS-UPDATE-TYPE"},                              /* RFC5026 */
-    { MIP6_EM,         "Experimental Mobility"},                        /* RFC5096 */
-    { MIP6_VSM,        "Vendor Specific Mobility"},                     /* RFC5094 */
-    { MIP6_SSM,        "Service Selection Mobility"},                   /* RFC5149 */
+    { MIP6_EM,         "Experimental"},                                 /* RFC5096 */
+    { MIP6_VSM,        "Vendor Specific"},                              /* RFC5094 */
+    { MIP6_SSM,        "Service Selection"},                            /* RFC5149 */
     { MIP6_BADFF,      "Binding Authorization Data for FMIPv6 (BADF)"}, /* RFC5568 */
     { MIP6_HNP,        "Home Network Prefix"},                          /* RFC5213 */
     { MIP6_MOHI,       "Handoff Indicator"},                            /* RFC5213 */
@@ -482,7 +483,9 @@ static const value_string mip6_vsm_subtype_3gpp_value[] = {
 
 
 
-/* Handoff Indicator Option type */
+/* Handoff Indicator Option type
+ * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xml#mobility-parameters-9
+ */
 static const value_string pmip6_hi_opttype_value[] = {
     {   0, "Reserved" },
     {   1, "Attachment over a new interface" },
@@ -493,8 +496,10 @@ static const value_string pmip6_hi_opttype_value[] = {
     {   0, NULL }
 };
 
-/* Access Technology Type Option type */
-static const value_string pmip6_att_opttype_value[] = {
+/* Access Technology Type Option type 
+ * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xml#mobility-parameters-10
+ */
+static const value_string pmip6_att_att_value[] = {
     {   0, "Reserved" },
     {   1, "Virtual" },
     {   2, "PPP" },
@@ -508,6 +513,22 @@ static const value_string pmip6_att_opttype_value[] = {
     {  10, "3GPP2 HRPD" },
     {  11, "3GPP2 1xRTT" },
     {  12, "3GPP2 UMB" },
+    {   0, NULL }
+};
+
+/* IPv4 Home Address Reply Status Codes [RFC5844]
+ * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xml#home-address-reply
+ */
+
+static const value_string pmip6_ipv4aa_status_values[] = {
+    {   0, "Success" },
+    /* 1-127 Unassigned */
+    {   128, "Virtual" },
+    {   129, "PPP" },
+    {   130, "IEEE 802.3" },
+    {   131, "IEEE 802.11a/b/g" },
+    {   132, "IEEE 802.16e" },
+    /* 133-255 Unassigned  */
     {   0, NULL }
 };
 
@@ -964,8 +985,11 @@ static int hf_mip6_opt_dnsu_mn_id = -1;
 
 static int hf_mip6_opt_em_data = -1;
 
-static int hf_pmip6_hi_opttype = -1;
-static int hf_pmip6_att_opttype = -1;
+static int hf_pmip6_hi_hi = -1;
+static int hf_pmip6_hi_reserved = -1;
+
+static int hf_pmip6_att_reserved = -1;
+static int hf_pmip6_att_att = -1;
 
 static int hf_mip6_opt_mnlli_reserved = -1;
 static int hf_mip6_opt_mnlli_lli = -1;
@@ -987,6 +1011,7 @@ static int hf_mip6_opt_ipv4coa_addr = -1;
 static int hf_pmip6_gre_key = -1;
 static int hf_mip6_opt_mhipv6ap_opt_code = -1;
 static int hf_mip6_opt_mhipv6ap_prefix_l = -1;
+static int hf_mip6_ipv4dra_reserved = -1;
 static int hf_mip6_ipv4dra_dra = -1;
 static int hf_mip6_mobility_opt = -1;
 static int hf_mip6_opt_len = -1;
@@ -1055,6 +1080,22 @@ static gint ett_mip6_opt_ipv4hareq = -1;
 static gint ett_mip6_opt_ipv4harep = -1;
 static gint ett_mip6_opt_ipv4dra = -1;
 static gint ett_mip6_opt_mng = -1;
+
+
+typedef struct mip6_opt {
+  int           optcode;            /**< code for option */
+  const char   *name;               /**< name of option */
+  int          *subtree_index;      /**< pointer to subtree index for option */
+  opt_len_type  len_type;           /**< type of option length field */
+  int           optlen;             /**< value length should be (minimum if VARIABLE) */
+  void  (*dissect)(const struct mip6_opt *,
+                   tvbuff_t *,
+                   int,
+                   guint,
+                   packet_info *,
+                   proto_tree *,
+				   proto_item *);   /**< routine to dissect option */
+} mip6_opt;
 
 /* Functions to dissect the mobility headers */
 static int
@@ -1479,19 +1520,24 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 /* Functions to dissect the mobility options */
 /* 1 PadN [RFC3775] */
 static void
-dissect_mip6_opt_padn(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+dissect_mip6_opt_padn(const mip6_opt *optp, tvbuff_t *tvb, int offset,
               guint optlen, packet_info *pinfo _U_,
-              proto_tree *opt_tree)
+              proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
     proto_tree_add_text(opt_tree, tvb, offset, optlen,
             "%s: %u bytes", optp->name, optlen);
 }
 
 /* 2 Binding Refresh Advice */
 static void
-dissect_mip6_opt_bra(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+dissect_mip6_opt_bra(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
              guint optlen, packet_info *pinfo _U_,
-             proto_tree *opt_tree)
+             proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     int ri;
 
@@ -1504,9 +1550,9 @@ dissect_mip6_opt_bra(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 /*3  Alternate Care-of Address */
 static void
-dissect_mip6_opt_acoa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+dissect_mip6_opt_acoa(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen _U_, packet_info *pinfo _U_,
-              proto_tree *opt_tree)
+              proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     proto_tree_add_item(opt_tree, hf_mip6_acoa_acoa, tvb,
         offset + MIP6_ACOA_ACOA_OFF, MIP6_ACOA_ACOA_LEN, ENC_BIG_ENDIAN);
@@ -1514,9 +1560,9 @@ dissect_mip6_opt_acoa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 /* 4 Nonce Indices */
 static void
-dissect_mip6_opt_ni(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+dissect_mip6_opt_ni(const mip6_opt *optp, tvbuff_t *tvb, int offset,
             guint optlen, packet_info *pinfo _U_,
-            proto_tree *opt_tree)
+            proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     proto_tree *field_tree = NULL;
     proto_item *tf;
@@ -1532,9 +1578,9 @@ dissect_mip6_opt_ni(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 /* 5 Authorization Data */
 static void
-dissect_mip6_opt_bad(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+dissect_mip6_opt_bad(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
              guint optlen, packet_info *pinfo _U_,
-             proto_tree *opt_tree)
+             proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     proto_tree *field_tree = NULL;
     proto_item *tf;
@@ -1549,9 +1595,9 @@ dissect_mip6_opt_bad(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 /* 6 Mobile Network Prefix Option */
 static void
-dissect_mip6_nemo_opt_mnp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+dissect_mip6_nemo_opt_mnp(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen, packet_info *pinfo _U_,
-              proto_tree *opt_tree)
+              proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     proto_tree *field_tree = NULL;
     proto_item *tf;
@@ -1566,9 +1612,9 @@ dissect_mip6_nemo_opt_mnp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 /* 7 Mobility Header Link-Layer Address option [RFC5568] */
 static void
-dissect_fmip6_opt_lla(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+dissect_fmip6_opt_lla(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen, packet_info *pinfo _U_,
-              proto_tree *opt_tree)
+              proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     proto_tree *field_tree = NULL;
     proto_item *tf;
@@ -1617,24 +1663,28 @@ dissect_fmip6_opt_lla(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 /* 8 MN-ID-OPTION-TYPE */
 static void
-dissect_mip6_opt_mnid(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_mip6_opt_mnid(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item) 
 {
-    proto_tree *field_tree = NULL;
-    proto_item *tf;
-    int len, p;
+    int len;
+	gchar *str;
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-    proto_tree_add_item(field_tree, hf_mip6_mnid_subtype, tvb,
-            offset + MIP6_MNID_SUBTYPE_OFF, MIP6_MNID_SUBTYPE_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opt_tree, hf_mip6_mnid_subtype, tvb,
+            offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-    p = offset + MIP6_MNID_MNID_OFF;
     len = optlen - MIP6_MNID_MNID_OFF;
 
-    if (len > 0)
-        proto_tree_add_text(field_tree, tvb, p, len, "Identifier: %s", tvb_format_text(tvb, p, len));
+    if (len > 0){
+		str = tvb_format_text(tvb, offset, len);
+        proto_tree_add_text(opt_tree, tvb, offset, len, "Identifier: %s", str);
+		proto_item_append_text(hdr_item, ": %s", str);
+	}
 }
 
 /*  9 AUTH-OPTION-TYPE
@@ -1657,8 +1707,8 @@ dissect_mip6_opt_mnid(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
  *       defined in Figure 2.
  */
 static void
-dissect_mip6_opt_auth(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_mip6_opt_auth(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     /* offset points to tag(opt) */
     offset++;
@@ -1677,8 +1727,8 @@ dissect_mip6_opt_auth(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 /* 12 CGA Parameters [RFC4866]  */
 static void
-dissect_mip6_opt_cgar(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_mip6_opt_cgar(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     /* offset points to tag(opt) */
     offset++;
@@ -1691,8 +1741,8 @@ dissect_mip6_opt_cgar(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 /* 13 Signature [RFC4866]  */
 static void
-dissect_mip6_opt_sign(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_mip6_opt_sign(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     /* offset points to tag(opt) */
     offset++;
@@ -1705,8 +1755,8 @@ dissect_mip6_opt_sign(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 /* 14 Permanent Home Keygen Token [RFC4866]  */
 static void
-dissect_mip6_opt_phkt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_mip6_opt_phkt(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     /* offset points to tag(opt) */
     offset++;
@@ -1722,8 +1772,8 @@ dissect_mip6_opt_phkt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 /* 16 Care-of Test [RFC4866]  */
 static void
-dissect_mip6_opt_mocot(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_mip6_opt_mocot(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     /* offset points to tag(opt) */
     offset++;
@@ -1750,8 +1800,8 @@ dissect_mip6_opt_mocot(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 */
 static void
-dissect_mip6_opt_dnsu(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_mip6_opt_dnsu(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     /* offset points to tag(opt) */
     offset++;
@@ -1769,8 +1819,8 @@ dissect_mip6_opt_dnsu(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 /* 18 Experimental Mobility Option [RFC5096] */
 static void
-dissect_mip6_opt_em(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_mip6_opt_em(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     /* offset points to tag(opt) */
     offset++;
@@ -1782,23 +1832,35 @@ dissect_mip6_opt_em(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 }
 
 /* 19 Vendor Specific Mobility Option [RFC5094]  */
+/*
+
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                                     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                     |     Type      |   Length      |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                         Vendor ID                             |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |   Sub-Type    |             Data.......
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+*/
 static void
-dissect_mip6_opt_vsm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_mip6_opt_vsm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+             guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
-    proto_tree *field_tree = NULL;
-    proto_item *tf;
-    int len, p;
+    int len;
     guint32 vendorid;
     int hf_mip6_vsm_subtype_local;
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-    proto_tree_add_item(field_tree, hf_mip6_vsm_vid, tvb,
-            offset + MIP6_VSM_VID_OFF, MIP6_VSM_VID_LEN, ENC_BIG_ENDIAN);
-
-    vendorid = tvb_get_ntohl(tvb, offset+MIP6_VSM_VID_OFF);
+    proto_tree_add_item(opt_tree, hf_mip6_vsm_vid, tvb,
+            offset, MIP6_VSM_VID_LEN, ENC_BIG_ENDIAN);
+    vendorid = tvb_get_ntohl(tvb, offset);
     switch (vendorid) {
     case VENDOR_THE3GPP:
         hf_mip6_vsm_subtype_local = hf_mip6_vsm_subtype_3gpp;
@@ -1807,35 +1869,45 @@ dissect_mip6_opt_vsm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
         hf_mip6_vsm_subtype_local = hf_mip6_vsm_subtype;
         break;
     }
-    proto_tree_add_item(field_tree, hf_mip6_vsm_subtype_local, tvb,
-            offset + MIP6_VSM_SUBTYPE_OFF, MIP6_VSM_SUBTYPE_LEN, ENC_BIG_ENDIAN);
+	offset+=4;
 
-    p = offset + MIP6_VSM_DATA_OFF;
+    proto_tree_add_item(opt_tree, hf_mip6_vsm_subtype_local, tvb,
+            offset, MIP6_VSM_SUBTYPE_LEN, ENC_BIG_ENDIAN);
+	offset++;
+
     len = optlen - MIP6_VSM_DATA_OFF;
     if (len > 0)
-        proto_tree_add_text(field_tree, tvb, p, len, "Data");
+        proto_tree_add_text(opt_tree, tvb, offset, len, "Data");
 
 }
 
 /* 20 Service Selection Mobility Option [RFC5149]  */
 static void
-dissect_mip6_opt_ssm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_mip6_opt_ssm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+             guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
-    int len, p;
+    int len;
+	gchar *str;
 
-    p = offset + MIP6_SSM_SSM_OFF;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
     len = optlen - MIP6_SSM_SSM_OFF;
 
-    if (len > 0)
-        proto_tree_add_text(opt_tree, tvb, p, len, "Identifier: %s", tvb_format_text(tvb, p, len));
+    if (len > 0){
+		str = tvb_format_text(tvb, offset, len);
+        proto_tree_add_text(opt_tree, tvb, offset, len, "Identifier: %s", str);
+		proto_item_append_text(hdr_item, ": %s", str);
+	}
 }
 
 /* 21 Binding Authorization Data for FMIPv6 (BADF) [RFC5568]  */
 
 static void
-dissect_mip6_opt_badff(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_mip6_opt_badff(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
 
     /* offset points to tag(opt) */
@@ -1853,23 +1925,61 @@ dissect_mip6_opt_badff(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 /* see dissect_mip6_nemo_opt_mnp */
 
 /* 23 Handoff Indicator Option [RFC5213]   */
-static void
-dissect_pmip6_opt_hi(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
-{
+/*
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |      Type     |   Length      |  Reserved (R) |       HI      |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-    proto_tree_add_item(opt_tree, hf_pmip6_hi_opttype, tvb,
-            offset + PMIP6_HI_HI_OFF, PMIP6_HI_HI_LEN, ENC_BIG_ENDIAN);
+*/
+static void
+dissect_pmip6_opt_hi(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
+{
+	guint8 hi;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(opt_tree, hf_pmip6_hi_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+	hi = tvb_get_guint8(tvb,offset);
+	proto_tree_add_item(opt_tree, hf_pmip6_hi_hi, tvb,
+            offset, PMIP6_HI_HI_LEN, ENC_BIG_ENDIAN);
+
+	proto_item_append_text(hdr_item, ": %s", val_to_str_const(hi, pmip6_hi_opttype_value, "<unknown>"));
+
 }
 
 /* 24 Access Technology Type Option [RFC5213]  */
-static void
-dissect_pmip6_opt_att(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
-{
+/*
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |      Type     |   Length      |  Reserved (R) |      ATT      |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-    proto_tree_add_item(opt_tree, hf_pmip6_att_opttype, tvb,
-            offset + PMIP6_ATT_ATT_OFF, PMIP6_ATT_ATT_LEN, ENC_BIG_ENDIAN);
+*/
+static void
+dissect_pmip6_opt_att(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
+{
+	guint8 att;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(opt_tree, hf_pmip6_att_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+	att = tvb_get_guint8(tvb,offset);
+    proto_tree_add_item(opt_tree, hf_pmip6_att_att, tvb,
+            offset, PMIP6_ATT_ATT_LEN, ENC_BIG_ENDIAN);
+	proto_item_append_text(hdr_item, ": %s", val_to_str_const(att, pmip6_att_att_value, "<unknown>"));
 }
 
 /* 25 Mobile Node Link-layer Identifier Option [RFC5213]  */
@@ -1887,8 +1997,8 @@ dissect_pmip6_opt_att(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 */
 static void
-dissect_pmip6_opt_mnlli(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_mnlli(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
 
     /* offset points to tag(opt) */
@@ -1919,8 +2029,8 @@ dissect_pmip6_opt_mnlli(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 */
-static void dissect_pmip6_opt_lla(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-                        guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+static void dissect_pmip6_opt_lla(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+                        guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     proto_item      *ti;
     proto_tree      *field_tree;
@@ -1957,16 +2067,24 @@ static void dissect_pmip6_opt_lla(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int
 
 */
 static void
-dissect_pmip6_opt_ts(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_ts(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
-	proto_tree_add_string(opt_tree, hf_pmip6_timestamp, tvb, offset+2, 8, tvb_mip6_fmt_ts(tvb,offset+2));
+	const gchar *str;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+	str = tvb_mip6_fmt_ts(tvb,offset);
+	proto_tree_add_string(opt_tree, hf_pmip6_timestamp, tvb, offset, 8, str);
+	proto_item_append_text(hdr_item, ": %s", str);
 }
 
  /* 28 Restart Counter [RFC5847] */
 static void
-dissect_pmip6_opt_rc(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_rc(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     proto_tree_add_item(opt_tree, hf_pmip6_rc, tvb,
             offset + PMIP6_RC_RC_OFF, PMIP6_RC_RC_LEN, ENC_BIG_ENDIAN);
@@ -1975,8 +2093,8 @@ dissect_pmip6_opt_rc(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 /* 29 IPv4 Home Address [RFC5555]  */
 static void
-dissect_pmip6_opt_ipv4ha(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_ipv4ha(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+             guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     proto_tree *field_tree = NULL;
     proto_item *tf;
@@ -1998,8 +2116,8 @@ dissect_pmip6_opt_ipv4ha(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 /* 30 IPv4 Address Acknowledgement [RFC5555] */
 static void
-dissect_pmip6_opt_ipv4aa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_ipv4aa(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+             guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     proto_tree *field_tree = NULL;
     proto_item *tf;
@@ -2030,8 +2148,8 @@ dissect_pmip6_opt_ipv4aa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 */
 static void
-dissect_pmip6_opt_natd(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_natd(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     proto_item *item;
 	guint32 refresh_time;
@@ -2068,8 +2186,8 @@ dissect_pmip6_opt_natd(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 */
 
 static void
-dissect_pmip6_opt_ipv4coa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_ipv4coa(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+             guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
 
     /* offset points to tag(opt) */
@@ -2084,12 +2202,31 @@ dissect_pmip6_opt_ipv4coa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 }
 
 /* 33 GRE Key Option [RFC5845]  */
+/*
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |      Type     |   Length      |           Reserved            |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                      GRE Key Identifier                       |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+*/
 static void
-dissect_pmip6_opt_grek(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-               guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_grek(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+               guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
+
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
     proto_tree_add_item(opt_tree, hf_pmip6_gre_key, tvb,
-            offset + PMIP6_GREK_ID_OFF, PMIP6_GREK_ID_LEN, ENC_BIG_ENDIAN);
+            offset, PMIP6_GREK_ID_LEN, ENC_BIG_ENDIAN);
+
+	proto_item_append_text(hdr_item, ": %u", tvb_get_ntohl(tvb,offset));
+
 
 }
 
@@ -2111,8 +2248,8 @@ dissect_pmip6_opt_grek(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
  */
 
 static void
-dissect_pmip6_opt_mhipv6ap(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_mhipv6ap(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     guint8 prefix_l;
     /* offset points to tag(opt) */
@@ -2144,8 +2281,8 @@ dissect_pmip6_opt_mhipv6ap(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset
 
 */
 static void
-dissect_pmip6_opt_bi(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_bi(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     /* offset points to tag(opt) */
     offset++;
@@ -2162,59 +2299,112 @@ dissect_pmip6_opt_bi(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 
 /* 36 IPv4 Home Address Request [RFC5844] */
+/*
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |     Type      |   Length      |Prefix-len |      Reserved     |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                     IPv4 home address                         |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+*/
 static void
-dissect_pmip6_opt_ipv4hareq(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-                guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_ipv4hareq(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+                guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
-    proto_tree *field_tree = NULL;
-    proto_item *tf;
+	proto_item *item;
+	guint32 dword;
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    proto_tree_add_item(opt_tree, hf_mip6_ipv4ha_preflen, tvb,
+            offset, 1, ENC_BIG_ENDIAN);
+	offset++;
 
-    proto_tree_add_item(field_tree, hf_mip6_ipv4ha_preflen, tvb,
-            offset + MIP6_IPV4HAREQ_PREFIXL_OFF, MIP6_IPV4HAREQ_PREFIXL_LEN, ENC_BIG_ENDIAN);
+	/* Reserved */
+	offset++;
 
-    proto_tree_add_item(field_tree, hf_mip6_ipv4ha_ha, tvb,
-            offset + MIP6_IPV4HAREQ_HA_OFF, MIP6_IPV4HAREQ_HA_LEN, ENC_BIG_ENDIAN);
+	dword = tvb_get_ntohl(tvb,offset);
+    item = proto_tree_add_item(opt_tree, hf_mip6_ipv4ha_ha, tvb,
+            offset, MIP6_IPV4HAREQ_HA_LEN, ENC_BIG_ENDIAN);
+	if(dword==0){
+		proto_item_append_text(item, " - Request that the local mobility anchor perform the address allocation");
+	}
 
+	proto_item_append_text(hdr_item, ": %s", tvb_ip_to_str(tvb,offset));
 }
 
 /* 37 IPv4 Home Address Reply [RFC5844] */
+/*
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |     Type      |    Length     |   Status      |Pref-len   |Res|
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                      IPv4 home address                        |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+*/
 static void
-dissect_pmip6_opt_ipv4harep(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-                guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_ipv4harep(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+                guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
-    proto_tree *field_tree = NULL;
-    proto_item *tf;
+	guint8 status;
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-    proto_tree_add_item(field_tree, hf_mip6_ipv4aa_status, tvb,
-            offset + MIP6_IPV4HAREP_STATUS_OFF, MIP6_IPV4HAREP_STATUS_LEN, ENC_BIG_ENDIAN);
+	status = tvb_get_guint8(tvb,offset);
+    proto_tree_add_item(opt_tree, hf_mip6_ipv4aa_status, tvb,
+            offset, MIP6_IPV4HAREP_STATUS_LEN, ENC_BIG_ENDIAN);
+	proto_item_append_text(hdr_item, ": %s ", val_to_str_const(status, pmip6_ipv4aa_status_values, "<unknown>"));
+	offset++;
 
-    proto_tree_add_item(field_tree, hf_mip6_ipv4ha_preflen, tvb,
-            offset + MIP6_IPV4HAREP_PREFIXL_OFF, MIP6_IPV4HAREP_PREFIXL_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opt_tree, hf_mip6_ipv4ha_preflen, tvb,
+            offset, MIP6_IPV4HAREP_PREFIXL_LEN, ENC_BIG_ENDIAN);
+	offset++;
 
-    proto_tree_add_item(field_tree, hf_mip6_ipv4ha_ha, tvb,
-            offset + MIP6_IPV4HAREP_HA_OFF, MIP6_IPV4HAREP_HA_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opt_tree, hf_mip6_ipv4ha_ha, tvb,
+            offset, MIP6_IPV4HAREP_HA_LEN, ENC_BIG_ENDIAN);
+
+	proto_item_append_text(hdr_item, ": %s", tvb_ip_to_str(tvb,offset));
 
 }
 
 /* 38 IPv4 Default-Router Address [RFC5844] */
+/*
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |      Type     |   Length      |         Reserved (R)          |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                  IPv4 Default-Router Address                  |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+*/
 static void
-dissect_pmip6_opt_ipv4dra(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_ipv4dra(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
-    proto_tree *field_tree = NULL;
-    proto_item *tf;
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    /* offset points to tag(opt) */
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-    proto_tree_add_item(field_tree, hf_mip6_ipv4dra_dra, tvb,
-            offset + MIP6_IPV4DRA_DRA_OFF, MIP6_IPV4DRA_DRA_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opt_tree, hf_mip6_ipv4dra_reserved, tvb,
+            offset, 2, ENC_BIG_ENDIAN);
+	offset+=2;
+
+    proto_tree_add_item(opt_tree, hf_mip6_ipv4dra_dra, tvb,
+            offset, MIP6_IPV4DRA_DRA_LEN, ENC_BIG_ENDIAN);
+
+	proto_item_append_text(hdr_item, ": %s", tvb_ip_to_str(tvb,offset));
 
 }
 /* RFC 6602
@@ -2232,8 +2422,8 @@ dissect_pmip6_opt_ipv4dra(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
  */
 
 static void
-dissect_pmip6_opt_mng(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
+dissect_pmip6_opt_mng(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ ) 
 {
     proto_item *item;
     guint32 mng_id;
@@ -2253,7 +2443,7 @@ dissect_pmip6_opt_mng(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 }
 
-static const ip_tcp_opt mip6_opts[] = {
+static const mip6_opt mip6_opts[] = {
 {
     MIP6_PAD1,                  /* 0 Pad1 [RFC3775] */
     "Pad1",
@@ -2608,19 +2798,19 @@ static const ip_tcp_opt mip6_opts[] = {
  */
 static void
 dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
-              const ip_tcp_opt *opttab, int nopts, int eol,
+              const mip6_opt *opttab, int nopts, int eol,
               packet_info *pinfo, proto_tree *opt_tree)
 {
     proto_item       *ti;
 	proto_tree       *opt_data_tree;
     guchar            opt;
-    const ip_tcp_opt  *optp;
+    const mip6_opt  *optp;
     opt_len_type      len_type;
     unsigned int      optlen;
     const char        *name;
     char              name_str[7+1+1+2+2+1+1];  /* "Unknown (0x%02x)" */
-    void              (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
-                         int, guint, packet_info *, proto_tree *);
+    void              (*dissect)(const struct mip6_opt *, tvbuff_t *,
+                         int, guint, packet_info *, proto_tree *, proto_item *);
     guint             len;
 
     while (length > 0) {
@@ -2695,9 +2885,9 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
                         /* Option has a dissector. */
                         if (opt == MIP6_MHLLA)
                             (*dissect)(optp, tvb, offset,
-                                   len + 2 + FMIP6_LLA_OPTCODE_LEN, pinfo, opt_data_tree);
+                                   len + 2 + FMIP6_LLA_OPTCODE_LEN, pinfo, opt_data_tree, ti);
                         else
-                            (*dissect)(optp, tvb, offset, len + 2, pinfo, opt_data_tree);
+                            (*dissect)(optp, tvb, offset, len + 2, pinfo, opt_data_tree, ti);
                     }
                 }
                 /* RFC4068 Section 6.4.4
@@ -3186,14 +3376,24 @@ proto_register_mip6(void)
          FT_BYTES, BASE_NONE, NULL, 0x0,
          NULL, HFILL }
     },
-    { &hf_pmip6_hi_opttype,     
-        { "Handoff Indicator Option type", "mip6.hi",
+    { &hf_pmip6_hi_hi,     
+        { "Handoff Indicator", "mip6.hi",
          FT_UINT8, BASE_DEC, VALS(pmip6_hi_opttype_value), 0,
          NULL, HFILL }
     },
-    { &hf_pmip6_att_opttype,
-        { "Access Technology Type Option type", "mip6.att",
-         FT_UINT8, BASE_DEC, VALS(pmip6_att_opttype_value), 0,
+    { &hf_pmip6_hi_reserved,
+        { "Reserved", "mip6.hi.reserved",
+         FT_UINT8, BASE_DEC, NULL, 0,
+         NULL, HFILL }
+    },
+    { &hf_pmip6_att_reserved,
+        { "Reserved", "mip6.att.reserved",
+         FT_UINT8, BASE_DEC, NULL, 0,
+         NULL, HFILL }
+    },
+    { &hf_pmip6_att_att,
+        { "Access Technology Type", "mip6.att",
+         FT_UINT8, BASE_DEC, VALS(pmip6_att_att_value), 0,
          NULL, HFILL }
     },
     { &hf_mip6_opt_mnlli_reserved,
@@ -3240,7 +3440,7 @@ proto_register_mip6(void)
     },
     { &hf_mip6_ipv4aa_status,
         { "Status", "mip6.ipv4aa.sts",
-         FT_UINT8, BASE_DEC, NULL, 0x0,
+         FT_UINT8, BASE_DEC, VALS(pmip6_ipv4aa_status_values), 0x0,
          NULL, HFILL}
     },
     { &hf_mip6_opt_natd_f_flag,
@@ -3294,7 +3494,11 @@ proto_register_mip6(void)
          FT_UINT8, BASE_DEC, NULL, 0,
          NULL, HFILL }
     },
-
+    { &hf_mip6_ipv4dra_reserved,    
+        { "Reserved", "mip6.ipv4dra.reserved",
+         FT_UINT16, BASE_DEC, NULL, 0,
+         NULL, HFILL }
+    },
     { &hf_mip6_ipv4dra_dra,
         { "IPv4 Default-Router Address", "mip6.ipv4dra.dra",
          FT_IPv4, BASE_NONE, NULL, 0x0,
