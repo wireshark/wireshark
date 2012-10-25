@@ -222,7 +222,7 @@ const value_string mtp3_network_indicator_vals[] = {
 	{ MTP3_NI_INT0,  "International network" },
 	{ MTP3_NI_INT1,  "Spare (for international use only)" },
 	{ MTP3_NI_NAT0,  "National network" },
-	{ MTP3_NI_NAT0,  "Reserved for national use" },
+	{ MTP3_NI_NAT1,  "Reserved for national use" },
 	{ 0,    NULL }
 };
 
