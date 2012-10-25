@@ -107,6 +107,7 @@ static const gchar* default_media_types[] = {
 	"text/vnd.wap.co",
 	"text/vnd.wap.emn",
 	"application/auth-policy+xml",
+	"application/ccmp+xml",
 	"application/cpim-pidf+xml",
 	"application/cpl+xml",
 	"application/mathml+xml",
@@ -119,6 +120,7 @@ static const gchar* default_media_types[] = {
 	"application/resource-lists+xml",
 	"application/rlmi+xml",
 	"application/rls-services+xml",
+	"application/rss+xml",
 	"application/smil",
 	"application/simple-filter+xml",
 	"application/simservs+xml",
@@ -153,7 +155,6 @@ static const gchar* default_media_types[] = {
 	"application/x-wms-logconnectstats",
 	"application/x-wms-logplaystats",
 	"application/x-wms-sendevent",
-	"application/rss+xml",
 	"image/svg+xml",
 };
 
