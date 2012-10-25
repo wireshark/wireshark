@@ -26,6 +26,7 @@
 #define PACKET_NTP_H
 
 extern const char *tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset);
+extern const char *tvb_mip6_fmt_ts(tvbuff_t *tvb, gint offset);
 extern void ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime);
 
 #endif

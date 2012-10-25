@@ -574,6 +574,56 @@ static tvbparse_wanted_t* want_ignore;
 #define NTP_FLOAT_DENOM 4294967296.0
 #define NTP_TS_SIZE 100
 
+/* Modified tvb_ntp_fmt_ts
+ * tvb_mip6_fmt_ts - converts MIP6 timestamp to human readable string.
+ *      Timestamp
+ *
+ *         A 64-bit unsigned integer field containing a timestamp.  The
+ *          value indicates the number of seconds since January 1, 1970,
+ *          00:00 UTC, by using a fixed point format.  In this format, the
+ *          integer number of seconds is contained in the first 48 bits of
+ *          the field, and the remaining 16 bits indicate the number of
+ *          1/65536 fractions of a second.
+ *
+ * TVB and an offset (IN).
+ * returns pointer to filled buffer.  This buffer will be freed automatically once
+ * dissection of the next packet occurs.
+ */
+const char *
+tvb_mip6_fmt_ts(tvbuff_t *tvb, gint offset)
+{
+	guint64		 tempstmp;
+	guint32		 tempfrac;
+	time_t		 temptime;
+	struct tm	*bd;
+	double		 fractime;
+	char		*buff;
+
+	tempstmp = tvb_get_ntoh48(tvb, offset);
+	tempfrac = tvb_get_ntohs(tvb, offset+6);
+	tempfrac <<= 16;
+	if ((tempstmp == 0) && (tempfrac == 0)) {
+		return "NULL";
+	}
+
+	temptime = tempstmp /*- (guint32) NTP_BASETIME*/;
+	bd = gmtime(&temptime);
+	if(!bd){
+		return "Not representable";
+	}
+
+	fractime = bd->tm_sec + tempfrac / NTP_FLOAT_DENOM;
+	buff=ep_alloc(NTP_TS_SIZE);
+	g_snprintf(buff, NTP_TS_SIZE,
+		 "%s %2d, %d %02d:%02d:%07.4f UTC",
+		 mon_names[bd->tm_mon],
+		 bd->tm_mday,
+		 bd->tm_year + 1900,
+		 bd->tm_hour,
+		 bd->tm_min,
+		 fractime);
+	return buff;
+}
 /* tvb_ntp_fmt_ts - converts NTP timestamp to human readable string.
  * TVB and an offset (IN).
  * returns pointer to filled buffer.  This buffer will be freed automatically once
