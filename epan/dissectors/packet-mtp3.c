@@ -218,11 +218,11 @@ const value_string mtp3_service_indicator_code_short_vals[] = {
 	{ 0,			NULL }
 };
 
-static const value_string network_indicator_vals[] = {
-	{ 0x0,  "International network" },
-	{ 0x1,  "Spare (for international use only)" },
-	{ 0x2,  "National network" },
-	{ 0x3,  "Reserved for national use" },
+const value_string mtp3_network_indicator_vals[] = {
+	{ MTP3_NI_INT0,  "International network" },
+	{ MTP3_NI_INT1,  "Spare (for international use only)" },
+	{ MTP3_NI_NAT0,  "National network" },
+	{ MTP3_NI_NAT0,  "Reserved for national use" },
 	{ 0,    NULL }
 };
 
@@ -522,21 +522,21 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     label_dpc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_dpc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
     if (mtp3_pc_structured())
       proto_item_append_text(label_dpc_item, " (%s)", mtp3_pc_to_str(dpc));
-    if(mtp3_addr_dpc->ni == 0)
-    {
+
+    if(mtp3_addr_dpc->ni == MTP3_NI_INT0) {
       pc_subtree = proto_item_add_subtree(label_dpc_item, ett_mtp3_label_dpc);
       analyze_q708_ispc(tvb, pc_subtree, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, dpc);
-	}
+    }
 
 
     label_opc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_opc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
     if (mtp3_pc_structured())
       proto_item_append_text(label_opc_item, " (%s)", mtp3_pc_to_str(opc));
-    if(mtp3_addr_opc->ni == 0)
-    {
+
+    if(mtp3_addr_opc->ni == MTP3_NI_INT0) {
       pc_subtree = proto_item_add_subtree(label_opc_item, ett_mtp3_label_opc);
       analyze_q708_ispc(tvb, pc_subtree, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, opc);
-	}
+    }
 
     proto_tree_add_uint(label_tree, hf_mtp3_itu_sls, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
     break;
@@ -786,7 +786,7 @@ proto_register_mtp3(void)
   /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     { &hf_mtp3_service_indicator,     { "Service indicator",        "mtp3.service_indicator", FT_UINT8,  BASE_HEX,  VALS(mtp3_service_indicator_code_vals), SERVICE_INDICATOR_MASK,     NULL, HFILL }},
-    { &hf_mtp3_network_indicator,     { "Network indicator",        "mtp3.network_indicator", FT_UINT8,  BASE_HEX,  VALS(network_indicator_vals),           NETWORK_INDICATOR_MASK,     NULL, HFILL }},
+    { &hf_mtp3_network_indicator,     { "Network indicator",        "mtp3.network_indicator", FT_UINT8,  BASE_HEX,  VALS(mtp3_network_indicator_vals),      NETWORK_INDICATOR_MASK,     NULL, HFILL }},
     { &hf_mtp3_itu_spare,             { "Spare",                    "mtp3.spare",             FT_UINT8,  BASE_HEX,  NULL,                                   SPARE_MASK,                 NULL, HFILL }},
     { &hf_mtp3_itu_priority,          { "ITU priority",             "mtp3.priority",          FT_UINT8,  BASE_DEC,  NULL,                                   SPARE_MASK,                 NULL, HFILL }},
     { &hf_mtp3_ansi_priority,         { "ANSI Priority",            "mtp3.priority",          FT_UINT8,  BASE_DEC,  NULL,                                   ANSI_PRIORITY_MASK,         NULL, HFILL }},

@@ -1141,17 +1141,16 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
     item = proto_tree_add_item(parameter_tree, hf_protocol_data_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
       proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntohl(parameter_tvb, DATA_OPC_OFFSET)));
-    if(mtp3_tap->addr_opc.ni == 0)
-    {
+    if(mtp3_tap->addr_opc.ni == MTP3_NI_INT0) {
         q708_tree = proto_item_add_subtree(item,ett_q708_opc);
-		/*  Q.708 (1984-10)  Numbering of International Signalling Point Codes  */
+        /*  Q.708 (1984-10)  Numbering of International Signalling Point Codes  */
         analyze_q708_ispc(parameter_tvb, q708_tree, DATA_OPC_OFFSET, DATA_OPC_LENGTH, mtp3_tap->addr_opc.pc);
     }
+
     item = proto_tree_add_item(parameter_tree, hf_protocol_data_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_DPC_LENGTH, ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
       proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntohl(parameter_tvb, DATA_DPC_OFFSET)));
-    if(mtp3_tap->addr_dpc.ni == 0)
-    {
+    if(mtp3_tap->addr_dpc.ni == MTP3_NI_INT0) {
         q708_tree = proto_item_add_subtree(item,ett_q708_dpc);
         analyze_q708_ispc(parameter_tvb, q708_tree, DATA_DPC_OFFSET, DATA_DPC_LENGTH, mtp3_tap->addr_dpc.pc);
     }
@@ -2030,7 +2029,7 @@ proto_register_m3ua(void)
     { &hf_protocol_data_mtp3_dpc,           { "DPC",                          "mtp3.dpc",                                   FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
     { &hf_protocol_data_mtp3_pc,            { "PC",                           "mtp3.pc",                                    FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
     { &hf_protocol_data_si,                 { "SI",                           "m3ua.protocol_data_si",                      FT_UINT8,  BASE_DEC,  VALS(mtp3_service_indicator_code_short_vals), 0x0, "Service Indicator",		HFILL } },
-    { &hf_protocol_data_ni,                 { "NI",                           "m3ua.protocol_data_ni",                      FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "Network Indicator",		HFILL } },
+    { &hf_protocol_data_ni,                 { "NI",                           "m3ua.protocol_data_ni",                      FT_UINT8,  BASE_DEC,  VALS(mtp3_network_indicator_vals),            0x0, "Network Indicator",		HFILL } },
     { &hf_protocol_data_mtp3_ni,            { "NI",                           "mtp3.ni",                                    FT_UINT8,  BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
     { &hf_protocol_data_mp,                 { "MP",                           "m3ua.protocol_data_mp",                      FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "Message Priority",		HFILL } },
     { &hf_protocol_data_sls,                { "SLS",                          "m3ua.protocol_data_sls",                     FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "Signalling Link Selection",	HFILL } },

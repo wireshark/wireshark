@@ -36,8 +36,8 @@ extern gboolean mtp3_heuristic_standard;
 WS_VAR_IMPORT const value_string mtp3_standard_vals[];
 
 typedef enum {
-  MTP3_ADDR_FMT_DEC		= 1,
-  MTP3_ADDR_FMT_HEX		= 2,
+  MTP3_ADDR_FMT_DEC	= 1,
+  MTP3_ADDR_FMT_HEX	= 2,
   MTP3_ADDR_FMT_NI_DEC	= 3,
   MTP3_ADDR_FMT_NI_HEX	= 4,
   MTP3_ADDR_FMT_DASHED	= 5
@@ -85,16 +85,16 @@ extern guint32  mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p);
  * needed by to_str.c, so just don't prototype it there (or anywhere
  * without proto.h).
  */
-extern void	dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset,
-				      proto_tree *tree, gint ett_pc,
-				      int hf_pc, int hf_pc_network,
-				      int hf_pc_cluster, int hf_pc_member,
-				      int hf_dpc, int pc);
+extern void dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset,
+				  proto_tree *tree, gint ett_pc,
+				  int hf_pc, int hf_pc_network,
+				  int hf_pc_cluster, int hf_pc_member,
+				  int hf_dpc, int pc);
 #endif
 
 /*
  * the following allows TAP code access to the messages
- * without having to duplicate it. With MSVC and a 
+ * without having to duplicate it. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
 WS_VAR_IMPORT const value_string mtp3_service_indicator_code_short_vals[];
@@ -118,5 +118,11 @@ WS_VAR_IMPORT const value_string mtp3_service_indicator_code_short_vals[];
  * I only want to gather stats for non-spare SI codes
  */
 #define	MTP3_NUM_SI_CODE	9
+
+#define MTP3_NI_INT0 0x0
+#define MTP3_NI_INT1 0x1
+#define MTP3_NI_NAT0 0x2
+#define MTP3_NI_NAT1 0x3
+WS_VAR_IMPORT const value_string mtp3_network_indicator_vals[];
 
 #endif
