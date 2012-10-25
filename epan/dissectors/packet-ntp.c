@@ -644,6 +644,10 @@ tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
 		return "NULL";
 	}
 
+	/* We need a temporary variable here so the unsigned math
+	 * works correctly (for years > 2036 according to RFC 2030
+	 * chapter 3).
+	 */
 	temptime = tempstmp - (guint32) NTP_BASETIME;
 	bd = gmtime(&temptime);
 	if(!bd){
@@ -666,9 +670,18 @@ tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
 void
 ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime)
 {
-	nstime->secs  = tvb_get_ntohl(tvb, offset);
-	if (nstime->secs)
-		nstime->secs -= NTP_BASETIME;
+	guint32		 tempstmp;
+
+	/* We need a temporary variable here so the unsigned math
+	 * works correctly (for years > 2036 according to RFC 2030
+	 * chapter 3).
+	 */
+	tempstmp  = tvb_get_ntohl(tvb, offset);
+	if (tempstmp)
+		nstime->secs = tempstmp - (guint32)NTP_BASETIME;
+	else
+		nstime->secs = tempstmp; /* 0 */
+
 	nstime->nsecs = (int)(tvb_get_ntohl(tvb, offset+4)/(NTP_FLOAT_DENOM/1000000000.0));
 }
 

@@ -618,7 +618,7 @@ void
 proto_tree_reset(proto_tree *tree)
 {
 	tree_data_t *tree_data = PTREE_DATA(tree);
-  
+
 	proto_tree_children_foreach(tree, proto_tree_free_node, NULL);
 
 	/* reset tree */
@@ -1230,6 +1230,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	double	    doubleval;
 	const char *string;
 	nstime_t    time_stamp;
+	guint32     tmpsecs;
 	GPtrArray  *ptrs;
 	gboolean    length_error;
 
@@ -1626,9 +1627,16 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 /* XXX - where should this go? */
 #define NTP_BASETIME 2208988800ul
-				time_stamp.secs  = tvb_get_ntohl(tvb, start);
-				if (time_stamp.secs)
-					time_stamp.secs -= NTP_BASETIME;
+
+				/* We need a temporary variable here so the unsigned math
+				 * works correctly (for years > 2036 according to RFC 2030
+				 * chapter 3).
+				 */
+				tmpsecs  = tvb_get_ntohl(tvb, start);
+				if (tmpsecs)
+					time_stamp.secs = tmpsecs - (guint32)NTP_BASETIME;
+				else
+					time_stamp.secs = tmpsecs; /* 0 */
 
 				if (length == 8) {
 					/*
@@ -1648,9 +1656,11 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				/*
 				 * NTP time stamp, big-endian.
 				 */
-				time_stamp.secs  = tvb_get_letohl(tvb, start);
-				if (time_stamp.secs)
-					time_stamp.secs -= NTP_BASETIME;
+				tmpsecs  = tvb_get_letohl(tvb, start);
+				if (tmpsecs)
+					time_stamp.secs = tmpsecs - (guint32)NTP_BASETIME;
+				else
+					time_stamp.secs = tmpsecs; /* 0 */
 
 				if (length == 8) {
 					/*
