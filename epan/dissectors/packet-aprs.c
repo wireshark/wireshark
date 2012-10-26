@@ -1152,8 +1152,6 @@ aprs_item( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 static int
 aprs_3rd_party( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, int data_len )
 {
-	proto_item *ti;
-
 	/* If the type of the hf[] entry pointed to by hfindex is FT_BYTES or FT_STRING */
         /*  then  data_len == -1 is allowed and means "remainder of the tvbuff"         */
 	if ( data_len == -1 )
@@ -1164,7 +1162,7 @@ aprs_3rd_party( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, int data_len )
 			return offset;  /* there's no data */
 #endif
 		}
-	ti = proto_tree_add_item( aprs_tree, hf_aprs_third_party, tvb, offset, data_len, ENC_NA );
+	proto_tree_add_item( aprs_tree, hf_aprs_third_party, tvb, offset, data_len, ENC_NA );
 	/* tnc-2 */
 	/* aea */
 	return offset + data_len;
@@ -1173,8 +1171,6 @@ aprs_3rd_party( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, int data_len )
 static int
 aprs_default_string( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, int data_len, int hfindex )
 {
-	proto_item *ti;
-
 	/* Assumption: hfindex points to an hf[] entry with type FT_STRING; should be validated ? */
 	/* If the type of the hf[] entry pointed to by hfindex is FT_STRING      */
         /*  then  data_len == -1 is allowed and means "remainder of the tvbuff"  */
@@ -1186,15 +1182,13 @@ aprs_default_string( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, int data_
 			return offset;  /* there's no data */
 #endif
 		}
-	ti = proto_tree_add_item( aprs_tree, hfindex, tvb, offset, data_len, ENC_ASCII|ENC_NA );
+	proto_tree_add_item( aprs_tree, hfindex, tvb, offset, data_len, ENC_ASCII|ENC_NA );
 	return offset + data_len;
 }
 
 static int
 aprs_default_bytes( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, int data_len, int hfindex )
 {
-	proto_item *ti;
-
 	/* Assumption: hfindex points to an hf[] entry with type FT_BYTES; should be validated ? */
 	/* If the type of the hf[] entry pointed to by hfindex is FT_BYTES      */
         /*  then  data_len == -1 is allowed and means "remainder of the tvbuff" */
@@ -1206,7 +1200,7 @@ aprs_default_bytes( proto_tree *aprs_tree, tvbuff_t *tvb, int offset, int data_l
 			return offset;  /* there's no data */
 #endif
 		}
-	ti = proto_tree_add_item( aprs_tree, hfindex, tvb, offset, data_len, ENC_NA );
+	proto_tree_add_item( aprs_tree, hfindex, tvb, offset, data_len, ENC_NA );
 	return offset + data_len;
 }
 
