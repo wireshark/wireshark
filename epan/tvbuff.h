@@ -367,9 +367,9 @@ extern void* ep_tvb_memdup(tvbuff_t *tvb, const gint offset, size_t length);
  * tvbuff_free_cb_t() is called, if any. */
 extern const guint8* tvb_get_ptr(tvbuff_t*, const gint offset, const gint length);
 
-/** Find first occurence of any of the needles in tvbuff, starting at offset.
- * Searches at most maxlength number of bytes; if maxlength is -1, searches
- * to end of tvbuff.
+/** Find first occurence of needle in tvbuff, starting at offset. Searches
+ * at most maxlength number of bytes; if maxlength is -1, searches to
+ * end of tvbuff.
  * Returns the offset of the found needle, or -1 if not found.
  * Will not throw an exception, even if maxlength exceeds boundary of tvbuff;
  * in that case, -1 will be returned if the boundary is reached before
