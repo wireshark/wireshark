@@ -87,14 +87,12 @@ void
 update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
 {
     Q_UNUSED(status);
-//        GtkWidget *dlg_w = dlg->dlg_w;
-//        GtkWidget *prog_bar;
 
     dlg->progressBar->setValue(percentage * 100);
 
     /*
-         * Flush out the update and process any input events.
-         */
+     * Flush out the update and process any input events.
+     */
     WiresharkApplication::processEvents();
 }
 
