@@ -61,9 +61,11 @@ ERR_PROB=0.02
 #  (There'll just be a core-dump).
 ###export WIRESHARK_ABORT_ON_DISSECTOR_BUG="True"
 
+# Sanity check to make sure we can find our plugins. Zero or less disables.
+MIN_PLUGINS=0
 
 # To do: add options for file names and limits
-while getopts ":2b:d:e:gC:p:" OPTCHAR ; do
+while getopts ":2b:C:d:e:gp:P:" OPTCHAR ; do
     case $OPTCHAR in
         2) TWO_PASS="-2 " ;;
         b) BIN_DIR=$OPTARG ;;
@@ -72,6 +74,7 @@ while getopts ":2b:d:e:gC:p:" OPTCHAR ; do
         e) ERR_PROB=$OPTARG ;;
         g) VALGRIND=1 ;;
         p) MAX_PASSES=$OPTARG ;;
+        P) MIN_PLUGINS=$OPTARG ;;
     esac
 done
 shift $(($OPTIND - 1))
@@ -137,11 +140,10 @@ FIN
     exit 1
 fi
 
-DISSECTOR_PLUGINS=`$TSHARK -G plugins | grep dissector | wc -l`
-# 10 is an arbritary value.
-if [ $DISSECTOR_PLUGINS -lt 10 ] ; then
-    echo "Warning: Found fewer plugins than expected."
-    #exit 1
+PLUGIN_COUNT=`$TSHARK -G plugins | grep dissector | wc -l`
+if [ $MIN_PLUGINS -gt 0 -a $PLUGIN_COUNT -lt $MIN_PLUGINS ] ; then
+    echo "Warning: Found fewer plugins than expected ($PLUGIN_COUNT vs $MIN_PLUGINS)."
+    exit 1
 fi
 
 HOWMANY="forever"
