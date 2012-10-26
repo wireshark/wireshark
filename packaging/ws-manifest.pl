@@ -1,5 +1,5 @@
 #
-# ws-manifest.pl - create a generic manifest file (including u3 information) from the wireshark.nsi 
+# ws-manifest.pl - create a generic manifest file (including u3 information) from the wireshark.nsi
 # $Id$
 #
 
@@ -27,7 +27,8 @@ my @dirs; # the directories in the manifest
 my @defines; # stack of defines
 
 while ($line = <>) {
-    if($line =~ /^SetOutPath (.+)$/) {
+    $line =~ s/\r//g; # remove CR on Windows
+	if($line =~ /^SetOutPath (.+)$/) {
 	$outpath = $1;
 	$outpath =~ s/^'(.*)'$/$1/;
 	if($outpath ne '$PROFILE') { # ignore the PROFILE
@@ -68,8 +69,8 @@ foreach $dir(sort @dirs) {
     print STDERR "looking for $dir\n";
 	$loc = $u3locs{$dir};
 
-	if(defined $loc) { 
-	    
+	if(defined $loc) {
+
 	    print "[". $dir . " u3loc=" . $loc . "]\n";
 
 	    foreach $file(sort @$dir) {
@@ -88,9 +89,9 @@ foreach $dir(sort @dirs) {
 		print "\n";
 	    }
 	} else {
-	    
+
 	    push(@ignored, $dir);
-	    
+
 	}
     }
     $prev = $dir;
@@ -103,7 +104,7 @@ if(defined @ignored) {
     foreach $dir(sort @ignored) {
 	print STDERR "\t" . $dir . " ";
     }
-    
+
     print STDERR "\n";
 
     exit -1;
