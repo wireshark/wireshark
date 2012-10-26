@@ -743,7 +743,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                     case MBTCP_PREF_REGISTER_FORMAT_UINT32: /* Double-size unsigned integer 2 x 16-bit registers */
                         data32 = tvb_get_ntohl(next_tvb, data_offset);
                         register_item = proto_tree_add_uint(tree, hf_modbus_reg_uint32, next_tvb, data_offset, 4, data32);
-                        proto_item_set_text(register_item, "Register %u (UINT32): %u", reg_num, data16);
+                        proto_item_set_text(register_item, "Register %u (UINT32): %u", reg_num, data32);
 
                         data_offset += 4;
                         reg_num += 2;
