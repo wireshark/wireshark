@@ -163,13 +163,13 @@ static dissector_handle_t  modbus_handle;
 
 /* Globals for Modbus/TCP Preferences */
 static gboolean mbtcp_desegment = TRUE;
-static gint global_mbus_tcp_port = PORT_MBTCP; /* Port 502, by default */
+static guint global_mbus_tcp_port = PORT_MBTCP; /* Port 502, by default */
 static gint global_mbus_tcp_register_format = MBTCP_PREF_REGISTER_FORMAT_UINT16;
 static gint global_mbus_tcp_register_addr_type = MBTCP_PREF_REGISTER_ADDR_RAW;
 
 /* Globals for Modbus RTU over TCP Preferences */
 static gboolean mbrtu_desegment = TRUE;
-static gint global_mbus_rtu_port = PORT_MBRTU; /* 0, by default        */
+static guint global_mbus_rtu_port = PORT_MBRTU; /* 0, by default        */
 static gint global_mbus_rtu_register_format = MBTCP_PREF_REGISTER_FORMAT_UINT16;
 static gint global_mbus_rtu_register_addr_type = MBTCP_PREF_REGISTER_ADDR_RAW;
 
@@ -628,7 +628,7 @@ get_mbtcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 /* Return length of Modbus RTU over TCP message */
 static guint
-get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
 {
 
     /* Modbus/TCP frames include a "length" word in each message; Modbus RTU over TCP does not, so don't attempt to get one */
@@ -805,7 +805,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                   object_len;
     guint32       group_byte_cnt, group_word_cnt;
     guint8        function_code, exception_code, mei_code, event_code, object_type;
-    guint8        packet_type, register_format, register_addr_type;
+    guint8        packet_type, register_format; /*register_addr_type*/
     guint16       diagnostic_code;
     modbus_request_info_t *request_info;
 
@@ -835,14 +835,14 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     {
         packet_type = request_info->packet_type;
         register_format = request_info->register_format;
-        register_addr_type = request_info->register_addr_type;
+        /*register_addr_type = request_info->register_addr_type;*/
     }
     else
     {
         /* Default to a response packet to at least attempt to decode a good chunk of data */
         packet_type = RESPONSE_PACKET;
         register_format = MBTCP_PREF_REGISTER_FORMAT_UINT16;
-        register_addr_type = MBTCP_PREF_REGISTER_ADDR_RAW;
+       /* register_addr_type = MBTCP_PREF_REGISTER_ADDR_RAW;*/
     }
 
     /* Add items to protocol tree specific to Modbus generic */
