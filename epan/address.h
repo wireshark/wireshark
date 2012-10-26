@@ -64,13 +64,22 @@ typedef enum {
 
 typedef struct _address {
   address_type  type;		/* type of address */
+  int           hf;		/* the specific field that this addr is */
   int           len;		/* length of address, in bytes */
   const void	*data;		/* pointer to address data */
 } address;
 
 #define	SET_ADDRESS(addr, addr_type, addr_len, addr_data) { \
 	(addr)->type = (addr_type); \
-	(addr)->len = (addr_len); \
+	(addr)->hf   = -1;          \
+	(addr)->len  = (addr_len);  \
+	(addr)->data = (addr_data); \
+	}
+
+#define	SET_ADDRESS_HF(addr, addr_type, addr_len, addr_data, addr_hf) { \
+	(addr)->type = (addr_type); \
+	(addr)->hf   = (addr_hf);   \
+	(addr)->len  = (addr_len);  \
 	(addr)->data = (addr_data); \
 	}
 

@@ -11399,15 +11399,15 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
-      SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src);
-      SET_ADDRESS(&pinfo->src, AT_ETHER, 6, src);
-      SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst);
-      SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dst);
+      SET_ADDRESS_HF(&pinfo->dl_src, AT_ETHER, 6, src, hf_ieee80211_addr_sa);
+      SET_ADDRESS_HF(&pinfo->src, AT_ETHER, 6, src, hf_ieee80211_addr_sa);
+      SET_ADDRESS_HF(&pinfo->dl_dst, AT_ETHER, 6, dst, hf_ieee80211_addr_da);
+      SET_ADDRESS_HF(&pinfo->dst, AT_ETHER, 6, dst, hf_ieee80211_addr_da);
 
       /* for tap */
-      SET_ADDRESS(&whdr->bssid, AT_ETHER, 6, tvb_get_ptr(tvb, 16,6));
-      SET_ADDRESS(&whdr->src, AT_ETHER, 6, src);
-      SET_ADDRESS(&whdr->dst, AT_ETHER, 6, dst);
+      SET_ADDRESS_HF(&whdr->bssid, AT_ETHER, 6, tvb_get_ptr(tvb, 16,6), hf_ieee80211_addr_bssid);
+      SET_ADDRESS_HF(&whdr->src, AT_ETHER, 6, src, hf_ieee80211_addr_sa);
+      SET_ADDRESS_HF(&whdr->dst, AT_ETHER, 6, dst, hf_ieee80211_addr_da);
       whdr->type = frame_type_subtype;
 
       seq_control = tvb_get_letohs(tvb, 22);
@@ -11779,16 +11779,16 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           break;
       }
 
-      SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src);
-      SET_ADDRESS(&pinfo->src, AT_ETHER, 6, src);
-      SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst);
-      SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dst);
+      SET_ADDRESS_HF(&pinfo->dl_src, AT_ETHER, 6, src, hf_ieee80211_addr_sa);
+      SET_ADDRESS_HF(&pinfo->src, AT_ETHER, 6, src, hf_ieee80211_addr_sa);
+      SET_ADDRESS_HF(&pinfo->dl_dst, AT_ETHER, 6, dst, hf_ieee80211_addr_da);
+      SET_ADDRESS_HF(&pinfo->dst, AT_ETHER, 6, dst, hf_ieee80211_addr_da);
 
       /* for tap */
 
-      SET_ADDRESS(&whdr->bssid, AT_ETHER, 6, bssid);
-      SET_ADDRESS(&whdr->src, AT_ETHER, 6, src);
-      SET_ADDRESS(&whdr->dst, AT_ETHER, 6, dst);
+      SET_ADDRESS_HF(&whdr->bssid, AT_ETHER, 6, bssid, hf_ieee80211_addr_bssid);
+      SET_ADDRESS_HF(&whdr->src, AT_ETHER, 6, src, hf_ieee80211_addr_sa);
+      SET_ADDRESS_HF(&whdr->dst, AT_ETHER, 6, dst, hf_ieee80211_addr_da);
       whdr->type = frame_type_subtype;
 
       seq_control = tvb_get_letohs(tvb, 22);

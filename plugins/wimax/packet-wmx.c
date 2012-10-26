@@ -64,7 +64,7 @@ extern	gboolean include_cor2_changes;
 
 gint    man_ofdma = 1;
 
-address bs_address = {0,0,0};
+address bs_address = {AT_NONE, -1, 0, NULL};
 
 /* The following variables are local to the function, but serve as
    elements for the global ett_tlv[] array */

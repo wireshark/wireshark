@@ -39,6 +39,7 @@
 #include "osi-utils.h"
 #include "value_string.h"
 #include "column_info.h"
+#include "proto.h"
 
 #include <epan/strutil.h>
 #include <epan/epan.h>
@@ -1491,6 +1492,11 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
   default:
     break;
   }
+
+  if (addr->hf != -1) {
+    pinfo->cinfo->col_expr.col_expr[col] = proto_registrar_get_nth(addr->hf)->abbrev;
+  }
+
 }
 
 /* ------------------------ */

@@ -1547,7 +1547,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, int args_id, guint32 prog, guint32 vers, guint32 proc)
 {
 	conversation_t* conversation;
-	static address null_address = { AT_NONE, 0, NULL };
+	static address null_address = { AT_NONE, -1, 0, NULL };
 	rpc_proc_info_key key;
 	rpc_proc_info_value *value;
 	rpc_call_info_value *rpc_call;
@@ -1697,7 +1697,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, int result_id, int prog_id, int vers_id, int proc_id)
 {
 	conversation_t* conversation;
-	static address null_address = { AT_NONE, 0, NULL };
+	static address null_address = { AT_NONE, -1, 0, NULL };
 	rpc_call_info_value *rpc_call;
 	char *procname=NULL;
 	dissect_function_t *dissect_function = NULL;
@@ -1929,7 +1929,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	rpc_proc_info_key	key;
 	rpc_proc_info_value	*value = NULL;
 	conversation_t* conversation;
-	static address null_address = { AT_NONE, 0, NULL };
+	static address null_address = { AT_NONE, -1, 0, NULL };
 	nstime_t ns;
 
 	dissect_function_t *dissect_function = NULL;
