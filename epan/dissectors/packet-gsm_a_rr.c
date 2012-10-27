@@ -50,6 +50,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 #include "packet-bssap.h"
 #include "packet-sccp.h"
 #include "packet-ber.h"
@@ -1289,15 +1290,13 @@ de_rr_cell_ch_dsc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
  * [3] 10.5.2.1c BA List Pref
  */
 static guint16
-de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
-    gint    bit_offset;
+    guint bit_offset;
+    proto_item *ti;
 
-    curr_offset = offset;
-    bit_offset = curr_offset << 3;
-    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ba_list_pref_length, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
-    bit_offset += 8;
+    bit_offset = offset << 3;
+    ti = proto_tree_add_bits_item(tree, hf_gsm_a_rr_ba_list_pref_length, tvb, bit_offset-8, 8, ENC_BIG_ENDIAN);
     while (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeating Range Limits", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_range_lower, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
@@ -1311,20 +1310,26 @@ de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
         bit_offset += 10;
     }
 
-    curr_offset += len;
-    return (curr_offset - offset);
+    if (((bit_offset + 7) >> 3) > (offset + len))
+    {
+       expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "IE over-runs stated length");
+    }
+    else if ((bit_offset >> 3) < (offset + len))
+    {
+       expert_add_info_format(pinfo, ti, PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length");
+    }
+    return len;
 }
 
 /*
  * [3] 10.5.2.1d UTRAN Frequency List
  */
 static guint16
-de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
-    gint    bit_offset;
+    guint bit_offset;
+    proto_item *ti;
 
-    curr_offset = offset;
     /* < UTRAN Freq List >::=
      * < LENGTH OF UTRAN FREQ LIST : bit (8) > -- length following in octets
      * { 1 < FDD_ARFCN > : bit (14) } ** 0 -- FDD frequencies
@@ -1332,9 +1337,8 @@ de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
      * <spare bit>**;
      * Spare bits in the end of the field are used to fill the last octet.
      */
-    bit_offset = curr_offset << 3;
-    proto_tree_add_bits_item(tree, hf_gsm_a_rr_utran_freq_list_length, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
-    bit_offset += 8;
+    bit_offset = offset << 3;
+    ti = proto_tree_add_bits_item(tree, hf_gsm_a_rr_utran_freq_list_length, tvb, bit_offset-8, 8, ENC_BIG_ENDIAN);
     while (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeating FDD Frequency", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_fdd_uarfcn, tvb, bit_offset, 14, ENC_BIG_ENDIAN);
@@ -1346,8 +1350,15 @@ de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
         bit_offset += 14;
     }
 
-    curr_offset += len;
-    return (curr_offset - offset);
+    if (((bit_offset + 7) >> 3) > (offset + len))
+    {
+       expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "IE over-runs stated length");
+    }
+    else if ((bit_offset >> 3) < (offset + len))
+    {
+       expert_add_info_format(pinfo, ti, PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length");
+    }
+    return (len);
 }
 
 /*
@@ -2259,19 +2270,15 @@ static const value_string gsm_a_rr_gsm_band_vals[] = {
 
 
 static guint16
-de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
-    gint    bit_offset;
-    guint64 length;
-    guint   value;
+    guint bit_offset;
+    proto_item *ti;
 
-    curr_offset = offset;
-    bit_offset = curr_offset << 3;
+    bit_offset = offset << 3;
 
-    proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_dyn_arfcn_length, tvb, bit_offset, 8, &length, ENC_BIG_ENDIAN);
-    value = gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeating Dynamic ARFCN Mapping", "Present", "Not Present");
-    while (value && length)
+    ti = proto_tree_add_bits_item(tree, hf_gsm_a_rr_dyn_arfcn_length, tvb, bit_offset-8, 8, ENC_BIG_ENDIAN);
+    while (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeating Dynamic ARFCN Mapping", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_gsm_band, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
         bit_offset += 4;
@@ -2281,12 +2288,17 @@ de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
         bit_offset += 10;
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_arfcn_range, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
         bit_offset += 7;
-        length -= 4;
     }
 
-    curr_offset = curr_offset + len;
-
-    return(curr_offset - offset);
+    if (((bit_offset + 7) >> 3) > (offset + len))
+    {
+       expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "IE over-runs stated length");
+    }
+    else if ((bit_offset >> 3) < (offset + len))
+    {
+       expert_add_info_format(pinfo, ti, PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length");
+    }
+    return(len);
 }
 /*
  * [3] 10.5.2.12 Frequency Channel Sequence
