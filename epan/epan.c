@@ -50,6 +50,7 @@
 #include "addr_resolv.h"
 #include "oids.h"
 #include "emem.h"
+#include "wmem/wmem.h"
 #include "expert.h"
 
 #ifdef HAVE_LUA
@@ -83,8 +84,9 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	init_report_err(report_failure_fcn_p, report_open_failure_fcn_p,
 	    report_read_failure_fcn_p, report_write_failure_fcn_p);
 
-	/* initialize memory allocation subsystem */
+	/* initialize memory allocation subsystems */
 	emem_init();
+	wmem_init();
 
 	/* initialize the GUID to name mapping table */
 	guids_init();
@@ -127,6 +129,7 @@ epan_cleanup(void)
 #endif
 	except_deinit();
 	host_name_lookup_cleanup();
+	wmem_cleanup();
 }
 
 void
