@@ -35,6 +35,7 @@ extern "C" {
 struct _wmem_allocator_t {
     void *(*alloc)(void *private_data, size_t size);
     void  (*free_all)(void *private_data);
+    void  (*destroy)(struct _wmem_allocator_t *allocator);
 
     void *private_data;
 };

@@ -50,6 +50,13 @@ wmem_free_all(wmem_allocator_t *allocator)
     allocator->free_all(allocator->private_data);
 }
 
+void
+wmem_destroy_allocator(wmem_allocator_t *allocator)
+{
+    wmem_free_all(allocator);
+    allocator->destroy(allocator);
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

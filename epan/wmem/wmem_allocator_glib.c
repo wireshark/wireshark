@@ -68,6 +68,13 @@ wmem_glib_free_all(void *private_data)
     allocator->block_list = NULL;
 }
 
+static void
+wmem_destroy_glib_allocator(wmem_allocator_t *allocator)
+{
+    g_free(allocator->private_data);
+    g_free(allocator);
+}
+
 wmem_allocator_t *
 wmem_create_glib_allocator(void)
 {
@@ -79,6 +86,7 @@ wmem_create_glib_allocator(void)
 
     allocator->alloc        = &wmem_glib_alloc;
     allocator->free_all     = &wmem_glib_free_all;
+    allocator->destroy      = &wmem_destroy_glib_allocator;
     allocator->private_data = (void*) glib_allocator;
 
     glib_allocator->block_list = NULL;
@@ -86,13 +94,6 @@ wmem_create_glib_allocator(void)
     return allocator;
 }
 
-void
-wmem_destroy_glib_allocator(wmem_allocator_t *allocator)
-{
-    allocator->free_all(allocator->private_data);
-    g_free(allocator->private_data);
-    g_free(allocator);
-}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

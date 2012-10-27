@@ -30,13 +30,10 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct _wmem_allocator_t wmem_allocator_t;
+#include "wmem_core.h"
 
 wmem_allocator_t *
 wmem_create_glib_allocator(void);
-
-void
-wmem_destroy_glib_allocator(wmem_allocator_t *allocator);
 
 #ifdef __cplusplus
 }

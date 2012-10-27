@@ -45,6 +45,9 @@ wmem_alloc0(wmem_allocator_t *allocator, size_t size);
 void
 wmem_free_all(wmem_allocator_t *allocator);
 
+void
+wmem_destroy_allocator(wmem_allocator_t *allocator);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
