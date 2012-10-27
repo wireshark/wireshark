@@ -398,7 +398,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
     protocol_t *protocol;
     module_t   *subtree_module;
     module_t   *new_module;
-    char       *sep = NULL, *ptr = NULL;
+    char       *sep = NULL, *ptr = NULL, *orig = NULL;
 
     /*
      * Have we yet created the "Protocols" subtree?
@@ -416,8 +416,9 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
     subtree_module = protocols_module;
 
     if(subtree) {
-        /* take a copy of the buffer */
-        ptr = g_strdup(subtree);
+        /* take a copy of the buffer, orig keeps a base pointer while ptr
+         * walks through the string */
+        orig = ptr = g_strdup(subtree);
 
         while(ptr && *ptr) {
 
@@ -430,6 +431,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
                  * being the name (if it's later registered explicitly
                  * with a description, that will override it).
                  */
+                ptr = wmem_strdup(wmem_permanent_scope(), ptr),
                 new_module = prefs_register_subtree(subtree_module, ptr, ptr, NULL);
             }
 
@@ -437,6 +439,8 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
             ptr = sep;
 
         }
+
+        g_free(orig);
     }
 
     protocol = find_protocol_by_id(id);
