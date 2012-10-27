@@ -1,5 +1,5 @@
-/* wmem_allocator_glib.h
- * Definitions for the Wireshark Memory Manager GLib-Based Allocator
+/* wmem_slab.h
+ * Definitions for the Wireshark Memory Manager Slab
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
  * $Id$
@@ -23,8 +23,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_ALLOCATOR_GLIB_H__
-#define __WMEM_ALLOCATOR_GLIB_H__
+#ifndef __WMEM_SLAB_H__
+#define __WMEM_SLAB_H__
+
+#include <string.h>
 
 #include "wmem_core.h"
 
@@ -32,14 +34,24 @@
 extern "C" {
 #endif /* __cplusplus */
 
-wmem_allocator_t *
-wmem_create_glib_allocator(void);
+struct _wmem_slab_t;
+
+typedef struct _wmem_slab_t wmem_slab_t;
+
+void *
+wmem_slab_alloc(wmem_slab_t *slab);
+
+void
+wmem_slab_free(wmem_slab_t *slab, void *object);
+
+wmem_slab_t *
+wmem_create_slab(wmem_allocator_t *allocator, size_t chunk_size);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __WMEM_ALLOCATOR_GLIB_H__ */
+#endif /* __WMEM_SLAB_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
