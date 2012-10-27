@@ -1920,7 +1920,7 @@ proto_reg_handoff_opensafety(void)
         	heur_dissector_add("opensafety_udp", dissect_opensafety_udpdata, proto_opensafety);
 
         /* Modbus TCP dissector registration */
-        dissector_add_string("mbtcp.modbus.data", "data", find_dissector("opensafety_mbtcp"));
+        dissector_add_string("modbus.data", "data", find_dissector("opensafety_mbtcp"));
 
         /* For Profinet we have to register as a heuristic dissector, as Profinet
          *  is implemented as a plugin, and therefore the heuristic dissector is not
