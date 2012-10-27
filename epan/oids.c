@@ -117,8 +117,14 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 					if (!g_str_equal(n->name,name)) {
 						D(2,("Renaming Oid from: %s -> %s, this means the same oid is registered more than once",n->name,name));
 					}
-					/* XXX - Don't free n->name here. It may be part of an hf_register_info
-                                         * struct that has been appended to the hfa GArray. */
+					/* There used to be a comment here that claimed we couldn't free
+					 * n->name since it may be part of an hf_register_info struct
+                                         * that has been appended to the hfa GArray. I think that comment
+					 * was wrong, because we only ever create oid_info_t's in this
+					 * function, and we are always careful here to g_strdup the name.
+					 * All that to justify freeing n->name in the next line, since
+					 * doing so fixes some memory leaks. */
+					g_free(n->name);
 				}
 
 				n->name = g_strdup(name);
