@@ -469,8 +469,11 @@ edit_color_filter_ok_cb                (GtkButton       *button,
 static void
 edit_new_color_filter_cancel_cb(GtkButton *button, gpointer user_data _U_)
 {
-  /* Delete the entry. As a side effect this destroys the edit_dialog window. */
-  color_delete_single(color_dlg_num_of_filters-1, (GtkWidget*)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL));
+  /* Delete the entry. As a side effect this destroys the edit_dialog window.
+     Before the edit dialogue was launched, the color filter list was
+     prepended with a default entry. This is the entry at position 0 that we
+     want to delete now. */
+  color_delete_single(0, (GtkWidget*)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL));
 }
 
 static GtkWidget*
