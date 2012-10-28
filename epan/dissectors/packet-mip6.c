@@ -1076,6 +1076,7 @@ static int hf_pmip6_opt_lila_lla = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mip6 = -1;
+static gint ett_mip6_opt_pad1 = -1;
 static gint ett_mip6_opt_padn = -1;
 static gint ett_mip6_opts = -1;
 static gint ett_mip6_opt_bra = -1;
@@ -2694,7 +2695,7 @@ static const mip6_opt mip6_opts[] = {
 {
     MIP6_PAD1,                  /* 0 Pad1 [RFC3775] */
     "Pad1",
-    NULL,
+    &ett_mip6_opt_pad1,
     OPT_LEN_NO_LENGTH,
     0,
     NULL,
@@ -3146,9 +3147,11 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
                         "%s (with option length = %u byte%s; should be >= %u)", name,
                         len, plurality(len, "", "s"), optlen);
                 return;
-            } else {
-                ti = proto_tree_add_text(opt_tree, tvb, offset, len + 2, "%s",val_to_str_const(opt, mip6_mobility_options, "<unknown>"));
-                opt_data_tree = proto_item_add_subtree(ti, *optp->subtree_index);
+			} else {
+				ti = proto_tree_add_text(opt_tree, tvb, offset, len + 2, "%s",val_to_str_const(opt, mip6_mobility_options, "<unknown>"));
+				if(*optp->subtree_index){
+					opt_data_tree = proto_item_add_subtree(ti, *optp->subtree_index);
+				}
                 proto_tree_add_item(opt_data_tree, hf_mip6_mobility_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
                 if (optp == NULL) {
                     proto_item *expert_item;
@@ -3940,6 +3943,7 @@ proto_register_mip6(void)
     static gint *ett[] = {
         &ett_mip6,
         &ett_mip6_opts,
+		&ett_mip6_opt_pad1,
         &ett_mip6_opt_padn,
         &ett_mip6_opt_bra,
         &ett_mip6_opt_acoa,
