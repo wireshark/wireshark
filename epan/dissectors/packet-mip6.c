@@ -3079,7 +3079,7 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
               packet_info *pinfo, proto_tree *opt_tree)
 {
     proto_item       *ti;
-    proto_tree       *opt_data_tree;
+    proto_tree       *opt_data_tree = NULL;
     guchar            opt;
     const mip6_opt  *optp;
     opt_len_type      len_type;
