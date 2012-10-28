@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-10-15
+# 2012-10-23
 # 
 # Experts
 # 
@@ -12428,7 +12428,9 @@ emgmsg	6656/tcp	# Emergency Message Control    [Gerry_Gorman]                   
 # 6656        udp    Reserved
 # 6657        tcp    Reserved
 palcom-disc	6657/udp	# PalCom Discovery             [Boris_Magnusson]                                  [Boris_Magnusson]                                         2010-12-06
-# 6658-6664            Unassigned
+# Unauthorized
+# 6658-6664            Unassigned                                                                                                                                                                                                           Use Known on
+# Port 6659
 # ircu             6665-6669     tcp    IRCU                         [Brian_Tackett]                                    [Brian_Tackett]
 # 6665-6669     udp    Reserved
 vocaltec-gold	6670/tcp	# Vocaltec Global Online       [Scott_Petrack]                                    [Scott_Petrack]
@@ -12678,7 +12680,10 @@ vmsvc-2	7025/udp	# Vormetric Service II         [Tom_Boyle]                     
 # 7026-7029            Unassigned
 op-probe	7030/tcp	# ObjectPlanet probe           [Bjorn_Jarle_Kvande]                               [Bjorn_Jarle_Kvande]                                      2002-04
 op-probe	7030/udp	# ObjectPlanet probe           [Bjorn_Jarle_Kvande]                               [Bjorn_Jarle_Kvande]                                      2002-04
-# 7031-7039            Unassigned
+iposplanet	7031/tcp	# IPOSPLANET retailing multi   [Fabrice_Paget]                                    [Fabrice_Paget]                                           2012-10-23
+# devices protocol
+# 7031        udp    Reserved
+# 7032-7039            Unassigned
 # 7040        tcp    Reserved
 quest-disc	7040/udp	# Quest application level      [Quest_Software]                                   [Henrik_Johnson]                                          2012-04-09
 # network service discovery
@@ -18375,6 +18380,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Eyal_Yardeni]                                            Eyal Yardeni                                    mailto:eyal.yardeni&smarts.com                                2003-11
 # [Ezinne_Oji]                                              Ezinne Oji                                      mailto:ezinne.oji&t-mobile.com                                2006-06
 # [F_Englert]                                               Fl SQRTDEGvio Englert                           mailto:flavio&elipse.com.br                                   2007-09-17
+# [Fabrice_Paget]                                           Fabrice Paget                                   mailto:onefrench&me.com                                       2012-10-23
 # [Fabrizio_Guglielmino]                                    Fabrizio Guglielmino                            mailto:guglielmino&infitsrl.com
 # [Fabrizio_Massimo_Fer]                                    Fabrizio Massimo Ferrara                        mailto:fmf&gesi.it                                            2002-02
 # [Fahad_Gilani]                                            Fahad Gilani                                    mailto:fahad&guidedways.com
