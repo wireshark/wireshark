@@ -3148,7 +3148,7 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
             } else {
                 ti = proto_tree_add_text(opt_tree, tvb, offset, len + 2, "%s",
                                          val_to_str_ext_const(opt, &mip6_mobility_options_ext, "<unknown>"));
-                if (*optp->subtree_index) {
+                if (optp && *optp->subtree_index) {
                     opt_data_tree = proto_item_add_subtree(ti, *optp->subtree_index);
                 }
                 proto_tree_add_item(opt_data_tree, hf_mip6_mobility_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
