@@ -364,9 +364,6 @@ run_tests(void)
 	test(tvb_subset[4], "Subset 4", subset[4], subset_length[4], subset_reported_length[4]);
 	test(tvb_subset[5], "Subset 5", subset[5], subset_length[5], subset_reported_length[5]);
 
-	/* Composite tvbuffs don't work at the moment -- tests commented out until
-	 * they do. */
-
 	/* One Real */
 	printf("Making Composite 0\n");
 	tvb_comp[0]		= tvb_new_composite();
