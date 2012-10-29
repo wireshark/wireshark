@@ -1210,14 +1210,10 @@ typedef enum
     DE_RR_P3_REST_OCT,              /* [3] 10.5.2.25 P3 Rest Octets */
     DE_RR_PACKET_CH_DESC,           /* [3] 10.5.2.25a Packet Channel Description    */
     DE_RR_DED_MOD_OR_TBF,           /* [3] 10.5.2.25b Dedicated mode or TBF         */
-/* [3] 10.5.2.25c RR Packet Uplink Assignment
- * [3] 10.5.2.25d RR Packet Downlink Assignment */
+    DE_RR_PKT_UL_ASS,               /* [3] 10.5.2.25c RR Packet Uplink Assignment */
+    DE_RR_PKT_DL_ASS,               /* [3] 10.5.2.25d RR Packet Downlink Assignment */
+    DE_RR_PKT_DL_ASS_TYPE2,         /* [3] 10.5.2.25d RR Packet Downlink Assignment Type 2 */
     DE_RR_PAGE_MODE,                /* [3] 10.5.2.26 Page Mode                      */
-/* [3] 10.5.2.26a (void)
- * [3] 10.5.2.26b (void)
- * [3] 10.5.2.26c (void)
- * [3] 10.5.2.26d (void)
- */
     DE_RR_NCC_PERM,                 /* [3] 10.5.2.27 NCC Permitted */
     DE_RR_POW_CMD,                  /* 10.5.2.28  Power Command                     */
     DE_RR_POW_CMD_AND_ACC_TYPE,     /* 10.5.2.28a Power Command and access type     */

@@ -64,6 +64,7 @@ static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle;
 
 #define PADDING_BYTE 0x2B
 
+/* 3GPP TS 44.018 version 11.2.0 Release 11 */
 const value_string gsm_a_dtap_msg_rr_strings[] = {
     { 0x3c, "Reserved" },
     { 0x3b, "Additional Assignment" },
@@ -74,8 +75,10 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
     { 0x48, "DTM Assignment Failure" },
     { 0x49, "DTM Reject" },
     { 0x4a, "DTM Request" },
-    { 0x4b, "Main DCCH Assignment Command" },
-    { 0x4c, "Packet Assignment Command" },
+    { 0x4b, "PACKET ASSIGNMENT" },
+    { 0x4c, "DTM ASSIGNMENT COMMAND" },
+    { 0x4d, "DTM INFORMATION" },
+    { 0x4e, "PACKET NOTIFICATION" },
 
     { 0x35, "Ciphering Mode Command" },
     { 0x32, "Ciphering Mode Complete" },
@@ -91,7 +94,6 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
     { 0x2c, "Handover Complete" },
     { 0x28, "Handover Failure" },
     { 0x2d, "Physical Information" },
-    { 0x4d, "DTM Assignment Command" },
 
     { 0x08, "RR-cell Change Order" },
     { 0x23, "PDCH Assignment Command" },
@@ -235,15 +237,10 @@ const value_string gsm_rr_elem_strings[] = {
     { 0x00, "P3 Rest Octets" },                         /* [3] 10.5.2.25 P3 Rest Octets */
     { 0x00, "Packet Channel Description" },             /* [3] 10.5.2.25a   */
     { 0x00, "Dedicated mode or TBF" },                  /* [3] 10.5.2.25b */
-    /* [3] 10.5.2.25c RR Packet Uplink Assignment
-     * [3] 10.5.2.25d RR Packet Downlink Assignment */
+    { 0x00, "Packet Uplink Assignment" },               /* [3] 10.5.2.25c RR Packet Uplink Assignment */
+    { 0x00, "Packet Uplink Assignment" },               /* [3] 10.5.2.25d RR Packet Downlink Assignment */
+    { 0x00, "Packet Downlink Assignment Type 2" },      /* [3] 110.5.2.25e RR Packet Downlink Assignment Type 2 */
     { 0x00, "Page Mode" },                              /* [3] 10.5.2.26  */
-/*
- * [3] 10.5.2.26a (void)
- * [3] 10.5.2.26b (void)
- * [3] 10.5.2.26c (void)
- * [3] 10.5.2.26d (void)
- */
     { 0x00, "NCC Permitted" },                          /* [3] 10.5.2.27 NCC Permitted */
     { 0x00, "Power Command" },                          /* 10.5.2.28 */
     { 0x00, "Power Command and access type" },          /* 10.5.2.28a */
@@ -4145,8 +4142,49 @@ de_rr_ded_mod_or_tbf(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_,
 }
 /*
  * [3] 10.5.2.25c RR Packet Uplink Assignment
+ */
+static guint16
+de_rr_pkt_ul_ass(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32      curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_text(subtree, tvb, curr_offset, len, "Not dissected yet");
+    
+	return len;
+}
+
+/*
  * [3] 10.5.2.25d RR Packet Downlink Assignment
  */
+static guint16
+de_rr_pkt_dl_ass(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32      curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_text(subtree, tvb, curr_offset, len, "Not dissected yet");
+    
+	return len;
+}
+
+/*
+ * [3] 10.5.2.25e RR Packet Downlink Assignment Type 2
+ */
+static guint16
+de_rr_pkt_dl_ass_type2(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32      curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_text(subtree, tvb, curr_offset, len, "Not dissected yet");
+    
+	return len;
+}
+
 /*
  * [3] 10.5.2.26 Page Mode
  */
@@ -8083,9 +8121,9 @@ guint16 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     de_rr_p3_rest_oct,                          /* [3] 10.5.2.25 P3 Rest Octets                         */
     de_rr_packet_ch_desc,                       /* [3] 10.5.2.25a Packet Channel Description            */
     de_rr_ded_mod_or_tbf,                       /* [3] 10.5.2.25b Dedicated mode or TBF                 */
-/* [3] 10.5.2.25c RR Packet Uplink Assignment
- * [3] 10.5.2.25d RR Packet Downlink Assignment
- */
+    de_rr_pkt_ul_ass,                           /* [3] 10.5.2.25c RR Packet Uplink Assignment           */
+    de_rr_pkt_dl_ass,                           /* [3] 10.5.2.25d RR Packet Downlink Assignment         */
+    de_rr_pkt_dl_ass_type2,                     /* [3] 10.5.2.25e RR Packet Downlink Assignment Type 2  */
     de_rr_page_mode,                            /* [3] 10.5.2.26 Page Mode                              */
 /*
  * [3] 10.5.2.26a (void)
@@ -8592,6 +8630,82 @@ dtap_rr_conf_change_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
+/*
+ * 9.1.12e DTM Assignment Command
+ */
+static void
+dtap_rr_dtm_ass_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* CS Power Command 10.5.2.28 M V 1 */
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_POW_CMD, NULL);
+
+    /* Description of the CS Channel 10.5.2.5 M V 3 */
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, NULL);
+
+    /* GPRS broadcast information 10.5.2.14d M LV 7 - n */
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_GPRS_BROADCAST_INFORMATION, NULL);
+
+    /* 10 Cell Channel Description 10.5.2.1b O TV 17 */
+    ELEM_OPT_TV(0x10, GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, NULL);
+
+	/* 11 Channel mode Channel mode 10.5.2.6 O TV 2 */
+    ELEM_OPT_TV(0x11,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, NULL);
+    /* 12 Frequency List Frequency List 10.5.2.13 C TLV 4 - 132 */
+    ELEM_OPT_TLV(0x12, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, NULL);
+    /* 13 Mobile Allocation Mobile Allocation 10.5.2.21 C TLV 3 - 10 */
+    ELEM_OPT_TLV(0x13, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
+    
+	/* 15 Description of the Uplink Packet Channel Assignment RR Packet Uplink Assignment 10.5.2.25c O TLV 3 - n */
+    ELEM_OPT_TLV(0x15, GSM_A_PDU_TYPE_RR, DE_RR_PKT_UL_ASS, NULL);
+    
+	/* 16 Description of the Downlink Packet Channel Assignment RR Packet Downlink Assignment 10.5.2.25d O TLV 3 - n */
+    ELEM_OPT_TLV(0x16, GSM_A_PDU_TYPE_RR, DE_RR_PKT_DL_ASS, NULL);
+    
+	/* 17 Multi-Rate configuration MultiRate configuration 10.5.2.21aa O TLV 4-8  */
+    ELEM_OPT_TLV(0x17,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, NULL);
+    
+	/* 9- Ciphering Mode Setting Ciphering Mode Setting 10.5.2.9 O TV 1 */
+    ELEM_OPT_TV_SHORT(0x90,GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, NULL);
+    
+	/* 18 Mobile Allocation C2 Mobile Allocation 10.5.2.21 C TLV 3 - 10 */
+    ELEM_OPT_TLV(0x18, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - C2");
+    
+	/* 19 Frequency List C2 Frequency List 10.5.2.13 C TLV 4 - 132 */
+    ELEM_OPT_TLV(0x19, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, " - C2");
+    
+	/* 20 Description of the Downlink Packet Channel Assignment Type 2 RR Packet Downlink Assignment Type 2 10.5.2.25e C TLV 3 n */
+    ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_RR, DE_RR_PKT_DL_ASS_TYPE2, NULL);
+
+	/* 21 Channel Description C2 Channel Description 3 10.5.2.5c O TV 3 */
+    ELEM_OPT_TV(0x21,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC3, " - Channel Description C2");
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 9.1.12f DTM Assignment Failure
+ */
+    /* RR cause RR Cause 10.5.2.31 M V 1 */
+/*
+ * 9.1.12g DTM Information
+ */
+    /* Routeing Area Identification Routeing Area Identification 10.5.5.15 M V 6 */
+    /* DTM Information Details DTM Information Details 10.5.2.11a M LV 4-n */
+/*
+ * 9.1.12h DTM Reject
+ */
+    /* DTM wait indication Wait indication 10.5.2.43 M V 1 */
+
+/*
+ * 9.1.12i DTM Request
+ */
+    /* TLLI TLLI 10.5.2.41a M V 4 */
+    /* Channel Request Description 2 Channel Request Description 2 10.5.2.8b M LV 5 - n */
 
 /*
  * 9.1.13 Frequency Redefinition
@@ -10014,8 +10128,10 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     NULL,                       /* DTM Assignment Failure */
     NULL,                       /* DTM Reject */
     NULL,                       /* DTM Request */
-    NULL,                       /* Main DCCH Assignment Command */
-    NULL,                       /* Packet Assignment Command */
+    NULL,                       /* PACKET ASSIGNMENT */
+    dtap_rr_dtm_ass_cmd,        /* DTM ASSIGNMENT COMMAND */
+    NULL,                       /* DTM INFORMATION */
+    NULL,                       /* PACKET NOTIFICATION */
 
     dtap_rr_cip_mode_cmd,       /* Ciphering Mode Command */
     dtap_rr_cip_mode_cpte,      /* Ciphering Mode Complete */
@@ -10031,7 +10147,6 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     dtap_rr_ho_cpte,            /* Handover Complete */
     dtap_rr_ho_fail,            /* Handover Failure */
     dtap_rr_phy_info,           /* Physical Information */
-    NULL,                       /* DTM Assignment Command */
 
     NULL,                       /* RR-cell Change Order */
     NULL,                       /* PDCH Assignment Command */
