@@ -11563,30 +11563,28 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
             bar_control = tvb_get_letohs(tvb, offset);
             block_ack_type = (bar_control & 0x0006) >> 1;
-            proto_tree_add_uint(hdr_tree, hf_ieee80211_block_ack_request_type, tvb,
-              offset, 1, block_ack_type);
-            bar_parent_item = proto_tree_add_uint_format(hdr_tree,
-              hf_ieee80211_block_ack_request_control, tvb, offset, 2, bar_control,
-              "Block Ack Request (BAR) Control: 0x%04X", bar_control);
+            proto_tree_add_item(hdr_tree, hf_ieee80211_block_ack_request_type, tvb,
+              offset, 2, ENC_LITTLE_ENDIAN);
+            bar_parent_item = proto_tree_add_item(hdr_tree,
+              hf_ieee80211_block_ack_request_control, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             bar_sub_tree = proto_item_add_subtree(bar_parent_item,
               ett_block_ack);
-            proto_tree_add_boolean(bar_sub_tree,
-              hf_ieee80211_block_ack_control_ack_policy, tvb, offset, 1, bar_control);
-            proto_tree_add_boolean(bar_sub_tree, hf_ieee80211_block_ack_control_multi_tid,
-              tvb, offset, 1, bar_control);
-            proto_tree_add_boolean(bar_sub_tree,
-              hf_ieee80211_block_ack_control_compressed_bitmap, tvb, offset, 1,
-              bar_control);
-            proto_tree_add_uint(bar_sub_tree, hf_ieee80211_block_ack_control_reserved,
-              tvb, offset, 2, bar_control);
+            proto_tree_add_item(bar_sub_tree,
+              hf_ieee80211_block_ack_control_ack_policy, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(bar_sub_tree, hf_ieee80211_block_ack_control_multi_tid,
+              tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(bar_sub_tree,
+              hf_ieee80211_block_ack_control_compressed_bitmap, tvb, offset, 2,
+              ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(bar_sub_tree, hf_ieee80211_block_ack_control_reserved,
+              tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
             switch (block_ack_type)
             {
               case 0: /*Basic BlockAckReq */
               {
-                proto_tree_add_uint(bar_sub_tree,
-                hf_ieee80211_block_ack_control_basic_tid_info, tvb, offset+1, 1,
-                  bar_control);
+                proto_tree_add_item(bar_sub_tree,
+                hf_ieee80211_block_ack_control_basic_tid_info, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
                 /*offset +=*/ add_fixed_field(hdr_tree, tvb, offset,
@@ -11595,9 +11593,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
               }
               case 2: /* Compressed BlockAckReq */
               {
-                proto_tree_add_uint(bar_sub_tree,
-                hf_ieee80211_block_ack_control_compressed_tid_info, tvb, offset+1, 1,
-                  bar_control);
+                proto_tree_add_item(bar_sub_tree,
+                hf_ieee80211_block_ack_control_compressed_tid_info, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
                 /*offset +=*/ add_fixed_field(hdr_tree, tvb, offset,
@@ -11611,8 +11608,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                 proto_tree *bar_mtid_tree, *bar_mtid_sub_tree;
 
                 tid_count = ((bar_control & 0xF000) >> 12) + 1;
-                proto_tree_add_uint_format(bar_sub_tree, hf_ieee80211_block_ack_control_multi_tid_info, tvb, offset+1, 1, bar_control,
-                decode_numeric_bitfield(bar_control, 0xF000, 16,"Number of TIDs Present: 0x%%X"), tid_count);
+                proto_tree_add_uint(bar_sub_tree, hf_ieee80211_block_ack_control_multi_tid_info, tvb, offset, 2, tid_count);
                 offset += 2;
 
                 bar_parent_item = proto_tree_add_text (hdr_tree, tvb, offset, tid_count*4, "Per TID Info");
@@ -11621,9 +11617,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                   bar_parent_item = proto_tree_add_uint(bar_mtid_tree, hf_ieee80211_block_ack_multi_tid_info, tvb, offset, 4, iii);
                   bar_mtid_sub_tree = proto_item_add_subtree(bar_parent_item, ett_block_ack);
 
-                  bar_control = tvb_get_letohs(tvb, offset);
-                  proto_tree_add_uint(bar_mtid_sub_tree, hf_ieee80211_block_ack_multi_tid_reserved, tvb, offset, 2, bar_control);
-                  proto_tree_add_uint(bar_mtid_sub_tree, hf_ieee80211_block_ack_multi_tid_value, tvb, offset+1, 1, bar_control);
+                  proto_tree_add_item(bar_mtid_sub_tree, hf_ieee80211_block_ack_multi_tid_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(bar_mtid_sub_tree, hf_ieee80211_block_ack_multi_tid_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                   offset += 2;
 
                   offset += add_fixed_field(bar_mtid_sub_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
@@ -11654,28 +11649,26 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
             ba_control = tvb_get_letohs(tvb, offset);
             block_ack_type = (ba_control & 0x0006) >> 1;
-            proto_tree_add_uint(hdr_tree, hf_ieee80211_block_ack_type, tvb, offset, 1, block_ack_type);
-            ba_parent_item = proto_tree_add_uint_format(hdr_tree,
-              hf_ieee80211_block_ack_control, tvb, offset, 2, ba_control,
-              "Block Ack (BA) Control: 0x%04X", ba_control);
+            proto_tree_add_item(hdr_tree, hf_ieee80211_block_ack_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            ba_parent_item = proto_tree_add_item(hdr_tree,
+              hf_ieee80211_block_ack_control, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             ba_sub_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
-            proto_tree_add_boolean(ba_sub_tree, hf_ieee80211_block_ack_control_ack_policy,
-              tvb, offset, 1, ba_control);
-            proto_tree_add_boolean(ba_sub_tree, hf_ieee80211_block_ack_control_multi_tid,
-              tvb, offset, 1, ba_control);
-            proto_tree_add_boolean(ba_sub_tree,
-              hf_ieee80211_block_ack_control_compressed_bitmap, tvb, offset, 1,
-              ba_control);
-            proto_tree_add_uint(ba_sub_tree, hf_ieee80211_block_ack_control_reserved, tvb,
-              offset, 2, ba_control);
+            proto_tree_add_item(ba_sub_tree, hf_ieee80211_block_ack_control_ack_policy,
+              tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ba_sub_tree, hf_ieee80211_block_ack_control_multi_tid,
+              tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ba_sub_tree,
+              hf_ieee80211_block_ack_control_compressed_bitmap, tvb, offset, 2,
+              ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ba_sub_tree, hf_ieee80211_block_ack_control_reserved, tvb,
+              offset, 2, ENC_LITTLE_ENDIAN);
 
             switch (block_ack_type)
             {
               case 0: /*Basic BlockAck */
               {
-                proto_tree_add_uint(ba_sub_tree,
-                hf_ieee80211_block_ack_control_basic_tid_info, tvb, offset+1, 1,
-                  ba_control);
+                proto_tree_add_item(ba_sub_tree,
+                hf_ieee80211_block_ack_control_basic_tid_info, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
                 offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
@@ -11691,7 +11684,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                 proto_item *ba_bitmap_item;
                 proto_tree *ba_bitmap_tree;
 
-                proto_tree_add_uint(ba_sub_tree, hf_ieee80211_block_ack_control_basic_tid_info, tvb, offset+1, 1, ba_control);
+                proto_tree_add_item(ba_sub_tree, hf_ieee80211_block_ack_control_basic_tid_info, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
                 ssn = tvb_get_letohs(tvb, offset);
@@ -11716,10 +11709,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                 proto_tree *ba_mtid_tree, *ba_mtid_sub_tree;
 
                 tid_count = ((ba_control & 0xF000) >> 12) + 1;
-                proto_tree_add_uint_format(ba_sub_tree,
-                hf_ieee80211_block_ack_control_compressed_tid_info, tvb, offset+1, 1,
-                  ba_control, decode_numeric_bitfield(ba_control, 0xF000,
-                  16,"Number of TIDs Present: 0x%%X"), tid_count);
+                proto_tree_add_uint(ba_sub_tree,
+                hf_ieee80211_block_ack_control_compressed_tid_info, tvb, offset, 2, tid_count);
                 offset += 2;
 
                 ba_parent_item = proto_tree_add_text (hdr_tree, tvb, offset, tid_count*4, "Per TID Info");
@@ -11728,9 +11719,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                   ba_parent_item = proto_tree_add_uint(ba_mtid_tree, hf_ieee80211_block_ack_multi_tid_info, tvb, offset, 4, iii);
                   ba_mtid_sub_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
 
-                  ba_control = tvb_get_letohs(tvb, offset);
-                  proto_tree_add_uint(ba_mtid_sub_tree, hf_ieee80211_block_ack_multi_tid_reserved, tvb, offset, 2, ba_control);
-                  proto_tree_add_uint(ba_mtid_sub_tree, hf_ieee80211_block_ack_multi_tid_value, tvb, offset+1, 1, ba_control);
+                  proto_tree_add_item(ba_mtid_sub_tree, hf_ieee80211_block_ack_multi_tid_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ba_mtid_sub_tree, hf_ieee80211_block_ack_multi_tid_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                   offset += 2;
 
                   offset += add_fixed_field(ba_mtid_sub_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
@@ -13158,11 +13148,11 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_block_ack_request_type,
      {"Block Ack Request Type", "wlan.bar.type",
-      FT_UINT8, BASE_HEX, VALS(ieee80211_block_ack_request_type_flags), 0, "Block Ack Request (BAR) Type", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(ieee80211_block_ack_request_type_flags), 0x06, "Block Ack Request (BAR) Type", HFILL }},
 
     {&hf_ieee80211_block_ack_type,
      {"Block Ack Type", "wlan.ba.type",
-      FT_UINT8, BASE_HEX, VALS(ieee80211_block_ack_type_flags), 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS(ieee80211_block_ack_type_flags), 0x06, NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_bitmap,
      {"Block Ack Bitmap", "wlan.ba.bm",
