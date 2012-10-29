@@ -19,6 +19,7 @@
  * RFC 2489: Procedure for Defining New DHCP Options
  * RFC 2610: DHCP Options for Service Location Protocol
  * RFC 2685: Virtual Private Networks Identifier
+ * RFC 3004: The User Class Option for DHCP
  * RFC 3046: DHCP Relay Agent Information Option
  * RFC 3118: Authentication for DHCP Messages
  * RFC 3203: DHCP reconfigure extension
@@ -309,6 +310,9 @@ static int hf_bootp_option_default_finger_server = -1;			/* 73 */
 static int hf_bootp_option_default_irc_server = -1;			/* 74 */
 static int hf_bootp_option_streettalk_server = -1;			/* 75 */
 static int hf_bootp_option_streettalk_da_server = -1;			/* 76 */
+static int hf_bootp_option77_user_class = -1;				/* 77 User Class instance */
+static int hf_bootp_option77_user_class_length = -1;			/* 77 length of User Class instance */
+static int hf_bootp_option77_user_class_data = -1;			/* 77 data of User Class instance */
 static int hf_bootp_option_slp_directory_agent_value = -1;		/* 78 */
 static int hf_bootp_option_slp_directory_agent_slpda_address = -1;	/* 78 */
 static int hf_bootp_option_slp_service_scope_value = -1;		/* 79 */
@@ -426,6 +430,7 @@ static gint ett_bootp_flags = -1;
 static gint ett_bootp_option = -1;
 static gint ett_bootp_option43_suboption = -1;
 static gint ett_bootp_option63_suboption = -1;
+static gint ett_bootp_option77_instance = -1;
 static gint ett_bootp_option82_suboption = -1;
 static gint ett_bootp_option82_suboption9 = -1;
 static gint ett_bootp_option125_suboption = -1;
@@ -919,7 +924,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /*  74 */ { "Default IRC Server",			ipv4_list, &hf_bootp_option_default_irc_server },
 /*  75 */ { "StreetTalk Server",			ipv4_list, &hf_bootp_option_streettalk_server },
 /*  76 */ { "StreetTalk Directory Assistance Server",	ipv4_list, &hf_bootp_option_streettalk_da_server },
-/*  77 */ { "User Class Information",			opaque, NULL },
+/*  77 */ { "User Class Information",			special, NULL },
 /*  78 */ { "Directory Agent Information",		special, NULL },
 /*  79 */ { "Service Location Agent Scope",		special, NULL },
 /*  80 */ { "Rapid commit",				opaque, NULL },
@@ -1803,7 +1808,29 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			/* otherwise, it's opaque data */
 		}
 		break;
+	case 77: {	/* User Class Information RFC 3004 */
+		guchar user_class_instance_index;
+		proto_item *vti;
+		proto_tree *o77_v_tree;
+		for (user_class_instance_index = 0, i = 0, byte = tvb_get_guint8(tvb, optoff); i < optlen; byte = tvb_get_guint8(tvb, optoff + i), user_class_instance_index++) {
+			/* Create subtree for instance of User Class. */
+			vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option77_user_class,
+					tvb, optoff + i, byte + 1, user_class_instance_index, "[%d]", user_class_instance_index);
+			o77_v_tree = proto_item_add_subtree(vti, ett_bootp_option77_instance);
 
+			/* Add length for instance of User Class. */
+			proto_tree_add_item(o77_v_tree, hf_bootp_option77_user_class_length,
+					tvb, optoff + i, 1, ENC_BIG_ENDIAN);
+
+			/* Add data for instance of User Class. */
+			proto_tree_add_item(o77_v_tree, hf_bootp_option77_user_class_data,
+					tvb, optoff + i + 1, byte, ENC_BIG_ENDIAN);
+
+			/* Slide to next instance of User Class if any. */
+			i += byte + 1;
+		}
+		break;
+	}
 	case 97:	/* Client Identifier (UUID) */
 		if (optlen > 0)
 			byte = tvb_get_guint8(tvb, optoff);
@@ -5954,6 +5981,21 @@ proto_register_bootp(void)
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 76: StreetTalk Directory Assistance Server", HFILL }},
 
+		{ &hf_bootp_option77_user_class,
+		  { "Instance of User Class", "bootp.option.user_class",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option77_user_class_length,
+		  { "User Class Length", "bootp.option.user_class.length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Length of User Class Instance", HFILL }},
+
+		{ &hf_bootp_option77_user_class_data,
+		  { "User Class Data", "bootp.option.user_class.data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "Data of User Class Instance", HFILL }},
+
 		{ &hf_bootp_option_slp_directory_agent_value,
 		  { "Value", "bootp.option.slp_directory_agent.value",
 		    FT_UINT8, BASE_DEC, VALS(slpda_vals), 0x0,
@@ -6471,6 +6513,7 @@ proto_register_bootp(void)
 		&ett_bootp_option,
 		&ett_bootp_option43_suboption,
 		&ett_bootp_option63_suboption,
+		&ett_bootp_option77_instance,
 		&ett_bootp_option82_suboption,
 		&ett_bootp_option82_suboption9,
 		&ett_bootp_option125_suboption,
