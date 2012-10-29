@@ -305,13 +305,16 @@ static const value_string rtmpt_tag_vals[] = {
 };
 
 /* [Spec] http://www.adobe.com/content/dam/Adobe/en/devnet/rtmp/pdf/rtmp_specification_1.0.pdf       */
-/* [DevG] http://help.adobe.com/en_US/flashmediaserver/devguide/index.html "working with Live Video" */
+/* [DevG] http://help.adobe.com/en_US/flashmediaserver/devguide/index.html "working with Live Video" => Adding metadata to a live stream */
+/* [SWF] http://www.adobe.com/content/dam/Adobe/en/devnet/swf/pdf/swf_file_format_spec_v10.pdf */
 static const value_string rtmpt_audio_codecs[] = {
         {  0,                               "Uncompressed" },             /* [DevG] */
         {  1,                               "ADPCM" },                    /* [DevG] */
         {  2,                               "MP3" },                      /* [DevG] */
-        {  5,                               "Nellymoser 8kHz Mono" },     /* [DevG] */
-        {  6,                               "Nellymoser 8kHz Stereo" },   /* [DevG] */
+        {  3,                               "Uncompressed, little-endian"}, /* [SWF] */
+        {  4,                               "Nellymoser 16kHz" },          /* [SWF] */
+        {  5,                               "Nellymoser 8kHz" },          /* [DevG] [SWF]*/
+        {  6,                               "Nellymoser" },               /* [DevG] [SWF]*/
         {  7,                               "G711A" },                    /* [Spec] */
         {  8,                               "G711U" },                    /* [Spec] */
         {  9,                               "Nellymoser 16kHz" },         /* [Spec] */
