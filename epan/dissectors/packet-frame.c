@@ -383,6 +383,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		/* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions
 		   like memory access violations.
 		   (a running debugger will be called before the except part below) */
+                /* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
+                   stack in an inconsistent state thus causing a crash at some point in the
+                   handling of the exception.
+                   See: https://www.wireshark.org/lists/wireshark-dev/200704/msg00243.html
+                */
 		__try {
 #endif
 			if ((force_docsis_encap) && (docsis_handle)) {
@@ -445,6 +450,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			/* Win32: Visual-C Structured Exception Handling (SEH)
 			   to trap hardware exceptions like memory access violations */
 			/* (a running debugger will be called before the except part below) */
+                        /* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
+                           stack in an inconsistent state thus causing a crash at some point in the
+                           handling of the exception.
+                           See: https://www.wireshark.org/lists/wireshark-dev/200704/msg00243.html
+                        */
 			__try {
 #endif
 				call_all_postdissectors(tvb, pinfo, parent_tree);
