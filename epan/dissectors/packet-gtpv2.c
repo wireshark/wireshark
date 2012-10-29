@@ -376,6 +376,9 @@ static int hf_gtpv2_time_to_data_xfer = -1;
 static int hf_gtpv2_arp_pvi = -1;
 static int hf_gtpv2_arp_pl = -1;
 static int hf_gtpv2_arp_pci = -1;
+static int hf_gtpv2_timer_unit = -1;
+static int hf_gtpv2_timer_value = -1;
+static int hf_gtpv2_lapi = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -974,7 +977,7 @@ static const value_string gtpv2_cause_vals[] = {
     {0, NULL}
 };
 
-static value_string_ext gtpv2_cause_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_cause_vals);
+value_string_ext gtpv2_cause_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_cause_vals);
 
 /* Table 8.4-1: CS (Cause Source) */
 static const true_false_string gtpv2_cause_cs = {
@@ -4065,7 +4068,7 @@ static const value_string gtpv2_selec_mode_vals[] = {
     {0, NULL}
 };
 
-static void
+void
 dissect_gtpv2_selec_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     int    offset = 0;
@@ -4189,7 +4192,7 @@ static const value_string gtpv2_fq_csid_type_vals[] = {
 };
 
 
-static void
+void
 dissect_gtpv2_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     proto_item *expert_item;
@@ -4699,25 +4702,30 @@ dissect_gtpv2_arp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 }
 
 /* 8.87 EPC Timer */
-static void
+static const value_string gtpv2_timer_unit_vals[] = {
+    {0, "value is incremented in multiples of 2 seconds"},
+    {1, "value is incremented in multiples of 1 minute"},
+    {2, "value is incremented in multiples of 10 minutes"},
+    {3, "value is incremented in multiples of 1 hour"},
+    {4, "value is incremented in multiples of 1 hour"},
+    {5, "Other values shall be interpreted as multiples of 1 minute(version 10.7.0)"},
+    {6, "Other values shall be interpreted as multiples of 1 minute(version 10.7.0)"},
+    {7, "value indicates that the timer is infinite"},
+    {0, NULL}
+};
+void
 dissect_gtpv2_epc_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
+    proto_tree_add_item(tree, hf_gtpv2_timer_unit, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_timer_value, tvb, 0, 1, ENC_BIG_ENDIAN);
 
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
-    PROTO_ITEM_SET_GENERATED(expert_item);
 }
 
 /* 8.88 Signalling Priority Indication */
 static void
 dissect_gtpv2_sig_prio_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_item(tree, hf_gtpv2_lapi, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* 8.89 Temporary Mobile Group Identity (TMGI) */
@@ -4837,11 +4845,19 @@ dissect_gtpv2_mdt_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static void
 dissect_gtpv2_apco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    switch(message_type){
+    case GTPV2_CREATE_SESSION_REQUEST:
+        /* PCO options as MS to network direction */
+        pinfo->link_dir = P2P_DIR_UL;
+        break;
+    case GTPV2_CREATE_SESSION_RESPONSE:
+        /* PCO options as Network to MS direction: */
+        pinfo->link_dir = P2P_DIR_DL;
+        break;
+    default:
+        break;
+    }
+    de_sm_pco(tvb, tree, pinfo, 0, length, NULL, 0);
 }
 
 /* 8.95 Absolute Time of MBMS Data Transfer */
@@ -6650,6 +6666,21 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_arp_pci,
           {"Pre-emption Capability (PCI)", "gtpv2.arp_pci",
           FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x40,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_timer_unit,
+          {"Timer unit", "gtpv2.timer_unit",
+          FT_UINT8, BASE_DEC, VALS(gtpv2_timer_unit_vals), 0xe0,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_timer_value,
+          {"Timer value", "gtpv2.timer_value",
+          FT_UINT8, BASE_DEC, NULL, 0x1f,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_lapi,
+          {"LAPI (Low Access Priority Indication)", "gtpv2.lapi",
+          FT_BOOLEAN, 8, NULL, 0x01,
           NULL, HFILL}
         },
         { &hf_gtpv2_mm_context_higher_br_16mb_flg_len,

@@ -57,6 +57,10 @@
 #include <epan/sminmpec.h>
 
 #include "packet-ntp.h"
+#include "packet-gtpv2.h"
+#include "packet-e164.h"
+#include "packet-e212.h"
+
 #define UDP_PORT_PMIP6_CNTL 5436
 
 /* Mobility Header types */
@@ -972,6 +976,21 @@ static int hf_mip6_hb_seqnr = -1;
 
 static int hf_mip6_opt_3gpp_reserved = -1;
 static int hf_mip6_opt_3gpp_flag_m = -1;
+static int hf_mip6_opt_3gpp_spec_pmipv6_err_code = -1;
+static int hf_mip6_opt_3gpp_pdn_gw_ipv4_addr = -1;
+static int hf_mip6_opt_3gpp_pdn_gw_ipv6_addr = -1;
+static int hf_mip6_opt_3gpp_dhcpv4_addr_all_proc_ind = -1;
+static int hf_mip6_opt_3gpp_pdn_type = -1;
+static int hf_mip6_opt_3gpp_pdn_ind_cause = -1;
+static int hf_mip6_opt_3gpp_chg_id = -1;
+static int hf_mip6_opt_3gpp_charging_characteristic = -1;
+static int hf_mip6_opt_3gpp_mei = -1;
+static int hf_mip6_opt_3gpp_msisdn = -1;
+static int hf_mip6_opt_3gpp_apn_rest = -1;
+static int hf_mip6_opt_3gpp_max_apn_rest = -1;
+static int hf_mip6_opt_3gpp_imsi = -1;
+static int hf_mip6_opt_3gpp_pdn_conn_id = -1;
+static int hf_hf_mip6_opt_3gpp_lapi = -1;
 
 static int hf_mip6_bra_interval = -1;
 
@@ -1584,40 +1603,141 @@ dissect_mip6_opt_vsm_3gpp(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     int    len = optlen;
-    guint8 sub_type;
+    guint8 sub_type, m_flag;
+    tvbuff_t *next_tvb;
+    const gchar *mei_str;
+    const char *digit_str;
+    gchar *mcc_mnc_str;
+    const gchar *imsi_str;
 
     /* offset points to the sub type */
     sub_type = tvb_get_guint8(tvb,offset);
     proto_tree_add_item(opt_tree, hf_mip6_vsm_subtype_3gpp, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(hdr_item, " %s", val_to_str_ext_const(sub_type, &mip6_vsm_subtype_3gpp_value_ext, "<unknown>"));
     offset++;
+    m_flag = tvb_get_guint8(tvb,offset) & 0x01;
     proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* set len to the length of the data section */
     len = optlen - 8;
+
+    if(m_flag){
+        proto_tree_add_text(opt_tree, tvb, offset, len, "Data fragment, handling not implemented yet");
+        return;
+    }
+
+    /* see 3GPP TS 29.275 version 10.5.0 Release 10 */
     switch (sub_type) {
-    /*  1, "Protocol Configuration Options */
-    /*  2, "3GPP Specific PMIPv6 Error Code */
-    /*  3, "PMIPv6 PDN GW IP Address */
-    /*  4, "PMIPv6 DHCPv4 Address Allocation Procedure Indication */
-    /*  5, "PMIPv6 Fully Qualified PDN Connection Set Identifier */
-    /*  6, "PMIPv6 PDN type indication */
-    /*  7, "Charging ID */
-    /*  8, "Selection Mode */
-    /*  9, "I-WLAN Mobility Access Point Name (APN) */
-    /* 10, "Charging Characteristics */
-    /* 11, "Mobile Equipment Identity (MEI) */
-    /* 12, "MSISDN */
-    /* 13, "Serving Network */
-    /* 14, "APN Restriction */
-    /* 15, "Maximum APN Restriction */
-    /* 16, "Unauthenticated IMSI */
-    /* 17, "PDN Connection ID */
-    /* 18, "PGW Back-Off Time */
-    /* 19, "Signalling Priority Indication */
-    /* 20, "Additional Protocol Configuration Options */
+    /*  1, Protocol Configuration Options 
+     *     3GPP PCO data, in the format from 3GPP TS 24.008 [16] subclause 10.5.6.3, starting with octet 3
+     *     de_sm_pco(tvb, tree, pinfo, 0, length, NULL, 0);
+     *     Note needs pinfo->link_dir ?
+     */
+    /*  2, 3GPP Specific PMIPv6 Error Code */
+    case 2:
+        proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_spec_pmipv6_err_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+        break;
+    /*  3, PMIPv6 PDN GW IP Address
+     *     PDN GW IP address, as specified in subclause 12.1.1.4
+     */
+    case 3:
+        if(len == 4){
+            /* Ipv4 address */
+            proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_pdn_gw_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        }else if(len == 16){
+            /* IPv6 address */
+            proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_pdn_gw_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
+        }
+        break;
+    /*  4, PMIPv6 DHCPv4 Address Allocation Procedure Indication 
+     *     DHCPv4 Address Allocation Procedure Indication, as specified in subclause 12.1.1.5
+     */
+    case 4:
+        proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_dhcpv4_addr_all_proc_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
+        break;
+    /*  5, PMIPv6 Fully Qualified PDN Connection Set Identifier 
+     * FQ-CSID as specified in subclause 12.1.1.2
+     */
+    case 5:
+        next_tvb = tvb_new_subset(tvb, offset, len, len);
+        dissect_gtpv2_fq_csid(next_tvb, pinfo, opt_tree, hdr_item, len, 0, 0);
+        break;
+    /*  6, PMIPv6 PDN type indication */
+    case 6:
+        proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_pdn_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_pdn_ind_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
+        break;
+    /*  7, Charging ID
+     *     Charging ID as specified in subclause 12.1.1.6
+     */
+    case 7:
+        proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_chg_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(hdr_item, " %u", tvb_get_ntohl(tvb, offset));
+        break;
+    /*  8, Selection Mode */
+    case 8:
+        next_tvb = tvb_new_subset(tvb, offset, len, len);
+        dissect_gtpv2_selec_mode(next_tvb, pinfo, opt_tree, hdr_item, len, 0, 0);
+        break;
+    /*  9, I-WLAN Mobility Access Point Name (APN) */
+    /* 10, Charging Characteristics */
+    case 10:
+        proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_charging_characteristic, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    /* 11, Mobile Equipment Identity (MEI) */
+    case 11:
+        mei_str = tvb_bcd_dig_to_ep_str( tvb, offset, len, NULL, FALSE);
+        proto_tree_add_string(opt_tree, hf_mip6_opt_3gpp_mei, tvb, offset, len, mei_str);
+        proto_item_append_text(hdr_item, " %s", mei_str);
+        break;
+    /* 12, MSISDN */
+    case 12:
+        dissect_e164_cc(tvb, opt_tree, offset, TRUE);
+        digit_str = tvb_bcd_dig_to_ep_str( tvb, offset, len, NULL, FALSE);
+        proto_tree_add_string(opt_tree, hf_mip6_opt_3gpp_msisdn, tvb, offset, len, digit_str);
+        proto_item_append_text(hdr_item, " %s", digit_str);
+        break;
+    /* 13, Serving Network */
+    case 13:
+        mcc_mnc_str = dissect_e212_mcc_mnc_ep_str(tvb, pinfo, opt_tree, offset, TRUE);
+        proto_item_append_text(hdr_item," %s", mcc_mnc_str);
+        break;
+    /* 14, APN Restriction */
+    case 14:
+         proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_apn_rest, tvb, offset, 1, ENC_BIG_ENDIAN);
+         break;
+    /* 15, Maximum APN Restriction */
+    case 15:
+         proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_max_apn_rest, tvb, offset, 1, ENC_BIG_ENDIAN);
+         break;
+    /* 16, Unauthenticated IMSI */
+    case 16:
+        imsi_str = tvb_bcd_dig_to_ep_str( tvb, offset, len, NULL, FALSE);
+        proto_tree_add_string(opt_tree, hf_mip6_opt_3gpp_imsi, tvb, offset, len, imsi_str);
+        proto_item_append_text(hdr_item," %s", imsi_str);
+        break;
+    /* 17, PDN Connection ID */
+    case 17:
+         proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_pdn_conn_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+         break;
+    /* 18, PGW Back-Off Time */
+    case 18:
+        next_tvb = tvb_new_subset(tvb, offset, len, len);
+        dissect_gtpv2_epc_timer(next_tvb, pinfo, opt_tree, hdr_item, len, 0, 0);
+        break;
+    /* 19, Signalling Priority Indication */
+    case 19:
+         proto_tree_add_item(opt_tree, hf_hf_mip6_opt_3gpp_lapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+         break;
+    /* 20, Additional Protocol Configuration Options 
+     *     12.1.1.19 Additional Protocol Configuration Options
+     *     The Additional Protocol Configuration Options IE contains additional 3GPP protocol configuration options
+     *     information. The IE is in the same format as the PCO IE specified in 3GPP TS 24.008 [16] subclause 10.5.6.3, starting
+     *     with octet 3.
+     */
     default:
         proto_tree_add_text(opt_tree, tvb, offset, len, "Data(Not dissected yet)");
         break;
@@ -3610,8 +3730,83 @@ proto_register_mip6(void)
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }
     },
+    { &hf_mip6_opt_3gpp_spec_pmipv6_err_code,
+      { "3GPP Specific PMIPv6 Error Code", "mip6.3gpp.spec_pmipv6_err_code",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_cause_vals_ext, 0x0,
+        "GTPv2 Cause values", HFILL }
+    },
+	{ &hf_mip6_opt_3gpp_pdn_gw_ipv4_addr,
+      { "PDN GW IPv4 address", "mip6.3gpp.pdn_gw_ipv4_addr",
+        FT_IPv4, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+	{ &hf_mip6_opt_3gpp_pdn_gw_ipv6_addr,
+      { "PDN GW IPv6 address", "mip6.3gpp.pdn_gw_ipv6_addr",
+        FT_IPv6, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_3gpp_dhcpv4_addr_all_proc_ind,
+      { "DHCPv4 Address Allocation Procedure Indication", "mip6.3gpp.dhcpv4_addr_all_proc_ind",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_3gpp_pdn_type,
+      { "PDN type", "mip6.3gpp.pdn_type",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_3gpp_pdn_ind_cause,
+      { "Cause", "mip6.3gpp.pdn_ind_cause",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_cause_vals_ext, 0x0,
+        "GTPv2 Cause values", HFILL }
+    },
+    { &hf_mip6_opt_3gpp_chg_id,
+      { "Charging ID", "mip6.3gpp.chg_id",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+	{ &hf_mip6_opt_3gpp_charging_characteristic,
+      {"Charging Characteristic", "mip6.3gpp.charging_characteristic",
+        FT_UINT16, BASE_HEX, NULL, 0xffff,
+        NULL, HFILL}
+      },
+	{ &hf_mip6_opt_3gpp_mei,
+      {"Mobile Equipment Identity (MEI)", "mip6.3gpp.mei",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL}
+    },
+	{ &hf_mip6_opt_3gpp_msisdn,
+      {"MSISDN", "mip6.3gpp.msisdn",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL}
+    },
+    { &hf_mip6_opt_3gpp_apn_rest,
+      { "APN Restriction", "mip6.3gpp.apn_rest",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_3gpp_max_apn_rest,
+      { "Maximum APN Restriction", "mip6.3gpp.max_apn_rest",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+	{ &hf_mip6_opt_3gpp_imsi,
+      {"Unauthenticated IMSI", "mip6.3gpp.imsi",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL}
+    },
+    { &hf_mip6_opt_3gpp_pdn_conn_id,
+      { "PDN Connection ID", "mip6.3gpp.pdn_conn_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0f,
+        NULL, HFILL }
+    },
+    { &hf_hf_mip6_opt_3gpp_lapi,
+        {"LAPI (Low Access Priority Indication)", "mip6.3gpp.lapi",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL}
+    },
 
-    { &hf_mip6_bra_interval,
+	{ &hf_mip6_bra_interval,
       { "Refresh interval", "mip6.bra.interval",
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }
