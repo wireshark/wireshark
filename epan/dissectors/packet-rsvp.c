@@ -171,6 +171,7 @@ static int hf_rsvp_rro_flags_node = -1;
 static int hf_rsvp_rro_flags_node_address = -1;
 static int hf_rsvp_rro_flags_backup_tunnel_bandwidth = -1;
 static int hf_rsvp_rro_flags_backup_tunnel_hop = -1;
+static int hf_rsvp_rro_flags_global_label = -1;
 static int hf_rsvp_lsp_attr_e2e = -1;
 static int hf_rsvp_lsp_attr_boundary = -1;
 static int hf_rsvp_lsp_attr_segment = -1;
@@ -4209,7 +4210,8 @@ dissect_rsvp_session_attribute(proto_item *ti, proto_tree *rsvp_object_tree,
 }
 
 /*------------------------------------------------------------------------------
- * EXPLICIT ROUTE AND RECORD ROUTE SUBOBJECTS
+ * EXPLICIT ROUTE AND RECORD ROUTE SUBOBJECTS, 
+ * RFC 3209, RFC 3473, RFC 5420, RFC 4873, RFC 5553
  *------------------------------------------------------------------------------*/
 static void
 dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
@@ -4346,7 +4348,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
 
             break;
 
-        case 3: /* Label */
+        case 3: /* Label RFC 3477 */
             k = tvb_get_guint8(tvb, offset+l) & 0x80;
             ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
                                       offset+l, 8,
@@ -4366,22 +4368,13 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
                                 tvb_get_guint8(tvb, offset+l+1));
             if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) {
                 flags = tvb_get_guint8(tvb, offset+l+2);
-                if (flags&0x01) proto_item_append_text(ti2, ", Local Protection Available");
-                if (flags&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
-                if (flags&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
-                if (flags&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
+                if (flags&0x01) proto_item_append_text(ti2, "The label will be understood if received on any interface");
                 ti2 = proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+2, 1,
                                           "Flags: 0x%02x", flags);
                 rsvp_rro_flags_subtree =
                     proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS));
 
-                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_local_avail,
-                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_local_in_use,
-                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_backup_tunnel_bandwidth,
-                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_backup_tunnel_hop,
+                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_global_label,
                              tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
             }
             proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+3, 1,
@@ -4397,7 +4390,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
             }
             break;
 
-        case 4: /* Unnumbered Interface-ID */
+        case 4: /* Unnumbered Interface-ID RFC 3477, RFC 6107*/
             k = tvb_get_guint8(tvb, offset+l) & 0x80;
             ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
                                       offset+l, 8,
@@ -4420,8 +4413,6 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
                 flags = tvb_get_guint8(tvb, offset+l+2);
                 if (flags&0x01) proto_item_append_text(ti2, ", Local Protection Available");
                 if (flags&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
-                if (flags&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
-                if (flags&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
                 ti2 = proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+2, 1,
                                           "Flags: 0x%02x", flags);
                 rsvp_rro_flags_subtree =
@@ -4429,10 +4420,6 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
                 proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_local_avail,
                              tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_local_in_use,
-                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_backup_tunnel_bandwidth,
-                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(rsvp_rro_flags_subtree, hf_rsvp_rro_flags_backup_tunnel_hop,
                              tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
             }
             proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+4, 4,
@@ -7581,6 +7568,12 @@ proto_register_rsvp(void)
         {&hf_rsvp_rro_flags_backup_tunnel_hop,
          { "Backup Tunnel Goes To", "rsvp.rro.flags.backup_tunnel_hop",
            FT_BOOLEAN, 8, TFS(&tfs_next_next_hop_next_hop), 0x08,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_rro_flags_global_label,
+         { "Global label", "rsvp.rro.flags.global_label",
+           FT_BOOLEAN, 8, NULL, 0x01,
            NULL, HFILL }
         },
 
