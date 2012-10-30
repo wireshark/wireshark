@@ -35,27 +35,63 @@
 
 // XXX - Is there any reason we shouldn't add ByteViewImage, etc?
 
+// XXX Copied from gtk/packet_panes.h
+typedef enum {
+  BYTES_HEX,
+  BYTES_BITS
+} bytes_view_type;
+
 class ByteViewText : public QTextEdit
 {
     Q_OBJECT
 public:
-    explicit ByteViewText(QWidget *parent = 0, tvbuff_t *tvb = NULL, proto_tree *tree = NULL, QTreeWidget *protoTree = NULL, unsigned int encoding = PACKET_CHAR_ENC_CHAR_ASCII);
-    void hexPrintCommon();
+    explicit ByteViewText(QWidget *parent = 0, tvbuff_t *tvb = NULL, proto_tree *tree = NULL, QTreeWidget *protoTree = NULL, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII);
     bool hasDataSource(tvbuff_t *ds_tvb = NULL);
-    void highlight(int start, int len, bool is_root = false);
+    void setEncoding(packet_char_enc encoding);
+    void setFormat(bytes_view_type format);
+    void setHighlightStyle(bool bold);
+    void setProtocolHighlight(int start, int end);
+    void setFieldHighlight(int start, int end, guint32 mask = 0, int mask_le = 0);
+    void setFieldAppendixHighlight(int start, int end);
+    void render();
 
 private:
-    tvbuff_t *m_tvb;
-    proto_tree *m_tree;
-    QTreeWidget *m_protoTree;
-    int m_encoding;
-    unsigned int m_useDigits;
-    int m_start, m_len;
+    typedef enum {
+        StateNormal,
+        StateField,
+        StateProtocol
+    } highlight_state;
+
+    void lineCommon(const int org_off);
+    void setState(highlight_state state);
+    int flushBytes(QString &str);
+    void scrollToByte(int byte);
+
+    int byteFromRowCol(int row, int col);
     void mousePressEvent (QMouseEvent * event);
 
-signals:
+    tvbuff_t *tvb_;
+    proto_tree *proto_tree_;
+    QTreeWidget *tree_widget_;
 
-public slots:
+    gint adj_tag_;
+    int max_width_;
+
+    gboolean bold_highlight_;
+
+/* data */
+    packet_char_enc encoding_;	/* ASCII or EBCDIC */
+    bytes_view_type format_;	/* bytes in hex or bytes as bits */
+
+/* data-highlight */
+    int p_start_, p_end_;       /* Protocol */
+    int f_start_, f_end_;       /* Field */
+    int fa_start_, fa_end_;     /* Field appendix */
+
+    int per_line_;      		/* Number of bytes per line */
+    int offset_width_;			/* Byte offset field width */
+
+signals:
 
 };
 

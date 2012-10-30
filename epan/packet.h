@@ -77,12 +77,6 @@ typedef struct _packet_counts {
 /** Number of packet counts. */
 #define PACKET_COUNTS_SIZE sizeof(packet_counts) / sizeof (gint)
 
-/* Types of character encodings */
-typedef enum {
-	PACKET_CHAR_ENC_CHAR_ASCII	 = 0,	/* ASCII */
-	PACKET_CHAR_ENC_CHAR_EBCDIC	 = 1	/* EBCDIC */
-} packet_char_enc;
-
 extern void packet_init(void);
 extern void packet_cleanup(void);
 

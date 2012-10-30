@@ -244,6 +244,7 @@ void MainWindow::captureFileOpened(const capture_file *cf) {
 
     file_set_dialog_.fileOpened(cf);
     setMenusForFileSet(true);
+    emit setCaptureFile(cap_file_);
 }
 
 void MainWindow::captureFileReadStarted(const capture_file *cf) {
@@ -296,6 +297,7 @@ void MainWindow::captureFileClosing(const capture_file *cf) {
     // Reset expert info indicator
     main_ui_->statusBar->hideExpert();
 //    gtk_widget_show(expert_info_none);
+    emit setCaptureFile(NULL);
 }
 
 void MainWindow::captureFileClosed(const capture_file *cf) {

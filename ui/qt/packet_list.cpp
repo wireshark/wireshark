@@ -36,7 +36,6 @@
 #include "monospace_font.h"
 #include "proto_tree.h"
 
-#include "globals.h"
 #include "qt_ui_utils.h"
 
 #include "ui/main_statusbar.h"
@@ -214,7 +213,10 @@ packet_list_recent_write_all(FILE *rf) {
 #define MIN_COL_WIDTH_STR "...."
 
 PacketList::PacketList(QWidget *parent) :
-    QTreeView(parent)
+    QTreeView(parent),
+    proto_tree_(NULL),
+    byte_view_tab_(NULL),
+    cap_file_(NULL)
 {
     setItemsExpandable(FALSE);
     setRootIsDecorated(FALSE);
@@ -222,16 +224,13 @@ PacketList::PacketList(QWidget *parent) :
     setUniformRowHeights(TRUE);
     setAccessibleName("Packet list");
 
-    packet_list_model_ = new PacketListModel(this, &cfile);
+    packet_list_model_ = new PacketListModel(this, cap_file_);
     setModel(packet_list_model_);
     packet_list_model_->setColorEnabled(true); // We don't yet fetch color settings.
 //    packet_list_model_->setColorEnabled(recent.packet_list_colorize);
 
     g_assert(gbl_cur_packet_list == NULL);
     gbl_cur_packet_list = this;
-
-    proto_tree_ = NULL;
-    byte_view_tab_ = NULL;
 }
 
 void PacketList::setProtoTree (ProtoTree *proto_tree) {
@@ -250,8 +249,10 @@ PacketListModel *PacketList::packetListModel() const {
 
 void PacketList::showEvent (QShowEvent *event) {
     Q_UNUSED(event);
-//    g_log(NULL, G_LOG_LEVEL_DEBUG, "cols: %d", cfile.cinfo.num_cols);
-    for (int i = 0; i < cfile.cinfo.num_cols; i++) {
+
+    if (!cap_file_) return;
+
+    for (int i = 0; i < cap_file_->cinfo.num_cols; i++) {
         int fmt, col_width;
         const char *long_str;
 
@@ -269,18 +270,20 @@ void PacketList::showEvent (QShowEvent *event) {
 void PacketList::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected) {
     QTreeView::selectionChanged(selected, deselected);
 
+    if (!cap_file_) return;
+
     if (proto_tree_) {
         int row = selected.first().top();
-        cf_select_packet(&cfile, row);
+        cf_select_packet(cap_file_, row);
 
-        if (!cfile.edt && !cfile.edt->tree) {
+        if (!cap_file_->edt && !cap_file_->edt->tree) {
             return;
         }
 
-        proto_tree_->fillProtocolTree(cfile.edt->tree);
+        proto_tree_->fillProtocolTree(cap_file_->edt->tree);
     }
 
-    if (byte_view_tab_ && cfile.edt) {
+    if (byte_view_tab_ && cap_file_->edt) {
         GSList *src_le;
         struct data_source *source;
 
@@ -289,9 +292,9 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
             delete byte_view_tab_->currentWidget();
         }
 
-        for (src_le = cfile.edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
+        for (src_le = cap_file_->edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
             source = (struct data_source *)src_le->data;
-            byte_view_tab_->addTab(get_data_source_name(source), get_data_source_tvb(source), cfile.edt->tree, proto_tree_, cfile.current_frame->flags.encoding);
+            byte_view_tab_->addTab(get_data_source_name(source), get_data_source_tvb(source), cap_file_->edt->tree, proto_tree_, cap_file_->current_frame->flags.encoding);
         }
     }
 
@@ -306,14 +309,14 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 void PacketList::updateAll() {
     update();
 
-    if (selectedIndexes().length() > 0) {
-        cf_select_packet(&cfile, selectedIndexes()[0].row());
+    if (cap_file_ && selectedIndexes().length() > 0) {
+        cf_select_packet(cap_file_, selectedIndexes()[0].row());
     }
 }
 
 void PacketList::clear() {
     //    packet_history_clear();
-    packetListModel()->clear();
+    packet_list_model_->clear();
     proto_tree_->clear();
 
     // Clear out existing tabs
@@ -332,7 +335,7 @@ void PacketList::writeRecent(FILE *rf) {
     gchar xalign;
 
     fprintf (rf, "%s:", RECENT_KEY_COL_WIDTH);
-    for (col = 0; col < packetListModel()->columnCount(); col++) {
+    for (col = 0; col < packet_list_model_->columnCount(); col++) {
         if (col > 0) {
             fprintf (rf, ",");
         }
@@ -355,6 +358,14 @@ void PacketList::writeRecent(FILE *rf) {
     }
     fprintf (rf, "\n");
 
+}
+
+// Slots
+
+void PacketList::setCaptureFile(capture_file *cf)
+{
+    cap_file_ = cf;
+    packet_list_model_->setCaptureFile(cf);
 }
 
 void PacketList::goNextPacket(void) {

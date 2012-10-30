@@ -183,6 +183,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_welcome_, SIGNAL(recentFileActivated(QString&)),
             this, SLOT(openCaptureFile(QString&)));
 
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            packet_list_, SLOT(setCaptureFile(capture_file*)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            byte_view_tab, SLOT(setCaptureFile(capture_file*)));
+
     connect(main_ui_->actionGoNextPacket, SIGNAL(triggered()),
             packet_list_, SLOT(goNextPacket()));
     connect(main_ui_->actionGoPreviousPacket, SIGNAL(triggered()),

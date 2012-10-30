@@ -24,6 +24,8 @@
 #ifndef MONOSPACE_FONT_H
 #define MONOSPACE_FONT_H
 
+#include "wireshark_application.h"
+
 #include <QFont>
 
 //class MonospaceFont : public QFont
@@ -56,8 +58,6 @@ typedef enum {
  * @return if the new font could be set or not
  */
 extern fa_ret_t user_font_apply(void);
-
-extern QFont get_monospace_font(void);
 
 extern int get_monospace_text_size(const char *str, bool regular);
 

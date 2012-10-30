@@ -30,6 +30,8 @@
 #include <epan/proto.h>
 #include <epan/tvbuff.h>
 
+#include "cfile.h"
+
 #include <QTabWidget>
 #include <QTreeWidget>
 
@@ -38,10 +40,11 @@ class ByteViewTab : public QTabWidget
     Q_OBJECT
 public:
     explicit ByteViewTab(QWidget *parent = 0);
-    void addTab(const char *name = "", tvbuff_t *tvb = NULL, proto_tree *tree = NULL, QTreeWidget *protoTree = NULL, unsigned int encoding = PACKET_CHAR_ENC_CHAR_ASCII);
+    void addTab(const char *name = "", tvbuff_t *tvb = NULL, proto_tree *tree = NULL, QTreeWidget *protoTree = NULL, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII);
 
 private:
     void setTabsVisible();
+    capture_file *cap_file_;
 
 protected:
     void tabInserted(int index);
@@ -51,6 +54,7 @@ signals:
 
 public slots:
     void protoTreeItemChanged(QTreeWidgetItem *current);
+    void setCaptureFile(capture_file *cf);
 };
 
 #endif // BYTE_VIEW_TAB_H

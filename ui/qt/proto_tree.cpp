@@ -24,12 +24,11 @@
 #include <stdio.h>
 
 #include "proto_tree.h"
-#include "monospace_font.h"
 
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
 
-#include <QApplication>
+#include "wireshark_application.h"
 #include <QHeaderView>
 #include <QTreeWidgetItemIterator>
 #include <QDesktopServices>
@@ -153,7 +152,7 @@ ProtoTree::ProtoTree(QWidget *parent) :
     QTreeWidget(parent)
 {
     setAccessibleName(tr("Packet details"));
-    setFont(get_monospace_font());
+    setFont(wsApp->monospaceFont());
     setUniformRowHeights(true);
 
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),

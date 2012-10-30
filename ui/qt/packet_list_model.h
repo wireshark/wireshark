@@ -44,7 +44,8 @@ class PacketListModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit PacketListModel(QObject *parent = 0, capture_file *cfPtr = NULL);
+    explicit PacketListModel(QObject *parent = 0, capture_file *cf = NULL);
+    void setCaptureFile(capture_file *cf);
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -68,7 +69,7 @@ signals:
 public slots:
 
 private:
-    capture_file *cf;
+    capture_file *cap_file_;
     QList<QString> col_names_;
     QVector<PacketListRecord *> visible_rows_;
     QVector<PacketListRecord *> physical_rows_;

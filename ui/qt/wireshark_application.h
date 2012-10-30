@@ -66,6 +66,7 @@ public:
     void setLastOpenDir(const char *dir_name);
     void setLastOpenDir(QString *dir_str);
     void helpTopicAction(topic_action_e action);
+    QFont monospaceFont(bool bold = false);
 
 private:
     QTimer *recent_timer_;

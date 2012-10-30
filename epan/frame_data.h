@@ -36,6 +36,12 @@
    should we keep that stuff in the "packet_info" structure, instead, to
    save memory? */
 
+/* Types of character encodings */
+typedef enum {
+	PACKET_CHAR_ENC_CHAR_ASCII	 = 0,	/* ASCII */
+	PACKET_CHAR_ENC_CHAR_EBCDIC	 = 1	/* EBCDIC */
+} packet_char_enc;
+
 /** The frame number is the ordinal number of the frame in the capture, so
    it's 1-origin.  In various contexts, 0 as a frame number means "frame
    number unknown". */
@@ -52,7 +58,7 @@ typedef struct _frame_data {
   struct {
     unsigned int passed_dfilter : 1; /**< 1 = display, 0 = no display */
     unsigned int dependent_of_displayed : 1; /**< 1 if a displayed frame depends on this frame */
-    unsigned int encoding       : 2; /**< Character encoding (ASCII, EBCDIC...) */
+    packet_char_enc encoding    : 1; /**< Character encoding (ASCII, EBCDIC...) */
     unsigned int visited        : 1; /**< Has this packet been visited yet? 1=Yes,0=No*/
     unsigned int marked         : 1; /**< 1 = marked by user, 0 = normal */
     unsigned int ref_time       : 1; /**< 1 = marked as a reference time frame, 0 = normal */
@@ -94,7 +100,7 @@ extern void frame_data_init(frame_data *fdata, guint32 num,
                 const struct wtap_pkthdr *phdr, gint64 offset,
                 guint32 cum_bytes);
 
-extern void frame_delta_abs_time(const frame_data *fdata, 
+extern void frame_delta_abs_time(const frame_data *fdata,
                 const frame_data *prev, nstime_t *delta);
 /**
  * Sets the frame data struct values before dissection.
@@ -109,4 +115,3 @@ extern void frame_data_set_after_dissect(frame_data *fdata,
                 guint32 *cum_bytes);
 
 #endif  /* __FRAME_DATA__ */
-

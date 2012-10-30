@@ -23,8 +23,6 @@
 
 #include "monospace_font.h"
 
-#include "wireshark_application.h"
-
 #include <QFontMetrics>
 #include <QString>
 #include <QStringList>
@@ -39,7 +37,7 @@
 //{
 //}
 
-QFont m_r_font, m_b_font;
+QFont mono_regular_font_, mono_bold_font_;
 
 //void MonospaceFont::propagate() {
 //    emit(monospaceFontChanged(self));
@@ -73,24 +71,24 @@ font_init(void) {
     substitutes = QStringList() << X11_ALT_FONTS << WIN_DEF_FONT << WIN_ALT_FONTS << OSX_DEF_FONT << OSX_ALT_FONTS << FALLBACK_FONTS;
 #endif
 
-    m_r_font.setFamily(DEF_FONT);
-    m_r_font.insertSubstitutions(DEF_FONT, substitutes);
-    m_r_font.setPointSize(wsApp->font().pointSize() + FONT_SIZE_ADJUST);
+    mono_regular_font_.setFamily(DEF_FONT);
+    mono_regular_font_.insertSubstitutions(DEF_FONT, substitutes);
+    mono_regular_font_.setPointSize(wsApp->font().pointSize() + FONT_SIZE_ADJUST);
 #if QT_VERSION >= 0x040700
-     m_b_font.setStyleHint(QFont::Monospace);
+     mono_bold_font_.setStyleHint(QFont::Monospace);
  #else
-     m_b_font.setStyleHint(QFont::TypeWriter);
+     mono_bold_font_.setStyleHint(QFont::TypeWriter);
  #endif
 
-    m_b_font.setFamily(DEF_FONT);
-    m_b_font.insertSubstitutions(DEF_FONT, substitutes);
-    m_b_font.setPointSize(wsApp->font().pointSize() + FONT_SIZE_ADJUST);
+    mono_bold_font_.setFamily(DEF_FONT);
+    mono_bold_font_.insertSubstitutions(DEF_FONT, substitutes);
+    mono_bold_font_.setPointSize(wsApp->font().pointSize() + FONT_SIZE_ADJUST);
 #if QT_VERSION >= 0x040700
-     m_b_font.setStyleHint(QFont::Monospace);
+     mono_bold_font_.setStyleHint(QFont::Monospace);
  #else
-     m_b_font.setStyleHint(QFont::TypeWriter);
+     mono_bold_font_.setStyleHint(QFont::TypeWriter);
  #endif
-    m_b_font.setWeight(QFont::Bold);
+    mono_bold_font_.setWeight(QFont::Bold);
 }
 
 fa_ret_t
@@ -154,18 +152,18 @@ user_font_apply(void) {
     return FA_SUCCESS;
 }
 
-// XXX - We might want to use a signal/slot for this (or just us a global variable).
-QFont get_monospace_font(void) {
-    return m_r_font;
+QFont WiresharkApplication::monospaceFont(bool bold)
+{
+    return bold ? mono_bold_font_ : mono_regular_font_;
 }
 
 int get_monospace_text_size(const char *str, bool regular) {
     QFontMetrics *fm;
 
     if (regular)
-        fm = new QFontMetrics(m_r_font);
+        fm = new QFontMetrics(mono_regular_font_);
     else
-        fm = new QFontMetrics(m_b_font);
+        fm = new QFontMetrics(mono_bold_font_);
 
     return fm->width(str);
 }

@@ -119,6 +119,7 @@ private:
 
 signals:
     void showProgress(progdlg_t **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
+    void setCaptureFile(capture_file *cf);
 
 public slots:
     // in main_window_slots.cpp

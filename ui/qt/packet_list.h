@@ -52,10 +52,12 @@ private:
     PacketListModel *packet_list_model_;
     ProtoTree *proto_tree_;
     ByteViewTab *byte_view_tab_;
+    capture_file *cap_file_;
 
 signals:
 
 public slots:
+    void setCaptureFile(capture_file *cf);
     void goNextPacket();
     void goPreviousPacket();
     void goFirstPacket();

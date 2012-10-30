@@ -22,7 +22,6 @@
  */
 
 #include "packet_list_model.h"
-#include "monospace_font.h"
 
 #include <epan/epan_dissect.h>
 #include <epan/column_info.h>
@@ -35,13 +34,19 @@
 
 #include "globals.h"
 
+#include "wireshark_application.h"
 #include <QColor>
 
 
-PacketListModel::PacketListModel(QObject *parent, capture_file *cfPtr) :
+PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent)
 {
-    cf = cfPtr;
+    cap_file_ = cf;
+}
+
+void PacketListModel::setCaptureFile(capture_file *cf)
+{
+    cap_file_ = cf;
 }
 
 // Packet list records have no children (for now, at least).
@@ -49,7 +54,8 @@ QModelIndex PacketListModel::index(int row, int column, const QModelIndex &paren
             const
 {
     Q_UNUSED(parent);
-    if (row >= visible_rows_.count() || row < 0 || column >= cf->cinfo.num_cols)
+
+    if (row >= visible_rows_.count() || row < 0 || !cap_file_ || column >= cap_file_->cinfo.num_cols)
         return QModelIndex();
 
     PacketListRecord *record = visible_rows_[row];
@@ -95,7 +101,9 @@ void PacketListModel::clear() {
 
 int PacketListModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.column() >= cf->cinfo.num_cols)
+    if (!cap_file_) return 0;
+
+    if (parent.column() >= cap_file_->cinfo.num_cols)
         return 0;
 
     return visible_rows_.count();
@@ -104,7 +112,10 @@ int PacketListModel::rowCount(const QModelIndex &parent) const
 int PacketListModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return cf->cinfo.num_cols;
+
+    if (!cap_file_) return 0;
+
+    return cap_file_->cinfo.num_cols;
 }
 
 QVariant PacketListModel::data(const QModelIndex &index, int role) const
@@ -121,7 +132,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::FontRole:
-        return get_monospace_font();
+        return wsApp->monospaceFont();
 //    case Qt::TextAlignmentRole:
     case Qt::BackgroundRole:
         const color_t *color;
@@ -159,7 +170,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     int col_num = index.column();
 //    g_log(NULL, G_LOG_LEVEL_DEBUG, "showing col %d", col_num);
 
-    if (col_num > cf->cinfo.num_cols)
+    if (!cap_file_ || col_num > cap_file_->cinfo.num_cols)
         return QVariant();
 
     epan_dissect_t edt;
@@ -169,12 +180,12 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     guint8 pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
     gboolean dissect_columns = TRUE; // XXX - Currently only a placeholder
 
-    if (dissect_columns)
-        cinfo = &cf->cinfo;
+    if (dissect_columns && cap_file_)
+        cinfo = &cap_file_->cinfo;
     else
         cinfo = NULL;
 
-    if (!cf_read_frame_r(cf, fdata, &phdr, pd)) {
+    if (!cap_file_ || !cf_read_frame_r(cap_file_, fdata, &phdr, pd)) {
         /*
          * Error reading the frame.
          *
@@ -244,10 +255,12 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
 QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
                                int role) const
 {
-    if (orientation == Qt::Horizontal && section < cf->cinfo.num_cols) {
+    if (!cap_file_) return QVariant();
+
+    if (orientation == Qt::Horizontal && section < cap_file_->cinfo.num_cols) {
         switch (role) {
         case Qt::DisplayRole:
-            return cf->cinfo.col_title[section];
+            return cap_file_->cinfo.col_title[section];
         default:
             break;
         }
