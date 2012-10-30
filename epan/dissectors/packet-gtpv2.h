@@ -29,4 +29,4 @@ extern void dissect_gtpv2_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 extern void dissect_gtpv2_selec_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_);
 extern void dissect_gtpv2_epc_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_);
 
-value_string_ext gtpv2_cause_vals_ext;
+extern value_string_ext gtpv2_cause_vals_ext;
