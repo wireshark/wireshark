@@ -974,6 +974,14 @@ static int hf_mip6_hb_u_flag = -1;
 static int hf_mip6_hb_r_flag = -1;
 static int hf_mip6_hb_seqnr = -1;
 
+static int hf_mip6_hi_seqnr = -1;
+static int hf_mip6_hi_s_flag = -1;
+static int hf_mip6_hi_u_flag = -1;
+static int hf_mip6_hi_code = -1;
+
+static int hf_mip6_hack_seqnr = -1;
+static int hf_mip6_hack_code = -1;
+
 static int hf_mip6_opt_3gpp_reserved = -1;
 static int hf_mip6_opt_3gpp_flag_m = -1;
 static int hf_mip6_opt_3gpp_spec_pmipv6_err_code = -1;
@@ -1403,6 +1411,90 @@ dissect_mip6_hb(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
     }
 
     return MIP6_DATA_OFF + MIP6_HB_LEN;
+}
+/*
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                                     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                     |           Sequence #          |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |S|U|  Reserved |      Code     |                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               .
+     |                                                               |
+     .                                                               .
+     .                          Mobility options                     .
+     .                                                               .
+     |                                                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+                 Figure 6: Handover Initiate (HI) Message
+
+*/
+static int
+dissect_mip6_hi(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
+{
+    if (mip6_tree) {
+        proto_tree *data_tree;
+        proto_item *ti;
+
+        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 4, "Handover Initiate");
+        data_tree = proto_item_add_subtree(ti, ett_mip6);
+
+        proto_tree_add_item(data_tree, hf_mip6_hi_seqnr, tvb,
+                MIP6_DATA_OFF, 2, ENC_BIG_ENDIAN);
+
+		proto_tree_add_item(data_tree, hf_mip6_hi_s_flag, tvb,
+                MIP6_DATA_OFF+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(data_tree, hf_mip6_hi_u_flag, tvb,
+                MIP6_DATA_OFF+2, 1, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item(data_tree, hf_mip6_hi_code, tvb,
+                MIP6_DATA_OFF+3, 1, ENC_BIG_ENDIAN);
+
+	}
+
+    return MIP6_DATA_OFF + 4;
+}
+
+/*
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                                     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                     |           Sequence #          |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |    Reserved   |      Code     |                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               .
+     |                                                               |
+     .                                                               .
+     .                          Mobility options                     .
+     .                                                               .
+     |                                                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+               Figure 7: Handover Acknowledge (HAck) Message
+
+*/
+
+static int
+dissect_mip6_hack(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
+{
+    if (mip6_tree) {
+        proto_tree *data_tree;
+        proto_item *ti;
+
+        ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 4, "Handover Acknowledge ");
+        data_tree = proto_item_add_subtree(ti, ett_mip6);
+
+        proto_tree_add_item(data_tree, hf_mip6_hack_seqnr, tvb,
+                MIP6_DATA_OFF, 2, ENC_BIG_ENDIAN);
+
+
+        proto_tree_add_item(data_tree, hf_mip6_hack_code, tvb,
+                MIP6_DATA_OFF+3, 1, ENC_BIG_ENDIAN);
+
+	}
+
+    return MIP6_DATA_OFF + 4;
 }
 
 static int
@@ -3376,63 +3468,89 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext_const(type, &mip6_mh_types_ext, "<unknown>"));
     switch (type) {
     case MIP6_BRR:
-        /* Binding Refresh Request */
+        /* 0 Binding Refresh Request */
         offset = dissect_mip6_brr(tvb, mip6_tree, pinfo);
         break;
     case MIP6_HOTI:
-        /* Home Test Init */
+        /* 1 Home Test Init */
         offset = dissect_mip6_hoti(tvb, mip6_tree, pinfo);
         break;
     case MIP6_MHCOTI:
-        /* Care-of Test Init */
+        /* 2 Care-of Test Init */
         offset = dissect_mip6_coti(tvb, mip6_tree, pinfo);
         break;
     case MIP6_HOT:
-        /* Home Test */
+        /* 3 Home Test */
         offset = dissect_mip6_hot(tvb, mip6_tree, pinfo);
         break;
     case MIP6_MHCOT:
-        /* Care-of Test */
+        /* 4 Care-of Test */
         offset = dissect_mip6_cot(tvb, mip6_tree, pinfo);
         break;
     case MIP6_BU:
-        /* Binding Update */
+        /* 5 Binding Update */
         offset = dissect_mip6_bu(tvb, mip6_tree, pinfo);
         if (proto_nemo == 1) {
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "NEMO");
         }
         break;
     case MIP6_BA:
-        /* Binding Acknowledgement */
+        /* 6 Binding Acknowledgement */
         offset = dissect_mip6_ba(tvb, mip6_tree, pinfo);
         if (proto_nemo == 1) {
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "NEMO");
         }
         break;
     case MIP6_BE:
-        /* Binding Error */
+        /* 7 Binding Error */
         offset = dissect_mip6_be(tvb, mip6_tree, pinfo);
         break;
     case MIP6_FBU:
-        /* Fast Binding Update */
+        /* 8 Fast Binding Update */
         offset = dissect_fmip6_fbu(tvb, mip6_tree, pinfo);
         break;
     case MIP6_FBACK:
-        /* Fast Binding Acknowledgment */
+        /* 9 Fast Binding Acknowledgment */
         offset = dissect_fmip6_fback(tvb, mip6_tree, pinfo);
         break;
     case MIP6_FNA:
-        /* Fast Neighbor Advertisement */
+        /* 10 Fast Neighbor Advertisement */
         offset = dissect_fmip6_fna(tvb, mip6_tree, pinfo);
         break;
+    case MIP6_EMH:
+        /* 11 Experimental Mobility Header RFC5096 */
+		/* There are no fields in the message beyond the required fields 
+         * in the Mobility Header.
+         */
+		offset = MIP6_DATA_OFF;
+        break;
+    case MIP6_HAS:
+        /* 12 Home Agent Switch */
+        dissect_mip6_unknown(tvb, mip6_tree, pinfo);
+        offset = len;
+        break;
     case MIP6_HB:
-        /* Heartbeat */
+        /* 13 Heartbeat */
         offset = dissect_mip6_hb(tvb, mip6_tree, pinfo);
         break;
+    case MIP6_HI:
+        /* 14 Handover Initiate RFC5568 */
+        offset = dissect_mip6_hi(tvb, mip6_tree, pinfo);
+        break;
+    case MIP6_HAck:
+        /* 14 Handover Acknowledge*/
+        offset = dissect_mip6_hack(tvb, mip6_tree, pinfo);
+        break;
     case MIP6_BR:
-        /* Binding Revocation Indication / Acknowledge */
+        /* 16 Binding Revocation Indication / Acknowledge */
         offset = dissect_pmip6_bri(tvb, mip6_tree, pinfo);
         break;
+    case MIP6_LRI:
+        /* 17 Localized Routing Initiation */
+		/* Fall trough */
+    case MIP6_LRA:
+        /* 18 Localized Routing Acknowledgment */
+		/* Fall trough */
     default:
         dissect_mip6_unknown(tvb, mip6_tree, pinfo);
         offset = len;
@@ -3719,7 +3837,36 @@ proto_register_mip6(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
-
+    { &hf_mip6_hi_seqnr,
+      { "Sequence number", "mip6.hi.seqnr",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_hi_s_flag,
+      { "Assigned address configuration flag (S) flag", "mip6.hi.s_flag",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }
+    },
+    { &hf_mip6_hi_u_flag,
+      { "Buffer flag (U) flag", "mip6.hi.u_flag",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }
+    },
+    { &hf_mip6_hi_code,
+      { "Code", "mip6.hi.code",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_hack_seqnr,
+      { "Sequence number", "mip6.hack.seqnr",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_hack_code,
+      { "Code", "mip6.hack.code",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
     { &hf_mip6_opt_3gpp_reserved,
       { "Reserved", "mip6.3gpp.reserved",
         FT_UINT8, BASE_DEC, NULL, 0xfe,
