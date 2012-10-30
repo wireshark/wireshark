@@ -27,7 +27,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -819,8 +819,6 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 	sub_tvb=tvb_new_subset(tvb, off, MIN((int)len, tvb_length_remaining(tvb, off)), len);
 
 	dissector(sub_tvb, pinfo, sub_tree, si);
-
-	return;
 }
 
 static int
@@ -2141,7 +2139,6 @@ dissect_smb2_secblob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_i
 	} else {
 		call_dissector(gssapi_handle, tvb, pinfo, tree);
 	}
-	return;
 }
 
 static int
@@ -2163,6 +2160,8 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		    TL_IS_DISSECTOR_HELPER, NULL, NULL, NULL);
 		if(!error_string){
 			ntlmssp_tap_id=find_tap_id("ntlmssp");
+		} else {
+			g_string_free(error_string, TRUE);
 		}
 	}
 
@@ -2660,7 +2659,6 @@ static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 			return;
 		}
 	}
-	return;
 }
 
 static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, smb2_info_t *si _U_)
@@ -2748,7 +2746,6 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 			return;
 		}
 	}
-	return;
 }
 
 static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, smb2_info_t *si _U_)
@@ -2857,7 +2854,6 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 			return;
 		}
 	}
-	return;
 }
 
 static void dissect_smb2_file_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, smb2_info_t *si _U_)
@@ -2918,7 +2914,6 @@ static void dissect_smb2_file_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, p
 			return;
 		}
 	}
-	return;
 }
 
 static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, smb2_info_t *si _U_)
@@ -3034,7 +3029,6 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 			return;
 		}
 	}
-	return;
 }
 
 
@@ -3068,7 +3062,6 @@ dissect_smb2_find_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2
 	}
 
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), ENC_NA);
-	return;
 }
 
 static int
@@ -3500,7 +3493,6 @@ dissect_smb2_getinfo_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), ENC_NA);
 	}
 
-	return;
 }
 
 
@@ -3861,8 +3853,6 @@ static void
 dissect_smb2_FSCTL_PIPE_TRANSCEIVE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *top_tree, gboolean data_in _U_)
 {
 	dissect_file_data_dcerpc(tvb, pinfo, tree, offset, tvb_length_remaining(tvb, offset), top_tree);
-
-	return;
 }
 
 static void
@@ -3879,9 +3869,6 @@ dissect_smb2_FSCTL_LMR_REQUEST_RESILIENCY(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	/* reserved */
 	proto_tree_add_item(tree, hf_smb2_ioctl_resiliency_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
-
-	return;
 }
 
 static void
@@ -3919,9 +3906,6 @@ dissect_windows_sockaddr_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p
 	if (parent_item) {
 		proto_item_append_text(parent_item, ", IPv4: %s", tvb_ip_to_str(tvb, offset));
 	}
-	offset += 4;
-
-	return;
 }
 
 static void
@@ -3967,8 +3951,6 @@ dissect_windows_sockaddr_in6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	/* sin6_scope_id */
 	proto_tree_add_item(sub_tree, hf_windows_sockaddr_in6_scope_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 4;
-	return;
 }
 
 static void
@@ -4004,12 +3986,10 @@ dissect_windows_sockaddr_storage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	if (parent_item) {
 		proto_item_append_text(sub_item, ", Family: %d (0x%04x)", family, family);
 	}
-	offset += 2;
+	/*offset += 2;*/
 
 	/* unknown */
-	offset += 126;
-
-	return;
+	/*offset += 126;*/
 }
 
 #define NETWORK_INTERFACE_CAP_RSS 0x00000001
@@ -4093,7 +4073,6 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	/* socket address */
 	dissect_windows_sockaddr_storage(tvb, pinfo, sub_tree, offset);
-	offset += 128;
 
 	if(next_offset){
 		tvbuff_t *next_tvb;
@@ -4104,7 +4083,6 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		/* next extra info */
 		dissect_smb2_NETWORK_INTERFACE_INFO(next_tvb, pinfo, parent_tree);
 	}
-	return;
 }
 
 static void
@@ -4158,8 +4136,6 @@ dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, p
 			break;
 		}
 	}
-
-	return;
 }
 
 int
@@ -4326,8 +4302,6 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), ENC_NA);
 	}
-
-	return;
 }
 
 static void
@@ -4500,6 +4474,7 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* minimum count */
 	proto_tree_add_item(tree, hf_smb2_min_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
 
 	/* channel */
 	proto_tree_add_item(tree, hf_smb2_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -4583,7 +4558,6 @@ dissect_smb2_ExtA_buffer_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		proto_item_append_text(item, ": SMB2_FILE_INFO_0f");
 	}
 	dissect_smb2_file_info_0f(tvb, pinfo, tree, 0, si);
-	return;
 }
 
 static void
@@ -4601,7 +4575,6 @@ dissect_smb2_SecD_buffer_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		proto_item_append_text(item, ": SMB2_SEC_INFO_00");
 	}
 	dissect_smb2_sec_info_00(tvb, pinfo, tree, 0, si);
-	return;
 }
 
 static void
@@ -4619,8 +4592,6 @@ dissect_smb2_TWrp_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		proto_item_append_text(item, ": Timestamp");
 	}
 	dissect_nt_64bit_time(tvb, tree, 0, hf_smb2_twrp_timestamp);
-
-	return;
 }
 
 static void
@@ -4762,7 +4733,6 @@ dissect_smb2_DH2Q_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 	/* create guid */
 	proto_tree_add_item(sub_tree, hf_smb2_dh2x_buffer_create_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
-	offset += 16;
 }
 
 static void
@@ -4789,7 +4759,6 @@ dissect_smb2_DH2Q_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 	/* flags */
 	proto_tree_add_item(sub_tree, hf_smb2_dh2x_buffer_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
 }
 
 static void
@@ -4820,7 +4789,6 @@ dissect_smb2_DH2C_buffer_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	/* flags */
 	proto_tree_add_item(sub_tree, hf_smb2_dh2x_buffer_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
 }
 
 static void
@@ -4851,8 +4819,6 @@ dissect_smb2_MxAc_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         }
 
 	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_mxac_timestamp);
-
-	return;
 }
 
 static void
@@ -4884,8 +4850,6 @@ dissect_smb2_MxAc_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	offset += 4;
 
 	dissect_smb_access_mask(tvb, sub_tree, offset);
-
-	return;
 }
 
 /*
@@ -4983,7 +4947,6 @@ dissect_SMB2_CREATE_LEASE_VX(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset += 16;
 
 	proto_tree_add_item(sub_tree, hf_smb2_lease_epoch, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
 }
 
 static void
@@ -5035,7 +4998,6 @@ dissect_smb2_APP_INSTANCE_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, 
 
 	/* create guid */
 	proto_tree_add_item(sub_tree, hf_smb2_APP_INSTANCE_buffer_app_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
-	offset += 16;
 }
 
 static void
@@ -5140,7 +5102,6 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 		/* next extra info */
 		dissect_smb2_create_extra_info(chain_tvb, pinfo, parent_tree, si);
 	}
-	return;
 }
 
 static int

@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * References: 3GPP TS 24.301 V10.6.1 (2012-03)
  */
@@ -185,7 +185,6 @@ static int hf_nas_eps_egbr_dl = -1;
 
 static int hf_nas_eps_esm_cause = -1;
 static int hf_nas_eps_esm_eit = -1;
-static int hf_nas_eps_esm_lnkd_eps_bearer_id = -1;
 static int hf_nas_eps_esm_notif_ind = -1;
 static int hf_nas_eps_esm_pdn_type = -1;
 static int hf_nas_eps_esm_pdn_ipv4 = -1;
@@ -2445,20 +2444,6 @@ static const value_string nas_eps_esm_linked_bearer_id_vals[] = {
     { 0, NULL }
 };
 
-
-
-static guint16
-de_esm_lnkd_eps_bearer_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
-{
-    guint32 curr_offset;
-
-    curr_offset = offset;
-
-    proto_tree_add_item(tree, hf_nas_eps_esm_lnkd_eps_bearer_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    return(len);
-}
-
 /*
  * 9.9.4.7 LLC service access point identifier
  * See subclause 10.5.6.9 in 3GPP TS 24.008
@@ -2714,7 +2699,7 @@ guint16 (*esm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     de_esm_qos,                     /* 9.9.4.3 EPS quality of service */
     de_esm_cause,                   /* 9.9.4.4 ESM cause */
     de_esm_inf_trf_flg,             /* 9.9.4.5 ESM information transfer flag */
-    de_esm_lnkd_eps_bearer_id,      /* 9.9.4.6 Linked EPS bearer identity  */
+    NULL,                           /* 9.9.4.6 Linked EPS bearer identity  */
     NULL,                           /* 9.9.4.7 LLC service access point identifier */
     de_esm_notif_ind,               /* 9.9.4.7a Notification indicator */
     NULL,                           /* 9.9.4.8 Packet flow identifier  */
@@ -4476,6 +4461,26 @@ get_nas_emm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
     return;
 }
 
+static const value_string nas_eps_esm_bearer_id_vals[] = {
+    { 0x0,  "No EPS bearer identity assigned"},
+    { 0x1,  "Reserved"},
+    { 0x2,  "Reserved"},
+    { 0x3,  "Reserved"},
+    { 0x4,  "Reserved"},
+    { 0x5,  "EPS bearer identity value 5"},
+    { 0x6,  "EPS bearer identity value 6"},
+    { 0x7,  "EPS bearer identity value 7"},
+    { 0x8,  "EPS bearer identity value 8"},
+    { 0x9,  "EPS bearer identity value 9"},
+    { 0xa,  "EPS bearer identity value 10"},
+    { 0xb,  "EPS bearer identity value 11"},
+    { 0xc,  "EPS bearer identity value 12"},
+    { 0xd,  "EPS bearer identity value 13"},
+    { 0xe,  "EPS bearer identity value 14"},
+    { 0xf,  "EPS bearer identity value 15"},
+    { 0, NULL }
+};
+
 /*
  * EPS session management messages.
  * A plain NAS message is pased to this function
@@ -4636,7 +4641,7 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* SERVICE REQUEST (security header type equal to 12 or greater) is not a plain NAS message */
     pd = tvb_get_guint8(tvb,offset);
     if (pd >= 0xc0) {
-        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SERVICE REQUEST");
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service request");
         /* Security header type Security header type 9.3.1 M V 1/2 */
         proto_tree_add_item(nas_eps_tree, hf_nas_eps_security_header_type, tvb, 0, 1, ENC_BIG_ENDIAN);
         /* Protocol discriminator Protocol discriminator 9.2 M V 1/2 */
@@ -4755,13 +4760,13 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, FALSE);
             return;
         } else {
-            proto_tree_add_text(tree, tvb, offset, len, "All ESM messages should be integrity protected");
+            proto_tree_add_text(tree, tvb, offset, len, "All ESM / Test Procedures messages should be integrity protected");
             return;
         }
     } else {
         /* SERVICE REQUEST (12 or greater) is not a plain NAS message treat separately */
         if (security_header_type >= 12) {
-            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SERVICE REQUEST");
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service request");
             nas_emm_service_req(tvb, nas_eps_tree, pinfo, offset, len-offset);
             return;
         }
@@ -4776,10 +4781,11 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 /* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
-                /* Read security_header_type AND pd */
+                /* Read security_header_type / EPS bearer id AND pd */
                 pd = tvb_get_guint8(tvb,offset);
                 /* If pd is in plaintext this message probably isn't ciphered */
-                if ((pd != 7) && (pd != 2) && (pd != 15)) {
+                if ((pd != 7) && (pd != 15) &&
+                    (((pd&0x0f) != 2) || (((pd&0x0f) == 2) && ((pd&0xf0) > 0) && ((pd&0xf0) < 0x50)))) {
                     proto_tree_add_text(nas_eps_tree, tvb, offset, len-6,"Ciphered message");
                     return;
                 }
@@ -4862,7 +4868,7 @@ proto_register_nas_eps(void) {
     },
     { &hf_nas_eps_bearer_id,
         { "EPS bearer identity",    "nas_eps.bearer_id",
-        FT_UINT8, BASE_DEC, NULL, 0xf0,
+        FT_UINT8, BASE_DEC, VALS(nas_eps_esm_bearer_id_vals), 0xf0,
         NULL, HFILL }
     },
     { &hf_nas_eps_spare_bits,
@@ -5490,11 +5496,6 @@ proto_register_nas_eps(void) {
     { &hf_nas_eps_esm_eit,
         { "EIT (ESM information transfer)", "nas_eps.emm.eit",
         FT_BOOLEAN, 8, TFS(&nas_eps_emm_eit_vals), 0x01,
-        NULL, HFILL }
-    },
-    { &hf_nas_eps_esm_lnkd_eps_bearer_id,
-        { "Linked EPS bearer identity","nas_eps.esm.lnkd_eps_bearer_id",
-        FT_UINT8,BASE_DEC, VALS(nas_eps_esm_linked_bearer_id_vals), 0x0f,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_notif_ind,
