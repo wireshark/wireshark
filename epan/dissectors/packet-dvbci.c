@@ -795,7 +795,17 @@ static gint ett_dvbci_opp_cap_loop = -1;
 
 static int hf_dvbci_event = -1;
 static int hf_dvbci_hw_event = -1;
-static int hf_dvbci_cistpl_code = -1;
+static int hf_dvbci_cis_tpl_code = -1;
+static int hf_dvbci_cis_tpl_len = -1;
+static int hf_dvbci_cis_tpl_data = -1;
+static int hf_dvbci_cis_tpll_v1_major = -1;
+static int hf_dvbci_cis_tpll_v1_minor = -1;
+static int hf_dvbci_cis_tpll_v1_info_manuf = -1;
+static int hf_dvbci_cis_tpll_v1_info_name = -1;
+static int hf_dvbci_cis_tpll_v1_info_additional = -1;
+static int hf_dvbci_cis_tpll_v1_end = -1;
+static int hf_dvbci_cis_tplmid_manf = -1;
+static int hf_dvbci_cis_tplmid_card = -1;
 static int hf_dvbci_buf_size = -1;
 static int hf_dvbci_tcid = -1;
 static int hf_dvbci_ml = -1;
@@ -1060,7 +1070,7 @@ static const value_string dvbci_hw_event[] = {
     { READY_L,   "Ready pin is low" },
     { 0, NULL }
 };
-static const value_string dvbci_cistpl_code[] = {
+static const value_string dvbci_cis_tpl_code[] = {
     { CISTPL_NO_LINK, "No-link tuple" },
     { CISTPL_VERS_1, "Level 1 version/product information" },
     { CISTPL_CONFIG, "Configuration for a 16bit PC-Card" },
@@ -4310,54 +4320,131 @@ dissect_dvbci_buf_neg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
+/* dissect Level 1 version/product information tuple's payload
+   data_tvb is a separate tvb for the tuple payload (without tag and len)
+   return the number of dissected bytes or -1 for error */
+static gint
+dissect_dvbci_cis_payload_tpll_v1(tvbuff_t *data_tvb,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint offset=0, offset_str_end;
+
+    /* the CIS is defined by PCMCIA, all multi-byte values are little endian
+       (the rest of DVB-CI is a big-endian protocol) */
+    proto_tree_add_item(tree, hf_dvbci_cis_tpll_v1_major,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_dvbci_cis_tpll_v1_minor,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    /* manufacturer, name and additional infos are 0-terminated strings */
+    offset_str_end = tvb_find_guint8(data_tvb, offset, -1, 0x0);
+    if (offset_str_end<offset) /* offset_str_end==offset is ok */
+        return offset;
+    proto_tree_add_item(tree, hf_dvbci_cis_tpll_v1_info_manuf,
+            data_tvb, offset, offset_str_end-offset, ENC_ASCII|ENC_NA);
+    offset = offset_str_end+1; /* +1 for 0 termination */
+
+    offset_str_end = tvb_find_guint8(data_tvb, offset, -1, 0x0);
+    if (offset_str_end<offset)
+        return offset;
+    proto_tree_add_item(tree, hf_dvbci_cis_tpll_v1_info_name,
+            data_tvb, offset, offset_str_end-offset, ENC_ASCII|ENC_NA);
+    offset = offset_str_end+1;
+
+    /* the pc-card spec mentions two additional info strings,
+        it's unclear if both are mandatory
+       >1 because the last byte is the tuple end marker */
+    while (tvb_reported_length_remaining(data_tvb, offset)>1) {
+        offset_str_end = tvb_find_guint8(data_tvb, offset, -1, 0x0);
+        if (offset_str_end<offset)
+            break;
+        proto_tree_add_item(tree, hf_dvbci_cis_tpll_v1_info_additional,
+                data_tvb, offset, offset_str_end-offset, ENC_ASCII|ENC_NA);
+        offset = offset_str_end+1;
+    }
+
+    proto_tree_add_item(tree, hf_dvbci_cis_tpll_v1_end,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    return offset;
+}
+
 
 static void
 dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo _U_, proto_tree *tree)
+        packet_info *pinfo, proto_tree *tree)
 {
-    gint        offset_start;
-    proto_tree *cis_tree = NULL, *tpl_tree = NULL;
-    proto_item *ti_main  = NULL, *ti_tpl;
-    gint        tpl_len;        /* entire tuple length, including tag and len field */
-    guint8      tpl_code, len_field;
+    gint         offset_start;
+    proto_tree  *cis_tree = NULL, *tpl_tree = NULL;
+    proto_item  *ti_main  = NULL, *ti_tpl;
+    guint8       tpl_code;
+    const gchar *tpl_code_str = NULL;
+    guint8       len_field;
+    tvbuff_t    *tpl_data_tvb;
 
     offset_start = offset;
 
-    if (tree) {
-        ti_main = proto_tree_add_text(tree, tvb, offset, -1,
-                "Card Information Structure (CIS)");
-        cis_tree = proto_item_add_subtree(ti_main, ett_dvbci_cis);
-    }
+    ti_main = proto_tree_add_text(tree, tvb, offset, -1,
+            "Card Information Structure (CIS)");
+    cis_tree = proto_item_add_subtree(ti_main, ett_dvbci_cis);
 
     do {
         tpl_code = tvb_get_guint8(tvb, offset);
+        tpl_code_str = val_to_str_const(tpl_code, dvbci_cis_tpl_code, "unknown");
+
+        ti_tpl = proto_tree_add_text(cis_tree,
+                tvb, offset, -1, "CIS tuple: %s", tpl_code_str);
+        tpl_tree = proto_item_add_subtree(ti_tpl, ett_dvbci_cis_tpl);
+
+        proto_tree_add_uint_format(tpl_tree, hf_dvbci_cis_tpl_code,
+                tvb, offset, 1, tpl_code, "Tuple code: %s (0x%x)",
+                tpl_code_str, tpl_code);
+        offset++;
+
         if (tpl_code == CISTPL_END) {
-            len_field = 0;
-            tpl_len = 1;
+            proto_item_set_len(ti_tpl, 1); /* only tag (no len and content) */
+            break;
         }
-        else {
-            len_field = tvb_get_guint8(tvb, offset+1);
-            tpl_len = 2+len_field;  /* 1 byte tag, 1 byte len field */
+
+        len_field = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tpl_tree, hf_dvbci_cis_tpl_len,
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+
+        switch (tpl_code) {
+            case CISTPL_VERS_1:
+                tpl_data_tvb =
+                    tvb_new_subset(tvb, offset, len_field, len_field);
+                dissect_dvbci_cis_payload_tpll_v1(
+                        tpl_data_tvb, pinfo, tpl_tree);
+                offset += len_field;
+                break;
+            case CISTPL_MANFID:
+                proto_tree_add_item(tpl_tree, hf_dvbci_cis_tplmid_manf,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset+=2;
+                proto_tree_add_item(tpl_tree, hf_dvbci_cis_tplmid_card,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset+=2;
+                break;
+            default:
+                if (len_field>0) {
+                    proto_tree_add_item(tpl_tree, hf_dvbci_cis_tpl_data,
+                            tvb, offset, len_field, ENC_NA);
+                }
+                offset += len_field;
+                break;
         }
-        if (cis_tree) {
-            ti_tpl = proto_tree_add_text(cis_tree, tvb,
-                    offset, tpl_len, "CIS tuple");
-            tpl_tree = proto_item_add_subtree(ti_tpl, ett_dvbci_cis_tpl);
-            proto_tree_add_uint_format(tpl_tree, hf_dvbci_cistpl_code,
-                    tvb, offset, 1, tpl_code, "Tuple code: %s (0x%x)",
-                    val_to_str_const(tpl_code, dvbci_cistpl_code, "unknown"), tpl_code);
-            if (tpl_code != CISTPL_END) {
-                proto_tree_add_text(tpl_tree, tvb, offset+1, 1,
-                        "Length: %d", len_field);
-                proto_tree_add_text(tpl_tree, tvb, offset+2, len_field,
-                        "Tuple content");
-            }
-        }
-        offset += tpl_len;
-    } while ((tvb_reported_length_remaining(tvb, offset) > 0) && (tpl_code != CISTPL_END));
+
+        proto_item_set_len(ti_tpl, 2+len_field); /* tag, len byte, content */
+
+    } while (tvb_reported_length_remaining(tvb, offset) > 0);
 
     proto_item_set_len(ti_main, offset-offset_start);
- }
+}
 
 
 static int
@@ -4510,9 +4597,49 @@ proto_register_dvbci(void)
           { "Hardware event", "dvb-ci.hw_event",
             FT_UINT8, BASE_HEX, VALS(dvbci_hw_event), 0, NULL, HFILL }
         },
-        { &hf_dvbci_cistpl_code,
-          { "CIS tuple code", "dvb-ci.cistpl_code",
-            FT_UINT8, BASE_HEX, VALS(dvbci_cistpl_code), 0, NULL, HFILL }
+        { &hf_dvbci_cis_tpl_code,
+          { "CIS tuple code", "dvb-ci.cis.tpl_code",
+            FT_UINT8, BASE_HEX, VALS(dvbci_cis_tpl_code), 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpl_len,
+          { "Length field", "dvb-ci.cis.tpl_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpl_data,
+          { "Tuple data", "dvb-ci.cis.tpl_data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpll_v1_major,
+          { "Major version number", "dvb-ci.cis.tpll_v1_major",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpll_v1_minor,
+          { "Minor version number", "dvb-ci.cis.tpll_v1_minor",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpll_v1_info_manuf,
+          { "Manufacturer", "dvb-ci.cis.tpll_v1_info.manufacturer",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpll_v1_info_name,
+          { "Name", "dvb-ci.cis.tpll_v1_info.name",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpll_v1_info_additional,
+          { "Additional info", "dvb-ci.cis.tpll_v1_info.additional",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpll_v1_end,
+          { "End of chain", "dvb-ci.cis.tpll_v1_end",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tplmid_manf,
+          { "PC Card manufacturer code", "dvb-ci.cis.tplmid_manf",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tplmid_card,
+          { "Manufacturer info", "dvb-ci.cis.tplmid_card",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_buf_size,
           { "Buffer Size", "dvb-ci.buf_size",
