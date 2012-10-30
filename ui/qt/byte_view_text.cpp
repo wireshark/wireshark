@@ -89,7 +89,7 @@ void ByteViewText::render()
         return;
     }
 
-    setUpdatesEnabled(false);
+    textCursor().beginEditBlock();
     clear();
 
     length = tvb_length(tvb_);
@@ -103,7 +103,7 @@ void ByteViewText::render()
         scrollToByte(p_start_);
     }
 
-    setUpdatesEnabled(true);
+    textCursor().endEditBlock();
 }
 
 // Private
