@@ -38,7 +38,6 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     tvb_(tvb),
     proto_tree_(tree),
     tree_widget_(tree_widget),
-    max_width_(0),
     bold_highlight_(false),
     encoding_(encoding),
     format_(BYTES_HEX),

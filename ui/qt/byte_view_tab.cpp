@@ -62,10 +62,9 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
         field_info *fi;
 
         fi = current->data(0, Qt::UserRole).value<field_info *>();
-//        g_log(NULL, G_LOG_LEVEL_DEBUG, "fi selected %p", fi);
 
         int i = 0;
-        ByteViewText *byte_view_text = dynamic_cast<ByteViewText*>(widget(i));
+        ByteViewText *byte_view_text = qobject_cast<ByteViewText*>(widget(i));
         while (byte_view_text) {
             if (byte_view_text->hasDataSource(fi->ds_tvb)) {
                 QTreeWidgetItem *parent = current->parent();
@@ -164,11 +163,11 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                 // Appendix (trailer) bytes
                 byte_view_text->setFieldAppendixHighlight(fa_start, fa_end);
 
-                setCurrentIndex(i);
-
                 byte_view_text->render();
+
+                setCurrentIndex(i);
             }
-            byte_view_text = dynamic_cast<ByteViewText*>(widget(++i));
+            byte_view_text = qobject_cast<ByteViewText*>(widget(++i));
         }
     }
 }

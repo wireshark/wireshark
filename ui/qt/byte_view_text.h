@@ -74,9 +74,6 @@ private:
     proto_tree *proto_tree_;
     QTreeWidget *tree_widget_;
 
-    gint adj_tag_;
-    int max_width_;
-
     gboolean bold_highlight_;
 
 /* data */
