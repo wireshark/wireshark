@@ -119,6 +119,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\README.wmem"
+				>
+			</File>
+			<File
 				RelativePath=".\README.xml-output"
 				>
 			</File>

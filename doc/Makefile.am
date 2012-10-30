@@ -336,6 +336,7 @@ EXTRA_DIST = \
 	README.request_response_tracking	\
 	README.stats_tree	\
 	README.tapping	\
+	README.wmem	\
 	README.xml-output	\
 	doc.vcproj		\
 	make-authors-format.pl	\
