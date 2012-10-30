@@ -1,0 +1,145 @@
+$Id$
+
+1. Introduction
+
+NB: Wmem is still very much incomplete and under construction. New code will
+    likely want to continue using emem for the time being.
+
+The 'emem' memory manager (described in README.malloc) has been a part of
+Wireshark since 2005 and has served us well, but is starting to show its age.
+The framework has become increasingly difficult to maintain, and limitations
+in the API have blocked progress on other long-term goals (like multi-
+threading, and opening multiple files at once).
+
+The 'wmem' memory manager is an attempt to write a new memory management
+framework to replace emem. It provides a significantly updated API, a more
+modular design, and it isn't all jammed into one 2500-line file.
+
+Wmem was originally conceived in this email to the wireshark-dev mailing list:
+https://www.wireshark.org/lists/wireshark-dev/201210/msg00178.html
+
+The wmem code can now be found in epan/wmem/ in the Wireshark source tree.
+
+2. Usage for Consumers
+
+If you're writing a dissector, or other "userspace" code, then using wmem
+should be very similar to using emem. All you need to do is include the header
+(epan/wmem/wmem.h) and get a handle to a memory pool (if you want to *create*
+a memory pool, see the section "3. Usage for Producers" below).
+
+A memory pool is an opaque pointer to an object of type wmem_allocator_t, and
+it should be the very first parameter passed to *every* call you make to wmem.
+Other than that (and the fact that functions are prefixed wmem_ instead of ep_
+or se_) usage is exactly like that of emem. For example:
+
+    wmem_alloc(myPool, 20);
+
+allocates 20 bytes in the pool pointed to by myPool.
+
+2.1 Replacing Emem
+
+Once wmem is more complete, dissectors should have two pools avaiable to them:
+one for packet scope and one for file scope (how to make these pools available
+is still being debated). Requests for ep_ memory can be replaced with wmem
+requests using the packet-scoped pool, and requests for se_ memory can be
+replaced with wmem requests using the file-scoped pool. For example:
+
+    ep_malloc(20);
+
+would become
+
+    wmem_alloc(my_packet_pool, 20);
+
+3. Usage for Producers
+
+NB: If you're just writing a dissector, you probably don't need to read
+    this section.
+
+One of the problems with the old emem framework was that there were basically
+two allocator backends (glib and mmap) that were all mixed together in a mess
+of if statements, environment variables and even a few #ifdefs. In wmem each
+of the allocator backends is cleanly separated out, and it's up to the
+maintainer of the pool to pick one.
+
+3.1 Available Allocator Back-Ends
+
+The currently available allocators are:
+ - glib (wmem_allocator_glib.h)
+        A simple allocator that g_allocs requested memory and tracks each
+        allocation in a linked list.
+
+3.2 Creating a Pool
+
+To create a pool, include the header for the type of allocator you want to use
+and call the create function available in that header. For example,
+
+    #include "wmem/wmem_allocator_glib.h"
+
+    wmem_allocator_t *myPool;
+    myPool = wmem_create_glib_allocator();
+
+From here on in, you don't need to remember which type of allocator you used
+(although allocator authors are welcome to expose additional allocator-specific
+helper functions in their headers). The "myPool" variable can be passed around
+and used as normal in allocation requests as described in section 2 of this
+document.
+
+All the other functions in this section can be found in epan/wmem/wmem.h.
+
+3.3 Destroying a Pool
+
+Regardless of which allocator you used to create a pool, it can be destroyed
+with a call to the function wmem_destroy_allocator(). For example:
+
+    #include "wmem/wmem.h"
+    #include "wmem/wmem_allocator_glib.h"
+
+    wmem_allocator_t *myPool;
+
+    myPool = wmem_create_glib_allocator();
+
+    /* Allocate some memory in myPool ... */
+
+    wmem_destroy_allocator(myPool);
+
+Destroying a pool will free all the memory allocated in it.
+
+3.4 Reusing a Pool
+
+It is possible to free all the memory in a pool without destroying it,
+allowing it to be reused later. This can be useful if you have a loop you
+wish to allocate memory in, but you don't want to pay the cost of destroying
+and creating an entire pool each time.
+
+The memory of a pool can be freed with a call to wmem_free_all(), like so:
+
+    #include "wmem/wmem.h"
+    #include "wmem/wmem_allocator_glib.h"
+
+    wmem_allocator_t *myPool;
+
+    myPool = wmem_create_glib_allocator();
+    for (...) {
+
+        /* Allocate some memory in myPool ... */
+
+        wmem_free_all(myPool);
+    }
+    wmem_destroy_allocator(myPool);
+
+4. Internal Design
+
+TODO
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
