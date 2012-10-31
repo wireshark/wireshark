@@ -73,6 +73,7 @@ static gint ett_uasip               = -1;
 static guint8      proxy_ipaddr[4];
 static const char *pref_proxy_ipaddr_s = NULL;
 
+static gboolean uasip_enabled = FALSE;
 static gboolean use_proxy_ipaddr = FALSE;
 static gboolean noesip_enabled   = FALSE;
 
@@ -470,6 +471,7 @@ void proto_register_uasip(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     uasip_module = prefs_register_protocol(proto_uasip, proto_reg_handoff_uasip);
+    prefs_register_bool_preference(uasip_module, "aplication_octet_stream", "Try to decode application/octet-stream as UASIP", "UA SIP Protocol enabled", &uasip_enabled);
     prefs_register_bool_preference(uasip_module, "noesip", "Try to decode SIP NOE", "NOE SIP Protocol", &noesip_enabled);
     prefs_register_string_preference(uasip_module, "proxy_ipaddr", "Proxy IP Address",
                                      "IPv4 address of the proxy (Invalid values will be ignored)",
@@ -487,7 +489,6 @@ void proto_reg_handoff_uasip(void)
     if (!prefs_initialized)
     {
         uasip_handle = create_dissector_handle(dissect_uasip, proto_uasip);
-        dissector_add_string("media_type", "application/octet-stream", uasip_handle);
         ua_sys_to_term_handle = find_dissector("ua_sys_to_term");
         ua_term_to_sys_handle = find_dissector("ua_term_to_sys");
         prefs_initialized = TRUE;
@@ -495,6 +496,12 @@ void proto_reg_handoff_uasip(void)
 
     use_proxy_ipaddr = FALSE;
     memset(proxy_ipaddr, 0, sizeof(proxy_ipaddr));
+
+	if(uasip_enabled){
+        dissector_add_string("media_type", "application/octet-stream", uasip_handle);
+    }else{
+        dissector_delete_string("media_type", "application/octet-stream", uasip_handle);
+    }
 
     if (strcmp(pref_proxy_ipaddr_s, "") != 0) {
         if (inet_pton(AF_INET, pref_proxy_ipaddr_s, proxy_ipaddr) == 1)
