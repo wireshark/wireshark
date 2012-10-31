@@ -901,13 +901,12 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
             /* there are more options */
 
             /* IPv6 Option */
-            ti_opt = proto_tree_add_item(dstopt_tree, hf_ipv6_opt, tvb, offset, 2, ENC_NA);
+            ti_opt = proto_tree_add_item(dstopt_tree, hf_ipv6_opt, tvb, offset, 1, ENC_NA);
             opt_tree = proto_item_add_subtree(ti_opt, ett_ipv6_opt);
 
             /* Option type */
             proto_tree_add_item(opt_tree, hf_ipv6_opt_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             opt_type = tvb_get_guint8(tvb, offset);
-            offset += 1;
 
             /* Add option name to option root label */
             proto_item_append_text(ti_opt, " (%s", val_to_str(opt_type, ipv6_opt_vals, "Unknown %d"));
@@ -919,6 +918,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 proto_item_append_text(ti_opt, ")");
                 continue;
             }
+            offset += 1;
 
             /* Option length */
             ti_opt_len = proto_tree_add_item(opt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
