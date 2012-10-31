@@ -71,7 +71,6 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                 field_info *parent_fi = NULL;
                 int f_start = -1, f_end = -1, f_len = -1;
                 guint32 bmask = 0x00;
-                int bmask_le = 0;
                 int fa_start = -1, fa_end = -1, fa_len = -1;
                 int p_start = -1, p_end = -1, p_len = -1;
                 guint len = tvb_length(fi->ds_tvb);
@@ -108,13 +107,9 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                 fa_start = fi->appendix_start;
                 fa_len = fi->appendix_length;
 
-                if (FI_GET_FLAG(fi, FI_LITTLE_ENDIAN))
-                    bmask_le = 1;
-                else if (FI_GET_FLAG(fi, FI_BIG_ENDIAN))
-                    bmask_le = 0;
-                else { /* unknown endianess - disable mask
-                          bmask_le = (G_BYTE_ORDER == G_LITTLE_ENDIAN);
-                       */
+                if (!FI_GET_FLAG(fi, FI_LITTLE_ENDIAN) &&
+                    !FI_GET_FLAG(fi, FI_BIG_ENDIAN)) {
+                    /* unknown endianess - disable mask */
                     bmask = 0x00;
                 }
 
@@ -128,7 +123,6 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                     if (bitt > 0 && bitt < 32) {
 
                         bmask = ((1 << bitc) - 1) << ((8-bitt) & 7);
-                        bmask_le = 0; /* ? */
                     }
                 }
 
