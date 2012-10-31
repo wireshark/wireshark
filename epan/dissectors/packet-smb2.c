@@ -5344,6 +5344,7 @@ dissect_SMB2_CREATE_LEASE_VX(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset += 2;
 
 	proto_tree_add_item(sub_tree, hf_smb2_lease_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
 }
 
 static void
@@ -5846,9 +5847,9 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* Lease Break Notification */
 
-		/* reserved */
-		proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
-		offset +=2;
+		/* new lease epoch */
+		proto_tree_add_item(tree, hf_smb2_lease_epoch, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
 
 		/* lease flags */
 		proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_lease_flags,
