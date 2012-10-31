@@ -1,6 +1,6 @@
 /* export_object_dialog.h
  *
- * $Id: main_window.h 45589 2012-10-16 18:14:16Z gerald $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

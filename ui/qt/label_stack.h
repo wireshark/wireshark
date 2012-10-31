@@ -1,6 +1,6 @@
 /* label_stack.h
  *
- * $Id: mainStatus_bar.cpp 40378 2012-01-04 22:13:01Z gerald $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

@@ -1,6 +1,6 @@
 /* import_text_dialog.h
  *
- * $Id: capture_file_dialog.cpp 44864 2012-09-10 23:03:22Z gerald $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
