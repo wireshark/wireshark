@@ -59,7 +59,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -4561,8 +4561,6 @@ static const value_string gsm_a_sm_cause_vals[] = {
 	{ 0x2d, "Syntactical errors in packet filter(s)" },
 	{ 0x2e, "PDP context without TFT already activated" },
 	{ 0x2f, "Multicast group membership time-out" },
-	{ 0x2c, "Semantic errors in packet filter(s)" },
-	{ 0x2d, "Syntactical errors in packet filter(s)" },
 	{ 0x30, "Request rejected, BCM violation" },
 	{ 0x32, "PDP type IPv4 only allowed" },
 	{ 0x33, "PDP type IPv6 only allowed" },
