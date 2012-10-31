@@ -3849,7 +3849,7 @@ de_gc_device_properties(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 #define MAX_APN_LENGTH		100
 
 guint16
-de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len _U_)
+de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint	curr_len;
