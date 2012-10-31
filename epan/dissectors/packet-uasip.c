@@ -483,7 +483,7 @@ void proto_register_uasip(void)
 
 void proto_reg_handoff_uasip(void)
 {
-    dissector_handle_t uasip_handle;
+    static dissector_handle_t uasip_handle;
     static gboolean    prefs_initialized = FALSE;
 
     if (!prefs_initialized)
