@@ -795,6 +795,8 @@ static gint ett_dvbci_opp_cap_loop = -1;
 
 static int hf_dvbci_event = -1;
 static int hf_dvbci_hw_event = -1;
+static int hf_dvbci_cor_addr = -1;
+static int hf_dvbci_cor_val = -1;
 static int hf_dvbci_cis_tpl_code = -1;
 static int hf_dvbci_cis_tpl_len = -1;
 static int hf_dvbci_cis_tpl_data = -1;
@@ -4517,29 +4519,26 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         }
     }
     else if (event==COR_WRITE) {
-        /* I did not assign hf_... values for cor_addr and cor_value
-           there's no need to filter against them */
+        /* PCAP format for DVB-CI defines COR address as big endian */
+        pi = proto_tree_add_item(dvbci_tree, hf_dvbci_cor_addr,
+                tvb, offset, 2, ENC_BIG_ENDIAN);
         cor_addr = tvb_get_ntohs(tvb, offset);
-        if (cor_addr == 0xffff) {
-            proto_tree_add_text(dvbci_tree, tvb, offset, 2,
-                "COR address is unknown");
+        if (cor_addr == 0xFFFF) {
+            proto_item_append_text(pi, " (COR address is unknown)");
             col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", "unknown address");
         }
         else if (cor_addr > 0xFFE) {
-            pi = proto_tree_add_text(tree, tvb, offset, 2, "Invalid COR address");
             expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
                 "COR address must not be greater than 0xFFE (DVB-CI spec, A.5.6)");
         }
         else {
-            proto_tree_add_text(dvbci_tree, tvb, offset, 2,
-                "COR address: 0x%x", cor_addr);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                 "address 0x%x", cor_addr);
         }
         offset += 2;
         cor_value = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(dvbci_tree, tvb, offset, 1,
-                "COR value: 0x%x", cor_value);
+        proto_tree_add_item(dvbci_tree, hf_dvbci_cor_val,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
             "value 0x%x", cor_value);
     }
@@ -4596,6 +4595,14 @@ proto_register_dvbci(void)
         { &hf_dvbci_hw_event,
           { "Hardware event", "dvb-ci.hw_event",
             FT_UINT8, BASE_HEX, VALS(dvbci_hw_event), 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cor_addr,
+          { "COR address", "dvb-ci.cor_address",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cor_val,
+          { "COR value", "dvb-ci.cor_value",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_cis_tpl_code,
           { "CIS tuple code", "dvb-ci.cis.tpl_code",
