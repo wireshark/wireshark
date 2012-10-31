@@ -23,7 +23,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -53,7 +53,7 @@
 #include "packet-ip.h"
 
 #ifdef HAVE_GEOIP_V6
-#include "GeoIP.h"
+#include <GeoIP.h>
 #include <epan/geoip_db.h>
 #endif /* HAVE_GEOIP_V6 */
 
@@ -515,11 +515,11 @@ add_geoip_info_entry(proto_tree *geoip_info_item, tvbuff_t *tvb, gint offset, co
         PROTO_ITEM_SET_GENERATED(item);
         PROTO_ITEM_SET_HIDDEN(item);
       } else {
-        item = proto_tree_add_string_format_value(geoip_info_tree, geoip_local_hf, tvb,
-          offset, 16, geoip_str, "%s", geoip_str);
+        item = proto_tree_add_unicode_string(geoip_info_tree, geoip_local_hf, tvb,
+          offset, 16, geoip_str);
         PROTO_ITEM_SET_GENERATED(item);
-        item  = proto_tree_add_string_format_value(geoip_info_tree, geoip_hf, tvb,
-          offset, 16, geoip_str, "%s", geoip_str);
+        item  = proto_tree_add_unicode_string(geoip_info_tree, geoip_hf, tvb,
+          offset, 16, geoip_str);
         PROTO_ITEM_SET_GENERATED(item);
         PROTO_ITEM_SET_HIDDEN(item);
       }
@@ -595,7 +595,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
         ti = proto_tree_add_uint_format(tree, hf_ipv6_routing_hdr_opt, tvb,
                       offset, len, rt.ip6r_type,
                       "Routing Header, Type : %s (%u)",
-                      val_to_str(rt.ip6r_type, routing_header_type, "Unknown"),
+                      val_to_str_const(rt.ip6r_type, routing_header_type, "Unknown"),
                       rt.ip6r_type);
         rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
@@ -901,13 +901,12 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
             /* there are more options */
 
             /* IPv6 Option */
-            ti_opt = proto_tree_add_item(dstopt_tree, hf_ipv6_opt, tvb, offset, 2, ENC_NA);
+            ti_opt = proto_tree_add_item(dstopt_tree, hf_ipv6_opt, tvb, offset, 1, ENC_NA);
             opt_tree = proto_item_add_subtree(ti_opt, ett_ipv6_opt);
 
             /* Option type */
             proto_tree_add_item(opt_tree, hf_ipv6_opt_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             opt_type = tvb_get_guint8(tvb, offset);
-            offset += 1;
 
             /* Add option name to option root label */
             proto_item_append_text(ti_opt, " (%s", val_to_str(opt_type, ipv6_opt_vals, "Unknown %d"));
@@ -919,6 +918,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 proto_item_append_text(ti_opt, ")");
                 continue;
             }
+            offset += 1;
 
             /* Option length */
             ti_opt_len = proto_tree_add_item(opt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1288,7 +1288,7 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
     if (tree)
     {
         /* Option Type */
-        ctype = val_to_str( (tvb_get_ntohs(tvb, offset) & SHIM6_BITMASK_OPT_TYPE) >> 1, shimoptvals, "Unknown Option Type");
+        ctype = val_to_str_const( (tvb_get_ntohs(tvb, offset) & SHIM6_BITMASK_OPT_TYPE) >> 1, shimoptvals, "Unknown Option Type");
         ti = proto_tree_add_text(tree, tvb, offset, total_len, "%s", ctype);
         opt_tree = proto_item_add_subtree(ti, ett_ipv6_shim6_option);
 
@@ -1498,7 +1498,7 @@ dissect_shimctrl(tvbuff_t *tvb, gint offset, guint type, proto_tree *shim_tree)
                                         "Probes Received: %u", probes_rcvd);
             p++;
 
-            sta = val_to_str((tvb_get_guint8(tvb, p) & SHIM6_BITMASK_STA) >> 6,
+            sta = val_to_str_const((tvb_get_guint8(tvb, p) & SHIM6_BITMASK_STA) >> 6,
                                         shimreapstates, "Unknown REAP State");
             proto_tree_add_uint_format(shim_tree, hf_ipv6_shim6_reap, tvb,
                 p, 1, (tvb_get_guint8(tvb, p) & SHIM6_BITMASK_STA) >> 6,
@@ -2089,7 +2089,7 @@ again:
               }
               else {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Shim6 (%s)",
-                   val_to_str(stype & SHIM6_BITMASK_TYPE, shimctrlvals, "Unknown"));
+                   val_to_str_const(stype & SHIM6_BITMASK_TYPE, shimctrlvals, "Unknown"));
               }
             }
           } else
