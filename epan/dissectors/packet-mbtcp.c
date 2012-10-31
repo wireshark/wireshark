@@ -77,6 +77,7 @@
 #include "packet-mbtcp.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/crc16-tvb.h> /* For CRC verification */\
 
 /* Initialize the protocol and registered fields */
 static int proto_mbtcp = -1;
@@ -172,6 +173,7 @@ static gboolean mbrtu_desegment = TRUE;
 static guint global_mbus_rtu_port = PORT_MBRTU; /* 0, by default        */
 static gint global_mbus_rtu_register_format = MBTCP_PREF_REGISTER_FORMAT_UINT16;
 static gint global_mbus_rtu_register_addr_type = MBTCP_PREF_REGISTER_ADDR_RAW;
+static gboolean mbrtu_crc = FALSE;
 
 static int
 classify_mbtcp_packet(packet_info *pinfo)
@@ -474,14 +476,14 @@ static void
 dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *mi;
+    proto_item    *mi, *crc_item;
     proto_tree    *mbrtu_tree;
     gint           offset, packet_type;
     tvbuff_t      *next_tvb;
     const char    *func_string = "";
     const char    *pkt_type_str = "";
     const char    *err_str = "";
-    guint16       len, crc16;
+    guint16       len, crc16, calc_crc16;
     guint8        unit_id, function_code, exception_code, subfunction_code;
     void          *p_save_proto_data;
     modbus_request_info_t *request_info;
@@ -578,9 +580,15 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Add items to protocol tree specific to Modbus RTU */
     proto_tree_add_uint(mbrtu_tree, hf_mbrtu_unitid, tvb, offset, 1, unit_id);
-    proto_tree_add_uint(mbrtu_tree, hf_mbrtu_crc16, tvb, len-2, 2, crc16);
+    crc_item = proto_tree_add_uint(mbrtu_tree, hf_mbrtu_crc16, tvb, len-2, 2, crc16);
 
-    /* XXX - TODO CRC validation */
+    /* CRC validation */
+    if (mbrtu_crc)
+    {
+        calc_crc16 = crc16_plain_tvb_offset_seed(tvb, offset, len-2, 0xFFFF);
+        if (g_htons(calc_crc16) != crc16)
+            expert_add_info_format(pinfo, crc_item, PI_PROTOCOL, PI_WARN, "Incorrect CRC - should be 0x%04x", g_htons(calc_crc16));
+    }
 
     /* make sure to ignore the CRC-16 footer bytes */
     len = len - 2;
@@ -1735,6 +1743,12 @@ proto_register_modbus(void)
                                   "Desegment all Modbus RTU packets spanning multiple TCP segments",
                                   "Whether the Modbus RTU dissector should desegment all messages spanning multiple TCP segments",
                                   &mbrtu_desegment);
+
+    /* Modbus RTU Preference - CRC verification, defaults to FALSE (not do verification)*/
+    prefs_register_bool_preference(mbrtu_module, "crc_verification",
+                                  "Validate CRC",
+                                  "Whether to validate the CRC",
+                                  &mbrtu_crc);
 
     /* Modbus RTU Preference - Default TCP Port, defaults to zero, allows custom user port. */
     prefs_register_uint_preference(mbrtu_module, "tcp.port", "Modbus RTU Port",

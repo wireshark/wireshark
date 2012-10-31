@@ -102,3 +102,14 @@ guint16 crc16_plain_tvb_offset(tvbuff_t *tvb, guint offset, guint len)
     return crc16_plain_finalize(crc);
 }
 
+guint16 crc16_plain_tvb_offset_seed(tvbuff_t *tvb, guint offset, guint len, guint16 crc)
+{
+    const guint8 *buf;
+
+    tvb_ensure_bytes_exist(tvb, offset, len);  /* len == -1 not allowed */
+    buf = tvb_get_ptr(tvb, offset, len);
+
+    crc = crc16_plain_update(crc, buf, len);
+    
+    return crc16_plain_finalize(crc);
+}

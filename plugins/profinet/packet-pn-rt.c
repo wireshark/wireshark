@@ -188,7 +188,7 @@ static gboolean IsDFP_Frame(tvbuff_t *tvb)
         u16SFCRC16 = tvb_get_letohs(tvb, offset);
         if(u16SFCRC16 != 0){
             if(u8SFPosition & 0x80) {
-                crc = crc16_plain_tvb_offset(tvb, u32SubStart, offset-u32SubStart);
+                crc = crc16_plain_tvb_offset_seed(tvb, u32SubStart, offset-u32SubStart, 0);
                 if(crc != u16SFCRC16) {
                     return FALSE;
                 } else {
@@ -265,7 +265,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             item = proto_tree_add_uint(sub_tree, hf_pn_rt_sf_crc16, tvb, offset, 2, u16SFCRC16);
 
             if(u16SFCRC16 != 0 /* "old check": u8SFPosition & 0x80 */) {
-                crc = crc16_plain_tvb_offset(tvb, u32SubStart, offset-u32SubStart);
+                crc = crc16_plain_tvb_offset_seed(tvb, u32SubStart, offset-u32SubStart, 0);
                 if(crc != u16SFCRC16) {
                     proto_item_append_text(item, " [Preliminary check: incorrect, should be: %u]", crc);
                     expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");

@@ -116,6 +116,7 @@ copy_file_binary_mode
 copy_persconffile_profile
 crc16_ccitt_tvb
 crc16_plain_tvb_offset
+crc16_plain_tvb_offset_seed
 crc16_ccitt_tvb_offset
 crc16_ccitt_tvb_offset_seed
 crc16_ccitt_tvb_seed
