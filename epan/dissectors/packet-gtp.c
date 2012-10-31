@@ -4556,30 +4556,31 @@ dissect_radius_qos_umts(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo _U
     return tvb_get_ephemeral_string(tvb, 0, tvb_length(tvb));
 }
 
+#define MAX_APN_LENGTH		100
+
 static void
-decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree)
+decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, proto_item *item)
 {
+    guint8	str[MAX_APN_LENGTH+1];
+    guint	curr_len;
 
-    guint8 *apn = NULL;
-    int     name_len, tmp;
+    /* init buffer and copy it */
+    memset(str, 0, MAX_APN_LENGTH);
+    tvb_memcpy(tvb, str, offset, length<MAX_APN_LENGTH?length:MAX_APN_LENGTH);
 
-    if (length > 0) {
-        name_len = tvb_get_guint8(tvb, offset);
-
-        if (name_len < 0x20) {
-            apn = tvb_get_ephemeral_string(tvb, offset + 1, length - 1);
-            for (;;) {
-                if (name_len >= length - 1)
-                    break;
-                tmp = name_len;
-                name_len = name_len + apn[tmp] + 1;
-                apn[tmp] = '.';
-            }
-        } else
-            apn = tvb_get_ephemeral_string(tvb, offset, length);
-
-        proto_tree_add_string(tree, hf_gtp_apn, tvb, offset, length, apn);
+    curr_len = 0;
+    while ((curr_len < length) && (curr_len < MAX_APN_LENGTH))
+    {
+        guint step    = str[curr_len];
+        str[curr_len] = '.';
+        curr_len     += step+1;
     }
+
+    proto_tree_add_string(tree, hf_gtp_apn, tvb, offset+1, length-1, str+1);
+    if(item){
+        proto_item_append_text(item, ": %s", str+1);
+    }
+
 }
 
 static void
@@ -4752,7 +4753,7 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 
     apn_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(ext_tree_pdp, tvb, offset, 1, "APN length: %u", apn_len);
-    decode_apn(tvb, offset + 1, apn_len, ext_tree_pdp);
+    decode_apn(tvb, offset + 1, apn_len, ext_tree_pdp, NULL);
 
     offset = offset + 1 + apn_len;
     /*
@@ -4786,7 +4787,7 @@ decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
     ext_tree_apn = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_APN]);
 
     proto_tree_add_text(ext_tree_apn, tvb, offset + 1, 2, "APN length : %u", length);
-    decode_apn(tvb, offset + 3, length, ext_tree_apn);
+    decode_apn(tvb, offset + 3, length, ext_tree_apn, te);
 
     return 3 + length;
 }
