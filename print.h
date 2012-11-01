@@ -59,9 +59,9 @@ typedef struct print_stream {
 	void *data;
 } print_stream_t;
 
-extern print_stream_t *print_stream_text_new(int to_file, const char *dest);
+extern print_stream_t *print_stream_text_new(gboolean to_file, const char *dest);
 extern print_stream_t *print_stream_text_stdio_new(FILE *fh);
-extern print_stream_t *print_stream_ps_new(int to_file, const char *dest);
+extern print_stream_t *print_stream_ps_new(gboolean to_file, const char *dest);
 extern print_stream_t *print_stream_ps_stdio_new(FILE *fh);
 
 extern gboolean print_preamble(print_stream_t *self, gchar *filename);

@@ -32,7 +32,7 @@
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
 
-#include "../print.h"
+#include "print.h"
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
 #include "ui/util.h"
@@ -53,7 +53,7 @@
 #include <windows.h>
 #include "ui/win32/file_dlg_win32.h"
 #include "ui/win32/print_win32.h"
-#include "../tempfile.h"
+#include "tempfile.h"
 #endif
 
 /* dialog output action */
