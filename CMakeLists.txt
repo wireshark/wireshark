@@ -126,6 +126,7 @@ set(WIRESHARK_C_FLAGS
 	-Wcast-align
 	-Wformat-security
 	-fexcess-precision=fast
+	# -fvisibility=hidden
 )
 
 set(WIRESHARK_C_ONLY_FLAGS
@@ -508,7 +509,12 @@ endif()
 
 #Platform specific
 if(UNIX)
-	set(WS_VAR_IMPORT "extern")
+	if(CMAKE_COMPILER_IS_GNUCC)
+		# set(WS_VAR_IMPORT "__attribute__((visibility(\"default\")))" )
+		set(WS_VAR_IMPORT "extern")
+	else()
+		set(WS_VAR_IMPORT "extern")
+	endif()
 endif()
 
 if(APPLE)

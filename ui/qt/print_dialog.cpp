@@ -225,7 +225,6 @@ void PrintDialog::keyPressEvent(QKeyEvent *event)
 void PrintDialog::printPackets(QPrinter *printer, bool in_preview)
 {
     QPainter painter;
-    cf_print_status_t status;
 
     if (!printer) return;
 
@@ -263,7 +262,7 @@ void PrintDialog::printPackets(QPrinter *printer, bool in_preview)
     // WiresharkApplication::processEvents(), which can make the preview trip
     // over itself.
     preview_->setUpdatesEnabled(false);
-    status = cf_print_packets(cap_file_, &print_args_);
+    cf_print_packets(cap_file_, &print_args_);
     preview_->setUpdatesEnabled(true);
     cur_printer_ = NULL;
     cur_painter_ = NULL;
