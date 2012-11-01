@@ -7504,7 +7504,7 @@ proto_register_gsm_a_gm(void)
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_apn,
-		  { "APN", "gsm_a.gm.gmm.apn",
+		  { "APN", "gsm_a.gm.sm.apn",
 		    FT_STRING,BASE_NONE, NULL,0x0,
 		    NULL, HFILL }
 		},
