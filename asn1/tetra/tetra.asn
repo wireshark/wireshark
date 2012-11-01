@@ -1874,14 +1874,14 @@ D-TX-CONTINUE ::= SEQUENCE
 
 U-LOCATION-UPDATE-DEMAND ::= SEQUENCE
 {
-	location-update-type UPDATE-TYPE,
-	request-to-append-LA BOOLEAN,
+  location-update-type UPDATE-TYPE,
+  request-to-append-LA BOOLEAN,
   cipher-control CHOICE{no-cipher NULL,ciphering-parameters INTEGER(0..1023)},
-  class-of-MS OCTET STRING(SIZE(4)),
   optional-elements CHOICE{
      no-type2 NULL,
 	 type2-parameters SEQUENCE
 	 {
+        class-of-MS CHOICE{none NULL, class-of-MS INTEGER(0..16777215)},
         energy-saving-mode CHOICE{none NULL,energy-saving-mode INTEGER(0..7)},
         la-information CHOICE{none NULL,la-information  INTEGER(0..16383)},
         ssi  CHOICE{none NULL,ssi  OCTET STRING(SIZE(3))},

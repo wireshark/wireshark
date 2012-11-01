@@ -520,9 +520,10 @@ static int hf_tetra_request_to_append_LA = -1;    /* BOOLEAN */
 static int hf_tetra_cipher_control_01 = -1;       /* T_cipher_control */
 static int hf_tetra_no_cipher = -1;               /* NULL */
 static int hf_tetra_ciphering_parameters = -1;    /* INTEGER_0_1023 */
-static int hf_tetra_class_of_MS = -1;             /* OCTET_STRING_SIZE_4 */
 static int hf_tetra_optional_elements_06 = -1;    /* T_optional_elements_06 */
 static int hf_tetra_type2_parameters_04 = -1;     /* T_type2_parameters_04 */
+static int hf_tetra_class_of_MS = -1;             /* T_class_of_MS */
+static int hf_tetra_class_of_MS_01 = -1;          /* INTEGER_0_16777215 */
 static int hf_tetra_energy_saving_mode_02 = -1;   /* T_energy_saving_mode_01 */
 static int hf_tetra_la_information = -1;          /* T_la_information */
 static int hf_tetra_la_information_01 = -1;       /* INTEGER_0_16383 */
@@ -840,6 +841,7 @@ static gint ett_tetra_U_LOCATION_UPDATE_DEMAND = -1;
 static gint ett_tetra_T_cipher_control = -1;
 static gint ett_tetra_T_optional_elements_06 = -1;
 static gint ett_tetra_T_type2_parameters_04 = -1;
+static gint ett_tetra_T_class_of_MS = -1;
 static gint ett_tetra_T_energy_saving_mode_01 = -1;
 static gint ett_tetra_T_la_information = -1;
 static gint ett_tetra_T_ssi_01 = -1;
@@ -2193,11 +2195,23 @@ dissect_tetra_T_cipher_control(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+static const value_string tetra_T_class_of_MS_vals[] = {
+  {   0, "none" },
+  {   1, "class-of-MS" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_class_of_MS_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_class_of_MS_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_16777215 },
+  { 0, NULL, 0, NULL }
+};
 
 static int
-dissect_tetra_OCTET_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       4, 4, FALSE, NULL);
+dissect_tetra_T_class_of_MS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_class_of_MS, T_class_of_MS_choice,
+                                 NULL);
 
   return offset;
 }
@@ -2460,6 +2474,7 @@ dissect_tetra_T_type3_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 static const per_sequence_t T_type2_parameters_04_sequence[] = {
+  { &hf_tetra_class_of_MS   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_class_of_MS },
   { &hf_tetra_energy_saving_mode_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_energy_saving_mode_01 },
   { &hf_tetra_la_information, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_la_information },
   { &hf_tetra_ssi_04        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_ssi_01 },
@@ -2503,7 +2518,6 @@ static const per_sequence_t U_LOCATION_UPDATE_DEMAND_sequence[] = {
   { &hf_tetra_location_update_type, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_UPDATE_TYPE },
   { &hf_tetra_request_to_append_LA, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_cipher_control_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_cipher_control },
-  { &hf_tetra_class_of_MS   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_OCTET_STRING_SIZE_4 },
   { &hf_tetra_optional_elements_06, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_06 },
   { NULL, 0, 0, NULL }
 };
@@ -3908,6 +3922,16 @@ dissect_tetra_T_called_party_type_identifier(tvbuff_t *tvb _U_, int offset _U_, 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_tetra_T_called_party_type_identifier, T_called_party_type_identifier_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_tetra_OCTET_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       4, 4, FALSE, NULL);
 
   return offset;
 }
@@ -10833,10 +10857,6 @@ void proto_register_tetra (void)
       { "ciphering-parameters", "tetra.ciphering_parameters",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1023", HFILL }},
-    { &hf_tetra_class_of_MS,
-      { "class-of-MS", "tetra.class_of_MS",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_4", HFILL }},
     { &hf_tetra_optional_elements_06,
       { "optional-elements", "tetra.optional_elements",
         FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_06_vals), 0,
@@ -10845,6 +10865,14 @@ void proto_register_tetra (void)
       { "type2-parameters", "tetra.type2_parameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_type2_parameters_04", HFILL }},
+    { &hf_tetra_class_of_MS,
+      { "class-of-MS", "tetra.class_of_MS",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_class_of_MS_vals), 0,
+        NULL, HFILL }},
+    { &hf_tetra_class_of_MS_01,
+      { "class-of-MS", "tetra.class_of_MS",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_16777215", HFILL }},
     { &hf_tetra_energy_saving_mode_02,
       { "energy-saving-mode", "tetra.energy_saving_mode",
         FT_UINT32, BASE_DEC, VALS(tetra_T_energy_saving_mode_01_vals), 0,
@@ -11633,6 +11661,7 @@ void proto_register_tetra (void)
     &ett_tetra_T_cipher_control,
     &ett_tetra_T_optional_elements_06,
     &ett_tetra_T_type2_parameters_04,
+    &ett_tetra_T_class_of_MS,
     &ett_tetra_T_energy_saving_mode_01,
     &ett_tetra_T_la_information,
     &ett_tetra_T_ssi_01,
