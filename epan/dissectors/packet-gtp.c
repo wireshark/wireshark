@@ -4576,7 +4576,8 @@ decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, proto_
         curr_len     += step+1;
     }
 
-    proto_tree_add_string(tree, hf_gtp_apn, tvb, offset+1, length-1, str+1);
+	/* High light bytes including the first lenght byte */
+    proto_tree_add_string(tree, hf_gtp_apn, tvb, offset, length, str+1);
     if(item){
         proto_item_append_text(item, ": %s", str+1);
     }
