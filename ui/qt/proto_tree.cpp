@@ -49,7 +49,7 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     field_info   *fi = PNODE_FINFO(node);
     gchar         label_str[ITEM_LABEL_LENGTH];
     gchar        *label_ptr;
-    gboolean      is_leaf;
+    gboolean      is_branch;
 
     /* dissection with an invisible proto tree? */
     g_assert(fi);
@@ -68,11 +68,11 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     }
 
     if (node->first_child != NULL) {
-        is_leaf = FALSE;
+        is_branch = TRUE;
         g_assert(fi->tree_type >= 0 && fi->tree_type < num_tree_types);
     }
     else {
-        is_leaf = TRUE;
+        is_branch = FALSE;
     }
 
     if (PROTO_ITEM_IS_GENERATED(node)) {
@@ -137,13 +137,13 @@ proto_tree_draw_node(proto_node *node, gpointer data)
         g_free(label_ptr);
     }
 
-    if (tree_is_expanded[fi->tree_type]) {
-        item->setExpanded(true);
-    } else {
-        item->setExpanded(false);
-    }
+    if (is_branch) {
+        if (tree_is_expanded[fi->tree_type]) {
+            item->setExpanded(true);
+        } else {
+            item->setExpanded(false);
+        }
 
-    if (!is_leaf) {
         proto_tree_children_foreach(node, proto_tree_draw_node, item);
     }
 }
