@@ -49,6 +49,7 @@ public:
 
 signals:
     void validityChanged(bool is_valid);
+    void rangeChanged();
 
 private:
     void updateCounts();

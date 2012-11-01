@@ -173,6 +173,7 @@ private slots:
     void on_actionFileExportObjectsDICOM_triggered();
     void on_actionFileExportObjectsHTTP_triggered();
     void on_actionFileExportObjectsSMB_triggered();
+    void on_actionFilePrint_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();

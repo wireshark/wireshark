@@ -61,6 +61,7 @@
 #include "wireshark_application.h"
 #include "capture_file_dialog.h"
 #include "export_object_dialog.h"
+#include "print_dialog.h"
 
 //
 // Public slots
@@ -814,6 +815,13 @@ void MainWindow::on_actionFileExportObjectsHTTP_triggered()
 void MainWindow::on_actionFileExportObjectsSMB_triggered()
 {
     new ExportObjectDialog(this, cap_file_, ExportObjectDialog::Smb);
+}
+
+void MainWindow::on_actionFilePrint_triggered()
+{
+    PrintDialog pdlg(this, cap_file_);
+
+    pdlg.exec();
 }
 
 // View Menu

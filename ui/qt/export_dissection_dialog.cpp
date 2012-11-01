@@ -145,7 +145,6 @@ int ExportDissectionDialog::exec()
         print_args_.print_hex           = FALSE;
         print_args_.print_formfeed      = FALSE;
 
-
         switch (export_type_) {
         case export_type_text:      /* Text */
             print_args_.print_summary = packet_format_group_box_.summaryEnabled();

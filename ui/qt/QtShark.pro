@@ -183,7 +183,8 @@ FORMS += main_window.ui \
     file_set_dialog.ui \
     packet_range_group_box.ui \
     packet_format_group_box.ui \
-    export_object_dialog.ui
+    export_object_dialog.ui \
+    print_dialog.ui
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
@@ -209,7 +210,8 @@ win32 { ## These should be in config.pri ??
 HEADERS += $$HEADERS_WS_C \
     export_dissection_dialog.h \
     packet_format_group_box.h \
-    export_object_dialog.h
+    export_object_dialog.h \
+    print_dialog.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -417,4 +419,5 @@ SOURCES += \
     wireshark_application.cpp \
     export_dissection_dialog.cpp \
     packet_format_group_box.cpp \
-    export_object_dialog.cpp
+    export_object_dialog.cpp \
+    print_dialog.cpp

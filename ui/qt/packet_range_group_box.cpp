@@ -273,6 +273,7 @@ void PacketRangeGroupBox::updateCounts() {
         pr_ui_->rangeLineEdit->setSyntaxState(syntax_state_);
         emit validityChanged(isValid());
     }
+    emit rangeChanged();
 }
 
 // Slots

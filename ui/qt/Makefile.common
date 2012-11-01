@@ -34,7 +34,8 @@ GENERATED_NODIST_HEADER_FILES = \
 	ui_file_set_dialog.h \
 	ui_main_welcome.h \
 	ui_main_window.h \
-	ui_packet_range_group_box.h
+	ui_packet_range_group_box.h \
+	ui_print_dialog.h
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES =
@@ -90,6 +91,7 @@ MOC_HDRS = \
 	packet_list.h \
 	packet_list_model.h \
 	packet_range_group_box.h \
+	print_dialog.h \
 	progress_bar.h \
 	proto_tree.h \
 	recent_file_status.h \
@@ -149,6 +151,7 @@ WIRESHARK_QT_SRC = \
 	packet_list_model.cpp \
 	packet_list_record.cpp \
 	packet_range_group_box.cpp \
+	print_dialog.cpp \
 	progress_bar.cpp \
 	proto_tree.cpp \
 	qt_ui_utils.cpp \
