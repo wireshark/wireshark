@@ -80,7 +80,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf) :
     print_bt_(new QPushButton(tr("&Print..."))),
     cap_file_(cf)
 {
-    if (!cf) close(); // ...or assert?
+    if (!cf) done(QDialog::Rejected); // ...or assert?
 
     pd_ui_->setupUi(this);
 

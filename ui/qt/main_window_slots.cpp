@@ -187,8 +187,8 @@ void MainWindow::captureCapturePrepared(capture_options *capture_opts) {
 void MainWindow::captureCaptureUpdateStarted(capture_options *capture_opts) {
     Q_UNUSED(capture_opts);
 
-    qDebug() << "captureCaptureUpdateStarted";
     setForCaptureInProgress(true);
+    setForCapturedPackets(true);
 }
 void MainWindow::captureCaptureUpdateFinished(capture_options *capture_opts) {
     Q_UNUSED(capture_opts);
@@ -282,7 +282,7 @@ void MainWindow::captureFileReadFinished(const capture_file *cf) {
     updateForUnsavedChanges();
 
 //    /* Enable menu items that make sense if you have some captured packets. */
-//    set_menus_for_captured_packets(TRUE);
+    setForCapturedPackets(true);
 
     main_ui_->statusBar->popFileStatus();
     QString msg = QString().sprintf("%s", get_basename(cf->filename));
@@ -293,6 +293,7 @@ void MainWindow::captureFileClosing(const capture_file *cf) {
     if (cf != cap_file_) return;
 
     setMenusForCaptureFile(true);
+    setForCapturedPackets(false);
     setForCaptureInProgress(false);
 
     // Reset expert info indicator

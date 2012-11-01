@@ -86,6 +86,7 @@ MainWindow::MainWindow(QWidget *parent) :
     gbl_cur_main_window = this;
     main_ui_->setupUi(this);
     setMenusForCaptureFile();
+    setForCapturedPackets(false);
     setMenusForSelectedTreeRow();
     setForCaptureInProgress(false);
     setMenusForFileSet(false);
@@ -1168,6 +1169,42 @@ void MainWindow::setMenusForCaptureStopping() {
     main_ui_->actionStopCapture->setEnabled(false);
     main_ui_->actionCaptureRestart->setEnabled(false);
 #endif /* HAVE_LIBPCAP */
+}
+
+void MainWindow::setForCapturedPackets(bool have_captured_packets)
+{
+    main_ui_->actionFilePrint->setEnabled(have_captured_packets);
+
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Print",
+//                         have_captured_packets);
+
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindPacket",
+//                         have_captured_packets);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindNext",
+//                         have_captured_packets);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindPrevious",
+//                         have_captured_packets);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ZoomIn",
+//                         have_captured_packets);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ZoomOut",
+//                         have_captured_packets);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NormalSize",
+//                         have_captured_packets);
+
+    main_ui_->actionGoGoToPacket->setEnabled(have_captured_packets);
+    main_ui_->actionGoPreviousPacket->setEnabled(have_captured_packets);
+    main_ui_->actionGoNextPacket->setEnabled(have_captured_packets);
+    main_ui_->actionGoFirstPacket->setEnabled(have_captured_packets);
+    main_ui_->actionGoLastPacket->setEnabled(have_captured_packets);
+
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/PreviousPacketInConversation",
+//                         have_captured_packets);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/NextPacketInConversation",
+//                         have_captured_packets);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/Summary",
+//                         have_captured_packets);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/ProtocolHierarchy",
+//                         have_captured_packets);
 }
 
 void MainWindow::setMenusForFileSet(bool enable_list_files) {

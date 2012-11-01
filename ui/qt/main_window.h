@@ -111,8 +111,7 @@ private:
     void setMenusForCaptureFile(bool force_disable = false);
     void setMenusForCaptureInProgress(bool capture_in_progress = false);
     void setMenusForCaptureStopping();
-    // xxx set_menus_for_captured_packets
-    // xxx set_menus_for_selected_packet
+    void setForCapturedPackets(bool have_captured_packets);
     void setMenusForFileSet(bool enable_list_files);
     void updateForUnsavedChanges();
     void setForCaptureInProgress(gboolean capture_in_progress = false);
