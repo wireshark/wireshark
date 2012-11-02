@@ -2742,7 +2742,7 @@ ssl_load_key(FILE* fp)
      */
     gnutls_x509_privkey_t priv_key;
     gnutls_datum_t        key;
-    gint                  size;
+    gint                  size, ret;
     guint                 bytes;
 
     Ssl_private_key_t *private_key = g_malloc0(sizeof(Ssl_private_key_t));
@@ -2778,8 +2778,8 @@ ssl_load_key(FILE* fp)
     }
 
     /* import PEM data*/
-    if (gnutls_x509_privkey_import(priv_key, &key, GNUTLS_X509_FMT_PEM)!=0) {
-        ssl_debug_printf("ssl_load_key: can't import pem data\n");
+    if ((ret = gnutls_x509_privkey_import(priv_key, &key, GNUTLS_X509_FMT_PEM)) != GNUTLS_E_SUCCESS) {
+        ssl_debug_printf("ssl_load_key: can't import pem data: %s\n", gnutls_strerror(ret));
         g_free(private_key);
         g_free(key.data);
         return NULL;
