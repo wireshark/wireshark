@@ -171,6 +171,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-smrse.c \
 	packet-spnego.c \
 	packet-sv.c \
+	packet-sysex.c \
 	packet-t38.c		\
 	packet-ulp.c \
 	packet-wlancertextn.c \
@@ -1105,6 +1106,7 @@ DISSECTOR_SRC = \
 	packet-uma.c		\
 	packet-umts_fp.c	\
 	packet-umts_mac.c	\
+	packet-usb-audio.c	\
 	packet-usb-ccid.c	\
 	packet-usb-hid.c	\
 	packet-usb-hub.c	\

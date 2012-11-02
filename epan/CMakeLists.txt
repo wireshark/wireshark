@@ -257,6 +257,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-smrse.c
 	dissectors/packet-spnego.c
 	dissectors/packet-sv.c
+	dissectors/packet-sysex.c
 	dissectors/packet-t38.c
 	dissectors/packet-ulp.c
 	dissectors/packet-wlancertextn.c
@@ -1185,6 +1186,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-uma.c
 	dissectors/packet-umts_fp.c
 	dissectors/packet-umts_mac.c
+	dissectors/packet-usb-audio.c
 	dissectors/packet-usb-ccid.c
 	dissectors/packet-usb-hid.c
 	dissectors/packet-usb-hub.c
