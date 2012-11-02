@@ -2433,6 +2433,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		ouiStr = uint_get_manuf_name_if_known(oui);
 		if(ouiStr==NULL) ouiStr="Unknown";
 	}
+
+	/* Set a default value */
+	tempTree = ett_org_spc_ProfinetSubTypes_1;
 	switch(oui)
 	{
 	case OUI_IEEE_802_1:
