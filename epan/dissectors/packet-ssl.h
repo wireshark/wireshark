@@ -38,4 +38,6 @@ extern void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address 
 
 extern gboolean ssl_ignore_mac_failed;
 
+gchar* ssl_association_info(void);
+
 #endif  /* __PACKET_SSL_H__ */

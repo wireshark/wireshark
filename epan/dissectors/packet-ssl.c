@@ -437,6 +437,41 @@ ssl_parse_old_keys(void)
 
 /*********************************************************************
  *
+ * SSL Associations tree
+ *
+ *********************************************************************/
+
+/** maximum size of ssl_association_info() string */
+#define SSL_ASSOC_MAX_LEN 8192
+
+/**
+ * callback function used by ssl_association_info() to traverse the SSL associations.
+ */
+static gboolean
+ssl_association_info_(gpointer key_ _U_, gpointer value_, gpointer s_)
+{
+    SslAssociation *value = value_;
+    gchar *s = s_;
+    const int l = strlen(s);
+    g_snprintf(s+l, SSL_ASSOC_MAX_LEN-l, "'%s' %s %i\n", value->info, value->tcp ? "TCP":"UDP", value->ssl_port);
+    return FALSE;
+}
+
+extern GTree* ssl_associations;
+
+/**
+ * @return an information string on the SSL protocol associations. The string has ephemeral lifetime/scope.
+ */
+gchar*
+ssl_association_info(void)
+{
+    gchar *s = ep_alloc0(SSL_ASSOC_MAX_LEN);
+    g_tree_foreach(ssl_associations, ssl_association_info_, s);
+    return s;
+}
+
+/*********************************************************************
+ *
  * Forward Declarations
  *
  *********************************************************************/
