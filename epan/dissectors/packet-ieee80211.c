@@ -17154,7 +17154,7 @@ proto_register_ieee80211 (void)
             uat_wep_key_record_copy_cb,        /* copy callback */
             uat_wep_key_record_update_cb,      /* update callback */
             uat_wep_key_record_free_cb,        /* free callback */
-            NULL,                       /* post update callback */
+            init_wepkeys,               /* post update callback - update the WEP/WPA keys */
             wep_uat_flds);             /* UAT field definitions */
 
   prefs_register_uat_preference(wlan_module,
