@@ -452,7 +452,7 @@ ssl_association_info_(gpointer key_ _U_, gpointer value_, gpointer s_)
 {
     SslAssociation *value = value_;
     gchar *s = s_;
-    const int l = strlen(s);
+    const int l = (const int)strlen(s);
     g_snprintf(s+l, SSL_ASSOC_MAX_LEN-l, "'%s' %s %i\n", value->info, value->tcp ? "TCP":"UDP", value->ssl_port);
     return FALSE;
 }

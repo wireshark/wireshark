@@ -221,11 +221,13 @@ static gint ett_org_spc_media_9 = -1;
 static gint ett_org_spc_media_10 = -1;
 static gint ett_org_spc_media_11 = -1;
 
+#if 0
 static gint ett_org_spc_mediaClass_0 = -1;
 static gint ett_org_spc_mediaClass_1 = -1;
 static gint ett_org_spc_mediaClass_2 = -1;
 static gint ett_org_spc_mediaClass_3 = -1;
 static gint ett_org_spc_mediaClass_4 = -1;
+#endif
 static gint ett_org_spc_ProfinetSubTypes_1 = -1;
 static gint ett_org_spc_ProfinetSubTypes_2 = -1;
 static gint ett_org_spc_ProfinetSubTypes_3 = -1;
