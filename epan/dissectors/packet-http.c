@@ -243,6 +243,8 @@ static gboolean http_decompress_body = FALSE;
 #define TCP_DEFAULT_RANGE "80,3128,3132,5985,8080,8088,11371,1900,2869,2710"
 #define SSL_DEFAULT_RANGE "443"
 
+#define UPGRADE_WEBSOCKET 1
+
 static range_t *global_http_tcp_range = NULL;
 static range_t *global_http_ssl_range = NULL;
 
@@ -263,6 +265,7 @@ typedef struct {
 	gint64	content_length;
 	char	*content_encoding;
 	char	*transfer_encoding;
+	guint8  upgrade;
 } headers_t;
 
 static int is_http_request_or_reply(const gchar *data, int linelen,
@@ -741,6 +744,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	headers.content_length = 0;		/* content length set to 0 (avoid a gcc warning) */
 	headers.content_encoding = NULL; /* content encoding not known yet */
 	headers.transfer_encoding = NULL; /* transfer encoding not known yet */
+	headers.upgrade = 0; /* assume we're not upgrading */
 	saw_req_resp_or_header = FALSE;	/* haven't seen anything yet */
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
@@ -973,6 +977,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 		}
 	}
+	
+	reported_datalen = tvb_reported_length_remaining(tvb, offset);
+	datalen = tvb_length_remaining(tvb, offset);
 
 	/*
 	 * If a content length was supplied, the amount of data to be
@@ -1005,7 +1012,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * keep information about the request and associate that with
 	 * the response in order to handle that.
 	 */
-	datalen = tvb_length_remaining(tvb, offset);
 	if (headers.have_content_length &&
 	    headers.content_length != -1 &&
 	    headers.transfer_encoding == NULL) {
@@ -1026,7 +1032,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * "packet is malformed" (running past the reassembled
 		 * length).
 		 */
-		reported_datalen = tvb_reported_length_remaining(tvb, offset);
 		if (reported_datalen > headers.content_length)
 			reported_datalen = (int)headers.content_length;
 	} else {
@@ -1095,14 +1100,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		next_tvb = tvb_new_subset(tvb, offset, datalen,
 		    reported_datalen);
 
-		/*
-		 *	Check if Websocket 
-		 */
-		if (conv_data->upgrade != NULL &&
-		    g_ascii_strcasecmp(conv_data->upgrade, "WebSocket") == 0) {
-			call_dissector_only(websocket_handle, next_tvb, pinfo, tree, NULL);
-			goto body_dissected;
-		}
 		/*
 		 * Handle *transfer* encodings other than "identity".
 		 */
@@ -1340,6 +1337,11 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * offset past whatever data we've processed.
 		 */
 		offset += datalen;
+	}
+
+	if (http_type == HTTP_RESPONSE && pinfo->desegment_offset<=0 && pinfo->desegment_len<=0) {
+		conv_data->upgrade = headers.upgrade;
+		conv_data->startframe = pinfo->fd->num + 1;
 	}
 
 	tap_queue_packet(http_tap, pinfo, stat_info);
@@ -2353,7 +2355,8 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_UPGRADE:
-			conv_data->upgrade = se_strndup(value, value_len);
+			if (g_ascii_strncasecmp(value, "WebSocket", value_len) == 0)
+				eh_ptr->upgrade = UPGRADE_WEBSOCKET;
 			break;
 		}
 	}
@@ -2485,6 +2488,10 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		http_payload_subdissector(tvb, tree, pinfo, conv_data);
 	} else {
 		while (tvb_reported_length_remaining(tvb, offset) != 0) {
+			if (conv_data->upgrade == UPGRADE_WEBSOCKET && pinfo->fd->num >= conv_data->startframe) {
+				call_dissector_only(websocket_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
+				break;
+			}
 			len = dissect_http_message(tvb, offset, pinfo, tree, conv_data);
 			if (len == -1)
 				break;
