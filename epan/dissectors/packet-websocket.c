@@ -298,7 +298,7 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
       pinfo->desegment_len = 2+8;
       return 0;
     }
-    payload_length = tvb_get_ntoh64(tvb, 2);
+    payload_length = (guint64)tvb_get_ntoh64(tvb, 2);
     mask_offset = 2+8;
   }
   else{
