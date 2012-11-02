@@ -154,6 +154,9 @@ static int hf_media_tag_flag = -1;
 static int hf_profinet_tlv_subtype = -1;
 static int hf_profinet_class2_port_status = -1;
 static int hf_profinet_class3_port_status = -1;
+static int hf_profinet_class3_port_status_Fragmentation = -1;
+static int hf_profinet_class3_port_status_reserved = -1;
+static int hf_profinet_class3_port_status_PreambleLength = -1;
 static int hf_profinet_port_rx_delay_local = -1;
 static int hf_profinet_port_rx_delay_remote = -1;
 static int hf_profinet_port_tx_delay_local = -1;
@@ -195,6 +198,40 @@ static gint ett_system_cap_summary = -1;
 static gint ett_system_cap_enabled = -1;
 static gint ett_management_address = -1;
 static gint ett_unknown_tlv = -1;
+static gint ett_org_spc_def =-1;
+static gint ett_org_spc_ieee_802_1_1 = -1;
+static gint ett_org_spc_ieee_802_1_2 = -1;
+static gint ett_org_spc_ieee_802_1_3 = -1;
+static gint ett_org_spc_ieee_802_1_4 = -1;
+
+static gint ett_org_spc_ieee_802_3_1 = -1;
+static gint ett_org_spc_ieee_802_3_2 = -1;
+static gint ett_org_spc_ieee_802_3_3 = -1;
+static gint ett_org_spc_ieee_802_3_4 = -1;
+
+static gint ett_org_spc_media_1 = -1;
+static gint ett_org_spc_media_2 = -1;
+static gint ett_org_spc_media_3 = -1;
+static gint ett_org_spc_media_4 = -1;
+static gint ett_org_spc_media_5 = -1;
+static gint ett_org_spc_media_6 = -1;
+static gint ett_org_spc_media_7 = -1;
+static gint ett_org_spc_media_8 = -1;
+static gint ett_org_spc_media_9 = -1;
+static gint ett_org_spc_media_10 = -1;
+static gint ett_org_spc_media_11 = -1;
+
+static gint ett_org_spc_mediaClass_0 = -1;
+static gint ett_org_spc_mediaClass_1 = -1;
+static gint ett_org_spc_mediaClass_2 = -1;
+static gint ett_org_spc_mediaClass_3 = -1;
+static gint ett_org_spc_mediaClass_4 = -1;
+static gint ett_org_spc_ProfinetSubTypes_1 = -1;
+static gint ett_org_spc_ProfinetSubTypes_2 = -1;
+static gint ett_org_spc_ProfinetSubTypes_3 = -1;
+static gint ett_org_spc_ProfinetSubTypes_4 = -1;
+static gint ett_org_spc_ProfinetSubTypes_5 = -1;
+static gint ett_org_spc_ProfinetSubTypes_6 = -1;
 static gint ett_org_spc_tlv = -1;
 static gint ett_port_vlan_flags = -1;
 static gint ett_802_3_flags = -1;
@@ -561,6 +598,17 @@ static const value_string profinet_port3_status_vals[] = {
 	{ 0,	NULL }
 };
 
+static const value_string profinet_port3_status_OnOff[] = {
+	{ 0,	"OFF" },
+	{ 1,	"ON" },
+	{ 0,	NULL }
+};
+
+static const value_string profinet_port3_status_PreambleLength[] = {
+	{ 0,	"Seven octets" },
+	{ 1,	"One octet" },
+	{ 0,	NULL }
+};
 static const value_string profinet_mrrt_port_status_vals[] = {
 	{ 0,	"OFF" },
 	{ 1,	"MRRT_CONFIGURED" },
@@ -2255,6 +2303,11 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 		offset+=2;
 		class3_PortStatus = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_profinet_class3_port_status, tvb, offset, 2, class3_PortStatus);
+		proto_tree_add_uint(tree, hf_profinet_class3_port_status_reserved, tvb, offset, 2, class3_PortStatus);
+		proto_tree_add_uint(tree, hf_profinet_class3_port_status_Fragmentation, tvb, offset, 2, class3_PortStatus);
+		proto_tree_add_uint(tree, hf_profinet_class3_port_status_PreambleLength, tvb, offset, 2, class3_PortStatus);
+
+        col_append_fstr(pinfo->cinfo, COL_INFO,"RTClass3 Port Status = %s", val_to_str((class3_PortStatus & 0x7), profinet_port3_status_vals, "Unknown %d"));
 		offset+=2;
 		break;
 	}
@@ -2351,6 +2404,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
 	guint16 tempLen;
 	guint16 tempShort;
+	gint    tempTree;
 	guint32 oui, tLength = tvb_length(tvb);
 	guint8 subType;
 	const char *ouiStr;
@@ -2381,15 +2435,77 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	{
 	case OUI_IEEE_802_1:
 		subTypeStr = val_to_str(subType, ieee_802_1_subtypes, "Unknown subtype 0x%x");
+		switch(subType)
+		{
+		case 1:	tempTree = ett_org_spc_ieee_802_1_1;
+			break;
+		case 2:	tempTree = ett_org_spc_ieee_802_1_2;
+			break;
+		case 3:	tempTree = ett_org_spc_ieee_802_1_3;
+			break;
+		case 4:	tempTree = ett_org_spc_ieee_802_1_4;
+			break;
+		}
 		break;
 	case OUI_IEEE_802_3:
 		subTypeStr = val_to_str(subType, ieee_802_3_subtypes, "Unknown subtype 0x%x");
+		switch(subType)
+		{
+		case 1:	tempTree = ett_org_spc_ieee_802_3_1;
+			break;
+		case 2:	tempTree = ett_org_spc_ieee_802_3_2;
+			break;
+		case 3:	tempTree = ett_org_spc_ieee_802_3_3;
+			break;
+		case 4:	tempTree = ett_org_spc_ieee_802_3_4;
+			break;
+		}
 		break;
 	case OUI_MEDIA_ENDPOINT:
 		subTypeStr = val_to_str(subType, media_subtypes, "Unknown subtype 0x%x");
+		switch(subType)
+		{
+		case 1:	tempTree = ett_org_spc_media_1;
+			break;
+		case 2:	tempTree = ett_org_spc_media_2;
+			break;
+		case 3:	tempTree = ett_org_spc_media_3;
+			break;
+		case 4:	tempTree = ett_org_spc_media_4;
+			break;
+		case 5:	tempTree = ett_org_spc_media_5;
+			break;
+		case 6:	tempTree = ett_org_spc_media_6;
+			break;
+		case 7:	tempTree = ett_org_spc_media_7;
+			break;
+		case 8:	tempTree = ett_org_spc_media_8;
+			break;
+		case 9:	tempTree = ett_org_spc_media_9;
+			break;
+		case 10:	tempTree = ett_org_spc_media_10;
+			break;
+		case 11:	tempTree = ett_org_spc_media_11;
+			break;
+		}
 		break;
 	case OUI_PROFINET:
 		subTypeStr = val_to_str(subType, profinet_subtypes, "Reserved (0x%x)");
+		switch(subType)
+		{
+		case 1:	tempTree = ett_org_spc_ProfinetSubTypes_1;
+			break;
+		case 2:	tempTree = ett_org_spc_ProfinetSubTypes_2;
+			break;
+		case 3:	tempTree = ett_org_spc_ProfinetSubTypes_3;
+			break;
+		case 4:	tempTree = ett_org_spc_ProfinetSubTypes_4;
+			break;
+		case 5:	tempTree = ett_org_spc_ProfinetSubTypes_5;
+			break;
+		case 6:	tempTree = ett_org_spc_ProfinetSubTypes_6;
+			break;
+		}
 		break;
 	case OUI_CISCO_2:
 		subTypeStr = val_to_str(subType, cisco_subtypes, "Unknown subtype (0x%x)");
@@ -2404,7 +2520,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	if (tree)
 	{
 		tf = proto_tree_add_text(tree, tvb, offset, tLength, "%s - %s", ouiStr, subTypeStr);
-		org_tlv_tree = proto_item_add_subtree(tf, ett_org_spc_tlv);
+		org_tlv_tree = proto_item_add_subtree(tf, tempTree); /* change to temp: ett_org_spc_tlv */
 		proto_tree_add_item(org_tlv_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	}
 	if (tempLen < 4)
@@ -3061,6 +3177,19 @@ proto_register_lldp(void)
 			{ "RTClass3 Port Status",	"lldp.profinet.rtc3_port_status", FT_UINT16, BASE_HEX,
 			VALS(profinet_port3_status_vals), 0x0, NULL, HFILL }
 		},
+        /* class3_port state got some new BITs */
+		{ &hf_profinet_class3_port_status_Fragmentation,
+			{ "RTClass3_PortStatus.Fragmentation",	"lldp.profinet.rtc3_port_status.fragmentation", FT_UINT16, BASE_HEX,
+	   		VALS(profinet_port3_status_OnOff), 0x1000, NULL, HFILL }
+		},
+		{ &hf_profinet_class3_port_status_reserved,
+			{ "RTClass3_PortStatus.reserved",	"lldp.profinet.rtc3_port_status.reserved", FT_UINT16, BASE_HEX,
+	   		  NULL, 0x0FF8, "reserved", HFILL }
+		},
+		{ &hf_profinet_class3_port_status_PreambleLength,
+			{ "RTClass3_PortStatus.PreambleLength",	"lldp.profinet.rtc3_port_status.preambleLength", FT_UINT16, BASE_HEX,
+	   		VALS(profinet_port3_status_PreambleLength), 0x2000, NULL, HFILL }
+		},
 		{ &hf_profinet_mrp_domain_uuid,
 			{ "MRP DomainUUID",	"lldp.profinet.mrp_domain_uuid", FT_GUID, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
@@ -3166,6 +3295,32 @@ proto_register_lldp(void)
 		&ett_management_address,
 		&ett_unknown_tlv,
 		&ett_org_spc_tlv,
+		&ett_org_spc_def,
+		&ett_org_spc_ieee_802_1_1,
+		&ett_org_spc_ieee_802_1_2,
+		&ett_org_spc_ieee_802_1_3,
+		&ett_org_spc_ieee_802_1_4,
+		&ett_org_spc_ieee_802_3_1,
+		&ett_org_spc_ieee_802_3_2,
+		&ett_org_spc_ieee_802_3_3,
+		&ett_org_spc_ieee_802_3_4,
+		&ett_org_spc_media_1,
+		&ett_org_spc_media_2,
+		&ett_org_spc_media_3,
+		&ett_org_spc_media_4,
+		&ett_org_spc_media_5,
+		&ett_org_spc_media_6,
+		&ett_org_spc_media_7,
+		&ett_org_spc_media_8,
+		&ett_org_spc_media_9,
+		&ett_org_spc_media_10,
+		&ett_org_spc_media_11,
+		&ett_org_spc_ProfinetSubTypes_1,
+		&ett_org_spc_ProfinetSubTypes_2,
+		&ett_org_spc_ProfinetSubTypes_3,
+		&ett_org_spc_ProfinetSubTypes_4,
+		&ett_org_spc_ProfinetSubTypes_5,
+		&ett_org_spc_ProfinetSubTypes_6,
 		&ett_port_vlan_flags,
 		&ett_802_3_flags,
 		&ett_802_3_autoneg_advertised,
