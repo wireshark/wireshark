@@ -51,7 +51,7 @@
 #include "ui/gtk/old-gtk-compat.h"
 
 #ifdef HAVE_GTKOSXAPPLICATION
-#include <igemacintegration/gtkosxapplication.h>
+#include <gtkmacintegration/gtkosxapplication.h>
 #endif
 
 enum { DND_TARGET_STRING, DND_TARGET_ROOTWIN, DND_TARGET_URL };
@@ -212,6 +212,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
     int       files_work;
     char      **in_filenames;
 
+    if (cf_names_freeme == NULL) return;
 
     /* DND_TARGET_URL:
      * The cf_name_freeme is a single string, containing one or more URI's,
@@ -224,6 +225,10 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
     for(in_files = 0; (cf_name = strstr(cf_name, "\r\n")) != NULL; ) {
         cf_name += 2;
         in_files++;
+    }
+    if (in_files == 0) {
+      g_free(cf_names_freeme);
+      return;
     }
 
     in_filenames = g_malloc(sizeof(char*) * in_files);
@@ -327,14 +332,10 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
         /* the data string is not zero terminated -> make a zero terminated "copy" of it */
         sel_data_len = gtk_selection_data_get_length(selection_data);
         sel_data_data = gtk_selection_data_get_data(selection_data);
-        cf_names_freeme = g_malloc(sel_data_len + 3);
+        cf_names_freeme = g_malloc(sel_data_len + 1);
         memcpy(cf_names_freeme, sel_data_data, sel_data_len);
-        if (cf_names_freeme[sel_data_len - 1] != '\n') {
-            cf_names_freeme[sel_data_len++] = '\r';
-            cf_names_freeme[sel_data_len++] = '\n';
-        }
         cf_names_freeme[sel_data_len] = '\0';
-            
+
         /* If there's unsaved data, let the user save it first.
            If they cancel out of it, don't open the file. */
         if (do_file_close(&cfile, FALSE, " before opening a new capture file"))
@@ -344,12 +345,22 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
 
 #ifdef HAVE_GTKOSXAPPLICATION
 gboolean
-gtk_osx_openFile (GtkOSXApplication *app _U_, gchar *path, gpointer user_data _U_)
+gtk_osx_openFile (GtkosxApplication *app _U_, gchar *path, gpointer user_data _U_)
 {
     GtkSelectionData selection_data;
+    gchar* selection_path;
     int length = strlen(path);
-    
-    gtk_selection_data_set_text(&selection_data, path, length);
+
+    selection_path = g_malloc(length + 3);
+    memcpy(selection_path, path, length);
+
+    selection_path[length] = '\r';
+    selection_path[length + 1] = '\n';
+    selection_path[length + 2] = '\0';
+
+    memset(&selection_data, 0, sizeof(selection_data));
+
+    gtk_selection_data_set(&selection_data, gdk_atom_intern_static_string ("text/uri-list"), 8, (guchar*) selection_path, length + 2);
     dnd_data_received(NULL, NULL, 0, 0, &selection_data, DND_TARGET_URL, 0, 0);
 
     return TRUE;
@@ -376,7 +387,7 @@ dnd_init(GtkWidget *w)
     /* get notified, if some dnd coming in */
     g_signal_connect(w, "drag_data_received", G_CALLBACK(dnd_data_received), NULL);
 #ifdef HAVE_GTKOSXAPPLICATION
-    g_signal_connect(g_object_new(GTK_TYPE_OSX_APPLICATION, NULL), "NSApplicationOpenFile", G_CALLBACK(gtk_osx_openFile), NULL);
+    g_signal_connect(g_object_new(GTKOSX_TYPE_APPLICATION, NULL), "NSApplicationOpenFile", G_CALLBACK(gtk_osx_openFile), NULL);
 #endif
 }
 

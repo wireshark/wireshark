@@ -1726,13 +1726,19 @@ fi
 # Checks for the presence of OS X integration functions in the GTK+ framework
 # or as a separate library.
 #
-# http://sourceforge.net/apps/trac/gtk-osx/wiki/Integrate
+# GTK+ for MAC OS X now lives on www.gtk.org at:
+#
+#   http://www.gtk.org/download/macos.php
+#
+# Details on building with GTK-OSX are available at:
+#
+#   http://live.gnome.org/GTK%2B/OSX/Building
+#
+# The GTK-OSX library has been renamed to gtkmacintegration.
+# It was previously named igemacintegration.
 #
 # http://live.gnome.org/GTK%2B/OSX/Integration
 #    for the old Carbon-based integration functions
-#
-# http://gtk-osx.sourceforge.net/ige-mac-integration/
-#    for the new Cocoa-based integration functions
 #
 AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 [
@@ -1742,17 +1748,17 @@ AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 	LIBS="$GTK_LIBS $LIBS"
 
 	#
-	# Check for the new integration functions in a -ligemacintegration
+	# Check for the new integration functions in a -lgtkmacintegration
 	# library.
 	#
-	AC_CHECK_LIB(igemacintegration, gtk_osxapplication_set_menu_bar,
+	AC_CHECK_LIB(gtkmacintegration, gtkosx_application_set_menu_bar,
 	[
 		AC_DEFINE(HAVE_GTKOSXAPPLICATION, 1,
-			[Define to 1 if -ligemacintegration includes the GtkOSXApplication Integration functions.])
+			[Define to 1 if -lgtkmacintegration includes the GtkOSXApplication Integration functions.])
 		have_ige_mac=yes
 		# We don't want gtk stuff in LIBS (which is reset below) so
 		# manually set GTK_LIBS (which is more appropriate)
-		GTK_LIBS="$GTK_LIBS -ligemacintegration"
+		GTK_LIBS="$GTK_LIBS -lgtkmacintegration"
 	])
 
 	if test x$have_ige_mac = x
@@ -1761,7 +1767,7 @@ AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 		# Not found - check for the old integration functions in
 		# the Gtk framework.
 		#
-		AC_CHECK_LIB(Gtk, ige_mac_menu_set_menu_bar,
+		AC_CHECK_LIB(Gtk, gtk_mac_menu_set_menu_bar,
 		[
 			AC_DEFINE(HAVE_IGE_MAC_INTEGRATION, 1,
 				[Define to 1 if the the Gtk+ framework or a separate library includes the Imendio IGE Mac OS X Integration functions.])
@@ -1776,16 +1782,16 @@ AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 	then
 		#
 		# Not found - check for the old integration functions in
-		# a -ligemacintegration library.
+		# a -lgtkmacintegration library.
 		#
-		AC_CHECK_LIB(igemacintegration, ige_mac_menu_set_menu_bar,
+		AC_CHECK_LIB(gtkmacintegration, gtk_mac_menu_set_menu_bar,
 		[
 			AC_DEFINE(HAVE_IGE_MAC_INTEGRATION, 1,
 				[Define to 1 if the the Gtk+ framework or a separate library includes the Imendio IGE Mac OS X Integration functions.])
 			have_ige_mac=yes
 			# We don't want gtk stuff in LIBS (which is reset below) so
 			# manually set GTK_LIBS (which is more appropriate)
-			GTK_LIBS="$GTK_LIBS -ligemacintegration"
+			GTK_LIBS="$GTK_LIBS -lgtkmacintegration"
 		])
 	fi
 	CFLAGS="$ac_save_CFLAGS"

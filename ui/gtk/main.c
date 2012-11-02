@@ -199,7 +199,7 @@
 
 
 #ifdef HAVE_GTKOSXAPPLICATION
-#include <igemacintegration/gtkosxapplication.h>
+#include <gtkmacintegration/gtkosxapplication.h>
 #endif
 
 /*
@@ -1870,7 +1870,7 @@ static void
 main_capture_callback(gint event, capture_options *capture_opts, gpointer user_data _U_)
 {
 #ifdef HAVE_GTKOSXAPPLICATION
-    GtkOSXApplication *theApp;
+    GtkosxApplication *theApp;
 #endif
     switch(event) {
     case(capture_cb_capture_prepared):
@@ -1881,8 +1881,8 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
         main_capture_cb_capture_update_started(capture_opts);
 #ifdef HAVE_GTKOSXAPPLICATION
-        theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
-        gtk_osxapplication_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsiconcap48_xpm));
+        theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
+        gtkosx_application_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsiconcap48_xpm));
 #endif
         break;
     case(capture_cb_capture_update_continue):
@@ -1908,8 +1908,8 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         /* Beware: this state won't be called, if the capture child
          * closes the capturing on it's own! */
 #ifdef HAVE_GTKOSXAPPLICATION
-        theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
-        gtk_osxapplication_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
+        theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
+        gtkosx_application_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
 #endif
         main_capture_cb_capture_stopping(capture_opts);
         break;
@@ -2187,7 +2187,7 @@ main(int argc, char *argv[])
   int                  optind_initial;
   int                  status;
 #ifdef HAVE_GTKOSXAPPLICATION
-  GtkOSXApplication   *theApp;
+  GtkosxApplication   *theApp;
 #endif
 
 #ifdef HAVE_LIBPCAP
@@ -2797,7 +2797,14 @@ main(int argc, char *argv[])
          * file - yes, you could have "-r" as the last part of the command,
          * but that's a bit ugly.
          */
+#ifndef HAVE_GTKOSXAPPLICATION
+        /*
+         * For GTK+ Mac Integration, file name passed as free argument passed
+         * through grag-and-drop and opened twice sometimes causing crashes.
+         * Subject to report to GTK+ MAC.
+         */
         cf_name = g_strdup(argv[0]);
+#endif
       }
       argc--;
       argv++;
@@ -3182,9 +3189,9 @@ main(int argc, char *argv[])
   profile_store_persconffiles (FALSE);
 
 #ifdef HAVE_GTKOSXAPPLICATION
-  theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
-  gtk_osxapplication_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
-  gtk_osxapplication_ready(theApp);
+  theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
+  gtkosx_application_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
+  gtkosx_application_ready(theApp);
 #endif
 
   g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
@@ -3682,6 +3689,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
     gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
     gtk_widget_show(menubar);
 #if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
+    } else {
+    gtk_widget_hide(menubar);
     }
 #endif
 

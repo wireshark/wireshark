@@ -121,7 +121,7 @@
 #endif
 
 #ifdef HAVE_GTKOSXAPPLICATION
-#include <igemacintegration/gtkosxapplication.h>
+#include <gtkmacintegration/gtkosxapplication.h>
 #endif
 
 static int initialize = TRUE;
@@ -3064,7 +3064,7 @@ main_menu_new(GtkAccelGroup ** table) {
     IgeMacMenuGroup *group;
 #endif
 #ifdef HAVE_GTKOSXAPPLICATION
-    GtkOSXApplication *theApp;
+    GtkosxApplication *theApp;
     GtkWidget * item;
     GtkWidget * dock_menu;
 #endif
@@ -3106,25 +3106,33 @@ main_menu_new(GtkAccelGroup ** table) {
 #endif
 
 #ifdef HAVE_GTKOSXAPPLICATION
-    theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
+    theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
 
     if(prefs.gui_macosx_style) {
-        gtk_osxapplication_set_menu_bar(theApp, GTK_MENU_SHELL(menubar));
-        gtk_osxapplication_set_use_quartz_accelerators(theApp, TRUE);
+        gtk_widget_hide(menubar);
 
+        gtkosx_application_set_menu_bar(theApp, GTK_MENU_SHELL(menubar));
+        gtkosx_application_set_use_quartz_accelerators(theApp, TRUE);
+
+        /* Construct a conventional looking OSX App menu */
 
         item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/HelpMenu/AboutWireshark");
-        gtk_osxapplication_insert_app_menu_item(theApp, item, 0);
+        gtkosx_application_insert_app_menu_item(theApp, item, 0);
+
+        gtkosx_application_insert_app_menu_item(theApp, gtk_separator_menu_item_new(), 1);
 
         item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/EditMenu/Preferences");
-        gtk_osxapplication_insert_app_menu_item(theApp, item, 0);
+        gtkosx_application_insert_app_menu_item(theApp, item, 2);
+
+        /* Set OSX help menu */
 
         item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/HelpMenu");
-        gtk_osxapplication_set_help_menu(theApp,GTK_MENU_ITEM(item));
+        gtkosx_application_set_help_menu(theApp,GTK_MENU_ITEM(item));
 
-        /* Quit item is not needed */
-        /* XXXX FIX ME */
-        /*gtk_item_factory_delete_item(main_menu_factory,"/File/Quit");*/
+        /* Hide the File menu Quit item (a Quit item is automagically placed within the OSX App menu) */
+
+        item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/FileMenu/Quit");
+        gtk_widget_hide(item);
     }
 
     /* generate dock menu */
@@ -3142,7 +3150,7 @@ main_menu_new(GtkAccelGroup ** table) {
     g_signal_connect(item, "activate", G_CALLBACK (capture_restart_cb), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(dock_menu), item);
 
-    gtk_osxapplication_set_dock_menu(theApp, GTK_MENU_SHELL(dock_menu));
+    gtkosx_application_set_dock_menu(theApp, GTK_MENU_SHELL(dock_menu));
 #endif
 
     if (table)
@@ -5427,7 +5435,7 @@ rebuild_visible_columns_menu (void)
             col_id++;
         }
 
-        menu_item = gtk_menu_item_new();
+        menu_item = gtk_separator_menu_item_new();
         gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
         gtk_widget_show (menu_item);
 
