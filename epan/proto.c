@@ -1220,10 +1220,9 @@ proto_lookup_or_create_interesting_hfids(proto_tree *tree,
 static proto_item *
 proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		    tvbuff_t *tvb, gint start, gint length,
-		    const guint encoding_arg)
+		    guint encoding)
 {
 	tree_data_t *tree_data = PTREE_DATA(tree);
-	guint	    encoding = encoding_arg;
 	proto_item *pi;
 	guint32	    value, n;
 	float	    floatval;
