@@ -505,7 +505,7 @@ cf_read(capture_file *cf, gboolean reloading)
   gboolean             stop_flag;
   GTimeVal             start_time;
   dfilter_t           *dfcode;
-  gboolean             create_proto_tree;
+  volatile gboolean    create_proto_tree;
   guint                tap_flags;
   gboolean             compiled;
 
@@ -768,12 +768,12 @@ cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *er
 cf_read_status_t
 cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 {
-  gchar        *err_info;
-  int           newly_displayed_packets = 0;
-  dfilter_t    *dfcode;
-  gboolean      create_proto_tree;
-  guint         tap_flags;
-  gboolean      compiled;
+  gchar            *err_info;
+  int               newly_displayed_packets = 0;
+  dfilter_t        *dfcode;
+  volatile gboolean create_proto_tree;
+  guint             tap_flags;
+  gboolean          compiled;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
