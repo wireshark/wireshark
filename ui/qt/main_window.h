@@ -122,7 +122,7 @@ signals:
 
 public slots:
     // in main_window_slots.cpp
-    void openCaptureFile(QString& cf_path = *new QString());
+    void openCaptureFile(QString& cf_path = *new QString(), QString &display_filter = *new QString());
 
 #ifdef HAVE_LIBPCAP
     void captureCapturePrepared(capture_options *capture_opts);

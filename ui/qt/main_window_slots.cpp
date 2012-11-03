@@ -67,10 +67,9 @@
 // Public slots
 //
 
-void MainWindow::openCaptureFile(QString &cf_path)
+void MainWindow::openCaptureFile(QString &cf_path, QString &display_filter)
 {
     QString file_name = "";
-    QString display_filter = "";
     dfilter_t *rfcode = NULL;
     int err;
 
