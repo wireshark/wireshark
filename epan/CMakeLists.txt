@@ -1347,6 +1347,7 @@ set(WMEM_FILES
 	wmem/wmem_allocator_glib.c
 	wmem/wmem_scopes.c
 	wmem/wmem_slab.c
+	wmem/wmem_stack.c
 	wmem/wmem_strutl.c
 )
 

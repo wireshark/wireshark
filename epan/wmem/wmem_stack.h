@@ -1,5 +1,5 @@
-/* wmem.h
- * Definitions for the Wireshark Memory Manager
+/* wmem_stack.h
+ * Definitions for the Wireshark Memory Manager Stack
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
  * $Id$
@@ -23,15 +23,42 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_H__
-#define __WMEM_H__
+#ifndef __WMEM_STACK_H__
+#define __WMEM_STACK_H__
+
+#include <string.h>
+#include <glib.h>
 
 #include "wmem_core.h"
-#include "wmem_scopes.h"
-#include "wmem_stack.h"
-#include "wmem_strutl.h"
 
-#endif /* __WMEM_H__ */
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+struct _wmem_stack_t;
+
+typedef struct _wmem_stack_t wmem_stack_t;
+
+guint
+wmem_stack_count(wmem_stack_t *stack);
+
+void *
+wmem_stack_peek(wmem_stack_t *stack);
+
+void *
+wmem_stack_pop(wmem_stack_t *stack);
+
+void
+wmem_stack_push(wmem_stack_t *stack, void *data);
+
+wmem_stack_t *
+wmem_create_stack(wmem_allocator_t *allocator);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __WMEM_STACK_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
