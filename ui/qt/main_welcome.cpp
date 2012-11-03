@@ -177,7 +177,7 @@ void MainWelcome::updateRecentFiles() {
     QFont rfFont;
 
     int rfRow = 0;
-    foreach (recent_item_status *ri, wsApp->recent_item_list()) {
+    foreach (recent_item_status *ri, wsApp->recentItems()) {
         itemLabel = ri->filename;
 
         if (rfRow >= recent_files_->count()) {

@@ -56,7 +56,9 @@ class WiresharkApplication : public QApplication
     Q_OBJECT
 public:
     explicit WiresharkApplication(int &argc,  char **argv);
-    QList<recent_item_status *> recent_item_list() const;
+
+    void allSystemsGo();
+    QList<recent_item_status *> recentItems() const;
     void addRecentItem(const QString &filename, qint64 size, bool accessible);
 #ifdef HAVE_LIBPCAP
     void captureCallback(int event, capture_options * capture_opts);
@@ -68,10 +70,17 @@ public:
     void helpTopicAction(topic_action_e action);
     QFont monospaceFont(bool bold = false);
 
+
 private:
+    bool initialized_;
     QTimer *recent_timer_;
+    QList<QString> pending_open_files_;
+
+protected:
+    bool event(QEvent *event);
 
 signals:
+    void openCaptureFile(QString &cf_path);
     void updateRecentItemStatus(const QString &filename, qint64 size, bool accessible);
 
 #ifdef HAVE_LIBPCAP

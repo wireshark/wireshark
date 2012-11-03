@@ -631,7 +631,6 @@ int main(int argc, char *argv[])
 //    int                  optind_initial;
     int                  status;
 
-
     //initialize language !
 
     QString locale = QLocale::system().name();
@@ -650,6 +649,16 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForCStrings(utf8codec);
     QTextCodec::setCodecForTr(utf8codec);
 
+    w = new(MainWindow);
+    w->show();
+    // We may not need a queued connection here but it would seem to make sense
+    // to force the issue.
+    w->connect(&a, SIGNAL(openCaptureFile(QString&)),
+            w, SLOT(openCaptureFile(QString&)));
+    // XXX Turn MWOverlay into its own widget and use it for a splash screen.
+
+
+    // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
 #ifdef HAVE_LIBPCAP
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 #define OPTSTRING_B "B:"
@@ -1134,11 +1143,12 @@ int main(int argc, char *argv[])
     color_filters_init();
 
 ////////
-    w = new(MainWindow);
-    w->show();
+
+    wsApp->allSystemsGo();
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 
     g_main_loop_new(NULL, FALSE);
-    return a.exec();
+    return wsApp->exec();
 }
 
 /*

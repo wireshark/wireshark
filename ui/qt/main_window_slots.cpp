@@ -465,7 +465,7 @@ void MainWindow::updateRecentFiles() {
     /* Iterate through the actions in menuOpenRecentCaptureFile,
      * removing special items, a maybe duplicate entry and every item above count_max */
     int shortcut = Qt::Key_0;
-    foreach (recent_item_status *ri, wsApp->recent_item_list()) {
+    foreach (recent_item_status *ri, wsApp->recentItems()) {
         // Add the new item
         ra = new QAction(recentMenu);
         ra->setData(ri->filename);
