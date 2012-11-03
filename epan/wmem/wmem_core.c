@@ -26,10 +26,9 @@
 #include <string.h>
 
 #include "wmem_core.h"
+#include "wmem_scopes.h"
 #include "wmem_allocator.h"
 #include "wmem_allocator_glib.h"
-
-static wmem_allocator_t *epan_scope;
 
 void *
 wmem_alloc(wmem_allocator_t *allocator, size_t size)
@@ -60,22 +59,16 @@ wmem_destroy_allocator(wmem_allocator_t *allocator)
     allocator->destroy(allocator);
 }
 
-wmem_allocator_t *
-wmem_epan_scope(void)
-{
-    return epan_scope;
-}
-
 void
 wmem_init(void)
 {
-    epan_scope = wmem_create_glib_allocator();
+    wmem_init_scopes();
 }
 
 void
 wmem_cleanup(void)
 {
-    wmem_destroy_allocator(epan_scope);
+    wmem_cleanup_scopes();
 }
 
 /*

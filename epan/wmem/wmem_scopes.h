@@ -1,5 +1,5 @@
-/* wmem.h
- * Definitions for the Wireshark Memory Manager
+/* wmem_scopes.h
+ * Definitions for the Wireshark Memory Manager Scopes
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
  * $Id$
@@ -23,14 +23,55 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_H__
-#define __WMEM_H__
+#ifndef __WMEM_SCOPES_H__
+#define __WMEM_SCOPES_H__
 
 #include "wmem_core.h"
-#include "wmem_scopes.h"
-#include "wmem_strutl.h"
 
-#endif /* __WMEM_H__ */
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+/* Epan Scope */
+
+wmem_allocator_t *
+wmem_epan_scope(void);
+
+/* Packet Scope */
+
+wmem_allocator_t *
+wmem_packet_scope(void);
+
+void
+wmem_enter_packet_scope(void);
+
+void
+wmem_leave_packet_scope(void);
+
+/* File Scope */
+
+wmem_allocator_t *
+wmem_file_scope(void);
+
+void
+wmem_enter_file_scope(void);
+
+void
+wmem_leave_file_scope(void);
+
+/* Scope Management */
+
+void
+wmem_init_scopes(void);
+
+void
+wmem_cleanup_scopes(void);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __WMEM_SCOPES_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

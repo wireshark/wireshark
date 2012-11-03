@@ -195,22 +195,26 @@ void
 epan_dissect_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
         const guint8* data, frame_data *fd, column_info *cinfo)
 {
+	wmem_enter_packet_scope();
 	dissect_packet(edt, phdr, data, fd, cinfo);
 
 	/* free all memory allocated */
 	ep_free_all();
+	wmem_leave_packet_scope();
 }
 
 void
 epan_dissect_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
         const guint8* data, frame_data *fd, column_info *cinfo)
 {
+	wmem_enter_packet_scope();
 	tap_queue_init(edt);
 	dissect_packet(edt, phdr, data, fd, cinfo);
 	tap_push_tapped_queue(edt);
 
 	/* free all memory allocated */
 	ep_free_all();
+	wmem_leave_packet_scope();
 }
 
 void

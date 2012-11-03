@@ -48,9 +48,6 @@ wmem_free_all(wmem_allocator_t *allocator);
 void
 wmem_destroy_allocator(wmem_allocator_t *allocator);
 
-wmem_allocator_t *
-wmem_epan_scope(void);
-
 void
 wmem_init(void);
 
