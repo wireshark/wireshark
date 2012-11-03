@@ -431,7 +431,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
                  * being the name (if it's later registered explicitly
                  * with a description, that will override it).
                  */
-                ptr = wmem_strdup(wmem_permanent_scope(), ptr),
+                ptr = wmem_strdup(wmem_epan_scope(), ptr),
                 new_module = prefs_register_subtree(subtree_module, ptr, ptr, NULL);
             }
 
@@ -2608,7 +2608,7 @@ pre_init_prefs(void)
   prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
   prefs.gui_recent_df_entries_max  = 10;
   prefs.gui_recent_files_count_max = 10;
-  prefs.gui_fileopen_dir           = wmem_strdup(wmem_permanent_scope(), get_persdatafile_dir());
+  prefs.gui_fileopen_dir           = wmem_strdup(wmem_epan_scope(), get_persdatafile_dir());
   prefs.gui_fileopen_preview       = 3;
   prefs.gui_ask_unsaved            = TRUE;
   prefs.gui_find_wrap              = TRUE;

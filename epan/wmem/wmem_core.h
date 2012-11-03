@@ -49,7 +49,7 @@ void
 wmem_destroy_allocator(wmem_allocator_t *allocator);
 
 wmem_allocator_t *
-wmem_permanent_scope(void);
+wmem_epan_scope(void);
 
 void
 wmem_init(void);

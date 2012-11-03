@@ -29,7 +29,7 @@
 #include "wmem_allocator.h"
 #include "wmem_allocator_glib.h"
 
-static wmem_allocator_t *permanent_scope;
+static wmem_allocator_t *epan_scope;
 
 void *
 wmem_alloc(wmem_allocator_t *allocator, size_t size)
@@ -61,21 +61,21 @@ wmem_destroy_allocator(wmem_allocator_t *allocator)
 }
 
 wmem_allocator_t *
-wmem_permanent_scope(void)
+wmem_epan_scope(void)
 {
-    return permanent_scope;
+    return epan_scope;
 }
 
 void
 wmem_init(void)
 {
-    permanent_scope = wmem_create_glib_allocator();
+    epan_scope = wmem_create_glib_allocator();
 }
 
 void
 wmem_cleanup(void)
 {
-    wmem_destroy_allocator(permanent_scope);
+    wmem_destroy_allocator(epan_scope);
 }
 
 /*
