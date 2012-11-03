@@ -28,27 +28,62 @@ should be very similar to using emem. All you need to do is include the header
 a memory pool, see the section "3. Usage for Producers" below).
 
 A memory pool is an opaque pointer to an object of type wmem_allocator_t, and
-it should be the very first parameter passed to *every* call you make to wmem.
-Other than that (and the fact that functions are prefixed wmem_ instead of ep_
-or se_) usage is exactly like that of emem. For example:
+it should be the very first parameter passed to almost every call you make to
+wmem. Other than that (and the fact that functions are prefixed wmem_ instead
+of ep_ or se_) usage is exactly like that of emem. For example:
 
     wmem_alloc(myPool, 20);
 
 allocates 20 bytes in the pool pointed to by myPool.
 
-2.1 Replacing Emem
+2.1 Available Pools
 
-Once wmem is more complete, dissectors should have two pools avaiable to them:
-one for packet scope and one for file scope (how to make these pools available
-is still being debated). Requests for ep_ memory can be replaced with wmem
-requests using the packet-scoped pool, and requests for se_ memory can be
-replaced with wmem requests using the file-scoped pool. For example:
+Dissectors that include the wmem header file will have three pools available
+to them automatically: wmem_epan_scope(), wmem_packet_scope() and
+wmem_file_scope().
+
+The epan pool is scoped to the library's lifetime - memory allocated in it is
+not freed until epan_cleanup() is called, which is typically at the end of the
+program. The packet pool is scoped to the dissection of each packet, replacing
+emem's ep_ allocators. The file pool is scoped to the dissection of each file,
+replacing emem's se_ allocators. For example:
 
     ep_malloc(20);
 
-would become
+could be replaced with
 
-    wmem_alloc(my_packet_pool, 20);
+    wmem_alloc(wmem_packet_scope(), 20);
+
+NB: Using these pools outside of the appropriate scope (ie using the packet
+    pool when there isn't a packet being dissected) will throw an assertion.
+    See the comment in epan/wmem/wmem_scopes.c for details.
+
+XXX: The file scope is currently broken - using it will always throw an
+     assertion.
+
+2.2 Core API
+
+ - wmem_alloc
+ - wmem_alloc0
+
+2.3 String Utilities
+
+ - wmem_strdup
+ - wmem_strndup
+
+2.4 Stack
+
+ - wmem_create_stack
+ - wmem_stack_push
+ - wmem_stack_pop
+ - wmem_stack_peek
+ - wmem_stack_count
+
+2.5 Slab
+
+ - wmem_create_slab
+ - wmem_slab_alloc
+ - wmem_slab_free
 
 3. Usage for Producers
 
@@ -57,8 +92,8 @@ NB: If you're just writing a dissector, you probably don't need to read
 
 One of the problems with the old emem framework was that there were basically
 two allocator backends (glib and mmap) that were all mixed together in a mess
-of if statements, environment variables and even a few #ifdefs. In wmem each
-of the allocator backends is cleanly separated out, and it's up to the
+of if statements, environment variables and even a few #ifdefs. In wmem the
+different allocator backends are cleanly separated out, and it's up to the
 maintainer of the pool to pick one.
 
 3.1 Available Allocator Back-Ends
