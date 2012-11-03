@@ -290,7 +290,7 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
       pinfo->desegment_len = 2+2;
       return 0;
     }
-    payload_length = (guint64)tvb_get_ntohs(tvb, 2);
+    payload_length = tvb_get_ntohs(tvb, 2);
     mask_offset = 2+2;
   }
   else if(short_length==127){
@@ -298,7 +298,8 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
       pinfo->desegment_len = 2+8;
       return 0;
     }
-    payload_length = (guint64)tvb_get_ntoh64(tvb, 2);
+	/* warning C4244: '=' : conversion from 'guint64' to 'int ', possible loss of data */
+    payload_length = (int)tvb_get_ntoh64(tvb, 2);
     mask_offset = 2+8;
   }
   else{
@@ -311,6 +312,7 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   payload_offset = mask_offset + (mask ? 4 : 0);
 
   if(length < payload_offset + payload_length){
+    /* XXXX Warning desegment_len is 32 bits */
     pinfo->desegment_len = payload_offset + payload_length - length;
     return 0;
   }
