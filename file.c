@@ -89,7 +89,7 @@ static gulong computed_elapsed;
 static void cf_reset_state(capture_file *cf);
 
 static int read_packet(capture_file *cf, dfilter_t *dfcode,
-    epan_dissect_t *edt, column_info *cinfo, gint64 offset);
+    gboolean create_proto_tree, column_info *cinfo, gint64 offset);
 
 static void rescan_packets(capture_file *cf, const char *action, const char *action_item, gboolean redissect);
 
@@ -495,13 +495,6 @@ calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_s
   return progbar_val;
 }
 
-static void
-epan_dissect_finish(epan_dissect_t *edt)
-{
-	if (edt->tree)
-		proto_tree_free(edt->tree);
-}
-
 cf_read_status_t
 cf_read(capture_file *cf, gboolean reloading)
 {
@@ -512,7 +505,6 @@ cf_read(capture_file *cf, gboolean reloading)
   gboolean             stop_flag;
   GTimeVal             start_time;
   dfilter_t           *dfcode;
-  epan_dissect_t       edt;
   gboolean             create_proto_tree;
   guint                tap_flags;
   gboolean             compiled;
@@ -528,9 +520,6 @@ cf_read(capture_file *cf, gboolean reloading)
   tap_flags = union_of_tap_listener_flags();
   create_proto_tree =
     (dfcode != NULL || have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
-  epan_dissect_init(&edt, create_proto_tree, FALSE);
-  if (dfcode != NULL)
-    epan_dissect_prime_dfilter(&edt, dfcode);
 
   reset_tap_listeners();
 
@@ -636,7 +625,7 @@ cf_read(capture_file *cf, gboolean reloading)
 	   hours even on fast machines) just to see that it was the wrong file. */
 	break;
       }
-      read_packet(cf, dfcode, &edt, cinfo, data_offset);
+      read_packet(cf, dfcode, create_proto_tree, cinfo, data_offset);
     } 
   }
   CATCH(OutOfMemoryError) {
@@ -652,7 +641,6 @@ cf_read(capture_file *cf, gboolean reloading)
 #endif
   }
   ENDTRY;
-  epan_dissect_finish(&edt);
 
   /* Free the display name */
   g_free(name_ptr);
@@ -783,7 +771,6 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   gchar        *err_info;
   int           newly_displayed_packets = 0;
   dfilter_t    *dfcode;
-  epan_dissect_t edt;
   gboolean      create_proto_tree;
   guint         tap_flags;
   gboolean      compiled;
@@ -799,9 +786,6 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   tap_flags = union_of_tap_listener_flags();
   create_proto_tree =
     (dfcode != NULL || have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
-  epan_dissect_init(&edt, create_proto_tree, FALSE);
-  if (dfcode != NULL)
-    epan_dissect_prime_dfilter(&edt, dfcode);
 
   *err = 0;
 
@@ -828,7 +812,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 	   aren't any packets left to read) exit. */
 	break;
       }
-      if (read_packet(cf, dfcode, &edt, (column_info *) cinfo, data_offset) != -1) {
+      if (read_packet(cf, dfcode, create_proto_tree, (column_info *) cinfo, data_offset) != -1) {
 	newly_displayed_packets++;
       }
       to_read--;
@@ -848,7 +832,6 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 #endif
   }
   ENDTRY;
-  epan_dissect_finish(&edt);
 
   /* Update the file encapsulation; it might have changed based on the
      packets we've read. */
@@ -907,7 +890,6 @@ cf_finish_tail(capture_file *cf, int *err)
   dfilter_t *dfcode;
   column_info *cinfo;
   gboolean   create_proto_tree;
-  epan_dissect_t edt;
   guint      tap_flags;
   gboolean   compiled;
 
@@ -923,9 +905,6 @@ cf_finish_tail(capture_file *cf, int *err)
   cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
   create_proto_tree =
     (dfcode != NULL || have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
-  epan_dissect_init(&edt, create_proto_tree, FALSE);
-  if (dfcode != NULL)
-    epan_dissect_prime_dfilter(&edt, dfcode);
 
   if (cf->wth == NULL) {
     cf_close(cf);
@@ -943,9 +922,8 @@ cf_finish_tail(capture_file *cf, int *err)
          aren't any packets left to read) exit. */
       break;
     }
-    read_packet(cf, dfcode, &edt, cinfo, data_offset);
+    read_packet(cf, dfcode, create_proto_tree, cinfo, data_offset);
   }
-  epan_dissect_finish(&edt);
 
   /* Cleanup and release all dfilter resources */
   if (dfcode != NULL) {
@@ -1116,28 +1094,36 @@ find_and_mark_frame_depended_upon(gpointer data, gpointer user_data)
 
 static int
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
-    dfilter_t *dfcode, epan_dissect_t *edt, column_info *cinfo,
+    dfilter_t *dfcode, gboolean create_proto_tree, column_info *cinfo,
     struct wtap_pkthdr *phdr, const guchar *buf,
     gboolean add_to_packet_list)
 {
-  gint row = -1;
+  epan_dissect_t  edt;
+  gint            row               = -1;
 
   frame_data_set_before_dissect(fdata, &cf->elapsed_time,
                                 &first_ts, prev_dis, prev_cap);
   prev_cap = fdata;
 
-  epan_dissect_run_with_taps(edt, phdr, buf, fdata, cinfo);
+  /* Dissect the frame. */
+  epan_dissect_init(&edt, create_proto_tree, FALSE);
+
+  if (dfcode != NULL) {
+      epan_dissect_prime_dfilter(&edt, dfcode);
+  }
+
+  epan_dissect_run_with_taps(&edt, phdr, buf, fdata, cinfo);
 
   /* If we don't have a display filter, set "passed_dfilter" to 1. */
   if (dfcode != NULL) {
-    fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, edt) ? 1 : 0;
+    fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, &edt) ? 1 : 0;
 
     if (fdata->flags.passed_dfilter) {
       /* This frame passed the display filter but it may depend on other
        * (potentially not displayed) frames.  Find those frames and mark them
        * as depended upon.
        */
-      g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf);
+      g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf);
     }
   } else
     fdata->flags.passed_dfilter = 1;
@@ -1147,7 +1133,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   if (add_to_packet_list) {
     /* We fill the needed columns from new_packet_list */
-      row = packet_list_append(cinfo, fdata, &edt->pi);
+      row = packet_list_append(cinfo, fdata, &edt.pi);
   }
 
   if (fdata->flags.passed_dfilter || fdata->flags.ref_time)
@@ -1175,7 +1161,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     cf->last_displayed = fdata->num;
   }
 
-  epan_dissect_reset(edt);
+  epan_dissect_cleanup(&edt);
   return row;
 }
 
@@ -1183,7 +1169,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 /* returns the row of the new packet in the packet list or -1 if not displayed */
 static int
 read_packet(capture_file *cf, dfilter_t *dfcode,
-            epan_dissect_t *edt, column_info *cinfo, gint64 offset)
+            gboolean create_proto_tree, column_info *cinfo, gint64 offset)
 {
   struct wtap_pkthdr *phdr = wtap_phdr(cf->wth);
   const guchar *buf = wtap_buf_ptr(cf->wth);
@@ -1228,7 +1214,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
 
     if (!cf->redissecting) {
       row = add_packet_to_packet_list(fdata, cf, dfcode,
-                                      edt, cinfo,
+                                      create_proto_tree, cinfo,
                                       phdr, buf, TRUE);
     }
   }
@@ -1769,7 +1755,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   int         progbar_quantum;
   dfilter_t  *dfcode;
   column_info *cinfo;
-  epan_dissect_t edt;
   gboolean    create_proto_tree;
   guint       tap_flags;
   gboolean    add_to_packet_list = FALSE;
@@ -1788,9 +1773,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
   create_proto_tree =
     (dfcode != NULL || have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
-  epan_dissect_init(&edt, create_proto_tree, FALSE);
-  if (dfcode != NULL)
-    epan_dissect_prime_dfilter(&edt, dfcode);
 
   reset_tap_listeners();
   /* Which frame, if any, is the currently selected frame?
@@ -1942,7 +1924,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
       preceding_frame_num = prev_frame_num;
       preceding_frame = prev_frame;
     }
-    add_packet_to_packet_list(fdata, cf, dfcode, &edt,
+    add_packet_to_packet_list(fdata, cf, dfcode, create_proto_tree,
                                     cinfo, &cf->phdr, cf->pd,
                                     add_to_packet_list);
 
@@ -1965,7 +1947,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     prev_frame_num = fdata->num;
     prev_frame = fdata;
   }
-  epan_dissect_finish(&edt);
 
   /* We are done redissecting the packet list. */
   cf->redissecting = FALSE;

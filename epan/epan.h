@@ -174,10 +174,6 @@ epan_dissect_cleanup(epan_dissect_t* edt);
 void
 epan_dissect_free(epan_dissect_t* edt);
 
-/** reset edt for next packet dissection */
-void
-epan_dissect_reset(epan_dissect_t *edt);
-
 /** Sets custom column */
 const gchar *
 epan_custom_set(epan_dissect_t *edt, int id, gint occurrence,

@@ -701,8 +701,6 @@ extern gboolean proto_item_set_expert_flags(proto_item *ti, const int group, con
  @return the new tree root */
 extern proto_tree* proto_tree_create_root(struct _packet_info *pinfo);
 
-extern void proto_tree_reset(proto_tree *tree);
-
 /** Clear memory for entry proto_tree. Clears proto_tree struct also.
  @param tree the tree to free */
 extern void proto_tree_free(proto_tree *tree);

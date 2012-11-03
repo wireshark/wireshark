@@ -218,20 +218,6 @@ epan_dissect_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 }
 
 void
-epan_dissect_reset(epan_dissect_t *edt)
-{
-	/* epan_dissect_cleanup(edt) without freeing tree */
-	g_slist_free(edt->pi.dependent_frames);
-	free_data_sources(&edt->pi);
-	tvb_free_chain(edt->tvb);
-
-	/* epan_dissect_init(edt, create_proto, visible_proto) */
-	edt->pi.dependent_frames = NULL;
-	if (edt->tree)
-		proto_tree_reset(edt->tree);
-}
-
-void
 epan_dissect_cleanup(epan_dissect_t* edt)
 {
 	g_assert(edt);

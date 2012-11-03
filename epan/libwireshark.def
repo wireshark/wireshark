@@ -413,7 +413,6 @@ epan_dissect_new
 epan_dissect_prime_dfilter
 epan_dissect_run
 epan_dissect_run_with_taps
-epan_dissect_reset
 epan_get_compiled_version_info
 epan_get_runtime_version_info
 epan_get_version
