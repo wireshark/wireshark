@@ -2126,8 +2126,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	case 119: { /* Dynamic Host Configuration Protocol (DHCP) Domain Search Option (RFC 3397) */
 	            /* Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4) (RFC 3396) */
 	            /* Domain Names - Implementation And Specification (RFC 1035) */
-		const gint max_len = 64;
-		char tmpChar[max_len];
+#define BOOTP_MAX_NO_CHAR 64
+		const gint max_len = BOOTP_MAX_NO_CHAR;
+		char tmpChar[BOOTP_MAX_NO_CHAR];
 		dns_domain_search_list.index_current_option_119++;
 		if (dns_domain_search_list.nb_option_119 > 1) {
 			g_snprintf(tmpChar, max_len, "%u/%u", dns_domain_search_list.index_current_option_119, dns_domain_search_list.nb_option_119);
