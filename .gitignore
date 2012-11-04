@@ -114,7 +114,7 @@ qtshark
 /ui/qt/__/
 /ui/qt/*.qrc.depends
 /ui/qt/*.pro.user
-/ui/qt/*.qm
+#/ui/qt/*.qm
 /ui/qt/moc_*.cpp
 /ui/qt/moc_*.cxx
 /ui/qt/qrc_*.cpp
