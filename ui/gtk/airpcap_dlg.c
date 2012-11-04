@@ -1102,7 +1102,7 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     /* XXX - Decomment only when WPA and WPA_BIN will be ready */
     gtk_widget_show (add_ssid_te);
 #if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (add_grid), add_ssid_te, 3, 1, 1, 1);
+    gtk_grid_attach (GTK_GRID (add_grid), add_ssid_te, 2, 1, 1, 1);
 #else
     gtk_table_attach (GTK_TABLE (add_tb), add_ssid_te, 2, 3, 1, 2,
                       (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
