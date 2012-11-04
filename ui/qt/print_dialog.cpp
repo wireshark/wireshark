@@ -153,7 +153,7 @@ gboolean PrintDialog::printHeader()
         page_pos_ = page_top;
     }
 
-    QString banner = QString("%1 %2 total packets, %3 shown")
+    QString banner = QString(tr("%1 %2 total packets, %3 shown"))
             .arg(cap_file_->filename)
             .arg(cap_file_->count)
             .arg(cap_file_->displayed_count);
