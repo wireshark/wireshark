@@ -102,6 +102,66 @@
         <source>Export as:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>This capture file contains comments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Discard comments and save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save in another format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepend packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Merge chronologically</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert packets in chronological order.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Append packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save as:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>error after reading %1 packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>more than %1 (preview timeout)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterCombo</name>
@@ -126,6 +186,96 @@
     </message>
     <message>
         <source>Enter a display filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ExportDissectionDialog</name>
+    <message>
+        <source>Wireshark: Export Packet Dissections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export as:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Plain text (*.txt)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Comma Separated Values - summary (*.csv)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PSML - summary (*.psml, *.xml)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PDML - details (*.pdml, *.xml)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>C Arrays - bytes (*.c, *.h)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ExportObjectDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hostname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Content Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Searching for objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap registration error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to register </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> tap: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: Save Object As...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: Save All Objects In...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Object Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Some files could not be saved.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -161,10 +311,6 @@
     </message>
     <message>
         <source>No capture loaded</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 Bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -795,15 +941,7 @@ more about Wireshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Export Packets...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Export specified packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export Packet Dissections...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -816,10 +954,6 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Export SSL Session Keys...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export Objects...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -978,6 +1112,129 @@ more about Wireshark</source>
         <source>You cannot export packets to the current capture file.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Export Packet Dissections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Specified Packets...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As Plain &amp;Text...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As CSV...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; Arrays...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As PSML XML...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As PDML XML...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;HTTP...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;DICOM...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;SMB...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: Export Selected Packet Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Keys</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no SSL Session Keys to save.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PacketFormatGroupBox</name>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet summary lines similar to the packet list&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Summary line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Details:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export only top-level packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All co&amp;llapsed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expand and collapse packet details as they are currently displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As displa&amp;yed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export all packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All e&amp;xpanded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PacketRangeGroupBox</name>
@@ -1023,6 +1280,53 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Captured</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PrintDialog</name>
+    <message>
+        <source>Wireshark: Print</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Print each packet on a new page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the &amp;quot;+&amp;quot; and &amp;quot;-&amp;quot; keys to zoom the preview in and out. Use the &amp;quot;0&amp;quot; key to reset the zoom level.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;+ and - zoom, 0 resets&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Print...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Page &amp;Setup...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 %2 total packets, %3 shown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Print Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to print to %1.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
