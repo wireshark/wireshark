@@ -3434,7 +3434,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                    hf_dcerpc_cn_ctx_id, &ctx_id);
     parent_pi = proto_tree_get_parent(dcerpc_tree);
     if (parent_pi != NULL) {
-        proto_item_append_text(parent_pi, " Ctx: %u", ctx_id);
+        proto_item_append_text(parent_pi, ", Ctx: %u", ctx_id);
     }
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, dcerpc_tree, hdr->drep,
@@ -3443,7 +3443,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " opnum: %u ctx_id: %u",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", opnum: %u, Ctx: %u",
                     opnum, ctx_id);
 
     if (hdr->flags & PFC_OBJECT_UUID) {
@@ -3607,13 +3607,13 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                    hf_dcerpc_cn_ctx_id, &ctx_id);
     parent_pi = proto_tree_get_parent(dcerpc_tree);
     if (parent_pi != NULL) {
-        proto_item_append_text(parent_pi, " Ctx: %u", ctx_id);
+        proto_item_append_text(parent_pi, ", Ctx: %u", ctx_id);
     }
 
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " ctx_id: %u", ctx_id);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Ctx: %u", ctx_id);
 
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                   hf_dcerpc_cn_cancel_count, NULL);
@@ -3766,7 +3766,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     pinfo->dcectxid = ctx_id;
 
     col_append_fstr(pinfo->cinfo, COL_INFO,
-                    " ctx_id: %u status: %s", ctx_id,
+                    ", Ctx: %u, status: %s", ctx_id,
                     val_to_str(status, reject_status_vals,
                                "Unknown (0x%08x)"));
 
@@ -3981,6 +3981,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                       proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr)
 {
     proto_item *tf              = NULL;
+    proto_item *parent_pi       = NULL;
     proto_tree *cn_rts_pdu_tree = NULL;
     guint16     rts_flags;
     guint16     commands_nb     = 0;
@@ -4099,9 +4100,6 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPCH");
-
-    if (! check_col(pinfo->cinfo, COL_INFO))
-        return;
 
     /* Define which PDU Body we are dealing with */
     info_str = "unknown RTS PDU";
@@ -4284,8 +4282,13 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         break;
     }
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", info_str);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, ", info_str);
     col_set_fence(pinfo->cinfo,COL_INFO);
+
+    parent_pi = proto_tree_get_parent(dcerpc_tree);
+    if (parent_pi != NULL) {
+        proto_item_append_text(parent_pi, ", %s", info_str);
+    }
 }
 
 /*
@@ -4429,7 +4432,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree_add_boolean(cn_flags_tree, hf_dcerpc_cn_flags_first_frag, tvb, offset, 1, hdr.flags);
     offset++;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Fragment: %s", fragment_type(hdr.flags));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Fragment: %s", fragment_type(hdr.flags));
 
     if (dcerpc_tree) {
         tf = proto_tree_add_bytes(dcerpc_tree, hf_dcerpc_drep, tvb, offset, 4, hdr.drep);
