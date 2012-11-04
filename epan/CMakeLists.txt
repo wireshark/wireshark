@@ -411,6 +411,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-btsap.c
 	dissectors/packet-btsdp.c
 	dissectors/packet-btsmp.c
+	dissectors/packet-bt-oui.c
 	dissectors/packet-bvlc.c
 	dissectors/packet-bzr.c
 	dissectors/packet-calcappprotocol.c
