@@ -1200,7 +1200,11 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     GtkWidget *edit_key_window;
     GtkWidget *edit_frame;
     GtkWidget *main_v_box;
+#if GTK_CHECK_VERSION(3,2,0)
+    GtkWidget *edit_grid;
+#else
     GtkWidget *edit_tb;
+#endif /* GTK_CHECK_VERSION(3,2,0) */
     GtkWidget *edit_frame_al;
     GtkWidget *edit_type_cb;
     GtkWidget *edit_key_te;
@@ -1267,11 +1271,58 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_container_add (GTK_CONTAINER (edit_frame), edit_frame_al);
     gtk_alignment_set_padding (GTK_ALIGNMENT (edit_frame_al), 0, 0, 12, 0);
 
+#if GTK_CHECK_VERSION(3,2,0)
+    edit_grid = gtk_grid_new();
+
+    gtk_widget_set_name (edit_grid, "edit_tb");
+    gtk_container_set_border_width(GTK_CONTAINER(edit_grid),5);
+    gtk_widget_show (edit_grid);
+    gtk_container_add (GTK_CONTAINER (edit_frame_al), edit_grid);
+#else
     edit_tb = gtk_table_new (2, 3, FALSE);
+
     gtk_widget_set_name (edit_tb, "edit_tb");
     gtk_container_set_border_width(GTK_CONTAINER(edit_tb),5);
     gtk_widget_show (edit_tb);
     gtk_container_add (GTK_CONTAINER (edit_frame_al), edit_tb);
+#endif /* GTK_CHECK_VERSION(3,2,0) */
+
+    edit_type_lb = gtk_label_new ("Type");
+    gtk_widget_set_name (edit_type_lb, "edit_type_lb");
+    gtk_widget_show (edit_type_lb);
+#if GTK_CHECK_VERSION(3,2,0)
+    gtk_grid_attach (GTK_GRID (edit_grid), edit_type_lb, 0, 0, 1, 1);
+#else
+    gtk_table_attach (GTK_TABLE (edit_tb), edit_type_lb, 0, 1, 0, 1,
+                      (GtkAttachOptions) (GTK_FILL),
+                      (GtkAttachOptions) (0), 0, 0);
+#endif /* GTK_CHECK_VERSION(3,2,0) */
+    gtk_label_set_justify (GTK_LABEL (edit_type_lb), GTK_JUSTIFY_CENTER);
+
+    edit_key_lb = gtk_label_new ("Key");
+    gtk_widget_set_name (edit_key_lb, "edit_key_lb");
+    gtk_widget_show (edit_key_lb);
+#if GTK_CHECK_VERSION(3,2,0)
+    gtk_grid_attach (GTK_GRID (edit_grid), edit_key_lb, 1, 0, 1, 1);
+#else
+    gtk_table_attach (GTK_TABLE (edit_tb), edit_key_lb, 1, 2, 0, 1,
+                      (GtkAttachOptions) (GTK_FILL),
+                      (GtkAttachOptions) (0), 0, 0);
+#endif /* GTK_CHECK_VERSION(3,2,0) */
+    gtk_label_set_justify (GTK_LABEL (edit_key_lb), GTK_JUSTIFY_CENTER);
+
+    edit_ssid_lb = gtk_label_new ("");
+    gtk_widget_set_name (edit_ssid_lb, "edit_ssid_lb");
+    /* XXX - Decomment only when WPA and WPA_BIN will be ready */
+    gtk_widget_show (edit_ssid_lb);
+#if GTK_CHECK_VERSION(3,2,0)
+    gtk_grid_attach (GTK_GRID (edit_grid), edit_ssid_lb, 2, 0, 1, 1);
+#else
+    gtk_table_attach (GTK_TABLE (edit_tb), edit_ssid_lb, 2, 3, 0, 1,
+                      (GtkAttachOptions) (GTK_FILL),
+                      (GtkAttachOptions) (0), 0, 0);
+#endif /* GTK_CHECK_VERSION(3,2,0) */
+    gtk_label_set_justify (GTK_LABEL (edit_ssid_lb), GTK_JUSTIFY_CENTER);
 
     edit_type_cb = gtk_combo_box_text_new();
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(edit_type_cb), AIRPCAP_WEP_KEY_STRING);
@@ -1287,9 +1338,13 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     }
     gtk_widget_set_name (edit_type_cb, "edit_type_cb");
     gtk_widget_show (edit_type_cb);
+#if GTK_CHECK_VERSION(3,2,0)
+    gtk_grid_attach (GTK_GRID (edit_grid), edit_type_cb, 0, 1, 1, 1);
+#else
     gtk_table_attach (GTK_TABLE (edit_tb), edit_type_cb, 0, 1, 1, 2,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
+#endif /* GTK_CHECK_VERSION(3,2,0) */
     gtk_widget_set_size_request (edit_type_cb, 83, -1);
 
     edit_key_te = gtk_entry_new ();
@@ -1297,8 +1352,12 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     /* Set current key */
     gtk_entry_set_text(GTK_ENTRY(edit_key_te),row_key);
     gtk_widget_show (edit_key_te);
+#if GTK_CHECK_VERSION(3,2,0)
+    gtk_grid_attach (GTK_GRID (edit_grid), edit_key_te, 1, 1, 1, 1);
+#else
     gtk_table_attach (GTK_TABLE (edit_tb), edit_key_te, 1, 2, 1, 2,
                       (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
+#endif /* GTK_CHECK_VERSION(3,2,0) */
     gtk_widget_set_size_request (edit_key_te, 178, -1);
 
     edit_ssid_te = gtk_entry_new ();
@@ -1317,33 +1376,12 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     /* XXX - Decomment only when WPA and WPA@ will be ready */
     gtk_widget_show (edit_ssid_te);
+#if GTK_CHECK_VERSION(3,2,0)
+    gtk_grid_attach (GTK_GRID (edit_grid), edit_ssid_te, 2, 1, 1, 1);
+#else
     gtk_table_attach (GTK_TABLE (edit_tb), edit_ssid_te, 2, 3, 1, 2,
                       (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
-
-    edit_type_lb = gtk_label_new ("Type");
-    gtk_widget_set_name (edit_type_lb, "edit_type_lb");
-    gtk_widget_show (edit_type_lb);
-    gtk_table_attach (GTK_TABLE (edit_tb), edit_type_lb, 0, 1, 0, 1,
-                      (GtkAttachOptions) (GTK_FILL),
-                      (GtkAttachOptions) (0), 0, 0);
-    gtk_label_set_justify (GTK_LABEL (edit_type_lb), GTK_JUSTIFY_CENTER);
-
-    edit_key_lb = gtk_label_new ("Key");
-    gtk_widget_set_name (edit_key_lb, "edit_key_lb");
-    gtk_widget_show (edit_key_lb);
-    gtk_table_attach (GTK_TABLE (edit_tb), edit_key_lb, 1, 2, 0, 1,
-                      (GtkAttachOptions) (GTK_FILL),
-                      (GtkAttachOptions) (0), 0, 0);
-    gtk_label_set_justify (GTK_LABEL (edit_key_lb), GTK_JUSTIFY_CENTER);
-
-    edit_ssid_lb = gtk_label_new ("");
-    gtk_widget_set_name (edit_ssid_lb, "edit_ssid_lb");
-    /* XXX - Decomment only when WPA and WPA_BIN will be ready */
-    gtk_widget_show (edit_ssid_lb);
-    gtk_table_attach (GTK_TABLE (edit_tb), edit_ssid_lb, 2, 3, 0, 1,
-                      (GtkAttachOptions) (GTK_FILL),
-                      (GtkAttachOptions) (0), 0, 0);
-    gtk_label_set_justify (GTK_LABEL (edit_ssid_lb), GTK_JUSTIFY_CENTER);
+#endif /* GTK_CHECK_VERSION(3,2,0) */
 
     low_h_button_box = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_set_name (low_h_button_box, "low_h_button_box");
