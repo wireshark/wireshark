@@ -17085,6 +17085,7 @@
 08:EB:74	Humax
 08:EB:ED	WorldEli               # World Elite Technology Co.,LTD
 08:ED:B9	HonHaiPr               # Hon Hai Precision Ind. Co.,Ltd.
+08:F1:B7	Towerstr               # Towerstream Corpration
 08:F2:F4	NetOnePa               # Net One Partners Co.,Ltd.
 08:F6:F8	GetEngin               # GET Engineering
 08:FA:E0	FohhnAud               # Fohhn Audio AG
@@ -17481,6 +17482,7 @@
 20:74:CF	Shenzhen               # Shenzhen Voxtech Co.,Ltd
 20:76:00	Actionte               # Actiontec Electronics, Inc
 20:7C:8F	QuantaMi               # Quanta Microsystems,Inc.
+20:85:8C	Assa
 20:89:84	CompalIn               # COMPAL INFORMATION (KUNSHAN) CO., LTD
 20:91:D9	I&#39;M                # I&#39;M SPA
 20:9B:A5	JiaxingG               # JIAXING GLEAD Electronics Co.,Ltd
@@ -18007,6 +18009,7 @@
 40:A6:D9	Apple                  # Apple, Inc.
 40:AC:8D	DataMana               # Data Management, Inc.
 40:B2:C8	NortelNe               # Nortel Networks
+40:B3:95	Apple
 40:B3:FC	Logital                # Logital Co. Limited
 40:B4:F0	JuniperN               # Juniper Networks
 40:B7:F3	Motorola               # Motorola Mobility, Inc.
@@ -18074,6 +18077,8 @@
 40:D8:55:03:30:00/36	ErmesEle               # Ermes Elettronica s.r.l.
 40:D8:55:03:40:00/36	DacomWes               # Dacom West GmbH
 40:D8:55:03:50:00/36	Mesotech               # Mesotech International, Inc.
+40:D8:55:03:60:00/36	Schweers               # Schweers informationstechnologie GmbH
+40:D8:55:03:70:00/36	Software               # Software Workshop
 40:E7:93	Shenzhen               # Shenzhen Siviton Technology Co.,Ltd
 40:EC:F8	Siemens                # Siemens AG
 40:EF:4C	Fihonest               # Fihonest communication co.,Ltd
@@ -18153,6 +18158,7 @@
 44:E8:A5	MyrekaTe               # Myreka Technologies Sdn. Bhd.
 44:ED:57	Longicor               # Longicorn, inc.
 44:F4:59	SamsungE               # Samsung Electronics
+44:FB:42	Apple
 47:54:43	GtcNotRe               # GTC (Not registered!)		(This number is a multicast!)
 48:02:2A	B-LinkEl               # B-Link Electronic Limited
 48:03:62	DesayEle               # DESAY ELECTRONICS(HUIZHOU)CO.,LTD
@@ -20194,6 +20200,7 @@ C0:3B:8F	MinicomD               # Minicom Digital Signage
 C0:3F:0E	Netgear
 C0:3F:2A	Biscotti               # Biscotti, Inc.
 C0:41:F6	LgElectr               # LG Electronics Inc
+C0:44:E3	Shenzhen               # Shenzhen Sinkna Electronics Co., LTD
 C0:49:3D	Maitrise               # MAITRISE TECHNOLOGIQUE
 C0:58:A7	Pico                   # Pico Systems Co., Ltd.
 C0:5E:79	Shenzhen               # SHENZHEN HUAXUN ARK TECHNOLOGIES CO.,LTD
@@ -20216,6 +20223,7 @@ C0:A2:6D	AbbottPo               # Abbott Point of Care
 C0:A3:64	3dBurlin               # 3D Systems Burlington
 C0:AA:68	OsasiTec               # OSASI Technos Inc.
 C0:AC:54	Sagemcom
+C0:B3:39	Comigo                 # Comigo Ltd.
 C0:B3:57	YoshikiE               # Yoshiki Electronics Industry Ltd.
 C0:BA:E6	Applicat               # Application Solutions (Safety and Security) Ltd
 C0:BD:42	ZpaSmart               # ZPA Smart Energy a.s.
@@ -20575,6 +20583,7 @@ D4:DF:57	Alpinion               # Alpinion Medical Systems
 D4:E3:2C	SSiedleS               # S. Siedle & Sohne
 D4:E3:3F	Alcatel-               # Alcatel-Lucent
 D4:E8:B2	SamsungE               # Samsung Electronics
+D4:EA:0E	Avaya                  # Avaya, Inc
 D4:EC:0C	Harley-D               # Harley-Davidson Motor Company
 D4:F0:27	NavetasE               # Navetas Energy Management
 D4:F0:B4	NapcoSec               # Napco Security Technologies
@@ -20827,6 +20836,7 @@ E4:E0:C5	SamsungE               # Samsung Electronics Co., LTD
 E4:E4:09	Leifheit               # LEIFHEIT AG
 E4:EC:10	Nokia                  # Nokia Corporation
 E4:EE:FD	Mr&DManu               # MR&D Manufacturing
+E4:F3:65	Time-O-M               # Time-O-Matic, Inc.
 E4:FA:1D	PadPerip               # PAD Peripheral Advanced Design Inc.
 E4:FF:DD	Electron               # ELECTRON INDIA
 E8:03:9A	SamsungE               # Samsung Electronics Co.,LTD
@@ -21152,6 +21162,7 @@ F8:D1:11	Tp-LinkT               # TP-LINK TECHNOLOGIES CO., LTD.
 F8:D3:A9	AxanNetw               # AXAN Networks
 F8:D4:62	Pumatron               # Pumatronix Equipamentos Eletronicos Ltda.
 F8:D7:56	SimmTron               # Simm Tronic Limited
+F8:D7:BF	RevRitte               # REV Ritter GmbH
 F8:DA:E2	BetaLase               # Beta LaserMike
 F8:DA:F4	TaishanO               # Taishan Online Technology Co., Ltd.
 F8:DB:4C	PnyTechn               # PNY Technologies, INC.
