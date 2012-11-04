@@ -46,12 +46,12 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="550"/>
         <source>Wireshark: Export Specified Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Export des paquets specifiés</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="554"/>
         <source>Export as:</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter sous:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="350"/>
@@ -62,28 +62,28 @@
         <location filename="capture_file_dialog.cpp" line="165"/>
         <location filename="capture_file_dialog.cpp" line="178"/>
         <source>This capture file contains comments.</source>
-        <translation type="unfinished">Le fichier de capture contient des commentaires.</translation>
+        <translation>Le fichier de capture contient des commentaires.</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="166"/>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
-        <translation type="unfinished">Le format de fichier que vous avez choisi ne supporte pas les commentaires. Voulez-vous enregistrer la capture dans un format qui prend en charge les commentaires ou ignorer les commentaires et les enregistrer dans le format que vous avez choisi?</translation>
+        <translation>Le format de fichier que vous avez choisi ne supporte pas les commentaires. Voulez-vous enregistrer la capture dans un format qui prend en charge les commentaires ou ignorer les commentaires et les enregistrer dans le format que vous avez choisi?</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="171"/>
         <location filename="capture_file_dialog.cpp" line="182"/>
         <source>Discard comments and save</source>
-        <translation type="unfinished">Ignorer commentaires et sauvegarder</translation>
+        <translation>Ignorer commentaires et sauvegarder</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="172"/>
         <source>Save in another format</source>
-        <translation type="unfinished">Sauvegarder dans un autre format</translation>
+        <translation>Sauvegarder dans un autre format</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="179"/>
         <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
-        <translation type="unfinished">Le format de fichier dans lequel vous voulez sauvegarder ne prendre pas en charge les commentaires. Voulez-vous supprimer les commentaires et enregistrer dans le format que vous avez choisi?</translation>
+        <translation>Le format de fichier dans lequel vous voulez sauvegarder ne prendre pas en charge les commentaires. Voulez-vous supprimer les commentaires et enregistrer dans le format que vous avez choisi?</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="373"/>
@@ -113,32 +113,32 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="405"/>
         <source>Prepend packets</source>
-        <translation type="unfinished">Ajout de paquets</translation>
+        <translation>Ajout de paquets</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="406"/>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
-        <translation type="unfinished">Insérer les paquets à partir du fichier sélectionné avant que le fichier actuel. Horodatage des paquets seront ignorés.</translation>
+        <translation>Insérer les paquets à partir du fichier sélectionné avant que le fichier actuel. Horodatage des paquets seront ignorés.</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="409"/>
         <source>Merge chronologically</source>
-        <translation type="unfinished">Fusionner chronologiquement</translation>
+        <translation>Fusionner chronologiquement</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="410"/>
         <source>Insert packets in chronological order.</source>
-        <translation type="unfinished">Insérer des paquets dans l&apos;ordre chronologique.</translation>
+        <translation>Insérer des paquets dans l&apos;ordre chronologique.</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="414"/>
         <source>Append packets</source>
-        <translation type="unfinished">Ajout de paquets</translation>
+        <translation>Ajout de paquets</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="415"/>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
-        <translation type="unfinished">Insérer des paquets à partir du fichier sélectionné après le fichier en cours. Horodatage des paquets seront ignorés.</translation>
+        <translation>Insérer des paquets à partir du fichier sélectionné après le fichier en cours. Horodatage des paquets seront ignorés.</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="457"/>
@@ -153,7 +153,7 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="528"/>
         <source>Save as:</source>
-        <translation type="unfinished">Sauvegarder sous:</translation>
+        <translation>Sauvegarder sous:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="583"/>
@@ -187,17 +187,17 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="712"/>
         <source>%1 bytes</source>
-        <translation type="unfinished">%1 octets</translation>
+        <translation>%1 octets</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="741"/>
         <source>error after reading %1 packets</source>
-        <translation type="unfinished">erreur après avoir lu %1 paquets</translation>
+        <translation>erreur après avoir lu %1 paquets</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="747"/>
         <source>more than %1 (preview timeout)</source>
-        <translation type="unfinished">plus de %1 (aperçu timeout)</translation>
+        <translation>plus de %1 (aperçu timeout)</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="766"/>
@@ -247,37 +247,37 @@
     <message>
         <location filename="export_dissection_dialog.cpp" line="64"/>
         <source>Wireshark: Export Packet Dissections</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Export des paquets analysés</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="66"/>
         <source>Export as:</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter sous:</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="70"/>
         <source>Plain text (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>Texte (*.txt)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="71"/>
         <source>Comma Separated Values - summary (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV Séparateur: point-virgule) (*.csv)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="72"/>
         <source>PSML - summary (*.psml, *.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>PSML - résumé (*.psml, *.xml)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="73"/>
         <source>PDML - details (*.pdml, *.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>PDML - détails (*.pdml, *.xml)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="74"/>
         <source>C Arrays - bytes (*.c, *.h)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tableau C - octets (*.c, .h)</translation>
     </message>
 </context>
 <context>
@@ -285,72 +285,72 @@
     <message>
         <location filename="export_object_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Dialogue</translation>
     </message>
     <message>
         <location filename="export_object_dialog.ui" line="33"/>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet</translation>
     </message>
     <message>
         <location filename="export_object_dialog.ui" line="38"/>
         <source>Hostname</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom d&apos;hôte</translation>
     </message>
     <message>
         <location filename="export_object_dialog.ui" line="43"/>
         <source>Content Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Type de contenu</translation>
     </message>
     <message>
         <location filename="export_object_dialog.ui" line="48"/>
         <source>Size</source>
-        <translation type="unfinished">Taille</translation>
+        <translation>Taille</translation>
     </message>
     <message>
         <location filename="export_object_dialog.ui" line="53"/>
         <source>Filename</source>
-        <translation type="unfinished">Nom du fichier</translation>
+        <translation>Nom du fichier</translation>
     </message>
     <message>
         <location filename="export_object_dialog.ui" line="82"/>
         <source>Searching for objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Chercher les objects</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="184"/>
         <source>Tap registration error</source>
-        <translation type="unfinished"></translation>
+        <translation>erreur d&apos;enregistrement TAP</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="185"/>
         <source>Unable to register </source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible d&apos;inscrire</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="185"/>
         <source> tap: </source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="260"/>
         <source>Wireshark: Save Object As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Sauvegarder les objets sous...</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="277"/>
         <source>Wireshark: Save All Objects In...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Sauvegarder tous les objects dans...</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="317"/>
         <source>Object Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Object exporté</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="318"/>
         <source>Some files could not be saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Certains fichiers ne sont pas sauvegardés.</translation>
     </message>
 </context>
 <context>
@@ -817,12 +817,12 @@ plus a propos de Wireshark</translation>
     <message>
         <location filename="main_window.ui" line="122"/>
         <source>Export Packet Dissections</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter analyse des paquets</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="133"/>
         <source>Export Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter Objets</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="162"/>
@@ -1075,47 +1075,47 @@ plus a propos de Wireshark</translation>
     <message>
         <location filename="main_window.ui" line="609"/>
         <source>Export Specified Packets...</source>
-        <translation type="unfinished"></translation>
+        <translation>Export les Paquets Specifiés...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="702"/>
         <source>As Plain &amp;Text...</source>
-        <translation type="unfinished"></translation>
+        <translation>En &amp;Texte...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="707"/>
         <source>As CSV...</source>
-        <translation type="unfinished"></translation>
+        <translation>En CSV...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="712"/>
         <source>As &quot;C&quot; Arrays...</source>
-        <translation type="unfinished"></translation>
+        <translation>En Tableau &quot;C&quot;...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="717"/>
         <source>As PSML XML...</source>
-        <translation type="unfinished"></translation>
+        <translation>En PSML XML...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="722"/>
         <source>As PDML XML...</source>
-        <translation type="unfinished"></translation>
+        <translation>En PDML XML...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="727"/>
         <source>&amp;HTTP...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="main_window.ui" line="732"/>
         <source>&amp;DICOM...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="main_window.ui" line="737"/>
         <source>&amp;SMB...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Export Packets...</source>
@@ -1419,12 +1419,12 @@ plus a propos de Wireshark</translation>
     <message>
         <location filename="main_window.cpp" line="799"/>
         <source>Unable to export to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible d&apos;exporter dans &quot;%1&quot;.</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="800"/>
         <source>You cannot export packets to the current capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vous ne pouvez pas exporter les paquets de la capture en cours.</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="886"/>
@@ -1508,27 +1508,27 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="main_window_slots.cpp" line="715"/>
         <source>Wireshark: Export Selected Packet Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Exporter la selection de paquets octets</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="717"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Raw data (*.bin *.dat *.raw);;Tous les fichiers (*.*)</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="758"/>
         <source>No Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucune clés</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="759"/>
         <source>There are no SSL Session Keys to save.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il y a aucune clé de Session SSL à sauvegarder.</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="770"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Clé de Session SSL (*.keys *.txt);;Tous les fichiers (*.*)</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="975"/>
@@ -1550,72 +1550,72 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="packet_format_group_box.ui" line="14"/>
         <source>GroupBox</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="17"/>
         <source>Packet Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de paquet</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="23"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet summary lines similar to the packet list&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lignes de paquet résumé similaire à la liste des paquets&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="26"/>
         <source>Summary line</source>
-        <translation type="unfinished"></translation>
+        <translation>Résumé</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="36"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Détails des paquets similaire à l&apos;arbre de protocole&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="39"/>
         <source>Details:</source>
-        <translation type="unfinished"></translation>
+        <translation>Détails:</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="55"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export only top-level packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exporter seulement le détails des paquets de haut niveau&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="58"/>
         <source>All co&amp;llapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Tout &amp;Reduire</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="71"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expand and collapse packet details as they are currently displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Etendre ou reduire les détails des paquets actuellements affichés.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="74"/>
         <source>As displa&amp;yed</source>
-        <translation type="unfinished"></translation>
+        <translation>Comme &amp;Affichés</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="90"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export all packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exporter tous les détails des paquets&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="93"/>
         <source>All e&amp;xpanded</source>
-        <translation type="unfinished"></translation>
+        <translation>Tout E&amp;tendre</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="100"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exporter en hexdump les données des paquets simailaire au paquets affichées&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="103"/>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Octets</translation>
     </message>
 </context>
 <context>
@@ -1623,12 +1623,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="packet_range_group_box.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="packet_range_group_box.ui" line="17"/>
         <source>Packet Range</source>
-        <translation type="unfinished"></translation>
+        <translation>Plage de Paquets</translation>
     </message>
     <message>
         <location filename="packet_range_group_box.ui" line="23"/>
@@ -1644,47 +1644,47 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <location filename="packet_range_group_box.ui" line="229"/>
         <location filename="packet_range_group_box.ui" line="239"/>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="packet_range_group_box.ui" line="33"/>
         <source>Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Affichés</translation>
     </message>
     <message>
         <location filename="packet_range_group_box.ui" line="56"/>
         <source>&amp;Marked packets only</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets &amp;marqués seulement</translation>
     </message>
     <message>
         <location filename="packet_range_group_box.ui" line="66"/>
         <source>&amp;Range:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Plage:</translation>
     </message>
     <message>
         <location filename="packet_range_group_box.ui" line="86"/>
         <source>Remove &amp;ignored packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer les paquets &amp;ignorés</translation>
     </message>
     <message>
         <location filename="packet_range_group_box.ui" line="103"/>
         <source>First &amp;to last marked</source>
-        <translation type="unfinished"></translation>
+        <translation>Premiere jusqu&apos;au &amp;dernier marqué</translation>
     </message>
     <message>
         <location filename="packet_range_group_box.ui" line="123"/>
         <source>&amp;All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Tous les paquets</translation>
     </message>
     <message>
         <location filename="packet_range_group_box.ui" line="163"/>
         <source>&amp;Selected packets only</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet &amp;sélectionné seulement</translation>
     </message>
     <message>
         <location filename="packet_range_group_box.ui" line="173"/>
         <source>Captured</source>
-        <translation type="unfinished"></translation>
+        <translation>Capturés</translation>
     </message>
 </context>
 <context>
@@ -1692,57 +1692,57 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="print_dialog.ui" line="14"/>
         <source>Wireshark: Print</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark: Impression</translation>
     </message>
     <message>
         <location filename="print_dialog.ui" line="24"/>
         <source>Packet Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format des Paquets</translation>
     </message>
     <message>
         <location filename="print_dialog.ui" line="34"/>
         <source>Print each packet on a new page</source>
-        <translation type="unfinished"></translation>
+        <translation>Imprimer chaque paquet dans une nouvelle page</translation>
     </message>
     <message>
         <location filename="print_dialog.ui" line="57"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the &amp;quot;+&amp;quot; and &amp;quot;-&amp;quot; keys to zoom the preview in and out. Use the &amp;quot;0&amp;quot; key to reset the zoom level.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Utiliser &amp;quot;+&amp;quot; et &amp;quot;-&amp;quot; pour agrandir ou reduire dans la prévisualisation. Utiliser &amp;quot;0&amp;quot; pour annuler le zoom.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="print_dialog.ui" line="60"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;+ and - zoom, 0 resets&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;+ et - zoom, 0 resets&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="print_dialog.ui" line="71"/>
         <source>Packet Range</source>
-        <translation type="unfinished"></translation>
+        <translation>Plage de Paquet</translation>
     </message>
     <message>
         <location filename="print_dialog.cpp" line="80"/>
         <source>&amp;Print...</source>
-        <translation type="unfinished">Im&amp;primer...</translation>
+        <translation>Im&amp;primer...</translation>
     </message>
     <message>
         <location filename="print_dialog.cpp" line="121"/>
         <source>Page &amp;Setup...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Mise en Page...</translation>
     </message>
     <message>
         <location filename="print_dialog.cpp" line="156"/>
         <source>%1 %2 total packets, %3 shown</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 paques totales, %3 affichés</translation>
     </message>
     <message>
         <location filename="print_dialog.cpp" line="256"/>
         <source>Print Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Erreur d&apos;impression</translation>
     </message>
     <message>
         <location filename="print_dialog.cpp" line="257"/>
         <source>Unable to print to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible d&apos;imprimer sur %1.</translation>
     </message>
 </context>
 <context>
