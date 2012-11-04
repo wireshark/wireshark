@@ -6,10 +6,16 @@
  * Added option field filters
  * Copyright 2011, Michael Mann
  *
+ * Added options 77 : RFC 3004 - The User Class Option for DHCP
+ * Added option 119 : RFC 3397 - Dynamic Host Configuration Protocol (DHCP) Domain Search Option
+ *                    RFC 3396 - Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4)
+ * Copyright 2012 Jerome LAFORGE <jerome.laforge [AT] gmail.com>
+ *
  * $Id$
  *
  * The information used comes from:
  * RFC	951: Bootstrap Protocol
+ * RFC 1035: Domain Names - Implementation And Specification
  * RFC 1497: BOOTP extensions
  * RFC 1542: Clarifications and Extensions for the Bootstrap Protocol
  * RFC 2131: Dynamic Host Configuration Protocol
@@ -24,6 +30,8 @@
  * RFC 3118: Authentication for DHCP Messages
  * RFC 3203: DHCP reconfigure extension
  * RFC 3315: Dynamic Host Configuration Protocol for IPv6 (DHCPv6)
+ * RFC 3396: Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4)
+ * RFC 3397: Dynamic Host Configuration Protocol (DHCP) Domain Search Option
  * RFC 3495: DHCP Option (122) for CableLabs Client Configuration
  * RFC 3594: PacketCable Security Ticket Control Sub-Option (122.9)
  * RFC 3442: Classless Static Route Option for DHCP version 4
@@ -379,6 +387,9 @@ static int hf_bootp_option_civic_location_ca_value = -1;		/* 99 */
 static int hf_bootp_option_netinfo_parent_server_address = -1;		/* 112 */
 static int hf_bootp_option_netinfo_parent_server_tag = -1;		/* 113 */
 static int hf_bootp_option_dhcp_auto_configuration = -1;		/* 116 */
+static int hf_bootp_option_dhcp_dns_domain_search_list_rfc_3396_detected = -1;	/* 119 */
+static int hf_bootp_option_dhcp_dns_domain_search_list_refer_last_option = -1;	/* 119 */
+static int hf_bootp_option_dhcp_dns_domain_search_list_fqdn = -1;		/* 119 */
 static int hf_bootp_option_sip_server_enc = -1;					/* 120 */
 static int hf_bootp_option_sip_server_name = -1;				/* 120 */
 static int hf_bootp_option_sip_server_address = -1;				/* 120 */
@@ -509,6 +520,13 @@ struct rfc3825_location_decimal_t {
 				    2: NAD83/NAVD88
 				    3: NAD83/MLLW */
 };
+
+/* The RFC 3397 allows to cut long option (RFC 3396). */
+struct rfc3397_rfc3396_dns_domain_search_list_t {
+	unsigned int nb_option_119;
+	unsigned int index_current_option_119;
+	tvbuff_t* buff;
+} dns_domain_search_list;
 
 /* converts fixpoint presentation into decimal presentation
    also converts values which are out of range to allow decoding of received data */
@@ -966,7 +984,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 116 */ { "DHCP Auto-Configuration",			val_u_byte, &hf_bootp_option_dhcp_auto_configuration },
 /* 117 */ { "Name Service Search [TODO:RFC2937]",	opaque, NULL },
 /* 118 */ { "Subnet Selection Option",			ipv4_list, &hf_bootp_option_subnet_selection_option },
-/* 119 */ { "Domain Search [TODO:RFC3397]",		opaque, NULL },
+/* 119 */ { "Domain Search",				special, NULL },
 /* 120 */ { "SIP Servers",		special, NULL },
 /* 121 */ { "Classless Static Route",			special, NULL},
 /* 122 */ { "CableLabs Client Configuration [TODO:RFC3495]",	opaque, NULL },
@@ -1501,6 +1519,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				*vendor_class_id_p =
 				    tvb_get_ptr(tvb, voff+2, consumed-2);
 				break;
+			case 119:
+				dns_domain_search_list.nb_option_119++;
+				break;
 			}
 		}
 
@@ -1621,6 +1642,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				o52voff = FILE_NAME_OFFSET;
 				o52eoff = FILE_NAME_OFFSET + FILE_NAME_LEN;
 				o52at_end = FALSE;
+				dns_domain_search_list.index_current_option_119 = 0;
 				while (o52voff < o52eoff && !o52at_end) {
 					o52voff += bootp_option(tvb, pinfo, bp_tree, o52voff,
 						o52eoff, FALSE, &o52at_end,
@@ -1641,6 +1663,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				o52voff = SERVER_NAME_OFFSET;
 				o52eoff = SERVER_NAME_OFFSET + SERVER_NAME_LEN;
 				o52at_end = FALSE;
+				dns_domain_search_list.index_current_option_119 = 0;
 				while (o52voff < o52eoff && !o52at_end) {
 					o52voff += bootp_option(tvb, pinfo, bp_tree, o52voff,
 						o52eoff, FALSE, &o52at_end,
@@ -2100,6 +2123,52 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		}
 		break;
 
+	case 119: { /* Dynamic Host Configuration Protocol (DHCP) Domain Search Option (RFC 3397) */
+	            /* Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4) (RFC 3396) */
+	            /* Domain Names - Implementation And Specification (RFC 1035) */
+		const gint max_len = 64;
+		char tmpChar[max_len];
+		dns_domain_search_list.index_current_option_119++;
+		if (dns_domain_search_list.nb_option_119 > 1) {
+			g_snprintf(tmpChar, max_len, "%u/%u", dns_domain_search_list.index_current_option_119, dns_domain_search_list.nb_option_119);
+			proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_rfc_3396_detected, tvb, optoff, optlen, tmpChar);
+			if (dns_domain_search_list.index_current_option_119 != dns_domain_search_list.nb_option_119) {
+				g_snprintf(tmpChar, max_len, "%u/%u", dns_domain_search_list.nb_option_119, dns_domain_search_list.nb_option_119);
+				proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_refer_last_option, tvb, optoff, optlen, tmpChar);
+			}
+		}
+
+		if (dns_domain_search_list.buff == NULL) {
+			/* We use composite tvb for managing RFC 3396 */
+			dns_domain_search_list.buff = tvb_new_composite();
+		}
+
+		/* Concatenate the block before being interpreted for managing RFC 3396 */
+		tvb_composite_append(dns_domain_search_list.buff, tvb_new_subset(tvb, optoff, optlen, optlen));
+
+		if (dns_domain_search_list.index_current_option_119 == dns_domain_search_list.nb_option_119) {
+			/* Here, we are into the last (or unique) option 119. */
+			/* We will display the information about fqdn */
+			unsigned int consumed = 0;
+			unsigned int offset = 0;
+			tvb_composite_finalize(dns_domain_search_list.buff);
+
+			while (offset < tvb_length(dns_domain_search_list.buff)) {
+				/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
+				consumed = get_dns_name(dns_domain_search_list.buff, consumed, tvb_length(dns_domain_search_list.buff), 0, &dns_name);
+				if (dns_domain_search_list.nb_option_119 == 1) {
+					/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
+					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_fqdn, tvb, optoff + offset, consumed, dns_name);
+				} else {
+					/* RFC 3396 is used, so the option is split into several option 119. We don't link fqdn with v_tree. */
+					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_fqdn, tvb, 0, 0, dns_name);
+				}
+				offset += consumed;
+			}
+			dns_domain_search_list.buff = NULL;
+		}
+		break;
+	}
 	case 120:   /* SIP Servers (RFC 3361) */
 		{
 			guint8 enc;
@@ -4770,6 +4839,8 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16	      flags, secs;
 	int	      offset_delta;
 	guint8	      overload        = 0; /* DHCP option overload */
+	dns_domain_search_list.nb_option_119 = 0;
+	dns_domain_search_list.buff = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOOTP");
 	/*
@@ -4821,6 +4892,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	tmpvoff = voff;
 	at_end = FALSE;
+	dns_domain_search_list.index_current_option_119 = 0;
 	while (tmpvoff < eoff && !at_end) {
 		offset_delta = bootp_option(tvb, pinfo, 0, tmpvoff, eoff, TRUE, &at_end,
 		    &dhcp_type, &vendor_class_id, &overload);
@@ -4969,6 +5041,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	at_end = FALSE;
+	dns_domain_search_list.index_current_option_119 = 0;
 	while (voff < eoff && !at_end) {
 		offset_delta = bootp_option(tvb, pinfo, bp_tree, voff, eoff, FALSE, &at_end,
 		    &dhcp_type, &vendor_class_id, &overload);
@@ -6297,6 +6370,21 @@ proto_register_bootp(void)
 		  { "DHCP Auto-Configuration", "bootp.option.dhcp_auto_configuration",
 		    FT_UINT8, BASE_DEC, VALS(dhcp_autoconfig), 0x0,
 		    "Option 116: DHCP Auto-Configuration", HFILL }},
+
+		{ &hf_bootp_option_dhcp_dns_domain_search_list_rfc_3396_detected,
+		  { "Encoding Long Options detected (RFC 3396)", "bootp.option.dhcp_dns_domain_search_list_rfc_3396_detected",
+		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    "Option 119: Encoding Long Options detected (RFC 3396)", HFILL }},
+
+		{ &hf_bootp_option_dhcp_dns_domain_search_list_refer_last_option,
+		  { "For the data, please refer to last option 119", "bootp.option.dhcp_dns_domain_search_list_refer_last_option",
+		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    "Option 119: For the data, please refer to last option 119", HFILL }},
+
+		{ &hf_bootp_option_dhcp_dns_domain_search_list_fqdn,
+		  { "FQDN", "bootp.option.dhcp_dns_domain_search_list_fqdn",
+		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    "Option 119: FQDN", HFILL }},
 
 		{ &hf_bootp_option_sip_server_enc,
 		  { "SIP Server Encoding", "bootp.option.sip_server.encoding",
