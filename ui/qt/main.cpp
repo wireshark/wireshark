@@ -649,6 +649,7 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForTr(utf8codec);
 
     w = new(MainWindow);
+//    w->setEnabled(false);
     w->show();
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
@@ -1140,6 +1141,7 @@ int main(int argc, char *argv[])
 
 ////////
 
+//    w->setEnabled(true);
     wsApp->allSystemsGo();
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 

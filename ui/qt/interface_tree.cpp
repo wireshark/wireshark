@@ -25,24 +25,25 @@
 
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
+#include "ui/utf8_entities.h"
 
 #include "epan/prefs.h"
 
 #include "sparkline_delegate.h"
+#include "wireshark_application.h"
 
 #include <QLabel>
 #include <QHeaderView>
 #include <QTimer>
 
-#include <QDebug>
+const int stat_update_interval_ = 1000; // ms
 
 InterfaceTree::InterfaceTree(QWidget *parent) :
-    QTreeWidget(parent)
+    QTreeWidget(parent),
+    stat_cache_(NULL),
+    stat_timer_(NULL)
 {
-    GList *if_list;
     QTreeWidgetItem *ti;
-    int err;
-    gchar *err_str = NULL;
 
     header()->setVisible(false);
     setRootIsDecorated(false);
@@ -50,21 +51,68 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     setColumnCount(2);
     setAccessibleName(tr("Welcome screen list"));
 
-    stat_cache_ = NULL;
-    stat_timer_ = new QTimer(this);
-    connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
-
     setItemDelegateForColumn(1, new SparkLineDelegate());
+    setDisabled(true);
+
+    ti = new QTreeWidgetItem();
+    ti->setText(0, tr("Waiting for startup" UTF8_HORIZONTAL_ELLIPSIS));
+    addTopLevelItem(ti);
+    resizeColumnToContents(0);
+
+    connect (wsApp, SIGNAL(appInitialized()), this, SLOT(getInterfaceList()));
+}
+
+InterfaceTree::~InterfaceTree() {
+    QTreeWidgetItemIterator iter(this);
+
+    if (stat_cache_) {
+      capture_stat_stop(stat_cache_);
+      stat_cache_ = NULL;
+    }
+
+    while (*iter) {
+        QList<int> *points;
+        QVariant v;
+
+        v = (*iter)->data(1, Qt::UserRole);
+        points = v.value<QList<int> *>();
+        delete(points);
+    }
+}
+
+void InterfaceTree::hideEvent(QHideEvent *evt) {
+    Q_UNUSED(evt);
+
+    if (stat_timer_) stat_timer_->stop();
+    if (stat_cache_) {
+        capture_stat_stop(stat_cache_);
+        stat_cache_ = NULL;
+    }
+}
+
+void InterfaceTree::showEvent(QShowEvent *evt) {
+    Q_UNUSED(evt);
+
+    if (stat_timer_) stat_timer_->start(stat_update_interval_);
+}
+
+void InterfaceTree::getInterfaceList()
+{
+    GList *if_list;
+    int err;
+    gchar *err_str = NULL;
+
+    clear();
 
     if_list = capture_interface_list(&err, &err_str);
     if_list = g_list_sort(if_list, if_list_comparator_alph);
 
     if (if_list == NULL) {
-        setDisabled(true);
-        ti = new QTreeWidgetItem();
-        ti->setText(0, QString(tr("No interfaces found\n%1")).arg(QString().fromUtf8(err_str)));
+        QTreeWidgetItem *ti = new QTreeWidgetItem();
+        ti->setText(0, QString(tr("%1")).arg(QString().fromUtf8(err_str)));
         g_free(err_str);
         addTopLevelItem(ti);
+        resizeColumnToContents(0);
         return;
     } else if (err_str) {
         g_free(err_str);
@@ -86,7 +134,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
                 continue;
             }
 
-            ti = new QTreeWidgetItem();
+            QTreeWidgetItem *ti = new QTreeWidgetItem();
             // XXX Using if_info->name is amazingly ugly under Windows but it's needed for
             // statistics updates
 //            ti->setText(0, QString().fromUtf8(if_info->description ? if_info->description : if_info->name));
@@ -96,45 +144,16 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
             ti->setData(1, Qt::UserRole, v);
             addTopLevelItem(ti);
             resizeColumnToContents(1);
-
         }
     }
     free_interface_list(if_list);
-}
 
-InterfaceTree::~InterfaceTree() {
-    QTreeWidgetItemIterator iter(this);
-
-    if (stat_cache_) {
-      capture_stat_stop(stat_cache_);
-      stat_cache_ = NULL;
+    if (!stat_timer_) {
+        updateStatistics();
+        stat_timer_ = new QTimer(this);
+        connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
+        stat_timer_->start(stat_update_interval_);
     }
-
-    while (*iter) {
-        QList<int> *points;
-        QVariant v;
-
-        v = (*iter)->data(1, Qt::UserRole);
-        points = v.value<QList<int> *>();
-        delete(points);
-    }
-}
-
-#include <QDebug>
-void InterfaceTree::hideEvent(QHideEvent *evt) {
-    Q_UNUSED(evt);
-
-    stat_timer_->stop();
-    if (stat_cache_) {
-        capture_stat_stop(stat_cache_);
-        stat_cache_ = NULL;
-    }
-}
-
-void InterfaceTree::showEvent(QShowEvent *evt) {
-    Q_UNUSED(evt);
-
-    stat_timer_->start(1000);
 }
 
 void InterfaceTree::updateStatistics(void) {

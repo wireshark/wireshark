@@ -31,6 +31,9 @@
 #include "ui/utf8_entities.h"
 #include "tango_colors.h"
 
+// Uncomment to slow the update progress
+//#define THROTTLE_STARTUP 1
+
 /*
  * Update frequency for the splash screen, given in milliseconds.
  */
@@ -101,21 +104,25 @@ SplashOverlay::~SplashOverlay()
 }
 
 // Useful for debugging on fast machines.
-//#include <QThread>
-//class SleeperThread : public QThread
-//{
-//public:
-//    static void msleep(unsigned long msecs)
-//    {
-//        QThread::msleep(msecs);
-//    }
-//};
+#ifdef THROTTLE_STARTUP
+#include <QThread>
+class ThrottleThread : public QThread
+{
+public:
+    static void msleep(unsigned long msecs)
+    {
+        QThread::msleep(msecs);
+    }
+};
+#endif
 
 void SplashOverlay::splashUpdate(register_action_e action, const char *message)
 {
     QString action_msg = UTF8_HORIZONTAL_ELLIPSIS;
 
-//    SleeperThread::msleep(2);
+#ifdef THROTTLE_STARTUP
+    ThrottleThread::msleep(2);
+#endif
 
     register_cur_++;
     if (last_action_ == action && time_.elapsed() < info_update_freq_ && register_cur_ < bo_ui_->progressBar->maximum()) {

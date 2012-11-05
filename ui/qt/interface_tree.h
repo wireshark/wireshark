@@ -57,6 +57,7 @@ signals:
 public slots:
 
 private slots:
+    void getInterfaceList();
     void updateStatistics(void);
 };
 
