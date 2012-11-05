@@ -170,11 +170,11 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 
     cur_main_status_bar_ = this;
 
-    info_status_.hide();
+    splitter->hide();
     info_status_.pushText(ready_msg, STATUS_CTX_MAIN);
     packets_bar_update();
 
-    connect(wsApp, SIGNAL(appInitialized()), &info_status_, SLOT(show()));
+    connect(wsApp, SIGNAL(appInitialized()), splitter, SLOT(show()));
 }
 
 void MainStatusBar::showExpert() {
