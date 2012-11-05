@@ -493,7 +493,7 @@ copy_value_cb(GtkAction *action _U_, gpointer user_data)
 static void
 copy_as_filter_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    /* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
     match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 }
 
@@ -545,12 +545,12 @@ wireless_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar");
 
-	if(widget){
-		recent.wireless_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
-	}else{
-		recent.wireless_toolbar_show = FALSE;
-	}
-	main_widgets_show_or_hide();
+    if(widget) {
+        recent.wireless_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+    } else {
+        recent.wireless_toolbar_show = FALSE;
+    }
+    main_widgets_show_or_hide();
 }
 
 static void
@@ -1905,171 +1905,171 @@ packet_list_menu_set_ref_time_cb(GtkAction *action _U_, gpointer user_data)
 static void
 apply_selected_filter_cb(GtkAction *action, gpointer user_data)
 {
-	const gchar *path = gtk_action_get_accel_path(action);
-	/*g_warning("Accelerator path %s",path+9);*/
+    const gchar *path = gtk_action_get_accel_path(action);
+    /*g_warning("Accelerator path %s",path+9);*/
 
-	/* path starts with "<Actions>" */
-	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
-		/* Use different callbacks depending action path */
+    /* path starts with "<Actions>" */
+    if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+        /* Use different callbacks depending action path */
         match_selected_plist_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
-	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
-	}
+    } else {
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+    }
 }
 
 static void
 apply_not_selected_cb(GtkAction *action, gpointer user_data)
 {
-	const gchar *path = gtk_action_get_accel_path(action);
+    const gchar *path = gtk_action_get_accel_path(action);
 
     /* path starts with "<Actions>" */
-	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
-		/* Use different callbacks depending action path */
+    if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+        /* Use different callbacks depending action path */
         match_selected_plist_cb(user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
-	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
-	}
+    } else {
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+    }
 }
 
 static void
 apply_and_selected_cb(GtkAction *action, gpointer user_data)
 {
-	const gchar *path = gtk_action_get_accel_path(action);
+    const gchar *path = gtk_action_get_accel_path(action);
 
     /* path starts with "<Actions>" */
-	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
-		/* Use different callbacks depending action path */
+    if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+        /* Use different callbacks depending action path */
         match_selected_plist_cb(user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
-	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
-	}
+    } else {
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
+    }
 }
 
 static void
 apply_or_selected_cb(GtkAction *action, gpointer user_data)
 {
-	const gchar *path = gtk_action_get_accel_path(action);
+    const gchar *path = gtk_action_get_accel_path(action);
 
     /* path starts with "<Actions>" */
-	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
-		/* Use different callbacks depending action path */
+    if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+        /* Use different callbacks depending action path */
         match_selected_plist_cb(user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
-	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
-	}
+    } else {
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
+    }
 }
 
 static void
 apply_and_not_selected_cb(GtkAction *action, gpointer user_data)
 {
-	const gchar *path = gtk_action_get_accel_path(action);
+    const gchar *path = gtk_action_get_accel_path(action);
 
     /* path starts with "<Actions>" */
-	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
-		/* Use different callbacks depending action path */
+    if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+        /* Use different callbacks depending action path */
         match_selected_plist_cb(user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
-	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
-	}
+    } else {
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
+    }
 }
 
 static void
 apply_or_not_selected_cb(GtkAction *action, gpointer user_data)
 {
-	const gchar *path = gtk_action_get_accel_path(action);
+    const gchar *path = gtk_action_get_accel_path(action);
 
     /* path starts with "<Actions>" */
-	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
-		/* Use different callbacks depending action path */
+    if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+        /* Use different callbacks depending action path */
         match_selected_plist_cb(user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
-	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
-	}
+    } else {
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+    }
 }
 
 /* Prepare a filter */
 static void
 prepare_selected_cb(GtkAction *action, gpointer user_data)
 {
-	const gchar *path = gtk_action_get_accel_path(action);
+    const gchar *path = gtk_action_get_accel_path(action);
 
     /* path starts with "<Actions>" */
-	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
-		/* Use different callbacks depending action path */
-         match_selected_plist_cb(user_data, MATCH_SELECTED_REPLACE);
-	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_REPLACE);
-	}
+    if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+        /* Use different callbacks depending action path */
+        match_selected_plist_cb(user_data, MATCH_SELECTED_REPLACE);
+    } else {
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_REPLACE);
+    }
 }
 
 static void
 prepare_not_selected_cb(GtkAction *action, gpointer user_data)
 {
-	const gchar *path = gtk_action_get_accel_path(action);
+    const gchar *path = gtk_action_get_accel_path(action);
 
     /* path starts with "<Actions>" */
-	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
-		/* Use different callbacks depending action path */
-         match_selected_plist_cb(user_data, MATCH_SELECTED_NOT);
-	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_NOT);
-	}
+    if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+        /* Use different callbacks depending action path */
+        match_selected_plist_cb(user_data, MATCH_SELECTED_NOT);
+    } else {
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_NOT);
+    }
 }
 
 static void
 prepare_and_selected_cb(GtkAction *action, gpointer user_data)
 {
-	const gchar *path = gtk_action_get_accel_path(action);
+    const gchar *path = gtk_action_get_accel_path(action);
 
     /* path starts with "<Actions>" */
-	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
-		/* Use different callbacks depending action path */
-         match_selected_plist_cb(user_data, MATCH_SELECTED_AND);
-	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_AND);
-	}
+    if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+        /* Use different callbacks depending action path */
+        match_selected_plist_cb(user_data, MATCH_SELECTED_AND);
+    } else {
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_AND);
+    }
 }
 
 static void
 prepare_or_selected_cb(GtkAction *action, gpointer user_data)
 {
-	const gchar *path = gtk_action_get_accel_path(action);
+    const gchar *path = gtk_action_get_accel_path(action);
 
     /* path starts with "<Actions>" */
-	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
-		/* Use different callbacks depending action path */
-         match_selected_plist_cb(user_data, MATCH_SELECTED_OR);
-	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_OR);
-	}
+    if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+        /* Use different callbacks depending action path */
+        match_selected_plist_cb(user_data, MATCH_SELECTED_OR);
+    } else {
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_OR);
+    }
 }
 
 static void
 prepare_and_not_selected_cb(GtkAction *action, gpointer user_data)
 {
-	const gchar *path = gtk_action_get_accel_path(action);
+    const gchar *path = gtk_action_get_accel_path(action);
 
     /* path starts with "<Actions>" */
-	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
-		/* Use different callbacks depending action path */
-         match_selected_plist_cb(user_data, MATCH_SELECTED_AND_NOT);
-	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_AND_NOT);
-	}
+    if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+        /* Use different callbacks depending action path */
+        match_selected_plist_cb(user_data, MATCH_SELECTED_AND_NOT);
+    } else {
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_AND_NOT);
+    }
 }
 
 static void
 prepare_or_not_selected_cb(GtkAction *action, gpointer user_data)
 {
-	const gchar *path = gtk_action_get_accel_path(action);
+    const gchar *path = gtk_action_get_accel_path(action);
 
     /* path starts with "<Actions>" */
-	if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
-		/* Use different callbacks depending action path */
-         match_selected_plist_cb(user_data, MATCH_SELECTED_OR_NOT);
-	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_OR_NOT);
-	}
+    if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
+        /* Use different callbacks depending action path */
+        match_selected_plist_cb(user_data, MATCH_SELECTED_OR_NOT);
+    } else {
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_OR_NOT);
+    }
 }
 
 static void
@@ -2580,7 +2580,7 @@ tree_view_menu_copy_value(GtkAction *action _U_, gpointer user_data)
 static void
 tree_view_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data _U_)
 {
-	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    /* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
     match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 }
 
@@ -3277,7 +3277,7 @@ menus_init(void) {
     GtkActionGroup *packet_list_heading_action_group, *packet_list_action_group,
         *packet_list_details_action_group, *packet_list_byte_menu_action_group,
         *statusbar_profiles_action_group;
-	GtkAction *name_res_action;
+    GtkAction *name_res_action;
     GError *error = NULL;
     guint merge_id;
 
@@ -4440,7 +4440,7 @@ menu_name_resolution_changed(void)
 static void
 menu_name_resolution_update_cb(GtkAction *action _U_, gpointer data _U_)
 {
-	menu_name_resolution_changed();
+    menu_name_resolution_changed();
 }
 
 static void
@@ -4452,8 +4452,8 @@ name_resolution_cb(GtkWidget *w, gpointer d _U_, gboolean* res_flag)
         *res_flag = FALSE;
     }
 
-	packet_list_recreate();
-	redraw_packet_bytes_all();
+    packet_list_recreate();
+    redraw_packet_bytes_all();
 }
 
 #ifdef HAVE_LIBPCAP
@@ -4915,7 +4915,6 @@ set_menus_for_selected_packet(capture_file *cf)
         header_field_info  *hfinfo;
         field_info         *v;
         guint              i;
-        gint               id;
 
         ga = proto_all_finfos(cfile.edt->tree);
 
@@ -4925,14 +4924,13 @@ set_menus_for_selected_packet(capture_file *cf)
             hfinfo =  v->hfinfo;
 
             if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
-                    !g_str_has_prefix(hfinfo->abbrev, "expert") &&
-                    !g_str_has_prefix(hfinfo->abbrev, "malformed")) {
+                !g_str_has_prefix(hfinfo->abbrev, "expert") &&
+                !g_str_has_prefix(hfinfo->abbrev, "malformed")) {
+
                 if (hfinfo->parent == -1) {
                     abbrev = hfinfo->abbrev;
-                    id = (hfinfo->type == FT_PROTOCOL) ? proto_get_id((protocol_t *)hfinfo->strings) : -1;
                 } else {
                     abbrev = proto_registrar_get_abbrev(hfinfo->parent);
-                    id = hfinfo->parent;
                 }
                 properties = prefs_is_registered_protocol(abbrev);
                 break;
