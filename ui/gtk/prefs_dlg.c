@@ -33,6 +33,7 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/prefs-int.h>
+#include <epan/epan_dissect.h>
 
 #include "../file.h"
 #include "../print.h"
@@ -1810,16 +1811,47 @@ properties_cb(GtkWidget *w, gpointer dummy)
   module_t *page_module;
 
   if (cfile.finfo_selected == NULL) {
-    /* There is no field selected */
-    return;
+    const gchar        *abbrev;
+
+    /* There is no field selected, try use on top protocol */
+    if (cfile.edt && cfile.edt->tree) {
+        GPtrArray          *ga;
+        header_field_info  *hfinfo;
+        field_info         *v;
+        guint              i;
+
+        ga = proto_all_finfos(cfile.edt->tree);
+
+        for (i = ga->len - 1; i > 0 ; i -= 1) {
+
+            v = g_ptr_array_index (ga, i);
+            hfinfo =  v->hfinfo;
+
+            if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
+                    !g_str_has_prefix(hfinfo->abbrev, "expert") &&
+                    !g_str_has_prefix(hfinfo->abbrev, "malformed")) {
+                if (hfinfo->parent == -1) {
+                    abbrev = hfinfo->abbrev;
+                } else {
+                    abbrev = proto_registrar_get_abbrev(hfinfo->parent);
+                }
+                break;
+            }
+        }
+
+        title = prefs_get_title_by_name(abbrev);
+    } else {
+        title = NULL;
+    }
+  } else {
+    /* Find the title for the protocol for the selected field. */
+    hfinfo = cfile.finfo_selected->hfinfo;
+    if (hfinfo->parent == -1)
+        title = prefs_get_title_by_name(hfinfo->abbrev);
+    else
+        title = prefs_get_title_by_name(proto_registrar_get_abbrev(hfinfo->parent));
   }
 
-  /* Find the title for the protocol for the selected field. */
-  hfinfo = cfile.finfo_selected->hfinfo;
-  if (hfinfo->parent == -1)
-    title = prefs_get_title_by_name(hfinfo->abbrev);
-  else
-    title = prefs_get_title_by_name(proto_registrar_get_abbrev(hfinfo->parent));
   if (!title)
     return;     /* Couldn't find it. XXX - just crash? "Can't happen"? */
 

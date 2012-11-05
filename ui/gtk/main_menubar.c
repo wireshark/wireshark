@@ -155,6 +155,8 @@ static void set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint v
 static void menu_name_resolution_update_cb(GtkAction *action, gpointer data);
 static void name_resolution_cb(GtkWidget *w, gpointer d, gboolean* res_flag);
 static void colorize_cb(GtkWidget *w, gpointer d);
+static void rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences,
+        GtkUIManager *ui_menu, char *path);
 
 
 /*  As a general GUI guideline, we try to follow the Gnome Human Interface Guidelines, which can be found at:
@@ -2753,6 +2755,7 @@ static const char *ui_desc_packet_list_menu_popup =
 "        </menu>\n"
 "     </menu>\n"
 "     <separator/>\n"
+"     <menuitem name='ProtocolPreferences' action='/ProtocolPreferences'/>\n"
 "     <menuitem name='DecodeAs' action='/DecodeAs'/>\n"
 "     <menuitem name='Print' action='/Print'/>\n"
 "     <menuitem name='ShowPacketinNewWindow' action='/ShowPacketinNewWindow'/>\n"
@@ -2889,6 +2892,7 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
   { "/Copy/Bytes/HexStream",                        NULL,       "Hex Stream",                           NULL, NULL, G_CALLBACK(packet_list_menu_copy_bytes_hex_strm_cb) },
   { "/Copy/Bytes/BinaryStream",                     NULL,       "Binary Stream",                        NULL, NULL, G_CALLBACK(packet_list_menu_copy_bytes_bin_strm_cb) },
 
+  { "/ProtocolPreferences",                         NULL,       "Protocol Preferences",                 NULL, NULL, NULL },
   { "/DecodeAs",                                    WIRESHARK_STOCK_DECODE_AS,  "Decode As...",         NULL, NULL, G_CALLBACK(decode_as_cb) },
   { "/Print",                                       GTK_STOCK_PRINT,            "Print...",             NULL, NULL, G_CALLBACK(file_print_selected_cmd_cb) },
   { "/ShowPacketinNewWindow",                       NULL,           "Show Packet in New Window",        NULL, NULL, G_CALLBACK(new_window_cb) },
@@ -4878,8 +4882,12 @@ packet_is_ssl(epan_dissect_t* edt)
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
-    GList *list_entry = dissector_filter_list;
-    guint i = 0;
+    GList              *list_entry = dissector_filter_list;
+    guint              i = 0;
+    gboolean           properties = FALSE;
+    const char         *abbrev = NULL;
+    char               *prev_abbrev;
+
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
        avoiding needless looping through huge lists for marked, ignored,
@@ -4901,6 +4909,36 @@ set_menus_for_selected_packet(capture_file *cf)
            we have at least one time reference frame, and either there's more
            than one time reference frame or the current frame isn't a
            time reference frame). (XXX - why check frame_selected?) */
+
+    if (cfile.edt && cfile.edt->tree) {
+        GPtrArray          *ga;
+        header_field_info  *hfinfo;
+        field_info         *v;
+        guint              i;
+        gint               id;
+
+        ga = proto_all_finfos(cfile.edt->tree);
+
+        for (i = ga->len - 1; i > 0 ; i -= 1) {
+
+            v = g_ptr_array_index (ga, i);
+            hfinfo =  v->hfinfo;
+
+            if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
+                    !g_str_has_prefix(hfinfo->abbrev, "expert") &&
+                    !g_str_has_prefix(hfinfo->abbrev, "malformed")) {
+                if (hfinfo->parent == -1) {
+                    abbrev = hfinfo->abbrev;
+                    id = (hfinfo->type == FT_PROTOCOL) ? proto_get_id((protocol_t *)hfinfo->strings) : -1;
+                } else {
+                    abbrev = proto_registrar_get_abbrev(hfinfo->parent);
+                    id = hfinfo->parent;
+                }
+                properties = prefs_is_registered_protocol(abbrev);
+                break;
+            }
+        }
+    }
 
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/MarkPacket",
                          frame_selected);
@@ -5005,6 +5043,21 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/DecodeAs",
                          frame_selected && decode_as_ok());
+
+    if (properties) {
+        prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_packet_list_menu), "menu_abbrev");
+        if (!prev_abbrev || (strcmp(prev_abbrev, abbrev) != 0)) {
+          /*No previous protocol or protocol changed - update Protocol Preferences menu*/
+            module_t *prefs_module_p = prefs_find_module(abbrev);
+            rebuild_protocol_prefs_menu(prefs_module_p, properties, ui_manager_packet_list_menu, "/PacketListMenuPopup/ProtocolPreferences");
+
+            g_object_set_data(G_OBJECT(ui_manager_packet_list_menu), "menu_abbrev", g_strdup(abbrev));
+            g_free (prev_abbrev);
+        }
+    }
+
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ProtocolPreferences",
+                             properties);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DecodeAs",
                          frame_selected && decode_as_ok());
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Copy",
@@ -5248,7 +5301,7 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 }
 
 static guint
-add_protocol_prefs_menu (pref_t *pref, gpointer data)
+add_protocol_prefs_generic_menu(pref_t *pref, gpointer data, GtkUIManager *ui_menu, char *path)
 {
     GtkWidget *menu_preferences;
     GtkWidget *menu_item, *menu_sub_item, *sub_menu;
@@ -5335,9 +5388,9 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
         return 0;
     }
 
-    menu_preferences = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ProtocolPreferences");
+    menu_preferences = gtk_ui_manager_get_widget(ui_menu, path);
     if(!menu_preferences)
-        g_warning("menu_preferences Not found path:TreeViewPopup/ProtocolPreferences");
+        g_warning("menu_preferences Not found path");
     sub_menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM(menu_preferences));
     gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
     gtk_widget_show (menu_item);
@@ -5345,33 +5398,49 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
     return 0;
 }
 
+static guint
+add_protocol_prefs_menu(pref_t *pref, gpointer data) {
+    return add_protocol_prefs_generic_menu(pref, data, ui_manager_tree_view_menu, "/TreeViewPopup/ProtocolPreferences");
+}
+
+static guint
+add_protocol_prefs_packet_list_menu(pref_t *pref, gpointer data) {
+    return add_protocol_prefs_generic_menu(pref, data, ui_manager_packet_list_menu, "/PacketListMenuPopup/ProtocolPreferences");
+}
+
+
 static void
-rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences)
+rebuild_protocol_prefs_menu(module_t *prefs_module_p, gboolean preferences,
+        GtkUIManager *ui_menu, char *path)
 {
     GtkWidget *menu_preferences, *menu_item;
     GtkWidget *sub_menu;
     gchar *label;
 
-    menu_preferences = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ProtocolPreferences");
+    menu_preferences = gtk_ui_manager_get_widget(ui_menu, path);
     if (prefs_module_p && preferences) {
         sub_menu = gtk_menu_new();
         gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), sub_menu);
 
         label = g_strdup_printf ("%s Preferences...", prefs_module_p->description);
-        menu_item = gtk_image_menu_item_new_with_label (label);
+        menu_item = gtk_image_menu_item_new_with_label(label);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item),
                                        gtk_image_new_from_stock(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU));
-        gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+        gtk_menu_shell_append(GTK_MENU_SHELL(sub_menu), menu_item);
         g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
                                  G_CALLBACK(properties_cb), (GObject *) menu_item);
-        gtk_widget_show (menu_item);
-        g_free (label);
+        gtk_widget_show(menu_item);
+        g_free(label);
 
         menu_item = gtk_menu_item_new();
-        gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
-        gtk_widget_show (menu_item);
+        gtk_menu_shell_append(GTK_MENU_SHELL(sub_menu), menu_item);
+        gtk_widget_show(menu_item);
 
-        prefs_pref_foreach(prefs_module_p, add_protocol_prefs_menu, prefs_module_p);
+        if (ui_menu == ui_manager_tree_view_menu) {
+            prefs_pref_foreach(prefs_module_p, add_protocol_prefs_menu, prefs_module_p);
+        } else {
+            prefs_pref_foreach(prefs_module_p, add_protocol_prefs_packet_list_menu, prefs_module_p);
+        }
     } else {
         /* No preferences, remove sub menu */
         gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), NULL);
@@ -5569,7 +5638,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
         if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
             /* No previous protocol or protocol changed - update Protocol Preferences menu */
             module_t *prefs_module_p = prefs_find_module(abbrev);
-            rebuild_protocol_prefs_menu (prefs_module_p, properties);
+            rebuild_protocol_prefs_menu(prefs_module_p, properties, ui_manager_tree_view_menu, "/TreeViewPopup/ProtocolPreferences");
 
             g_object_set_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev", g_strdup(abbrev));
             g_free (prev_abbrev);
