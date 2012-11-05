@@ -1575,6 +1575,10 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
         /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
         memcpy(msg, header, sizeof(header));
         newly = read(pipe_fd, &msg[sizeof(header)], len-sizeof(header));
+	if (newly < 0) { /* error */
+	    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+		  "read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
+	}
         *err_msg = g_strdup_printf("Unknown message from dumpcap, try to show it as a string: %s",
                                    msg);
         return -1;

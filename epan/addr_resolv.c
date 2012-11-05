@@ -2560,7 +2560,10 @@ host_name_lookup_process(void) {
   FD_ZERO(&wfds);
   nfds = ares_fds(ghba_chan, &rfds, &wfds);
   if (nfds > 0) {
-    select(nfds, &rfds, &wfds, NULL, &tv);
+    if (select(nfds, &rfds, &wfds, NULL, &tv) == -1) { /* call to select() failed */
+	fprintf(stderr, "Warning: call to select() failed, error is %s\n", strerror(errno));
+	return nro;
+    }
     ares_process(ghba_chan, &rfds, &wfds);
   }
 
@@ -3276,7 +3279,10 @@ get_host_ipaddr(const char *host, guint32 *addrp)
     nfds = ares_fds(ghbn_chan, &rfds, &wfds);
     if (nfds > 0) {
       tvp = ares_timeout(ghbn_chan, &tv, &tv);
-      select(nfds, &rfds, &wfds, NULL, tvp);
+      if (select(nfds, &rfds, &wfds, NULL, tvp) == -1) { /* call to select() failed */
+	fprintf(stderr, "Warning: call to select() failed, error is %s\n", strerror(errno));
+	return FALSE;
+      }
       ares_process(ghbn_chan, &rfds, &wfds);
     }
     ares_cancel(ghbn_chan);
@@ -3360,7 +3366,10 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
   nfds = ares_fds(ghbn_chan, &rfds, &wfds);
   if (nfds > 0) {
     tvp = ares_timeout(ghbn_chan, &tv, &tv);
-    select(nfds, &rfds, &wfds, NULL, tvp);
+    if (select(nfds, &rfds, &wfds, NULL, tvp) == -1) { /* call to select() failed */
+	fprintf(stderr, "Warning: call to select() failed, error is %s\n", strerror(errno));
+	return FALSE;
+    }
     ares_process(ghbn_chan, &rfds, &wfds);
   }
   ares_cancel(ghbn_chan);
