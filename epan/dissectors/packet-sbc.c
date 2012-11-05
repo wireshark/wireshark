@@ -328,9 +328,6 @@ proto_register_sbc(void)
 void
 proto_reg_handoff_sbc(void)
 {
-    dissector_handle_t sbc_handle;
-
-    sbc_handle = find_dissector("sbc");
     data_handle   = find_dissector("data");
 }
 
