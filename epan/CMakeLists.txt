@@ -398,6 +398,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-btatt.c
 	dissectors/packet-btbnep.c
 	dissectors/packet-btavctp.c
+	dissectors/packet-btavdtp.c
 	dissectors/packet-btavrcp.c
 	dissectors/packet-bthci_acl.c
 	dissectors/packet-bthci_cmd.c
@@ -1076,6 +1077,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-sap.c
 	dissectors/packet-sasp.c
 	dissectors/packet-sbus.c
+	dissectors/packet-sbc.c
 	dissectors/packet-sccp.c
 	dissectors/packet-sccpmg.c
 	dissectors/packet-scop.c

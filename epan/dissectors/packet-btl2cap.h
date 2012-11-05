@@ -51,9 +51,11 @@
  * chandle, cid and direction
  */
 typedef struct _btl2cap_data_t {
-    guint16 chandle;  /* only low 12 bits used */
-    guint16 cid;
-    guint16 psm;
+    guint16   chandle;  /* only low 12 bits used */
+    guint16   cid;
+    guint16   psm;
+    guint32   first_scid_frame;
+    guint32   first_dcid_frame;
 } btl2cap_data_t;
 
 #endif

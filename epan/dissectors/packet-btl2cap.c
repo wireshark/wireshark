@@ -155,6 +155,8 @@ typedef struct _config_data_t {
 typedef struct _psm_data_t {
     guint16       scid;
     guint16       dcid;
+    guint32       first_scid_frame;
+    guint32       first_dcid_frame;
     guint16       psm;
     gboolean      local_service;
     config_data_t in;
@@ -418,6 +420,8 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
         psm_data->scid = (scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x8000 : 0x0000));
         psm_data->dcid = 0;
         psm_data->psm  = psm;
+        psm_data->first_scid_frame = 0;
+        psm_data->first_dcid_frame = 0;
         psm_data->local_service = (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE;
         psm_data->in.mode      = 0;
         psm_data->in.txwindow  = 0;
@@ -1290,6 +1294,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     l2cap_data          = ep_alloc(sizeof(btl2cap_data_t));
     l2cap_data->chandle = (acl_data)? acl_data->chandle : 0;
     l2cap_data->cid     = cid;
+    l2cap_data->psm     = 0;
+    l2cap_data->first_scid_frame = 0;
     pd_save             = pinfo->private_data;
     pinfo->private_data = l2cap_data;
 
@@ -1485,11 +1491,23 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
 
         if (psm_data &&
-            ((psm_data->scid == (cid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000)))
-             || (psm_data->dcid == (cid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000))))
-            ) {
+            ((psm_data->scid == (cid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000))) ||
+            (psm_data->dcid == (cid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000))))) {
+
+            if ((psm_data->scid == (cid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000))) &&
+                    psm_data->first_scid_frame == 0) {
+                psm_data->first_scid_frame = pinfo->fd->num;
+            }
+
+            if ((psm_data->dcid == (cid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000))) &&
+                    psm_data->first_dcid_frame == 0) {
+                psm_data->first_dcid_frame = pinfo->fd->num;
+            }
+
             psm = psm_data->psm;
             l2cap_data->psm = psm;
+            l2cap_data->first_scid_frame =   psm_data->first_scid_frame;
+            l2cap_data->first_dcid_frame =   psm_data->first_dcid_frame;
 
             if (pinfo->p2p_dir == P2P_DIR_RECV)
                 config_data = &(psm_data->in);

@@ -318,6 +318,7 @@ DISSECTOR_SRC = \
 	packet-btatt.c		\
 	packet-btbnep.c		\
 	packet-btavctp.c	\
+	packet-btavdtp.c	\
 	packet-btavrcp.c	\
 	packet-bthci_acl.c	\
 	packet-bthci_cmd.c	\
@@ -996,6 +997,7 @@ DISSECTOR_SRC = \
 	packet-sap.c		\
 	packet-sasp.c		\
 	packet-sbus.c		\
+	packet-sbc.c		\
 	packet-sccp.c		\
 	packet-sccpmg.c		\
 	packet-scop.c		\
@@ -1230,6 +1232,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bssap.h	\
 	packet-bssgp.h	\
 	packet-btavctp.h	\
+	packet-btavdtp.h	\
 	packet-bthci_acl.h	\
 	packet-btl2cap.h	\
 	packet-btrfcomm.h	\
