@@ -27,6 +27,7 @@
 
 #include <QPainter>
 
+#include "ui/util.h"
 #include "ui/utf8_entities.h"
 #include "tango_colors.h"
 
@@ -36,7 +37,7 @@
 /*
  * Update frequency for the splash screen, given in milliseconds.
  */
-const int info_update_freq_ = 50;
+int info_update_freq_ = 50;
 
 void splash_update(register_action_e action, const char *message, void *dummy) {
     Q_UNUSED(dummy);
@@ -86,6 +87,10 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
                       "  background: rgba(255, 255, 255, 50%);"
                       "}"
                       ));
+
+    // Check for a remote connection
+    if (get_conn_cfilter() != NULL)
+        info_update_freq_ = 1000;
 
     connect(wsApp, SIGNAL(splashUpdate(register_action_e,const char*)),
             this, SLOT(splashUpdate(register_action_e,const char*)));
