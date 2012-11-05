@@ -1803,7 +1803,7 @@ void
 properties_cb(GtkWidget *w, gpointer dummy)
 {
   header_field_info *hfinfo;
-  const gchar *title;
+  const gchar *title = NULL;
   struct properties_data p;
   int page_num;
   GtkWidget *sw;
@@ -1835,13 +1835,10 @@ properties_cb(GtkWidget *w, gpointer dummy)
                 } else {
                     abbrev = proto_registrar_get_abbrev(hfinfo->parent);
                 }
+                title = prefs_get_title_by_name(abbrev);
                 break;
             }
         }
-
-        title = prefs_get_title_by_name(abbrev);
-    } else {
-        title = NULL;
     }
   } else {
     /* Find the title for the protocol for the selected field. */
