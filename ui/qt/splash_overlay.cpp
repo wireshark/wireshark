@@ -25,7 +25,7 @@
 #include "ui_splash_overlay.h"
 #include "wireshark_application.h"
 
-#include <QGraphicsBlurEffect>
+//#include <QGraphicsBlurEffect>
 #include <QPainter>
 
 #include "ui/utf8_entities.h"
