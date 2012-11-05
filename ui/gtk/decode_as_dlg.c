@@ -2016,11 +2016,11 @@ decode_add_notebook (GtkWidget *format_hb)
 
     if (wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4 ||
             wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR) {
-        gint               page_l2cap_service;
-        gint               page_l2cap_cid;
-        gint               page_l2cap_psm;
-        gint               page_rfcomm_channel;
-        gint               page_rfcomm_service;
+        gint               page_l2cap_service = -1;
+        gint               page_l2cap_cid = -1;
+        gint               page_l2cap_psm = -1;
+        gint               page_rfcomm_channel = -1;
+        gint               page_rfcomm_service = -1;
         header_field_info  *hfinfo;
         GPtrArray          *ga;
         guint              i;
