@@ -65,6 +65,12 @@ struct pro_code {
 
 /* Initialize the protocol and registered fields */
 static int proto_lcsap  =   -1;
+
+static int hf_lcsap_pos_method = -1;
+static int hf_lcsap_pos_usage = -1;
+static int hf_lcsap_gnss_pos_method = -1;
+static int hf_lcsap_gnss_id = -1;
+static int hf_lcsap_gnss_pos_usage = -1;
 #include "packet-lcsap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -93,6 +99,97 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+
+
+/* 7.4.13 Positioning Data 
+ * Coding of positioning method (bits 8-4)
+ */
+static const value_string lcsap_pos_method_vals[] = {
+ 	{ 0x00, "Cell ID" },
+ 	{ 0x01, "Reserved" },
+ 	{ 0x02, "E-CID" },
+ 	{ 0x03, "Reserved" },
+ 	{ 0x04, "OTDOA" },
+ 	{ 0x05, "Reserved" },
+ 	{ 0x06, "Reserved" },
+ 	{ 0x07, "Reserved" },
+ 	{ 0x08, "U-TDOA" },
+ 	{ 0x09, "Reserved" },
+ 	{ 0x0a, "Reserved" },
+ 	{ 0x0b, "Reserved" },
+ 	{ 0x0c, "Reserved for other location technologies" },
+ 	{ 0x0d, "Reserved for other location technologies" },
+ 	{ 0x0e, "Reserved for other location technologies" },
+ 	{ 0x0f, "Reserved for other location technologies" },
+ 	{ 0x10, "Reserved for network specific positioning methods" },
+ 	{ 0x11, "Reserved for network specific positioning methods" },
+ 	{ 0x12, "Reserved for network specific positioning methods" },
+ 	{ 0x13, "Reserved for network specific positioning methods" },
+ 	{ 0x14, "Reserved for network specific positioning methods" },
+ 	{ 0x15, "Reserved for network specific positioning methods" },
+ 	{ 0x16, "Reserved for network specific positioning methods" },
+ 	{ 0x17, "Reserved for network specific positioning methods" },
+ 	{ 0x18, "Reserved for network specific positioning methods" },
+ 	{ 0x19, "Reserved for network specific positioning methods" },
+ 	{ 0x1a, "Reserved for network specific positioning methods" },
+ 	{ 0x1b, "Reserved for network specific positioning methods" },
+ 	{ 0x1c, "RReserved for network specific positioning methods" },
+ 	{ 0x1d, "Reserved for network specific positioning methods" },
+ 	{ 0x1e, "Reserved for network specific positioning methods" },
+ 	{ 0x0f, "Reserved for network specific positioning methods" },
+	{ 0, NULL }
+};
+
+/* Coding of usage (bits 3-1)*/
+static const value_string lcsap_pos_usage_vals[] = {
+ 	{ 0x00, "Attempted unsuccessfully due to failure or interruption - not used" },
+ 	{ 0x01, "Attempted successfully: results not used to generate location - not used." },
+ 	{ 0x02, "Attempted successfully: results used to verify but not generate location - not used." },
+ 	{ 0x03, "Attempted successfully: results used to generate location" },
+ 	{ 0x04, "Attempted successfully: case where UE supports multiple mobile based positioning methods \n"
+	        "and the actual method or methods used by the UE cannot be determined." },
+ 	{ 0x05, "Reserved" },
+ 	{ 0x06, "Reserved" },
+ 	{ 0x07, "Reserved" },
+	{ 0, NULL }
+};
+
+/* Coding of Method (Bits 8-7) */
+static const value_string lcsap_gnss_pos_method_vals[] = {
+	{ 0x00, "UE-Based" },
+ 	{ 0x01, "UE-Assisted" },
+ 	{ 0x02, "Conventional" },
+ 	{ 0x03, "Reserved" },
+	{ 0, NULL }
+};
+
+/* Coding of GNSS ID (Bits 6-4) */
+static const value_string lcsap_gnss_id_vals[] = {
+ 	{ 0x00, "GPS" },
+ 	{ 0x01, "Galileo" },
+ 	{ 0x02, "SBAS" },
+ 	{ 0x03, "Modernized GPS" },
+ 	{ 0x04, "QZSS" },
+ 	{ 0x05, "GLONASS" },
+ 	{ 0x06, "Reserved" },
+	{ 0x07, "Reserved" },
+	{ 0, NULL }
+};
+
+/* Coding of usage (bits 3- 1) */
+static const value_string lcsap_gnss_pos_usage_vals[] = {
+ 	{ 0x00, "Attempted unsuccessfully due to failure or interruption" },
+ 	{ 0x01, "Attempted successfully: results not used to generate location" },
+ 	{ 0x02, "Attempted successfully: results used to verify but not generate location" },
+ 	{ 0x03, "Attempted successfully: results used to generate location" },
+ 	{ 0x04, "Attempted successfully: case where UE supports multiple mobile based positioning methods \n"
+	        "and the actual method or methods used by the UE cannot be determined." },
+ 	{ 0x05, "Reserved" },
+ 	{ 0x06, "Reserved" },
+ 	{ 0x07, "Reserved" },
+	{ 0, NULL }
+};
+
 
 #include "packet-lcsap-fn.c"
 
@@ -173,6 +270,33 @@ void proto_register_lcsap(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+	  /* 7.4.13 Positioning Data */
+      { &hf_lcsap_pos_method,
+        { "Positioning Method", "lcsap.pos_method",
+          FT_UINT8, BASE_DEC, VALS(lcsap_pos_method_vals), 0xf8,
+          NULL, HFILL }
+	  },
+      { &hf_lcsap_pos_usage,
+        { "Positioning usage", "lcsap.pos_usage",
+          FT_UINT8, BASE_DEC, VALS(lcsap_pos_usage_vals), 0x07,
+          NULL, HFILL }
+	  },
+      { &hf_lcsap_gnss_pos_method,
+        { "GNSS Positioning Method", "lcsap.gnss_pos_method",
+          FT_UINT8, BASE_DEC, VALS(lcsap_gnss_pos_method_vals), 0xc0,
+          NULL, HFILL }
+	  },
+      { &hf_lcsap_gnss_id,
+        { "GNSS ID", "lcsap.gnss_id",
+          FT_UINT8, BASE_DEC, VALS(lcsap_gnss_id_vals), 0x38,
+          NULL, HFILL }
+	  },
+      { &hf_lcsap_gnss_pos_usage,
+        { "GNSS Positioning usage", "lcsap.gnss_pos_usage",
+          FT_UINT8, BASE_DEC, VALS(lcsap_gnss_pos_usage_vals), 0x07,
+          NULL, HFILL }
+	  },
+
 #include "packet-lcsap-hfarr.c"
   };
 
