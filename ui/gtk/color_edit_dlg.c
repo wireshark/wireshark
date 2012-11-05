@@ -171,8 +171,8 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 #if GTK_CHECK_VERSION(3,0,0)
   color_t_to_gdkRGBAcolor(&bg_rgba_color, &colorf->bg_color);
   color_t_to_gdkRGBAcolor(&fg_rgba_color, &colorf->fg_color);
-  gtk_widget_override_background_color(filt_name_entry, GTK_STATE_NORMAL, &bg_rgba_color);
-  gtk_widget_override_color(filt_name_entry, GTK_STATE_NORMAL, &fg_rgba_color);
+  gtk_widget_override_background_color(filt_name_entry, GTK_STATE_FLAG_NORMAL, &bg_rgba_color);
+  gtk_widget_override_color(filt_name_entry, GTK_STATE_FLAG_NORMAL, &fg_rgba_color);
 #else
   color_t_to_gdkcolor(&bg_color, &colorf->bg_color);
   color_t_to_gdkcolor(&fg_color, &colorf->fg_color);
@@ -394,10 +394,10 @@ edit_color_filter_ok_cb                (GtkButton       *button,
   dialog = (GtkWidget *)user_data;
 #if GTK_CHECK_VERSION(3,0,0)
   context = gtk_widget_get_style_context (filt_name_entry);
-  gtk_style_context_get (context, GTK_STATE_NORMAL,
+  gtk_style_context_get (context, GTK_STATE_FLAG_NORMAL,
                        "background-color", &new_rgba_bg_color,
                        NULL);
-  gtk_style_context_get (context, GTK_STATE_NORMAL,
+  gtk_style_context_get (context, GTK_STATE_FLAG_NORMAL,
                        "forground-color", &new_rgba_fg_color,
                        NULL);
 /* gdk_rgba_free (rgba_bg_color); */
@@ -471,8 +471,11 @@ edit_color_filter_ok_cb                (GtkButton       *button,
 static void
 edit_new_color_filter_cancel_cb(GtkButton *button, gpointer user_data _U_)
 {
-  /* Delete the entry. As a side effect this destroys the edit_dialog window. */
-  color_delete_single(color_dlg_num_of_filters-1, (GtkWidget*)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL));
+  /* Delete the entry. As a side effect this destroys the edit_dialog window.
+     Before the edit dialogue was launched, the color filter list was
+     prepended with a default entry. This is the entry at position 0 that we
+     want to delete now. */
+  color_delete_single(0, (GtkWidget*)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL));
 }
 
 static GtkWidget*
@@ -507,19 +510,11 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
 
   g_object_get(color_sel_win, "ok-button", &color_sel_ok, NULL);
   g_object_set_data(G_OBJECT(color_sel_win), "color_sel_ok", color_sel_ok);
-#if GTK_CHECK_VERSION(2,18,0)
   gtk_widget_set_can_default(color_sel_ok, TRUE);
-#else
-  GTK_WIDGET_SET_FLAGS (color_sel_ok, GTK_CAN_DEFAULT);
-#endif
 
   g_object_get(color_sel_win, "cancel-button", &color_sel_cancel, NULL);
   g_object_set_data(G_OBJECT(color_sel_win), "color_sel_cancel", color_sel_cancel);
-#if GTK_CHECK_VERSION(2,18,0)
   gtk_widget_set_can_default(color_sel_cancel, TRUE);
-#else
-  GTK_WIDGET_SET_FLAGS (color_sel_cancel, GTK_CAN_DEFAULT);
-#endif
   window_set_cancel_button(color_sel_win, color_sel_cancel, NULL); /* ensure esc does req'd local cxl action.    */
   /* esc as handled by the                      */
   /* gtk_color_selection_dialog widget          */
@@ -527,11 +522,7 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
 
   g_object_get(color_sel_win, "help-button", &color_sel_help, NULL);
   g_object_set_data(G_OBJECT(color_sel_win), "color_sel_help", color_sel_help);
-#if GTK_CHECK_VERSION(2,18,0)
   gtk_widget_set_can_default(color_sel_help, TRUE);
-#else
-  GTK_WIDGET_SET_FLAGS (color_sel_help, GTK_CAN_DEFAULT);
-#endif
 
   g_signal_connect(color_sel_ok, "clicked", G_CALLBACK(color_sel_ok_cb), color_sel_win);
   g_signal_connect(color_sel_cancel, "clicked", G_CALLBACK(color_sel_cancel_cb), color_sel_win);
@@ -608,9 +599,9 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 #if GTK_CHECK_VERSION(3,0,0)
     /* now apply the change to the fore/background */
     if (is_bg)
-      gtk_widget_override_background_color(filt_name_entry, GTK_STATE_NORMAL, &new_rgba_color);
+      gtk_widget_override_background_color(filt_name_entry, GTK_STATE_FLAG_NORMAL, &new_rgba_color);
     else
-      gtk_widget_override_color(filt_name_entry, GTK_STATE_NORMAL, &new_rgba_color);
+      gtk_widget_override_color(filt_name_entry, GTK_STATE_FLAG_NORMAL, &new_rgba_color);
 #else
     /* now apply the change to the fore/background */
     if (is_bg)
