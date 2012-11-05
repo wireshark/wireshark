@@ -270,6 +270,9 @@ struct dissector_table {
   int        base;
 };
 
+
+GHashTable *value_entry_table = NULL;
+
 /*
  * A callback function to changed a dissector_handle if matched
  * This is used when iterating a dissector table
@@ -1815,6 +1818,98 @@ decode_add_sctp_page (const gchar *prompt, const gchar *table_name)
     return(page);
 }
 
+static void
+decode_bluetooth(GtkWidget *notebook_pg)
+{
+#ifdef DEBUG
+    gchar               *string;
+#endif
+    GtkWidget           *list;
+    GtkTreeSelection    *selection;
+    GtkTreeModel        *model;
+    GtkTreeIter         iter;
+    gchar               *table_name;
+    guint               value;
+    dissector_handle_t  handle;
+    gchar               *abbrev;
+    guint               *value_type;
+
+    list = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
+    if (requested_action == E_DECODE_NO)
+        gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
+
+#ifdef DEBUG
+    string = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
+    decode_debug(GTK_TREE_VIEW(list), string);
+#endif
+
+    table_name = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
+
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+    if (gtk_tree_selection_get_selected(selection, &model, &iter) == FALSE)
+    {
+        abbrev = NULL;
+        handle = NULL;
+    } else {
+        gtk_tree_model_get(model, &iter, E_LIST_S_PROTO_NAME, &abbrev,
+                E_LIST_S_TABLE+1, &handle, -1);
+    }
+
+    value = strtol(gtk_entry_get_text((GtkEntry *) g_hash_table_lookup(value_entry_table, table_name)), NULL, 0);
+
+    if (abbrev != NULL && strcmp(abbrev, "(default)") == 0) {
+        dissector_reset_uint(table_name, value);
+    } else {
+        dissector_change_uint(table_name, value, handle);
+    }
+
+    value_type = g_malloc(sizeof(value_type));
+    *value_type = value;
+
+    decode_build_reset_list(g_strdup(table_name), FT_UINT32, value_type, NULL, NULL);
+
+    g_free(abbrev);
+}
+
+static GtkWidget *
+decode_add_bluetooth_page(const gchar *prompt, const gchar *table_name, const char *value)
+{
+    GtkWidget  *page;
+    GtkWidget  *label;
+    GtkWidget  *scrolled_window;
+    GtkWidget  *value_entry = NULL;
+    const char *empty = "";
+
+    if (value == NULL)
+        value = empty;
+
+	page = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
+
+    g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_bluetooth);
+    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE,  (gchar *) table_name);
+    g_object_set_data(G_OBJECT(page), E_PAGE_TITLE,  (gchar *) prompt);
+
+    label = gtk_label_new(prompt);
+    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
+
+    value_entry = g_hash_table_lookup(value_entry_table, table_name);
+    if (!value_entry) {
+        value_entry = gtk_entry_new();
+        g_hash_table_insert(value_entry_table, (gchar *) table_name, value_entry);
+    }
+
+    gtk_entry_set_text((GtkEntry *) value_entry, value);
+    gtk_box_pack_start(GTK_BOX(page), value_entry, TRUE, TRUE, 0);
+
+    label = gtk_label_new("as");
+    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
+    decode_dimmable = g_slist_prepend(decode_dimmable, label);
+    scrolled_window = decode_add_simple_menu(page, table_name);
+    gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
+    decode_dimmable = g_slist_prepend(decode_dimmable, scrolled_window);
+
+    return(page);
+}
 
 /*
  * This routine indicates whether we'd actually have any pages in the
@@ -1827,7 +1922,9 @@ decode_as_ok(void)
     return (cfile.edt->pi.ethertype != G_MAXINT) || cfile.edt->pi.ipproto ||
         cfile.edt->pi.ptype == PT_TCP || cfile.edt->pi.ptype == PT_UDP ||
         cfile.edt->pi.mpls_label ||
-        cfile.cd_t == WTAP_FILE_BER;
+        cfile.cd_t == WTAP_FILE_BER ||
+        wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4 ||
+        wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
 }
 
 
@@ -1897,6 +1994,7 @@ decode_add_notebook (GtkWidget *format_hb)
         page = NULL;
         break;
     }
+
     if (page != NULL) {
         label = gtk_label_new("Transport");
         gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
@@ -1916,11 +2014,94 @@ decode_add_notebook (GtkWidget *format_hb)
         g_object_set_data(G_OBJECT(decode_w), E_PAGE_ASN1, page);
     }
 
-    /* Select the last added page (selects first by default) */
-    /* Notebook must be visible for set_page to work. */
-    gtk_widget_show_all(notebook);
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), -1);
+    if (wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4 ||
+            wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR) {
+        gint               page_l2cap_service;
+        gint               page_l2cap_cid;
+        gint               page_l2cap_psm;
+        gint               page_rfcomm_channel;
+        gint               page_rfcomm_service;
+        header_field_info  *hfinfo;
+        GPtrArray          *ga;
+        guint              i;
+        field_info         *v;
+        const gchar        *cid = NULL;
+        const gchar        *psm = NULL;
+        const gchar        *channel = NULL;
+        gboolean           have_rfcomm = FALSE;
 
+        ga = proto_all_finfos(cfile.edt->tree);
+
+        for (i = 0; i < ga->len; i += 1) {
+            v = g_ptr_array_index (ga, i);
+            hfinfo =  v->hfinfo;
+
+            if (g_strcmp0(hfinfo->abbrev, "btl2cap.cid") == 0) {
+                cid = get_node_field_value(v, cfile.edt);
+            } else if (g_strcmp0(hfinfo->abbrev, "btl2cap.psm") == 0) {
+                 psm = get_node_field_value(v, cfile.edt);
+            } else if (g_strcmp0(hfinfo->abbrev, "btrfcomm.channel") == 0) {
+                channel = get_node_field_value(v, cfile.edt);
+            }
+
+            if (have_rfcomm == FALSE && g_str_has_prefix(hfinfo->abbrev, "btrfcommm")) {
+                have_rfcomm = TRUE;
+            }
+        }
+
+        value_entry_table = g_hash_table_new(g_str_hash, g_str_equal);
+
+        page = decode_add_bluetooth_page("L2CAP SERVICE", "btl2cap.service", NULL);
+        if (page != NULL) {
+            label = gtk_label_new("L2CAP SERVICE");
+            page_l2cap_service = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+        }
+
+        page = decode_add_bluetooth_page("L2CAP CID", "btl2cap.cid", cid);
+        if (page != NULL) {
+            label = gtk_label_new("L2CAP CID");
+            page_l2cap_cid = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+        }
+
+        page = decode_add_bluetooth_page("L2CAP PSM", "btl2cap.psm", psm);
+        if (page != NULL) {
+            label = gtk_label_new("L2CAP PSM");
+            page_l2cap_psm = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+        }
+
+        page = decode_add_bluetooth_page("RFCOMM Channel", "btrfcomm.channel", channel);
+        if (page != NULL) {
+            label = gtk_label_new("RFCOMM Channel");
+            page_rfcomm_channel = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+        }
+
+        page = decode_add_bluetooth_page("RFCOMM SERVICE", "btrfcomm.service", NULL);
+        if (page != NULL) {
+            label = gtk_label_new("RFCOMM SERVICE");
+            page_rfcomm_service = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+        }
+
+        page = NULL;
+
+        /* Notebook must be visible for set_page to work. */
+        gtk_widget_show_all(notebook);
+
+        if (channel)
+            gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_rfcomm_channel);
+        else if (psm)
+            gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_l2cap_psm);
+        else if (cid)
+            gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_l2cap_cid);
+        else if (have_rfcomm)
+            gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_rfcomm_service);
+         else
+            gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_l2cap_service);
+   } else {
+        /* Select the last added page (selects first by default) */
+        /* Notebook must be visible for set_page to work. */
+        gtk_widget_show_all(notebook);
+        gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), -1);
+   }
 }
 
 

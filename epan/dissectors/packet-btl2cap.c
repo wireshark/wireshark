@@ -989,7 +989,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 
 static int
 dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *btl2cap_tree,
-                guint16 psm, gboolean local_service, guint16 length, int offset)
+                guint16 cid, guint16 psm, gboolean local_service, guint16 length, int offset)
 {
     tvbuff_t *next_tvb;
 
@@ -1013,18 +1013,21 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         PROTO_ITEM_SET_GENERATED(psm_item);
 
         /* call next dissector */
-        if (!dissector_try_uint(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree)) {
-            /* not a known fixed PSM, try to find a registered service to a dynamic PSM */
-            if ((service == NULL) || !dissector_try_uint(l2cap_service_dissector_table, *service, next_tvb, pinfo, tree)) {
-                /* unknown protocol. declare as data */
-                proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
+        if (!dissector_try_uint(l2cap_cid_dissector_table, (guint32) cid, next_tvb, pinfo, tree)) {
+            if (!dissector_try_uint(l2cap_psm_dissector_table, (guint32) psm, next_tvb, pinfo, tree)) {
+                /* not a known fixed PSM, try to find a registered service to a dynamic PSM */
+                if ((service == NULL) || !dissector_try_uint(l2cap_service_dissector_table, *service, next_tvb, pinfo, tree)) {
+                    /* unknown protocol. declare as data */
+                    proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
+                }
             }
         }
         offset += tvb_length_remaining(tvb, offset);
-    }
-    else {
-        proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
-        offset += tvb_length_remaining(tvb, offset);
+    } else {
+        if (!dissector_try_uint(l2cap_cid_dissector_table, (guint32) cid, next_tvb, pinfo, tree)) {
+            proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
+            offset += tvb_length_remaining(tvb, offset);
+        }
     }
     return offset;
 }
@@ -1493,7 +1496,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else
                 config_data = &(psm_data->out);
             if (config_data->mode == 0) {
-                dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, psm, psm_data->local_service, length, offset);
+                dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, psm_data->local_service, length, offset);
             } else {
                 control = tvb_get_letohs(tvb, offset);
                 if (control & 0x1) {
@@ -1504,7 +1507,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         } else {
             psm = 0;
-            dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, psm, FALSE, length, offset);
+            dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, FALSE, length, offset);
         }
     }
     pinfo->private_data = pd_save;
