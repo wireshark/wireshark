@@ -367,6 +367,8 @@ emem_init(void)
 
 #elif defined(USE_GUARD_PAGES)
 	pagesize = sysconf(_SC_PAGESIZE);
+	if (pagesize == -1) 
+		fprintf(stderr, "Warning: call to sysconf() for _SC_PAGESIZE has failed...\n");
 #ifdef NEED_DEV_ZERO
 	dev_zero_fd = ws_open("/dev/zero", O_RDWR);
 	g_assert(dev_zero_fd != -1);
@@ -680,7 +682,13 @@ emem_destroy_chunk(emem_chunk_t *npc)
 #if defined (_WIN32)
 	VirtualFree(npc->buf, 0, MEM_RELEASE);
 #elif defined(USE_GUARD_PAGES)
-	munmap(npc->buf, npc->amount_free_init);
+
+	/* we cannot recover from a munmap() failure, but we	*/
+	/* can print an informative error message to stderr	*/
+
+	if (munmap(npc->buf, npc->amount_free_init) != 0) 
+		fprintf(stderr, "Warning: Unable to unmap memory chunk which has address %p and size %u\n",
+			npc->buf, npc->amount_free_init); 
 #else
 	g_free(npc->buf);
 #endif
