@@ -623,7 +623,6 @@ int main(int argc, char *argv[])
 //    gboolean             rfilter_parse_failed = FALSE;
     e_prefs             *prefs_p;
 //    char                 badopt;
-    //GtkWidget           *splash_win = NULL;
     GLogLevelFlags       log_flags;
 //    guint                go_to_packet = 0;
 //    gboolean             jump_backwards = FALSE;
@@ -655,8 +654,6 @@ int main(int argc, char *argv[])
     // to force the issue.
     w->connect(&a, SIGNAL(openCaptureFile(QString&)),
             w, SLOT(openCaptureFile(QString&)));
-    // XXX Turn MWOverlay into its own widget and use it for a splash screen.
-
 
     // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
 #ifdef HAVE_LIBPCAP
@@ -925,13 +922,12 @@ int main(int argc, char *argv[])
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
     epan_init(register_all_protocols,register_all_protocol_handoffs,
-              NULL, NULL,
-//              splash_update, (gpointer) splash_win,
+              splash_update, NULL,
               failure_alert_box,open_failure_alert_box,read_failure_alert_box,
               write_failure_alert_box
               );
 
-//    splash_update(RA_LISTENERS, NULL, (gpointer)splash_win);
+    splash_update(RA_LISTENERS, NULL, NULL);
 
     /* Register all tap listeners; we do this before we parse the arguments,
        as the "-z" argument can specify a registered tap. */
@@ -947,7 +943,7 @@ int main(int argc, char *argv[])
 
 //    register_all_tap_listeners();
 
-//    splash_update(RA_PREFERENCES, NULL, (gpointer)splash_win);
+    splash_update(RA_PREFERENCES, NULL, NULL);
 
     prefs_p = read_configuration_files (&gdp_path, &dp_path);
     /* Removed thread code:

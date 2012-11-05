@@ -1,4 +1,4 @@
-/* main_welcome.h
+/* splash_overlay.h
  *
  * $Id$
  *
@@ -21,50 +21,47 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef MAIN_WELCOME_H
-#define MAIN_WELCOME_H
+#ifndef SPLASH_OVERLAY_H
+#define SPLASH_OVERLAY_H
 
-#include <QFrame>
-#include <QListWidget>
+#include "config.h"
 
-#include "splash_overlay.h"
+#include <glib.h>
+
+#include "register.h"
+
+#include <QWidget>
+#include <QTime>
+
+void splash_update(register_action_e action, const char *message, void *dummy);
 
 namespace Ui {
-    class MainWelcome;
+class SplashOverlay;
 }
 
-class MainWelcome : public QFrame
+class SplashOverlay : public QWidget
 {
     Q_OBJECT
+    
 public:
-    explicit MainWelcome(QWidget *parent = 0);
-
+    explicit SplashOverlay(QWidget *parent = 0);
+    ~SplashOverlay();
+    
 protected:
-    void resizeEvent(QResizeEvent *event);
+    void paintEvent(QPaintEvent *event);
 
 private:
-    Ui::MainWelcome *welcome_ui_;
-
-    SplashOverlay *splash_overlay_;
-    // QListWidget doesn't activate items when the return or enter keys are pressed on OS X.
-    // We may want to subclass it at some point.
-    QListWidget *task_list_;
-    QListWidget *recent_files_;
-//    MWOverlay *overlay;
-
-
-signals:
-    void recentFileActivated(QString& cfile);
+    Ui::SplashOverlay *bo_ui_;
+    bool blurred_;
+    register_action_e last_action_;
+    int register_cur_;
+    QTime time_;
 
 private slots:
-    void destroySplashOverlay();
-    void showTask();
-    void updateRecentFiles();
-    void openRecentItem(QListWidgetItem *item);
-
+    void splashUpdate(register_action_e action, const char *message);
 };
 
-#endif // MAIN_WELCOME_H
+#endif // SPLASH_OVERLAY_H
 
 /*
  * Editor modelines

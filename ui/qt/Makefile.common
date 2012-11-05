@@ -35,7 +35,8 @@ GENERATED_NODIST_HEADER_FILES = \
 	ui_main_welcome.h \
 	ui_main_window.h \
 	ui_packet_range_group_box.h \
-	ui_print_dialog.h
+	ui_print_dialog.h \
+	ui_splash_overlay.h
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES =
@@ -97,6 +98,7 @@ MOC_HDRS = \
 	recent_file_status.h \
 	simple_dialog_qt.h \
 	sparkline_delegate.h \
+	splash_overlay.h \
 	syntax_line_edit.h \
 	wireshark_application.h
 
@@ -158,6 +160,7 @@ WIRESHARK_QT_SRC = \
 	recent_file_status.cpp \
 	simple_dialog_qt.cpp \
 	sparkline_delegate.cpp \
+	splash_overlay.cpp \
 	syntax_line_edit.cpp \
 	wireshark_application.cpp
 

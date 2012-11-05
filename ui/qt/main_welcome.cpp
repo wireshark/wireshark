@@ -37,39 +37,12 @@
 #include "interface_tree.h"
 
 #include <QWidget>
-
-//MWOverlay::MWOverlay(QWidget *parent) : QWidget(parent)
-//{
-//    setPalette(Qt::transparent);
-//    setAttribute(Qt::WA_TransparentForMouseEvents);
-
-//    QGraphicsBlurEffect *blur = new QGraphicsBlurEffect(this);
-//    setGraphicsEffect(blur);
-//}
-
-//void MWOverlay::paintEvent(QPaintEvent *event)
-//{
-//    QPainter painter(this);
-//    painter.setRenderHint(QPainter::Antialiasing);
-
-//    QRect border = rect();
-////    g_log(NULL, G_LOG_LEVEL_DEBUG, "rect pre: %d %d %d %d", border.top(), border.left(), border.bottom(), border.right());
-//    border.setWidth(border.width() - 8);
-//    border.moveLeft(4);
-//    border.setHeight(border.height() - 8);
-//    border.moveTop(4);
-////    g_log(NULL, G_LOG_LEVEL_DEBUG, "rect post: %d %d %d %d", border.top(), border.left(), border.bottom(), border.right());
-//    QPen pen;
-//    pen.setWidth(8);
-//    pen.setColor(QColor(60, 60, 60, 80));
-//    painter.setPen(pen);
-////    painter.setBrush(Qt::blue);
-//    painter.drawRect(border);
-//}
+#include <QResizeEvent>
 
 MainWelcome::MainWelcome(QWidget *parent) :
     QFrame(parent),
-    welcome_ui_(new Ui::MainWelcome)
+    welcome_ui_(new Ui::MainWelcome),
+    splash_overlay_(NULL)
 
 {
 //    QGridLayout *grid = new QGridLayout(this);
@@ -160,11 +133,20 @@ MainWelcome::MainWelcome(QWidget *parent) :
     recent_files_->setTextElideMode(Qt::ElideLeft);
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(destroySplashOverlay()));
     connect(task_list_, SIGNAL(itemSelectionChanged()), this, SLOT(showTask()));
     connect(recent_files_, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(openRecentItem(QListWidgetItem *)));
     updateRecentFiles();
 
     task_list_->setCurrentRow(0);
+
+    splash_overlay_ = new SplashOverlay(this);
+}
+
+void MainWelcome::destroySplashOverlay()
+{
+    delete splash_overlay_;
+    splash_overlay_ = NULL;
 }
 
 void MainWelcome::showTask() {
@@ -218,13 +200,14 @@ void MainWelcome::openRecentItem(QListWidgetItem *item) {
     emit recentFileActivated(cfPath);
 }
 
-//void MainWelcome::resizeEvent(QResizeEvent *event)
-//{
-//    overlay->resize(event->size());
-////    event->accept();
+void MainWelcome::resizeEvent(QResizeEvent *event)
+{
+    if (splash_overlay_)
+        splash_overlay_->resize(event->size());
+//    event->accept();
 
-//    QFrame::resizeEvent(event);
-//}
+    QFrame::resizeEvent(event);
+}
 
 /*
  * Editor modelines

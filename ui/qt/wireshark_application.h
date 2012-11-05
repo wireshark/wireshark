@@ -30,6 +30,7 @@
 
 #include "capture_opts.h"
 #include "file.h"
+#include "register.h"
 
 #include "ui/help_url.h"
 
@@ -57,6 +58,7 @@ class WiresharkApplication : public QApplication
 public:
     explicit WiresharkApplication(int &argc,  char **argv);
 
+    void registerUpdate(register_action_e action, const char *message);
     void allSystemsGo();
     QList<recent_item_status *> recentItems() const;
     void addRecentItem(const QString &filename, qint64 size, bool accessible);
@@ -80,8 +82,10 @@ protected:
     bool event(QEvent *event);
 
 signals:
+    void appInitialized();
     void openCaptureFile(QString &cf_path);
     void updateRecentItemStatus(const QString &filename, qint64 size, bool accessible);
+    void splashUpdate(register_action_e action, const char *message);
 
 #ifdef HAVE_LIBPCAP
     // XXX It might make more sense to move these to main.cpp or main_window.cpp or their own class.

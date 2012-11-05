@@ -52,6 +52,7 @@ set(QTSHARK_H_SRC
 	proto_tree.h
 	recent_file_status.h
 	simple_dialog_qt.h
+	splash_overlay.h
 	syntax_line_edit.h
 	wireshark_application.h
 
@@ -94,6 +95,7 @@ set(QTSHARK_CPP_SRC
 	recent_file_status.cpp
 	simple_dialog_qt.cpp
 	sparkline_delegate.cpp
+	splash_overlay.cpp
 	syntax_line_edit.cpp
 	wireshark_application.cpp
 )
@@ -111,6 +113,7 @@ set(QTSHARK_UI
 	packet_format_group_box.ui
 	packet_range_group_box.ui
 	print_dialog.ui
+	splash_overlay.ui
 )
 
 set(QTSHARK_QRC

@@ -397,9 +397,15 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     recent_timer_->start(2000);
 }
 
+void WiresharkApplication::registerUpdate(register_action_e action, const char *message)
+{
+    emit splashUpdate(action, message);
+}
+
 void WiresharkApplication::allSystemsGo()
 {
     initialized_ = true;
+    emit appInitialized();
     while (pending_open_files_.length() > 0) {
         emit openCaptureFile(pending_open_files_.front());
         pending_open_files_.pop_front();
