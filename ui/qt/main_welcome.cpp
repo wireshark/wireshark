@@ -38,6 +38,9 @@
 
 #include <QWidget>
 #include <QResizeEvent>
+#ifndef Q_WS_MAC
+#include <QGraphicsBlurEffect>
+#endif
 
 MainWelcome::MainWelcome(QWidget *parent) :
     QFrame(parent),
@@ -140,11 +143,20 @@ MainWelcome::MainWelcome(QWidget *parent) :
 
     task_list_->setCurrentRow(0);
 
+#ifndef Q_WS_MAC
+    // This crashes with Qt 4.8.3 on OS X.
+    QGraphicsBlurEffect *blur = new QGraphicsBlurEffect(welcome_ui_->childContainer);
+    welcome_ui_->childContainer->setGraphicsEffect(blur);
+#endif
+
     splash_overlay_ = new SplashOverlay(this);
 }
 
 void MainWelcome::destroySplashOverlay()
 {
+#ifndef Q_WS_MAC
+    welcome_ui_->childContainer->setGraphicsEffect(NULL);
+#endif
     delete splash_overlay_;
     splash_overlay_ = NULL;
 }

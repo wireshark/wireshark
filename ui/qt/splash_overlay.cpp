@@ -25,7 +25,6 @@
 #include "ui_splash_overlay.h"
 #include "wireshark_application.h"
 
-//#include <QGraphicsBlurEffect>
 #include <QPainter>
 
 #include "ui/utf8_entities.h"
@@ -90,12 +89,6 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
 
     connect(wsApp, SIGNAL(splashUpdate(register_action_e,const char*)),
             this, SLOT(splashUpdate(register_action_e,const char*)));
-
-    // It would be nice to be able to blur the background, sort of like VMware Fusion.
-    // Unfortunately setGraphicsEffect applies to the widget *and* its children and
-    // the code below crashes with Qt 4.8.2 on OS X.
-//    QGraphicsBlurEffect *blur = new QGraphicsBlurEffect();
-//    setGraphicsEffect(blur);
 }
 
 SplashOverlay::~SplashOverlay()
