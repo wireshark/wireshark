@@ -618,6 +618,14 @@ INT AirPDcapPacketProcess(
         0x88, 0x8E        /* Type: 802.1X authentication */
     };
 
+    const guint8 bt_dot1x_header[] = {
+        0xAA,             /* DSAP=SNAP */
+        0xAA,             /* SSAP=SNAP */
+        0x03,             /* Control field=Unnumbered frame */
+        0x00, 0x19, 0x58, /* Org. code=Bluetooth SIG */
+        0x00, 0x03        /* Type: Bluetooth Security */
+    };
+
 #ifdef _DEBUG
     CHAR msgbuf[255];
 #endif
@@ -688,7 +696,7 @@ INT AirPDcapPacketProcess(
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Unencrypted data", AIRPDCAP_DEBUG_LEVEL_3);
 
             /* check if the packet as an LLC header and the packet is 802.1X authentication (IEEE 802.1X-2004, pg. 24) */
-            if (memcmp(data+offset, dot1x_header, 8) == 0) {
+            if (memcmp(data+offset, dot1x_header, 8) == 0 || memcmp(data+offset, bt_dot1x_header, 8) == 0) {
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Authentication: EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
 
                 /* skip LLC header */
