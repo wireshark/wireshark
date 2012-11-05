@@ -51,7 +51,7 @@ protected:
     void paintEvent(QPaintEvent *event);
 
 private:
-    Ui::SplashOverlay *bo_ui_;
+    Ui::SplashOverlay *so_ui_;
     bool blurred_;
     register_action_e last_action_;
     int register_cur_;

@@ -46,11 +46,11 @@ void splash_update(register_action_e action, const char *message, void *dummy) {
 
 SplashOverlay::SplashOverlay(QWidget *parent) :
     QWidget(parent),
-    bo_ui_(new Ui::SplashOverlay),
+    so_ui_(new Ui::SplashOverlay),
     last_action_(RA_NONE),
     register_cur_(0)
 {
-    bo_ui_->setupUi(this);
+    so_ui_->setupUi(this);
 
     /* additional 6 for:
      * dissectors, listeners,
@@ -64,7 +64,7 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
 #ifdef HAVE_PYTHON
       register_add += 2;   /* additional 2 for python register and handoff */
 #endif
-    bo_ui_->progressBar->setMaximum((int)register_count() + register_add);
+    so_ui_->progressBar->setMaximum((int)register_count() + register_add);
     time_.start();
 
     setPalette(Qt::transparent);
@@ -93,7 +93,7 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
 
 SplashOverlay::~SplashOverlay()
 {
-    delete bo_ui_;
+    delete so_ui_;
 }
 
 // Useful for debugging on fast machines.
@@ -118,7 +118,7 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
 #endif
 
     register_cur_++;
-    if (last_action_ == action && time_.elapsed() < info_update_freq_ && register_cur_ < bo_ui_->progressBar->maximum()) {
+    if (last_action_ == action && time_.elapsed() < info_update_freq_ && register_cur_ < so_ui_->progressBar->maximum()) {
       /* Only update every splash_register_freq milliseconds */
       return;
     }
@@ -171,10 +171,10 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
             message += 18;
         action_msg.append(" ").append(message);
     }
-    bo_ui_->actionLabel->setText(action_msg);
+    so_ui_->actionLabel->setText(action_msg);
 
     register_cur_++;
-    bo_ui_->progressBar->setValue(register_cur_);
+    so_ui_->progressBar->setValue(register_cur_);
 
     wsApp->processEvents();
 }
