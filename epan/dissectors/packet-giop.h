@@ -170,8 +170,9 @@ extern void delete_giop_user_module(giop_sub_dissector_t *sub, gchar *name,
  * Data is added to tree directly if present.
  */
 
-extern void get_CDR_any(tvbuff_t *tvb, proto_tree *tree, gint *offset,
-    gboolean stream_is_big_endian, int boundary, MessageHeader * header );
+extern void get_CDR_any(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item,
+                        gint *offset, gboolean stream_is_big_endian, 
+                        int boundary, MessageHeader * header);
 
 
 /* Copy a 1 octet sequence from the tvbuff
@@ -257,9 +258,8 @@ extern guint32 get_CDR_enum(tvbuff_t *tvb, int *offset,
  *
  */
 
-extern void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset,
-    guint32 digits, gint32 scale);
-
+extern void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, 
+                          gchar **seq, gint *offset, guint32 digits, gint32 scale);
 
 
 /*
@@ -376,7 +376,7 @@ extern gint16 get_CDR_short(tvbuff_t *tvb, int *offset,
 
 extern void giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary,
-    const char *varname);
+    int hf);
 
 /* Copy an octet sequence from the tvbuff
  * which represents a string, and convert
@@ -411,7 +411,7 @@ extern guint32 get_CDR_string(tvbuff_t *tvb, gchar **seq, int *offset,
  * It returns a guint32 representing a TCKind value.
  */
 
-extern guint32 get_CDR_typeCode(tvbuff_t *tvb, proto_tree *tree, gint *offset,
+extern guint32 get_CDR_typeCode(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gint *offset,
     gboolean stream_is_big_endian, int boundary, MessageHeader * header );
 
 /* Copy a 4 octet sequence from the tvbuff

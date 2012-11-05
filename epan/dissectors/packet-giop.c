@@ -2135,8 +2135,8 @@ static void set_new_alignment(int *offset, int delta, int  alignment) {
  * and displays it in the relevant tree.
  */ 
 
-static void dissect_data_for_typecode(tvbuff_t *tvb, /* packet_info *pinfo, */ proto_tree *tree, 
-                                      /* proto_item *item, */ gint *offset, 
+static void dissect_data_for_typecode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
+                                      proto_item *item, gint *offset, 
                                       gboolean stream_is_big_endian, guint32 boundary,
                                       MessageHeader * header, guint32 data_type ) {
 
@@ -2202,10 +2202,10 @@ static void dissect_data_for_typecode(tvbuff_t *tvb, /* packet_info *pinfo, */ p
     proto_tree_add_uint(tree, hf_giop_type_octet, tvb, *offset-1, 1, u_octet1);
     break;
   case tk_any:
-    get_CDR_any(tvb,tree,offset,stream_is_big_endian,boundary,header);
+    get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
     break;
   case tk_TypeCode:
-    get_CDR_typeCode(tvb,tree,offset,stream_is_big_endian,boundary,header);
+    get_CDR_typeCode(tvb, pinfo, tree, offset, stream_is_big_endian, boundary, header);
     break;
   case tk_Principal:
     break;
@@ -2276,10 +2276,8 @@ static void dissect_data_for_typecode(tvbuff_t *tvb, /* packet_info *pinfo, */ p
   case tk_abstract_interface:
     break;
   default:
-/***************************
     expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Unknown typecode data type %u", data_type);
-*/
-  break;
+    break;
   }
 }
 
@@ -2327,7 +2325,7 @@ static void dissect_tk_objref_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
 }
 
 
-static void dissect_tk_struct_params(tvbuff_t *tvb, proto_tree *tree, gint *offset,
+static void dissect_tk_struct_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                      gboolean stream_is_big_endian, guint32 boundary,
                                      MessageHeader * header ) {
 
@@ -2365,14 +2363,14 @@ static void dissect_tk_struct_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
                                   hf_giop_typecode_member_name);
 
     /* get member type */
-    get_CDR_typeCode(tvb,tree,offset,new_stream_is_big_endian,new_boundary,header);
+    get_CDR_typeCode(tvb, pinfo, tree, offset, new_stream_is_big_endian, new_boundary,header);
   }
 
 }
 
 
-static void dissect_tk_union_params(tvbuff_t *tvb, proto_tree *tree, gint *offset,
-                                    gboolean stream_is_big_endian, guint32 boundary,
+static void dissect_tk_union_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item* item,
+                                    gint *offset, gboolean stream_is_big_endian, guint32 boundary,
                                     MessageHeader * header) {
 
   guint32  new_boundary;             /* new boundary for encapsulation */
@@ -2385,7 +2383,7 @@ static void dissect_tk_union_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
   /*guint32 seqlen;*/   /* sequence length */
   guint32 i;        /* loop index */
 
-  /* get sequence legnth, new endianness and boundary for encapsulation */
+  /* get sequence length, new endianness and boundary for encapsulation */
   /*seqlen = */get_CDR_encap_info(tvb, tree, offset,
                                    stream_is_big_endian, boundary,
                                    &new_stream_is_big_endian, &new_boundary);
@@ -2399,7 +2397,7 @@ static void dissect_tk_union_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
                                 hf_giop_typecode_name);
 
   /* get discriminant type */
-  TCKind = get_CDR_typeCode(tvb,tree,offset,new_stream_is_big_endian,new_boundary,header);
+  TCKind = get_CDR_typeCode(tvb, pinfo, tree, offset, new_stream_is_big_endian, new_boundary, header);
 
   /* get default used */
   s_octet4 = get_CDR_long(tvb,offset,new_stream_is_big_endian,new_boundary);
@@ -2408,19 +2406,19 @@ static void dissect_tk_union_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
 
   /* get count of tuples */
   count = get_CDR_ulong(tvb,offset,new_stream_is_big_endian,new_boundary);
-  proto_tree_add_uint(tree,hf_giop_typecode_count,tvb, *offset-4, 4, count);
+  proto_tree_add_uint(tree, hf_giop_typecode_count, tvb, *offset-4, 4, count);
 
   /* get all tuples */
   for (i=0; i< count; i++) {
     /* get label value, based on TCKind above  */
-    dissect_data_for_typecode(tvb, tree, offset, new_stream_is_big_endian, new_boundary, header, TCKind );
+    dissect_data_for_typecode(tvb, pinfo, tree, item, offset, new_stream_is_big_endian, new_boundary, header, TCKind );
 
     /* get member name */
     dissect_typecode_string_param(tvb, tree, offset, new_stream_is_big_endian, new_boundary,
                                   hf_giop_typecode_member_name);
 
     /* get member type */
-    get_CDR_typeCode(tvb,tree,offset,new_stream_is_big_endian,new_boundary,header);
+    get_CDR_typeCode(tvb, pinfo, tree, offset, new_stream_is_big_endian, new_boundary, header);
   }
 
 }
@@ -2464,7 +2462,7 @@ static void dissect_tk_enum_params(tvbuff_t *tvb, proto_tree *tree, gint *offset
 }
 
 
-static void dissect_tk_sequence_params(tvbuff_t *tvb, proto_tree *tree, gint *offset,
+static void dissect_tk_sequence_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                        gboolean stream_is_big_endian, guint32 boundary,
                                        MessageHeader * header) {
 
@@ -2481,7 +2479,7 @@ static void dissect_tk_sequence_params(tvbuff_t *tvb, proto_tree *tree, gint *of
                                    &new_stream_is_big_endian, &new_boundary);
 
   /* get element type */
-  get_CDR_typeCode(tvb,tree,offset,new_stream_is_big_endian,new_boundary,header);
+  get_CDR_typeCode(tvb, pinfo, tree, offset, new_stream_is_big_endian, new_boundary, header);
 
   /* get max length */
   u_octet4 = get_CDR_ulong(tvb,offset,stream_is_big_endian,boundary);
@@ -2490,7 +2488,7 @@ static void dissect_tk_sequence_params(tvbuff_t *tvb, proto_tree *tree, gint *of
 }
 
 
-static void dissect_tk_array_params(tvbuff_t *tvb, proto_tree *tree, gint *offset,
+static void dissect_tk_array_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                     gboolean stream_is_big_endian, guint32 boundary,
                                     MessageHeader * header) {
 
@@ -2507,7 +2505,7 @@ static void dissect_tk_array_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
                                    &new_stream_is_big_endian, &new_boundary);
 
   /* get element type */
-  get_CDR_typeCode(tvb,tree,offset,new_stream_is_big_endian,new_boundary,header);
+  get_CDR_typeCode(tvb, pinfo, tree, offset, new_stream_is_big_endian, new_boundary, header);
 
   /* get length */
   u_octet4 = get_CDR_ulong(tvb,offset,stream_is_big_endian,boundary);
@@ -2516,7 +2514,7 @@ static void dissect_tk_array_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
   }
 
 
-static void dissect_tk_alias_params(tvbuff_t *tvb, proto_tree *tree, gint *offset,
+static void dissect_tk_alias_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                     gboolean stream_is_big_endian, guint32 boundary,
                                     MessageHeader * header) {
 
@@ -2539,12 +2537,12 @@ static void dissect_tk_alias_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
                                 hf_giop_typecode_name);
 
   /* get ??? (noname) TypeCode */
-  get_CDR_typeCode(tvb,tree,offset,new_stream_is_big_endian,new_boundary,header);
+  get_CDR_typeCode(tvb, pinfo, tree, offset, new_stream_is_big_endian, new_boundary, header);
 
 }
 
 
-static void dissect_tk_except_params(tvbuff_t *tvb, proto_tree *tree, gint *offset,
+static void dissect_tk_except_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                      gboolean stream_is_big_endian, guint32 boundary,
                                      MessageHeader * header) {
 
@@ -2582,12 +2580,12 @@ static void dissect_tk_except_params(tvbuff_t *tvb, proto_tree *tree, gint *offs
                                   hf_giop_typecode_member_name);
 
     /* get member type */
-    get_CDR_typeCode(tvb,tree,offset,new_stream_is_big_endian,new_boundary,header);
+    get_CDR_typeCode(tvb, pinfo, tree, offset, new_stream_is_big_endian, new_boundary, header);
   }
 
 }
 
-static void dissect_tk_value_params(tvbuff_t *tvb, proto_tree *tree, gint *offset,
+static void dissect_tk_value_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                     gboolean stream_is_big_endian, guint32 boundary,
                                     MessageHeader * header) {
 
@@ -2619,7 +2617,7 @@ static void dissect_tk_value_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
                        *offset-2, 2, s_octet2);
 
   /* get conrete base */
-  get_CDR_typeCode(tvb,tree,offset,new_stream_is_big_endian,new_boundary,header);
+  get_CDR_typeCode(tvb, pinfo, tree, offset, new_stream_is_big_endian, new_boundary,header);
 
   /* get count of tuples */
   count = get_CDR_ulong(tvb,offset,new_stream_is_big_endian,new_boundary);
@@ -2633,7 +2631,7 @@ static void dissect_tk_value_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
                                   hf_giop_typecode_member_name);
 
     /* get member type */
-    get_CDR_typeCode(tvb,tree,offset,new_stream_is_big_endian,new_boundary,header);
+    get_CDR_typeCode(tvb, pinfo, tree, offset, new_stream_is_big_endian, new_boundary,header);
 
     /* get Visibility */
     s_octet2 = get_CDR_short(tvb,offset,stream_is_big_endian,boundary);
@@ -2646,7 +2644,7 @@ static void dissect_tk_value_params(tvbuff_t *tvb, proto_tree *tree, gint *offse
 }
 
 
-static void dissect_tk_value_box_params(tvbuff_t *tvb, proto_tree *tree, gint *offset,
+static void dissect_tk_value_box_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset,
                                         gboolean stream_is_big_endian, guint32 boundary,
                                         MessageHeader * header) {
 
@@ -2669,7 +2667,7 @@ static void dissect_tk_value_box_params(tvbuff_t *tvb, proto_tree *tree, gint *o
                                 hf_giop_typecode_name);
 
   /* get ??? (noname) TypeCode */
-  get_CDR_typeCode(tvb,tree,offset,new_stream_is_big_endian,new_boundary,header);
+  get_CDR_typeCode(tvb, pinfo, tree, offset, new_stream_is_big_endian, new_boundary,header);
 }
 
 
@@ -2800,17 +2798,17 @@ guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
  * followed by the encoded value.
  */
 
-void get_CDR_any(tvbuff_t *tvb, proto_tree *tree, gint *offset,
-                 gboolean stream_is_big_endian, int boundary,
+void get_CDR_any(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item,
+                 gint *offset, gboolean stream_is_big_endian, int boundary,
                  MessageHeader * header ) {
 
   guint32  TCKind;    /* TypeCode */
 
   /* get TypeCode of any */
-  TCKind = get_CDR_typeCode(tvb, tree, offset, stream_is_big_endian, boundary, header );
+  TCKind = get_CDR_typeCode(tvb, pinfo, tree, offset, stream_is_big_endian, boundary, header );
 
   /* dissect data of type TCKind */
-  dissect_data_for_typecode(tvb, tree, offset, stream_is_big_endian, boundary, header, TCKind );
+  dissect_data_for_typecode(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header, TCKind );
 }
 
 
@@ -2924,7 +2922,8 @@ guint32 get_CDR_enum(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, 
  * or <4,0> ?
  *
  */
-void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset, guint32 digits, gint32 scale) {
+void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **seq, 
+                   gint *offset, guint32 digits, gint32 scale) {
 
   guint8 sign;                  /* 0x0c is positive, 0x0d is negative */
   guint32 i ;                   /* loop */
@@ -3024,7 +3023,8 @@ void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset, guint32 digits, gin
       (*seq)[sindex] = '-';
       break;
     default:
-      g_warning("giop: Unknown sign value in fixed type %u \n", sign);
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, 
+          "Unknown sign value in fixed type %u", sign);
       (*seq)[sindex] = '*';     /* flag as sign unknown */
       break;
     }
@@ -3257,17 +3257,13 @@ gint16 get_CDR_short(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, 
  */
 void
 giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *offset,
-		    gboolean stream_is_big_endian, int boundary,
-		    const char *varname)
+		    gboolean stream_is_big_endian, int boundary, int hf)
 {
     guint32   u_octet4;
     gchar   *seq = NULL;
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"%s (%u) = %s",
-          varname, u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    proto_tree_add_string(tree, hf, tvb, *offset-u_octet4, u_octet4, (u_octet4 > 0) ? seq : "");
 }
 
 
@@ -3330,7 +3326,7 @@ guint32 get_CDR_string(tvbuff_t *tvb, gchar **seq, int *offset, gboolean stream_
  * It returns a guint32 representing a TCKind value.
  */
 
-guint32 get_CDR_typeCode(tvbuff_t *tvb, /* packet_info* pinfo, */ proto_tree *tree, 
+guint32 get_CDR_typeCode(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, 
                          gint *offset, gboolean stream_is_big_endian, 
                          int boundary, MessageHeader * header ) {
   guint32 val;
@@ -3338,9 +3334,10 @@ guint32 get_CDR_typeCode(tvbuff_t *tvb, /* packet_info* pinfo, */ proto_tree *tr
   gint16  s_octet2; /* signed int16 */
   guint16 u_octet2; /* unsigned int16 */
   guint32 u_octet4; /* unsigned int32 */
+  proto_item *ti;
 
   val = get_CDR_ulong(tvb,offset,stream_is_big_endian,boundary); /* get TCKind enum */
-  proto_tree_add_uint(tree,hf_giop_TCKind, tvb, *offset-4, 4, val);
+  ti = proto_tree_add_uint(tree,hf_giop_TCKind, tvb, *offset-4, 4, val);
 
   /* Grab the data according to Typecode Table - Corba Chapter 15 */
 
@@ -3377,10 +3374,10 @@ guint32 get_CDR_typeCode(tvbuff_t *tvb, /* packet_info* pinfo, */ proto_tree *tr
     dissect_tk_objref_params(tvb, tree, offset, stream_is_big_endian, boundary);
     break;
   case tk_struct: /* complex parameter list */
-    dissect_tk_struct_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
+    dissect_tk_struct_params(tvb, pinfo, tree, offset, stream_is_big_endian, boundary, header );
     break;
   case tk_union: /* complex parameter list */
-    dissect_tk_union_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
+    dissect_tk_union_params(tvb, pinfo, tree, ti, offset, stream_is_big_endian, boundary, header );
     break;
   case tk_enum: /* complex parameter list */
     dissect_tk_enum_params(tvb, tree, offset, stream_is_big_endian, boundary);
@@ -3395,16 +3392,16 @@ guint32 get_CDR_typeCode(tvbuff_t *tvb, /* packet_info* pinfo, */ proto_tree *tr
     break;
 
   case tk_sequence: /* complex parameter list */
-    dissect_tk_sequence_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
+    dissect_tk_sequence_params(tvb, pinfo, tree, offset, stream_is_big_endian, boundary, header );
     break;
   case tk_array: /* complex parameter list */
-    dissect_tk_array_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
+    dissect_tk_array_params(tvb, pinfo, tree, offset, stream_is_big_endian, boundary, header );
     break;
   case tk_alias: /* complex parameter list */
-    dissect_tk_alias_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
+    dissect_tk_alias_params(tvb, pinfo, tree, offset, stream_is_big_endian, boundary, header );
     break;
   case tk_except: /* complex parameter list */
-    dissect_tk_except_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
+    dissect_tk_except_params(tvb, pinfo, tree, offset, stream_is_big_endian, boundary, header );
     break;
   case tk_longlong: /* empty parameter list */
     break;
@@ -3437,10 +3434,10 @@ guint32 get_CDR_typeCode(tvbuff_t *tvb, /* packet_info* pinfo, */ proto_tree *tr
     break;
 
   case tk_value: /* complex parameter list */
-    dissect_tk_value_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
+    dissect_tk_value_params(tvb, pinfo, tree, offset, stream_is_big_endian, boundary, header );
     break;
   case tk_value_box: /* complex parameter list */
-    dissect_tk_value_box_params(tvb, tree, offset, stream_is_big_endian, boundary, header );
+    dissect_tk_value_box_params(tvb, pinfo, tree, offset, stream_is_big_endian, boundary, header );
     break;
   case tk_native: /* complex parameter list */
     dissect_tk_native_params(tvb, tree, offset, stream_is_big_endian, boundary);
@@ -3449,9 +3446,7 @@ guint32 get_CDR_typeCode(tvbuff_t *tvb, /* packet_info* pinfo, */ proto_tree *tr
     dissect_tk_abstract_interface_params(tvb, tree, offset, stream_is_big_endian, boundary );
     break;
   default:
-/** XXX - need packet_info, but need to update wireshark_gen.py to support it
     expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Unknown TCKind %u", val);
-*/
     break;
   } /* val */
 
@@ -5383,7 +5378,7 @@ proto_register_giop (void)
     "Whether the GIOP dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &giop_desegment);
-  prefs_register_string_preference(giop_module, "ior_txt", "Stringified IORs",
+  prefs_register_filename_preference(giop_module, "ior_txt", "Stringified IORs",
     "File containing stringified IORs, one per line.", &giop_ior_file);
 
   /*
