@@ -690,7 +690,7 @@ add_to_list_store(rtp_stream_info_t* strinfo)
 	data[2] = g_strdup(get_addr_name(&(strinfo->dest_addr)));
 	data[3] = NULL;
 	data[4] = g_strdup_printf("0x%X", strinfo->ssrc);
-	if ((strinfo->pt > 95) && (strinfo->info_payload_type_str != NULL)) {
+	if (strinfo->info_payload_type_str != NULL) {
 		data[5] = g_strdup(strinfo->info_payload_type_str);
 	} else {
 		data[5] = g_strdup(val_to_str_ext(strinfo->pt, &rtp_payload_type_short_vals_ext,
