@@ -1035,6 +1035,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
 {
     proto_item *item       = NULL;
     proto_tree *tree       = NULL;
+    const char *class_str  = NULL;
     int         old_offset = offset;
     guint8      len;
     guint8      interface_num;
@@ -1067,6 +1068,10 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
     proto_tree_add_item(tree, hf_usb_bInterfaceClass, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     /* save the class so we can access it later in the endpoint descriptor */
     usb_conv_info->interfaceClass = tvb_get_guint8(tvb, offset);
+
+    class_str = val_to_str(usb_conv_info->interfaceClass, usb_class_vals, "unknown (0x%X)");
+    proto_item_append_text(item, " (%u.%u): class %s", interface_num, alt_setting, class_str);
+
     if (!pinfo->fd->flags.visited && (alt_setting == 0)) {
         conversation_t *conversation;
         guint32 if_port;
