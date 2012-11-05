@@ -1288,7 +1288,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     acl_data            = (bthci_acl_data_t *)pinfo->private_data;
     l2cap_data          = ep_alloc(sizeof(btl2cap_data_t));
-    l2cap_data->chandle = acl_data->chandle;
+    l2cap_data->chandle = (acl_data)? acl_data->chandle : 0;
     l2cap_data->cid     = cid;
     pd_save             = pinfo->private_data;
     pinfo->private_data = l2cap_data;
