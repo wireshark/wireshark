@@ -1,6 +1,6 @@
 /*
  * crc11.c
- * $Id: crc11.c
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
