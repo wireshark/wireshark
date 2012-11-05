@@ -39,11 +39,11 @@ public:
     void hideExpert();
 
 private:
-    QLabel m_expertStatus;
-    LabelStack m_infoStatus;
-    ProgressBar m_progressBar;
-    LabelStack m_packetStatus;
-    LabelStack m_profileStatus;
+    QLabel expert_status_;
+    LabelStack info_status_;
+    ProgressBar progress_bar_;
+    LabelStack packet_status_;
+    LabelStack profile_status_;
 
     void expertUpdate();
 

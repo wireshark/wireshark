@@ -40,9 +40,9 @@
 #include <QHBoxLayout>
 
 #ifdef HAVE_LIBPCAP
-#define DEF_READY_MESSAGE QObject::tr(" Ready to load or capture")
+#define DEF_READY_MESSAGE QObject::tr("Ready to load or capture")
 #else
-#define DEF_READY_MESSAGE QObject::tr(" Ready to load file")
+#define DEF_READY_MESSAGE QObject::tr("Ready to load file")
 #endif
 
 // XXX - The GTK+ code assigns priorities to these and pushes/pops accordingly.
@@ -57,7 +57,7 @@ enum StatusContext {
 
 // If we ever add support for multiple windows this will need to be replaced.
 // See also: main_window.cpp
-static MainStatusBar *cur_main_status_bar = NULL;
+static MainStatusBar *cur_main_status_bar_ = NULL;
 
 /*
  * Push a formatted temporary message onto the statusbar.
@@ -69,7 +69,7 @@ statusbar_push_temporary_msg(const gchar *msg_format, ...)
     gchar *msg;
     QString pushMsg;
 
-    if (!cur_main_status_bar) return;
+    if (!cur_main_status_bar_) return;
 
     va_start(ap, msg_format);
     msg = g_strdup_vprintf(msg_format, ap);
@@ -78,7 +78,7 @@ statusbar_push_temporary_msg(const gchar *msg_format, ...)
     pushMsg.fromUtf8(msg);
     g_free(msg);
 
-    cur_main_status_bar->pushTemporaryStatus(pushMsg);
+    cur_main_status_bar_->pushTemporaryStatus(pushMsg);
 }
 
 /*
@@ -89,9 +89,9 @@ packets_bar_update(void)
 {
     QString packetsStr = QString("");
 
-    if (!cur_main_status_bar) return;
+    if (!cur_main_status_bar_) return;
 
-    cur_main_status_bar->popPacketStatus();
+    cur_main_status_bar_->popPacketStatus();
 
     /* Do we have any packets? */
     if (cfile.count) {
@@ -119,16 +119,16 @@ packets_bar_update(void)
         packetsStr.append(QObject::tr("No Packets"));
     }
 
-    cur_main_status_bar->pushPacketStatus(packetsStr);
+    cur_main_status_bar_->pushPacketStatus(packetsStr);
 }
 
 MainStatusBar::MainStatusBar(QWidget *parent) :
     QStatusBar(parent)
 {
     QSplitter *splitter = new QSplitter(this);
-    QString readyMsg(DEF_READY_MESSAGE);
-    QWidget *infoProgress = new QWidget(this);
-    QHBoxLayout *infoProgressHB = new QHBoxLayout(infoProgress);
+    QString ready_msg(DEF_READY_MESSAGE);
+    QWidget *info_progress = new QWidget(this);
+    QHBoxLayout *info_progress_hb = new QHBoxLayout(info_progress);
 
 #if defined(Q_WS_WIN)
     // Handles are the same color as widgets, at least on Windows 7.
@@ -140,27 +140,27 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
                                 "}"
                                 ));
 #elif defined(Q_WS_MAC)
-    m_expertStatus.setAttribute(Qt::WA_MacSmallSize, true);
+    expert_status_.setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
 //    infoProgress->setStyleSheet("QWidget { border: 0.5px dotted red; }"); // Debug layout
-    m_expertStatus.setTextFormat(Qt::RichText);
-    m_expertStatus.hide();
+    expert_status_.setTextFormat(Qt::RichText);
+    expert_status_.hide();
 
     // XXX Add the comment icon
 
-    infoProgressHB->setContentsMargins(0, 0, 0, 0);
+    info_progress_hb->setContentsMargins(0, 0, 0, 0);
 
-    m_infoStatus.setTemporaryContext(STATUS_CTX_TEMPORARY);
+    info_status_.setTemporaryContext(STATUS_CTX_TEMPORARY);
 
-    infoProgressHB->addWidget(&m_expertStatus);
-    infoProgressHB->addWidget(&m_infoStatus);
-    infoProgressHB->addWidget(&m_progressBar);
-    infoProgressHB->addStretch(10);
+    info_progress_hb->addWidget(&expert_status_);
+    info_progress_hb->addWidget(&info_status_);
+    info_progress_hb->addWidget(&progress_bar_);
+    info_progress_hb->addStretch(10);
 
-    splitter->addWidget(infoProgress);
-    splitter->addWidget(&m_packetStatus);
-    splitter->addWidget(&m_profileStatus);
+    splitter->addWidget(info_progress);
+    splitter->addWidget(&packet_status_);
+    splitter->addWidget(&profile_status_);
 
     splitter->setStretchFactor(0, 3);
     splitter->setStretchFactor(1, 3);
@@ -168,10 +168,13 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 
     addWidget(splitter, 1);
 
-    cur_main_status_bar = this;
+    cur_main_status_bar_ = this;
 
-    m_infoStatus.pushText(readyMsg, STATUS_CTX_MAIN);
+    info_status_.hide();
+    info_status_.pushText(ready_msg, STATUS_CTX_MAIN);
     packets_bar_update();
+
+    connect(wsApp, SIGNAL(appInitialized()), &info_status_, SLOT(show()));
 }
 
 void MainStatusBar::showExpert() {
@@ -179,7 +182,7 @@ void MainStatusBar::showExpert() {
 }
 
 void MainStatusBar::hideExpert() {
-    m_expertStatus.hide();
+    expert_status_.hide();
 }
 
 void MainStatusBar::expertUpdate() {
@@ -213,63 +216,63 @@ void MainStatusBar::expertUpdate() {
     }
 
     imgText.append(".png\"></img>");
-    m_expertStatus.setText(imgText);
-    m_expertStatus.setToolTip(ttText);
-    m_expertStatus.show();
+    expert_status_.setText(imgText);
+    expert_status_.setToolTip(ttText);
+    expert_status_.show();
 }
 
 void MainStatusBar::pushTemporaryStatus(QString &message) {
-    m_infoStatus.pushText(message, STATUS_CTX_TEMPORARY);
+    info_status_.pushText(message, STATUS_CTX_TEMPORARY);
 }
 
 void MainStatusBar::popTemporaryStatus() {
-    m_infoStatus.popText(STATUS_CTX_TEMPORARY);
+    info_status_.popText(STATUS_CTX_TEMPORARY);
 }
 
 void MainStatusBar::pushFileStatus(QString &message) {
-    m_infoStatus.pushText(message, STATUS_CTX_FILE);
+    info_status_.pushText(message, STATUS_CTX_FILE);
     expertUpdate();
 }
 
 void MainStatusBar::popFileStatus() {
-    m_infoStatus.popText(STATUS_CTX_FILE);
+    info_status_.popText(STATUS_CTX_FILE);
 }
 
 void MainStatusBar::pushFieldStatus(QString &message) {
     if (message.isNull()) {
         popFieldStatus();
     } else {
-        m_infoStatus.pushText(message, STATUS_CTX_FIELD);
+        info_status_.pushText(message, STATUS_CTX_FIELD);
     }
 }
 
 void MainStatusBar::popFieldStatus() {
-    m_infoStatus.popText(STATUS_CTX_FIELD);
+    info_status_.popText(STATUS_CTX_FIELD);
 }
 
 void MainStatusBar::pushFilterStatus(QString &message) {
-    m_infoStatus.pushText(message, STATUS_CTX_FILTER);
+    info_status_.pushText(message, STATUS_CTX_FILTER);
     expertUpdate();
 }
 
 void MainStatusBar::popFilterStatus() {
-    m_infoStatus.popText(STATUS_CTX_FILTER);
+    info_status_.popText(STATUS_CTX_FILTER);
 }
 
 void MainStatusBar::pushPacketStatus(QString &message) {
-    m_packetStatus.pushText(message, STATUS_CTX_MAIN);
+    packet_status_.pushText(message, STATUS_CTX_MAIN);
 }
 
 void MainStatusBar::popPacketStatus() {
-    m_packetStatus.popText(STATUS_CTX_MAIN);
+    packet_status_.popText(STATUS_CTX_MAIN);
 }
 
 void MainStatusBar::pushProfileStatus(QString &message) {
-    m_profileStatus.pushText(message, STATUS_CTX_MAIN);
+    profile_status_.pushText(message, STATUS_CTX_MAIN);
 }
 
 void MainStatusBar::popProfileStatus() {
-    m_profileStatus.popText(STATUS_CTX_MAIN);
+    profile_status_.popText(STATUS_CTX_MAIN);
 }
 
 /*
