@@ -213,7 +213,7 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 }
 
 static gboolean
-cmp_eq(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
@@ -234,7 +234,7 @@ cmp_eq(fvalue_t *fv_a, fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_ne(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
@@ -256,7 +256,7 @@ cmp_ne(fvalue_t *fv_a, fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_gt(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
@@ -281,7 +281,7 @@ cmp_gt(fvalue_t *fv_a, fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_ge(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
@@ -306,7 +306,7 @@ cmp_ge(fvalue_t *fv_a, fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_lt(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
@@ -331,7 +331,7 @@ cmp_lt(fvalue_t *fv_a, fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
@@ -356,7 +356,7 @@ cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	volatile gboolean	contains = FALSE;
 
@@ -374,7 +374,7 @@ cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_matches(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	tvbuff_t *tvb = fv_a->value.tvb;
 	GRegex *regex = fv_b->value.re;

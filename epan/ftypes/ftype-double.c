@@ -115,37 +115,37 @@ double_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 }
 
 static gboolean
-cmp_eq(fvalue_t *a, fvalue_t *b)
+cmp_eq(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.floating == b->value.floating;
 }
 
 static gboolean
-cmp_ne(fvalue_t *a, fvalue_t *b)
+cmp_ne(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.floating != b->value.floating;
 }
 
 static gboolean
-cmp_gt(fvalue_t *a, fvalue_t *b)
+cmp_gt(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.floating > b->value.floating;
 }
 
 static gboolean
-cmp_ge(fvalue_t *a, fvalue_t *b)
+cmp_ge(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.floating >= b->value.floating;
 }
 
 static gboolean
-cmp_lt(fvalue_t *a, fvalue_t *b)
+cmp_lt(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.floating < b->value.floating;
 }
 
 static gboolean
-cmp_le(fvalue_t *a, fvalue_t *b)
+cmp_le(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.floating <= b->value.floating;
 }

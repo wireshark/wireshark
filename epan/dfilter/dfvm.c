@@ -347,7 +347,7 @@ put_fvalue(dfilter_t *df, fvalue_t *fv, int reg)
 	return TRUE;
 }
 
-typedef gboolean (*FvalueCmpFunc)(fvalue_t*, fvalue_t*);
+typedef gboolean (*FvalueCmpFunc)(const fvalue_t*, const fvalue_t*);
 
 static gboolean
 any_test(dfilter_t *df, FvalueCmpFunc cmp, int reg1, int reg2)

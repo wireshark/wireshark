@@ -111,13 +111,13 @@ guid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 }
 
 static gboolean
-cmp_eq(fvalue_t *a, fvalue_t *b)
+cmp_eq(const fvalue_t *a, const fvalue_t *b)
 {
     return memcmp(&a->value.guid, &b->value.guid, sizeof(e_guid_t)) == 0;
 }
 
 static gboolean
-cmp_ne(fvalue_t *a, fvalue_t *b)
+cmp_ne(const fvalue_t *a, const fvalue_t *b)
 {
     return memcmp(&a->value.guid, &b->value.guid, sizeof(e_guid_t)) != 0;
 }

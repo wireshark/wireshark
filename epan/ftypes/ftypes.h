@@ -202,7 +202,7 @@ typedef gint32  (*FvalueGetSignedIntegerFunc)(fvalue_t*);
 typedef guint64 (*FvalueGetInteger64Func)(fvalue_t*);
 typedef double (*FvalueGetFloatingFunc)(fvalue_t*);
 
-typedef gboolean (*FvalueCmp)(fvalue_t*, fvalue_t*);
+typedef gboolean (*FvalueCmp)(const fvalue_t*, const fvalue_t*);
 
 typedef guint (*FvalueLen)(fvalue_t*);
 typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);
@@ -341,31 +341,31 @@ extern double
 fvalue_get_floating(fvalue_t *fv);
 
 gboolean
-fvalue_eq(fvalue_t *a, fvalue_t *b);
+fvalue_eq(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
-fvalue_ne(fvalue_t *a, fvalue_t *b);
+fvalue_ne(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
-fvalue_gt(fvalue_t *a, fvalue_t *b);
+fvalue_gt(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
-fvalue_ge(fvalue_t *a, fvalue_t *b);
+fvalue_ge(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
-fvalue_lt(fvalue_t *a, fvalue_t *b);
+fvalue_lt(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
-fvalue_le(fvalue_t *a, fvalue_t *b);
+fvalue_le(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
-fvalue_bitwise_and(fvalue_t *a, fvalue_t *b);
+fvalue_bitwise_and(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
-fvalue_contains(fvalue_t *a, fvalue_t *b);
+fvalue_contains(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
-fvalue_matches(fvalue_t *a, fvalue_t *b);
+fvalue_matches(const fvalue_t *a, const fvalue_t *b);
 
 guint
 fvalue_length(fvalue_t *fv);

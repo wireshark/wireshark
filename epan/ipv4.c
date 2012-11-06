@@ -110,7 +110,7 @@ ipv4_addr_str_buf(const ipv4_addr *ipv4, gchar *buf)
 
 /* Returns TRUE if equal, FALSE if not */
 gboolean
-ipv4_addr_eq(ipv4_addr *a, ipv4_addr *b)
+ipv4_addr_eq(const ipv4_addr *a, const ipv4_addr *b)
 {
 	guint32	val_a, val_b, nmask;
 
@@ -121,7 +121,7 @@ ipv4_addr_eq(ipv4_addr *a, ipv4_addr *b)
 }
 
 gboolean
-ipv4_addr_gt(ipv4_addr *a, ipv4_addr *b)
+ipv4_addr_gt(const ipv4_addr *a, const ipv4_addr *b)
 {
 	guint32	val_a, val_b, nmask;
 
@@ -133,7 +133,7 @@ ipv4_addr_gt(ipv4_addr *a, ipv4_addr *b)
 }
 
 gboolean
-ipv4_addr_ge(ipv4_addr *a, ipv4_addr *b)
+ipv4_addr_ge(const ipv4_addr *a, const ipv4_addr *b)
 {
 	guint32	val_a, val_b, nmask;
 
@@ -145,7 +145,7 @@ ipv4_addr_ge(ipv4_addr *a, ipv4_addr *b)
 }
 
 gboolean
-ipv4_addr_lt(ipv4_addr *a, ipv4_addr *b)
+ipv4_addr_lt(const ipv4_addr *a, const ipv4_addr *b)
 {
 	guint32	val_a, val_b, nmask;
 
@@ -157,7 +157,7 @@ ipv4_addr_lt(ipv4_addr *a, ipv4_addr *b)
 }
 
 gboolean
-ipv4_addr_le(ipv4_addr *a, ipv4_addr *b)
+ipv4_addr_le(const ipv4_addr *a, const ipv4_addr *b)
 {
 	guint32	val_a, val_b, nmask;
 

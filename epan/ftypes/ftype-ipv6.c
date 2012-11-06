@@ -137,46 +137,46 @@ cmp_compare(const fvalue_t *fv_a, const fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_eq(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	return (cmp_compare(fv_a, fv_b) == 0);
 }
 
 static gboolean
-cmp_ne(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	return (cmp_compare(fv_a, fv_b) != 0);
 }
 
 static gboolean
-cmp_gt(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	return (cmp_compare(fv_a, fv_b) > 0);
 }
 
 static gboolean
-cmp_ge(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	return (cmp_compare(fv_a, fv_b) >= 0);
 }
 
 static gboolean
-cmp_lt(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	return (cmp_compare(fv_a, fv_b) < 0);
 }
 
 static gboolean
-cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	return (cmp_compare(fv_a, fv_b) <= 0);
 }
 
 static gboolean
-cmp_bitwise_and(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_bitwise_and(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	ipv6_addr *a = &(fv_a->value.ipv6);
-	ipv6_addr *b = &(fv_b->value.ipv6);
+	const ipv6_addr *a = &(fv_a->value.ipv6);
+	const ipv6_addr *b = &(fv_b->value.ipv6);
 	guint32	prefix;
 	int pos = 0;
 

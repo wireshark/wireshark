@@ -44,19 +44,19 @@
 #endif
 
 static gboolean
-cmp_eq(fvalue_t *a, fvalue_t *b)
+cmp_eq(const fvalue_t *a, const fvalue_t *b)
 {
 	return ((a->value.time.secs) ==(b->value.time.secs))
 	     &&((a->value.time.nsecs)==(b->value.time.nsecs));
 }
 static gboolean
-cmp_ne(fvalue_t *a, fvalue_t *b)
+cmp_ne(const fvalue_t *a, const fvalue_t *b)
 {
 	return (a->value.time.secs !=b->value.time.secs)
 	     ||(a->value.time.nsecs!=b->value.time.nsecs);
 }
 static gboolean
-cmp_gt(fvalue_t *a, fvalue_t *b)
+cmp_gt(const fvalue_t *a, const fvalue_t *b)
 {
 	if (a->value.time.secs > b->value.time.secs) {
 		return TRUE;
@@ -68,7 +68,7 @@ cmp_gt(fvalue_t *a, fvalue_t *b)
 	return a->value.time.nsecs > b->value.time.nsecs;
 }
 static gboolean
-cmp_ge(fvalue_t *a, fvalue_t *b)
+cmp_ge(const fvalue_t *a, const fvalue_t *b)
 {
 	if (a->value.time.secs > b->value.time.secs) {
 		return TRUE;
@@ -80,7 +80,7 @@ cmp_ge(fvalue_t *a, fvalue_t *b)
 	return a->value.time.nsecs >= b->value.time.nsecs;
 }
 static gboolean
-cmp_lt(fvalue_t *a, fvalue_t *b)
+cmp_lt(const fvalue_t *a, const fvalue_t *b)
 {
 	if (a->value.time.secs < b->value.time.secs) {
 		return TRUE;
@@ -92,7 +92,7 @@ cmp_lt(fvalue_t *a, fvalue_t *b)
 	return a->value.time.nsecs < b->value.time.nsecs;
 }
 static gboolean
-cmp_le(fvalue_t *a, fvalue_t *b)
+cmp_le(const fvalue_t *a, const fvalue_t *b)
 {
 	if (a->value.time.secs < b->value.time.secs) {
 		return TRUE;

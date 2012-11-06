@@ -191,43 +191,43 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 
 
 static gboolean
-cmp_eq(fvalue_t *a, fvalue_t *b)
+cmp_eq(const fvalue_t *a, const fvalue_t *b)
 {
 	return (strcmp(a->value.string, b->value.string) == 0);
 }
 
 static gboolean
-cmp_ne(fvalue_t *a, fvalue_t *b)
+cmp_ne(const fvalue_t *a, const fvalue_t *b)
 {
 	return (strcmp(a->value.string, b->value.string) != 0);
 }
 
 static gboolean
-cmp_gt(fvalue_t *a, fvalue_t *b)
+cmp_gt(const fvalue_t *a, const fvalue_t *b)
 {
 	return (strcmp(a->value.string, b->value.string) > 0);
 }
 
 static gboolean
-cmp_ge(fvalue_t *a, fvalue_t *b)
+cmp_ge(const fvalue_t *a, const fvalue_t *b)
 {
 	return (strcmp(a->value.string, b->value.string) >= 0);
 }
 
 static gboolean
-cmp_lt(fvalue_t *a, fvalue_t *b)
+cmp_lt(const fvalue_t *a, const fvalue_t *b)
 {
 	return (strcmp(a->value.string, b->value.string) < 0);
 }
 
 static gboolean
-cmp_le(fvalue_t *a, fvalue_t *b)
+cmp_le(const fvalue_t *a, const fvalue_t *b)
 {
 	return (strcmp(a->value.string, b->value.string) <= 0);
 }
 
 static gboolean
-cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	/* According to
 	* http://www.introl.com/introl-demo/Libraries/C/ANSI_C/string/strstr.html
@@ -246,7 +246,7 @@ cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_matches(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	char *str = fv_a->value.string;
 	GRegex *regex = fv_b->value.re;

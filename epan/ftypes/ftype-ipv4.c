@@ -131,43 +131,43 @@ val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 }
 
 static gboolean
-cmp_eq(fvalue_t *a, fvalue_t *b)
+cmp_eq(const fvalue_t *a, const fvalue_t *b)
 {
 	return ipv4_addr_eq(&a->value.ipv4, &b->value.ipv4);
 }
 
 static gboolean
-cmp_ne(fvalue_t *a, fvalue_t *b)
+cmp_ne(const fvalue_t *a, const fvalue_t *b)
 {
 	return ipv4_addr_ne(&a->value.ipv4, &b->value.ipv4);
 }
 
 static gboolean
-cmp_gt(fvalue_t *a, fvalue_t *b)
+cmp_gt(const fvalue_t *a, const fvalue_t *b)
 {
 	return ipv4_addr_gt(&a->value.ipv4, &b->value.ipv4);
 }
 
 static gboolean
-cmp_ge(fvalue_t *a, fvalue_t *b)
+cmp_ge(const fvalue_t *a, const fvalue_t *b)
 {
 	return ipv4_addr_ge(&a->value.ipv4, &b->value.ipv4);
 }
 
 static gboolean
-cmp_lt(fvalue_t *a, fvalue_t *b)
+cmp_lt(const fvalue_t *a, const fvalue_t *b)
 {
 	return ipv4_addr_lt(&a->value.ipv4, &b->value.ipv4);
 }
 
 static gboolean
-cmp_le(fvalue_t *a, fvalue_t *b)
+cmp_le(const fvalue_t *a, const fvalue_t *b)
 {
 	return ipv4_addr_le(&a->value.ipv4, &b->value.ipv4);
 }
 
 static gboolean
-cmp_bitwise_and(fvalue_t *fv_a, fvalue_t *fv_b)
+cmp_bitwise_and(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	guint32		addr_a;
 	guint32		addr_b;

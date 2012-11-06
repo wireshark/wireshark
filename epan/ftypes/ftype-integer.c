@@ -291,67 +291,67 @@ ipxnet_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 }
 
 static gboolean
-cmp_eq(fvalue_t *a, fvalue_t *b)
+cmp_eq(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.uinteger == b->value.uinteger;
 }
 
 static gboolean
-cmp_ne(fvalue_t *a, fvalue_t *b)
+cmp_ne(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.uinteger != b->value.uinteger;
 }
 
 static gboolean
-u_cmp_gt(fvalue_t *a, fvalue_t *b)
+u_cmp_gt(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.uinteger > b->value.uinteger;
 }
 
 static gboolean
-u_cmp_ge(fvalue_t *a, fvalue_t *b)
+u_cmp_ge(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.uinteger >= b->value.uinteger;
 }
 
 static gboolean
-u_cmp_lt(fvalue_t *a, fvalue_t *b)
+u_cmp_lt(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.uinteger < b->value.uinteger;
 }
 
 static gboolean
-u_cmp_le(fvalue_t *a, fvalue_t *b)
+u_cmp_le(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.uinteger <= b->value.uinteger;
 }
 
 static gboolean
-s_cmp_gt(fvalue_t *a, fvalue_t *b)
+s_cmp_gt(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.sinteger > b->value.sinteger;
 }
 
 static gboolean
-s_cmp_ge(fvalue_t *a, fvalue_t *b)
+s_cmp_ge(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.sinteger >= b->value.sinteger;
 }
 
 static gboolean
-s_cmp_lt(fvalue_t *a, fvalue_t *b)
+s_cmp_lt(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.sinteger < b->value.sinteger;
 }
 
 static gboolean
-s_cmp_le(fvalue_t *a, fvalue_t *b)
+s_cmp_le(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.sinteger <= b->value.sinteger;
 }
 
 static gboolean
-cmp_bitwise_and(fvalue_t *a, fvalue_t *b)
+cmp_bitwise_and(const fvalue_t *a, const fvalue_t *b)
 {
 	return ((a->value.uinteger & b->value.uinteger) != 0);
 }
@@ -492,67 +492,67 @@ uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 }
 
 static gboolean
-cmp_eq64(fvalue_t *a, fvalue_t *b)
+cmp_eq64(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.integer64 == b->value.integer64;
 }
 
 static gboolean
-cmp_ne64(fvalue_t *a, fvalue_t *b)
+cmp_ne64(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.integer64 != b->value.integer64;
 }
 
 static gboolean
-u_cmp_gt64(fvalue_t *a, fvalue_t *b)
+u_cmp_gt64(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.integer64 > b->value.integer64;
 }
 
 static gboolean
-u_cmp_ge64(fvalue_t *a, fvalue_t *b)
+u_cmp_ge64(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.integer64 >= b->value.integer64;
 }
 
 static gboolean
-u_cmp_lt64(fvalue_t *a, fvalue_t *b)
+u_cmp_lt64(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.integer64 < b->value.integer64;
 }
 
 static gboolean
-u_cmp_le64(fvalue_t *a, fvalue_t *b)
+u_cmp_le64(const fvalue_t *a, const fvalue_t *b)
 {
 	return a->value.integer64 <= b->value.integer64;
 }
 
 static gboolean
-s_cmp_gt64(fvalue_t *a, fvalue_t *b)
+s_cmp_gt64(const fvalue_t *a, const fvalue_t *b)
 {
 	return (gint64)a->value.integer64 > (gint64)b->value.integer64;
 }
 
 static gboolean
-s_cmp_ge64(fvalue_t *a, fvalue_t *b)
+s_cmp_ge64(const fvalue_t *a, const fvalue_t *b)
 {
 	return (gint64)a->value.integer64 >= (gint64)b->value.integer64;
 }
 
 static gboolean
-s_cmp_lt64(fvalue_t *a, fvalue_t *b)
+s_cmp_lt64(const fvalue_t *a, const fvalue_t *b)
 {
 	return (gint64)a->value.integer64 < (gint64)b->value.integer64;
 }
 
 static gboolean
-s_cmp_le64(fvalue_t *a, fvalue_t *b)
+s_cmp_le64(const fvalue_t *a, const fvalue_t *b)
 {
 	return (gint64)a->value.integer64 <= (gint64)b->value.integer64;
 }
 
 static gboolean
-cmp_bitwise_and64(fvalue_t *a, fvalue_t *b)
+cmp_bitwise_and64(const fvalue_t *a, const fvalue_t *b)
 {
 	return ((a->value.integer64 & b->value.integer64) != 0);
 }
@@ -580,7 +580,7 @@ boolean_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 
 /* Checks for equality with zero or non-zero */
 static gboolean
-bool_eq(fvalue_t *a, fvalue_t *b)
+bool_eq(const fvalue_t *a, const fvalue_t *b)
 {
 	if (a->value.uinteger) {
 		if (b->value.uinteger) {
@@ -602,7 +602,7 @@ bool_eq(fvalue_t *a, fvalue_t *b)
 
 /* Checks for inequality with zero or non-zero */
 static gboolean
-bool_ne(fvalue_t *a, fvalue_t *b)
+bool_ne(const fvalue_t *a, const fvalue_t *b)
 {
 	return (!bool_eq(a,b));
 }
