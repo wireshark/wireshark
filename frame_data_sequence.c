@@ -251,9 +251,7 @@ free_frame_data_sequence(frame_data_sequence *fds)
 
   if (fds->count == 0) {
     /* Nothing to free. */
-    return;
-  }
-  if (fds->count <= NODES_PER_LEVEL) {
+  } else if (fds->count <= NODES_PER_LEVEL) {
     /* It's a 1-level tree. */
     g_free(fds->ptree_root);
   } else if (fds->count <= NODES_PER_LEVEL*NODES_PER_LEVEL) {
@@ -272,7 +270,6 @@ free_frame_data_sequence(frame_data_sequence *fds)
       g_free(level1);
     }
     g_free(level2);
-    return;
   } else {
     /* fds->count is 2^32-1 at most, and NODES_PER_LEVEL^4
        2^(LOG2_NODES_PER_LEVEL*4), and LOG2_NODES_PER_LEVEL is 10,
