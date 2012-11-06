@@ -2204,6 +2204,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_featureGroupIndRel10,
     &ett_lte_rrc_neighCellConfig,
     &ett_lte_rrc_absTimeInfo,
+    &ett_lte_rrc_nas_SecurityParam
   };
 
 

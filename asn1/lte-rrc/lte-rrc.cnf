@@ -659,26 +659,28 @@ if(ue_eutra_cap_tvb){
 #.FN_BODY Handover/nas-SecurityParamFromEUTRA VAL_PTR = &nas_sec_param_from_eutra_tvb
   tvbuff_t *nas_sec_param_from_eutra_tvb = NULL;
   guint32 length;
-  proto_item *item;
   proto_tree *subtree;
 
 %(DEFAULT_BODY)s
-  length = tvb_length(nas_sec_param_from_eutra_tvb);
-  item = proto_tree_add_text(tree, nas_sec_param_from_eutra_tvb, 0, length, "NAS security parameters from E-UTRA");
-  subtree = proto_item_add_subtree(item, ett_lte_rrc_nas_SecurityParam);
-  de_emm_sec_par_from_eutra(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+  if (nas_sec_param_from_eutra_tvb) {
+    length = tvb_length(nas_sec_param_from_eutra_tvb);
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nas_SecurityParam);
+    proto_tree_add_text(subtree, nas_sec_param_from_eutra_tvb, 0, length, "NAS security parameters from E-UTRA");
+    de_emm_sec_par_from_eutra(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+  }
 
 #.FN_BODY SecurityConfigHO/handoverType/interRAT/nas-SecurityParamToEUTRA VAL_PTR = &nas_sec_param_to_eutra_tvb
   tvbuff_t *nas_sec_param_to_eutra_tvb = NULL;
   guint32 length;
-  proto_item *item;
   proto_tree *subtree;
 
 %(DEFAULT_BODY)s
-  length = tvb_length(nas_sec_param_to_eutra_tvb);
-  item = proto_tree_add_text(tree, nas_sec_param_to_eutra_tvb, 0, length, "NAS security parameters to E-UTRA");
-  subtree = proto_item_add_subtree(item, ett_lte_rrc_nas_SecurityParam);
-  de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+  if (nas_sec_param_to_eutra_tvb) {
+    length = tvb_length(nas_sec_param_to_eutra_tvb);
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nas_SecurityParam);
+    proto_tree_add_text(subtree, nas_sec_param_to_eutra_tvb, 0, length, "NAS security parameters to E-UTRA");
+    de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+  }
 
 #.FN_BODY SI-OrPSI-GERAN VAL_PTR = &lte_rrc_si_or_psi_geran_val
 %(DEFAULT_BODY)s

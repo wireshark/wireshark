@@ -16106,16 +16106,17 @@ static int
 dissect_lte_rrc_T_nas_SecurityParamFromEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *nas_sec_param_from_eutra_tvb = NULL;
   guint32 length;
-  proto_item *item;
   proto_tree *subtree;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        1, 1, FALSE, &nas_sec_param_from_eutra_tvb);
 
-  length = tvb_length(nas_sec_param_from_eutra_tvb);
-  item = proto_tree_add_text(tree, nas_sec_param_from_eutra_tvb, 0, length, "NAS security parameters from E-UTRA");
-  subtree = proto_item_add_subtree(item, ett_lte_rrc_nas_SecurityParam);
-  de_emm_sec_par_from_eutra(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+  if (nas_sec_param_from_eutra_tvb) {
+    length = tvb_length(nas_sec_param_from_eutra_tvb);
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nas_SecurityParam);
+    proto_tree_add_text(subtree, nas_sec_param_from_eutra_tvb, 0, length, "NAS security parameters from E-UTRA");
+    de_emm_sec_par_from_eutra(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+  }
 
 
   return offset;
@@ -18780,16 +18781,17 @@ static int
 dissect_lte_rrc_T_nas_SecurityParamToEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *nas_sec_param_to_eutra_tvb = NULL;
   guint32 length;
-  proto_item *item;
   proto_tree *subtree;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        6, 6, FALSE, &nas_sec_param_to_eutra_tvb);
 
-  length = tvb_length(nas_sec_param_to_eutra_tvb);
-  item = proto_tree_add_text(tree, nas_sec_param_to_eutra_tvb, 0, length, "NAS security parameters to E-UTRA");
-  subtree = proto_item_add_subtree(item, ett_lte_rrc_nas_SecurityParam);
-  de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+  if (nas_sec_param_to_eutra_tvb) {
+    length = tvb_length(nas_sec_param_to_eutra_tvb);
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nas_SecurityParam);
+    proto_tree_add_text(subtree, nas_sec_param_to_eutra_tvb, 0, length, "NAS security parameters to E-UTRA");
+    de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+  }
 
 
   return offset;
@@ -39249,6 +39251,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_featureGroupIndRel10,
     &ett_lte_rrc_neighCellConfig,
     &ett_lte_rrc_absTimeInfo,
+    &ett_lte_rrc_nas_SecurityParam
   };
 
 
@@ -39286,7 +39289,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2229 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2230 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 }
 
