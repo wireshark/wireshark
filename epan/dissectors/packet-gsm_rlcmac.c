@@ -6734,7 +6734,7 @@ static guint8 construct_gprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *tr
 	proto_item 	*item;
 
     *li_count = 0;
-    while((*e == 0))
+    while(*e == 0)
     {
        item = proto_tree_add_bits_item(tree, hf_li, tvb, offset * 8, 6, ENC_BIG_ENDIAN);
         if(*li_count < li_array_size)
