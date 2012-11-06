@@ -1226,12 +1226,12 @@ decode_add_yes_no (void)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), TRUE);
     g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_update_action),
                    GINT_TO_POINTER(E_DECODE_YES));
-    gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(format_vb), radio_button, FALSE, FALSE, 0);
 
     radio_button = gtk_radio_button_new_with_label(format_grp, "Do not decode");
     g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_update_action),
                    GINT_TO_POINTER(E_DECODE_NO));
-    gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(format_vb), radio_button, FALSE, FALSE, 0);
 
     return(format_vb);
 }
@@ -1593,11 +1593,11 @@ decode_add_simple_page (const gchar *prompt, const gchar *title, const gchar *ta
 
     /* Always enabled */
     label = gtk_label_new(prompt);
-    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
 
     /* Conditionally enabled - only when decoding packets */
     label = gtk_label_new("as");
-    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
     decode_dimmable = g_slist_prepend(decode_dimmable, label);
     scrolled_window = decode_add_simple_menu(page, table_name);
     gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
@@ -1642,15 +1642,15 @@ decode_add_tcpudp_page (const gchar *prompt, const gchar *table_name)
 
     /* Always enabled */
     label = gtk_label_new(prompt);
-    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
     combo_box = decode_add_srcdst_combo_box(page);
-    gtk_box_pack_start(GTK_BOX(page), combo_box, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), combo_box, FALSE, FALSE, 0);
     label = gtk_label_new("port(s)");
-    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
 
     /* Conditionally enabled - only when decoding packets */
     label = gtk_label_new("as");
-    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
     decode_dimmable = g_slist_prepend(decode_dimmable, label);
     scrolled_window = decode_add_simple_menu(page, table_name);
     gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
@@ -1770,12 +1770,12 @@ decode_sctp_add_port_ppid (GtkWidget *page)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), TRUE);
     g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_ppid_combo_box), page);
 
-    gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(format_vb), radio_button, FALSE, FALSE, 0);
 
     radio_button = gtk_radio_button_new_with_label(format_grp, "Port");
     g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_srcdst_combo_box), page);
 
-    gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(format_vb), radio_button, FALSE, FALSE, 0);
 
     return(format_vb);
 }
@@ -1793,23 +1793,23 @@ decode_add_sctp_page (const gchar *prompt, const gchar *table_name)
 
     vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     radio = decode_sctp_add_port_ppid(page);
-    gtk_box_pack_start(GTK_BOX(vbox), radio, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), radio, FALSE, FALSE, 0);
 
     /* Always enabled */
     sctpbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     label = gtk_label_new(prompt);
-    gtk_box_pack_start(GTK_BOX(sctpbox), label, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(sctpbox), label, FALSE, FALSE, 0);
     sctp_combo_box = decode_add_ppid_combo_box(page);
     alignment = decode_add_pack_combo_box(sctp_combo_box);
 
-    gtk_box_pack_start(GTK_BOX(sctpbox), alignment, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(sctpbox), alignment, FALSE, FALSE, 0);
 
     /* Conditionally enabled - only when decoding packets */
     label = gtk_label_new("as");
-    gtk_box_pack_start(GTK_BOX(sctpbox), label, TRUE, TRUE, 0);
+    gtk_box_pack_end(GTK_BOX(sctpbox), label, FALSE, FALSE, 0);
     decode_dimmable = g_slist_prepend(decode_dimmable, label);
-    gtk_box_pack_start(GTK_BOX(vbox), sctpbox, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(page), vbox, TRUE, TRUE, 0);
+    gtk_box_pack_end(GTK_BOX(vbox), sctpbox, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(page), vbox, FALSE, FALSE, 0);
 
     scrolled_window = decode_add_simple_menu(page, table_name);
     gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
@@ -1890,7 +1890,7 @@ decode_add_bluetooth_page(const gchar *prompt, const gchar *table_name, const ch
     g_object_set_data(G_OBJECT(page), E_PAGE_TITLE,  (gchar *) prompt);
 
     label = gtk_label_new(prompt);
-    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
 
     value_entry = g_hash_table_lookup(value_entry_table, table_name);
     if (!value_entry) {
@@ -1899,10 +1899,10 @@ decode_add_bluetooth_page(const gchar *prompt, const gchar *table_name, const ch
     }
 
     gtk_entry_set_text((GtkEntry *) value_entry, value);
-    gtk_box_pack_start(GTK_BOX(page), value_entry, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), value_entry, FALSE, FALSE, 0);
 
     label = gtk_label_new("as");
-    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
     decode_dimmable = g_slist_prepend(decode_dimmable, label);
     scrolled_window = decode_add_simple_menu(page, table_name);
     gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
@@ -2147,19 +2147,19 @@ decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
     gtk_box_pack_start(GTK_BOX(main_vb), format_hb, TRUE, TRUE, 10);
 
     button_vb = decode_add_yes_no();
-    gtk_box_pack_start(GTK_BOX(format_hb), button_vb, TRUE, TRUE, 10);
+    gtk_box_pack_start(GTK_BOX(format_hb), button_vb, FALSE, FALSE, 10);
 
     button = gtk_button_new_with_label("Show Current");
     g_signal_connect(button, "clicked", G_CALLBACK(decode_show_cb), NULL);
     gtk_widget_set_can_default(button, TRUE);
-    gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
 	gtk_widget_set_tooltip_text(button, "Open a dialog showing the current settings.\n"
 		"Note you need to select and press apply first to be able to save the current setting");
 
     button = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
     g_signal_connect(button, "clicked", G_CALLBACK(decode_clear_cb), NULL);
     gtk_widget_set_can_default(button, TRUE);
-    gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
 	gtk_widget_set_tooltip_text(button, "Clear ALL settings.");
 
     decode_add_notebook(format_hb);
