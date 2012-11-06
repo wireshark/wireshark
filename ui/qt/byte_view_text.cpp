@@ -27,6 +27,7 @@
 
 #include "wireshark_application.h"
 #include <QTextCursor>
+#include <QTextBlock>
 #include <QApplication>
 #include <QMouseEvent>
 
@@ -51,6 +52,7 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     offset_width_(4)
 {
     setReadOnly(true);
+    setUndoRedoEnabled(false);
     setLineWrapMode(QTextEdit::NoWrap);
     setState(StateNormal);
 
@@ -315,8 +317,9 @@ int ByteViewText::flushBytes(QString &str)
 void ByteViewText::scrollToByte(int byte)
 {
     QTextCursor cursor(textCursor());
+    cursor.setPosition(0);
 
-    cursor.setPosition(byte * (per_line_ + 1)); // Newline
+    cursor.setPosition(byte * cursor.block().length() / per_line_);
     setTextCursor(cursor);
     ensureCursorVisible();
 }
