@@ -100,6 +100,9 @@ void ByteViewText::renderBytes()
         return;
     }
 
+    // XXX Even with updates and undo disabled this is slow. Instead of clearing
+    // and filling in the text each time we should probably fill it in once and
+    // use setExtraSelections to set highlighting.
     setUpdatesEnabled(false);
 
     textCursor().beginEditBlock();
