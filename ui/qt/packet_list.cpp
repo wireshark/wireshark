@@ -241,6 +241,9 @@ void PacketList::setProtoTree (ProtoTree *proto_tree) {
 
 void PacketList::setByteViewTab (ByteViewTab *byte_view_tab) {
     byte_view_tab_ = byte_view_tab;
+
+    connect(proto_tree_, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+            byte_view_tab_, SLOT(protoTreeItemChanged(QTreeWidgetItem*)));
 }
 
 PacketListModel *PacketList::packetListModel() const {
@@ -294,12 +297,6 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
             byte_view_tab_->addTab(get_data_source_name(source), get_data_source_tvb(source), cap_file_->edt->tree, proto_tree_, cap_file_->current_frame->flags.encoding);
         }
         byte_view_tab_->setCurrentIndex(0);
-    }
-
-    if (proto_tree_ && byte_view_tab_) {
-        // Connect signals between the proto tree and byte views.
-        connect(proto_tree_, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
-                byte_view_tab_, SLOT(protoTreeItemChanged(QTreeWidgetItem*)));
     }
 }
 
