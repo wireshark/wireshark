@@ -152,7 +152,6 @@ ProtoTree::ProtoTree(QWidget *parent) :
     QTreeWidget(parent)
 {
     setAccessibleName(tr("Packet details"));
-    setFont(wsApp->monospaceFont());
     setUniformRowHeights(true);
 
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
@@ -169,8 +168,8 @@ void ProtoTree::clear() {
 }
 
 void ProtoTree::fillProtocolTree(proto_tree *protocol_tree) {
-    // Clear out previous tree
     clear();
+    setFont(wsApp->monospaceFont());
 
     proto_tree_children_foreach(protocol_tree, proto_tree_draw_node, invisibleRootItem());
 }
