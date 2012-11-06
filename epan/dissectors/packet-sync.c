@@ -135,7 +135,7 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         offset += 2;
 
         /* Octet 4 - Packet Number */
-        proto_tree_add_string_format(sync_tree, hf_sync_packet_nr, tvb, offset, 2, "", "Packet Number: %hu", packet_nr+1);
+        proto_tree_add_string_format(sync_tree, hf_sync_packet_nr, tvb, offset, 2, "", "Packet Number: %u", packet_nr+1);
         offset += 2;
 
         /* Octet 6 - Elapsed Octet Counter */
