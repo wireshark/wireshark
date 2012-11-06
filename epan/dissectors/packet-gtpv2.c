@@ -3494,7 +3494,7 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset = dissect_gtpv2_mm_context_common_data(tvb, pinfo, tree, offset, samb_ri, uamb_ri);
 
     /* r+1 Spare HNNA ENA INA GANA GENA UNA */
-    if (offset < (gint)length){
+    if (offset < (guint32)length){
         offset = dissect_gtpv2_access_restriction_data(tvb, tree, offset);
     }else{
         return;
