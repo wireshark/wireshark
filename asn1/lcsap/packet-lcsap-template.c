@@ -34,6 +34,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
+
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>

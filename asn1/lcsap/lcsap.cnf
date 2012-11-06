@@ -199,6 +199,32 @@ ProtocolIE-Field/value ie_field_value
 	proto_tree_add_item(tree, hf_lcsap_gnss_id, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_lcsap_gnss_pos_usage, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 
+#
+# Code copied from packet-gsm_a_common.c
+#.FN_BODY Uncertainty-Code VAL_PTR = &uncertainty_code
+  guint32 uncertainty_code;
+
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 127U, &uncertainty_code, FALSE);
+
+	proto_item_append_text(actx->created_item, " (%.1f m)", 10 * (pow(1.1, (double)uncertainty_code) - 1));
+
+#.FN_BODY DegreesLatitude  VAL_PTR = &degrees
+  guint32 degrees;
+
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 8388607U, &degrees, FALSE);
+
+  proto_item_append_text(actx->created_item, " (%.5f degrees)", (((double)degrees/8388607) * 90));
+
+#.FN_BODY DegreesLongitude  VAL_PTR = &degrees
+  guint32 degrees;
+
+    offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -8388608, 8388607U, &degrees, FALSE);
+
+	proto_item_append_text(actx->created_item, " (%.5f degrees)", (((double)degrees/16777215) * 360));
+
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(lcsap_ProtocolIE_ID_vals)
 #.ASSIGN_VALUE_TO_TYPE  # LCSAP does not have constants assigned to types, they are pure INTEGER
