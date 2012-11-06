@@ -287,15 +287,13 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
         GSList *src_le;
         struct data_source *source;
 
-        // Clear out existing tabs
-        while (byte_view_tab_->currentWidget()) {
-            delete byte_view_tab_->currentWidget();
-        }
+        byte_view_tab_->clear();
 
         for (src_le = cap_file_->edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
             source = (struct data_source *)src_le->data;
             byte_view_tab_->addTab(get_data_source_name(source), get_data_source_tvb(source), cap_file_->edt->tree, proto_tree_, cap_file_->current_frame->flags.encoding);
         }
+        byte_view_tab_->setCurrentIndex(0);
     }
 
     if (proto_tree_ && byte_view_tab_) {
@@ -318,11 +316,7 @@ void PacketList::clear() {
     //    packet_history_clear();
     packet_list_model_->clear();
     proto_tree_->clear();
-
-    // Clear out existing tabs
-    while (byte_view_tab_->currentWidget()) {
-        delete byte_view_tab_->currentWidget();
-    }
+    byte_view_tab_->clear();
 
     /* XXX is this correct in all cases?
      * Reset the sort column, use packetlist as model in case the list is frozen.

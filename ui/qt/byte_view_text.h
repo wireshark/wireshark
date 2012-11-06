@@ -53,7 +53,7 @@ public:
     void setProtocolHighlight(int start, int end);
     void setFieldHighlight(int start, int end, guint32 mask = 0, int mask_le = 0);
     void setFieldAppendixHighlight(int start, int end);
-    void render();
+    void renderBytes();
 
 private:
     typedef enum {

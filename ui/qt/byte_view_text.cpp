@@ -41,12 +41,20 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     bold_highlight_(false),
     encoding_(encoding),
     format_(BYTES_HEX),
+    p_start_(-1),
+    p_end_(-1),
+    f_start_(-1),
+    f_end_(-1),
+    fa_start_(-1),
+    fa_end_(-1),
     per_line_(16),
     offset_width_(4)
 {
     setReadOnly(true);
     setLineWrapMode(QTextEdit::NoWrap);
     setState(StateNormal);
+
+    renderBytes();
 }
 
 void ByteViewText::setEncoding(packet_char_enc encoding)
@@ -80,14 +88,17 @@ void ByteViewText::setFieldAppendixHighlight(int start, int end)
     fa_end_ = end;
 }
 
-void ByteViewText::render()
+void ByteViewText::renderBytes()
 {
     int length;
+    int start_byte = 0;
 
     if (!tvb_) {
         clear();
         return;
     }
+
+    setUpdatesEnabled(false);
 
     textCursor().beginEditBlock();
     clear();
@@ -96,14 +107,16 @@ void ByteViewText::render()
     for (int off = 0; off < length; off += per_line_) {
         lineCommon(off);
     }
-
-    if (f_start_ != -1 && f_end_ != -1) {
-        scrollToByte(f_start_);
-    } else if (p_start_ != -1 && p_end_ != -1) {
-        scrollToByte(p_start_);
-    }
-
     textCursor().endEditBlock();
+
+    if (f_start_ > 0 && f_end_ > 0) {
+        start_byte = f_start_;
+    } else if (p_start_ > 0 && p_end_ > 0) {
+        start_byte = p_start_;
+    }
+    scrollToByte(start_byte);
+
+    setUpdatesEnabled(true);
 }
 
 // Private
@@ -303,9 +316,9 @@ void ByteViewText::scrollToByte(int byte)
 {
     QTextCursor cursor(textCursor());
 
-    cursor.movePosition(QTextCursor::Start);
-    cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, byte / per_line_);
+    cursor.setPosition(byte * (per_line_ + 1)); // Newline
     setTextCursor(cursor);
+    ensureCursorVisible();
 }
 
 int ByteViewText::byteFromRowCol(int row, int col)

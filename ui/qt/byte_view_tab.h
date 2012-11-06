@@ -41,6 +41,7 @@ class ByteViewTab : public QTabWidget
 public:
     explicit ByteViewTab(QWidget *parent = 0);
     void addTab(const char *name = "", tvbuff_t *tvb = NULL, proto_tree *tree = NULL, QTreeWidget *protoTree = NULL, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII);
+    void clear();
 
 private:
     void setTabsVisible();

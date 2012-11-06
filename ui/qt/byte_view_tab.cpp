@@ -33,11 +33,19 @@ ByteViewTab::ByteViewTab(QWidget *parent) :
     addTab();
 }
 
+#include <QDebug>
 void ByteViewTab::addTab(const char *name, tvbuff_t *tvb, proto_tree *tree, QTreeWidget *protoTree, packet_char_enc encoding) {
     ByteViewText *byte_view_text = new ByteViewText(this, tvb, tree, protoTree, encoding);
 
     byte_view_text->setAccessibleName(name);
     QTabWidget::addTab(byte_view_text, name);
+}
+
+void ByteViewTab::clear()
+{
+    while (currentWidget()) {
+        delete currentWidget();
+    }
 }
 
 void ByteViewTab::tabInserted(int index) {
@@ -75,7 +83,6 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                 int p_start = -1, p_end = -1, p_len = -1;
                 guint len = tvb_length(fi->ds_tvb);
 
-//                byte_view_text->setEncoding(cap_file_->current_frame->flags.encoding);
                 // Find and highlight the protocol bytes
                 while (parent && parent->parent()) {
                     parent = parent->parent();
@@ -157,7 +164,7 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                 // Appendix (trailer) bytes
                 byte_view_text->setFieldAppendixHighlight(fa_start, fa_end);
 
-                byte_view_text->render();
+                byte_view_text->renderBytes();
 
                 setCurrentIndex(i);
             }

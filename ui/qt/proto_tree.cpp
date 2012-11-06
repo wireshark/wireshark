@@ -178,31 +178,31 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
 
     if (item) {
         field_info *fi;
-        QString itemInfo;
+        QString item_info;
 
         fi = item->data(0, Qt::UserRole).value<field_info *>();
         if (!fi || !fi->hfinfo) return;
 
         if (fi->hfinfo->blurb != NULL && fi->hfinfo->blurb[0] != '\0') {
-            itemInfo.append(QString().fromUtf8(fi->hfinfo->blurb));
+            item_info.append(QString().fromUtf8(fi->hfinfo->blurb));
         } else {
-            itemInfo.append(QString().fromUtf8(fi->hfinfo->name));
+            item_info.append(QString().fromUtf8(fi->hfinfo->name));
         }
 
-        if (!itemInfo.isEmpty()) {
+        if (!item_info.isEmpty()) {
             int finfo_length;
-            itemInfo.append(" (" + QString().fromUtf8(fi->hfinfo->abbrev) + ")");
+            item_info.append(" (" + QString().fromUtf8(fi->hfinfo->abbrev) + ")");
 
             finfo_length = fi->length + fi->appendix_length;
             if (finfo_length == 1) {
-                itemInfo.append(tr(", 1 byte"));
+                item_info.append(tr(", 1 byte"));
             } else if (finfo_length > 1) {
-                itemInfo.append(QString(tr(", %1 bytes")).arg(finfo_length));
+                item_info.append(QString(tr(", %1 bytes")).arg(finfo_length));
             }
 
             emit protoItemSelected(*new QString());
             emit protoItemSelected(NULL);
-            emit protoItemSelected(itemInfo);
+            emit protoItemSelected(item_info);
             emit protoItemSelected(fi);
         } // else the GTK+ version pushes an empty string as described below.
         /*
@@ -277,25 +277,25 @@ void ProtoTree::collapse(const QModelIndex & index) {
 
 void ProtoTree::expandSubtrees()
 {
-    QTreeWidgetItem *topSel;
+    QTreeWidgetItem *top_sel;
 
     if (selectedItems().length() < 1) {
         return;
     }
 
-    topSel = selectedItems()[0];
+    top_sel = selectedItems()[0];
 
-    if (!topSel) {
+    if (!top_sel) {
         return;
     }
 
-    while (topSel->parent()) {
-        topSel = topSel->parent();
+    while (top_sel->parent()) {
+        top_sel = top_sel->parent();
     }
 
-    QTreeWidgetItemIterator iter(topSel);
+    QTreeWidgetItemIterator iter(top_sel);
     while (*iter) {
-        if ((*iter) != topSel && (*iter)->parent() == NULL) {
+        if ((*iter) != top_sel && (*iter)->parent() == NULL) {
             // We found the next top-level item
             break;
         }
