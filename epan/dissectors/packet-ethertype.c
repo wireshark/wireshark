@@ -116,6 +116,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_RTMAC,                "Real-Time Media Access Control" },
 	{ ETHERTYPE_RTCFG,                "Real-Time Configuration Protocol" },
 	{ ETHERTYPE_CDMA2000_A10_UBS,     "CDMA2000 A10 Unstructured byte stream" },
+	{ ETHERTYPE_ATMOE,                "ATM over Ethernet" },
 	{ ETHERTYPE_PROFINET,             "PROFINET"},
 	{ ETHERTYPE_AOE,                  "ATA over Ethernet" },
 	{ ETHERTYPE_ECATF,                "EtherCAT frame" },

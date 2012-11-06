@@ -310,6 +310,10 @@
 #define ETHERTYPE_CDMA2000_A10_UBS	0x8881	/* the byte stream protocol that is used for IP based micro-mobility bearer interfaces (A10) in CDMA2000(R)-based wireless networks */
 #endif
 
+#ifndef ETHERTYPE_ATMOE
+#define ETHERTYPE_ATMOE			0x8884	/* A simple ATM over Ethernet encapsulation */
+#endif
+
 #ifndef ETHERTYPE_EAPOL
 #define ETHERTYPE_EAPOL			0x888E  /* 802.1x Authentication */
 #endif
