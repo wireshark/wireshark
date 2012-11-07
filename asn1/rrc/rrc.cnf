@@ -750,6 +750,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 %(DEFAULT_BODY)s
 
 #.FN_BODY START-Value VAL_PTR = &start_val
+  tvbuff_t * start_val;
   fp_info       *fpinf;
   rrc_ciphering_info * c_inf;
   int i;
@@ -837,6 +838,14 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 
 #.FN_BODY DL-DCCH-MessageType VAL_PTR = &msg_type
 %(DEFAULT_BODY)s
+
+#.FN_BODY DL-DCCH-Message
+%(DEFAULT_BODY)s
+  hrnti = NULL;
+
+#.FN_BODY HandoverToUTRANCommand
+%(DEFAULT_BODY)s
+  hrnti = NULL;
 
 #.END
 

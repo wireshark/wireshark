@@ -133,8 +133,7 @@ static const true_false_string rrc_eutra_feat_group_ind_4_val = {
 };
 static int flowd,type;
 
-static tvbuff_t * hrnti;
-static tvbuff_t * start_val;
+static tvbuff_t * hrnti = NULL;
 static int cipher_start_val[2] _U_;
 
 /*Stores how many channels we have detected for a HS-DSCH MAC-flow*/
