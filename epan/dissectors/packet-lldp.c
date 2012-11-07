@@ -2361,7 +2361,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
         break;
     }
 	default:
-		proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, -1, ENC_NA);
+		proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, offset, -1, ENC_NA);
 	}
 }
 
@@ -2395,7 +2395,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		}
 		break;
 	default:
-		proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, offset, -1, ENC_NA);
 		break;
 	}
 }
