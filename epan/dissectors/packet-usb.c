@@ -1001,7 +1001,22 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, t
     }
 
     len = tvb_get_guint8(tvb, offset);
-    dissect_usb_descriptor_header(tree, tvb, offset);
+    /* The USB spec says that the languages / the string are UTF16 and not
+       0-terminated, i.e. the length field must contain an even number */
+    if (len & 0x1) {
+        proto_item *len_item;
+
+        /* bLength */
+        len_item = proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        expert_add_info_format(pinfo, len_item, PI_PROTOCOL, PI_WARN,
+                    "Invalid STRING DESCRIPTOR Length (must be even)");
+
+        /* bDescriptorType */
+        proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+    }
+    else
+       dissect_usb_descriptor_header(tree, tvb, offset);
+
     offset += 2;
 
     if(!usb_trans_info->u.get_descriptor.index){
@@ -1012,10 +1027,17 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, t
             offset+=2;
         }
     } else {
-        char *str;
+        char   *str;
+        guint8  str_len;
+
+        /* Make sure that tvb_get_ephemeral_unicode_string() gets an even
+           string length even if the length field contains an (invalid)
+           odd number.
+         */
+        str_len = (len-2) & ~0x1;
 
         /* unicode string */
-        str = tvb_get_ephemeral_unicode_string(tvb, offset, len-2, ENC_LITTLE_ENDIAN);
+        str = tvb_get_ephemeral_unicode_string(tvb, offset, str_len, ENC_LITTLE_ENDIAN);
         proto_tree_add_string(tree, hf_usb_bString, tvb, offset, len-2, str);
         offset += len-2;
     }
