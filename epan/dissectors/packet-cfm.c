@@ -2,6 +2,7 @@
  * Routines for CFM EOAM (IEEE 802.1ag) dissection
  * Copyright 2007, Keith Mercer <keith.mercer@alcatel-lucent.com>
  * Copyright 2011, Peter Nahas <pnahas@mrv.com>
+ * Copyright 2012, Wim Leflere <wim.leflere-ext@oneaccess-net.com>
  *
  * $Id$
  *
@@ -24,10 +25,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* This code is based on the IEEE P802.1ag/D8.1 document, and on the ITU-T Y.1731
- * recommendation (05/2006,) which is not formally released at the time of this
- * dissector development.  Any updates to these documents may require additional
- * modifications to this code.
+/* This code is based on the IEEE P802.1ag/D8.1 document,
+ * the ITU-T Rec. G.8031/Y.1342 (06/2011) – Ethernet linear protection switching document,
+ * and on the ITU-T Y.1731 recommendation (05/2006,) which is not formally released
+ * at the time of this dissector development. 
+ * Any updates to these documents may require additional modifications to this code.
  */
 
 
@@ -198,6 +200,60 @@ static const value_string testTLVpatterntypes[] = {
 	{ 3, "PRBS (2.e-31 -1), with CRC-32" },
 	{ 0, NULL }
 };
+static const value_string aps_request_state_values[] = {
+	{ 0, "No request" },
+	{ 1, "Do not revert" },
+	{ 2, "Reverse request" },
+	{ 3, "Unknown"},
+	{ 4, "Exersise" },
+	{ 5, "Wait to restore" },
+	{ 6, "Depreciated" },
+	{ 7, "Manual switch" },
+	{ 8, "Unknown"},
+	{ 9, "Signal degrade" },
+	{ 10, "Unknown"},
+	{ 11, "Signal fail working" },
+	{ 12, "Unknown"},
+	{ 13, "Forced switch" },
+	{ 14, "Signal fail protection" },
+	{ 15, "Lockout" },
+	{ 0,  NULL }
+};
+static const value_string aps_protection_type_A_values[] = {
+	{ 0, "No APS channel" },
+	{ 1, "APS channel" },
+	{ 0,  NULL }
+};
+static const value_string aps_protection_type_B_values[] = {
+	{ 0, "1+1 (permanent bridge)" },
+	{ 1, "1:1 (no permanent bridge)" },
+	{ 0,  NULL }
+};
+static const value_string aps_protection_type_D_values[] = {
+	{ 0, "Unidirectional switching " },
+	{ 1, "Bidirectional switching" },
+	{ 0,  NULL }
+};
+static const value_string aps_protection_type_R_values[] = {
+	{ 0, "Non-revertive operation " },
+	{ 1, "Revertive operation " },
+	{ 0,  NULL }
+};
+static const value_string aps_requested_signal_values[] = {
+	{ 0, "Null" },
+	{ 1, "Normal traffic" },
+	{ 0,  NULL }
+};
+static const value_string  aps_bridged_signal_values[] = {
+	{ 0, "Null" },
+	{ 1, "Normal traffic" },
+	{ 0,  NULL }
+};
+static const value_string  aps_bridge_type_values[] = {
+	{ 0, "Selector" },
+	{ 1, "Broadcast" },
+	{ 0,  NULL }
+};
 static const value_string rapsrequeststatevalues[] = {
 	{ 0,  "No Request" },
 	{ 11, "Signal Failure" },
@@ -276,7 +332,14 @@ static int hf_cfm_flags_Reserved = -1;
 static int hf_cfm_tst_sequence_num = -1;
 
 static int hf_cfm_aps_pdu = -1;
-static int hf_cfm_aps_data = -1;
+static int hf_cfm_aps_req_st = -1;
+static int hf_cfm_aps_protection_type_A = -1;
+static int hf_cfm_aps_protection_type_B = -1;
+static int hf_cfm_aps_protection_type_D = -1;
+static int hf_cfm_aps_protection_type_R = -1;
+static int hf_cfm_aps_requested_signal = -1;
+static int hf_cfm_aps_bridged_signal = -1;
+static int hf_cfm_aps_bridge_type = -1;
 
 static int hf_cfm_raps_pdu = -1;
 static int hf_cfm_raps_req_st = -1;
@@ -637,7 +700,6 @@ static int dissect_cfm_tst(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 static int dissect_cfm_aps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-	gint cfm_tlv_offset;
 	proto_item *ti;
 	proto_item *fi;
 	proto_tree *cfm_pdu_tree;
@@ -654,14 +716,21 @@ static int dissect_cfm_aps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	/* The APS data field was not defined at the time of this code being written
-	 * ITU-T Y.1731 (05/2006), so we are simply going to determine the length based on
-	 * the TLV offset and perform a hex dump */
-	cfm_tlv_offset = tvb_get_guint8(tvb, 3);
-	if (cfm_tlv_offset > 0) {
-		proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_data, tvb, offset, cfm_tlv_offset, ENC_NA);
-		offset += cfm_tlv_offset;
-	}
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_req_st, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_protection_type_A, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_protection_type_B, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_protection_type_D, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_protection_type_R, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_requested_signal, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_bridged_signal, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_bridge_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
 
 	return offset;
 }
@@ -1679,9 +1748,37 @@ void proto_register_cfm(void)
 			{ "CFM APS PDU", "cfm.aps.pdu", FT_NONE,
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
 		},
-		{ &hf_cfm_aps_data,
-			{ "APS data", "cfm.aps.data", FT_BYTES,
-			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		{ &hf_cfm_aps_req_st,
+			{ "Request/State", "cfm.raps.req.st", FT_UINT8,
+			BASE_DEC, VALS(aps_request_state_values), 0xf0, NULL, HFILL }
+		},
+		{ &hf_cfm_aps_protection_type_A,
+			{ "Protection type A", "cfm.aps.protec.type.A", FT_UINT8,
+			BASE_DEC, VALS(aps_protection_type_A_values), 0x08, NULL, HFILL }
+		},
+		{ &hf_cfm_aps_protection_type_B,
+			{ "Protection type B", "cfm.aps.protec.type.B", FT_UINT8,
+			BASE_DEC, VALS(aps_protection_type_B_values), 0x04, NULL, HFILL }
+		},
+		{ &hf_cfm_aps_protection_type_D,
+			{ "Protection type D", "cfm.aps.protec.type.D", FT_UINT8,
+			BASE_DEC, VALS(aps_protection_type_D_values), 0x02, NULL, HFILL }
+		},
+		{ &hf_cfm_aps_protection_type_R,
+			{ "Protection type R", "cfm.aps.protec.type.R", FT_UINT8,
+			BASE_DEC, VALS(aps_protection_type_R_values), 0x01, NULL, HFILL }
+		},
+		{ &hf_cfm_aps_requested_signal,
+			{ "Requested signal", "cfm.aps.req.sgnl", FT_UINT8,
+			BASE_HEX, VALS(aps_requested_signal_values), 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_aps_bridged_signal,
+			{ "Bridged signal", "cfm.aps.brdgd.sgnl", FT_UINT8,
+			BASE_HEX, VALS( aps_bridged_signal_values), 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_aps_bridge_type,
+			{ "Bridge type", "cfm.aps.bridge.type", FT_UINT8,
+			BASE_HEX, VALS( aps_bridge_type_values), 0x80, NULL, HFILL }
 		},
 
 		/* CFM R-APS */
