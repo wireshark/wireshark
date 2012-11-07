@@ -1978,12 +1978,11 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     gtk_box_pack_start (GTK_BOX (low_buttons_h_box), left_h_button_box, FALSE,
                         FALSE, 0);
 
+	/* dlg_button_row_new() returns an (h)box */
     right_h_button_box = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
     gtk_widget_show (right_h_button_box);
     gtk_box_pack_end (GTK_BOX (low_buttons_h_box), right_h_button_box, FALSE,
                       FALSE, 0);
-    gtk_button_box_set_layout (GTK_BUTTON_BOX (right_h_button_box),
-                               GTK_BUTTONBOX_END);
 
     ok_bt = g_object_get_data(G_OBJECT(right_h_button_box), GTK_STOCK_OK);
     apply_bt = g_object_get_data(G_OBJECT(right_h_button_box), GTK_STOCK_APPLY);
@@ -2329,13 +2328,12 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_box_pack_start (GTK_BOX (low_buttons_h_box), left_h_button_box, FALSE,
                         FALSE, 0);
 
+	/* dlg_button_row_new() returns an (h)box */
     right_h_button_box = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
     gtk_widget_set_name (right_h_button_box, "right_h_button_box");
     gtk_widget_show (right_h_button_box);
     gtk_box_pack_end (GTK_BOX (low_buttons_h_box), right_h_button_box, FALSE,
                       FALSE, 0);
-    gtk_button_box_set_layout (GTK_BUTTON_BOX (right_h_button_box),
-                               GTK_BUTTONBOX_END);
 
     ok_bt = g_object_get_data(G_OBJECT(right_h_button_box), GTK_STOCK_OK);
     apply_bt = g_object_get_data(G_OBJECT(right_h_button_box), GTK_STOCK_APPLY);
