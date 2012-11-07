@@ -26,7 +26,7 @@
  */
 
 /* This code is based on the IEEE P802.1ag/D8.1 document,
- * the ITU-T Rec. G.8031/Y.1342 (06/2011) – Ethernet linear protection switching document,
+ * the ITU-T Rec. G.8031/Y.1342 (06/2011) - Ethernet linear protection switching document,
  * and on the ITU-T Y.1731 recommendation (05/2006,) which is not formally released
  * at the time of this dissector development. 
  * Any updates to these documents may require additional modifications to this code.
