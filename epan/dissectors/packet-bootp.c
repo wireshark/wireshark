@@ -6,10 +6,11 @@
  * Added option field filters
  * Copyright 2011, Michael Mann
  *
- * Added options 77 : RFC 3004 - The User Class Option for DHCP
+ * Added option  77 : RFC 3004 - The User Class Option for DHCP
+ * Added option 117 : RFC 2937 - The Name Service Search Option for DHCP
  * Added option 119 : RFC 3397 - Dynamic Host Configuration Protocol (DHCP) Domain Search Option
  *                    RFC 3396 - Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4)
- * Copyright 2012 Jerome LAFORGE <jerome.laforge [AT] gmail.com>
+ * Copyright 2012, Jerome LAFORGE <jerome.laforge [AT] gmail.com>
  *
  * $Id$
  *
@@ -25,6 +26,7 @@
  * RFC 2489: Procedure for Defining New DHCP Options
  * RFC 2610: DHCP Options for Service Location Protocol
  * RFC 2685: Virtual Private Networks Identifier
+ * RFC 2937: The Name Service Search Option for DHCP
  * RFC 3004: The User Class Option for DHCP
  * RFC 3046: DHCP Relay Agent Information Option
  * RFC 3118: Authentication for DHCP Messages
@@ -387,6 +389,7 @@ static int hf_bootp_option_civic_location_ca_value = -1;		/* 99 */
 static int hf_bootp_option_netinfo_parent_server_address = -1;		/* 112 */
 static int hf_bootp_option_netinfo_parent_server_tag = -1;		/* 113 */
 static int hf_bootp_option_dhcp_auto_configuration = -1;		/* 116 */
+static int hf_bootp_option_dhcp_name_service_search_option = -1;		/* 117 */
 static int hf_bootp_option_dhcp_dns_domain_search_list_rfc_3396_detected = -1;	/* 119 */
 static int hf_bootp_option_dhcp_dns_domain_search_list_refer_last_option = -1;	/* 119 */
 static int hf_bootp_option_dhcp_dns_domain_search_list_fqdn = -1;		/* 119 */
@@ -446,6 +449,13 @@ static gint ett_bootp_option82_suboption = -1;
 static gint ett_bootp_option82_suboption9 = -1;
 static gint ett_bootp_option125_suboption = -1;
 static gint ett_bootp_fqdn = -1;
+
+/* RFC2937 The Name Service Search Option for DHCP */
+#define RFC2937_LOCAL_NAMING_INFORMATION                           0
+#define RFC2937_DOMAIN_NAME_SERVER_OPTION                          6
+#define RFC2937_NETWORK_INFORMATION_SERVERS_OPTION                41
+#define RFC2937_NETBIOS_OVER_TCP_IP_NAME_SERVER_OPTION            44
+#define RFC2937_NETWORK_INFORMATION_SERVICE_PLUS_SERVERS_OPTION   65
 
 /* RFC3825decoder error codes of the conversion function */
 #define RFC3825_NOERROR				  0
@@ -982,7 +992,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 114 */ { "URL [TODO:RFC3679]",			opaque, NULL },
 /* 115 */ { "Removed/Unassigned",			opaque, NULL },
 /* 116 */ { "DHCP Auto-Configuration",			val_u_byte, &hf_bootp_option_dhcp_auto_configuration },
-/* 117 */ { "Name Service Search [TODO:RFC2937]",	opaque, NULL },
+/* 117 */ { "Name Service Search",			special, NULL },
 /* 118 */ { "Subnet Selection Option",			ipv4_list, &hf_bootp_option_subnet_selection_option },
 /* 119 */ { "Domain Search",				special, NULL },
 /* 120 */ { "SIP Servers",		special, NULL },
@@ -2123,18 +2133,49 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		}
 		break;
 
+	case 117:   /* The Name Service Search Option for DHCP (RFC 2937) */
+		if (optlen < 2) {
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length (%u) isn't >= 2", optlen);
+		} else if (optlen & 1) {
+			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length (%u) isn't even number", optlen);
+		} else {
+			guint16 ns;
+			for (i = 0, ns = tvb_get_ntohs(tvb, optoff); i < optlen; i += 2, ns = tvb_get_ntohs(tvb, optoff + i)) {
+				switch (ns) {
+				case RFC2937_LOCAL_NAMING_INFORMATION:
+					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_name_service_search_option, tvb, optoff + i, 2, "Local naming information (e.g., an /etc/hosts file on a UNIX machine) (0)");
+					break;
+				case RFC2937_DOMAIN_NAME_SERVER_OPTION:
+					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_name_service_search_option, tvb, optoff + i, 2, "Domain Name Server Option (6)");
+					break;
+				case RFC2937_NETWORK_INFORMATION_SERVERS_OPTION:
+					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_name_service_search_option, tvb, optoff + i, 2, "Network Information Servers Option (41)");
+					break;
+				case RFC2937_NETBIOS_OVER_TCP_IP_NAME_SERVER_OPTION:
+					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_name_service_search_option, tvb, optoff + i, 2, "NetBIOS over TCP/IP Name Server Option (44)");
+					break;
+				case RFC2937_NETWORK_INFORMATION_SERVICE_PLUS_SERVERS_OPTION:
+					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_name_service_search_option, tvb, optoff + i, 2, "Network Information Service+ Servers Option (65)");
+					break;
+				default:
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Invalid Name Service (%u). RFC 2937 defines only 0, 6, 41, 44, and 65 as possible values.", ns);
+					break;
+				}
+			}
+		}
+		break;
+
 	case 119: { /* Dynamic Host Configuration Protocol (DHCP) Domain Search Option (RFC 3397) */
 	            /* Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4) (RFC 3396) */
 	            /* Domain Names - Implementation And Specification (RFC 1035) */
 #define BOOTP_MAX_NO_CHAR 64
-		const gint max_len = BOOTP_MAX_NO_CHAR;
 		char tmpChar[BOOTP_MAX_NO_CHAR];
 		dns_domain_search_list.index_current_option_119++;
 		if (dns_domain_search_list.nb_option_119 > 1) {
-			g_snprintf(tmpChar, max_len, "%u/%u", dns_domain_search_list.index_current_option_119, dns_domain_search_list.nb_option_119);
+			g_snprintf(tmpChar, BOOTP_MAX_NO_CHAR, "%u/%u", dns_domain_search_list.index_current_option_119, dns_domain_search_list.nb_option_119);
 			proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_rfc_3396_detected, tvb, optoff, optlen, tmpChar);
 			if (dns_domain_search_list.index_current_option_119 != dns_domain_search_list.nb_option_119) {
-				g_snprintf(tmpChar, max_len, "%u/%u", dns_domain_search_list.nb_option_119, dns_domain_search_list.nb_option_119);
+				g_snprintf(tmpChar, BOOTP_MAX_NO_CHAR, "%u/%u", dns_domain_search_list.nb_option_119, dns_domain_search_list.nb_option_119);
 				proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_refer_last_option, tvb, optoff, optlen, tmpChar);
 			}
 		}
@@ -6371,6 +6412,11 @@ proto_register_bootp(void)
 		  { "DHCP Auto-Configuration", "bootp.option.dhcp_auto_configuration",
 		    FT_UINT8, BASE_DEC, VALS(dhcp_autoconfig), 0x0,
 		    "Option 116: DHCP Auto-Configuration", HFILL }},
+
+		{ &hf_bootp_option_dhcp_name_service_search_option,
+		  { "Name Service", "bootp.option.dhcp_name_service_search_option",
+		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    "Option 117: Name Service", HFILL }},
 
 		{ &hf_bootp_option_dhcp_dns_domain_search_list_rfc_3396_detected,
 		  { "Encoding Long Options detected (RFC 3396)", "bootp.option.dhcp_dns_domain_search_list_rfc_3396_detected",
