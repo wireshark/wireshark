@@ -48,7 +48,7 @@ wmem_strdup(wmem_allocator_t *allocator, const gchar *src)
 }
 
 gchar *
-wmem_strndup(wmem_allocator_t *allocator, const gchar *src, size_t len)
+wmem_strndup(wmem_allocator_t *allocator, const gchar *src, const size_t len)
 {
     gchar *dst;
     guint i;

@@ -37,7 +37,7 @@ typedef struct _wmem_glib_allocator_t {
 } wmem_glib_allocator_t;
 
 static void *
-wmem_glib_alloc(void *private_data, size_t size)
+wmem_glib_alloc(void *private_data, const size_t size)
 {
     void *buf;
     wmem_glib_allocator_t *allocator = (wmem_glib_allocator_t*) private_data;

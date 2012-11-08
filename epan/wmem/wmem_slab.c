@@ -89,7 +89,7 @@ wmem_slab_free(wmem_slab_t *slab, void *object)
 }
 
 wmem_slab_t *
-wmem_create_slab(wmem_allocator_t *allocator, size_t chunk_size)
+wmem_create_slab(wmem_allocator_t *allocator, const size_t chunk_size)
 {
     wmem_slab_t *slab;
     

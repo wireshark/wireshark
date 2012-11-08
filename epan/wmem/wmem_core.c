@@ -31,13 +31,13 @@
 #include "wmem_allocator_glib.h"
 
 void *
-wmem_alloc(wmem_allocator_t *allocator, size_t size)
+wmem_alloc(wmem_allocator_t *allocator, const size_t size)
 {
     return allocator->alloc(allocator->private_data, size);
 }
 
 void *
-wmem_alloc0(wmem_allocator_t *allocator, size_t size)
+wmem_alloc0(wmem_allocator_t *allocator, const size_t size)
 {
     void *buf;
     

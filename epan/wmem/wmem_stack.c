@@ -42,13 +42,13 @@ struct _wmem_stack_t {
 };
 
 guint
-wmem_stack_count(wmem_stack_t *stack)
+wmem_stack_count(const wmem_stack_t *stack)
 {
     return stack->count;
 }
 
 void *
-wmem_stack_peek(wmem_stack_t *stack)
+wmem_stack_peek(const wmem_stack_t *stack)
 {
     g_assert(stack->top != NULL);
     g_assert(stack->count > 0);

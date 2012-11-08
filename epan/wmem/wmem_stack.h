@@ -40,10 +40,10 @@ struct _wmem_stack_t;
 typedef struct _wmem_stack_t wmem_stack_t;
 
 guint
-wmem_stack_count(wmem_stack_t *stack);
+wmem_stack_count(const wmem_stack_t *stack);
 
 void *
-wmem_stack_peek(wmem_stack_t *stack);
+wmem_stack_peek(const wmem_stack_t *stack);
 
 void *
 wmem_stack_pop(wmem_stack_t *stack);

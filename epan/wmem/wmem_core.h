@@ -37,10 +37,10 @@ struct _wmem_allocator_t;
 typedef struct _wmem_allocator_t wmem_allocator_t;
 
 void *
-wmem_alloc(wmem_allocator_t *allocator, size_t size);
+wmem_alloc(wmem_allocator_t *allocator, const size_t size);
 
 void *
-wmem_alloc0(wmem_allocator_t *allocator, size_t size);
+wmem_alloc0(wmem_allocator_t *allocator, const size_t size);
 
 void
 wmem_free_all(wmem_allocator_t *allocator);
