@@ -203,9 +203,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
 
      /* append it to the tree */
      proto_item_append_text(tree, " (%%s=", name);
-    }
-
-    if(doing_attr) {
+    } else if(doing_attr) {
       /* append it to the parent item */
       proto_item_append_text(tree, " (%%s)", name);
     }
