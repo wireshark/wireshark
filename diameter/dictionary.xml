@@ -200,6 +200,7 @@
 		<vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
 		<vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
 		<vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
+    <vendor vendor-id="VerizonWireless" code="12951" name="Verizon Wireless"/>
     <vendor vendor-id="ETSI"  code="13019" name="ETSI"/>
     <vendor vendor-id="Tango" code="13421" name="Tango Telecom Limited"/>
     <vendor vendor-id="TGPPCX" code="16777216" name="3GPP CX/DX"/>
