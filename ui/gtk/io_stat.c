@@ -1070,7 +1070,6 @@ static void
 #else
     cr = gdk_cairo_create (io->pixmap);
 #endif
-    gdk_cairo_set_source_color (cr, &io->graphs[i].color);
     cairo_set_line_width (cr, 1.0);
 
 	for(i=MAX_GRAPHS-1; i>=0; i--){
@@ -1199,6 +1198,7 @@ static void
                     if( (prev_y_pos!=0) || (y_pos!=0) ){
                         cairo_move_to(cr, prev_x_pos+0.5, prev_y_pos+0.5);
                         cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
+						gdk_cairo_set_source_color (cr, &io->graphs[i].color);
                         cairo_stroke(cr);
                     }
                     break;
@@ -1206,6 +1206,7 @@ static void
                     if(val){
                         cairo_move_to(cr, x_pos+0.5, draw_height-1+top_y_border+0.5);
                         cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
+						gdk_cairo_set_source_color (cr, &io->graphs[i].color);
                         cairo_stroke(cr);
                     }
                     break;
@@ -1216,6 +1217,7 @@ static void
                             y_pos+0.5,
                             io->pixels_per_tick,
                             draw_height-1+top_y_border-y_pos);
+						gdk_cairo_set_source_color (cr, &io->graphs[i].color);
                         cairo_fill (cr);
                     }
                     break;
@@ -1227,6 +1229,7 @@ static void
                             (gdouble)io->pixels_per_tick/2,
                             0,
                             2 * G_PI);
+						gdk_cairo_set_source_color (cr, &io->graphs[i].color);
                         cairo_fill (cr);
                     }
                     break;
