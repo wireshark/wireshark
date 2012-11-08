@@ -1065,7 +1065,15 @@ static void
     /*
     * Loop over all graphs and draw them
     */
-    for(i=MAX_GRAPHS-1; i>=0; i--){
+#if GTK_CHECK_VERSION(2,22,0)
+    cr = cairo_create (io->surface);
+#else
+    cr = gdk_cairo_create (io->pixmap);
+#endif
+    gdk_cairo_set_source_color (cr, &io->graphs[i].color);
+    cairo_set_line_width (cr, 1.0);
+
+	for(i=MAX_GRAPHS-1; i>=0; i--){
         guint64 val;
         guint32 interval, x_pos, y_pos, prev_x_pos, prev_y_pos;
         /* Moving average variables */
@@ -1189,67 +1197,37 @@ static void
                     /* Dont draw anything if the segment entirely above the top of the graph
                     */
                     if( (prev_y_pos!=0) || (y_pos!=0) ){
-#if GTK_CHECK_VERSION(2,22,0)
-                        cr = cairo_create (io->surface);
-#else
-                        cr = gdk_cairo_create (io->pixmap);
-#endif
-                        gdk_cairo_set_source_color (cr, &io->graphs[i].color);
-                        cairo_set_line_width (cr, 1.0);
                         cairo_move_to(cr, prev_x_pos+0.5, prev_y_pos+0.5);
                         cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
                         cairo_stroke(cr);
-                        cairo_destroy(cr);
                     }
                     break;
                 case PLOT_STYLE_IMPULSE:
                     if(val){
-#if GTK_CHECK_VERSION(2,22,0)
-                        cr = cairo_create (io->surface);
-#else
-                        cr = gdk_cairo_create (io->pixmap);
-#endif
-                        gdk_cairo_set_source_color (cr, &io->graphs[i].color);
-                        cairo_set_line_width (cr, 1.0);
                         cairo_move_to(cr, x_pos+0.5, draw_height-1+top_y_border+0.5);
                         cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
                         cairo_stroke(cr);
-                        cairo_destroy(cr);
                     }
                     break;
                 case PLOT_STYLE_FILLED_BAR:
                     if(val){
-#if GTK_CHECK_VERSION(2,22,0)
-                        cr = cairo_create (io->surface);
-#else
-                        cr = gdk_cairo_create (io->pixmap);
-#endif
                         cairo_rectangle (cr,
                             x_pos-(gdouble)io->pixels_per_tick/2+0.5,
                             y_pos+0.5,
                             io->pixels_per_tick,
                             draw_height-1+top_y_border-y_pos);
-                        gdk_cairo_set_source_color (cr, &io->graphs[i].color);
                         cairo_fill (cr);
-                        cairo_destroy (cr);
                     }
                     break;
                 case PLOT_STYLE_DOT:
                     if(val){
-#if GTK_CHECK_VERSION(2,22,0)
-                        cr = cairo_create (io->surface);
-#else
-                        cr = gdk_cairo_create (io->pixmap);
-#endif
                         cairo_arc (cr,
                             x_pos+0.5,
                             y_pos+0.5,
                             (gdouble)io->pixels_per_tick/2,
                             0,
                             2 * G_PI);
-                        gdk_cairo_set_source_color (cr, &io->graphs[i].color);
                         cairo_fill (cr);
-                        cairo_destroy (cr);
                     }
                     break;
                 }
@@ -1258,6 +1236,7 @@ static void
                 prev_x_pos=x_pos;
         }
     }
+	cairo_destroy (cr);
 
     cr = gdk_cairo_create (gtk_widget_get_window(io->draw_area));
 
