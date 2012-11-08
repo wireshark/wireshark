@@ -13,7 +13,6 @@ S<[ B<-C> E<lt>choplenE<gt> ]>
 S<[ B<-E> E<lt>error probabilityE<gt> ]>
 S<[ B<-F> E<lt>file formatE<gt> ]>
 S<[ B<-h> ]>
-S<[ B<-H> E<lt>input hosts file<gt> ]>
 S<[ B<-i> E<lt>seconds per fileE<gt> ]>
 S<[ B<-r> ]>
 S<[ B<-s> E<lt>snaplenE<gt> ]>
@@ -21,7 +20,6 @@ S<[ B<-S> E<lt>strict time adjustmentE<gt> ]>
 S<[ B<-t> E<lt>time adjustmentE<gt> ]>
 S<[ B<-T> E<lt>encapsulation typeE<gt> ]>
 S<[ B<-v> ]>
-S<[ B<-W> E<lt>file format optionE<gt>]>
 I<infile>
 I<outfile>
 S<[ I<packet#>[-I<packet#>] ... ]>
@@ -143,14 +141,6 @@ is the B<libpcap> format.
 =item -h
 
 Prints the version and options and exits.
-
-=item -H  E<lt>input "hosts" fileE<gt>
-
-Read a list of address to host name mappings and include the result in
-the output file. Implies B<-W n>.
-
-The input file format is described at
-L<http://en.wikipedia.org/wiki/Hosts_%28file%29>.
 
 =item -i  E<lt>seconds per fileE<gt>
 
@@ -276,22 +266,6 @@ result in very long processing times for B<editcap>.
 NOTE: The B<-w> option assumes that the packets are in chronological order.
 If the packets are NOT in chronological order then the B<-w> duplication
 removal option may not identify some duplicates.
-
-=item -W  E<lt>file format optionE<gt>
-
-Save extra information in the file if the format supports it. For
-example,
-
-  -F pcapng -W n
-
-will save host name resolution records along with captured packets.
-
-Future versions of Wireshark may automatically change the capture format to
-B<pcapng> as needed.
-
-The argument is a string that may contain the following letter:
-
-B<n> write network address resolution information (pcapng only)
 
 =back
 
