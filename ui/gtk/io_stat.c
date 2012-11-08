@@ -955,8 +955,6 @@ static void
 
         }
     }
-    cairo_destroy (cr);
-    cr = NULL;
 
     /* If we have not specified the last_interval via the GUI, just pick the current end of the
     *  capture so that it scrolls nicely when doing live captures.
@@ -969,12 +967,6 @@ static void
 
     /*XXX*/
     /* plot the x-scale */
-#if GTK_CHECK_VERSION(2,22,0)
-    cr = cairo_create (io->surface);
-#else
-    cr = gdk_cairo_create (io->pixmap);
-#endif
-    cairo_set_line_width (cr, 1.0);
     cairo_move_to(cr, io->left_x_border+0.5, io->surface_height-bottom_y_border+1.5);
     cairo_line_to(cr, io->surface_width-io->right_x_border+1.5,io->surface_height-bottom_y_border+1.5);
     cairo_stroke(cr);
