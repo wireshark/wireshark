@@ -3037,8 +3037,10 @@
 			<enum name="AS" code="6"/>
 			<enum name="IBCF" code="7"/>
 			<enum name="S-GW" code="8"/>
-			<enum name="P-GW" code="9"/>
-		</avp>
+      <enum name="P-GW" code="9"/>
+      <enum name="HSGW" code="10"/>
+      <enum name="E-CSCF" code="11"/>
+    </avp>
 		<avp name="Service-Specific-Data" code="863" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
@@ -3074,8 +3076,8 @@
 			<enum name="CHANGE_IN_QOS" code="2"/>
 			<enum name="CHANGE_IN_LOCATION" code="3"/>
 			<enum name="CHANGE_IN_RAT" code="4"/>
-
-			<enum name="Undefined" code="5"/>
+			<enum name="CHANGE_IN_UE_TIMEZONE" code="5"/>
+      
 			<enum name="Undefined" code="6"/>
 			<enum name="Undefined" code="7"/>
 			<enum name="Undefined" code="8"/>
@@ -3110,6 +3112,7 @@
 			<enum name="CHANGEINLOCATION_CellId" code="34"/>
 			<enum name="CHANGEINLOCATION_TAC" code="35"/>
 			<enum name="CHANGEINLOCATION_ECGI" code="36"/>
+      
 			<enum name="Undefined" code="37"/>
 			<enum name="Undefined" code="38"/>
 			<enum name="Undefined" code="39"/>
@@ -5547,10 +5550,30 @@
 				<gavp name="Associated-Party-Address"/>
 			</grouped>
 		</avp>
-		<avp name="Service-type" code="2031" vendor-bit="must" vendor-id="TGPP">
-				<type type-name="Enumerated"/>
-		</avp>
-		<avp name="Service-Mode" code="2032" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Service-type" code="2031" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="Originating Identification Presentation (OIP)" code="0"/>
+      <enum name="Originating Identification Restriction (OIR)" code="1"/>
+      <enum name="Terminating Identification Presentation (TIP)" code="2"/>
+      <enum name="Terminating Identification Restriction (TIR)" code="3"/>
+      <enum name="Communication HOLD (HOLD)" code="4"/>
+      <enum name="Communications Barring (CB )" code="5"/>
+      <enum name="Communication Diversion (CDIV)" code="6"/>
+      <enum name="Communication Diversion Notification (CDIVN)" code="7"/>
+      <enum name="Communication Waiting (CW)" code="8"/>
+      <enum name="Message Waiting Indication (MWI)" code="9"/>
+      <enum name="Conference (CONF)" code="10"/>
+      <enum name="Flexible Alerting (FA)" code="11"/>
+      <enum name="Completion of Communication to Busy Subscriber (CCBS)" code="12"/>
+      <enum name="Completion of Communications on No Reply (CCNR)" code="13"/>
+      <enum name="Malicious Communication Identification (MCID)" code="14"/>
+      <enum name="Customized Alerting Tone” (CAT)" code="15"/>
+      <enum name="Closed User Group” (CUG)" code="16"/>
+      <enum name="Personal Network management” (PNM)" code="17"/>
+      <enum name="Customized Ringing Signal” (CRS)" code="18"/>
+      <enum name="Advice of Charge (AoC)”" code="19"/>
+    </avp>
+    <avp name="Service-Mode" code="2032" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 		</avp>
 		<avp name="Subscriber-Role" code="2033" vendor-bit="must" vendor-id="TGPP">
@@ -5748,7 +5771,7 @@
 			<enum name="ARC_Start_NOT_due_to_SGW_Change" code="0"/>
 			<enum name="ARC_Start_due_to_SGW_Change" code="1"/>
 		</avp>
-		<avp name="Charging-Characteristic-Selection-Mode" code="2066" mandatory="must" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Charging-Characteristics-Selection-Mode" code="2066" mandatory="must" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="Serving-Node-Supplied" code="0"/>
 			<enum name="Subscription-specific" code="1"/>
@@ -5760,8 +5783,13 @@
 		<avp name="SGW-Address" code="2067" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Address"/>
 		</avp>
+    <avp name="Dynamic-Address-Flag-Extension" code="2068" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="Static" code="0"/>
+      <enum name="Dynamic" code="1"/>
+    </avp>
 
-		<!-- Note: The AVP codes from 2067 to 2099 are reserved for TS 32.299 -->
+    <!-- Note: The AVP codes from 2067 to 2099 are reserved for TS 32.299 -->
 
 		<avp name="Reserved" code="2100" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
@@ -5816,15 +5844,33 @@
 		<avp name="Total-Number-Of-Messages-Exploded" code="2113" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Total-Number-Of-Messages-Sen" code="2114" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Total-Number-Of-Messages-Sent" code="2114" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
+    <!-- The AVP is defined in OMA-DDS-Charging_Data 
+    <avp name="DCD-Information" code="2115" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name=""/>
+      </grouped>
+    </avp>
+    -->
+    <avp name="Content-ID" code="2116" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="Content-provider-ID" code="2117" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+		<avp name="Charge-Reason-Code" code="2118" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="UNKNOWN" code="0"/>
+			<enum name="USAGE" code="1"/>
+			<enum name="COMMUNICATION-ATTEMPT-CHARGE" code="2"/>
+			<enum name="SETUP-CHARGE" code="3"/>
+			<enum name="ADD-ON-CHARGE" code="4"/>
+		</avp>
 
-		<!--
-		2115 DCD-Information Grouped
-		2116 Content-ID UTF8String
-		2117 Content-provider-ID UTF8String
-		32.299 [5]
+    <!--
+    32.299 [5]
 		Note: The AVP codes from 2118 to 2199 are reserved for TS 32.299
 
 		Note: The AVP codes from 2200 to 2299 are reserved for TS 29.215
@@ -5868,21 +5914,69 @@
 		<avp name="Account-Expiration" code="2309" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Time"/>
 		</avp>
+    <avp name="AoC-Format" code="2310" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="MONETARY" code="0"/>
+      <enum name="NON_MONETARY" code="1"/>
+      <enum name="CAI" code="2"/>
+    </avp>
+    <avp name="AoC-Service" code="2311" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="AoC-Service-Obligatory-Type"/>
+        <gavp name="AoC-Service-Type"/>
+      </grouped>
+    </avp>
+    <avp name="AoC-Service-Obligatory-Type" code="2312" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="NON_BINDING" code="0"/>
+      <enum name="BINDING" code="1"/>
+    </avp>
+    <avp name="AoC-Service-Type" code="2313" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="NONE" code="0"/>
+      <enum name="AOC-S" code="1"/>
+      <enum name="AOC-D" code="2"/>
+      <enum name="AOC-E" code="3"/>
+    </avp>
+    <avp name="AoC-Subscription-Information" code="2314" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="AoC-Service"/>
+        <gavp name="AoC-Format"/>
+        <gavp name="Preferred-AoC-Currency"/>
+      </grouped>
+    </avp>
+    <!-- pecified by using the numeric values defined in the ISO 4217 standard, refer RFC 4006 XXX Add them as enum-->
+    <avp name="Preferred-AoC-Currency" code="2315" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
 
-		<!--
-		2310	AoC-Format	Enumerated
-		2311	AoC-Service	Enumerated
-		2312	AoC-Service-Obligatory-Type	Grouped
-		2313	AoC-Service-Type	Enumerated
-		2314	AoC-Subscription-Information	Grouped
-		2315	Preferred-AoC-Currency	Unsigned32
+    <!--
 		2316	Reason-Code	Enumerated
-		2317	CSG-Access-Mode	Enumerated
-		2318	CSG-Membership-Indication	Enumerated
-		2319	User-CSG-Information	Grouped
-		2320 Outgoing-Session-Id UTF8String
-		2321 Initial-IMS-Charging-Identifier UTF8String
-
+    -->
+		<avp name="CSG-Access-Mode" code="2317" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Closed mode" code="0"/>
+			<enum name="Hybrid Mode" code="1"/>
+		</avp>
+		<avp name="CSG-Membership-Indication" code="2318" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Not CSG member" code="0"/>
+			<enum name="CSG Member" code="1"/>
+		</avp>
+    <avp name="User-CSG-Information" code="2319" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="CSG-Id"/>
+        <gavp name="CSG-Access-Mode"/>
+        <gavp name="CSG-Membership-Indication"/>
+      </grouped>
+    </avp>
+    <avp name="Outgoing-Session-Id" code="2320" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Initial-IMS-Charging-Identifier" code="2321" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+    <!--
 		Note: The AVP codes from 2322 to 2399 are reserved for TS 32.299
 
 		2400	LMSI	OctetString
@@ -6033,12 +6127,38 @@
 
 		32.299 [5]
 		2600 reserved -
-		2601 IMS-Application-Reference-Identifier UTF8String
-		2602 Low-Priority-Indicator Enumerated
-		2603 IP-Realm-Default-Indicator Enumerated
-		2604 Local-GW-Inserted-Indicator Enumerated
-		2605 Transcoder-Inserted-Indicator Enumerated
-		Note: The AVP codes from 2606 to 2699 are reserved for TS 32.299
+    -->
+		<avp name="Reserved" code="2600" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="IMS-Application-Reference-Identifier" code="2601" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Low-Priority-Indicator" code="2602" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="NO" code="0"/>
+			<enum name="YES" code="1"/>
+		</avp>
+		<avp name="IP-Realm-Default-Indicator" code="2603" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Default IP Realm Not used" code="0"/>
+			<enum name="Default IP realm used" code="1"/>
+		</avp>
+		<avp name="Local-GW-Inserted-Indicator" code="2604" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Local GW Not Inserted" code="0"/>
+			<enum name="Local GW Inserted" code="1"/>
+		</avp>
+		<avp name="Transcoder-Inserted-Indicator" code="2605" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Transcoder Not Inserted" code="0"/>
+			<enum name="Transcoder Inserted" code="1"/>
+		</avp>
+		<avp name="PDP-Address-Prefix-Length" code="2606" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+    <!--
+		Note: The AVP codes from 2605 to 2699 are reserved for TS 32.299
 		-->
 
 		<avp name="Policy-Counter-Identifier" code="2901" mandatory="must" vendor-bit="must" vendor-id="TGPP">
