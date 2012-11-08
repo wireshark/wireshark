@@ -883,7 +883,6 @@ static void
     cairo_move_to(cr, io->surface_width-io->right_x_border+1.5, top_y_border + 0.5);
     cairo_line_to(cr, io->surface_width-io->right_x_border+1.5, io->surface_height-bottom_y_border + 0.5);
     cairo_stroke(cr);
-    cairo_destroy(cr);
     if(io->max_y_units==LOGARITHMIC_YSCALE){
         tics = (int)log10((double)max_y);
         ystart = draw_height/10;
@@ -910,16 +909,9 @@ static void
                 for(j=2; j<10; j++) {
                     ypos=(int)(io->surface_height-bottom_y_border-(draw_height-ystart)*(i+log10((double)j))/tics-ystart);
                     /* draw the tick */
-#if GTK_CHECK_VERSION(2,22,0)
-                    cr = cairo_create (io->surface);
-#else
-                    cr = gdk_cairo_create (io->pixmap);
-#endif
-                    cairo_set_line_width (cr, 1.0);
                     cairo_move_to(cr, io->surface_width-io->right_x_border+1.5, ypos+0.5);
                     cairo_line_to(cr, io->surface_width-io->right_x_border+1.5+xwidth,ypos+0.5);
                     cairo_stroke(cr);
-                    cairo_destroy(cr);
                 }
                 ypos=io->surface_height-bottom_y_border-(draw_height-ystart)*i/tics-ystart;
             }
@@ -933,16 +925,9 @@ static void
             ypos=io->surface_height-bottom_y_border-draw_height*i/10;
         }
         /* draw the tick */
-#if GTK_CHECK_VERSION(2,22,0)
-        cr = cairo_create (io->surface);
-#else
-        cr = gdk_cairo_create (io->pixmap);
-#endif
-        cairo_set_line_width (cr, 1.0);
         cairo_move_to(cr, io->surface_width-io->right_x_border+1.5, ypos+0.5);
         cairo_line_to(cr, io->surface_width-io->right_x_border+1.5+xwidth,ypos+0.5);
         cairo_stroke(cr);
-        cairo_destroy(cr);
         /* draw the labels */
         if(xwidth==10) {
             guint32 value;
@@ -965,18 +950,13 @@ static void
             pango_layout_set_text(layout, label_string, -1);
             pango_layout_get_pixel_size(layout, &lwidth, NULL);
 
-#if GTK_CHECK_VERSION(2,22,0)
-            cr = cairo_create (io->surface);
-#else
-            cr = gdk_cairo_create (io->pixmap);
-#endif
             cairo_move_to (cr, io->surface_width-io->right_x_border+15+label_width-lwidth, ypos-label_height/2);
             pango_cairo_show_layout (cr, layout);
-            cairo_destroy (cr);
-            cr = NULL;
 
         }
     }
+    cairo_destroy (cr);
+    cr = NULL;
 
     /* If we have not specified the last_interval via the GUI, just pick the current end of the
     *  capture so that it scrolls nicely when doing live captures.
@@ -998,7 +978,6 @@ static void
     cairo_move_to(cr, io->left_x_border+0.5, io->surface_height-bottom_y_border+1.5);
     cairo_line_to(cr, io->surface_width-io->right_x_border+1.5,io->surface_height-bottom_y_border+1.5);
     cairo_stroke(cr);
-    cairo_destroy(cr);
     if((last_interval/io->interval)>=draw_width/io->pixels_per_tick){
         first_interval=(last_interval/io->interval)-draw_width/io->pixels_per_tick+1;
         first_interval*=io->interval;
@@ -1025,16 +1004,9 @@ static void
             xlen=5;
         }
         x=draw_width+io->left_x_border-((last_interval-current_interval)/io->interval)*io->pixels_per_tick;
-#if GTK_CHECK_VERSION(2,22,0)
-        cr = cairo_create (io->surface);
-#else
-        cr = gdk_cairo_create (io->pixmap);
-#endif
-        cairo_set_line_width (cr, 1.0);
         cairo_move_to(cr, x-1-io->pixels_per_tick/2+0.5, io->surface_height-bottom_y_border+1.5);
         cairo_line_to(cr, x-1-io->pixels_per_tick/2+0.5, io->surface_height-bottom_y_border+xlen+1.5);
         cairo_stroke(cr);
-        cairo_destroy(cr);
         if(xlen==10){
             int lwidth, x_pos;
             print_interval_string (label_string, 15, current_interval, io, TRUE);
@@ -1048,18 +1020,13 @@ static void
             } else {
                 x_pos=x-1-io->pixels_per_tick/2-lwidth/2;
             }
-#if GTK_CHECK_VERSION(2,22,0)
-            cr = cairo_create (io->surface);
-#else
-            cr = gdk_cairo_create (io->pixmap);
-#endif
             cairo_move_to (cr, x_pos, io->surface_height-bottom_y_border+15);
             pango_cairo_show_layout (cr, layout);
-            cairo_destroy (cr);
-            cr = NULL;
         }
 
     }
+    cairo_destroy (cr);
+    cr = NULL;
     g_object_unref(G_OBJECT(layout));
 
     /*
