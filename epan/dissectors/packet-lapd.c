@@ -401,6 +401,10 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_TEI))
 		col_add_fstr(pinfo->cinfo, COL_TEI, "%u", tei);
 
+	/* Append TEI to info field */
+	col_append_fstr(pinfo->cinfo, COL_INFO, "TEI:%02u ", tei);
+	col_set_fence(pinfo->cinfo, COL_INFO);
+
 	if (pinfo->fd->lnk_t == WTAP_ENCAP_LINUX_LAPD) {
 		/* frame is captured via libpcap */
 		if (pinfo->pseudo_header->lapd.pkttype == 4 /*PACKET_OUTGOING*/) {
@@ -524,6 +528,10 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	} else
 		next_tvb = tvb_new_subset_remaining(tvb, lapd_header_len);
+
+    /* Dissection done, append " | " to COL_INFO */
+	col_append_fstr(pinfo->cinfo, COL_INFO, " | ");
+	col_set_fence(pinfo->cinfo, COL_INFO);
 
 	if (XDLC_IS_INFORMATION(control)) {
 		/* call next protocol */
