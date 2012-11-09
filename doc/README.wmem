@@ -54,12 +54,9 @@ could be replaced with
 
     wmem_alloc(wmem_packet_scope(), 20);
 
-NB: Using these pools outside of the appropriate scope (ie using the packet
+NB: Using these pools outside of the appropriate scope (eg using the packet
     pool when there isn't a packet being dissected) will throw an assertion.
     See the comment in epan/wmem/wmem_scopes.c for details.
-
-XXX: The file scope is currently broken - using it will always throw an
-     assertion.
 
 2.2 Core API
 
