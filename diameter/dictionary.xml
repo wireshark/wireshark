@@ -5819,13 +5819,13 @@
 		<avp name="Total-Number-Of-Messages-Sent" code="2114" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<!-- The AVP is defined in OMA-DDS-Charging_Data
-		-- <avp name="DCD-Information" code="2115" vendor-bit="must" vendor-id="TGPP">
-		--	<grouped>
-		--	<gavp name=""/>
-		--	</grouped>
-		-- </avp>
-		-->
+		<!-- The AVP is defined in OMA-DDS-Charging_Data -->
+		<avp name="DCD-Information" code="2115" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+        <gavp name="Content-ID"/>
+        <gavp name="Content-provider-ID"/>
+      </grouped>
+		 </avp>
 		<avp name="Content-ID" code="2116" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
