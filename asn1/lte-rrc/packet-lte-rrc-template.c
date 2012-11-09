@@ -168,6 +168,9 @@ static gint ett_lte_rrc_featureGroupIndRel10 = -1;
 static gint ett_lte_rrc_neighCellConfig = -1;
 static gint ett_lte_rrc_absTimeInfo = -1;
 static gint ett_lte_rrc_nas_SecurityParam = -1;
+static gint ett_lte_rrc_targetRAT_MessageContainer = -1;
+static gint ett_lte_rrc_siPsiSibContainer = -1;
+static gint ett_lte_rrc_dedicatedInfoNAS = -1;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -2204,7 +2207,10 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_featureGroupIndRel10,
     &ett_lte_rrc_neighCellConfig,
     &ett_lte_rrc_absTimeInfo,
-    &ett_lte_rrc_nas_SecurityParam
+    &ett_lte_rrc_nas_SecurityParam,
+    &ett_lte_rrc_targetRAT_MessageContainer,
+    &ett_lte_rrc_siPsiSibContainer,
+    &ett_lte_rrc_dedicatedInfoNAS
   };
 
 

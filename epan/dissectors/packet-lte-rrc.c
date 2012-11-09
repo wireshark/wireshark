@@ -3078,6 +3078,9 @@ static gint ett_lte_rrc_featureGroupIndRel10 = -1;
 static gint ett_lte_rrc_neighCellConfig = -1;
 static gint ett_lte_rrc_absTimeInfo = -1;
 static gint ett_lte_rrc_nas_SecurityParam = -1;
+static gint ett_lte_rrc_targetRAT_MessageContainer = -1;
+static gint ett_lte_rrc_siPsiSibContainer = -1;
+static gint ett_lte_rrc_dedicatedInfoNAS = -1;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -15663,13 +15666,14 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "CSFBParametersResponseCDMA2000");
 static int
 dissect_lte_rrc_DedicatedInfoNAS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *nas_eps_tvb=NULL;
-
+  proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &nas_eps_tvb);
 
-
-	if ((nas_eps_tvb)&&(nas_eps_handle))
-		call_dissector(nas_eps_handle,nas_eps_tvb,actx->pinfo, tree);
+  if ((nas_eps_tvb)&&(nas_eps_handle)) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dedicatedInfoNAS);
+    call_dissector(nas_eps_handle, nas_eps_tvb, actx->pinfo, subtree);
+  }
 
 
   return offset;
@@ -16066,22 +16070,24 @@ dissect_lte_rrc_T_targetRAT_MessageContainer(tvbuff_t *tvb _U_, int offset _U_, 
 
   if(target_rat_msg_cont_tvb){
     guint8 byte;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_targetRAT_MessageContainer);
     switch(lte_rrc_ho_target_rat_type_value){
     case T_targetRAT_Type_utra:
       /* utra */
       if (rrc_irat_ho_to_utran_cmd_handle)
-        call_dissector(rrc_irat_ho_to_utran_cmd_handle, target_rat_msg_cont_tvb, actx->pinfo, tree);
+        call_dissector(rrc_irat_ho_to_utran_cmd_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
       break;
     case T_targetRAT_Type_geran:
       /* geran */
       byte = tvb_get_guint8(target_rat_msg_cont_tvb, 0);
       if (byte == 0x06) {
         if (gsm_a_dtap_handle) {
-          call_dissector(gsm_a_dtap_handle, target_rat_msg_cont_tvb, actx->pinfo, tree);
+          call_dissector(gsm_a_dtap_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
         }
       } else {
         if (gsm_rlcmac_dl_handle) {
-          call_dissector(gsm_rlcmac_dl_handle, target_rat_msg_cont_tvb, actx->pinfo, tree);
+          call_dissector(gsm_rlcmac_dl_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
         }
       }
       break;
@@ -16114,7 +16120,6 @@ dissect_lte_rrc_T_nas_SecurityParamFromEUTRA(tvbuff_t *tvb _U_, int offset _U_, 
   if (nas_sec_param_from_eutra_tvb) {
     length = tvb_length(nas_sec_param_from_eutra_tvb);
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nas_SecurityParam);
-    proto_tree_add_text(subtree, nas_sec_param_from_eutra_tvb, 0, length, "NAS security parameters from E-UTRA");
     de_emm_sec_par_from_eutra(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
   }
 
@@ -16127,21 +16132,23 @@ dissect_lte_rrc_T_nas_SecurityParamFromEUTRA(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_lte_rrc_SystemInfoListGERAN_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *sys_info_list_tvb = NULL;
+  proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        1, 23, FALSE, &sys_info_list_tvb);
 
   if (sys_info_list_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
     switch (lte_rrc_si_or_psi_geran_val) {
     case SI_OrPSI_GERAN_si:
       /* SI message */
       if (gsm_a_dtap_handle) {
-        call_dissector(gsm_a_dtap_handle, sys_info_list_tvb ,actx->pinfo, tree);
+        call_dissector(gsm_a_dtap_handle, sys_info_list_tvb, actx->pinfo, subtree);
       }
       break;
     case SI_OrPSI_GERAN_psi:
       /* PSI message */
       if (gsm_rlcmac_dl_handle) {
-        call_dissector(gsm_rlcmac_dl_handle, sys_info_list_tvb ,actx->pinfo, tree);
+        call_dissector(gsm_rlcmac_dl_handle, sys_info_list_tvb, actx->pinfo, subtree);
       }
       break;
     default:
@@ -18789,7 +18796,6 @@ dissect_lte_rrc_T_nas_SecurityParamToEUTRA(tvbuff_t *tvb _U_, int offset _U_, as
   if (nas_sec_param_to_eutra_tvb) {
     length = tvb_length(nas_sec_param_to_eutra_tvb);
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nas_SecurityParam);
-    proto_tree_add_text(subtree, nas_sec_param_to_eutra_tvb, 0, length, "NAS security parameters to E-UTRA");
     de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
   }
 
@@ -20206,11 +20212,14 @@ dissect_lte_rrc_CellInfoListGERAN_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_lte_rrc_T_utra_BCCH_Container_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *utra_bcch_cont_tvb = NULL;
+  proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &utra_bcch_cont_tvb);
 
-  if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle)
-    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, tree);
+  if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
+    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
+  }
 
 
   return offset;
@@ -20250,11 +20259,14 @@ dissect_lte_rrc_CellInfoListUTRA_FDD_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_lte_rrc_T_utra_BCCH_Container_r9_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *utra_bcch_cont_tvb = NULL;
+  proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &utra_bcch_cont_tvb);
 
-  if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle)
-    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, tree);
+  if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
+    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
+  }
 
 
   return offset;
@@ -20294,11 +20306,14 @@ dissect_lte_rrc_CellInfoListUTRA_TDD_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_lte_rrc_T_utra_BCCH_Container_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *utra_bcch_cont_tvb = NULL;
+  proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &utra_bcch_cont_tvb);
 
-  if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle)
-    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, tree);
+  if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
+    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
+  }
 
 
   return offset;
@@ -24225,63 +24240,64 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure");
 
 static int
 dissect_lte_rrc_T_ueCapabilityRAT_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *ue_eutra_cap_tvb=NULL;
+  tvbuff_t *ue_cap_tvb=NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &ue_eutra_cap_tvb);
+                                       NO_BOUND, NO_BOUND, FALSE, &ue_cap_tvb);
 
 
 
-if(ue_eutra_cap_tvb){
-	guint32 length;
-	proto_item *item;
-	proto_tree *subtree;
-	guint8 byte;
-	switch(lte_rrc_rat_type_value){
-	case RAT_Type_eutra:
-		/* eutra */
-		dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_eutra_cap_tvb, actx->pinfo, tree, NULL);
-		break;
-	case RAT_Type_utra:
-		/* utra */
-		dissect_rrc_InterRATHandoverInfo_PDU(ue_eutra_cap_tvb, actx->pinfo, tree, NULL);
-		break;
-	case RAT_Type_geran_cs:
-		/* geran-cs */
-		/* Mobile Station Classmark 2 is formatted as TLV with the two first bytes set to 0x33 0x03 */
-		item = proto_tree_add_text(tree, ue_eutra_cap_tvb, 0, 5, "Mobile Station Classmark 2");
-		subtree = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
-		byte = tvb_get_guint8(ue_eutra_cap_tvb, 0);
-		if (byte != 0x33) {
-			expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_ERROR,
-				"Unexpected type value (found 0x%02X)", byte);
-		}
-		byte = tvb_get_guint8(ue_eutra_cap_tvb, 1);
-		if (byte != 0x03) {
-			expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_ERROR,
-				"Unexpected length value (found %d)", byte);
-		}
-		de_ms_cm_2(ue_eutra_cap_tvb, subtree, actx->pinfo, 2, 3, NULL, 0);
-		/* Mobile Station Classmark 3 is formatted as V */
-		length = tvb_length(ue_eutra_cap_tvb)-5;
-		item = proto_tree_add_text(tree, ue_eutra_cap_tvb, 5, length, "Mobile Station Classmark 3");
-		subtree = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
-		de_ms_cm_3(ue_eutra_cap_tvb, subtree, actx->pinfo, 5, length, NULL, 0);
-		break;
-	case RAT_Type_geran_ps:
-		/* geran-ps */
-		/* MS Radio Access Capability is formatted as V */
-		length = tvb_length(ue_eutra_cap_tvb);
-		item = proto_tree_add_text(tree, ue_eutra_cap_tvb, 0, length, "MS Radio Access Capability");
-		subtree = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
-		de_gmm_ms_radio_acc_cap(ue_eutra_cap_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
-		break;
-	case RAT_Type_cdma2000_1XRTT:
-		/* cdma2000-1XRTT */
-		/* dissection of "A21 Mobile Subscription Information" could be added to packet-ansi_a.c */
-		break;
-	default:
-		break;
-	}
+if(ue_cap_tvb){
+  guint32 length;
+  proto_item *item;
+  proto_tree *subtree, *subtree2;
+  guint8 byte;
+  subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_UE_CapabilityRAT_Container);
+  switch(lte_rrc_rat_type_value){
+  case RAT_Type_eutra:
+    /* eutra */
+    dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
+    break;
+  case RAT_Type_utra:
+    /* utra */
+    dissect_rrc_InterRATHandoverInfo_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
+    break;
+  case RAT_Type_geran_cs:
+    /* geran-cs */
+    /* Mobile Station Classmark 2 is formatted as TLV with the two first bytes set to 0x33 0x03 */
+    item = proto_tree_add_text(subtree, ue_cap_tvb, 0, 5, "Mobile Station Classmark 2");
+    subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+    byte = tvb_get_guint8(ue_cap_tvb, 0);
+    if (byte != 0x33) {
+      expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_ERROR,
+                             "Unexpected type value (found 0x%02X)", byte);
+    }
+    byte = tvb_get_guint8(ue_cap_tvb, 1);
+    if (byte != 0x03) {
+      expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_ERROR,
+                             "Unexpected length value (found %d)", byte);
+    }
+    de_ms_cm_2(ue_cap_tvb, subtree2, actx->pinfo, 2, 3, NULL, 0);
+    /* Mobile Station Classmark 3 is formatted as V */
+    length = tvb_ensure_length_remaining(ue_cap_tvb, 5);
+    item = proto_tree_add_text(subtree, ue_cap_tvb, 5, length, "Mobile Station Classmark 3");
+    subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+    de_ms_cm_3(ue_cap_tvb, subtree2, actx->pinfo, 5, length, NULL, 0);
+    break;
+  case RAT_Type_geran_ps:
+    /* geran-ps */
+    /* MS Radio Access Capability is formatted as V */
+    length = tvb_length(ue_cap_tvb);
+    item = proto_tree_add_text(subtree, ue_cap_tvb, 0, length, "MS Radio Access Capability");
+    subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+    de_gmm_ms_radio_acc_cap(ue_cap_tvb, subtree2, actx->pinfo, 0, length, NULL, 0);
+    break;
+  case RAT_Type_cdma2000_1XRTT:
+    /* cdma2000-1XRTT */
+    /* dissection of "A21 Mobile Subscription Information" could be added to packet-ansi_a.c */
+    break;
+  default:
+    break;
+  }
 }
 
   return offset;
@@ -30328,7 +30344,7 @@ static int dissect_MBMSInterestIndication_r11_PDU(tvbuff_t *tvb _U_, packet_info
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 1673 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1676 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -37898,7 +37914,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 1810 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1813 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -39244,14 +39260,17 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2201 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2204 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
     &ett_lte_rrc_featureGroupIndRel10,
     &ett_lte_rrc_neighCellConfig,
     &ett_lte_rrc_absTimeInfo,
-    &ett_lte_rrc_nas_SecurityParam
+    &ett_lte_rrc_nas_SecurityParam,
+    &ett_lte_rrc_targetRAT_MessageContainer,
+    &ett_lte_rrc_siPsiSibContainer,
+    &ett_lte_rrc_dedicatedInfoNAS
   };
 
 
@@ -39289,7 +39308,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2230 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2236 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 }
 
