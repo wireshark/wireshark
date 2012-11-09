@@ -2625,8 +2625,23 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     if (eightPskStructPresent == 1)
     {
+        /* At lest Modulation Capability and cap1,cap2 presens indicators is present */
+        guint8 psk_struct_len = 3;
+        guint32 tmp_bit_offset = bit_offset;
+
+        /* Check if Power Capability 1 is present */
+        tmp_bit_offset++;
+        if(tvb_get_bits8(tvb,tmp_bit_offset,1) == 1){
+            psk_struct_len+=2;
+            tmp_bit_offset+=2;
+        }
+        tmp_bit_offset++;
+        /* Check if Power Capability 2 is present */
+        if(tvb_get_bits8(tvb,tmp_bit_offset,1) == 1){
+            psk_struct_len+=2;
+        }
         /* Extract 8-PSK struct */
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_struct, tvb, bit_offset, -1, ENC_BIG_ENDIAN);
+        item = proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_struct, tvb, bit_offset, psk_struct_len, ENC_BIG_ENDIAN);
         subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
         old_bit_offset = bit_offset;
 
