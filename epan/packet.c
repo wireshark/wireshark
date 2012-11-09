@@ -51,6 +51,7 @@
 #include "epan_dissect.h"
 
 #include "emem.h"
+#include "wmem/wmem.h"
 
 #include <epan/reassemble.h>
 #include <epan/stream.h>
@@ -137,6 +138,8 @@ init_dissection(void)
 	/* Reclaim and reinitialize all memory of seasonal scope */
 	se_free_all();
 
+	wmem_enter_file_scope();
+
 	/*
 	 * Reinitialize resolution information. We do initialization here in
 	 * case we need to resolve between captures.
@@ -183,6 +186,8 @@ cleanup_dissection(void)
 
 	/* Initialize the expert infos */
 	expert_cleanup();
+	
+	wmem_leave_file_scope();
 
 	/*
 	 * Reinitialize resolution information. We do initialization here in
