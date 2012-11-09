@@ -24,7 +24,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -2606,8 +2606,23 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     if (eightPskStructPresent == 1)
     {
+        /* At lest Modulation Capability and cap1,cap2 presens indicators is present */
+        guint8 psk_struct_len = 3;
+        guint32 tmp_bit_offset = bit_offset;
+
+        /* Check if Power Capability 1 is present */
+        tmp_bit_offset++;
+        if(tvb_get_bits8(tvb,tmp_bit_offset,1) == 1){
+            psk_struct_len+=2;
+            tmp_bit_offset+=2;
+        }
+        tmp_bit_offset++;
+        /* Check if Power Capability 2 is present */
+        if(tvb_get_bits8(tvb,tmp_bit_offset,1) == 1){
+            psk_struct_len+=2;
+        }
         /* Extract 8-PSK struct */
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_struct, tvb, bit_offset, -1, ENC_BIG_ENDIAN);
+        item = proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_struct, tvb, bit_offset, psk_struct_len, ENC_BIG_ENDIAN);
         subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
         old_bit_offset = bit_offset;
 
