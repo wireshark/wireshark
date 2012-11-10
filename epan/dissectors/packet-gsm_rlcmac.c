@@ -7263,9 +7263,9 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
        if (e)
        {
           /* dissect the data segments */
-          /*bit_offset +=*/ (8 * dissect_gprs_data_segments(tvb, pinfo, rlcmac_tree, bit_offset / 8, bit_length / 8,
+          /*bit_offset += 8 * */ dissect_gprs_data_segments(tvb, pinfo, rlcmac_tree, bit_offset / 8, bit_length / 8,
                                                    li_count,
-                                                   li_array));
+                                                   li_array);
        }
        else
        {
@@ -7513,9 +7513,9 @@ dissect_ul_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
       if (e)
       {
          /* dissect the data segments */
-         /*bit_offset +=*/ (8 * dissect_gprs_data_segments(tvb, pinfo, rlcmac_tree, bit_offset / 8, bit_length / 8,
+         /*bit_offset += 8 * */ dissect_gprs_data_segments(tvb, pinfo, rlcmac_tree, bit_offset / 8, bit_length / 8,
                                               li_count,
-                                              li_array));
+                                              li_array);
       }
       else
       {
