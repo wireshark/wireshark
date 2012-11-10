@@ -83,7 +83,8 @@ typedef enum mac_lte_crc_status {
     crc_success = 1,
     crc_high_code_rate = 2,
     crc_pdsch_lost = 3,
-    crc_duplicate_nonzero_rv = 4
+    crc_duplicate_nonzero_rv = 4,
+    crc_false_dci = 5
 } mac_lte_crc_status;
 
 /* Context info attached to each LTE MAC frame */

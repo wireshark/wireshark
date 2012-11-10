@@ -300,6 +300,7 @@ static const value_string crc_status_vals[] =
     { crc_high_code_rate,         "High Code Rate"},
     { crc_pdsch_lost,             "PDSCH Lost"},
     { crc_duplicate_nonzero_rv,   "Duplicate_nonzero_rv"},
+    { crc_false_dci,              "False DCI"},
     { 0, NULL }
 };
 
