@@ -280,7 +280,7 @@ static void assign_fph_rach(tvbuff_t *tvb, packet_info *pinfo _U_, guint16 offse
 	offset += 4;
 	rbcnt = tvb_get_guint8(tvb, offset); offset++;
 	if (rbcnt > 0)
-		offset = assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
+		/*offset =*/ assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
 }
 
 static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, fp_info *fpi, proto_tree *tree)
@@ -330,7 +330,7 @@ static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, fp
 	}
 	rbcnt = tvb_get_guint8(tvb, offset); offset++;
 	if (rbcnt > 0)
-		offset = assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
+		/*offset =*/ assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
 }
 
 static void assign_fph_fach(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, fp_info *fpi, proto_tree *tree)
@@ -352,7 +352,7 @@ static void assign_fph_fach(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, f
 	offset += 4;
 	rbcnt = tvb_get_guint8(tvb, offset); offset++;
 	if (rbcnt > 0)
-		offset = assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
+		/*offset =*/ assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
 }
 
 static void assign_fph_hsdsch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, fp_info *fpi, proto_tree *tree)
@@ -373,7 +373,7 @@ static void assign_fph_hsdsch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset,
 	offset++;
 	rbcnt = tvb_get_guint8(tvb, offset); offset++;
 	if (rbcnt > 0)
-		offset = assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
+		/*offset =*/ assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
 }
 
 static void assign_fph_edch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, fp_info *fpi, proto_tree *tree)
@@ -421,7 +421,7 @@ static void assign_fph_edch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, f
 
 	rbcnt = tvb_get_guint8(tvb, offset); offset++;
 	if (rbcnt > 0)
-		offset = assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
+		/*offset =*/ assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
 }
 
 static void attach_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, guint8 channel_type, guint8 frame_type, proto_tree *tree)
