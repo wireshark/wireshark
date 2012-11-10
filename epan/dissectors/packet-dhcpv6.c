@@ -5,6 +5,7 @@
  * IItom Tsutomu MIENO <iitom@utouto.com>
  * SHIRASAKI Yasuhiro <yasuhiro@gnome.gr.jp>
  * Tony Lindstrom <tony.lindstrom@ericsson.com>
+ * Copyright 2012, Jerome LAFORGE <jerome.laforge@gmail.com>
  *
  * $Id$
  *
@@ -14,6 +15,7 @@
  * RFC3633.txt (Prefix options)
  * RFC3646.txt (DNS servers/domains)
  * RFC3898.txt (NIS options)
+ * RFC4649.txt (Remote ID option)
  * RFC4704.txt (Client FQDN)
  * RFC5007.txt (DHCPv6 Leasequery)
  * RFC5417.txt (CAPWAP Access Controller DHCP Option)
@@ -1472,6 +1474,10 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
 
         proto_tree_add_item(subtree, hf_reconf_msg, tvb, off, 1, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_RECONF_ACCEPT:
+        if (optlen)
+            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "RECONF_ACCEPT: malformed option");
         break;
     case OPTION_SIP_SERVER_D:
         if (optlen > 0) {
