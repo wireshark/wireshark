@@ -2197,7 +2197,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 			while (offset < tvb_length(dns_domain_search_list.buff)) {
 				/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
-				consumed = get_dns_name(dns_domain_search_list.buff, consumed, tvb_length(dns_domain_search_list.buff), 0, &dns_name);
+				consumed = get_dns_name(dns_domain_search_list.buff, offset, tvb_length(dns_domain_search_list.buff), 0, &dns_name);
 				if (dns_domain_search_list.nb_option_119 == 1) {
 					/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
 					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_fqdn, tvb, optoff + offset, consumed, dns_name);
