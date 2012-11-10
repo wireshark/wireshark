@@ -437,9 +437,7 @@ static int hf_gsm_a_rr_bcch_arfcn = -1;
 static int hf_gsm_a_rr_range_nb = -1;
 static int hf_gsm_a_rr_range_lower = -1;
 static int hf_gsm_a_rr_range_higher = -1;
-static int hf_gsm_a_rr_ba_list_pref_length = -1;
 static int hf_gsm_a_rr_ba_freq = -1;
-static int hf_gsm_a_rr_utran_freq_list_length = -1;
 static int hf_gsm_a_rr_ho_ref_val = -1;
 static int hf_gsm_a_rr_L2_pseudo_len = -1;
 static int hf_gsm_a_rr_ba_used = -1;
@@ -538,7 +536,6 @@ static int hf_gsm_a_rr_cbq3 = -1;
 static int hf_gsm_a_rr_bs_pa_mfrms = -1;
 static int hf_gsm_a_rr_bs_ag_blks_res = -1;
 int hf_gsm_a_rr_t3212 = -1;
-static int hf_gsm_a_rr_dyn_arfcn_length = -1;
 static int hf_gsm_a_rr_gsm_band = -1;
 static int hf_gsm_a_rr_arfcn_first = -1;
 static int hf_gsm_a_rr_band_offset = -1;
@@ -1290,10 +1287,8 @@ static guint16
 de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint bit_offset;
-    proto_item *ti;
 
     bit_offset = offset << 3;
-    ti = proto_tree_add_bits_item(tree, hf_gsm_a_rr_ba_list_pref_length, tvb, bit_offset-8, 8, ENC_BIG_ENDIAN);
     while (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeating Range Limits", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_range_lower, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
@@ -1309,11 +1304,11 @@ de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
     if (((bit_offset + 7) >> 3) > (offset + len))
     {
-       expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "IE over-runs stated length");
+       expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_MALFORMED, PI_ERROR, "IE over-runs stated length");
     }
     else if ((bit_offset >> 3) < (offset + len))
     {
-       expert_add_info_format(pinfo, ti, PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length");
+       expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length");
     }
     return len;
 }
@@ -1325,7 +1320,6 @@ static guint16
 de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint bit_offset;
-    proto_item *ti;
 
     /* < UTRAN Freq List >::=
      * < LENGTH OF UTRAN FREQ LIST : bit (8) > -- length following in octets
@@ -1335,7 +1329,6 @@ de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
      * Spare bits in the end of the field are used to fill the last octet.
      */
     bit_offset = offset << 3;
-    ti = proto_tree_add_bits_item(tree, hf_gsm_a_rr_utran_freq_list_length, tvb, bit_offset-8, 8, ENC_BIG_ENDIAN);
     while (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeating FDD Frequency", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_fdd_uarfcn, tvb, bit_offset, 14, ENC_BIG_ENDIAN);
@@ -1349,11 +1342,11 @@ de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
     if (((bit_offset + 7) >> 3) > (offset + len))
     {
-       expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "IE over-runs stated length");
+       expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_MALFORMED, PI_ERROR, "IE over-runs stated length");
     }
     else if ((bit_offset >> 3) < (offset + len))
     {
-       expert_add_info_format(pinfo, ti, PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length");
+       expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length");
     }
     return (len);
 }
@@ -2270,11 +2263,9 @@ static guint16
 de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint bit_offset;
-    proto_item *ti;
 
     bit_offset = offset << 3;
 
-    ti = proto_tree_add_bits_item(tree, hf_gsm_a_rr_dyn_arfcn_length, tvb, bit_offset-8, 8, ENC_BIG_ENDIAN);
     while (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeating Dynamic ARFCN Mapping", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_gsm_band, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
@@ -2289,11 +2280,11 @@ de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
     if (((bit_offset + 7) >> 3) > (offset + len))
     {
-       expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "IE over-runs stated length");
+       expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_MALFORMED, PI_ERROR, "IE over-runs stated length");
     }
     else if ((bit_offset >> 3) < (offset + len))
     {
-       expert_add_info_format(pinfo, ti, PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length");
+       expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length");
     }
     return(len);
 }
@@ -10628,20 +10619,10 @@ proto_register_gsm_a_rr(void)
                 FT_UINT16, BASE_DEC,  NULL, 0x0000,
                 "ARFCN used as the higher limit of a range of frequencies to be used by the mobile station in cell selection (Range Higher)", HFILL }
             },
-            { &hf_gsm_a_rr_ba_list_pref_length,
-              { "Length of BA List Pref","gsm_a.rr.ba_list_pref_length",
-                FT_UINT8, BASE_DEC,  NULL, 0x00,
-                NULL, HFILL }
-            },
             { &hf_gsm_a_rr_ba_freq,
               { "BA Freq","gsm_a.rr.ba_freq",
                 FT_UINT16, BASE_DEC,  NULL, 0x0000,
                 "ARFCN indicating a single frequency to be used by the mobile station in cell selection and reselection (BA Freq)", HFILL }
-            },
-            { &hf_gsm_a_rr_utran_freq_list_length,
-              { "Length of UTRAN freq list","gsm_a.rr.utran_freq_length",
-                FT_UINT8, BASE_DEC,  NULL, 0x00,
-                NULL, HFILL }
             },
             { &hf_gsm_a_rr_ho_ref_val,
               { "Handover reference value","gsm_a.rr.ho_ref_val",
@@ -11133,11 +11114,6 @@ proto_register_gsm_a_rr(void)
               { "T3212", "gsm_a.rr.t3212",
                 FT_UINT8, BASE_DEC,  NULL, 0x00,
                 "Periodic Update period (T3212) (deci-hours)", HFILL }
-            },
-            { &hf_gsm_a_rr_dyn_arfcn_length,
-              { "Length of Dynamic Mapping", "gsm_a.rr.dyn_arfcn_length",
-                FT_UINT8, BASE_DEC,  NULL, 0x00,
-                NULL, HFILL }
             },
             { &hf_gsm_a_rr_gsm_band,
               { "GSM Band", "gsm_a.rr.gsm_band",
