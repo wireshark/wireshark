@@ -2057,8 +2057,6 @@ proto_register_bta2dp(void)
 void
 proto_reg_handoff_bta2dp(void)
 {
-    dissector_handle_t bta2dp_handle;
-
     sbc_handle = find_dissector("sbc");
     mp2t_handle = find_dissector("mp2t");
     mpeg_audio_handle = find_dissector("mpeg-audio");
@@ -2171,8 +2169,6 @@ proto_register_btvdp(void)
 void
 proto_reg_handoff_btvdp(void)
 {
-    dissector_handle_t btvdp_handle;
-
     h263_handle = find_dissector("h63");
     mp4v_es_handle = find_dissector("mp4v-es");
 
