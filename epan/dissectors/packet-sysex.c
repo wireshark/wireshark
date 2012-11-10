@@ -886,12 +886,12 @@ dissect_digitech_parameter(tvbuff_t *data_tvb, proto_tree *tree,
         proto_tree_add_item(tree, hf_digitech_parameter_data, data_tvb, data_offset, 1, ENC_BIG_ENDIAN);
         data_offset++;
     }
-    else if (digitech_helper >= 0x80)
+    else /* digitech_helper >= 0x80 */
     {
         guint16 data_count;
 
         /* Single byte data count */
-        if (digitech_helper >= 0x80)
+        if (digitech_helper > 0x80)
         {
             data_count = (guint16)(digitech_helper & ~0x80);
             proto_tree_add_uint(tree, hf_digitech_parameter_data_count, data_tvb,
@@ -1190,7 +1190,6 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
                 }
                 else
                 {
-                    proto_item *item;
                     item = proto_tree_add_uint_format(tree,
                                                       hf_digitech_checksum, tvb, offset, 1, checksum,
                                                       "Checksum: 0x%02x (NOT correct)", checksum);
