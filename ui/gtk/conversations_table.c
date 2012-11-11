@@ -2586,6 +2586,8 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     GtkWidget *close_bt, *help_bt;
     gboolean ret;
     GtkWidget *copy_bt, *follow_stream_bt;
+    GtkWidget *graph_a_b_bt;
+    GtkWidget *graph_b_a_bt;
     gboolean add_follow_stream_button = FALSE;
     gboolean add_graph_buttons = FALSE;
 
@@ -2612,19 +2614,36 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
         return;
     }
 
-    if (strcmp(table_name, "TCP") == 0) {
-        add_graph_buttons = TRUE;
-        if (strcmp(table_name, "UDP") == 0)
-            add_follow_stream_button = TRUE;
-    }
-
     /* Button row. */
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
-    if (add_follow_stream_button)
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, WIRESHARK_STOCK_FOLLOW_STREAM, GTK_STOCK_HELP, NULL);
-    else
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
+
+    if (strcmp(table_name, "TCP") == 0) {
+        add_graph_buttons = TRUE;
+        add_follow_stream_button = TRUE;
+        bbox = dlg_button_row_new(
+                GTK_STOCK_CLOSE,
+                GTK_STOCK_COPY,
+                WIRESHARK_STOCK_FOLLOW_STREAM,
+                WIRESHARK_STOCK_GRAPH_A_B,
+                WIRESHARK_STOCK_GRAPH_B_A,
+                GTK_STOCK_HELP, NULL);
+    }
+    else if (strcmp(table_name, "UDP") == 0) {
+        add_follow_stream_button = TRUE;
+        bbox = dlg_button_row_new(
+                GTK_STOCK_CLOSE,
+                GTK_STOCK_COPY,
+                WIRESHARK_STOCK_FOLLOW_STREAM,
+                GTK_STOCK_HELP, NULL);
+    }
+    else {
+        bbox = dlg_button_row_new(
+                GTK_STOCK_CLOSE,
+                GTK_STOCK_COPY,
+                GTK_STOCK_HELP, NULL);
+    }
+
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
@@ -2640,6 +2659,22 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
         g_object_set_data(G_OBJECT(follow_stream_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
         g_object_set_data(G_OBJECT(follow_stream_bt), CONV_PTR_KEY, conversations);
         g_signal_connect(follow_stream_bt, "clicked", G_CALLBACK(follow_stream_cb), NULL);
+    }
+
+    if (add_graph_buttons) {
+        /* Graph A->B */
+        graph_a_b_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_GRAPH_A_B);
+        gtk_widget_set_tooltip_text(graph_a_b_bt, "Graph A->B.");
+        g_object_set_data(G_OBJECT(graph_a_b_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
+        g_object_set_data(G_OBJECT(graph_a_b_bt), CONV_PTR_KEY, conversations);
+        g_signal_connect(graph_a_b_bt, "clicked", G_CALLBACK(graph_cb), (gpointer)FALSE);
+
+        /* Graph B->A */
+        graph_b_a_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_GRAPH_B_A);
+        gtk_widget_set_tooltip_text(graph_b_a_bt, "Graph B->A.");
+        g_object_set_data(G_OBJECT(graph_b_a_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
+        g_object_set_data(G_OBJECT(graph_b_a_bt), CONV_PTR_KEY, conversations);
+        g_signal_connect(graph_b_a_bt, "clicked", G_CALLBACK(graph_cb), (gpointer)TRUE);
     }
 
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
