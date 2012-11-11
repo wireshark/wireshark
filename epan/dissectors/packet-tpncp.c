@@ -371,7 +371,8 @@ static gint fill_tpncp_id_vals(value_string string[], FILE *file) {
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
 static gint fill_enums_id_vals(FILE *file) {
-    gint i = 0, enum_id = 0, enum_val = 0, first_entry = 1;
+    gint i = 0, enum_id = 0, enum_val = 0;
+    gboolean first_entry = TRUE;
     gchar *line_in_file = NULL, *enum_name = NULL,
            *enum_type = NULL, *enum_str = NULL;
 
@@ -401,7 +402,7 @@ static gint fill_enums_id_vals(FILE *file) {
                     }
                 }
                 else
-                    first_entry = 0;
+                    first_entry = FALSE;
                 tpncp_enums_name_vals[enum_val] = g_strdup(enum_name);
                 g_strlcpy(enum_type, enum_name, MAX_TPNCP_DB_ENTRY_LEN);
             }
@@ -414,6 +415,16 @@ static gint fill_enums_id_vals(FILE *file) {
                 break;
             }
         }
+    }
+    /* make sure the last entry in the array is null but
+     * don't overflow if we've filled the entire thing (in which case
+     * we have to drop an entry) */
+    if (enum_val + 1 >= MAX_ENUMS_NUM) {
+        g_free(tpncp_enums_name_vals[enum_val]);
+        tpncp_enums_name_vals[enum_val] = NULL;
+    }
+    else {
+        tpncp_enums_name_vals[enum_val+1] = NULL;
     }
 
     return 0;
