@@ -36,6 +36,7 @@
 
 #include <wsutil/file_util.h>
 
+#include <epan/exceptions.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
@@ -766,13 +767,26 @@ void proto_register_tpncp(void) {
     proto_tpncp = proto_register_protocol("AudioCodes TPNCP (TrunkPack Network Control Protocol)",
                                           "TPNCP", "tpncp");
 
-    /*
-     * The function proto_register_field_array can not work with dynamic arrays,
-     * so passing dynamic array elements one-by-one in the loop.
+    /* Rather than duplicating large quantities of code from
+     * proto_register_field_array() and friends to sanitize the tpncp.dat file
+     * when we read it, just catch any exceptions we get while registering and
+     * take them as a hint that the file is corrupt. Then move on, so that at
+     * least the rest of the protocol dissectors will still work.
      */
-    for(idx = 0; idx < hf_size; idx++) {
-        proto_register_field_array(proto_tpncp, &hf[idx], 1);
+    TRY {
+        /* The function proto_register_field_array does not work with dynamic
+         * arrays, so pass dynamic array elements one-by-one in the loop.
+         */
+        for(idx = 0; idx < hf_size; idx++) {
+            proto_register_field_array(proto_tpncp, &hf[idx], 1);
+        }
     }
+
+    CATCH_ALL {
+        g_warning("Corrupt tpncp.dat file, tpncp dissector will not work.");
+    }
+
+    ENDTRY;
 
     proto_register_subtree_array(ett, array_length(ett));
 
