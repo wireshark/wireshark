@@ -1169,12 +1169,12 @@ typedef enum
     DE_RR_CM_ENQ_MASK,              /* [3]  10.5.2.7c   Classmark Enquiry Mask      */
 /* [3]  10.5.2.7d   GERAN Iu Mode Classmark information element                     */
     DE_RR_CHNL_NEEDED,              /* [3]  10.5.2.8    Channel Needed
- * [3]  10.5.2.8a   (void)
- * [3]  10.5.2.8b   Channel Request Description 2 */
+ * [3]  10.5.2.8a   (void) */
+    DE_RR_CHNL_REQ_DESC2,           /* [3]  10.5.2.8b   Channel Request Description 2 */
     DE_RR_CIP_MODE_SET,             /* [3]  10.5.2.9    Cipher Mode Setting         */
     DE_RR_CIP_MODE_RESP,            /* [3]  10.5.2.10   Cipher Response             */
     DE_RR_CTRL_CH_DESC,             /* [3]  10.5.2.11   Control Channel Description */
-/* [3]  10.5.2.11a  DTM Information Details */
+    DE_RR_DTM_INFO_DETAILS,         /* [3]  10.5.2.11a  DTM Information Details */
     DE_RR_DYN_ARFCN_MAP,            /* [3]  10.5.2.11b  Dynamic ARFCN Mapping       */
     DE_RR_FREQ_CH_SEQ,              /* [3]  10.5.2.12   Frequency Channel Sequence  */
     DE_RR_FREQ_LIST,                /* [3]  10.5.2.13   Frequency List              */

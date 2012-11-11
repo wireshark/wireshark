@@ -75,10 +75,10 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
     { 0x48, "DTM Assignment Failure" },
     { 0x49, "DTM Reject" },
     { 0x4a, "DTM Request" },
-    { 0x4b, "PACKET ASSIGNMENT" },
-    { 0x4c, "DTM ASSIGNMENT COMMAND" },
-    { 0x4d, "DTM INFORMATION" },
-    { 0x4e, "PACKET NOTIFICATION" },
+    { 0x4b, "Packet Assignment" },
+    { 0x4c, "DTM Assignment Command" },
+    { 0x4d, "DTM Information" },
+    { 0x4e, "Packet Notification" },
 
     { 0x35, "Ciphering Mode Command" },
     { 0x32, "Ciphering Mode Complete" },
@@ -195,12 +195,12 @@ const value_string gsm_rr_elem_strings[] = {
 /* [3]  10.5.2.7d   GERAN Iu Mode Classmark information element */
     { 0x00, "Channel Needed"},                          /* [3]  10.5.2.8    */
     /* [3]  10.5.2.8a   (void) */
-    /* [3]  10.5.2.8b   Channel Request Description 2 */
+    { 0x00, "Channel Request Description 2"},           /* [3]  10.5.2.8b   Channel Request Description 2 */
     /* Pos 20 */
     { 0x00, "Cipher Mode Setting" },                    /* [3]  10.5.2.9    */
     { 0x00, "Cipher Mode Response" },                   /* [3]  10.5.2.10   */
     { 0x00, "Control Channel Description" },            /* [3]  10.5.2.11   Control Channel Description */
-/* [3]  10.5.2.11a  DTM Information Details */
+    { 0x00, "DTM Information Details" },                /* [3]  10.5.2.11a  DTM Information Details */
     { 0x00, "Dynamic ARFCN Mapping" },                  /* [3]  10.5.2.11b  */
     { 0x00, "Frequency Channel Sequence" },             /* [3]  10.5.2.12   */
     { 0x00, "Frequency List" },                         /* 10.5.2.13        */
@@ -238,7 +238,7 @@ const value_string gsm_rr_elem_strings[] = {
     { 0x00, "Packet Channel Description" },             /* [3] 10.5.2.25a   */
     { 0x00, "Dedicated mode or TBF" },                  /* [3] 10.5.2.25b */
     { 0x00, "Packet Uplink Assignment" },               /* [3] 10.5.2.25c RR Packet Uplink Assignment */
-    { 0x00, "Packet Uplink Assignment" },               /* [3] 10.5.2.25d RR Packet Downlink Assignment */
+    { 0x00, "Packet Downlink Assignment" },             /* [3] 10.5.2.25d RR Packet Downlink Assignment */
     { 0x00, "Packet Downlink Assignment Type 2" },      /* [3] 110.5.2.25e RR Packet Downlink Assignment Type 2 */
     { 0x00, "Page Mode" },                              /* [3] 10.5.2.26  */
     { 0x00, "NCC Permitted" },                          /* [3] 10.5.2.27 NCC Permitted */
@@ -502,6 +502,16 @@ int hf_gsm_a_rr_chnl_needed_ch1 = -1;
 static int hf_gsm_a_rr_chnl_needed_ch2 = -1;
 static int hf_gsm_a_rr_chnl_needed_ch3 = -1;
 static int hf_gsm_a_rr_chnl_needed_ch4 = -1;
+static int hf_gsm_a_rr_pkt_estab_cause = -1;
+static int hf_gsm_a_rr_peak_throughput_class = -1;
+static int hf_gsm_a_rr_radio_priority = -1;
+static int hf_gsm_a_rr_llc_pdu_type = -1;
+static int hf_gsm_a_rr_rlc_octet_count = -1;
+static int hf_gsm_a_rr_rlc_non_pers_mode_cap = -1;
+static int hf_gsm_a_rr_reduced_latency_cap = -1;
+static int hf_gsm_a_rr_ul_egprs2 = -1;
+static int hf_gsm_a_rr_dl_egprs2 = -1;
+static int hf_gsm_a_rr_emst_ms_cap = -1;
 static int hf_gsm_a_rr_suspension_cause = -1;
 static int hf_gsm_a_rr_apdu_id = -1;
 static int hf_gsm_a_rr_apdu_flags = -1;
@@ -2097,8 +2107,82 @@ de_rr_chnl_needed(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
 }
 /*
  * [3] 10.5.2.8a Channel Request Description
+ */
+
+ /*
  * [3] 10.5.2.8b Channel Request Description 2
  */
+static const value_string gsm_a_rr_pkt_estab_cause_vals[] = {
+    { 0x00, "User Data"},
+    { 0x01, "Page Response"},
+    { 0x02, "Cell Update"},
+    { 0x03, "Mobility Management procedure"},
+    {    0, NULL }
+};
+static const value_string gsm_a_rr_radio_priority_vals[] = {
+    { 0x00, "1"},
+    { 0x01, "2"},
+    { 0x02, "3"},
+    { 0x03, "4"},
+    {    0, NULL }
+};
+static const true_false_string gsm_a_rr_llc_pdu_type_value = {
+    "LLC PDU is not SACK or ACK",
+    "LLC PDU is SACK or ACK"
+};
+static const true_false_string gsm_a_rr_reduced_latency_cap_value = {
+    "The mobile station supports Reduced TTI configurations and Fast Ack/Nack Reporting",
+    "The mobile station does not support Reduced TTI configurations and Fast Ack/Nack Reporting"
+};
+static const value_string gsm_a_rr_egprs2_vals[] = {
+    { 0x00, "The mobile station does not support either EGPRS2-A or EGPRS2-B"},
+    { 0x01, "The mobile station supports EGPRS2-A"},
+    { 0x02, "The mobile station supports both EGPRS2-A and EGPRS2-B"},
+    {    0, NULL }
+};
+guint16
+de_rr_chnl_req_desc2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 bit_offset = offset << 3;
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_pkt_estab_cause, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset += 2;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_peak_throughput_class, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+    bit_offset += 4;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_radio_priority, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset += 2;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_rlc_mode, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset += 1;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_llc_pdu_type, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset += 1;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_rlc_octet_count, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+    bit_offset += 16;
+    if (gsm_rr_csn_flag(tvb, tree, bit_offset++, "PFI", "Present", "Not Present")) {
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_pfi, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
+        bit_offset += 7;
+    }
+    gsm_rr_csn_HL_flag(tvb, tree, 0, bit_offset++, "Multiple TBF Capability",
+                             "Multiple TBF procedures in A/Gb mode supported",
+                             "Multiple TBF procedures in A/Gb mode not supported");
+    bit_offset += 1;
+    if (gsm_rr_csn_HL_flag(tvb, tree, (offset+len)<<3, bit_offset++, "Additions in Rel-7", "Present", "Not present")) {
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_rlc_non_pers_mode_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+        bit_offset += 1;
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_reduced_latency_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+        bit_offset += 1;
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_ul_egprs2, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+        bit_offset += 2;
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_dl_egprs2, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+        bit_offset += 2;
+        if (gsm_rr_csn_HL_flag(tvb, tree, (offset+len)<<3, bit_offset++, "Additions in Rel-9", "Present", "Not present")) {
+            proto_tree_add_bits_item(tree, hf_gsm_a_rr_emst_ms_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset += 1;
+        }
+    }
+
+    return len;
+}
+
 /*
  * [3] 10.5.2.9 Cipher Mode Setting
  */
@@ -2235,6 +2319,29 @@ de_rr_ctrl_ch_desc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
 
 /* [3] 10.5.2.11a  DTM Information Details
  */
+static guint16
+de_rr_dtm_info_details(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 bit_offset = offset << 3;
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_max_lapdm, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+    bit_offset += 3;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_gprs_ms_txpwr_max_ccch, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
+    bit_offset += 5;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_cell_id, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+    bit_offset += 16;
+    if (gsm_rr_csn_HL_flag(tvb, tree, (offset+len)<<3, bit_offset++, "Additions in Rel-6", "Present", "Not present")) {
+        if (gsm_rr_csn_flag(tvb, tree, bit_offset++, "MBMS procedures", "Supported by cell", "Not supported by cell")) {
+            proto_tree_add_bits_item(tree, hf_gsm_a_rr_dedicated_mode_mbms_notification_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset += 1;
+            proto_tree_add_bits_item(tree, hf_gsm_a_rr_mnci_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset += 1;
+        }
+    }
+
+    return len;
+}
+
 /*
  * [3] 10.5.2.11b  Dynamic ARFCN Mapping
  */
@@ -2459,7 +2566,7 @@ de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offse
         curr_bit_offset += 6;
         value += 1;
         proto_item_set_len(item2,((curr_bit_offset+value)>>3) - (curr_bit_offset_sav>>3)+1);
-        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "EGPRS", "supported by cell", "not supported by cell"))
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "EGPRS", "Supported by cell", "Not supported by cell"))
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_egprs_packet_channel_request, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
             curr_bit_offset += 1;
@@ -2491,21 +2598,19 @@ de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offse
                 proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_dtm_enhancements_capability, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
                 curr_bit_offset += 1;
                 value -= 3;
-                if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "MBMS procedures", "supported by cell", "not supported by cell"))
+                if (gsm_rr_csn_flag(tvb, subtree2, curr_bit_offset++, "MBMS procedures", "Supported by cell", "Not supported by cell"))
                 {
-                    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_dedicated_mode_mbms_notification_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-                    bit_offset += 1;
-                    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_mnci_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-                    bit_offset += 1;
+                    proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_dedicated_mode_mbms_notification_support, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+                    curr_bit_offset += 1;
+                    proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_mnci_support, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+                    curr_bit_offset += 1;
                     value -= 2;
                 }
-                else
-                    bit_offset += 1;
                 value -= 1;
                 if (value > 0)
                 { /* Rel 7 extension */
-                    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_reduced_latency_access, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-                    bit_offset += 1;
+                    proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_reduced_latency_access, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+                    curr_bit_offset += 1;
                     value -= 1;
                 }
             }
@@ -8069,13 +8174,13 @@ guint16 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     de_rr_cm_enq_mask,                          /* [3]  10.5.2.7c       Classmark Enquiry Mask          */
 /* [3]  10.5.2.7d       GERAN Iu Mode Classmark information element                                     */
     de_rr_chnl_needed,                          /* [3]  10.5.2.8        Channel Needed
-                                                 * [3]  10.5.2.8a       (void)
-                                                 * [3]  10.5.2.8b       Channel Request Description 2   */
+                                                 * [3]  10.5.2.8a       (void) */
+    de_rr_chnl_req_desc2,                       /* [3]  10.5.2.8b       Channel Request Description 2   */
     /* Pos 20 */
     de_rr_cip_mode_set,                         /* [3]  10.5.2.9        Cipher Mode Setting             */
     de_rr_cip_mode_resp,                        /* [3]  10.5.2.10       Cipher Response */
     de_rr_ctrl_ch_desc,                         /* [3]  10.5.2.11       Control Channel Description     */
-/* [3]  10.5.2.11a      DTM Information Details */
+    de_rr_dtm_info_details,                     /* [3]  10.5.2.11a      DTM Information Details */
     de_rr_dyn_arfcn_map,                        /* [3]  10.5.2.11b      Dynamic ARFCN Mapping           */
     de_rr_freq_ch_seq,                          /* [3]  10.5.2.12       Frequency Channel Sequence      */
     de_rr_freq_list,                            /* [3]  10.5.2.13       Frequency List                  */
@@ -8646,57 +8751,121 @@ dtap_rr_dtm_ass_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     /* 10 Cell Channel Description 10.5.2.1b O TV 17 */
     ELEM_OPT_TV(0x10, GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, NULL);
 
-	/* 11 Channel mode Channel mode 10.5.2.6 O TV 2 */
+    /* 11 Channel mode Channel mode 10.5.2.6 O TV 2 */
     ELEM_OPT_TV(0x11,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, NULL);
     /* 12 Frequency List Frequency List 10.5.2.13 C TLV 4 - 132 */
     ELEM_OPT_TLV(0x12, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, NULL);
     /* 13 Mobile Allocation Mobile Allocation 10.5.2.21 C TLV 3 - 10 */
     ELEM_OPT_TLV(0x13, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
     
-	/* 15 Description of the Uplink Packet Channel Assignment RR Packet Uplink Assignment 10.5.2.25c O TLV 3 - n */
+    /* 15 Description of the Uplink Packet Channel Assignment RR Packet Uplink Assignment 10.5.2.25c O TLV 3 - n */
     ELEM_OPT_TLV(0x15, GSM_A_PDU_TYPE_RR, DE_RR_PKT_UL_ASS, NULL);
     
-	/* 16 Description of the Downlink Packet Channel Assignment RR Packet Downlink Assignment 10.5.2.25d O TLV 3 - n */
+    /* 16 Description of the Downlink Packet Channel Assignment RR Packet Downlink Assignment 10.5.2.25d O TLV 3 - n */
     ELEM_OPT_TLV(0x16, GSM_A_PDU_TYPE_RR, DE_RR_PKT_DL_ASS, NULL);
     
-	/* 17 Multi-Rate configuration MultiRate configuration 10.5.2.21aa O TLV 4-8  */
+    /* 17 Multi-Rate configuration MultiRate configuration 10.5.2.21aa O TLV 4-8  */
     ELEM_OPT_TLV(0x17,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, NULL);
     
-	/* 9- Ciphering Mode Setting Ciphering Mode Setting 10.5.2.9 O TV 1 */
+    /* 9- Ciphering Mode Setting Ciphering Mode Setting 10.5.2.9 O TV 1 */
     ELEM_OPT_TV_SHORT(0x90,GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, NULL);
     
-	/* 18 Mobile Allocation C2 Mobile Allocation 10.5.2.21 C TLV 3 - 10 */
+    /* 18 Mobile Allocation C2 Mobile Allocation 10.5.2.21 C TLV 3 - 10 */
     ELEM_OPT_TLV(0x18, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - C2");
     
-	/* 19 Frequency List C2 Frequency List 10.5.2.13 C TLV 4 - 132 */
+    /* 19 Frequency List C2 Frequency List 10.5.2.13 C TLV 4 - 132 */
     ELEM_OPT_TLV(0x19, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, " - C2");
     
-	/* 20 Description of the Downlink Packet Channel Assignment Type 2 RR Packet Downlink Assignment Type 2 10.5.2.25e C TLV 3 n */
+    /* 20 Description of the Downlink Packet Channel Assignment Type 2 RR Packet Downlink Assignment Type 2 10.5.2.25e C TLV 3 n */
     ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_RR, DE_RR_PKT_DL_ASS_TYPE2, NULL);
 
-	/* 21 Channel Description C2 Channel Description 3 10.5.2.5c O TV 3 */
+    /* 21 Channel Description C2 Channel Description 3 10.5.2.5c O TV 3 */
     ELEM_OPT_TV(0x21,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC3, " - Channel Description C2");
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
+
 /*
  * 9.1.12f DTM Assignment Failure
  */
-    /* RR cause RR Cause 10.5.2.31 M V 1 */
+static void
+dtap_rr_dtm_ass_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* RR Cause RR Cause 10.5.2.31 M V 1 */
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+}
+
 /*
  * 9.1.12g DTM Information
  */
-    /* Routeing Area Identification Routeing Area Identification 10.5.5.15 M V 6 */
-    /* DTM Information Details DTM Information Details 10.5.2.11a M LV 4-n */
+static void
+dtap_rr_dtm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Routeing Area Identification 10.5.5.15 M V 6 */
+    ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
+
+    /* DTM Information Details 10.5.2.11a M LV 4-n */
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_DTM_INFO_DETAILS, NULL);
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+}
+
 /*
  * 9.1.12h DTM Reject
  */
-    /* DTM wait indication Wait indication 10.5.2.43 M V 1 */
+static void
+dtap_rr_dtm_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Wait indication 10.5.2.43 M V 1 */
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND, " - DTM Wait Indication");
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+}
 
 /*
  * 9.1.12i DTM Request
  */
-    /* TLLI TLLI 10.5.2.41a M V 4 */
-    /* Channel Request Description 2 Channel Request Description 2 10.5.2.8b M LV 5 - n */
+static void
+dtap_rr_dtm_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* TLLI 10.5.2.41a M V 4 */
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI, NULL);
+
+    /* Channel Request Description 2 M LV 5-n */
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_CHNL_REQ_DESC2, NULL);
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+}
 
 /*
  * 9.1.13 Frequency Redefinition
@@ -9114,6 +9283,65 @@ dtap_rr_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     /* Measurement Results 10.5.2.20 M V 16 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_MEAS_RES, NULL);
+}
+
+/*
+ * 9.1.21f Packet Assignment
+ */
+static void
+dtap_rr_pkt_assign(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* GPRS broadcast information 10.5.2.14d M LV 7-n */
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_GPRS_BROADCAST_INFORMATION, NULL);
+
+    /* 0x22 RR Packet Uplink Assignment 10.5.2.25c O TLV 3-n */
+    ELEM_OPT_TLV(0x22, GSM_A_PDU_TYPE_RR, DE_RR_PKT_UL_ASS, NULL);
+
+    /* 0x23 RR Packet Downlink Assignment 10.5.2.25d O TLV 3-n */
+    ELEM_OPT_TLV(0x23, GSM_A_PDU_TYPE_RR, DE_RR_PKT_DL_ASS, NULL);
+
+    /* 0x12 Frequency List 10.5.2.13 C TLV 4-132 */
+    ELEM_OPT_TLV(0x12, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, " - Frequency List C2");
+
+    /* 0x13 Mobile Allocation 10.5.2.21 C TLV 3-10 */
+    ELEM_OPT_TLV(0x13, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - Mobile Allocation C2");
+
+    /* 0x14 Channel Description 3 10.5.2.5c O TV 3 */
+    ELEM_OPT_TV(0x14, GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC3, " - Channel Description C2");
+
+    /* 0x24 RR Packet Downlink Assignment Type 2 10.5.2.25e C TLV 3-n */
+    ELEM_OPT_TLV(0x24, GSM_A_PDU_TYPE_RR, DE_RR_PKT_DL_ASS_TYPE2, NULL);
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+}
+
+/*
+ * 9.1.21g Packet Notification
+ */
+static void
+dtap_rr_pkt_notif(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* 0x10 P-TMSI 10.5.2.42 C TV 5 */
+    ELEM_OPT_TV(0x10, GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, " - Packet TMSI");
+
+    /* 0x11 Mobile Identity 10.5.1.4 C TLV 3-11 */
+    ELEM_OPT_TLV(0x11, GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 }
 
 /*
@@ -10116,13 +10344,13 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     dtap_rr_imm_ass_ext,        /* Immediate Assignment Extended */
     dtap_rr_imm_ass_rej,        /* Immediate Assignment Reject */
 
-    NULL,                       /* DTM Assignment Failure */
-    NULL,                       /* DTM Reject */
-    NULL,                       /* DTM Request */
-    NULL,                       /* PACKET ASSIGNMENT */
-    dtap_rr_dtm_ass_cmd,        /* DTM ASSIGNMENT COMMAND */
-    NULL,                       /* DTM INFORMATION */
-    NULL,                       /* PACKET NOTIFICATION */
+    dtap_rr_dtm_ass_fail,       /* DTM Assignment Failure */
+    dtap_rr_dtm_rej,            /* DTM Reject */
+    dtap_rr_dtm_req,            /* DTM Request */
+    dtap_rr_pkt_assign,         /* Packet Assignment */
+    dtap_rr_dtm_ass_cmd,        /* DTM Assignment Command */
+    dtap_rr_dtm_info,           /* DTM Information */
+    dtap_rr_pkt_notif,          /* Packet Notification */
 
     dtap_rr_cip_mode_cmd,       /* Ciphering Mode Command */
     dtap_rr_cip_mode_cpte,      /* Ciphering Mode Complete */
@@ -10943,6 +11171,56 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_chnl_needed_ch4,
               { "Channel 4","gsm_a.rr.chnl_needed_ch4",
                 FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_pkt_estab_cause,
+              { "PACKET_ESTABLISHMENT_CAUSE","gsm_a.rr.pkt_estab_cause",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_pkt_estab_cause_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_peak_throughput_class,
+              { "PEAK_THROUGHPUT_CLASS","gsm_a.rr.peak_throughput_class",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_radio_priority,
+              { "RADIO_PRIORITY","gsm_a.rr.radio_priority",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_radio_priority_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_llc_pdu_type,
+              { "LLC_PDU_TYPE","gsm_a.rr.llc_pdu_type",
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_llc_pdu_type_value), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_rlc_octet_count,
+              { "RLC_OCTET_COUNT","gsm_a.rr.rlc_octet_count",
+                FT_UINT16, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_rlc_non_pers_mode_cap,
+              { "RLC Non-persistent Mode Capability","gsm_a.rr.rlc_non_pers_mode_cap",
+                FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_reduced_latency_cap,
+              { "Reduced Latency Capability","gsm_a.rr.reduced_latency_cap",
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_reduced_latency_cap_value), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_ul_egprs2,
+              { "Uplink EGPRS2","gsm_a.rr.ul_egprs2",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_egprs2_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_dl_egprs2,
+              { "Downlink EGPRS2","gsm_a.rr.dl_egprs2",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_egprs2_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_emst_ms_cap,
+              { "EMST_MS_Capability","gsm_a.rr.emst_ms_cap",
+                FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_suspension_cause,
