@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-11-02
+# 2012-11-09
 # 
 # Experts
 # 
@@ -9594,10 +9594,8 @@ e-builder	4121/udp	# e-Builder Application        [James_Caza]                  
 # Communication
 fprams	4122/tcp	# Fiber Patrol Alarm Service   [Zhizhong_Zhuang]                                  [Zhizhong_Zhuang]                                         2006-12
 fprams	4122/udp	# Fiber Patrol Alarm Service   [Zhizhong_Zhuang]                                  [Zhizhong_Zhuang]                                         2006-12
-z-wave	4123/tcp	# Zensys Z-Wave Control        [Anders_Brandt]                                    [Anders_Brandt]                                           2007-02
-# Protocol
-z-wave	4123/udp	# Zensys Z-Wave Control        [Anders_Brandt]                                    [Anders_Brandt]                                           2007-02
-# Protocol
+z-wave	4123/tcp	# Z-Wave Protocol              [Sigma_Designs_Inc_2]                              [Anders_Brandt][Mary_Miller]                              2007-02      2012-11-08
+z-wave	4123/udp	# Z-Wave Protocol              [Sigma_Designs_Inc_2]                              [Anders_Brandt][Mary_Miller]                              2007-02      2012-11-08
 tigv2	4124/tcp	# Rohill TetraNode Ip Gateway  [Bert_Bouwers]                                     [Bert_Bouwers]                                            2007-05
 # v2
 tigv2	4124/udp	# Rohill TetraNode Ip Gateway  [Bert_Bouwers]                                     [Bert_Bouwers]                                            2007-05
@@ -10806,7 +10804,7 @@ ita-agent	5051/udp	# ITA Agent                    [Don_Merrell]                 
 ita-manager	5052/tcp	# ITA Manager                  [Don_Merrell]                                      [Don_Merrell]
 ita-manager	5052/udp	# ITA Manager                  [Don_Merrell]                                      [Don_Merrell]
 rlm	5053/tcp	# RLM License Server           [Matt_Christiano_2]                                [Matt_Christiano_2]                                       2008-07-28
-# 5053        udp    Reserved
+rlm-disc	5053/udp	# RLM Discovery Server         [Reprise_Software_Inc]                             [Matt_Christiano_3]                                       2012-11-06
 rlm-admin	5054/tcp	# RLM administrative interface [Matt_Christiano_2]                                [Matt_Christiano_2]                                       2008-07-28
 # 5054        udp    Reserved
 unot	5055/tcp	# UNOT                         [Gordon_Mohr_2]                                    [Gordon_Mohr_2]
@@ -11716,9 +11714,9 @@ wherehoo	5859/udp	# WHEREHOO                     [Jim_Youll]                    
 ppsuitemsg	5863/tcp	# PlanetPress Suite Messeng    [Yannick_Fortin]                                   [Yannick_Fortin]                                          2006-02
 ppsuitemsg	5863/udp	# PlanetPress Suite Messeng    [Yannick_Fortin]                                   [Yannick_Fortin]                                          2006-02
 # 5864-5867            Unassigned
-diameters	5868/tcp	# Diameter over TLS/TCP        [IESG]                                             [IETF_Chair]                                                                        [RFC-ietf-dime-rfc3588bis-34]
+diameters	5868/tcp	# Diameter over TLS/TCP        [IESG]                                             [IETF_Chair]                                                                        [RFC6733]
 # 5868        udp    Reserved
-diameters	5868/sctp	# Diameter over DTLS/SCTP      [IESG]                                             [IETF_Chair]                                                                        [RFC-ietf-dime-rfc3588bis-34]
+diameters	5868/sctp	# Diameter over DTLS/SCTP      [IESG]                                             [IETF_Chair]                                                                        [RFC6733]
 # 5869-5882            Unassigned
 jute	5883/tcp	# Javascript Unit Test         [Mark_Ethan_Trostler]                              [Mark_Ethan_Trostler]                                     2011-11-23
 # Environment
@@ -12538,7 +12536,12 @@ plysrv-http	6770/tcp	# PolyServe http               [Mike_Spitzer]              
 plysrv-http	6770/udp	# PolyServe http               [Mike_Spitzer]                                     [Mike_Spitzer]                                            2005-08
 plysrv-https	6771/tcp	# PolyServe https              [Mike_Spitzer]                                     [Mike_Spitzer]                                            2005-08
 plysrv-https	6771/udp	# PolyServe https              [Mike_Spitzer]                                     [Mike_Spitzer]                                            2005-08
-# 6772-6784            Unassigned
+# 6772-6783            Unassigned
+# 6784        tcp    Reserved
+# Bidirectional Forwarding
+bfd-lag	6784/udp	# Detection (BFD) on Link      [IESG]                                             [IETF_Chair]                                              2012-11-08                [draft-mmm-bfd-on-lags-05]
+# Aggregation Group (LAG)
+# Interfaces
 dgpf-exchg	6785/tcp	# DGPF Individual Exchange     [Thomas_Weise]                                     [Thomas_Weise]                                            2006-04
 dgpf-exchg	6785/udp	# DGPF Individual Exchange     [Thomas_Weise]                                     [Thomas_Weise]                                            2006-04
 smc-jmx	6786/tcp	# Sun Java Web Console JMX     [Bill_Edwards]                                     [Bill_Edwards]                                            2005-08
@@ -15237,9 +15240,12 @@ pqsp	28001/tcp	# PQ Service                   [Peter_Laschtowitz]               
 # 28001       udp    Reserved
 # Unauthorized
 # Use Known on
-# 28002-28239           Unassigned                                                                                                                                                                                                           ports 28017,
+# 28002-28199           Unassigned                                                                                                                                                                                                           ports 28017,
 # 28018 and
 # 28019
+voxelstorm	28200/tcp	# VoxelStorm game server       [VoxelStorm]                                       [Eugene_Hopkinson]                                        2012-11-08
+voxelstorm	28200/udp	# VoxelStorm game server       [VoxelStorm]                                       [Eugene_Hopkinson]                                        2012-11-08
+# 28201-28239           Unassigned
 siemensgsm	28240/tcp	# Siemens GSM                  [David_Anuszewski]                                 [David_Anuszewski]                                        2004-11
 siemensgsm	28240/udp	# Siemens GSM                  [David_Anuszewski]                                 [David_Anuszewski]                                        2004-11
 # 28241-29117           Unassigned
@@ -17172,7 +17178,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Anand_Gangadharan]                                       Anand Gangadharan                               mailto:anand&goa.mainsoft.com
 # [Anastasios_Kotsikona]                                    Anastasios Kotsikonas                           mailto:tasos&cs.bu.edu
 # [Anders_Borg]                                             Anders Borg                                     mailto:anders.borg&solid.se                                   2004-11
-# [Anders_Brandt]                                           Anders Brandt             Zensys Inc.           mailto:abr&zen-sys.com                                        2007-02
+# [Anders_Brandt]                                           Anders Brandt             Sigma Designs, Inc.   mailto:Anders_Brandt&sigmadesigns.com                         2012-11-08
 # [Anders_Brandt_2]                                         Anders Brandt             Sigma Designs, Inc.   mailto:anders_brandt&sigmadesigns.com                         2011-10-03
 # [Anders_Brandt_3]                                         Anders Brandt             Sigma Designs         mailto:anders_brandt&sigmadesigns.com                         2012-10-12
 # [Anders_Hjelm]                                            Anders Hjelm                                    mailto:anders.hjelm&ec.se                                     2006-03
@@ -18373,6 +18379,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Eriko_Shimada]                                           Eriko Shimada                                   mailto:eriko&kel.fujitsu.co.jp
 # [Erlang]                                                  Erlang/OTP support                              mailto:epmd&erix.ericsson.se                                  2004-12
 # [Erwin_Hogeweg]                                           Erwin Hogeweg                                   mailto:erwin&airtech.demon.nl
+# [Eugene_Hopkinson]                                        Eugene Hopkinson          VoxelStorm            mailto:slowriot&voxelstorm.com                                2012-11-08
 # [Etai_Lev_Ran]                                            Etai Lev-Ran                                    mailto:elevran&cisco.com                                      2005-02
 # [Ethan_Fremen]                                            Ethan Fremen                                    mailto:mindlace&digicool.com
 # [Eugen_Bacic]                                             Eugen Bacic                                     mailto:ebacic&texar.com
@@ -19798,6 +19805,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Mary_Ann_Burt]                                           Mary Ann Burt                                   mailto:bytex!ws054!maryann&uunet.uu.net
 # [Mary_Holstage]                                           Mary Holstage                                   mailto:holstege&firstfloor.com
 # [Mary_Holstege]                                           Mary Holstege                                   mailto:holstege&firstfloor.com
+# [Mary_Miller]                                             Mary Miller               Sigma Designs, Inc.   mailto:Mary_Miller&sigmadesigns.com                           2012-11-08
 # [Masahiro_Koiwai]                                         Masahiro Koiwai                                 mailto:Koiwai.Masahiro&exc.epson.co.jp                        2006-10
 # [Masakatsu_Matsuo]                                        Masakatsu Matsuo                                mailto:masa&sdsft.kme.mei.co.jp
 # [Masakuni_Okada]                                          Masakuni Okada                                  mailto:masakuni&jp.ibm.com
@@ -19819,6 +19827,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Matt_Cecile]                                             Matt Cecile                                     mailto:mattc&metrics.com
 # [Matt_Christiano]                                         Matt Christiano                                 mailto:globes@matt&oliveb.atc.olivetti.com
 # [Matt_Christiano_2]                                       Matt Christiano                                 mailto:matt&reprisesoftware.com                               2008-07-28
+# [Matt_Christiano_3]                                       Matt Christiano           Reprise Software,     mailto:matt&reprisesoftware.com                               2012-11-06
+# Inc.
 # [Matt_Craig]                                              Matt Craig                                      mailto:matt&luxology.com
 # [Matt_Craighead]                                          Matt Craighead                                  mailto:matt.craighead&conifersystems.com                      2008-09-11
 # [Matt_Eagar]                                              Matt Eagar                                      mailto:matt.eagar&thinkflood.com
@@ -20573,6 +20583,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Rene_Fontaine]                                           Rene Fontaine                                   mailto:fontaine_rene&emc.com
 # [Rene_Jager]                                              Rene Jager                                      mailto:renej&frog.nl
 # [Rene_Kurt]                                               Rene Kurt                                       mailto:rene.kurt&adasoft.ch                                   2005-08
+# [Reprise_Software_Inc]                                                              Reprise Software,     mailto:matt&reprisesoftware.com                               2012-11-06
+# Inc.
 # [Resource_Allocation]                                     Resource Allocation Team                        mailto:resources&littlehall.com                               2010-09-27
 # [Retrospect_Inc]                                                                    Retrospect, Inc.      mailto:JG.Heithcock&retrospect.com                            2012-02-02
 # [Reuven_Harrison]                                         Reuven Harrison                                 mailto:rnd_ana&checkpoint.com
@@ -20992,6 +21004,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Siew_Sim]                                                Siew Sim                                        mailto:ssim&asempra.com                                       2005-08
 # [Sigfus_Magnusson]                                        Sigfus Magnusson                                mailto:sigfusm&menandmice.com
 # [Sigma_Designs_Inc]                                                                 Sigma Designs, Inc.   mailto:anders_brandt&sigmadesigns.com                         2011-10-03
+# [Sigma_Designs_Inc_2]                                                               Sigma Designs, Inc.   mailto:pr&sdesigns.com                                        2012-11-08
 # [Signwave_Networking]                                     Signwave Networking                             mailto:mail&signwave.co.uk
 # Development Team
 # [Silvano_Maffeis]                                         Silvano Maffeis                                 mailto:maffeis&softwired.ch
@@ -21574,6 +21587,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Voiko_Loukanov]                                          Voiko Loukanov                                  mailto:v.loukanov&dvelectronics.com                           2003-10
 # [Volker_Wiegand]                                          Volker Wiegand                                  mailto:volker.wiegand&t-online.de                             2007-07-10
 # [Von_Welch]                                               Von Welch                                       mailto:vwelch&ncsa.uiuc.edu
+# [VoxelStorm]                                                                        VoxelStorm            mailto:slowriot&voxelstorm.com                                2012-11-08
 # [VSN_International_Ltd]                                                             VSN International     mailto:sean&vsni.co.uk                                        2011-09-28
 # Ltd.
 # [WAP_Forum]                                               WAP Forum                                       mailto:wap-feedback&mail.wapforum.org
