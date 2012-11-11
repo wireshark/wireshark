@@ -257,16 +257,20 @@ free_frame_data_sequence(frame_data_sequence *fds)
   } else if (fds->count <= NODES_PER_LEVEL*NODES_PER_LEVEL) {
     /* It's a 2-level tree. */
     level1 = fds->ptree_root;
-    for (i = 0; i < NODES_PER_LEVEL && level1[i] != NULL; i++)
+    for (i = 0; i < NODES_PER_LEVEL && level1[i] != NULL; i++) {
+      frame_data_cleanup(level1[i]);
       g_free(level1[i]);
+    }
     g_free(level1);
   } else if (fds->count <= NODES_PER_LEVEL*NODES_PER_LEVEL*NODES_PER_LEVEL) {
     /* It's a 3-level tree. */
     level2 = fds->ptree_root;
     for (i = 0; i < NODES_PER_LEVEL && level2[i] != NULL; i++) {
       level1 = level2[i];
-      for (j = 0; j < NODES_PER_LEVEL && level1[i] != NULL; j++)
+      for (j = 0; j < NODES_PER_LEVEL && level1[i] != NULL; j++) {
+        frame_data_cleanup(level1[j]);
         g_free(level1[j]);
+      }
       g_free(level1);
     }
     g_free(level2);
@@ -280,8 +284,10 @@ free_frame_data_sequence(frame_data_sequence *fds)
       level2 = level3[i];
       for (j = 0; j < NODES_PER_LEVEL && level2[i] != NULL; j++) {
         level1 = level2[j];
-        for (k = 0; k < NODES_PER_LEVEL && level1[k] != NULL; k++)
+        for (k = 0; k < NODES_PER_LEVEL && level1[k] != NULL; k++) {
+          frame_data_cleanup(level1[k]);
           g_free(level1[k]);
+        }
       }
       g_free(level2);
     }
