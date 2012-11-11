@@ -100,6 +100,8 @@ void stock_icons_init(void) {
 #ifdef HAVE_GEOIP
         { WIRESHARK_STOCK_MAP,                   "Map",                   0, 0, NULL },
 #endif
+        { WIRESHARK_STOCK_GRAPH_A_B,             "Graph A->B",            0, 0, NULL },
+        { WIRESHARK_STOCK_GRAPH_B_A,             "Graph B->A",            0, 0, NULL },
         { WIRESHARK_STOCK_FOLLOW_STREAM,         "Follow Stream",         0, 0, NULL },
         { WIRESHARK_STOCK_DISPLAY_FILTER,        "Display _Filter",       0, 0, NULL },
         { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  "F_ilter:",  0, 0, NULL },

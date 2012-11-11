@@ -38,6 +38,8 @@
 #ifdef HAVE_GEOIP
 #define WIRESHARK_STOCK_MAP                      "Wireshark_Stock_Map"
 #endif
+#define WIRESHARK_STOCK_GRAPH_A_B                "Wireshark_Stock_Graph_A_B"
+#define WIRESHARK_STOCK_GRAPH_B_A                "Wireshark_Stock_Graph_B_A"
 #define WIRESHARK_STOCK_FOLLOW_STREAM            "Wireshark_Stock_FollowStream"
 #define WIRESHARK_STOCK_DISPLAY_FILTER           "Wireshark_Stock_DisplayFilter"
 #define WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY     "Wireshark_Stock_DisplayFilter_Entry"

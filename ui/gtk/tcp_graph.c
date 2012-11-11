@@ -333,7 +333,13 @@ struct graph {
 	struct magnify magnify;
 	struct axis *x_axis, *y_axis;
 	struct segment *segments;
-	struct segment *current;
+
+	/* The stream this graph will show */
+	address src_address;
+	guint16 src_port;
+	address dst_address;
+	guint16 dst_port;
+
 	struct element_list *elists;		/* element lists */
 	union {
 		struct style_tseq_stevens tseq_stevens;
@@ -429,7 +435,7 @@ static void graph_element_lists_initialize (struct graph * );
 static void graph_title_pixmap_create (struct graph * );
 static void graph_title_pixmap_draw (struct graph * );
 static void graph_title_pixmap_display (struct graph * );
-static void graph_segment_list_get (struct graph * );
+static void graph_segment_list_get (struct graph *, gboolean stream_known );
 static void graph_segment_list_free (struct graph * );
 static void graph_select_segment (struct graph * , int , int );
 static int line_detect_collision (struct element * , int , int );
@@ -612,6 +618,7 @@ static void unset_busy_cursor(GdkWindow *w, gboolean cross)
 		gdk_flush();
 	}
 }
+
 void tcp_graph_cb (GtkAction *action, gpointer user_data _U_)
 {
 	struct segment current;
@@ -648,12 +655,42 @@ void tcp_graph_cb (GtkAction *action, gpointer user_data _U_)
 
 	g->type = graph_type;
 
-	graph_segment_list_get(g);
+	graph_segment_list_get(g, FALSE);
 	create_gui(g);
 	/* display_text(g); */
 	graph_init_sequence(g);
 
 }
+
+void tcp_graph_known_stream_launch(address *src_address, guint16 src_port,
+                                   address *dst_address, guint16 dst_port)
+{
+	struct graph *g;
+
+	if (!(g = graph_new())) {
+		return;
+	}
+
+	refnum++;
+	graph_initialize_values(g);
+
+	/* Can set stream info for graph now */
+	COPY_ADDRESS(&g->src_address, src_address);
+	g->src_port = src_port;
+	COPY_ADDRESS(&g->dst_address, dst_address);
+	g->dst_port = dst_port;
+
+	/* This graph type is arguably the most useful, so start there */
+	g->type = GRAPH_TSEQ_TCPTRACE;
+
+	/* Get our list of segments from the packet list */
+	graph_segment_list_get(g, TRUE);
+
+	create_gui(g);
+	graph_init_sequence(g);
+}
+
+
 static void create_gui (struct graph *g)
 {
 	debug(DBS_FENTRY) puts ("create_gui()");
@@ -674,8 +711,6 @@ static void create_drawing_area (struct graph *g)
 #endif
 	char *display_name;
 	char window_title[WINDOW_TITLE_LENGTH];
-	struct segment current;
-	struct tcpheader *thdr;
 	GtkAllocation widget_alloc;
 #if 0
 	/* Prep. to include the controls in the graph window */
@@ -684,15 +719,14 @@ static void create_drawing_area (struct graph *g)
 	GtkWidget *hbox;
 #endif
 	debug(DBS_FENTRY) puts ("create_drawing_area()");
-	thdr=select_tcpip_session (&cfile, &current);
 	display_name = cf_get_display_name(&cfile);
 	g_snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %s:%d -> %s:%d",
 			refnum,
 			display_name,
-			ep_address_to_str(&(thdr->ip_src)),
-			thdr->th_sport,
-			ep_address_to_str(&(thdr->ip_dst)),
-			thdr->th_dport
+			ep_address_to_str(&g->src_address),
+			g->src_port,
+			ep_address_to_str(&g->dst_address),
+			g->dst_port
 	);
 	g_free(display_name);
 	g->toplevel = dlg_window_new ("Tcp Graph");
@@ -1161,7 +1195,7 @@ static GtkWidget *control_panel_create_zoom_group (struct graph *g)
 
 	g_signal_connect(zoom_in, "toggled", G_CALLBACK(callback_zoom_inout), g);
 	g_signal_connect(zoom_h_step, "changed", G_CALLBACK(callback_zoom_step), g);
-        g_signal_connect(zoom_v_step, "changed", G_CALLBACK(callback_zoom_step), g);
+	g_signal_connect(zoom_v_step, "changed", G_CALLBACK(callback_zoom_step), g);
 
 	g->zoom.widget.in_toggle = (GtkToggleButton * )zoom_in;
 	g->zoom.widget.out_toggle = (GtkToggleButton * )zoom_out;
@@ -1623,7 +1657,7 @@ static void callback_graph_type (GtkWidget *toggle, gpointer data)
 		/* throughput graph uses differently constructed segment list so we
 		 * need to recreate it */
 		graph_segment_list_free (g);
-		graph_segment_list_get (g);
+		graph_segment_list_get (g, TRUE);
 	}
 
 	if (g->flags & GRAPH_INIT_ON_TYPE_CHANGE) {
@@ -1781,10 +1815,11 @@ static int
 tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	tcp_scan_t *ts=(tcp_scan_t *)pct;
+	struct graph *g = ts->g;
 	struct tcpheader *tcphdr=(struct tcpheader *)vip;
 
-	if (compare_headers(&ts->current->ip_src, &ts->current->ip_dst,
-			    ts->current->th_sport, ts->current->th_dport,
+	if (compare_headers(&g->src_address, &g->dst_address,
+			    g->src_port, g->dst_port,
 			    &tcphdr->ip_src, &tcphdr->ip_dst,
 			    tcphdr->th_sport, tcphdr->th_dport,
 			    ts->direction)) {
@@ -1811,9 +1846,6 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 			ts->g->segments = segment;
 		}
 		ts->last = segment;
-		if(pinfo->fd->num==ts->current->num){
-			ts->g->current = segment;
-		}
 	}
 
 	return 0;
@@ -1822,19 +1854,27 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 
 /* here we collect all the external data we will ever need */
-static void graph_segment_list_get (struct graph *g)
+static void graph_segment_list_get (struct graph *g, gboolean stream_known)
 {
 	struct segment current;
 	GString *error_string;
 	tcp_scan_t ts;
 
-
 	debug(DBS_FENTRY) puts ("graph_segment_list_get()");
-	select_tcpip_session (&cfile, &current);
-	if (g->type == GRAPH_THROUGHPUT)
-		ts.direction = COMPARE_CURR_DIR;
-	else
-		ts.direction = COMPARE_ANY_DIR;
+
+	if (!stream_known) {
+		select_tcpip_session (&cfile, &current);
+		if (g->type == GRAPH_THROUGHPUT)
+			ts.direction = COMPARE_CURR_DIR;
+		else
+			ts.direction = COMPARE_ANY_DIR;
+
+		/* Remember stream info in graph */
+		COPY_ADDRESS(&g->src_address, &current.ip_src);
+		g->src_port = current.th_sport;
+		COPY_ADDRESS(&g->dst_address, &current.ip_dst);
+		g->dst_port = current.th_dport;
+	}
 
 	/* rescan all the packets and pick up all interesting tcp headers.
 	 * we only filter for TCP here for speed and do the actual compare
@@ -3699,8 +3739,8 @@ static int get_num_dsegs (struct graph *g)
 	struct segment *tmp;
 
 	for (tmp=g->segments, count=0; tmp; tmp=tmp->next) {
-		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
-				   g->current->th_sport, g->current->th_dport,
+		if(compare_headers(&g->src_address, &g->dst_address,
+				   g->src_port, g->dst_port,
 				   &tmp->ip_src, &tmp->ip_dst,
 				   tmp->th_sport, tmp->th_dport,
 				   COMPARE_CURR_DIR)) {
@@ -3716,8 +3756,8 @@ static int get_num_acks (struct graph *g)
 	struct segment *tmp;
 
 	for (tmp=g->segments, count=0; tmp; tmp=tmp->next) {
-		if(!compare_headers(&g->current->ip_src, &g->current->ip_dst,
-				   g->current->th_sport, g->current->th_dport,
+		if(!compare_headers(&g->src_address, &g->dst_address,
+				   g->src_port, g->dst_port,
 				   &tmp->ip_src, &tmp->ip_dst,
 				   tmp->th_sport, tmp->th_dport,
 				   COMPARE_CURR_DIR)) {
@@ -3802,8 +3842,8 @@ static void tseq_get_bounds (struct graph *g)
 
 	/* go thru all segments to determine "bounds" */
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
-		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
-				   g->current->th_sport, g->current->th_dport,
+		if(compare_headers(&g->src_address, &g->dst_address,
+				   g->src_port, g->dst_port,
 				   &tmp->ip_src, &tmp->ip_dst,
 				   tmp->th_sport, tmp->th_dport,
 				   COMPARE_CURR_DIR)) {
@@ -3887,8 +3927,8 @@ static void tseq_stevens_make_elmtlist (struct graph *g)
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		double secs, seqno;
 
-		if(!compare_headers(&g->current->ip_src, &g->current->ip_dst,
-				   g->current->th_sport, g->current->th_dport,
+		if(!compare_headers(&g->src_address, &g->dst_address,
+				   g->src_port, g->dst_port,
 				   &tmp->ip_src, &tmp->ip_dst,
 				   tmp->th_sport, tmp->th_dport,
 				   COMPARE_CURR_DIR)) {
@@ -4013,8 +4053,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 		secs = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 		x = secs - xx0;
 		x *= g->zoom.x;
-		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
-				   g->current->th_sport, g->current->th_dport,
+		if(compare_headers(&g->src_address, &g->dst_address,
+				   g->src_port, g->dst_port,
 				   &tmp->ip_src, &tmp->ip_dst,
 				   tmp->th_sport, tmp->th_dport,
 				   COMPARE_CURR_DIR)) {
@@ -4286,8 +4326,8 @@ static void rtt_initialize (struct graph *g)
 	rtt_read_config (g);
 
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
-		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
-				   g->current->th_sport, g->current->th_dport,
+		if(compare_headers(&g->src_address, &g->dst_address,
+				   g->src_port, g->dst_port,
 				   &tmp->ip_src, &tmp->ip_dst,
 				   tmp->th_sport, tmp->th_dport,
 				   COMPARE_CURR_DIR)) {
@@ -4410,8 +4450,8 @@ static void rtt_make_elmtlist (struct graph *g)
 	}
 
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
-		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
-				   g->current->th_sport, g->current->th_dport,
+		if(compare_headers(&g->src_address, &g->dst_address,
+				   g->src_port, g->dst_port,
 				   &tmp->ip_src, &tmp->ip_dst,
 				   tmp->th_sport, tmp->th_dport,
 				   COMPARE_CURR_DIR)) {
@@ -4501,8 +4541,8 @@ static void wscale_initialize(struct graph* g)
 
 	for (segm = g->segments; segm; segm = segm->next)
 	{
-		if (compare_headers(&g->current->ip_src, &g->current->ip_dst,
-					g->current->th_sport, g->current->th_dport,
+		if (compare_headers(&g->src_address, &g->dst_address,
+					g->src_port, g->dst_port,
 					&segm->ip_src, &segm->ip_dst,
 					segm->th_sport, segm->th_dport,
 					COMPARE_CURR_DIR))
@@ -4560,8 +4600,8 @@ static void wscale_make_elmtlist(struct graph* g)
 
 	for ( segm = g->segments; segm; segm = segm->next )
 	{
-		if (compare_headers(&g->current->ip_src, &g->current->ip_dst,
-					g->current->th_sport, g->current->th_dport,
+		if (compare_headers(&g->src_address, &g->dst_address,
+					g->src_port, g->src_port,
 					&segm->ip_src, &segm->ip_dst,
 					segm->th_sport, segm->th_dport,
 					COMPARE_CURR_DIR))

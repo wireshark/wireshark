@@ -138,6 +138,8 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     const gchar *map          = NULL;
 #endif /* HAVE_GEOIP */
     const gchar *follow_stream = NULL;
+    const gchar *graph_a_b     = NULL;
+    const gchar *graph_b_a     = NULL;
 
 
     va_start(stock_id_list, stock_id_first);
@@ -208,6 +210,10 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             delete = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_COPY) == 0) {
             copy = stock_id;
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_GRAPH_A_B) == 0) {
+            graph_a_b = stock_id;
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_GRAPH_B_A) == 0) {
+            graph_b_a = stock_id;
         } else {
             /* we don't know that button! */
             g_assert_not_reached();
@@ -431,6 +437,8 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (clear   != NULL) dlg_button_new(hbox, button_hbox, clear);
     if (filter_stream!= NULL) dlg_button_new(hbox, button_hbox, filter_stream);
     if (follow_stream != NULL) dlg_button_new(hbox, button_hbox, follow_stream);
+    if (graph_a_b != NULL) dlg_button_new(hbox, button_hbox, graph_a_b);
+    if (graph_b_a != NULL) dlg_button_new(hbox, button_hbox, graph_b_a);
     if (close   != NULL) dlg_button_new(hbox, button_hbox, close);
     if (cancel  != NULL) dlg_button_new(hbox, button_hbox, cancel);
 

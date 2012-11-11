@@ -176,6 +176,9 @@ void gtk_stats_tree_cb(GtkAction *action, gpointer user_data);
 
 void tcp_graph_cb(GtkAction *action, gpointer user_data);
 gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt, gpointer callback_data _U_);
+void tcp_graph_known_stream_launch(address *src_address, guint16 src_port,
+                                   address *dst_address, guint16 dst_port);
+
 
 void gtk_rpcprogs_cb(GtkWidget *w, gpointer data);
 void mcaststream_launch(GtkAction *action, gpointer user_data);

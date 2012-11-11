@@ -47,6 +47,7 @@
 #include "ui/gtk/filter_utils.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/gui_utils.h"
+#include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
@@ -61,6 +62,8 @@
 #define CONV_PTR_KEY "conversations-pointer"
 #define NB_PAGES_KEY "notebook-pages"
 #define FOLLOW_STREAM_BT_KEY "follow-stream-button"
+#define GRAPH_A_B_BT_KEY     "graph-a-b-button"
+#define GRAPH_B_A_BT_KEY     "graph-b-a-button"
 #define NO_BPS_STR "N/A"
 
 #define CMP_NUM(n1, n2)                         \
@@ -2461,6 +2464,52 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
 
 
 static void
+graph_cb(GtkWidget *follow_stream_bt, gboolean reverse_direction)
+{
+    conversations_table *ct = g_object_get_data (G_OBJECT(follow_stream_bt), CONV_PTR_KEY);
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+    GtkTreeSelection  *sel;
+    guint32 idx = 0;
+    conv_t *conv;
+
+    if (!ct)
+        return;
+
+    /* Check for a current selection and that index has associated data */
+    sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(ct->table));
+    if (!gtk_tree_selection_get_selected(sel, &model, &iter)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
+        return;
+    }
+
+    gtk_tree_model_get (model, &iter, INDEX_COLUMN, &idx, -1);
+    if (idx >= ct->num_conversations) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
+        return;
+    }
+
+    /* Look up the conversation for this index */
+    conv = &g_array_index(ct->conversations, conv_t, idx);
+
+    if (strcmp(ct->name, "TCP") == 0) {
+        /* Invoke the graph */
+        if (!reverse_direction) {
+            tcp_graph_known_stream_launch(&conv->src_address, conv->src_port,
+                                          &conv->dst_address, conv->dst_port);
+        }
+        else {
+            tcp_graph_known_stream_launch(&conv->dst_address, conv->dst_port,
+                                          &conv->src_address, conv->src_port);
+        }
+    }
+    else {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Unknown stream: %s", ct->name);
+    }
+}
+
+
+static void
 follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
 {
     conversations_table *ct = g_object_get_data (G_OBJECT(follow_stream_bt), CONV_PTR_KEY);
@@ -2538,6 +2587,7 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     gboolean ret;
     GtkWidget *copy_bt, *follow_stream_bt;
     gboolean add_follow_stream_button = FALSE;
+    gboolean add_graph_buttons = FALSE;
 
     conversations=g_malloc0(sizeof(conversations_table));
 
@@ -2562,8 +2612,11 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
         return;
     }
 
-    if ((strcmp(table_name, "TCP") == 0) || (strcmp(table_name, "UDP") == 0))
-        add_follow_stream_button = TRUE;
+    if (strcmp(table_name, "TCP") == 0) {
+        add_graph_buttons = TRUE;
+        if (strcmp(table_name, "UDP") == 0)
+            add_follow_stream_button = TRUE;
+    }
 
     /* Button row. */
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
@@ -2608,6 +2661,8 @@ static void
 ct_nb_switch_page_cb(GtkNotebook *nb, gpointer *pg _U_, guint page, gpointer data)
 {
     GtkWidget  *copy_bt          = (GtkWidget *) data;
+    GtkWidget  *graph_a_b_bt     = g_object_get_data(G_OBJECT(nb), GRAPH_A_B_BT_KEY);
+    GtkWidget  *graph_b_a_bt     = g_object_get_data(G_OBJECT(nb), GRAPH_B_A_BT_KEY);
     GtkWidget  *follow_stream_bt = g_object_get_data(G_OBJECT(nb), FOLLOW_STREAM_BT_KEY);
     void      **pages            = g_object_get_data(G_OBJECT(nb), NB_PAGES_KEY);
 
@@ -2617,16 +2672,25 @@ ct_nb_switch_page_cb(GtkNotebook *nb, gpointer *pg _U_, guint page, gpointer dat
     if (pages && (page > 0) && ((int) page <= GPOINTER_TO_INT(pages[0]))) {
         g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, pages[page]);
         g_object_set_data(G_OBJECT(follow_stream_bt), CONV_PTR_KEY, pages[page]);
+        g_object_set_data(G_OBJECT(graph_a_b_bt), CONV_PTR_KEY, pages[page]);
+        g_object_set_data(G_OBJECT(graph_b_a_bt), CONV_PTR_KEY, pages[page]);
 
         /* Filter Stream only available for TCP and UDP */
         if (strcmp(((conversations_table *)pages[page])->name, "TCP") == 0) {
             gtk_widget_set_tooltip_text(follow_stream_bt, "Follow TCP Stream.");
             gtk_widget_set_sensitive(follow_stream_bt, TRUE);
+            gtk_widget_set_tooltip_text(follow_stream_bt, "Graph A->B.");
+            gtk_widget_set_sensitive(graph_a_b_bt, TRUE);
+            gtk_widget_set_sensitive(graph_b_a_bt, TRUE);
         } else if (strcmp(((conversations_table *)pages[page])->name, "UDP") == 0) {
             gtk_widget_set_tooltip_text(follow_stream_bt, "Follow UDP Stream.");
+            gtk_widget_set_sensitive(graph_a_b_bt, FALSE);
+            gtk_widget_set_sensitive(graph_b_a_bt, FALSE);
             gtk_widget_set_sensitive(follow_stream_bt, TRUE);
         } else {
             gtk_widget_set_tooltip_text(follow_stream_bt, "Follow TCP or UDP Stream.");
+            gtk_widget_set_sensitive(graph_a_b_bt, FALSE);
+            gtk_widget_set_sensitive(graph_b_a_bt, FALSE);
             gtk_widget_set_sensitive(follow_stream_bt, FALSE);
         }
     }
@@ -2765,6 +2829,8 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     register_ct_t *registered;
     GtkWidget *copy_bt;
     GtkWidget *follow_stream_bt;
+    GtkWidget *graph_a_b_bt;
+    GtkWidget *graph_b_a_bt;
 
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_ct_tables) + 1));
 
@@ -2823,18 +2889,41 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     /* Button row. */
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, WIRESHARK_STOCK_FOLLOW_STREAM, GTK_STOCK_HELP, NULL);
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY,
+                              WIRESHARK_STOCK_FOLLOW_STREAM,
+                              WIRESHARK_STOCK_GRAPH_A_B,
+                              WIRESHARK_STOCK_GRAPH_B_A,
+                              GTK_STOCK_HELP, NULL);
 
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
+    /* Close */
     close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(win, close_bt, window_cancel_button_cb);
 
+    /* Copy */
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
     gtk_widget_set_tooltip_text(copy_bt, "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
     g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, pages[page]);
 
+    /* Graph A->B */
+    graph_a_b_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_GRAPH_A_B);
+    gtk_widget_set_tooltip_text(graph_a_b_bt, "Graph A->B.");
+    g_object_set_data(G_OBJECT(graph_a_b_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
+    g_object_set_data(G_OBJECT(graph_a_b_bt), CONV_PTR_KEY, pages[page]);
+    g_signal_connect(graph_a_b_bt, "clicked", G_CALLBACK(graph_cb), (gpointer)FALSE);
+    g_object_set_data(G_OBJECT(nb), GRAPH_A_B_BT_KEY, graph_a_b_bt);
+
+    /* Graph B->A */
+    graph_b_a_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_GRAPH_B_A);
+    gtk_widget_set_tooltip_text(graph_b_a_bt, "Graph B->A.");
+    g_object_set_data(G_OBJECT(graph_b_a_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
+    g_object_set_data(G_OBJECT(graph_b_a_bt), CONV_PTR_KEY, pages[page]);
+    g_signal_connect(graph_b_a_bt, "clicked", G_CALLBACK(graph_cb), (gpointer)TRUE);
+    g_object_set_data(G_OBJECT(nb), GRAPH_B_A_BT_KEY, graph_b_a_bt);
+
+    /* Follow stream */
     follow_stream_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_FOLLOW_STREAM);
     gtk_widget_set_tooltip_text(follow_stream_bt, "Follow Stream.");
     g_object_set_data(G_OBJECT(follow_stream_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
@@ -2842,8 +2931,10 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     g_signal_connect(follow_stream_bt, "clicked", G_CALLBACK(follow_stream_cb), NULL);
 
     g_object_set_data(G_OBJECT(nb), FOLLOW_STREAM_BT_KEY, follow_stream_bt);
+
     g_signal_connect(nb, "switch-page", G_CALLBACK(ct_nb_switch_page_cb), copy_bt);
 
+    /* Help */
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_CONVERSATIONS_DIALOG);
 
