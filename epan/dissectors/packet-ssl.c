@@ -166,7 +166,6 @@ static gint hf_ssl_handshake_extension_elliptic_curves      = -1;
 static gint hf_ssl_handshake_extension_elliptic_curve       = -1;
 static gint hf_ssl_handshake_extension_ec_point_formats_len = -1;
 static gint hf_ssl_handshake_extension_ec_point_format      = -1;
-static gint hf_ssl_handshake_extension_npn_len = -1;
 static gint hf_ssl_handshake_extension_npn_str_len = -1;
 static gint hf_ssl_handshake_extension_npn_str = -1;
 static gint hf_ssl_handshake_extension_reneg_info_len = -1;
@@ -2467,7 +2466,7 @@ dissect_ssl3_hnd_hello_ext_npn(tvbuff_t *tvb,
         if (npn_length > 0) {
             tvb_ensure_bytes_exist(tvb, offset, npn_length);
             proto_tree_add_item(npn_tree, hf_ssl_handshake_extension_npn_str,
-                                tvb, offset, npn_length, ENC_NA);
+                                tvb, offset, npn_length, ENC_ASCII|ENC_NA);
             offset += npn_length;
             ext_len -= npn_length;
         }
@@ -2508,7 +2507,7 @@ static gint
 dissect_ssl3_hnd_hello_ext_server_name(tvbuff_t *tvb,
                                proto_tree *tree, guint32 offset, guint32 ext_len)
 {
-    guint8 server_name_length;
+    guint16 server_name_length;
     proto_tree *server_name_tree, *ti;
 
 
@@ -2526,20 +2525,20 @@ dissect_ssl3_hnd_hello_ext_server_name(tvbuff_t *tvb,
 
    while (ext_len > 0) {
        proto_tree_add_item(server_name_tree, hf_ssl_handshake_extension_server_name_type,
+                           tvb, offset, 1, ENC_NA);
+       offset += 1;
+       ext_len -= 1;
+
+       server_name_length = tvb_get_ntohs(tvb, offset);
+       proto_tree_add_item(server_name_tree, hf_ssl_handshake_extension_server_name_len,
                            tvb, offset, 2, ENC_BIG_ENDIAN);
        offset += 2;
        ext_len -= 2;
 
-       server_name_length = tvb_get_guint8(tvb, offset);
-       proto_tree_add_item(server_name_tree, hf_ssl_handshake_extension_server_name_len,
-                           tvb, offset, 1, ENC_NA);
-       offset++;
-       ext_len--;
-
        if (server_name_length > 0) {
            tvb_ensure_bytes_exist(tvb, offset, server_name_length);
            proto_tree_add_item(server_name_tree, hf_ssl_handshake_extension_server_name,
-                               tvb, offset, server_name_length, ENC_NA);
+                               tvb, offset, server_name_length, ENC_ASCII|ENC_NA);
            offset += server_name_length;
            ext_len -= server_name_length;
        }
@@ -5175,11 +5174,6 @@ proto_register_ssl(void)
             FT_UINT8, BASE_DEC, VALS(ssl_extension_ec_point_formats), 0x0,
             "Elliptic curves point format", HFILL }
         },
-        { &hf_ssl_handshake_extension_npn_len,
-          { "NPN extension length", "ssl.handshake.extensions_npn_length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Length of NPN extension", HFILL }
-        },
         { &hf_ssl_handshake_extension_npn_str_len,
           { "Protocol string length", "ssl.handshake.extensions_npn_str_len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -5207,7 +5201,7 @@ proto_register_ssl(void)
         },
         { &hf_ssl_handshake_extension_server_name_type,
           { "Server Name Type", "ssl.handshake.extensions_server_name_type",
-            FT_UINT16, BASE_DEC, VALS(tls_hello_ext_server_name_type_vs), 0x0,
+            FT_UINT8, BASE_DEC, VALS(tls_hello_ext_server_name_type_vs), 0x0,
             NULL, HFILL }
         },
         { &hf_ssl_handshake_extension_server_name,
