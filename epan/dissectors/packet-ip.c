@@ -660,7 +660,7 @@ dissect_ipopt_type(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_ipopt_eool(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                    guint optlen _U_, packet_info *pinfo _U_,
-                   proto_tree *opt_tree)
+                   proto_tree *opt_tree, void * data _U_)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -732,7 +732,8 @@ static const int *ip_opt_sec_prot_auth_fields_byte_n[] = {
 };
 static void
 dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                       guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+                       guint optlen, packet_info *pinfo, proto_tree *opt_tree,
+                       void * data _U_)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -803,7 +804,8 @@ dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_ipopt_ext_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                           guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+                           guint optlen, packet_info *pinfo, proto_tree *opt_tree,
+                           void * data _U_)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -842,7 +844,8 @@ dissect_ipopt_ext_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
  * http://tools.ietf.org/html/draft-ietf-cipso-ipsecurity-01 */
 static void
 dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                    guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+                    guint optlen, packet_info *pinfo, proto_tree *opt_tree,
+                    void * data _U_)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -1103,7 +1106,8 @@ dissect_option_route(proto_tree *tree, tvbuff_t *tvb, int offset, int hf,
 
 static void
 dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                    guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+                    guint optlen, packet_info *pinfo, proto_tree *opt_tree,
+                    void * data _U_)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -1187,7 +1191,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 static void
 dissect_ipopt_record_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                            guint optlen, packet_info *pinfo,
-                           proto_tree *opt_tree)
+                           proto_tree *opt_tree, void * data _U_)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -1251,7 +1255,8 @@ dissect_ipopt_record_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 /* Stream Identifier */
 static void
 dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                  guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+                  guint optlen, packet_info *pinfo, proto_tree *opt_tree,
+                  void * data _U_)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -1270,7 +1275,8 @@ dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 /* RFC 1063: MTU Probe and MTU Reply */
 static void
 dissect_ipopt_mtu(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                  guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+                  guint optlen, packet_info *pinfo, proto_tree *opt_tree,
+                  void * data _U_)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -1289,7 +1295,8 @@ dissect_ipopt_mtu(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 /* RFC 1393: Traceroute */
 static void
 dissect_ipopt_tr(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                  guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+                  guint optlen, packet_info *pinfo, proto_tree *opt_tree,
+                  void * data _U_)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -1312,7 +1319,7 @@ dissect_ipopt_tr(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 static void
 dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
                         int offset, guint optlen, packet_info *pinfo,
-                        proto_tree *opt_tree)
+                        proto_tree *opt_tree, void * data _U_)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -1395,7 +1402,8 @@ static const range_string ra_rvals[] = {
 
 static void
 dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                 guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+                 guint optlen, packet_info *pinfo, proto_tree *opt_tree,
+                 void * data _U_)
 {
   /* Router-Alert, as defined by RFC2113 */
   proto_tree *field_tree;
@@ -1418,7 +1426,8 @@ dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 /* RFC 1770: Selective Directed Broadcast */
 static void
 dissect_ipopt_sdb(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                 guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+                 guint optlen, packet_info *pinfo, proto_tree *opt_tree,
+                 void * data _U_)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -1467,7 +1476,8 @@ value_string_ext qs_rate_vals_ext = VALUE_STRING_EXT_INIT(qs_rate_vals);
 
 static void
 dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                 guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+                 guint optlen, packet_info *pinfo, proto_tree *opt_tree,
+                 void * data _U_)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -1587,8 +1597,8 @@ static const ip_tcp_opt ipopts[] = {
 void
 dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
                        const ip_tcp_opt *opttab, int nopts, int eol,
-                        packet_info *pinfo, proto_tree *opt_tree,
-                        proto_item *opt_item)
+                       packet_info *pinfo, proto_tree *opt_tree,
+                       proto_item *opt_item, void * data)
 {
   guchar            opt;
   const ip_tcp_opt *optp;
@@ -1596,7 +1606,8 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   unsigned int      optlen;
   const char       *name;
   void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
-                             int, guint, packet_info *, proto_tree *);
+                             int, guint, packet_info *, proto_tree *,
+                             void *);
   guint             len, nop_count = 0;
 
   while (length > 0) {
@@ -1679,7 +1690,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
             /* Option has a dissector. */
             proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s",
                                    optp->name);
-            (*dissect)(optp, tvb, offset, len, pinfo, opt_tree);
+            (*dissect)(optp, tvb, offset, len, pinfo, opt_tree, data);
           } else {
             proto_tree *field_tree;
             proto_item *tf;
@@ -1700,7 +1711,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       if (dissect != NULL) {
         proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s",
                                optp->name);
-        (*dissect)(optp, tvb, offset, 1, pinfo, opt_tree);
+        (*dissect)(optp, tvb, offset, 1, pinfo, opt_tree, data);
       } else {
         proto_tree *field_tree;
         proto_item *tf;
@@ -2304,7 +2315,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                              "Options: (%u bytes)", optlen);
     field_tree = proto_item_add_subtree(tf, ett_ip_options);
     dissect_ip_tcp_options(tvb, offset + 20, optlen, ipopts, N_IP_OPTS,
-                           IPOPT_EOOL, pinfo, field_tree, tf);
+                           IPOPT_EOOL, pinfo, field_tree, tf, NULL);
   }
 
   pinfo->ipproto = iph->ip_p;

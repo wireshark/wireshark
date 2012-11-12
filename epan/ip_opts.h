@@ -47,7 +47,8 @@ typedef struct ip_tcp_opt {
                    int,
                    guint,
                    packet_info *,
-                   proto_tree *);   /**< routine to dissect option */
+                   proto_tree *,
+                   void *);   /**< routine to dissect option */
 } ip_tcp_opt;
 
 /** Routine to dissect options that work like IPv4 options, where the
@@ -55,7 +56,8 @@ typedef struct ip_tcp_opt {
    length bytes. */
 extern void dissect_ip_tcp_options(tvbuff_t *, int, guint,
                                    const ip_tcp_opt *, int, int,
-                                   packet_info *, proto_tree *, proto_item *);
+                                   packet_info *, proto_tree *, proto_item *,
+                                   void *);
 
 /* Quick-Start option, as defined by RFC4782 */
 #define QS_FUNC_MASK        0xf0

@@ -62,6 +62,12 @@ typedef struct tcpheader {
 	guint32 th_stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
 	address ip_src;
 	address ip_dst;
+
+	/* This is the absolute maximum we could find in TCP options (RFC2018, section 3) */
+	#define MAX_TCP_SACK_RANGES 4
+	guint8  num_sack_ranges;
+	guint32 sack_left_edge[MAX_TCP_SACK_RANGES];
+	guint32 sack_right_edge[MAX_TCP_SACK_RANGES];
 } tcp_info_t;
 
 /*

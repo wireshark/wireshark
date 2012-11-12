@@ -164,6 +164,7 @@ static int hf_tcp_option_sack_perm = -1;
 static int hf_tcp_option_sack = -1;
 static int hf_tcp_option_sack_sle = -1;
 static int hf_tcp_option_sack_sre = -1;
+static int hf_tcp_option_sack_range_count = -1;
 static int hf_tcp_option_echo = -1;
 static int hf_tcp_option_echo_reply = -1;
 static int hf_tcp_option_timestamp_tsval = -1;
@@ -2352,7 +2353,7 @@ tcp_info_append_uint(packet_info *pinfo, const char *abbrev, guint32 val)
 
 static void
 dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
     proto_item *item;
     proto_tree *exp_tree;
@@ -2370,7 +2371,7 @@ dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
 static void
 dissect_tcpopt_sack_perm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
     proto_item *item;
     proto_tree *exp_tree;
@@ -2385,7 +2386,7 @@ dissect_tcpopt_sack_perm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
 static void
 dissect_tcpopt_mss(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
     proto_item *item;
     proto_tree *exp_tree;
@@ -2404,7 +2405,7 @@ dissect_tcpopt_mss(const ip_tcp_opt *optp, tvbuff_t *tvb,
 /* The window scale extension is defined in RFC 1323 */
 static void
 dissect_tcpopt_wscale(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
-    int offset, guint optlen _U_, packet_info *pinfo, proto_tree *opt_tree)
+    int offset, guint optlen _U_, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
     guint8 val, shift;
     proto_item *wscale_pi, *gen_pi;
@@ -2442,14 +2443,16 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
 static void
 dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data)
 {
     proto_tree *field_tree = NULL;
     proto_item *tf=NULL;
     proto_item *hidden_item;
     guint32 leftedge, rightedge;
     struct tcp_analysis *tcpd=NULL;
+    struct tcpheader *tcph = (struct tcpheader *)data;
     guint32 base_ack=0;
+    guint  num_sack_ranges = 0;
 
     if(tcp_analyze_seq && tcp_relative_seq) {
         /* find(or create if needed) the conversation for this tcp session */
@@ -2467,7 +2470,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
                         offset + 1, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset,      optlen, "%s:", optp->name);
+    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s:", optp->name);
     offset += 2;    /* skip past type and length */
     optlen -= 2;    /* subtract size of type and length */
     while (optlen > 0) {
@@ -2504,14 +2507,28 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                    tcp_relative_seq ? " (relative)" : "");
         tcp_info_append_uint(pinfo, "SLE", leftedge);
         tcp_info_append_uint(pinfo, "SRE", rightedge);
+        num_sack_ranges++;
+
+        /* Update tap info */
+        if (tcph != NULL && (tcph->num_sack_ranges < MAX_TCP_SACK_RANGES)) {
+            tcph->sack_left_edge[tcph->num_sack_ranges] = leftedge;
+            tcph->sack_right_edge[tcph->num_sack_ranges] = rightedge;
+            tcph->num_sack_ranges++;
+        }
+
         proto_item_append_text(field_tree, " %u-%u", leftedge, rightedge);
         offset += 8;
     }
+
+    /* Show number of SACK ranges in this option as a generated field */
+    tf = proto_tree_add_uint(field_tree, hf_tcp_option_sack_range_count,
+                             tvb, 0, 0, num_sack_ranges);
+    PROTO_ITEM_SET_GENERATED(tf);
 }
 
 static void
 dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
     proto_item *hidden_item;
     guint32 echo;
@@ -2537,7 +2554,7 @@ static gboolean tcp_ignore_timestamps = FALSE;
 
 static void
 dissect_tcpopt_timestamp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
-    int offset, guint optlen _U_, packet_info *pinfo, proto_tree *opt_tree)
+    int offset, guint optlen _U_, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *ts_tree;
@@ -2579,7 +2596,7 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
  */
 static void
 dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *mptcp_tree;
@@ -2838,7 +2855,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
 static void
 dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
     proto_item *hidden_item;
     guint32 cc;
@@ -2861,7 +2878,7 @@ dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
 
     proto_item *hidden_item;
@@ -2889,7 +2906,7 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
 static void
 dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             int offset, guint optlen, packet_info *pinfo,
-            proto_tree *opt_tree)
+            proto_tree *opt_tree, void *data _U_)
 {
     struct tcp_analysis *tcpd;
     proto_tree *field_tree = NULL;
@@ -3057,7 +3074,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
 static void
 dissect_tcpopt_user_to(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
     proto_item *hidden_item, *tf;
     proto_tree *field_tree;
@@ -3114,7 +3131,7 @@ verify_scps(packet_info *pinfo,  proto_item *tf_syn, struct tcp_analysis *tcpd)
 static void
 dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
             int offset, guint optlen, packet_info *pinfo,
-            proto_tree *opt_tree)
+            proto_tree *opt_tree, void *data _U_)
 {
     struct tcp_analysis *tcpd=NULL;
     guint16 relative_hole_offset;
@@ -3288,7 +3305,8 @@ rvbd_probe_resp_add_info(proto_item *pitem, packet_info *pinfo, guint32 ip, guin
 
 static void
 dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-                          guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+                          guint optlen, packet_info *pinfo, proto_tree *opt_tree,
+                          void *data _U_)
 {
     guint8 ver, type;
     proto_tree *field_tree;
@@ -3504,7 +3522,7 @@ static const true_false_string trpy_mode_str = {
 static void
 dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                         int offset, guint optlen, packet_info *pinfo,
-                        proto_tree *opt_tree)
+                        proto_tree *opt_tree, void *data _U_)
 {
     proto_tree *field_tree;
     proto_tree *flag_tree;
@@ -4617,6 +4635,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Decode TCP options, if any. */
+    tcph->num_sack_ranges = 0;
     if (tcph->th_hlen > TCPH_MIN_LEN) {
         /* There's more than just the fixed-length header.  Decode the
            options. */
@@ -4632,7 +4651,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             field_tree = NULL;
         }
         dissect_ip_tcp_options(tvb, offset + 20, optlen,
-                               tcpopts, N_TCP_OPTS, TCPOPT_EOL, pinfo, field_tree, tf);
+                               tcpopts, N_TCP_OPTS, TCPOPT_EOL, pinfo, field_tree, tf, tcph);
     }
 
     if(!pinfo->fd->flags.visited) {
@@ -5112,6 +5131,10 @@ proto_register_tcp(void)
         { &hf_tcp_option_sack_sre,
           {"TCP SACK Right Edge", "tcp.options.sack_re", FT_UINT32,
            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_sack_range_count,
+          { "TCP SACK Count", "tcp.options.sack.count", FT_UINT8,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         { &hf_tcp_option_echo,
           { "TCP Echo Option", "tcp.options.echo", FT_BOOLEAN,

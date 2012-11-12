@@ -94,6 +94,10 @@ struct segment {
 	guint16 th_dport;
 	address ip_src;
 	address ip_dst;
+
+	guint8  num_sack_ranges;
+	guint32 sack_left_edge[MAX_TCP_SACK_RANGES];
+	guint32 sack_right_edge[MAX_TCP_SACK_RANGES];
 };
 
 struct rect {
@@ -176,6 +180,7 @@ struct axis {
 struct style_tseq_tcptrace {
 	GdkColor seq_color;
 	GdkColor ack_color[2];
+	GdkColor sack_color[2];
 	int flags;
 };
 
@@ -416,7 +421,7 @@ static void update_zoom_spins (struct graph * );
 static struct tcpheader *select_tcpip_session (capture_file *, struct segment * );
 static int compare_headers (address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, address *saddr2, address *daddr2, guint16 sport2, guint16 dport2, int dir);
 static int get_num_dsegs (struct graph * );
-static int get_num_acks (struct graph * );
+static int get_num_acks (struct graph *, int * );
 static void graph_type_dependent_initialize (struct graph * );
 static struct graph *graph_new (void);
 static void graph_destroy (struct graph * );
@@ -1840,6 +1845,14 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 		segment->th_seglen=tcphdr->th_seglen;
 		COPY_ADDRESS(&segment->ip_src, &tcphdr->ip_src);
 		COPY_ADDRESS(&segment->ip_dst, &tcphdr->ip_dst);
+
+		segment->num_sack_ranges = MIN(MAX_TCP_SACK_RANGES, tcphdr->num_sack_ranges);
+		if (segment->num_sack_ranges > 0) {
+			/* Copy entries in the order they happen */
+			memcpy(&segment->sack_left_edge, &tcphdr->sack_left_edge, sizeof(segment->sack_left_edge));
+			memcpy(&segment->sack_right_edge, &tcphdr->sack_right_edge, sizeof(segment->sack_right_edge));
+		}
+
 		if (ts->g->segments) {
 			ts->last->next = segment;
 		} else {
@@ -3750,7 +3763,7 @@ static int get_num_dsegs (struct graph *g)
 	return count;
 }
 
-static int get_num_acks (struct graph *g)
+static int get_num_acks (struct graph *g, int *num_sack_ranges)
 {
 	int count;
 	struct segment *tmp;
@@ -3762,6 +3775,7 @@ static int get_num_acks (struct graph *g)
 				   tmp->th_sport, tmp->th_dport,
 				   COMPARE_CURR_DIR)) {
 			count++;
+			*num_sack_ranges += tmp->num_sack_ranges;
 		}
 	}
 	return count;
@@ -3996,6 +4010,18 @@ static void tseq_tcptrace_read_config (struct graph *g)
 	g->s.tseq_tcptrace.ack_color[1].green=0xd3d3;
 	g->s.tseq_tcptrace.ack_color[1].blue=0xd3d3;
 
+	/* Light blue */
+	g->s.tseq_tcptrace.sack_color[0].pixel=0;
+	g->s.tseq_tcptrace.sack_color[0].red=0x0;
+	g->s.tseq_tcptrace.sack_color[0].green=0x0;
+	g->s.tseq_tcptrace.sack_color[0].blue=0xffff;
+
+	/* Darker blue */
+	g->s.tseq_tcptrace.sack_color[1].pixel=0;
+	g->s.tseq_tcptrace.sack_color[1].red=0x0;
+	g->s.tseq_tcptrace.sack_color[1].green=0x0;
+	g->s.tseq_tcptrace.sack_color[1].blue=0x9888;
+
 	g->s.tseq_tcptrace.flags = 0;
 
 	g->elists->next = (struct element_list * )
@@ -4027,11 +4053,14 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 	int toggle=0;
 	guint32 seq_base;
 	guint32 seq_cur;
+	int     num_sack_ranges;
 
 	debug(DBS_FENTRY) puts ("tseq_tcptrace_make_elmtlist()");
 
 	if (g->elists->elements == NULL) {
-		int n = 1 + 4*get_num_acks(g);
+		/* 4 elements per ACK, but only one for each SACK range */
+		int n = 1 + 4*get_num_acks(g, &num_sack_ranges);
+		n += num_sack_ranges;
 		e0 = elements0 = (struct element * )g_malloc (n*sizeof (struct element));
 	} else
 		e0 = elements0 = g->elists->elements;
@@ -4105,6 +4134,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 
 			/* ack line */
 			if (ack_seen == TRUE) { /* don't plot the first ack */
+
+				/* Horizonal: time of previous ACK to now (at new ACK) */
 				e0->type = ELMT_LINE;
 				e0->parent = tmp;
 				/* Set the drawing color */
@@ -4114,6 +4145,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				e0->p.line.dim.x2 = x;
 				e0->p.line.dim.y2 = p_ackno;
 				e0++;
+
+				/* Vertical: from previous ACKNO to current one (at current time) */
 				e0->type = ELMT_LINE;
 				e0->parent = tmp;
 				/* Set the drawing color */
@@ -4123,7 +4156,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				e0->p.line.dim.x2 = x;
 				e0->p.line.dim.y2 = ackno!=p_ackno || ackno<4 ? ackno : ackno-4;
 				e0++;
-				/* window line */
+
+				/* Horizontal: window line */
 				e0->type = ELMT_LINE;
 				e0->parent = tmp;
 				/* Set the drawing color */
@@ -4133,6 +4167,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				e0->p.line.dim.x2 = x;
 				e0->p.line.dim.y2 = p_win + p_ackno;
 				e0++;
+
+				/* Vertical: old window to new window */
 				e0->type = ELMT_LINE;
 				e0->parent = tmp;
 				/* Set the drawing color */
@@ -4142,12 +4178,41 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				e0->p.line.dim.x2 = x;
 				e0->p.line.dim.y2 = win + ackno;
 				e0++;
+
+				/* Toggle color to use for ACKs... */
 				toggle = 1^toggle;
 			}
 			ack_seen = TRUE;
 			p_ackno = ackno;
 			p_win = win;
 			p_t = x;
+
+			/* Now any SACK entries */
+			if (tmp->num_sack_ranges) {
+				int n;
+
+				for (n=0; n < tmp->num_sack_ranges; n++) {
+					double left_edge =  (tmp->sack_left_edge[n]  - seq_base) * g->zoom.y;
+					double right_edge = (tmp->sack_right_edge[n] - seq_base) * g->zoom.y;
+
+					/* Vertical: just show range of SACK.
+					   Have experimented with sorting ranges and showing in red regions
+					   between SACKs, but when TCP is limited by option bytes and needs to
+					   miss out ranges, this can be pretty confusing as we end up apparently
+					   NACKing what has been received... */
+					e0->type = ELMT_LINE;
+					e0->parent = tmp;
+					/* Set the drawing color.  First range is significant, so use
+					   separate colour */
+					e0->elment_color_p = (n==0) ? &g->s.tseq_tcptrace.sack_color[0] :
+					                              &g->s.tseq_tcptrace.sack_color[1];
+					e0->p.line.dim.x1 = x;
+					e0->p.line.dim.y1 = right_edge;
+					e0->p.line.dim.x2 = x;
+					e0->p.line.dim.y2 = left_edge;
+					e0++;
+				}
+			}
 		}
 	}
 	e0->type = ELMT_NONE;
