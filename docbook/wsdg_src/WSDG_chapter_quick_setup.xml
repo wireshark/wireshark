@@ -114,8 +114,8 @@
       <ulink url="http://www.cygwin.com/setup.exe">
       Download</ulink> the Cygwin installer and start it.</para>
       <para>At the "Select Packages" page, you'll need to select
-      some additional packages, which are not installed by default.
-      Navigate to the required Category/Package row and, if the packate
+      some additional packages which are not installed by default.
+      Navigate to the required Category/Package row and, if the package
       has a "Skip" item in the "New" column, click on the "Skip" item
       so it shows a version number for:
       <itemizedlist>
@@ -130,6 +130,9 @@
         </listitem>
         <listitem>
           <para>Devel/flex</para>
+        </listitem>
+        <listitem>
+          <para>Devel/subversion (optional - see discussion about using Subversion below)</para>
         </listitem>
         <listitem>
           <para>Interpreters/perl</para>
@@ -163,32 +166,34 @@
       <para>Please note that the following is not required to build
       Wireshark, but can be quite helpful when working with the
       sources.</para>
-      <para>Why this is recommended: updating a personal source
-      tree is significantly easier to do with Subversion than
-      downloading a zip file and merging new sources into a
-      personal source tree "by hand".</para>
+      <para>Working with the Subversion source repositories is highly
+      recommended, see <xref linkend="ChSrcObtain" />. It is much easier
+      to update a personal source tree with Subversion rather than downloading
+      a zip file and merging new sources into a personal source tree
+      "by hand."  It also makes first-time setup easy and enables
+      the Wireshark build process to determine your current source code
+      revision.</para>
       <para>There are several ways in which Subversion can be
       installed:</para>
       <section>
-        <title>Subversion</title>
-        <para>If you want to work with the Wireshark Subversion
-        source repositories (which is highly recommended, see
-        <xref linkend="ChSrcObtain" />), it's recommended to
-        install Subversion. This makes the first time setup easy
-        and enables the Wireshark build process to determine your
-        current source code revision. You can download the setup
-        from
+        <title>Subversion from Cygwin</title>
+        <para>Cygwin comes with a command-line Subversion client.  To install
+	it, run Cygwin's setup.exe, navigate to Devel/subversion, and 
+	if the package has a "Skip" item in the "New" column, click on the
+	"Skip" item so it shows a version number.</para>
+      </section>
+      <section>
+        <title>Subversion from apache.org</title>
+        <para>There are several binary-distribution Subversion clients
+	available from apache.org.  Go to
         <ulink url="http://subversion.apache.org/" /> and simply
-        install it.</para>
+        install one.</para>
       </section>
       <section>
         <title>TortoiseSVN</title>
-        <para>If you want to work with the Wireshark Subversion
-        source repositories (which is highly recommended, see
-        <xref linkend="ChSrcObtain" />), it's recommended to use
-        TortoiseSVN for your everyday work. You can download the
-        setup from
-        <ulink url="http://subversion.apache.org/" /> and simply
+        <para>TortoiseSVN is a native Windows graphical Subversion client for
+	Windows.  You can download the setup from
+        <ulink url="http://tortoisesvn.net/" /> and simply
         install it.</para>
       </section>
     </section>
@@ -198,7 +203,8 @@
       <tip> <title>Tip</title>
       <para>It's a good idea to successfully compile and run
       Wireshark at least once before you start hacking the
-      Wireshark sources for your own project! </para>
+      Wireshark sources for your own project! This example uses TortoiseSVN
+      but another Subversion client would work as well.</para>
       </tip>
       <orderedlist>
         <listitem>
