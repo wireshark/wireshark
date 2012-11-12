@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -1086,3 +1086,32 @@ gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_v
 
 	return new_str;
 }
+
+
+/**
+ * g_strcmp0 appears first in GLIB 2.16, define it locally for earlier versions. 
+ * Copied from gtestutils.c in glib
+ * g_strcmp0:
+ * @str1: (allow-none): a C string or %NULL
+ * @str2: (allow-none): another C string or %NULL
+ *
+ * Compares @str1 and @str2 like strcmp(). Handles %NULL 
+ * gracefully by sorting it before non-%NULL strings.
+ * Comparing two %NULL pointers returns 0.
+ *
+ * Returns: -1, 0 or 1, if @str1 is <, == or > than @str2.
+ *
+ * Since: 2.16
+ */
+#if !GLIB_CHECK_VERSION(2,16,0)
+int
+g_strcmp0 (const char     *str1,
+           const char     *str2)
+{
+  if (!str1)
+    return -(str1 != str2);
+  if (!str2)
+    return str1 != str2;
+  return strcmp (str1, str2);
+}
+#endif /* GLIB_CHECK_VERSION(2,16,0) */

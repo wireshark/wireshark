@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifndef __STRUTIL_H__
@@ -272,6 +272,14 @@ gchar* ws_strdup_unescape_char (const gchar *str, const gchar chr);
  */
 gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_val);
 
+/**
+ * g_strcmp0 appears first in GLIB 2.16, define it locally for earlier versions. 
+ */
+
+#if !GLIB_CHECK_VERSION(2,16,0)
+int     g_strcmp0                       (const char     *str1,
+                                         const char     *str2);
+#endif /* GLIB_CHECK_VERSION(2,16,0) */
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

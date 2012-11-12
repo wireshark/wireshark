@@ -56,6 +56,7 @@
 #include "globals.h"
 
 #include <epan/filesystem.h>
+#include <epan/strutil.h>
 
 #include "fileset.h"
 
