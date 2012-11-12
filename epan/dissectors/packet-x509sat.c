@@ -2767,13 +2767,13 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.174", dissect_SyntaxGeneralizedTime_PDU, proto_x509sat, "id-at-aCPEntryCreationDate");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.175", dissect_SyntaxGeneralizedTime_PDU, proto_x509sat, "id-at-aCPEntryModificationDate");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.176", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-aCPEntryType");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.177", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-aCPEntryEniqueId");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.177", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-aCPEntryUniqueId");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.178", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-aCPCitizenship");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.179", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-aCPEID");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.180", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-aCPCOI");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.181", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-aCPPublishTo");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.182", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-aCPSvcApps");
-  register_ber_oid_dissector("2.16.840.1.101.2.2.1.183", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-aCPDirectoinsTo");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.183", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-aCPDirectionsTo");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.185", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-aCPLatitude");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.186", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-aCPLocationMap");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.187", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-aCPLongitude");
