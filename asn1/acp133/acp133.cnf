@@ -1,13 +1,11 @@
 # acp133.cnf
 # ACP133 conformation file
 
+#.IMPORT ../p1/p1-exp.cnf
+#.IMPORT ../x509af/x509af-exp.cnf
 #.IMPORT ../x509ce/x509ce-exp.cnf
 #.IMPORT ../x509if/x509if-exp.cnf
-#.IMPORT ../x509af/x509af-exp.cnf
-#.IMPORT ../p1/p1-exp.cnf
-
-#.MODULE_IMPORT
-MTSAbstractService 	p1
+#.IMPORT ../x509sat/x509sat-exp.cnf
 
 #.PDU
 ACPPreferredDelivery
@@ -203,4 +201,36 @@ ACPLegacyFormat B "2.16.840.1.101.2.2.1.142" "id-at-aCPLegacyFormat"
 JPEG B "2.16.840.1.101.2.2.1.146" "id-at-aCPNetwAccessSchemaEdB"
 JPEG B "2.16.840.1.101.2.2.1.147" "id-at-aCPNetworkSchemaEdB"
 
+# DirectoryString B "2.16.840.1.101.2.2.1.158" "id-at-aCPRoleInformation" - see x509sat.cnf
+# DirectoryString B "2.16.840.1.101.2.2.1.159" "id-at-coalitionGrade" - see x509sat.cnf
+# TelephoneNumber B "2.16.840.1.101.2.2.1.160" "id-at-militaryIPPhoneNumber" - see x509sat.cnf
+# ObjectIdentifier B "2.16.840.1.101.2.2.1.161" "id-at-fileTypeInfoCapability" - see x509sat.cnf
+MaxMessageSize B "2.16.840.1.101.2.2.1.162" "id-at-maxMessageSize"
+MsgProtocolInfoCapability B "2.16.840.1.101.2.2.1.163" "id-at-msgProtocolInfoCapability"
+Active B "2.16.840.1.101.2.2.1.164" "id-at-active"
+EmConCapability B "2.16.840.1.101.2.2.1.165" "id-at-emConCapability"
+EmConState B "2.16.840.1.101.2.2.1.166" "id-at-emConState"
+WebAccessCapability B "2.16.840.1.101.2.2.1.167" "id-at-webAccessCapability"
+DistributionCode B "2.16.840.1.101.2.2.1.168" "id-at-distributionExemptAction"
+DistributionCode B "2.16.840.1.101.2.2.1.169" "id-at-distributionExemptInfo"
+DistributionCode B "2.16.840.1.101.2.2.1.170" "id-at-distributionKeywordAction"
+DistributionCode B "2.16.840.1.101.2.2.1.171" "id-at-distributionKeywordInfo"
+# PrintableString B "2.16.840.1.101.2.2.1.172" "id-at-aCPFunctionalDescription" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.173" "id-at-alternatePLAName" - see x509sat.cnf
+# GeneralizedTime B "2.16.840.1.101.2.2.1.174" "id-at-aCPEntryCreationDate" - see x509sat.cnf
+# GeneralizedTime B "2.16.840.1.101.2.2.1.175" "id-at-aCPEntryModificationDate" - see x509sat.cnf
+# ObjectIdentifier B "2.16.840.1.101.2.2.1.176" "id-at-aCPEntryType" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.177" "id-at-aCPEntryEniqueId" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.178" "id-at-aCPCitizenship" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.179" "id-at-aCPEID" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.180" "id-at-aCPCOI" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.181" "id-at-aCPPublishTo" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.182" "id-at-aCPSvcApps" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.183" "id-at-aCPDirectoinsTo" - see x509sat.cnf
+# DistinguishedName B "2.16.840.1.101.2.2.1.184" "id-at-aCPDutyOfficer" - see x509if.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.185" "id-at-aCPLatitude" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.186" "id-at-aCPLocationMap" - see x509sat.cnf
+# PrintableString B "2.16.840.1.101.2.2.1.187" "id-at-aCPLongitude" - see x509sat.cnf
+# DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember" - see x509sat.cnf
+ACPNoAttachments B "2.16.840.1.101.2.2.1.189" "id-at-aCPNoAttachments"
 

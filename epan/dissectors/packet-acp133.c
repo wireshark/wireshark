@@ -40,10 +40,11 @@
 
 #include "packet-ber.h"
 
-#include "packet-x509af.h"
-#include "packet-x509if.h"
-#include "packet-x509ce.h"
 #include "packet-p1.h"
+#include "packet-x509af.h"
+#include "packet-x509ce.h"
+#include "packet-x509if.h"
+#include "packet-x509sat.h"
 
 #include "packet-acp133.h"
 
@@ -63,13 +64,20 @@ static int hf_acp133_ALType_PDU = -1;             /* ALType */
 static int hf_acp133_Community_PDU = -1;          /* Community */
 static int hf_acp133_OnSupported_PDU = -1;        /* OnSupported */
 static int hf_acp133_ACPLegacyFormat_PDU = -1;    /* ACPLegacyFormat */
+static int hf_acp133_ACPNoAttachments_PDU = -1;   /* ACPNoAttachments */
+static int hf_acp133_Active_PDU = -1;             /* Active */
 static int hf_acp133_Addressees_PDU = -1;         /* Addressees */
 static int hf_acp133_Classification_PDU = -1;     /* Classification */
 static int hf_acp133_DistributionCode_PDU = -1;   /* DistributionCode */
+static int hf_acp133_EmConCapability_PDU = -1;    /* EmConCapability */
+static int hf_acp133_EmConState_PDU = -1;         /* EmConState */
 static int hf_acp133_JPEG_PDU = -1;               /* JPEG */
+static int hf_acp133_MaxMessageSize_PDU = -1;     /* MaxMessageSize */
 static int hf_acp133_MonthlyUKMs_PDU = -1;        /* MonthlyUKMs */
+static int hf_acp133_MsgProtocolInfoCapability_PDU = -1;  /* MsgProtocolInfoCapability */
 static int hf_acp133_Remarks_PDU = -1;            /* Remarks */
 static int hf_acp133_RIParameters_PDU = -1;       /* RIParameters */
+static int hf_acp133_WebAccessCapability_PDU = -1;  /* WebAccessCapability */
 static int hf_acp133_Kmid_PDU = -1;               /* Kmid */
 static int hf_acp133_MLReceiptPolicy_PDU = -1;    /* MLReceiptPolicy */
 static int hf_acp133_DLSubmitPermission_PDU = -1;  /* DLSubmitPermission */
@@ -82,6 +90,8 @@ static int hf_acp133_ukm_entries_item = -1;       /* UKMEntry */
 static int hf_acp133_algorithm_identifier = -1;   /* AlgorithmIdentifier */
 static int hf_acp133_encrypted = -1;              /* BIT_STRING */
 static int hf_acp133_Remarks_item = -1;           /* PrintableString */
+static int hf_acp133_ri_parameters = -1;          /* DirectoryString */
+static int hf_acp133_ri_parameters_deprecated = -1;  /* RIParametersDeprecated */
 static int hf_acp133_rI = -1;                     /* PrintableString */
 static int hf_acp133_rIType = -1;                 /* T_rIType */
 static int hf_acp133_minimize = -1;               /* BOOLEAN */
@@ -138,7 +148,7 @@ static int hf_acp133_OnSupported_acp127_pn = -1;
 static int hf_acp133_OnSupported_acp127_tn = -1;
 
 /*--- End of included file: packet-acp133-hf.c ---*/
-#line 51 "../../asn1/acp133/packet-acp133-template.c"
+#line 52 "../../asn1/acp133/packet-acp133-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_acp133 = -1;
@@ -151,6 +161,7 @@ static gint ett_acp133_MonthlyUKMs = -1;
 static gint ett_acp133_SEQUENCE_OF_UKMEntry = -1;
 static gint ett_acp133_Remarks = -1;
 static gint ett_acp133_RIParameters = -1;
+static gint ett_acp133_RIParametersDeprecated = -1;
 static gint ett_acp133_UKMEntry = -1;
 static gint ett_acp133_PairwiseTag = -1;
 static gint ett_acp133_MLReceiptPolicy = -1;
@@ -166,7 +177,7 @@ static gint ett_acp133_Capability = -1;
 static gint ett_acp133_SET_OF_ExtendedContentType = -1;
 
 /*--- End of included file: packet-acp133-ett.c ---*/
-#line 55 "../../asn1/acp133/packet-acp133-template.c"
+#line 56 "../../asn1/acp133/packet-acp133-template.c"
 
 
 /*--- Included file: packet-acp133-fn.c ---*/
@@ -244,7 +255,7 @@ dissect_acp133_OnSupported(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static const value_string acp133_ACPLegacyFormat_vals[] = {
   {   0, "janap128" },
-  {   1, "acp126" },
+  {   1, "acp127" },
   {   2, "doi103" },
   {   3, "doi103-special" },
   {   4, "acp127" },
@@ -259,6 +270,14 @@ static const value_string acp133_ACPLegacyFormat_vals[] = {
   {  13, "socomm-data" },
   {  14, "socomm-internal" },
   {  15, "socomm-external" },
+  {  16, "mfi-default" },
+  {  17, "acp-legacy-format-smtp" },
+  {  18, "p22" },
+  {  32, "acp145-united-states" },
+  {  33, "acp145-australia" },
+  {  34, "acp145-canada" },
+  {  35, "acp145-united-kingdom" },
+  {  36, "acp145-new-zealand" },
   { 0, NULL }
 };
 
@@ -267,6 +286,24 @@ static int
 dissect_acp133_ACPLegacyFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_acp133_ACPNoAttachments(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_acp133_Active(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -329,9 +366,46 @@ dissect_acp133_DistributionCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static int
+dissect_acp133_EmConCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+static const value_string acp133_EmConState_vals[] = {
+  {   0, "enabled" },
+  {   1, "receive-only" },
+  {   2, "electronic-silence" },
+  {   3, "disabled" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_acp133_EmConState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_acp133_JPEG(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_acp133_MaxMessageSize(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
 
   return offset;
 }
@@ -447,6 +521,22 @@ dissect_acp133_MonthlyUKMs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
+static const value_string acp133_MsgProtocolInfoCapability_vals[] = {
+  {   0, "acp-127" },
+  {   1, "acp-123" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_acp133_MsgProtocolInfoCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
 
 static int
 dissect_acp133_PrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -497,7 +587,7 @@ dissect_acp133_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t RIParameters_set[] = {
+static const ber_sequence_t RIParametersDeprecated_set[] = {
   { &hf_acp133_rI           , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_acp133_PrintableString },
   { &hf_acp133_rIType       , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_acp133_T_rIType },
   { &hf_acp133_minimize     , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_acp133_BOOLEAN },
@@ -507,9 +597,40 @@ static const ber_sequence_t RIParameters_set[] = {
 };
 
 static int
-dissect_acp133_RIParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_acp133_RIParametersDeprecated(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              RIParameters_set, hf_index, ett_acp133_RIParameters);
+                              RIParametersDeprecated_set, hf_index, ett_acp133_RIParametersDeprecated);
+
+  return offset;
+}
+
+
+static const value_string acp133_RIParameters_vals[] = {
+  {   0, "ri-parameters" },
+  {   1, "ri-parameters-deprecated" },
+  { 0, NULL }
+};
+
+static const ber_choice_t RIParameters_choice[] = {
+  {   0, &hf_acp133_ri_parameters, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_x509sat_DirectoryString },
+  {   1, &hf_acp133_ri_parameters_deprecated, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_acp133_RIParametersDeprecated },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_acp133_RIParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 RIParameters_choice, hf_index, ett_acp133_RIParameters,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_acp133_WebAccessCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -946,6 +1067,16 @@ static void dissect_ACPLegacyFormat_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_acp133_ACPLegacyFormat(FALSE, tvb, 0, &asn1_ctx, tree, hf_acp133_ACPLegacyFormat_PDU);
 }
+static void dissect_ACPNoAttachments_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_acp133_ACPNoAttachments(FALSE, tvb, 0, &asn1_ctx, tree, hf_acp133_ACPNoAttachments_PDU);
+}
+static void dissect_Active_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_acp133_Active(FALSE, tvb, 0, &asn1_ctx, tree, hf_acp133_Active_PDU);
+}
 static void dissect_Addressees_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -961,15 +1092,35 @@ static void dissect_DistributionCode_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_acp133_DistributionCode(FALSE, tvb, 0, &asn1_ctx, tree, hf_acp133_DistributionCode_PDU);
 }
+static void dissect_EmConCapability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_acp133_EmConCapability(FALSE, tvb, 0, &asn1_ctx, tree, hf_acp133_EmConCapability_PDU);
+}
+static void dissect_EmConState_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_acp133_EmConState(FALSE, tvb, 0, &asn1_ctx, tree, hf_acp133_EmConState_PDU);
+}
 static void dissect_JPEG_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_acp133_JPEG(FALSE, tvb, 0, &asn1_ctx, tree, hf_acp133_JPEG_PDU);
 }
+static void dissect_MaxMessageSize_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_acp133_MaxMessageSize(FALSE, tvb, 0, &asn1_ctx, tree, hf_acp133_MaxMessageSize_PDU);
+}
 static void dissect_MonthlyUKMs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_acp133_MonthlyUKMs(FALSE, tvb, 0, &asn1_ctx, tree, hf_acp133_MonthlyUKMs_PDU);
+}
+static void dissect_MsgProtocolInfoCapability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_acp133_MsgProtocolInfoCapability(FALSE, tvb, 0, &asn1_ctx, tree, hf_acp133_MsgProtocolInfoCapability_PDU);
 }
 static void dissect_Remarks_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -980,6 +1131,11 @@ static void dissect_RIParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_acp133_RIParameters(FALSE, tvb, 0, &asn1_ctx, tree, hf_acp133_RIParameters_PDU);
+}
+static void dissect_WebAccessCapability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_acp133_WebAccessCapability(FALSE, tvb, 0, &asn1_ctx, tree, hf_acp133_WebAccessCapability_PDU);
 }
 static void dissect_Kmid_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -1014,7 +1170,7 @@ static void dissect_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-acp133-fn.c ---*/
-#line 57 "../../asn1/acp133/packet-acp133-template.c"
+#line 58 "../../asn1/acp133/packet-acp133-template.c"
 
 
 /*--- proto_register_acp133 -------------------------------------------*/
@@ -1046,6 +1202,14 @@ void proto_register_acp133(void) {
       { "ACPLegacyFormat", "acp133.ACPLegacyFormat",
         FT_INT32, BASE_DEC, VALS(acp133_ACPLegacyFormat_vals), 0,
         NULL, HFILL }},
+    { &hf_acp133_ACPNoAttachments_PDU,
+      { "ACPNoAttachments", "acp133.ACPNoAttachments",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_acp133_Active_PDU,
+      { "Active", "acp133.Active",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_acp133_Addressees_PDU,
       { "Addressees", "acp133.Addressees",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1058,13 +1222,29 @@ void proto_register_acp133(void) {
       { "DistributionCode", "acp133.DistributionCode",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_acp133_EmConCapability_PDU,
+      { "EmConCapability", "acp133.EmConCapability",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_acp133_EmConState_PDU,
+      { "EmConState", "acp133.EmConState",
+        FT_UINT32, BASE_DEC, VALS(acp133_EmConState_vals), 0,
+        NULL, HFILL }},
     { &hf_acp133_JPEG_PDU,
       { "JPEG", "acp133.JPEG",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_acp133_MaxMessageSize_PDU,
+      { "MaxMessageSize", "acp133.MaxMessageSize",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_acp133_MonthlyUKMs_PDU,
       { "MonthlyUKMs", "acp133.MonthlyUKMs",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_acp133_MsgProtocolInfoCapability_PDU,
+      { "MsgProtocolInfoCapability", "acp133.MsgProtocolInfoCapability",
+        FT_UINT32, BASE_DEC, VALS(acp133_MsgProtocolInfoCapability_vals), 0,
         NULL, HFILL }},
     { &hf_acp133_Remarks_PDU,
       { "Remarks", "acp133.Remarks",
@@ -1072,7 +1252,11 @@ void proto_register_acp133(void) {
         NULL, HFILL }},
     { &hf_acp133_RIParameters_PDU,
       { "RIParameters", "acp133.RIParameters",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(acp133_RIParameters_vals), 0,
+        NULL, HFILL }},
+    { &hf_acp133_WebAccessCapability_PDU,
+      { "WebAccessCapability", "acp133.WebAccessCapability",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_acp133_Kmid_PDU,
       { "Kmid", "acp133.Kmid",
@@ -1122,6 +1306,14 @@ void proto_register_acp133(void) {
       { "Remarks item", "acp133.Remarks_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "PrintableString", HFILL }},
+    { &hf_acp133_ri_parameters,
+      { "ri-parameters", "acp133.ri_parameters",
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
+        "DirectoryString", HFILL }},
+    { &hf_acp133_ri_parameters_deprecated,
+      { "ri-parameters-deprecated", "acp133.ri_parameters_deprecated",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RIParametersDeprecated", HFILL }},
     { &hf_acp133_rI,
       { "rI", "acp133.rI",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1336,7 +1528,7 @@ void proto_register_acp133(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acp133-hfarr.c ---*/
-#line 66 "../../asn1/acp133/packet-acp133-template.c"
+#line 67 "../../asn1/acp133/packet-acp133-template.c"
   };
 
   /* List of subtrees */
@@ -1351,6 +1543,7 @@ void proto_register_acp133(void) {
     &ett_acp133_SEQUENCE_OF_UKMEntry,
     &ett_acp133_Remarks,
     &ett_acp133_RIParameters,
+    &ett_acp133_RIParametersDeprecated,
     &ett_acp133_UKMEntry,
     &ett_acp133_PairwiseTag,
     &ett_acp133_MLReceiptPolicy,
@@ -1366,7 +1559,7 @@ void proto_register_acp133(void) {
     &ett_acp133_SET_OF_ExtendedContentType,
 
 /*--- End of included file: packet-acp133-ettarr.c ---*/
-#line 72 "../../asn1/acp133/packet-acp133-template.c"
+#line 73 "../../asn1/acp133/packet-acp133-template.c"
   };
 
   /* Register protocol */
@@ -1424,10 +1617,21 @@ void proto_reg_handoff_acp133(void) {
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.142", dissect_ACPLegacyFormat_PDU, proto_acp133, "id-at-aCPLegacyFormat");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.146", dissect_JPEG_PDU, proto_acp133, "id-at-aCPNetwAccessSchemaEdB");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.147", dissect_JPEG_PDU, proto_acp133, "id-at-aCPNetworkSchemaEdB");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.162", dissect_MaxMessageSize_PDU, proto_acp133, "id-at-maxMessageSize");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.163", dissect_MsgProtocolInfoCapability_PDU, proto_acp133, "id-at-msgProtocolInfoCapability");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.164", dissect_Active_PDU, proto_acp133, "id-at-active");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.165", dissect_EmConCapability_PDU, proto_acp133, "id-at-emConCapability");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.166", dissect_EmConState_PDU, proto_acp133, "id-at-emConState");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.167", dissect_WebAccessCapability_PDU, proto_acp133, "id-at-webAccessCapability");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.168", dissect_DistributionCode_PDU, proto_acp133, "id-at-distributionExemptAction");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.169", dissect_DistributionCode_PDU, proto_acp133, "id-at-distributionExemptInfo");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.170", dissect_DistributionCode_PDU, proto_acp133, "id-at-distributionKeywordAction");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.171", dissect_DistributionCode_PDU, proto_acp133, "id-at-distributionKeywordInfo");
+  register_ber_oid_dissector("2.16.840.1.101.2.2.1.189", dissect_ACPNoAttachments_PDU, proto_acp133, "id-at-aCPNoAttachments");
 
 
 /*--- End of included file: packet-acp133-dis-tab.c ---*/
-#line 88 "../../asn1/acp133/packet-acp133-template.c"
+#line 89 "../../asn1/acp133/packet-acp133-template.c"
 
   /* X.402 Object Classes */
   oid_add_from_string("id-oc-mhs-distribution-list","2.6.5.1.0");
@@ -1470,6 +1674,40 @@ void proto_reg_handoff_acp133(void) {
   oid_add_from_string("id-oc-dSSCSPLA","2.16.840.1.101.2.2.3.67");
   oid_add_from_string("id-oc-aCPNetworkEdB","2.16.840.1.101.2.2.3.68");
   oid_add_from_string("id-oc-aCPNetworkInstructionsEdB","2.16.840.1.101.2.2.3.69");
+  oid_add_from_string("id-oc-aCPAddressList","2.16.840.1.101.2.2.3.70");
+  oid_add_from_string("id-oc-aCPAliasCommonName","2.16.840.1.101.2.2.3.71");
+  oid_add_from_string("id-oc-aCPAliasOrganizationalUnit","2.16.840.1.101.2.2.3.72");
+  oid_add_from_string("id-oc-aCPDevice","2.16.840.1.101.2.2.3.73");
+  oid_add_from_string("id-oc-aCPDistributionCodeDescription","2.16.840.1.101.2.2.3.74");
+  oid_add_from_string("id-oc-aCPGroupOfNames","2.16.840.1.101.2.2.3.75");
+  oid_add_from_string("id-oc-aCPLocality","2.16.840.1.101.2.2.3.76");
+  oid_add_from_string("id-oc-aCPOrganization","2.16.840.1.101.2.2.3.77");
+  oid_add_from_string("id-oc-aCPOrganizationalPerson","2.16.840.1.101.2.2.3.78");
+  oid_add_from_string("id-oc-aCPOrganizationalRole","2.16.840.1.101.2.2.3.79");
+  oid_add_from_string("id-oc-aCPOrganizationalUnit","2.16.840.1.101.2.2.3.80");
+  oid_add_from_string("id-oc-aCPDistributionCodesHandled","2.16.840.1.101.2.2.3.81");
+  oid_add_from_string("id-oc-aCPMhsCapabilitiesInformation","2.16.840.1.101.2.2.3.82");
+  oid_add_from_string("id-oc-aCPOtherContactInformation","2.16.840.1.101.2.2.3.83");
+  oid_add_from_string("id-oc-aCPPlaUser","2.16.840.1.101.2.2.3.84");
+  oid_add_from_string("id-oc-aCPCRLDistributionPoint","2.16.840.1.101.2.2.3.85");
+  oid_add_from_string("id-oc-aCPSecurePKIUser","2.16.840.1.101.2.2.3.86");
+  oid_add_from_string("id-oc-aCPAltSpellingACP127","2.16.840.1.101.2.2.3.87");
+  oid_add_from_string("id-oc-aCPCadACP127","2.16.840.1.101.2.2.3.88");
+  oid_add_from_string("id-oc-aCPDSSCSPLA","2.16.840.1.101.2.2.3.89");
+  oid_add_from_string("id-oc-aCPOrgACP127","2.16.840.1.101.2.2.3.90");
+  oid_add_from_string("id-oc-aCPPLACollectiveACP127","2.16.840.1.101.2.2.3.91");
+  oid_add_from_string("id-oc-aCPRoutingIndicator","2.16.840.1.101.2.2.3.92");
+  oid_add_from_string("id-oc-aCPSigIntPLA","2.16.840.1.101.2.2.3.93");
+  oid_add_from_string("id-oc-aCPSIPLA","2.16.840.1.101.2.2.3.94");
+  oid_add_from_string("id-oc-aCPSpotPLA","2.16.840.1.101.2.2.3.95");
+  oid_add_from_string("id-oc-aCPTaskForceACP127","2.16.840.1.101.2.2.3.96");
+  oid_add_from_string("id-oc-aCPTenantACP127","2.16.840.1.101.2.2.3.97");
+  oid_add_from_string("id-oc-aCPPlaACP127","2.16.840.1.101.2.2.3.98");
+  oid_add_from_string("id-oc-aCPPlaData","2.16.840.1.101.2.2.3.99");
+  oid_add_from_string("id-oc-aCPEntryAdmin","2.16.840.1.101.2.2.3.102");
+  oid_add_from_string("id-oc-aCPOrganizationalLocation","2.16.840.1.101.2.2.3.103");
+  oid_add_from_string("id-oc-aCPEntryCharacteristics","2.16.840.1.101.2.2.3.104");
+  oid_add_from_string("id-oc-aCPPrivilege","2.16.840.1.101.2.2.3.105");
 
   /* gateway types */
   oid_add_from_string("acp120-acp127","2.16.840.1.101.2.2.5.0");

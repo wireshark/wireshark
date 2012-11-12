@@ -14,6 +14,10 @@ IMPORTS
     --==
     FROM MTSAbstractService {joint-iso-itu-t mhs(6) mts(3) modules(0)
       mts-abstract-service(1) version-1999(1)}
+    DirectoryString
+    --==
+    FROM SelectedAttributeTypes {joint-iso-itu-t ds(5) module(1)
+      selectedAttributeTypes(5) 4}
     Name
     --==
     FROM InformationFramework {joint-iso-itu-t ds(5) module(1)
@@ -31,7 +35,7 @@ OnSupported ::= BIT STRING { acp127-nn(0), acp127-pn(1), acp127-tn(2) }
 
 ACPLegacyFormat ::= INTEGER {
 	janap128(0),
-	acp126(1),
+	acp127(1), -- changed from acp126 for consistency purposes
 	doi103(2),
 	doi103-special(3),
 	acp127(4),
@@ -45,11 +49,20 @@ ACPLegacyFormat ::= INTEGER {
 	socomm-narrative-special(12),
 	socomm-data(13),
 	socomm-internal(14),
-	socomm-external(15) }
-	-- Note: Values 32 through 48 are not defined
-	-- by this ACP and may be used nationally or
-	-- bilaterally.
+	socomm-external(15),
+	mfi-default(16),
+	acp-legacy-format-smtp(17),
+	p22(18),
+	-- 19 - 31 for national or bilateral use
+	acp145-united-states(32),
+	acp145-australia(33),
+	acp145-canada(34),
+	acp145-united-kingdom(35),
+	acp145-new-zealand(36) }
 
+ACPNoAttachments ::= BOOLEAN
+
+Active ::= BOOLEAN
 
 Addressees ::= SEQUENCE OF PrintableString (SIZE (1..55))
 
@@ -58,7 +71,13 @@ confidential(3), secret(4), top-secret(5) }
 
 DistributionCode ::= PrintableString
 
+EmConCapability ::= BOOLEAN
+
+EmConState ::= ENUMERATED { enabled(0), receive-only(1), electronic-silence(2), disabled(3) }
+
 JPEG ::= OCTET STRING -- a JPEG image
+
+MaxMessageSize ::= INTEGER
 
 MonthlyUKMs ::= --SIGNED { SEQUENCE OF UKMEntry }-- SEQUENCE {
   ukm-entries			SEQUENCE OF UKMEntry,
@@ -66,9 +85,22 @@ MonthlyUKMs ::= --SIGNED { SEQUENCE OF UKMEntry }-- SEQUENCE {
   encrypted			BIT STRING
 }
 
+MsgProtocolInfoCapability ::= ENUMERATED { acp-127(0), acp-123(1) }
+
 Remarks ::= SEQUENCE OF PrintableString
 
-RIParameters ::= SET {
+-- RIParameters used to be defined as a ASN.1 SET specification, but
+-- this has been deprecated in edition D in favour of a DirectoryString
+-- containing a sequence of dollar separated PrintableStrings.
+--
+-- Implemented in Wireshark as a CHOICE to be able to decode both without
+-- using a preference.
+RIParameters ::= CHOICE {
+	ri-parameters             DirectoryString,
+	ri-parameters-deprecated  RIParametersDeprecated
+}
+
+RIParametersDeprecated ::= SET {
 	rI 		[0] PrintableString,
 	rIType 		[1] ENUMERATED 
 	{ normal(0), off-line(1), partTimeTerminal(2) },
@@ -81,6 +113,8 @@ UKMEntry ::= SEQUENCE {
 	tag PairwiseTag,
 	ukm OCTET STRING
 }
+
+WebAccessCapability ::= BOOLEAN
 
 -- these are imported directly from SDN.701
 

@@ -45,7 +45,8 @@ EXTRA_CNF= \
 	$(builddir)/../p1/p1-exp.cnf \
 	$(builddir)/../x509af/x509af-exp.cnf \
 	$(builddir)/../x509ce/x509ce-exp.cnf \
-	$(builddir)/../x509if/x509if-exp.cnf
+	$(builddir)/../x509if/x509if-exp.cnf \
+	$(builddir)/../x509sat/x509sat-exp.cnf
 
 $(builddir)/../p1/p1-exp.cnf:
 	(cd $(builddir)/../p1 && $(MAKE_CNF_EXPORT))
@@ -58,4 +59,7 @@ $(builddir)/../x509ce/x509ce-exp.cnf:
 
 $(builddir)/../x509if/x509if-exp.cnf:
 	(cd $(builddir)/../x509if && $(MAKE_CNF_EXPORT))
+
+$(builddir)/../x509sat/x509sat-exp.cnf:
+	(cd $(builddir)/../x509sat && $(MAKE_CNF_EXPORT))
 
