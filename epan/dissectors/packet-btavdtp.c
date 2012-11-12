@@ -640,10 +640,10 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
                 case CODEC_VENDOR: /* non-A2DP */
                     proto_tree_add_item(tree, hf_btavdtp_vendor_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tree, hf_btavdtp_vendor_specific_codec_id, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_NA);
                     break;
                 default:
-                    proto_tree_add_item(tree, hf_btavdtp_data, tvb, offset, losc, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_data, tvb, offset, losc, ENC_NA);
             }
             break;
         case MEDIA_TYPE_VIDEO:
@@ -666,14 +666,14 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
                 case CODEC_VENDOR: /* non-VDP */
                     proto_tree_add_item(tree, hf_btavdtp_vendor_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tree, hf_btavdtp_vendor_specific_codec_id, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_NA);
                     break;
                 default:
-                    proto_tree_add_item(tree, hf_btavdtp_data, tvb, offset, losc, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_data, tvb, offset, losc, ENC_NA);
             }
             break;
         default:
-            proto_tree_add_item(tree, hf_btavdtp_data, tvb, offset, losc, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_btavdtp_data, tvb, offset, losc, ENC_NA);
     }
 
     offset += losc;
@@ -793,7 +793,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 offset += 2;
                 losc -= 2;
 
-                proto_tree_add_item(service_tree, hf_btavdtp_data, tvb, offset, losc, ENC_BIG_ENDIAN);
+                proto_tree_add_item(service_tree, hf_btavdtp_data, tvb, offset, losc, ENC_NA);
                 offset += losc;
                 losc = 0;
                 break;
@@ -853,13 +853,13 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 }
                 break;
             default:
-                pitem = proto_tree_add_item(service_tree, hf_btavdtp_data, tvb, offset, losc, ENC_BIG_ENDIAN);
+                pitem = proto_tree_add_item(service_tree, hf_btavdtp_data, tvb, offset, losc, ENC_NA);
                 offset += losc;
                 losc = 0;
         }
 
         if (losc > 0) {
-            pitem = proto_tree_add_item(service_tree, hf_btavdtp_data, tvb, offset, losc, ENC_BIG_ENDIAN);
+            pitem = proto_tree_add_item(service_tree, hf_btavdtp_data, tvb, offset, losc, ENC_NA);
             offset += losc;
 
             expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
@@ -1031,7 +1031,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Media stream on cid=0x%04x", l2cap_data->cid);
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
             } else {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Media stream ACP SEID [%u - %s %s]",
                         cid_type_data->sep->seid, get_sep_media_type(pinfo->fd->num, cid_type_data->sep->seid),
@@ -1048,7 +1048,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);
 
                     col_append_fstr(pinfo->cinfo, COL_INFO, "Media stream on cid=0x%04x", l2cap_data->cid);
-                    proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
                 }
             }
 
@@ -1059,7 +1059,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown stream on cid=0x%04x", l2cap_data->cid);
-            proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
             return;
         }
     }
@@ -1893,7 +1893,7 @@ proto_register_btavdtp(void)
         },
         { &hf_btavdtp_vendor_id,
             { "Vendor ID",                      "btavdtp.codec.vendor.vendor_id",
-            FT_UINT32, BASE_HEX, VALS(&bthci_evt_comp_id_ext), 0x00,
+            FT_UINT32, BASE_HEX|BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_btavdtp_vendor_specific_codec_id,
