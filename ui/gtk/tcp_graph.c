@@ -4053,7 +4053,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 	int toggle=0;
 	guint32 seq_base;
 	guint32 seq_cur;
-	int     num_sack_ranges;
+	int     num_sack_ranges = 0;
 
 	debug(DBS_FENTRY) puts ("tseq_tcptrace_make_elmtlist()");
 
