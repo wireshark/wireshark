@@ -68,6 +68,7 @@ enum rrc_message_type {
 typedef struct rrc_info
 {
   enum rrc_message_type msgtype[MAX_RRC_FRAMES];
+  guint16 hrnti[MAX_RRC_FRAMES];
 } rrc_info;
 
 /*Struct for storing ciphering information*/
