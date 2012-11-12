@@ -44,7 +44,9 @@ include Makefile.common
 if HAVE_FOP
 	FOP_OPTS=$(FOP_OPTS) JAVA_OPTS=$(FOP_OPTS) $(FOP) $< $@
 else
-	false
+	@echo
+	@echo "Error: FOP is needed to create PDFs!"
+	@false
 endif
 
 
