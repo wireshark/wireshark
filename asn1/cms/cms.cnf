@@ -58,6 +58,9 @@ RC2CBCParameters 	B "1.2.840.113549.3.2" "id-alg-rc2-cbc"
 RC2CBCParameters 	B "1.2.840.113549.3.4" "id-alg-rc4"
 RC2WrapParameter	B "1.2.840.113549.1.9.16.3.7" "id-alg-cmsrc2-wrap"
 
+# RFC 2798 Attributes - see master list in x509sat.cnf
+SignedData		B "2.16.840.1.113730.3.1.40"      "userSMIMECertificate"
+
 #.NO_EMIT
 
 #.TYPE_RENAME

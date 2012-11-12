@@ -112,6 +112,8 @@ void proto_reg_handoff_x509sat(void) {
   oid_add_from_string("dcObject","1.3.6.1.4.1.1446.344");
   oid_add_from_string("domain","0.9.2342.19200300.100.4.13");
 
+  /* RFC 2798 */
+  oid_add_from_string("inetOrgPerson","2.16.840.1.113730.3.2.2");
 }
 
 
