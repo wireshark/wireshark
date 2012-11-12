@@ -35,6 +35,7 @@
 
 #include <epan/rtp_pt.h>
 
+#include "packet-ber.h"
 
 /* JPEG header fields             */
 static int hf_rtp_jpeg_main_hdr = -1;
