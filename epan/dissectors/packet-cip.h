@@ -271,7 +271,7 @@ typedef struct attribute_info {
 
 typedef struct cip_connID_info {
    guint32 connID;
-   guint32 ipaddress;
+   address ipaddress;
    guint16 port;
    guint8  type;
 } cip_connID_info_t;
@@ -302,6 +302,7 @@ typedef struct cip_req_info {
    void *pData;
    cip_simple_request_info_t* ciaData;
    cip_conn_info_t* connInfo;
+   gboolean isUnconnectedSend;
 } cip_req_info_t;
 
 /*

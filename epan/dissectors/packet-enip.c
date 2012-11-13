@@ -44,6 +44,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
+#include <epan/ipv6-utils.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
 #include "packet-cip.h"
@@ -99,6 +100,7 @@ static int hf_enip_command = -1;
 static int hf_enip_length = -1;
 static int hf_enip_options = -1;
 static int hf_enip_sendercontex = -1;
+static int hf_enip_listid_delay = -1;
 static int hf_enip_status = -1;
 static int hf_enip_session = -1;
 static int hf_enip_encapver = -1;
@@ -788,6 +790,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    conversation_t   *conversation, *conversationTO;
    enip_conv_info_t *enip_info;
    address           dest_address;
+   struct e_in6_addr ipv6_zero;
 
    if (pinfo->fd->flags.visited)
       return;
@@ -822,19 +825,36 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
       if (((connInfo->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 0) ||
           ((connInfo->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 1))
       {
+          /* zero out the ipv6 structure for comparison */
+          memset(&ipv6_zero, 0, sizeof(ipv6_zero));
+
          /* default some information if not included */
          if ((connInfo->O2T.port == 0) || (connInfo->O2T.type == CONN_TYPE_MULTICAST))
             connInfo->O2T.port = ENIP_IO_PORT;
-         if ((connInfo->O2T.ipaddress == 0) || (connInfo->O2T.type != CONN_TYPE_MULTICAST))
-            connInfo->O2T.ipaddress = *((guint32*)pinfo->src.data);
+         if ((connInfo->O2T.ipaddress.type == AT_NONE) ||
+             ((connInfo->O2T.ipaddress.type == AT_IPv4) && ((*(guint32*)connInfo->O2T.ipaddress.data)) == 0) ||
+             ((connInfo->O2T.ipaddress.type == AT_IPv6) && (memcmp(connInfo->O2T.ipaddress.data, &ipv6_zero, sizeof(ipv6_zero)) == 0)) ||
+             (connInfo->O2T.type != CONN_TYPE_MULTICAST))
+            connInfo->O2T.ipaddress = pinfo->src;
          if ((connInfo->T2O.port == 0) || (connInfo->T2O.type == CONN_TYPE_MULTICAST))
             connInfo->T2O.port = ENIP_IO_PORT;
-         if ((connInfo->T2O.ipaddress == 0) || (connInfo->T2O.type != CONN_TYPE_MULTICAST))
-            connInfo->T2O.ipaddress = *((guint32*)pinfo->dst.data);
+         if ((connInfo->T2O.ipaddress.type == AT_NONE) ||
+             ((connInfo->T2O.ipaddress.type == AT_IPv4) && ((*(guint32*)connInfo->T2O.ipaddress.data)) == 0) ||
+             ((connInfo->T2O.ipaddress.type == AT_IPv6) && (memcmp(connInfo->T2O.ipaddress.data, &ipv6_zero, sizeof(ipv6_zero)) == 0)) ||
+             (connInfo->T2O.type != CONN_TYPE_MULTICAST))
+            connInfo->T2O.ipaddress = pinfo->dst;
 
-         dest_address.type = AT_IPv4;
-         dest_address.len = 4;
-         dest_address.data = &connInfo->O2T.ipaddress;
+         if (connInfo->O2T.ipaddress.type == AT_IPv6)
+         {
+             dest_address.type = AT_IPv6;
+             dest_address.len = 16;
+         }
+         else
+         {
+             dest_address.type = AT_IPv4;
+             dest_address.len = 4;
+         }
+         dest_address.data = connInfo->O2T.ipaddress.data;
 
          /* check for O->T conversation */
          /* similar logic to find_or_create_conversation(), but since I/O traffic
@@ -1526,13 +1546,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                proto_tree_add_item(item_tree, hf_enip_cpf_cai_connid, tvb, offset+6, 4, ENC_LITTLE_ENDIAN );
 
                /* Add Connection ID to Info col */
-               if(check_col(pinfo->cinfo, COL_INFO))
-               {
-                  col_append_fstr(pinfo->cinfo, COL_INFO,
-                     ", CONID: 0x%08X",
-                     tvb_get_letohl( tvb, offset+6 ) );
-               }
-
+               col_append_fstr(pinfo->cinfo, COL_INFO, ", CONID: 0x%08X", tvb_get_letohl( tvb, offset+6 ) );
                break;
 
             case UNCONNECTED_MSG:
@@ -1740,11 +1754,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                      tvb, offset+39, name_length, ENC_ASCII|ENC_NA );
 
                /* Append product name to info column */
-               if(check_col(pinfo->cinfo, COL_INFO))
-               {
-                  col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
-                      tvb_format_text(tvb, offset+39, name_length));
-               }
+               col_append_fstr( pinfo->cinfo, COL_INFO, ", %s", tvb_format_text(tvb, offset+39, name_length));
 
                /* State */
                proto_tree_add_item(item_tree, hf_enip_lir_state,
@@ -1779,12 +1789,16 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                      if (item == SOCK_ADR_INFO_OT)
                      {
                         request_info->cip_info->connInfo->O2T.port = tvb_get_ntohs(tvb, offset+8);
-                        request_info->cip_info->connInfo->O2T.ipaddress = tvb_get_ipv4(tvb, offset+10);
+                        request_info->cip_info->connInfo->O2T.ipaddress.type = AT_IPv4;
+                        request_info->cip_info->connInfo->O2T.ipaddress.data = se_alloc(sizeof(guint32));
+                        *((guint32*)request_info->cip_info->connInfo->O2T.ipaddress.data) = tvb_get_ipv4(tvb, offset+10);
                      }
                      else
                      {
                         request_info->cip_info->connInfo->T2O.port = tvb_get_ntohs(tvb, offset+8);
-                        request_info->cip_info->connInfo->T2O.ipaddress = tvb_get_ipv4(tvb, offset+10);
+                        request_info->cip_info->connInfo->T2O.ipaddress.type = AT_IPv4;
+                        request_info->cip_info->connInfo->T2O.ipaddress.data = se_alloc(sizeof(guint32));
+                        *((guint32*)request_info->cip_info->connInfo->T2O.ipaddress.data) = tvb_get_ipv4(tvb, offset+10);
                      }
                   }
                }
@@ -1797,16 +1811,11 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                proto_tree_add_item(item_tree, hf_enip_cpf_sai_seqnum, tvb, offset+10, 4, ENC_LITTLE_ENDIAN );
 
                /* Add info to column */
-               if(check_col(pinfo->cinfo, COL_INFO))
-               {
-                  col_clear(pinfo->cinfo, COL_INFO);
+               col_clear(pinfo->cinfo, COL_INFO);
 
-                  col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "Connection:  ID=0x%08X, SEQ=%010d",
+               col_add_fstr(pinfo->cinfo, COL_INFO, "Connection:  ID=0x%08X, SEQ=%010d",
                      tvb_get_letohl( tvb, offset+6 ),
                      tvb_get_letohl( tvb, offset+10 ) );
-               }
-
                break;
 
             case LIST_SERVICES_RESP:
@@ -1825,12 +1834,8 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                proto_tree_add_item( item_tree, hf_enip_lsr_servicename, tvb, offset+10, 16, ENC_ASCII|ENC_NA );
 
                /* Append service name to info column */
-               if(check_col(pinfo->cinfo, COL_INFO))
-               {
-                  col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
-                      tvb_format_stringzpad(tvb, offset+10, 16) );
-               }
-
+               col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
+                    tvb_format_stringzpad(tvb, offset+10, 16) );
                break;
 
 
@@ -1922,31 +1927,25 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    packet_type = classify_packet(pinfo);
 
-   if( check_col(pinfo->cinfo, COL_INFO) )
+   switch ( packet_type )
    {
-      switch ( packet_type )
-      {
-         case ENIP_REQUEST_PACKET:
-            pkt_type_str="Req";
-            break;
+      case ENIP_REQUEST_PACKET:
+         pkt_type_str="Req";
+         break;
 
-         case ENIP_RESPONSE_PACKET:
-            pkt_type_str="Rsp";
-            break;
+      case ENIP_RESPONSE_PACKET:
+         pkt_type_str="Rsp";
+         break;
 
-         case ENIP_CANNOT_CLASSIFY:
-         default:
-            pkt_type_str="?";
-      }
+      case ENIP_CANNOT_CLASSIFY:
+      default:
+         pkt_type_str="?";
+   }
 
-      /* Add service and request/response to info column */
-      col_add_fstr(pinfo->cinfo, COL_INFO,
-         "%s (%s)",
-         val_to_str(encap_cmd, encap_cmd_vals, "Unknown (0x%04x)"),
-         pkt_type_str );
-
-   } /* end of if( col exists ) */
-
+   /* Add encapsulation command to info column */
+   col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s (%s)",
+      val_to_str(encap_cmd, encap_cmd_vals, "Unknown (0x%04x)"),
+      pkt_type_str );
 
    /*
     * We need to track some state for this protocol on a per conversation
@@ -1985,7 +1984,17 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item( header_tree, hf_enip_length,       tvb,  2, 2, ENC_LITTLE_ENDIAN );
       proto_tree_add_item( header_tree, hf_enip_session,      tvb,  4, 4, ENC_LITTLE_ENDIAN );
       proto_tree_add_item( header_tree, hf_enip_status,       tvb,  8, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 12, 8, ENC_NA );
+      if ((encap_cmd == LIST_IDENTITY) && 
+          /* Length of 0 probably indicates a request */
+          ((encap_data_length == 0) || (packet_type == ENIP_REQUEST_PACKET)))
+      {
+          proto_tree_add_item( header_tree, hf_enip_listid_delay, tvb, 12, 2, ENC_LITTLE_ENDIAN );
+          proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 14, 6, ENC_NA );
+      }
+      else
+      {
+          proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 12, 8, ENC_NA );
+      }
       proto_tree_add_item( header_tree, hf_enip_options,      tvb, 20, 4, ENC_LITTLE_ENDIAN );
 
       /* Append session and command to the protocol tree */
@@ -1997,20 +2006,14 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    /*
    ** For some commands we want to add some info to the info column
    */
-
-   if( check_col( pinfo->cinfo, COL_INFO ) )
+   switch( encap_cmd )
    {
-
-      switch( encap_cmd )
-      {
-      case REGISTER_SESSION:
-      case UNREGISTER_SESSION:
-         col_append_fstr( pinfo->cinfo, COL_INFO, ", Session: 0x%08X",
+   case REGISTER_SESSION:
+   case UNREGISTER_SESSION:
+      col_append_fstr( pinfo->cinfo, COL_INFO, ", Session: 0x%08X",
                           tvb_get_letohl( tvb, 4 ) );
-
-      } /* end of switch() */
-
-   } /* end of id info column */
+      break;
+   }
 
    /* Command specific data - create tree */
    if( encap_data_length )
@@ -2175,11 +2178,8 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    proto_tree_add_item( dlr_tree, hf_dlr_sequenceid, tvb, DLR_MPF_SEQUENCE_ID, 4, ENC_BIG_ENDIAN );
 
    /* Add frame type to col info */
-   if( check_col(pinfo->cinfo, COL_INFO) )
-   {
-      col_add_fstr(pinfo->cinfo, COL_INFO,
-                "%s", val_to_str(dlr_frametype, dlr_frame_type_vals, "Unknown (0x%04x)") );
-   }
+   col_add_fstr(pinfo->cinfo, COL_INFO, "%s", 
+       val_to_str(dlr_frametype, dlr_frame_type_vals, "Unknown (0x%04x)") );
 
    if( dlr_frametype == DLR_FT_BEACON )
    {
@@ -2290,6 +2290,11 @@ proto_register_enip(void)
         { "Sender Context", "enip.context",
           FT_BYTES, BASE_NONE, NULL, 0,
           "Information pertinent to the sender", HFILL }},
+
+      { &hf_enip_listid_delay,
+        { "Max Response Delay", "enip.listid_delay",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Maximum random delay allowed by target", HFILL }},
 
       { &hf_enip_options,
         { "Options", "enip.options",

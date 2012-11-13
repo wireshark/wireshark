@@ -361,6 +361,91 @@ static int hf_conn_mgr_close_requests = -1;
 static int hf_conn_close_format_requests = -1;
 static int hf_conn_mgr_close_other_requests = -1;
 static int hf_conn_mgr_conn_timouts = -1;
+static int hf_time_sync_ptp_enable = -1;
+static int hf_time_sync_is_synchronized = -1;
+static int hf_time_sync_sys_time_micro = -1;
+static int hf_time_sync_sys_time_nano = -1;
+static int hf_time_sync_offset_from_master = -1;
+static int hf_time_sync_max_offset_from_master = -1;
+static int hf_time_sync_mean_path_delay_to_master = -1;
+static int hf_time_sync_gm_clock_clock_id = -1;
+static int hf_time_sync_gm_clock_clock_class = -1;
+static int hf_time_sync_gm_clock_time_accuracy = -1;
+static int hf_time_sync_gm_clock_offset_scaled_log_variance = -1;
+static int hf_time_sync_gm_clock_current_utc_offset = -1;
+static int hf_time_sync_gm_clock_time_property_flags = -1;
+static int hf_time_sync_gm_clock_time_property_flags_leap61 = -1;
+static int hf_time_sync_gm_clock_time_property_flags_leap59 = -1;
+static int hf_time_sync_gm_clock_time_property_flags_current_utc_valid = -1;
+static int hf_time_sync_gm_clock_time_property_flags_ptp_timescale = -1;
+static int hf_time_sync_gm_clock_time_property_flags_time_traceable = -1;
+static int hf_time_sync_gm_clock_time_property_flags_freq_traceable = -1;
+static int hf_time_sync_gm_clock_time_source = -1;
+static int hf_time_sync_gm_clock_priority1 = -1;
+static int hf_time_sync_gm_clock_priority2 = -1;
+static int hf_time_sync_parent_clock_clock_id = -1;
+static int hf_time_sync_parent_clock_port_number = -1;
+static int hf_time_sync_parent_clock_observed_offset_scaled_log_variance = -1;
+static int hf_time_sync_parent_clock_observed_phase_change_rate = -1;
+static int hf_time_sync_local_clock_clock_id = -1;
+static int hf_time_sync_local_clock_clock_class = -1;
+static int hf_time_sync_local_clock_time_accuracy = -1;
+static int hf_time_sync_local_clock_offset_scaled_log_variance = -1;
+static int hf_time_sync_local_clock_current_utc_offset = -1;
+static int hf_time_sync_local_clock_time_property_flags = -1;
+static int hf_time_sync_local_clock_time_property_flags_leap61 = -1;
+static int hf_time_sync_local_clock_time_property_flags_leap59 = -1;
+static int hf_time_sync_local_clock_time_property_flags_current_utc_valid = -1;
+static int hf_time_sync_local_clock_time_property_flags_ptp_timescale = -1;
+static int hf_time_sync_local_clock_time_property_flags_time_traceable = -1;
+static int hf_time_sync_local_clock_time_property_flags_freq_traceable = -1;
+static int hf_time_sync_local_clock_time_source = -1;
+static int hf_time_sync_num_ports = -1;
+static int hf_time_sync_port_state_info_num_ports = -1;
+static int hf_time_sync_port_state_info_port_num = -1;
+static int hf_time_sync_port_state_info_port_state = -1;
+static int hf_time_sync_port_enable_cfg_num_ports = -1;
+static int hf_time_sync_port_enable_cfg_port_num = -1;
+static int hf_time_sync_port_enable_cfg_port_enable = -1;
+static int hf_time_sync_port_log_announce_num_ports = -1;
+static int hf_time_sync_port_log_announce_port_num = -1;
+static int hf_time_sync_port_log_announce_interval = -1;
+static int hf_time_sync_port_log_sync_num_ports = -1;
+static int hf_time_sync_port_log_sync_port_num = -1;
+static int hf_time_sync_port_log_sync_port_log_sync_interval = -1;
+static int hf_time_sync_priority1 = -1;
+static int hf_time_sync_priority2 = -1;
+static int hf_time_sync_domain_number = -1;
+static int hf_time_sync_clock_type = -1;
+static int hf_time_sync_clock_type_ordinary = -1;
+static int hf_time_sync_clock_type_boundary = -1;
+static int hf_time_sync_clock_type_end_to_end = -1;
+static int hf_time_sync_clock_type_management = -1;
+static int hf_time_sync_clock_type_slave_only = -1;
+static int hf_time_sync_manufacture_id_oui = -1;
+static int hf_time_sync_manufacture_id_reserved = -1;
+static int hf_time_sync_prod_desc_size = -1;
+static int hf_time_sync_prod_desc_str = -1;
+static int hf_time_sync_revision_data_size = -1;
+static int hf_time_sync_revision_data_str = -1;
+static int hf_time_sync_user_desc_size = -1;
+static int hf_time_sync_user_desc_str = -1;
+static int hf_time_sync_port_profile_id_info_num_ports = -1;
+static int hf_time_sync_port_profile_id_info_port_num = -1;
+static int hf_time_sync_port_profile_id_info_profile_id = -1;
+static int hf_time_sync_port_phys_addr_info_num_ports = -1;
+static int hf_time_sync_port_phys_addr_info_port_num = -1;
+static int hf_time_sync_port_phys_addr_info_phys_proto = -1;
+static int hf_time_sync_port_phys_addr_info_addr_size = -1;
+static int hf_time_sync_port_phys_addr_info_phys_addr = -1;
+static int hf_time_sync_port_proto_addr_info_num_ports = -1;
+static int hf_time_sync_port_proto_addr_info_port_num = -1;
+static int hf_time_sync_port_proto_addr_info_network_proto = -1;
+static int hf_time_sync_port_proto_addr_info_addr_size = -1;
+static int hf_time_sync_port_proto_addr_info_port_proto_addr = -1;
+static int hf_time_sync_steps_removed = -1;
+static int hf_time_sync_sys_time_and_offset_time = -1;
+static int hf_time_sync_sys_time_and_offset_offset = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_cip = -1;
@@ -415,6 +500,17 @@ static gint ett_cco_ncp = -1;
 static gint ett_cco_rrsc = -1;
 static gint ett_cco_cmd_data = -1;
 static gint ett_cco_ttt = -1;
+
+static gint ett_time_sync_gm_clock_flags = -1;
+static gint ett_time_sync_local_clock_flags = -1;
+static gint ett_time_sync_port_state_info = -1;
+static gint ett_time_sync_port_enable_cfg = -1;
+static gint ett_time_sync_port_log_announce = -1;
+static gint ett_time_sync_port_log_sync = -1;
+static gint ett_time_sync_clock_type = -1;
+static gint ett_time_sync_port_profile_id_info = -1;
+static gint ett_time_sync_port_phys_addr_info = -1;
+static gint ett_time_sync_port_proto_addr_info = -1;
 
 dissector_table_t   subdissector_class_table;
 static dissector_table_t   subdissector_symbol_table;
@@ -610,6 +706,75 @@ static const value_string cip_cco_change_type_vals[] = {
 
    { 0,        NULL             }
 };
+
+static const value_string cip_time_sync_clock_class_vals[] = {
+   { 6,        "Primary Reference"          },
+   { 7,        "Primary Reference (Hold)"   },
+   { 52,       "Degraded Reference A (Master only)"  },
+   { 187,      "Degraded Reference B (Master/Slave)" },
+   { 248,      "Default"                    },
+   { 255,      "Slave Only"                 },
+
+   { 0,        NULL             }
+};
+
+static const value_string cip_time_sync_time_accuracy_vals[] = {
+   { 0x20,   "Accurate to within 25ns"  },
+   { 0x21,   "Accurate to within 100ns" },
+   { 0x22,   "Accurate to within 250ns" },
+   { 0x23,   "Accurate to within 1us"   },
+   { 0x24,   "Accurate to within 2.5us" },
+   { 0x25,   "Accurate to within 10us"  },
+   { 0x26,   "Accurate to within 25us"  },
+   { 0x27,   "Accurate to within 100us" },
+   { 0x28,   "Accurate to within 250us" },
+   { 0x29,   "Accurate to within 1ms"   },
+   { 0x2A,   "Accurate to within 2.5ms" },
+   { 0x2B,   "Accurate to within 10ms"  },
+   { 0x2C,   "Accurate to within 25ms"  },
+   { 0x2D,   "Accurate to within 100ms" },
+   { 0x2E,   "Accurate to within 250ms" },
+   { 0x2F,   "Accurate to within 1s"    },
+   { 0x30,   "Accurate to within 10s"   },
+   { 0x31,   "Accurate to >10s"         },
+   { 0,      NULL             }
+};
+
+static const value_string cip_time_sync_time_source_vals[] = {
+   { 0x10,   "Atomic Clock"        },
+   { 0x20,   "GPS"                 },
+   { 0x30,   "Terrestrial Radio"   },
+   { 0x40,   "PTP"                 },
+   { 0x50,   "NTP"                 },
+   { 0x60,   "Hand Set"            },
+   { 0x90,   "Other"               },
+   { 0xA0,   "Internal Oscillator" },
+   { 0,      NULL             }
+};
+
+static const value_string cip_time_sync_port_state_vals[] = {
+   { 1,      "INITIALIZING" },
+   { 2,      "FAULTY"       },
+   { 3,      "DISABLED"     },
+   { 4,      "LISTENING"    },
+   { 5,      "PRE_MASTER"   },
+   { 6,      "MASTER"       },
+   { 7,      "PASSIVE"      },
+   { 8,      "UNCALIBRATED" },
+   { 9,      "SLAVE"        },
+   { 0,      NULL           }
+};
+
+static const value_string cip_time_sync_network_protocol_vals[] = {
+   { 1,      "UDP/IPv4"     },
+   { 2,      "UDP/IPv6"     },
+   { 3,      "IEEE 802.3"   },
+   { 4,      "DeviceNet"    },
+   { 5,      "ControlNet"   },
+   { 0xFFFF, "Local or Unknown protocol"   },
+   { 0,      NULL           }
+};
+
 
 static const value_string cip_path_seg_vals[] = {
    { ((CI_PORT_SEGMENT>>5)&7),       "Port Segment" },
@@ -2279,6 +2444,15 @@ static const value_string cip_class_names_vals[] = {
    { 0x4A,     "Safety Analog Input Group Object"      },
    { 0x4B,     "Safety Dual Channel Analog Input Object"  },
    { 0x4C,     "Sercos III Link Object"                },
+   { 0x4D,     "Target Connection List Object"         },
+   { 0x4E,     "Base Energy Object"                    },
+   { 0x4F,     "Electrical Energy Object"              },
+   { 0x50,     "Non-Electrical Energy Object"          },
+   { 0x51,     "Base Switch Object"                    },
+   { 0x52,     "SNMP Object"                           },
+   { 0x53,     "Power Management Object"               },
+   { 0x54,     "RSTP Bridge Object"                    },
+   { 0x55,     "RSTP Port Object"                      },
    { 0xF0,     "ControlNet Object"                     },
    { 0xF1,     "ControlNet Keeper Object"              },
    { 0xF2,     "ControlNet Scheduling Object"          },
@@ -2294,6 +2468,30 @@ static const value_string cip_class_names_vals[] = {
 
 value_string_ext cip_class_names_vals_ext = VALUE_STRING_EXT_INIT(cip_class_names_vals);
 
+static void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, const value_string* service_vals)
+{
+   cip_req_info_t *preq_info;
+
+   preq_info = (cip_req_info_t*)p_get_proto_data( pinfo->fd, proto_cip );
+
+   if ((preq_info == NULL) || (preq_info->isUnconnectedSend == FALSE))
+   {
+       /* Add service to info column */
+       col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s",
+               val_to_str( service & 0x7F,
+                  service_vals, "Unknown Service (0x%02x)") );
+       col_set_fence(pinfo->cinfo, COL_INFO);
+   }
+   else
+   {
+      col_append_str( pinfo->cinfo, COL_INFO,
+               val_to_str(service & 0x7F,
+                  service_vals, "Unknown Service (0x%02x)") );
+       col_set_fence(pinfo->cinfo, COL_INFO);
+      /* Make sure it's only set once */
+      preq_info->isUnconnectedSend = FALSE;
+   }
+}
 
 static int dissect_id_revision(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
@@ -2329,8 +2527,466 @@ static int dissect_msg_rout_num_classes(packet_info *pinfo _U_, proto_tree *tree
    return (2+(num_classes*2));
 }
 
+static int dissect_time_sync_grandmaster_clock(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   proto_item* ti;
+   proto_tree* flag_tree;
+
+   if (total_len < 24)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Grandmaster clock info");
+      return total_len;
+   }
+
+   proto_tree_add_item( tree, hf_time_sync_gm_clock_clock_id, tvb, offset, 8, ENC_NA);
+   proto_tree_add_item( tree, hf_time_sync_gm_clock_clock_class, tvb, offset+8, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( tree, hf_time_sync_gm_clock_time_accuracy, tvb, offset+10, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( tree, hf_time_sync_gm_clock_offset_scaled_log_variance, tvb, offset+12, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( tree, hf_time_sync_gm_clock_current_utc_offset, tvb, offset+14, 2, ENC_LITTLE_ENDIAN);
+
+   ti = proto_tree_add_item( tree, hf_time_sync_gm_clock_time_property_flags, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+   flag_tree = proto_item_add_subtree(ti, ett_time_sync_gm_clock_flags);
+   proto_tree_add_item( flag_tree, hf_time_sync_gm_clock_time_property_flags_leap61, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_gm_clock_time_property_flags_leap59, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_gm_clock_time_property_flags_current_utc_valid, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_gm_clock_time_property_flags_ptp_timescale, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_gm_clock_time_property_flags_time_traceable, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_gm_clock_time_property_flags_freq_traceable, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+
+   proto_tree_add_item( tree, hf_time_sync_gm_clock_time_source, tvb, offset+18, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( tree, hf_time_sync_gm_clock_priority1, tvb, offset+20, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( tree, hf_time_sync_gm_clock_priority2, tvb, offset+22, 2, ENC_LITTLE_ENDIAN);
+   return 24;
+}
+
+static int dissect_time_sync_parent_clock(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   if (total_len < 16)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Parent clock info");
+      return total_len;
+   }
+
+   proto_tree_add_item( tree, hf_time_sync_parent_clock_clock_id, tvb, offset, 8, ENC_NA);
+   proto_tree_add_item( tree, hf_time_sync_parent_clock_port_number, tvb, offset+8, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( tree, hf_time_sync_parent_clock_observed_offset_scaled_log_variance, tvb, offset+10, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( tree, hf_time_sync_parent_clock_observed_phase_change_rate, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+   return 16;
+}
+
+static int dissect_time_sync_local_clock(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   proto_item* ti;
+   proto_tree* flag_tree;
+
+   if (total_len < 20)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Local clock info");
+      return total_len;
+   }
+
+   proto_tree_add_item( tree, hf_time_sync_local_clock_clock_id, tvb, offset, 8, ENC_NA);
+   proto_tree_add_item( tree, hf_time_sync_local_clock_clock_class, tvb, offset+8, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( tree, hf_time_sync_local_clock_time_accuracy, tvb, offset+10, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( tree, hf_time_sync_local_clock_offset_scaled_log_variance, tvb, offset+12, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( tree, hf_time_sync_local_clock_current_utc_offset, tvb, offset+14, 2, ENC_LITTLE_ENDIAN);
+
+   ti = proto_tree_add_item( tree, hf_time_sync_local_clock_time_property_flags, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+   flag_tree = proto_item_add_subtree(ti, ett_time_sync_local_clock_flags);
+   proto_tree_add_item( flag_tree, hf_time_sync_local_clock_time_property_flags_leap61, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_local_clock_time_property_flags_leap59, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_local_clock_time_property_flags_current_utc_valid, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_local_clock_time_property_flags_ptp_timescale, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_local_clock_time_property_flags_time_traceable, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_local_clock_time_property_flags_freq_traceable, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
+
+   proto_tree_add_item( tree, hf_time_sync_local_clock_time_source, tvb, offset+18, 2, ENC_LITTLE_ENDIAN);
+   return 20;
+}
+
+static int dissect_time_sync_port_state_info(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   guint16 i, num_ports;
+   proto_item* ti;
+   proto_tree* port_tree;
+
+   if (total_len < 2)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port State Info");
+      return total_len;
+   }
+
+   num_ports = tvb_get_letohs( tvb, offset);
+   proto_tree_add_item( tree, hf_time_sync_port_state_info_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   if (2+num_ports*4 < total_len)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port State Info - too many ports");
+      return total_len;
+   }
+
+   for (i = 0; i < num_ports; i++)
+   {
+       ti = proto_tree_add_text(tree, NULL, offset+2+i*4, 4, "Port #%d", i+1);
+       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_state_info);
+       proto_tree_add_item(port_tree, hf_time_sync_port_state_info_port_num, tvb, offset+2+i*4, 2, ENC_LITTLE_ENDIAN);
+       proto_tree_add_item(port_tree, hf_time_sync_port_state_info_port_state, tvb, offset+4+i*4, 2, ENC_LITTLE_ENDIAN);
+   }
+
+   return 2+num_ports*4;
+}
+
+static int dissect_time_sync_port_enable_cfg(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   guint16 i, num_ports;
+   proto_item* ti;
+   proto_tree* port_tree;
+
+   if (total_len < 2)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port Enable Cfg");
+      return total_len;
+   }
+
+   num_ports = tvb_get_letohs( tvb, offset);
+   proto_tree_add_item( tree, hf_time_sync_port_enable_cfg_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   if (2+num_ports*4 < total_len)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port Enable Cfg - too many ports");
+      return total_len;
+   }
+
+   for (i = 0; i < num_ports; i++)
+   {
+       ti = proto_tree_add_text(tree, NULL, offset+2+i*4, 4, "Port #%d", i+1);
+       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_enable_cfg);
+       proto_tree_add_item(port_tree, hf_time_sync_port_enable_cfg_port_num, tvb, offset+2+i*4, 2, ENC_LITTLE_ENDIAN);
+       proto_tree_add_item(port_tree, hf_time_sync_port_enable_cfg_port_enable, tvb, offset+4+i*4, 2, ENC_LITTLE_ENDIAN);
+   }
+
+   return 2+num_ports*4;
+}
+
+static int dissect_time_sync_port_log_announce(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   guint16 i, num_ports;
+   proto_item* ti;
+   proto_tree* port_tree;
+
+   if (total_len < 2)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port Log Announcement Interval Cfg");
+      return total_len;
+   }
+
+   num_ports = tvb_get_letohs( tvb, offset);
+   proto_tree_add_item( tree, hf_time_sync_port_log_announce_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   if (2+num_ports*4 < total_len)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port Log Announcement Interval Cfg - too many ports");
+      return total_len;
+   }
+
+   for (i = 0; i < num_ports; i++)
+   {
+       ti = proto_tree_add_text(tree, NULL, offset+2+i*4, 4, "Port #%d", i+1);
+       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_log_announce);
+       proto_tree_add_item(port_tree, hf_time_sync_port_log_announce_port_num, tvb, offset+2+i*4, 2, ENC_LITTLE_ENDIAN);
+       proto_tree_add_item(port_tree, hf_time_sync_port_log_announce_interval, tvb, offset+4+i*4, 2, ENC_LITTLE_ENDIAN);
+   }
+
+   return 2+num_ports*4;
+}
+
+static int dissect_time_sync_port_log_sync(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   guint16 i, num_ports;
+   proto_item* ti;
+   proto_tree* port_tree;
+
+   if (total_len < 2)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port Log Sync Interval Cfg");
+      return total_len;
+   }
+
+   num_ports = tvb_get_letohs( tvb, offset);
+   proto_tree_add_item( tree, hf_time_sync_port_log_sync_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   if (2+num_ports*4 < total_len)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port Log Sync Interval Cfg - too many ports");
+      return total_len;
+   }
+
+   for (i = 0; i < num_ports; i++)
+   {
+       ti = proto_tree_add_text(tree, NULL, offset+2+i*4, 4, "Port #%d", i+1);
+       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_log_sync);
+       proto_tree_add_item(port_tree, hf_time_sync_port_log_sync_port_num, tvb, offset+2+i*4, 2, ENC_LITTLE_ENDIAN);
+       proto_tree_add_item(port_tree, hf_time_sync_port_log_sync_port_log_sync_interval, tvb, offset+4+i*4, 2, ENC_LITTLE_ENDIAN);
+   }
+
+   return 2+num_ports*4;
+}
+
+static int dissect_time_sync_clock_type(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   proto_item* ti;
+   proto_tree* flag_tree;
+
+   if (total_len < 2)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Clock Type");
+      return total_len;
+   }
+
+   ti = proto_tree_add_item( tree, hf_time_sync_clock_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   flag_tree = proto_item_add_subtree(ti, ett_time_sync_clock_type);
+   proto_tree_add_item( flag_tree, hf_time_sync_clock_type_management, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_clock_type_end_to_end, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_clock_type_boundary, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_clock_type_ordinary, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( flag_tree, hf_time_sync_clock_type_slave_only, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   return 2;
+}
+
+static int dissect_time_sync_manufacture_id(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   if (total_len < 4)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Manufacture Identity");
+      return total_len;
+   }
+
+   proto_tree_add_item( tree, hf_time_sync_manufacture_id_oui, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( tree, hf_time_sync_manufacture_id_reserved, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
+   return 4;
+}
+
+static int dissect_time_sync_prod_desc(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   guint32 size;
+
+   if (total_len < 4)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Product Description");
+      return total_len;
+   }
+
+   size = tvb_get_letohl( tvb, offset);
+   proto_tree_add_item( tree, hf_time_sync_prod_desc_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+   if (size > 64)
+   {
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Product Description limited to 64 characters");
+      return total_len;
+   }
+
+   if ((int)(size+4) < total_len)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Product Description - invalid size");
+      return total_len;
+   }
+
+   proto_tree_add_item( tree, hf_time_sync_prod_desc_str, tvb, offset+4, size, ENC_ASCII|ENC_NA);
+   return size+4;
+}
+
+static int dissect_time_sync_revision_data(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   guint32 size;
+
+   if (total_len < 4)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Revision Data");
+      return total_len;
+   }
+
+   size = tvb_get_letohl( tvb, offset);
+   proto_tree_add_item( tree, hf_time_sync_revision_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+   if (size > 32)
+   {
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Revision Data limited to 32 characters");
+      return total_len;
+   }
+
+   if ((int)(size+4) < total_len)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Revision Data - invalid size");
+      return total_len;
+   }
+
+   proto_tree_add_item( tree, hf_time_sync_revision_data_str, tvb, offset+4, size, ENC_ASCII|ENC_NA);
+   return size+4;
+}
+
+static int dissect_time_sync_user_desc(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   guint32 size;
+
+   if (total_len < 4)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed User Description");
+      return total_len;
+   }
+
+   size = tvb_get_letohl( tvb, offset);
+   proto_tree_add_item( tree, hf_time_sync_user_desc_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+   if (size > 128)
+   {
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "User Description limited to 128 characters");
+      return total_len;
+   }
+
+   if ((int)(size+4) < total_len)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed User Description - invalid size");
+      return total_len;
+   }
+
+   proto_tree_add_item( tree, hf_time_sync_user_desc_str, tvb, offset+4, size, ENC_ASCII|ENC_NA);
+   return size+4;
+}
+
+static int dissect_time_sync_port_profile_id_info(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   guint16 i, num_ports;
+   proto_item* ti;
+   proto_tree* port_tree;
+
+   if (total_len < 2)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port Profile Identity Info");
+      return total_len;
+   }
+
+   num_ports = tvb_get_letohs( tvb, offset);
+   proto_tree_add_item( tree, hf_time_sync_port_profile_id_info_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   if (2+num_ports*10 < total_len)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port Profile Identity Info - too many ports");
+      return total_len;
+   }
+
+   for (i = 0; i < num_ports; i++)
+   {
+       ti = proto_tree_add_text(tree, NULL, offset+2+i*10, 10, "Port #%d", i+1);
+       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_profile_id_info);
+       proto_tree_add_item(port_tree, hf_time_sync_port_profile_id_info_port_num, tvb, offset+2+i*10, 2, ENC_LITTLE_ENDIAN);
+       proto_tree_add_item(port_tree, hf_time_sync_port_profile_id_info_profile_id, tvb, offset+4+i*10, 8, ENC_NA);
+   }
+
+   return 2+num_ports*10;
+}
+
+static int dissect_time_sync_port_phys_addr_info(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   guint16 i, num_ports;
+   proto_item* ti;
+   proto_tree* port_tree;
+
+   if (total_len < 2)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port Physical Address Info");
+      return total_len;
+   }
+
+   num_ports = tvb_get_letohs( tvb, offset);
+   proto_tree_add_item( tree, hf_time_sync_port_phys_addr_info_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   if (2+num_ports*36 < total_len)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port Physical Address Info - too many ports");
+      return total_len;
+   }
+
+   for (i = 0; i < num_ports; i++)
+   {
+       ti = proto_tree_add_text(tree, NULL, offset+2+i*36, 36, "Port #%d", i+1);
+       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_phys_addr_info);
+       proto_tree_add_item(port_tree, hf_time_sync_port_phys_addr_info_port_num, tvb, offset+2+i*36, 2, ENC_LITTLE_ENDIAN);
+       proto_tree_add_item(port_tree, hf_time_sync_port_phys_addr_info_phys_proto, tvb, offset+4+i*36, 16, ENC_NA);
+       proto_tree_add_item(port_tree, hf_time_sync_port_phys_addr_info_addr_size, tvb, offset+20+i*36, 2, ENC_LITTLE_ENDIAN);
+       proto_tree_add_item(port_tree, hf_time_sync_port_phys_addr_info_phys_proto, tvb, offset+22+i*36, 16, ENC_NA);
+   }
+
+   return 2+num_ports*36;
+}
+
+static int dissect_time_sync_port_proto_addr_info(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   guint16 i, num_ports;
+   proto_item* ti;
+   proto_tree* port_tree;
+
+   if (total_len < 2)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port Protocol Address Info");
+      return total_len;
+   }
+
+   num_ports = tvb_get_letohs( tvb, offset);
+   proto_tree_add_item( tree, hf_time_sync_port_proto_addr_info_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   if (2+num_ports*22 < total_len)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Port Protocol Address Info - too many ports");
+      return total_len;
+   }
+
+   for (i = 0; i < num_ports; i++)
+   {
+       ti = proto_tree_add_text(tree, NULL, offset+2+i*22, 22, "Port #%d", i+1);
+       port_tree = proto_item_add_subtree(ti, ett_time_sync_port_proto_addr_info);
+       proto_tree_add_item(port_tree, hf_time_sync_port_proto_addr_info_port_num, tvb, offset+2+i*22, 2, ENC_LITTLE_ENDIAN);
+       proto_tree_add_item(port_tree, hf_time_sync_port_proto_addr_info_network_proto, tvb, offset+4+i*22, 2, ENC_LITTLE_ENDIAN);
+       proto_tree_add_item(port_tree, hf_time_sync_port_proto_addr_info_addr_size, tvb, offset+6+i*22, 2, ENC_LITTLE_ENDIAN);
+       proto_tree_add_item(port_tree, hf_time_sync_port_proto_addr_info_port_proto_addr, tvb, offset+8+i*22, 16, ENC_NA);
+   }
+
+   return 2+num_ports*22;
+}
+
+static int dissect_time_sync_sys_time_and_offset(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   if (total_len < 16)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed System Time and Offset");
+      return total_len;
+   }
+
+   proto_tree_add_item( tree, hf_time_sync_sys_time_and_offset_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item( tree, hf_time_sync_sys_time_and_offset_offset, tvb, offset+8, 8, ENC_LITTLE_ENDIAN);
+   return 16;
+}
+
+
 static attribute_info_t cip_attribute_vals[] = {
 
+    /* Identity Object */
    {0x01, FALSE, 1, "Vendor ID", cip_uint, &hf_id_vendor_id, NULL},
    {0x01, FALSE, 2, "Device Type", cip_uint, &hf_id_device_type, NULL},
    {0x01, FALSE, 3, "Product Code", cip_uint, &hf_id_produce_code, NULL},
@@ -2339,11 +2995,13 @@ static attribute_info_t cip_attribute_vals[] = {
    {0x01, FALSE, 6, "Serial Number", cip_udint, &hf_id_serial_number, NULL},
    {0x01, FALSE, 7, "Product Name", cip_short_string, &hf_id_product_name, NULL},
 
+    /* Message Router Object */
    {0x02, FALSE, 1, "Object List", cip_dissector_func, NULL, dissect_msg_rout_num_classes},
    {0x02, FALSE, 2, "Number Available", cip_uint, &hf_msg_rout_num_available, NULL},
    {0x02, FALSE, 3, "Number Active", cip_uint, &hf_msg_rout_num_active, NULL},
    {0x02, FALSE, 4, "Active Connections", cip_uint_array, &hf_msg_rout_active_connections, NULL},
 
+    /* Connection Manager Object */
    {0x06, FALSE, 1, "Open Requests", cip_uint, &hf_conn_mgr_open_requests, NULL},
    {0x06, FALSE, 2, "Open Format Rejects", cip_uint, &hf_conn_mgr_open_format_rejects, NULL},
    {0x06, FALSE, 3, "Open Resource Rejects", cip_uint, &hf_conn_mgr_open_resource_rejects, NULL},
@@ -2351,7 +3009,38 @@ static attribute_info_t cip_attribute_vals[] = {
    {0x06, FALSE, 5, "Close Requests", cip_uint, &hf_conn_mgr_close_requests, NULL},
    {0x06, FALSE, 6, "Close Format Requests", cip_uint, &hf_conn_close_format_requests, NULL},
    {0x06, FALSE, 7, "Close Other Requests", cip_uint, &hf_conn_mgr_close_other_requests, NULL},
-   {0x06, FALSE, 8, "Connection Timeouts", cip_uint, &hf_conn_mgr_conn_timouts, NULL}
+   {0x06, FALSE, 8, "Connection Timeouts", cip_uint, &hf_conn_mgr_conn_timouts, NULL},
+
+    /* Time Sync Object */
+   {0x43, FALSE, 1, "PTP Enable", cip_bool, &hf_time_sync_ptp_enable, NULL},
+   {0x43, FALSE, 2, "Is Synchronized", cip_bool, &hf_time_sync_is_synchronized, NULL},
+   {0x43, FALSE, 3, "System Time (Microseconds)", cip_ulint, &hf_time_sync_sys_time_micro, NULL},
+   {0x43, FALSE, 4, "System Time (Nanoseconds)", cip_ulint, &hf_time_sync_sys_time_nano, NULL},
+   {0x43, FALSE, 5, "Offset from Master", cip_lint, &hf_time_sync_offset_from_master, NULL},
+   {0x43, FALSE, 6, "Max Offset from Master", cip_ulint, &hf_time_sync_max_offset_from_master, NULL},
+   {0x43, FALSE, 7, "Mean Path Delay To Master", cip_lint, &hf_time_sync_mean_path_delay_to_master, NULL},
+   {0x43, FALSE, 8, "Grand Master Clock Info", cip_dissector_func, NULL, dissect_time_sync_grandmaster_clock},
+   {0x43, FALSE, 9, "Parent Clock Info", cip_dissector_func, NULL, dissect_time_sync_parent_clock},
+   {0x43, FALSE, 10, "Local Clock Info", cip_dissector_func, NULL, dissect_time_sync_local_clock},
+   {0x43, FALSE, 11, "Number of Ports", cip_uint, &hf_time_sync_num_ports, NULL},
+   {0x43, FALSE, 12, "Port State Info", cip_dissector_func, NULL, dissect_time_sync_port_state_info},
+   {0x43, FALSE, 13, "Port Enable Cfg", cip_dissector_func, NULL, dissect_time_sync_port_enable_cfg},
+   {0x43, FALSE, 14, "Port Log Announcement Interval Cfg", cip_dissector_func, NULL, dissect_time_sync_port_log_announce},
+   {0x43, FALSE, 15, "Port Log Sync Interval Cfg", cip_dissector_func, NULL, dissect_time_sync_port_log_sync},
+   {0x43, FALSE, 16, "Priority1", cip_usint, &hf_time_sync_priority1, NULL},
+   {0x43, FALSE, 17, "Priority2", cip_usint, &hf_time_sync_priority2, NULL},
+   {0x43, FALSE, 18, "Domain number", cip_usint, &hf_time_sync_domain_number, NULL},
+   {0x43, FALSE, 19, "Clock Type", cip_dissector_func, NULL, dissect_time_sync_clock_type},
+   {0x43, FALSE, 20, "Manufacture Identity", cip_dissector_func, NULL, dissect_time_sync_manufacture_id},
+   {0x43, FALSE, 21, "Product Description", cip_dissector_func, NULL, dissect_time_sync_prod_desc},
+   {0x43, FALSE, 22, "Revision Data", cip_dissector_func, NULL, dissect_time_sync_revision_data},
+   {0x43, FALSE, 23, "User Description", cip_dissector_func, NULL, dissect_time_sync_user_desc},
+   {0x43, FALSE, 24, "Port Profile Identity Info", cip_dissector_func, NULL, dissect_time_sync_port_profile_id_info},
+   {0x43, FALSE, 25, "Port Physical Address Info", cip_dissector_func, NULL, dissect_time_sync_port_phys_addr_info},
+   {0x43, FALSE, 26, "Port Protocol Address Info", cip_dissector_func, NULL, dissect_time_sync_port_proto_addr_info},
+   {0x43, FALSE, 27, "Steps Removed", cip_uint, &hf_time_sync_steps_removed, NULL},
+   {0x43, FALSE, 28, "System Time and Offset", cip_dissector_func, NULL, dissect_time_sync_sys_time_and_offset},
+
 };
 
 typedef struct attribute_val_array {
@@ -3342,8 +4031,9 @@ dissect_cip_generic_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int 
    proto_tree *cmd_data_tree;
    int req_path_size;
    unsigned char add_stat_size;
+   guint8 service = tvb_get_guint8( tvb, offset );
 
-   if( tvb_get_guint8( tvb, offset ) & 0x80 )
+   if (service & 0x80)
    {
       /* Response message */
       add_stat_size = tvb_get_guint8( tvb, offset+3 ) * 2;
@@ -3367,10 +4057,7 @@ dissect_cip_generic_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int 
    {
       /* Request message */
 
-      /* Add service to info column */
-      col_append_str( pinfo->cinfo, COL_INFO,
-               val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                  cip_sc_vals , "Unknown Service (0x%02x)") );
+      add_cip_service_to_info_column(pinfo, service, cip_sc_vals);
 
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 
@@ -3633,9 +4320,7 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    proto_tree *cmd_data_tree;
    guint8 service = tvb_get_guint8( tvb, offset ) & 0x7F;
 
-   /* Add service to info column */
-   col_append_str( pinfo->cinfo, COL_INFO,
-            val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)") );
+   add_cip_service_to_info_column(pinfo, service, cip_sc_vals);
 
    /* Create service tree */
    cmd_data_item = proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "%s",
@@ -4203,7 +4888,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
    if (preq_info != NULL)
    {
       DISSECTOR_ASSERT(preq_info->connInfo == NULL);
-      preq_info->connInfo = se_alloc(sizeof(cip_conn_info_t));
+      preq_info->connInfo = se_alloc0(sizeof(cip_conn_info_t));
 
       preq_info->connInfo->ConnSerialNumber = ConnSerialNumber;
       preq_info->connInfo->VendorID = VendorID;
@@ -4215,11 +4900,6 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
       preq_info->connInfo->O2T.type = O2TType;
       preq_info->connInfo->motion = (connection_path.iClass == 0x42) ? TRUE : FALSE;
       preq_info->connInfo->safety = safety_fwdopen;
-      /* To be filled in by Ethernet/IP encap layer */
-      preq_info->connInfo->O2T.ipaddress = 0;
-      preq_info->connInfo->O2T.port = 0;
-      preq_info->connInfo->T2O.ipaddress = 0;
-      preq_info->connInfo->T2O.port = 0;
    }
 }
 
@@ -4577,10 +5257,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    {
       /* Request message */
 
-      /* Add service to info column */
-      col_append_str( pinfo->cinfo, COL_INFO,
-               val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                  cip_sc_vals_cm , "Unknown Service (0x%02x)") );
+      add_cip_service_to_info_column(pinfo, service, cip_sc_vals_cm);
 
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 
@@ -4650,14 +5327,15 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             {
                if ( preq_info->pData == NULL )
                {
-                  pembedded_req_info = (cip_req_info_t*)se_alloc(sizeof(cip_req_info_t));
-                  memset(pembedded_req_info, 0, sizeof(cip_req_info_t));
+                  pembedded_req_info = (cip_req_info_t*)se_alloc0(sizeof(cip_req_info_t));
                   preq_info->pData = pembedded_req_info;
                }
                else
                {
                   pembedded_req_info = (cip_req_info_t*)preq_info->pData;
                }
+
+               pembedded_req_info->isUnconnectedSend = TRUE;
             }
             dissect_cip_data( temp_tree, next_tvb, 0, pinfo, pembedded_req_info );
 
@@ -4832,13 +5510,8 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    {
       /* Request message */
 
-      /* Add service to info column */
-      if(check_col(pinfo->cinfo, COL_INFO))
-      {
-         col_append_str( pinfo->cinfo, COL_INFO,
-                  val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                     cip_sc_vals_mb , "Unknown Service (0x%02x)") );
-      }
+      add_cip_service_to_info_column(pinfo, service, cip_sc_vals_mb);
+
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 
       /* If there is any command specific data creat a sub-tree for it */
@@ -5227,10 +5900,8 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
    {
       /* Request message */
 
-      /* Add service to info column */
-      col_append_str( pinfo->cinfo, COL_INFO,
-               val_to_str( ( service & 0x7F ),
-                  cip_sc_vals_cco , "Unknown Service (0x%02x)") );
+      add_cip_service_to_info_column(pinfo, service, cip_sc_vals_cco);
+
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 
       /* If there is any command specific data create a sub-tree for it */
@@ -5412,8 +6083,9 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
                      &cip_gs_vals_ext , "Unknown Response (%x)")   );
 
       /* Add reply status to info column */
-      col_append_str( pinfo->cinfo, COL_INFO,
+      col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s",
                val_to_str_ext( gen_status, &cip_gs_vals_ext, "Unknown Response (%x)") );
+      col_set_fence(pinfo->cinfo, COL_INFO);
 
       /* Add additional status size */
       add_stat_size = tvb_get_guint8( tvb, offset+3 );
@@ -5584,8 +6256,7 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       preq_info = enip_info->cip_info;
       if ( preq_info == NULL )
       {
-         preq_info = se_alloc( sizeof( cip_req_info_t ) );
-         memset(preq_info, 0, sizeof(cip_req_info_t));
+         preq_info = se_alloc0( sizeof( cip_req_info_t ) );
          enip_info->cip_info = preq_info;
       }
       dissect_cip_data( tree, tvb, 0, pinfo, enip_info->cip_info );
@@ -5766,6 +6437,92 @@ proto_register_cip(void)
       { &hf_conn_close_format_requests, { "Close Format Requests", "cip.cm.close_format_requests", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_conn_mgr_close_other_requests, { "Close Other Requests", "cip.cm.close_other_requests", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_conn_mgr_conn_timouts, { "Connection Timeouts", "cip.cm.conn_timouts", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+      { &hf_time_sync_ptp_enable, { "PTP Enable", "cip.time_sync.ptp_enable", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0, NULL, HFILL }},
+      { &hf_time_sync_is_synchronized, { "Is Synchronized", "cip.time_sync.is_synchronized", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0, NULL, HFILL }},
+      { &hf_time_sync_sys_time_micro, { "System Time (Microseconds)", "cip.time_sync.sys_time_micro", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_sys_time_nano, { "System Time (Nanoseconds)", "cip.time_sync.sys_time_nano", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_offset_from_master, { "Offset from Master", "cip.time_sync.offset_from_master", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_max_offset_from_master, { "Max Offset from Master", "cip.time_sync.max_offset_from_master", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_mean_path_delay_to_master, { "Mean Path Delay To Master", "cip.time_sync.mean_path_delay_to_master", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_clock_id, { "Clock Identity", "cip.time_sync.gm_clock.clock_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_clock_class, { "Clock Class", "cip.time_sync.gm_clock.clock_class", FT_UINT16, BASE_DEC, VALS(cip_time_sync_clock_class_vals), 0, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_time_accuracy, { "Time Accuracy", "cip.time_sync.gm_clock.time_accuracy", FT_UINT16, BASE_DEC, VALS(cip_time_sync_time_accuracy_vals), 0, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_offset_scaled_log_variance, { "Offset Scaled Log Variance", "cip.time_sync.gm_clock.offset_scaled_log_variance", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_current_utc_offset, { "Current UTC Offset", "cip.time_sync.gm_clock.current_utc_offset", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_time_property_flags, { "Time Property Flags", "cip.time_sync.gm_clock.time_property_flags", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_time_property_flags_leap61, { "Leap indicator 61", "cip.time_sync.gm_clock.time_property_flags.leap61", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_time_property_flags_leap59, { "Leap indicator 59", "cip.time_sync.gm_clock.time_property_flags.leap59", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_time_property_flags_current_utc_valid, { "Current UTC Offset Valid", "cip.time_sync.gm_clock.time_property_flags.current_utc_valid", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x04, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_time_property_flags_ptp_timescale, { "PTP Timescale", "cip.time_sync.gm_clock.time_property_flags.ptp_timescale", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x08, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_time_property_flags_time_traceable, { "Time traceable", "cip.time_sync.gm_clock.time_property_flags.time_traceable", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x10, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_time_property_flags_freq_traceable, { "Frequency traceable", "cip.time_sync.gm_clock.time_property_flags.freq_traceable", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x20, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_time_source, { "Time Source", "cip.time_sync.gm_clock.time_source", FT_UINT16, BASE_DEC, VALS(cip_time_sync_time_source_vals), 0, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_priority1, { "Priority1", "cip.time_sync.gm_clock.priority1", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_gm_clock_priority2, { "Priority2", "cip.time_sync.gm_clock.priority2", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_parent_clock_clock_id, { "Clock Identity", "cip.time_sync.parent_clock.clock_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_parent_clock_port_number, { "Port Number", "cip.time_sync.parent_clock.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_parent_clock_observed_offset_scaled_log_variance, { "Observed Offset Scaled Log Variance", "cip.time_sync.parent_clock.observed_offset_scaled_log_variance", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_parent_clock_observed_phase_change_rate, { "Observed Phase Change Rate", "cip.time_sync.parent_clock.observed_phase_change_rate", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_local_clock_clock_id, { "Clock Identity", "cip.time_sync.local_clock.clock_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_local_clock_clock_class, { "Clock Class", "cip.time_sync.local_clock.clock_class", FT_UINT16, BASE_DEC, VALS(cip_time_sync_clock_class_vals), 0, NULL, HFILL }},
+      { &hf_time_sync_local_clock_time_accuracy, { "Time Accuracy", "cip.time_sync.local_clock.time_accuracy", FT_UINT16, BASE_DEC, VALS(cip_time_sync_time_accuracy_vals), 0, NULL, HFILL }},
+      { &hf_time_sync_local_clock_offset_scaled_log_variance, { "Offset Scaled Log Variance", "cip.time_sync.local_clock.offset_scaled_log_variance", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_local_clock_current_utc_offset, { "Current UTC Offset", "cip.time_sync.local_clock.current_utc_offset", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_local_clock_time_property_flags, { "Time Property Flags", "cip.time_sync.local_clock.time_property_flags", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_local_clock_time_property_flags_leap61, { "Leap indicator 61", "cip.time_sync.local_clock.time_property_flags.leap61", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
+      { &hf_time_sync_local_clock_time_property_flags_leap59, { "Leap indicator 59", "cip.time_sync.local_clock.time_property_flags.leap59", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
+      { &hf_time_sync_local_clock_time_property_flags_current_utc_valid, { "Current UTC Offset Valid", "cip.time_sync.local_clock.time_property_flags.current_utc_valid", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x04, NULL, HFILL }},
+      { &hf_time_sync_local_clock_time_property_flags_ptp_timescale, { "PTP Timescale", "cip.time_sync.local_clock.time_property_flags.ptp_timescale", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x08, NULL, HFILL }},
+      { &hf_time_sync_local_clock_time_property_flags_time_traceable, { "Time traceable", "cip.time_sync.local_clock.time_property_flags.time_traceable", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x10, NULL, HFILL }},
+      { &hf_time_sync_local_clock_time_property_flags_freq_traceable, { "Frequency traceable", "cip.time_sync.local_clock.time_property_flags.freq_traceable", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x20, NULL, HFILL }},
+      { &hf_time_sync_local_clock_time_source, { "Time Source", "cip.time_sync.local_clock.time_source", FT_UINT16, BASE_DEC, VALS(cip_time_sync_time_source_vals), 0, NULL, HFILL }},
+      { &hf_time_sync_num_ports, { "Port Number", "cip.time_sync.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_state_info_num_ports, { "Number of Ports", "cip.time_sync.port_state_info.num_ports", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_state_info_port_num, { "Port Number", "cip.time_sync.port_state_info.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_state_info_port_state, { "Port State", "cip.time_sync.port_state_info.port_state", FT_UINT16, BASE_DEC, VALS(cip_time_sync_port_state_vals), 0, NULL, HFILL }},
+      { &hf_time_sync_port_enable_cfg_num_ports, { "Number of Ports", "cip.time_sync.port_enable_cfg.num_ports", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_enable_cfg_port_num, { "Port Number", "cip.time_sync.port_enable_cfg.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_enable_cfg_port_enable, { "Port Enable", "cip.time_sync.port_enable_cfg.port_enable", FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), 0, NULL, HFILL }},
+      { &hf_time_sync_port_log_announce_num_ports, { "Number of Ports", "cip.time_sync.port_log_announce.num_ports", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_log_announce_port_num, { "Port Number", "cip.time_sync.port_log_announce.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_log_announce_interval, { "Port Log Announce Interval", "cip.time_sync.port_log_announce.interval", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_log_sync_num_ports, { "Number of Ports", "cip.time_sync.port_log_sync.num_ports", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_log_sync_port_num, { "Port Number", "cip.time_sync.port_log_sync.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_log_sync_port_log_sync_interval, { "Port Log Sync Interval", "cip.time_sync.port_log_sync.port_log_sync_interval", FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_priority1, { "Priority1", "cip.time_sync.priority1", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_priority2, { "Priority2", "cip.time_sync.priority2", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_domain_number, { "Domain number", "cip.time_sync.domain_number", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_clock_type, { "Clock Type", "cip.time_sync.clock_type", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_clock_type_ordinary, { "Ordinary Clock", "cip.time_sync.clock_type.ordinary", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0080, NULL, HFILL }},
+      { &hf_time_sync_clock_type_boundary, { "Boundary Clock", "cip.time_sync.clock_type.boundary", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0040, NULL, HFILL }},
+      { &hf_time_sync_clock_type_end_to_end, { "End-to-End Transparent Clock", "cip.time_sync.clock_type.end_to_end", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0010, NULL, HFILL }},
+      { &hf_time_sync_clock_type_management, { "Management Node", "cip.time_sync.clock_type.management", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0008, NULL, HFILL }},
+      { &hf_time_sync_clock_type_slave_only, { "Slave Only", "cip.time_sync.clock_type.slave_only", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0100, NULL, HFILL }},
+      { &hf_time_sync_manufacture_id_oui, { "Manufacture Identity OUI", "cip.time_sync.manufacture_id.oui", FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_manufacture_id_reserved, { "Reserved", "cip.time_sync.manufacture_id.reserved", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_prod_desc_size, { "Product Description Size", "cip.time_sync.prod_desc_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_prod_desc_str, { "Product Description", "cip.time_sync.prod_desc", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_revision_data_size, { "Revision Data Size", "cip.time_sync.revision_data_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_revision_data_str, { "Revision Data", "cip.time_sync.revision_data", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_user_desc_size, { "User Description Size", "cip.time_sync.user_desc_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_user_desc_str, { "User Description", "cip.time_sync.user_desc", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_profile_id_info_num_ports, { "Number of Ports", "cip.time_sync.port_profile_id_info.num_ports", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_profile_id_info_port_num, { "Port Number", "cip.time_sync.port_profile_id_info.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_profile_id_info_profile_id, { "Port Profile Identity", "cip.time_sync.port_profile_id_info.profile_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_phys_addr_info_num_ports, { "Number of Ports", "cip.time_sync.port_phys_addr_info.num_ports", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_phys_addr_info_port_num, { "Port Number", "cip.time_sync.port_phys_addr_info.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_phys_addr_info_phys_proto, { "Physical Protocol", "cip.time_sync.port_profile_id_info.phys_proto", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_phys_addr_info_addr_size, { "Size of Address", "cip.time_sync.port_phys_addr_info.addr_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_phys_addr_info_phys_addr, { "Port Physical Address", "cip.time_sync.port_profile_id_info.phys_addr", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_proto_addr_info_num_ports, { "Number of Ports", "cip.time_sync.port_proto_addr_info.num_ports", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_proto_addr_info_port_num, { "Port Number", "cip.time_sync.port_proto_addr_info.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_proto_addr_info_network_proto, { "Network Protocol", "cip.time_sync.port_proto_addr_info.network_proto", FT_UINT16, BASE_DEC, VALS(cip_time_sync_network_protocol_vals), 0, NULL, HFILL }},
+      { &hf_time_sync_port_proto_addr_info_addr_size, { "Size of Address", "cip.time_sync.port_proto_addr_info.addr_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_port_proto_addr_info_port_proto_addr, { "Port Protocol Address", "cip.time_sync.port_profile_id_info.port_proto_addr", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_steps_removed, { "Steps Removed", "cip.time_sync.steps_removed", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_sys_time_and_offset_time, { "System Time (Microseconds)", "cip.time_sync.sys_time_and_offset.time", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_time_sync_sys_time_and_offset_offset, { "System Offset (Microseconds)", "cip.time_sync.sys_time_and_offset.offset", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
    };
 
    static hf_register_info hf_cm[] = {
@@ -5935,7 +6692,17 @@ proto_register_cip(void)
       &ett_cip_get_attribute_list_item,
       &ett_cip_set_attribute_list,
       &ett_cip_set_attribute_list_item,
-      &ett_cip_mult_service_packet
+      &ett_cip_mult_service_packet,
+      &ett_time_sync_gm_clock_flags,
+      &ett_time_sync_local_clock_flags,
+      &ett_time_sync_port_state_info,
+      &ett_time_sync_port_enable_cfg,
+      &ett_time_sync_port_log_announce,
+      &ett_time_sync_port_log_sync,
+      &ett_time_sync_clock_type,
+      &ett_time_sync_port_profile_id_info,
+      &ett_time_sync_port_phys_addr_info,
+      &ett_time_sync_port_proto_addr_info,
    };
 
    static gint *ett_cm[] = {
@@ -5964,7 +6731,7 @@ proto_register_cip(void)
       &ett_cco_ncp,
       &ett_cco_rrsc,
       &ett_cco_cmd_data,
-      &ett_cco_ttt
+      &ett_cco_ttt,
     };
 
    /* Register the protocol name and description */
