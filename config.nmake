@@ -1042,10 +1042,12 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 11.0\VC\redist\$(TARGET_MACHI
 !ERROR MSVC_VARIANT unknown
 !ENDIF
 
-!IF DEFINED(VCREDIST_EXE) && ! EXIST("$(VCREDIST_EXE)")
-!ERROR Can't find $(VCREDIST_EXE). Have you downloaded it from Microsoft? \
-See the developer's guide section "C-Runtime "Redistributable" files" for details how to get it
-!ENDIF
+# This is still optional yet we define it above for all users.
+# So, don't check if it exists...
+#!IF DEFINED(VCREDIST_EXE) && ! EXIST("$(VCREDIST_EXE)")
+#!ERROR Can't find $(VCREDIST_EXE). Have you downloaded it from Microsoft? \
+#See the developer's guide section "C-Runtime "Redistributable" files" for details how to get it
+#!ENDIF
 
 ##### Advanced: Docbook/XML documentation generation #####
 # If you want to generate the Docbook/XML based docs (User's and Developer's
