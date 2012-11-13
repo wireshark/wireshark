@@ -170,15 +170,15 @@ Miscellaneous:
 		time.
 	    </para>
 	    <para>
-		When the first capture file fills up, Wireshark will switch to writing
-		to the next file, until it fills up the last file, at which point
-		it'll discard the data in the first file (unless 0 is specified, in
-		which case, the number of files is unlimited) and start writing to
-		that file and so on.
+		When the first capture file fills up Wireshark will switch to writing
+		to the next file, and so on.  With the <command>files</command> option it's
+		also possible to form a "ring buffer."  This will fill up new files until the
+		number of files specified, at which point the data in the first file will be
+		discarded so a new file can be written.
 	    </para>
 	    <para>
-		If the optional duration is specified, Wireshark will also switch to
-		the next file when the specified number of seconds has elapsed even
+		If the optional <command>duration</command> is specified, Wireshark will also
+		switch to the next file when the specified number of seconds has elapsed even
 		if the current file is not completely fills up.
 	    </para>
 	    <para>
