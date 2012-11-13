@@ -3440,10 +3440,10 @@ do_zoom_rectangle(struct graph *g, struct irect zoomrect)
               g->wp.x, g->wp.y, g->wp.width, g->wp.height,
               zoomrect.x, zoomrect.y, zoomrect.width, zoomrect.height);
 */
-      g->geom.x = geom1.x * (1 + factor.x) -
-                  zoomrect.x * factor.x - (geom1.x - g->wp.x);
-      g->geom.y = geom1.y * (1 + factor.y) -
-                  zoomrect.y * factor.y - (geom1.y - g->wp.y);
+      g->geom.x = (int)(geom1.x * (1 + factor.x) -
+                        zoomrect.x * factor.x - (geom1.x - g->wp.x));
+      g->geom.y = (int)(geom1.y * (1 + factor.y) -
+                        zoomrect.y * factor.y - (geom1.y - g->wp.y));
 
 /*
       printf("after:\n"
@@ -3471,7 +3471,7 @@ static void do_zoom_mouse (struct graph *g, GdkEventButton *event)
 	struct zoomfactor factor;
 
 	get_zoomfactor(g, &factor, g->zoom.step_x, g->zoom.step_y);
-	perform_zoom(g, &factor, event->x, event->y, ZOOM_REDRAW);
+	perform_zoom(g, &factor, (int)event->x, (int)event->y, ZOOM_REDRAW);
 }
 
 static void do_zoom_keyboard (struct graph *g)
