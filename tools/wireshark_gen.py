@@ -13,7 +13,7 @@
 #  is "C". It will generate code to use the GIOP/IIOP get_CDR_XXX API.
 #
 #  Please see packet-giop.h in Wireshark distro for API description.
-#  Wireshark is available at http://www.wiresharl.org/
+#  Wireshark is available at http://www.wireshark.org/
 #
 #  Omniidl is part of the OmniOrb distribution, and is available at
 #  http://www.uk.research.att.com/omniORB/omniORB.html
@@ -2114,13 +2114,13 @@ break;"""
 proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_short = """\
-proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+proto_tree_add_int(tree, hf_@hfname@, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_void = """\
 /* Function returns void */
 """
     template_get_CDR_long = """\
-proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+proto_tree_add_int(tree, hf_@hfname@, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_ushort = """\
 proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
@@ -2132,7 +2132,7 @@ proto_tree_add_float(tree, hf_@hfname@, tvb, *offset-4, 4, get_CDR_float(tvb,off
 proto_tree_add_double(tree, hf_@hfname@, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_longlong = """\
-proto_tree_add_uint64(tree, hf_@hfname@, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+proto_tree_add_int64(tree, hf_@hfname@, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_ulonglong = """\
 proto_tree_add_uint64(tree, hf_@hfname@, tvb, *offset-8, 8, get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary));

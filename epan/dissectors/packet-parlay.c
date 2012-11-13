@@ -6152,7 +6152,7 @@ decode_ex_org_csapi_TpCommonExceptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 {
     proto_item *item _U_;
 
-    proto_tree_add_uint(tree, hf_org_csapi_TpCommonExceptions_ExceptionType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_TpCommonExceptions_ExceptionType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_TpCommonExceptions_ExtraInformation);
 
@@ -8568,7 +8568,7 @@ decode_org_csapi_IpService_setCallbackWithSessionID(tvbuff_t *tvb _U_, packet_in
     case Request:
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-        proto_tree_add_uint(tree, hf_org_csapi_IpService_setCallbackWithSessionID_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_IpService_setCallbackWithSessionID_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -9491,7 +9491,7 @@ decode_org_csapi_fw_fw_application_notification_IpAppEventNotification_reportNot
         decode_org_csapi_fw_TpFwEventInfo_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
         /*  End union "org_csapi_fw_TpFwEventInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_notification_IpAppEventNotification_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_notification_IpAppEventNotification_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -9564,7 +9564,7 @@ decode_org_csapi_fw_fw_application_notification_IpEventNotification_createNotifi
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_notification_IpEventNotification_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_notification_IpEventNotification_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -9591,7 +9591,7 @@ decode_org_csapi_fw_fw_application_notification_IpEventNotification_destroyNotif
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_notification_IpEventNotification_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_notification_IpEventNotification_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -9624,7 +9624,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestRes(t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestRes_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestRes_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestRes_activityTestResult);
 
@@ -9659,7 +9659,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_appActivityTestRe
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_appActivityTestReq_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_appActivityTestReq_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -9894,7 +9894,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestErr(t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestErr_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestErr_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -10088,7 +10088,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStat
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordRes_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordRes_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_fw_TpFaultStatsRecord"  */
         decode_org_csapi_fw_TpFaultStatsRecord_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -10141,7 +10141,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStat
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatistics);
@@ -10193,7 +10193,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStat
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordReq_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordReq_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpTimeInterval"  */
         decode_org_csapi_TpTimeInterval_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -10555,7 +10555,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryAppLoadStatsR
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryAppLoadStatsReq_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryAppLoadStatsReq_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpTimeInterval"  */
         decode_org_csapi_TpTimeInterval_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -10596,7 +10596,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes(
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatistics);
@@ -10643,7 +10643,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsErr(
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsErr_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsErr_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsErr_loadStatisticsError, tvb, *offset-4, 4, u_octet4);
@@ -11034,7 +11034,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq(tvb
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_serviceIDs);
@@ -11084,7 +11084,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes(
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatistics);
@@ -11131,7 +11131,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsErr(
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsErr_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsErr_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsErr_loadStatisticsError, tvb, *offset-4, 4, u_octet4);
@@ -11233,7 +11233,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_activityTestReq(tvbu
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_activityTestReq_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_activityTestReq_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_activityTestReq_svcID);
 
@@ -11268,7 +11268,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestRes(t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestRes_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestRes_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestRes_activityTestResult);
 
@@ -11384,7 +11384,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestErr(t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestErr_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestErr_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -11565,7 +11565,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatist
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordReq_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordReq_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpTimeInterval"  */
         decode_org_csapi_TpTimeInterval_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -11610,7 +11610,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatist
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordRes_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordRes_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_fw_TpFaultStatsRecord"  */
         decode_org_csapi_fw_TpFaultStatsRecord_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -11650,7 +11650,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatist
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordErr_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordErr_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordErr_faultStatisticsError, tvb, *offset-4, 4, u_octet4);
@@ -11686,7 +11686,7 @@ decode_org_csapi_fw_fw_application_integrity_IpHeartBeatMgmt_enableHeartBeat(tvb
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpHeartBeatMgmt_enableHeartBeat_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpHeartBeatMgmt_enableHeartBeat_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -11752,7 +11752,7 @@ decode_org_csapi_fw_fw_application_integrity_IpHeartBeatMgmt_changeInterval(tvbu
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpHeartBeatMgmt_changeInterval_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpHeartBeatMgmt_changeInterval_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -11847,7 +11847,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppHeartBeatMgmt_enableAppHeartBe
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppHeartBeatMgmt_enableAppHeartBeat_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppHeartBeatMgmt_enableAppHeartBeat_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -11913,7 +11913,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppHeartBeatMgmt_changeInterval(t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppHeartBeatMgmt_changeInterval_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppHeartBeatMgmt_changeInterval_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -12042,7 +12042,7 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService(
             /*  End struct "org_csapi_fw_TpServiceProperty"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_max, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_max, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -13649,7 +13649,7 @@ decode_org_csapi_fw_fw_enterprise_operator_notification_IpClientEventNotificatio
         decode_org_csapi_fw_TpFwEventInfo_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
         /*  End union "org_csapi_fw_TpFwEventInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_notification_IpClientEventNotification_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_enterprise_operator_notification_IpClientEventNotification_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -13722,7 +13722,7 @@ decode_org_csapi_fw_fw_enterprise_operator_notification_IpEventNotification_crea
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_notification_IpEventNotification_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_fw_fw_enterprise_operator_notification_IpEventNotification_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -13749,7 +13749,7 @@ decode_org_csapi_fw_fw_enterprise_operator_notification_IpEventNotification_dest
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_notification_IpEventNotification_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_enterprise_operator_notification_IpEventNotification_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -13878,7 +13878,7 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService(tv
             /*  End struct "org_csapi_fw_TpServiceProperty"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_max, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_max, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -14577,7 +14577,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_querySvcLoadStatsReq(t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_querySvcLoadStatsReq_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_querySvcLoadStatsReq_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpTimeInterval"  */
         decode_org_csapi_TpTimeInterval_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -14618,7 +14618,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes(tvbu
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatistics);
@@ -14665,7 +14665,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsErr(tvbu
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsErr_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsErr_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsErr_loadStatisticsError, tvb, *offset-4, 4, u_octet4);
@@ -15020,7 +15020,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadStatsReq(tvbuf
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadStatsReq_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadStatsReq_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadStatsReq_querySubject, tvb, *offset-4, 4, u_octet4);
@@ -15064,7 +15064,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes(tv
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatistics);
@@ -15111,7 +15111,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsErr(tv
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsErr_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsErr_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsErr_loadStatisticError, tvb, *offset-4, 4, u_octet4);
@@ -15147,7 +15147,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestRes(tvbuf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestRes_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestRes_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestRes_activityTestResult);
 
@@ -15182,7 +15182,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_svcActivityTestReq(tv
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_svcActivityTestReq_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_svcActivityTestReq_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -15432,7 +15432,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestErr(tvbuf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestErr_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestErr_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -15630,7 +15630,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisti
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordRes_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordRes_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_fw_TpFaultStatsRecord"  */
         decode_org_csapi_fw_TpFaultStatsRecord_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -15673,7 +15673,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisti
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordErr_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordErr_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordErr_faultStatisticsError, tvb, *offset-4, 4, u_octet4);
@@ -15712,7 +15712,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisti
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordReq_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordReq_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpTimeInterval"  */
         decode_org_csapi_TpTimeInterval_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -15790,7 +15790,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_activityTestReq(tvbuff
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_activityTestReq_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_activityTestReq_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_activityTestReq_testSubject, tvb, *offset-4, 4, u_octet4);
@@ -15826,7 +15826,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestRes(tvb
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestRes_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestRes_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestRes_activityTestResult);
 
@@ -15971,7 +15971,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestErr(tvb
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestErr_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestErr_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -16215,7 +16215,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatistic
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordReq_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordReq_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpTimeInterval"  */
         decode_org_csapi_TpTimeInterval_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -16254,7 +16254,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatistic
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordRes_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordRes_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_fw_TpFaultStatsRecord"  */
         decode_org_csapi_fw_TpFaultStatsRecord_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -16294,7 +16294,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatistic
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordErr_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordErr_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordErr_faultStatisticsError, tvb, *offset-4, 4, u_octet4);
@@ -16396,7 +16396,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwHeartBeatMgmt_enableHeartBeat(tvbuf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwHeartBeatMgmt_enableHeartBeat_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwHeartBeatMgmt_enableHeartBeat_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -16462,7 +16462,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwHeartBeatMgmt_changeInterval(tvbuff
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwHeartBeatMgmt_changeInterval_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwHeartBeatMgmt_changeInterval_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -16557,7 +16557,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcHeartBeatMgmt_enableSvcHeartBeat(t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcHeartBeatMgmt_enableSvcHeartBeat_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcHeartBeatMgmt_enableSvcHeartBeat_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -16623,7 +16623,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcHeartBeatMgmt_changeInterval(tvbuf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcHeartBeatMgmt_changeInterval_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcHeartBeatMgmt_changeInterval_interval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -16665,7 +16665,7 @@ decode_org_csapi_fw_fw_service_notification_IpFwEventNotification_createNotifica
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_notification_IpFwEventNotification_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_notification_IpFwEventNotification_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -16692,7 +16692,7 @@ decode_org_csapi_fw_fw_service_notification_IpFwEventNotification_destroyNotific
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_notification_IpFwEventNotification_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_notification_IpFwEventNotification_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -16730,7 +16730,7 @@ decode_org_csapi_fw_fw_service_notification_IpSvcEventNotification_reportNotific
         decode_org_csapi_fw_TpFwEventInfo_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
         /*  End union "org_csapi_fw_TpFwEventInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_notification_IpSvcEventNotification_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_notification_IpSvcEventNotification_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -16794,12 +16794,12 @@ decode_org_csapi_cc_gccs_IpAppCall_routeRes(tvbuff_t *tvb _U_, packet_info *pinf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_routeRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_routeRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_gccs_TpCallReport"  */
         decode_org_csapi_cc_gccs_TpCallReport_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cc_gccs_TpCallReport"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_routeRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_routeRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -16832,12 +16832,12 @@ decode_org_csapi_cc_gccs_IpAppCall_routeErr(tvbuff_t *tvb _U_, packet_info *pinf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_routeErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_routeErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cc_TpCallError"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_routeErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_routeErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -16870,7 +16870,7 @@ decode_org_csapi_cc_gccs_IpAppCall_getCallInfoRes(tvbuff_t *tvb _U_, packet_info
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_getCallInfoRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_getCallInfoRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_gccs_TpCallInfoReport"  */
         decode_org_csapi_cc_gccs_TpCallInfoReport_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -16906,7 +16906,7 @@ decode_org_csapi_cc_gccs_IpAppCall_getCallInfoErr(tvbuff_t *tvb _U_, packet_info
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_getCallInfoErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_getCallInfoErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -16942,11 +16942,11 @@ decode_org_csapi_cc_gccs_IpAppCall_superviseCallRes(tvbuff_t *tvb _U_, packet_in
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_superviseCallRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_superviseCallRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_superviseCallRes_report, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_superviseCallRes_report, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_superviseCallRes_usedTime, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_superviseCallRes_usedTime, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -16979,7 +16979,7 @@ decode_org_csapi_cc_gccs_IpAppCall_superviseCallErr(tvbuff_t *tvb _U_, packet_in
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_superviseCallErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_superviseCallErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -17019,7 +17019,7 @@ decode_org_csapi_cc_gccs_IpAppCall_callFaultDetected(tvbuff_t *tvb _U_, packet_i
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_callFaultDetected_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_callFaultDetected_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_callFaultDetected_fault, tvb, *offset-4, 4, u_octet4);
@@ -17055,7 +17055,7 @@ decode_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsRes(tvbuff_t *tvb _U_, pa
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsRes_digits);
 
@@ -17090,7 +17090,7 @@ decode_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsErr(tvbuff_t *tvb _U_, pa
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -17126,7 +17126,7 @@ decode_org_csapi_cc_gccs_IpAppCall_callEnded(tvbuff_t *tvb _U_, packet_info *pin
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_callEnded_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_callEnded_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_gccs_TpCallEndedReport"  */
         decode_org_csapi_cc_gccs_TpCallEndedReport_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -17169,7 +17169,7 @@ decode_org_csapi_cc_gccs_IpCall_routeReq(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_routeReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_routeReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_gccs_IpCall_routeReq_responseRequested = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_routeReq_responseRequested, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_gccs_IpCall_routeReq_responseRequested);
@@ -17209,7 +17209,7 @@ decode_org_csapi_cc_gccs_IpCall_routeReq(tvbuff_t *tvb _U_, packet_info *pinfo _
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_routeReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_routeReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -17236,7 +17236,7 @@ decode_org_csapi_cc_gccs_IpCall_release(tvbuff_t *tvb _U_, packet_info *pinfo _U
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_release_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_release_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_gccs_TpCallReleaseCause"  */
         decode_org_csapi_cc_gccs_TpCallReleaseCause_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -17272,7 +17272,7 @@ decode_org_csapi_cc_gccs_IpCall_deassignCall(tvbuff_t *tvb _U_, packet_info *pin
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_deassignCall_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_deassignCall_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -17305,9 +17305,9 @@ decode_org_csapi_cc_gccs_IpCall_getCallInfoReq(tvbuff_t *tvb _U_, packet_info *p
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_getCallInfoReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_getCallInfoReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_getCallInfoReq_callInfoRequested, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_getCallInfoReq_callInfoRequested, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -17340,7 +17340,7 @@ decode_org_csapi_cc_gccs_IpCall_setCallChargePlan(tvbuff_t *tvb _U_, packet_info
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_setCallChargePlan_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_setCallChargePlan_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallChargePlan"  */
         decode_org_csapi_cc_TpCallChargePlan_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -17376,12 +17376,12 @@ decode_org_csapi_cc_gccs_IpCall_setAdviceOfCharge(tvbuff_t *tvb _U_, packet_info
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_setAdviceOfCharge_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_setAdviceOfCharge_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpAoCInfo"  */
         decode_org_csapi_TpAoCInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpAoCInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_setAdviceOfCharge_tariffSwitch, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_setAdviceOfCharge_tariffSwitch, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -17414,9 +17414,9 @@ decode_org_csapi_cc_gccs_IpCall_getMoreDialledDigitsReq(tvbuff_t *tvb _U_, packe
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_getMoreDialledDigitsReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_getMoreDialledDigitsReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_getMoreDialledDigitsReq_length, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_getMoreDialledDigitsReq_length, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -17449,11 +17449,11 @@ decode_org_csapi_cc_gccs_IpCall_superviseCallReq(tvbuff_t *tvb _U_, packet_info 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_superviseCallReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_superviseCallReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_superviseCallReq_time, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_superviseCallReq_time, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_superviseCallReq_treatment, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_superviseCallReq_treatment, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -17486,7 +17486,7 @@ decode_org_csapi_cc_gccs_IpCall_continueProcessing(tvbuff_t *tvb _U_, packet_inf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_continueProcessing_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_continueProcessing_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -17519,7 +17519,7 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_callAborted(tvbuff_t *tvb _U_, 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCallControlManager_callAborted_callReference, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCallControlManager_callAborted_callReference, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -17558,7 +17558,7 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_callEventNotify(tvbuff_t *tvb _
         /*  Begin struct "org_csapi_cc_gccs_TpCallEventInfo"  */
         decode_org_csapi_cc_gccs_TpCallEventInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cc_gccs_TpCallEventInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCallControlManager_callEventNotify_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCallControlManager_callEventNotify_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -17653,7 +17653,7 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_callOverloadEncountered(tvbuff_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCallControlManager_callOverloadEncountered_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCallControlManager_callOverloadEncountered_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -17686,7 +17686,7 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_callOverloadCeased(tvbuff_t *tv
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCallControlManager_callOverloadCeased_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCallControlManager_callOverloadCeased_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -17729,7 +17729,7 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls(tvbuff_t *tv
 
         for (i_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet=0; i_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet < u_octet4_loop_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet; i_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet++) {
 
-            proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         }
 
@@ -17807,7 +17807,7 @@ decode_org_csapi_cc_gccs_IpCallControlManager_enableCallNotification(tvbuff_t *t
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCallControlManager_enableCallNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCallControlManager_enableCallNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -17834,7 +17834,7 @@ decode_org_csapi_cc_gccs_IpCallControlManager_disableCallNotification(tvbuff_t *
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCallControlManager_disableCallNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCallControlManager_disableCallNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -17867,7 +17867,7 @@ decode_org_csapi_cc_gccs_IpCallControlManager_setCallLoadControl(tvbuff_t *tvb _
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCallControlManager_setCallLoadControl_duration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCallControlManager_setCallLoadControl_duration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin union "org_csapi_cc_TpCallLoadControlMechanism"  */
         
@@ -17884,7 +17884,7 @@ decode_org_csapi_cc_gccs_IpCallControlManager_setCallLoadControl(tvbuff_t *tvb _
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCallControlManager_setCallLoadControl_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCallControlManager_setCallLoadControl_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -17911,7 +17911,7 @@ decode_org_csapi_cc_gccs_IpCallControlManager_changeCallNotification(tvbuff_t *t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCallControlManager_changeCallNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCallControlManager_changeCallNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_gccs_TpCallEventCriteria"  */
         decode_org_csapi_cc_gccs_TpCallEventCriteria_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -17991,7 +17991,7 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_eventReportRes(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_eventReportRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_eventReportRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallEventInfo"  */
         decode_org_csapi_cc_TpCallEventInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -18027,7 +18027,7 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_eventReportErr(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_eventReportErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_eventReportErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -18063,7 +18063,7 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_attachMediaRes(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_attachMediaRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_attachMediaRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -18096,7 +18096,7 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_attachMediaErr(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_attachMediaErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_attachMediaErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -18132,7 +18132,7 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_detachMediaRes(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_detachMediaRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_detachMediaRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -18165,7 +18165,7 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_detachMediaErr(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_detachMediaErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_detachMediaErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -18201,7 +18201,7 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_getInfoRes(tvbuff_t *tvb _U_, packet_info
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_getInfoRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_getInfoRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallLegInfoReport"  */
         decode_org_csapi_cc_TpCallLegInfoReport_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -18237,7 +18237,7 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_getInfoErr(tvbuff_t *tvb _U_, packet_info
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_getInfoErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_getInfoErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -18273,7 +18273,7 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_routeErr(tvbuff_t *tvb _U_, packet_info *
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_routeErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_routeErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -18309,11 +18309,11 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_superviseRes(tvbuff_t *tvb _U_, packet_in
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_superviseRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_superviseRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_superviseRes_report, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_superviseRes_report, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_superviseRes_usedTime, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_superviseRes_usedTime, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -18346,7 +18346,7 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_superviseErr(tvbuff_t *tvb _U_, packet_in
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_superviseErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_superviseErr_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -18386,7 +18386,7 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_callLegEnded(tvbuff_t *tvb _U_, packet_in
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_callLegEnded_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_callLegEnded_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_callLegEnded_cause, tvb, *offset-4, 4, u_octet4);
@@ -18465,7 +18465,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_createNotification(tvbu
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -18492,7 +18492,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_destroyNotification(tvb
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -18525,7 +18525,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_changeNotification(tvbu
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_changeNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_changeNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallNotificationRequest"  */
         decode_org_csapi_cc_TpCallNotificationRequest_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -18605,7 +18605,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_setCallLoadControl(tvbu
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_setCallLoadControl_duration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_setCallLoadControl_duration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin union "org_csapi_cc_TpCallLoadControlMechanism"  */
         
@@ -18622,7 +18622,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_setCallLoadControl(tvbu
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_setCallLoadControl_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_setCallLoadControl_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -18655,7 +18655,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_enableNotifications(tvb
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_enableNotifications_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_enableNotifications_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -18752,7 +18752,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_routeReq(tvbuff_t *tvb _U_, packet_info *pin
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_routeReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_routeReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpAddress"  */
         decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -18811,7 +18811,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_eventReportReq(tvbuff_t *tvb _U_, packet_inf
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_eventsRequested = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_eventsRequested, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_eventsRequested);
@@ -18858,7 +18858,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_release(tvbuff_t *tvb _U_, packet_info *pinf
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_release_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_release_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_release_cause, tvb, *offset-4, 4, u_octet4);
@@ -18894,9 +18894,9 @@ decode_org_csapi_cc_mpccs_IpCallLeg_getInfoReq(tvbuff_t *tvb _U_, packet_info *p
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getInfoReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getInfoReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getInfoReq_callLegInfoRequested, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getInfoReq_callLegInfoRequested, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -18929,7 +18929,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_getCall(tvbuff_t *tvb _U_, packet_info *pinf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getCall_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getCall_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -18963,7 +18963,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_attachMediaReq(tvbuff_t *tvb _U_, packet_inf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_attachMediaReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_attachMediaReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -18996,7 +18996,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_detachMediaReq(tvbuff_t *tvb _U_, packet_inf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_detachMediaReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_detachMediaReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19029,7 +19029,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_getCurrentDestinationAddress(tvbuff_t *tvb _
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getCurrentDestinationAddress_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getCurrentDestinationAddress_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19063,7 +19063,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_continueProcessing(tvbuff_t *tvb _U_, packet
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_continueProcessing_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_continueProcessing_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19096,7 +19096,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_setChargePlan(tvbuff_t *tvb _U_, packet_info
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_setChargePlan_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_setChargePlan_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallChargePlan"  */
         decode_org_csapi_cc_TpCallChargePlan_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -19132,12 +19132,12 @@ decode_org_csapi_cc_mpccs_IpCallLeg_setAdviceOfCharge(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_setAdviceOfCharge_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_setAdviceOfCharge_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpAoCInfo"  */
         decode_org_csapi_TpAoCInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpAoCInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_setAdviceOfCharge_tariffSwitch, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_setAdviceOfCharge_tariffSwitch, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19170,11 +19170,11 @@ decode_org_csapi_cc_mpccs_IpCallLeg_superviseReq(tvbuff_t *tvb _U_, packet_info 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_superviseReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_superviseReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_superviseReq_time, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_superviseReq_time, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_superviseReq_treatment, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_superviseReq_treatment, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19207,7 +19207,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_deassign(tvbuff_t *tvb _U_, packet_info *pin
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_deassign_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_deassign_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19247,7 +19247,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_getProperties(tvbuff_t *tvb _U_, packet_info
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getProperties_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getProperties_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_getProperties_propertyNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getProperties_propertyNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_getProperties_propertyNames);
@@ -19302,7 +19302,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_setProperties(tvbuff_t *tvb _U_, packet_info
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_setProperties_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_setProperties_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_setProperties_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_setProperties_properties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_setProperties_properties);
@@ -19345,7 +19345,7 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_getInfoRes(tvbuff_t *tvb _U_, pack
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_getInfoRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_getInfoRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallInfoReport"  */
         decode_org_csapi_cc_TpCallInfoReport_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -19381,7 +19381,7 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_getInfoErr(tvbuff_t *tvb _U_, pack
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_getInfoErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_getInfoErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -19417,11 +19417,11 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseRes(tvbuff_t *tvb _U_, pa
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseRes_report, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseRes_report, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseRes_usedTime, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseRes_usedTime, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19454,7 +19454,7 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseErr(tvbuff_t *tvb _U_, pa
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -19490,7 +19490,7 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_callEnded(tvbuff_t *tvb _U_, packe
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_callEnded_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_callEnded_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallEndedReport"  */
         decode_org_csapi_cc_TpCallEndedReport_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -19526,7 +19526,7 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_createAndRouteCallLegErr(tvbuff_t 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_createAndRouteCallLegErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCall_createAndRouteCallLegErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_mpccs_TpCallLegIdentifier"  */
         decode_org_csapi_cc_mpccs_TpCallLegIdentifier_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -19570,7 +19570,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs(tvbuff_t *tvb _U_, packet
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19611,7 +19611,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_createCallLeg(tvbuff_t *tvb _U_, pack
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_createCallLeg_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_createCallLeg_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -19654,7 +19654,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq(tvbuff_t *tv
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_eventsRequested = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_eventsRequested, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_eventsRequested);
@@ -19722,7 +19722,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_release(tvbuff_t *tvb _U_, packet_inf
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_release_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_release_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_release_cause, tvb, *offset-4, 4, u_octet4);
@@ -19758,7 +19758,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_deassignCall(tvbuff_t *tvb _U_, packe
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_deassignCall_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_deassignCall_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19791,9 +19791,9 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_getInfoReq(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_getInfoReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_getInfoReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_getInfoReq_callInfoRequested, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_getInfoReq_callInfoRequested, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19826,7 +19826,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_setChargePlan(tvbuff_t *tvb _U_, pack
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_setChargePlan_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_setChargePlan_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallChargePlan"  */
         decode_org_csapi_cc_TpCallChargePlan_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -19862,12 +19862,12 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_setAdviceOfCharge(tvbuff_t *tvb _U_, 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_setAdviceOfCharge_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_setAdviceOfCharge_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpAoCInfo"  */
         decode_org_csapi_TpAoCInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpAoCInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_setAdviceOfCharge_tariffSwitch, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_setAdviceOfCharge_tariffSwitch, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19900,11 +19900,11 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_superviseReq(tvbuff_t *tvb _U_, packe
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_superviseReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_superviseReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_superviseReq_time, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_superviseReq_time, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_superviseReq_treatment, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_superviseReq_treatment, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19958,7 +19958,7 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification(t
         /*  Begin struct "org_csapi_cc_TpCallNotificationInfo"  */
         decode_org_csapi_cc_TpCallNotificationInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cc_TpCallNotificationInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -19994,7 +19994,7 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callAborted(tvbuff_t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callAborted_callReference, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callAborted_callReference, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -20089,7 +20089,7 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callOverloadEncounte
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callOverloadEncountered_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callOverloadEncountered_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -20122,7 +20122,7 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callOverloadCeased(t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callOverloadCeased_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callOverloadCeased_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -20165,7 +20165,7 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls(t
 
         for (i_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet=0; i_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet < u_octet4_loop_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet; i_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet++) {
 
-            proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         }
 
@@ -20204,9 +20204,9 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeRes(tvbuff_t *tvb _
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeRes_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeRes_report, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeRes_report, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_mmccs_TpCallSuperviseVolume"  */
         decode_org_csapi_cc_mmccs_TpCallSuperviseVolume_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -20245,7 +20245,7 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeErr(tvbuff_t *tvb _
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeErr_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_TpCallError"  */
         decode_org_csapi_cc_TpCallError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -20287,7 +20287,7 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes(tvbuff_t 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_streams = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_streams, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_streams);
@@ -20333,7 +20333,7 @@ decode_org_csapi_cc_mmccs_IpMultiMediaStream_subtract(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaStream_subtract_mediaStreamSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpMultiMediaStream_subtract_mediaStreamSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -20371,14 +20371,14 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow(tvbuff_t *tvb _U_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList);
 
         for (i_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList=0; i_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList < u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList; i_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList++) {
 
-            proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         }
 
@@ -20418,7 +20418,7 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq(tvbuff_t *tv
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_mediaStreamEventCriteria = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_mediaStreamEventCriteria, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_mediaStreamEventCriteria);
@@ -20466,7 +20466,7 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams(tvbuff_t *tvb _U_,
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -20507,12 +20507,12 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCall_superviseVolumeReq(tvbuff_t *tvb _U_,
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCall_superviseVolumeReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCall_superviseVolumeReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_mmccs_TpCallSuperviseVolume"  */
         decode_org_csapi_cc_mmccs_TpCallSuperviseVolume_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cc_mmccs_TpCallSuperviseVolume"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCall_superviseVolumeReq_treatment, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCall_superviseVolumeReq_treatment, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -20582,7 +20582,7 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotificat
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_qualityOfService, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -20627,7 +20627,7 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_createMediaNotification
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_createMediaNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_createMediaNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -20654,7 +20654,7 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_destroyMediaNotificatio
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_destroyMediaNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_destroyMediaNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -20687,7 +20687,7 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_changeMediaNotification
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_changeMediaNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_changeMediaNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_mmccs_TpNotificationMediaRequest"  */
         decode_org_csapi_cc_mmccs_TpNotificationMediaRequest_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -20767,9 +20767,9 @@ decode_org_csapi_cc_cccs_IpAppSubConfCall_chairSelection(tvbuff_t *tvb _U_, pack
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpAppSubConfCall_chairSelection_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpAppSubConfCall_chairSelection_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpAppSubConfCall_chairSelection_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpAppSubConfCall_chairSelection_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -20802,9 +20802,9 @@ decode_org_csapi_cc_cccs_IpAppSubConfCall_floorRequest(tvbuff_t *tvb _U_, packet
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpAppSubConfCall_floorRequest_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpAppSubConfCall_floorRequest_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpAppSubConfCall_floorRequest_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpAppSubConfCall_floorRequest_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -20837,7 +20837,7 @@ decode_org_csapi_cc_cccs_IpAppConfCall_partyJoined(tvbuff_t *tvb _U_, packet_inf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpAppConfCall_partyJoined_conferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpAppConfCall_partyJoined_conferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cc_mpccs_TpCallLegIdentifier"  */
         decode_org_csapi_cc_mpccs_TpCallLegIdentifier_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -20876,9 +20876,9 @@ decode_org_csapi_cc_cccs_IpAppConfCall_leaveMonitorRes(tvbuff_t *tvb _U_, packet
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpAppConfCall_leaveMonitorRes_conferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpAppConfCall_leaveMonitorRes_conferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpAppConfCall_leaveMonitorRes_callLeg, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpAppConfCall_leaveMonitorRes_callLeg, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -20913,16 +20913,16 @@ decode_org_csapi_cc_cccs_IpConfCallControlManager_createConference(tvbuff_t *tvb
     case Request:
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpConfCallControlManager_createConference_numberOfSubConferences, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpConfCallControlManager_createConference_numberOfSubConferences, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin union "org_csapi_cc_cccs_TpConfPolicy"  */
         
         decode_org_csapi_cc_cccs_TpConfPolicy_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
         /*  End union "org_csapi_cc_cccs_TpConfPolicy"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpConfCallControlManager_createConference_numberOfParticipants, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpConfCallControlManager_createConference_numberOfParticipants, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpConfCallControlManager_createConference_duration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpConfCallControlManager_createConference_duration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -20995,9 +20995,9 @@ decode_org_csapi_cc_cccs_IpConfCallControlManager_reserveResources(tvbuff_t *tvb
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cc_cccs_IpConfCallControlManager_reserveResources_startTime);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpConfCallControlManager_reserveResources_numberOfParticipants, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpConfCallControlManager_reserveResources_numberOfParticipants, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpConfCallControlManager_reserveResources_duration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpConfCallControlManager_reserveResources_duration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin union "org_csapi_cc_cccs_TpConfPolicy"  */
         
@@ -21109,14 +21109,14 @@ decode_org_csapi_cc_cccs_IpSubConfCall_splitSubConference(tvbuff_t *tvb _U_, pac
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList);
 
         for (i_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList=0; i_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList < u_octet4_loop_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList; i_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList++) {
 
-            proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         }
 
@@ -21154,9 +21154,9 @@ decode_org_csapi_cc_cccs_IpSubConfCall_mergeSubConference(tvbuff_t *tvb _U_, pac
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_mergeSubConference_subConferenceCallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_mergeSubConference_subConferenceCallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_mergeSubConference_targetSubConferenceCall, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_mergeSubConference_targetSubConferenceCall, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21189,11 +21189,11 @@ decode_org_csapi_cc_cccs_IpSubConfCall_moveCallLeg(tvbuff_t *tvb _U_, packet_inf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_moveCallLeg_subConferenceCallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_moveCallLeg_subConferenceCallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_moveCallLeg_targetSubConferenceCall, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_moveCallLeg_targetSubConferenceCall, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_moveCallLeg_callLeg, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_moveCallLeg_callLeg, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21226,9 +21226,9 @@ decode_org_csapi_cc_cccs_IpSubConfCall_inspectVideo(tvbuff_t *tvb _U_, packet_in
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_inspectVideo_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_inspectVideo_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_inspectVideo_inspectedCallLeg, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_inspectVideo_inspectedCallLeg, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21261,7 +21261,7 @@ decode_org_csapi_cc_cccs_IpSubConfCall_inspectVideoCancel(tvbuff_t *tvb _U_, pac
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_inspectVideoCancel_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_inspectVideoCancel_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21294,9 +21294,9 @@ decode_org_csapi_cc_cccs_IpSubConfCall_appointSpeaker(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_appointSpeaker_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_appointSpeaker_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_appointSpeaker_speakerCallLeg, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_appointSpeaker_speakerCallLeg, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21329,9 +21329,9 @@ decode_org_csapi_cc_cccs_IpSubConfCall_chairSelection(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_chairSelection_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_chairSelection_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_chairSelection_chairCallLeg, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_chairSelection_chairCallLeg, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21364,7 +21364,7 @@ decode_org_csapi_cc_cccs_IpSubConfCall_changeConferencePolicy(tvbuff_t *tvb _U_,
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_changeConferencePolicy_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_changeConferencePolicy_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin union "org_csapi_cc_cccs_TpConfPolicy"  */
         
@@ -21407,7 +21407,7 @@ decode_org_csapi_cc_cccs_IpConfCall_getSubConferences(tvbuff_t *tvb _U_, packet_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpConfCall_getSubConferences_conferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpConfCall_getSubConferences_conferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21448,7 +21448,7 @@ decode_org_csapi_cc_cccs_IpConfCall_createSubConference(tvbuff_t *tvb _U_, packe
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpConfCall_createSubConference_conferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpConfCall_createSubConference_conferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -21489,7 +21489,7 @@ decode_org_csapi_cc_cccs_IpConfCall_leaveMonitorReq(tvbuff_t *tvb _U_, packet_in
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpConfCall_leaveMonitorReq_conferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpConfCall_leaveMonitorReq_conferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21522,7 +21522,7 @@ decode_org_csapi_cc_cccs_IpConfCall_getConferenceAddress(tvbuff_t *tvb _U_, pack
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpConfCall_getConferenceAddress_conferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpConfCall_getConferenceAddress_conferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21560,9 +21560,9 @@ decode_org_csapi_ui_IpAppUI_sendInfoRes(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoRes_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_sendInfoRes_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_sendInfoRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoRes_response, tvb, *offset-4, 4, u_octet4);
@@ -21602,9 +21602,9 @@ decode_org_csapi_ui_IpAppUI_sendInfoErr(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoErr_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_sendInfoErr_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_sendInfoErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoErr_error, tvb, *offset-4, 4, u_octet4);
@@ -21644,9 +21644,9 @@ decode_org_csapi_ui_IpAppUI_sendInfoAndCollectRes(tvbuff_t *tvb _U_, packet_info
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectRes_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectRes_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectRes_response, tvb, *offset-4, 4, u_octet4);
@@ -21688,9 +21688,9 @@ decode_org_csapi_ui_IpAppUI_sendInfoAndCollectErr(tvbuff_t *tvb _U_, packet_info
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectErr_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectErr_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectErr_error, tvb, *offset-4, 4, u_octet4);
@@ -21730,7 +21730,7 @@ decode_org_csapi_ui_IpAppUI_userInteractionFaultDetected(tvbuff_t *tvb _U_, pack
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_userInteractionFaultDetected_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_userInteractionFaultDetected_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_userInteractionFaultDetected_fault, tvb, *offset-4, 4, u_octet4);
@@ -21770,14 +21770,14 @@ decode_org_csapi_ui_IpAppUICall_recordMessageRes(tvbuff_t *tvb _U_, packet_info 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_recordMessageRes_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_recordMessageRes_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_recordMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_recordMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_recordMessageRes_response, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_recordMessageRes_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_recordMessageRes_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21814,9 +21814,9 @@ decode_org_csapi_ui_IpAppUICall_recordMessageErr(tvbuff_t *tvb _U_, packet_info 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_recordMessageErr_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_recordMessageErr_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_recordMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_recordMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_recordMessageErr_error, tvb, *offset-4, 4, u_octet4);
@@ -21856,12 +21856,12 @@ decode_org_csapi_ui_IpAppUICall_deleteMessageRes(tvbuff_t *tvb _U_, packet_info 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageRes_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageRes_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageRes_response, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21898,12 +21898,12 @@ decode_org_csapi_ui_IpAppUICall_deleteMessageErr(tvbuff_t *tvb _U_, packet_info 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageErr_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageErr_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21936,9 +21936,9 @@ decode_org_csapi_ui_IpAppUICall_abortActionRes(tvbuff_t *tvb _U_, packet_info *p
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_abortActionRes_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_abortActionRes_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_abortActionRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_abortActionRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -21975,9 +21975,9 @@ decode_org_csapi_ui_IpAppUICall_abortActionErr(tvbuff_t *tvb _U_, packet_info *p
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_abortActionErr_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_abortActionErr_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_abortActionErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_abortActionErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_abortActionErr_error, tvb, *offset-4, 4, u_octet4);
@@ -22013,9 +22013,9 @@ decode_org_csapi_ui_IpAppUICall_getMessageRes(tvbuff_t *tvb _U_, packet_info *pi
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_getMessageRes_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_getMessageRes_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_getMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_getMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin union "org_csapi_ui_TpUIInfo"  */
         
@@ -22057,9 +22057,9 @@ decode_org_csapi_ui_IpAppUICall_getMessageErr(tvbuff_t *tvb _U_, packet_info *pi
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_getMessageErr_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_getMessageErr_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_getMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_getMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_getMessageErr_error, tvb, *offset-4, 4, u_octet4);
@@ -22197,7 +22197,7 @@ decode_org_csapi_ui_IpAppUIManager_reportEventNotification(tvbuff_t *tvb _U_, pa
         /*  Begin struct "org_csapi_ui_TpUIEventNotificationInfo"  */
         decode_org_csapi_ui_TpUIEventNotificationInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_ui_TpUIEventNotificationInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIManager_reportEventNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIManager_reportEventNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -22281,7 +22281,7 @@ decode_org_csapi_ui_IpUI_sendInfoReq(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUI_sendInfoReq_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUI_sendInfoReq_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin union "org_csapi_ui_TpUIInfo"  */
         
@@ -22302,15 +22302,15 @@ decode_org_csapi_ui_IpUI_sendInfoReq(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
             /*  End union "org_csapi_ui_TpUIVariableInfo"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUI_sendInfoReq_repeatIndicator, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUI_sendInfoReq_repeatIndicator, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUI_sendInfoReq_responseRequested, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUI_sendInfoReq_responseRequested, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_ui_IpUI_sendInfoReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_ui_IpUI_sendInfoReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -22342,7 +22342,7 @@ decode_org_csapi_ui_IpUI_sendInfoAndCollectReq(tvbuff_t *tvb _U_, packet_info *p
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUI_sendInfoAndCollectReq_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUI_sendInfoAndCollectReq_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin union "org_csapi_ui_TpUIInfo"  */
         
@@ -22366,13 +22366,13 @@ decode_org_csapi_ui_IpUI_sendInfoAndCollectReq(tvbuff_t *tvb _U_, packet_info *p
         /*  Begin struct "org_csapi_ui_TpUICollectCriteria"  */
         decode_org_csapi_ui_TpUICollectCriteria_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_ui_TpUICollectCriteria"  */
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUI_sendInfoAndCollectReq_responseRequested, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUI_sendInfoAndCollectReq_responseRequested, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_ui_IpUI_sendInfoAndCollectReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_ui_IpUI_sendInfoAndCollectReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -22399,7 +22399,7 @@ decode_org_csapi_ui_IpUI_release(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUI_release_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUI_release_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -22432,7 +22432,7 @@ decode_org_csapi_ui_IpUI_setOriginatingAddress(tvbuff_t *tvb _U_, packet_info *p
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUI_setOriginatingAddress_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUI_setOriginatingAddress_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_IpUI_setOriginatingAddress_origin);
 
@@ -22467,7 +22467,7 @@ decode_org_csapi_ui_IpUI_getOriginatingAddress(tvbuff_t *tvb _U_, packet_info *p
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUI_getOriginatingAddress_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUI_getOriginatingAddress_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -22500,7 +22500,7 @@ decode_org_csapi_ui_IpUICall_recordMessageReq(tvbuff_t *tvb _U_, packet_info *pi
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUICall_recordMessageReq_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUICall_recordMessageReq_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin union "org_csapi_ui_TpUIInfo"  */
         
@@ -22514,7 +22514,7 @@ decode_org_csapi_ui_IpUICall_recordMessageReq(tvbuff_t *tvb _U_, packet_info *pi
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_ui_IpUICall_recordMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_ui_IpUICall_recordMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -22541,15 +22541,15 @@ decode_org_csapi_ui_IpUICall_deleteMessageReq(tvbuff_t *tvb _U_, packet_info *pi
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUICall_deleteMessageReq_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUICall_deleteMessageReq_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUICall_deleteMessageReq_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUICall_deleteMessageReq_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_ui_IpUICall_deleteMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_ui_IpUICall_deleteMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -22576,9 +22576,9 @@ decode_org_csapi_ui_IpUICall_abortActionReq(tvbuff_t *tvb _U_, packet_info *pinf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUICall_abortActionReq_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUICall_abortActionReq_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUICall_abortActionReq_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUICall_abortActionReq_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -22611,15 +22611,15 @@ decode_org_csapi_ui_IpUICall_getMessageReq(tvbuff_t *tvb _U_, packet_info *pinfo
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUICall_getMessageReq_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUICall_getMessageReq_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUICall_getMessageReq_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUICall_getMessageReq_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_ui_IpUICall_getMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_ui_IpUICall_getMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -22731,7 +22731,7 @@ decode_org_csapi_ui_IpUIManager_createNotification(tvbuff_t *tvb _U_, packet_inf
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIManager_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_ui_IpUIManager_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -22758,7 +22758,7 @@ decode_org_csapi_ui_IpUIManager_destroyNotification(tvbuff_t *tvb _U_, packet_in
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIManager_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUIManager_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -22791,7 +22791,7 @@ decode_org_csapi_ui_IpUIManager_changeNotification(tvbuff_t *tvb _U_, packet_inf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIManager_changeNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUIManager_changeNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_ui_TpUIEventCriteria"  */
         decode_org_csapi_ui_TpUIEventCriteria_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -22877,7 +22877,7 @@ decode_org_csapi_ui_IpUIManager_enableNotifications(tvbuff_t *tvb _U_, packet_in
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIManager_enableNotifications_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_ui_IpUIManager_enableNotifications_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -22935,9 +22935,9 @@ decode_org_csapi_ui_IpAppUIAdminManager_getMessageRes(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageRes_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageRes_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin union "org_csapi_ui_TpUIInfo"  */
         
@@ -22979,9 +22979,9 @@ decode_org_csapi_ui_IpAppUIAdminManager_getMessageErr(tvbuff_t *tvb _U_, packet_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageErr_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageErr_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageErr_error, tvb, *offset-4, 4, u_octet4);
@@ -23021,12 +23021,12 @@ decode_org_csapi_ui_IpAppUIAdminManager_deleteMessageRes(tvbuff_t *tvb _U_, pack
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageRes_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageRes_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageRes_response, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -23063,12 +23063,12 @@ decode_org_csapi_ui_IpAppUIAdminManager_deleteMessageErr(tvbuff_t *tvb _U_, pack
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageErr_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageErr_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -23101,11 +23101,11 @@ decode_org_csapi_ui_IpAppUIAdminManager_putMessageRes(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageRes_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageRes_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageRes_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageRes_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -23142,9 +23142,9 @@ decode_org_csapi_ui_IpAppUIAdminManager_putMessageErr(tvbuff_t *tvb _U_, packet_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageErr_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageErr_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageErr_error, tvb, *offset-4, 4, u_octet4);
@@ -23185,16 +23185,16 @@ decode_org_csapi_ui_IpAppUIAdminManager_getMessageListRes(tvbuff_t *tvb _U_, pac
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList);
 
         for (i_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList=0; i_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList < u_octet4_loop_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList; i_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList++) {
 
-            proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         }
 
@@ -23235,9 +23235,9 @@ decode_org_csapi_ui_IpAppUIAdminManager_getMessageListErr(tvbuff_t *tvb _U_, pac
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListErr_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListErr_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListErr_error, tvb, *offset-4, 4, u_octet4);
@@ -23273,15 +23273,15 @@ decode_org_csapi_ui_IpUIAdminManager_getMessageReq(tvbuff_t *tvb _U_, packet_inf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIAdminManager_getMessageReq_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUIAdminManager_getMessageReq_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIAdminManager_getMessageReq_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUIAdminManager_getMessageReq_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIAdminManager_getMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_ui_IpUIAdminManager_getMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -23308,7 +23308,7 @@ decode_org_csapi_ui_IpUIAdminManager_putMessageReq(tvbuff_t *tvb _U_, packet_inf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIAdminManager_putMessageReq_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUIAdminManager_putMessageReq_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin union "org_csapi_ui_TpUIInfo"  */
         
@@ -23319,7 +23319,7 @@ decode_org_csapi_ui_IpUIAdminManager_putMessageReq(tvbuff_t *tvb _U_, packet_inf
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIAdminManager_putMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_ui_IpUIAdminManager_putMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -23346,15 +23346,15 @@ decode_org_csapi_ui_IpUIAdminManager_deleteMessageReq(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIAdminManager_deleteMessageReq_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUIAdminManager_deleteMessageReq_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIAdminManager_deleteMessageReq_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUIAdminManager_deleteMessageReq_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIAdminManager_deleteMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_ui_IpUIAdminManager_deleteMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -23381,7 +23381,7 @@ decode_org_csapi_ui_IpUIAdminManager_getMessageListReq(tvbuff_t *tvb _U_, packet
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIAdminManager_getMessageListReq_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_IpUIAdminManager_getMessageListReq_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         proto_tree_add_boolean(tree, hf_org_csapi_ui_IpUIAdminManager_getMessageListReq_reset, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
@@ -23389,7 +23389,7 @@ decode_org_csapi_ui_IpUIAdminManager_getMessageListReq(tvbuff_t *tvb _U_, packet
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIAdminManager_getMessageListReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_ui_IpUIAdminManager_getMessageListReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -23421,7 +23421,7 @@ decode_org_csapi_mm_ul_IpAppUserLocation_locationReportRes(tvbuff_t *tvb _U_, pa
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_locations, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_locations);
@@ -23468,7 +23468,7 @@ decode_org_csapi_mm_ul_IpAppUserLocation_locationReportErr(tvbuff_t *tvb _U_, pa
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_locationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppUserLocation_locationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_locationReportErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -23512,7 +23512,7 @@ decode_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes(tvbuff_t *tvb
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_locations, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_locations);
@@ -23559,7 +23559,7 @@ decode_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportErr(tvbuff_t *tvb
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -23603,7 +23603,7 @@ decode_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport(tvbuff_t *tvb _U
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_locations, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_locations);
@@ -23650,7 +23650,7 @@ decode_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReportErr(tvbuff_t *tvb
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReportErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -23710,7 +23710,7 @@ decode_org_csapi_mm_ul_IpUserLocation_locationReportReq(tvbuff_t *tvb _U_, packe
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpUserLocation_locationReportReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpUserLocation_locationReportReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -23761,7 +23761,7 @@ decode_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq(tvbuff_t *tvb _U
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -23808,13 +23808,13 @@ decode_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq(tvbuff_t
         /*  Begin struct "org_csapi_mm_TpLocationRequest"  */
         decode_org_csapi_mm_TpLocationRequest_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_mm_TpLocationRequest"  */
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq_reportingInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq_reportingInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -23913,7 +23913,7 @@ decode_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReport(tvbuff
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_mm_TpUserLocationExtended"  */
         decode_org_csapi_mm_TpUserLocationExtended_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -23956,7 +23956,7 @@ decode_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReportErr(tvb
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReportErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -24031,7 +24031,7 @@ decode_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartRe
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -24131,7 +24131,7 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes(tvbuff_t *tvb _
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_locations, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_locations);
@@ -24178,7 +24178,7 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportErr(tvbuff_t *tvb _
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -24222,7 +24222,7 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport(tvbuff_t *
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_locations, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_locations);
@@ -24269,7 +24269,7 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReportErr(tvbuff_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReportErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -24308,7 +24308,7 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReport(tvbuff_t 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_mm_TpUserLocationCamel"  */
         decode_org_csapi_mm_TpUserLocationCamel_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -24351,7 +24351,7 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReportErr(tvbuff
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReportErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -24411,7 +24411,7 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq(tvbuff_t *tvb _U_,
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -24455,13 +24455,13 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq(tv
             /*  End struct "org_csapi_TpAddress"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq_reportingInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq_reportingInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -24546,7 +24546,7 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq(t
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -24675,7 +24675,7 @@ decode_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReport(tvbuf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_mm_TpUserLocationEmergency"  */
         decode_org_csapi_mm_TpUserLocationEmergency_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -24715,7 +24715,7 @@ decode_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReportErr(tv
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReportErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -24763,7 +24763,7 @@ decode_org_csapi_mm_ule_IpUserLocationEmergency_emergencyLocationReportReq(tvbuf
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_ule_IpUserLocationEmergency_emergencyLocationReportReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_ule_IpUserLocationEmergency_emergencyLocationReportReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -24796,7 +24796,7 @@ decode_org_csapi_mm_ule_IpUserLocationEmergency_subscribeEmergencyLocationReport
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_ule_IpUserLocationEmergency_subscribeEmergencyLocationReports_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_ule_IpUserLocationEmergency_subscribeEmergencyLocationReports_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -24823,7 +24823,7 @@ decode_org_csapi_mm_ule_IpUserLocationEmergency_unSubscribeEmergencyLocationRepo
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ule_IpUserLocationEmergency_unSubscribeEmergencyLocationReports_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ule_IpUserLocationEmergency_unSubscribeEmergencyLocationReports_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -24861,7 +24861,7 @@ decode_org_csapi_mm_us_IpAppUserStatus_statusReportRes(tvbuff_t *tvb _U_, packet
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_statusReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_statusReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_us_IpAppUserStatus_statusReportRes_status = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_statusReportRes_status, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_us_IpAppUserStatus_statusReportRes_status);
@@ -24908,7 +24908,7 @@ decode_org_csapi_mm_us_IpAppUserStatus_statusReportErr(tvbuff_t *tvb _U_, packet
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_statusReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_statusReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_statusReportErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -24947,7 +24947,7 @@ decode_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReport(tvbuff_t *tvb _U_, 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_mm_TpUserStatus"  */
         decode_org_csapi_mm_TpUserStatus_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -24987,7 +24987,7 @@ decode_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReportErr(tvbuff_t *tvb _U
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReportErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -25031,7 +25031,7 @@ decode_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes(tvbuff_t *tvb _U_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_status = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_status, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_status);
@@ -25078,7 +25078,7 @@ decode_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportErr(tvbuff_t *tvb _U_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -25117,7 +25117,7 @@ decode_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReport(tvbuff_t *tvb _U
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_mm_TpUserStatusExtended"  */
         decode_org_csapi_mm_TpUserStatusExtended_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -25157,7 +25157,7 @@ decode_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReportErr(tvbuff_t *tvb
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReportErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -25217,7 +25217,7 @@ decode_org_csapi_mm_us_IpUserStatus_statusReportReq(tvbuff_t *tvb _U_, packet_in
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpUserStatus_statusReportReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_us_IpUserStatus_statusReportReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -25265,7 +25265,7 @@ decode_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq(tvbuff_t *t
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -25381,7 +25381,7 @@ decode_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq(tvbuff_t *tvb _U_, p
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -25429,7 +25429,7 @@ decode_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq(tvbuff_t
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -25497,7 +25497,7 @@ decode_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification(tvbu
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpAddress"  */
         decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -25573,7 +25573,7 @@ decode_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotificationStart
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotificationStartErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotificationStartErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotificationStartErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -25645,7 +25645,7 @@ decode_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -25672,7 +25672,7 @@ decode_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStop(tvb
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStop_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStop_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -25744,7 +25744,7 @@ decode_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapa
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_terminals = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_terminals, tvb,*offset-4, 4, u_octet4_loop_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_terminals);
@@ -25756,7 +25756,7 @@ decode_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapa
             /*  End struct "org_csapi_TpAddress"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_criteria, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_criteria, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_termcap_TpTerminalCapabilities"  */
         decode_org_csapi_termcap_TpTerminalCapabilities_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -25798,7 +25798,7 @@ decode_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapa
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_terminals = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_terminals, tvb,*offset-4, 4, u_octet4_loop_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_terminals);
@@ -25864,13 +25864,13 @@ decode_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabil
         /*  Begin struct "org_csapi_termcap_TpTerminalCapabilityScope"  */
         decode_org_csapi_termcap_TpTerminalCapabilityScope_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_termcap_TpTerminalCapabilityScope"  */
-        proto_tree_add_uint(tree, hf_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStartReq_criteria, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStartReq_criteria, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStartReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -25897,7 +25897,7 @@ decode_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabil
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStop_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStop_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -25930,12 +25930,12 @@ decode_org_csapi_dsc_IpAppDataSession_connectRes(tvbuff_t *tvb _U_, packet_info 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSession_connectRes_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpAppDataSession_connectRes_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_dsc_TpDataSessionReport"  */
         decode_org_csapi_dsc_TpDataSessionReport_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_dsc_TpDataSessionReport"  */
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSession_connectRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpAppDataSession_connectRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -25968,12 +25968,12 @@ decode_org_csapi_dsc_IpAppDataSession_connectErr(tvbuff_t *tvb _U_, packet_info 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSession_connectErr_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpAppDataSession_connectErr_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_dsc_TpDataSessionError"  */
         decode_org_csapi_dsc_TpDataSessionError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_dsc_TpDataSessionError"  */
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSession_connectErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpAppDataSession_connectErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -26010,9 +26010,9 @@ decode_org_csapi_dsc_IpAppDataSession_superviseDataSessionRes(tvbuff_t *tvb _U_,
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSession_superviseDataSessionRes_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpAppDataSession_superviseDataSessionRes_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSession_superviseDataSessionRes_report, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpAppDataSession_superviseDataSessionRes_report, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_dsc_TpDataSessionSuperviseVolume"  */
         decode_org_csapi_dsc_TpDataSessionSuperviseVolume_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -26051,7 +26051,7 @@ decode_org_csapi_dsc_IpAppDataSession_superviseDataSessionErr(tvbuff_t *tvb _U_,
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSession_superviseDataSessionErr_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpAppDataSession_superviseDataSessionErr_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_dsc_TpDataSessionError"  */
         decode_org_csapi_dsc_TpDataSessionError_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -26091,7 +26091,7 @@ decode_org_csapi_dsc_IpAppDataSession_dataSessionFaultDetected(tvbuff_t *tvb _U_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSession_dataSessionFaultDetected_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpAppDataSession_dataSessionFaultDetected_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSession_dataSessionFaultDetected_fault, tvb, *offset-4, 4, u_octet4);
@@ -26127,7 +26127,7 @@ decode_org_csapi_dsc_IpAppDataSessionControlManager_dataSessionAborted(tvbuff_t 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSessionControlManager_dataSessionAborted_dataSession, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpAppDataSessionControlManager_dataSessionAborted_dataSession, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -26166,7 +26166,7 @@ decode_org_csapi_dsc_IpAppDataSessionControlManager_reportNotification(tvbuff_t 
         /*  Begin struct "org_csapi_dsc_TpDataSessionEventInfo"  */
         decode_org_csapi_dsc_TpDataSessionEventInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_dsc_TpDataSessionEventInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSessionControlManager_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpAppDataSessionControlManager_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -26271,7 +26271,7 @@ decode_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions(tv
 
         for (i_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet=0; i_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet < u_octet4_loop_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet; i_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet++) {
 
-            proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         }
 
@@ -26311,7 +26311,7 @@ decode_org_csapi_dsc_IpDataSession_connectReq(tvbuff_t *tvb _U_, packet_info *pi
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSession_connectReq_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSession_connectReq_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_dsc_IpDataSession_connectReq_responseRequested = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSession_connectReq_responseRequested, tvb,*offset-4, 4, u_octet4_loop_org_csapi_dsc_IpDataSession_connectReq_responseRequested);
@@ -26330,7 +26330,7 @@ decode_org_csapi_dsc_IpDataSession_connectReq(tvbuff_t *tvb _U_, packet_info *pi
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSession_connectReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSession_connectReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -26357,7 +26357,7 @@ decode_org_csapi_dsc_IpDataSession_release(tvbuff_t *tvb _U_, packet_info *pinfo
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSession_release_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSession_release_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_dsc_TpDataSessionReleaseCause"  */
         decode_org_csapi_dsc_TpDataSessionReleaseCause_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -26393,9 +26393,9 @@ decode_org_csapi_dsc_IpDataSession_superviseDataSessionReq(tvbuff_t *tvb _U_, pa
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSession_superviseDataSessionReq_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSession_superviseDataSessionReq_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSession_superviseDataSessionReq_treatment, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSession_superviseDataSessionReq_treatment, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_dsc_TpDataSessionSuperviseVolume"  */
         decode_org_csapi_dsc_TpDataSessionSuperviseVolume_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -26431,7 +26431,7 @@ decode_org_csapi_dsc_IpDataSession_setDataSessionChargePlan(tvbuff_t *tvb _U_, p
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSession_setDataSessionChargePlan_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSession_setDataSessionChargePlan_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_dsc_TpDataSessionChargePlan"  */
         decode_org_csapi_dsc_TpDataSessionChargePlan_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -26467,12 +26467,12 @@ decode_org_csapi_dsc_IpDataSession_setAdviceOfCharge(tvbuff_t *tvb _U_, packet_i
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSession_setAdviceOfCharge_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSession_setAdviceOfCharge_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpAoCInfo"  */
         decode_org_csapi_TpAoCInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpAoCInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSession_setAdviceOfCharge_tariffSwitch, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSession_setAdviceOfCharge_tariffSwitch, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -26505,7 +26505,7 @@ decode_org_csapi_dsc_IpDataSession_deassignDataSession(tvbuff_t *tvb _U_, packet
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSession_deassignDataSession_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSession_deassignDataSession_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -26538,7 +26538,7 @@ decode_org_csapi_dsc_IpDataSession_continueProcessing(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSession_continueProcessing_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSession_continueProcessing_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -26580,7 +26580,7 @@ decode_org_csapi_dsc_IpDataSessionControlManager_createNotification(tvbuff_t *tv
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSessionControlManager_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSessionControlManager_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -26607,7 +26607,7 @@ decode_org_csapi_dsc_IpDataSessionControlManager_destroyNotification(tvbuff_t *t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSessionControlManager_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSessionControlManager_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -26640,7 +26640,7 @@ decode_org_csapi_dsc_IpDataSessionControlManager_changeNotification(tvbuff_t *tv
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSessionControlManager_changeNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSessionControlManager_changeNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_dsc_TpDataSessionEventCriteria"  */
         decode_org_csapi_dsc_TpDataSessionEventCriteria_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -26682,7 +26682,7 @@ decode_org_csapi_dsc_IpDataSessionControlManager_enableNotifications(tvbuff_t *t
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSessionControlManager_enableNotifications_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSessionControlManager_enableNotifications_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -26793,7 +26793,7 @@ decode_org_csapi_dsc_IpDataSessionControlManager_createNotifications(tvbuff_t *t
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSessionControlManager_createNotifications_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSessionControlManager_createNotifications_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -26868,7 +26868,7 @@ decode_org_csapi_gms_IpMessagingManager_enableMessagingNotification(tvbuff_t *tv
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessagingManager_enableMessagingNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_gms_IpMessagingManager_enableMessagingNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -26895,7 +26895,7 @@ decode_org_csapi_gms_IpMessagingManager_disableMessagingNotification(tvbuff_t *t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessagingManager_disableMessagingNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMessagingManager_disableMessagingNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -26930,7 +26930,7 @@ decode_org_csapi_gms_IpAppMessagingManager_mailboxTerminated(tvbuff_t *tvb _U_, 
     case Request:
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpAppMessagingManager_mailboxTerminated_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpAppMessagingManager_mailboxTerminated_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -26969,7 +26969,7 @@ decode_org_csapi_gms_IpAppMessagingManager_mailboxFaultDetected(tvbuff_t *tvb _U
     case Request:
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpAppMessagingManager_mailboxFaultDetected_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpAppMessagingManager_mailboxFaultDetected_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_gms_IpAppMessagingManager_mailboxFaultDetected_fault, tvb, *offset-4, 4, u_octet4);
@@ -27012,7 +27012,7 @@ decode_org_csapi_gms_IpAppMessagingManager_messagingEventNotify(tvbuff_t *tvb _U
         decode_org_csapi_gms_TpMessagingEventInfo_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
         /*  End union "org_csapi_gms_TpMessagingEventInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpAppMessagingManager_messagingEventNotify_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpAppMessagingManager_messagingEventNotify_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -27076,7 +27076,7 @@ decode_org_csapi_gms_IpMailbox_close(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_close_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_close_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -27109,7 +27109,7 @@ decode_org_csapi_gms_IpMailbox_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_lock_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_lock_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -27142,7 +27142,7 @@ decode_org_csapi_gms_IpMailbox_unlock(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_unlock_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_unlock_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -27175,13 +27175,13 @@ decode_org_csapi_gms_IpMailbox_getInfoAmount(tvbuff_t *tvb _U_, packet_info *pin
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_getInfoAmount_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_getInfoAmount_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_getInfoAmount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_getInfoAmount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -27213,11 +27213,11 @@ decode_org_csapi_gms_IpMailbox_getInfoProperties(tvbuff_t *tvb _U_, packet_info 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_getInfoProperties_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_getInfoProperties_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_getInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_getInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_getInfoProperties_numberOfProperties, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_getInfoProperties_numberOfProperties, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -27265,9 +27265,9 @@ decode_org_csapi_gms_IpMailbox_setInfoProperties(tvbuff_t *tvb _U_, packet_info 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_setInfoProperties_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_setInfoProperties_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_setInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_setInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_gms_IpMailbox_setInfoProperties_mailboxInfoProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_setInfoProperties_mailboxInfoProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_gms_IpMailbox_setInfoProperties_mailboxInfoProperties);
@@ -27312,7 +27312,7 @@ decode_org_csapi_gms_IpMailbox_openFolder(tvbuff_t *tvb _U_, packet_info *pinfo 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_openFolder_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_openFolder_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_IpMailbox_openFolder_folderID);
 
@@ -27348,7 +27348,7 @@ decode_org_csapi_gms_IpMailbox_createFolder(tvbuff_t *tvb _U_, packet_info *pinf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_createFolder_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_createFolder_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_IpMailbox_createFolder_folderID);
 
@@ -27419,7 +27419,7 @@ decode_org_csapi_gms_IpMessage_getInfoAmount(tvbuff_t *tvb _U_, packet_info *pin
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessage_getInfoAmount_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMessage_getInfoAmount_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_IpMessage_getInfoAmount_messageID);
 
@@ -27427,7 +27427,7 @@ decode_org_csapi_gms_IpMessage_getInfoAmount(tvbuff_t *tvb _U_, packet_info *pin
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessage_getInfoAmount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_gms_IpMessage_getInfoAmount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -27459,13 +27459,13 @@ decode_org_csapi_gms_IpMessage_getInfoProperties(tvbuff_t *tvb _U_, packet_info 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessage_getInfoProperties_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMessage_getInfoProperties_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_IpMessage_getInfoProperties_messageID);
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessage_getInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMessage_getInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessage_getInfoProperties_numberOfProperties, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMessage_getInfoProperties_numberOfProperties, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -27513,11 +27513,11 @@ decode_org_csapi_gms_IpMessage_setInfoProperties(tvbuff_t *tvb _U_, packet_info 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessage_setInfoProperties_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMessage_setInfoProperties_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_IpMessage_setInfoProperties_messageID);
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessage_setInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMessage_setInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_gms_IpMessage_setInfoProperties_messageInfoProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessage_setInfoProperties_messageInfoProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_gms_IpMessage_setInfoProperties_messageInfoProperties);
@@ -27562,7 +27562,7 @@ decode_org_csapi_gms_IpMessage_remove(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessage_remove_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMessage_remove_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_IpMessage_remove_messageID);
 
@@ -27597,7 +27597,7 @@ decode_org_csapi_gms_IpMessage_getContent(tvbuff_t *tvb _U_, packet_info *pinfo 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessage_getContent_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMessage_getContent_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_IpMessage_getContent_messageID);
 
@@ -27632,13 +27632,13 @@ decode_org_csapi_gms_IpMailboxFolder_getInfoAmount(tvbuff_t *tvb _U_, packet_inf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_getInfoAmount_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_getInfoAmount_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_getInfoAmount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_getInfoAmount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -27670,11 +27670,11 @@ decode_org_csapi_gms_IpMailboxFolder_getInfoProperties(tvbuff_t *tvb _U_, packet
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_getInfoProperties_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_getInfoProperties_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_getInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_getInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_getInfoProperties_numberOfProperties, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_getInfoProperties_numberOfProperties, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -27722,9 +27722,9 @@ decode_org_csapi_gms_IpMailboxFolder_setInfoProperties(tvbuff_t *tvb _U_, packet
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_setInfoProperties_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_setInfoProperties_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_setInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_setInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_gms_IpMailboxFolder_setInfoProperties_folderInfoProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_setInfoProperties_folderInfoProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_gms_IpMailboxFolder_setInfoProperties_folderInfoProperties);
@@ -27774,7 +27774,7 @@ decode_org_csapi_gms_IpMailboxFolder_putMessage(tvbuff_t *tvb _U_, packet_info *
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_putMessage_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_putMessage_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_IpMailboxFolder_putMessage_message);
 
@@ -27821,7 +27821,7 @@ decode_org_csapi_gms_IpMailboxFolder_getMessage(tvbuff_t *tvb _U_, packet_info *
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_getMessage_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_getMessage_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_IpMailboxFolder_getMessage_messageID);
 
@@ -27856,9 +27856,9 @@ decode_org_csapi_gms_IpMailboxFolder_close(tvbuff_t *tvb _U_, packet_info *pinfo
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_close_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_close_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_close_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_close_folderSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -27891,7 +27891,7 @@ decode_org_csapi_gms_IpMailboxFolder_remove(tvbuff_t *tvb _U_, packet_info *pinf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_remove_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_remove_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_IpMailboxFolder_remove_folderID);
 
@@ -29069,7 +29069,7 @@ decode_org_csapi_am_IpAppAccountManager_reportNotification(tvbuff_t *tvb _U_, pa
         /*  Begin struct "org_csapi_am_TpChargingEventInfo"  */
         decode_org_csapi_am_TpChargingEventInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_am_TpChargingEventInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_reportNotification_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_reportNotification_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -29107,7 +29107,7 @@ decode_org_csapi_am_IpAppAccountManager_queryBalanceRes(tvbuff_t *tvb _U_, packe
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceRes_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceRes_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_am_IpAppAccountManager_queryBalanceRes_balances = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceRes_balances, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_IpAppAccountManager_queryBalanceRes_balances);
@@ -29154,7 +29154,7 @@ decode_org_csapi_am_IpAppAccountManager_queryBalanceErr(tvbuff_t *tvb _U_, packe
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceErr_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceErr_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -29195,7 +29195,7 @@ decode_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes(tvbuff_t *
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_retrievalID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_retrievalID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_transactionHistory = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_transactionHistory, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_transactionHistory);
@@ -29242,7 +29242,7 @@ decode_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryErr(tvbuff_t *
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryErr_retrievalID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryErr_retrievalID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryErr_transactionHistoryError, tvb, *offset-4, 4, u_octet4);
@@ -29283,7 +29283,7 @@ decode_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes(tvbuff_t *tvb 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_dates = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_dates, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_dates);
@@ -29330,7 +29330,7 @@ decode_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateErr(tvbuff_t *tvb 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateErr_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateErr_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -29366,7 +29366,7 @@ decode_org_csapi_am_IpAppAccountManager_updateBalanceRes(tvbuff_t *tvb _U_, pack
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_updateBalanceRes_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_updateBalanceRes_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_am_TpBalance"  */
         decode_org_csapi_am_TpBalance_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -29406,7 +29406,7 @@ decode_org_csapi_am_IpAppAccountManager_updateBalanceErr(tvbuff_t *tvb _U_, pack
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_updateBalanceErr_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_updateBalanceErr_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_updateBalanceErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -29442,9 +29442,9 @@ decode_org_csapi_am_IpAppAccountManager_createVoucherRes(tvbuff_t *tvb _U_, pack
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_createVoucherRes_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_createVoucherRes_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_createVoucherRes_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_createVoucherRes_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -29481,7 +29481,7 @@ decode_org_csapi_am_IpAppAccountManager_createVoucherErr(tvbuff_t *tvb _U_, pack
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_createVoucherErr_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_createVoucherErr_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_createVoucherErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -29517,9 +29517,9 @@ decode_org_csapi_am_IpAppAccountManager_destroyVoucherRes(tvbuff_t *tvb _U_, pac
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_destroyVoucherRes_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_destroyVoucherRes_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_destroyVoucherRes_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_destroyVoucherRes_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -29556,9 +29556,9 @@ decode_org_csapi_am_IpAppAccountManager_destroyVoucherErr(tvbuff_t *tvb _U_, pac
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_destroyVoucherErr_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_destroyVoucherErr_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_destroyVoucherErr_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_destroyVoucherErr_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_destroyVoucherErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -29594,7 +29594,7 @@ decode_org_csapi_am_IpAppAccountManager_queryVoucherRes(tvbuff_t *tvb _U_, packe
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryVoucherRes_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryVoucherRes_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_am_TpVoucher"  */
         decode_org_csapi_am_TpVoucher_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -29634,9 +29634,9 @@ decode_org_csapi_am_IpAppAccountManager_queryVoucherErr(tvbuff_t *tvb _U_, packe
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryVoucherErr_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryVoucherErr_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryVoucherErr_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryVoucherErr_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryVoucherErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -29677,7 +29677,7 @@ decode_org_csapi_am_IpAppAccountManager_queryUserVouchersRes(tvbuff_t *tvb _U_, 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_vouchers = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_vouchers, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_vouchers);
@@ -29724,7 +29724,7 @@ decode_org_csapi_am_IpAppAccountManager_queryUserVouchersErr(tvbuff_t *tvb _U_, 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryUserVouchersErr_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryUserVouchersErr_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryUserVouchersErr_cause, tvb, *offset-4, 4, u_octet4);
@@ -29769,7 +29769,7 @@ decode_org_csapi_am_IpAccountManager_createNotification(tvbuff_t *tvb _U_, packe
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -29796,7 +29796,7 @@ decode_org_csapi_am_IpAccountManager_destroyNotification(tvbuff_t *tvb _U_, pack
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_destroyNotification_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_destroyNotification_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -29848,7 +29848,7 @@ decode_org_csapi_am_IpAccountManager_queryBalanceReq(tvbuff_t *tvb _U_, packet_i
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_queryBalanceReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_queryBalanceReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -29875,7 +29875,7 @@ decode_org_csapi_am_IpAccountManager_changeNotification(tvbuff_t *tvb _U_, packe
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_changeNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_changeNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_am_TpChargingEventCriteria"  */
         decode_org_csapi_am_TpChargingEventCriteria_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -29965,7 +29965,7 @@ decode_org_csapi_am_IpAccountManager_retrieveTransactionHistoryReq(tvbuff_t *tvb
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_retrieveTransactionHistoryReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_retrieveTransactionHistoryReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -29998,7 +29998,7 @@ decode_org_csapi_am_IpAccountManager_enableNotifications(tvbuff_t *tvb _U_, pack
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_enableNotifications_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_enableNotifications_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -30075,7 +30075,7 @@ decode_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq(tvbuff_t *tvb _U_
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -30110,13 +30110,13 @@ decode_org_csapi_am_IpAccountManager_updateBalanceReq(tvbuff_t *tvb _U_, packet_
         /*  Begin struct "org_csapi_am_TpBalanceInfo"  */
         decode_org_csapi_am_TpBalanceInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_am_TpBalanceInfo"  */
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_updateBalanceReq_period, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_updateBalanceReq_period, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_updateBalanceReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_updateBalanceReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -30153,7 +30153,7 @@ decode_org_csapi_am_IpAccountManager_createVoucherReq(tvbuff_t *tvb _U_, packet_
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_createVoucherReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_createVoucherReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -30180,13 +30180,13 @@ decode_org_csapi_am_IpAccountManager_destroyVoucherReq(tvbuff_t *tvb _U_, packet
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_destroyVoucherReq_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_destroyVoucherReq_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_destroyVoucherReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_destroyVoucherReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -30213,13 +30213,13 @@ decode_org_csapi_am_IpAccountManager_queryVoucherReq(tvbuff_t *tvb _U_, packet_i
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_queryVoucherReq_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_queryVoucherReq_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_queryVoucherReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_queryVoucherReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -30253,7 +30253,7 @@ decode_org_csapi_am_IpAccountManager_queryUserVouchersReq(tvbuff_t *tvb _U_, pac
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_queryUserVouchersReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_am_IpAccountManager_queryUserVouchersReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -30284,14 +30284,14 @@ decode_org_csapi_cs_IpAppChargingSession_creditAmountErr(tvbuff_t *tvb _U_, pack
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountErr_error, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30324,9 +30324,9 @@ decode_org_csapi_cs_IpAppChargingSession_creditAmountRes(tvbuff_t *tvb _U_, pack
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpChargingPrice"  */
         decode_org_csapi_cs_TpChargingPrice_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -30334,7 +30334,7 @@ decode_org_csapi_cs_IpAppChargingSession_creditAmountRes(tvbuff_t *tvb _U_, pack
         /*  Begin struct "org_csapi_cs_TpChargingPrice"  */
         decode_org_csapi_cs_TpChargingPrice_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpChargingPrice"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30371,14 +30371,14 @@ decode_org_csapi_cs_IpAppChargingSession_creditUnitErr(tvbuff_t *tvb _U_, packet
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitErr_error, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30418,9 +30418,9 @@ decode_org_csapi_cs_IpAppChargingSession_creditUnitRes(tvbuff_t *tvb _U_, packet
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_creditUnitRes_creditedVolumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitRes_creditedVolumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_creditUnitRes_creditedVolumes);
@@ -30442,7 +30442,7 @@ decode_org_csapi_cs_IpAppChargingSession_creditUnitRes(tvbuff_t *tvb _U_, packet
             /*  End struct "org_csapi_cs_TpVolume"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30479,14 +30479,14 @@ decode_org_csapi_cs_IpAppChargingSession_debitAmountErr(tvbuff_t *tvb _U_, packe
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountErr_error, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30519,9 +30519,9 @@ decode_org_csapi_cs_IpAppChargingSession_debitAmountRes(tvbuff_t *tvb _U_, packe
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpChargingPrice"  */
         decode_org_csapi_cs_TpChargingPrice_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -30529,7 +30529,7 @@ decode_org_csapi_cs_IpAppChargingSession_debitAmountRes(tvbuff_t *tvb _U_, packe
         /*  Begin struct "org_csapi_cs_TpChargingPrice"  */
         decode_org_csapi_cs_TpChargingPrice_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpChargingPrice"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30566,14 +30566,14 @@ decode_org_csapi_cs_IpAppChargingSession_debitUnitErr(tvbuff_t *tvb _U_, packet_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitErr_error, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30613,9 +30613,9 @@ decode_org_csapi_cs_IpAppChargingSession_debitUnitRes(tvbuff_t *tvb _U_, packet_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_debitUnitRes_debitedVolumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitRes_debitedVolumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_debitUnitRes_debitedVolumes);
@@ -30637,7 +30637,7 @@ decode_org_csapi_cs_IpAppChargingSession_debitUnitRes(tvbuff_t *tvb _U_, packet_
             /*  End struct "org_csapi_cs_TpVolume"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30674,14 +30674,14 @@ decode_org_csapi_cs_IpAppChargingSession_directCreditAmountErr(tvbuff_t *tvb _U_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountErr_error, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30714,14 +30714,14 @@ decode_org_csapi_cs_IpAppChargingSession_directCreditAmountRes(tvbuff_t *tvb _U_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpChargingPrice"  */
         decode_org_csapi_cs_TpChargingPrice_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpChargingPrice"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30758,14 +30758,14 @@ decode_org_csapi_cs_IpAppChargingSession_directCreditUnitErr(tvbuff_t *tvb _U_, 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitErr_error, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30803,9 +30803,9 @@ decode_org_csapi_cs_IpAppChargingSession_directCreditUnitRes(tvbuff_t *tvb _U_, 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_creditedVolumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_creditedVolumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_creditedVolumes);
@@ -30817,7 +30817,7 @@ decode_org_csapi_cs_IpAppChargingSession_directCreditUnitRes(tvbuff_t *tvb _U_, 
             /*  End struct "org_csapi_cs_TpVolume"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30854,14 +30854,14 @@ decode_org_csapi_cs_IpAppChargingSession_directDebitAmountErr(tvbuff_t *tvb _U_,
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountErr_error, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30894,14 +30894,14 @@ decode_org_csapi_cs_IpAppChargingSession_directDebitAmountRes(tvbuff_t *tvb _U_,
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpChargingPrice"  */
         decode_org_csapi_cs_TpChargingPrice_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpChargingPrice"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30938,14 +30938,14 @@ decode_org_csapi_cs_IpAppChargingSession_directDebitUnitErr(tvbuff_t *tvb _U_, p
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitErr_error, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -30983,9 +30983,9 @@ decode_org_csapi_cs_IpAppChargingSession_directDebitUnitRes(tvbuff_t *tvb _U_, p
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_debitedVolumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_debitedVolumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_debitedVolumes);
@@ -30997,7 +30997,7 @@ decode_org_csapi_cs_IpAppChargingSession_directDebitUnitRes(tvbuff_t *tvb _U_, p
             /*  End struct "org_csapi_cs_TpVolume"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31034,7 +31034,7 @@ decode_org_csapi_cs_IpAppChargingSession_extendLifeTimeErr(tvbuff_t *tvb _U_, pa
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_extendLifeTimeErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_extendLifeTimeErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_extendLifeTimeErr_error, tvb, *offset-4, 4, u_octet4);
@@ -31070,9 +31070,9 @@ decode_org_csapi_cs_IpAppChargingSession_extendLifeTimeRes(tvbuff_t *tvb _U_, pa
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_extendLifeTimeRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_extendLifeTimeRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_extendLifeTimeRes_sessionTimeLeft, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_extendLifeTimeRes_sessionTimeLeft, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31109,7 +31109,7 @@ decode_org_csapi_cs_IpAppChargingSession_rateErr(tvbuff_t *tvb _U_, packet_info 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_rateErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_rateErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_rateErr_error, tvb, *offset-4, 4, u_octet4);
@@ -31150,7 +31150,7 @@ decode_org_csapi_cs_IpAppChargingSession_rateRes(tvbuff_t *tvb _U_, packet_info 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_rateRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_rateRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_rateRes_rates = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_rateRes_rates, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_rateRes_rates);
@@ -31162,7 +31162,7 @@ decode_org_csapi_cs_IpAppChargingSession_rateRes(tvbuff_t *tvb _U_, packet_info 
             /*  End struct "org_csapi_cs_TpPriceVolume"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_rateRes_validityTimeLeft, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_rateRes_validityTimeLeft, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31199,14 +31199,14 @@ decode_org_csapi_cs_IpAppChargingSession_reserveAmountErr(tvbuff_t *tvb _U_, pac
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountErr_error, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31239,16 +31239,16 @@ decode_org_csapi_cs_IpAppChargingSession_reserveAmountRes(tvbuff_t *tvb _U_, pac
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpChargingPrice"  */
         decode_org_csapi_cs_TpChargingPrice_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpChargingPrice"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountRes_sessionTimeLeft, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountRes_sessionTimeLeft, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31285,14 +31285,14 @@ decode_org_csapi_cs_IpAppChargingSession_reserveUnitErr(tvbuff_t *tvb _U_, packe
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitErr_error, tvb, *offset-4, 4, u_octet4);
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31330,9 +31330,9 @@ decode_org_csapi_cs_IpAppChargingSession_reserveUnitRes(tvbuff_t *tvb _U_, packe
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_reserveUnitRes_reservedUnits = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitRes_reservedUnits, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_reserveUnitRes_reservedUnits);
@@ -31344,9 +31344,9 @@ decode_org_csapi_cs_IpAppChargingSession_reserveUnitRes(tvbuff_t *tvb _U_, packe
             /*  End struct "org_csapi_cs_TpVolume"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitRes_sessionTimeLeft, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitRes_sessionTimeLeft, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitRes_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31383,7 +31383,7 @@ decode_org_csapi_cs_IpAppChargingSession_sessionEnded(tvbuff_t *tvb _U_, packet_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_sessionEnded_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_sessionEnded_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_sessionEnded_report, tvb, *offset-4, 4, u_octet4);
@@ -31419,7 +31419,7 @@ decode_org_csapi_cs_IpChargingSession_creditAmountReq(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_creditAmountReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_creditAmountReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpApplicationDescription"  */
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -31429,7 +31429,7 @@ decode_org_csapi_cs_IpChargingSession_creditAmountReq(tvbuff_t *tvb _U_, packet_
         /*  End struct "org_csapi_cs_TpChargingPrice"  */
         proto_tree_add_boolean(tree, hf_org_csapi_cs_IpChargingSession_creditAmountReq_closeReservation, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_creditAmountReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_creditAmountReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31467,7 +31467,7 @@ decode_org_csapi_cs_IpChargingSession_creditUnitReq(tvbuff_t *tvb _U_, packet_in
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_creditUnitReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_creditUnitReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpApplicationDescription"  */
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -31484,7 +31484,7 @@ decode_org_csapi_cs_IpChargingSession_creditUnitReq(tvbuff_t *tvb _U_, packet_in
 
         proto_tree_add_boolean(tree, hf_org_csapi_cs_IpChargingSession_creditUnitReq_closeReservation, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_creditUnitReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_creditUnitReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31517,7 +31517,7 @@ decode_org_csapi_cs_IpChargingSession_debitAmountReq(tvbuff_t *tvb _U_, packet_i
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_debitAmountReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_debitAmountReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpApplicationDescription"  */
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -31527,7 +31527,7 @@ decode_org_csapi_cs_IpChargingSession_debitAmountReq(tvbuff_t *tvb _U_, packet_i
         /*  End struct "org_csapi_cs_TpChargingPrice"  */
         proto_tree_add_boolean(tree, hf_org_csapi_cs_IpChargingSession_debitAmountReq_closeReservation, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_debitAmountReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_debitAmountReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31565,7 +31565,7 @@ decode_org_csapi_cs_IpChargingSession_debitUnitReq(tvbuff_t *tvb _U_, packet_inf
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_debitUnitReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_debitUnitReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpApplicationDescription"  */
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -31582,7 +31582,7 @@ decode_org_csapi_cs_IpChargingSession_debitUnitReq(tvbuff_t *tvb _U_, packet_inf
 
         proto_tree_add_boolean(tree, hf_org_csapi_cs_IpChargingSession_debitUnitReq_closeReservation, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_debitUnitReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_debitUnitReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31620,7 +31620,7 @@ decode_org_csapi_cs_IpChargingSession_directCreditAmountReq(tvbuff_t *tvb _U_, p
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directCreditAmountReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_directCreditAmountReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpApplicationDescription"  */
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -31638,7 +31638,7 @@ decode_org_csapi_cs_IpChargingSession_directCreditAmountReq(tvbuff_t *tvb _U_, p
         /*  Begin struct "org_csapi_cs_TpChargingPrice"  */
         decode_org_csapi_cs_TpChargingPrice_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpChargingPrice"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directCreditAmountReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_directCreditAmountReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31678,7 +31678,7 @@ decode_org_csapi_cs_IpChargingSession_directCreditUnitReq(tvbuff_t *tvb _U_, pac
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directCreditUnitReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_directCreditUnitReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpApplicationDescription"  */
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -31703,7 +31703,7 @@ decode_org_csapi_cs_IpChargingSession_directCreditUnitReq(tvbuff_t *tvb _U_, pac
             /*  End struct "org_csapi_cs_TpVolume"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directCreditUnitReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_directCreditUnitReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31741,7 +31741,7 @@ decode_org_csapi_cs_IpChargingSession_directDebitAmountReq(tvbuff_t *tvb _U_, pa
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directDebitAmountReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_directDebitAmountReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpApplicationDescription"  */
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -31759,7 +31759,7 @@ decode_org_csapi_cs_IpChargingSession_directDebitAmountReq(tvbuff_t *tvb _U_, pa
         /*  Begin struct "org_csapi_cs_TpChargingPrice"  */
         decode_org_csapi_cs_TpChargingPrice_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpChargingPrice"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directDebitAmountReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_directDebitAmountReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31799,7 +31799,7 @@ decode_org_csapi_cs_IpChargingSession_directDebitUnitReq(tvbuff_t *tvb _U_, pack
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directDebitUnitReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_directDebitUnitReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpApplicationDescription"  */
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -31824,7 +31824,7 @@ decode_org_csapi_cs_IpChargingSession_directDebitUnitReq(tvbuff_t *tvb _U_, pack
             /*  End struct "org_csapi_cs_TpVolume"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directDebitUnitReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_directDebitUnitReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31857,7 +31857,7 @@ decode_org_csapi_cs_IpChargingSession_extendLifeTimeReq(tvbuff_t *tvb _U_, packe
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_extendLifeTimeReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_extendLifeTimeReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31890,7 +31890,7 @@ decode_org_csapi_cs_IpChargingSession_getAmountLeft(tvbuff_t *tvb _U_, packet_in
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_getAmountLeft_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_getAmountLeft_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -31924,13 +31924,13 @@ decode_org_csapi_cs_IpChargingSession_getLifeTimeLeft(tvbuff_t *tvb _U_, packet_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_getLifeTimeLeft_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_getLifeTimeLeft_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_getLifeTimeLeft_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_getLifeTimeLeft_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -31962,7 +31962,7 @@ decode_org_csapi_cs_IpChargingSession_getUnitLeft(tvbuff_t *tvb _U_, packet_info
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_getUnitLeft_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_getUnitLeft_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -32008,7 +32008,7 @@ decode_org_csapi_cs_IpChargingSession_rateReq(tvbuff_t *tvb _U_, packet_info *pi
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_rateReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_rateReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpChargingSession_rateReq_chargingParameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_rateReq_chargingParameters, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_rateReq_chargingParameters);
@@ -32051,9 +32051,9 @@ decode_org_csapi_cs_IpChargingSession_release(tvbuff_t *tvb _U_, packet_info *pi
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_release_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_release_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_release_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_release_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -32091,7 +32091,7 @@ decode_org_csapi_cs_IpChargingSession_reserveAmountReq(tvbuff_t *tvb _U_, packet
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_reserveAmountReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_reserveAmountReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpApplicationDescription"  */
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -32112,7 +32112,7 @@ decode_org_csapi_cs_IpChargingSession_reserveAmountReq(tvbuff_t *tvb _U_, packet
         /*  Begin struct "org_csapi_cs_TpChargingPrice"  */
         decode_org_csapi_cs_TpChargingPrice_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpChargingPrice"  */
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_reserveAmountReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_reserveAmountReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -32152,7 +32152,7 @@ decode_org_csapi_cs_IpChargingSession_reserveUnitReq(tvbuff_t *tvb _U_, packet_i
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_reserveUnitReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_reserveUnitReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_cs_TpApplicationDescription"  */
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -32177,7 +32177,7 @@ decode_org_csapi_cs_IpChargingSession_reserveUnitReq(tvbuff_t *tvb _U_, packet_i
             /*  End struct "org_csapi_cs_TpVolume"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_reserveUnitReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_reserveUnitReq_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -32210,7 +32210,7 @@ decode_org_csapi_cs_IpAppChargingManager_sessionAborted(tvbuff_t *tvb _U_, packe
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingManager_sessionAborted_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingManager_sessionAborted_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -32253,7 +32253,7 @@ decode_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions(tvbuff_t 
 
         for (i_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet=0; i_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet < u_octet4_loop_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet; i_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet++) {
 
-            proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         }
 
@@ -32390,7 +32390,7 @@ decode_org_csapi_policy_evaluation_IpAppPolicyDomain_reportNotification(tvbuff_t
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpAppPolicyDomain_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_policy_evaluation_IpAppPolicyDomain_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_policy_TpPolicyEvent"  */
         decode_org_csapi_policy_TpPolicyEvent_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -32431,7 +32431,7 @@ decode_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes(tvbuff_t *tvb
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_outputVariables = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_outputVariables, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_outputVariables);
@@ -32474,9 +32474,9 @@ decode_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyErr(tvbuff_t *tvb
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyErr_error, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyErr_error, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -32594,7 +32594,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq(tvbuff_t *t
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -32623,7 +32623,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_abortEvalPolicyReq(tvbuff
     case Request:
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_abortEvalPolicyReq_domainName);
 
-        proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_abortEvalPolicyReq_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_abortEvalPolicyReq_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -32728,7 +32728,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification(tvbuff
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -32760,7 +32760,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification(tvbuf
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_events = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_events, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_events);
@@ -32976,9 +32976,9 @@ decode_org_csapi_policy_provisioning_IpPolicyIterator_getList(tvbuff_t *tvb _U_,
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyIterator_getList_startIndex, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyIterator_getList_startIndex, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyIterator_getList_numberRequested, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyIterator_getList_numberRequested, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -33152,7 +33152,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getRepositoryCount(tvbuf
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRepository_getRepositoryCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyRepository_getRepositoryCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -33332,7 +33332,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getConditionCount(tvbuff
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRepository_getConditionCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyRepository_getConditionCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -33512,7 +33512,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getActionCount(tvbuff_t 
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRepository_getActionCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyRepository_getActionCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -33754,7 +33754,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getConditionCount(tvbuff_t *tv
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRule_getConditionCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyRule_getConditionCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -33934,7 +33934,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getActionCount(tvbuff_t *tvb _
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRule_getActionCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyRule_getActionCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -34403,7 +34403,7 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_getDomainCount(tvbuff_t *tv
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyManager_getDomainCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyManager_getDomainCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -34619,7 +34619,7 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_getRepositoryCount(tvbuff_t
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyManager_getRepositoryCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyManager_getRepositoryCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -34935,7 +34935,7 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getGroupCount(tvbuff_t *tvb _
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyGroup_getGroupCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyGroup_getGroupCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -35096,7 +35096,7 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getRuleCount(tvbuff_t *tvb _U
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyGroup_getRuleCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyGroup_getRuleCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -36006,7 +36006,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getDomainCount(tvbuff_t *tvb
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getDomainCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getDomainCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -36167,7 +36167,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getGroupCount(tvbuff_t *tvb 
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getGroupCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getGroupCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -36328,7 +36328,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getRuleCount(tvbuff_t *tvb _
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getRuleCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getRuleCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -36514,7 +36514,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getEventDefinitionCount(tvbu
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getEventDefinitionCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getEventDefinitionCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -36688,7 +36688,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSetCount(tvbuff_t
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSetCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSetCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -37070,7 +37070,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getSignatureCount(tvbuff_t *
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getSignatureCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getSignatureCount_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -41374,7 +41374,7 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration(
 
         }
 
-        proto_tree_add_uint64(tree, hf_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_expiresIn, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int64(tree, hf_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_expiresIn, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_authToken);
@@ -41628,7 +41628,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration(tvbuff
 
         }
 
-        proto_tree_add_uint64(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_expiresIn, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int64(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_expiresIn, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_authToken);
@@ -41690,7 +41690,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration(t
 
         }
 
-        proto_tree_add_uint64(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_expiresIn, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int64(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_expiresIn, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_authToken);
@@ -42458,7 +42458,7 @@ decode_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify(tvbuff_t *tvb _U_, p
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventInfo);
@@ -42503,7 +42503,7 @@ decode_org_csapi_pam_event_IpAppPAMEventHandler_eventNotifyErr(tvbuff_t *tvb _U_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpAppPAMEventHandler_eventNotifyErr_eventID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_pam_event_IpAppPAMEventHandler_eventNotifyErr_eventID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_pam_TpPAMErrorInfo"  */
         decode_org_csapi_pam_TpPAMErrorInfo_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -42544,7 +42544,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_isRegistered(tvbuff_t *tvb _U_, pac
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_isRegistered_clientID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_pam_event_IpPAMEventHandler_isRegistered_clientID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_isRegistered_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_isRegistered_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_isRegistered_authToken);
@@ -42606,7 +42606,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface(tvbuff_t *tvb 
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -42640,7 +42640,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_registerForEvent(tvbuff_t *tvb _U_,
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_clientID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_clientID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_eventList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_eventList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_eventList);
@@ -42654,7 +42654,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_registerForEvent(tvbuff_t *tvb _U_,
             /*  End union "org_csapi_pam_TpPAMEventInfo"  */
         }
 
-        proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_validFor, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_validFor, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_authToken);
@@ -42669,7 +42669,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_registerForEvent(tvbuff_t *tvb _U_,
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -42701,7 +42701,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface(tvbuff_t *tv
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_clientID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_clientID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_authToken);
@@ -42748,7 +42748,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent(tvbuff_t *tvb _
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_eventID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_eventID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_authToken);
@@ -43158,7 +43158,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification(tvbuff_t
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_eventInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_eventInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_eventInfo);
@@ -43492,7 +43492,7 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification(tvbuff_t *t
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -43519,7 +43519,7 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_destroyNotification(tvbuff_t *
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessagingManager_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMultiMediaMessagingManager_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -43557,7 +43557,7 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification(tvbuff_t *t
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_eventCriteria = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_eventCriteria, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_eventCriteria);
@@ -43642,7 +43642,7 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_enableNotifications(tvbuff_t *
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessagingManager_enableNotifications_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMultiMediaMessagingManager_enableNotifications_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -43700,9 +43700,9 @@ decode_org_csapi_mmm_IpAppMailbox_createFolderRes(tvbuff_t *tvb _U_, packet_info
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_createFolderRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_createFolderRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_createFolderRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_createFolderRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_createFolderRes_folderID);
 
@@ -43741,9 +43741,9 @@ decode_org_csapi_mmm_IpAppMailbox_createFolderErr(tvbuff_t *tvb _U_, packet_info
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_createFolderErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_createFolderErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_createFolderErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_createFolderErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_createFolderErr_error, tvb, *offset-4, 4, u_octet4);
@@ -43786,9 +43786,9 @@ decode_org_csapi_mmm_IpAppMailbox_getFoldersRes(tvbuff_t *tvb _U_, packet_info *
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFoldersRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFoldersRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFoldersRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFoldersRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getFoldersRes_folderID);
 
@@ -43836,9 +43836,9 @@ decode_org_csapi_mmm_IpAppMailbox_getFoldersErr(tvbuff_t *tvb _U_, packet_info *
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFoldersErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFoldersErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFoldersErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFoldersErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getFoldersErr_folderID);
 
@@ -43878,9 +43878,9 @@ decode_org_csapi_mmm_IpAppMailbox_deleteFolderRes(tvbuff_t *tvb _U_, packet_info
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_deleteFolderRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_deleteFolderRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_deleteFolderRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_deleteFolderRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -43917,9 +43917,9 @@ decode_org_csapi_mmm_IpAppMailbox_deleteFolderErr(tvbuff_t *tvb _U_, packet_info
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_deleteFolderErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_deleteFolderErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_deleteFolderErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_deleteFolderErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_deleteFolderErr_error, tvb, *offset-4, 4, u_octet4);
@@ -43957,9 +43957,9 @@ decode_org_csapi_mmm_IpAppMailbox_copyFolderRes(tvbuff_t *tvb _U_, packet_info *
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_copyFolderRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_copyFolderRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_copyFolderRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_copyFolderRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -43996,9 +43996,9 @@ decode_org_csapi_mmm_IpAppMailbox_copyFolderErr(tvbuff_t *tvb _U_, packet_info *
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_copyFolderErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_copyFolderErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_copyFolderErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_copyFolderErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_copyFolderErr_error, tvb, *offset-4, 4, u_octet4);
@@ -44036,9 +44036,9 @@ decode_org_csapi_mmm_IpAppMailbox_moveFolderRes(tvbuff_t *tvb _U_, packet_info *
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_moveFolderRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_moveFolderRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_moveFolderRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_moveFolderRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -44075,9 +44075,9 @@ decode_org_csapi_mmm_IpAppMailbox_moveFolderErr(tvbuff_t *tvb _U_, packet_info *
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_moveFolderErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_moveFolderErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_moveFolderErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_moveFolderErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_moveFolderErr_error, tvb, *offset-4, 4, u_octet4);
@@ -44115,9 +44115,9 @@ decode_org_csapi_mmm_IpAppMailbox_putMessageRes(tvbuff_t *tvb _U_, packet_info *
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_putMessageRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_putMessageRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_putMessageRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_putMessageRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_putMessageRes_messageID);
 
@@ -44156,9 +44156,9 @@ decode_org_csapi_mmm_IpAppMailbox_putMessageErr(tvbuff_t *tvb _U_, packet_info *
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_putMessageErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_putMessageErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_putMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_putMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_putMessageErr_error, tvb, *offset-4, 4, u_octet4);
@@ -44196,9 +44196,9 @@ decode_org_csapi_mmm_IpAppMailbox_copyMessageRes(tvbuff_t *tvb _U_, packet_info 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_copyMessageRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_copyMessageRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_copyMessageRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_copyMessageRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -44235,9 +44235,9 @@ decode_org_csapi_mmm_IpAppMailbox_copyMessageErr(tvbuff_t *tvb _U_, packet_info 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_copyMessageErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_copyMessageErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_copyMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_copyMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_copyMessageErr_error, tvb, *offset-4, 4, u_octet4);
@@ -44275,9 +44275,9 @@ decode_org_csapi_mmm_IpAppMailbox_moveMessageRes(tvbuff_t *tvb _U_, packet_info 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_moveMessageRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_moveMessageRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_moveMessageRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_moveMessageRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -44314,9 +44314,9 @@ decode_org_csapi_mmm_IpAppMailbox_moveMessageErr(tvbuff_t *tvb _U_, packet_info 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_moveMessageErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_moveMessageErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_moveMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_moveMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_moveMessageErr_error, tvb, *offset-4, 4, u_octet4);
@@ -44354,9 +44354,9 @@ decode_org_csapi_mmm_IpAppMailbox_deleteMessageRes(tvbuff_t *tvb _U_, packet_inf
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_deleteMessageRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_deleteMessageRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_deleteMessageRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_deleteMessageRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -44393,9 +44393,9 @@ decode_org_csapi_mmm_IpAppMailbox_deleteMessageErr(tvbuff_t *tvb _U_, packet_inf
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_deleteMessageErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_deleteMessageErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_deleteMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_deleteMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_deleteMessageErr_error, tvb, *offset-4, 4, u_octet4);
@@ -44438,9 +44438,9 @@ decode_org_csapi_mmm_IpAppMailbox_listMessagesRes(tvbuff_t *tvb _U_, packet_info
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_listMessagesRes_messageList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesRes_messageList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_listMessagesRes_messageList);
@@ -44492,9 +44492,9 @@ decode_org_csapi_mmm_IpAppMailbox_listMessagesErr(tvbuff_t *tvb _U_, packet_info
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesErr_error, tvb, *offset-4, 4, u_octet4);
@@ -44537,9 +44537,9 @@ decode_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes(tvbuff_t *tvb _U_, pac
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_partsList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_partsList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_partsList);
@@ -44586,9 +44586,9 @@ decode_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr(tvbuff_t *tvb _U_, pac
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr_error, tvb, *offset-4, 4, u_octet4);
@@ -44631,9 +44631,9 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes(tvbuff_t *tvb _U_, pack
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_bodyParts = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_bodyParts, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_bodyParts);
@@ -44680,9 +44680,9 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr(tvbuff_t *tvb _U_, pack
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr_error, tvb, *offset-4, 4, u_octet4);
@@ -44725,9 +44725,9 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes(tvbuff_t *tvb _U_, packet
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_headers = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_headers, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_headers);
@@ -44776,9 +44776,9 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr(tvbuff_t *tvb _U_, packet
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr_error, tvb, *offset-4, 4, u_octet4);
@@ -44821,9 +44821,9 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageContentRes(tvbuff_t *tvb _U_, packet
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageContentRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageContentRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageContentRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageContentRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getMessageContentRes_contentType);
 
@@ -44873,9 +44873,9 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageContentErr(tvbuff_t *tvb _U_, packet
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageContentErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageContentErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageContentErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageContentErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageContentErr_error, tvb, *offset-4, 4, u_octet4);
@@ -44918,9 +44918,9 @@ decode_org_csapi_mmm_IpAppMailbox_getFullMessageRes(tvbuff_t *tvb _U_, packet_in
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_getFullMessageRes_message = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageRes_message, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_getFullMessageRes_message);
@@ -44966,9 +44966,9 @@ decode_org_csapi_mmm_IpAppMailbox_getFullMessageErr(tvbuff_t *tvb _U_, packet_in
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageErr_error, tvb, *offset-4, 4, u_octet4);
@@ -45011,9 +45011,9 @@ decode_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes(tvbuff_t *tvb _U_,
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_returnedProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_returnedProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_returnedProperties);
@@ -45063,9 +45063,9 @@ decode_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes(tvbuff_t *tvb _U_, 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_folderID);
 
@@ -45117,9 +45117,9 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes(tvbuff_t *tvb _U_,
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_messageID);
 
@@ -45171,9 +45171,9 @@ decode_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes(tvbuff_t *tvb _U_,
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_messageID);
 
@@ -45225,9 +45225,9 @@ decode_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr(tvbuff_t *tvb _U_,
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_messageID);
 
@@ -45276,9 +45276,9 @@ decode_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr(tvbuff_t *tvb _U_,
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr_error, tvb, *offset-4, 4, u_octet4);
@@ -45320,9 +45320,9 @@ decode_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr(tvbuff_t *tvb _U_, 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr_error, tvb, *offset-4, 4, u_octet4);
@@ -45364,9 +45364,9 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr(tvbuff_t *tvb _U_,
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr_error, tvb, *offset-4, 4, u_octet4);
@@ -45404,7 +45404,7 @@ decode_org_csapi_mmm_IpMailbox_close(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_close_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_close_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -45437,7 +45437,7 @@ decode_org_csapi_mmm_IpMailbox_createFolderReq(tvbuff_t *tvb _U_, packet_info *p
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_createFolderReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_createFolderReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_createFolderReq_folderID);
 
@@ -45445,7 +45445,7 @@ decode_org_csapi_mmm_IpMailbox_createFolderReq(tvbuff_t *tvb _U_, packet_info *p
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_createFolderReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_createFolderReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45472,7 +45472,7 @@ decode_org_csapi_mmm_IpMailbox_getFoldersReq(tvbuff_t *tvb _U_, packet_info *pin
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getFoldersReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getFoldersReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_getFoldersReq_folderID);
 
@@ -45480,7 +45480,7 @@ decode_org_csapi_mmm_IpMailbox_getFoldersReq(tvbuff_t *tvb _U_, packet_info *pin
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getFoldersReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getFoldersReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45507,7 +45507,7 @@ decode_org_csapi_mmm_IpMailbox_deleteFolderReq(tvbuff_t *tvb _U_, packet_info *p
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_deleteFolderReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_deleteFolderReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_deleteFolderReq_folderID);
 
@@ -45515,7 +45515,7 @@ decode_org_csapi_mmm_IpMailbox_deleteFolderReq(tvbuff_t *tvb _U_, packet_info *p
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_deleteFolderReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_deleteFolderReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45542,7 +45542,7 @@ decode_org_csapi_mmm_IpMailbox_copyFolderReq(tvbuff_t *tvb _U_, packet_info *pin
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_copyFolderReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_copyFolderReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_copyFolderReq_sourceFolderID);
 
@@ -45552,7 +45552,7 @@ decode_org_csapi_mmm_IpMailbox_copyFolderReq(tvbuff_t *tvb _U_, packet_info *pin
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_copyFolderReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_copyFolderReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45579,7 +45579,7 @@ decode_org_csapi_mmm_IpMailbox_moveFolderReq(tvbuff_t *tvb _U_, packet_info *pin
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_moveFolderReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_moveFolderReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_moveFolderReq_sourceFolderID);
 
@@ -45589,7 +45589,7 @@ decode_org_csapi_mmm_IpMailbox_moveFolderReq(tvbuff_t *tvb _U_, packet_info *pin
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_moveFolderReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_moveFolderReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45621,7 +45621,7 @@ decode_org_csapi_mmm_IpMailbox_putMessageReq(tvbuff_t *tvb _U_, packet_info *pin
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_putMessageReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_putMessageReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_putMessageReq_folderID);
 
@@ -45638,7 +45638,7 @@ decode_org_csapi_mmm_IpMailbox_putMessageReq(tvbuff_t *tvb _U_, packet_info *pin
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_putMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_putMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45665,7 +45665,7 @@ decode_org_csapi_mmm_IpMailbox_copyMessageReq(tvbuff_t *tvb _U_, packet_info *pi
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_copyMessageReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_copyMessageReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_copyMessageReq_fromFolderID);
 
@@ -45677,7 +45677,7 @@ decode_org_csapi_mmm_IpMailbox_copyMessageReq(tvbuff_t *tvb _U_, packet_info *pi
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_copyMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_copyMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45704,7 +45704,7 @@ decode_org_csapi_mmm_IpMailbox_moveMessageReq(tvbuff_t *tvb _U_, packet_info *pi
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_moveMessageReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_moveMessageReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_moveMessageReq_fromFolderID);
 
@@ -45716,7 +45716,7 @@ decode_org_csapi_mmm_IpMailbox_moveMessageReq(tvbuff_t *tvb _U_, packet_info *pi
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_moveMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_moveMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45743,7 +45743,7 @@ decode_org_csapi_mmm_IpMailbox_deleteMessageReq(tvbuff_t *tvb _U_, packet_info *
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_deleteMessageReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_deleteMessageReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_deleteMessageReq_fromFolderID);
 
@@ -45753,7 +45753,7 @@ decode_org_csapi_mmm_IpMailbox_deleteMessageReq(tvbuff_t *tvb _U_, packet_info *
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_deleteMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_deleteMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45780,7 +45780,7 @@ decode_org_csapi_mmm_IpMailbox_listMessagesReq(tvbuff_t *tvb _U_, packet_info *p
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_listMessagesReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_listMessagesReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_listMessagesReq_folderID);
 
@@ -45793,7 +45793,7 @@ decode_org_csapi_mmm_IpMailbox_listMessagesReq(tvbuff_t *tvb _U_, packet_info *p
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_listMessagesReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_listMessagesReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45820,19 +45820,19 @@ decode_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq(tvbuff_t *tvb _U_, packet
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq_folderID);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq_messageID);
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq_maxNestingLevel, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq_maxNestingLevel, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45864,7 +45864,7 @@ decode_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq(tvbuff_t *tvb _U_, packet_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_folderID);
 
@@ -45883,7 +45883,7 @@ decode_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq(tvbuff_t *tvb _U_, packet_
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45910,7 +45910,7 @@ decode_org_csapi_mmm_IpMailbox_getMessageHeadersReq(tvbuff_t *tvb _U_, packet_in
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getMessageHeadersReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getMessageHeadersReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_getMessageHeadersReq_folderID);
 
@@ -45920,7 +45920,7 @@ decode_org_csapi_mmm_IpMailbox_getMessageHeadersReq(tvbuff_t *tvb _U_, packet_in
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getMessageHeadersReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getMessageHeadersReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45947,7 +45947,7 @@ decode_org_csapi_mmm_IpMailbox_getMessageContentReq(tvbuff_t *tvb _U_, packet_in
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getMessageContentReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getMessageContentReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_getMessageContentReq_folderID);
 
@@ -45957,7 +45957,7 @@ decode_org_csapi_mmm_IpMailbox_getMessageContentReq(tvbuff_t *tvb _U_, packet_in
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getMessageContentReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getMessageContentReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -45984,7 +45984,7 @@ decode_org_csapi_mmm_IpMailbox_getFullMessageReq(tvbuff_t *tvb _U_, packet_info 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getFullMessageReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getFullMessageReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_getFullMessageReq_folderID);
 
@@ -45994,7 +45994,7 @@ decode_org_csapi_mmm_IpMailbox_getFullMessageReq(tvbuff_t *tvb _U_, packet_info 
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getFullMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getFullMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -46021,13 +46021,13 @@ decode_org_csapi_mmm_IpMailbox_getMailboxInfoPropertiesReq(tvbuff_t *tvb _U_, pa
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getMailboxInfoPropertiesReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getMailboxInfoPropertiesReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getMailboxInfoPropertiesReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getMailboxInfoPropertiesReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -46054,7 +46054,7 @@ decode_org_csapi_mmm_IpMailbox_getFolderInfoPropertiesReq(tvbuff_t *tvb _U_, pac
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getFolderInfoPropertiesReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getFolderInfoPropertiesReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_getFolderInfoPropertiesReq_folderID);
 
@@ -46062,7 +46062,7 @@ decode_org_csapi_mmm_IpMailbox_getFolderInfoPropertiesReq(tvbuff_t *tvb _U_, pac
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getFolderInfoPropertiesReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getFolderInfoPropertiesReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -46089,7 +46089,7 @@ decode_org_csapi_mmm_IpMailbox_getMessageInfoPropertiesReq(tvbuff_t *tvb _U_, pa
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getMessageInfoPropertiesReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getMessageInfoPropertiesReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_getMessageInfoPropertiesReq_messageID);
 
@@ -46097,7 +46097,7 @@ decode_org_csapi_mmm_IpMailbox_getMessageInfoPropertiesReq(tvbuff_t *tvb _U_, pa
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getMessageInfoPropertiesReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_getMessageInfoPropertiesReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -46129,7 +46129,7 @@ decode_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq(tvbuff_t *tvb _U_, pa
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_messageID);
 
@@ -46149,7 +46149,7 @@ decode_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq(tvbuff_t *tvb _U_, pa
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -46176,9 +46176,9 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageRes(tvbuff_t *tvb _U_, 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -46215,9 +46215,9 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr(tvbuff_t *tvb _U_, 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr_error, tvb, *offset-4, 4, u_octet4);
@@ -46255,9 +46255,9 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageRes(tvbuff_t *tvb _U_
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -46294,9 +46294,9 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr(tvbuff_t *tvb _U_
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr_error, tvb, *offset-4, 4, u_octet4);
@@ -46339,9 +46339,9 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes(tvbuff_t *tvb _U_, 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_result = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_result, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_result);
@@ -46388,9 +46388,9 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr(tvbuff_t *tvb _U_, 
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr_error, tvb, *offset-4, 4, u_octet4);
@@ -46428,14 +46428,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_messageStatusReport(tvbuff_t *tvb 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageStatusReport_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageStatusReport_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageStatusReport_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageStatusReport_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpAddress"  */
         decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpAddress"  */
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageStatusReport_deliveryReportType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageStatusReport_deliveryReportType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageStatusReport_deliveryReportInfo);
 
@@ -46477,7 +46477,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived(tvbuff_t *tvb _U_,
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_message = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_message, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_message);
@@ -46540,7 +46540,7 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq(tvbuff_t *tvb _U_, pac
 
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         /*  Begin struct "org_csapi_TpAddress"  */
         decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -46587,7 +46587,7 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq(tvbuff_t *tvb _U_, pac
     case Reply:
         switch(header->rep_status) {
         case NO_EXCEPTION:
-            proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+            proto_tree_add_int(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_return, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             break;
         case USER_EXCEPTION:
@@ -46614,9 +46614,9 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_cancelMessageReq(tvbuff_t *tvb _U_, p
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_cancelMessageReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_cancelMessageReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_cancelMessageReq_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_cancelMessageReq_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -46649,9 +46649,9 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_queryStatusReq(tvbuff_t *tvb _U_, pac
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_queryStatusReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_queryStatusReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_queryStatusReq_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_queryStatusReq_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -46684,7 +46684,7 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_close(tvbuff_t *tvb _U_, packet_info 
 {
     switch(header->message_type) {
     case Request:
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_close_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_close_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         break;
     case Reply:
@@ -46760,19 +46760,19 @@ static void
 decode_org_csapi_TpCAIElements_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_TpCAIElements_UnitsPerInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_TpCAIElements_UnitsPerInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_TpCAIElements_SecondsPerTimeInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_TpCAIElements_SecondsPerTimeInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_TpCAIElements_ScalingFactor, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_TpCAIElements_ScalingFactor, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_TpCAIElements_UnitIncrement, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_TpCAIElements_UnitIncrement, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_TpCAIElements_UnitsPerDataInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_TpCAIElements_UnitsPerDataInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_TpCAIElements_SegmentsPerDataInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_TpCAIElements_SegmentsPerDataInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_TpCAIElements_InitialSecsPerTimeInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_TpCAIElements_InitialSecsPerTimeInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -46794,11 +46794,11 @@ static void
 decode_org_csapi_TpChargePerTime_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_TpChargePerTime_InitialCharge, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_TpChargePerTime_InitialCharge, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_TpChargePerTime_CurrentChargePerMinute, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_TpChargePerTime_CurrentChargePerMinute, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_TpChargePerTime_NextChargePerMinute, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_TpChargePerTime_NextChargePerMinute, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -46864,13 +46864,13 @@ decode_org_csapi_fw_TpFaultStats_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFaultStats_Fault, tvb, *offset-4, 4, u_octet4);
 
-    proto_tree_add_uint(tree, hf_org_csapi_fw_TpFaultStats_Occurrences, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_fw_TpFaultStats_Occurrences, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_fw_TpFaultStats_MaxDuration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_fw_TpFaultStats_MaxDuration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_fw_TpFaultStats_TotalDuration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_fw_TpFaultStats_TotalDuration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_fw_TpFaultStats_NumberOfClientsAffected, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_fw_TpFaultStats_NumberOfClientsAffected, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -47451,9 +47451,9 @@ decode_org_csapi_ui_TpUIMessageCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_TpUIMessageCriteria_EndSequence);
 
-    proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIMessageCriteria_MaxMessageTime, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_ui_TpUIMessageCriteria_MaxMessageTime, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIMessageCriteria_MaxMessageSize, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_ui_TpUIMessageCriteria_MaxMessageSize, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -47504,7 +47504,7 @@ decode_org_csapi_ui_TpUIEventCriteriaResult_st(tvbuff_t *tvb _U_, packet_info *p
     /*  Begin struct "org_csapi_ui_TpUIEventCriteria"  */
     decode_org_csapi_ui_TpUIEventCriteria_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_ui_TpUIEventCriteria"  */
-    proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIEventCriteriaResult_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_ui_TpUIEventCriteriaResult_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -47587,15 +47587,15 @@ decode_org_csapi_ui_TpUICollectCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo
     guint32   u_octet4;
     /* Operation specific Variable declarations End */
 
-    proto_tree_add_uint(tree, hf_org_csapi_ui_TpUICollectCriteria_MinLength, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_ui_TpUICollectCriteria_MinLength, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_ui_TpUICollectCriteria_MaxLength, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_ui_TpUICollectCriteria_MaxLength, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_TpUICollectCriteria_EndSequence);
 
-    proto_tree_add_uint(tree, hf_org_csapi_ui_TpUICollectCriteria_StartTimeout, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_ui_TpUICollectCriteria_StartTimeout, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_ui_TpUICollectCriteria_InterCharTimeout, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_ui_TpUICollectCriteria_InterCharTimeout, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUICollectCriteria_CollectMode, tvb, *offset-4, 4, u_octet4);
@@ -47690,7 +47690,7 @@ decode_org_csapi_cc_TpCallEndedReport_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     guint32   u_octet4;
     /* Operation specific Variable declarations End */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallEndedReport_CallLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_TpCallEndedReport_CallLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallEndedReport_Cause, tvb, *offset-4, 4, u_octet4);
@@ -47706,7 +47706,7 @@ decode_org_csapi_cc_TpCallInfoReport_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     guint32   u_octet4;
     /* Operation specific Variable declarations End */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallInfoReport_CallInfoType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_TpCallInfoReport_CallInfoType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cc_TpCallInfoReport_CallInitiationStartTime);
 
@@ -47784,7 +47784,7 @@ decode_org_csapi_cc_TpCallChargePlan_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     }
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallChargePlan_ChargePlan, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_TpCallChargePlan_ChargePlan, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4_loop_org_csapi_cc_TpCallChargePlan_AdditionalInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallChargePlan_AdditionalInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpCallChargePlan_AdditionalInfo);
@@ -47820,7 +47820,7 @@ decode_org_csapi_cc_gccs_TpCallEventCriteria_st(tvbuff_t *tvb _U_, packet_info *
     /*  Begin struct "org_csapi_TpAddressRange"  */
     decode_org_csapi_TpAddressRange_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddressRange"  */
-    proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallEventCriteria_CallEventName, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallEventCriteria_CallEventName, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallEventCriteria_CallNotificationType, tvb, *offset-4, 4, u_octet4);
@@ -47838,7 +47838,7 @@ decode_org_csapi_cc_gccs_TpCallEventCriteriaResult_st(tvbuff_t *tvb _U_, packet_
     /*  Begin struct "org_csapi_cc_gccs_TpCallEventCriteria"  */
     decode_org_csapi_cc_gccs_TpCallEventCriteria_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_cc_gccs_TpCallEventCriteria"  */
-    proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallEventCriteriaResult_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallEventCriteriaResult_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -47847,9 +47847,9 @@ static void
 decode_org_csapi_cc_gccs_TpCallReleaseCause_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallReleaseCause_Value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallReleaseCause_Value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallReleaseCause_Location, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallReleaseCause_Location, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -47934,7 +47934,7 @@ decode_org_csapi_cc_gccs_TpCallEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinf
         /*  End union "org_csapi_cc_gccs_TpCallAppInfo"  */
     }
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallEventInfo_CallEventName, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallEventInfo_CallEventName, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallEventInfo_CallNotificationType, tvb, *offset-4, 4, u_octet4);
@@ -47949,7 +47949,7 @@ static void
 decode_org_csapi_cc_gccs_TpCallEndedReport_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallEndedReport_CallLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallEndedReport_CallLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     /*  Begin struct "org_csapi_cc_gccs_TpCallReleaseCause"  */
     decode_org_csapi_cc_gccs_TpCallReleaseCause_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -47961,7 +47961,7 @@ static void
 decode_org_csapi_cc_gccs_TpCallInfoReport_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallInfoReport_CallInfoType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallInfoReport_CallInfoType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cc_gccs_TpCallInfoReport_CallInitiationStartTime);
 
@@ -48005,7 +48005,7 @@ decode_org_csapi_cc_gccs_TpCallIdentifier_st(tvbuff_t *tvb _U_, packet_info *pin
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallIdentifier_CallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallIdentifier_CallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48090,7 +48090,7 @@ decode_org_csapi_cc_TpNotificationRequested_st(tvbuff_t *tvb _U_, packet_info *p
     /*  Begin struct "org_csapi_cc_TpCallNotificationRequest"  */
     decode_org_csapi_cc_TpCallNotificationRequest_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_cc_TpCallNotificationRequest"  */
-    proto_tree_add_uint(tree, hf_org_csapi_cc_TpNotificationRequested_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_TpNotificationRequested_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48222,7 +48222,7 @@ decode_org_csapi_cc_TpCallLegInfoReport_st(tvbuff_t *tvb _U_, packet_info *pinfo
     guint32   i_org_csapi_cc_TpCallLegInfoReport_CallAppInfo;
     /* Operation specific Variable declarations End */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallLegInfoReport_CallLegInfoType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_TpCallLegInfoReport_CallLegInfoType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cc_TpCallLegInfoReport_CallLegStartTime);
 
@@ -48270,7 +48270,7 @@ decode_org_csapi_cc_mpccs_TpMultiPartyCallIdentifier_st(tvbuff_t *tvb _U_, packe
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_TpMultiPartyCallIdentifier_CallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_TpMultiPartyCallIdentifier_CallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48281,7 +48281,7 @@ decode_org_csapi_cc_mpccs_TpCallLegIdentifier_st(tvbuff_t *tvb _U_, packet_info 
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_TpCallLegIdentifier_CallLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_TpCallLegIdentifier_CallLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48313,9 +48313,9 @@ static void
 decode_org_csapi_cc_mmccs_TpCallSuperviseVolume_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpCallSuperviseVolume_VolumeQuantity, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_TpCallSuperviseVolume_VolumeQuantity, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpCallSuperviseVolume_VolumeUnit, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_TpCallSuperviseVolume_VolumeUnit, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48361,7 +48361,7 @@ decode_org_csapi_cc_mmccs_TpMediaStream_st(tvbuff_t *tvb _U_, packet_info *pinfo
     decode_org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End union "org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest"  */
-    proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpMediaStream_ChannelSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_TpMediaStream_ChannelSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -48400,7 +48400,7 @@ decode_org_csapi_cc_mmccs_TpMediaNotificationRequested_st(tvbuff_t *tvb _U_, pac
     /*  Begin struct "org_csapi_cc_mmccs_TpNotificationMediaRequest"  */
     decode_org_csapi_cc_mmccs_TpNotificationMediaRequest_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_cc_mmccs_TpNotificationMediaRequest"  */
-    proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpMediaNotificationRequested_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_TpMediaNotificationRequested_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48411,7 +48411,7 @@ decode_org_csapi_cc_mmccs_TpMultiMediaCallIdentifier_st(tvbuff_t *tvb _U_, packe
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpMultiMediaCallIdentifier_MMCallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_TpMultiMediaCallIdentifier_MMCallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48422,7 +48422,7 @@ decode_org_csapi_cc_mmccs_TpMultiMediaCallLegIdentifier_st(tvbuff_t *tvb _U_, pa
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpMultiMediaCallLegIdentifier_MMCallLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_TpMultiMediaCallLegIdentifier_MMCallLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48497,9 +48497,9 @@ decode_org_csapi_cc_cccs_TpConfSearchCriteria_st(tvbuff_t *tvb _U_, packet_info 
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cc_cccs_TpConfSearchCriteria_StopSearch);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_TpConfSearchCriteria_RequestedResources, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_cccs_TpConfSearchCriteria_RequestedResources, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_TpConfSearchCriteria_RequestedDuration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_cccs_TpConfSearchCriteria_RequestedDuration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48512,9 +48512,9 @@ decode_org_csapi_cc_cccs_TpConfSearchResult_st(tvbuff_t *tvb _U_, packet_info *p
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cc_cccs_TpConfSearchResult_ActualStartTime);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_TpConfSearchResult_ActualResources, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_cccs_TpConfSearchResult_ActualResources, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_TpConfSearchResult_ActualDuration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_cccs_TpConfSearchResult_ActualDuration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48529,7 +48529,7 @@ decode_org_csapi_cc_cccs_TpMultiMediaConfPolicy_st(tvbuff_t *tvb _U_, packet_inf
 
     proto_tree_add_boolean(tree, hf_org_csapi_cc_cccs_TpMultiMediaConfPolicy_JoinAllowed, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_TpMultiMediaConfPolicy_MediaAllowed, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_cccs_TpMultiMediaConfPolicy_MediaAllowed, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     proto_tree_add_boolean(tree, hf_org_csapi_cc_cccs_TpMultiMediaConfPolicy_Chaired, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
@@ -48546,7 +48546,7 @@ decode_org_csapi_cc_cccs_TpResourceReservation_st(tvbuff_t *tvb _U_, packet_info
     /*  Begin struct "org_csapi_TpAddress"  */
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
-    proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_TpResourceReservation_ReservationID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_cccs_TpResourceReservation_ReservationID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48557,7 +48557,7 @@ decode_org_csapi_cc_cccs_TpConfCallIdentifier_st(tvbuff_t *tvb _U_, packet_info 
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_TpConfCallIdentifier_ConfCallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_cccs_TpConfCallIdentifier_ConfCallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48568,7 +48568,7 @@ decode_org_csapi_cc_cccs_TpSubConfCallIdentifier_st(tvbuff_t *tvb _U_, packet_in
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_TpSubConfCallIdentifier_SubConfCallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_cccs_TpSubConfCallIdentifier_SubConfCallSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48579,7 +48579,7 @@ decode_org_csapi_ui_TpUIIdentifier_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIIdentifier_UserInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_ui_TpUIIdentifier_UserInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48590,7 +48590,7 @@ decode_org_csapi_ui_TpUICallIdentifier_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_ui_TpUICallIdentifier_UserInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_ui_TpUICallIdentifier_UserInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48606,7 +48606,7 @@ decode_org_csapi_mm_TpLocationResponseTime_st(tvbuff_t *tvb _U_, packet_info *pi
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpLocationResponseTime_ResponseTime, tvb, *offset-4, 4, u_octet4);
 
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpLocationResponseTime_TimerValue, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpLocationResponseTime_TimerValue, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48627,12 +48627,12 @@ decode_org_csapi_mm_TpLocationTrigger_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     proto_tree_add_float(tree, hf_org_csapi_mm_TpLocationTrigger_AreaSemiMinor, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpLocationTrigger_AngleOfSemiMajor, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpLocationTrigger_AngleOfSemiMajor, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpLocationTrigger_Criterion, tvb, *offset-4, 4, u_octet4);
 
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpLocationTrigger_ReportingInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpLocationTrigger_ReportingInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48686,11 +48686,11 @@ decode_org_csapi_mm_TpGeographicalPosition_st(tvbuff_t *tvb _U_, packet_info *pi
 
     proto_tree_add_float(tree, hf_org_csapi_mm_TpGeographicalPosition_UncertaintyOuterSemiMinor, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpGeographicalPosition_AngleOfSemiMajor, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpGeographicalPosition_AngleOfSemiMajor, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpGeographicalPosition_SegmentStartAngle, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpGeographicalPosition_SegmentStartAngle, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpGeographicalPosition_SegmentEndAngle, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpGeographicalPosition_SegmentEndAngle, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -48705,7 +48705,7 @@ decode_org_csapi_mm_TpMobilityStopAssignmentData_st(tvbuff_t *tvb _U_, packet_in
     guint32   i_org_csapi_mm_TpMobilityStopAssignmentData_Users;
     /* Operation specific Variable declarations End */
 
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpMobilityStopAssignmentData_AssignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpMobilityStopAssignmentData_AssignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpMobilityStopAssignmentData_StopScope, tvb, *offset-4, 4, u_octet4);
@@ -48972,7 +48972,7 @@ decode_org_csapi_mm_TpTriggeredStatusRequest_st(tvbuff_t *tvb _U_, packet_info *
         /*  End struct "org_csapi_TpAddress"  */
     }
 
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpTriggeredStatusRequest_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpTriggeredStatusRequest_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49023,9 +49023,9 @@ decode_org_csapi_mm_TpPeriodicLocationRequest_st(tvbuff_t *tvb _U_, packet_info 
     /*  Begin struct "org_csapi_mm_TpLocationRequest"  */
     decode_org_csapi_mm_TpLocationRequest_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_mm_TpLocationRequest"  */
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpPeriodicLocationRequest_ReportingInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpPeriodicLocationRequest_ReportingInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpPeriodicLocationRequest_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpPeriodicLocationRequest_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49076,7 +49076,7 @@ decode_org_csapi_mm_TpTriggeredLocationRequest_st(tvbuff_t *tvb _U_, packet_info
     /*  Begin struct "org_csapi_mm_TpLocationRequest"  */
     decode_org_csapi_mm_TpLocationRequest_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_mm_TpLocationRequest"  */
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpTriggeredLocationRequest_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpTriggeredLocationRequest_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49201,7 +49201,7 @@ decode_org_csapi_mm_TpBindingNotificationCriteria_st(tvbuff_t *tvb _U_, packet_i
     guint32   i_org_csapi_mm_TpBindingNotificationCriteria_ContactAddressSet;
     /* Operation specific Variable declarations End */
 
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpBindingNotificationCriteria_NotificationCriteriaType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpBindingNotificationCriteria_NotificationCriteriaType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4_loop_org_csapi_mm_TpBindingNotificationCriteria_ContactAddressSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpBindingNotificationCriteria_ContactAddressSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_TpBindingNotificationCriteria_ContactAddressSet);
@@ -49247,11 +49247,11 @@ static void
 decode_org_csapi_dsc_TpChargePerVolume_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpChargePerVolume_InitialCharge, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpChargePerVolume_InitialCharge, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpChargePerVolume_CurrentChargePerKilobyte, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpChargePerVolume_CurrentChargePerKilobyte, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpChargePerVolume_NextChargePerKilobyte, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpChargePerVolume_NextChargePerKilobyte, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49307,7 +49307,7 @@ decode_org_csapi_dsc_TpDataSessionEventCriteria_st(tvbuff_t *tvb _U_, packet_inf
     /*  Begin struct "org_csapi_TpAddressRange"  */
     decode_org_csapi_TpAddressRange_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddressRange"  */
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionEventCriteria_DataSessionEventName, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpDataSessionEventCriteria_DataSessionEventName, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionEventCriteria_MonitorMode, tvb, *offset-4, 4, u_octet4);
@@ -49329,7 +49329,7 @@ decode_org_csapi_dsc_TpDataSessionEventInfo_st(tvbuff_t *tvb _U_, packet_info *p
     /*  Begin struct "org_csapi_TpAddress"  */
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionEventInfo_DataSessionEventName, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpDataSessionEventInfo_DataSessionEventName, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionEventInfo_MonitorMode, tvb, *offset-4, 4, u_octet4);
@@ -49344,9 +49344,9 @@ static void
 decode_org_csapi_dsc_TpDataSessionReleaseCause_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionReleaseCause_Value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpDataSessionReleaseCause_Value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionReleaseCause_Location, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpDataSessionReleaseCause_Location, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49396,9 +49396,9 @@ static void
 decode_org_csapi_dsc_TpDataSessionSuperviseVolume_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionSuperviseVolume_VolumeQuantity, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpDataSessionSuperviseVolume_VolumeQuantity, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionSuperviseVolume_VolumeUnit, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpDataSessionSuperviseVolume_VolumeUnit, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49410,7 +49410,7 @@ decode_org_csapi_dsc_TpDataSessionEventCriteriaResult_st(tvbuff_t *tvb _U_, pack
     /*  Begin struct "org_csapi_dsc_TpDataSessionEventCriteria"  */
     decode_org_csapi_dsc_TpDataSessionEventCriteria_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_dsc_TpDataSessionEventCriteria"  */
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionEventCriteriaResult_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpDataSessionEventCriteriaResult_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49421,7 +49421,7 @@ decode_org_csapi_dsc_TpDataSessionIdentifier_st(tvbuff_t *tvb _U_, packet_info *
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionIdentifier_DataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpDataSessionIdentifier_DataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49437,7 +49437,7 @@ decode_org_csapi_gms_TpGMSNewMessageArrivedInfo_st(tvbuff_t *tvb _U_, packet_inf
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_TpGMSNewMessageArrivedInfo_MessageID);
 
-    proto_tree_add_uint(tree, hf_org_csapi_gms_TpGMSNewMessageArrivedInfo_NumberOfProperties, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_gms_TpGMSNewMessageArrivedInfo_NumberOfProperties, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49460,7 +49460,7 @@ decode_org_csapi_gms_TpMailboxIdentifier_st(tvbuff_t *tvb _U_, packet_info *pinf
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_gms_TpMailboxIdentifier_SessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_gms_TpMailboxIdentifier_SessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49471,7 +49471,7 @@ decode_org_csapi_gms_TpMailboxFolderIdentifier_st(tvbuff_t *tvb _U_, packet_info
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_gms_TpMailboxFolderIdentifier_SessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_gms_TpMailboxFolderIdentifier_SessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49480,7 +49480,7 @@ static void
 decode_org_csapi_cm_TpNameDescrpTagTimePeriod_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagTimePeriod_duration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cm_TpNameDescrpTagTimePeriod_duration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49540,7 +49540,7 @@ decode_org_csapi_cm_TpNameDescrpTagMonth_st(tvbuff_t *tvb _U_, packet_info *pinf
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagMonth_tag, tvb, *offset-4, 4, u_octet4);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagMonth_value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cm_TpNameDescrpTagMonth_value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49560,7 +49560,7 @@ decode_org_csapi_cm_TpNameDescrpTagInt_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagInt_tag, tvb, *offset-4, 4, u_octet4);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagInt_value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cm_TpNameDescrpTagInt_value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49601,7 +49601,7 @@ decode_org_csapi_cm_TpNameDescrpTagDayOfWeek_st(tvbuff_t *tvb _U_, packet_info *
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagDayOfWeek_tag, tvb, *offset-4, 4, u_octet4);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagDayOfWeek_value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cm_TpNameDescrpTagDayOfWeek_value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -49882,11 +49882,11 @@ decode_org_csapi_am_TpBalanceInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_am_TpBalanceInfo_Currency);
 
-    proto_tree_add_uint(tree, hf_org_csapi_am_TpBalanceInfo_ValuePartA, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_am_TpBalanceInfo_ValuePartA, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_am_TpBalanceInfo_ValuePartB, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_am_TpBalanceInfo_ValuePartB, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_am_TpBalanceInfo_Exponent, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_am_TpBalanceInfo_Exponent, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_am_TpBalanceInfo_AdditionalInfo);
 
@@ -49936,7 +49936,7 @@ static void
 decode_org_csapi_am_TpTransactionHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_am_TpTransactionHistory_TransactionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_am_TpTransactionHistory_TransactionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_am_TpTransactionHistory_TimeStamp);
 
@@ -49987,7 +49987,7 @@ decode_org_csapi_am_TpChargingEventCriteriaResult_st(tvbuff_t *tvb _U_, packet_i
     /*  Begin struct "org_csapi_am_TpChargingEventCriteria"  */
     decode_org_csapi_am_TpChargingEventCriteria_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_am_TpChargingEventCriteria"  */
-    proto_tree_add_uint(tree, hf_org_csapi_am_TpChargingEventCriteriaResult_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_am_TpChargingEventCriteriaResult_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -50015,7 +50015,7 @@ static void
 decode_org_csapi_am_TpVoucher_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_am_TpVoucher_VoucherID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_am_TpVoucher_VoucherID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     /*  Begin struct "org_csapi_TpAddress"  */
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -50032,7 +50032,7 @@ decode_org_csapi_cs_TpMerchantAccountID_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cs_TpMerchantAccountID_MerchantID);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cs_TpMerchantAccountID_AccountID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cs_TpMerchantAccountID_AccountID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -50041,9 +50041,9 @@ static void
 decode_org_csapi_cs_TpCorrelationID_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_cs_TpCorrelationID_CorrelationID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cs_TpCorrelationID_CorrelationID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_cs_TpCorrelationID_CorrelationType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cs_TpCorrelationID_CorrelationType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -50052,9 +50052,9 @@ static void
 decode_org_csapi_cs_TpAmount_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_cs_TpAmount_Number, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cs_TpAmount_Number, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_cs_TpAmount_Exponent, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cs_TpAmount_Exponent, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -50078,7 +50078,7 @@ decode_org_csapi_cs_TpVolume_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
     /*  Begin struct "org_csapi_cs_TpAmount"  */
     decode_org_csapi_cs_TpAmount_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_cs_TpAmount"  */
-    proto_tree_add_uint(tree, hf_org_csapi_cs_TpVolume_Unit, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cs_TpVolume_Unit, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -50089,9 +50089,9 @@ decode_org_csapi_cs_TpChargingSessionID_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_cs_TpChargingSessionID_ChargingSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cs_TpChargingSessionID_ChargingSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
-    proto_tree_add_uint(tree, hf_org_csapi_cs_TpChargingSessionID_RequestNumberFirstRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cs_TpChargingSessionID_RequestNumberFirstRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -50139,7 +50139,7 @@ static void
 decode_org_csapi_cs_TpChargingParameter_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_cs_TpChargingParameter_ParameterID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cs_TpChargingParameter_ParameterID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     /*  Begin union "org_csapi_cs_TpChargingParameterValue"  */
     
@@ -50158,7 +50158,7 @@ decode_org_csapi_policy_TpPolicyEvent_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     guint32   i_org_csapi_policy_TpPolicyEvent_Attributes;
     /* Operation specific Variable declarations End */
 
-    proto_tree_add_uint(tree, hf_org_csapi_policy_TpPolicyEvent_EventID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_policy_TpPolicyEvent_EventID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_TpPolicyEvent_TimeGenerated);
 
@@ -50271,7 +50271,7 @@ decode_org_csapi_policy_TpPolicyConditionListElement_st(tvbuff_t *tvb _U_, packe
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_policy_TpPolicyConditionListElement_GroupNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_policy_TpPolicyConditionListElement_GroupNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     proto_tree_add_boolean(tree, hf_org_csapi_policy_TpPolicyConditionListElement_Negated, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
@@ -50284,7 +50284,7 @@ decode_org_csapi_policy_TpPolicyActionListElement_st(tvbuff_t *tvb _U_, packet_i
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_policy_TpPolicyActionListElement_SequenceNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_policy_TpPolicyActionListElement_SequenceNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -50317,7 +50317,7 @@ decode_org_csapi_pam_TpPAMAttribute_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     decode_org_csapi_TpAttributeValue_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End union "org_csapi_TpAttributeValue"  */
-    proto_tree_add_uint64(tree, hf_org_csapi_pam_TpPAMAttribute_ExpiresIn, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int64(tree, hf_org_csapi_pam_TpPAMAttribute_ExpiresIn, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -50341,7 +50341,7 @@ decode_org_csapi_pam_TpPAMPresenceData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_TpPAMPresenceData_networkProvidedLocation);
 
-    proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMPresenceData_Priority, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_pam_TpPAMPresenceData_Priority, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_TpPAMPresenceData_otherInfo);
 
@@ -50922,7 +50922,7 @@ decode_org_csapi_pam_TpPAMACPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
     }
 
-    proto_tree_add_uint64(tree, hf_org_csapi_pam_TpPAMACPSEventData_ReportingPeriod, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int64(tree, hf_org_csapi_pam_TpPAMACPSEventData_ReportingPeriod, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -50992,7 +50992,7 @@ decode_org_csapi_pam_TpPAMAPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     }
 
-    proto_tree_add_uint64(tree, hf_org_csapi_pam_TpPAMAPSEventData_ReportingPeriod, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int64(tree, hf_org_csapi_pam_TpPAMAPSEventData_ReportingPeriod, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -51060,7 +51060,7 @@ decode_org_csapi_pam_TpPAMIPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     }
 
-    proto_tree_add_uint64(tree, hf_org_csapi_pam_TpPAMIPSEventData_ReportingPeriod, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int64(tree, hf_org_csapi_pam_TpPAMIPSEventData_ReportingPeriod, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -51141,7 +51141,7 @@ decode_org_csapi_pam_TpPAMAVCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     }
 
-    proto_tree_add_uint64(tree, hf_org_csapi_pam_TpPAMAVCEventData_ReportingPeriod, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int64(tree, hf_org_csapi_pam_TpPAMAVCEventData_ReportingPeriod, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -51212,7 +51212,7 @@ decode_org_csapi_pam_TpPAMWCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     }
 
-    proto_tree_add_uint64(tree, hf_org_csapi_pam_TpPAMWCEventData_ReportingPeriod, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int64(tree, hf_org_csapi_pam_TpPAMWCEventData_ReportingPeriod, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -51272,7 +51272,7 @@ decode_org_csapi_mmm_TpMailboxIdentifier_st(tvbuff_t *tvb _U_, packet_info *pinf
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMailboxIdentifier_SessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpMailboxIdentifier_SessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -51283,7 +51283,7 @@ decode_org_csapi_mmm_TpMultiMediaMessagingIdentifier_st(tvbuff_t *tvb _U_, packe
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMultiMediaMessagingIdentifier_SessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpMultiMediaMessagingIdentifier_SessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -51301,7 +51301,7 @@ static void
 decode_org_csapi_mmm_TpMailboxFolderStatusInformation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
 
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMailboxFolderStatusInformation_TotalMessageCount, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpMailboxFolderStatusInformation_TotalMessageCount, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -51334,7 +51334,7 @@ decode_org_csapi_mmm_TpMessageDescription_st(tvbuff_t *tvb _U_, packet_info *pin
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_TpMessageDescription_ReceivedDate);
 
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageDescription_Size, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpMessageDescription_Size, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -51345,7 +51345,7 @@ decode_org_csapi_mmm_TpBodyPartDescription_st(tvbuff_t *tvb _U_, packet_info *pi
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_TpBodyPartDescription_ContentDescription);
 
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpBodyPartDescription_ContentSize, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpBodyPartDescription_ContentSize, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_TpBodyPartDescription_ContentType);
 
@@ -51357,7 +51357,7 @@ decode_org_csapi_mmm_TpBodyPartDescription_st(tvbuff_t *tvb _U_, packet_info *pi
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_TpBodyPartDescription_PartID);
 
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpBodyPartDescription_NestingLevel, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpBodyPartDescription_NestingLevel, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -51472,7 +51472,7 @@ decode_org_csapi_mmm_TpQueryStatusReport_st(tvbuff_t *tvb _U_, packet_info *pinf
     /*  Begin struct "org_csapi_TpAddress"  */
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpQueryStatusReport_ReportedStatus, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpQueryStatusReport_ReportedStatus, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -51559,7 +51559,7 @@ decode_org_csapi_mmm_TpMessagingNotificationRequested_st(tvbuff_t *tvb _U_, pack
         /*  End union "org_csapi_mmm_TpMessagingEventCriteria"  */
     }
 
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessagingNotificationRequested_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpMessagingNotificationRequested_AssignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
 }
 
@@ -51771,7 +51771,7 @@ decode_org_csapi_TpSimpleAttributeValue_un(tvbuff_t *tvb _U_, packet_info *pinfo
 
     if (disc_s_TpSimpleAttributeValue == 6 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_TpSimpleAttributeValue_Int16Value, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_TpSimpleAttributeValue_Int16Value, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -51785,7 +51785,7 @@ decode_org_csapi_TpSimpleAttributeValue_un(tvbuff_t *tvb _U_, packet_info *pinfo
 
     if (disc_s_TpSimpleAttributeValue == 8 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_TpSimpleAttributeValue_Int32Value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_TpSimpleAttributeValue_Int32Value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -51799,7 +51799,7 @@ decode_org_csapi_TpSimpleAttributeValue_un(tvbuff_t *tvb _U_, packet_info *pinfo
 
     if (disc_s_TpSimpleAttributeValue == 10 ) {
 
-        proto_tree_add_uint64(tree, hf_org_csapi_TpSimpleAttributeValue_Int64Value, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int64(tree, hf_org_csapi_TpSimpleAttributeValue_Int64Value, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -52200,7 +52200,7 @@ decode_org_csapi_fw_TpMigrationAdditionalInfo_un(tvbuff_t *tvb _U_, packet_info 
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_fw_TpMigrationAdditionalInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_fw_TpMigrationAdditionalInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -52335,7 +52335,7 @@ decode_org_csapi_ui_TpUIVariableInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     if (disc_s_TpUIVariableInfo == 0 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIVariableInfo_VariablePartInteger, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_TpUIVariableInfo_VariablePartInteger, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -52404,7 +52404,7 @@ decode_org_csapi_ui_TpUIInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
     if (disc_s_TpUIInfo == 0 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIInfo_InfoID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_ui_TpUIInfo_InfoID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -52538,7 +52538,7 @@ decode_org_csapi_cc_TpCallAdditionalErrorInfo_un(tvbuff_t *tvb _U_, packet_info 
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAdditionalErrorInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_TpCallAdditionalErrorInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -52570,7 +52570,7 @@ decode_org_csapi_cc_TpCallLoadControlMechanism_un(tvbuff_t *tvb _U_, packet_info
 
     if (disc_s_TpCallLoadControlMechanism == 0 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallLoadControlMechanism_CallLoadControlPerInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_TpCallLoadControlMechanism_CallLoadControlPerInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -52614,7 +52614,7 @@ decode_org_csapi_cc_TpCallAdditionalTreatmentInfo_un(tvbuff_t *tvb _U_, packet_i
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAdditionalTreatmentInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_TpCallAdditionalTreatmentInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -52655,7 +52655,7 @@ decode_org_csapi_cc_TpCallPartyToChargeAdditionalInfo_un(tvbuff_t *tvb _U_, pack
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallPartyToChargeAdditionalInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_TpCallPartyToChargeAdditionalInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -52687,7 +52687,7 @@ decode_org_csapi_cc_gccs_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     if (disc_s_TpCallAppInfo == 1 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallAppInfo_CallAppAlertingMechanism, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallAppInfo_CallAppAlertingMechanism, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -52750,7 +52750,7 @@ decode_org_csapi_cc_gccs_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallAppInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallAppInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -52838,7 +52838,7 @@ decode_org_csapi_cc_gccs_TpCallAdditionalReportInfo_un(tvbuff_t *tvb _U_, packet
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallAdditionalReportInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallAdditionalReportInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -52870,7 +52870,7 @@ decode_org_csapi_cc_gccs_TpCallAdditionalReportCriteria_un(tvbuff_t *tvb _U_, pa
 
     if (disc_s_TpCallAdditionalReportCriteria == 5 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallAdditionalReportCriteria_NoAnswerDuration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallAdditionalReportCriteria_NoAnswerDuration, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -52886,7 +52886,7 @@ decode_org_csapi_cc_gccs_TpCallAdditionalReportCriteria_un(tvbuff_t *tvb _U_, pa
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallAdditionalReportCriteria_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallAdditionalReportCriteria_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -52975,7 +52975,7 @@ decode_org_csapi_cc_TpCallAdditionalEventInfo_un(tvbuff_t *tvb _U_, packet_info 
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAdditionalEventInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_TpCallAdditionalEventInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -53015,7 +53015,7 @@ decode_org_csapi_cc_TpAdditionalCallEventCriteria_un(tvbuff_t *tvb _U_, packet_i
 
     if (disc_s_TpAdditionalCallEventCriteria == 3 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_TpAdditionalCallEventCriteria_MinAddressLength, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_TpAdditionalCallEventCriteria_MinAddressLength, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -53083,7 +53083,7 @@ decode_org_csapi_cc_TpAdditionalCallEventCriteria_un(tvbuff_t *tvb _U_, packet_i
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_TpAdditionalCallEventCriteria_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_TpAdditionalCallEventCriteria_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -53117,7 +53117,7 @@ decode_org_csapi_cc_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     if (disc_s_TpCallAppInfo == 1 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAppInfo_CallAppAlertingMechanism, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_TpCallAppInfo_CallAppAlertingMechanism, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -53195,7 +53195,7 @@ decode_org_csapi_cc_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     if (disc_s_TpCallAppInfo == 11 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAppInfo_CallHighProbabilityCompletion, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_TpCallAppInfo_CallHighProbabilityCompletion, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -53218,7 +53218,7 @@ decode_org_csapi_cc_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAppInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_TpCallAppInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -53273,7 +53273,7 @@ decode_org_csapi_cc_mpccs_TpAppMultiPartyCallBack_un(tvbuff_t *tvb _U_, packet_i
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_TpAppMultiPartyCallBack_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_TpAppMultiPartyCallBack_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -53305,21 +53305,21 @@ decode_org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest_un(tvbuff_t *tvb _U_, pac
 
     if (disc_s_TpMediaStreamDataTypeRequest == 0 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest_Audio, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest_Audio, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMediaStreamDataTypeRequest == 1 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest_Video, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest_Video, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMediaStreamDataTypeRequest == 2 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest_Data, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest_Data, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -53375,7 +53375,7 @@ decode_org_csapi_cc_mmccs_TpAppMultiMediaCallBack_un(tvbuff_t *tvb _U_, packet_i
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpAppMultiMediaCallBack_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_TpAppMultiMediaCallBack_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -53424,7 +53424,7 @@ decode_org_csapi_cc_cccs_TpConfPolicy_un(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_TpConfPolicy_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_cc_cccs_TpConfPolicy_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -53506,7 +53506,7 @@ decode_org_csapi_mm_TpBindingEntry_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
     if (disc_s_TpBindingEntry == 1 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_mm_TpBindingEntry_UBExpires, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mm_TpBindingEntry_UBExpires, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -53529,7 +53529,7 @@ decode_org_csapi_mm_TpBindingEntry_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_mm_TpBindingEntry_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mm_TpBindingEntry_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -53611,7 +53611,7 @@ decode_org_csapi_dsc_TpDataSessionAdditionalErrorInfo_un(tvbuff_t *tvb _U_, pack
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionAdditionalErrorInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpDataSessionAdditionalErrorInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -53652,7 +53652,7 @@ decode_org_csapi_dsc_TpDataSessionAdditionalReportInfo_un(tvbuff_t *tvb _U_, pac
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionAdditionalReportInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_dsc_TpDataSessionAdditionalReportInfo_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -53751,7 +53751,7 @@ decode_org_csapi_gms_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
 
     if (disc_s_TpMessageInfoProperty == 10 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_gms_TpMessageInfoProperty_MessagingMessageSize, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_gms_TpMessageInfoProperty_MessagingMessageSize, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -53790,7 +53790,7 @@ decode_org_csapi_gms_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_gms_TpMessageInfoProperty_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_gms_TpMessageInfoProperty_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -53859,7 +53859,7 @@ decode_org_csapi_gms_TpMailboxInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_gms_TpMailboxInfoProperty_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_gms_TpMailboxInfoProperty_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -53941,7 +53941,7 @@ decode_org_csapi_gms_TpMessagingEventCriteria_un(tvbuff_t *tvb _U_, packet_info 
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_gms_TpMessagingEventCriteria_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_gms_TpMessagingEventCriteria_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -54009,7 +54009,7 @@ decode_org_csapi_gms_TpFolderInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_gms_TpFolderInfoProperty_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_gms_TpFolderInfoProperty_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -54043,7 +54043,7 @@ decode_org_csapi_cs_TpChargingParameterValue_un(tvbuff_t *tvb _U_, packet_info *
 
     if (disc_s_TpChargingParameterValue == 0 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_cs_TpChargingParameterValue_IntValue, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_cs_TpChargingParameterValue_IntValue, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -54217,7 +54217,7 @@ decode_org_csapi_pam_TpPAMContextData_un(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMContextData_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_pam_TpPAMContextData_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -54517,7 +54517,7 @@ decode_org_csapi_pam_TpPAMPreferenceData_un(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMPreferenceData_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_pam_TpPAMPreferenceData_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -54563,14 +54563,14 @@ decode_org_csapi_mmm_TpFolderInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pin
 
     if (disc_s_TpFolderInfoProperty == 3 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_TpFolderInfoProperty_FolderSize, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_TpFolderInfoProperty_FolderSize, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpFolderInfoProperty == 4 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_TpFolderInfoProperty_FolderNumberOfMessages, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_TpFolderInfoProperty_FolderNumberOfMessages, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -54578,7 +54578,7 @@ decode_org_csapi_mmm_TpFolderInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpFolderInfoProperty_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpFolderInfoProperty_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -54631,7 +54631,7 @@ decode_org_csapi_mmm_TpMailboxInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
 
     if (disc_s_TpMailboxInfoProperty == 4 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMailboxInfoProperty_MailboxSize, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_TpMailboxInfoProperty_MailboxSize, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -54639,7 +54639,7 @@ decode_org_csapi_mmm_TpMailboxInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMailboxInfoProperty_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpMailboxInfoProperty_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -54692,7 +54692,7 @@ decode_org_csapi_mmm_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
 
     if (disc_s_TpMessageInfoProperty == 4 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageInfoProperty_MessageSize, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_TpMessageInfoProperty_MessageSize, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -54708,7 +54708,7 @@ decode_org_csapi_mmm_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageInfoProperty_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpMessageInfoProperty_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -55025,7 +55025,7 @@ decode_org_csapi_mmm_TpDeliveryTime_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpDeliveryTime_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpDeliveryTime_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
@@ -55057,7 +55057,7 @@ decode_org_csapi_mmm_TpMessageTreatment_un(tvbuff_t *tvb _U_, packet_info *pinfo
 
     if (disc_s_TpMessageTreatment == 1 ) {
 
-        proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageTreatment_DeliveryReport, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+        proto_tree_add_int(tree, hf_org_csapi_mmm_TpMessageTreatment_DeliveryReport, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         return;     /* End Compare for this discriminant type */
     }
@@ -55131,7 +55131,7 @@ decode_org_csapi_mmm_TpMessagingEventCriteria_un(tvbuff_t *tvb _U_, packet_info 
     
     /* Default Union Case Start */
 
-    proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessagingEventCriteria_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+    proto_tree_add_int(tree, hf_org_csapi_mmm_TpMessagingEventCriteria_Dummy, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
     /* Default Union Case End */
 
