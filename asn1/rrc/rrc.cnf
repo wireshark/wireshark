@@ -685,11 +685,11 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
             }
             else{
                 /*If it doesnt exists, insert it*/
-                if( (cur_val=g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER(rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
+                if( (cur_val=g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
 
                     flowd_p = (guint*)g_malloc0(sizeof(gint));
                     *flowd_p = (1<<flowd);    /*Set the bit to mark it as true*/
-                    g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER(rrcinf->hrnti[actx->pinfo->fd->subnum]), flowd_p);
+                    g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]), flowd_p);
 
                 }else{
                     *cur_val = (1<<flowd) | *cur_val;
@@ -721,11 +721,11 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
             }
             else{
                 /*If it doesnt exists, insert it*/
-                if( (cur_val=g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER(rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
+                if( (cur_val=g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
 
                     flowd_p = (guint*)g_malloc0(sizeof(gint));
                     *flowd_p = (1<<flowd);    /* Set the bit to mark it as true*/
-                    g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER(rrcinf->hrnti[actx->pinfo->fd->subnum]), flowd_p);
+                    g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]), flowd_p);
 
                 }else{
                     *cur_val = (1<<flowd) | *cur_val;
