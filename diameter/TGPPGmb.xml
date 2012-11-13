@@ -15,8 +15,12 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="3GPP-PDP-Type" code="3" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Integer32"/>
-		</avp>
+      <type type-name="Enumerated"/>
+      <enum name="IPv4" code="0"/>
+      <enum name="PPP" code="1"/>
+      <enum name="IPv6" code="2"/>
+      <enum name="IPv4v6" code="3"/>
+    </avp>
 		<avp name="3GPP-CG-Address" code="4" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="IPAddress"/>
 		</avp>
