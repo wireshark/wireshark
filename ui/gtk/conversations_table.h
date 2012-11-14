@@ -75,6 +75,8 @@ typedef struct _conversations_table {
 
     gboolean    fixed_col;           /**< if switched to fixed column */
     gboolean    resolve_names;       /**< resolve address names? */
+
+    int         reselection_idx;     /**< conversation index to reselect */
 } conversations_table;
 
 /** Register the conversation table for the multiple conversation window.

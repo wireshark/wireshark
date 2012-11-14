@@ -2109,6 +2109,8 @@ draw_ct_table_data(conversations_table *ct)
 
             get_ct_table_address(ct, conversation, entries);
             conversation->iter_valid = TRUE;
+
+            /* All entries, including fixed ones */
             gtk_list_store_insert_with_values( store , &conversation->iter, G_MAXINT,
                   SRC_ADR_COLUMN,  entries[0],
                   SRC_PORT_COLUMN, entries[1],
@@ -2128,6 +2130,7 @@ draw_ct_table_data(conversations_table *ct)
                     -1);
         }
         else {
+            /* Only changable entries */
             gtk_list_store_set (store, &conversation->iter,
                   PACKETS_COLUMN,  conversation->tx_frames+conversation->rx_frames,
                   BYTES_COLUMN,    conversation->tx_bytes+conversation->rx_bytes,
@@ -2155,6 +2158,16 @@ draw_ct_table_data(conversations_table *ct)
 
         gtk_tree_view_set_model(GTK_TREE_VIEW(ct->table), GTK_TREE_MODEL(store));
         g_object_unref(store);
+    }
+
+    /* Restore conversation selection */
+    if (ct->conversations && ct->reselection_idx != -1) {
+        /* Look up the same conversation */
+        conv_t *conversation = &g_array_index(ct->conversations, conv_t, ct->reselection_idx);
+        if (conversation) {
+            gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(ct->table)),
+                                           &conversation->iter);
+        }
     }
 }
 
@@ -2506,6 +2519,9 @@ graph_cb(GtkWidget *follow_stream_bt, gboolean reverse_direction)
     else {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Unknown stream: %s", ct->name);
     }
+
+    /* Remember index of selected conversation you can try to restore after next redrawing */
+    ct->reselection_idx = idx;
 }
 
 
@@ -2572,6 +2588,9 @@ follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
         follow_udp_stream_cb(follow_stream_bt, data);
     else
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Unknown stream: %s", ct->name);
+
+    /* Remember index of selected conversation you can try to restore after next redrawing */
+    ct->reselection_idx = idx;
 }
 
 
@@ -2682,6 +2701,9 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
 
     g_signal_connect(conversations->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(conversations->win, "destroy", G_CALLBACK(ct_win_destroy_cb), conversations);
+
+    /* Initially there is no conversation selection to reselect */
+    conversations->reselection_idx = -1;
 
     gtk_widget_show_all(conversations->win);
     window_present(conversations->win);
