@@ -5539,11 +5539,11 @@
 			<enum name="Completion of Communication to Busy Subscriber (CCBS)" code="12"/>
 			<enum name="Completion of Communications on No Reply (CCNR)" code="13"/>
 			<enum name="Malicious Communication Identification (MCID)" code="14"/>
-			<enum name="Customized Alerting Tone” (CAT)" code="15"/>
-			<enum name="Closed User Group” (CUG)" code="16"/>
-			<enum name="Personal Network management” (PNM)" code="17"/>
-			<enum name="Customized Ringing Signal” (CRS)" code="18"/>
-			<enum name="Advice of Charge (AoC)”" code="19"/>
+			<enum name="Customized Alerting Tone (CAT)" code="15"/>
+			<enum name="Closed User Group (CUG)" code="16"/>
+			<enum name="Personal Network management (PNM)" code="17"/>
+			<enum name="Customized Ringing Signal (CRS)" code="18"/>
+			<enum name="Advice of Charge (AoC)" code="19"/>
 		</avp>
 		<avp name="Service-Mode" code="2032" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
@@ -5822,9 +5822,9 @@
 		<!-- The AVP is defined in OMA-DDS-Charging_Data -->
 		<avp name="DCD-Information" code="2115" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
-        <gavp name="Content-ID"/>
-        <gavp name="Content-provider-ID"/>
-      </grouped>
+				<gavp name="Content-ID"/>
+				<gavp name="Content-provider-ID"/>
+			</grouped>
 		 </avp>
 		<avp name="Content-ID" code="2116" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
