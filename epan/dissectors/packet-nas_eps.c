@@ -4812,6 +4812,11 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
+    if (g_nas_eps_dissect_plain) {
+        dissect_nas_eps_plain(tvb, pinfo, tree);
+        return;
+    }
+
     /* Save pinfo */
     gpinfo = pinfo;
 
@@ -4861,10 +4866,8 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* If pd is in plaintext this message probably isn't ciphered */
                 if ((pd != 7) && (pd != 15) &&
                     (((pd&0x0f) != 2) || (((pd&0x0f) == 2) && ((pd&0xf0) > 0) && ((pd&0xf0) < 0x50)))) {
-                    if(g_nas_eps_dissect_plain == TRUE) {
-                        proto_tree_add_text(nas_eps_tree, tvb, offset, len-6,"Ciphered message");
-                        return;
-                    }
+                    proto_tree_add_text(nas_eps_tree, tvb, offset, len-6,"Ciphered message");
+                    return;
                 }
             } else {
                 /* msg_auth_code == 0, probably not ciphered */
