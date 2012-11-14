@@ -43,7 +43,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
 import os
@@ -3198,6 +3198,16 @@ OCRetFlags			= val_string8("o_c_ret_flags", "Open Create Return Flags", [
 	[ 0x00, "No CallBack has been registered (No Op-Lock)" ],
 	[ 0x01, "Request has been registered for CallBack (Op-Lock)" ],
 ])
+OESServer			= val_string8("oes_server", "Type of Novell Server", [
+	[ 0x00, "NetWare" ],
+	[ 0x01, "OES" ],
+])
+
+OESLinuxOrNetWare			= val_string8("oeslinux_or_netware", "Kernel Type", [
+	[ 0x00, "NetWare" ],
+	[ 0x01, "Linux" ],
+])
+
 OldestDeletedFileAgeInTicks	= uint32("oldest_deleted_file_age_in_ticks", "Oldest Deleted File Age in Ticks")
 OldFileName			= bytes("old_file_name", "Old File Name", 15)
 OldFileSize			= uint32("old_file_size", "Old File Size")
@@ -5716,12 +5726,10 @@ def produce_code():
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <string.h>
 #include <glib.h>
@@ -9580,7 +9588,9 @@ def define_ncp2222():
 		rec( 82, 2, ProductRevisionVersion, BE ),
 		rec( 84, 1, OSLanguageID, LE ),
 		rec( 85, 1, SixtyFourBitOffsetsSupportedFlag ),
-		rec( 86, 50, Reserved50 ),
+		rec( 86, 1, OESServer ),
+		rec( 87, 1, OESLinuxOrNetWare ),
+		rec( 88, 48, Reserved48 ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9600])
 	# 2222/1712, 23/18

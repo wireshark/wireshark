@@ -21,12 +21,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>
@@ -527,10 +525,10 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         {
             switch (subverb) {
             case 0:             /* Fragmented Ping */
-                proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(atree, hf_session_ident, tvb, foffset, 4, ENC_BIG_ENDIAN);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
-                foffset += 4;
+                /*proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
+                foffset += 4;*/
                 break;
             case 2:             /* Client Put Data */
                 proto_tree_add_item(atree, hf_squeue_bytes, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
