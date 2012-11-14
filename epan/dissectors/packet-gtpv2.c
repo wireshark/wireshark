@@ -2035,6 +2035,10 @@ static const value_string gtpv2_f_teid_interface_type_vals[] = {
     {31, "S2b-U ePDG GTP-U interface"},
     {32, "S2b PGW GTP-C interface"},
     {33, "S2b-U PGW GTP-U interface"},
+    {34, "S2a TWAN GTP-U interface"},
+    {35, "S2a TWAN GTP-C interface"},
+    {36, "S2a PGW GTP-C interface"},
+    {37, "S2a PGW GTP-U interface"},
     {0, NULL}
 };
 static value_string_ext gtpv2_f_teid_interface_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_f_teid_interface_type_vals);
@@ -2058,12 +2062,16 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
     flags = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_f_teid_v4, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_f_teid_v6, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* NOTE: 	"Interface type" IE is defined with 5 bits only in the earlier releases of this specification, 
+     * thus pre-Rel-10 GTPv2-C nodes can ignore bit "6" which is marked as "Spare" in earlier releases, 
+     * allowing backward compatibility.
+     */
     proto_tree_add_item(tree, hf_gtpv2_f_teid_interface_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     proto_tree_add_item(tree, hf_gtpv2_f_teid_gre_key, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%s, TEID/GRE Key: 0x%s",
-                           val_to_str_ext_const((flags & 0x1f), &gtpv2_f_teid_interface_type_vals_ext, "Unknown"),
+                           val_to_str_ext_const((flags & 0x3f), &gtpv2_f_teid_interface_type_vals_ext, "Unknown"),
                            tvb_bytes_to_str(tvb, offset, 4));
 
     offset= offset+4;
@@ -6092,7 +6100,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_f_teid_interface_type,
          {"Interface Type", "gtpv2.f_teid_interface_type",
-          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_f_teid_interface_type_vals_ext, 0x1f,
+          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_f_teid_interface_type_vals_ext, 0x3f,
           NULL , HFILL}
         },
         {&hf_gtpv2_f_teid_gre_key,
