@@ -672,6 +672,10 @@ nbap_dch_chnl_info[commontransportchannelid].next_dch = 0;
  
 #.FN_BODY HSDSCH-MACdFlow-ID VAL_PTR = &hsdsch_macdflow_id
 %(DEFAULT_BODY)s
+
+DISSECTOR_ASSERT(num_items < maxNrOfMACdFlows+1);
+DISSECTOR_ASSERT(num_items > 0);
+
 hsdsch_macdflow_ids[num_items-1] = hsdsch_macdflow_id;
 
 #.FN_BODY BindingID VAL_PTR = &parameter_tvb
@@ -1270,7 +1274,13 @@ BindingID_port = 0;
                 /*Saving port/flow map based on context id for future reconfigurations*/
                 nbap_edch_port_info->crnc_port[e_dch_macdflow_id] = BindingID_port;
                 /*Ip address might be useful as well*/
-                nbap_edch_port_info->crnc_address = transportLayerAddress_ipv4;
+	            nbap_edch_port_info->crnc_address = transportLayerAddress_ipv4;
+	
+				nbap_debug3("Frame %%u RL-Specific-E-DCH-Information-Item: g_tree_insert(edch_flow_port_map) IP %%s Port %%u", 
+					actx->pinfo->fd->num, 
+					ep_address_to_str(&dst_addr),
+					BindingID_port);
+
                 g_tree_insert(edch_flow_port_map, GINT_TO_POINTER((gint)umts_fp_conversation_info->com_context_id), nbap_edch_port_info);
                 
         
@@ -1341,7 +1351,7 @@ guint32 no_ddi_entries, i;
 #.FN_BODY E-DCH-FDD-Information-to-Modify
 
 address     dst_addr, null_addr;
-conversation_t *conversation,*old_conversation;
+conversation_t *conversation,*old_conversation = NULL;
 umts_fp_conversation_info_t *umts_fp_conversation_info _U_;
 
 transportLayerAddress_ipv4 = 0;
@@ -1353,7 +1363,6 @@ BindingID_port = 0;
         {
             return offset;
         }
-        
         /*
          * Basically the idea here is that we create a new converation (Which is ok? maybe?)
          * And then hijack the old conversation and let lower tree items configure that hijacked data.
@@ -1368,6 +1377,19 @@ BindingID_port = 0;
         old_conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
             &null_addr, PT_UDP, BindingID_port,
             0, NO_ADDR_B|NO_PORT_B);
+
+		if(old_conversation){
+			nbap_debug3("Frame %%u E-DCH-FDD-Information-to-Modify: found old conv on IP %%s Port %%u", 
+				actx->pinfo->fd->num, 
+				ep_address_to_str(&dst_addr),
+				BindingID_port);
+		}else{
+			nbap_debug3("Frame %%u E-DCH-FDD-Information-to-Modify: Did not find old conv on IP %%s Port %%u", 
+				actx->pinfo->fd->num, 
+				ep_address_to_str(&dst_addr),
+				BindingID_port);
+		}
+        return offset;
             
             /* It's not part of any conversation - create a new one. */
         conversation = conversation_new(actx->pinfo->fd->num, &dst_addr,
@@ -1454,7 +1476,11 @@ num_items = 1;
   }
   /*Set the appropriate port, cheat and use same variable.*/
   BindingID_port = old_info->crnc_port[e_dch_macdflow_id];
-  /*TODO: Fix this for ipv6 aswell!*/
+  nbap_debug2("Frame %%u E-DCH-MACdFlow-Specific-InfoItem-to-Modify: Port %%u loaded from old_info->crnc_port[e_dch_macdflow_id]",
+		actx->pinfo->fd->num,
+		BindingID_port);
+
+  /*TODO: Fix this for ipv6 as well!*/
   transportLayerAddress_ipv4 =  old_info->crnc_address;
   
   /*Do the configurations*/
@@ -1596,6 +1622,21 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
 %(DEFAULT_BODY)s
             break;
         }
+
+# Make sure num_items isn't 0 when accessing HSDSCH-MACdFlow-ID
+#
+#.FN_HDR HSDSCH-MACdFlows-to-Delete-Item
+    num_items++;
+
+#.FN_HDR PriorityQueue-InfoItem
+    num_items++;
+
+#.FN_HDR PriorityQueue-InfoItem-to-Add
+    num_items = 1;
+
+#.FN_HDR HSDSCH-MACdFlow-Specific-InformationResp-Item
+    num_items++;
+
 #.FN_BODY HSDSCH-MACdFlow-Specific-InfoItem
 
 
@@ -1678,7 +1719,8 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
     for (i = 0; i < maxNrOfMACdFlows; i++) {
         if (nbap_hsdsch_channel_info[i].crnc_port != 0){
-            nbap_debug3("HSDSCH-MACdFlows-Information:hsdsch_macdflow_id %%u Look for conv on IP %%s Port %%u", 
+            nbap_debug4("Frame %%u HSDSCH-MACdFlows-Information:hsdsch_macdflow_id %%u Look for conv on IP %%s Port %%u",
+						actx->pinfo->fd->num,
                         i, 
                         ep_address_to_str (&(nbap_hsdsch_channel_info[i].crnc_address)),
                         nbap_hsdsch_channel_info[i].crnc_port);
@@ -1689,7 +1731,7 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
             
             if (conversation == NULL) {
                 /* It's not part of any conversation - create a new one. */
-                nbap_debug1("HSDSCH-MACdFlows-Information:Set up conv on Port %%u",nbap_hsdsch_channel_info[i].crnc_port);
+                nbap_debug2("Frame %%u HSDSCH-MACdFlows-Information: Set up conv on Port %%u", actx->pinfo->fd->num, nbap_hsdsch_channel_info[i].crnc_port);
                 conversation = conversation_new(actx->pinfo->fd->num, &(nbap_hsdsch_channel_info[i].crnc_address),
                     &null_addr, PT_UDP, nbap_hsdsch_channel_info[i].crnc_port,
                     0, NO_ADDR2|NO_PORT2);
@@ -1738,8 +1780,6 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
     }
 
 #.FN_BODY HSDSCH-MACdFlow-Specific-InfoItem-to-Modify
-
-
     address     dst_addr;
     transportLayerAddress_ipv4 = 0;
     BindingID_port = 0;
@@ -1793,7 +1833,8 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
     for (i = 0; i < maxNrOfMACdFlows; i++) {
         if (nbap_hsdsch_channel_info[i].crnc_port != 0){
-            nbap_debug3("HSDSCH-MACdFlows-Information:hsdsch_macdflow_id %%u Look for conv on IP %%s Port %%u", 
+            nbap_debug4("HSDSCH-MACdFlows-Information:Frame %%u hsdsch_macdflow_id %%u Look for conv on IP %%s Port %%u",
+						actx->pinfo->fd->num,
                         i, 
                         ep_address_to_str (&(nbap_hsdsch_channel_info[i].crnc_address)),
                         nbap_hsdsch_channel_info[i].crnc_port);
@@ -1804,7 +1845,9 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
             
             if (conversation == NULL) {
                 /* It's not part of any conversation - create a new one. */
-                nbap_debug1("HSDSCH-MACdFlows-Information:Set up conv on Port %%u",nbap_hsdsch_channel_info[i].crnc_port);
+                nbap_debug2("Frame %%u HSDSCH-MACdFlows-Information:Set up conv on Port %%u",
+					actx->pinfo->fd->num,
+					nbap_hsdsch_channel_info[i].crnc_port);
                 conversation = conversation_new(actx->pinfo->fd->num, &(nbap_hsdsch_channel_info[i].crnc_address),
                     &null_addr, PT_UDP, nbap_hsdsch_channel_info[i].crnc_port,
                     0, NO_ADDR2|NO_PORT2);
@@ -1914,6 +1957,9 @@ int i;
     }
 %(DEFAULT_BODY)s
 
+    if (actx->pinfo->fd->flags.visited){
+        return offset;
+    }
     /* Set port to zero use that as an indication of wether we have data or not */
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
     for (i = 0; i < maxNrOfCommonMACFlows; i++) {
@@ -1980,7 +2026,12 @@ crcn_context_present = TRUE;
 nbap_com_context_id *cur_val;
 
 %(DEFAULT_BODY)s
-    /*If both are avaible we can update the map*/
+
+    if (actx->pinfo->fd->flags.visited){
+        return offset;
+    }
+
+   /*If both are avaible we can update the map*/
 if(crcn_context_present){
                 if( (cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) == NULL ){
                     
@@ -1999,6 +2050,10 @@ conversation_t   *conversation = NULL;
 int i;
 
 %(DEFAULT_BODY)s
+
+    if (actx->pinfo->fd->flags.visited){
+        return offset;
+    }
 
     /*Find the conversations assoicated with the HS-DSCH flows in this packet and set proper H-RNTI*/
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);

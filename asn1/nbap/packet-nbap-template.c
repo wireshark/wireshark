@@ -63,11 +63,13 @@
 #define nbap_debug1(str,p1) g_warning(str,p1)
 #define nbap_debug2(str,p1,p2) g_warning(str,p1,p2)
 #define nbap_debug3(str,p1,p2,p3) g_warning(str,p1,p2,p3)
+#define nbap_debug4(str,p1,p2,p3,p4) g_warning(str,p1,p2,p3,p4)
 #else
 #define nbap_debug0(str)
 #define nbap_debug1(str,p1)
 #define nbap_debug2(str,p1,p2)
 #define nbap_debug3(str,p1,p2,p3)
+#define nbap_debug4(str,p1,p2,p3,p4)
 #endif
 
 /* Global variables */
@@ -522,8 +524,8 @@ void proto_register_nbap(void)
 }
 
 /*
-#define	EXTRA_PPI 1
-*/
+ * #define	EXTRA_PPI 1
+ */
 /*--- proto_reg_handoff_nbap ---------------------------------------*/
 void
 proto_reg_handoff_nbap(void)
