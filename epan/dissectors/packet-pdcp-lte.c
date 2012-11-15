@@ -431,19 +431,23 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
             PROTO_ITEM_SET_GENERATED(ti);
             if (p->lastSN != p->firstSN) {
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                       "PDCP SNs (%u to %u) missing for %s on UE %u",
+                                       "PDCP SNs (%u to %u) missing for %s on UE %u (%s-%u)",
                                        p->firstSN, p->lastSN,
                                        val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
-                                       p_pdcp_lte_info->ueid);
+                                       p_pdcp_lte_info->ueid,
+                                       val_to_str_const(p_pdcp_lte_info->channelType, logical_channel_vals, "Unknown"),
+                                       p_pdcp_lte_info->channelId);
                 proto_item_append_text(seqnum_ti, " - SNs missing (%u to %u)",
                                        p->firstSN, p->lastSN);
             }
             else {
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                       "PDCP SN (%u) missing for %s on UE %u",
+                                       "PDCP SN (%u) missing for %s on UE %u (%s-%u)",
                                        p->firstSN,
                                        val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
-                                       p_pdcp_lte_info->ueid);
+                                       p_pdcp_lte_info->ueid,
+                                       val_to_str_const(p_pdcp_lte_info->channelType, logical_channel_vals, "Unknown"),
+                                       p_pdcp_lte_info->channelId);
                 proto_item_append_text(seqnum_ti, " - SN missing (%u)",
                                        p->firstSN);
             }
@@ -457,10 +461,12 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                         tvb, 0, 0, TRUE);
             PROTO_ITEM_SET_GENERATED(ti);
             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                   "PDCP SN (%u) repeated for %s for UE %u",
+                                   "PDCP SN (%u) repeated for %s for UE %u (%s-%u)",
                                    p->firstSN,
                                    val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
-                                   p_pdcp_lte_info->ueid);
+                                   p_pdcp_lte_info->ueid,
+                                   val_to_str_const(p_pdcp_lte_info->channelType, logical_channel_vals, "Unknown"),
+                                   p_pdcp_lte_info->channelId);
             proto_item_append_text(seqnum_ti, "- SN %u Repeated",
                                    p->firstSN);
             break;
@@ -468,9 +474,12 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
         default:
             /* Incorrect sequence number */
             expert_add_info_format(pinfo, ti_expected_sn, PI_SEQUENCE, PI_WARN,
-                                   "Wrong Sequence Number for %s on UE %u - got %u, expected %u",
+                                   "Wrong Sequence Number for %s on UE %u (%s-%u) - got %u, expected %u",
                                    val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
-                                   p_pdcp_lte_info->ueid, sequenceNumber, p->sequenceExpected);
+                                   p_pdcp_lte_info->ueid,
+                                   val_to_str_const(p_pdcp_lte_info->channelType, logical_channel_vals, "Unknown"),
+                                   p_pdcp_lte_info->channelId,
+                                   sequenceNumber, p->sequenceExpected);
             break;
     }
 }
