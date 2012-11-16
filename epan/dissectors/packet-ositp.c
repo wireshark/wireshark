@@ -198,6 +198,18 @@ static const value_string class_option_vals[] = {
    number of octets? */
 #define is_LI_NORMAL_AK(p)               ( ( p & 0x01 ) == 0 )
 
+/* modified TPDU length indicators due to ATN extended checksum */
+#define LI_ATN_NORMAL_DT_WITH_CHECKSUM       10 /* ATN 4 octet extended checksum adds 2 octets */  
+#define LI_ATN_EXTENDED_DT_WITH_CHECKSUM     13 /* ATN 4 octet extended checksum adds 2 octets */
+#define LI_ATN_NORMAL_EA_WITH_CHECKSUM       10 /* ATN 4 octet extended checksum adds 2 octets */
+#define LI_ATN_EXTENDED_EA_WITH_CHECKSUM     13 /* ATN 4 octet extended checksum adds 2 octets */
+#define LI_ATN_NORMAL_RJ                     6  /* ATN 4 octet extended checksum adds 2 octets */
+#define LI_ATN_EXTENDED_RJ                   11 /* ATN 4 octet extended checksum adds 2 octets */
+#define LI_ATN_MAX_DC                        11 /* ATN 4 octet extended checksum adds 2 octets */ 
+#define LI_ATN_MAX_AK                        30 /* ATN 4 octet extended checksum adds 2 octets */
+#define LI_ATN_MAX_EA                        13 /* ATN 4 octet extended checksum adds 2 octets */
+#define LI_ATN_MAX_ER			 									 10 /* ATN 4 octet extended checksum adds 2 octets */
+
 /* variant part */
 
 #define VP_ACK_TIME     	0x85
@@ -219,7 +231,23 @@ static const value_string class_option_vals[] = {
 #define VP_PREF_MAX_TPDU_SIZE  	0xF0
 #define VP_INACTIVITY_TIMER  	0xF2
 
+/* ATN */
+/* Parameter codes with bits 7 and 8 are explicitly not */
+/* assigned by ISO/IEC 8073, nor is their use precluded. */
+/* Parameter codes for ATN defined in ICAO doc 9507 Ed3 SV 5 section 5.5.2.4.3.1 */
+#define VP_ATN_EC_32              0x08         /* 4 octet ATN Extended Transport Checksum parameter */ 
+#define VP_ATN_EC_16              0x09         /* 2 octet ATN Extended Transport Checksum parameter */ 
+/* ATN end */
+
+/* pseudo-trailer for ATN extended checksums on TP4 layer*/
+/* the checksum is calculated from the TPDU as well als */
+/* dst  NSAP length, dst  NSAP, src  NSAP length and src NSAP as encoded in CLNP PDU*/
+extern guint     clnp_pt_len;           /* length of dst-len + dst-nsap + src-len + src-nsap  */
+extern guint8    clnp_pt_buffer[42];      /* buffer containing CLNP pseudoheader */
+
 static const value_string tp_vpart_type_vals[] = {
+	{ VP_ATN_EC_16,   "ATN extended checksum - 16 bit" }, 
+  { VP_ATN_EC_32,   "ATN extended checksum - 32 bit" }, 
   { VP_ACK_TIME,		"ack time" },
   { VP_RES_ERROR,		"res error" },
   { VP_PRIORITY,		"priority" },
@@ -237,8 +265,15 @@ static const value_string tp_vpart_type_vals[] = {
   { VP_OPT_SEL,			"options" },
   { VP_PROTO_CLASS,		"proto class" },
   { VP_PREF_MAX_TPDU_SIZE,	"preferred max TPDU size" },
+  { VP_INACTIVITY_TIMER,        "inactivity timer" },   
   { 0,				NULL }
 };
+
+static const value_string tp_vpart_checksum_vals[] = {
+  { FALSE,                 "incorrect" }, 
+  { TRUE,                  "correct" }
+};
+
 
 static int hf_cotp_vp_src_tsap = -1;
 static int hf_cotp_vp_dst_tsap = -1;
@@ -272,6 +307,8 @@ static gboolean   cotp_last_fragment = FALSE;
 /* options */
 static gboolean cotp_reassemble = TRUE;
 static gint32   tsap_display = TSAP_DISPLAY_AUTO;
+static gboolean cotp_decode_atn = TRUE;
+
 
 const enum_val_t tsap_display_options[] = {
   {"auto", "As strings if printable", TSAP_DISPLAY_AUTO},
@@ -284,6 +321,7 @@ const enum_val_t tsap_display_options[] = {
 /* function definitions */
 
 #define MAX_TSAP_LEN	32
+
 
 static void cotp_frame_end(void)
 {
@@ -352,9 +390,18 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
   guint8  c1;
   guint16 s, s1,s2,s3,s4;
   guint32 t1, t2, t3, t4;
+	guint32 offset_iso8073_checksum = 0;
+	gint32 i = 0;
+  guint16 tdpu_length = 0; 	
+  guint8 tmp_code = 0;
+  guint tmp_len = 0;
+  guint   checksum_ok = 0;
   guint32 pref_max_tpdu_size;
   proto_item *hidden_item;
 
+	/* TDPU length needed for ATN checksum calculations */
+	tdpu_length = offset + vp_length + tvb_length_remaining(tvb, offset + vp_length);  
+	
   while (vp_length != 0) {
     code = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 1,
@@ -373,6 +420,58 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
     vp_length -= 1;
 
     switch (code) {
+      case VP_ATN_EC_16 : /* ATN */
+				if (cotp_decode_atn) {
+					/* if an alternate OSI checksum is present in the currently unprocessed VP section to the checksum algorithm has to know */
+					/* this may be the case for backward compatible CR TDPU */
+					if(!offset_iso8073_checksum){ 
+						/* search following parameters in VP part for ISO checksum */
+						for( i = ( offset + length ); i < vp_length; ){
+							tmp_code = tvb_get_guint8(tvb, i++);
+							tmp_len = tvb_get_guint8(tvb, i++);
+							if (tmp_code == VP_CHECKSUM ){
+								offset_iso8073_checksum = i; /* save ISO 8073 checksum offset for ATN extended checksum calculation */
+								break;
+							}
+							i += tmp_len; }
+					}
+					checksum_ok = check_atn_ec_16(tvb, tdpu_length, offset, offset_iso8073_checksum, clnp_pt_len, (guint8 *) &clnp_pt_buffer);
+					proto_tree_add_text(tree, tvb, offset, length,
+			      "ATN extended checksum : 0x%04x (%s)", 
+                              tvb_get_ntohs(tvb, offset),
+                              val_to_str(checksum_ok, tp_vpart_checksum_vals, "?"));
+				}else {
+					proto_tree_add_text(tree, tvb, offset, length,"Parameter value: <not shown>");
+				}
+      offset += length;
+      vp_length -= length;
+      break;
+
+     case VP_ATN_EC_32 : /* ATN */
+			 if (cotp_decode_atn) {
+				/* if an alternate OSI checksum is present in the currently unprocessed VP section the checksum algorithm has to know */
+				/* this may be the case for backward compatible CR TDPU */
+				if(!offset_iso8073_checksum){ 
+					/* search following parameters in VP part for ISO checksum */
+					for( i = ( offset + length ); i < vp_length; ){
+						tmp_code = tvb_get_guint8(tvb, i++);
+						tmp_len = tvb_get_guint8(tvb, i++);
+						if (tmp_code == VP_CHECKSUM ){
+							offset_iso8073_checksum = i; /* save ISO 8073 checksum offset for ATN extended checksum calculation */
+							break;}
+						i += tmp_len; }
+					}
+					checksum_ok = check_atn_ec_32(tvb, tdpu_length, offset, offset_iso8073_checksum, clnp_pt_len, (guint8 *) &clnp_pt_buffer);
+					proto_tree_add_text(tree, tvb, offset, length,
+							"ATN extended checksum : 0x%08x (%s)", 
+                              tvb_get_ntohl(tvb, offset),
+                              val_to_str(checksum_ok, tp_vpart_checksum_vals, "?"));
+				}else {
+					proto_tree_add_text(tree, tvb, offset, length,"Parameter value: <not shown>");
+				}
+				offset += length;
+				vp_length -= length;
+				break;
 
     case VP_ACK_TIME:
       s = tvb_get_ntohs(tvb, offset);
@@ -585,8 +684,10 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
       break;
 
     case VP_CHECKSUM:
+			offset_iso8073_checksum = offset; /* save ISO 8073 checksum offset for ATN extended checksum calculation */
+			checksum_ok = calc_checksum(tvb, 0, tdpu_length, tvb_get_ntohs(tvb, offset));
       proto_tree_add_text(tree, tvb, offset, length,
-		"Checksum: 0x%04x", tvb_get_ntohs(tvb, offset));
+		"Checksum: 0x%04x (%s)", tvb_get_ntohs(tvb, offset),val_to_str( (checksum_ok == CKSUM_OK) ? TRUE : FALSE , tp_vpart_checksum_vals, "?"));
       offset += length;
       vp_length -= length;
       break;
@@ -697,10 +798,11 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   guint16 dst_ref, src_ref;
   guchar  reason;
   const char *str;
-
+  
+	/* ATN TPDU's tend to be larger than normal OSI, so nothing to do with respect to LI checks */
   if (li < LI_MIN_DR)
     return -1;
-
+  	
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
@@ -753,6 +855,11 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			"Cause: %s", str);
   }
 
+	/* decode VP */
+  if (tree) {
+    ositp_decode_var_part(tvb, offset + P_REASON_IN_DR + 1, li - P_REASON_IN_DR  , 4, cotp_tree);
+	}
+	
   offset += li + 1;
 
   expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_CHAT,
@@ -785,79 +892,185 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   fragment_data *fd_head;
   conversation_t *conv;
 
-  /* VP_CHECKSUM is the only parameter allowed in the variable part.
-     (This means we may misdissect this if the packet is bad and
-     contains other parameters.) */
-  switch (li) {
+	/* note: in the ATN the user is up to chose between 3 different checksums: */
+	/* standard OSI, 2 or 4 octet extended checksum. */
+	/* The differences for DT are that the TDPU headers may be enlarged by 2 octets */
+	/* and that checksum related option codes and option lengths are different.  */
+	/* to not mess up the original OSI dissector LI checking was implemented separately.  */
+	if (!cotp_decode_atn) { /* non ATN, plain OSI*/
 
-    case LI_NORMAL_DT_WITH_CHECKSUM      :
-      if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM)
-	return -1;
-      /* FALLTHROUGH */
+		/* VP_CHECKSUM is the only parameter allowed in the variable part.
+			(This means we may misdissect this if the packet is bad and
+			contains other parameters.) */
+		switch (li) {
 
-    case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
-      tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
-      if ( tpdu_nr & 0x80 )
-	tpdu_nr = tpdu_nr & 0x7F;
-      else
-	fragment = TRUE;
-      is_extended = FALSE;
-      is_class_234 = TRUE;
-      dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
-      break;
+			case LI_NORMAL_DT_WITH_CHECKSUM      :
+				if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM)
+		return -1;
+				/* FALLTHROUGH */
 
-    case LI_EXTENDED_DT_WITH_CHECKSUM    :
-      if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM)
-	return -1;
-      /* FALLTHROUGH */
+			case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80 )
+					tpdu_nr = tpdu_nr & 0x7F;
+				else
+					fragment = TRUE;
+				is_extended = FALSE;
+				is_class_234 = TRUE;
+				dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+				break;
 
-    case LI_EXTENDED_DT_WITHOUT_CHECKSUM :
-      tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
-      if ( tpdu_nr & 0x80000000 )
-	tpdu_nr = tpdu_nr & 0x7FFFFFFF;
-      else
-	fragment = TRUE;
-      is_extended = TRUE;
-      is_class_234 = TRUE;
-      dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
-      break;
+			case LI_EXTENDED_DT_WITH_CHECKSUM    :
+				if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM)
+					return -1;
+				/* FALLTHROUGH */
 
-    case LI_NORMAL_DT_CLASS_01           :
-      tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_0_1);
-      if ( tpdu_nr & 0x80 )
-	tpdu_nr = tpdu_nr & 0x7F;
-      else
-	fragment = TRUE;
-      is_extended = FALSE;
-      is_class_234 = FALSE;
-      prev_dst_ref = p_get_proto_data (pinfo->fd, proto_clnp);
-      if (!prev_dst_ref) {
-        /* First COTP in frame - save previous dst_ref as offset */
-        prev_dst_ref = se_alloc (sizeof (guint32));
-        *prev_dst_ref = cotp_dst_ref;
-        p_add_proto_data (pinfo->fd, proto_clnp, prev_dst_ref);
-      } else if (cotp_frame_reset) {
-        cotp_dst_ref = *prev_dst_ref;
-      }
-      cotp_frame_reset = FALSE;
-      cotp_last_fragment = fragment;
-      dst_ref = cotp_dst_ref;
-      conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-      if (conv) {
-        /* Found a conversation, also use index for the generated dst_ref */
-        dst_ref += (conv->index << 16);
-      }
-      if (!fragment) {
-        cotp_dst_ref++;
-        register_frame_end_routine(pinfo, cotp_frame_end);
-      }
-      break;
+			case LI_EXTENDED_DT_WITHOUT_CHECKSUM :
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80000000 )
+					tpdu_nr = tpdu_nr & 0x7FFFFFFF;
+				else
+					fragment = TRUE;
+				is_extended = TRUE;
+				is_class_234 = TRUE;
+				dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+				break;
 
-    default : /* bad TPDU */
-      return -1;
-  }
+			case LI_NORMAL_DT_CLASS_01           :
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_0_1);
+				if ( tpdu_nr & 0x80 )
+					tpdu_nr = tpdu_nr & 0x7F;
+				else
+					fragment = TRUE;
+				is_extended = FALSE;
+				is_class_234 = FALSE;
+				prev_dst_ref = p_get_proto_data (pinfo->fd, proto_clnp);
+				if (!prev_dst_ref) {
+					/* First COTP in frame - save previous dst_ref as offset */
+					prev_dst_ref = se_alloc (sizeof (guint32));
+					*prev_dst_ref = cotp_dst_ref;
+					p_add_proto_data (pinfo->fd, proto_clnp, prev_dst_ref);
+				} else if (cotp_frame_reset) {
+					cotp_dst_ref = *prev_dst_ref;
+				}
+				cotp_frame_reset = FALSE;
+				cotp_last_fragment = fragment;
+				dst_ref = cotp_dst_ref;
+				conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
+																	pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+				if (conv) {
+					/* Found a conversation, also use index for the generated dst_ref */
+					dst_ref += (conv->index << 16);
+				}
+				if (!fragment) {
+					cotp_dst_ref++;
+					register_frame_end_routine(pinfo, cotp_frame_end);
+				}
+				break;
 
+			default : /* bad TPDU */
+				return -1;
+		} /* li */
+	} else { 
+		/* check ATN class4 TDPU's here */
+
+		/* check packet length indicators of DaTa(DT) TDPU */
+		/* note: use of checksum depends on the selected RER  */
+		/* (high:non-use medium:16-bit OSI/16-bit ext.ATN low:32-bit ext. ATN) */
+		/* note: sole use of TP4 class in the ATN  */
+		/* note: normal/extended TDPU numbering is negociable  */
+		switch (li) {
+
+			case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80 )
+					tpdu_nr = tpdu_nr & 0x7F;
+				else
+					fragment = TRUE;
+				is_extended = FALSE;
+				is_class_234 = TRUE;
+				dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+				break;
+			
+			/* normal DT with 2 octets of OSI or of ATN Extended Checksum */
+			case LI_NORMAL_DT_WITH_CHECKSUM      :  
+	      if ( tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM &&
+                tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_16 )
+					return -1;       /* FALLTHROUGH */
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80 )
+					tpdu_nr = tpdu_nr & 0x7F;
+				else
+					fragment = TRUE;
+					is_extended = FALSE;
+					is_class_234 = TRUE;
+					dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+				break;
+
+			/* normal DT with ATN Extended Checksum (4 octets)*/
+			case LI_ATN_NORMAL_DT_WITH_CHECKSUM      :  
+	      if ( tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32 )
+					return -1;       /* FALLTHROUGH */			
+
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+
+				if ( tpdu_nr & 0x80 )
+					tpdu_nr = tpdu_nr & 0x7F;
+				else
+					fragment = TRUE;
+					is_extended = FALSE;
+					is_class_234 = TRUE;
+					dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+				break;
+
+			case LI_EXTENDED_DT_WITHOUT_CHECKSUM :
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80000000 )
+					tpdu_nr = tpdu_nr & 0x7FFFFFFF;
+				else
+					fragment = TRUE;
+				is_extended = TRUE;
+				is_class_234 = TRUE;
+				dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+				break;
+				
+			/* extended DT with 2 octets of OSI or of ATN Extended Checksum */
+			case LI_EXTENDED_DT_WITH_CHECKSUM    :
+		     if ( tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM && 
+                tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_16 )
+					return -1;   /* FALLTHROUGH */
+				/* FALLTHROUGH */
+
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80000000 )
+					tpdu_nr = tpdu_nr & 0x7FFFFFFF;
+				else
+					fragment = TRUE;
+					is_extended = TRUE;
+					is_class_234 = TRUE;
+					dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+				break;
+			
+			/* extended DT with 4 octets ATN Extended Checksum  */
+			case LI_ATN_EXTENDED_DT_WITH_CHECKSUM: 
+				if ( tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_32 )
+					return -1;  /* FALLTHROUGH */
+
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80000000 )
+					tpdu_nr = tpdu_nr & 0x7FFFFFFF;
+				else
+					fragment = TRUE;
+				is_extended = TRUE;
+				is_class_234 = TRUE;
+				dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+				break;
+
+			default : /* bad TPDU */
+				return -1;	
+		} /* li */
+	} /* cotp_decode_atn */
+	
   pinfo->clnp_dstref = dst_ref;
 
   pinfo->fragmented = fragment;
@@ -1011,45 +1224,138 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   guint    tpdu_nr;
   tvbuff_t *next_tvb;
 
-  /* ED TPDUs are never fragmented */
+	/* note: in the ATN the user is up to chose between 3 different checksums: */
+	/* standard OSI, 2 or 4 octet extended checksum. */
+	/* The differences for ED (as for DT) are that the TDPU headers may be enlarged by 2 octets */
+	/* and that checksum related option codes and option lengths are different.  */
+	/* to not mess up the original OSI dissector LI checking was implemented separately.  */	
+	/* note: this could not be tested, because no sample was avail for expedited data  */
+	if (!cotp_decode_atn) {  /* non ATN, plain OSI*/
+		/* ED TPDUs are never fragmented */
 
-  /* VP_CHECKSUM is the only parameter allowed in the variable part.
-     (This means we may misdissect this if the packet is bad and
-     contains other parameters.) */
-  switch (li) {
+		/* VP_CHECKSUM is the only parameter allowed in the variable part.
+			(This means we may misdissect this if the packet is bad and
+			contains other parameters.) */
+		switch (li) {
 
-    case LI_NORMAL_DT_WITH_CHECKSUM      :
-      if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM)
-	return -1;
-      /* FALLTHROUGH */
+			case LI_NORMAL_DT_WITH_CHECKSUM      :
+				if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM)
+					return -1;
+				/* FALLTHROUGH */
 
-    case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
-      tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
-      if ( tpdu_nr & 0x80 )
-	tpdu_nr = tpdu_nr & 0x7F;
-      else
-	return -1;
-      is_extended = FALSE;
-      break;
+			case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80 )
+					tpdu_nr = tpdu_nr & 0x7F;
+				else
+					return -1;
+				is_extended = FALSE;
+				break;
 
-    case LI_EXTENDED_DT_WITH_CHECKSUM    :
-      if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM)
-	return -1;
-      /* FALLTHROUGH */
+			case LI_EXTENDED_DT_WITH_CHECKSUM    :
+				if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM)
+					return -1;
+				/* FALLTHROUGH */
 
-    case LI_EXTENDED_DT_WITHOUT_CHECKSUM :
-      tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
-      if ( tpdu_nr & 0x80000000 )
-	tpdu_nr = tpdu_nr & 0x7FFFFFFF;
-      else
-	return -1;
-      is_extended = TRUE;
-      break;
+			case LI_EXTENDED_DT_WITHOUT_CHECKSUM :
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80000000 )
+					tpdu_nr = tpdu_nr & 0x7FFFFFFF;
+				else
+					return -1;
+				is_extended = TRUE;
+				break;
 
-    default : /* bad TPDU */
-      return -1;
-  } /* li */
+			default : /* bad TPDU */
+				return -1;
+		} /* li */
+	}else { 
 
+		/* check packet length indicators of ATN Expedited Data (ED) TDPU */
+		/* note: use of checksum depends on the selected RER  */
+		/* (high:non-use medium:16-bit OSI/16-bit ext.ATN low:32-bit ext. ATN) */
+		/* note: sole use of TP4 class in the ATN  */
+		/* note: normal/extended TDPU numbering is negociable  */
+		switch (li) {
+			case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80 )
+					tpdu_nr = tpdu_nr & 0x7F;
+				else
+					return -1;
+				is_extended = FALSE;
+				break;
+
+			case LI_NORMAL_DT_WITH_CHECKSUM      :
+				if ((tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM) &&
+					   (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_16))
+					return -1;
+				/* FALLTHROUGH */
+
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80 )
+					tpdu_nr = tpdu_nr & 0x7F;
+				else
+					return -1;
+				is_extended = FALSE;
+				break;
+
+			case LI_ATN_NORMAL_DT_WITH_CHECKSUM      :
+				if ( tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32 )
+					return -1;
+				/* FALLTHROUGH */
+
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80 )
+					tpdu_nr = tpdu_nr & 0x7F;
+				else
+					return -1;
+				is_extended = FALSE;
+				break;
+
+			case LI_EXTENDED_DT_WITHOUT_CHECKSUM :
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80000000 )
+					tpdu_nr = tpdu_nr & 0x7FFFFFFF;
+				else
+					return -1;
+				is_extended = TRUE;
+				break;
+				
+			case LI_EXTENDED_DT_WITH_CHECKSUM    :
+				if ( ( tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM ) &&
+							( tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_16) )
+					return -1;
+				/* FALLTHROUGH */
+
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80000000 )
+					tpdu_nr = tpdu_nr & 0x7FFFFFFF;
+				else
+					return -1;
+				is_extended = TRUE;
+				break;
+
+			case LI_ATN_EXTENDED_DT_WITH_CHECKSUM    :
+				if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_32)
+					return -1;
+				/* FALLTHROUGH */
+
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				if ( tpdu_nr & 0x80000000 )
+					tpdu_nr = tpdu_nr & 0x7FFFFFFF;
+				else
+					return -1;
+				is_extended = TRUE;
+				break;
+				
+			default : /* bad TPDU */
+				return -1;
+		} /* li */
+	
+	} /* cotp_decode_atn */
+		
+		
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   pinfo->clnp_dstref = dst_ref;
 
@@ -1115,18 +1421,43 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   guint    tpdu_nr;
   gushort  credit = 0;
 
-  switch(li) {
-    case LI_NORMAL_RJ   :
-      tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
-      break;
-    case LI_EXTENDED_RJ :
-      tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
-      credit = tvb_get_ntohs(tvb, offset + P_CDT_IN_RJ);
-      break;
-    default :
-      return -1;
-  }
-
+	/* note: in the ATN the user is up to chose between 3 different checksums: */
+	/* standard OSI, 2 or 4 octet extended checksum. */
+	/* The difference for RJ is that the TDPU header may be enlarged by 2 octets */
+	/* for checksum parameters are not going to be checked here */
+	if (!cotp_decode_atn) {  /* non ATN, plain OSI*/
+		switch(li) {
+			case LI_NORMAL_RJ   :
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				break;
+			case LI_EXTENDED_RJ :
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				credit = tvb_get_ntohs(tvb, offset + P_CDT_IN_RJ);
+				break;
+			default :
+				return -1;
+		}
+	} else {
+		switch(li) {
+			/* normal with 2 octets of OSI or ATN checksum */
+			case LI_NORMAL_RJ   :
+			/* with 4 octets of ATN checksum */				
+			case LI_ATN_NORMAL_RJ   :
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				break;
+			/* extended with 2 octets of OSI or ATN checksum */
+			case LI_EXTENDED_RJ :
+			/* with 4 octets of ATN checksum */				
+			case LI_ATN_EXTENDED_RJ :
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				credit = tvb_get_ntohs(tvb, offset + P_CDT_IN_RJ);
+				break;
+			default :
+				return -1;
+		}	
+	
+	}
+		
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   pinfo->clnp_dstref = dst_ref;
 
@@ -1168,7 +1499,10 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			 gboolean uses_inactive_subset,
 			 gboolean *subdissector_found)
 {
-
+	/* note: in the ATN the user is up to chose between 3 different checksums: */
+	/* standard OSI, 2 or 4 octet extended checksum. */
+	/* Nothing has to be done here, for all ATN specifics are handled in VP. */
+	
   /* CC & CR decoding in the same function */
 
   proto_tree *cotp_tree = NULL;
@@ -1264,9 +1598,15 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   proto_item *item = NULL;
   guint16 dst_ref, src_ref;
 
-  if (li > LI_MAX_DC)
-    return -1;
-
+	/* ATN may use checksums different from OSI */ 
+	/* which may result in different TPDU header length. */
+  if ( !cotp_decode_atn) {
+		if (li > LI_MAX_DC) 
+			return -1; } 
+	else {
+		if (li > LI_ATN_MAX_DC) 
+			return -1;	}
+	
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
   pinfo->clnp_dstref = dst_ref;
@@ -1321,9 +1661,15 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   guint      tpdu_nr;
   gushort    cdt_in_ak;
 
-  if (li > LI_MAX_AK)
-    return -1;
+  if (!cotp_decode_atn ){
+		if (li > LI_MAX_AK)
+			return -1;}
+	else {
+		if (li > LI_ATN_MAX_AK) 
+			return -1; 	}
 
+	/* is_LI_NORMAL_AK() works for normal ATN AK's, */
+	/* for the TPDU header size may be enlarged by 2 octets */
   if (is_LI_NORMAL_AK(li)) {
 
     dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
@@ -1426,41 +1772,134 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   gboolean is_extended;
   guint16  dst_ref;
   guint    tpdu_nr;
+  
+	/* Due to different checksums in the ATN the TDPU header sizes */
+	/* as well as the checksum parameters may be different than plain OSI EA.*/
+	/* because these are heavily checked for EA these checks had to be re-implemented. */
+	/* note: this could not be tested, because no sample was avail for expedited data  */
+	if(!cotp_decode_atn) {
 
-  if (li > LI_MAX_EA)
-    return -1;
+		if (li > LI_MAX_EA) 
+			return -1;
 
-  /* VP_CHECKSUM is the only parameter allowed in the variable part.
+		/* VP_CHECKSUM is the only parameter allowed in the variable part.
      (This means we may misdissect this if the packet is bad and
      contains other parameters.) */
-  switch (li) {
+		switch (li) {
 
-    case LI_NORMAL_EA_WITH_CHECKSUM      :
-      if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM ||
-		tvb_get_guint8(tvb, offset + P_VAR_PART_NDT + 1) != 2)
-	return -1;
-      /* FALLTHROUGH */
+			case LI_NORMAL_EA_WITH_CHECKSUM      :
+				if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM ||
+					tvb_get_guint8(tvb, offset + P_VAR_PART_NDT + 1) != 2)
+						return -1;
+					/* FALLTHROUGH */
 
-    case LI_NORMAL_EA_WITHOUT_CHECKSUM   :
-      tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
-      is_extended = FALSE;
-      break;
+			case LI_NORMAL_EA_WITHOUT_CHECKSUM   :
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				is_extended = FALSE;
+				break;
 
-    case LI_EXTENDED_EA_WITH_CHECKSUM    :
-      if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM ||
-		tvb_get_guint8(tvb, offset + P_VAR_PART_EDT + 1) != 2)
-	return -1;
-      /* FALLTHROUGH */
+			case LI_EXTENDED_EA_WITH_CHECKSUM    :
+				if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM ||
+					tvb_get_guint8(tvb, offset + P_VAR_PART_EDT + 1) != 2)
+					return -1;
+				/* FALLTHROUGH */
 
-    case LI_EXTENDED_EA_WITHOUT_CHECKSUM :
-      tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
-      is_extended = TRUE;
-      break;
+			case LI_EXTENDED_EA_WITHOUT_CHECKSUM :
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				is_extended = TRUE;
+				break;
 
-    default : /* bad TPDU */
-      return -1;
-  } /* li */
+			default : /* bad TPDU */
+				return -1;
+		} /* li */
+	}else { /* cotp_decode_atn */
+		
+		/* check for ATN length: TDPU may be 2 octets longer due to checksum */
+		if (li > LI_ATN_MAX_EA) 
+			return -1;
 
+		switch (li) {
+			/* extended TDPU numbering EA with  no checksum  */
+			case LI_NORMAL_EA_WITHOUT_CHECKSUM   :
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				is_extended = FALSE;
+				break;
+
+			/* normal TDPU numbering EA with 2 octets of OSI or ATN extended checksum  */
+			case LI_NORMAL_EA_WITH_CHECKSUM      :
+				/* check checksum parameter (in VP) parameter code octet */
+				if ((tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM) &&
+						(tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_16 ))
+					return -1;
+					/* FALLTHROUGH */
+					
+				/* check checksum parameter (in VP) length octet */
+				if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT +1 ) != 2) 
+					return -1;
+					/* FALLTHROUGH */
+
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				is_extended = FALSE;
+				break;
+			/* normal TDPU numbering EA with 4 octets of ATN extended checksum  */
+			case LI_ATN_NORMAL_EA_WITH_CHECKSUM      :
+				/* check checksum parameter (in VP) parameter code octet */
+				if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32 )
+					return -1;
+					/* FALLTHROUGH */
+
+				/* check checksum parameter (in VP) length octet */
+				if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT +1 ) != 4) 
+					return -1;
+					/* FALLTHROUGH */
+					
+				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+				is_extended = FALSE;
+				break;
+			/* extended TDPU numbering EA with no checksum  */
+			case LI_EXTENDED_EA_WITHOUT_CHECKSUM :
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				is_extended = TRUE;
+				break;
+				
+				/* extended TDPU numbering EA with 2 octets of OSI or ATN extended checksum  */
+			case LI_EXTENDED_EA_WITH_CHECKSUM    :
+				/* check checksum parameter (in VP) parameter code octet */
+				if ( (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM ) &&
+					   (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_16))
+					return -1;
+				/* FALLTHROUGH */
+
+				/* check checksum parameter (in VP) length octet */
+				if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT +1 ) != 2 ) 
+					return -1;
+					/* FALLTHROUGH */
+					
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				is_extended = TRUE;
+				break;
+
+				/* extended EA with 4 octets ATN extended checksum  */
+			case LI_ATN_EXTENDED_EA_WITH_CHECKSUM    :
+				/* check checksum parameter (in VP) parameter code octet */
+				if ( tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_32 )
+					return -1;
+				/* FALLTHROUGH */
+
+				/* check checksum parameter (in VP) length octet */
+				if ( tvb_get_guint8(tvb, offset + P_VAR_PART_EDT +1 ) != 2 ) 
+					return -1;
+					/* FALLTHROUGH */
+
+				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+				is_extended = TRUE;
+				break;
+
+			default : /* bad TPDU */
+				return -1;
+			}
+	
+	}
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   pinfo->clnp_dstref = dst_ref;
 
@@ -1518,8 +1957,14 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   const char *str;
   guint16 dst_ref;
 
-  if (li > LI_MAX_ER)
-    return -1;
+	/* ATN: except for modified LI checking nothing to be done here */
+	if(!cotp_decode_atn) {
+		if (li > LI_MAX_ER)
+			return -1;
+	}else {
+		if (li > LI_ATN_MAX_ER)
+			return -1;	
+	}
 
   switch(tvb_get_guint8(tvb, offset + P_REJECT_ER)) {
     case 0 :
@@ -1826,7 +2271,7 @@ void proto_register_cotp(void)
     { &hf_cotp_vp_dst_tsap_bytes,
       { "Destination TSAP", "cotp.dst-tsap-bytes", FT_BYTES, BASE_NONE, NULL, 0x0,
 	"Called TSAP (bytes representation)", HFILL }},
-
+ 
   };
   static gint *ett[] = {
 	&ett_cotp,
@@ -1854,12 +2299,19 @@ void proto_register_cotp(void)
 	tsap_display_options,
 	FALSE);
 
+  prefs_register_bool_preference(cotp_module, "decode_atn",
+	 "Decode ATN TPDUs",
+	 "Whether to decode OSI TDPUs with ATN (Aereonautical Telecommunications Network) extensions."
+	 " To use this option, you must also enable \"Always try to decode NSDU as transport PDUs\" in the CLNP protocol settings.",
+	&cotp_decode_atn);
+	
+	
   /* subdissector code in inactive subset */
   register_heur_dissector_list("cotp_is", &cotp_is_heur_subdissector_list);
 
   /* other COTP/ISO 8473 subdissectors */
   register_heur_dissector_list("cotp", &cotp_heur_subdissector_list);
-
+	
   /* XXX - what about CLTP and proto_cltp? */
   new_register_dissector("ositp", dissect_ositp, proto_cotp);
   new_register_dissector("ositp_inactive", dissect_ositp_inactive, proto_cotp);

@@ -41,6 +41,46 @@
 #include "packet-esis.h"
 #include "packet-osi-options.h"
 
+
+/* ATN traffic types (ICAO doc 9705 Edition3 SV5 5.6.2.2.6.7.3) */
+#define ATN_TT_ATSC_NO_PREFERENCE      0x01
+#define ATN_TT_ATSC_CLASS_A            0x10
+#define ATN_TT_ATSC_CLASS_B            0x11
+#define ATN_TT_ATSC_CLASS_C            0x12
+#define ATN_TT_ATSC_CLASS_D            0x13
+#define ATN_TT_ATSC_CLASS_E            0x14
+#define ATN_TT_ATSC_CLASS_F            0x15
+#define ATN_TT_ATSC_CLASS_G            0x16
+#define ATN_TT_ATSC_CLASS_H            0x17
+#define ATN_TT_AOC_NO_PREFERENCE       0x21
+#define ATN_TT_AOC_G                   0x22
+#define ATN_TT_AOC_V                   0x23
+#define ATN_TT_AOC_S                   0x24
+#define ATN_TT_AOC_H                   0x25
+#define ATN_TT_AOC_M                   0x26
+#define ATN_TT_AOC_G_V                 0x27
+#define ATN_TT_AOC_G_V_S               0x28
+#define ATN_TT_AOC_G_V_H_S             0x29
+#define ATN_TT_ADM_NO_PREFERENCE       0x30
+#define ATN_TT_SYS_MGMT_NO_PREFERENCE  0x50
+
+/* ATN security classification (ICAO doc 9705 Edition3 SV5 5.6.2.2.6.8.3) */
+#define ATN_SC_UNCLASSIFIED       0x01
+#define ATN_SC_RESTRICTED         0x02
+#define ATN_SC_CONFIDENTIAL       0x03
+#define ATN_SC_SECRET             0x04
+#define ATN_SC_TOP_SECRET         0x05
+
+/* ATN security label records */
+#define OSI_OPT_SECURITY_ATN_SR    0xc0 
+#define OSI_OPT_SECURITY_ATN_TT    0x0f  
+#define OSI_OPT_SECURITY_ATN_SC    0x03 
+#define OSI_OPT_SECURITY_ATN_SR_LEN 6
+#define OSI_OPT_SECURITY_ATN_TT_LEN 1
+#define OSI_OPT_SECURITY_ATN_SC_LEN 1
+#define OSI_OPT_SECURITY_ATN_SI_MAX_LEN 8
+
+
 #define OSI_OPT_SECURITY           0xc5
 #define OSI_OPT_QOS_MAINTANANCE    0xc3
 #define OSI_OPT_PRIORITY           0xcd
@@ -85,13 +125,56 @@
 #define OSI_OPT_RFD_MASK            0xf0
 #define OSI_OPT_RFD_SUB_MASK        0x0f
 
-
-
+extern gboolean clnp_decode_atn_options; /* as defined in packet-clnp.c */
+extern int hf_clnp_atntt; /* as defined in packet-clnp.c */
+extern int hf_clnp_atnsc; /* as defined in packet-clnp.c */
 
 static gint ott_osi_options       = -1;
 static gint ott_osi_qos           = -1;
 static gint ott_osi_route         = -1;
 static gint ott_osi_redirect      = -1;
+static const guchar atn_security_registration_val[] = { 0x06, 0x04, 0x2b, 0x1b, 0x00, 0x00 }; /* =iso(1).org(3).ICAO(27).ATN(0).TrafficType(0)*/
+
+static const value_string osi_opt_sec_atn_sr_vals[] = {
+        { OSI_OPT_SECURITY_ATN_SR,      "ATN Security Label"},
+        { 0,            NULL} };
+
+static const value_string osi_opt_sec_atn_si_vals[] = {
+        { OSI_OPT_SECURITY_ATN_TT,      "Traffic Type and Routing"},
+        { OSI_OPT_SECURITY_ATN_SC,      "Security classification"},
+        { 0,            NULL} };
+
+static const value_string osi_opt_sec_atn_tt_vals[] = {
+        { ATN_TT_ATSC_NO_PREFERENCE,    "ATSC No preference"}, 
+        { ATN_TT_ATSC_CLASS_A,          "ATSC Class A"},
+        { ATN_TT_ATSC_CLASS_B,          "ATSC Class B"},
+        { ATN_TT_ATSC_CLASS_C,          "ATSC Class C"},
+        { ATN_TT_ATSC_CLASS_D,          "ATSC Class D"},
+        { ATN_TT_ATSC_CLASS_E,          "ATSC Class E"},
+        { ATN_TT_ATSC_CLASS_F,          "ATSC Class F"},
+        { ATN_TT_ATSC_CLASS_G,          "ATSC Class G"},
+        { ATN_TT_ATSC_CLASS_H,          "ATSC Class H"},
+        { ATN_TT_AOC_NO_PREFERENCE,     "AOC No preference"},
+        { ATN_TT_AOC_G,                 "AOC Gatelink only"},
+        { ATN_TT_AOC_V,                 "AOC VHF only"},
+        { ATN_TT_AOC_S,                 "AOC Satellite only"},
+        { ATN_TT_AOC_H,                 "AOC HF only"},
+        { ATN_TT_AOC_M,                 "AOC Mode S only"},
+        { ATN_TT_AOC_G_V,               "AOC Gatelink first, then VHF"},
+        { ATN_TT_AOC_G_V_S,             "AOC Gatelink first, then VHF, then Satellite"},
+        { ATN_TT_AOC_G_V_H_S,           "AOC Gatelink first, then VHF, then HF, then Satellite"},
+        { ATN_TT_ADM_NO_PREFERENCE,     "ATN Administrative No preference"},
+        { ATN_TT_SYS_MGMT_NO_PREFERENCE,"ATN Systems Management No preference"},
+        { 0,            NULL} };
+
+static const value_string osi_opt_sec_atn_sc_vals[] = {
+        { ATN_SC_UNCLASSIFIED,    "unclassified"},
+        { ATN_SC_RESTRICTED,      "restricted"},
+        { ATN_SC_CONFIDENTIAL,    "confidential"},
+        { ATN_SC_SECRET,          "secret"},
+        { ATN_SC_TOP_SECRET,      "top secret"},
+        { 0,            NULL} };
+
 
 static const value_string osi_opt_sec_vals[] = {
         { OSI_OPT_SEC_RESERVED,      "Reserved"},
@@ -337,6 +420,108 @@ dissect_option_rfd( const guchar error, const guchar field, int offset,
   }
 }
 
+/* dissect ATN security label used for policy based interdomain routing.*/
+/* For details see ICAO doc 9705 Edition 3 SV5 5.6.2.2.2.2 */
+static void
+dissect_option_atn_security_label(
+ const guchar sub_type,
+ guchar length,
+ tvbuff_t *tvb, 
+ guint offset, 
+ proto_tree *tree ) {
+  proto_item *ti;
+  proto_tree *atn_sl_tree = NULL; 
+  guchar len = 0;
+  guint8 tag_name = 0;
+  guint  security_info_end = 0;
+
+	
+  /* check for ATN security label */
+  if( OSI_OPT_SECURITY_ATN_SR != sub_type ){
+     return; } /*  FALLTHROUGH */ 
+
+  /* check Security Registration Length */
+  len =  tvb_get_guint8(tvb, ++offset);
+  if( OSI_OPT_SECURITY_ATN_SR_LEN != len ){
+    return;  } /*  FALLTHROUGH */     
+
+   /* check Security Registration ID */
+   if (tvb_memeql(tvb, ++offset , atn_security_registration_val, OSI_OPT_SECURITY_ATN_SR_LEN )){
+     return; }  /*  FALLTHROUGH */
+   
+  ti = proto_tree_add_text( tree, tvb, offset, length,
+                            "%s", 
+												val_to_str( sub_type, osi_opt_sec_atn_sr_vals, "Unknown (0x%x)"));
+											
+  atn_sl_tree = proto_item_add_subtree( ti, ott_osi_qos );
+  offset+=OSI_OPT_SECURITY_ATN_SR_LEN ;    
+		
+		/* Security Information length */
+   len = tvb_get_guint8(tvb, offset);
+
+   if(OSI_OPT_SECURITY_ATN_SI_MAX_LEN < len){
+     /*  FALLTHROUGH */
+     return;}
+
+   offset++;
+
+   security_info_end = offset + len;
+   while( offset < security_info_end ){
+
+     /* check tag name length*/
+     len = tvb_get_guint8(tvb, offset ); /* check tag name length*/
+     if( len != 1 ){
+         return; } /*  FALLTHROUGH */
+     
+     offset++;
+     
+     tag_name = tvb_get_guint8(tvb, offset);
+     offset++;
+
+     switch(tag_name){
+     case OSI_OPT_SECURITY_ATN_TT:
+       /* check tag set length*/
+       len = tvb_get_guint8(tvb, offset); 
+       if( len != OSI_OPT_SECURITY_ATN_TT_LEN ){
+         return; } /*  FALLTHROUGH */
+
+       offset ++;
+
+			 proto_tree_add_uint_format(atn_sl_tree, hf_clnp_atntt, tvb, offset, 1,
+                                 tvb_get_guint8(tvb, offset ),
+                                 "%s: %s", 
+																	val_to_str(  OSI_OPT_SECURITY_ATN_TT, osi_opt_sec_atn_si_vals, "Unknown (0x%x)"),
+																	val_to_str( tvb_get_guint8(tvb, offset ), osi_opt_sec_atn_tt_vals, "Unknown (0x%x)") );
+						
+  			offset += len ;
+
+       break;
+     case OSI_OPT_SECURITY_ATN_SC:
+       /* check tag set length*/
+       len = tvb_get_guint8(tvb, offset ); 
+       if( len != OSI_OPT_SECURITY_ATN_SC_LEN ){
+         /*  FALLTHROUGH */
+         return;
+       }
+       offset ++;
+			 proto_tree_add_uint_format(atn_sl_tree, hf_clnp_atnsc, tvb, offset, 1,
+                                 tvb_get_guint8(tvb, offset ),
+                                 "%s: %s", 
+																	val_to_str(  OSI_OPT_SECURITY_ATN_SC, osi_opt_sec_atn_si_vals, "Unknown (0x%x)"),
+																	val_to_str( tvb_get_guint8(tvb, offset ), osi_opt_sec_atn_sc_vals, "Unknown (0x%x)") );
+
+       offset += len ;
+
+       break;
+     default:
+       /*  FALLTHROUGH */
+       return;
+     }
+
+   }
+ 
+}
+
 /* ############################## Dissection Functions ###################### */
 
 /*
@@ -391,10 +576,16 @@ dissect_osi_options( guchar opt_len, tvbuff_t *tvb,
           break;
           case   OSI_OPT_SECURITY:
                  octet = tvb_get_guint8(tvb, offset);
-                 proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
+								 if ( clnp_decode_atn_options ){
+									 dissect_option_atn_security_label(octet,parm_len,tvb, offset, osi_option_tree );
+								 }else {
+									proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
                   "Security type: %s",
                   val_to_str( octet&OSI_OPT_SEC_MASK,
-                              osi_opt_sec_vals, "Unknown (0x%x)")  );
+                              osi_opt_sec_vals, "Unknown (0x%x)")  );	
+								 }
+																							
+
           break;
           case   OSI_OPT_PRIORITY:
                  octet = tvb_get_guint8(tvb, offset);

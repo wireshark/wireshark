@@ -38,6 +38,12 @@
 #include <epan/nlpid.h>
 #include <epan/ipproto.h>
 
+/* pseudo-trailer for ATN extended checksums on TP4 layer*/
+/* the checksum is calculated from the TPDU as well als */
+/* dst  NSAP length, dst  NSAP, src  NSAP length and src NSAP as encoded in CLNP PDU*/
+guint     clnp_pt_len ;        
+guint8    clnp_pt_buffer[42]; 
+
 /* protocols and fields */
 
 static int  proto_clnp         = -1;
@@ -62,6 +68,8 @@ static int hf_clnp_dest_length = -1;
 static int hf_clnp_dest        = -1;
 static int hf_clnp_src_length  = -1;
 static int hf_clnp_src         = -1;
+       int hf_clnp_atntt			 = -1; /* as referenced in packet-osi-options.c */
+			 int hf_clnp_atnsc			 = -1; /* as referenced in packet-osi-options.c */
 static int hf_clnp_segments    = -1;
 static int hf_clnp_segment     = -1;
 static int hf_clnp_segment_overlap          = -1;
@@ -185,6 +193,7 @@ static GHashTable *clnp_reassembled_table = NULL;
 static guint tp_nsap_selector = NSEL_TP;
 static gboolean always_decode_transport = FALSE;
 static gboolean clnp_reassemble = TRUE;
+gboolean clnp_decode_atn_options = FALSE;
 
 /* function definitions */
 
@@ -250,7 +259,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* fixed part decoding */
   cnf_hdr_len = tvb_get_guint8(tvb, P_CLNP_HDR_LEN);
   opt_len = cnf_hdr_len;
-
+	
   if (tree) {
     ti = proto_tree_add_item(tree, proto_clnp, tvb, 0, cnf_hdr_len, ENC_NA);
     clnp_tree = proto_item_add_subtree(ti, ett_clnp);
@@ -342,7 +351,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  cnf_cksum);
       break;
     }
-    opt_len -= 9; /* Fixed part of Hesder */
+    opt_len -= 9; /* Fixed part of Header */
   } /* tree */
 
   /* address part */
@@ -354,6 +363,10 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   src_len  = tvb_get_guint8(tvb, offset + dst_len + 1);
   src_addr = tvb_get_ptr(tvb, offset + dst_len + 2, src_len);
 
+  /* store src & dst address parts for ATN extended checksum calculation in ositp.c */
+  clnp_pt_len = dst_len + src_len + 2;
+  tvb_memcpy(tvb, &clnp_pt_buffer, offset, sizeof(clnp_pt_buffer));	
+	
   if (tree) {
     proto_tree_add_uint(clnp_tree, hf_clnp_dest_length, tvb, offset, 1,
                         dst_len);
@@ -595,7 +608,13 @@ proto_register_clnp(void)
     { &hf_clnp_src,
       { "SA", "clnp.ssap",     FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_clnp_segment_overlap,
+    { &hf_clnp_atntt,
+      { "ATN traffic type", "clnp.atn.tt",     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_clnp_atnsc,
+      { "ATN security classification", "clnp.atn.sc",     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+{ &hf_clnp_segment_overlap,
       { "Segment overlap", "clnp.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         "Segment overlaps with other segments", HFILL }},
 
@@ -665,6 +684,14 @@ proto_register_clnp(void)
         "Reassemble segmented CLNP datagrams",
         "Whether segmented CLNP datagrams should be reassembled",
         &clnp_reassemble);
+   prefs_register_bool_preference(clnp_module, "decode_atn_options",
+                                 "Decode ATN security label",
+                                 "Whether ATN security label should be decoded",
+                                 &clnp_decode_atn_options);
+	
+	/* init src & dst address parts for ATN extended checksum calculation in ositp.c */
+	memset(clnp_pt_buffer, 0, sizeof(clnp_pt_buffer));
+  clnp_pt_len = 0;
 }
 
 void

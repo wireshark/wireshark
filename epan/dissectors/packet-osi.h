@@ -87,5 +87,7 @@ typedef enum {
 
 extern cksum_status_t calc_checksum(tvbuff_t *, int, guint, guint);
 extern cksum_status_t check_and_get_checksum( tvbuff_t *, int, guint, guint, int, guint16*);
+extern gboolean check_atn_ec_32(tvbuff_t *tvb, guint tdpu_len, guint offset_ec_32_val, guint offset_iso8073_val, guint clnp_pt_len, guint8 * clnp_pt_buffer);
+extern gboolean check_atn_ec_16(  tvbuff_t *tvb, guint tdpu_len, guint offset_ec_16_val, guint offset_iso8073_val, guint clnp_pt_len, guint8 * clnp_pt_buffer );
 
 #endif /* _PACKET_OSI_H */
