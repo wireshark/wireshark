@@ -423,14 +423,18 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree
   guint32 choice_index = 100;
   asn1_ctx_t asn1_ctx;
 
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  TRY {
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 
-  /* could be BER */
-  get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
-  /* or PER */
-  dissect_per_constrained_integer(tvb, 0, &asn1_ctx,
-				  NULL, hf_t125_heur, 0, 42,
-				  &choice_index, FALSE);
+    /* could be BER */
+    get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
+    /* or PER */
+    dissect_per_constrained_integer(tvb, 0, &asn1_ctx,
+				    NULL, hf_t125_heur, 0, 42,
+				    &choice_index, FALSE);
+  } CATCH_ALL {
+    return FALSE;
+  } ENDTRY;
 
   /* is this strong enough ? */
   if ( ((ber_class==BER_CLASS_APP) && ((tag>=101) && (tag<=104))) ||
@@ -563,7 +567,7 @@ void proto_register_t125(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t125-hfarr.c ---*/
-#line 134 "../../asn1/t125/packet-t125-template.c"
+#line 138 "../../asn1/t125/packet-t125-template.c"
   };
 
   /* List of subtrees */
@@ -580,7 +584,7 @@ void proto_register_t125(void) {
     &ett_t125_ConnectMCSPDU,
 
 /*--- End of included file: packet-t125-ettarr.c ---*/
-#line 140 "../../asn1/t125/packet-t125-template.c"
+#line 144 "../../asn1/t125/packet-t125-template.c"
   };
 
   /* Register protocol */
