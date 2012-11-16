@@ -1845,6 +1845,11 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		guchar user_class_instance_index;
 		proto_item *vti;
 		proto_tree *o77_v_tree;
+		if (optlen < 2) {
+			expert_add_info_format(pinfo, v_tree, PI_PROTOCOL, PI_ERROR, "length isn't >= 2 (length = %i)", optlen);
+			break;
+		}
+		optleft = optlen;
 		for (user_class_instance_index = 0, i = 0, byte = tvb_get_guint8(tvb, optoff); i < optlen; byte = tvb_get_guint8(tvb, optoff + i), user_class_instance_index++) {
 			/* Create subtree for instance of User Class. */
 			vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option77_user_class,
@@ -1854,6 +1859,16 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			/* Add length for instance of User Class. */
 			proto_tree_add_item(o77_v_tree, hf_bootp_option77_user_class_length,
 					tvb, optoff + i, 1, ENC_BIG_ENDIAN);
+
+			if (byte == 0) {
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "UC_Len_%u isn't >= 1 (UC_Len_%u = 0)", user_class_instance_index, user_class_instance_index);
+				break;
+			}
+			optleft -= byte + 1;
+			if (optleft < 0) {
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "User Class Information: malformed option");
+				break;
+			}
 
 			/* Add data for instance of User Class. */
 			proto_tree_add_item(o77_v_tree, hf_bootp_option77_user_class_data,
