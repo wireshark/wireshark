@@ -46,6 +46,20 @@
 *          http://wiki.gnashdev.org/RTMP_Messages_Decoded
 *          http://www.acmewebworks.com/Downloads/openCS/TheAMF.pdf
 *          http://www.gnashdev.org/files/rtmp-decoded.pdf
+*
+*   It's also available from Adobe at
+*
+*          http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/rtmp/pdf/rtmp_specification_1.0.pdf
+*
+*   For AMF, see:
+*
+*          http://download.macromedia.com/pub/labs/amf/amf0_spec_121207.pdf
+*
+*   for AMF0 and
+*
+*          http://amf3cplusplus.googlecode.com/svn-history/r4/trunk/doc/amf3_spec_05_05_08.pdf
+*
+*   for AMF3.
 *      
 *   Default TCP port is 1935
 */
@@ -90,22 +104,37 @@ static int hf_rtmpt_scm_limittype = -1;
 
 static int hf_rtmpt_ucm_eventtype = -1;
 
-static int hf_rtmpt_amf_type = -1;
+static int hf_rtmpt_amf0_type = -1;
+static int hf_rtmpt_amf3_type = -1;
 static int hf_rtmpt_amf_number = -1;
+static int hf_rtmpt_amf_integer = -1;
 static int hf_rtmpt_amf_boolean = -1;
 static int hf_rtmpt_amf_stringlength = -1;
 static int hf_rtmpt_amf_string = -1;
-static int hf_rtmpt_amf_reference = -1;
+static int hf_rtmpt_amf_string_reference = -1;
+static int hf_rtmpt_amf_object_reference = -1;
 static int hf_rtmpt_amf_date = -1;
 static int hf_rtmpt_amf_longstringlength = -1;
 static int hf_rtmpt_amf_longstring = -1;
+static int hf_rtmpt_amf_xml_doc = -1;
+static int hf_rtmpt_amf_xmllength = -1;
 static int hf_rtmpt_amf_xml = -1;
 static int hf_rtmpt_amf_int64 = -1;
+static int hf_rtmpt_amf_bytearraylength = -1;
+static int hf_rtmpt_amf_bytearray = -1;
 
 static int hf_rtmpt_amf_object = -1;
+static int hf_rtmpt_amf_traitcount = -1;
+static int hf_rtmpt_amf_classnamelength = -1;
+static int hf_rtmpt_amf_classname = -1;
+static int hf_rtmpt_amf_membernamelength = -1;
+static int hf_rtmpt_amf_membername = -1;
+static int hf_rtmpt_amf_trait_reference = -1;
 static int hf_rtmpt_amf_ecmaarray = -1;
 static int hf_rtmpt_amf_strictarray = -1;
+static int hf_rtmpt_amf_array = -1;
 static int hf_rtmpt_amf_arraylength = -1;
+static int hf_rtmpt_amf_arraydenselength = -1;
 
 static int hf_rtmpt_function_call = -1;
 static int hf_rtmpt_function_response = -1;
@@ -140,6 +169,9 @@ static gint ett_rtmpt_string = -1;
 static gint ett_rtmpt_object = -1;
 static gint ett_rtmpt_mixed_array = -1;
 static gint ett_rtmpt_array = -1;
+static gint ett_rtmpt_array_element = -1;
+static gint ett_rtmpt_traits = -1;
+static gint ett_rtmpt_trait_member = -1;
 static gint ett_rtmpt_audio_control = -1;
 static gint ett_rtmpt_video_control = -1;
 static gint ett_rtmpt_tag = -1;
@@ -149,6 +181,23 @@ static dissector_handle_t rtmpt_tcp_handle;
 static dissector_handle_t rtmpt_http_handle;
 
 static gboolean rtmpt_desegment = TRUE;
+
+static int proto_amf = -1;
+
+static int hf_amf_version = -1;
+static int hf_amf_header_count = -1;
+static int hf_amf_header_name = -1;
+static int hf_amf_header_must_understand = -1;
+static int hf_amf_header_length = -1;
+static int hf_amf_header_value_type = -1;
+static int hf_amf_message_count = -1;
+static int hf_amf_message_target_uri = -1;
+static int hf_amf_message_response_uri = -1;
+static int hf_amf_message_length = -1;
+
+static gint ett_amf = -1;
+static gint ett_amf_headers = -1;
+static gint ett_amf_messages = -1;
 
 #define RTMP_PORT                     1935
 
@@ -198,25 +247,41 @@ static gboolean rtmpt_desegment = TRUE;
 #define RTMPT_UCM_PING_REQUEST        0x06
 #define RTMPT_UCM_PING_RESPONSE       0x07
 
-#define RTMPT_AMF_NUMBER              0x00
-#define RTMPT_AMF_BOOLEAN             0x01
-#define RTMPT_AMF_STRING              0x02
-#define RTMPT_AMF_OBJECT              0x03
-#define RTMPT_AMF_MOVIECLIP           0x04
-#define RTMPT_AMF_NULL                0x05
-#define RTMPT_AMF_UNDEFINED           0x06
-#define RTMPT_AMF_REFERENCE           0x07
-#define RTMPT_AMF_ECMA_ARRAY          0x08
-#define RTMPT_AMF_END_OF_OBJECT       0x09
-#define RTMPT_AMF_STRICT_ARRAY        0x0A
-#define RTMPT_AMF_DATE                0x0B
-#define RTMPT_AMF_LONG_STRING         0x0C
-#define RTMPT_AMF_UNSUPPORTED         0x0D
-#define RTMPT_AMF_RECORDSET           0x0E
-#define RTMPT_AMF_XML                 0x0F
-#define RTMPT_AMF_TYPED_OBJECT        0x10
-#define RTMPT_AMF_AMF3_MARKER         0x11
-#define RTMPT_AMF_INT64               0x22
+/* AMF0 type markers */
+#define RTMPT_AMF0_NUMBER              0x00
+#define RTMPT_AMF0_BOOLEAN             0x01
+#define RTMPT_AMF0_STRING              0x02
+#define RTMPT_AMF0_OBJECT              0x03
+#define RTMPT_AMF0_MOVIECLIP           0x04
+#define RTMPT_AMF0_NULL                0x05
+#define RTMPT_AMF0_UNDEFINED           0x06
+#define RTMPT_AMF0_REFERENCE           0x07
+#define RTMPT_AMF0_ECMA_ARRAY          0x08
+#define RTMPT_AMF0_END_OF_OBJECT       0x09
+#define RTMPT_AMF0_STRICT_ARRAY        0x0A
+#define RTMPT_AMF0_DATE                0x0B
+#define RTMPT_AMF0_LONG_STRING         0x0C
+#define RTMPT_AMF0_UNSUPPORTED         0x0D
+#define RTMPT_AMF0_RECORDSET           0x0E
+#define RTMPT_AMF0_XML                 0x0F
+#define RTMPT_AMF0_TYPED_OBJECT        0x10
+#define RTMPT_AMF0_AMF3_MARKER         0x11
+#define RTMPT_AMF0_INT64               0x22
+
+/* AMF3 type markers */
+#define RTMPT_AMF3_UNDEFINED           0x00
+#define RTMPT_AMF3_NULL                0x01
+#define RTMPT_AMF3_FALSE               0x02
+#define RTMPT_AMF3_TRUE                0x03
+#define RTMPT_AMF3_INTEGER             0x04
+#define RTMPT_AMF3_DOUBLE              0x05
+#define RTMPT_AMF3_STRING              0x06
+#define RTMPT_AMF3_XML_DOC             0x07
+#define RTMPT_AMF3_DATE                0x08
+#define RTMPT_AMF3_ARRAY               0x09
+#define RTMPT_AMF3_OBJECT              0x0A
+#define RTMPT_AMF3_XML                 0x0B
+#define RTMPT_AMF3_BYTEARRAY           0x0C
 
 #define RTMPT_TEXT_RTMP_HEADER        "RTMP Header"
 #define RTMPT_TEXT_RTMP_BODY          "RTMP Body"
@@ -267,33 +332,43 @@ static const value_string rtmpt_ucm_vals[] = {
         { 0, NULL }
 };
 
-static const value_string rtmpt_type_vals[] = {
-        { RTMPT_AMF_NUMBER,                 "Number" },
-        { RTMPT_AMF_BOOLEAN,                "Boolean" },
-        { RTMPT_AMF_STRING,                 "String" },
-        { RTMPT_AMF_OBJECT,                 "Object" },
-        { RTMPT_AMF_MOVIECLIP,              "Movie clip" },
-        { RTMPT_AMF_NULL,                   "Null" },
-        { RTMPT_AMF_UNDEFINED,              "Undefined" },
-        { RTMPT_AMF_REFERENCE,              "Reference" },
-        { RTMPT_AMF_ECMA_ARRAY,             "ECMA array" },
-        { RTMPT_AMF_END_OF_OBJECT,          "End of object" },
-        { RTMPT_AMF_STRICT_ARRAY,           "Strict array" },
-        { RTMPT_AMF_DATE,                   "Date" },
-        { RTMPT_AMF_LONG_STRING,            "Long string" },
-        { RTMPT_AMF_UNSUPPORTED,            "Unsupported" },
-        { RTMPT_AMF_RECORDSET,              "Record set" },
-        { RTMPT_AMF_XML,                    "XML" },
-        { RTMPT_AMF_TYPED_OBJECT,           "Typed object" },
-        { RTMPT_AMF_AMF3_MARKER,            "Switch to AMF3" },
-        { RTMPT_AMF_INT64,                  "Int64" },
+static const value_string rtmpt_amf0_type_vals[] = {
+        { RTMPT_AMF0_NUMBER,                "Number" },
+        { RTMPT_AMF0_BOOLEAN,               "Boolean" },
+        { RTMPT_AMF0_STRING,                "String" },
+        { RTMPT_AMF0_OBJECT,                "Object" },
+        { RTMPT_AMF0_MOVIECLIP,             "Movie clip" },
+        { RTMPT_AMF0_NULL,                  "Null" },
+        { RTMPT_AMF0_UNDEFINED,             "Undefined" },
+        { RTMPT_AMF0_REFERENCE,             "Reference" },
+        { RTMPT_AMF0_ECMA_ARRAY,            "ECMA array" },
+        { RTMPT_AMF0_END_OF_OBJECT,         "End of object" },
+        { RTMPT_AMF0_STRICT_ARRAY,          "Strict array" },
+        { RTMPT_AMF0_DATE,                  "Date" },
+        { RTMPT_AMF0_LONG_STRING,           "Long string" },
+        { RTMPT_AMF0_UNSUPPORTED,           "Unsupported" },
+        { RTMPT_AMF0_RECORDSET,             "Record set" },
+        { RTMPT_AMF0_XML,                   "XML" },
+        { RTMPT_AMF0_TYPED_OBJECT,          "Typed object" },
+        { RTMPT_AMF0_AMF3_MARKER,           "Switch to AMF3" },
+        { RTMPT_AMF0_INT64,                 "Int64" },
         { 0, NULL }
 };
 
-static const value_string rtmpt_object_vals[] = {
-        { RTMPT_AMF_OBJECT,                 "Object" },
-        { RTMPT_AMF_ECMA_ARRAY,             "ECMA Array" },
-        { RTMPT_AMF_STRICT_ARRAY,           "Strict Array" },
+static const value_string rtmpt_amf3_type_vals[] = {
+        { RTMPT_AMF3_UNDEFINED,             "Undefined" },
+        { RTMPT_AMF3_NULL,                  "Null" },
+        { RTMPT_AMF3_FALSE,                 "False" },
+        { RTMPT_AMF3_TRUE,                  "True" },
+        { RTMPT_AMF3_INTEGER,               "Integer" },
+        { RTMPT_AMF3_DOUBLE,                "Double" },
+        { RTMPT_AMF3_STRING,                "String" },
+        { RTMPT_AMF3_XML_DOC,               "XML document" },
+        { RTMPT_AMF3_DATE,                  "Date" },
+        { RTMPT_AMF3_ARRAY,                 "Array" },
+        { RTMPT_AMF3_OBJECT,                "Object" },
+        { RTMPT_AMF3_XML,                   "XML" },
+        { RTMPT_AMF3_BYTEARRAY,             "ByteArray" },
         { 0, NULL }
 };
 
@@ -495,44 +570,44 @@ rtmpt_get_amf_length(tvbuff_t *tvb, gint offset)
                 if (remain-rv<1) return remain;
                 iObjType = tvb_get_guint8(tvb, offset+rv);
 
-                if (depth>0 && itemlen==2 && iObjType==RTMPT_AMF_END_OF_OBJECT) {
+                if (depth>0 && itemlen==2 && iObjType==RTMPT_AMF0_END_OF_OBJECT) {
                         rv++;
                         depth--;
                         continue;
                 }
 
                 switch (iObjType) {
-                case RTMPT_AMF_NUMBER:
+                case RTMPT_AMF0_NUMBER:
                         itemlen = 9;
                         break;
-                case RTMPT_AMF_BOOLEAN:
+                case RTMPT_AMF0_BOOLEAN:
                         itemlen = 2;
                         break;
-                case RTMPT_AMF_STRING:
+                case RTMPT_AMF0_STRING:
                         if (remain-rv<3) return remain;
                         itemlen = tvb_get_ntohs(tvb, offset+rv+1) + 3;
                         break;
-                case RTMPT_AMF_NULL:
-                case RTMPT_AMF_UNDEFINED:
-                case RTMPT_AMF_UNSUPPORTED:
+                case RTMPT_AMF0_NULL:
+                case RTMPT_AMF0_UNDEFINED:
+                case RTMPT_AMF0_UNSUPPORTED:
                         itemlen= 1;
                         break;
-                case RTMPT_AMF_DATE:
+                case RTMPT_AMF0_DATE:
                         itemlen = 11;
                         break;
-                case RTMPT_AMF_LONG_STRING:
-                case RTMPT_AMF_XML:
+                case RTMPT_AMF0_LONG_STRING:
+                case RTMPT_AMF0_XML:
                         if (remain-rv<5) return remain;
                         itemlen = tvb_get_ntohl(tvb, offset+rv+1) + 5;
                         break;
-                case RTMPT_AMF_INT64:
+                case RTMPT_AMF0_INT64:
                         itemlen = 9;
                         break;
-                case RTMPT_AMF_OBJECT:
+                case RTMPT_AMF0_OBJECT:
                         itemlen = 1;
                         depth++;
                         break;
-                case RTMPT_AMF_ECMA_ARRAY:
+                case RTMPT_AMF0_ECMA_ARRAY:
                         itemlen = 5;
                         depth++;
                         break;
@@ -565,14 +640,14 @@ rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
         if (remain>0 && param==0) {
                 guint8 iObjType = tvb_get_guint8(tvb, offset);
 
-                if (!prop && iObjType==RTMPT_AMF_STRING && remain>=3) {
+                if (!prop && iObjType==RTMPT_AMF0_STRING && remain>=3) {
                         iStringLength = tvb_get_ntohs(tvb, offset+1);
                         if (remain>=iStringLength+3) {
                                 return tvb_get_ephemeral_string(tvb, offset+3, iStringLength);
                         }
                 }
 
-                if (prop && iObjType==RTMPT_AMF_OBJECT) {
+                if (prop && iObjType==RTMPT_AMF0_OBJECT) {
                         offset++;
                         remain--;
 
@@ -581,7 +656,7 @@ rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
                                 if (remain<2+iPropLength+3) break;
 
                                 if (tvb_strneql(tvb, offset+2, prop, strlen(prop))==0) {
-                                        if (tvb_get_guint8(tvb, offset+2+iPropLength)!=RTMPT_AMF_STRING) break;
+                                        if (tvb_get_guint8(tvb, offset+2+iPropLength)!=RTMPT_AMF0_STRING) break;
 
                                         iStringLength = tvb_get_ntohs(tvb, offset+2+iPropLength+1);
                                         if (remain<2+iPropLength+3+iStringLength) break;
@@ -612,7 +687,7 @@ rtmpt_get_amf_txid(tvbuff_t *tvb, gint offset)
         }
         if (remain>=9) {
                 guint8 iObjType = tvb_get_guint8(tvb, offset);
-                if (iObjType==RTMPT_AMF_NUMBER) {
+                if (iObjType==RTMPT_AMF0_NUMBER) {
                         return (guint32)tvb_get_ntohieee_double(tvb, offset+1);
                 }
         }
@@ -767,256 +842,727 @@ dissect_rtmpt_body_scm(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, guint
         }
 }
 
-static void
-dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, guint amf3)
-{
-        ep_stack_t  amftrs;
-        ep_stack_t  amftis;
-        ep_stack_t  amfols;
-        ep_stack_t  amfots;
-        ep_stack_t  amfpcs;
-        int         depth         = 0;
-        int         ot            = 0;
-        int         pc            = 0;
-        proto_item *ti_object     = NULL;
-        gint        iObjectLength = 0;
+static gint
+dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *amf3_encoding, proto_item *parent_ti);
 
-        amftrs = ep_stack_new();
-        amftis = ep_stack_new();
-        amfols = ep_stack_new();
-        amfots = ep_stack_new();
-        amfpcs = ep_stack_new();
+/*
+ * A "property list" is a sequence of name/value pairs, terminated by
+ * and "end of object" indicator.  AMF0 "object"s and "ECMA array"s
+ * are encoded as property lists.
+ */
+static gint
+dissect_amf0_property_list(tvbuff_t *tvb, gint offset, proto_tree *tree, guint *countp, gboolean *amf3_encoding)
+{
+        proto_item *prop_ti;
+        proto_tree *prop_tree;
+        proto_item *name_ti;
+        proto_tree *name_tree;
+        guint       iStringLength;
+        gchar      *iStringValue;
+        guint       count = 0;
+
+        /*
+         * XXX - at least as I read "3.1 AVM+ Type Marker" in the AMF0
+         * specification, the AVM+ Type Marker only affects "the following
+         * Object".  For now, we have a single "AMF3 encoding" flag, and
+         * set it when we see the type marker, and never clear it.
+         */
+        for (;;) {
+                /* UTF-8: property name */
+                iStringLength = tvb_get_ntohs(tvb, offset);
+                if (iStringLength == 0 &&
+                    tvb_get_guint8(tvb, offset + 2) == RTMPT_AMF0_END_OF_OBJECT)
+                        break;
+                count++;
+                iStringValue = tvb_get_ephemeral_string(tvb, offset + 2, iStringLength);
+                prop_ti = proto_tree_add_text(tree, tvb, offset, -1,
+                                              "Property '%s'",
+                                              iStringValue);
+                prop_tree = proto_item_add_subtree(prop_ti, ett_rtmpt_property);
+
+                name_ti = proto_tree_add_text(prop_tree, tvb,
+                                              offset, 2+iStringLength,
+                                              "Name: %s", iStringValue);
+                name_tree = proto_item_add_subtree(name_ti, ett_rtmpt_string);
+
+                proto_tree_add_uint(name_tree, hf_rtmpt_amf_stringlength, tvb, offset, 2, iStringLength);
+                offset += 2;
+                proto_tree_add_item(name_tree, hf_rtmpt_amf_string, tvb, offset, iStringLength, ENC_UTF_8|ENC_NA);
+                offset += iStringLength;
+
+                /* value-type: property value */
+                offset = dissect_amf0_value_type(tvb, offset, prop_tree, amf3_encoding, prop_ti);
+                proto_item_set_end(prop_ti, tvb, offset);
+        }
+        proto_tree_add_text(tree, tvb, offset, 3, "End Of Object Marker");
+        offset += 3;
+
+        *countp = count;
+
+        return offset;
+}
+
+static gint
+dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *amf3_encoding, proto_item *parent_ti)
+{
+        guint8      iObjType;
+        proto_item *ti;
+        proto_tree *val_tree;
+        gint        iValueOffset = offset;
+        guint32     iIntegerValue;
+        double      iDoubleValue;
+        gboolean    iBooleanValue;
+        guint       iStringLength;
+        gchar      *iStringValue;
+        guint       iArrayLength;
+        guint       i;
+        nstime_t    t;
+        gint64      iInteger64Value;
+        guint       count;
+
+        iObjType = tvb_get_guint8(tvb, offset);
+        if (parent_ti != NULL)
+                proto_item_append_text(parent_ti, " %s",
+                                       val_to_str_const(iObjType, rtmpt_amf0_type_vals, "Unknown"));
+        switch (iObjType) {
+
+        case RTMPT_AMF0_OBJECT:
+                /*
+                 * For object types, make the top-level protocol tree
+                 * item a field for that type.
+                 */
+                ti = proto_tree_add_item(tree, hf_rtmpt_amf_object, tvb, offset, -1, ENC_NA);
+                break;
+
+        case RTMPT_AMF0_ECMA_ARRAY:
+                /*
+                 * For ECMA array types, make the top-level protocol tree
+                 * item a field for that type.
+                 */
+                ti = proto_tree_add_item(tree, hf_rtmpt_amf_ecmaarray, tvb, offset, -1, ENC_NA);
+                break;
+
+        case RTMPT_AMF0_STRICT_ARRAY:
+                /*
+                 * For strict array types, make the top-level protocol tree
+                 * item a field for that type.
+                 */
+                ti = proto_tree_add_item(tree, hf_rtmpt_amf_strictarray, tvb, offset, -1, ENC_NA);
+                break;
+
+        default:
+                /*
+                 * For all other types, make it just a text item; the
+                 * field for that type will be used for the value.
+                 */
+                ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                                         val_to_str_const(iObjType, rtmpt_amf0_type_vals, "Unknown"));
+                break;
+        }
+
+        val_tree = proto_item_add_subtree(ti, ett_rtmpt_value);
+        proto_tree_add_uint(val_tree, hf_rtmpt_amf0_type, tvb, iValueOffset, 1, iObjType);
+        iValueOffset++;
+
+        switch (iObjType) {
+        case RTMPT_AMF0_NUMBER:
+                iDoubleValue = tvb_get_ntohieee_double(tvb, iValueOffset);
+                proto_tree_add_double(val_tree, hf_rtmpt_amf_number, tvb, iValueOffset, 8, iDoubleValue);
+                iValueOffset += 8;
+                proto_item_append_text(ti, " %." STRINGIFY(DBL_DIG) "g", iDoubleValue);
+                if (parent_ti != NULL)
+                        proto_item_append_text(parent_ti, " %." STRINGIFY(DBL_DIG) "g", iDoubleValue);
+                break;
+        case RTMPT_AMF0_BOOLEAN:
+                iBooleanValue = tvb_get_guint8(tvb, iValueOffset);
+                proto_tree_add_boolean(val_tree, hf_rtmpt_amf_boolean, tvb, iValueOffset, 1, iBooleanValue);
+                iValueOffset += 1;
+                proto_item_append_text(ti, iBooleanValue ? " true" : " false");
+                if (parent_ti != NULL)
+                        proto_item_append_text(parent_ti, iBooleanValue ? " true" : " false");
+                break;
+        case RTMPT_AMF0_STRING:
+                iStringLength = tvb_get_ntohs(tvb, iValueOffset);
+                proto_tree_add_uint(val_tree, hf_rtmpt_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
+                iValueOffset += 2;
+                iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                if (iStringLength != 0)
+                        proto_tree_add_string(val_tree, hf_rtmpt_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
+                iValueOffset += iStringLength;
+                proto_item_append_text(ti, " '%s'", iStringValue);
+                if (parent_ti != NULL)
+                        proto_item_append_text(parent_ti, " '%s'", iStringValue);
+                break;
+        case RTMPT_AMF0_OBJECT:
+                iValueOffset = dissect_amf0_property_list(tvb, iValueOffset, val_tree, &count, amf3_encoding);
+                proto_item_append_text(ti, " (%u items)", count);
+                break;
+        case RTMPT_AMF0_NULL:
+        case RTMPT_AMF0_UNDEFINED:
+                break;
+        case RTMPT_AMF0_REFERENCE:
+                iIntegerValue = tvb_get_ntohs(tvb, iValueOffset);
+                proto_tree_add_uint(val_tree, hf_rtmpt_amf_object_reference, tvb, iValueOffset, 2, iIntegerValue);
+                iValueOffset += 2;
+                proto_item_append_text(ti, " %d", iIntegerValue);
+                break;
+        case RTMPT_AMF0_ECMA_ARRAY:
+                /*
+                 * Counted list type, with end marker. The count appears to be
+                 * more of a hint than a rule, and is sometimes sent as 0 or
+                 * invalid.
+                 *
+                 * Basically the same as OBJECT but with the extra count field.
+                 * There being many strange encoders/metadata injectors out
+                 * there, sometimes you see a valid count and no end marker.
+                 * Figuring out which you've got for a deeply nested structure
+                 * is non-trivial.
+                 */
+                iArrayLength = tvb_get_ntohl(tvb, iValueOffset);
+                proto_tree_add_uint(val_tree, hf_rtmpt_amf_arraylength, tvb, iValueOffset, 4, iArrayLength);
+                iValueOffset += 4;
+                iValueOffset = dissect_amf0_property_list(tvb, iValueOffset, val_tree, &count, amf3_encoding);
+                proto_item_append_text(ti, " (%u items)", count);
+                break;
+        case RTMPT_AMF0_END_OF_OBJECT:
+                proto_tree_add_text(tree, tvb, iValueOffset, 3, "End Of Object Marker");
+                iValueOffset += 3;
+                break;
+        case RTMPT_AMF0_STRICT_ARRAY:
+                /*
+                 * Counted list type, without end marker. Number of values
+                 * is determined by count, values are assumed to form a
+                 * [0..N-1] numbered array and are presented as plain AMF
+                 * types, not OBJECT or ECMA_ARRAY style named properties.
+                 */
+                iArrayLength = tvb_get_ntohl(tvb, iValueOffset);
+                proto_tree_add_uint(val_tree, hf_rtmpt_amf_arraylength, tvb, iValueOffset, 4, iArrayLength);
+                iValueOffset += 4;
+                for (i = 0; i < iArrayLength; i++)
+                        iValueOffset = dissect_amf0_value_type(tvb, iValueOffset, val_tree, amf3_encoding, NULL);
+                proto_item_append_text(ti, " (%u items)", iArrayLength);
+                break;
+        case RTMPT_AMF0_DATE:
+                iDoubleValue = tvb_get_ntohieee_double(tvb, iValueOffset);
+                t.secs = iDoubleValue/1000;
+                t.nsecs = (iDoubleValue - 1000*(double)t.secs) * 1000000;
+                proto_tree_add_time(val_tree, hf_rtmpt_amf_date, tvb, iValueOffset, 8, &t);
+                iValueOffset += 8;
+                proto_item_append_text(ti, " %s", abs_time_to_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
+                if (parent_ti != NULL)
+                        proto_item_append_text(parent_ti, " %s", abs_time_to_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
+                /* time-zone */
+                iValueOffset += 2;
+                break;
+        case RTMPT_AMF0_LONG_STRING:
+        case RTMPT_AMF0_XML: /* same representation */
+                iStringLength = tvb_get_ntohl(tvb, iValueOffset);
+                proto_tree_add_uint(val_tree, hf_rtmpt_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
+                iValueOffset += 4;
+                iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                if (iStringLength != 0)
+                        proto_tree_add_string(val_tree, (iObjType==RTMPT_AMF0_XML) ? hf_rtmpt_amf_xml_doc : hf_rtmpt_amf_longstring, tvb, iValueOffset, iStringLength, iStringValue);
+                iValueOffset += iStringLength;
+                proto_item_append_text(ti, " '%s'", iStringValue);
+                if (parent_ti != NULL)
+                        proto_item_append_text(parent_ti, " '%s'", iStringValue);
+                break;
+        case RTMPT_AMF0_UNSUPPORTED:
+                break;
+        case RTMPT_AMF0_TYPED_OBJECT:
+                /* class-name */
+                iStringLength = tvb_get_ntohs(tvb, iValueOffset);
+                proto_tree_add_uint(val_tree, hf_rtmpt_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
+                iValueOffset += 2;
+                iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                proto_tree_add_string(val_tree, hf_rtmpt_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
+                iValueOffset += iStringLength;
+                iValueOffset = dissect_amf0_property_list(tvb, iValueOffset, val_tree, &count, amf3_encoding);
+                break;
+        case RTMPT_AMF0_AMF3_MARKER:
+                *amf3_encoding = TRUE;
+                break;
+        case RTMPT_AMF0_INT64:
+                iInteger64Value = tvb_get_ntoh64(tvb, iValueOffset);
+                proto_tree_add_int64(val_tree, hf_rtmpt_amf_int64, tvb, iValueOffset, 8, iInteger64Value);
+                iValueOffset += 8;
+                proto_item_append_text(ti," %" G_GINT64_MODIFIER "d", iInteger64Value);
+                if (parent_ti != NULL)
+                        proto_item_append_text(parent_ti," %" G_GINT64_MODIFIER "d", iInteger64Value);
+                break;
+        default:
+                /*
+                 * If we can't determine the length, don't carry on;
+                 * just skip to the end of the tvbuff.
+                 */
+                iValueOffset = tvb_length(tvb);
+                break;
+        }
+        proto_item_set_end(ti, tvb, iValueOffset);
+        return iValueOffset;
+}
+
+static guint32
+amf_get_u29(tvbuff_t *tvb, int offset, guint *lenp)
+{
+        guint      len = 0;
+        guint8     iByte;
+        guint32    iValue;
+
+        iByte = tvb_get_guint8(tvb, offset);
+        iValue = (iByte & 0x7F);
+        offset++;
+        len++;
+        if (!(iByte & 0x80)) {
+                /* 1 byte value */
+                *lenp = len;
+                return iValue;
+        }
+        iByte = tvb_get_guint8(tvb, offset);
+        iValue = (iValue << 7) | (iByte & 0x7F);
+        offset++;
+        len++;
+        if (!(iByte & 0x80)) {
+                /* 2 byte value */
+                *lenp = len;
+                return iValue;
+        }
+        iByte = tvb_get_guint8(tvb, offset);
+        iValue = (iValue << 7) | (iByte & 0x7F);
+        offset++;
+        len++;
+        if (!(iByte & 0x80)) {
+                /* 3 byte value */
+                *lenp = len;
+                return iValue;
+        }
+        iByte = tvb_get_guint8(tvb, offset);
+        iValue = (iValue << 8) | iByte;
+        len++;
+        *lenp = len;
+        return iValue;
+}
+
+static gint
+dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item *parent_ti)
+{
+        guint8      iObjType;
+        proto_item *ti;
+        proto_tree *val_tree;
+        gint        iValueOffset = offset;
+        guint       iValueLength;
+        guint32     iIntegerValue;
+        double      iDoubleValue;
+        guint       iStringLength;
+        gchar      *iStringValue;
+        guint       iArrayLength;
+        proto_item *subval_ti;
+        proto_tree *subval_tree;
+        guint       i;
+        gboolean    iTypeIsDynamic;
+        guint       iTraitCount;
+        proto_item *traits_ti;
+        proto_tree *traits_tree;
+        proto_item *name_ti;
+        proto_tree *name_tree;
+        proto_item *member_ti;
+        proto_tree *member_tree;
+        guint8     *iByteArrayValue;
+
+        iObjType = tvb_get_guint8(tvb, offset);
+        if (parent_ti != NULL)
+                proto_item_append_text(parent_ti, " %s",
+                                       val_to_str_const(iObjType, rtmpt_amf3_type_vals, "Unknown"));
+        switch (iObjType) {
+
+        case RTMPT_AMF3_ARRAY:
+                /*
+                 * For array types, make the top-level protocol tree
+                 * item a field for that type.
+                 */
+                ti = proto_tree_add_item(tree, hf_rtmpt_amf_array, tvb, offset, -1, ENC_NA);
+                break;
+
+        case RTMPT_AMF3_OBJECT:
+                /*
+                 * For object types, make the top-level protocol tree
+                 * item a field for that type.
+                 */
+                ti = proto_tree_add_item(tree, hf_rtmpt_amf_object, tvb, offset, -1, ENC_NA);
+                break;
+
+        default:
+                /*
+                 * For all other types, make it just a text item; the
+                 * field for that type will be used for the value.
+                 */
+                ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                                         val_to_str_const(iObjType, rtmpt_amf3_type_vals, "Unknown"));
+                break;
+        }
+
+        val_tree = proto_item_add_subtree(ti, ett_rtmpt_value);
+        proto_tree_add_uint(val_tree, hf_rtmpt_amf3_type, tvb, iValueOffset, 1, iObjType);
+        iValueOffset++;
+
+        switch (iObjType) {
+        case RTMPT_AMF3_UNDEFINED:
+        case RTMPT_AMF3_NULL:
+                break;
+        case RTMPT_AMF3_FALSE:
+                proto_tree_add_boolean(val_tree, hf_rtmpt_amf_boolean, tvb, 0, 0, FALSE);
+                proto_item_append_text(ti, " false");
+                break;
+        case RTMPT_AMF3_TRUE:
+                proto_tree_add_boolean(val_tree, hf_rtmpt_amf_boolean, tvb, 0, 0, TRUE);
+                proto_item_append_text(ti, " true");
+                break;
+        case RTMPT_AMF3_INTEGER:
+                /* XXX - signed or unsigned? */
+                iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
+                proto_tree_add_uint(val_tree, hf_rtmpt_amf_integer, tvb, iValueOffset, iValueLength, iIntegerValue);
+                proto_item_append_text(ti, " %u", iIntegerValue);
+                if (parent_ti != NULL)
+                        proto_item_append_text(parent_ti, " %u", iIntegerValue);
+                iValueOffset += iValueLength;
+                break;
+        case RTMPT_AMF3_DOUBLE:
+                iDoubleValue = tvb_get_ntohieee_double(tvb, iValueOffset);
+                proto_tree_add_double(val_tree, hf_rtmpt_amf_number, tvb, iValueOffset, 8, iDoubleValue);
+                iValueOffset += 8;
+                proto_item_append_text(ti, " %." STRINGIFY(DBL_DIG) "g", iDoubleValue);
+                if (parent_ti != NULL)
+                        proto_item_append_text(parent_ti, " %." STRINGIFY(DBL_DIG) "g", iDoubleValue);
+                break;
+        case RTMPT_AMF3_STRING:
+                iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
+                if (iIntegerValue & 0x00000001) {
+                        /* the upper 28 bits of the integer value is a string length */
+                        iStringLength = iIntegerValue >> 1;
+                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_stringlength, tvb, iValueOffset, iValueLength, iStringLength);
+                        iValueOffset += iValueLength;
+                        iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                        if (iStringLength != 0)
+                                proto_tree_add_string(val_tree, hf_rtmpt_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
+                        iValueOffset += iStringLength;
+                        proto_item_append_text(ti, " '%s'", iStringValue);
+                        if (parent_ti != NULL)
+                                proto_item_append_text(parent_ti, " '%s'", iStringValue);
+                } else {
+                        /* the upper 28 bits of the integer value are a string reference index */
+                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_string_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
+                        iValueOffset += iValueLength;
+                        proto_item_append_text(ti, " reference %u", iIntegerValue >> 1);
+                        if (parent_ti != NULL)
+                                proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
+                }
+                break;
+        case RTMPT_AMF3_DATE:
+                iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
+                if (iIntegerValue & 0x00000001) {
+                        /*
+                         * The upper 28 bits of the integer value are
+                         * ignored; what follows is a double
+                         * containing milliseconds since the Epoch.
+                         */
+                        nstime_t t;
+
+                        iValueOffset += iValueLength;
+                        iDoubleValue = tvb_get_ntohieee_double(tvb, iValueOffset);
+                        t.secs = iDoubleValue/1000;
+                        t.nsecs = (iDoubleValue - 1000*(double)t.secs) * 1000000;
+                        proto_tree_add_time(val_tree, hf_rtmpt_amf_date, tvb, iValueOffset, 8, &t);
+                        iValueOffset += 8;
+                        proto_item_append_text(ti, "%s", abs_time_to_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
+                        if (parent_ti != NULL)
+                                proto_item_append_text(parent_ti, "%s", abs_time_to_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
+                } else {
+                        /* the upper 28 bits of the integer value are an object reference index */
+                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_object_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
+                        iValueOffset += iValueLength;
+                        proto_item_append_text(ti, " object reference %u", iIntegerValue >> 1);
+                        if (parent_ti != NULL)
+                                proto_item_append_text(parent_ti, " object reference %u", iIntegerValue >> 1);
+                }
+                break;
+        case RTMPT_AMF3_ARRAY:
+                iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
+                if (iIntegerValue & 0x00000001) {
+                        /*
+                         * The upper 28 bits of the integer value are
+                         * a count of the number of elements in
+                         * the dense portion of the array.
+                         */
+                        iArrayLength = iIntegerValue >> 1;
+                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_arraydenselength, tvb, iValueOffset, iValueLength, iArrayLength);
+                        iValueOffset += iValueLength;
+
+                        /*
+                         * The AMF3 spec bit on the Array type is slightly
+                         * confusingly written, but seems to be saying that
+                         * the associative portion of the array follows the
+                         * size of the dense portion of the array, and the
+                         * dense portion of the array follows the associative
+                         * portion.
+                         *
+                         * Dissect the associative portion.
+                         */
+                        for (;;) {
+                                /* Fetch the name */
+                                iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
+                                if (iIntegerValue & 0x00000001) {
+                                        /* the upper 28 bits of the integer value is a string length */
+                                        iStringLength = iIntegerValue >> 1;
+                                        if (iStringLength == 0) {
+                                                /* null name marks the end of the associative part */
+                                                proto_tree_add_text(val_tree, tvb, iValueOffset, iValueLength, "End of associative part");
+                                                iValueOffset += iValueLength;
+                                                break;
+                                        }
+                                        iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
+                                        subval_ti = proto_tree_add_text(val_tree, tvb, iValueOffset, iStringLength, "%s:", iStringValue);
+                                        subval_tree = proto_item_add_subtree(subval_ti, ett_rtmpt_array_element);
+                                        proto_tree_add_uint(subval_tree, hf_rtmpt_amf_stringlength, tvb, iValueOffset, iValueLength, iStringLength);
+                                        iValueOffset += iValueLength;
+                                        proto_tree_add_string(subval_tree, hf_rtmpt_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
+                                } else {
+                                        /* the upper 28 bits of the integer value are a string reference index */
+                                        subval_ti = proto_tree_add_text(val_tree, tvb, iValueOffset, iValueLength, "Reference %u:", iIntegerValue >> 1);
+                                        subval_tree = proto_item_add_subtree(subval_ti, ett_rtmpt_array_element);
+                                        proto_tree_add_uint(subval_tree, hf_rtmpt_amf_string_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
+                                }
+
+                                /* Fetch the value */
+                                iObjType = tvb_get_guint8(tvb, offset);
+                                proto_item_append_text(subval_ti, "%s",
+                                                       val_to_str_const(iObjType, rtmpt_amf3_type_vals, "Unknown"));
+
+                                iValueOffset = dissect_amf3_value_type(tvb, iValueOffset, subval_tree, subval_ti);
+                        }
+
+                        /*
+                         * Dissect the dense portion.
+                         */
+                        for (i = 0; i < iArrayLength; i++)
+                                iValueOffset = dissect_amf3_value_type(tvb, iValueOffset, val_tree, NULL);
+
+                        proto_item_set_end(ti, tvb, iValueOffset);
+                } else {
+                        /* the upper 28 bits of the integer value are an object reference index */
+                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_object_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
+                        proto_item_append_text(ti, " reference %u", iIntegerValue >> 1);
+                        if (parent_ti != NULL)
+                                proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
+                }
+                break;
+        case RTMPT_AMF3_OBJECT:
+                iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
+                if (iIntegerValue & 0x00000001) {
+                        if (iIntegerValue & 0x00000002) {
+                                if (iIntegerValue & 0x00000004) {
+                                        /*
+                                         * U29O-traits-ext; the rest of
+                                         * iIntegerValue is not significant,
+                                         * and, worse, we have idea what
+                                         * follows the class name, or even
+                                         * how many bytes follow the class
+                                         * name - that's by convention between
+                                         * the client and server.
+                                         */
+                                        iValueOffset += iValueLength;
+                                } else {
+                                        /*
+                                         * U29O-traits; the 0x00000008 bit
+                                         * specifies whether the type is
+                                         * dynamic.
+                                         */
+                                        iTypeIsDynamic = (iIntegerValue & 0x00000008) ? TRUE : FALSE;
+                                        iTraitCount = iIntegerValue >> 4;
+                                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_traitcount, tvb, iValueOffset, iValueLength, iTraitCount);
+                                        iValueOffset += iValueLength;
+                                        iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
+                                        if (iIntegerValue & 0x00000001) {
+                                                /* the upper 28 bits of the integer value is a string length */
+                                                iStringLength = iIntegerValue >> 1;
+                                                iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
+                                                traits_ti = proto_tree_add_text(val_tree, tvb, iValueOffset, -1, "Traits for class %s (%u member names)", iStringValue, iTraitCount);
+                                                traits_tree = proto_item_add_subtree(traits_ti, ett_rtmpt_traits);
+                                                name_ti = proto_tree_add_text(traits_tree, tvb,
+                                                                              iValueOffset,
+                                                                              iValueLength+iStringLength,
+                                                                              "Class name: %s",
+                                                                              iStringValue);
+                                                name_tree = proto_item_add_subtree(name_ti, ett_rtmpt_string);
+                                                proto_tree_add_uint(name_tree, hf_rtmpt_amf_classnamelength, tvb, iValueOffset, iValueLength, iStringLength);
+                                                iValueOffset += iValueLength;
+                                                proto_tree_add_string(name_tree, hf_rtmpt_amf_classname, tvb, iValueOffset, iStringLength, iStringValue);
+                                                iValueOffset += iStringLength;
+                                        } else {
+                                                /* the upper 28 bits of the integer value are a string reference index */
+                                                traits_ti = proto_tree_add_text(val_tree, tvb, iValueOffset, iValueLength, "Traits for class (reference %u for name)", iIntegerValue >> 1);
+                                                traits_tree = proto_item_add_subtree(traits_ti, ett_rtmpt_traits);
+                                                proto_tree_add_uint(traits_tree, hf_rtmpt_amf_string_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
+                                                iValueOffset += iValueLength;
+                                        }
+                                        for (i = 0; i < iTraitCount; i++) {
+                                                iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
+                                                if (iIntegerValue & 0x00000001) {
+                                                        /* the upper 28 bits of the integer value is a string length */
+                                                        iStringLength = iIntegerValue >> 1;
+                                                        iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
+                                                        member_ti = proto_tree_add_text(traits_tree, tvb, iValueOffset, iValueLength+iStringLength, "Member '%s'", iStringValue);
+                                                        member_tree = proto_item_add_subtree(member_ti, ett_rtmpt_trait_member);
+                                                        proto_tree_add_uint(member_tree, hf_rtmpt_amf_membernamelength, tvb, iValueOffset, iValueLength, iStringLength);
+                                                        iValueOffset += iValueLength;
+                                                        proto_tree_add_string(member_tree, hf_rtmpt_amf_membername, tvb, iValueOffset, iStringLength, iStringValue);
+                                                        iValueOffset += iStringLength;
+                                                } else {
+                                                        /* the upper 28 bits of the integer value are a string reference index */
+                                                        proto_tree_add_uint(traits_tree, hf_rtmpt_amf_string_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
+                                                        iValueOffset += iValueLength;
+                                                }
+                                        }
+                                        for (i = 0; i < iTraitCount; i++)
+                                                iValueOffset = dissect_amf3_value_type(tvb, iValueOffset, traits_tree, NULL);
+                                        if (iTypeIsDynamic) {
+                                        	for (;;) {
+                                                        /* Fetch the name */
+                                                        iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
+                                                        if (iIntegerValue & 0x00000001) {
+                                                                /* the upper 28 bits of the integer value is a string length */
+                                                                iStringLength = iIntegerValue >> 1;
+                                                                if (iStringLength == 0) {
+                                                                        /* null name marks the end of the associative part */
+                                                                        proto_tree_add_text(traits_tree, tvb, iValueOffset, iValueLength, "End of dynamic members");
+                                                                        iValueOffset += iValueLength;
+                                                                        break;
+                                                                }
+                                                                iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
+                                                                subval_ti = proto_tree_add_text(traits_tree, tvb, iValueOffset, -1, "%s:", iStringValue);
+                                                                subval_tree = proto_item_add_subtree(subval_ti, ett_rtmpt_array_element);
+                                                                name_ti = proto_tree_add_text(subval_tree, tvb,
+                                                                                              iValueOffset,
+                                                                                              iValueLength+iStringLength,
+                                                                                              "Member name: %s",
+                                                                                              iStringValue);
+                                                                name_tree = proto_item_add_subtree(name_ti, ett_rtmpt_string);
+                                                                proto_tree_add_uint(name_tree, hf_rtmpt_amf_membernamelength, tvb, iValueOffset, iValueLength, iStringLength);
+                                                                iValueOffset += iValueLength;
+                                                                proto_tree_add_string(name_tree, hf_rtmpt_amf_membername, tvb, iValueOffset, iStringLength, iStringValue);
+                                                                iValueOffset += iStringLength;
+                                                        } else {
+                                                                /* the upper 28 bits of the integer value are a string reference index */
+                                                                subval_ti = proto_tree_add_text(traits_tree, tvb, iValueOffset, iValueLength, "Reference %u:", iIntegerValue >> 1);
+                                                                subval_tree = proto_item_add_subtree(subval_ti, ett_rtmpt_array_element);
+                                                                proto_tree_add_uint(subval_tree, hf_rtmpt_amf_string_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
+                                                                iValueOffset += iValueLength;
+                                    	                }
+
+                                                        /* Fetch the value */
+                                                        iValueOffset = dissect_amf3_value_type(tvb, iValueOffset, subval_tree, subval_ti);
+                                                        proto_item_set_end(subval_ti, tvb, iValueOffset);
+                                                }
+                                        }
+                                        proto_item_set_end(traits_ti, tvb, iValueOffset);
+                                }
+                        } else {
+                                /*
+                                 * U29O-traits-ref; the upper 27 bits of
+                                 * the integer value are a traits reference
+                                 * index.
+                                 */
+                                proto_tree_add_uint(val_tree, hf_rtmpt_amf_trait_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 2);
+                                iValueOffset += iValueLength;
+                        }
+                } else {
+                        /*
+                         * U29O-ref; the upper 28 bits of the integer value
+                         * are an object reference index.
+                         */
+                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_object_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
+                        proto_item_append_text(ti, " reference %u", iIntegerValue >> 1);
+                        if (parent_ti != NULL)
+                                proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
+                }
+                break;
+        case RTMPT_AMF3_XML:
+                iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
+                if (iIntegerValue & 0x00000001) {
+                        /*
+                         * The upper 28 bits of the integer value are
+                         * a count of the number of bytes in the
+                         * XML string.
+                         */
+                        iStringLength = iIntegerValue >> 1;
+                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_xmllength, tvb, iValueOffset, iValueLength, iArrayLength);
+                        iValueOffset += iValueLength;
+                        proto_tree_add_item(val_tree, hf_rtmpt_amf_xml, tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                } else {
+                        /* the upper 28 bits of the integer value are a string reference index */
+                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_object_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
+                        proto_item_append_text(ti, " reference %u", iIntegerValue >> 1);
+                        if (parent_ti != NULL)
+                                proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
+                }
+                break;
+        case RTMPT_AMF3_BYTEARRAY:
+                iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
+                if (iIntegerValue & 0x00000001) {
+                        /*
+                         * The upper 28 bits of the integer value are
+                         * a count of the number of bytes in the
+                         * byte array.
+                         */
+                        iArrayLength = iIntegerValue >> 1;
+                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_bytearraylength, tvb, iValueOffset, iValueLength, iArrayLength);
+                        iValueOffset += iValueLength;
+                        iByteArrayValue = ep_tvb_memdup(tvb, iValueOffset, iArrayLength);
+                        proto_tree_add_bytes(val_tree, hf_rtmpt_amf_bytearray, tvb, iValueOffset, iArrayLength, iByteArrayValue);
+                        proto_item_append_text(ti, " %s", bytes_to_str(iByteArrayValue, iArrayLength));
+                        if (parent_ti != NULL)
+                                proto_item_append_text(parent_ti, " %s", bytes_to_str(iByteArrayValue, iArrayLength));
+                } else {
+                        /* the upper 28 bits of the integer value are a object reference index */
+                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_object_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
+                        proto_item_append_text(ti, " reference %u", iIntegerValue >> 1);
+                        if (parent_ti != NULL)
+                                proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
+                }
+                break;
+        default:
+                /*
+                 * If we can't determine the length, don't carry on;
+                 * just skip to the end of the tvbuff.
+                 */
+                iValueOffset = tvb_length(tvb);
+                break;
+        }
+        proto_item_set_end(ti, tvb, iValueOffset);
+        return iValueOffset;
+}
+
+static gint
+dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, gboolean amf3)
+{
+        gboolean    amf3_encoding = FALSE;
 
         if (amf3) {
                 /* Looks like for the AMF3 variants we get a 0 byte here,
                  * followed by AMF0 encoding - I've never seen actual AMF3
                  * encoding used, which is completely different. I speculate
-                 * that if the byte is RTMPT_AMF_AMF3_MARKER then the rest
+                 * that if the byte is RTMPT_AMF0_AMF3_MARKER then the rest
                  * will be in AMF3. For now, assume AMF0 only. */
                 offset++;
         }
 
-        while (tvb_length_remaining(tvb, offset) > 0)
+        while (tvb_reported_length_remaining(tvb, offset) > 0)
         {
-                guint8      iObjType        = 0;
-                gint        iPropertyOffset = 0;
-                gint        iPropertyLength = 0;
-                guint       iStringLength   = 0;
-                gint        iValueOffset    = 0;
-                gint        iValueLength    = 0; /* signed so we can use CLAMP() */
-                guint       iValueExtra     = 0;
-                gchar      *sValue          = "";
-                int         hfvalue         = -1;
-                guint       encoding        = ENC_NA;
-                guint       iPush           = 0;
-                proto_tree *rtmpt_tree_prop = NULL;
-                proto_item *ti              = NULL;
-
-                rtmpt_tree_prop = rtmpt_tree;
-
-                iValueOffset = offset;
-
-                if (depth>0 && !ot) {
-                        iStringLength = tvb_get_ntohs(tvb, offset);
-
-                        if (iStringLength==0 && tvb_get_guint8(tvb, offset + 2)==RTMPT_AMF_END_OF_OBJECT)
-                        {
-                                iObjType = RTMPT_AMF_END_OF_OBJECT;
-                                goto popamf;
-                        }
-
-                        iPropertyOffset = offset;
-                        iPropertyLength = 2 + iStringLength;
-                        iValueOffset += iPropertyLength;
-                }
-
-                iObjType = tvb_get_guint8(tvb, iValueOffset);
-                iValueOffset++;
-                iValueExtra = 1;
-
-                switch (iObjType) {
-                case RTMPT_AMF_NUMBER:
-                        iValueLength = 8;
-                        hfvalue = hf_rtmpt_amf_number;
-                        encoding = ENC_BIG_ENDIAN;
-                        sValue = ep_strdup_printf(" %." STRINGIFY(DBL_DIG) "g", tvb_get_ntohieee_double(tvb, iValueOffset));
-                        break;
-                case RTMPT_AMF_BOOLEAN:
-                        iValueLength = 1;
-                        hfvalue = hf_rtmpt_amf_boolean;
-                        encoding = ENC_BIG_ENDIAN;
-                        sValue = tvb_get_guint8(tvb, iValueOffset) ? " true" : " false";
-                        break;
-                case RTMPT_AMF_STRING:
-                        iValueLength = tvb_get_ntohs(tvb, iValueOffset);
-                        iValueOffset += 2;
-                        iValueExtra = 3;
-                        hfvalue = hf_rtmpt_amf_string;
-                        encoding = ENC_ASCII|ENC_NA;
-                        sValue = ep_strdup_printf(" '%s'", tvb_get_ephemeral_string(tvb, iValueOffset, CLAMP(iValueLength, 0, ITEM_LABEL_LENGTH+1)));
-                        break;
-                case RTMPT_AMF_OBJECT:
-                        /* Uncounted list type, with end marker */
-                        iValueLength = 0;
-                        hfvalue = hf_rtmpt_amf_object;
-                        encoding = ENC_NA;
-                        iPush = 1;
-                        break;
-                case RTMPT_AMF_NULL:
-                case RTMPT_AMF_UNDEFINED:
-                        iValueLength = 0;
-                        break;
-                case RTMPT_AMF_REFERENCE:
-                        iValueLength = 2;
-                        hfvalue = hf_rtmpt_amf_reference;
-                        encoding = ENC_BIG_ENDIAN;
-                        sValue = ep_strdup_printf(" %d", tvb_get_ntohs(tvb, iValueOffset));
-                        break;
-                case RTMPT_AMF_ECMA_ARRAY:
-                        /* Counted list type, with end marker. The count appears to be
-                         * more of a hint than a rule, and is sometimes sent as 0 or invalid.
-                         * Basically the same as OBJECT but with the extra count field.
-                         * There being many strange encoders/metadata injectors out there,
-                         * sometimes you see a valid count and no end marker. Figuring out
-                         * which you've got for a deeply nested structure is non-trivial.
-                         */
-                        iValueLength = 0;
-                        iValueOffset += 4;
-                        iValueExtra = 5;
-                        hfvalue = hf_rtmpt_amf_ecmaarray;
-                        encoding = ENC_NA;
-                        iPush = 1;
-                        break;
-                case RTMPT_AMF_STRICT_ARRAY:
-                        /* Counted list type, without end marker. Number of values is determined
-                         * by count, values are assumed to form a [0..N-1] numbered array and are
-                         * presented as plain AMF types, not OBJECT or ECMA_ARRAY style named
-                         * properties */
-                        iValueLength = 4;
-                        hfvalue = hf_rtmpt_amf_strictarray;
-                        encoding = ENC_NA;
-                        iPush = 1;
-                        break;
-                case RTMPT_AMF_DATE:
-                        iValueLength = 10;
-                        hfvalue = hf_rtmpt_amf_date;
-                        encoding = ENC_NA;
-                        break;
-                case RTMPT_AMF_LONG_STRING:
-                case RTMPT_AMF_XML: /* same representation */
-                        iValueLength = tvb_get_ntohl(tvb, iValueOffset);
-                        iValueOffset += 4;
-                        iValueExtra = 5;
-                        hfvalue = (iObjType==RTMPT_AMF_XML) ? hf_rtmpt_amf_xml : hf_rtmpt_amf_longstring;
-                        encoding = ENC_ASCII|ENC_NA; /* XXX - code page? */
-                        sValue = ep_strdup_printf(" '%s'", tvb_get_ephemeral_string(tvb, iValueOffset, CLAMP(iValueLength, 0, ITEM_LABEL_LENGTH+1)));
-                        break;
-                case RTMPT_AMF_UNSUPPORTED:
-                        iValueLength = 0;
-                        break;
-                case RTMPT_AMF_INT64:
-                        iValueLength = 8;
-                        hfvalue = hf_rtmpt_amf_int64;
-                        encoding = ENC_BIG_ENDIAN;
-                        sValue = ep_strdup_printf(" %" G_GINT64_MODIFIER "d", tvb_get_ntoh64(tvb, iValueOffset));
-                        break;
-                default:
-                        /* If we can't determine the length, don't carry on */
-                        iValueLength = tvb_length_remaining(tvb, iValueOffset);
-                        sValue = "";
-                        break;
-                }
-
-                offset += iPropertyLength + iValueExtra + iValueLength;
-                iObjectLength += iPropertyLength + iValueExtra + iValueLength;
-                pc++;
-
-                if (iPropertyLength>0) {
-                        proto_tree *name_tree = NULL;
-                        gchar *sProperty = tvb_get_ephemeral_string(tvb, iPropertyOffset+2, iPropertyLength-2);
-
-                        ti = proto_tree_add_text(rtmpt_tree, tvb,
-                                                 iPropertyOffset,
-                                                 iPropertyLength+iValueExtra+iValueLength,
-                                                 "Property '%s' %s%s",
-                                                 sProperty, val_to_str_const(iObjType, rtmpt_type_vals, "Unknown"), sValue);
-                        rtmpt_tree_prop = proto_item_add_subtree(ti, ett_rtmpt_property);
-
-                        ti = proto_tree_add_text(rtmpt_tree_prop, tvb,
-                                                 iPropertyOffset, iPropertyLength,
-                                                 "Name: %s", sProperty);
-                        name_tree = proto_item_add_subtree(ti, ett_rtmpt_string);
-
-                        proto_tree_add_item(name_tree, hf_rtmpt_amf_stringlength, tvb, iPropertyOffset, 2, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(name_tree, hf_rtmpt_amf_string, tvb, iPropertyOffset+2, iPropertyLength-2, ENC_ASCII|ENC_NA);
-                }
-
-                if (!iPush) {
-                        proto_tree *val_tree = NULL;
-
-                        ti = proto_tree_add_text(rtmpt_tree_prop, tvb,
-                                                 iValueOffset-iValueExtra, iValueExtra+iValueLength,
-                                                 "%s%s",
-                                                 val_to_str_const(iObjType, rtmpt_type_vals, "Unknown"), sValue);
-                        val_tree = proto_item_add_subtree(ti, ett_rtmpt_value);
-
-                        proto_tree_add_item(val_tree, hf_rtmpt_amf_type, tvb, iValueOffset-iValueExtra, 1, ENC_BIG_ENDIAN);
-                        if (iObjType==RTMPT_AMF_STRING) {
-                                proto_tree_add_item(val_tree, hf_rtmpt_amf_stringlength, tvb, iValueOffset-iValueExtra+1, 2, ENC_BIG_ENDIAN);
-                        } else if (iObjType==RTMPT_AMF_LONG_STRING || iObjType==RTMPT_AMF_XML) {
-                                proto_tree_add_item(val_tree, hf_rtmpt_amf_longstringlength, tvb, iValueOffset-iValueExtra+1, 4, ENC_BIG_ENDIAN);
-                        }
-                        if (iValueLength>0 && hfvalue != -1) {
-                                proto_tree_add_item(val_tree, hfvalue, tvb, iValueOffset, iValueLength, encoding);
-                        }
-                }
-
-                if (iPush) {
-                        depth++;
-                        ep_stack_push(amfols, GINT_TO_POINTER(iObjectLength));
-                        iObjectLength = iValueExtra;
-                        ep_stack_push(amfots, GINT_TO_POINTER(ot));
-                        ot = iValueLength>0 ? tvb_get_ntohl(tvb, iValueOffset)+1 : 0;
-                        ep_stack_push(amfpcs, GINT_TO_POINTER(pc));
-                        pc = 0;
-                        ep_stack_push(amftis, ti_object);
-                        ti_object = proto_tree_add_item(rtmpt_tree_prop, hfvalue, tvb, iValueOffset+iValueLength, 1, encoding);
-                        ep_stack_push(amftrs, rtmpt_tree);
-                        rtmpt_tree = proto_item_add_subtree(ti_object, ett_rtmpt_array);
-
-                        proto_tree_add_item(rtmpt_tree, hf_rtmpt_amf_type, tvb, iValueOffset-iValueExtra, 1, ENC_BIG_ENDIAN);
-                        if (iValueExtra>1 || iValueLength>0) {
-                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_amf_arraylength, tvb, iValueOffset-iValueExtra+1, 4, ENC_BIG_ENDIAN);
-                        }
-                }
-
-                if (!ot || --ot>0) continue;
-
-popamf:
-                /* reached end of amf container */
-
-                if (iObjType==RTMPT_AMF_END_OF_OBJECT) {
-                        proto_tree_add_text(rtmpt_tree_prop, tvb, offset, 3, "End Of Object Marker");
-                        iObjectLength += 3;
-                }
-
-                proto_item_set_len(ti_object, iObjectLength);
-                proto_item_append_text(ti_object, " (%d items)", pc);
-                depth--;
-                rtmpt_tree = ep_stack_pop(amftrs);
-                ti_object = ep_stack_pop(amftis);
-                ot = GPOINTER_TO_INT(ep_stack_pop(amfots));
-                pc = GPOINTER_TO_INT(ep_stack_pop(amfpcs));
-                iObjectLength += GPOINTER_TO_INT(ep_stack_pop(amfols));
-                if (iObjType==RTMPT_AMF_END_OF_OBJECT) {
-                        offset += 3;
-                }
-
-                if (depth>0 && ot>0 && --ot==0) {
-                        iObjType = 0;
-                        goto popamf;
-                }
+                if (amf3_encoding)
+                        offset = dissect_amf3_value_type(tvb, offset, rtmpt_tree, NULL);
+                else
+                        offset = dissect_amf0_value_type(tvb, offset, rtmpt_tree, &amf3_encoding, NULL);
         }
+        return offset;
 }
 
 static void
@@ -1877,6 +2423,73 @@ dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 #endif
 
+static void
+dissect_amf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+        proto_item *ti;
+        proto_tree *amf_tree, *headers_tree, *messages_tree;
+        int offset;
+        guint header_count, message_count, i;
+        guint string_length;
+        guint header_length, message_length;
+        gboolean amf3_encoding = FALSE;
+
+        /*
+         * XXX - is "application/x-amf" just AMF3?
+         */
+        ti = proto_tree_add_item(tree, proto_amf, tvb, 0, -1, ENC_NA);
+        amf_tree = proto_item_add_subtree(ti, ett_amf);
+        offset = 0;
+        proto_tree_add_item(amf_tree, hf_amf_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        header_count = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_uint(amf_tree, hf_amf_header_count, tvb, offset, 2, header_count);
+        offset += 2;
+        if (header_count != 0) {
+                ti = proto_tree_add_text(amf_tree, tvb, offset, -1, "Headers");
+                headers_tree = proto_item_add_subtree(ti, ett_amf_headers);
+                for (i = 0; i < header_count; i++) {
+                        string_length = tvb_get_ntohs(tvb, offset);
+                        proto_tree_add_item(headers_tree, hf_amf_header_name, tvb, offset, 2, ENC_BIG_ENDIAN|ENC_UTF_8);
+                        offset += 2 + string_length;
+                        proto_tree_add_item(headers_tree, hf_amf_header_must_understand, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        header_length = tvb_get_ntohl(tvb, offset);
+                        if (header_length == 0xFFFFFFFF)
+                                proto_tree_add_uint_format_value(headers_tree, hf_amf_header_length, tvb, offset, 4, header_length, "Unknown");
+                        else
+                                proto_tree_add_uint(headers_tree, hf_amf_header_length, tvb, offset, 4, header_length);
+                        offset += 4;
+                        if (amf3_encoding)
+                                offset = dissect_amf3_value_type(tvb, offset, headers_tree, NULL);
+                        else
+                                offset = dissect_amf0_value_type(tvb, offset, headers_tree, &amf3_encoding, NULL);
+                }
+        }
+        message_count = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_uint(amf_tree, hf_amf_message_count, tvb, offset, 2, message_count);
+        offset += 2;
+        if (message_count != 0) {
+                ti = proto_tree_add_text(amf_tree, tvb, offset, -1, "Messages");
+                messages_tree = proto_item_add_subtree(ti, ett_amf_messages);
+                for (i = 0; i < message_count; i++) {
+                        string_length = tvb_get_ntohs(tvb, offset);
+                        proto_tree_add_item(messages_tree, hf_amf_message_target_uri, tvb, offset, 2, ENC_BIG_ENDIAN|ENC_UTF_8);
+                        offset += 2 + string_length;
+                        string_length = tvb_get_ntohs(tvb, offset);
+                        proto_tree_add_item(messages_tree, hf_amf_message_response_uri, tvb, offset, 2, ENC_BIG_ENDIAN|ENC_UTF_8);
+                        offset += 2 + string_length;
+                        message_length = tvb_get_ntohl(tvb, offset);
+                        if (message_length == 0xFFFFFFFF)
+                                proto_tree_add_uint_format_value(messages_tree, hf_amf_message_length, tvb, offset, 4, message_length, "Unknown");
+                        else
+                                proto_tree_add_uint(messages_tree, hf_amf_message_length, tvb, offset, 4, message_length);
+                        offset += 4;
+                        offset = dissect_rtmpt_body_command(tvb, offset, messages_tree, FALSE);
+                }
+        }
+}
+
 void
 proto_register_rtmpt(void)
 {
@@ -1967,32 +2580,44 @@ proto_register_rtmpt(void)
                     VALS(rtmpt_ucm_vals), 0x0, "RTMPT UCM event type", HFILL }},
 
 /* AMF basic types */
-                { &hf_rtmpt_amf_type,
-                  { "AMF type", "rtmpt.amf.type", FT_UINT8, BASE_DEC,
-                    VALS(rtmpt_type_vals), 0x0, "RTMPT AMF type", HFILL }},
+                { &hf_rtmpt_amf0_type,
+                  { "AMF0 type", "rtmpt.amf0.type", FT_UINT8, BASE_HEX,
+                    VALS(rtmpt_amf0_type_vals), 0x0, "RTMPT AMF0 type", HFILL }},
+
+                { &hf_rtmpt_amf3_type,
+                  { "AMF3 type", "rtmpt.amf3.type", FT_UINT8, BASE_HEX,
+                    VALS(rtmpt_amf3_type_vals), 0x0, "RTMPT AMF3 type", HFILL }},
 
                 { &hf_rtmpt_amf_number,
                   { "Number", "rtmpt.amf.number", FT_DOUBLE, BASE_NONE,
                     NULL, 0x0, "RTMPT AMF number", HFILL }},
+
+                { &hf_rtmpt_amf_integer,
+                  { "Integer", "rtmpt.amf.integer", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF3 integer", HFILL }},
 
                 { &hf_rtmpt_amf_boolean,
                   { "Boolean", "rtmpt.amf.boolean", FT_BOOLEAN, BASE_NONE,
                     NULL, 0x0, "RTMPT AMF boolean", HFILL }},
 
                 { &hf_rtmpt_amf_stringlength,
-                  { "String length", "rtmpt.amf.stringlength", FT_UINT16, BASE_DEC,
+                  { "String length", "rtmpt.amf.stringlength", FT_UINT32, BASE_DEC,
                     NULL, 0x0, "RTMPT AMF string length", HFILL }},
 
                 { &hf_rtmpt_amf_string,
-                  { "String", "rtmpt.amf.string", FT_STRINGZ, BASE_NONE,
+                  { "String", "rtmpt.amf.string", FT_STRING, BASE_NONE,
                     NULL, 0x0, "RTMPT AMF string", HFILL }},
 
-                { &hf_rtmpt_amf_reference,
-                  { "Reference", "rtmpt.amf.reference", FT_UINT16, BASE_DEC,
+                { &hf_rtmpt_amf_string_reference,
+                  { "String reference", "rtmpt.amf.string_reference", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF3 string reference", HFILL }},
+
+                { &hf_rtmpt_amf_object_reference,
+                  { "Object reference", "rtmpt.amf.object_reference", FT_UINT32, BASE_DEC,
                     NULL, 0x0, "RTMPT AMF object reference", HFILL }},
 
                 { &hf_rtmpt_amf_date,
-                  { "Date", "rtmpt.amf.date", FT_BYTES, BASE_NONE,
+                  { "Date", "rtmpt.amf.date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
                     NULL, 0x0, "RTMPT AMF date", HFILL }},
 
                 { &hf_rtmpt_amf_longstringlength,
@@ -2000,21 +2625,61 @@ proto_register_rtmpt(void)
                     NULL, 0x0, "RTMPT AMF long string length", HFILL }},
 
                 { &hf_rtmpt_amf_longstring,
-                  { "Long string", "rtmpt.amf.longstring", FT_STRINGZ, BASE_NONE,
+                  { "Long string", "rtmpt.amf.longstring", FT_STRING, BASE_NONE,
                     NULL, 0x0, "RTMPT AMF long string", HFILL }},
 
-                { &hf_rtmpt_amf_xml,
-                  { "XML document", "rtmpt.amf.xml", FT_STRINGZ, BASE_NONE,
+                { &hf_rtmpt_amf_xml_doc,
+                  { "XML document", "rtmpt.amf.xml_doc", FT_STRING, BASE_NONE,
                     NULL, 0x0, "RTMPT AMF XML document", HFILL }},
+
+                { &hf_rtmpt_amf_xmllength,
+                  { "XML text length", "rtmpt.amf.xmllength", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF E4X XML length", HFILL }},
+
+                { &hf_rtmpt_amf_xml,
+                  { "XML", "rtmpt.amf.xml", FT_STRING, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF E4X XML", HFILL }},
 
                 { &hf_rtmpt_amf_int64,
                   { "Int64", "rtmpt.amf.int64", FT_INT64, BASE_DEC,
                     NULL, 0x0, "RTMPT AMF int64", HFILL }},
 
-/* AMF object types */
+                { &hf_rtmpt_amf_bytearraylength,
+                  { "ByteArray length", "rtmpt.amf.bytearraylength", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF3 ByteArray length", HFILL }},
+
+                { &hf_rtmpt_amf_bytearray,
+                  { "ByteArray", "rtmpt.amf.bytearray", FT_BYTES, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF3 ByteArray", HFILL }},
+
+/* AMF object types and subfields of the object types */
                 { &hf_rtmpt_amf_object,
                   { "Object", "rtmpt.amf.object", FT_NONE, BASE_NONE,
                     NULL, 0x0, "RTMPT AMF object", HFILL }},
+
+                { &hf_rtmpt_amf_traitcount,
+                  { "Trait count", "rtmpt.amf.traitcount", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF count of traits for an object", HFILL }},
+
+                { &hf_rtmpt_amf_classnamelength,
+                  { "Class name length", "rtmpt.amf.classnamelength", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF class name length", HFILL }},
+
+                { &hf_rtmpt_amf_classname,
+                  { "Class name", "rtmpt.amf.classname", FT_STRING, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF class name", HFILL }},
+
+                { &hf_rtmpt_amf_membernamelength,
+                  { "Member name length", "rtmpt.amf.membernamelength", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF member name length", HFILL }},
+
+                { &hf_rtmpt_amf_membername,
+                  { "Member name", "rtmpt.amf.membername", FT_STRING, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF member name", HFILL }},
+
+                { &hf_rtmpt_amf_trait_reference,
+                  { "Trait reference", "rtmpt.amf.trait_reference", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF trait reference", HFILL }},
 
                 { &hf_rtmpt_amf_ecmaarray,
                   { "ECMA array", "rtmpt.amf.ecmaarray", FT_NONE, BASE_NONE,
@@ -2024,9 +2689,17 @@ proto_register_rtmpt(void)
                   { "Strict array", "rtmpt.amf.strictarray", FT_NONE, BASE_NONE,
                     NULL, 0x0, "RTMPT AMF strict array", HFILL }},
 
+                { &hf_rtmpt_amf_array,
+                  { "Array", "rtmpt.amf.array", FT_NONE, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF3 array", HFILL }},
+
                 { &hf_rtmpt_amf_arraylength,
                   { "Array length", "rtmpt.amf.arraylength", FT_UINT32, BASE_DEC,
                     NULL, 0x0, "RTMPT AMF array length", HFILL }},
+
+                { &hf_rtmpt_amf_arraydenselength,
+                  { "Length of dense portion", "rtmpt.amf.arraydenselength", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF length of dense portion of array", HFILL }},
 
 /* Frame links */
 
@@ -2118,6 +2791,9 @@ proto_register_rtmpt(void)
                 &ett_rtmpt_object,
                 &ett_rtmpt_mixed_array,
                 &ett_rtmpt_array,
+                &ett_rtmpt_array_element,
+                &ett_rtmpt_traits,
+                &ett_rtmpt_trait_member,
                 &ett_rtmpt_audio_control,
                 &ett_rtmpt_video_control,
                 &ett_rtmpt_tag,
@@ -2137,11 +2813,14 @@ proto_register_rtmpt(void)
                                        " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\""
                                        " in the TCP protocol settings.",
                                        &rtmpt_desegment);
+
 }
 
 void
 proto_reg_handoff_rtmpt(void)
 {
+        dissector_handle_t amf_handle;
+
 /*      heur_dissector_add("tcp", dissect_rtmpt_heur, proto_rtmpt); */
         rtmpt_tcp_handle = create_dissector_handle(dissect_rtmpt_tcp, proto_rtmpt);
 /*      dissector_add_handle("tcp.port", rtmpt_tcp_handle); */
@@ -2149,7 +2828,65 @@ proto_reg_handoff_rtmpt(void)
 
         rtmpt_http_handle = create_dissector_handle(dissect_rtmpt_http, proto_rtmpt);
         dissector_add_string("media_type", "application/x-fcs", rtmpt_http_handle);
+
+        amf_handle = create_dissector_handle(dissect_amf, proto_amf);
+        dissector_add_string("media_type", "application/x-amf", amf_handle);
 }
+
+void
+proto_register_amf(void)
+{
+        static hf_register_info hf[] = {
+                { &hf_amf_version,
+                  { "AMF version", "amf.version", FT_UINT16, BASE_DEC,
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_amf_header_count,
+                  { "Header count", "amf.header_count", FT_UINT16, BASE_DEC,
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_amf_header_name,
+                  { "Name", "amf.header.name", FT_UINT_STRING, BASE_NONE,
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_amf_header_must_understand,
+                  { "Must understand", "amf.header.must_understand", FT_BOOLEAN, BASE_NONE,
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_amf_header_length,
+                  { "Length", "amf.header.length", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_amf_header_value_type,
+                  { "Value type", "amf.header.value_type", FT_UINT32, BASE_HEX,
+                    /*VALS(rtmpt_type_vals)*/NULL, 0x0, NULL, HFILL }},
+
+                { &hf_amf_message_count,
+                  { "Message count", "amf.message_count", FT_UINT16, BASE_DEC,
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_amf_message_target_uri,
+                  { "Target URI", "amf.message.target_uri", FT_UINT_STRING, BASE_NONE,
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_amf_message_response_uri,
+                  { "Response URI", "amf.message.response_uri", FT_UINT_STRING, BASE_NONE,
+                    NULL, 0x0, NULL, HFILL }},
+
+                { &hf_amf_message_length,
+                  { "Length", "amf.message.length", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, NULL, HFILL }},
+        };
+        static gint *ett[] = {
+                &ett_amf,
+                &ett_amf_headers,
+                &ett_amf_messages
+        };
+
+        proto_amf = proto_register_protocol("Action Message Format", "AMF", "amf");
+        proto_register_field_array(proto_rtmpt, hf, array_length(hf));
+        proto_register_subtree_array(ett, array_length(ett));
+};
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
