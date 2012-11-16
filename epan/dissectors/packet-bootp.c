@@ -10,6 +10,8 @@
  * Added option 117 : RFC 2937 - The Name Service Search Option for DHCP
  * Added option 119 : RFC 3397 - Dynamic Host Configuration Protocol (DHCP) Domain Search Option
  *                    RFC 3396 - Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4)
+ * Improved opt 120 : Add support of RFC 3396 - Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4)
+ *                    Add support compression according to the encoding in Section 4.1.4 of RFC 1035 - DOMAIN NAMES - IMPLEMENTATION AND SPECIFICATION
  * Copyright 2012, Jerome LAFORGE <jerome.laforge [AT] gmail.com>
  *
  * $Id$
@@ -393,9 +395,12 @@ static int hf_bootp_option_dhcp_name_service_search_option = -1;		/* 117 */
 static int hf_bootp_option_dhcp_dns_domain_search_list_rfc_3396_detected = -1;	/* 119 */
 static int hf_bootp_option_dhcp_dns_domain_search_list_refer_last_option = -1;	/* 119 */
 static int hf_bootp_option_dhcp_dns_domain_search_list_fqdn = -1;		/* 119 */
-static int hf_bootp_option_sip_server_enc = -1;					/* 120 */
+static int hf_bootp_option_sip_server_rfc_3396_detected = -1;			/* 120 */
+static int hf_bootp_option_sip_server_refer_last_option = -1;			/* 120 */
+static int hf_bootp_option_sip_server_enc = -1;				/* 120 */
 static int hf_bootp_option_sip_server_name = -1;				/* 120 */
 static int hf_bootp_option_sip_server_address = -1;				/* 120 */
+static int hf_bootp_option_sip_server_address_stringz = -1;		/* 120 */
 static int hf_bootp_option_cl_dss_id_option = -1;			/* 123 CL */
 static int hf_bootp_option_cl_dss_id_len = -1;				/* 123 CL */
 static int hf_bootp_option_cl_dss_id = -1;				/* 123 CL */
@@ -531,12 +536,23 @@ struct rfc3825_location_decimal_t {
 				    3: NAD83/MLLW */
 };
 
+/* For managing split options with RFC 3396 */
+struct rfc3396_for_option_t {
+	unsigned int total_number_of_block;
+	unsigned int index_current_block;
+	tvbuff_t* tvb_composite;
+};
+
 /* The RFC 3397 allows to cut long option (RFC 3396). */
-struct rfc3397_rfc3396_dns_domain_search_list_t {
-	unsigned int nb_option_119;
-	unsigned int index_current_option_119;
-	tvbuff_t* buff;
-} dns_domain_search_list;
+struct rfc3396_for_option_t rfc3396_dns_domain_search_list;
+
+/* The RFC 3361 allows to cut long option (RFC 3396). */
+struct rfc3396_for_option_t rfc3396_sip_server;
+
+enum {
+	RFC_3361_ENC_FQDN,
+	RFC_3361_ENC_IPADDR
+};
 
 /* converts fixpoint presentation into decimal presentation
    also converts values which are out of range to allow decoding of received data */
@@ -710,6 +726,7 @@ static const true_false_string flag_set_broadcast = {
 	"Unicast"
 };
 
+#define BOOTP_MAX_NO_CHAR 64
 
 /* PacketCable/DOCSIS definitions */
 #define PACKETCABLE_MTA_CAP10 "pktc1.0:"
@@ -1530,7 +1547,10 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				    tvb_get_ptr(tvb, voff+2, consumed-2);
 				break;
 			case 119:
-				dns_domain_search_list.nb_option_119++;
+				rfc3396_dns_domain_search_list.total_number_of_block++;
+				break;
+			case 120:
+				rfc3396_sip_server.total_number_of_block++;
 				break;
 			}
 		}
@@ -1652,7 +1672,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				o52voff = FILE_NAME_OFFSET;
 				o52eoff = FILE_NAME_OFFSET + FILE_NAME_LEN;
 				o52at_end = FALSE;
-				dns_domain_search_list.index_current_option_119 = 0;
+				rfc3396_dns_domain_search_list.index_current_block = 0;
+				rfc3396_sip_server.index_current_block = 0;
 				while (o52voff < o52eoff && !o52at_end) {
 					o52voff += bootp_option(tvb, pinfo, bp_tree, o52voff,
 						o52eoff, FALSE, &o52at_end,
@@ -1673,7 +1694,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				o52voff = SERVER_NAME_OFFSET;
 				o52eoff = SERVER_NAME_OFFSET + SERVER_NAME_LEN;
 				o52at_end = FALSE;
-				dns_domain_search_list.index_current_option_119 = 0;
+				rfc3396_dns_domain_search_list.index_current_block = 0;
+				rfc3396_sip_server.index_current_block = 0;
 				while (o52voff < o52eoff && !o52at_end) {
 					o52voff += bootp_option(tvb, pinfo, bp_tree, o52voff,
 						o52eoff, FALSE, &o52at_end,
@@ -2183,37 +2205,36 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	case 119: { /* Dynamic Host Configuration Protocol (DHCP) Domain Search Option (RFC 3397) */
 	            /* Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4) (RFC 3396) */
 	            /* Domain Names - Implementation And Specification (RFC 1035) */
-#define BOOTP_MAX_NO_CHAR 64
 		char tmpChar[BOOTP_MAX_NO_CHAR];
-		dns_domain_search_list.index_current_option_119++;
-		if (dns_domain_search_list.nb_option_119 > 1) {
-			g_snprintf(tmpChar, BOOTP_MAX_NO_CHAR, "%u/%u", dns_domain_search_list.index_current_option_119, dns_domain_search_list.nb_option_119);
+		rfc3396_dns_domain_search_list.index_current_block++;
+		if (rfc3396_dns_domain_search_list.total_number_of_block > 1) {
+			g_snprintf(tmpChar, BOOTP_MAX_NO_CHAR, "%u/%u", rfc3396_dns_domain_search_list.index_current_block, rfc3396_dns_domain_search_list.total_number_of_block);
 			proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_rfc_3396_detected, tvb, optoff, optlen, tmpChar);
-			if (dns_domain_search_list.index_current_option_119 != dns_domain_search_list.nb_option_119) {
-				g_snprintf(tmpChar, BOOTP_MAX_NO_CHAR, "%u/%u", dns_domain_search_list.nb_option_119, dns_domain_search_list.nb_option_119);
+			if (rfc3396_dns_domain_search_list.index_current_block != rfc3396_dns_domain_search_list.total_number_of_block) {
+				g_snprintf(tmpChar, BOOTP_MAX_NO_CHAR, "%u/%u", rfc3396_dns_domain_search_list.total_number_of_block, rfc3396_dns_domain_search_list.total_number_of_block);
 				proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_refer_last_option, tvb, optoff, optlen, tmpChar);
 			}
 		}
 
-		if (dns_domain_search_list.buff == NULL) {
+		if (rfc3396_dns_domain_search_list.tvb_composite == NULL) {
 			/* We use composite tvb for managing RFC 3396 */
-			dns_domain_search_list.buff = tvb_new_composite();
+			rfc3396_dns_domain_search_list.tvb_composite = tvb_new_composite();
 		}
 
 		/* Concatenate the block before being interpreted for managing RFC 3396 */
-		tvb_composite_append(dns_domain_search_list.buff, tvb_new_subset(tvb, optoff, optlen, optlen));
+		tvb_composite_append(rfc3396_dns_domain_search_list.tvb_composite, tvb_new_subset(tvb, optoff, optlen, optlen));
 
-		if (dns_domain_search_list.index_current_option_119 == dns_domain_search_list.nb_option_119) {
+		if (rfc3396_dns_domain_search_list.index_current_block == rfc3396_dns_domain_search_list.total_number_of_block) {
 			/* Here, we are into the last (or unique) option 119. */
 			/* We will display the information about fqdn */
 			unsigned int consumed = 0;
 			unsigned int offset = 0;
-			tvb_composite_finalize(dns_domain_search_list.buff);
+			tvb_composite_finalize(rfc3396_dns_domain_search_list.tvb_composite);
 
-			while (offset < tvb_length(dns_domain_search_list.buff)) {
+			while (offset < tvb_length(rfc3396_dns_domain_search_list.tvb_composite)) {
 				/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
-				consumed = get_dns_name(dns_domain_search_list.buff, offset, tvb_length(dns_domain_search_list.buff), 0, &dns_name);
-				if (dns_domain_search_list.nb_option_119 == 1) {
+				consumed = get_dns_name(rfc3396_dns_domain_search_list.tvb_composite, offset, tvb_length(rfc3396_dns_domain_search_list.tvb_composite), 0, &dns_name);
+				if (rfc3396_dns_domain_search_list.total_number_of_block == 1) {
 					/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
 					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_fqdn, tvb, optoff + offset, consumed, dns_name);
 				} else {
@@ -2222,63 +2243,114 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				}
 				offset += consumed;
 			}
-			dns_domain_search_list.buff = NULL;
+			rfc3396_dns_domain_search_list.tvb_composite = NULL;
 		}
 		break;
 	}
-	case 120:   /* SIP Servers (RFC 3361) */
-		{
+	case 120: { /* SIP Servers (RFC 3361) */
+	            /* Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4) (RFC 3396) */
+	            /* Domain Names - Implementation And Specification (RFC 1035) */
+		char tmpChar[BOOTP_MAX_NO_CHAR];
+		rfc3396_sip_server.index_current_block++;
+		if (rfc3396_sip_server.total_number_of_block > 1) {
+			g_snprintf(tmpChar, BOOTP_MAX_NO_CHAR, "%u/%u", rfc3396_sip_server.index_current_block, rfc3396_sip_server.total_number_of_block);
+			proto_tree_add_string(v_tree, hf_bootp_option_sip_server_rfc_3396_detected, tvb, optoff, optlen, tmpChar);
+			if (rfc3396_sip_server.index_current_block != rfc3396_sip_server.total_number_of_block) {
+				g_snprintf(tmpChar, BOOTP_MAX_NO_CHAR, "%u/%u", rfc3396_sip_server.total_number_of_block, rfc3396_sip_server.total_number_of_block);
+				proto_tree_add_string(v_tree, hf_bootp_option_sip_server_refer_last_option, tvb, optoff, optlen, tmpChar);
+			}
+		}
+
+		if (rfc3396_sip_server.tvb_composite == NULL) {
+			/* We use composite tvb for managing RFC 3396 */
+			rfc3396_sip_server.tvb_composite = tvb_new_composite();
+		}
+
+		/* Concatenate the block before being interpreted for managing RFC 3396 */
+		tvb_composite_append(rfc3396_sip_server.tvb_composite, tvb_new_subset(tvb, optoff, optlen, optlen));
+
+		if (rfc3396_sip_server.index_current_block == rfc3396_sip_server.total_number_of_block) {
+			/* Here, we are into the last (or unique) option 120. */
+			/* We will display the information about SIP server */
 			guint8 enc;
-			optend = optoff + optlen;
-			enc = tvb_get_guint8(tvb, optoff);
-			proto_tree_add_uint(v_tree, hf_bootp_option_sip_server_enc, tvb, optoff++, 1, enc);
+			unsigned int offset = 1; /* ignore enc */
+			tvb_composite_finalize(rfc3396_sip_server.tvb_composite);
+
+			enc = tvb_get_guint8(rfc3396_sip_server.tvb_composite, 0);
+			if (rfc3396_sip_server.total_number_of_block == 1) {
+				/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
+				proto_tree_add_uint(v_tree, hf_bootp_option_sip_server_enc, tvb, optoff, 1, enc);
+			} else {
+				/* RFC 3396 is used, so the option is split into several option 120. We don't link fqdn with v_tree. */
+				proto_tree_add_uint(v_tree, hf_bootp_option_sip_server_enc, tvb, 0, 0, enc);
+			}
+
 			switch (enc) {
-			case 0:
-				{
-				guint8 *string, name_len;
-				gint len, tmp;
-				if (optlen < 3) {
-					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't >= 3");
+			case RFC_3361_ENC_FQDN: {
+				unsigned int consumed = 0;
+				if (tvb_length(rfc3396_sip_server.tvb_composite) < 3) {
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't >= 3 (len = %u)", tvb_length(rfc3396_sip_server.tvb_composite));
 					break;
 				}
-				while (optoff < optend) {
-					name_len = tvb_get_guint8(tvb, optoff);
-					string = tvb_get_ephemeral_stringz(tvb, optoff+1, &len);
-					if ((optoff+len+1) > optend) {
-						expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length goes beyond option end");
-						break;
+
+				while (offset < tvb_length(rfc3396_sip_server.tvb_composite)) {
+					/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
+					consumed = get_dns_name(rfc3396_sip_server.tvb_composite, offset, tvb_length(rfc3396_sip_server.tvb_composite), 1 /* ignore enc */, &dns_name);
+
+					if (rfc3396_sip_server.total_number_of_block == 1) {
+						/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
+						proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, optoff + offset, consumed, dns_name);
+					} else {
+						/* RFC 3396 is used, so the option is split into several option 120. We don't link fqdn with v_tree. */
+						proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, 0, 0, dns_name);
 					}
-					while (name_len < (len-1)) {
-						tmp = name_len;
-						name_len = name_len + string[tmp] + 1;
-						string[tmp] = '.';
-					}
-					proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, optoff, len+1, string);
-					optoff += len+1;
+					offset += consumed;
 				}
-				}
+				rfc3396_sip_server.tvb_composite = NULL;
 				break;
-			case 1:
-				if (optlen < 5) {
-					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't >= 5");
+			}
+			case RFC_3361_ENC_IPADDR:
+				if (tvb_length(rfc3396_sip_server.tvb_composite) < 5) {
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't >= 5 (len = %u)", tvb_length(rfc3396_sip_server.tvb_composite));
 					break;
 				}
-				while (optoff < optend) {
-					if ((optend-optoff) < 4) {
-						expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't a multiple of 4");
-						break;
+				/* x % 2^n == x & (2^n - 1) note : (assuming x is a positive integer) */
+				if ((tvb_length(rfc3396_sip_server.tvb_composite) - 1) & 3) {
+					if (rfc3396_sip_server.total_number_of_block == 1)
+						expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't a multiple of 4 plus 1 (len = %u).", tvb_length(rfc3396_sip_server.tvb_composite));
+					else
+						expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't a multiple of 4 plus 1 (len = %u). For your information with RFC 3396, the length is the length sum of all options 120 into this BOOTP packet.", tvb_length(rfc3396_sip_server.tvb_composite));
+					break;
+				}
+				while (offset < tvb_length(rfc3396_sip_server.tvb_composite)) {
+					if (rfc3396_sip_server.total_number_of_block == 1) {
+						/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
+						proto_tree_add_item(v_tree, hf_bootp_option_sip_server_address, rfc3396_sip_server.tvb_composite, offset, 4, ENC_BIG_ENDIAN);
+					} else {
+						/* RFC 3396 is used, so the option is split into several option 120. We don't link fqdn with v_tree. */
+						/* Since we don't use the "numbered argument" as described by README.developer, we have to repeat the arguments :( */
+						g_snprintf(tmpChar, BOOTP_MAX_NO_CHAR, "%u.%u.%u.%u (%u.%u.%u.%u)",
+						           tvb_get_guint8(rfc3396_sip_server.tvb_composite, offset),
+						           tvb_get_guint8(rfc3396_sip_server.tvb_composite, offset + 1),
+						           tvb_get_guint8(rfc3396_sip_server.tvb_composite, offset + 2),
+						           tvb_get_guint8(rfc3396_sip_server.tvb_composite, offset + 3),
+						           tvb_get_guint8(rfc3396_sip_server.tvb_composite, offset),
+						           tvb_get_guint8(rfc3396_sip_server.tvb_composite, offset + 1),
+						           tvb_get_guint8(rfc3396_sip_server.tvb_composite, offset + 2),
+						           tvb_get_guint8(rfc3396_sip_server.tvb_composite, offset + 3)
+						           );
+						proto_tree_add_string(v_tree, hf_bootp_option_sip_server_address_stringz, tvb, 0, 0, tmpChar);
 					}
-					proto_tree_add_item(v_tree, hf_bootp_option_sip_server_address, tvb, optoff, 4, ENC_BIG_ENDIAN);
-					optoff += 4;
+					offset += 4;
 				}
 				break;
 			default:
-				proto_tree_add_item(v_tree, hf_bootp_option_value, tvb, optoff, (optend - optoff), ENC_NA);
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "RFC 3361 defines only 0 and 1 for Encoding byte (Encoding = %u).", enc);
 				break;
 			}
 		}
 		break;
-
+	}
 	case 121:	/* Classless Static Route */
 	case 249: {	/* Classless Static Route (Microsoft) */
 		int mask_width, significant_octets;
@@ -4891,13 +4963,15 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int	      voff, eoff, tmpvoff; /* vendor offset, end offset */
 	guint32	      ip_addr;
 	gboolean      at_end;
-	const char   *dhcp_type       = NULL;
-	const guint8 *vendor_class_id = NULL;
+	const char   *dhcp_type                              = NULL;
+	const guint8 *vendor_class_id                        = NULL;
 	guint16	      flags, secs;
 	int	      offset_delta;
-	guint8	      overload        = 0; /* DHCP option overload */
-	dns_domain_search_list.nb_option_119 = 0;
-	dns_domain_search_list.buff = NULL;
+	guint8	      overload                               = 0; /* DHCP option overload */
+	rfc3396_dns_domain_search_list.total_number_of_block = 0;
+	rfc3396_dns_domain_search_list.tvb_composite         = NULL;
+	rfc3396_sip_server.total_number_of_block             = 0;
+	rfc3396_sip_server.tvb_composite                     = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOOTP");
 	/*
@@ -4949,7 +5023,8 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	tmpvoff = voff;
 	at_end = FALSE;
-	dns_domain_search_list.index_current_option_119 = 0;
+	rfc3396_dns_domain_search_list.index_current_block = 0;
+	rfc3396_sip_server.index_current_block = 0;
 	while (tmpvoff < eoff && !at_end) {
 		offset_delta = bootp_option(tvb, pinfo, 0, tmpvoff, eoff, TRUE, &at_end,
 		    &dhcp_type, &vendor_class_id, &overload);
@@ -5098,7 +5173,8 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	at_end = FALSE;
-	dns_domain_search_list.index_current_option_119 = 0;
+	rfc3396_dns_domain_search_list.index_current_block = 0;
+	rfc3396_sip_server.index_current_block = 0;
 	while (voff < eoff && !at_end) {
 		offset_delta = bootp_option(tvb, pinfo, bp_tree, voff, eoff, FALSE, &at_end,
 		    &dhcp_type, &vendor_class_id, &overload);
@@ -6448,6 +6524,16 @@ proto_register_bootp(void)
 		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		    "Option 119: FQDN", HFILL }},
 
+		{ &hf_bootp_option_sip_server_rfc_3396_detected,
+		  { "Encoding Long Options detected (RFC 3396)", "bootp.option.sip_server.rfc_3396_detected",
+		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    "Option 120: Encoding Long Options detected (RFC 3396)", HFILL }},
+
+		{ &hf_bootp_option_sip_server_refer_last_option,
+		  { "For the data, please refer to last option 120", "bootp.option.sip_server.refer_last_option",
+		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    "Option 120: For the data, please refer to last option 120", HFILL }},
+
 		{ &hf_bootp_option_sip_server_enc,
 		  { "SIP Server Encoding", "bootp.option.sip_server.encoding",
 		    FT_UINT8, BASE_DEC, VALS(sip_server_enc_vals), 0x0,
@@ -6461,6 +6547,11 @@ proto_register_bootp(void)
 		{ &hf_bootp_option_sip_server_address,
 		  { "SIP Server Address", "bootp.option.sip_server.address",
 		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    "Option 120: SIP Server Address", HFILL }},
+
+		{ &hf_bootp_option_sip_server_address_stringz,
+		  { "SIP Server Address", "bootp.option.sip_server.address.stringz",
+		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		    "Option 120: SIP Server Address", HFILL }},
 
 		{ &hf_bootp_option_cl_dss_id_option,
