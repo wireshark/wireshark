@@ -271,7 +271,7 @@ static const value_string tp_vpart_type_vals[] = {
 
 static const value_string tp_vpart_checksum_vals[] = {
   { FALSE,                 "incorrect" }, 
-  { TRUE,                  "correct" }
+  { TRUE,                  "correct" },
   { 0,				NULL }
 };
 
