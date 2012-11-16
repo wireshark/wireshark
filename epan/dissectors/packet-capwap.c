@@ -1203,7 +1203,9 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 	guint8 maclength, wirelesslength;
 	guint align = 0;
 
-	ti = proto_tree_add_item(capwap_control_tree, hf_capwap_header, tvb, offset+plen, tvb_get_bits8(tvb, (offset+plen)*8, 5), ENC_NA);
+	/* RFC 5415  HLEN:  A 5-bit field containing the length of the CAPWAP transport header in 4-byte words */
+	/* As we display the preamble separately reduce the length by 1 */ 
+	ti = proto_tree_add_item(capwap_control_tree, hf_capwap_header, tvb, offset+plen, ((tvb_get_bits8(tvb, (offset+plen)*8, 5))*4)-1, ENC_NA);
 	capwap_header_tree = proto_item_add_subtree(ti, ett_capwap);
 
 	/* Header Length : 5 Bits */
