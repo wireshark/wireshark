@@ -154,7 +154,6 @@ typedef struct
 
 } nbap_edch_port_info_t;
 
-nbap_edch_port_info_t * nbap_edch_port_info;
 
 typedef struct
 {
@@ -194,7 +193,8 @@ typedef struct com_ctxt_{
 		/*guint	nodeb_context;*/
 		guint	crnc_context;
 		guint	frame_num;
-}nbap_com_context_id;
+}nbap_com_context_id_t;
+
 gboolean crcn_context_present = FALSE;
 static GTree * com_context_map;
 
@@ -414,9 +414,6 @@ static gint nbap_key_cmp(gconstpointer a_ptr, gconstpointer b_ptr, gpointer igno
 			g_free(key);
 
 	}*/
-static void nbap_free_value(gpointer value ){
-			g_free(value);
-	}
 
 static void nbap_init(void){
 	guint8 i;
@@ -430,15 +427,15 @@ static void nbap_init(void){
 	/*Initialize*/
 	com_context_map = g_tree_new_full(nbap_key_cmp,
                        NULL,      /* data pointer, optional */
-                       NULL,
-                       nbap_free_value);
+                       NULL,      /* function to free the memory allocated for the key used when removing the entry */
+                       g_free);
                        
                        
                            /*Initialize structure for muxed flow indication*/
     edch_flow_port_map = g_tree_new_full(nbap_key_cmp,
                        NULL,      /* data pointer, optional */
-                       NULL,
-                       NULL);
+                       NULL,      /* function to free the memory allocated for the key used when removing the entry */
+                       g_free);
                        
     for (i = 0; i < 15; i++) {
 		lchId_type_table[i+1] = *lch_contents[i];
