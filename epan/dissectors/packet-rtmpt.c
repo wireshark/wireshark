@@ -1494,7 +1494,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                          * XML string.
                          */
                         iStringLength = iIntegerValue >> 1;
-                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_xmllength, tvb, iValueOffset, iValueLength, iArrayLength);
+                        proto_tree_add_uint(val_tree, hf_rtmpt_amf_xmllength, tvb, iValueOffset, iValueLength, iStringLength);
                         iValueOffset += iValueLength;
                         proto_tree_add_item(val_tree, hf_rtmpt_amf_xml, tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
                 } else {
