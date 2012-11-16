@@ -2586,11 +2586,30 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Update the col info if there were class reads */
-  col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Class ");
-  for (i = 0; i < 4; i++) {
-    if (al_class & (1 << i)) {
-      col_append_fstr(pinfo->cinfo, COL_INFO, "%u", i);
-    }
+  if (al_class != 0) {
+     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Class ");
+     for (i = 0; i < 4; i++) {
+       if (al_class & (1 << i)) {
+         col_append_fstr(pinfo->cinfo, COL_INFO, "%u", i);
+       }
+     }
+  }
+
+  /* For reads for specific object types, bit-mask out the first byte and use that to determine the column info to add */
+  switch(obj_type & 0xFF00) {
+    case AL_OBJ_BI_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Input"); break;
+    case AL_OBJ_BIC_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Input Change"); break;
+    case AL_OBJ_2BI_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Double-bit Input"); break;
+    case AL_OBJ_BO_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Output"); break;
+    case AL_OBJ_CTR_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Counter"); break;
+    case AL_OBJ_FCTR_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Frozen Counter"); break;
+    case AL_OBJ_CTRC_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Counter Change"); break;
+    case AL_OBJ_FCTRC_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Frozen Counter Change"); break;
+    case AL_OBJ_AI_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Input"); break;
+    case AL_OBJ_AIC_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Input Change"); break;
+    case AL_OBJ_AO_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Output"); break;
+    case AL_OBJ_AOC_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Output Change"); break;
+    default: break;
   }
 
   break;
