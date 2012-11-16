@@ -1044,8 +1044,8 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 break;
         case RTMPT_AMF0_DATE:
                 iDoubleValue = tvb_get_ntohieee_double(tvb, iValueOffset);
-                t.secs = iDoubleValue/1000;
-                t.nsecs = (iDoubleValue - 1000*(double)t.secs) * 1000000;
+                t.secs = (time_t)(iDoubleValue/1000);
+                t.nsecs = (int)((iDoubleValue - 1000*(double)t.secs) * 1000000);
                 proto_tree_add_time(val_tree, hf_rtmpt_amf_date, tvb, iValueOffset, 8, &t);
                 iValueOffset += 8;
                 proto_item_append_text(ti, " %s", abs_time_to_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
@@ -1269,8 +1269,8 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
 
                         iValueOffset += iValueLength;
                         iDoubleValue = tvb_get_ntohieee_double(tvb, iValueOffset);
-                        t.secs = iDoubleValue/1000;
-                        t.nsecs = (iDoubleValue - 1000*(double)t.secs) * 1000000;
+                        t.secs = (time_t)(iDoubleValue/1000);
+                        t.nsecs = (int)((iDoubleValue - 1000*(double)t.secs) * 1000000);
                         proto_tree_add_time(val_tree, hf_rtmpt_amf_date, tvb, iValueOffset, 8, &t);
                         iValueOffset += 8;
                         proto_item_append_text(ti, "%s", abs_time_to_str(&t, ABSOLUTE_TIME_LOCAL, TRUE));
