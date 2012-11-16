@@ -1365,7 +1365,7 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
     /* try to dissect decrypted data*/
     ssl_debug_printf("dissect_ssl3_record decrypted len %d\n", appl_data->plain_data.data_len);
-    ssl_print_text_data("decrypted app data fragment", appl_data->plain_data.data, appl_data->plain_data.data_len);
+    ssl_print_data("decrypted app data fragment", appl_data->plain_data.data, appl_data->plain_data.data_len);
 
     /* create a new TVB structure for desegmented data */
     next_tvb = tvb_new_child_real_data(tvb, appl_data->plain_data.data, appl_data->plain_data.data_len, appl_data->plain_data.data_len);
