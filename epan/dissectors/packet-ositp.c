@@ -828,7 +828,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
 static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			 packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *cotp_tree;
+  proto_tree *cotp_tree = NULL;
   proto_item *ti = NULL;
   guint16 dst_ref, src_ref;
   guchar  reason;
