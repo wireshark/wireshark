@@ -200,12 +200,14 @@ check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum, in
 /* In case of a CR TPDU, the value of the ISO 8073 16-bit fletcher checksum parameter shall */
 /* be set to zero. */
 gboolean check_atn_ec_32(
-  tvbuff_t *tvb, guint tdpu_len, 
-  guint offset_ec_32_val, /* offset ATN extended checksum value, calculated at last as part of pseudo trailer */
+  tvbuff_t *tvb, guint tpdu_len, 
+  guint offset_ec_32_val,   /* offset ATN extended checksum value, calculated at last as part of pseudo trailer */
   guint offset_iso8073_val, /* offset ISO 8073 fletcher checksum, CR only*/
-  guint clnp_pt_len, /* length of NSAP part of pseudo trailer */
-  guint8 * clnp_pt_buffer){ /* NSAP part of pseudo trailer */
-
+  guint clnp_dst_len,       /* length of DST-NSAP */
+  const guint8 *clnp_dst,   /* DST-NSAP */
+  guint clnp_src_len,       /* length of SRC-NSAP */
+  const guint8 *clnp_src)   /* SRC-NSAP */
+{
   guint  i = 0;
   guint32 c0 = 0;
   guint32 c1 = 0;
@@ -213,71 +215,109 @@ gboolean check_atn_ec_32(
   guint32 c3 = 0;
   guint32 sum = 0; 
 
-  /* sum accross complete TDPU  */
-  for ( i =0; i< tdpu_len; i++){
+  /* sum across complete TPDU  */
+  for ( i =0; i< tpdu_len; i++){
+    c0 += tvb_get_guint8(tvb, i) ; 
 
-     c0 += tvb_get_guint8(tvb, i) ; 
-
-     if( ( i >= offset_ec_32_val ) &&  /* ignore 32 bit ATN extended checksum value */
-         ( i < ( offset_ec_32_val + 4 ) ) ){
-       c0 -= tvb_get_guint8(tvb, i); }
+    if( ( i >= offset_ec_32_val ) &&  /* ignore 32 bit ATN extended checksum value */
+        ( i < ( offset_ec_32_val + 4 ) ) ) {
+      c0 -= tvb_get_guint8(tvb, i);
+    }
       
-     if( ( offset_iso8073_val ) && /* ignore 16 bit ISO 8073 checksum, if present*/
-         ( i >= offset_iso8073_val ) && 
-         ( i < ( offset_iso8073_val + 2 ) ) ){
-       c0 -= tvb_get_guint8(tvb, i); }  
+    if( ( offset_iso8073_val ) && /* ignore 16 bit ISO 8073 checksum, if present*/
+        ( i >= offset_iso8073_val ) && 
+        ( i < ( offset_iso8073_val + 2 ) ) ) {
+      c0 -= tvb_get_guint8(tvb, i);
+    }
  
-     if ( c0 >= 0x000000FF )
-       c0 -= 0x00000FF; 
-     c1 += c0;
-     if ( c1 >= 0x000000FF )
-       c1 -= 0x000000FF; 
-     c2 += c1;
-     if ( c2 >= 0x000000FF )
-           c2 -= 0x000000FF; 
-     c3 += c2;
-     if ( c3 >= 0x000000FF )
-           c3 -= 0x000000FF; 
-    
+    if ( c0 >= 0x000000FF )
+      c0 -= 0x00000FF; 
+    c1 += c0;
+    if ( c1 >= 0x000000FF )
+      c1 -= 0x000000FF; 
+    c2 += c1;
+    if ( c2 >= 0x000000FF )
+      c2 -= 0x000000FF; 
+    c3 += c2;
+    if ( c3 >= 0x000000FF )
+      c3 -= 0x000000FF; 
   }
-  /* add NSAP part of pseudo trailer */
-  for ( i =0; i< clnp_pt_len; i++){
-     c0 += clnp_pt_buffer[i];
-     if ( c0 >= 0x000000FF )
-       c0 -= 0x000000FF; 
-     c1 += c0;
-     if ( c1 >= 0x000000FF )
-       c1 -= 0x000000FF; 
-     c2 += c1;
-     if ( c2 >= 0x000000FF )
-       c2 -= 0x000000FF; 
-     c3 += c2;
-     if ( c3 >= 0x000000FF )
-       c3 -= 0x000000FF; 
+  /* add NSAP parts of pseudo trailer */
+  c0 += clnp_dst_len;
+  if ( c0 >= 0x000000FF )
+    c0 -= 0x000000FF; 
+  c1 += c0;
+  if ( c1 >= 0x000000FF )
+    c1 -= 0x000000FF; 
+  c2 += c1;
+  if ( c2 >= 0x000000FF )
+    c2 -= 0x000000FF; 
+  c3 += c2;
+  if ( c3 >= 0x000000FF )
+    c3 -= 0x000000FF; 
+  for ( i =0; i< clnp_dst_len; i++){
+    c0 += clnp_dst[i];
+    if ( c0 >= 0x000000FF )
+      c0 -= 0x000000FF; 
+    c1 += c0;
+    if ( c1 >= 0x000000FF )
+      c1 -= 0x000000FF; 
+    c2 += c1;
+    if ( c2 >= 0x000000FF )
+      c2 -= 0x000000FF; 
+    c3 += c2;
+    if ( c3 >= 0x000000FF )
+      c3 -= 0x000000FF; 
   }
-  /* add with extended checksum as last part of the pseudo trailer */
+  c0 += clnp_src_len;
+  if ( c0 >= 0x000000FF )
+    c0 -= 0x000000FF; 
+  c1 += c0;
+  if ( c1 >= 0x000000FF )
+    c1 -= 0x000000FF; 
+  c2 += c1;
+  if ( c2 >= 0x000000FF )
+    c2 -= 0x000000FF; 
+  c3 += c2;
+  if ( c3 >= 0x000000FF )
+    c3 -= 0x000000FF; 
+  for ( i =0; i< clnp_src_len; i++){
+    c0 += clnp_src[i];
+    if ( c0 >= 0x000000FF )
+      c0 -= 0x000000FF; 
+    c1 += c0;
+    if ( c1 >= 0x000000FF )
+      c1 -= 0x000000FF; 
+    c2 += c1;
+    if ( c2 >= 0x000000FF )
+      c2 -= 0x000000FF; 
+    c3 += c2;
+    if ( c3 >= 0x000000FF )
+      c3 -= 0x000000FF; 
+  }
+  /* add extended checksum as last part of the pseudo trailer */
   for ( i = offset_ec_32_val; i< (offset_ec_32_val+4); i++){
     c0 += tvb_get_guint8(tvb, i) ;
 
-     if ( c0 >= 0x000000FF )
-       c0 -= 0x00000FF; 
-     c1 += c0;
-     if ( c1 >= 0x000000FF )
-       c1 -= 0x000000FF; 
-     c2 += c1;
-     if ( c2 >= 0x000000FF )
-           c2 -= 0x000000FF; 
-     c3 += c2;
-     if ( c3 >= 0x000000FF )
-           c3 -= 0x000000FF; 
+    if ( c0 >= 0x000000FF )
+      c0 -= 0x00000FF; 
+    c1 += c0;
+    if ( c1 >= 0x000000FF )
+      c1 -= 0x000000FF; 
+    c2 += c1;
+    if ( c2 >= 0x000000FF )
+      c2 -= 0x000000FF; 
+    c3 += c2;
+    if ( c3 >= 0x000000FF )
+      c3 -= 0x000000FF; 
   }
   
   sum = (c3 << 24) + (c2 << 16 ) + (c1 << 8) + c0 ; 
 
   if(!sum)
-   return TRUE;
+    return TRUE;
   else
-   return FALSE;
+    return FALSE;
 }
 
 /* 2 octet ATN extended checksum: ICAO doc 9705 Ed3 Volume V section 5.5.4.6.4 */
@@ -288,60 +328,86 @@ gboolean check_atn_ec_32(
 /* this routine is currently *untested* because of the unavailability of samples.*/
 gboolean check_atn_ec_16( 
   tvbuff_t *tvb, 
-  guint tdpu_len,  
-  guint offset_ec_16_val,  /* offset ATN extended checksum value, calculated at last as part of pseudo trailer */
+  guint tpdu_len,  
+  guint offset_ec_16_val,   /* offset ATN extended checksum value, calculated at last as part of pseudo trailer */
   guint offset_iso8073_val, /* offset ISO 8073 fletcher checksum, CR only*/
-  guint clnp_pt_len, /* length of NSAP part of pseudo trailer */
-  guint8 * clnp_pt_buffer ){ /* NSAP part of pseudo trailer */
-
+  guint clnp_dst_len,       /* length of DST-NSAP */
+  const guint8 *clnp_dst,   /* DST-NSAP */
+  guint clnp_src_len,       /* length of SRC-NSAP */
+  const guint8 *clnp_src)   /* SRC-NSAP */
+{
   guint i = 0;
   guint16 c0 = 0;
   guint16 c1 = 0;
   guint16 sum = 0; 
 
-  /* sum accross complete TDPU */
-  for ( i =0; i< tdpu_len; i++){
+  /* sum across complete TPDU */
+  for ( i =0; i< tpdu_len; i++){
 
     c0 += tvb_get_guint8(tvb, i);
 
     if( (i >= offset_ec_16_val) && /* ignore 16 bit extended checksum */
         (i < (offset_ec_16_val + 2) ) ) {
-      c0 -= tvb_get_guint8(tvb, i) ; }
+      c0 -= tvb_get_guint8(tvb, i) ;
+    }
 
     if( (i >= offset_iso8073_val) && /* ignore 16 bit ISO 8073 checksum, if present*/
         (i < (offset_iso8073_val + 2) ) ) {
-      c0 -= tvb_get_guint8(tvb, i) ; }
+      c0 -= tvb_get_guint8(tvb, i) ;
+    }
 
     if ( c0 >= 0x00FF )
        c0 -= 0x00FF; 
-     c1 += c0;
-     if ( c1 >= 0x00FF )
-       c1 -= 0x00FF; 
-
+    c1 += c0;
+    if ( c1 >= 0x00FF )
+      c1 -= 0x00FF; 
   }
-  /* sum with NSAP part of the pseudo trailer */
-  for ( i =0; i< clnp_pt_len; i++){
-     c0 += clnp_pt_buffer[i] ;
-     c1 += c0;
+  /* add NSAP parts of pseudo trailer */
+  c0 += clnp_dst_len;
+  if ( c0 >= 0x00FF )
+    c0 -= 0x00FF; 
+  c1 += c0;
+  if ( c1 >= 0x00FF )
+    c1 -= 0x00FF; 
+  for ( i =0; i< clnp_dst_len; i++){
+    c0 += clnp_dst[i];
+    if ( c0 >= 0x00FF )
+      c0 -= 0x00FF; 
+    c1 += c0;
+    if ( c1 >= 0x00FF )
+      c1 -= 0x00FF; 
   }
-
+  c0 += clnp_src_len;
+  if ( c0 >= 0x00FF )
+    c0 -= 0x00FF; 
+  c1 += c0;
+  if ( c1 >= 0x00FF )
+    c1 -= 0x00FF; 
+  for ( i =0; i< clnp_src_len; i++){
+    c0 += clnp_src[i];
+    if ( c0 >= 0x00FF )
+      c0 -= 0x00FF; 
+    c1 += c0;
+    if ( c1 >= 0x00FF )
+      c1 -= 0x00FF; 
+  }
   /* add extended checksum as last part of the pseudo trailer */
   for ( i = offset_ec_16_val; i< (offset_ec_16_val+2); i++){
     c0 += tvb_get_guint8(tvb, i) ;
 
-     if ( c0 >= 0x00FF )
-       c0 -= 0x00FF; 
-     c1 += c0;
-     if ( c1 >= 0x00FF )
-       c1 -= 0x00FF; 
+    if ( c0 >= 0x00FF )
+      c0 -= 0x00FF; 
+    c1 += c0;
+    if ( c1 >= 0x00FF )
+      c1 -= 0x00FF; 
   }
 
   sum =  (c1 << 8) + c0 ; 
 
   if(!sum)
-   return TRUE;
+    return TRUE;
   else
-   return FALSE;
+    return FALSE;
 }
 
 

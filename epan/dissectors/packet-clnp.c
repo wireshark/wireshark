@@ -38,12 +38,6 @@
 #include <epan/nlpid.h>
 #include <epan/ipproto.h>
 
-/* pseudo-trailer for ATN extended checksums on TP4 layer*/
-/* the checksum is calculated from the TPDU as well als */
-/* dst  NSAP length, dst  NSAP, src  NSAP length and src NSAP as encoded in CLNP PDU*/
-guint     clnp_pt_len ;        
-guint8    clnp_pt_buffer[42]; 
-
 /* protocols and fields */
 
 static int  proto_clnp         = -1;
@@ -68,8 +62,8 @@ static int hf_clnp_dest_length = -1;
 static int hf_clnp_dest        = -1;
 static int hf_clnp_src_length  = -1;
 static int hf_clnp_src         = -1;
-       int hf_clnp_atntt			 = -1; /* as referenced in packet-osi-options.c */
-			 int hf_clnp_atnsc			 = -1; /* as referenced in packet-osi-options.c */
+       int hf_clnp_atntt       = -1; /* as referenced in packet-osi-options.c */
+       int hf_clnp_atnsc       = -1; /* as referenced in packet-osi-options.c */
 static int hf_clnp_segments    = -1;
 static int hf_clnp_segment     = -1;
 static int hf_clnp_segment_overlap          = -1;
@@ -363,10 +357,6 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   src_len  = tvb_get_guint8(tvb, offset + dst_len + 1);
   src_addr = tvb_get_ptr(tvb, offset + dst_len + 2, src_len);
 
-  /* store src & dst address parts for ATN extended checksum calculation in ositp.c */
-  clnp_pt_len = dst_len + src_len + 2;
-  tvb_memcpy(tvb, &clnp_pt_buffer, offset, sizeof(clnp_pt_buffer));	
-	
   if (tree) {
     proto_tree_add_uint(clnp_tree, hf_clnp_dest_length, tvb, offset, 1,
                         dst_len);
@@ -688,10 +678,6 @@ proto_register_clnp(void)
                                  "Decode ATN security label",
                                  "Whether ATN security label should be decoded",
                                  &clnp_decode_atn_options);
-	
-	/* init src & dst address parts for ATN extended checksum calculation in ositp.c */
-	memset(clnp_pt_buffer, 0, sizeof(clnp_pt_buffer));
-  clnp_pt_len = 0;
 }
 
 void
