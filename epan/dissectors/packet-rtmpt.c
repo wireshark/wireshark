@@ -1617,8 +1617,8 @@ dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
         proto_tree *data_tree = NULL;
 
         while (tvb_length_remaining(tvb, offset) > 0) {
-                guint8 iTagType = 0;
-                guint iDataSize = 0;
+                guint8 iTagType;
+                guint iDataSize;
 
                 iTagType = tvb_get_guint8(tvb, offset + 0);
                 iDataSize = tvb_get_ntoh24(tvb, offset + 1);
