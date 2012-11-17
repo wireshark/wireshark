@@ -865,12 +865,13 @@ typedef struct {
     unsigned           direction:       1;
 } rlc_result_hash_key;
 
+/* Compare 2 rlc_result_hash_key structs */
 static gint rlc_result_hash_equal(gconstpointer v, gconstpointer v2)
 {
-    const rlc_result_hash_key* val1 = (rlc_result_hash_key *)v;
-    const rlc_result_hash_key* val2 = (rlc_result_hash_key *)v2;
+    const rlc_result_hash_key *val1 = (rlc_result_hash_key *)v;
+    const rlc_result_hash_key *val2 = (rlc_result_hash_key *)v2;
 
-    /* All fields must match */
+    /* All fields (and any padding...) must match */
     return (memcmp(val1, val2, sizeof(rlc_result_hash_key)) == 0);
 }
 
@@ -879,11 +880,11 @@ static guint rlc_result_hash_func(gconstpointer v)
 {
     const rlc_result_hash_key* val1 = (rlc_result_hash_key *)v;
 
-    /* TODO: check collision-rate / execution-time of these multipliers?  */
-    return val1->frameNumber + (val1->SN<<13) +
-                               (val1->channelType<<5) +
-                               (val1->channelId<<18) +
-                               (val1->direction<<9);
+    /* TODO: Got rid of multipliers - no evidence that they reduced collisions */
+    return val1->frameNumber + val1->SN +
+                               val1->channelType +
+                               val1->channelId +
+                               val1->direction;
 }
 
 /* Convenience function to get a pointer for the hash_func to work with */
@@ -981,9 +982,11 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
                     expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                           "AM Frame retransmitted for %s on UE %u - due to MAC retx!",
+                                           "AM Frame retransmitted for %s on UE %u - due to MAC retx! (%s-%u)",
                                            val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                           p_rlc_lte_info->ueid);
+                                           p_rlc_lte_info->ueid,
+                                           val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                           p_rlc_lte_info->channelId);
                     proto_item_append_text(seqnum_ti, " - MAC retx of SN %u", p->firstSN);
                     break;
 
@@ -999,9 +1002,11 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
                     expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                           "AM Frame retransmitted for %s on UE %u - most likely in response to NACK",
+                                           "AM Frame retransmitted for %s on UE %u - most likely in response to NACK (%s-%u)",
                                            val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                           p_rlc_lte_info->ueid);
+                                           p_rlc_lte_info->ueid,
+                                           val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                           p_rlc_lte_info->channelId);
                     proto_item_append_text(seqnum_ti, " - SN %u retransmitted", p->firstSN);
                     break;
 
@@ -1017,9 +1022,11 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
                     expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                           "AM SN Repeated for %s for UE %u - probably because didn't receive Status PDU?",
+                                           "AM SN Repeated for %s for UE %u - probably because didn't receive Status PDU? (%s-%u)",
                                            val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                           p_rlc_lte_info->ueid);
+                                           p_rlc_lte_info->ueid,
+                                           val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                           p_rlc_lte_info->channelId);
                     proto_item_append_text(seqnum_ti, "- SN %u Repeated", p->firstSN);
                     break;
 
@@ -1036,20 +1043,24 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     PROTO_ITEM_SET_GENERATED(ti);
                     if (p->lastSN != p->firstSN) {
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                               "AM SNs (%u to %u) missing for %s on UE %u",
+                                               "AM SNs (%u to %u) missing for %s on UE %u (%s-%u)",
                                                p->firstSN, p->lastSN,
                                                val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                               p_rlc_lte_info->ueid);
+                                               p_rlc_lte_info->ueid,
+                                               val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                               p_rlc_lte_info->channelId);
                         proto_item_append_text(seqnum_ti, " - SNs missing (%u to %u)",
                                                p->firstSN, p->lastSN);
                         tap_info->missingSNs = ((1024 + p->lastSN - p->firstSN) % 1024) + 1;
                     }
                     else {
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                               "AM SN (%u) missing for %s on UE %u",
+                                               "AM SN (%u) missing for %s on UE %u (%s-%u)",
                                                p->firstSN,
                                                val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                               p_rlc_lte_info->ueid);
+                                               p_rlc_lte_info->ueid,
+                                               val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                               p_rlc_lte_info->channelId);
                         proto_item_append_text(seqnum_ti, " - SN missing (%u)", p->firstSN);
                         tap_info->missingSNs = 1;
                     }
@@ -1077,9 +1088,11 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
 
                     /* Expert error */
                     expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
-                                           "AM ACK for SN %u - but last received SN in other direction is %u for UE %u",
+                                           "AM ACK for SN %u - but last received SN in other direction is %u for UE %u (%s-%u)",
                                            p->firstSN, p->sequenceExpected,
-                                           p_rlc_lte_info->ueid);
+                                           p_rlc_lte_info->ueid,
+                                           val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                           p_rlc_lte_info->channelId);
                     proto_item_append_text(seqnum_ti, "- ACK SN %u Outside Rx Window - last received SN is %u",
                                            p->firstSN, p->sequenceExpected);
 
@@ -1124,20 +1137,24 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                         PROTO_ITEM_SET_GENERATED(ti);
                         if (p->lastSN != p->firstSN) {
                             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                                   "UM SNs (%u to %u) missing for %s on UE %u",
+                                                   "UM SNs (%u to %u) missing for %s on UE %u (%s-%u",
                                                    p->firstSN, p->lastSN,
                                                    val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                                   p_rlc_lte_info->ueid);
+                                                   p_rlc_lte_info->ueid,
+                                                   val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                                   p_rlc_lte_info->channelId);
                             proto_item_append_text(seqnum_ti, " - SNs missing (%u to %u)",
                                                    p->firstSN, p->lastSN);
                             tap_info->missingSNs = ((snLimit + p->lastSN - p->firstSN) % snLimit) + 1;
                         }
                         else {
                             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                                   "UM SN (%u) missing for %s on UE %u",
+                                                   "UM SN (%u) missing for %s on UE %u (%s-%u)",
                                                    p->firstSN,
                                                    val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                                   p_rlc_lte_info->ueid);
+                                                   p_rlc_lte_info->ueid,
+                                                   val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                                   p_rlc_lte_info->channelId);
                             proto_item_append_text(seqnum_ti, " - SN missing (%u)",
                                                    p->firstSN);
                             tap_info->missingSNs = 1;
@@ -1152,10 +1169,12 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                                                     tvb, 0, 0, TRUE);
                         PROTO_ITEM_SET_GENERATED(ti);
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                               "UM SN (%u) repeated for %s for UE %u",
+                                               "UM SN (%u) repeated for %s for UE %u (%s-%u)",
                                                p->firstSN,
                                                val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                               p_rlc_lte_info->ueid);
+                                               p_rlc_lte_info->ueid,
+                                               val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                               p_rlc_lte_info->channelId);
                         proto_item_append_text(seqnum_ti, "- SN %u Repeated",
                                                p->firstSN);
                         break;
@@ -1168,17 +1187,22 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                                                     tvb, 0, 0, TRUE);
                         PROTO_ITEM_SET_GENERATED(ti);
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                               "UM Frame retransmitted for %s on UE %u - due to MAC retx!",
+                                               "UM Frame retransmitted for %s on UE %u - due to MAC retx! (%s-%u)",
                                                val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                               p_rlc_lte_info->ueid);
+                                               p_rlc_lte_info->ueid,
+                                               val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                               p_rlc_lte_info->channelId);
                         break;
 
                     default:
                         /* Incorrect sequence number */
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                               "Wrong Sequence Number for %s on UE %u - got %u, expected %u",
+                                               "Wrong Sequence Number for %s on UE %u - got %u, expected %u (%s-%u)",
                                                val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
-                                               p_rlc_lte_info->ueid, sequenceNumber, p->sequenceExpected);
+                                               p_rlc_lte_info->ueid, sequenceNumber, p->sequenceExpected,
+                                               val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                               p_rlc_lte_info->channelId);
+
                         break;
                 }
 
@@ -1192,8 +1216,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                                                      tvb, 0, 0, FALSE);
                         if (!p->sequenceExpectedCorrect) {
                             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                                   "Last segment of previous PDU was not continued for UE %u",
-                                                   p_rlc_lte_info->ueid);
+                                                   "Last segment of previous PDU was not continued for UE %u (%s-%u)",
+                                                   p_rlc_lte_info->ueid,
+                                                   val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                                   p_rlc_lte_info->channelId);
                         }
                     }
                     else {
@@ -1209,7 +1235,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                                                     tvb, 0, 0, FALSE);
                         if (!p->sequenceExpectedCorrect) {
                             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                                   "Last segment of previous PDU was complete, but new segment was not started");
+                                                   "Last segment of previous PDU was complete, but new segment was not started on UE %u (%s-%u)",
+                                                   p_rlc_lte_info->ueid,
+                                                   val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                                   p_rlc_lte_info->channelId);
                         }
                     }
                     else {
@@ -1416,6 +1445,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                         snLimit = 1024;
                     }
 
+                    /* Look up report for previous SN */
                     p_previous_report = (sequence_analysis_report*)g_hash_table_lookup(sequence_analysis_report_hash,
                                                                                        get_report_hash_key((sequenceNumber+snLimit-1) % snLimit,
                                                                                                            p_report_in_frame->previousFrameNum,
