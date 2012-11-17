@@ -1018,7 +1018,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			case LI_NORMAL_DT_WITH_CHECKSUM      :  
 	      if ( tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM &&
                 tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_16 )
-					return -1;       /* FALLTHROUGH */
+					return -1;
 				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 				if ( tpdu_nr & 0x80 )
 					tpdu_nr = tpdu_nr & 0x7F;
@@ -1032,7 +1032,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			/* normal DT with ATN Extended Checksum (4 octets)*/
 			case LI_ATN_NORMAL_DT_WITH_CHECKSUM      :  
 	      if ( tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32 )
-					return -1;       /* FALLTHROUGH */			
+					return -1;
 
 				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 
@@ -1060,8 +1060,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			case LI_EXTENDED_DT_WITH_CHECKSUM    :
 		     if ( tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM && 
                 tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_16 )
-					return -1;   /* FALLTHROUGH */
-				/* FALLTHROUGH */
+					return -1;
 
 				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
 				if ( tpdu_nr & 0x80000000 )
@@ -1076,7 +1075,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			/* extended DT with 4 octets ATN Extended Checksum  */
 			case LI_ATN_EXTENDED_DT_WITH_CHECKSUM: 
 				if ( tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_32 )
-					return -1;  /* FALLTHROUGH */
+					return -1;
 
 				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
 				if ( tpdu_nr & 0x80000000 )
@@ -1312,7 +1311,6 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 				if ((tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM) &&
 					   (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_16))
 					return -1;
-				/* FALLTHROUGH */
 
 				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 				if ( tpdu_nr & 0x80 )
@@ -1325,7 +1323,6 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			case LI_ATN_NORMAL_DT_WITH_CHECKSUM      :
 				if ( tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32 )
 					return -1;
-				/* FALLTHROUGH */
 
 				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 				if ( tpdu_nr & 0x80 )
@@ -1348,7 +1345,6 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 				if ( ( tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM ) &&
 							( tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_16) )
 					return -1;
-				/* FALLTHROUGH */
 
 				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
 				if ( tpdu_nr & 0x80000000 )
@@ -1361,7 +1357,6 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			case LI_ATN_EXTENDED_DT_WITH_CHECKSUM    :
 				if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_32)
 					return -1;
-				/* FALLTHROUGH */
 
 				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
 				if ( tpdu_nr & 0x80000000 )
@@ -1531,7 +1526,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   proto_item *ti;
   proto_item *item = NULL;
   guint16 dst_ref, src_ref;
-  guchar  class_option;
+  guint8  class_option;
   tvbuff_t *next_tvb;
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
@@ -1590,8 +1585,33 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += 1;
   li -= 1;
 
-  if (tree)
+  if (tree) {
+    /* Microsoft runs their Remote Desktop Protocol atop ISO COTP
+       atop TPKT, and does some weird stuff in the CR packet:
+
+           http://msdn.microsoft.com/en-us/library/cc240470
+
+       where they might stuff a string that begins with "Cookie: ",
+       possibly followed by an RDP Negotiation Request, into the
+       variable part of the CR packet.  (See also
+
+           http://download.microsoft.com/download/5/B/C/5BC37A4E-6304-45AB-8C2D-AE712526E7F7/TS_Session_Directory.pdf
+
+       a/k/a "[MSFT-SDLBTS]", as linked to, under the name "Session
+       Directory and Load Balancing Using Terminal Server", on
+
+           http://msdn.microsoft.com/en-us/library/E4BD6494-06AD-4aed-9823-445E921C9624
+
+       which indicates that the routingToken is a string of the form
+       "Cookie: msts=...".)
+
+       They also may stuff an RDP Negotiation Response into the CC
+       packet.
+
+       XXX - have TPKT know that a given session is an RDP session,
+       and let us know, so we know whether to check for this stuff. */
     ositp_decode_var_part(tvb, offset, li, class_option, cotp_tree);
+  }
   offset += li;
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -1853,12 +1873,10 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 				if ((tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM) &&
 						(tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_16 ))
 					return -1;
-					/* FALLTHROUGH */
 					
 				/* check checksum parameter (in VP) length octet */
 				if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT +1 ) != 2) 
 					return -1;
-					/* FALLTHROUGH */
 
 				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 				is_extended = FALSE;
@@ -1868,12 +1886,10 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 				/* check checksum parameter (in VP) parameter code octet */
 				if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32 )
 					return -1;
-					/* FALLTHROUGH */
 
 				/* check checksum parameter (in VP) length octet */
 				if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT +1 ) != 4) 
 					return -1;
-					/* FALLTHROUGH */
 					
 				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 				is_extended = FALSE;
@@ -1890,12 +1906,10 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 				if ( (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM ) &&
 					   (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_16))
 					return -1;
-				/* FALLTHROUGH */
 
 				/* check checksum parameter (in VP) length octet */
 				if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT +1 ) != 2 ) 
 					return -1;
-					/* FALLTHROUGH */
 					
 				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
 				is_extended = TRUE;
@@ -1906,12 +1920,10 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 				/* check checksum parameter (in VP) parameter code octet */
 				if ( tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_32 )
 					return -1;
-				/* FALLTHROUGH */
 
 				/* check checksum parameter (in VP) length octet */
 				if ( tvb_get_guint8(tvb, offset + P_VAR_PART_EDT +1 ) != 2 ) 
 					return -1;
-					/* FALLTHROUGH */
 
 				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
 				is_extended = TRUE;
