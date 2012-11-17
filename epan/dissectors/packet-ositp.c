@@ -300,7 +300,7 @@ static gboolean   cotp_last_fragment = FALSE;
 /* options */
 static gboolean cotp_reassemble = TRUE;
 static gint32   tsap_display = TSAP_DISPLAY_AUTO;
-static gboolean cotp_decode_atn = TRUE;
+static gboolean cotp_decode_atn = FALSE;
 
 const enum_val_t tsap_display_options[] = {
   {"auto", "As strings if printable", TSAP_DISPLAY_AUTO},
