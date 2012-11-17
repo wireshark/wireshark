@@ -2020,6 +2020,8 @@ proto_register_telnet(void)
   proto_telnet = proto_register_protocol("Telnet", "TELNET", "telnet");
   proto_register_field_array(proto_telnet, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_dissector("telnet", dissect_telnet, proto_telnet);
 }
 
 void

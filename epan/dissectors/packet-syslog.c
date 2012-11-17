@@ -346,6 +346,8 @@ void proto_register_syslog(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_syslog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_dissector("syslog", dissect_syslog, proto_syslog);
 }
 
 void
