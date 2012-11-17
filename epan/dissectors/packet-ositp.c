@@ -269,13 +269,6 @@ static const value_string tp_vpart_type_vals[] = {
   { 0,				NULL }
 };
 
-static const value_string tp_vpart_checksum_vals[] = {
-  { FALSE,                 "incorrect" }, 
-  { TRUE,                  "correct" },
-  { 0,				NULL }
-};
-
-
 static int hf_cotp_vp_src_tsap = -1;
 static int hf_cotp_vp_dst_tsap = -1;
 static int hf_cotp_vp_src_tsap_bytes = -1;
@@ -393,15 +386,16 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
   guint32 t1, t2, t3, t4;
 	guint32 offset_iso8073_checksum = 0;
 	gint32 i = 0;
-  guint16 tdpu_length = 0; 	
+  guint16 tpdu_length = 0; 	
   guint8 tmp_code = 0;
   guint tmp_len = 0;
-  guint   checksum_ok = 0;
+  cksum_status_t cksum_status;
+  gboolean checksum_ok = FALSE;
   guint32 pref_max_tpdu_size;
   proto_item *hidden_item;
 
-	/* TDPU length needed for ATN checksum calculations */
-	tdpu_length = offset + vp_length + tvb_length_remaining(tvb, offset + vp_length);  
+	/* TPDU length needed for ATN checksum calculations */
+	tpdu_length = offset + vp_length + tvb_length_remaining(tvb, offset + vp_length);  
 	
   while (vp_length != 0) {
     code = tvb_get_guint8(tvb, offset);
@@ -424,7 +418,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
       case VP_ATN_EC_16 : /* ATN */
 				if (cotp_decode_atn) {
 					/* if an alternate OSI checksum is present in the currently unprocessed VP section to the checksum algorithm has to know */
-					/* this may be the case for backward compatible CR TDPU */
+					/* this may be the case for backward compatible CR TPDU */
 					if(!offset_iso8073_checksum){ 
 						/* search following parameters in VP part for ISO checksum */
 						for( i = ( offset + length ); i < vp_length; ){
@@ -436,11 +430,11 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
 							}
 							i += tmp_len; }
 					}
-					checksum_ok = check_atn_ec_16(tvb, tdpu_length, offset, offset_iso8073_checksum, clnp_pt_len, (guint8 *) &clnp_pt_buffer);
+					checksum_ok = check_atn_ec_16(tvb, tpdu_length, offset, offset_iso8073_checksum, clnp_pt_len, (guint8 *) &clnp_pt_buffer);
 					proto_tree_add_text(tree, tvb, offset, length,
 			      "ATN extended checksum : 0x%04x (%s)", 
                               tvb_get_ntohs(tvb, offset),
-                              val_to_str(checksum_ok, tp_vpart_checksum_vals, "?"));
+                              checksum_ok ? "correct" : "incorrect");
 				}else {
 					proto_tree_add_text(tree, tvb, offset, length,"Parameter value: <not shown>");
 				}
@@ -451,7 +445,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
      case VP_ATN_EC_32 : /* ATN */
 			 if (cotp_decode_atn) {
 				/* if an alternate OSI checksum is present in the currently unprocessed VP section the checksum algorithm has to know */
-				/* this may be the case for backward compatible CR TDPU */
+				/* this may be the case for backward compatible CR TPDU */
 				if(!offset_iso8073_checksum){ 
 					/* search following parameters in VP part for ISO checksum */
 					for( i = ( offset + length ); i < vp_length; ){
@@ -462,11 +456,11 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
 							break;}
 						i += tmp_len; }
 					}
-					checksum_ok = check_atn_ec_32(tvb, tdpu_length, offset, offset_iso8073_checksum, clnp_pt_len, (guint8 *) &clnp_pt_buffer);
+					checksum_ok = check_atn_ec_32(tvb, tpdu_length, offset, offset_iso8073_checksum, clnp_pt_len, (guint8 *) &clnp_pt_buffer);
 					proto_tree_add_text(tree, tvb, offset, length,
 							"ATN extended checksum : 0x%08x (%s)", 
                               tvb_get_ntohl(tvb, offset),
-                              val_to_str(checksum_ok, tp_vpart_checksum_vals, "?"));
+                              checksum_ok ? "correct" : "incorrect");
 				}else {
 					proto_tree_add_text(tree, tvb, offset, length,"Parameter value: <not shown>");
 				}
@@ -686,9 +680,36 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
 
     case VP_CHECKSUM:
 			offset_iso8073_checksum = offset; /* save ISO 8073 checksum offset for ATN extended checksum calculation */
-			checksum_ok = calc_checksum(tvb, 0, tdpu_length, tvb_get_ntohs(tvb, offset));
-      proto_tree_add_text(tree, tvb, offset, length,
-		"Checksum: 0x%04x (%s)", tvb_get_ntohs(tvb, offset),val_to_str( (checksum_ok == CKSUM_OK) ? TRUE : FALSE , tp_vpart_checksum_vals, "?"));
+      cksum_status = calc_checksum(tvb, 0, tpdu_length, tvb_get_ntohs(tvb, offset));
+      switch (cksum_status) {
+
+      default:
+        /*
+         * No checksum present, or not enough of the packet present to
+         * checksum it.
+         */
+        proto_tree_add_text(tree, tvb, offset, length,
+                            "Checksum: 0x%04x", tvb_get_ntohs(tvb, offset));
+        break;
+
+      case CKSUM_OK:
+        /*
+         * Checksum is correct.
+         */
+        proto_tree_add_text(tree, tvb, offset, length,
+                            "Checksum: 0x%04x (correct)",
+                            tvb_get_ntohs(tvb, offset));
+        break;
+
+      case CKSUM_NOT_OK:
+        /*
+         * Checksum is not correct.
+         */
+        proto_tree_add_text(tree, tvb, offset, length,
+                            "Checksum: 0x%04x (incorrect)",
+                            tvb_get_ntohs(tvb, offset));
+        break;
+      }
       offset += length;
       vp_length -= length;
       break;
@@ -895,7 +916,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
 	/* note: in the ATN the user is up to chose between 3 different checksums: */
 	/* standard OSI, 2 or 4 octet extended checksum. */
-	/* The differences for DT are that the TDPU headers may be enlarged by 2 octets */
+	/* The differences for DT are that the TPDU headers may be enlarged by 2 octets */
 	/* and that checksum related option codes and option lengths are different.  */
 	/* to not mess up the original OSI dissector LI checking was implemented separately.  */
 	if (!cotp_decode_atn) { /* non ATN, plain OSI*/
@@ -973,13 +994,13 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 				return -1;
 		} /* li */
 	} else { 
-		/* check ATN class4 TDPU's here */
+		/* check ATN class4 TPDU's here */
 
-		/* check packet length indicators of DaTa(DT) TDPU */
+		/* check packet length indicators of DaTa(DT) TPDU */
 		/* note: use of checksum depends on the selected RER  */
 		/* (high:non-use medium:16-bit OSI/16-bit ext.ATN low:32-bit ext. ATN) */
 		/* note: sole use of TP4 class in the ATN  */
-		/* note: normal/extended TDPU numbering is negociable  */
+		/* note: normal/extended TPDU numbering is negociable  */
 		switch (li) {
 
 			case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
@@ -1227,7 +1248,7 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
 	/* note: in the ATN the user is up to chose between 3 different checksums: */
 	/* standard OSI, 2 or 4 octet extended checksum. */
-	/* The differences for ED (as for DT) are that the TDPU headers may be enlarged by 2 octets */
+	/* The differences for ED (as for DT) are that the TPDU headers may be enlarged by 2 octets */
 	/* and that checksum related option codes and option lengths are different.  */
 	/* to not mess up the original OSI dissector LI checking was implemented separately.  */	
 	/* note: this could not be tested, because no sample was avail for expedited data  */
@@ -1272,11 +1293,11 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 		} /* li */
 	}else { 
 
-		/* check packet length indicators of ATN Expedited Data (ED) TDPU */
+		/* check packet length indicators of ATN Expedited Data (ED) TPDU */
 		/* note: use of checksum depends on the selected RER  */
 		/* (high:non-use medium:16-bit OSI/16-bit ext.ATN low:32-bit ext. ATN) */
 		/* note: sole use of TP4 class in the ATN  */
-		/* note: normal/extended TDPU numbering is negociable  */
+		/* note: normal/extended TPDU numbering is negociable  */
 		switch (li) {
 			case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
 				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
@@ -1424,7 +1445,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
 	/* note: in the ATN the user is up to chose between 3 different checksums: */
 	/* standard OSI, 2 or 4 octet extended checksum. */
-	/* The difference for RJ is that the TDPU header may be enlarged by 2 octets */
+	/* The difference for RJ is that the TPDU header may be enlarged by 2 octets */
 	/* for checksum parameters are not going to be checked here */
 	if (!cotp_decode_atn) {  /* non ATN, plain OSI*/
 		switch(li) {
@@ -1774,7 +1795,7 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   guint16  dst_ref;
   guint    tpdu_nr;
   
-	/* Due to different checksums in the ATN the TDPU header sizes */
+	/* Due to different checksums in the ATN the TPDU header sizes */
 	/* as well as the checksum parameters may be different than plain OSI EA.*/
 	/* because these are heavily checked for EA these checks had to be re-implemented. */
 	/* note: this could not be tested, because no sample was avail for expedited data  */
@@ -1815,18 +1836,18 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 		} /* li */
 	}else { /* cotp_decode_atn */
 		
-		/* check for ATN length: TDPU may be 2 octets longer due to checksum */
+		/* check for ATN length: TPDU may be 2 octets longer due to checksum */
 		if (li > LI_ATN_MAX_EA) 
 			return -1;
 
 		switch (li) {
-			/* extended TDPU numbering EA with  no checksum  */
+			/* extended TPDU numbering EA with  no checksum  */
 			case LI_NORMAL_EA_WITHOUT_CHECKSUM   :
 				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 				is_extended = FALSE;
 				break;
 
-			/* normal TDPU numbering EA with 2 octets of OSI or ATN extended checksum  */
+			/* normal TPDU numbering EA with 2 octets of OSI or ATN extended checksum  */
 			case LI_NORMAL_EA_WITH_CHECKSUM      :
 				/* check checksum parameter (in VP) parameter code octet */
 				if ((tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM) &&
@@ -1842,7 +1863,7 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 				is_extended = FALSE;
 				break;
-			/* normal TDPU numbering EA with 4 octets of ATN extended checksum  */
+			/* normal TPDU numbering EA with 4 octets of ATN extended checksum  */
 			case LI_ATN_NORMAL_EA_WITH_CHECKSUM      :
 				/* check checksum parameter (in VP) parameter code octet */
 				if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32 )
@@ -1857,13 +1878,13 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 				tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 				is_extended = FALSE;
 				break;
-			/* extended TDPU numbering EA with no checksum  */
+			/* extended TPDU numbering EA with no checksum  */
 			case LI_EXTENDED_EA_WITHOUT_CHECKSUM :
 				tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
 				is_extended = TRUE;
 				break;
 				
-				/* extended TDPU numbering EA with 2 octets of OSI or ATN extended checksum  */
+				/* extended TPDU numbering EA with 2 octets of OSI or ATN extended checksum  */
 			case LI_EXTENDED_EA_WITH_CHECKSUM    :
 				/* check checksum parameter (in VP) parameter code octet */
 				if ( (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM ) &&
@@ -2302,7 +2323,7 @@ void proto_register_cotp(void)
 
   prefs_register_bool_preference(cotp_module, "decode_atn",
 	 "Decode ATN TPDUs",
-	 "Whether to decode OSI TDPUs with ATN (Aereonautical Telecommunications Network) extensions."
+	 "Whether to decode OSI TPDUs with ATN (Aereonautical Telecommunications Network) extensions."
 	 " To use this option, you must also enable \"Always try to decode NSDU as transport PDUs\" in the CLNP protocol settings.",
 	&cotp_decode_atn);
 	
