@@ -297,12 +297,10 @@ static gboolean   cotp_last_fragment = FALSE;
 #define TSAP_DISPLAY_STRING	1
 #define TSAP_DISPLAY_BYTES	2
 
-
 /* options */
 static gboolean cotp_reassemble = TRUE;
 static gint32   tsap_display = TSAP_DISPLAY_AUTO;
 static gboolean cotp_decode_atn = TRUE;
-
 
 const enum_val_t tsap_display_options[] = {
   {"auto", "As strings if printable", TSAP_DISPLAY_AUTO},
@@ -311,11 +309,9 @@ const enum_val_t tsap_display_options[] = {
   {NULL, NULL, -1}
 };
 
-
 /* function definitions */
 
 #define MAX_TSAP_LEN	32
-
 
 static void cotp_frame_end(void)
 {
@@ -386,7 +382,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
   guint32 t1, t2, t3, t4;
   guint32 offset_iso8073_checksum = 0;
   gint32 i = 0;
-  guint16 tpdu_length = 0; 	
+  guint16 tpdu_length = 0;
   guint8 tmp_code = 0;
   guint tmp_len = 0;
   cksum_status_t cksum_status;
@@ -396,7 +392,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
 
   /* TPDU length needed for ATN checksum calculations */
   tpdu_length = offset + vp_length + tvb_length_remaining(tvb, offset + vp_length);
-	
+
   while (vp_length != 0) {
     code = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 1,
@@ -884,7 +880,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (tree) {
     ositp_decode_var_part(tvb, offset + P_REASON_IN_DR + 1, li - P_REASON_IN_DR  , 4, cotp_tree);
   }
-	
+
   offset += li + 1;
 
   expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_CHAT,
@@ -1479,7 +1475,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
         return -1;
     }
   }
-	
+
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   pinfo->clnp_dstref = dst_ref;
 
@@ -2345,14 +2341,13 @@ void proto_register_cotp(void)
 	 "Whether to decode OSI TPDUs with ATN (Aereonautical Telecommunications Network) extensions."
 	 " To use this option, you must also enable \"Always try to decode NSDU as transport PDUs\" in the CLNP protocol settings.",
 	&cotp_decode_atn);
-	
-	
+
   /* subdissector code in inactive subset */
   register_heur_dissector_list("cotp_is", &cotp_is_heur_subdissector_list);
 
   /* other COTP/ISO 8473 subdissectors */
   register_heur_dissector_list("cotp", &cotp_heur_subdissector_list);
-	
+
   /* XXX - what about CLTP and proto_cltp? */
   new_register_dissector("ositp", dissect_ositp, proto_cotp);
   new_register_dissector("ositp_inactive", dissect_ositp_inactive, proto_cotp);
