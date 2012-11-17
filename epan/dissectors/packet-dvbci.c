@@ -203,6 +203,9 @@
 #define HC_STAT_ERR_NOT_FOUND 0x5
 #define HC_STAT_ERR_UNKNOWN   0x6
 
+#define HC_RELEASE_OK      0x0
+#define HC_RELEASE_REFUSED 0x1
+
 /* mmi resource */
 #define CLOSE_MMI_CMD_ID_IMMEDIATE 0x0
 #define CLOSE_MMI_CMD_ID_DELAY     0x1
@@ -874,6 +877,7 @@ static int hf_dvbci_replacement_pid = -1;
 static int hf_dvbci_pmt_flag = -1;
 static int hf_dvbci_hc_desc_loop_len = -1;
 static int hf_dvbci_hc_status = -1;
+static int hf_dvbci_hc_release_reply = -1;
 static int hf_dvbci_resp_intv = -1;
 static int hf_dvbci_utc_time = -1;
 static int hf_dvbci_local_offset = -1;
@@ -1214,6 +1218,11 @@ static const value_string dvbci_hc_status[] = {
     { HC_STAT_ERR_PARAM, "bad or missing parameters" },
     { HC_STAT_ERR_NOT_FOUND, "service not found" },
     { HC_STAT_ERR_UNKNOWN, "unknown error" },
+    { 0, NULL }
+};
+static const value_string dvbci_hc_release_reply[] = {
+    { HC_RELEASE_OK, "Host regains control of the tuner" },
+    { HC_RELEASE_REFUSED, "CICAM retains control of the tuner" },
     { 0, NULL }
 };
 static const value_string dvbci_close_mmi_cmd_id[] = {
@@ -2576,6 +2585,10 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                         (status == HC_STAT_OK ?  "ok" : "error"));
+            break;
+        case T_ASK_RELEASE_REPLY:
+            proto_tree_add_item(tree, hf_dvbci_hc_release_reply,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         default:
             break;
@@ -4919,6 +4932,10 @@ proto_register_dvbci(void)
         { &hf_dvbci_hc_status,
           { "Status field", "dvb-ci.hc.status_field",
             FT_UINT8, BASE_HEX, VALS(dvbci_hc_status), 0, NULL, HFILL }
+        },
+        { &hf_dvbci_hc_release_reply,
+          { "Status field", "dvb-ci.hc.release_reply",
+            FT_UINT8, BASE_HEX, VALS(dvbci_hc_release_reply), 0, NULL, HFILL }
         },
         { &hf_dvbci_resp_intv,
           { "Response interval", "dvb-ci.dt.resp_interval",
