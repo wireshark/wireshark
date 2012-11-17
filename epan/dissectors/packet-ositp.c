@@ -1983,7 +1983,7 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			 packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *cotp_tree;
+  proto_tree *cotp_tree = NULL;
   proto_item *ti;
   const char *str;
   guint16 dst_ref;
