@@ -564,7 +564,7 @@ proto_register_lon(void)
 			NULL, HFILL }
 		},
 		{&hf_lon_tpdu,
-			{"TDPU", "lon.tpdu",
+			{"TPDU", "lon.tpdu",
 			FT_UINT8, BASE_HEX, NULL, 0,
 			NULL, HFILL }
 		},
@@ -584,7 +584,7 @@ proto_register_lon(void)
 			NULL, HFILL }
 		},
 		{&hf_lon_spdu,
-			{"SDPU", "lon.spdu",
+			{"SPDU", "lon.spdu",
 			FT_UINT8, BASE_HEX, NULL, 0,
 			NULL, HFILL }
 		},
