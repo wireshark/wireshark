@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-11-09
+# 2012-11-14
 # 
 # Experts
 # 
@@ -8266,12 +8266,10 @@ m2pa	3565/tcp	# M2PA                                                            
 m2pa	3565/sctp	# M2PA                                                                                                                                                                [RFC4165]
 quest-data-hub	3566/tcp	# Quest Data Hub               [Greg_Cottman_2]                                   [Greg_Cottman_2]                                          2010-10-18
 # 3566        udp    Reserved                                                                                                                                               2010-10-18
-oap	3567/tcp	# Object Access Protocol       [Bryant_Eastham]                                   [Bryant_Eastham]                                          2002-08
-oap	3567/udp	# Object Access Protocol       [Bryant_Eastham]                                   [Bryant_Eastham]                                          2002-08
-oap-s	3568/tcp	# Object Access Protocol over  [Bryant_Eastham]                                   [Bryant_Eastham]                                          2003-01
-# SSL
-oap-s	3568/udp	# Object Access Protocol over  [Bryant_Eastham]                                   [Bryant_Eastham]                                          2003-01
-# SSL
+enc-eps	3567/tcp	# EMIT protocol stack          [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham]                                          2002-08      2012-11-12
+enc-eps	3567/udp	# EMIT protocol stack          [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham]                                          2002-08      2012-11-12
+enc-tunnel-sec	3568/tcp	# EMIT secure tunnel           [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham]                                          2003-01      2012-11-12
+enc-tunnel-sec	3568/udp	# EMIT secure tunnel           [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham]                                          2003-01      2012-11-12
 mbg-ctrl	3569/tcp	# Meinberg Control Service     [Martin_Burnicki]                                  [Martin_Burnicki]                                         2002-08
 mbg-ctrl	3569/udp	# Meinberg Control Service     [Martin_Burnicki]                                  [Martin_Burnicki]                                         2002-08
 mccwebsvr-port	3570/tcp	# MCC Web Server Port
@@ -11418,10 +11416,10 @@ farenet	5557/tcp	# Sandlab FARENET              [Kay_T_Labinsky]                
 # 5558-5565            Unassigned
 westec-connect	5566/tcp	# Westec Connect               [Jon_Bolen]                                        [Jon_Bolen]                                               2009-03-18
 # 5566        udp    Reserved
-m-oap	5567/tcp	# Multicast Object Access      [Bryant_Eastham]                                   [Bryant_Eastham]                                          2004-11
-# Protocol
-m-oap	5567/udp	# Multicast Object Access      [Bryant_Eastham]                                   [Bryant_Eastham]                                          2004-11
-# Protocol
+enc-eps-mc-sec	5567/tcp	# EMIT protocol stack          [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham]                                          2004-11      2012-11-12
+# multicast/secure transport
+enc-eps-mc-sec	5567/udp	# EMIT protocol stack          [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham]                                          2004-11      2012-11-12
+# multicast/secure transport
 sdt	5568/tcp	# Session Data Transport       [Daniel_W_Antonuk]                                 [Daniel_W_Antonuk]                                        2006-05
 # Multicast
 sdt	5568/udp	# Session Data Transport       [Daniel_W_Antonuk]                                 [Daniel_W_Antonuk]                                        2006-05
@@ -12325,7 +12323,7 @@ mcer-port	6510/tcp	# MCER Port                    [Portnoy_Boxman]              
 mcer-port	6510/udp	# MCER Port                    [Portnoy_Boxman]                                   [Portnoy_Boxman]
 # 6511        tcp    Reserved
 # Datagram Congestion Control
-dccp-udp	6511/udp	# Protocol Encapsulation for   [IESG]                                             [IETF_Chair]                                                                        [RFC-ietf-dccp-udpencap-10]
+dccp-udp	6511/udp	# Protocol Encapsulation for   [IESG]                                             [IETF_Chair]                                                                        [RFC6773]
 # NAT Traversal
 # 6512-6512            Unassigned
 netconf-tls	6513/tcp	# NETCONF over TLS                                                                                                                                                    [RFC5539]
@@ -13471,10 +13469,8 @@ rtsp-alt	8554/udp	# RTSP Alternate (see port     [Stephen_Casner_2]             
 d-fence	8555/tcp	# SYMAX D-FENCE                [Thomas_Geisel]                                    [Thomas_Geisel]                                           2003-01
 d-fence	8555/udp	# SYMAX D-FENCE                [Thomas_Geisel]                                    [Thomas_Geisel]                                           2003-01
 # 8556-8566            Unassigned
-oap-admin	8567/tcp	# Object Access Protocol       [Bryant_Eastham]                                   [Bryant_Eastham]                                          2005-08
-# Administration
-oap-admin	8567/udp	# Object Access Protocol       [Bryant_Eastham]                                   [Bryant_Eastham]                                          2005-08
-# Administration
+enc-tunnel	8567/tcp	# EMIT tunneling protocol      [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham]                                          2005-08      2012-11-12
+enc-tunnel	8567/udp	# EMIT tunneling protocol      [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham]                                          2005-08      2012-11-12
 # 8568-8599            Unassigned
 asterix	8600/tcp	# Surveillance Data            [Eivan_Cerasi]                                     [Eivan_Cerasi]                                            2005-11
 asterix	8600/udp	# Surveillance Data            [Eivan_Cerasi]                                     [Eivan_Cerasi]                                            2005-11
@@ -16036,6 +16032,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # dbaudio                        udp    d&b audiotechnik remote      [d_b_audiotechnik]                                 [Christian_Laendner]                                      2011-10-06                                                                               protovers=<version of proprietary protocol> guid=<type>
 # network                                                                                                                                                                                                                            name=<name> sn=<serial number> device=<cleartext type>
 # fwver=<firmware version>
+# dccp-ping                     dccp    ping/traceroute using DCCP   [Samuel_Jero]                                      [Samuel_Jero]                                             2012-11-14                                                      1885957735               Defined TXT keys: None
 # device-info                           Device Info                  [Stuart_Cheshire_5][Marc_Krochmal]                 [Stuart_Cheshire_5][Marc_Krochmal]                                                                                                                 Not a service type. Special name reserved for DNS-SD device
 # info.
 # devonsync                      tcp    DEVONthink synchronization   [DEVONtechnologies_LLC]                            [Rob_Rix][Eric_Boehnisch-Volkmann]                        2011-10-18                                                                               Defined TXT keys: None at present
@@ -17585,7 +17582,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Bryan_Otey]                                              Bryan Otey                                      mailto:bwo&softdesk.com
 # [Bryan_Vergato]                                           Bryan Vergato                                   mailto:iana&ivocalize.com                                     2006-05
 # [Bryan_Wilcutt]                                           Bryan Wilcutt                                   mailto:bwilcutt&comtechefdata.com                             2005-06
-# [Bryant_Eastham]                                          Bryant Eastham                                  mailto:protocols&pewla.us.pewg.panasonic.com                  2005-08
+# Panasonic Intranet,
+# [Bryant_Eastham]                                          Bryant Eastham            Panasonic North       mailto:bryant.eastham&us.panasonic.com                        2012-11-12
+# America (PEWLA)
 # [Bryce_Beeston]                                           Bryce Beeston                                   mailto:bryce.beeston&emerson.com                              2011-06-23
 # [Bryce_Bhatnagar]                                         Bryce Bhatnagar                                 mailto:BRYCEBH&attachmate.com
 # [Buck_Caldwell]                                           Buck Caldwell                                   mailto:buck_c&polygon.com
@@ -20249,6 +20248,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [PV_Shivkumar]                                            PV Shivkumar                                    mailto:p.shivkumar&oracle.com                                 2003-10
 # [P_T_K_Farrar]                                            P.T.K. Farrar                                   mailto:farrarp&teccon.co.uk
 # [P_V_Shivkumar]                                           P.V.Shivkumar                                   mailto:PSHIVKUM&us.oracle.com
+# Panasonic Intranet,
+# [Panasonic_Intranet_Panasonic_North_America_PEWLA]                                  Panasonic North       mailto:protocols&pewla.us.pewg.panasonic.com                  2012-11-12
+# America (PEWLA)
 # [Panic_Inc]                                                                         Panic Inc.            mailto:cabel&panic.com                                        2012-07-19
 # [Panic_Ride]                                              Panic Ride                                      mailto:panicride&hao.org
 # [Paolo_Desii]                                             Paolo Desii               POWERSOFT S.R.L.      mailto:paolo.desii&powersoft.it                               2012-01-03
@@ -20883,6 +20885,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Sameer_Deokule]                                          Sameer Deokule                                  mailto:sameer.deokule&veritas.com                             2002-03
 # [Samppa_Lahtinen]                                         Samppa Lahtinen                                 mailto:samppa.lahtinen&motivesys.com                          2004-06
 # [Samuel_Bercovici]                                        Samuel Bercovici                                mailto:samuelb&radware.com                                    2011-08-05
+# [Samuel_Jero]                                             Samuel Jero                                     mailto:sj323707&ohio.edu                                      2012-11-14
 # [Samuele_Sequi]                                           Samuele Sequi                                   mailto:samuelesequi&defcom.it                                 2004-02
 # [Sanchaita_Datta]                                         Sanchaita Datta                                 mailto:sdatta&ragula.com
 # [Sancho_Lerena]                                           Sancho Lerena                                   mailto:slerena&artica.es                                      2009-06-02
