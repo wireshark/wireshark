@@ -1607,13 +1607,13 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(graph_tseqttrace),TRUE);
 		break;
 	case GRAPH_THROUGHPUT:
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (graph_tput), TRUE);
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(graph_tput), TRUE);
 		break;
 	case GRAPH_RTT:
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (graph_rtt), TRUE);
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(graph_rtt), TRUE);
 		break;
 	case GRAPH_WSCALE:
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (graph_wscale), TRUE);
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(graph_wscale), TRUE);
 		break;
 	}
 	graph_init = gtk_check_button_new_with_label ("Init on change");
@@ -4440,9 +4440,10 @@ static void tput_make_elmtlist (struct graph *g)
 	struct element *elements, *e;
 	int i, sum=0;
 	double dtime, tput;
+	int num_sack_ranges;
 
 	if (g->elists->elements == NULL) {
-		int n = 1 + get_num_dsegs (g);
+		int n = 1 + get_num_dsegs (g) + get_num_acks (g, &num_sack_ranges);
 		e = elements = (struct element * )g_malloc (n*sizeof (struct element));
 	} else
 		e = elements = g->elists->elements;
