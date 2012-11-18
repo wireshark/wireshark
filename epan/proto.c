@@ -4652,6 +4652,11 @@ int proto_get_id_by_filter_name(const gchar* filter_name)
 	GList      *list_entry;
 	protocol_t *protocol;
 
+	if(!filter_name){
+		fprintf(stderr, "No filter name present");
+		DISSECTOR_ASSERT(filter_name);
+	}
+
 	list_entry = g_list_find_custom(protocols, filter_name,
 		compare_filter_name);
 
