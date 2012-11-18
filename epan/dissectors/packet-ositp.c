@@ -1414,6 +1414,10 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     ositp_decode_var_part(tvb, offset, li, 4, pinfo, cotp_tree);
   offset += li;
 
+  /*
+   * XXX - hand this to subdissectors but tell them that this is
+   * in an ED packet?
+   */
   next_tvb = tvb_new_subset_remaining(tvb, offset);
   call_dissector(data_handle,next_tvb, pinfo, tree);
 
@@ -1609,6 +1613,10 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   }
   offset += li;
 
+  /*
+   * XXX - tell the subdissector that this is user data in a CC or
+   * CR packet rather than a DT packet?
+   */
   next_tvb = tvb_new_subset_remaining(tvb, offset);
   if (!uses_inactive_subset){
     if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb,
