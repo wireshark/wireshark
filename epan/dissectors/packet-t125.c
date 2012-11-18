@@ -386,7 +386,7 @@ static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 #line 59 "../../asn1/t125/packet-t125-template.c"
 
 static int
-dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
+dissect_t125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
@@ -415,31 +415,51 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, voi
 }
 
 static gboolean
-dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
+dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
   gint8 ber_class;
   gboolean pc;
   gint32 tag;
   guint32 choice_index = 100;
   asn1_ctx_t asn1_ctx;
+  gboolean failed;
 
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+
+  /*
+   * We must catch all the "ran past the end of the packet" exceptions
+   * here and, if we catch one, just return FALSE.  It's too painful
+   * to have a version of dissect_per_sequence() that checks all
+   * references to the tvbuff before making them and returning "no"
+   * if they would fail.
+   */
+  failed = FALSE;
   TRY {
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-
     /* could be BER */
     get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
-    /* or PER */
-    dissect_per_constrained_integer(tvb, 0, &asn1_ctx,
-				    NULL, hf_t125_heur, 0, 42,
-				    &choice_index, FALSE);
-  } CATCH_ALL {
-    return FALSE;
+  } CATCH2(BoundsError, ReportedBoundsError) {
+    failed = TRUE;
   } ENDTRY;
 
   /* is this strong enough ? */
-  if ( ((ber_class==BER_CLASS_APP) && ((tag>=101) && (tag<=104))) ||
-       (choice_index <=42)) {
+  if (!failed && ((ber_class==BER_CLASS_APP) && ((tag>=101) && (tag<=104)))) {
+    dissect_t125(tvb, pinfo, parent_tree, NULL);
 
+    return TRUE;
+  }
+
+  failed = FALSE;
+  TRY {
+    /* or PER */
+    dissect_per_constrained_integer(tvb, 0, &asn1_ctx,
+                                    NULL, hf_t125_heur, 0, 42,
+                                    &choice_index, FALSE);
+  } CATCH2(BoundsError, ReportedBoundsError) {
+    failed = TRUE;
+  } ENDTRY;
+
+  /* is this strong enough ? */
+  if (!failed && (choice_index <=42)) {
     dissect_t125(tvb, pinfo, parent_tree, NULL);
 
     return TRUE;
@@ -567,7 +587,7 @@ void proto_register_t125(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t125-hfarr.c ---*/
-#line 138 "../../asn1/t125/packet-t125-template.c"
+#line 158 "../../asn1/t125/packet-t125-template.c"
   };
 
   /* List of subtrees */
@@ -584,7 +604,7 @@ void proto_register_t125(void) {
     &ett_t125_ConnectMCSPDU,
 
 /*--- End of included file: packet-t125-ettarr.c ---*/
-#line 144 "../../asn1/t125/packet-t125-template.c"
+#line 164 "../../asn1/t125/packet-t125-template.c"
   };
 
   /* Register protocol */
