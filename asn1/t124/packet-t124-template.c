@@ -107,7 +107,7 @@ void t124_set_top_tree(proto_tree *tree)
   top_tree = tree;
 }
 
-int dissect_DomainMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+int dissect_DomainMCSPDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -118,7 +118,7 @@ int dissect_DomainMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 }
 
 static int
-dissect_t124_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
+dissect_t124_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
@@ -139,27 +139,39 @@ dissect_t124_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
 }
 
 static void
-dissect_t124(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
+dissect_t124(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   dissect_t124_new(tvb, pinfo, parent_tree, NULL);
 }
 
 static gboolean
-dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
+dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
   asn1_ctx_t asn1_ctx;
+  gboolean failed = FALSE;
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 
   t124Identifier = NULL;
 
-  (void) dissect_per_sequence(tvb, 0, &asn1_ctx, NULL, -1, -1, t124Heur_sequence);
+  /*
+   * We must catch all the "ran past the end of the packet" exceptions
+   * here and, if we catch one, just return FALSE.  It's too painful
+   * to have a version of dissect_per_sequence() that checks all
+   * references to the tvbuff before making them and returning "no"
+   * if they would fail.
+   */
+  TRY {
+    (void) dissect_per_sequence(tvb, 0, &asn1_ctx, NULL, -1, -1, t124Heur_sequence);
+  } CATCH2(BoundsError, ReportedBoundsError) {
+    failed = TRUE;
+  } ENDTRY;
 
-  if((t124Identifier != NULL) &&
-     (strcmp(t124Identifier, "0.0.20.124.0.1") == 0)) {
-
+  if (!failed && ((t124Identifier != NULL) &&
+                  (strcmp(t124Identifier, "0.0.20.124.0.1") == 0))) {
     dissect_t124(tvb, pinfo, parent_tree);
 
+    return TRUE;
   }
 
   return FALSE;
