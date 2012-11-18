@@ -592,7 +592,7 @@ static const value_string profinet_port2_status_vals[] = {
 
 static const value_string profinet_port3_status_vals[] = {
 	{ 0,	"OFF" },
-	{ 1,	"IRDATA_LOADED" },
+	{ 1,	"reserved" },
 	{ 2,	"RTCLASS3_UP" },
 	{ 3,	"RTCLASS3_DOWN" },
 	{ 4,	"RTCLASS3_RUN" },
@@ -2309,7 +2309,8 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 		proto_tree_add_uint(tree, hf_profinet_class3_port_status_Fragmentation, tvb, offset, 2, class3_PortStatus);
 		proto_tree_add_uint(tree, hf_profinet_class3_port_status_PreambleLength, tvb, offset, 2, class3_PortStatus);
 
-        col_append_fstr(pinfo->cinfo, COL_INFO,"RTClass3 Port Status = %s", val_to_str((class3_PortStatus & 0x7), profinet_port3_status_vals, "Unknown %d"));
+		class3_PortStatus = class3_PortStatus & 0x7;
+		col_append_fstr(pinfo->cinfo, COL_INFO,"RTClass3 Port Status = %s", val_to_str(class3_PortStatus, profinet_port3_status_vals, "Unknown %d"));
 		offset+=2;
 		break;
 	}
@@ -2860,7 +2861,7 @@ proto_register_lldp(void)
 		},
 		{ &hf_org_spc_oui,
 			{ "Organization Unique Code", "lldp.orgtlv.oui", FT_UINT24, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }
+			VALS(tlv_oui_subtype_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_1_subtype,
 			{ "IEEE 802.1 Subtype", "lldp.ieee.802_1.subtype", FT_UINT8, BASE_HEX,
@@ -3180,7 +3181,7 @@ proto_register_lldp(void)
 		},
 		{ &hf_profinet_class3_port_status,
 			{ "RTClass3 Port Status",	"lldp.profinet.rtc3_port_status", FT_UINT16, BASE_HEX,
-			VALS(profinet_port3_status_vals), 0x0, NULL, HFILL }
+			VALS(profinet_port3_status_vals), 0x07, NULL, HFILL }
 		},
         /* class3_port state got some new BITs */
 		{ &hf_profinet_class3_port_status_Fragmentation,
